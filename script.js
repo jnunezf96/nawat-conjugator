@@ -124,6 +124,14 @@ function generateWord() {
         document.getElementById("verb").classList.remove("error");
     }
 
+    if (verb === "") {
+        document.getElementById("generated-word").textContent = "Error: Verb cannot be empty";
+        document.getElementById("verb").classList.add("error");
+        return;
+    } else {
+        document.getElementById("verb").classList.remove("error");
+    }
+
     // Combine the prefixes, verb, and suffixes into a single word
     // Display the generated word
     document.getElementById("generated-word").innerHTML = subjectPrefix + objectPrefix + verb + subjectSuffix;
