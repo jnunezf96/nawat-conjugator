@@ -10,10 +10,6 @@ h1 {
     margin-top: 50px
 }
 
-.error {
-    border: 2px solid red;
-}
-
 .form-container {
     width: 80%;
     margin: 0 auto;
@@ -27,7 +23,7 @@ h1 {
     text-align: left;
 }
 
-select, input[type="text"] {
+select, .input-verb {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -67,4 +63,8 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #F5E2A5;
     color: #6B4E2A;
+}
+
+.error {
+    border: 2px solid red;
 }
