@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <title>Conjugacion de verbos en nahuat</title>
+</head>
+<body>
+  <h1>Conjugacion simple de verbos en nahuat</h1>
+  <form>
+    <div class="form-container">
+      <div class="form-group">
+    <label for="subject-prefix">Prefijo de sujeto:</label><br>
+    <select id="subject-prefix" name="subject-prefix">
+      <option value="ni">ni</option>
+      <option value="ti">ti</option>
+      <option value="">(3a persona)</option>
+      <option value="an">an</option>
+    </select><br>
+  </div>
+    <div class="form-group">
+    <label for="object-prefix">Prefijo de objeto:</label><br>
+    <select id="object-prefix" name="object-prefix">
+      <option value="">(intransitivo)</option>
+      <option value="nech">nech</option>
+      <option value="metz">metz</option>
+      <option value="ki">ki</option>
+      <option value="kin">kin</option>
+      <option value="tech">tech</option>
+      <option value="metzin">metzin</option>
+      <option value="mu">mu</option>
+      <option value="ta">ta</option>
+      <option value="te">te</option>
+    </select><br>
+  </div>
+    <div class="form-group">
+    <label for="verb">Verbo:</label><br>
+    <input type="text" id="verb" name="verb"><br>
+    </div>
+    <div class="form-group">
+    <label for="subject-suffix">Sufijo de sujeto:</label><br>
+    <select id="subject-suffix" name="subject-suffix">
+      <option value="">(singular)</option>
+      <option value="t">t (plural)</option>
+    </select></div>
+    <div class="form-group"><br>
+      <label for="subject">Sujeto:</label><br>
+      <input type="radio" id="ni" name="subject" value="ni" onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
+      <label for="ni">yo</label><br>
+      <input type="radio" id="ti" name="subject" value="ti" onclick="document.getElementById('subject-prefix').value='ti'; document.getElementById('subject-suffix').value='';">
+      <label for="ti">tu, vos, usted</label><br>
+      <input type="radio" id="third-person" name="subject" value="" onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='';">
+      <label for="third-person">el, ella, ello</label><br><br>
+      <input type="radio" id="we" name="subject" value="ti" onclick="document.getElementById('subject-prefix').value='ti'; document.getElementById('subject-suffix').value='t';">
+      <label for="we">nosotros</label><br>
+      <input type="radio" id="you-pl" name="subject" value="an" onclick="document.getElementById('subject-prefix').value='an'; document.getElementById('subject-suffix').value='t';">
+      <label for="you-pl">ustedes</label><br>
+      <input type="radio" id="they" name="subject" value="" onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='t';">
+      <label for="they">ellos, ellas</label><br>
+    </div>
+    <div class="form-group"><br>
+      <label>Sin objeto:</label><br>
+      <input type="radio" id="intransitive" name="intransitive" value="" onclick="document.getElementById('object-prefix').value='';">
+      <label for="intransitive">intransitivo</label><br><br>
+      <label for="object">Con objeto:</label><br>
+      <input type="radio" id="me" name="object" value="nech" onclick="document.getElementById('object-prefix').value='nech';">
+      <label for="me">a mi</label><br>
+      <input type="radio" id="you" name="object" value="metz" onclick="document.getElementById('object-prefix').value='metz';">
+      <label for="you">a ti</label><br>
+      <input type="radio" id="him-her-it" name="object" value="ki" onclick="document.getElementById('object-prefix').value='ki';">
+      <label for="him-her-it">a el, ella, ello</label><br><br>
+      <input type="radio" id="us" name="object" value="tech" onclick="document.getElementById('object-prefix').value='tech';">
+      <label for="us">a nosotros</label><br>
+      <input type="radio" id="you-pl" name="object" value="metzin" onclick="document.getElementById('object-prefix').value='metzin';">
+      <label for="you-pl">a ustedes</label><br>
+      <input type="radio" id="them" name="object" value="kin" onclick="document.getElementById('object-prefix').value='kin';">
+      <label for="them">a ellos</label><br><br>
+      <input type="radio" id="self" name="object" value="mu" onclick="document.getElementById('object-prefix').value='mu';">
+      <label for="people">a uno mismo</label><br>
+      <input type="radio" id="thing" name="object" value="ta" onclick="document.getElementById('object-prefix').value='ta';">
+      <label for="thing">algo</label><br>
+      <input type="radio" id="people" name="object" value="te" onclick="document.getElementById('object-prefix').value='te';">
+      <label for="people">alguien</label><br>
+    </div>
+  </form>
+  <p><button type="button" onclick="generateWord()">Generar</button></p>
+  <p><span id="generated-word"></span></p>
+</body>
+</html>
