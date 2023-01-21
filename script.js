@@ -1,9 +1,9 @@
 function generateWord() {
     // Get the selected values of the prefixes and suffixes
-    var subjectPrefix = document.getElementById("subject-prefix").value;
-    var objectPrefix = document.getElementById("object-prefix").value;
-    var verb = document.getElementById("verb").value;
-    var subjectSuffix = document.getElementById("subject-suffix").value;
+    let subjectPrefix = document.getElementById("subject-prefix").value;
+    let objectPrefix = document.getElementById("object-prefix").value;
+    let verb = document.getElementById("verb").value;
+    let subjectSuffix = document.getElementById("subject-suffix").value;
 
     // Remove error class from subject prefix, object prefix, and subject suffix
     document.getElementById("subject-prefix").classList.remove("error");
@@ -37,8 +37,7 @@ function generateWord() {
         document.getElementById("subject-suffix").classList.add("error");
     } else {
         // Generate the word
-        var generatedWord = subjectPrefix + objectPrefix + verb + subjectSuffix;
-        document.getElementById("generated-word").textContent = generatedWord;
+        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
 
     // Check if the object prefix "ki" should be shortened to "k"
@@ -126,8 +125,6 @@ function generateWord() {
     }
 
     // Combine the prefixes, verb, and suffixes into a single word
-    var word = subjectPrefix + objectPrefix + verb + subjectSuffix;
-
     // Display the generated word
-    document.getElementById("generated-word").innerHTML = word;
+    document.getElementById("generated-word").innerHTML = subjectPrefix + objectPrefix + verb + subjectSuffix;
 }
