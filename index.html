@@ -13,7 +13,6 @@
 <form>
     <div class="form-container-word">
         <h1 id="word-heading">Conjugación de verbos en náhuat</h1>
-        <h1><span id="generated-word"></span></h1>
     </div>
     <br>
     <div class="form-container">
@@ -56,7 +55,7 @@
     <br>
     <div class="form-container">
         <div class="form-group">
-            <label for="subject">Sujeto:</label><br>
+            <p><label for="subject">Sujeto</label><br></p>
             <input type="radio" id="ni" name="subject" value="ni"
                    onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
             <label for="ni">yo</label><br>
@@ -77,7 +76,8 @@
             <label for="they">ellos, ellas</label><br>
         </div>
         <div class="form-group">
-            <label for="object">Con objeto:<br>
+               <p>Objeto</p>
+            <label for="object">Con objeto definido:<br>
                 <input type="radio" id="me" name="object" value="nech"
                        onclick="document.getElementById('object-prefix').value='nech';">
                 <label for="me">me (a mi)</label><br>
@@ -96,10 +96,6 @@
                 <input type="radio" id="them" name="object" value="kin"
                        onclick="document.getElementById('object-prefix').value='kin';">
                 <label for="them">los, las, les (a ellos, ellas)</label><br><br>
-                <label for="no-object">Sin objeto:</label><br>
-                <input type="radio" id="intransitive" name="object" value="" checked
-                       onclick="document.getElementById('object-prefix').value='';">
-                <label for="intransitive">intransitivo</label><br><br>
                 <label for="no-object">Con objeto reflexivo:</label><br>
                 <input type="radio" id="self" name="object" value="mu"
                        onclick="document.getElementById('object-prefix').value='mu';">
@@ -110,10 +106,14 @@
                 <label for="thing">algo</label><br>
                 <input type="radio" id="people" name="object" value="te"
                        onclick="document.getElementById('object-prefix').value='te';">
-                <label for="people">la gente</label><br>
+                <label for="people">la gente</label><br><br>
+                <label for="no-object">Sin objeto:</label><br>
+                <input type="radio" id="intransitive" name="object" value="" checked
+                       onclick="document.getElementById('object-prefix').value='';">
+                <label for="intransitive">intransitivo</label><br><br>
         </div>
         <div class="form-group">
-            <label for="tense">Tiempo:</label><br>
+            <p><label for="tense">Tiempo</label><br></p>
             <input type="radio" id="presente" name="tense" value="presente" checked>
             <label for="presente">presente</label><br><br>
             <input type="radio" id="preterito" name="tense" value="preterito">
@@ -131,13 +131,14 @@
         </div>
         <div class="form-group">
             <button type="button" onclick="generateWord()">Generar</button>
+            <h3><span id="generated-word"></span></h3>
         </div>
     </div>
        <br>
        <div class="form-container-word">
-       <h2>¡Feedback!</h2>
+       <h2>Feedback</h2>
        <form action="mailto:jaynunez1996@gmail.com" method="post" enctype="text/plain">
-              <p>¡Gracias por visitar nuestro sitio web! Esperamos que estés disfrutando de tu experiencia aquí. Si tienes alguna sugerencia, comentario o encuentras algún problema, ¡nos encantaría escuchar de ti! Tu opinión es muy importante para nosotros y nos ayuda a mejorar día a día.</p>
+              <p>¡Gracias por visitar nuestro sitio web! Esperamos que estés disfrutando de tu experiencia aquí. Si tienes alguna sugerencia, comentario o encuentras algún problema, ¡nos encantaría escuchar de ti! Tu opinión es muy importante para nosotros y nos ayuda a mejorar.</p>
               <label for="name">Nombre:</label>
               <input type="text" id="name" name="name"><br><br>
               <label for="email">Email:</label>

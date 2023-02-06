@@ -12,8 +12,6 @@ function generateWord() {
     let subjectSuffix = document.getElementById("subject-suffix").value;
     let tense = document.querySelector('input[name="tense"]:checked').value;
 
-    document.getElementById("word-heading").style.display = "none";
-
     // Remove error class from subject prefix, object prefix, and subject suffix
     document.getElementById("subject-prefix").classList.remove("error");
     document.getElementById("object-prefix").classList.remove("error");
