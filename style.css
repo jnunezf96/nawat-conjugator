@@ -24,6 +24,16 @@ h1 {
     text-shadow: 2px 2px #ffd965;
 }
 
+h2 {
+  text-align: center;
+  color: black;
+  font-size: 30x;
+}
+
+p {
+  text-align: center;
+}
+
 /* Form container styles */
 .form-container {
     width: 80%;

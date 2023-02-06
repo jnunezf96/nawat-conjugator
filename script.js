@@ -221,7 +221,7 @@ function generateWord() {
 
     /* GRAMATICAL RULES */
 // Class 4: Words ending in "ia" or "ua", deletion of last vowel + j (singular and plural)
-    if (verb.length >= 5 && verb.endsWith("ia") || verb.length >= 4 && verb.endsWith("ua")) {
+    if (verb.length >= 4 && verb.endsWith("ia") || verb.length >= 4 && verb.endsWith("ua")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
