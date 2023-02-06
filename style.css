@@ -24,10 +24,12 @@ h1 {
     text-shadow: 2px 2px #ffd965;
 }
 
-h2 {
-  text-align: center;
-  color: black;
-  font-size: 30x;
+h3 {
+  font-size: 1.5em;
+  text-align: right;
+  color: #744f00;
+  margin: 0 auto;
+  text-shadow: 2px 2px #ffd965;
 }
 
 p {
