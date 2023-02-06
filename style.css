@@ -40,7 +40,7 @@ h1 {
 /* Form container styles */
 .form-container-word {
     width: 80%;
-    height: 4em;
+    height: 0 auto;
     margin: 0 auto;
     display: block;
     flex-wrap: wrap;
@@ -127,5 +127,8 @@ input[type="submit"]:hover {
 }
 
 .creator {
-    text-align: right;
+  font-family: 'Helvetica Neue', sans-serif;
+  margin: 0 auto;
+  text-align: right;
+  font-size: 20px;
 }
