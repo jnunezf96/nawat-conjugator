@@ -460,8 +460,14 @@ function generateWord() {
                 break;
         }
     }
-// Class 2: Applies to words that have an [i] in the first position (tzakwik, tapuwik)
-    if (objectPrefix === "" && verb[verb.length - 1] === 'i') {
+// Class 2: Rule for verbs with [i] in the first position, intransitives (tzkwik, tapuwik)
+// Excludes rule: wetzki instead of wetzik (tz)
+// Excludes rule: tantuk instead of tamtuk (m)
+// Excludes rule: kuchki instead of kuchik (ch)
+    if (objectPrefix === "" && verb[verb.length - 1] === 'i'  
+                            && verb[verb.length - 2] !== 'z' 
+                            && verb[verb.length - 2] !== 'm'
+                            && verb[verb.length - 3] !== 'c') {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -481,7 +487,49 @@ function generateWord() {
                 break;
         }
     }
-// Class 2: Applies to SHORT words that end in -kV (piki, paka) 
+// Class 2: Special rule for [m] words
+if (objectPrefix === "" && verb[verb.length - 2] === 'm') {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb;
+                    subjectSuffix = "k";
+                    break;
+                case "ket":
+                    verb = verb.slice(0, -2) + "n";
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb.slice(0, -2) + "n";
+            break;
+    }
+}
+// Class 2: Special rule for [ch] words
+if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb.slice(0, -1);
+                    subjectSuffix = "ki";
+                    break;
+                case "ket":
+                    verb = verb.slice(0, -1);
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb.slice(0, -1);
+            break;
+    }
+}
+// Class 2: SHORT verbs with [k] (piki, paka) 
     if (verb.length < 5 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'i' ||
         verb.length < 5 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'a') {
         switch (tense) {
@@ -503,7 +551,7 @@ function generateWord() {
                 break;
         }
     }
-// Class 2: Applies to LONG words that end in -kV (ichteki-k, )
+// Class 3: LONG verbs with [k] (-ichtek)
     if ((verb.length >= 6 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'e') ||
         (verb.length >= 6 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'i') ||
         (verb.length >= 6 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'a')) {
@@ -525,7 +573,7 @@ function generateWord() {
                 break;
         }
     }
-// Class 2: Applies to LONG word that end in -tzkV (wetzka-k)
+// Class 2: LONG verbs with [tz] (wetzka-k)
     if (verb.length >= 6 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'z') {
         switch (tense) {
             case "preterito":
@@ -546,7 +594,7 @@ function generateWord() {
                 break;
         }
     }
-// Class 2: Applies to short words that end in -kV (atuki-k, teki-k)
+// Class 2: SHORT verbs with [k] (atuki-k, teki-k)
     if (verb.length <= 5 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'u' ||
         verb.length <= 5 && verb[verb.length - 2] === 'k' && verb[verb.length - 3] === 'e') {
         switch (tense) {
@@ -589,7 +637,7 @@ function generateWord() {
                 break;
         }
     }
-// Class 1: Applies to short words that end in -tV, transitives (mati)
+// Class 1: SHORT verbs with [ti], transitives (mati)
     if (objectPrefix !== "" && verb.endsWith("ti")) {
         switch (tense) {
             case "preterito":
@@ -610,7 +658,7 @@ function generateWord() {
                 break;
         }
     }
-// Class 1: Applies to short words that end in -ta, transitives (pata)
+// Class 1: SHORT verbs with [ta], transitives (pata)
     if (objectPrefix !== "" && verb.endsWith("ta")) {
         switch (tense) {
             case "preterito":
@@ -1098,8 +1146,9 @@ function generateWord() {
                 break;
         }
     }
-// Class 1: Words ending in tzV, deletion of last vowel, wetzi, watza 
-    if (verb.endsWith("tzi") && verb[verb.length - 4] !== 'j' || verb.endsWith("tza") && verb[verb.length - 4] !== 'j') {
+// Class 1: Words ending in [tz], deletion of last vowel, wetzi, watza 
+    if (verb.endsWith("tza") && verb[verb.length - 4] !== 'j' ||
+        verb.endsWith("tzi") && verb[verb.length - 4] !== 'j') {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
