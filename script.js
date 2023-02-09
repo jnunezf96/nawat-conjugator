@@ -552,8 +552,9 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
                 break;
         }
     }
-// Class 3: LONG verbs with [k], transitives (pustek, witek)
-if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki")) {
+// Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
+if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki") ||
+    objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
