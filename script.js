@@ -338,8 +338,6 @@ function generateWord() {
             case "preterito":
                 switch (subjectSuffix) {
                     case "":
-                        verb = verb.replace("witz", "wala") + "j";
-                        break;
                     case "ket":
                         verb = verb.replace("witz", "wala") + "j";
                         break;
@@ -474,11 +472,7 @@ function generateWord() {
             case "preterito":
                 switch (subjectSuffix) {
                     case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
                     case "ket":
-                        verb = verb.slice(0, -1);
                         break;
                 }
                 break;
@@ -531,27 +525,28 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
             break;
     }
 }
-// Class 2: SHORT verbs with [k] (piki, paka, chuka, naka)
-    if (verb.length < 6 && verb.endsWith("ka")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
+// Class 2: Intransitive verbs with [k] (chuka, naka, ijsika)
+if (objectPrefix === "" && verb.length < 6 && verb.endsWith("ka") && verb[verb.length - 3] !== 'u') {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb;
+                    subjectSuffix = "k";
+                    break;
+                case "ket":
+                    verb = verb;
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb;
+            break;
     }
+}
+
 // Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
 if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka") ||
     objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki")) {
@@ -562,7 +557,7 @@ if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka") ||
                     verb = verb.slice(0, -1);
                     break;
                 case "ket":
-                    verb = verb;
+                    verb = verb.slice(0, -1);
                     break;
             }
             break;
@@ -614,29 +609,8 @@ if (objectPrefix === "" && verb.endsWith("aki") && verb.length > 5) {
             break;
     }
 }
-// Class 2: Verbs ending with [ki], intransitives (atuki)
-if (objectPrefix === "" && verb[verb.length - 3] === 'u' && verb.endsWith("ki")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb;
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb;
-            break;
-    }
-}
-// Class 2: Verbs ending with [k], intransitives (naka, paki)
-if (objectPrefix === "" && verb[verb.length - 2] === 'k' && verb[verb.length - 3] !== 'u') {
+// Class 2: SHORT intransitive verbs ending with [ki] (paki)
+if (objectPrefix === "" && verb.length <= 4 && verb.endsWith("ki") && verb[verb.length - 3] === 'u') {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -653,6 +627,27 @@ if (objectPrefix === "" && verb[verb.length - 2] === 'k' && verb[verb.length - 3
         case "pluscuamperfecto":
         case "condicional-perfecto":
             verb = verb.slice(0, -1);
+            break;
+    }
+}
+// Class 2: Intransitive verbs ending with [ki] (atuki)
+if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("ki") && verb[verb.length - 3] === 'u') {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb;
+                    subjectSuffix = "k";
+                    break;
+                case "ket":
+                    verb = verb;
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb;
             break;
     }
 }
@@ -1016,6 +1011,31 @@ if (objectPrefix === "" && verb[verb.length - 2] === 'k' && verb[verb.length - 3
                 break;
         }
     }
+// Class 3: Words ending in sha
+if (verb.endsWith("sha")) {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb.slice(0, -1);
+                    subjectSuffix = "ki";
+                    break;
+                case "ket":
+                    verb = verb.slice(0, -1);
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb = verb.slice(0, -1);
+            break;
+        case "futuro":
+        case "condicional":
+            verb = verb;
+            break;
+    }
+}
 // Class 3: Short words ending in -mV will be -nki, transitive (sun-ki)
     if ((objectPrefix !== "" && verb.length <= 5 && verb[verb.length - 2] === "m")) {
         switch (tense) {
