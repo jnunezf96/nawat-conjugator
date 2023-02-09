@@ -531,7 +531,7 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
             break;
     }
 }
-// Class 2: SHORT verbs with [k] (piki, paka, chuka, naka) 
+// Class 2: SHORT verbs with [k] (piki, paka, chuka, naka)
     if (verb.length < 6 && verb.endsWith("ka")) {
         switch (tense) {
             case "preterito":
@@ -553,8 +553,8 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
         }
     }
 // Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
-if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki") ||
-    objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka")) {
+if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka") ||
+    objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -595,7 +595,7 @@ if (objectPrefix !== "" && verb.endsWith("ki")) {
     }
 }
 // Class 2: LONG verbs ending with [aki], intransitives (kalak ONLY)
-if (objectPrefix === "" && verb.endsWith("aki") && verb.length > 3) {
+if (objectPrefix === "" && verb.endsWith("aki") && verb.length > 5) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
