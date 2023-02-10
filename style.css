@@ -101,9 +101,6 @@ label {
 
 /* Radio button styles */
 input[type="radio"] + label {
-    color: var(--secondary-color);
-    font-size: var(--font-size-base);
-    text-shadow: 1px 1px var(--primary-color);
     margin-right: 20px;
     cursor: pointer;
 }
