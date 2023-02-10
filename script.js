@@ -1,9 +1,3 @@
-document.getElementById("verb").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        generateWord();
-    }
-});
-
 function generateWord() {
     // Get the selected values of the prefixes and suffixes
     let subjectPrefix = document.getElementById("subject-prefix").value;
@@ -24,6 +18,11 @@ function generateWord() {
         });
     };
 
+    //Only allow lowercase letters
+    verb = verb.toLowerCase();
+    verb = verb.replace(/[^a-z]/g, "");
+    document.getElementById("verb").value = verb;
+    
     // Check for invalid combinations of subject and object prefixes
     if ((subjectPrefix === "ni" && objectPrefix === "" && subjectSuffix === "t") ||
         (subjectPrefix === "ni" && objectPrefix === "ki" && subjectSuffix === "t") ||

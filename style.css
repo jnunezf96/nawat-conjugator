@@ -142,6 +142,12 @@ input[type="submit"]:hover {
   font-size: 20px;
 }
 
+/* 'Insert verb here' message */
+.input-verb::placeholder {
+    color: rgb(151, 126, 93);
+    font-style: italic;
+  }
+
 @media only screen and (max-width: 767px) {
     * {
       display: block !important;
