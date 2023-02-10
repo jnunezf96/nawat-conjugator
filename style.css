@@ -96,8 +96,8 @@ select,
 
 /* Label styles */
 label {
-    text-align: left;
-}
+    text-align: center;
+    }
 
 /* Radio button styles */
 input[type="radio"] + label {

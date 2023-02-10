@@ -55,7 +55,7 @@
     <br>
     <div class="form-container">
         <div class="form-group">
-            <p><label for="subject">Sujeto</label><br></p>
+            <label for="subject">Sujeto:</label><br><br>
             <input type="radio" id="ni" name="subject" value="ni"
                    onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
             <label for="ni">yo</label><br>
@@ -64,20 +64,19 @@
             <label for="ti">tu, vos, usted</label><br>
             <input type="radio" id="third-person" name="subject" value="" checked
                    onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='';">
-            <label for="third-person">el, ella, ello</label><br><br>
+            <label for="third-person">el, ella, ello</label><br>
             <input type="radio" id="we" name="subject" value="ti"
                    onclick="document.getElementById('subject-prefix').value='ti'; document.getElementById('subject-suffix').value='t';">
             <label for="we">nosotros</label><br>
             <input type="radio" id="you-pl" name="subject" value="an"
                    onclick="document.getElementById('subject-prefix').value='an'; document.getElementById('subject-suffix').value='t';">
-            <label for="you-pl">ustedes, vosotros</label><br>
+            <label for="you-pl">ustedes</label><br>
             <input type="radio" id="they" name="subject" value=""
                    onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='t';">
             <label for="they">ellos, ellas</label><br>
         </div>
         <div class="form-group">
-               <p>Objeto</p>
-            <label for="object">Con objeto definido:<br>
+              <label for="object">Con objeto:<br><br>
                 <input type="radio" id="me" name="object" value="nech"
                        onclick="document.getElementById('object-prefix').value='nech';">
                 <label for="me">a mi (me)</label><br>
@@ -86,7 +85,7 @@
                 <label for="you">a ti (te)</label><br>
                 <input type="radio" id="him-her-it" name="object" value="ki"
                        onclick="document.getElementById('object-prefix').value='ki';">
-                <label for="him-her-it">a él/ella/ello (lo, la, le)</label><br><br>
+                <label for="him-her-it">a él/ella/ello (lo, la, le)</label><br>
                 <input type="radio" id="us" name="object" value="tech"
                        onclick="document.getElementById('object-prefix').value='tech';">
                 <label for="us">a nosotros (nos)</label><br>
@@ -96,26 +95,26 @@
                 <input type="radio" id="them" name="object" value="kin"
                        onclick="document.getElementById('object-prefix').value='kin';">
                 <label for="them">a ellos, ellas (los, las, les)</label><br><br>
-                <label for="no-object">Con objeto reflexivo:</label><br>
+                <label for="no-object">Con objeto reflexivo (recíproco):</label><br><br>
                 <input type="radio" id="self" name="object" value="mu"
                        onclick="document.getElementById('object-prefix').value='mu';">
                 <label for="self">a uno mismo (se)</label><br><br>
-                <label for="no-object">Con objeto indefinido:</label><br>
+                <label for="no-object">Con objeto no especificado:</label><br><br>
                 <input type="radio" id="thing" name="object" value="ta"
                        onclick="document.getElementById('object-prefix').value='ta';">
                 <label for="thing">algo</label><br>
                 <input type="radio" id="people" name="object" value="te"
                        onclick="document.getElementById('object-prefix').value='te';">
                 <label for="people">la gente</label><br><br>
-                <label for="no-object">Sin objeto:</label><br>
+                <label for="no-object">Sin objeto:</label><br><br>
                 <input type="radio" id="intransitive" name="object" value="" checked
                        onclick="document.getElementById('object-prefix').value='';">
-                <label for="intransitive">intransitivo</label><br><br>
+                <label for="intransitive">(intransitivo)</label>
         </div>
         <div class="form-group">
-            <p><label for="tense">Tiempo</label><br></p>
+            <label for="tense">Tiempo:</label><br><br>
             <input type="radio" id="presente" name="tense" value="presente" checked>
-            <label for="presente">presente</label><br><br>
+            <label for="presente">presente</label><br>
             <input type="radio" id="preterito" name="tense" value="preterito">
             <label for="preterito">pretérito</label><br>
             <input type="radio" id="perfecto" name="tense" value="perfecto">
@@ -123,7 +122,7 @@
             <input type="radio" id="pluscuamperfecto" name="tense" value="pluscuamperfecto">
             <label for="pluscuamperfecto">pluscuamperfecto</label><br>
             <input type="radio" id="condicional-perfecto" name="tense" value="condicional-perfecto">
-            <label for="condicional-perfecto">condicional perfecto</label><br><br>
+            <label for="condicional-perfecto">condicional perfecto</label><br>
             <input type="radio" id="futuro" name="tense" value="futuro">
             <label for="futuro">futuro</label><br>
             <input type="radio" id="condicional" name="tense" value="condicional">
