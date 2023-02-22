@@ -24,6 +24,15 @@ h1 {
     text-shadow: 2px 2px #ffd965;
 }
 
+.construction-message {
+    background-color: #ff0;
+    color: #000;
+    padding: 5px;
+    margin-left: 10px;
+    font-weight: bold;
+    font-size: 0.8em;
+  }
+
 h3 {
   font-size: 1.5em;
   text-align: right;

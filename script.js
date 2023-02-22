@@ -136,11 +136,11 @@ function generateWord() {
         verb = verb.replace("iskalia", "skalia");
     }
 
-    // Check if the verb ends with "t"
+    // Check if the verb ends and starts with invalid letters
     if ((verb.endsWith("t")) || (verb.endsWith("s")) || (verb.endsWith("ch")) ||
         (verb.endsWith("k")) || (verb.endsWith("p")) || (verb.endsWith("m")) ||
         (verb.endsWith("n")) || (verb.endsWith("t")) || (verb.endsWith("kw")) ||
-        (verb.endsWith("sh"))) {
+        (verb.endsWith("sh")) || (verb.startsWith("l"))) {
         document.getElementById("verb").classList.add("error");
         document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente";
         return;
@@ -420,27 +420,52 @@ if (objectPrefix !== "" && verb.endsWith("ya")) {
                 break;
         }
     }
-// Class 2: Applies to words that end in -iwi, intransitives (puliwi)
-    if (verb.endsWith("liwi")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-        }
+// Shorts verbs ending in wi
+if (verb.length == 3 && verb.endsWith("wi")) {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb.slice(0, -1);
+                    subjectSuffix = "ki";
+                    break;
+                case "ket":
+                    verb = verb.slice(0, -1);
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb.slice(0, -1);
+            break;
+        case "futuro":
+        case "condicional":
+            verb = verb;
+            break;
     }
+}
+// Class 2: Longer verbs ending in wi
+if (verb.length >= 4 && verb.endsWith("wi")) {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb;
+                    subjectSuffix = "k";
+                    break;
+                case "ket":
+                    verb = verb.slice(0, -1);
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb.slice(0, -1);
+            break;
+    }
+}
 // Class 2: Applies to words that have an [j] in the third position
     if (verb[verb.length - 3] === 'j') {
         switch (tense) {
@@ -488,6 +513,7 @@ if (objectPrefix !== "" && verb.endsWith("ya")) {
 // Excludes rule: kuchki instead of kuchik (ch)
     if (objectPrefix === "" && verb[verb.length - 1] === 'i'  
                             && verb[verb.length - 2] !== 'z'
+                            && verb[verb.length - 2] !== 'w'
                             && verb[verb.length - 2] !== 'k' /*kalak not kalakik*/
                             && verb[verb.length - 2] !== 'm'
                             && verb[verb.length - 3] !== 'c'
@@ -1114,23 +1140,23 @@ if (verb.endsWith("sha")) {
                 break;
         }
     }
-// Class 3: Short words ending in -mV will be -nki, intransitive (sutun-tuk)
-    if ((verb[verb.length - 2] === "m")) {
+// Class 3: Short words ending in -nV will be -nki, transitive (-tajtan)
+    if ((objectPrefix !== "" && verb[verb.length - 2] === "n")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
                     case "":
-                        verb = verb.slice(0, -2) + "n";
+                        verb = verb.slice(0, -1);
                         break;
                     case "ket":
-                        verb = verb.slice(0, -2) + "n";
+                        verb = verb.slice(0, -1);
                         break;
                 }
                 break;
             case "perfecto":
             case "pluscuamperfecto":
             case "condicional-perfecto":
-                verb = verb = verb.slice(0, -2) + "n";
+                verb = verb = verb.slice(0, -1);
                 break;
             case "futuro":
             case "condicional":
@@ -1271,30 +1297,6 @@ if (verb[verb.length - 2] === 'z') {
             break;
     }
 }
-    // IWI verb special conjugation
-    if (verb === "iwi") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1) + "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
     // Combine the prefixes, verb, and suffixes into a single word
     // Display the generated word
     document.getElementById("generated-word").innerHTML = subjectPrefix + objectPrefix + verb + subjectSuffix;
