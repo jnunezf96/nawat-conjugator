@@ -215,8 +215,12 @@ function generateWord() {
         // Generate the word
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
-
-    /* GRAMATICAL RULES */
+/* GRAMATICAL RULES */
+// Elision rule of double k
+    if (subjectPrefix === "ni" && objectPrefix === "k" && verb.startsWith("k") ||
+        subjectPrefix === "ti" && objectPrefix === "k" && verb.startsWith("k")) {
+        objectPrefix = "";
+        }
 // Class 4: Words ending in "ia" or "ua", deletion of last vowel + j (singular and plural)
     if (verb.length >= 4 && verb.endsWith("ia") || verb.length >= 4 && verb.endsWith("ua")) {
         switch (tense) {
@@ -572,6 +576,7 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'k' && verb[verb.length - 2
             break;
     }
 }
+
 // Class 2: Intransitive verbs with [ch]
 if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
     switch (tense) {
@@ -937,30 +942,6 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
                 break;
         }
     }
-    // Class 1: words ending in na & wa, deletion of last vowel + ki, intransitives (pewa)
-    if ((verb.length == 5 && verb.endsWith("na") && subjectSuffix === "")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1) + "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
     // Class 1: words ending in na & wa, deletion of last vowel + ki, intransitives (ewa)
     if (verb.length == 4 && verb.endsWith("ni")) {
         switch (tense) {
@@ -1033,7 +1014,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
                 break;
         }
     }
-    // Class 1: Words ending in na & wa, deletion of last vowel tzajtzi
+    // Class 1: tzajtzi
     if (verb.endsWith("jtzi") || verb.endsWith("jtza")) {
         switch (tense) {
             case "preterito":
