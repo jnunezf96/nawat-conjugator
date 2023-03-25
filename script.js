@@ -1304,5 +1304,3 @@ if (verb[verb.length - 2] === 'z') {
     const inputs = document.querySelectorAll("input, select, enter");
     inputs.forEach(input => input.addEventListener("change", generateWord));
 }
-      
-      
