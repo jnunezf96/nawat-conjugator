@@ -729,8 +729,9 @@ if (objectPrefix === "" && verb.endsWith("aki") && verb.length >= 5) {
             break;
     }
 }
-// Class 1/2: SHORT intransitive verbs ending with [ki] (paki)
-if (objectPrefix === "" && verb.length <= 4 && verb.endsWith("aki") && verb[verb.length - 3] === 'u') {
+// Class 1/2: SHORT intransitive verbs ending with [ki] (paki, miki, temiki)
+if ((objectPrefix === "" && verb.length <= 4 && verb.endsWith("aki") && verb[verb.length - 3] !== 'u' ||
+    objectPrefix === "" && verb.endsWith("iki") && verb[verb.length - 3] !== 'u')) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {

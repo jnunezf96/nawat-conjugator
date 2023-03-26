@@ -11,11 +11,11 @@
     <title>Conjugador de verbos en náhuat</title>
 </head>
 <body>
-<form>
     <div class="form-container-word">
         <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
     </div>
     <br>
+    <form>
     <div class="form-container">
         <div class="form-group">
             <label for="subject-prefix">Prefijo de sujeto:</label><br>
@@ -42,9 +42,9 @@
             </select><br>
         </div>
         <div class="form-group">
-            <label for="verb">Verbo:</label><br>
-            <input type="text" id="verb" name="verb" class="input-verb" placeholder="Ingrese verbo aquí"><br>
-        </div>
+              <label for="verb">Verbo:</label><br>
+              <input type="text" id="verb" name="verb" class="input-verb" placeholder="Ingrese verbo aquí">
+          </div>
         <div class="form-group">
             <label for="subject-suffix">Sufijo de sujeto:</label><br>
             <select id="subject-suffix" name="subject-suffix">
@@ -134,7 +134,8 @@
             <button type="button" onclick="generateWord()">Generar</button>
             <h3><span id="generated-word"></span></h3>
         </div>
-    </div>
+        </div>
+       </form>
        <br>
        <div class="form-container-word">
        <h2>Feedback</h2>
@@ -147,7 +148,7 @@
               <label for="message">Mensaje:</label>
               <textarea id="message" name="message"></textarea><br>
               <input type="submit" value="Enviar">
-              </form>
+       </form>
        </div>
     <footer>
     <p>Copyright © 2023 Jaime Núñez</p>

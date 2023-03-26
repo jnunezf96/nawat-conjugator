@@ -94,6 +94,11 @@ select,
     height: 38px;
 }
 
+input::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+
 /* Label styles */
 label {
     text-align: center;
