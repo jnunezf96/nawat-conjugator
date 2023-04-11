@@ -169,7 +169,7 @@ input[type="submit"]:hover {
     .form-group:not(:last-child) {
       margin-right: 5%;
     }
-  }  
+}
 
   .construction-message {
     background-color: #ff0;
