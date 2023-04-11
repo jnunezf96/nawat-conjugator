@@ -153,11 +153,23 @@ input[type="submit"]:hover {
     font-style: italic;
   }
 
-@media only screen and (max-width: 767px) {
-    * {
-      display: block !important;
+  @media only screen and (max-width: 767px) {
+    .form-container {
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
     }
-  }
+  
+    .form-group {
+      width: 80%;
+      flex-basis: 80%;
+    }
+  
+    .form-group:not(:last-child) {
+      margin-right: 5%;
+    }
+  }  
 
   .construction-message {
     background-color: #ff0;
