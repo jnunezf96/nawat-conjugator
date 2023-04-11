@@ -78,6 +78,20 @@ p {
     text-align: left;
 }
 
+.numbered-circle {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 10px;
+  }  
+  
+
 /* Input styles */
 input[type="text"],
 select,
@@ -179,4 +193,6 @@ input[type="submit"]:hover {
     font-weight: bold;
     font-size: 0.8em;
   }
+
+
   

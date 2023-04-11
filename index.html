@@ -56,6 +56,7 @@
     <br>
     <div class="form-container">
         <div class="form-group">
+            <div class="numbered-circle">1</div>
             <label for="subject">Sujeto:</label><br><br>
             <input type="radio" id="ni" name="subject" value="ni"
                    onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
@@ -77,6 +78,7 @@
             <label for="they">ellos, ellas</label><br>
         </div>
         <div class="form-group">
+              <div class="numbered-circle">2</div>
               <label for="object">A objeto:<br><br>
                 <input type="radio" id="me" name="object" value="nech"
                        onclick="document.getElementById('object-prefix').value='nech';">
@@ -113,6 +115,7 @@
                 <label for="intransitive">(intransitivo)</label>
         </div>
         <div class="form-group">
+            <div class="numbered-circle">3</div>
             <label for="tense">Tiempo:</label><br><br>
             <input type="radio" id="presente" name="tense" value="presente" checked>
             <label for="presente">presente</label><br>
@@ -131,6 +134,7 @@
             <label for="condicional">condicional</label><br>
         </div>
         <div class="form-group">
+              <div class="numbered-circle">4</div>
             <button type="button" onclick="generateWord()">Generar</button>
             <h3><span id="generated-word"></span></h3>
         </div>
