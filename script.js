@@ -1298,10 +1298,26 @@ if (verb[verb.length - 2] === 'z') {
             break;
     }
 }
-    // Combine the prefixes, verb, and suffixes into a single word
-    // Display the generated word
-    document.getElementById("generated-word").innerHTML = subjectPrefix + objectPrefix + verb + subjectSuffix;
-
-    const inputs = document.querySelectorAll("input, select, enter");
+    // Add event listeners to update the generated word when inputs change
+    const inputs = document.querySelectorAll("input, select");
     inputs.forEach(input => input.addEventListener("change", generateWord));
+
+    // Combine the prefixes, verb, and suffixes into a single word
+    const generatedText = subjectPrefix + objectPrefix + verb + subjectSuffix;
+
+    // Use the typeWriter function to display the generated word letter by letter
+    typeWriter(generatedText, 'generated-word', 50);
+}
+function typeWriter(text, elementId, delay = 100) {
+    let i = 0;
+    const element = document.getElementById(elementId);
+    element.innerHTML = "";
+    const interval = setInterval(function() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(interval);
+        }
+    }, delay);
 }
