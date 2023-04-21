@@ -159,6 +159,12 @@ function generateWord() {
     if (tense === "preterito" && subjectSuffix === "t") {
         subjectSuffix = "ket";
     }
+    if (tense === "preterito-izalco" && subjectSuffix === "") {
+        subjectSuffix = "k";
+    }
+    if (tense === "preterito-izalco" && subjectSuffix === "t") {
+        subjectSuffix = "ket";
+    }
     // Perfecto
     if (tense === "perfecto" && subjectSuffix === "") {
         subjectSuffix = "tuk";
@@ -221,6 +227,22 @@ function generateWord() {
         subjectPrefix === "ti" && objectPrefix === "k" && verb.startsWith("k")) {
         objectPrefix = "";
         }
+// Class 4: Words ending in "ia" or "ua", Izalco preterite
+if (verb.endsWith("ia") || verb.endsWith("ua")) {
+    switch (tense) {
+        case "preterito-izalco":
+            verb = verb.slice(0, -1);
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb.slice(0, -1);
+                    break;
+                case "ket":
+                    verb = verb + "j";
+                    break;
+            }
+            break;
+    }
+}
 // Class 4: Words ending in "ia" or "ua", deletion of last vowel + j (singular and plural)
     if (verb.length >= 4 && verb.endsWith("ia") || verb.length >= 4 && verb.endsWith("ua")) {
         switch (tense) {
@@ -1308,7 +1330,7 @@ if (verb[verb.length - 2] === 'z') {
     // Use the typeWriter function to display the generated word letter by letter
     typeWriter(generatedText, 'generated-word', 50);
 }
-function typeWriter(text, elementId, delay = 100) {
+function typeWriter(text, elementId, delay = 50) {
     let i = 0;
     const element = document.getElementById(elementId);
     element.innerHTML = "";
