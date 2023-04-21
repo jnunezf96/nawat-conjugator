@@ -1330,16 +1330,28 @@ if (verb[verb.length - 2] === 'z') {
     // Use the typeWriter function to display the generated word letter by letter
     typeWriter(generatedText, 'generated-word', 50);
 }
+let intervalId; // Declare a variable to store the interval ID
+
 function typeWriter(text, elementId, delay = 50) {
     let i = 0;
     const element = document.getElementById(elementId);
     element.innerHTML = "";
-    const interval = setInterval(function() {
+
+    // Clear any existing interval before starting a new one
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
+
+    // Store the new interval ID in the variable
+    intervalId = setInterval(function() {
         if (i < text.length) {
             element.innerHTML += text.charAt(i);
             i++;
         } else {
-            clearInterval(interval);
+            clearInterval(intervalId);
+            intervalId = null; // Reset the interval ID variable
         }
     }, delay);
 }
+
+
