@@ -2,7 +2,7 @@
 :root {
     --primary-color: #ffd965;
     --secondary-color: #6B4E2A;
-    --background-color: rgba(146, 186, 176, 0.182);
+    --background-color: #92bab02e;
     --font-size-base: 1.2em;
     --font-size-large: 2.2em;
 }
@@ -26,7 +26,7 @@ h1 {
 
 h3 {
   font-size: 1.5em;
-  text-align: right;
+  text-align: left;
   color: #744f00;
   margin: 0 auto;
   text-shadow: 2px 2px #ffd965;
@@ -167,13 +167,12 @@ input[type="submit"]:hover {
     font-style: italic;
   }
 
-  @media only screen and (max-width: 767px) {
-    .form-container {
-      width: 100%;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
+/* Styles for smaller screens (mobile) */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    padding: 10px;
+  }
   
     .form-group {
       width: 80%;
@@ -197,6 +196,21 @@ input[type="submit"]:hover {
   .flex-container {
     display: flex;
     justify-content: space-between;
+}
+.verb-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.verb-table td {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.verb-table td:hover {
+  background-color: #edb85d;
 }
 
 

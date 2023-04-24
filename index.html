@@ -3,15 +3,14 @@
        <head>
               <meta charset="UTF-8">
               <meta name="description" content="Conjugador de verbos en náhuat pipil de El Salvador. Conjugue verbos en náhuat pipil fácil y rápido con esta herramienta en línea gratuita.">
-              <!-- Update the viewport tag to specify a fixed width and prevent zooming -->
-              <meta name="viewport" content="width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE" />
               <meta http-equiv="X-UA-Compatible" content="ie=edge">
               <link rel="stylesheet" href="style.css">
               <script src="script.js"></script>
               <title>Conjugador de verbos en náhuat</title>
           </head>
-<body>
+<body onload="populateVerbDropdown()">
     <div class="form-container-word">
         <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
     </div>
@@ -21,43 +20,120 @@
         <div class="form-group">
             <label for="subject-prefix">Prefijo de sujeto:</label><br>
             <select id="subject-prefix" name="subject-prefix">
-                <option value="ni">ni</option>
-                <option value="ti">ti</option>
-                <option value="" selected>(3a persona)</option>
-                <option value="an">an</option>
+                <option value="ni">ni (N)</option>
+                <option value="ti">ti (T)</option>
+                <option value="" selected>- (Y)</option>
+                <option value="an">an (A)</option>
             </select><br>
         </div>
         <div class="form-group">
             <label for="object-prefix">Prefijo de objeto:</label><br>
             <select id="object-prefix" name="object-prefix">
-                <option value="nech">nech</option>
-                <option value="metz">metz</option>
-                <option value="ki">ki</option>
-                <option value="tech">tech</option>
-                <option value="metzin">metzin</option>
-                <option value="kin">kin</option>
-                <option value="" selected>(intransitivo)</option>
-                <option value="mu">mu</option>
-                <option value="ta">ta</option>
-                <option value="te">te</option>
+                <option value="nech">nech (1)</option>
+                <option value="metz">metz (2)</option>
+                <option value="ki">ki (3)</option>
+                <option value="tech">tech (4)</option>
+                <option value="metzin">metzin (5)</option>
+                <option value="kin">kin (6)</option>
+                <option value="mu">mu (7)</option>
+                <option value="ta">ta (8)</option>
+                <option value="te">te (9)</option>
+                <option value="" selected>intransitivo (0)</option>
             </select><br>
         </div>
         <div class="form-group">
               <label for="verb">Verbo:</label><br>
-              <input type="text" id="verb" name="verb" class="input-verb" placeholder="Ingrese verbo (nemi,ajsi,miki,etc.)">
+              <input type="text" id="verb" name="verb" class="input-verb" placeholder="Escriba verbo aquí">
           </div>
         <div class="form-group">
             <label for="subject-suffix">Sufijo de sujeto:</label><br>
             <select id="subject-suffix" name="subject-suffix">
-                <option value="" selected>(singular)</option>
-                <option value="t">t (plural)</option>
+                <option value="" selected>- (S)</option>
+                <option value="t">t (P)</option>
             </select>
         </div>
     </div>
     <br>
     <div class="form-container">
+       <div class="form-group">
+       <div class="numbered-circle">1a</div>
+         <label for="intransitive-verbs"><b>Seleccione un verbo intransitivo:</b></label><br>
+         <table id="intransitive-verbs" class="verb-table">
+           <tr>
+             <td onclick="populateVerbTextbox('nemi')">nemi</td>
+             <td onclick="populateVerbTextbox('ajsi')">ajsi</td>
+             <td onclick="populateVerbTextbox('miki')">miki</td>
+             <td onclick="populateVerbTextbox('temu')">temu</td>
+             <td onclick="populateVerbTextbox('kalaki')">kalaki</td>
+             <td onclick="populateVerbTextbox('pewa')">pewa</td>
+             <td onclick="populateVerbTextbox('patani')">patani</td>
+             <td onclick="populateVerbTextbox('sutumi')">sutumi</td>
+           </tr>
+           <tr>
+             <td onclick="populateVerbTextbox('tutuniya')">tutuniya</td>
+             <td onclick="populateVerbTextbox('temi')">temi</td>
+             <td onclick="populateVerbTextbox('saliwi')">saliwi</td>
+             <td onclick="populateVerbTextbox('tami')">tami</td>
+             <td onclick="populateVerbTextbox('sewi')">sewi</td>
+             <td onclick="populateVerbTextbox('kisa')">kisa</td>
+             <td onclick="populateVerbTextbox('naka')">naka</td>
+             <td onclick="populateVerbTextbox('isa')">isa</td>
+           </tr>
+           <tr>
+              <td onclick="populateVerbTextbox('waki')">waki</td>
+              <td onclick="populateVerbTextbox('wetzka')">wetzka</td>
+              <td onclick="populateVerbTextbox('tata')">tata</td>
+              <td onclick="populateVerbTextbox('tawana')">tawana</td>
+              <td onclick="populateVerbTextbox('witz')">witz</td>
+              <td onclick="populateVerbTextbox('ejku')">ejku</td>
+              <td onclick="populateVerbTextbox('tzikwini')">tzikwini</td>
+              <td onclick="populateVerbTextbox('pajti')">pajti</td>
+            </tr>            
+           <!-- Add more rows and cells here -->
+         </table>
+       </div>
+       <div class="form-group">
+       <div class="numbered-circle">1b</div>
+         <label for="transitive-verbs"><b>Seleccione un verbo transitivo:</b></label><br>
+         <table id="transitive-verbs" class="verb-table">
+           <tr>
+             <td onclick="populateVerbTextbox('pewaltia')">pewaltia</td>
+             <td onclick="populateVerbTextbox('sewia')">sewia</td>
+             <td onclick="populateVerbTextbox('tawilua')">tawilua</td>
+             <td onclick="populateVerbTextbox('mana')">mana</td>
+             <td onclick="populateVerbTextbox('teki')">teki</td>
+             <td onclick="populateVerbTextbox('neki')">neki</td>
+             <td onclick="populateVerbTextbox('kwi')">kwi</td>
+             <td onclick="populateVerbTextbox('mati')">mati</td>
+           </tr>
+           <tr>
+             <td onclick="populateVerbTextbox('talua')">talua</td>
+             <td onclick="populateVerbTextbox('talia')">talia</td>
+             <td onclick="populateVerbTextbox('chalua')">chalua</td>
+             <td onclick="populateVerbTextbox('salua')">salua</td>
+             <td onclick="populateVerbTextbox('chiya')">chiya</td>
+             <td onclick="populateVerbTextbox('piya')">piya</td>
+             <td onclick="populateVerbTextbox('kuwa')">kuwa</td>
+             <td onclick="populateVerbTextbox('uya')">uya</td>
+           </tr>
+           <tr>
+              <td onclick="populateVerbTextbox('paktia')">paktia</td>
+              <td onclick="populateVerbTextbox('tatia')">tatia</td>
+              <td onclick="populateVerbTextbox('tawantia')">tawantia</td>
+              <td onclick="populateVerbTextbox('wika')">wika</td>
+              <td onclick="populateVerbTextbox('mewa')">mewa</td>
+              <td onclick="populateVerbTextbox('pusteki')">pusteki</td>
+              <td onclick="populateVerbTextbox('namiki')">namiki</td>
+              <td onclick="populateVerbTextbox('napalua')">napalua</td>
+            </tr>            
+           <!-- Add more rows and cells here -->
+         </table>
+       </div>
+     </div>     
+   <br>   
+    <div class="form-container">
         <div class="form-group"><br>
-            <div class="numbered-circle">1</div>
+            <div class="numbered-circle">2</div>
             <div class="flex-container"></div><br>
             <label for="subject"><b>Sujeto:</b></label><br><br>
             <input type="radio" id="ni" name="subject" value="ni"
@@ -80,7 +156,7 @@
             <label for="they">ellas, ellos</label><br>
         </div>
         <div class="form-group"><br>
-              <div class="numbered-circle">2</div>
+              <div class="numbered-circle">3</div>
             <div class="flex-container"></div><br>
               <label for="object"><b>Con objeto directo:</b><br><br>
                 <input type="radio" id="me" name="object" value="nech"
@@ -118,7 +194,7 @@
                 <label for="intransitive">(intransitivo)</label>
         </div>
         <div class="form-group"><br>
-              <div class="numbered-circle">3</div>
+              <div class="numbered-circle">4</div>
               <div class="flex-container"></div><br>
               <label for="tense"><b>Tiempo:</b></label><br><br>
               <input type="radio" id="presente" name="tense" value="presente" checked>
@@ -139,7 +215,7 @@
               <label for="condicional">condicional</label><br>
           </div>          
         <div class="form-group"><br>
-              <div class="numbered-circle">4</div><br><br>
+              <div class="numbered-circle">5</div><br><br>
               <div class="flex-container">
               <b>Generar:</b>
               <button type="button" onclick="generateWord()">Generar</button>
@@ -164,7 +240,7 @@
        </div>
     <footer>
     <p>Copyright © 2023 Jaime Núñez</p>
-    <p>Agradecemos a Sigfredo Olmedo por su apoyo incansable en la publicación de este sitio web</p>
+    <p>v1.19.20</p>
     </footer>
 </body>
 </html>

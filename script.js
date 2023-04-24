@@ -1,3 +1,90 @@
+function populateVerbTextbox(selectedVerb) {
+    // Populate the verb textbox with the selected verb
+    document.getElementById('verb').value = selectedVerb;
+    generateWord();
+}
+//Keyboard navigation methods for the selected options
+document.addEventListener('keydown', function(event) {
+    // Focus on the verb textbox when the 'Spacebar' key is pressed
+    if (event.key === ' ') { // Spacebar key
+        document.getElementById('verb').focus();
+        // Prevent the default behavior of the 'Spacebar' key
+        event.preventDefault();
+    }
+    // Exit the verb textbox when the 'Escape' key is pressed
+    else if (event.key === 'Escape') {
+        document.getElementById('verb').blur();
+        // Prevent the default behavior of the 'Escape' key
+        event.preventDefault();
+    }
+    // Other key event handling logic...
+});
+document.addEventListener('keydown', function(event) {
+    // Subject Prefix
+    if (event.key === 'N') {
+        document.getElementById('subject-prefix').value = 'ni';
+    } else if (event.key === 'T') {
+        document.getElementById('subject-prefix').value = 'ti';
+    } else if (event.key === 'Y') {
+        document.getElementById('subject-prefix').value = '';
+    } else if (event.key === 'A') {
+        document.getElementById('subject-prefix').value = 'an';
+    }
+    // Object Prefix
+    else if (event.key === '1') {
+        document.getElementById('object-prefix').value = 'nech';
+    } else if (event.key === '2') {
+        document.getElementById('object-prefix').value = 'metz';
+    } else if (event.key === '3') {
+        document.getElementById('object-prefix').value = 'ki';
+    } else if (event.key === '4') {
+        document.getElementById('object-prefix').value = 'tech';
+    } else if (event.key === '5') {
+        document.getElementById('object-prefix').value = 'metzin';
+    } else if (event.key === '6') {
+        document.getElementById('object-prefix').value = 'kin';
+    } else if (event.key === '7') {
+        document.getElementById('object-prefix').value = 'mu';
+    } else if (event.key === '8') {
+        document.getElementById('object-prefix').value = 'ta';
+    } else if (event.key === '9') {
+        document.getElementById('object-prefix').value = 'te';
+    } else if (event.key === '0') {
+        document.getElementById('object-prefix').value = '';
+    }
+    // Subject Suffix
+    else if (event.key === 'S') {
+        document.getElementById('subject-suffix').value = '';
+    } else if (event.key === 'P') {
+        document.getElementById('subject-suffix').value = 't';
+    }
+    // Tense
+    else if (event.key === 'H') {
+        document.querySelector('input[name="tense"][value="presente"]').checked = true;
+    } else if (event.key === 'I') {
+        document.querySelector('input[name="tense"][value="preterito-izalco"]').checked = true;
+    } else if (event.key === 'W') {
+        document.querySelector('input[name="tense"][value="preterito"]').checked = true;
+    } else if (event.key === 'R') {
+        document.querySelector('input[name="tense"][value="perfecto"]').checked = true;
+    } else if (event.key === 'L') {
+        document.querySelector('input[name="tense"][value="pluscuamperfecto"]').checked = true;
+    } else if (event.key === 'D') {
+        document.querySelector('input[name="tense"][value="condicional-perfecto"]').checked = true;
+    } else if (event.key === 'F') {
+        document.querySelector('input[name="tense"][value="futuro"]').checked = true;
+    } else if (event.key === 'C') {
+        document.querySelector('input[name="tense"][value="condicional"]').checked = true;
+    }
+    // Generate Word
+    else if (event.key === 'Enter') {
+        // Call the generateWord() function
+        generateWord();
+        // Prevent the default behavior of the "Enter" key
+        event.preventDefault();
+    }
+});
+
 function generateWord() {
     // Get the selected values of the prefixes and suffixes
     let subjectPrefix = document.getElementById("subject-prefix").value;
@@ -58,7 +145,35 @@ function generateWord() {
         // Generate the word
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
-
+// Define a list of intransitive verbs that should not be used TRANSITIVELY
+const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
+const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya"];
+// Check if the input verb is in the list of intransitive verbs or ends with "wi" or "ni", and if an object prefix is selected
+if (intransitiveVerbs.includes(verb) && objectPrefix !== "" ||
+     verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
+     verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
+     verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
+     verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb)) {
+    // Add error class to object prefix and display error message
+    document.getElementById("object-prefix").classList.add("error");
+    document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione opción sin objeto o ingrese verbo transitivo.";
+    return;
+} else {
+    // Generate the word
+    document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+}
+// Check for transitive verbs being used INTRANSITIVELY
+// Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
+if (transitiveVerbs.includes(verb) && objectPrefix === "" ||
+    verb.endsWith("a") && !verb.endsWith("ya") && objectPrefix === "" && !intransitiveVerbs.includes(verb)) {
+    // Add error class to object prefix and display error message
+    document.getElementById("object-prefix").classList.add("error");
+    document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione opción con objeto.";
+    return;
+} else {
+    // Generate the word
+    document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+}
     // Check for incorrect reflexive combinations of subject and object prefixes
     if ((subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "") ||
         (subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "t") ||
@@ -120,6 +235,7 @@ function generateWord() {
     // Replace mu to m when a specific verb is used
     if (verb.startsWith("altia") ||
         verb.startsWith("awiltia") ||
+        verb.startsWith("ijnekwi") ||
         verb.startsWith("ijkwani") ||
         verb.startsWith("ijkwania") ||
         verb.startsWith("ijtutia") ||
@@ -131,25 +247,23 @@ function generateWord() {
         objectPrefix = objectPrefix.replace("mu", "m");
     }
 
-    // Replace mu to m when a specific verb is used
+    // When reflexive, iskalia loses initial 'i'
     if (objectPrefix === "mu" && verb.startsWith("iskalia")) {
         verb = verb.replace("iskalia", "skalia");
     }
+// Define a regular expression pattern to match consonants at the start or end of the verb
+const consonantPattern = /^[bdfghjloqrvxz]|[bcdfghkjlmnpqrstvxy]$/i;
 
-    // Check if the verb ends and starts with invalid letters
-    if ((verb.endsWith("t")) || (verb.endsWith("s")) || (verb.endsWith("ch")) ||
-        (verb.endsWith("k")) || (verb.endsWith("p")) || (verb.endsWith("m")) ||
-        (verb.endsWith("n")) || (verb.endsWith("t")) || (verb.endsWith("kw")) ||
-        (verb.endsWith("sh")) || (verb.startsWith("l"))) {
-        document.getElementById("verb").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente";
-        return;
-    } else {
-        document.getElementById("verb").classList.remove("error");
-    }
-
+// Check if the verb starts or ends with a consonant using the regular expression
+if (consonantPattern.test(verb)) {
+    document.getElementById("verb").classList.add("error");
+    document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente";
+    return;
+} else {
+    document.getElementById("verb").classList.remove("error");
+}
     if (verb === "") {
-        document.getElementById("generated-word").textContent = "Error: El verbo no puede estar en vacío";
+        document.getElementById("generated-word").textContent = "Error: El verbo no puede estar vacío";
         document.getElementById("verb").classList.add("error");
         return;
     } else {
@@ -159,8 +273,12 @@ function generateWord() {
     if (tense === "preterito" && subjectSuffix === "t") {
         subjectSuffix = "ket";
     }
-    if (tense === "preterito-izalco" && subjectSuffix === "") {
+    if (tense === "preterito-izalco" && subjectSuffix === "" && !verb.endsWith("tz")) {
         subjectSuffix = "k";
+    }
+    if (tense === "preterito-izalco" && subjectSuffix === "" && verb.endsWith("witz")) {
+        verb = verb.replace("witz", "wala");
+        subjectSuffix = "k"
     }
     if (tense === "preterito-izalco" && subjectSuffix === "t") {
         subjectSuffix = "ket";
@@ -199,27 +317,6 @@ function generateWord() {
     }
     if (tense === "condicional" && subjectSuffix === "t") {
         subjectSuffix = "skiat";
-    }
-    /*RETURN INVALID ENTRIES*/
-    if ((verb.endsWith("ia") && objectPrefix === "")) {
-// Add error class to subject prefix, object prefix, and subject suffix
-        document.getElementById("verb").classList.add("error");
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo no es intransitivo";
-        return;
-    } else {
-// Generate the word
-        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
-    }
-    if ((verb.endsWith("i") && objectPrefix !== "" && verb[verb.length - 2] !== 'l' && verb[verb.length - 2] === 'w' && verb[verb.length - 3] !== 'k')) {
-        // Add error class to subject prefix, object prefix, and subject suffix
-        document.getElementById("verb").classList.add("error");
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo no es transitivo";
-        return;
-    } else {
-        // Generate the word
-        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
 /* GRAMATICAL RULES */
 // Elision rule of double k
@@ -442,8 +539,8 @@ if (objectPrefix !== "" && verb.endsWith("ya")) {
                 break;
         }
     }
-// Shorts verbs ending in wi
-if (verb.length == 3 && verb.endsWith("wi")) {
+// Shorts verbs ending in wi, EWI
+if (verb.length == 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -468,7 +565,7 @@ if (verb.length == 3 && verb.endsWith("wi")) {
     }
 }
 // Class 2: Longer verbs ending in wi
-if (verb.length >= 4 && verb.endsWith("wi")) {
+if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -533,19 +630,19 @@ if (verb.length >= 4 && verb.endsWith("wi")) {
 // Excludes rule: wetzki instead of wetzik (tz)
 // Excludes rule: tantuk instead of tamtuk (m)
 // Excludes rule: kuchki instead of kuchik (ch)
-    if (objectPrefix === "" && verb[verb.length - 1] === 'i'  
-                            && verb[verb.length - 2] !== 'z'
-                            && verb[verb.length - 2] !== 'w'
-                            && verb[verb.length - 2] !== 'k' /*kalak not kalakik*/
-                            && verb[verb.length - 2] !== 'm'
-                            && verb[verb.length - 3] !== 'c'
-                            && verb[verb.length - 2] !== 't') {
+    if (objectPrefix === "" && verb[verb.length - 1] === 'i'
+                            && !verb.endsWith("tzi")
+                            && !verb.endsWith("wi")
+                            && !verb.endsWith("ki") /*kalak not kalakik*/
+                            && !verb.endsWith("mi")
+                            && !verb.endsWith("chi")
+                            && !verb.endsWith("ti")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
                     case "":
                         subjectSuffix = "k";
-                    case "ket":
+                    case "t":
                         break;
                 }
                 break;
@@ -962,7 +1059,8 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Clase 4: Rule for SHORT words ending in -kwV (kwa, kwi)
-    if (objectPrefix !== "" && verb.endsWith("kwa") && !verb.endsWith("tzakwa") || verb.length === 3 && verb.endsWith("kwi")) {
+    if (objectPrefix !== "" && verb.endsWith("kwa") && !verb.endsWith("tzakwa") || 
+        objectPrefix !== "" && verb.length === 3 && verb.endsWith("kwi")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
