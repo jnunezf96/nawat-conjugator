@@ -145,35 +145,43 @@ function generateWord() {
         // Generate the word
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
-// Define a list of intransitive verbs that should not be used TRANSITIVELY
-const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
-const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya"];
-// Check if the input verb is in the list of intransitive verbs or ends with "wi" or "ni", and if an object prefix is selected
-if (intransitiveVerbs.includes(verb) && objectPrefix !== "" ||
-     verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
-     verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
-     verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) ||
-     verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb)) {
-    // Add error class to object prefix and display error message
-    document.getElementById("object-prefix").classList.add("error");
-    document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione opción sin objeto o ingrese verbo transitivo.";
-    return;
-} else {
-    // Generate the word
-    document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
-}
-// Check for transitive verbs being used INTRANSITIVELY
-// Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
-if (transitiveVerbs.includes(verb) && objectPrefix === "" ||
-    verb.endsWith("a") && !verb.endsWith("ya") && objectPrefix === "" && !intransitiveVerbs.includes(verb)) {
-    // Add error class to object prefix and display error message
-    document.getElementById("object-prefix").classList.add("error");
-    document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione opción con objeto.";
-    return;
-} else {
-    // Generate the word
-    document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
-}
+    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
+    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya"];
+    
+    // Check if the input verb is derived from and ends with any verb in the intransitiveVerbs list
+    const isDerivedFromIntransitive = intransitiveVerbs.some(intransitiveVerb => verb.endsWith(intransitiveVerb));
+    
+    // Check if the input verb is derived from and ends with any verb in the transitiveVerbs list
+    const isDerivedFromTransitive = transitiveVerbs.some(transitiveVerb => verb.endsWith(transitiveVerb));
+    
+    // Check if the input verb is intransitive or if it's a derivation of an intransitive verb
+    if ((intransitiveVerbs.includes(verb) || isDerivedFromIntransitive) && objectPrefix !== "" ||
+        verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
+        verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
+        verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
+        verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive) {
+        // Add error class to object prefix and display error message
+        document.getElementById("object-prefix").classList.add("error");
+        document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione opción sin objeto o ingrese verbo transitivo.";
+        return;
+    } else {
+        // Generate the word
+        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+    }
+    
+    // Check for transitive verbs being used INTRANSITIVELY
+    // Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
+    if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive) && objectPrefix === "" ||
+        verb.endsWith("a") && !verb.endsWith("ya") && objectPrefix === "" && !intransitiveVerbs.includes(verb) && !isDerivedFromIntransitive) {
+        // Add error class to object prefix and display error message
+        document.getElementById("object-prefix").classList.add("error");
+        document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione opción con objeto.";
+        return;
+    } else {
+        // Generate the word
+        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+    }
+    
     // Check for incorrect reflexive combinations of subject and object prefixes
     if ((subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "") ||
         (subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "t") ||

@@ -18,7 +18,7 @@
     <form>
     <div class="form-container">
         <div class="form-group">
-            <label for="subject-prefix">Prefijo de sujeto:</label><br>
+            <label for="subject-prefix">Prefijo de sujeto</label><br>
             <select id="subject-prefix" name="subject-prefix">
                 <option value="ni">ni (N)</option>
                 <option value="ti">ti (T)</option>
@@ -27,7 +27,7 @@
             </select><br>
         </div>
         <div class="form-group">
-            <label for="object-prefix">Prefijo de objeto:</label><br>
+            <label for="object-prefix">Prefijo de objeto</label><br>
             <select id="object-prefix" name="object-prefix">
                 <option value="nech">nech (1)</option>
                 <option value="metz">metz (2)</option>
@@ -42,11 +42,11 @@
             </select><br>
         </div>
         <div class="form-group">
-              <label for="verb">Verbo:</label><br>
+              <label for="verb">Verbo</label><br>
               <input type="text" id="verb" name="verb" class="input-verb" placeholder="Escriba verbo aquí">
           </div>
         <div class="form-group">
-            <label for="subject-suffix">Sufijo de sujeto:</label><br>
+            <label for="subject-suffix">Sufijo de sujeto</label><br>
             <select id="subject-suffix" name="subject-suffix">
                 <option value="" selected>- (S)</option>
                 <option value="t">t (P)</option>
@@ -57,7 +57,7 @@
     <div class="form-container">
        <div class="form-group">
        <div class="numbered-circle">1a</div>
-         <label for="intransitive-verbs"><b>Seleccione un verbo intransitivo:</b></label><br>
+         <label for="intransitive-verbs"><b>Seleccione un verbo intransitivo</b></label><br>
          <table id="intransitive-verbs" class="verb-table">
            <tr>
              <td onclick="populateVerbTextbox('nemi')">nemi</td>
@@ -94,7 +94,7 @@
        </div>
        <div class="form-group">
        <div class="numbered-circle">1b</div>
-         <label for="transitive-verbs"><b>Seleccione un verbo transitivo:</b></label><br>
+         <label for="transitive-verbs"><b>Seleccione un verbo transitivo</b></label><br>
          <table id="transitive-verbs" class="verb-table">
            <tr>
              <td onclick="populateVerbTextbox('pewaltia')">pewaltia</td>
@@ -135,7 +135,7 @@
         <div class="form-group"><br>
             <div class="numbered-circle">2</div>
             <div class="flex-container"></div><br>
-            <label for="subject"><b>Sujeto:</b></label><br><br>
+            <label for="subject"><b>Sujeto</b></label><br><br>
             <input type="radio" id="ni" name="subject" value="ni"
                    onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
             <label for="ni">yo</label><br>
@@ -158,7 +158,7 @@
         <div class="form-group"><br>
               <div class="numbered-circle">3</div>
             <div class="flex-container"></div><br>
-              <label for="object"><b>Con objeto directo:</b><br><br>
+              <label for="object"><b>Con objeto directo</b><br><br>
                 <input type="radio" id="me" name="object" value="nech"
                        onclick="document.getElementById('object-prefix').value='nech';">
                 <label for="me" title="me">a mi</label><br>
@@ -177,18 +177,18 @@
                 <input type="radio" id="them" name="object" value="kin"
                        onclick="document.getElementById('object-prefix').value='kin';">
                 <label for="them"  title="les, los, las">a ellas, ellos</label><br><br>
-                <label for="no-object"><b>Con objeto reflexivo:</b></label><br><br>
+                <label for="no-object"><b>Con objeto reflexivo</b></label><br><br>
                 <input type="radio" id="self" name="object" value="mu"
                        onclick="document.getElementById('object-prefix').value='mu';">
                 <label for="self">a uno mismo</label><br><br>
-                <label for="no-object"><b>Con objeto indirecto:</b></label><br><br>
+                <label for="no-object"><b>Con objeto indirecto</b></label><br><br>
                 <input type="radio" id="thing" name="object" value="ta"
                        onclick="document.getElementById('object-prefix').value='ta';">
                 <label for="thing">algo</label><br>
                 <input type="radio" id="people" name="object" value="te"
                        onclick="document.getElementById('object-prefix').value='te';">
                 <label for="people">la gente</label><br><br>
-                <label for="no-object"><b>Sin objeto:</b></label><br><br>
+                <label for="no-object"><b>Sin objeto</b></label><br><br>
                 <input type="radio" id="intransitive" name="object" value="" checked
                        onclick="document.getElementById('object-prefix').value='';">
                 <label for="intransitive">(intransitivo)</label>
@@ -196,7 +196,7 @@
         <div class="form-group"><br>
               <div class="numbered-circle">4</div>
               <div class="flex-container"></div><br>
-              <label for="tense"><b>Tiempo:</b></label><br><br>
+              <label for="tense"><b>Tiempo</b></label><br><br>
               <input type="radio" id="presente" name="tense" value="presente" checked>
               <label for="presente">presente</label><br>
               <input type="radio" id="preterito-izalco" name="tense" value="preterito-izalco">
@@ -217,7 +217,7 @@
         <div class="form-group"><br>
               <div class="numbered-circle">5</div><br><br>
               <div class="flex-container">
-              <b>Generar:</b>
+              <b>Generar</b>
               <button type="button" onclick="generateWord()">Generar</button>
               </div>
               <h3><span id="generated-word"></span></h3>      
@@ -227,13 +227,13 @@
        <br>
        <div class="form-container-word">
        <h2>Feedback</h2>
-       <form action="mailto:jaynunez1996@gmail.com" method="post" enctype="text/plain">
+       <form action="mailtojaynunez1996@gmail.com" method="post" enctype="text/plain">
               <p>¡Gracias por visitar nuestro sitio web! Esperamos que estés disfrutando de tu experiencia aquí. Si tienes alguna sugerencia, comentario o encuentras algún problema, ¡nos encantaría escuchar de ti! Tu opinión es muy importante para nosotros y nos ayuda a mejorar.</p>
-              <label for="name">Nombre:</label>
+              <label for="name">Nombre</label>
               <input type="text" id="name" name="name"><br><br>
-              <label for="email">Email:</label>
+              <label for="email">Email</label>
               <input type="email" id="email" name="email"><br><br>
-              <label for="message">Mensaje:</label>
+              <label for="message">Mensaje</label>
               <textarea id="message" name="message"></textarea><br>
               <input type="submit" value="Enviar">
        </form>
