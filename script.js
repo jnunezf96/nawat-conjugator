@@ -145,12 +145,18 @@ function generateWord() {
         // Generate the word
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
-    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
+    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
     const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya"];
     
-    // Check if the input verb is derived from and ends with any verb in the intransitiveVerbs list
-    const isDerivedFromIntransitive = intransitiveVerbs.some(intransitiveVerb => verb.endsWith(intransitiveVerb));
+    // Exclude specific verbs from the derivation check
+    const excludeFromDerivation = ["pewa", "ina"];
     
+    // Filter out the excluded verbs from the intransitiveVerbs list
+    const filteredIntransitiveVerbs = intransitiveVerbs.filter(verb => !excludeFromDerivation.includes(verb));
+    
+    // Check if the input verb is derived from and ends with any verb in the filteredIntransitiveVerbs list
+    const isDerivedFromIntransitive = filteredIntransitiveVerbs.some(intransitiveVerb => verb.endsWith(intransitiveVerb));
+
     // Check if the input verb is derived from and ends with any verb in the transitiveVerbs list
     const isDerivedFromTransitive = transitiveVerbs.some(transitiveVerb => verb.endsWith(transitiveVerb));
     
