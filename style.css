@@ -1,8 +1,8 @@
 /* Variables for font-sizes and colors */
 :root {
-    --primary-color: #ffd965;
-    --secondary-color: #6B4E2A;
-    --background-color: #92bab02e;
+  --primary-color: #ffd965; /* Gold */
+  --secondary-color: #6B4E2A; /* Saddle Brown */
+  --background-color: #92bab02e; /* Soft Beige */
     --font-size-base: 1.2em;
     --font-size-large: 2.2em;
 }
@@ -17,11 +17,11 @@ body {
 
 /* Heading styles */
 h1 {
-    text-align: center;
-    color: #744f00;
-    font-size: var(--font-size-large);
-    margin-top: 15px;
-    text-shadow: 2px 2px #ffd965;
+  text-align: center;
+  color: var(--secondary-color);
+  font-size: var(--font-size-large);
+  margin-top: 15px;
+  text-shadow: 2px 2px var(--primary-color);
 }
 
 h3 {
@@ -29,7 +29,7 @@ h3 {
   text-align: left;
   color: #744f00;
   margin: 0 auto;
-  text-shadow: 2px 2px #ffd965;
+  text-shadow: 2px 2px var(--primary-color);
 }
 
 p {
@@ -67,9 +67,9 @@ p {
 .form-container-word h2 {
     font-size: 1.5em;
     text-align: center;
-    color: #744f00;
+    color: var(--secondary-color);
     margin-top: 15px;
-    text-shadow: 2px 2px #ffd965;
+    text-shadow: 2px 2px var(--primary-color);
 }
 
 /* Form group styles */
@@ -127,8 +127,8 @@ input[type="radio"] + label {
 /* Submit button styles */
 input[type="submit"] {
     width: 100%;
-    background-color: #F9C93D;
-    color: #6B4E2A;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     font-size: 1.2em;
     padding: 14px 20px;
     margin: 8px 0;
@@ -138,8 +138,8 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background-color: #6B4E2A;
-    color: #F9C93D;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
 }
 
 /* Error styles */
@@ -213,6 +213,32 @@ input[type="submit"]:hover {
   background-color: #edb85d;
 }
 
+/* Styles for the legend wrapper */
+.legend-wrapper {
+  position: relative;
+  display: inline-block;
+}
 
+/* Hide the legend container by default */
+.keyboard-legend-container {
+  display: none;
+  border: 1px solid #000;
+  padding: 10px;
+  margin-top: 10px;
+  position: absolute;
+  z-index: 1;
+  background-color: #ffffff;
+  text-align: left;
+  width: auto;
+  white-space: nowrap;
+}
 
-  
+/* Show the legend container when hovering over the legend wrapper */
+.legend-wrapper:hover .keyboard-legend-container {
+  display: block;
+}
+
+/* Style the "?" button */
+.legend-button {
+  cursor: pointer;
+}

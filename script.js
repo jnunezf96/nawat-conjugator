@@ -3,6 +3,7 @@ function populateVerbTextbox(selectedVerb) {
     document.getElementById('verb').value = selectedVerb;
     generateWord();
 }
+
 //Keyboard navigation methods for the selected options
 document.addEventListener('keydown', function(event) {
     // Focus on the verb textbox when the 'Spacebar' key is pressed
@@ -20,36 +21,68 @@ document.addEventListener('keydown', function(event) {
     // Other key event handling logic...
 });
 document.addEventListener('keydown', function(event) {
-    // Subject Prefix
-    if (event.key === 'N') {
+     // Subject Prefix
+     if (event.key === 'N') {
+        document.getElementById('ni').checked = true;
         document.getElementById('subject-prefix').value = 'ni';
     } else if (event.key === 'T') {
-        document.getElementById('subject-prefix').value = 'ti';
+        // If 'ti' is currently checked, switch to 'we'
+        if (document.getElementById('ti').checked) {
+            document.getElementById('1-pl').checked = true;
+            document.getElementById('subject-prefix').value = 'ti';
+            document.getElementById('subject-suffix').value = 't';
+        } else {
+            // Otherwise, switch to 'ti'
+            document.getElementById('ti').checked = true;
+            document.getElementById('subject-prefix').value = 'ti';
+            document.getElementById('subject-suffix').value = '';
+        }
     } else if (event.key === 'Y') {
-        document.getElementById('subject-prefix').value = '';
+        // If 'third-person' is currently checked, switch to '3-pl'
+        if (document.getElementById('third-person').checked) {
+            document.getElementById('3-pl').checked = true;
+            document.getElementById('subject-prefix').value = '';
+            document.getElementById('subject-suffix').value = 't';
+        } else {
+            // Otherwise, switch to 'third-person'
+            document.getElementById('third-person').checked = true;
+            document.getElementById('subject-prefix').value = '';
+            document.getElementById('subject-suffix').value = '';
+        }
     } else if (event.key === 'A') {
+        document.getElementById('2-pl').checked = true;
         document.getElementById('subject-prefix').value = 'an';
     }
     // Object Prefix
     else if (event.key === '1') {
+        document.getElementById('me').checked = true;
         document.getElementById('object-prefix').value = 'nech';
     } else if (event.key === '2') {
+        document.getElementById('you').checked = true;
         document.getElementById('object-prefix').value = 'metz';
     } else if (event.key === '3') {
+        document.getElementById('him-her-it').checked = true;
         document.getElementById('object-prefix').value = 'ki';
     } else if (event.key === '4') {
+        document.getElementById('us').checked = true;
         document.getElementById('object-prefix').value = 'tech';
     } else if (event.key === '5') {
+        document.getElementById('you-pl').checked = true;
         document.getElementById('object-prefix').value = 'metzin';
     } else if (event.key === '6') {
+        document.getElementById('them').checked = true;
         document.getElementById('object-prefix').value = 'kin';
     } else if (event.key === '7') {
+        document.getElementById('self').checked = true;
         document.getElementById('object-prefix').value = 'mu';
     } else if (event.key === '8') {
+        document.getElementById('thing').checked = true;
         document.getElementById('object-prefix').value = 'ta';
     } else if (event.key === '9') {
+        document.getElementById('people').checked = true;
         document.getElementById('object-prefix').value = 'te';
     } else if (event.key === '0') {
+        document.getElementById('intransitive').checked = true;
         document.getElementById('object-prefix').value = '';
     }
     // Subject Suffix
@@ -145,8 +178,9 @@ function generateWord() {
         // Generate the word
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
-    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz"];
-    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya"];
+    // VERB FORM IDENTIFIER ERROR MESSAGES
+    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
+    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
     
     // Exclude specific verbs from the derivation check
     const excludeFromDerivation = ["pewa", "ina"];
@@ -165,6 +199,7 @@ function generateWord() {
         verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
+        verb.endsWith("ka") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive) {
         // Add error class to object prefix and display error message
         document.getElementById("object-prefix").classList.add("error");
@@ -178,7 +213,7 @@ function generateWord() {
     // Check for transitive verbs being used INTRANSITIVELY
     // Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
     if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive) && objectPrefix === "" ||
-        verb.endsWith("a") && !verb.endsWith("ya") && objectPrefix === "" && !intransitiveVerbs.includes(verb) && !isDerivedFromIntransitive) {
+        verb.endsWith("a") && !verb.endsWith("ya") && !verb.endsWith("ka") && objectPrefix === "" && !intransitiveVerbs.includes(verb) && !isDerivedFromIntransitive) {
         // Add error class to object prefix and display error message
         document.getElementById("object-prefix").classList.add("error");
         document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione opción con objeto.";
