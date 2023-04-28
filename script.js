@@ -18,24 +18,26 @@ document.addEventListener('keydown', function(event) {
         // Prevent the default behavior of the 'Escape' key
         event.preventDefault();
     }
-    // Other key event handling logic...
-});
-document.addEventListener('keydown', function(event) {
-     // Subject Prefix
-     if (event.key === 'N') {
+    else if (event.key === 'N') {
         document.getElementById('ni').checked = true;
         document.getElementById('subject-prefix').value = 'ni';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === 'T') {
         // If 'ti' is currently checked, switch to 'we'
         if (document.getElementById('ti').checked) {
             document.getElementById('1-pl').checked = true;
             document.getElementById('subject-prefix').value = 'ti';
             document.getElementById('subject-suffix').value = 't';
+            generateWord();
+            event.preventDefault();
         } else {
             // Otherwise, switch to 'ti'
             document.getElementById('ti').checked = true;
             document.getElementById('subject-prefix').value = 'ti';
             document.getElementById('subject-suffix').value = '';
+            generateWord();
+            event.preventDefault();
         }
     } else if (event.key === 'Y') {
         // If 'third-person' is currently checked, switch to '3-pl'
@@ -43,71 +45,117 @@ document.addEventListener('keydown', function(event) {
             document.getElementById('3-pl').checked = true;
             document.getElementById('subject-prefix').value = '';
             document.getElementById('subject-suffix').value = 't';
+            generateWord();
+            event.preventDefault();
         } else {
             // Otherwise, switch to 'third-person'
             document.getElementById('third-person').checked = true;
             document.getElementById('subject-prefix').value = '';
             document.getElementById('subject-suffix').value = '';
+            generateWord();
+            event.preventDefault();
         }
     } else if (event.key === 'A') {
         document.getElementById('2-pl').checked = true;
         document.getElementById('subject-prefix').value = 'an';
+        generateWord();
+        event.preventDefault();
     }
     // Object Prefix
     else if (event.key === '1') {
         document.getElementById('me').checked = true;
         document.getElementById('object-prefix').value = 'nech';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '2') {
         document.getElementById('you').checked = true;
         document.getElementById('object-prefix').value = 'metz';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '3') {
         document.getElementById('him-her-it').checked = true;
         document.getElementById('object-prefix').value = 'ki';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '4') {
         document.getElementById('us').checked = true;
         document.getElementById('object-prefix').value = 'tech';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '5') {
         document.getElementById('you-pl').checked = true;
         document.getElementById('object-prefix').value = 'metzin';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '6') {
         document.getElementById('them').checked = true;
         document.getElementById('object-prefix').value = 'kin';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '7') {
         document.getElementById('self').checked = true;
         document.getElementById('object-prefix').value = 'mu';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '8') {
         document.getElementById('thing').checked = true;
         document.getElementById('object-prefix').value = 'ta';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '9') {
         document.getElementById('people').checked = true;
         document.getElementById('object-prefix').value = 'te';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === '0') {
         document.getElementById('intransitive').checked = true;
         document.getElementById('object-prefix').value = '';
+        generateWord();
+        event.preventDefault();
     }
     // Subject Suffix
     else if (event.key === 'S') {
         document.getElementById('subject-suffix').value = '';
+        generateWord();
+        event.preventDefault();
     } else if (event.key === 'P') {
         document.getElementById('subject-suffix').value = 't';
+        generateWord();
+        event.preventDefault();
     }
     // Tense
-    else if (event.key === 'H') {
+    else if (event.key === '!') {
         document.querySelector('input[name="tense"][value="presente"]').checked = true;
-    } else if (event.key === 'I') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '@') {
         document.querySelector('input[name="tense"][value="preterito-izalco"]').checked = true;
-    } else if (event.key === 'W') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '#') {
         document.querySelector('input[name="tense"][value="preterito"]').checked = true;
-    } else if (event.key === 'R') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '$') {
         document.querySelector('input[name="tense"][value="perfecto"]').checked = true;
-    } else if (event.key === 'L') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '%') {
         document.querySelector('input[name="tense"][value="pluscuamperfecto"]').checked = true;
-    } else if (event.key === 'D') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '^') {
         document.querySelector('input[name="tense"][value="condicional-perfecto"]').checked = true;
-    } else if (event.key === 'F') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '&') {
         document.querySelector('input[name="tense"][value="futuro"]').checked = true;
-    } else if (event.key === 'C') {
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '*') {
         document.querySelector('input[name="tense"][value="condicional"]').checked = true;
+        generateWord();
+        event.preventDefault();
     }
     // Generate Word
     else if (event.key === 'Enter') {
