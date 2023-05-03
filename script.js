@@ -228,7 +228,7 @@ function generateWord() {
     }
     // VERB FORM IDENTIFIER ERROR MESSAGES
     const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
-    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
+    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
     
     // Exclude specific verbs from the derivation check
     const excludeFromDerivation = ["pewa", "ina"];
