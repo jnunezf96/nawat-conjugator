@@ -704,7 +704,7 @@ if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
         }
     }
 // Class 2: Applies to words that have an [l] in the second position (tajkali)
-    if (objectPrefix === "" && verb[verb.length - 2] === 'l' && verb[verb.length - 1] !== 'u') {
+    if (objectPrefix !== "" && verb[verb.length - 2] === 'l' && verb[verb.length - 1] !== 'u') {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
