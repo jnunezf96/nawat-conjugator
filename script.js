@@ -129,34 +129,38 @@ document.addEventListener('keydown', function(event) {
         generateWord();
         event.preventDefault();
     } else if (event.key === '@') {
-        document.querySelector('input[name="tense"][value="preterito-izalco"]').checked = true;
+        document.querySelector('input[name="tense"][value="imperfecto"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '#') {
-        document.querySelector('input[name="tense"][value="preterito"]').checked = true;
+        document.querySelector('input[name="tense"][value="preterito-izalco"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '$') {
-        document.querySelector('input[name="tense"][value="perfecto"]').checked = true;
+        document.querySelector('input[name="tense"][value="preterito"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '%') {
-        document.querySelector('input[name="tense"][value="pluscuamperfecto"]').checked = true;
+        document.querySelector('input[name="tense"][value="perfecto"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '^') {
-        document.querySelector('input[name="tense"][value="condicional-perfecto"]').checked = true;
+        document.querySelector('input[name="tense"][value="pluscuamperfecto"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '&') {
-        document.querySelector('input[name="tense"][value="futuro"]').checked = true;
+        document.querySelector('input[name="tense"][value="condicional-perfecto"]').checked = true;
         generateWord();
         event.preventDefault();
     } else if (event.key === '*') {
+        document.querySelector('input[name="tense"][value="futuro"]').checked = true;
+        generateWord();
+        event.preventDefault();
+    } else if (event.key === '(') {
         document.querySelector('input[name="tense"][value="condicional"]').checked = true;
         generateWord();
         event.preventDefault();
-    }
+}
     // Generate Word
     else if (event.key === 'Enter') {
         // Call the generateWord() function
@@ -228,7 +232,7 @@ function generateWord() {
     }
     // VERB FORM IDENTIFIER ERROR MESSAGES
     const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
-    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
+    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "mamali", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
     
     // Exclude specific verbs from the derivation check
     const excludeFromDerivation = ["pewa", "ina"];
@@ -366,6 +370,13 @@ if (consonantPattern.test(verb)) {
     } else {
         document.getElementById("verb").classList.remove("error");
     }
+    // Imperfecto
+    if (tense === "imperfecto" && subjectSuffix === "") {
+        subjectSuffix = " katka";
+    }
+    if (tense === "imperfecto" && subjectSuffix === "t") {
+        subjectSuffix = "t katka";
+}
     // Preterito
     if (tense === "preterito" && subjectSuffix === "t") {
         subjectSuffix = "ket";
@@ -614,28 +625,7 @@ if (objectPrefix !== "" && verb.endsWith("ya")) {
                 verb = verb;
                 break;
         }
-    }
-// Class 2: Applies to short words that end in -na, intransitives (ina, isa)
-    if (verb.length == 3 && verb.endsWith("sa")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
+}
 // Shorts verbs ending in wi, EWI
 if (verb.length == 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
     switch (tense) {
