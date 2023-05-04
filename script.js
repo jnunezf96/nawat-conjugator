@@ -606,13 +606,13 @@ if (objectPrefix !== "" && verb.endsWith("ya")) {
         }
     }
 // Class 2: Applies to short words that end in -na, intransitives (ina, isa)
-    if ((verb.length === 3 && verb.endsWith("na") && objectPrefix === "") ||
-        (verb.length === 3 && !verb[verb.length - 3] === 'j' && verb.endsWith("sa") && objectPrefix === "")) {
+    if (verb.length === 3 && verb.endsWith("a") && objectPrefix === "") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
                     case "":
-                        verb = verb + "k";
+                        verb = verb;
+                        subjectSuffix = "k";
                         break;
                     case "ket":
                         verb = verb;
