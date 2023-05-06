@@ -231,7 +231,7 @@ function generateWord() {
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
     // VERB FORM IDENTIFIER ERROR MESSAGES
-    const intransitiveVerbs = ["kamachalua", "tashkalua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
+    const intransitiveVerbs = ["kamachalua", "tashkalua", "chulua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "ijsa", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
     const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "mamali", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
     
     // Exclude specific verbs from the derivation check
@@ -297,8 +297,7 @@ function generateWord() {
         }
     }
 
-    // Check if subject prefix "ni", "ti" or "anh" should be shortened to "n" or "t" or changed to "anh" respectively
-    // when the object prefix is empty and the verb starts with "i"
+    // Check, when verb starts with "i", if subject prefix "ni", "ti" or "anh" should be shortened to "n" or "t" or changed to "anh" respectively
     if (
         (subjectPrefix === "ni" && objectPrefix === "" && verb.startsWith("i")) ||
         (subjectPrefix === "ti" && objectPrefix === "" && verb.startsWith("i")) ||
