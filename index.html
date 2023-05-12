@@ -4,7 +4,7 @@
               <meta charset="UTF-8">
               <meta name="description" content="Conjugador de verbos en náhuat pipil de El Salvador. Conjugue verbos en náhuat pipil fácil y rápido con esta herramienta en línea gratuita.">
               <meta name="viewport" content="width=device-width, initial-scale=1">
-              <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE" />
+              <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE"/>
               <meta http-equiv="X-UA-Compatible" content="ie=edge">
               <link rel="stylesheet" href="style.css">
               <script src="script.js"></script>
@@ -13,6 +13,11 @@
 <body onload="populateVerbDropdown()">
     <div class="form-container-word">
         <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
+        <!-- Language toggle button -->
+        <label class="switch">
+              <input type="checkbox" id="language" onchange="changeLanguage()">
+              <span class="slider round"></span>
+            </label>            
     </div>
     <br>
     <form>
@@ -75,7 +80,6 @@
                      </div>
                  </div>                 
        </div>
-    </div>
     <br>
     <div class="form-container">
        <div class="form-group">
@@ -161,83 +165,83 @@
             <b><label for="subject" id="subject-label">Sujeto</label></b><br><br>
             <input type="radio" id="ni" name="subject" value="ni"
                    onclick="document.getElementById('subject-prefix').value='ni'; document.getElementById('subject-suffix').value='';">
-            <label for="ni">yo</label><br>
+            <label for="ni" id="ni-label">yo</label><br>
             <input type="radio" id="ti" name="subject" value="ti"
                    onclick="document.getElementById('subject-prefix').value='ti'; document.getElementById('subject-suffix').value='';">
-            <label for="ti">tú, vos, usted</label><br>
+            <label for="ti" id="ti-label">tú, vos, usted</label><br>
             <input type="radio" id="third-person" name="subject" value="" checked
                    onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='';">
-            <label for="third-person">ello, ella, él</label><br>
+            <label for="third-person" id="third-person-label">ello, ella, él</label><br>
             <input type="radio" id="1-pl" name="subject" value="ti"
                    onclick="document.getElementById('subject-prefix').value='ti'; document.getElementById('subject-suffix').value='t';">
-            <label for="we">nosotras, nosotros</label><br>
+            <label for="we" id="1-pl-label">nosotras, nosotros</label><br>
             <input type="radio" id="2-pl" name="subject" value="an"
                    onclick="document.getElementById('subject-prefix').value='an'; document.getElementById('subject-suffix').value='t';">
-            <label for="you-pl">ustedes</label><br>
+            <label for="you-pl" id="2-pl-label">ustedes</label><br>
             <input type="radio" id="3-pl" name="subject" value=""
                    onclick="document.getElementById('subject-prefix').value=''; document.getElementById('subject-suffix').value='t';">
-            <label for="they">ellas, ellos</label><br>
+            <label for="they" id="3-pl-label">ellas, ellos</label><br>
         </div>
         <div class="form-group"><br>
               <div class="numbered-circle">3</div>
             <div class="flex-container"></div><br>
-                <b><label for="object" id="direct-object-label">Con objeto directo</label></b><br><br>
+                <b><label for="object" id="direct-object-label">Objeto directo</label></b><br><br>
                 <input type="radio" id="me" name="object" value="nech"
                        onclick="document.getElementById('object-prefix').value='nech';">
-                <label for="me" title="me">a mi</label><br>
+                <label for="me" id="nech-label" title="me">a mi</label><br>
                 <input type="radio" id="you" name="object" value="metz"
                        onclick="document.getElementById('object-prefix').value='metz';">
-                <label for="you" title="te">a ti</label><br>
+                <label for="you" id="metz-label" title="te">a ti</label><br>
                 <input type="radio" id="him-her-it" name="object" value="ki"
                        onclick="document.getElementById('object-prefix').value='ki';">
-                <label for="him-her-it"  title="la, lo, le">a ello, ella, él</label><br>
+                <label for="him-her-it" id="ki-label" title="la, lo, le">a ello, ella, él</label><br>
                 <input type="radio" id="us" name="object" value="tech"
                        onclick="document.getElementById('object-prefix').value='tech';">
-                <label for="us" title="nos">a nosotras, nosotros</label><br>
+                <label for="us" id="tech-label" title="nos">a nosotras, nosotros</label><br>
                 <input type="radio" id="you-pl" name="object" value="metzin"
                        onclick="document.getElementById('object-prefix').value='metzin';">
-                <label for="you-pl" title="os">a ustedes</label><br>
+                <label for="you-pl" id="metzin-label" title="os">a ustedes</label><br>
                 <input type="radio" id="them" name="object" value="kin"
                        onclick="document.getElementById('object-prefix').value='kin';">
-                <label for="them"  title="les, los, las">a ellas, ellos</label><br><br>
-                <b><label for="no-object" id="reflexive-object-label">Con objeto reflexivo</label></b><br><br>
+                <label for="them" id="kin-label" title="les, los, las">a ellas, ellos</label><br><br>
+                <b><label for="no-object" id="reflexive-object-label">Objeto reflexivo</label></b><br><br>
                 <input type="radio" id="self" name="object" value="mu"
                        onclick="document.getElementById('object-prefix').value='mu';">
-                <label for="self">a uno mismo</label><br><br>
-                <b><label for="no-object" id="indirect-object-label">Con objeto indirecto</label></b><br><br>
+                <label for="self" id="mu-label">a uno mismo</label><br><br>
+                <b><label for="no-object" id="indirect-object-label">Objeto indirecto</label></b><br><br>
                 <input type="radio" id="thing" name="object" value="ta"
                        onclick="document.getElementById('object-prefix').value='ta';">
-                <label for="thing">algo</label><br>
+                <label for="thing" id="ta-label">algo</label><br>
                 <input type="radio" id="people" name="object" value="te"
                        onclick="document.getElementById('object-prefix').value='te';">
-                <label for="people">la gente</label><br><br>
+                <label for="people" id="te-label">la gente</label><br><br>
                 <b><label for="no-object" id="no-object-label">Sin objeto</label></b><br><br>
                 <input type="radio" id="intransitive" name="object" value="" checked
                        onclick="document.getElementById('object-prefix').value='';">
-                <label for="intransitive">(intransitivo)</label>
+                <label for="intransitive" id="vi-label">(intransitivo)</label>
         </div>
         <div class="form-group"><br>
               <div class="numbered-circle">4</div>
               <div class="flex-container"></div><br>
               <b><label for="tense" id="tense-label">Tiempo</label></b><br><br>
               <input type="radio" id="presente" name="tense" value="presente" checked>
-              <label for="presente">presente</label><br>
+              <label for="presente" id="presente-label">presente</label><br>
               <input type="radio" id="imperfecto" name="tense" value="imperfecto">
-              <label for="imperfecto">pretérito imperfecto</label><br>
+              <label for="imperfecto" id="imperfecto-label">pretérito imperfecto</label><br>
               <input type="radio" id="preterito-izalco" name="tense" value="preterito-izalco">
-              <label for="preterito-izalco">pretérito (Izalco)</label><br>
+              <label for="preterito-izalco" id="preterito-izalco-label">pretérito (Izalco)</label><br>
               <input type="radio" id="preterito" name="tense" value="preterito">
-              <label for="preterito">pretérito (Witzapan)</label><br>     
+              <label for="preterito" id="preterito-label">pretérito (Witzapan)</label><br>     
               <input type="radio" id="perfecto" name="tense" value="perfecto">
-              <label for="perfecto">pretérito perfecto</label><br>
+              <label for="perfecto" id="perfecto-label">pretérito perfecto</label><br>
               <input type="radio" id="pluscuamperfecto" name="tense" value="pluscuamperfecto">
-              <label for="pluscuamperfecto">pretérito pluscuamperfecto</label><br>
+              <label for="pluscuamperfecto" id="pluscuamperfecto-label">pretérito pluscuamperfecto</label><br>
               <input type="radio" id="condicional-perfecto" name="tense" value="condicional-perfecto">
-              <label for="condicional-perfecto">pretérito condicional perfecto</label><br>
+              <label for="condicional-perfecto" id="condicional-perfecto-label">pretérito condicional perfecto</label><br>
               <input type="radio" id="futuro" name="tense" value="futuro">
-              <label for="futuro">futuro</label><br>
+              <label for="futuro" id="futuro-label">futuro</label><br>
               <input type="radio" id="condicional" name="tense" value="condicional">
-              <label for="condicional">futuro condicional</label><br>
+              <label for="condicional" id="condicional-label">futuro condicional</label><br>
           </div>          
         <div class="form-group"><br>
               <div class="numbered-circle">5</div><br><br>
@@ -264,7 +268,7 @@
        </form>
        </div>
     <footer>
-    <p>Copyright © 2023 Jaime Núñez</p>
+    <p><label id="copyright-label">Copyright © 2023 Jaime Núñez</label></p>
     <p>v1.19.20.1 Gracias a Sigfredo Olmedo</p>
     </footer>
 </body>

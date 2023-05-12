@@ -4,6 +4,166 @@ function populateVerbTextbox(selectedVerb) {
     generateWord();
 }
 
+var originalLabels = {};
+var originalPlaceholder = "";
+var originalSubmitButtonValue = "";
+
+// Generate translated label
+function changeLanguage() {
+    var languageSwitch = document.getElementById("language");
+    var selectedLanguage = languageSwitch.checked ? "nawat" : "original";
+  
+    var labelElementIds = [
+        "subject-prefix-label",
+        "object-prefix-label",
+        "verb-label",
+        "subject-suffix-label",
+        "intransitive-verbs-label",
+        "transitive-verbs-label",
+        "ni-label",
+        "ti-label",
+        "third-person-label",
+        "1-pl-label",
+        "2-pl-label",
+        "3-pl-label",
+        "subject-label",
+        "direct-object-label",
+        "nech-label",
+        "metz-label",
+        "ki-label",
+        "tech-label",
+        "metzin-label",
+        "kin-label",
+        "reflexive-object-label",
+        "mu-label",
+        "indirect-object-label",
+        "ta-label",
+        "te-label",
+        "no-object-label",
+        "vi-label",
+        "tense-label",
+        "presente-label",
+        "imperfecto-label",
+        "preterito-izalco-label",
+        "preterito-label",
+        "perfecto-label",
+        "pluscuamperfecto-label",
+        "condicional-perfecto-label",
+        "futuro-label",
+        "condicional-label",
+        "generate-button",
+        "generate-button-label",
+        "feedback-heading",
+        "feedback-message",
+        "name-label",
+        "email-label",
+        "message-label",
+        "submit-button",
+        "copyright-label",
+    ];
+
+    var translations = {
+        "subject-prefix-label": "Itzinhilpika ne tachiwa",
+        "object-prefix-label": "Itzinhilpika ne taekua",
+        "verb-label": "Tachiwalis",
+        "subject-suffix-label": "Itzunhilpika ne tachiwa",
+        "intransitive-verbs-label": "Shikpejpena tachiwalis te taekua",
+        "transitive-verbs-label": "Shikpejpena tachiwalis taekua",
+        "ni-label": "naja",
+        "ti-label": "taja",
+        "third-person-label": "yaja",
+        "1-pl-label": "tejemet",
+        "2-pl-label": "anmejemet",
+        "3-pl-label": "yejemet",
+        "subject-label": "Tachiwa",
+        "direct-object-label": "Taekua",
+        "nech-label": "naja",
+        "metz-label": "taja",
+        "ki-label": "yaja",
+        "tech-label": "tejemet",
+        "metzin-label": "anmejemet",
+        "kin-label": "yejemet",
+        "reflexive-object-label": "Taekua isel",
+        "mu-label": "unisan",
+        "indirect-object-label": "Taekua seki",
+        "ta-label": "tajtatka",
+        "te-label": "takat iwan siwat",
+        "no-object-label": "Tesu taekua",
+        "vi-label": "(tachiwalis te taekua)",
+        "tense-label": "Keman",
+        "presente-label": "muchiwa",
+        "imperfecto-label": "muchiwa katka",
+        "preterito-izalco-label": "muchiwak (Itzalku)",
+        "preterito-label": "muchiwki (Witzapan)",
+        "perfecto-label": "muchiwtuk",
+        "pluscuamperfecto-label": "muchiwtuya",
+        "condicional-perfecto-label": "muchiwtuskia",
+        "futuro-label": "muchiwas",
+        "condicional-label": "muchiwaskia",
+        "generate-button": "Shikpuwa",
+        "generate-button-label": "Tasenpuwalis",
+        "feedback-heading": "Tanawatilis",
+        "feedback-message": "Tikajsituk ini tzawalamat tupal! Tiknekit ma shipaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat tikakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
+        "name-label": "Mutukay",
+        "email-label": "Muemail",
+        "message-label": "Mutanawatilis",
+        "submit-button": "Ma mutukti",
+        "copyright-label": "Takupinalisyekkayut © 2023 Jaime Núñez",
+    };
+  
+    if (selectedLanguage === "nawat") {
+      labelElementIds.forEach(function(elementId) {
+        var labelElement = document.getElementById(elementId);
+        if (labelElement) {
+          // Store the original text
+          originalLabels[elementId] = labelElement.textContent;
+          // Replace with the translated text
+          labelElement.textContent = translations[elementId];
+        }
+      });
+    } else {
+      labelElementIds.forEach(function(elementId) {
+        var labelElement = document.getElementById(elementId);
+        if (labelElement && originalLabels[elementId]) {
+          // Restore the original text
+          labelElement.textContent = originalLabels[elementId];
+        }
+      });
+    }
+  
+        // Handle the placeholder of the verb text input
+        var verbInput = document.getElementById("verb");
+        if (selectedLanguage === "nawat") {
+            // Store the original placeholder
+            originalPlaceholder = verbInput.placeholder;
+            // Replace with the translated placeholder
+            verbInput.placeholder = "Shikijkwilu tachiwalis ka nikan";
+        } else if (originalPlaceholder) {
+            // Restore the original placeholder
+            verbInput.placeholder = originalPlaceholder;
+        }
+                // Handle the value of the submit button
+        var submitButton = document.getElementById("submit-button");
+        if (selectedLanguage === "nawat") {
+            // Store the original value
+            originalSubmitButtonValue = submitButton.value;
+            // Replace with the translated value
+            submitButton.value = "Shiktukti";
+        } else if (originalSubmitButtonValue) {
+            // Restore the original value
+            submitButton.value = originalSubmitButtonValue;
+        }
+
+    var wordHeading = document.getElementById("word-heading");
+    if (selectedLanguage === "nawat") {
+      wordHeading.textContent = "Tasenpuwani tik Nawat ipal El Salvador";
+    } else {
+      wordHeading.textContent = "Conjugador de verbos en náhuat de El Salvador";
+    }
+  
+    document.getElementById("footer").textContent = "Jaime Núñez";
+}
+
 //Keyboard navigation methods for the selected options
 document.addEventListener('keydown', function(event) {
     // Focus on the verb textbox when the 'Spacebar' key is pressed
@@ -643,6 +803,31 @@ if (verb.length == 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
         case "pluscuamperfecto":
         case "condicional-perfecto":
             verb = verb.slice(0, -1);
+            break;
+        case "futuro":
+        case "condicional":
+            verb = verb;
+            break;
+    }
+}
+// KWA and KWI
+if (verb === "kwi" || verb === "kwa") {
+    switch (tense) {
+        case "preterito":
+            switch (subjectSuffix) {
+                case "":
+                    verb = verb + "j";
+                    subjectSuffix = "";
+                    break;
+                case "ket":
+                    verb = verb  + "j";
+                    break;
+            }
+            break;
+        case "perfecto":
+        case "pluscuamperfecto":
+        case "condicional-perfecto":
+            verb = verb + "j";
             break;
         case "futuro":
         case "condicional":
@@ -1537,5 +1722,4 @@ function typeWriter(text, elementId, delay = 50) {
         }
     }, delay);
 }
-
 
