@@ -103,7 +103,7 @@ function changeLanguage() {
         "generate-button": "Shikpuwa",
         "generate-button-label": "Tasenpuwalis",
         "feedback-heading": "Tanawatilis",
-        "feedback-message": "Tikajsituk ini tzawalamat tupal! Tiknekit ma shipaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat tikakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
+        "feedback-message": "Tikajsituk ini tzawalamat tupal! Tiknekit ma shiyulpaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat tikakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
         "name-label": "Mutukay",
         "email-label": "Muemail",
         "message-label": "Mutanawatilis",
@@ -1401,22 +1401,6 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
                 break;
         }
     }
-// Class 3: Words ending in na & wa, deletion of last vowel (pewa)
-    if ((objectPrefix !== "" && verb.length >= 5 && verb.endsWith("na")) ||
-        (verb.length > 5 && verb.endsWith("wa") && verb[verb.length - 3] !== 'j')) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
     // Class 3: Words ending in na & wa, deletion of last vowel ishtuna
     if (objectPrefix === "" && verb.length >= 4 && verb.endsWith("na")) {
         switch (tense) {
@@ -1568,15 +1552,15 @@ if (verb.endsWith("sha")) {
                     case "ket":
                         verb = verb.slice(0, -1);
                         break;
-                    case "perfecto":
-                    case "pluscuamperfecto":
-                    case "condicional-perfecto":
-                        verb = verb.slice(0, -1);
-                        break;
-                    case "futuro":
-                    case "condicional":
-                        verb = verb;
-                        break;
+            case "perfecto":
+            case "pluscuamperfecto":
+            case "condicional-perfecto":
+                verb = verb.slice(0, -1);
+                break;
+            case "futuro":
+            case "condicional":
+                verb = verb;
+                break;
                 }
         }
     }
@@ -1614,7 +1598,7 @@ if (verb.endsWith("sha")) {
                         subjectSuffix = "ki";
                         break;
                     case "ket":
-                        verb = verb.slice(0, -1);
+                        verb = verb
                         break;
                 }
             case "perfecto":
