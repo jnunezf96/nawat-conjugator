@@ -69,25 +69,25 @@ function changeLanguage() {
         "subject-suffix-label": "Itzunhilpika ne tachiwa",
         "intransitive-verbs-label": "Shikpejpena tachiwalis te taekua",
         "transitive-verbs-label": "Shikpejpena tachiwalis taekua",
-        "ni-label": "naja",
-        "ti-label": "taja",
+        "ni-label": "naja (ni)",
+        "ti-label": "taja (ti)",
         "third-person-label": "yaja",
-        "1-pl-label": "tejemet",
-        "2-pl-label": "anmejemet",
+        "1-pl-label": "tejemet (ti)",
+        "2-pl-label": "anmejemet (an)",
         "3-pl-label": "yejemet",
         "subject-label": "Tachiwa",
         "direct-object-label": "Taekua",
-        "nech-label": "naja",
-        "metz-label": "taja",
-        "ki-label": "yaja",
-        "tech-label": "tejemet",
-        "metzin-label": "anmejemet",
-        "kin-label": "yejemet",
-        "reflexive-object-label": "Taekua isel",
-        "mu-label": "isel",
+        "nech-label": "naja (nech)",
+        "metz-label": "taja (metz)",
+        "ki-label": "yaja (ki~k)",
+        "tech-label": "tejemet (tech)",
+        "metzin-label": "anmejemet (metzin)",
+        "kin-label": "yejemet (kin)",
+        "reflexive-object-label": "San taekua",
+        "mu-label": "ajaka isel (mu)",
         "indirect-object-label": "Sentaekua",
-        "ta-label": "tajtatka",
-        "te-label": "takat iwan siwat",
+        "ta-label": "tajtatka (ta)",
+        "te-label": "ajaka (te)",
         "no-object-label": "Te taekua",
         "vi-label": "(tachiwalis te taekua)",
         "tense-label": "Kawit",
@@ -1015,7 +1015,7 @@ if (objectPrefix === "" && verb[verb.length - 3] === 'c') {
     }
 }
 // Class 2: SHORT verbs with [k] (piki, paka, chuka, naka)
-    if (verb.length < 6 && verb.endsWith("ka")) {
+    if (verb.endsWith("ka")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1058,8 +1058,8 @@ if (objectPrefix === "" && verb.length < 6 && verb.endsWith("ka") && verb[verb.l
 }
 
 // Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
-if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka") ||
-    objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki")) {
+if (objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ka") && !verb.endsWith("shka") ||
+    objectPrefix !== "" && verb.length >= 6 && verb.endsWith("ki") && !verb.endsWith("shka")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
