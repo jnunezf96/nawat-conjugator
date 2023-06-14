@@ -84,7 +84,7 @@ function changeLanguage() {
         "metzin-label": "anmejemet (metzin)",
         "kin-label": "yejemet (kin)",
         "reflexive-object-label": "San taekua",
-        "mu-label": "ajaka isel (mu)",
+        "mu-label": "isel (mu)",
         "indirect-object-label": "Sentaekua",
         "ta-label": "tajtatka (ta)",
         "te-label": "ajaka (te)",
@@ -354,6 +354,25 @@ function generateWord() {
     verb = verb.toLowerCase();
     verb = verb.replace(/[^a-z]/g, "");
     document.getElementById("verb").value = verb;
+
+    // Define a regular expression pattern to match consonants at the start or end of the verb
+    const consonantPattern = /^[bdfghjloqrvxz]|[bcdfghkjlmnpqrstvxy]$/i;
+
+    // Check if the verb starts or ends with a consonant using the regular expression
+    if (consonantPattern.test(verb)) {
+        document.getElementById("verb").classList.add("error");
+        document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente.";
+        return;
+    } else {
+        document.getElementById("verb").classList.remove("error");
+    }
+    if (verb === "") {
+        document.getElementById("generated-word").textContent = "Error: El verbo no puede estar vacío. Ingrese verbo.";
+        document.getElementById("verb").classList.add("error");
+        return;
+    } else {
+        document.getElementById("verb").classList.remove("error");
+    }
     
     // Check for invalid combinations of subject and object prefixes
     if ((subjectPrefix === "ni" && objectPrefix === "" && subjectSuffix === "t") ||
@@ -391,7 +410,7 @@ function generateWord() {
         document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
     }
     // VERB FORM IDENTIFIER ERROR MESSAGES
-    const intransitiveVerbs = ["kamachalua", "tashkalua", "chulua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "ijsa", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika"];
+    const intransitiveVerbs = ["kamachalua", "tashkalua", "chulua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "ijsa", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika", "tajkwilua"];
     const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "mamali", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
     
     // Exclude specific verbs from the derivation check
@@ -407,7 +426,7 @@ function generateWord() {
     const isDerivedFromTransitive = transitiveVerbs.some(transitiveVerb => verb.endsWith(transitiveVerb));
     
     // Check if the input verb is intransitive or if it's a derivation of an intransitive verb
-    if ((intransitiveVerbs.includes(verb) || isDerivedFromIntransitive) && objectPrefix !== "" ||
+    if ((intransitiveVerbs.includes(verb) || isDerivedFromIntransitive) && objectPrefix !== "" && !verb.endsWith("tajkwilua") ||
         verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
@@ -415,7 +434,7 @@ function generateWord() {
         verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive) {
         // Add error class to object prefix and display error message
         document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione opción sin objeto o ingrese verbo transitivo.";
+        document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione sin objeto.";
         return;
     } else {
         // Generate the word
@@ -424,11 +443,11 @@ function generateWord() {
     
     // Check for transitive verbs being used INTRANSITIVELY
     // Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
-    if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive) && objectPrefix === "" ||
+    if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive) && objectPrefix === "" && !verb.endsWith("tajtani") ||
         verb.endsWith("a") && !verb.endsWith("ya") && !verb.endsWith("ka") && objectPrefix === "" && !intransitiveVerbs.includes(verb) && !isDerivedFromIntransitive) {
         // Add error class to object prefix and display error message
         document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione opción con objeto.";
+        document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione objeto.";
         return;
     } else {
         // Generate the word
@@ -444,7 +463,7 @@ function generateWord() {
         (subjectPrefix === "ti" && objectPrefix === "tech" && subjectSuffix === "t")) {
         // Add error class to subject prefix, object prefix, and subject suffix
         document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Para formar reflexivos, cambie el prefijo de objeto";
+        document.getElementById("generated-word").textContent = "Error: Esta combinación es reflexiva. Seleccione objeto reflexivo.";
         return;
     } else {
         document.getElementById("object-prefix").classList.remove("error");
@@ -510,24 +529,6 @@ function generateWord() {
     // When reflexive, iskalia loses initial 'i'
     if (objectPrefix === "mu" && verb.startsWith("iskalia")) {
         verb = verb.replace("iskalia", "skalia");
-    }
-// Define a regular expression pattern to match consonants at the start or end of the verb
-const consonantPattern = /^[bdfghjloqrvxz]|[bcdfghkjlmnpqrstvxy]$/i;
-
-// Check if the verb starts or ends with a consonant using the regular expression
-if (consonantPattern.test(verb)) {
-    document.getElementById("verb").classList.add("error");
-    document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente";
-    return;
-} else {
-    document.getElementById("verb").classList.remove("error");
-}
-    if (verb === "") {
-        document.getElementById("generated-word").textContent = "Error: El verbo no puede estar vacío";
-        document.getElementById("verb").classList.add("error");
-        return;
-    } else {
-        document.getElementById("verb").classList.remove("error");
     }
     // Imperfecto
     if (tense === "imperfecto" && subjectSuffix === "") {
