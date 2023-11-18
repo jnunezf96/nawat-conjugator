@@ -76,7 +76,7 @@ function changeLanguage() {
         "2-pl-label": "anmejemet (an)",
         "3-pl-label": "yejemet",
         "subject-label": "Tachiwani",
-        "direct-object-label": "taseliani",
+        "direct-object-label": "Taseliani",
         "nech-label": "naja (nech)",
         "metz-label": "taja (metz)",
         "ki-label": "yaja (ki~k)",
