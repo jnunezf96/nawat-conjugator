@@ -83,7 +83,7 @@ function changeLanguage() {
         "tech-label": "tejemet (tech)",
         "metzin-label": "anmejemet (metzin)",
         "kin-label": "yejemet (kin)",
-        "reflexive-object-label": "Isel ne taseliani",
+        "reflexive-object-label": "Nusan taseliani",
         "mu-label": "isel (mu)",
         "indirect-object-label": "Sentaseliani",
         "ta-label": "tajtatka (ta)",
