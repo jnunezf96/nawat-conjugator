@@ -100,7 +100,7 @@ function changeLanguage() {
         "condicional-perfecto-label": "tay panutuskia",
         "futuro-label": "tay panus",
         "condicional-label": "tay panuskia",
-        "generate-button": "Shikpuwa",
+        "generate-button": "Shiksenpuwa",
         "generate-button-label": "Tasenpuwalis",
         "feedback-heading": "Tanawatilis",
         "feedback-message": "Tikajsituk ini tzawalamat tupal! Tiknekit ma shiyulpaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat timetzkakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
@@ -137,7 +137,7 @@ function changeLanguage() {
             // Store the original placeholder
             originalPlaceholder = verbInput.placeholder;
             // Replace with the translated placeholder
-            verbInput.placeholder = "Shikijkwilu tachiwalis ka nikan";
+            verbInput.placeholder = "Shiktali tachiwalis ka nikan";
         } else if (originalPlaceholder) {
             // Restore the original placeholder
             verbInput.placeholder = originalPlaceholder;
