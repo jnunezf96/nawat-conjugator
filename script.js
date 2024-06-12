@@ -65,11 +65,7 @@ function changeLanguage() {
     var translations = {
         "subject-prefix-label": "Itzinhilpika ne tachiwani",
         "object-prefix-label": "Itzinhilpika ne taseliani",
-<<<<<<< HEAD
         "verb-label": "Tachiwalis",
-=======
-        "verb-label": "Ne tachiwalis",
->>>>>>> 584193a (add changes)
         "subject-suffix-label": "Itzunhilpika ne tachiwani",
         "intransitive-verbs-label": "Shikpejpena se tachiwalis te taselia",
         "transitive-verbs-label": "Shikpejpena se tachiwalis taselia",
@@ -87,19 +83,11 @@ function changeLanguage() {
         "tech-label": "tejemet (tech)",
         "metzin-label": "anmejemet (metzin)",
         "kin-label": "yejemet (kin)",
-<<<<<<< HEAD
         "reflexive-object-label": "Taselianisan",
         "mu-label": "isel (mu)",
         "indirect-object-label": "Taselianimet",
         "ta-label": "tajtatka (ta)",
         "te-label": "tajtakamet (te)",
-=======
-        "reflexive-object-label": "Isel muselia",
-        "mu-label": "isel (mu)",
-        "indirect-object-label": "Taselianimet",
-        "ta-label": "tajtatka (ta)",
-        "te-label": "ajaka (te)",
->>>>>>> 584193a (add changes)
         "no-object-label": "Te kanaj taseliani",
         "vi-label": "(tachiwalis te taselia)",
         "tense-label": "Kawit",
@@ -114,8 +102,8 @@ function changeLanguage() {
         "condicional-label": "keman panuskia",
         "generate-button": "Shiksenpuwa",
         "generate-button-label": "Tasenpuwalis",
-        "feedback-heading": "Shitanawati",
-        "feedback-message": "Tikajsik tutzawalamaw! Tiknekit ma shiyulpaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat timetzkakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
+        "feedback-heading": "Tanawatilis",
+        "feedback-message": "Tikajsituk ini tzawalamat tupal! Tiknekit ma shiyulpaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat timetzkakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
         "name-label": "Mutukay",
         "email-label": "Muemail",
         "message-label": "Mutanawatilis",
@@ -1719,4 +1707,3 @@ function typeWriter(text, elementId, delay = 50) {
         }
     }, delay);
 }
-
