@@ -1,9 +1,3 @@
-function populateVerbTextbox(selectedVerb) {
-    // Populate the verb textbox with the selected verb
-    document.getElementById('verb').value = selectedVerb;
-    generateWord();
-}
-
 var originalLabels = {};
 var originalPlaceholder = "";
 var originalSubmitButtonValue = "";
@@ -1183,7 +1177,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: SHORT verbs with [ti], transitives (mati)
-    if (objectPrefix !== "" && verb.endsWith("ti") && !verb.endsWith("lti") || objectPrefix === "" && verb.length > 5 && verb.endsWith("ti") && !verb.endsWith("lti")) {
+    if (objectPrefix !== "" && verb.endswith("ti") && !verb.endswith("lti") || objectPrefix === "" && verb.length > 5 && verb.endswith("ti") && !verb.endswith("lti")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1204,7 +1198,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: SHORT verbs with [ta], transitives (pata)
-    if (objectPrefix !== "" && verb.endsWith("ta")) {
+    if (objectPrefix !== "" && verb.endswith("ta")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1246,7 +1240,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: Applies to LONG words that ends in -na, intransitives (mayana, tawana)
-    if (verb.length >= 5 && verb.endsWith("na") && objectPrefix === "") {
+    if (verb.length >= 5 && verb.endswith("na") && objectPrefix === "") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1268,7 +1262,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
     }
     /* CLASSIFICATION 3 */
 // Class 3: Rule end kisa, intransitives (alawakis-ki, piltzinkis-ki, puknajkis-ki)
-    if (objectPrefix === "" && verb.endsWith("kisa")) {
+    if (objectPrefix === "" && verb.endswith("kisa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1289,7 +1283,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Applies to LONG words that ends in -na, transitives (tajtan-)
-    if (verb.length >= 5 && verb.endsWith("ni") && objectPrefix !== "") {
+    if (verb.length >= 5 && verb.endswith("ni") && objectPrefix !== "") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1310,7 +1304,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Applies to short words that ends in -na, transitives (ana)
-    if (verb.length === 3 && verb.endsWith("na") && objectPrefix !== "") {
+    if (verb.length === 3 && verb.endswith("na") && objectPrefix !== "") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1331,8 +1325,8 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Clase 4: Rule for SHORT words ending in -kwV (kwa, kwi)
-    if (objectPrefix !== "" && verb.endsWith("kwa") && !verb.endsWith("tzakwa") || 
-        objectPrefix !== "" && verb.length === 3 && verb.endsWith("kwi")) {
+    if (objectPrefix !== "" && verb.endswith("kwa") && !verb.endswith("tzakwa") || 
+        objectPrefix !== "" && verb.length === 3 && verb.endswith("kwi")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1347,7 +1341,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Rule for LONG words ending in -kwV (-tzak, -ijnek)
-    if (objectPrefix !== "" && verb.endsWith("tzakwa") || verb.length >= 4 && verb.endsWith("kwi")) {
+    if (objectPrefix !== "" && verb.endswith("tzakwa") || verb.length >= 4 && verb.endswith("kwi")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1362,7 +1356,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Class 1: words ending in na & wa, deletion of last vowel + ki, intransitives (ewa)
-    if (verb.length == 4 && verb.endsWith("ni")) {
+    if (verb.length == 4 && verb.endswith("ni")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1387,8 +1381,8 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Words ending in na & wa, deletion of last vowel (pewa)
-    if ((objectPrefix !== "" && verb.length >= 5 && verb.endsWith("na")) ||
-        (verb.length > 5 && verb.endsWith("wa") && verb[verb.length - 3] !== 'j')) {
+    if ((objectPrefix !== "" && verb.length >= 5 && verb.endswith("na")) ||
+        (verb.length > 5 && verb.endswith("wa") && verb[verb.length - 3] !== 'j')) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1403,7 +1397,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Class 3: Words ending in na & wa, deletion of last vowel ishtuna
-    if (objectPrefix === "" && verb.length >= 4 && verb.endsWith("na")) {
+    if (objectPrefix === "" && verb.length >= 4 && verb.endswith("na")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1418,7 +1412,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Class 1: tzajtzi
-    if (verb.endsWith("jtzi") || verb.endsWith("jtza")) {
+    if (verb.endswith("jtzi") || verb.endswith("jtza")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1443,7 +1437,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Words ending in na & wa, deletion of last vowel
-    if ((verb.length <= 5 && verb.endsWith("na"))) {
+    if ((verb.length <= 5 && verb.endswith("na"))) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1468,7 +1462,7 @@ if (objectPrefix === "" && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Words ending in sha
-if (verb.endsWith("sha")) {
+if (verb.endswith("sha")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1542,7 +1536,7 @@ if (verb.endsWith("sha")) {
         }
     }
 // Class 5: Single rule for words ending in wa, deletion of last vowel + ki (singular) APPLIES TO J WORDS
-    if (verb.length <= 4 && verb.endsWith("wa") && !verb[verb.length - 3] === 'j') {
+    if (verb.length <= 4 && verb.endswith("wa") && !verb[verb.length - 3] === 'j') {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1566,7 +1560,7 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 5: Single rule for words ending in wa, deletion of last vowel + ki, transitives (singular -, pewa)
-    if (objectPrefix !== "" && verb.length >= 4 && verb.length <= 5 && verb.endsWith("wa")) {
+    if (objectPrefix !== "" && verb.length >= 4 && verb.length <= 5 && verb.endswith("wa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1590,7 +1584,7 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 1: Single rule for words ending in wa, deletion of last vowel + k (singular - )
-    if (objectPrefix === "" && verb.length <= 5 && verb.endsWith("wa")) {
+    if (objectPrefix === "" && verb.length <= 5 && verb.endswith("wa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1614,7 +1608,7 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 1: Rule end wa, del last vowel + k, intransitive (ajwa)
-    if (objectPrefix === "" && verb[verb.length - 3] == 'j' && verb.endsWith("wa")) {
+    if (objectPrefix === "" && verb[verb.length - 3] == 'j' && verb.endswith("wa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1707,3 +1701,41 @@ function typeWriter(text, elementId, delay = 50) {
         }
     }, delay);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to the intransitive and transitive verb table cells
+    document.querySelectorAll('#intransitive-verbs td').forEach(cell => {
+        cell.addEventListener('click', function() {
+            console.log('Intransitive verb clicked:', this.textContent);
+            populateVerbTextbox(this.textContent);
+            document.getElementById('object-prefix').value = ''; // Set to intransitive
+            generateWord();
+        });
+    });
+
+    document.querySelectorAll('#transitive-verbs td').forEach(cell => {
+        cell.addEventListener('click', function() {
+            console.log('Transitive verb clicked:', this.textContent);
+            populateVerbTextbox(this.textContent);
+            document.getElementById('object-prefix').value = 'ki'; // Set to transitive
+            generateWord();
+        });
+    });
+    // Prevent form submission on Enter key press
+    document.querySelector('form').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent the default form submission
+            generateWord(); // Call the generateWord function
+        }
+    });
+});
+
+function populateVerbTextbox(selectedVerb) {
+    // Populate the verb textbox with the selected verb
+    document.getElementById('verb').value = selectedVerb;
+    generateWord();
+}
+
+
+
+
