@@ -7,6 +7,198 @@ function populateVerbTextbox(selectedVerb) {
 var originalLabels = {};
 var originalPlaceholder = "";
 var originalSubmitButtonValue = "";
+function getTransitividadSelection() {
+    return document.getElementById("object-prefix")?.value || "intransitivo";
+}
+
+const OBJECT_PREFIXES = [
+    { value: "nech", labelText: "a mí (nech)" },
+    { value: "metz", labelText: "a ti (metz)" },
+    { value: "ki", labelText: "a ella/él (ki~k)" },
+    { value: "tech", labelText: "a nosotras/os (tech)" },
+    { value: "metzin", labelText: "a ustedes (metzin)" },
+    { value: "kin", labelText: "a ellas/ellos (kin)" },
+    { value: "mu", labelText: "a uno mismo (mu)" },
+    { value: "ta", labelText: "algo (ta)" },
+    { value: "te", labelText: "la gente (te)" },
+];
+
+function getSubjectPersonInfo(subjectPrefix, subjectSuffix) {
+    if (subjectPrefix === "ni" && subjectSuffix === "") {
+        return { person: 1, number: "sg" };
+    }
+    if (subjectPrefix === "ti" && subjectSuffix === "") {
+        return { person: 2, number: "sg" };
+    }
+    if (subjectPrefix === "ti" && subjectSuffix === "t") {
+        return { person: 1, number: "pl" };
+    }
+    if (subjectPrefix === "an" && subjectSuffix === "t") {
+        return { person: 2, number: "pl" };
+    }
+    if (subjectPrefix === "" && subjectSuffix === "") {
+        return { person: 3, number: "sg" };
+    }
+    if (subjectPrefix === "" && subjectSuffix === "t") {
+        return { person: 3, number: "pl" };
+    }
+    return null;
+}
+
+function getObjectPersonInfo(objectPrefix) {
+    switch (objectPrefix) {
+        case "nech":
+            return { person: 1, number: "sg" };
+        case "tech":
+            return { person: 1, number: "pl" };
+        case "metz":
+            return { person: 2, number: "sg" };
+        case "metzin":
+            return { person: 2, number: "pl" };
+        case "ki":
+            return { person: 3, number: "sg" };
+        case "kin":
+            return { person: 3, number: "pl" };
+        default:
+            return null;
+    }
+}
+
+function isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix) {
+    const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    const object = getObjectPersonInfo(objectPrefix);
+    if (!subject || !object) {
+        return false;
+    }
+    if (subject.person === 3) {
+        return false;
+    }
+    return subject.person === object.person && subject.number === object.number;
+}
+
+function getObjectPrefixesForTransitividad() {
+    return getTransitividadSelection() === "transitivo"
+        ? OBJECT_PREFIXES.map((opt) => opt.value)
+        : [""];
+}
+
+function getObjectLabel(prefix) {
+    if (!prefix) {
+        return "intransitivo";
+    }
+    return OBJECT_PREFIXES.find((opt) => opt.value === prefix)?.labelText || prefix;
+}
+
+function getObjectCategory(prefix) {
+    if (!prefix) {
+        return "intransitive";
+    }
+    if (prefix === "mu") {
+        return "reflexive";
+    }
+    if (prefix === "ta" || prefix === "te") {
+        return "indirect";
+    }
+    return "direct";
+}
+
+function getCurrentObjectPrefix() {
+    const prefixes = getObjectPrefixesForTransitividad();
+    return prefixes[0] || "";
+}
+
+// Subject combo removed; keep placeholders for clarity
+function syncSubjectInputsFromCombo() {}
+function syncSubjectComboFromInputs() {}
+
+function updateMassHeadings() {
+    const transitivity = getTransitividadSelection();
+    const objectCount = transitivity === "transitivo" ? OBJECT_PREFIXES.length : 1;
+    const matrixHeading = document.getElementById("matrix-heading");
+    if (matrixHeading) {
+        matrixHeading.textContent = transitivity === "transitivo"
+            ? "Matrices 9×6 por objeto (9 objetos)"
+            : "Matriz 9×6 (intransitivo)";
+    }
+}
+
+function getSelectedTenseTab() {
+    return TENSE_TABS_STATE.selected;
+}
+
+function setSelectedTenseTab(value) {
+    if (TENSE_ORDER.includes(value)) {
+        TENSE_TABS_STATE.selected = value;
+    }
+}
+
+function getNormalizedVerb() {
+    const verbInput = document.getElementById("verb");
+    if (!verbInput) {
+        return "";
+    }
+    return verbInput.value.toLowerCase().replace(/[^a-z]/g, "");
+}
+
+function renderTenseTabs() {
+    const container = document.getElementById("tense-tabs");
+    if (!container) {
+        return;
+    }
+    container.innerHTML = "";
+    TENSE_ORDER.forEach((tenseValue) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tense-tab";
+        if (tenseValue === getSelectedTenseTab()) {
+            button.classList.add("is-active");
+        }
+        button.textContent = TENSE_LABELS[tenseValue] || tenseValue;
+        button.addEventListener("click", () => {
+            setSelectedTenseTab(tenseValue);
+            renderTenseTabs();
+            renderAllOutputs({
+                verb: getNormalizedVerb(),
+                objectPrefix: getCurrentObjectPrefix(),
+                tense: tenseValue,
+            });
+        });
+        container.appendChild(button);
+    });
+}
+const SUBJECT_COMBINATIONS = [
+    { id: "ni", labelEs: "yo", labelNa: "naja", subjectPrefix: "ni", subjectSuffix: "" },
+    { id: "ti", labelEs: "tú / usted", labelNa: "taja", subjectPrefix: "ti", subjectSuffix: "" },
+    { id: "third-person", labelEs: "ella / él", labelNa: "yaja", subjectPrefix: "", subjectSuffix: "" },
+    { id: "1-pl", labelEs: "nosotras / nosotros", labelNa: "tejemet", subjectPrefix: "ti", subjectSuffix: "t" },
+    { id: "2-pl", labelEs: "ustedes", labelNa: "anmejemet", subjectPrefix: "an", subjectSuffix: "t" },
+    { id: "3-pl", labelEs: "ellas / ellos", labelNa: "yejemet", subjectPrefix: "", subjectSuffix: "t" },
+];
+const TENSE_ORDER = [
+    "presente",
+    "imperfecto",
+    "preterito-izalco",
+    "preterito",
+    "perfecto",
+    "pluscuamperfecto",
+    "condicional-perfecto",
+    "futuro",
+    "condicional",
+];
+const TENSE_LABELS = {
+    "presente": "presente",
+    "imperfecto": "pretérito imperfecto",
+    "preterito-izalco": "pretérito (Izalco)",
+    "preterito": "pretérito (Witzapan)",
+    "perfecto": "pretérito perfecto",
+    "pluscuamperfecto": "pretérito pluscuamperfecto",
+    "condicional-perfecto": "pretérito condicional perfecto",
+    "futuro": "futuro",
+    "condicional": "futuro condicional",
+};
+const TENSE_TABS_STATE = {
+    selected: TENSE_ORDER[0],
+};
 
 // Generate translated label
 function changeLanguage() {
@@ -51,8 +243,6 @@ function changeLanguage() {
         "condicional-perfecto-label",
         "futuro-label",
         "condicional-label",
-        "generate-button",
-        "generate-button-label",
         "feedback-heading",
         "feedback-message",
         "name-label",
@@ -93,15 +283,13 @@ function changeLanguage() {
         "tense-label": "Kawit",
         "presente-label": "tay panu",
         "imperfecto-label": "tay panu katka",
-        "preterito-izalco-label": "tey panuk (Ijtzalku)",
+        "preterito-izalco-label": "tay panuk (Ijtzalku)",
         "preterito-label": "tay panuk (Witzapan)",
         "perfecto-label": "tay panutuk",
         "pluscuamperfecto-label": "tay panutuya",
         "condicional-perfecto-label": "tay panutuskia",
         "futuro-label": "tay panus",
         "condicional-label": "tay panuskia",
-        "generate-button": "Shikpuwa",
-        "generate-button-label": "Tasenpuwalis",
         "feedback-heading": "Shitanawati",
         "feedback-message": "Tikajsik tutzawalamaw! Tiknekit ma shiyulpaki kwak tinemi ka nikan. Su tiknekiskia titechilwia wan titechtajtanilia tatka, tipakiskiat timetzkakit! Tay tina ipanpa ini amat techpalewia timuyektiat.",
         "name-label": "Mutukay",
@@ -116,7 +304,7 @@ function changeLanguage() {
         var labelElement = document.getElementById(elementId);
         if (labelElement) {
           // Store the original text
-          originalLabels[elementId] = labelElement.textContent;
+          originalLabels[elementId] = originalLabels[elementId] || labelElement.textContent;
           // Replace with the translated text
           labelElement.textContent = translations[elementId];
         }
@@ -160,222 +348,176 @@ function changeLanguage() {
     } else {
       wordHeading.textContent = "Conjugador de verbos en náhuat de El Salvador";
     }
-  
+
     document.getElementById("footer").textContent = "Jaime Núñez";
+
+    updateMassHeadings();
+    renderTenseTabs();
+    renderAllOutputs({
+        verb: verbInput.value.toLowerCase().replace(/[^a-z]/g, ""),
+        objectPrefix: document.getElementById("object-prefix").value,
+        tense: document.getElementById("tense-select")?.value || "presente",
+    });
 }
 
-//Keyboard navigation methods for the selected options
+//Keyboard navigation (kept minimal now that radios are removed)
 document.addEventListener('keydown', function(event) {
-    // Focus on the verb textbox when the 'Spacebar' key is pressed
+    const verbEl = document.getElementById('verb');
+    const objectSelect = document.getElementById("object-prefix");
     if (event.key === ' ') { // Spacebar key
-        document.getElementById('verb').focus();
-        // Prevent the default behavior of the 'Spacebar' key
+        if (verbEl) verbEl.focus();
         event.preventDefault();
-    }
-    // Exit the verb textbox when the 'Escape' key is pressed
-    else if (event.key === 'Escape') {
-        document.getElementById('verb').blur();
-        // Prevent the default behavior of the 'Escape' key
+    } else if (event.key === 'Escape') {
+        if (verbEl) verbEl.blur();
         event.preventDefault();
-    }
-    else if (event.key === 'N') {
-        document.getElementById('ni').checked = true;
-        document.getElementById('subject-prefix').value = 'ni';
+    } else if (event.key === 'Enter') {
         generateWord();
         event.preventDefault();
-    } else if (event.key === 'T') {
-        // If 'ti' is currently checked, switch to 'we'
-        if (document.getElementById('ti').checked) {
-            document.getElementById('1-pl').checked = true;
-            document.getElementById('subject-prefix').value = 'ti';
-            document.getElementById('subject-suffix').value = 't';
-            generateWord();
-            event.preventDefault();
-        } else {
-            // Otherwise, switch to 'ti'
-            document.getElementById('ti').checked = true;
-            document.getElementById('subject-prefix').value = 'ti';
-            document.getElementById('subject-suffix').value = '';
-            generateWord();
-            event.preventDefault();
-        }
-    } else if (event.key === 'Y') {
-        // If 'third-person' is currently checked, switch to '3-pl'
-        if (document.getElementById('third-person').checked) {
-            document.getElementById('3-pl').checked = true;
-            document.getElementById('subject-prefix').value = '';
-            document.getElementById('subject-suffix').value = 't';
-            generateWord();
-            event.preventDefault();
-        } else {
-            // Otherwise, switch to 'third-person'
-            document.getElementById('third-person').checked = true;
-            document.getElementById('subject-prefix').value = '';
-            document.getElementById('subject-suffix').value = '';
-            generateWord();
-            event.preventDefault();
-        }
-    } else if (event.key === 'A') {
-        document.getElementById('2-pl').checked = true;
-        document.getElementById('subject-prefix').value = 'an';
+    } else if (event.key === '1' && objectSelect) {
+        objectSelect.value = "intransitivo";
+        updateMassHeadings();
         generateWord();
         event.preventDefault();
-    }
-    // Object Prefix
-    else if (event.key === '1') {
-        document.getElementById('me').checked = true;
-        document.getElementById('object-prefix').value = 'nech';
+    } else if (event.key === '2' && objectSelect) {
+        objectSelect.value = "transitivo";
+        updateMassHeadings();
         generateWord();
-        event.preventDefault();
-    } else if (event.key === '2') {
-        document.getElementById('you').checked = true;
-        document.getElementById('object-prefix').value = 'metz';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '3') {
-        document.getElementById('him-her-it').checked = true;
-        document.getElementById('object-prefix').value = 'ki';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '4') {
-        document.getElementById('us').checked = true;
-        document.getElementById('object-prefix').value = 'tech';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '5') {
-        document.getElementById('you-pl').checked = true;
-        document.getElementById('object-prefix').value = 'metzin';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '6') {
-        document.getElementById('them').checked = true;
-        document.getElementById('object-prefix').value = 'kin';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '7') {
-        document.getElementById('self').checked = true;
-        document.getElementById('object-prefix').value = 'mu';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '8') {
-        document.getElementById('thing').checked = true;
-        document.getElementById('object-prefix').value = 'ta';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '9') {
-        document.getElementById('people').checked = true;
-        document.getElementById('object-prefix').value = 'te';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '0') {
-        document.getElementById('intransitive').checked = true;
-        document.getElementById('object-prefix').value = '';
-        generateWord();
-        event.preventDefault();
-    }
-    // Subject Suffix
-    else if (event.key === 'S') {
-        document.getElementById('subject-suffix').value = '';
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === 'P') {
-        document.getElementById('subject-suffix').value = 't';
-        generateWord();
-        event.preventDefault();
-    }
-    // Tense
-    else if (event.key === '!') {
-        document.querySelector('input[name="tense"][value="presente"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '@') {
-        document.querySelector('input[name="tense"][value="imperfecto"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '#') {
-        document.querySelector('input[name="tense"][value="preterito-izalco"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '$') {
-        document.querySelector('input[name="tense"][value="preterito"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '%') {
-        document.querySelector('input[name="tense"][value="perfecto"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '^') {
-        document.querySelector('input[name="tense"][value="pluscuamperfecto"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '&') {
-        document.querySelector('input[name="tense"][value="condicional-perfecto"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '*') {
-        document.querySelector('input[name="tense"][value="futuro"]').checked = true;
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '(') {
-        document.querySelector('input[name="tense"][value="condicional"]').checked = true;
-        generateWord();
-        event.preventDefault();
-}
-    // Generate Word
-    else if (event.key === 'Enter') {
-        // Call the generateWord() function
-        generateWord();
-        // Prevent the default behavior of the "Enter" key
         event.preventDefault();
     }
 });
 
-function generateWord() {
+// Auto-generate on load and while typing
+document.addEventListener("DOMContentLoaded", () => {
+    const verbEl = document.getElementById("verb");
+    if (verbEl) {
+        verbEl.addEventListener("input", generateWord);
+    }
+    const objectSelect = document.getElementById("object-prefix");
+    if (objectSelect) {
+        objectSelect.addEventListener("change", () => {
+            updateMassHeadings();
+            generateWord();
+        });
+    }
+    updateMassHeadings();
+    renderTenseTabs();
+    generateWord();
+});
+
+function generateWord(options = {}) {
+    if (options instanceof Event) {
+        options = {};
+    }
+    const silent = options.silent === true;
+    const skipValidation = options.skipValidation === true;
+    const renderOnlyTense = options.renderOnlyTense || null;
+    const override = options.override || null;
+    const subjectPrefixInput = document.getElementById("subject-prefix");
+    const objectPrefixInput = document.getElementById("object-prefix");
+    const subjectSuffixInput = document.getElementById("subject-suffix");
+    const verbInput = document.getElementById("verb");
     // Get the selected values of the prefixes and suffixes
-    let subjectPrefix = document.getElementById("subject-prefix").value;
-    let objectPrefix = document.getElementById("object-prefix").value;
-    let verb = document.getElementById("verb").value;
-    let subjectSuffix = document.getElementById("subject-suffix").value;
-    let tense = document.querySelector('input[name="tense"]:checked').value;
+    let subjectPrefix = override?.subjectPrefix ?? subjectPrefixInput.value;
+    let objectPrefix = override?.objectPrefix ?? getCurrentObjectPrefix();
+    let verb = override?.verb ?? verbInput.value;
+    let subjectSuffix = override?.subjectSuffix ?? subjectSuffixInput.value;
+    let tense = override?.tense ?? "presente";
+    const baseObjectPrefix = objectPrefix;
+    let isReflexive = objectPrefix === "mu";
+    const rerenderOutputs = () =>
+        renderAllOutputs({
+            verb,
+            objectPrefix: baseObjectPrefix,
+            tense,
+            onlyTense: renderOnlyTense,
+        });
+
+    const clearError = (id) => {
+        if (!silent) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove("error");
+            }
+        }
+    };
+    const setError = (id) => {
+        if (!silent) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add("error");
+            }
+        }
+    };
+    const setGeneratedText = (text) => {
+        if (!silent) {
+            const output = document.getElementById("generated-word");
+            if (output) {
+                output.textContent = text;
+            }
+        }
+    };
+    const renderAll = () => {
+        if (!silent) {
+            renderAllConjugations({
+                verb,
+                objectPrefix: baseObjectPrefix,
+                tense,
+            });
+        }
+    };
 
     // Remove error class from subject prefix, object prefix, and subject suffix
-    document.getElementById("subject-prefix").classList.remove("error");
-    document.getElementById("object-prefix").classList.remove("error");
-    document.getElementById("subject-suffix").classList.remove("error");
-
-    document.getElementById("object-prefix").onchange = function () {
-        var selectedOption = this.value;
-        document.querySelectorAll("input[name=object]").forEach(function (radioButton) {
-            radioButton.checked = radioButton.value == selectedOption;
-        });
-    };
+    clearError("subject-prefix");
+    clearError("object-prefix");
+    clearError("subject-suffix");
 
     //Only allow lowercase letters
     verb = verb.toLowerCase();
     verb = verb.replace(/[^a-z]/g, "");
-    document.getElementById("verb").value = verb;
-
-    // Define a regular expression pattern to match consonants at the start or end of the verb
-    const consonantPattern = /^[bdfghjloqrvxz]|[bcdfghkjlmnpqrstvxy]$/i;
-
-    // Check if the verb starts or ends with a consonant using the regular expression
-    if (consonantPattern.test(verb)) {
-        document.getElementById("verb").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: El verbo no está escrito correctamente.";
-        return;
-    } else {
-        document.getElementById("verb").classList.remove("error");
+    const originalVerb = verb;
+    if (!silent) {
+        verbInput.value = verb;
     }
+
     if (verb === "") {
-        document.getElementById("generated-word").textContent = "Error: El verbo no puede estar vacío. Ingrese verbo.";
-        document.getElementById("verb").classList.add("error");
-        return;
+        const message = "El verbo no puede estar vacío. Ingrese verbo.";
+        if (!skipValidation) {
+            setGeneratedText(message);
+            setError("verb");
+            if (!silent) {
+                rerenderOutputs();
+            }
+            return { error: message };
+        }
     } else {
-        document.getElementById("verb").classList.remove("error");
+        clearError("verb");
+    }
+    if (!/[aeiou]/.test(verb)) {
+        const message = "El verbo no está escrito correctamente.";
+        if (!skipValidation) {
+            setError("verb");
+            setGeneratedText(message);
+            if (!silent) {
+                rerenderOutputs();
+            }
+            return { error: message };
+        }
+    } else {
+        clearError("verb");
+    }
+
+    // Auto-switch to reflexive when subject/object are the same person and number.
+    if (isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix)) {
+        objectPrefix = "mu";
+        isReflexive = true;
+        clearError("object-prefix");
+    } else if (objectPrefix === "mu") {
+        isReflexive = true;
     }
     
     // Check for invalid combinations of subject and object prefixes
-    if ((subjectPrefix === "ni" && objectPrefix === "" && subjectSuffix === "t") ||
+    if (!skipValidation && (
+        (subjectPrefix === "ni" && objectPrefix === "" && subjectSuffix === "t") ||
         (subjectPrefix === "ni" && objectPrefix === "ki" && subjectSuffix === "t") ||
         (subjectPrefix === "ni" && objectPrefix === "metz" && subjectSuffix === "t") ||
         (subjectPrefix === "ni" && objectPrefix === "tech" && subjectSuffix === "t") ||
@@ -398,20 +540,25 @@ function generateWord() {
         (subjectPrefix === "an" && objectPrefix === "kin" && subjectSuffix === "") ||
         (subjectPrefix === "an" && objectPrefix === "metz" && subjectSuffix === "") ||
         (subjectPrefix === "an" && objectPrefix === "ki" && subjectSuffix === "") ||
-        (subjectPrefix === "ti" && objectPrefix === "nech" && subjectSuffix === "t")) {
+        (subjectPrefix === "ti" && objectPrefix === "nech" && subjectSuffix === "t")
+    )) {
         // Add error class to subject prefix, object prefix, and subject suffix
-        document.getElementById("subject-prefix").classList.add("error");
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("subject-suffix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Combinacion inválida";
-        return;
+        setError("subject-prefix");
+        setError("object-prefix");
+        setError("subject-suffix");
+        const message = "Combinacion inválida";
+        setGeneratedText(message);
+        if (!silent) {
+            rerenderOutputs();
+        }
+        return { error: message };
     } else {
         // Generate the word
-        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+        setGeneratedText(subjectPrefix + objectPrefix + verb + subjectSuffix);
     }
     // VERB FORM IDENTIFIER ERROR MESSAGES
     const intransitiveVerbs = ["kamachalua", "tashkalua", "chulua", "pewa", "pejpewa", "tzinkisa", "kisa", "naka", "kunaka", "chuka", "ijsa", "isa", "mayana", "ina", "wetzka", "tawana", "tata", "sutawa", "ishpinawa", "pinawa", "witz", "kwika", "tajkwilua"];
-    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "mamali", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka"];
+    const transitiveVerbs = ["teki", "neki", "kaki", "namiki", "mamali", "tajkali", "elnamiki", "piki", "ijnekwi", "kwi", "uni", "mati", "mati", "witeki", "pusteki", "chijchimi", "tajtani", "ijkwani", "tanewi", "chiya", "piya", "uya", "patzka", "wika", "saka", "paka", "ishka", "tuka", "maka", "pishka", "teka", "talia", "talua", "chalua", "salua", "tawilua"];
     
     // Exclude specific verbs from the derivation check
     const excludeFromDerivation = ["pewa", "ina"];
@@ -424,50 +571,53 @@ function generateWord() {
 
     // Check if the input verb is derived from and ends with any verb in the transitiveVerbs list
     const isDerivedFromTransitive = transitiveVerbs.some(transitiveVerb => verb.endsWith(transitiveVerb));
+    const isIaUa = verb.endsWith("ia") || verb.endsWith("ua");
+    const forceTransitiveIaUa = isIaUa && (transitiveVerbs.includes(verb) || isDerivedFromTransitive);
     
     // Check if the input verb is intransitive or if it's a derivation of an intransitive verb
-    if ((intransitiveVerbs.includes(verb) || isDerivedFromIntransitive) && objectPrefix !== "" && !verb.endsWith("tajkwilua") ||
+    if (!forceTransitiveIaUa && (
+        (intransitiveVerbs.includes(verb) || isDerivedFromIntransitive) && objectPrefix !== "" && !verb.endsWith("tajkwilua") ||
         verb.endsWith("i") && !verb.endsWith("ajsi") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("u") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("ya") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
         verb.endsWith("ka") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive ||
-        verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive) {
-        // Add error class to object prefix and display error message
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo es intransitivo. Seleccione sin objeto.";
-        return;
+        verb.endsWith("ni") && objectPrefix !== "" && !transitiveVerbs.includes(verb) && !isDerivedFromTransitive
+    )) {
+        if (!skipValidation) {
+            // Add error class to object prefix and display error message
+            setError("object-prefix");
+            const message = "Este verbo es intransitivo. Seleccione sin objeto.";
+            setGeneratedText(message);
+            if (!silent) {
+                rerenderOutputs();
+            }
+            return { error: message };
+        }
     } else {
         // Generate the word
-        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+        setGeneratedText(subjectPrefix + objectPrefix + verb + subjectSuffix);
     }
     
     // Check for transitive verbs being used INTRANSITIVELY
     // Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
-    if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive) && objectPrefix === "" && !verb.endsWith("tajtani") ||
+    if ((transitiveVerbs.includes(verb) || isDerivedFromTransitive || forceTransitiveIaUa) && objectPrefix === "" && !verb.endsWith("tajtani") ||
         verb.endsWith("a") && !verb.endsWith("ya") && !verb.endsWith("ka") && objectPrefix === "" && !intransitiveVerbs.includes(verb) && !isDerivedFromIntransitive) {
-        // Add error class to object prefix and display error message
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Este verbo es transitivo. Seleccione objeto.";
-        return;
+        if (!skipValidation) {
+            // Add error class to object prefix and display error message
+            setError("object-prefix");
+            const message = "Este verbo es transitivo. Seleccione objeto.";
+            setGeneratedText(message);
+            if (!silent) {
+                rerenderOutputs();
+            }
+            return { error: message };
+        }
     } else {
         // Generate the word
-        document.getElementById("generated-word").textContent = subjectPrefix + objectPrefix + verb + subjectSuffix;
+        setGeneratedText(subjectPrefix + objectPrefix + verb + subjectSuffix);
     }
     
-    // Check for incorrect reflexive combinations of subject and object prefixes
-    if ((subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "") ||
-        (subjectPrefix === "ni" && objectPrefix === "nech" && subjectSuffix === "t") ||
-        (subjectPrefix === "ti" && objectPrefix === "metz") && subjectSuffix === "" ||
-        (subjectPrefix === "an" && objectPrefix === "metzin" && subjectSuffix === "t") ||
-        (subjectPrefix === "an" && objectPrefix === "metzin" && subjectSuffix === "") ||
-        (subjectPrefix === "ti" && objectPrefix === "tech" && subjectSuffix === "t")) {
-        // Add error class to subject prefix, object prefix, and subject suffix
-        document.getElementById("object-prefix").classList.add("error");
-        document.getElementById("generated-word").textContent = "Error: Esta combinación es reflexiva. Seleccione objeto reflexivo.";
-        return;
-    } else {
-        document.getElementById("object-prefix").classList.remove("error");
-    }
+    clearError("object-prefix");
 
     // Check if the object prefix "ki" should be shortened to "k"
     if (subjectPrefix === "ni" || subjectPrefix === "ti" || verb.startsWith("i")) {
@@ -590,10 +740,10 @@ if (
 if (verb.endsWith("ia") || verb.endsWith("ua")) {
     switch (tense) {
         case "preterito-izalco":
-            verb = verb.slice(0, -1);
+            verb = verb.slice(0, -1); // drop final vowel
             switch (subjectSuffix) {
                 case "":
-                    verb = verb.slice(0, -1);
+                    subjectSuffix = "k";
                     break;
                 case "ket":
                     verb = verb + "j";
@@ -1668,21 +1818,258 @@ if (verb[verb.length - 2] === 'z') {
             break;
     }
 }
-    // Add event listeners to update the generated word when inputs change
-    const inputs = document.querySelectorAll("input, select");
-    inputs.forEach(input => input.addEventListener("change", generateWord));
-
     // Combine the prefixes, verb, and suffixes into a single word
     const generatedText = subjectPrefix + objectPrefix + verb + subjectSuffix;
 
     // Use the typeWriter function to display the generated word letter by letter
-    typeWriter(generatedText, 'generated-word', 50);
+    if (!silent) {
+        typeWriter(generatedText, 'generated-word', 50);
+        renderAllOutputs({
+            verb: originalVerb,
+            objectPrefix: baseObjectPrefix,
+            tense,
+            onlyTense: renderOnlyTense,
+        });
+    }
+
+    return { result: generatedText, isReflexive };
 }
 let intervalId; // Declare a variable to store the interval ID
+
+function renderAllOutputs({ verb, objectPrefix, tense, onlyTense = null }) {
+    renderAllTenseConjugations({ verb, objectPrefix, onlyTense });
+    renderFullMatrix({ verb, objectPrefix });
+}
+
+function renderAllConjugations({ verb, objectPrefix, tense }) {
+    const container = document.getElementById("all-conjugations");
+    if (!container) {
+        return;
+    }
+    if (!verb) {
+        container.innerHTML = "";
+        return;
+    }
+    const languageSwitch = document.getElementById("language");
+    const isNawat = languageSwitch && languageSwitch.checked;
+    container.innerHTML = "";
+
+    SUBJECT_COMBINATIONS.forEach((combo) => {
+        const result = generateWord({
+            silent: true,
+            override: {
+                subjectPrefix: combo.subjectPrefix,
+                subjectSuffix: combo.subjectSuffix,
+                objectPrefix,
+                verb,
+                tense,
+            },
+        }) || {};
+
+        const row = document.createElement("div");
+        row.className = "conjugation-row";
+
+        const label = document.createElement("div");
+        label.className = "conjugation-label";
+        label.textContent = isNawat ? combo.labelNa : combo.labelEs;
+
+        const value = document.createElement("div");
+        value.className = "conjugation-value";
+        value.textContent = result.error ? "—" : result.result;
+        if (result.error) {
+            value.classList.add("conjugation-error");
+        } else if (result.isReflexive) {
+            value.classList.add("conjugation-reflexive");
+        }
+
+        row.appendChild(label);
+        row.appendChild(value);
+        container.appendChild(row);
+    });
+}
+
+function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
+    const container = document.getElementById("all-tense-conjugations");
+    if (!container) {
+        return;
+    }
+    const languageSwitch = document.getElementById("language");
+    const isNawat = languageSwitch && languageSwitch.checked;
+    const selectedTense = getSelectedTenseTab();
+
+    const buildBlock = (tenseValue, gridObjectPrefix, objectLabel) => {
+        const tenseBlock = document.createElement("div");
+        tenseBlock.className = "tense-block";
+        tenseBlock.dataset.tenseBlock = `${gridObjectPrefix || "intrans"}-${tenseValue}`;
+
+        const tenseTitle = document.createElement("div");
+        tenseTitle.className = "tense-block__title";
+        tenseTitle.textContent = objectLabel;
+        tenseBlock.appendChild(tenseTitle);
+
+        const list = document.createElement("div");
+        list.className = "conjugation-list";
+
+        if (!verb) {
+            const placeholder = document.createElement("div");
+            placeholder.className = "tense-placeholder";
+            placeholder.textContent = "Ingresa un verbo para ver las conjugaciones.";
+            list.appendChild(placeholder);
+            tenseBlock.appendChild(list);
+            return tenseBlock;
+        }
+
+        SUBJECT_COMBINATIONS.forEach((combo) => {
+            const result = generateWord({
+                silent: true,
+                override: {
+                    subjectPrefix: combo.subjectPrefix,
+                    subjectSuffix: combo.subjectSuffix,
+                    objectPrefix: gridObjectPrefix,
+                    verb,
+                    tense: tenseValue,
+                },
+            }) || {};
+
+            const row = document.createElement("div");
+            row.className = "conjugation-row";
+
+            const label = document.createElement("div");
+            label.className = "conjugation-label";
+            label.textContent = isNawat ? combo.labelNa : combo.labelEs;
+
+            const value = document.createElement("div");
+            value.className = "conjugation-value";
+            value.textContent = result.error ? "—" : result.result;
+            if (result.error) {
+                value.classList.add("conjugation-error");
+            } else if (result.isReflexive) {
+                value.classList.add("conjugation-reflexive");
+            }
+
+            row.appendChild(label);
+            row.appendChild(value);
+            list.appendChild(row);
+        });
+
+        tenseBlock.appendChild(list);
+        return tenseBlock;
+    };
+
+    container.innerHTML = "";
+    const objectPrefixes = getObjectPrefixesForTransitividad();
+
+    objectPrefixes.forEach((objPrefix) => {
+        const objSection = document.createElement("div");
+        objSection.className = "object-section";
+        const category = getObjectCategory(objPrefix);
+        if (category !== "intransitive") {
+            objSection.classList.add(`object-section--${category}`);
+        }
+        const objectLabel = getObjectLabel(objPrefix);
+
+        const grid = document.createElement("div");
+        grid.className = "tense-grid";
+
+        grid.appendChild(buildBlock(selectedTense, objPrefix, objectLabel));
+
+        objSection.appendChild(grid);
+        container.appendChild(objSection);
+    });
+}
+
+function renderFullMatrix({ verb, objectPrefix }) {
+    const container = document.getElementById("full-matrix");
+    if (!container) {
+        return;
+    }
+    const languageSwitch = document.getElementById("language");
+    const isNawat = languageSwitch && languageSwitch.checked;
+
+    container.innerHTML = "";
+    if (!verb) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "matrix-placeholder";
+        placeholder.textContent = "Ingresa un verbo para ver la matriz.";
+        container.appendChild(placeholder);
+        return;
+    }
+    const buildTable = (fixedObjectPrefix, captionText) => {
+        const table = document.createElement("table");
+        table.className = "matrix-table";
+        if (captionText) {
+            const caption = document.createElement("caption");
+            caption.textContent = captionText;
+            table.appendChild(caption);
+        }
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.appendChild(document.createElement("th"));
+        TENSE_ORDER.forEach((tenseValue) => {
+            const th = document.createElement("th");
+            th.textContent = TENSE_LABELS[tenseValue] || tenseValue;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        SUBJECT_COMBINATIONS.forEach((combo) => {
+            const row = document.createElement("tr");
+            const labelCell = document.createElement("th");
+            labelCell.textContent = isNawat ? combo.labelNa : combo.labelEs;
+            row.appendChild(labelCell);
+
+            TENSE_ORDER.forEach((tenseValue) => {
+                const cell = document.createElement("td");
+                const result = generateWord({
+                    silent: true,
+                    override: {
+                        subjectPrefix: combo.subjectPrefix,
+                        subjectSuffix: combo.subjectSuffix,
+                        objectPrefix: fixedObjectPrefix,
+                        verb,
+                        tense: tenseValue,
+                    },
+                }) || {};
+                cell.textContent = result.error ? "—" : result.result;
+                if (result.error) {
+                    cell.classList.add("conjugation-error");
+                } else if (result.isReflexive) {
+                    cell.classList.add("conjugation-reflexive");
+                }
+                row.appendChild(cell);
+            });
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        return table;
+    };
+
+    const objectPrefixes = getObjectPrefixesForTransitividad();
+
+    objectPrefixes.forEach((prefix) => {
+        const section = document.createElement("div");
+        section.className = "matrix-section";
+        const category = getObjectCategory(prefix);
+        if (category !== "intransitive") {
+            section.classList.add(`matrix-section--${category}`);
+        }
+        const heading = document.createElement("h3");
+        heading.textContent = getObjectLabel(prefix);
+        section.appendChild(heading);
+        section.appendChild(buildTable(prefix, heading.textContent));
+        container.appendChild(section);
+    });
+}
 
 function typeWriter(text, elementId, delay = 50) {
     let i = 0;
     const element = document.getElementById(elementId);
+    if (!element) {
+        return;
+    }
     element.innerHTML = "";
 
     // Clear any existing interval before starting a new one
@@ -1701,4 +2088,3 @@ function typeWriter(text, elementId, delay = 50) {
         }
     }, delay);
 }
-
