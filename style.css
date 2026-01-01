@@ -253,7 +253,8 @@ input[type="submit"]:hover {
   justify-items: center;
 }
 
-#all-tense-conjugations {
+#all-tense-conjugations,
+#all-preterito-universal-conjugations {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
@@ -542,13 +543,15 @@ input[type="submit"]:hover {
 }
 
 @media (max-width: 900px) {
-  #all-tense-conjugations {
+  #all-tense-conjugations,
+  #all-preterito-universal-conjugations {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
-  #all-tense-conjugations {
+  #all-tense-conjugations,
+  #all-preterito-universal-conjugations {
     grid-template-columns: 1fr;
   }
 }
