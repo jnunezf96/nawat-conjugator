@@ -58,75 +58,6 @@ const TENSE_SUFFIX_RULES = {
     condicional: { "": "skia", t: "skiat" },
 };
 
-const INTRANSITIVE_VERBS = [
-    "kamachalua",
-    "tashkalua",
-    "chulua",
-    "pewa",
-    "pejpewa",
-    "tzinkisa",
-    "kisa",
-    "naka",
-    "kunaka",
-    "chuka",
-    "ijsa",
-    "isa",
-    "mayana",
-    "ina",
-    "wetzka",
-    "tawana",
-    "tata",
-    "sutawa",
-    "ishpinawa",
-    "pinawa",
-    "witz",
-    "kwika",
-    "tajkwilua",
-];
-
-const TRANSITIVE_VERBS = [
-    "teki",
-    "neki",
-    "kaki",
-    "namiki",
-    "mamali",
-    "tajkali",
-    "elnamiki",
-    "piki",
-    "ijnekwi",
-    "kwi",
-    "uni",
-    "mati",
-    "mati",
-    "witeki",
-    "pusteki",
-    "chijchimi",
-    "tajtani",
-    "ijkwani",
-    "tanewi",
-    "chiya",
-    "piya",
-    "uya",
-    "patzka",
-    "wika",
-    "saka",
-    "paka",
-    "ishka",
-    "tuka",
-    "maka",
-    "pishka",
-    "teka",
-    "talia",
-    "talua",
-    "chalua",
-    "salua",
-    "tawilua",
-];
-
-const DERIVATION_EXCLUSIONS = new Set(["pewa", "ina"]);
-const INTRANSITIVE_DERIVATION_BASES = INTRANSITIVE_VERBS.filter(
-    (verb) => !DERIVATION_EXCLUSIONS.has(verb)
-);
 const MU_TO_M_VERB_PREFIXES = [
     "altia",
     "awiltia",
@@ -146,6 +77,46 @@ const VOWELS = "aeiu";
 const VOWEL_RE = /[aeiu]/;
 const VOWEL_GLOBAL_RE = /[aeiu]/g;
 const VOWEL_START_RE = /^[aeiu]/;
+const DIGRAPHS = ["tz", "sh", "ch", "kw", "nh"];
+const DIGRAPH_SET = new Set(DIGRAPHS);
+
+function splitVerbLetters(verb) {
+    const letters = [];
+    for (let i = 0; i < verb.length; i += 1) {
+        const pair = verb.slice(i, i + 2);
+        if (DIGRAPH_SET.has(pair)) {
+            letters.push(pair);
+            i += 1;
+        } else {
+            letters.push(verb[i]);
+        }
+    }
+    return letters;
+}
+
+function getVerbLetterCount(verb) {
+    return splitVerbLetters(verb).length;
+}
+
+function getVerbLetterFromEnd(verb, positionFromEnd) {
+    const letters = splitVerbLetters(verb);
+    return letters[letters.length - positionFromEnd] || "";
+}
+
+function isVerbLetterVowel(letter) {
+    return letter.length === 1 && VOWELS.includes(letter);
+}
+
+function endsWithCCV(verb) {
+    const letters = splitVerbLetters(verb);
+    if (letters.length < 3) {
+        return false;
+    }
+    const last = letters[letters.length - 1];
+    const prev = letters[letters.length - 2];
+    const prev2 = letters[letters.length - 3];
+    return isVerbLetterVowel(last) && !isVerbLetterVowel(prev) && !isVerbLetterVowel(prev2);
+}
 
 function getSubjectPersonInfo(subjectPrefix, subjectSuffix) {
     if (subjectPrefix === "ni" && subjectSuffix === "") {
@@ -243,10 +214,6 @@ function applyTenseSuffixRules(tense, subjectSuffix) {
     return rules[subjectSuffix];
 }
 
-function isDerivedFrom(verb, bases) {
-    return bases.some((base) => verb.endsWith(base));
-}
-
 function startsWithAny(value, prefixes) {
     return prefixes.some((prefix) => value.startsWith(prefix));
 }
@@ -261,7 +228,7 @@ function getTrailingVowelCount(verb) {
         return 0;
     }
     const prev = verb.slice(-2, -1);
-    if (VOWELS.includes(prev)) {
+    if (prev.length === 1 && VOWELS.includes(prev)) {
         return 2;
     }
     return 1;
@@ -270,6 +237,14 @@ function getTrailingVowelCount(verb) {
 function getTotalVowelCount(verb) {
     const matches = verb.match(VOWEL_GLOBAL_RE);
     return matches ? matches.length : 0;
+}
+
+function getPretUniversalCoreVowelCount(verb) {
+    const lastLIndex = verb.lastIndexOf("l");
+    if (lastLIndex >= 0 && lastLIndex < verb.length - 1) {
+        return getTotalVowelCount(verb.slice(lastLIndex + 1));
+    }
+    return getTotalVowelCount(verb);
 }
 
 function getUniversalReplacementStem(verb) {
@@ -281,60 +256,92 @@ function getUniversalReplacementStem(verb) {
 
 function applyPretUniversalDeletionShift(stem) {
     if (stem.endsWith("kw")) {
-        return stem.slice(0, -2) + "k";
+        return [stem.slice(0, -2) + "k"];
     }
     if (stem.endsWith("w")) {
-        return stem.slice(0, -1) + "j";
+        return [stem, stem.slice(0, -1) + "j"];
     }
     if (stem.endsWith("m")) {
-        return stem.slice(0, -1) + "n";
+        return [stem.slice(0, -1) + "n"];
     }
     if (stem.endsWith("y")) {
-        return stem.slice(0, -1) + "sh";
+        return [stem.slice(0, -1) + "sh"];
     }
-    return stem;
+    return [stem];
 }
 
-function getPretUniversalVariants(verb, tense) {
+function getPretUniversalVariants(verb, tense, isTransitive) {
     const vowelCount = getTrailingVowelCount(verb);
-    if (vowelCount === 1) {
-        const isMonosyllable = getTotalVowelCount(verb) === 1;
-        const hasJThirdFromEnd = verb.length >= 3 && verb[verb.length - 3] === "j";
-        const deletedStem = applyPretUniversalDeletionShift(verb.slice(0, -1));
-        const baseStem = isMonosyllable ? verb + "j" : deletedStem;
-        switch (tense) {
-            case "preterito-universal-1":
-                if (hasJThirdFromEnd) {
-                    return null;
-                }
-                return [{ base: baseStem, suffix: "ki" }];
-            case "preterito-universal-2":
-                return [{ base: verb, suffix: "k" }];
-            case "preterito-universal-3":
-                if (hasJThirdFromEnd) {
-                    return null;
-                }
-                return [{ base: baseStem, suffix: "" }];
-            default:
-                return null;
-        }
+    const verbLetterCount = getVerbLetterCount(verb);
+    const isMonosyllable = getPretUniversalCoreVowelCount(verb) === 1;
+    const isDirectionalUni = verb === "uni";
+    const isDerivedMonosyllable = isMonosyllable || isDirectionalUni;
+    const endsWithCoreKwiKwa = verb.endsWith("kwi") || verb.endsWith("kwa");
+    const hasCCVEnding = verbLetterCount >= 3 && endsWithCCV(verb) && !endsWithCoreKwiKwa;
+    const endsWithKa = verb.endsWith("ka");
+    const endsWithU = verb.endsWith("u");
+    const isClassA = tense === "preterito-universal-1";
+    const isClassB = tense === "preterito-universal-2";
+    const isClassC = tense === "preterito-universal-4";
+    const isClassD = tense === "preterito-universal-3";
+    const isTransitiveUniI = isTransitive && (verb === "uni" || verb === "i");
+
+    if (isTransitiveUniI && !(isClassB || isClassD)) {
+        return null;
     }
-    if (vowelCount === 2) {
-        if (tense !== "preterito-universal-4") {
+
+    if (isClassC) {
+        if (vowelCount !== 2 || !endsWithAny(verb, IA_UA_SUFFIXES)) {
             return null;
         }
         const replaced = getUniversalReplacementStem(verb);
         return [
             { base: replaced, suffix: "" },
             { base: replaced, suffix: "ki" },
-            { base: verb, suffix: "k" },
         ];
     }
+
+    if (isClassD) {
+        if (vowelCount !== 1 || !isDerivedMonosyllable) {
+            return null;
+        }
+        return [
+            { base: verb + "j", suffix: "" },
+            { base: verb + "j", suffix: "ki" },
+        ];
+    }
+
+    if (vowelCount !== 1) {
+        return null;
+    }
+
+    if (isClassA) {
+        if (isMonosyllable || hasCCVEnding || endsWithKa || endsWithU) {
+            return null;
+        }
+        if (isTransitive && verb === "ita") {
+            return [
+                { base: "itz", suffix: "ki" },
+                { base: "itz", suffix: "" },
+            ];
+        }
+        const deletedStems = applyPretUniversalDeletionShift(verb.slice(0, -1));
+        const variants = [];
+        deletedStems.forEach((base) => {
+            variants.push({ base, suffix: "ki" }, { base, suffix: "" });
+        });
+        return variants;
+    }
+
+    if (isClassB) {
+        return [{ base: verb, suffix: "k" }];
+    }
+
     return null;
 }
 
 function buildPretUniversalResult({ verb, subjectPrefix, objectPrefix, subjectSuffix, tense }) {
-    const variants = getPretUniversalVariants(verb, tense);
+    const variants = getPretUniversalVariants(verb, tense, objectPrefix !== "");
     if (!variants || variants.length === 0) {
         return null;
     }
@@ -483,14 +490,14 @@ const TENSE_LABELS = {
 const PRETERITO_UNIVERSAL_ORDER = [
     "preterito-universal-1",
     "preterito-universal-2",
-    "preterito-universal-3",
     "preterito-universal-4",
+    "preterito-universal-3",
 ];
 const PRETERITO_UNIVERSAL_LABELS = {
-    "preterito-universal-1": "Class A (1V: -V + ki; mono: +j + ki)",
-    "preterito-universal-2": "Class B (1V: V + k)",
-    "preterito-universal-3": "Class C (1V: -V; mono: +j)",
-    "preterito-universal-4": "Class D (2V: j/sh + 0/ki, V + k)",
+    "preterito-universal-1": "Class A ((C)VCV; -V + ki/0)",
+    "preterito-universal-2": "Class B ((C)VCCV/(C)Vka/(C)VCu; V + k)",
+    "preterito-universal-3": "Class D (mono -CV -> -CVj)",
+    "preterito-universal-4": "Class C (-ia/-ua -> -ij/-uj)",
 };
 const TENSE_TABS_STATE = {
     selected: TENSE_ORDER[0],
@@ -796,7 +803,7 @@ if (endsWithAny(verb, IA_UA_SUFFIXES)) {
     }
 }
 // Class 4: Words ending in "ia" or "ua", deletion of last vowel + j (singular and plural)
-    if (verb.length >= 4 && endsWithAny(verb, IA_UA_SUFFIXES)) {
+    if (getVerbLetterCount(verb) >= 4 && endsWithAny(verb, IA_UA_SUFFIXES)) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -953,7 +960,7 @@ if (isTransitive && verb.endsWith("ya")) {
         }
     }
 // Class 2: Applies to short words that end in -na, intransitives (ina, isa)
-    if (verb.length === 3 && verb.endsWith("a") && isIntransitive) {
+    if (getVerbLetterCount(verb) === 3 && verb.endsWith("a") && isIntransitive) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -974,7 +981,7 @@ if (isTransitive && verb.endsWith("ya")) {
         }
 }
 // Shorts verbs ending in wi, EWI
-if (verb.length == 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
+if (getVerbLetterCount(verb) === 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1024,7 +1031,7 @@ if (["kwi", "kwa"].includes(verb)) {
     }
 }
 // Class 2: Longer verbs ending in wi
-if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
+if (getVerbLetterCount(verb) >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1045,7 +1052,7 @@ if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
     }
 }
 // Class 2: Applies to words that have an [j] in the third position
-    if (verb[verb.length - 3] === 'j') {
+    if (getVerbLetterFromEnd(verb, 3) === "j") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1066,7 +1073,11 @@ if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
         }
     }
 // Class 2: Applies to words that have an [l] in the second position (tajkali)
-    if (isTransitive && verb[verb.length - 2] === 'l' && verb[verb.length - 1] !== 'u') {
+    if (
+        isTransitive &&
+        getVerbLetterFromEnd(verb, 2) === "l" &&
+        getVerbLetterFromEnd(verb, 1) !== "u"
+    ) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1089,7 +1100,7 @@ if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
 // Excludes rule: wetzki instead of wetzik (tz)
 // Excludes rule: tantuk instead of tamtuk (m)
 // Excludes rule: kuchki instead of kuchik (ch)
-    if (isIntransitive && verb[verb.length - 1] === 'i'
+    if (isIntransitive && getVerbLetterFromEnd(verb, 1) === "i"
                             && !verb.endsWith("tzi")
                             && !verb.endsWith("wi")
                             && !verb.endsWith("ki") /*kalak not kalakik*/
@@ -1108,7 +1119,7 @@ if (verb.length >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
         }
     }
 // Class 2: Intransitive verbs with [m]
-if (isIntransitive && verb[verb.length - 2] === 'm') {
+if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "m") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1128,7 +1139,7 @@ if (isIntransitive && verb[verb.length - 2] === 'm') {
             break;
     }
 }
-if (isIntransitive && verb[verb.length - 2] === 't') {
+if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "t") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1144,7 +1155,7 @@ if (isIntransitive && verb[verb.length - 2] === 't') {
     }
 }
 // Class 2: Intransitive verbs with [k], only preterite
-if (isIntransitive && verb[verb.length - 2] === 'k') {
+if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "k") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1160,7 +1171,7 @@ if (isIntransitive && verb[verb.length - 2] === 'k') {
     }
 }
 // Class 2: Intransitive verbs with [kw]
-if (isIntransitive && verb[verb.length - 3] === 'k' && verb[verb.length - 2] === 'w') {
+if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "kw") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1182,7 +1193,7 @@ if (isIntransitive && verb[verb.length - 3] === 'k' && verb[verb.length - 2] ===
 }
 
 // Class 2: Intransitive verbs with [ch]
-if (isIntransitive && verb[verb.length - 3] === 'c') {
+if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "ch") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1224,7 +1235,12 @@ if (isIntransitive && verb[verb.length - 3] === 'c') {
         }
     }
 // Class 2: Intransitive verbs with [k] (chuka, naka, ijsika)
-if (isIntransitive && verb.length < 6 && verb.endsWith("ka") && verb[verb.length - 3] !== 'u') {
+if (
+    isIntransitive &&
+    getVerbLetterCount(verb) < 6 &&
+    verb.endsWith("ka") &&
+    getVerbLetterFromEnd(verb, 3) !== "u"
+) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1248,7 +1264,7 @@ if (isIntransitive && verb.length < 6 && verb.endsWith("ka") && verb[verb.length
 // Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
 if (
     isTransitive &&
-    verb.length >= 6 &&
+    getVerbLetterCount(verb) >= 6 &&
     !verb.endsWith("shka") &&
     endsWithAny(verb, ["ka", "ki"])
 ) {
@@ -1292,7 +1308,7 @@ if (isTransitive && verb.endsWith("ki")) {
     }
 }
 // Class 2: LONG verbs ending with [aki], intransitives (kalak ONLY)
-if (isIntransitive && verb.endsWith("aki") && verb.length >= 5) {
+if (isIntransitive && verb.endsWith("aki") && getVerbLetterCount(verb) >= 5) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1314,8 +1330,8 @@ if (isIntransitive && verb.endsWith("aki") && verb.length >= 5) {
 // Class 1/2: SHORT intransitive verbs ending with [ki] (paki, miki, temiki)
 if (
     isIntransitive &&
-    verb[verb.length - 3] !== 'u' &&
-    ((verb.length <= 4 && verb.endsWith("aki")) || verb.endsWith("iki"))
+    getVerbLetterFromEnd(verb, 3) !== "u" &&
+    ((getVerbLetterCount(verb) <= 4 && verb.endsWith("aki")) || verb.endsWith("iki"))
 ) {
     switch (tense) {
         case "preterito":
@@ -1335,7 +1351,7 @@ if (
     }
 }
 // Class 2: Intransitive verbs ending with [ki] (atuki)
-if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
+if (isIntransitive && getVerbLetterCount(verb) >= 5 && verb.endsWith("uki")) {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1356,7 +1372,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
     }
 }
 // Class 1: All verbs ending with [u] (panu, temu)
-    if (verb.length <= 5 && verb[verb.length - 1] === 'u') {
+    if (getVerbLetterCount(verb) <= 5 && getVerbLetterFromEnd(verb, 1) === "u") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1377,7 +1393,11 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: SHORT verbs with [ti], transitives (mati)
-    if (verb.endsWith("ti") && !verb.endsWith("lti") && (isTransitive || verb.length > 5)) {
+    if (
+        verb.endsWith("ti") &&
+        !verb.endsWith("lti") &&
+        (isTransitive || getVerbLetterCount(verb) > 5)
+    ) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1419,7 +1439,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: Applies to short words that end in -tV, intransitives (pati)
-    if (isIntransitive && verb.length <= 5 && verb[verb.length - 2] === 't') {
+    if (isIntransitive && getVerbLetterCount(verb) <= 5 && getVerbLetterFromEnd(verb, 2) === "t") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1440,7 +1460,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 1: Applies to LONG words that ends in -na, intransitives (mayana, tawana)
-    if (verb.length >= 5 && verb.endsWith("na") && isIntransitive) {
+    if (getVerbLetterCount(verb) >= 5 && verb.endsWith("na") && isIntransitive) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1483,7 +1503,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Applies to LONG words that ends in -na, transitives (tajtan-)
-    if (verb.length >= 5 && verb.endsWith("ni") && isTransitive) {
+    if (getVerbLetterCount(verb) >= 5 && verb.endsWith("ni") && isTransitive) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1504,7 +1524,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Applies to short words that ends in -na, transitives (ana)
-    if (verb.length === 3 && verb.endsWith("na") && isTransitive) {
+    if (getVerbLetterCount(verb) === 3 && verb.endsWith("na") && isTransitive) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1528,7 +1548,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
     if (
         isTransitive &&
         ((verb.endsWith("kwa") && !verb.endsWith("tzakwa")) ||
-        (verb.length === 3 && verb.endsWith("kwi")))
+        (getVerbLetterCount(verb) === 2 && verb.endsWith("kwi")))
     ) {
         switch (tense) {
             case "preterito":
@@ -1544,7 +1564,10 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Rule for LONG words ending in -kwV (-tzak, -ijnek)
-    if ((isTransitive && verb.endsWith("tzakwa")) || (verb.length >= 4 && verb.endsWith("kwi"))) {
+    if (
+        (isTransitive && verb.endsWith("tzakwa")) ||
+        (getVerbLetterCount(verb) >= 4 && verb.endsWith("kwi"))
+    ) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1559,7 +1582,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Class 1: words ending in na & wa, deletion of last vowel + ki, intransitives (ewa)
-    if (verb.length == 4 && verb.endsWith("ni")) {
+    if (getVerbLetterCount(verb) === 4 && verb.endsWith("ni")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1584,8 +1607,12 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Words ending in na & wa, deletion of last vowel (pewa)
-    if ((isTransitive && verb.length >= 5 && verb.endsWith("na")) ||
-        (verb.length > 5 && verb.endsWith("wa") && verb[verb.length - 3] !== 'j')) {
+    if (
+        (isTransitive && getVerbLetterCount(verb) >= 5 && verb.endsWith("na")) ||
+        (getVerbLetterCount(verb) > 5 &&
+            verb.endsWith("wa") &&
+            getVerbLetterFromEnd(verb, 3) !== "j")
+    ) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1600,7 +1627,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
     // Class 3: Words ending in na & wa, deletion of last vowel ishtuna
-    if (isIntransitive && verb.length >= 4 && verb.endsWith("na")) {
+    if (isIntransitive && getVerbLetterCount(verb) >= 4 && verb.endsWith("na")) {
         switch (tense) {
             case "preterito":
             case "perfecto":
@@ -1640,7 +1667,7 @@ if (isIntransitive && verb.length >= 5 && verb.endsWith("uki")) {
         }
     }
 // Class 3: Words ending in na & wa, deletion of last vowel
-    if ((verb.length <= 5 && verb.endsWith("na"))) {
+    if ((getVerbLetterCount(verb) <= 5 && verb.endsWith("na"))) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1690,7 +1717,7 @@ if (verb.endsWith("sha")) {
     }
 }
 // Class 3: Short words ending in -mV will be -nki, transitive (sun-ki)
-    if ((isTransitive && verb.length <= 5 && verb[verb.length - 2] === "m")) {
+    if ((isTransitive && getVerbLetterCount(verb) <= 5 && getVerbLetterFromEnd(verb, 2) === "m")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1715,7 +1742,7 @@ if (verb.endsWith("sha")) {
         }
     }
 // Class 3: Short words ending in -nV will be -nki, transitive (-tajtan)
-    if ((isTransitive && verb[verb.length - 2] === "n")) {
+    if ((isTransitive && getVerbLetterFromEnd(verb, 2) === "n")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1739,7 +1766,7 @@ if (verb.endsWith("sha")) {
         }
     }
 // Class 5: Single rule for words ending in wa, deletion of last vowel + ki (singular) APPLIES TO J WORDS
-    if (verb.length <= 4 && verb.endsWith("wa") && !verb[verb.length - 3] === 'j') {
+    if (getVerbLetterCount(verb) <= 4 && verb.endsWith("wa") && getVerbLetterFromEnd(verb, 3) !== "j") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1763,7 +1790,12 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 5: Single rule for words ending in wa, deletion of last vowel + ki, transitives (singular -, pewa)
-    if (isTransitive && verb.length >= 4 && verb.length <= 5 && verb.endsWith("wa")) {
+    if (
+        isTransitive &&
+        getVerbLetterCount(verb) >= 4 &&
+        getVerbLetterCount(verb) <= 5 &&
+        verb.endsWith("wa")
+    ) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1787,7 +1819,7 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 1: Single rule for words ending in wa, deletion of last vowel + k (singular - )
-    if (isIntransitive && verb.length <= 5 && verb.endsWith("wa")) {
+    if (isIntransitive && getVerbLetterCount(verb) <= 5 && verb.endsWith("wa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1811,7 +1843,7 @@ if (verb.endsWith("sha")) {
         }
     }
     // Class 1: Rule end wa, del last vowel + k, intransitive (ajwa)
-    if (isIntransitive && verb[verb.length - 3] == 'j' && verb.endsWith("wa")) {
+    if (isIntransitive && getVerbLetterFromEnd(verb, 3) === "j" && verb.endsWith("wa")) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1835,7 +1867,7 @@ if (verb.endsWith("sha")) {
         }
     }
 // Class 2: Verbs with [p], del vowel (kwep-ki)
-    if (isTransitive && verb[verb.length - 2] === 'p') {
+    if (isTransitive && getVerbLetterFromEnd(verb, 2) === "p") {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1851,7 +1883,7 @@ if (verb.endsWith("sha")) {
         }
     }
 // Class 2: Verbs with [tz], del vowel (wetz-ki, nutz-ki)
-if (verb[verb.length - 2] === 'z') {
+if (getVerbLetterFromEnd(verb, 2) === "tz") {
     switch (tense) {
         case "preterito":
             switch (subjectSuffix) {
@@ -1994,47 +2026,6 @@ function generateWord(options = {}) {
             return error;
         }
     }
-    if (!isPretUniversal && !skipTransitivityValidation) {
-        // VERB FORM IDENTIFIER ERROR MESSAGES
-        const isDerivedFromIntransitive = isDerivedFrom(verb, INTRANSITIVE_DERIVATION_BASES);
-        const isDerivedFromTransitive = isDerivedFrom(verb, TRANSITIVE_VERBS);
-        const isIaUa = verb.endsWith("ia") || verb.endsWith("ua");
-        const forceTransitiveIaUa = isIaUa && (TRANSITIVE_VERBS.includes(verb) || isDerivedFromTransitive);
-        const hasObject = objectPrefix !== "";
-        const isKnownIntransitive = (INTRANSITIVE_VERBS.includes(verb) || isDerivedFromIntransitive) &&
-            !verb.endsWith("tajkwilua");
-        const isKnownTransitive = TRANSITIVE_VERBS.includes(verb) || isDerivedFromTransitive || forceTransitiveIaUa;
-        const intransitiveByEnding = (
-            (verb.endsWith("i") && !verb.endsWith("ajsi")) ||
-            verb.endsWith("u") ||
-            verb.endsWith("ka") ||
-            verb.endsWith("ni")
-        );
-
-        // Check if the input verb is intransitive or if it's a derivation of an intransitive verb
-        if (!forceTransitiveIaUa && hasObject && !isKnownTransitive && (isKnownIntransitive || intransitiveByEnding)) {
-            const message = "Este verbo es intransitivo. Seleccione sin objeto.";
-            const error = returnError(message, ["object-prefix"]);
-            if (error) {
-                return error;
-            }
-        }
-        
-        // Check for transitive verbs being used INTRANSITIVELY
-        // Verbs that end in an "a" but exclude error message for certain exceptions in the intransitive verb list
-        const transitiveByEnding = verb.endsWith("a") && !verb.endsWith("ya") && !verb.endsWith("ka");
-        if (!hasObject && (
-            (isKnownTransitive && !verb.endsWith("tajtani")) ||
-            (transitiveByEnding && !isKnownIntransitive)
-        )) {
-            const message = "Este verbo es transitivo. Seleccione objeto.";
-            const error = returnError(message, ["object-prefix"]);
-            if (error) {
-                return error;
-            }
-        }
-    }
-    
     clearError("object-prefix");
 
     ({ subjectPrefix, objectPrefix, subjectSuffix, verb } = applyMorphologyRules({
