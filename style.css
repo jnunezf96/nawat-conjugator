@@ -11,12 +11,15 @@
   --indirect-bg: #e6f7ec; /* Soft mint */
   --indirect-border: #3f7a55; /* Muted green */
   --indirect-text: #2f5a3f; /* Deep green */
-  --font-size-base: 1.2em;
-  --font-size-large: 2.2em;
+  --font-size-adjust: -4px;
+  --font-size-base: calc(1.2rem + var(--font-size-adjust));
+  --font-size-large: calc(2.2rem + var(--font-size-adjust));
+  --placeholder-color: rgb(151, 126, 93);
 }
 
 body {
   font-family: 'Helvetica Neue', sans-serif;
+  font-size: calc(1rem + var(--font-size-adjust));
   background-size: cover;
   background-position: center;
   justify-items: center;
@@ -31,7 +34,7 @@ h1 {
 }
 
 h3 {
-  font-size: 1.5em;
+  font-size: calc(1.5rem + var(--font-size-adjust));
   text-align: left;
   color: #744f00;
   margin: 0 auto;
@@ -80,7 +83,7 @@ p {
 }
 
 .form-container-word h2 {
-  font-size: 1.5em;
+  font-size: calc(1.5rem + var(--font-size-adjust));
   text-align: center;
   color: var(--secondary-color);
   margin-top: 15px;
@@ -100,7 +103,7 @@ p {
   border-radius: 50%;
   text-align: center;
   line-height: 30px;
-  font-size: 20px;
+  font-size: calc(20px + var(--font-size-adjust));
   font-weight: bold;
   margin-right: 10px;
 }
@@ -120,6 +123,141 @@ select,
   height: 38px;
 }
 
+input.verb-input {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: var(--secondary-color);
+  background-color: transparent;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input.verb-input::placeholder {
+  color: transparent;
+}
+
+.verb-input-wrap {
+  position: relative;
+  display: block;
+  margin: 8px 0;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.verb-input-mirror {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  padding: 2px 20px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  color: var(--secondary-color);
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: var(--primary-color);
+  background-clip: padding-box;
+}
+
+.verb-input-mirror.is-placeholder {
+  color: var(--placeholder-color);
+  font-style: italic;
+}
+
+.is-safari input.verb-input {
+  color: var(--secondary-color);
+  -webkit-text-fill-color: var(--secondary-color);
+  background-color: var(--primary-color);
+}
+
+.is-safari input.verb-input::placeholder {
+  color: var(--placeholder-color);
+}
+
+.is-safari .verb-input-mirror {
+  opacity: 0;
+}
+
+.verb-mirror-content {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: pre;
+  will-change: transform;
+}
+
+.verb-prefix,
+.verb-letter {
+  display: inline-block;
+  white-space: pre;
+}
+
+.verb-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--primary-color);
+  border: 2px solid var(--secondary-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(107, 78, 42, 0.2);
+}
+
+.verb-suggestions.is-open {
+  display: block;
+}
+
+.verb-suggestion {
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--secondary-color);
+  font-size: calc(1rem + var(--font-size-adjust));
+  cursor: pointer;
+}
+
+.verb-suggestion + .verb-suggestion {
+  border-top: 1px solid rgba(107, 78, 42, 0.2);
+}
+
+.verb-suggestion:hover,
+.verb-suggestion.is-active {
+  background: #f0c35a;
+}
+
+.download-csv {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 16px;
+  border: 2px solid var(--secondary-color);
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: var(--secondary-color);
+  font-size: calc(1rem + var(--font-size-adjust));
+  cursor: pointer;
+}
+
+.download-csv:hover {
+  background: #f0c35a;
+}
+
 input::-webkit-calendar-picker-indicator {
   display: none;
 }
@@ -137,7 +275,7 @@ input[type="submit"] {
   width: 100%;
   background-color: var(--primary-color);
   color: var(--secondary-color);
-  font-size: 1.2em;
+  font-size: calc(1.2rem + var(--font-size-adjust));
   padding: 14px 20px;
   margin: 8px 0;
   border: none;
@@ -164,17 +302,17 @@ input[type="submit"]:hover {
   font-family: 'Helvetica Neue', sans-serif;
   margin: 0 auto;
   text-align: right;
-  font-size: 20px;
+  font-size: calc(20px + var(--font-size-adjust));
   }
   
   .input-verb::placeholder {
-  color: rgb(151, 126, 93);
+  color: var(--placeholder-color);
   font-style: italic;
   }
   
   @media (max-width: 768px) {
   body {
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-adjust));
   padding: 10px;
   }
   
@@ -186,6 +324,7 @@ input[type="submit"]:hover {
   .form-group:not(:last-child) {
   margin-right: 5%;
   }
+
   }
   
   .construction-message {
@@ -194,7 +333,7 @@ input[type="submit"]:hover {
   padding: 5px;
   margin-left: 10px;
   font-weight: bold;
-  font-size: 0.8em;
+  font-size: calc(0.8rem + var(--font-size-adjust));
   }
   
   .flex-container {
@@ -253,8 +392,7 @@ input[type="submit"]:hover {
   justify-items: center;
 }
 
-#all-tense-conjugations,
-#all-preterito-universal-conjugations {
+#all-tense-conjugations {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
@@ -268,6 +406,12 @@ input[type="submit"]:hover {
   justify-content: center;
 }
 
+.tense-tab-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+
 .tense-tab {
   border: 2px solid var(--secondary-color);
   background: #fff8e3;
@@ -275,11 +419,17 @@ input[type="submit"]:hover {
   border-radius: 999px;
   padding: 6px 12px;
   cursor: pointer;
-  font-size: 0.95em;
+  font-size: calc(0.95rem + var(--font-size-adjust));
 }
 
 .tense-tab.is-active {
   background: var(--primary-color);
+}
+
+.tense-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #f2ebd6;
 }
 
 .tense-block {
@@ -414,7 +564,7 @@ input[type="submit"]:hover {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  font-size: 0.95em;
+  font-size: calc(0.95rem + var(--font-size-adjust));
 }
 
 .matrix-table th,
@@ -543,15 +693,13 @@ input[type="submit"]:hover {
 }
 
 @media (max-width: 900px) {
-  #all-tense-conjugations,
-  #all-preterito-universal-conjugations {
+  #all-tense-conjugations {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
-  #all-tense-conjugations,
-  #all-preterito-universal-conjugations {
+  #all-tense-conjugations {
     grid-template-columns: 1fr;
   }
 }

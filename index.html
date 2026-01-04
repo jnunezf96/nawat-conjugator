@@ -23,15 +23,15 @@
     <form>
     <div class="form-container" id="container-inputs">
         <div class="form-group">
-            <label for="object-prefix" id="object-prefix-label">Transitividad</label><br>
-            <select id="object-prefix" name="object-prefix">
-                <option value="intransitivo" selected>intransitivo</option>
-                <option value="transitivo">transitivo</option>
-            </select><br>
-        </div>
-        <div class="form-group">
               <label for="verb" id="verb-label">Verbo</label><br>
-              <input type="text" id="verb" name="verb" class="input-verb" placeholder="Escriba verbo aquí">
+              <div class="verb-input-wrap">
+                <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
+                  <div class="verb-mirror-content" id="verb-mirror-content"></div>
+                </div>
+                <input type="text" id="verb" name="verb" class="verb-input" placeholder="Escriba verbo aquí" autocomplete="off" autocapitalize="none" spellcheck="false">
+                <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
+              </div>
+              <button type="button" class="download-csv" id="download-csv">Descargar CSV</button>
           </div>
         <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
         <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
@@ -43,6 +43,7 @@
                          <p><strong>Atajos:</strong></p>
                          <p>Space/Esc: enfocar / salir del verbo</p>
                          <p>Enter: generar</p>
+                         <p>Escribe para ver sugerencias</p>
                          <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
                          <!-- Agregar más elementos de leyenda según sea necesario -->
                      </div>
@@ -92,34 +93,34 @@
          <b><label for="transitive-verbs" id="transitive-verbs-label">Seleccione un verbo transitivo</label></b><br>
          <table id="transitive-verbs" class="verb-table">
            <tr>
-             <td onclick="populateVerbTextbox('ijtutia')">ijtutia</td>
-             <td onclick="populateVerbTextbox('sewia')">sewia</td>
-             <td onclick="populateVerbTextbox('tawilua')">tawilua</td>
-             <td onclick="populateVerbTextbox('mana')">mana</td>
-             <td onclick="populateVerbTextbox('teki')">teki</td>
-             <td onclick="populateVerbTextbox('neki')">neki</td>
-             <td onclick="populateVerbTextbox('kwi')">kwi</td>
-             <td onclick="populateVerbTextbox('mati')">mati</td>
+             <td onclick="populateVerbTextbox('-ijtutia')">ijtutia</td>
+             <td onclick="populateVerbTextbox('-sewia')">sewia</td>
+             <td onclick="populateVerbTextbox('-tawilua')">tawilua</td>
+             <td onclick="populateVerbTextbox('-mana')">mana</td>
+             <td onclick="populateVerbTextbox('-teki')">teki</td>
+             <td onclick="populateVerbTextbox('-neki')">neki</td>
+             <td onclick="populateVerbTextbox('-kwi')">kwi</td>
+             <td onclick="populateVerbTextbox('-mati')">mati</td>
            </tr>
            <tr>
-             <td onclick="populateVerbTextbox('talua')">talua</td>
-             <td onclick="populateVerbTextbox('talia')">talia</td>
-             <td onclick="populateVerbTextbox('chalua')">chalua</td>
-             <td onclick="populateVerbTextbox('salua')">salua</td>
-             <td onclick="populateVerbTextbox('chiya')">chiya</td>
-             <td onclick="populateVerbTextbox('piya')">piya</td>
-             <td onclick="populateVerbTextbox('kuwa')">kuwa</td>
-             <td onclick="populateVerbTextbox('uya')">uya</td>
+             <td onclick="populateVerbTextbox('-talua')">talua</td>
+             <td onclick="populateVerbTextbox('-talia')">talia</td>
+             <td onclick="populateVerbTextbox('-chalua')">chalua</td>
+             <td onclick="populateVerbTextbox('-salua')">salua</td>
+             <td onclick="populateVerbTextbox('-chiya')">chiya</td>
+             <td onclick="populateVerbTextbox('-piya')">piya</td>
+             <td onclick="populateVerbTextbox('-kuwa')">kuwa</td>
+             <td onclick="populateVerbTextbox('-uya')">uya</td>
            </tr>
            <tr>
-              <td onclick="populateVerbTextbox('paktia')">paktia</td>
-              <td onclick="populateVerbTextbox('tatia')">tatia</td>
-              <td onclick="populateVerbTextbox('tawantia')">tawantia</td>
-              <td onclick="populateVerbTextbox('wika')">wika</td>
-              <td onclick="populateVerbTextbox('mewa')">mewa</td>
-              <td onclick="populateVerbTextbox('pusteki')">pusteki</td>
-              <td onclick="populateVerbTextbox('namiki')">namiki</td>
-              <td onclick="populateVerbTextbox('napalua')">napalua</td>
+              <td onclick="populateVerbTextbox('-paktia')">paktia</td>
+              <td onclick="populateVerbTextbox('-tatia')">tatia</td>
+              <td onclick="populateVerbTextbox('-tawantia')">tawantia</td>
+              <td onclick="populateVerbTextbox('-wika')">wika</td>
+              <td onclick="populateVerbTextbox('-mewa')">mewa</td>
+              <td onclick="populateVerbTextbox('-pusteki')">pusteki</td>
+              <td onclick="populateVerbTextbox('-namiki')">namiki</td>
+              <td onclick="populateVerbTextbox('-napalua')">napalua</td>
             </tr>            
            <!-- Add more rows and cells here -->
          </table>
@@ -131,16 +132,6 @@
        <div class="form-container-word container-tense-grid" id="container-tense-grid">
             <div id="tense-tabs" class="tense-tabs"></div>
             <div id="all-tense-conjugations"></div>
-       </div>
-       <br>
-       <div class="form-container-word container-preterito-universal" id="container-preterito-universal">
-            <div id="preterito-universal-tabs" class="tense-tabs"></div>
-            <div id="all-preterito-universal-conjugations"></div>
-       </div>
-       <br>
-       <div class="form-container-word" id="container-matrix">
-            <h2 id="matrix-heading">Matrices 9×6</h2>
-            <div id="full-matrix"></div>
        </div>
        <br>
        <div class="form-container-word" id="container-feedback">

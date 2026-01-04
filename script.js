@@ -1,6 +1,14 @@
 function populateVerbTextbox(selectedVerb) {
     // Populate the verb textbox with the selected verb
-    document.getElementById('verb').value = selectedVerb;
+    const verbInput = document.getElementById("verb");
+    if (!verbInput) {
+        return;
+    }
+    verbInput.value = selectedVerb;
+    renderVerbMirror();
+    updateMassHeadings();
+    renderPretUniversalTabs();
+    closeVerbSuggestions();
     generateWord();
 }
 
@@ -8,7 +16,17 @@ var originalLabels = {};
 var originalPlaceholder = "";
 var originalSubmitButtonValue = "";
 function getTransitividadSelection() {
-    return document.getElementById("object-prefix")?.value || "intransitivo";
+    const verbInput = document.getElementById("verb");
+    if (verbInput) {
+        const rawVerb = verbInput.value.trimStart();
+        if (rawVerb.startsWith("-")) {
+            return "transitivo";
+        }
+        if (rawVerb.length > 0) {
+            return "intransitivo";
+        }
+    }
+    return "intransitivo";
 }
 
 const OBJECT_PREFIXES = [
@@ -77,8 +95,33 @@ const VOWELS = "aeiu";
 const VOWEL_RE = /[aeiu]/;
 const VOWEL_GLOBAL_RE = /[aeiu]/g;
 const VOWEL_START_RE = /^[aeiu]/;
+const VOWEL_END_RE = /[aeiu]$/;
 const DIGRAPHS = ["tz", "sh", "ch", "kw", "nh"];
 const DIGRAPH_SET = new Set(DIGRAPHS);
+const SYLLABLE_FORMS = ["C", "CV", "CVj", "CVl", "V", "Vj", "Vl"];
+const SYLLABLE_FORM_SET = new Set(SYLLABLE_FORMS);
+const REDUP_PREFIX_FORMS = new Set(["V", "Vj", "CV", "CVj"]);
+const COMPOUND_MARKER_RE = /[|~#()\-]/g;
+const COMPOUND_MARKER_SPLIT_RE = /[|~#()\-]/;
+const COMPOUND_ALLOWED_RE = /[^a-z|~#()\-]/g;
+const VERB_SUGGESTION_LIMIT = 10;
+const VERB_SUGGESTION_STATE = {
+    items: [],
+    activeIndex: -1,
+};
+let VERB_SUGGESTIONS = [];
+let VERB_SUGGESTIONS_TEXT = "";
+
+function setBrowserClasses() {
+    if (typeof navigator === "undefined" || typeof document === "undefined") {
+        return;
+    }
+    const ua = navigator.userAgent || "";
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|android|edg|opr|fxios/i.test(ua);
+    if (isSafari) {
+        document.documentElement.classList.add("is-safari");
+    }
+}
 
 function splitVerbLetters(verb) {
     const letters = [];
@@ -107,6 +150,317 @@ function isVerbLetterVowel(letter) {
     return letter.length === 1 && VOWELS.includes(letter);
 }
 
+function getSyllableAnalysisTarget(rawVerb, options = {}) {
+    const parsed = parseVerbInput(rawVerb);
+    let target = options.analysis ? parsed.analysisVerb : parsed.verb;
+    if (!target) {
+        return "";
+    }
+    const lastChar = target.slice(-1);
+    const hasFinalVowel = VOWELS.includes(lastChar);
+    const isFinalCoda = lastChar === "j" || lastChar === "l";
+    if (options.assumeFinalV && !hasFinalVowel && !isFinalCoda) {
+        target += "a";
+    }
+    return target;
+}
+
+function splitVerbSyllables(verb) {
+    const letters = splitVerbLetters(verb);
+    const syllables = [];
+    let index = 0;
+    while (index < letters.length) {
+        const current = letters[index];
+        if (isVerbLetterVowel(current)) {
+            const next = letters[index + 1];
+            if (next === "j" || next === "l") {
+                syllables.push({
+                    letters: [current, next],
+                    form: `V${next}`,
+                    onset: "",
+                    nucleus: current,
+                    coda: next,
+                    text: `${current}${next}`,
+                });
+                index += 2;
+            } else {
+                syllables.push({
+                    letters: [current],
+                    form: "V",
+                    onset: "",
+                    nucleus: current,
+                    coda: "",
+                    text: `${current}`,
+                });
+                index += 1;
+            }
+            continue;
+        }
+        const next = letters[index + 1];
+        if (next && isVerbLetterVowel(next)) {
+            const coda = letters[index + 2];
+            if (coda === "j" || coda === "l") {
+                syllables.push({
+                    letters: [current, next, coda],
+                    form: `CV${coda}`,
+                    onset: current,
+                    nucleus: next,
+                    coda,
+                    text: `${current}${next}${coda}`,
+                });
+                index += 3;
+            } else {
+                syllables.push({
+                    letters: [current, next],
+                    form: "CV",
+                    onset: current,
+                    nucleus: next,
+                    coda: "",
+                    text: `${current}${next}`,
+                });
+                index += 2;
+            }
+            continue;
+        }
+        syllables.push({
+            letters: [current],
+            form: "C",
+            onset: current,
+            nucleus: "",
+            coda: "",
+            text: `${current}`,
+        });
+        index += 1;
+    }
+    return syllables;
+}
+
+function getSyllables(rawVerb, options = {}) {
+    const target = getSyllableAnalysisTarget(rawVerb, options);
+    if (!target) {
+        return [];
+    }
+    return splitVerbSyllables(target);
+}
+
+function getSyllableBaseKey(syllable) {
+    if (!syllable || !syllable.nucleus) {
+        return "";
+    }
+    return `${syllable.onset || ""}:${syllable.nucleus}`;
+}
+
+function getNonReduplicatedRoot(verb) {
+    if (!verb) {
+        return verb;
+    }
+    const syllables = splitVerbSyllables(verb);
+    if (syllables.length < 2) {
+        return verb;
+    }
+    for (let i = 0; i < syllables.length - 1; i += 1) {
+        const first = syllables[i];
+        const second = syllables[i + 1];
+        if (!first || !second) {
+            continue;
+        }
+        if (!REDUP_PREFIX_FORMS.has(first.form) || !second.nucleus) {
+            continue;
+        }
+        if (!isOpenSyllable(second)) {
+            continue;
+        }
+        if (!first.onset && !second.onset) {
+            continue;
+        }
+        if (getSyllableBaseKey(first) === getSyllableBaseKey(second)) {
+            return syllables.slice(i + 1).map((syllable) => syllable.text).join("");
+        }
+    }
+    return verb;
+}
+
+function isOpenSyllable(syllable) {
+    return syllable && (syllable.form === "V" || syllable.form === "CV");
+}
+
+function isPlainVowelSyllable(syllable) {
+    return syllable && syllable.form === "V";
+}
+
+function isCVWithOnset(syllable, onset) {
+    return syllable && syllable.form === "CV" && syllable.onset === onset;
+}
+
+function getTrailingVowelCountFromSyllables(syllables) {
+    if (!syllables || syllables.length === 0) {
+        return 0;
+    }
+    const last = syllables[syllables.length - 1];
+    if (!last || !last.nucleus || !isOpenSyllable(last)) {
+        return 0;
+    }
+    if (last.form !== "V") {
+        return 1;
+    }
+    const prev = syllables[syllables.length - 2];
+    if (prev && isOpenSyllable(prev) && prev.nucleus) {
+        return 2;
+    }
+    return 1;
+}
+
+function getTotalVowelCountFromSyllables(syllables) {
+    if (!syllables || syllables.length === 0) {
+        return 0;
+    }
+    return syllables.reduce((count, syllable) => count + (syllable.nucleus ? 1 : 0), 0);
+}
+
+function endsWithIaUaSyllables(syllables) {
+    if (!syllables || syllables.length < 2) {
+        return false;
+    }
+    const last = syllables[syllables.length - 1];
+    const prev = syllables[syllables.length - 2];
+    if (!last || !prev || last.form !== "V" || !isOpenSyllable(prev)) {
+        return false;
+    }
+    if (last.nucleus !== "a") {
+        return false;
+    }
+    return prev.nucleus === "i" || prev.nucleus === "u";
+}
+
+function isItaSyllableSequence(syllables) {
+    if (!syllables || syllables.length < 2) {
+        return false;
+    }
+    const last = syllables[syllables.length - 1];
+    if (!last || last.form !== "CV" || last.onset !== "t" || last.nucleus !== "a") {
+        return false;
+    }
+    const penultimate = syllables[syllables.length - 2];
+    if (!penultimate || penultimate.nucleus !== "i") {
+        return false;
+    }
+    if (penultimate.form === "V") {
+        return true;
+    }
+    if (penultimate.form !== "CV") {
+        return false;
+    }
+    if (penultimate.onset === "kw") {
+        return false;
+    }
+    if (penultimate.onset === "w") {
+        const antepenultimate = syllables[syllables.length - 3];
+        if (antepenultimate && antepenultimate.nucleus === "i") {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isUniSyllableSequence(syllables) {
+    if (!syllables || syllables.length !== 2) {
+        return false;
+    }
+    return (
+        isPlainVowelSyllable(syllables[0]) &&
+        syllables[0].nucleus === "u" &&
+        isCVWithOnset(syllables[1], "n") &&
+        syllables[1].nucleus === "i"
+    );
+}
+
+function isIVerbSyllableSequence(syllables) {
+    return (
+        syllables &&
+        syllables.length === 1 &&
+        isPlainVowelSyllable(syllables[0]) &&
+        syllables[0].nucleus === "i"
+    );
+}
+
+function classifySyllableForms(rawVerb, options = {}) {
+    const syllables = getSyllables(rawVerb, options);
+    if (syllables.length === 0) {
+        return null;
+    }
+    return syllables.map((syllable) => syllable.form);
+}
+
+function classifySyllableForm(rawVerb, options = {}) {
+    const forms = classifySyllableForms(rawVerb, options);
+    if (!forms || forms.length !== 1) {
+        return null;
+    }
+    return forms[0] || null;
+}
+
+function isValidSyllableForm(rawVerb, options = {}) {
+    const forms = classifySyllableForms(rawVerb, options);
+    if (!forms || forms.length === 0) {
+        return false;
+    }
+    return forms.every((form) => SYLLABLE_FORM_SET.has(form));
+}
+
+function areSyllablesPronounceable(syllables) {
+    if (!syllables || syllables.length === 0) {
+        return false;
+    }
+    for (let i = 0; i < syllables.length; i += 1) {
+        const syllable = syllables[i];
+        const form = syllable.form;
+        if (!SYLLABLE_FORM_SET.has(form)) {
+            return false;
+        }
+        if (form === "C" && i > 0) {
+            const prev = syllables[i - 1];
+            if (!prev || !isOpenSyllable(prev)) {
+                return false;
+            }
+        }
+    }
+    if (syllables.length >= 2) {
+        const last = syllables[syllables.length - 1];
+        const prev = syllables[syllables.length - 2];
+        const prevHasCoda = prev && (prev.coda === "l" || prev.coda === "j");
+        if (prevHasCoda && last.form === "CV" && last.onset === "n") {
+            return false;
+        }
+        if (prevHasCoda && last.form === "CV" && last.onset === "t" && last.nucleus === "a") {
+            return false;
+        }
+    }
+    return true;
+}
+
+function areSyllableFormsPronounceable(forms) {
+    if (!forms || forms.length === 0) {
+        return false;
+    }
+    for (let i = 0; i < forms.length; i += 1) {
+        const form = forms[i];
+        if (!SYLLABLE_FORM_SET.has(form)) {
+            return false;
+        }
+        if (form === "C" && i > 0) {
+            const prev = forms[i - 1];
+            if (prev !== "V" && prev !== "CV") {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function isSyllableSequencePronounceable(rawVerb, options = {}) {
+    return areSyllablesPronounceable(getSyllables(rawVerb, options));
+}
+
 function endsWithCCV(verb) {
     const letters = splitVerbLetters(verb);
     if (letters.length < 3) {
@@ -116,6 +470,10 @@ function endsWithCCV(verb) {
     const prev = letters[letters.length - 2];
     const prev2 = letters[letters.length - 3];
     return isVerbLetterVowel(last) && !isVerbLetterVowel(prev) && !isVerbLetterVowel(prev2);
+}
+
+function isInherentlyTransitive(verb) {
+    return verb.endsWith("tza");
 }
 
 function getSubjectPersonInfo(subjectPrefix, subjectSuffix) {
@@ -223,20 +581,11 @@ function endsWithAny(value, suffixes) {
 }
 
 function getTrailingVowelCount(verb) {
-    const last = verb.slice(-1);
-    if (!VOWELS.includes(last)) {
-        return 0;
-    }
-    const prev = verb.slice(-2, -1);
-    if (prev.length === 1 && VOWELS.includes(prev)) {
-        return 2;
-    }
-    return 1;
+    return getTrailingVowelCountFromSyllables(getSyllables(verb));
 }
 
 function getTotalVowelCount(verb) {
-    const matches = verb.match(VOWEL_GLOBAL_RE);
-    return matches ? matches.length : 0;
+    return getTotalVowelCountFromSyllables(getSyllables(verb));
 }
 
 function getPretUniversalCoreVowelCount(verb) {
@@ -247,118 +596,413 @@ function getPretUniversalCoreVowelCount(verb) {
     return getTotalVowelCount(verb);
 }
 
-function getUniversalReplacementStem(verb) {
+function getUniversalReplacementStem(verb, options = {}) {
     if (verb.endsWith("ya")) {
-        return verb.slice(0, -2) + "sh";
+        const letters = splitVerbLetters(verb);
+        const recent = letters.slice(Math.max(0, letters.length - 6));
+        const hasRecentS = recent.includes("s");
+        const base = verb.slice(0, -2);
+        if (!options.isTransitive && hasRecentS) {
+            return base.endsWith("s") ? base : base + "s";
+        }
+        return base + "sh";
     }
     return verb.slice(0, -1) + "j";
 }
 
-function applyPretUniversalDeletionShift(stem) {
+function applyPretUniversalDeletionShift(stem, options = {}) {
     if (stem.endsWith("kw")) {
         return [stem.slice(0, -2) + "k"];
     }
     if (stem.endsWith("w")) {
+        if (stem.endsWith("uw")) {
+            return [stem.slice(0, -1) + "j"];
+        }
         return [stem, stem.slice(0, -1) + "j"];
     }
     if (stem.endsWith("m")) {
         return [stem.slice(0, -1) + "n"];
     }
     if (stem.endsWith("y")) {
-        return [stem.slice(0, -1) + "sh"];
+        const letters = splitVerbLetters(stem);
+        const recent = letters.slice(Math.max(0, letters.length - 6));
+        const hasRecentS = recent.includes("s");
+        const base = stem.slice(0, -1);
+        if (!options.isTransitive && hasRecentS) {
+            return [base.endsWith("s") ? base : base + "s"];
+        }
+        return [base + "sh"];
     }
     return [stem];
 }
 
-function getPretUniversalVariants(verb, tense, isTransitive) {
-    const vowelCount = getTrailingVowelCount(verb);
-    const verbLetterCount = getVerbLetterCount(verb);
-    const isMonosyllable = getPretUniversalCoreVowelCount(verb) === 1;
-    const isDirectionalUni = verb === "uni";
+const PRET_UNIVERSAL_CLASS_BY_TENSE = {
+    "preterito-universal-1": "A",
+    "preterito-universal-2": "B",
+    "preterito-universal-3": "D",
+    "preterito-universal-4": "C",
+};
+
+function buildPretUniversalContext(verb, analysisVerb, isTransitive) {
+    const nonRedupRoot = getNonReduplicatedRoot(analysisVerb);
+    const isReduplicated = nonRedupRoot !== analysisVerb;
+    const analysisRoot = isTransitive ? analysisVerb : nonRedupRoot;
+    const syllables = getSyllables(analysisRoot, {
+        analysis: true,
+        assumeFinalV: true,
+    });
+    const letterCount = getVerbLetterCount(analysisRoot);
+    const syllableForms = syllables.length ? syllables.map((syllable) => syllable.form) : null;
+    const syllableCount = syllableForms
+        ? syllableForms.length
+        : getPretUniversalCoreVowelCount(analysisRoot);
+    const vowelCount = getTrailingVowelCountFromSyllables(syllables);
+    const isMonosyllable = syllableCount === 1;
+    const isDirectionalUni = isUniSyllableSequence(syllables);
     const isDerivedMonosyllable = isMonosyllable || isDirectionalUni;
-    const endsWithCoreKwiKwa = verb.endsWith("kwi") || verb.endsWith("kwa");
-    const hasCCVEnding = verbLetterCount >= 3 && endsWithCCV(verb) && !endsWithCoreKwiKwa;
-    const endsWithKa = verb.endsWith("ka");
-    const endsWithU = verb.endsWith("u");
-    const isClassA = tense === "preterito-universal-1";
-    const isClassB = tense === "preterito-universal-2";
-    const isClassC = tense === "preterito-universal-4";
-    const isClassD = tense === "preterito-universal-3";
-    const isTransitiveUniI = isTransitive && (verb === "uni" || verb === "i");
+    const lastSyllable = syllables[syllables.length - 1] || null;
+    const penultimateSyllable = syllables[syllables.length - 2] || null;
+    const antepenultimateSyllable = syllables[syllables.length - 3] || null;
+    const lastOnset = lastSyllable?.onset || "";
+    const lastNucleus = lastSyllable?.nucleus || "";
+    const endsWithKV = lastSyllable?.form === "CV" && lastOnset === "k";
+    const endsWithKWV = lastSyllable?.form === "CV" && lastOnset === "kw";
+    const endsWithWV = lastSyllable?.form === "CV" && lastOnset === "w";
+    const endsWithTV = lastSyllable?.form === "CV" && lastOnset === "t";
+    const endsWithNV = lastSyllable?.form === "CV" && lastOnset === "n";
+    const endsWithU = isOpenSyllable(lastSyllable) && lastNucleus === "u";
+    const endsWithTA = lastSyllable?.form === "CV" && lastOnset === "t" && lastNucleus === "a";
+    const endsWithYA = lastSyllable?.form === "CV" && lastOnset === "y" && lastNucleus === "a";
+    const endsWithTZA = lastSyllable?.form === "CV" && lastOnset === "tz" && lastNucleus === "a";
+    const endsWithKA = lastSyllable?.form === "CV" && lastOnset === "k" && lastNucleus === "a";
+    const endsWithVka = endsWithKA && penultimateSyllable?.form === "V";
+    const endsWithCVka = endsWithKA && penultimateSyllable?.form === "CV";
+    const endsWithCVnV = endsWithNV && penultimateSyllable?.form === "CV";
+    const endsWithNA = lastSyllable?.form === "CV" && lastOnset === "n" && lastNucleus === "a";
+    const endsWithKisV = lastSyllable?.form === "CV"
+        && lastOnset === "s"
+        && penultimateSyllable?.form === "CV"
+        && penultimateSyllable.onset === "k"
+        && penultimateSyllable.nucleus === "i"
+        && antepenultimateSyllable
+        && SYLLABLE_FORM_SET.has(antepenultimateSyllable.form);
+    const totalVowels = getTotalVowelCountFromSyllables(syllables);
+    const isVtVStart = isPlainVowelSyllable(syllables[0]) && isCVWithOnset(syllables[1], "t");
+    const isVVtVStart = isPlainVowelSyllable(syllables[0])
+        && isPlainVowelSyllable(syllables[1])
+        && isCVWithOnset(syllables[2], "t");
+    const isTransitiveUniI = isTransitive && (isDirectionalUni || isIVerbSyllableSequence(syllables));
+    const rootSyllablesOk = areSyllablesPronounceable(syllables);
+    const lastSyllableForm = lastSyllable?.form || null;
+    const endsInOpenSyllable = isOpenSyllable(lastSyllable);
+    const endsWithIaUa = endsWithIaUaSyllables(syllables);
+    const isItaVerb = isItaSyllableSequence(syllables);
 
-    if (isTransitiveUniI && !(isClassB || isClassD)) {
+    return {
+        verb,
+        analysisVerb: analysisRoot,
+        isTransitive,
+        letterCount,
+        vowelCount,
+        syllableForms,
+        syllableCount,
+        isMonosyllable,
+        isDirectionalUni,
+        isDerivedMonosyllable,
+        endsWithKV,
+        endsWithKWV,
+        endsWithWV,
+        endsWithTV,
+        endsWithNV,
+        endsWithU,
+        endsWithTA,
+        endsWithYA,
+        endsWithTZA,
+        endsWithKA,
+        endsWithVka,
+        endsWithCVka,
+        endsWithCVnV,
+        endsWithNA,
+        endsWithKisV,
+        totalVowels,
+        isVtVStart,
+        isVVtVStart,
+        isTransitiveUniI,
+        rootSyllablesOk,
+        lastSyllableForm,
+        endsInOpenSyllable,
+        endsWithIaUa,
+        isItaVerb,
+        isReduplicated,
+    };
+}
+
+function getPretUniversalClassCandidates(context) {
+    const candidates = new Set();
+    if (!context.rootSyllablesOk) {
+        return candidates;
+    }
+    if (context.isMonosyllable) {
+        if (context.lastSyllableForm !== "C") {
+            candidates.add("D");
+            if (context.isTransitiveUniI) {
+                candidates.add("B");
+            }
+        }
+        return candidates;
+    }
+    candidates.add("B");
+    if (context.endsInOpenSyllable) {
+        candidates.add("A");
+    }
+    if (
+        context.endsInOpenSyllable &&
+        context.vowelCount === 2 &&
+        context.endsWithIaUa
+    ) {
+        candidates.add("C");
+    }
+    return candidates;
+}
+
+function buildPretUniversalClassC(context) {
+    if (!context.endsInOpenSyllable) {
         return null;
     }
-
-    if (isClassC) {
-        if (vowelCount !== 2 || !endsWithAny(verb, IA_UA_SUFFIXES)) {
-            return null;
-        }
-        const replaced = getUniversalReplacementStem(verb);
-        return [
-            { base: replaced, suffix: "" },
-            { base: replaced, suffix: "ki" },
-        ];
-    }
-
-    if (isClassD) {
-        if (vowelCount !== 1 || !isDerivedMonosyllable) {
-            return null;
-        }
-        return [
-            { base: verb + "j", suffix: "" },
-            { base: verb + "j", suffix: "ki" },
-        ];
-    }
-
-    if (vowelCount !== 1) {
+    if (context.vowelCount !== 2 || !context.endsWithIaUa) {
         return null;
     }
+    const replaced = getUniversalReplacementStem(context.verb, {
+        isTransitive: context.isTransitive,
+    });
+    if (!isSyllableSequencePronounceable(replaced)) {
+        return null;
+    }
+    return [
+        { base: replaced, suffix: "" },
+        { base: replaced, suffix: "ki" },
+    ];
+}
 
-    if (isClassA) {
-        if (isMonosyllable || hasCCVEnding || endsWithKa || endsWithU) {
+function buildPretUniversalClassD(context) {
+    if (context.vowelCount !== 1 || !context.isDerivedMonosyllable) {
+        return null;
+    }
+    if (!isSyllableSequencePronounceable(`${context.verb}j`)) {
+        return null;
+    }
+    return [
+        { base: context.verb + "j", suffix: "" },
+        { base: context.verb + "j", suffix: "ki" },
+    ];
+}
+
+function buildPretUniversalClassA(context) {
+    if (context.vowelCount !== 1) {
+        return null;
+    }
+    if (!context.endsInOpenSyllable) {
+        return null;
+    }
+    let allowZeroSuffix = context.totalVowels > 2;
+    let allowKiSuffix = true;
+    const endsWithKVDerivation = context.endsWithKV || context.endsWithKWV;
+    if (!context.isTransitive && context.endsWithKV && context.letterCount <= 4) {
+        return null;
+    }
+    if (context.isTransitive && context.endsWithKA && !context.isReduplicated) {
+        return null;
+    }
+    if (!context.isTransitive && context.endsWithVka) {
+        return null;
+    }
+    if (!context.isTransitive && context.endsWithCVka) {
+        return null;
+    }
+    if (context.isTransitive && context.endsWithTZA) {
+        allowZeroSuffix = false;
+    }
+    if (endsWithKVDerivation) {
+        allowKiSuffix = false;
+        allowZeroSuffix = true;
+    }
+    if (!context.isTransitive && context.endsWithTA) {
+        return null;
+    }
+    if (context.endsWithTV && !endsWithKVDerivation) {
+        allowZeroSuffix = false;
+    }
+    if (!context.isTransitive && context.endsWithWV && !endsWithKVDerivation) {
+        allowZeroSuffix = false;
+    }
+    if (!context.isTransitive && context.endsWithNA) {
+        if (context.totalVowels <= 2) {
             return null;
         }
-        if (isTransitive && verb === "ita") {
-            return [
-                { base: "itz", suffix: "ki" },
-                { base: "itz", suffix: "" },
-            ];
-        }
-        const deletedStems = applyPretUniversalDeletionShift(verb.slice(0, -1));
+        allowZeroSuffix = false;
+    }
+    if (!context.isTransitive && context.endsWithYA) {
+        allowZeroSuffix = false;
+    }
+    if (!context.isTransitive && context.endsWithCVnV) {
+        allowZeroSuffix = false;
+    }
+    if (!context.isTransitive && context.endsWithKisV) {
+        allowZeroSuffix = false;
+    }
+    if (
+        context.isMonosyllable ||
+        (context.endsWithU && !endsWithKVDerivation && !context.endsWithTV) ||
+        (!context.isTransitive && (context.isVtVStart || context.isVVtVStart))
+    ) {
+        return null;
+    }
+    if (context.isTransitive && context.isItaVerb) {
         const variants = [];
-        deletedStems.forEach((base) => {
-            variants.push({ base, suffix: "ki" }, { base, suffix: "" });
-        });
-        return variants;
+        const itaStem = context.verb.slice(0, -2) + "tz";
+        if (!isSyllableSequencePronounceable(itaStem)) {
+            return null;
+        }
+        if (allowKiSuffix) {
+            variants.push({ base: itaStem, suffix: "ki" });
+        }
+        if (allowZeroSuffix) {
+            variants.push({ base: itaStem, suffix: "" });
+        }
+        return variants.length ? variants : null;
     }
+    const deletedStems = applyPretUniversalDeletionShift(context.verb.slice(0, -1), {
+        isTransitive: context.isTransitive,
+    });
+    const variants = [];
+    deletedStems.forEach((base) => {
+        if (!isSyllableSequencePronounceable(base)) {
+            return;
+        }
+        if (allowKiSuffix) {
+            variants.push({ base, suffix: "ki" });
+        }
+        if (allowZeroSuffix) {
+            variants.push({ base, suffix: "" });
+        }
+    });
+    return variants.length ? variants : null;
+}
 
-    if (isClassB) {
-        return [{ base: verb, suffix: "k" }];
+function buildPretUniversalClassB(context) {
+    if (context.vowelCount !== 1) {
+        return null;
     }
+    if (!isSyllableSequencePronounceable(context.verb)) {
+        return null;
+    }
+    return [{ base: context.verb, suffix: "k" }];
+}
 
-    return null;
+function getPretUniversalVariants(verb, tense, isTransitive, analysisVerb = verb) {
+    const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
+    if (!classKey) {
+        return null;
+    }
+    const context = buildPretUniversalContext(verb, analysisVerb, isTransitive);
+    const candidates = getPretUniversalClassCandidates(context);
+    if (!candidates.has(classKey)) {
+        return null;
+    }
+    switch (classKey) {
+        case "A":
+            return buildPretUniversalClassA(context);
+        case "B":
+            return buildPretUniversalClassB(context);
+        case "C":
+            return buildPretUniversalClassC(context);
+        case "D":
+            return buildPretUniversalClassD(context);
+        default:
+            return null;
+    }
+}
+
+function getPretUniversalPrefixForBase(base, subjectPrefix, objectPrefix) {
+    let adjustedObjectPrefix = objectPrefix;
+    if (adjustedObjectPrefix === "k" && base.startsWith("k")) {
+        adjustedObjectPrefix = "";
+    }
+    return subjectPrefix + adjustedObjectPrefix;
 }
 
 function buildPretUniversalResult({ verb, subjectPrefix, objectPrefix, subjectSuffix, tense }) {
-    const variants = getPretUniversalVariants(verb, tense, objectPrefix !== "");
+    const isTransitive = objectPrefix !== "" || isInherentlyTransitive(verb);
+    const verbMeta = getVerbInputMeta();
+    const analysisVerb = verbMeta.hasCompoundMarker && verbMeta.verb === verb
+        ? verbMeta.analysisVerb
+        : verb;
+    const variants = getPretUniversalVariants(verb, tense, isTransitive, analysisVerb);
     if (!variants || variants.length === 0) {
         return null;
     }
-    const prefix = subjectPrefix + objectPrefix;
     const isPlural = subjectSuffix === "t";
-    const seen = new Set();
-    const results = [];
-
+    if (isPlural) {
+        const seen = new Set();
+        const results = [];
+        variants.forEach((variant) => {
+            const prefix = getPretUniversalPrefixForBase(variant.base, subjectPrefix, objectPrefix);
+            const form = `${prefix}${variant.base}ket`;
+            if (!seen.has(form)) {
+                seen.add(form);
+                results.push(form);
+            }
+        });
+        return results.join(" / ");
+    }
+    const groups = new Map();
+    const order = [];
     variants.forEach((variant) => {
-        const suffix = isPlural ? "ket" : variant.suffix;
-        const form = `${prefix}${variant.base}${suffix}`;
-        if (!seen.has(form)) {
-            seen.add(form);
-            results.push(form);
+        const prefix = getPretUniversalPrefixForBase(variant.base, subjectPrefix, objectPrefix);
+        const base = `${prefix}${variant.base}`;
+        let entry = groups.get(base);
+        if (!entry) {
+            entry = { suffixes: new Set(), order: [] };
+            groups.set(base, entry);
+            order.push(base);
+        }
+        if (!entry.suffixes.has(variant.suffix)) {
+            entry.suffixes.add(variant.suffix);
+            entry.order.push(variant.suffix);
         }
     });
-
+    const results = [];
+    order.forEach((base) => {
+        const entry = groups.get(base);
+        const hasEmpty = entry.suffixes.has("");
+        const hasKi = entry.suffixes.has("ki");
+        let emittedOptional = false;
+        let emittedBase = false;
+        if (hasEmpty && hasKi) {
+            results.push(`${base}(ki)`);
+            emittedOptional = true;
+        } else if (hasEmpty) {
+            results.push(base);
+            emittedBase = true;
+        }
+        entry.order.forEach((suffix) => {
+            if (suffix === "") {
+                if (!emittedOptional && !emittedBase) {
+                    results.push(base);
+                    emittedBase = true;
+                }
+                return;
+            }
+            if (suffix === "ki") {
+                if (emittedOptional) {
+                    return;
+                }
+                results.push(`${base}ki`);
+                return;
+            }
+            results.push(`${base}${suffix}`);
+        });
+    });
     return results.join(" / ");
 }
 
@@ -397,12 +1041,507 @@ function setSelectedPretUniversalTab(value) {
     }
 }
 
-function getNormalizedVerb() {
+function parseVerbInput(value) {
+    const raw = String(value || "").toLowerCase();
+    const trimmed = raw.trimStart();
+    const isMarkedTransitive = trimmed.startsWith("-");
+    const body = isMarkedTransitive ? trimmed.slice(1) : trimmed;
+    const cleaned = body.replace(COMPOUND_ALLOWED_RE, "");
+    const verb = cleaned.replace(COMPOUND_MARKER_RE, "");
+    const hasCompoundMarker = COMPOUND_MARKER_SPLIT_RE.test(cleaned);
+    let analysisVerb = verb;
+    if (hasCompoundMarker) {
+        const parts = cleaned.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+        if (parts.length) {
+            analysisVerb = parts[parts.length - 1];
+        }
+    }
+    if (!analysisVerb) {
+        analysisVerb = verb;
+    }
+    return {
+        verb,
+        analysisVerb,
+        hasCompoundMarker,
+        isMarkedTransitive,
+        displayVerb: (isMarkedTransitive ? "-" : "") + cleaned,
+    };
+}
+
+function getVerbInputMeta() {
     const verbInput = document.getElementById("verb");
     if (!verbInput) {
+        return {
+            verb: "",
+            analysisVerb: "",
+            hasCompoundMarker: false,
+            isMarkedTransitive: false,
+            displayVerb: "",
+        };
+    }
+    const raw = verbInput.value;
+    return parseVerbInput(raw);
+}
+
+function getNormalizedVerb() {
+    return getVerbInputMeta().verb;
+}
+
+function getVerbMirror() {
+    return document.getElementById("verb-mirror");
+}
+
+function getVerbMirrorContent() {
+    return document.getElementById("verb-mirror-content");
+}
+
+function getVerbSuggestionsElement() {
+    return document.getElementById("verb-suggestions");
+}
+
+function loadVerbSuggestions() {
+    return fetch("data/data.csv", { cache: "no-store" })
+        .then((response) => response.text())
+        .then((text) => {
+            VERB_SUGGESTIONS_TEXT = text;
+            VERB_SUGGESTIONS = parseVerbSuggestionCSV(text);
+        })
+        .catch(() => {
+            VERB_SUGGESTIONS_TEXT = "";
+            VERB_SUGGESTIONS = [];
+        });
+}
+
+function parseCSVRow(line) {
+    const cells = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i += 1) {
+        const char = line[i];
+        if (char === "\"") {
+            if (inQuotes && line[i + 1] === "\"") {
+                current += "\"";
+                i += 1;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === "," && !inQuotes) {
+            cells.push(current);
+            current = "";
+        } else {
+            current += char;
+        }
+    }
+    cells.push(current);
+    return cells;
+}
+
+function parseCSVRows(text) {
+    return String(text || "")
+        .split(/\r?\n/)
+        .map((line) => line.trimEnd())
+        .filter((line) => line !== "")
+        .map((line) => parseCSVRow(line));
+}
+
+function parseVerbEntryToken(token) {
+    const raw = String(token || "").trim();
+    if (!raw) {
+        return {
+            base: "",
+            transitive: false,
+            intransitive: false,
+        };
+    }
+    let base = raw;
+    let transitive = false;
+    let intransitive = false;
+    if (raw.startsWith("(-)")) {
+        base = raw.slice(3);
+        transitive = true;
+        intransitive = true;
+    } else if (raw.startsWith("-")) {
+        base = raw.slice(1);
+        transitive = true;
+    } else {
+        intransitive = true;
+    }
+    base = base.trim();
+    return {
+        base,
+        transitive,
+        intransitive,
+    };
+}
+
+function parseVerbSuggestionCSV(text) {
+    const suggestionsByBase = new Map();
+    parseCSVRows(text).forEach((row, index) => {
+        const firstCell = row[0] ? String(row[0]).trim() : "";
+        if (!firstCell) {
+            return;
+        }
+        if (index === 0 && firstCell.toLowerCase() === "lx") {
+            return;
+        }
+        const entry = parseVerbEntryToken(firstCell);
+        const base = entry.base;
+        const transitive = entry.transitive;
+        const intransitive = entry.intransitive;
+        if (!base) {
+            return;
+        }
+        const key = base.toLowerCase();
+        const existing = suggestionsByBase.get(key) || {
+            base,
+            transitive: false,
+            intransitive: false,
+        };
+        existing.transitive = existing.transitive || transitive;
+        existing.intransitive = existing.intransitive || intransitive;
+        suggestionsByBase.set(key, existing);
+    });
+    return Array.from(suggestionsByBase.values());
+}
+
+function normalizeVerbSuggestionInput(rawValue) {
+    const raw = String(rawValue || "").trim();
+    const isTransitive = raw.startsWith("-");
+    const query = isTransitive ? raw.slice(1) : raw;
+    return {
+        raw,
+        isTransitive,
+        query: query.toLowerCase(),
+    };
+}
+
+function getFilteredVerbSuggestions(rawValue) {
+    if (!VERB_SUGGESTIONS.length) {
+        return [];
+    }
+    const { isTransitive, query } = normalizeVerbSuggestionInput(rawValue);
+    if (!query && !isTransitive) {
+        return [];
+    }
+    const results = [];
+    const seen = new Set();
+    for (const entry of VERB_SUGGESTIONS) {
+        if (isTransitive && !entry.transitive) {
+            continue;
+        }
+        if (!isTransitive && !entry.intransitive) {
+            continue;
+        }
+        const candidate = entry.base.toLowerCase();
+        if (query && !candidate.startsWith(query)) {
+            continue;
+        }
+        const display = isTransitive ? `-${entry.base}` : entry.base;
+        const key = display.toLowerCase();
+        if (seen.has(key)) {
+            continue;
+        }
+        seen.add(key);
+        results.push(display);
+        if (results.length >= VERB_SUGGESTION_LIMIT) {
+            break;
+        }
+    }
+    return results;
+}
+
+function renderVerbSuggestions(container) {
+    if (!container) {
+        return;
+    }
+    container.innerHTML = "";
+    if (VERB_SUGGESTION_STATE.items.length === 0) {
+        container.classList.remove("is-open");
+        return;
+    }
+    VERB_SUGGESTION_STATE.items.forEach((value, index) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "verb-suggestion";
+        if (index === VERB_SUGGESTION_STATE.activeIndex) {
+            item.classList.add("is-active");
+        }
+        item.textContent = value;
+        item.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            applyVerbSuggestion(value);
+        });
+        container.appendChild(item);
+    });
+    container.classList.add("is-open");
+}
+
+function updateVerbSuggestions() {
+    const verbInput = document.getElementById("verb");
+    const container = getVerbSuggestionsElement();
+    if (!verbInput || !container) {
+        return;
+    }
+    const items = getFilteredVerbSuggestions(verbInput.value);
+    const prevActive = VERB_SUGGESTION_STATE.items[VERB_SUGGESTION_STATE.activeIndex];
+    VERB_SUGGESTION_STATE.items = items;
+    if (!items.length) {
+        VERB_SUGGESTION_STATE.activeIndex = -1;
+        renderVerbSuggestions(container);
+        return;
+    }
+    const preservedIndex = prevActive ? items.indexOf(prevActive) : -1;
+    VERB_SUGGESTION_STATE.activeIndex = preservedIndex >= 0 ? preservedIndex : 0;
+    renderVerbSuggestions(container);
+}
+
+function closeVerbSuggestions() {
+    VERB_SUGGESTION_STATE.items = [];
+    VERB_SUGGESTION_STATE.activeIndex = -1;
+    const container = getVerbSuggestionsElement();
+    if (container) {
+        renderVerbSuggestions(container);
+    }
+}
+
+function applyVerbSuggestion(value) {
+    const verbInput = document.getElementById("verb");
+    if (!verbInput) {
+        return;
+    }
+    verbInput.value = value;
+    renderVerbMirror();
+    updateMassHeadings();
+    renderPretUniversalTabs();
+    closeVerbSuggestions();
+    generateWord();
+    verbInput.focus();
+}
+
+function handleVerbSuggestionKeydown(event) {
+    if (!VERB_SUGGESTION_STATE.items.length) {
+        return;
+    }
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+        event.stopPropagation();
+        VERB_SUGGESTION_STATE.activeIndex =
+            (VERB_SUGGESTION_STATE.activeIndex + 1) % VERB_SUGGESTION_STATE.items.length;
+        renderVerbSuggestions(getVerbSuggestionsElement());
+    } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        event.stopPropagation();
+        VERB_SUGGESTION_STATE.activeIndex =
+            (VERB_SUGGESTION_STATE.activeIndex - 1 + VERB_SUGGESTION_STATE.items.length)
+            % VERB_SUGGESTION_STATE.items.length;
+        renderVerbSuggestions(getVerbSuggestionsElement());
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopPropagation();
+        const value = VERB_SUGGESTION_STATE.items[VERB_SUGGESTION_STATE.activeIndex];
+        if (value) {
+            applyVerbSuggestion(value);
+        }
+    } else if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeVerbSuggestions();
+    }
+}
+
+function escapeCSVValue(value) {
+    const raw = String(value ?? "");
+    if (/[",\n]/.test(raw)) {
+        return `"${raw.replace(/"/g, "\"\"")}"`;
+    }
+    return raw;
+}
+
+function buildPretUniversalFlagsForContext(context, flags) {
+    const candidates = getPretUniversalClassCandidates(context);
+    if (candidates.has("A")) {
+        const variants = buildPretUniversalClassA(context);
+        if (variants) {
+            variants.forEach((variant) => {
+                if (variant.suffix === "ki") {
+                    flags.classAKi = true;
+                } else if (variant.suffix === "") {
+                    flags.classAZero = true;
+                }
+            });
+            if (context.isTransitive && context.isItaVerb) {
+                flags.exceptionItaToItz = true;
+            }
+        }
+    }
+    if (candidates.has("B")) {
+        const variants = buildPretUniversalClassB(context);
+        if (variants && variants.length) {
+            flags.classB = true;
+        }
+    }
+    if (candidates.has("C")) {
+        const variants = buildPretUniversalClassC(context);
+        if (variants && variants.length) {
+            flags.classC = true;
+        }
+    }
+    if (candidates.has("D")) {
+        const variants = buildPretUniversalClassD(context);
+        if (variants && variants.length) {
+            flags.classD = true;
+        }
+    }
+}
+
+function getPretUniversalFlagsForVerb(baseVerb, entry) {
+    const flags = {
+        classAKi: false,
+        classAZero: false,
+        classB: false,
+        classC: false,
+        classD: false,
+        exceptionItaToItz: false,
+    };
+    const modes = [];
+    if (entry.transitive) {
+        modes.push(true);
+    }
+    if (entry.intransitive) {
+        modes.push(false);
+    }
+    if (modes.length === 0) {
+        return flags;
+    }
+    modes.forEach((isTransitive) => {
+        const effectiveTransitive = isTransitive || isInherentlyTransitive(baseVerb);
+        const context = buildPretUniversalContext(baseVerb, baseVerb, effectiveTransitive);
+        buildPretUniversalFlagsForContext(context, flags);
+    });
+    return flags;
+}
+
+function buildPretUniversalCSV(text) {
+    const rows = parseCSVRows(text);
+    if (!rows.length) {
         return "";
     }
-    return verbInput.value.toLowerCase().replace(/[^a-z]/g, "");
+    const headerLabels = [
+        "Class A (-V + ki)",
+        "Class A (-V + 0)",
+        "Class B (V + k)",
+        "Class C",
+        "Class D",
+        "Exception ita > itz",
+    ];
+    const outputRows = [];
+    rows.forEach((row, index) => {
+        const firstCell = row[0] ? String(row[0]).trim() : "";
+        if (index === 0 && firstCell.toLowerCase() === "lx") {
+            outputRows.push([...row, ...headerLabels]);
+            return;
+        }
+        const entry = parseVerbEntryToken(firstCell);
+        const base = entry.base.toLowerCase();
+        if (!base) {
+            outputRows.push([...row, "N", "N", "N", "N", "N"]);
+            return;
+        }
+        const flags = getPretUniversalFlagsForVerb(base, entry);
+        outputRows.push([
+            ...row,
+            flags.classAKi ? "Y" : "N",
+            flags.classAZero ? "Y" : "N",
+            flags.classB ? "Y" : "N",
+            flags.classC ? "Y" : "N",
+            flags.classD ? "Y" : "N",
+            flags.exceptionItaToItz ? "Y" : "N",
+        ]);
+    });
+    return outputRows
+        .map((row) => row.map((cell) => escapeCSVValue(cell)).join(","))
+        .join("\n");
+}
+
+function downloadPretUniversalCSV() {
+    const sourcePromise = VERB_SUGGESTIONS_TEXT
+        ? Promise.resolve(VERB_SUGGESTIONS_TEXT)
+        : fetch("data/data.csv", { cache: "no-store" }).then((response) => response.text());
+    sourcePromise
+        .then((text) => {
+            const output = buildPretUniversalCSV(text);
+            if (!output) {
+                return;
+            }
+            const blob = new Blob([output], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "data-preterito-universal.csv";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        })
+        .catch(() => {});
+}
+
+function renderVerbMirror() {
+    const verbInput = document.getElementById("verb");
+    const mirror = getVerbMirror();
+    const mirrorContent = getVerbMirrorContent();
+    if (!verbInput || !mirror || !mirrorContent) {
+        return;
+    }
+    const rawValue = verbInput.value;
+    const placeholder = verbInput.placeholder || "";
+    mirrorContent.innerHTML = "";
+    if (!rawValue) {
+        mirror.classList.add("is-placeholder");
+        mirrorContent.textContent = placeholder;
+        mirrorContent.style.transform = "translateX(0px)";
+        return;
+    }
+    mirror.classList.remove("is-placeholder");
+    const prefixText = getVerbPrefixText(rawValue);
+    if (prefixText) {
+        const prefixSpan = document.createElement("span");
+        prefixSpan.className = "verb-prefix";
+        prefixSpan.textContent = prefixText;
+        mirrorContent.appendChild(prefixSpan);
+    }
+    const body = rawValue.slice(prefixText.length);
+    const bodyLower = body.toLowerCase();
+    const units = splitVerbLetters(bodyLower);
+    let cursor = 0;
+    units.forEach((unit) => {
+        const len = unit.length;
+        const text = body.slice(cursor, cursor + len);
+        const span = document.createElement("span");
+        span.className = "verb-letter";
+        span.dataset.len = String(len);
+        span.textContent = text;
+        mirrorContent.appendChild(span);
+        cursor += len;
+    });
+    if (cursor < body.length) {
+        const span = document.createElement("span");
+        span.className = "verb-letter";
+        span.dataset.len = String(body.length - cursor);
+        span.textContent = body.slice(cursor);
+        mirrorContent.appendChild(span);
+    }
+    mirrorContent.style.transform = `translateX(${-verbInput.scrollLeft}px)`;
+}
+
+function getVerbPrefixText(rawValue) {
+    const raw = String(rawValue || "");
+    const match = raw.toLowerCase().match(/[a-z]/);
+    if (!match) {
+        return raw;
+    }
+    const index = match.index || 0;
+    return index > 0 ? raw.slice(0, index) : "";
 }
 
 function renderTenseTabs() {
@@ -411,21 +1550,71 @@ function renderTenseTabs() {
         return;
     }
     container.innerHTML = "";
+    const verbMeta = getVerbInputMeta();
+    const verb = verbMeta.verb;
+    const analysisVerb = verbMeta.hasCompoundMarker && verbMeta.analysisVerb ? verbMeta.analysisVerb : verb;
+    const displayVerb = verbMeta.displayVerb;
+    const endsWithConsonant = verb !== "" && !VOWEL_END_RE.test(verb);
+    const hasVerb = verb !== "" && VOWEL_RE.test(verb);
+    const isTransitive = getCurrentObjectPrefix() !== "" || isInherentlyTransitive(verb);
+    const availability = PRETERITO_UNIVERSAL_ORDER.map((tenseValue) => {
+        if (!hasVerb) {
+            return { tenseValue, available: false };
+        }
+        const variants = getPretUniversalVariants(verb, tenseValue, isTransitive, analysisVerb);
+        return { tenseValue, available: !!(variants && variants.length) };
+    });
+    const selectedUniversal = getSelectedPretUniversalTab();
+    const selectedEntry = availability.find((entry) => entry.tenseValue === selectedUniversal);
+    if (!selectedEntry || !selectedEntry.available) {
+        const firstAvailable = availability.find((entry) => entry.available);
+        if (firstAvailable) {
+            setSelectedPretUniversalTab(firstAvailable.tenseValue);
+        }
+    }
+    const activeGroup = getActiveConjugationGroup();
     TENSE_ORDER.forEach((tenseValue) => {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "tense-tab";
-        if (tenseValue === getSelectedTenseTab()) {
+        if (activeGroup === CONJUGATION_GROUPS.tense && tenseValue === getSelectedTenseTab()) {
             button.classList.add("is-active");
         }
         button.textContent = TENSE_LABELS[tenseValue] || tenseValue;
+        button.disabled = endsWithConsonant;
         button.addEventListener("click", () => {
+            setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
             setSelectedTenseTab(tenseValue);
             renderTenseTabs();
-            renderAllOutputs({
-                verb: getNormalizedVerb(),
+            renderActiveConjugations({
+                verb: displayVerb,
                 objectPrefix: getCurrentObjectPrefix(),
                 tense: tenseValue,
+            });
+        });
+        container.appendChild(button);
+    });
+    const breakElement = document.createElement("span");
+    breakElement.className = "tense-tab-break";
+    container.appendChild(breakElement);
+
+    const activeUniversal = getSelectedPretUniversalTab();
+    availability.forEach(({ tenseValue, available }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tense-tab";
+        if (activeGroup === CONJUGATION_GROUPS.universal && tenseValue === activeUniversal && available) {
+            button.classList.add("is-active");
+        }
+        button.textContent = PRETERITO_UNIVERSAL_LABELS[tenseValue] || tenseValue;
+        button.disabled = endsWithConsonant || !available;
+        button.addEventListener("click", () => {
+            setActiveConjugationGroup(CONJUGATION_GROUPS.universal);
+            setSelectedPretUniversalTab(tenseValue);
+            renderTenseTabs();
+            renderActiveConjugations({
+                verb: displayVerb,
+                objectPrefix: getCurrentObjectPrefix(),
             });
         });
         container.appendChild(button);
@@ -433,37 +1622,15 @@ function renderTenseTabs() {
 }
 
 function renderPretUniversalTabs() {
-    const container = document.getElementById("preterito-universal-tabs");
-    if (!container) {
-        return;
-    }
-    container.innerHTML = "";
-    PRETERITO_UNIVERSAL_ORDER.forEach((tenseValue) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "tense-tab";
-        if (tenseValue === getSelectedPretUniversalTab()) {
-            button.classList.add("is-active");
-        }
-        button.textContent = PRETERITO_UNIVERSAL_LABELS[tenseValue] || tenseValue;
-        button.addEventListener("click", () => {
-            setSelectedPretUniversalTab(tenseValue);
-            renderPretUniversalTabs();
-            renderPretUniversalConjugations({
-                verb: getNormalizedVerb(),
-                objectPrefix: getCurrentObjectPrefix(),
-            });
-        });
-        container.appendChild(button);
-    });
+    renderTenseTabs();
 }
 const SUBJECT_COMBINATIONS = [
     { id: "ni", labelEs: "yo", labelNa: "naja", subjectPrefix: "ni", subjectSuffix: "" },
-    { id: "ti", labelEs: "tú / usted", labelNa: "taja", subjectPrefix: "ti", subjectSuffix: "" },
-    { id: "third-person", labelEs: "ella / él", labelNa: "yaja", subjectPrefix: "", subjectSuffix: "" },
-    { id: "1-pl", labelEs: "nosotras / nosotros", labelNa: "tejemet", subjectPrefix: "ti", subjectSuffix: "t" },
+    { id: "ti", labelEs: "tú", labelNa: "taja", subjectPrefix: "ti", subjectSuffix: "" },
+    { id: "third-person", labelEs: "él/ella/eso", labelNa: "yaja", subjectPrefix: "", subjectSuffix: "" },
+    { id: "1-pl", labelEs: "nosotros", labelNa: "tejemet", subjectPrefix: "ti", subjectSuffix: "t" },
     { id: "2-pl", labelEs: "ustedes", labelNa: "anmejemet", subjectPrefix: "an", subjectSuffix: "t" },
-    { id: "3-pl", labelEs: "ellas / ellos", labelNa: "yejemet", subjectPrefix: "", subjectSuffix: "t" },
+    { id: "3-pl", labelEs: "ellos/ellas", labelNa: "yejemet", subjectPrefix: "", subjectSuffix: "t" },
 ];
 const TENSE_ORDER = [
     "presente",
@@ -505,6 +1672,24 @@ const TENSE_TABS_STATE = {
 const PRETERITO_UNIVERSAL_TABS_STATE = {
     selected: PRETERITO_UNIVERSAL_ORDER[0],
 };
+const CONJUGATION_GROUPS = {
+    tense: "tense",
+    universal: "universal",
+};
+const CONJUGATION_GROUP_STATE = {
+    activeGroup: CONJUGATION_GROUPS.tense,
+};
+
+function getActiveConjugationGroup() {
+    return CONJUGATION_GROUP_STATE.activeGroup;
+}
+
+function setActiveConjugationGroup(group) {
+    if (group !== CONJUGATION_GROUPS.tense && group !== CONJUGATION_GROUPS.universal) {
+        return;
+    }
+    CONJUGATION_GROUP_STATE.activeGroup = group;
+}
 
 // Generate translated label
 function changeLanguage() {
@@ -513,7 +1698,6 @@ function changeLanguage() {
   
     var labelElementIds = [
         "subject-prefix-label",
-        "object-prefix-label",
         "verb-label",
         "subject-suffix-label",
         "intransitive-verbs-label",
@@ -560,7 +1744,6 @@ function changeLanguage() {
 
     var translations = {
         "subject-prefix-label": "Itzinhilpika ne tachiwani",
-        "object-prefix-label": "Itzinhilpika ne taseliani",
         "verb-label": "Ne tachiwalis",
         "subject-suffix-label": "Itzunhilpika ne tachiwani",
         "intransitive-verbs-label": "Shikpejpena se tachiwalis te taselia",
@@ -661,16 +1844,16 @@ function changeLanguage() {
     renderTenseTabs();
     renderPretUniversalTabs();
     renderAllOutputs({
-        verb: verbInput.value.toLowerCase().replace(/[^a-z]/g, ""),
-        objectPrefix: document.getElementById("object-prefix").value,
+        verb: getVerbInputMeta().displayVerb,
+        objectPrefix: getCurrentObjectPrefix(),
         tense: document.getElementById("tense-select")?.value || "presente",
     });
+    renderVerbMirror();
 }
 
 //Keyboard navigation (kept minimal now that radios are removed)
 document.addEventListener('keydown', function(event) {
     const verbEl = document.getElementById('verb');
-    const objectSelect = document.getElementById("object-prefix");
     if (event.key === ' ') { // Spacebar key
         if (verbEl) verbEl.focus();
         event.preventDefault();
@@ -680,40 +1863,54 @@ document.addEventListener('keydown', function(event) {
     } else if (event.key === 'Enter') {
         generateWord();
         event.preventDefault();
-    } else if (event.key === '1' && objectSelect) {
-        objectSelect.value = "intransitivo";
-        updateMassHeadings();
-        generateWord();
-        event.preventDefault();
-    } else if (event.key === '2' && objectSelect) {
-        objectSelect.value = "transitivo";
-        updateMassHeadings();
-        generateWord();
-        event.preventDefault();
     }
 });
 
 // Auto-generate on load and while typing
 document.addEventListener("DOMContentLoaded", () => {
+    setBrowserClasses();
     const verbEl = document.getElementById("verb");
     if (verbEl) {
-        verbEl.addEventListener("input", generateWord);
-    }
-    const objectSelect = document.getElementById("object-prefix");
-    if (objectSelect) {
-        objectSelect.addEventListener("change", () => {
+        verbEl.addEventListener("input", () => {
+            renderVerbMirror();
             updateMassHeadings();
+            renderTenseTabs();
+            renderPretUniversalTabs();
+            updateVerbSuggestions();
             generateWord();
         });
+        verbEl.addEventListener("focus", () => {
+            updateVerbSuggestions();
+        });
+        verbEl.addEventListener("blur", () => {
+            window.setTimeout(() => {
+                closeVerbSuggestions();
+            }, 120);
+        });
+        verbEl.addEventListener("keydown", handleVerbSuggestionKeydown);
+        verbEl.addEventListener("scroll", () => {
+            renderVerbMirror();
+        });
     }
+    const downloadCsvButton = document.getElementById("download-csv");
+    if (downloadCsvButton) {
+        downloadCsvButton.addEventListener("click", downloadPretUniversalCSV);
+    }
+    window.addEventListener("resize", () => {
+        renderVerbMirror();
+    });
     updateMassHeadings();
     renderTenseTabs();
     renderPretUniversalTabs();
+    renderVerbMirror();
+    loadVerbSuggestions().then(() => {
+        updateVerbSuggestions();
+    });
     generateWord();
 });
 
 
-function applyMorphologyRules({ subjectPrefix, objectPrefix, subjectSuffix, verb, tense }) {
+function applyMorphologyRules({ subjectPrefix, objectPrefix, subjectSuffix, verb, tense, analysisVerb }) {
     // Check if the object prefix "ki" should be shortened to "k"
     if (objectPrefix !== "kin" && (["ni", "ti"].includes(subjectPrefix) || verb.startsWith("i"))) {
         objectPrefix = objectPrefix.replace("ki", "k");
@@ -741,6 +1938,15 @@ function applyMorphologyRules({ subjectPrefix, objectPrefix, subjectSuffix, verb
     // Replace mu to m when a specific verb is used
     if (startsWithAny(verb, MU_TO_M_VERB_PREFIXES)) {
         objectPrefix = objectPrefix.replace("mu", "m");
+    }
+
+    // For ta indirect object, drop initial "i" in Vj/VC (i + consonant) starts
+    if (objectPrefix === "ta" && verb.startsWith("i")) {
+        const letters = splitVerbLetters(verb);
+        const second = letters[1];
+        if (second && !isVerbLetterVowel(second)) {
+            verb = verb.slice(1);
+        }
     }
 
     // When reflexive, iskalia loses initial 'i'
@@ -779,12 +1985,13 @@ function applyMorphologyRules({ subjectPrefix, objectPrefix, subjectSuffix, verb
         }
     }
 /* GRAMATICAL RULES */
-// Elision rule of double k
-    if (objectPrefix === "k" && verb.startsWith("k") && ["ni", "ti"].includes(subjectPrefix)) {
+// Elision rule of double k (k/kw)
+    if (objectPrefix === "k" && verb.startsWith("k")) {
         objectPrefix = "";
     }
-    const isIntransitive = objectPrefix === "";
+    const isIntransitive = objectPrefix === "" && !isInherentlyTransitive(verb);
     const isTransitive = !isIntransitive;
+    const analysisTarget = analysisVerb || verb;
 
 // Class 4: Words ending in "ia" or "ua", Izalco preterite
 if (endsWithAny(verb, IA_UA_SUFFIXES)) {
@@ -879,8 +2086,8 @@ if (isTransitive && verb.endsWith("ya")) {
                 break;
         }
     }
-// Class 1: Word "ita", deletion of last vowel and mutation, transitive (singular and plural)
-    if (objectPrefix.value !== "" && verb === "ita") {
+// Class 1: Word "ita" (shape-based), deletion of last vowel and mutation, transitive (singular and plural)
+    if (isTransitive && isItaSyllableSequence(splitVerbSyllables(analysisTarget))) {
         switch (tense) {
             case "preterito":
                 switch (subjectSuffix) {
@@ -1929,7 +3136,7 @@ function generateWord(options = {}) {
     let isReflexive = objectPrefix === "mu";
     const rerenderOutputs = () =>
         renderAllOutputs({
-            verb,
+            verb: getVerbInputMeta().displayVerb,
             objectPrefix: baseObjectPrefix,
             tense,
             onlyTense: renderOnlyTense,
@@ -1941,6 +3148,12 @@ function generateWord(options = {}) {
             if (el) {
                 el.classList.remove("error");
             }
+            if (id === "verb") {
+                const verbInput = document.getElementById("verb");
+                if (verbInput) {
+                    verbInput.classList.remove("error");
+                }
+            }
         }
     };
     const setError = (id) => {
@@ -1948,6 +3161,12 @@ function generateWord(options = {}) {
             const el = document.getElementById(id);
             if (el) {
                 el.classList.add("error");
+            }
+            if (id === "verb") {
+                const verbInput = document.getElementById("verb");
+                if (verbInput) {
+                    verbInput.classList.add("error");
+                }
             }
         }
     };
@@ -1977,11 +3196,15 @@ function generateWord(options = {}) {
     clearError("object-prefix");
     clearError("subject-suffix");
 
-    //Only allow lowercase letters
-    verb = verb.toLowerCase().replace(/[^a-z]/g, "");
-    const originalVerb = verb;
+    // Only allow lowercase letters and compound markers; keep a leading "-" as the transitive marker.
+    const rawVerb = String(verb || "");
+    const parsedVerb = parseVerbInput(rawVerb);
+    verb = parsedVerb.verb;
+    const renderVerb = parsedVerb.displayVerb;
+    const analysisVerb = parsedVerb.analysisVerb;
     if (!silent) {
-        verbInput.value = verb;
+        verbInput.value = parsedVerb.displayVerb;
+        renderVerbMirror();
     }
 
     if (verb === "") {
@@ -2002,7 +3225,15 @@ function generateWord(options = {}) {
     } else {
         clearError("verb");
     }
-
+    if (!VOWEL_END_RE.test(verb)) {
+        const message = "El verbo debe terminar en vocal.";
+        const error = returnError(message, ["verb"]);
+        if (error) {
+            return error;
+        }
+    } else {
+        clearError("verb");
+    }
     // Auto-switch to reflexive when subject/object are the same person and number.
     if (isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix)) {
         objectPrefix = "mu";
@@ -2034,6 +3265,7 @@ function generateWord(options = {}) {
         subjectSuffix,
         verb,
         tense,
+        analysisVerb,
     }));
     // Combine the prefixes, verb, and suffixes into a single word
     const generatedText = buildWord();
@@ -2042,7 +3274,7 @@ function generateWord(options = {}) {
     if (!silent) {
         typeWriter(generatedText, 'generated-word', 50);
         renderAllOutputs({
-            verb: originalVerb,
+            verb: renderVerb,
             objectPrefix: baseObjectPrefix,
             tense,
             onlyTense: renderOnlyTense,
@@ -2054,9 +3286,16 @@ function generateWord(options = {}) {
 let intervalId; // Declare a variable to store the interval ID
 
 function renderAllOutputs({ verb, objectPrefix, tense, onlyTense = null }) {
-    renderAllTenseConjugations({ verb, objectPrefix, onlyTense });
-    renderPretUniversalConjugations({ verb, objectPrefix });
+    renderActiveConjugations({ verb, objectPrefix, onlyTense, tense });
     renderFullMatrix({ verb, objectPrefix });
+}
+
+function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
+    if (getActiveConjugationGroup() === CONJUGATION_GROUPS.universal) {
+        renderPretUniversalConjugations({ verb, objectPrefix, containerId: "all-tense-conjugations" });
+        return;
+    }
+    renderAllTenseConjugations({ verb, objectPrefix, onlyTense: onlyTense || tense });
 }
 
 function renderAllConjugations({ verb, objectPrefix, tense }) {
@@ -2093,11 +3332,17 @@ function renderAllConjugations({ verb, objectPrefix, tense }) {
 
         const value = document.createElement("div");
         value.className = "conjugation-value";
-        value.textContent = result.error ? "—" : result.result;
+        const hideReflexive = !!(result && result.isReflexive && getObjectCategory(objectPrefix) !== "reflexive");
         if (result.error) {
+            value.textContent = "—";
             value.classList.add("conjugation-error");
-        } else if (result.isReflexive) {
-            value.classList.add("conjugation-reflexive");
+        } else if (hideReflexive) {
+            value.textContent = "—";
+        } else {
+            value.textContent = result.result;
+            if (result.isReflexive) {
+                value.classList.add("conjugation-reflexive");
+            }
         }
 
         row.appendChild(label);
@@ -2106,8 +3351,8 @@ function renderAllConjugations({ verb, objectPrefix, tense }) {
     });
 }
 
-function renderPretUniversalConjugations({ verb, objectPrefix }) {
-    const container = document.getElementById("all-preterito-universal-conjugations");
+function renderPretUniversalConjugations({ verb, objectPrefix, containerId = "all-tense-conjugations" }) {
+    const container = document.getElementById(containerId);
     if (!container) {
         return;
     }
@@ -2159,11 +3404,17 @@ function renderPretUniversalConjugations({ verb, objectPrefix }) {
 
             const value = document.createElement("div");
             value.className = "conjugation-value";
-            value.textContent = result.error ? "—" : result.result;
+            const hideReflexive = !!(result && result.isReflexive && getObjectCategory(gridObjectPrefix) !== "reflexive");
             if (result.error) {
+                value.textContent = "—";
                 value.classList.add("conjugation-error");
-            } else if (result.isReflexive) {
-                value.classList.add("conjugation-reflexive");
+            } else if (hideReflexive) {
+                value.textContent = "—";
+            } else {
+                value.textContent = result.result;
+                if (result.isReflexive) {
+                    value.classList.add("conjugation-reflexive");
+                }
             }
 
             row.appendChild(label);
@@ -2204,7 +3455,7 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
     }
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
-    const selectedTense = getSelectedTenseTab();
+    const selectedTense = onlyTense || getSelectedTenseTab();
 
     const buildBlock = (tenseValue, gridObjectPrefix, objectLabel) => {
         const tenseBlock = document.createElement("div");
@@ -2250,11 +3501,17 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
 
             const value = document.createElement("div");
             value.className = "conjugation-value";
-            value.textContent = result.error ? "—" : result.result;
+            const hideReflexive = !!(result && result.isReflexive && getObjectCategory(gridObjectPrefix) !== "reflexive");
             if (result.error) {
+                value.textContent = "—";
                 value.classList.add("conjugation-error");
-            } else if (result.isReflexive) {
-                value.classList.add("conjugation-reflexive");
+            } else if (hideReflexive) {
+                value.textContent = "—";
+            } else {
+                value.textContent = result.result;
+                if (result.isReflexive) {
+                    value.classList.add("conjugation-reflexive");
+                }
             }
 
             row.appendChild(label);
@@ -2343,11 +3600,17 @@ function renderFullMatrix({ verb, objectPrefix }) {
                         tense: tenseValue,
                     },
                 }) || {};
-                cell.textContent = result.error ? "—" : result.result;
+                const hideReflexive = !!(result && result.isReflexive && getObjectCategory(fixedObjectPrefix) !== "reflexive");
                 if (result.error) {
+                    cell.textContent = "—";
                     cell.classList.add("conjugation-error");
-                } else if (result.isReflexive) {
-                    cell.classList.add("conjugation-reflexive");
+                } else if (hideReflexive) {
+                    cell.textContent = "—";
+                } else {
+                    cell.textContent = result.result;
+                    if (result.isReflexive) {
+                        cell.classList.add("conjugation-reflexive");
+                    }
                 }
                 row.appendChild(cell);
             });
