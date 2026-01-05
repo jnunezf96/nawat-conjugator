@@ -6,150 +6,67 @@
               <meta name="viewport" content="width=device-width, initial-scale=1">
               <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40"/>
               <meta http-equiv="X-UA-Compatible" content="ie=edge">
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
               <link rel="stylesheet" href="style.css">
               <script src="script.js"></script>
               <title>Conjugador de verbos en náhuat</title>
           </head>
 <body>
-    <div class="form-container-word" id="container-header">
-        <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
-        <!-- Language toggle button -->
-        <label class="switch">
-              <input type="checkbox" id="language" onchange="changeLanguage()">
-              <span class="slider round"></span>
-            </label>            
-    </div>
-    <br>
-    <form>
-    <div class="form-container" id="container-inputs">
-        <div class="form-group">
-              <label for="verb" id="verb-label">Verbo</label><br>
-              <div class="verb-input-wrap">
-                <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
-                  <div class="verb-mirror-content" id="verb-mirror-content"></div>
+    <main class="app-shell">
+        <div class="form-container-word hero-panel" id="container-header">
+            <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
+            <!-- Language toggle button -->
+            <label class="switch">
+                <input type="checkbox" id="language" onchange="changeLanguage()">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="panel-grid">
+            <div class="panel-stack">
+                <form>
+                    <div class="form-container panel" id="container-inputs">
+                        <div class="form-group">
+                            <label for="verb" id="verb-label">Verbo</label><br>
+                            <div class="verb-input-wrap">
+                                <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
+                                    <div class="verb-mirror-content" id="verb-mirror-content"></div>
+                                </div>
+                                <input type="text" id="verb" name="verb" class="verb-input" placeholder="Escriba verbo aquí" autocomplete="off" autocapitalize="none" spellcheck="false">
+                                <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
+                            </div>
+                            <button type="button" class="download-csv" id="download-csv">Descargar CSV</button>
+                        </div>
+                        <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
+                        <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
+                        <div class="legend-wrapper">
+                            <!-- "?" Button to show the keyboard legend -->
+                            <button class="legend-button">?</button>
+                            <!-- Keyboard Legend Container -->
+                            <div class="keyboard-legend-container" id="keyboard-legend">
+                                <p><strong>Atajos:</strong></p>
+                                <p>Space/Esc: enfocar / salir del verbo</p>
+                                <p>Enter: generar</p>
+                                <p>Escribe para ver sugerencias</p>
+                                <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
+                                <!-- Agregar más elementos de leyenda según sea necesario -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="panel tense-tabs-panel">
+                    <div id="tense-tabs" class="tense-tabs"></div>
                 </div>
-                <input type="text" id="verb" name="verb" class="verb-input" placeholder="Escriba verbo aquí" autocomplete="off" autocapitalize="none" spellcheck="false">
-                <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
-              </div>
-              <button type="button" class="download-csv" id="download-csv">Descargar CSV</button>
-          </div>
-        <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
-        <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
-              <div class="legend-wrapper">
-                     <!-- "?" Button to show the keyboard legend -->
-                     <button class="legend-button">?</button>
-                     <!-- Keyboard Legend Container -->
-                     <div class="keyboard-legend-container" id="keyboard-legend">
-                         <p><strong>Atajos:</strong></p>
-                         <p>Space/Esc: enfocar / salir del verbo</p>
-                         <p>Enter: generar</p>
-                         <p>Escribe para ver sugerencias</p>
-                         <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
-                         <!-- Agregar más elementos de leyenda según sea necesario -->
-                     </div>
-                 </div>                 
-       </div>
-    <br>
-    <div class="form-container" id="container-verb-tables">
-       <div class="form-group">
-       <div class="numbered-circle">1a</div>
-         <b><label for="intransitive-verbs" id="intransitive-verbs-label">Seleccione un verbo intransitivo</label></b><br>
-         <table id="intransitive-verbs" class="verb-table">
-           <tr>
-             <td onclick="populateVerbTextbox('nemi')">nemi</td>
-             <td onclick="populateVerbTextbox('ajsi')">ajsi</td>
-             <td onclick="populateVerbTextbox('miki')">miki</td>
-             <td onclick="populateVerbTextbox('temu')">temu</td>
-             <td onclick="populateVerbTextbox('kalaki')">kalaki</td>
-             <td onclick="populateVerbTextbox('pewa')">pewa</td>
-             <td onclick="populateVerbTextbox('patani')">patani</td>
-             <td onclick="populateVerbTextbox('sutumi')">sutumi</td>
-           </tr>
-           <tr>
-             <td onclick="populateVerbTextbox('tutuniya')">tutuniya</td>
-             <td onclick="populateVerbTextbox('temi')">temi</td>
-             <td onclick="populateVerbTextbox('saliwi')">saliwi</td>
-             <td onclick="populateVerbTextbox('tami')">tami</td>
-             <td onclick="populateVerbTextbox('sewi')">sewi</td>
-             <td onclick="populateVerbTextbox('kisa')">kisa</td>
-             <td onclick="populateVerbTextbox('naka')">naka</td>
-             <td onclick="populateVerbTextbox('isa')">isa</td>
-           </tr>
-           <tr>
-              <td onclick="populateVerbTextbox('waki')">waki</td>
-              <td onclick="populateVerbTextbox('wetzka')">wetzka</td>
-              <td onclick="populateVerbTextbox('tata')">tata</td>
-              <td onclick="populateVerbTextbox('tawana')">tawana</td>
-              <td onclick="populateVerbTextbox('witz')">witz</td>
-              <td onclick="populateVerbTextbox('ejku')">ejku</td>
-              <td onclick="populateVerbTextbox('tzikwini')">tzikwini</td>
-              <td onclick="populateVerbTextbox('pajti')">pajti</td>
-            </tr>            
-           <!-- Add more rows and cells here -->
-         </table>
-       </div>
-       <div class="form-group">
-       <div class="numbered-circle">1b</div>
-         <b><label for="transitive-verbs" id="transitive-verbs-label">Seleccione un verbo transitivo</label></b><br>
-         <table id="transitive-verbs" class="verb-table">
-           <tr>
-             <td onclick="populateVerbTextbox('-ijtutia')">ijtutia</td>
-             <td onclick="populateVerbTextbox('-sewia')">sewia</td>
-             <td onclick="populateVerbTextbox('-tawilua')">tawilua</td>
-             <td onclick="populateVerbTextbox('-mana')">mana</td>
-             <td onclick="populateVerbTextbox('-teki')">teki</td>
-             <td onclick="populateVerbTextbox('-neki')">neki</td>
-             <td onclick="populateVerbTextbox('-kwi')">kwi</td>
-             <td onclick="populateVerbTextbox('-mati')">mati</td>
-           </tr>
-           <tr>
-             <td onclick="populateVerbTextbox('-talua')">talua</td>
-             <td onclick="populateVerbTextbox('-talia')">talia</td>
-             <td onclick="populateVerbTextbox('-chalua')">chalua</td>
-             <td onclick="populateVerbTextbox('-salua')">salua</td>
-             <td onclick="populateVerbTextbox('-chiya')">chiya</td>
-             <td onclick="populateVerbTextbox('-piya')">piya</td>
-             <td onclick="populateVerbTextbox('-kuwa')">kuwa</td>
-             <td onclick="populateVerbTextbox('-uya')">uya</td>
-           </tr>
-           <tr>
-              <td onclick="populateVerbTextbox('-paktia')">paktia</td>
-              <td onclick="populateVerbTextbox('-tatia')">tatia</td>
-              <td onclick="populateVerbTextbox('-tawantia')">tawantia</td>
-              <td onclick="populateVerbTextbox('-wika')">wika</td>
-              <td onclick="populateVerbTextbox('-mewa')">mewa</td>
-              <td onclick="populateVerbTextbox('-pusteki')">pusteki</td>
-              <td onclick="populateVerbTextbox('-namiki')">namiki</td>
-              <td onclick="populateVerbTextbox('-napalua')">napalua</td>
-            </tr>            
-           <!-- Add more rows and cells here -->
-         </table>
-       </div>
-     </div>     
-   <br>   
-       </form>
-       <br>
-       <div class="form-container-word container-tense-grid" id="container-tense-grid">
-            <div id="tense-tabs" class="tense-tabs"></div>
-            <div id="all-tense-conjugations"></div>
-       </div>
-       <br>
-       <div class="form-container-word" id="container-feedback">
-       <h2><label id="feedback-heading">Feedback</label></h2>
-       <form action="mailtojaynunez1996@gmail.com" method="post" enctype="text/plain">
-              <p><label id="feedback-message">¡Gracias por visitar nuestro sitio web! Esperamos que estés disfrutando de tu experiencia aquí. Si tienes alguna sugerencia, comentario o encuentras algún problema, ¡nos encantaría escuchar de ti! Tu opinión es muy importante para nosotros y nos ayuda a mejorar.</label></p>
-              <label for="name" id="name-label">Nombre</label>
-              <input type="text" id="name" name="name"><br><br>
-              <label for="email" id="email-label">Email</label>
-              <input type="email" id="email" name="email"><br><br>
-              <label for="message" id="message-label">Mensaje</label>
-              <textarea id="message" name="message"></textarea><br>
-              <input type="submit" id="submit-button" value="Enviar">
-       </form>
-       </div>
-    <footer>
-    <p><label id="copyright-label">Copyright © 2023 Jaime Núñez</label></p>
-    <p>v1.19.20.1 Gracias a Sigfredo Olmedo</p>
-    </footer>
+            </div>
+            <div class="panel container-tense-grid" id="container-tense-grid">
+                <div id="all-tense-conjugations"></div>
+            </div>
+        </div>
+        <footer>
+            <p><label id="copyright-label">Copyright © 2023 Jaime Núñez</label></p>
+            <p>v1.19.20.1 Gracias a Sigfredo Olmedo</p>
+        </footer>
+    </main>
 </body>
 </html>
