@@ -72,26 +72,15 @@
                         <button type="button" class="tense-tabs-mode-button" data-tense-mode="verbo">Verbo</button>
                         <button type="button" class="tense-tabs-mode-button" data-tense-mode="sustantivo">Sustantivo</button>
                     </div>
+                    <div class="tense-tabs-mode voice-derivation-tabs" role="tablist" aria-label="Voz y derivación">
+                        <button type="button" class="tense-tabs-mode-button" data-combined-mode="active">Activo</button>
+                        <button type="button" class="tense-tabs-mode-button" data-combined-mode="nonactive">No activo</button>
+                    </div>
+                    <div class="nonactive-tabs is-hidden" id="nonactive-tabs" role="tablist" aria-label="Derivación no activa"></div>
                     <div id="tense-tabs" class="tense-tabs"></div>
                 </div>
             </div>
             <div class="panel container-tense-grid" id="container-tense-grid">
-                <div class="tense-tabs-header tense-grid-header">
-                    <div class="tense-grid-header__verbo">
-                        <span class="tense-tabs-header-label">SINGULAR/PLURAL</span>
-                        <div class="number-toggle number-toggle--global" id="global-number-toggle" data-number-toggle="global" role="group" aria-label="Número">
-                            <button type="button" class="number-toggle-button" data-number="singular">Singular</button>
-                            <button type="button" class="number-toggle-button" data-number="plural">Plural</button>
-                        </div>
-                    </div>
-                    <div class="tense-grid-header__sustantivo">
-                        <span class="tense-tabs-header-label">POSEEDOR</span>
-                        <div class="number-toggle number-toggle--noun" id="noun-number-toggle" data-number-toggle="global" role="group" aria-label="Número">
-                            <button type="button" class="number-toggle-button" data-number="singular">Singular</button>
-                            <button type="button" class="number-toggle-button" data-number="plural">Plural</button>
-                        </div>
-                    </div>
-                </div>
                 <div id="all-tense-conjugations"></div>
             </div>
         </div>

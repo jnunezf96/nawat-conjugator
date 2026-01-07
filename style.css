@@ -255,44 +255,46 @@ p {
   color: var(--ink);
 }
 
-.tense-tabs-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 10px;
+.voice-derivation-tabs {
+  margin-bottom: 12px;
 }
 
-.tense-tabs-header-label {
-  font-size: calc(0.6rem + var(--font-size-adjust));
+body.is-sustantivo-mode .voice-derivation-tabs {
+  display: none;
+}
+
+.nonactive-tabs {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nonactive-tabs.is-hidden {
+  display: none;
+}
+
+body.is-sustantivo-mode .nonactive-tabs {
+  display: none;
+}
+
+.nonactive-tabs-heading {
+  font-size: calc(0.62rem + var(--font-size-adjust));
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   color: var(--ink-soft);
   opacity: 0.7;
+  padding-left: 2px;
 }
 
-.tense-grid-header__verbo,
-.tense-grid-header__sustantivo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+.nonactive-tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.tense-grid-header__sustantivo {
-  display: none;
-}
-
-
-body.is-sustantivo-mode .tense-grid-header__verbo {
-  display: none;
-}
-
-body.is-sustantivo-mode .tense-grid-header__sustantivo {
-  display: inline-flex;
-}
-
-body:not(.has-valid-verb) .tense-grid-header {
-  display: none;
+.nonactive-tab {
+  border-radius: 14px;
+  padding: 6px 12px;
 }
 
 .form-group {
@@ -617,7 +619,7 @@ body.is-modal-open {
 
 .tutorial-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -949,15 +951,15 @@ input[type="submit"]:hover {
 
 #all-tense-conjugations {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
   align-items: start;
 }
 
 .tense-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 0;
+  grid-template-columns: 1fr;
+  gap: 12px;
   align-items: start;
   margin-bottom: 0;
   padding: 0;
@@ -966,6 +968,23 @@ input[type="submit"]:hover {
   border: none;
   box-shadow: none;
   width: 100%;
+}
+
+.tense-tabs-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 0;
+  align-items: start;
+}
+
+.tense-tabs-universal {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tense-tabs.is-hidden {
+  display: none;
 }
 
 .tense-tabs-column {
@@ -1041,14 +1060,6 @@ input[type="submit"]:hover {
   font-weight: 600;
 }
 
-.tense-tab-meta {
-  font-size: calc(0.62rem + var(--font-size-adjust));
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
-  opacity: 0.75;
-}
-
 .tense-tab.is-active {
   background: linear-gradient(135deg, rgba(216, 106, 58, 0.18), rgba(216, 106, 58, 0.08));
   color: var(--ink);
@@ -1080,6 +1091,7 @@ input[type="submit"]:hover {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .tense-block__label {
@@ -1096,13 +1108,34 @@ input[type="submit"]:hover {
   justify-content: flex-end;
 }
 
+.tense-block__controls--stacked {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.object-toggle--stacked {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.object-toggle--stacked .object-toggle-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+}
+
+.object-toggle--stacked .object-toggle-button + .object-toggle-button {
+  border-left: none;
+  border-top: none;
+}
+
 .tense-block__footer {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
 }
 
-.number-toggle,
 .object-toggle {
   display: inline-flex;
   align-items: center;
@@ -1113,7 +1146,6 @@ input[type="submit"]:hover {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
-.number-toggle-button,
 .object-toggle-button {
   border: none;
   background: transparent;
@@ -1126,12 +1158,10 @@ input[type="submit"]:hover {
   cursor: pointer;
 }
 
-.number-toggle-button + .number-toggle-button,
 .object-toggle-button + .object-toggle-button {
   border-left: 1px solid rgba(29, 26, 21, 0.18);
 }
 
-.number-toggle-button.is-active,
 .object-toggle-button.is-active {
   background: rgba(216, 106, 58, 0.18);
   color: var(--ink);
@@ -1143,6 +1173,9 @@ input[type="submit"]:hover {
     align-items: flex-start;
   }
   .tense-grid {
+    grid-template-columns: 1fr;
+  }
+  .tutorial-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1399,7 +1432,7 @@ input[type="submit"]:hover {
 }
 
 @media (max-width: 600px) {
-  .tense-tabs {
+  .tense-tabs-main {
     grid-template-columns: 1fr;
   }
 
@@ -1413,6 +1446,10 @@ input[type="submit"]:hover {
 
   #all-tense-conjugations {
     grid-template-columns: 1fr;
+  }
+
+  .nonactive-tabs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   h1 {
