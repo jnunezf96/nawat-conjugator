@@ -1113,6 +1113,12 @@ input[type="submit"]:hover {
   justify-content: flex-start;
 }
 
+body.is-sustantivo-mode .tense-block__controls--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
 .object-toggle--stacked {
   width: 100%;
   display: grid;
