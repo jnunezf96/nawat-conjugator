@@ -57,11 +57,12 @@ const INVALID_COMBINATION_KEYS = new Set([
 ]);
 
 const TENSE_SUFFIX_RULES = {
-    imperfecto: { "": " katka", t: "t katka" },
+    imperfecto: { "": "ya", t: "yat" },
     preterito: { t: "ket" },
     perfecto: { "": "tuk", t: "tiwit" },
     pluscuamperfecto: { "": "tuya", t: "tuyat" },
     "condicional-perfecto": { "": "tuskia", t: "tuskiat" },
+    "pasado-remoto": { "": "ka", t: "kat" },
     futuro: { "": "s", t: "sket" },
     condicional: { "": "skia", t: "skiat" },
     "presente-desiderativo": { "": "sneki", t: "snekit" },
@@ -69,7 +70,6 @@ const TENSE_SUFFIX_RULES = {
     "imperativo": { "": "", t: "kan" },
     "sustantivo-verbal": { "": "lis", t: "lis" },
     "agentivo": { "": "ni", t: "nimet", p: "niwan" },
-    "instrumentivo-posesivo": { "": "ya", t: "yat" },
 };
 
 const MU_TO_M_VERB_PREFIXES = [
@@ -338,7 +338,8 @@ function isItaSyllableSequence(syllables) {
         return false;
     }
     const last = syllables[syllables.length - 1];
-    if (!last || last.form !== "CV" || last.onset !== "t" || last.nucleus !== "a") {
+    const itaOnsets = new Set(["t", "d"]);
+    if (!last || last.form !== "CV" || !itaOnsets.has(last.onset) || last.nucleus !== "a") {
         return false;
     }
     const penultimate = syllables[syllables.length - 2];
@@ -932,6 +933,7 @@ function getInstrumentivoResult({
     objectPrefix,
     mode,
 }) {
+    const commonNumberSuffix = "";
     const invalidCharacters = getInvalidVerbCharacters(rawVerb);
     const invalidLetters = getInvalidVerbLetters(rawVerb);
     if (invalidCharacters.length || invalidLetters.length) {
@@ -980,7 +982,7 @@ function getInstrumentivoResult({
             const applied = applyMorphologyRules({
                 subjectPrefix,
                 objectPrefix,
-                subjectSuffix,
+                subjectSuffix: commonNumberSuffix,
                 verb: option.stem,
                 tense: "presente-habitual",
                 analysisVerb: analysisStem,
@@ -1003,9 +1005,9 @@ function getInstrumentivoResult({
     const applied = applyMorphologyRules({
         subjectPrefix,
         objectPrefix,
-        subjectSuffix,
+        subjectSuffix: commonNumberSuffix,
         verb,
-        tense: "instrumentivo-posesivo",
+        tense: "imperfecto",
         analysisVerb,
         isYawi: verbMeta.isYawi,
         directionalPrefix,
@@ -1159,9 +1161,29 @@ function getObjectCategory(prefix) {
     return "direct";
 }
 
+function getPreferredObjectPrefix(prefixes) {
+    if (prefixes.includes("ki")) {
+        return "ki";
+    }
+    return prefixes[0] || "";
+}
+
 function getCurrentObjectPrefix() {
     const prefixes = getObjectPrefixesForTransitividad();
-    return prefixes[0] || "";
+    if (prefixes.length === 1 && prefixes[0] === "") {
+        return "";
+    }
+    const groups = buildObjectPrefixGroups(prefixes);
+    const directGroup = groups.find((group) => group.prefixes.includes("ki")) || groups[0];
+    if (!directGroup) {
+        return "";
+    }
+    const groupKey = directGroup.prefixes.join("|") || "intrans";
+    const stored = OBJECT_TOGGLE_STATE.get(groupKey);
+    if (stored && directGroup.prefixes.includes(stored)) {
+        return stored;
+    }
+    return getPreferredObjectPrefix(directGroup.prefixes);
 }
 
 function getComboKey(subjectPrefix, objectPrefix, subjectSuffix) {
@@ -1248,6 +1270,7 @@ const PRET_UNIVERSAL_CLASS_BY_TENSE = {
 };
 const PRETERITO_CLASS_TENSES = new Set([
     "preterito-clase",
+    "pasado-remoto",
     "perfecto",
     "pluscuamperfecto",
     "condicional-perfecto",
@@ -1350,7 +1373,15 @@ function getPretUniversalClassCandidates(context) {
     if (!context.rootSyllablesOk) {
         return candidates;
     }
+    if (context.endsWithU) {
+        candidates.add("B");
+        return candidates;
+    }
     if (context.isMonosyllable) {
+        if (context.endsWithTA) {
+            candidates.add("B");
+            return candidates;
+        }
         if (context.lastSyllableForm !== "C") {
             candidates.add("D");
             if (context.isTransitiveUniI) {
@@ -2655,7 +2686,7 @@ function renderTenseTabs() {
             const wasActive = activeGroup === CONJUGATION_GROUPS.tense && tenseValue === selectedTense;
             setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
             setSelectedTenseTab(tenseValue);
-            if (tenseValue === "preterito-clase" && wasActive && CLASS_FILTER_STATE.activeClass) {
+            if (PRETERITO_CLASS_TENSES.has(tenseValue) && wasActive && CLASS_FILTER_STATE.activeClass) {
                 CLASS_FILTER_STATE.activeClass = null;
             }
             renderTenseTabs();
@@ -2879,6 +2910,7 @@ const TENSE_ORDER = [
     "presente-desiderativo",
     "imperfecto",
     "preterito-clase",
+    "pasado-remoto",
     "perfecto",
     "pluscuamperfecto",
     "condicional-perfecto",
@@ -2895,6 +2927,7 @@ const TENSE_LABELS = {
     "presente-desiderativo": "presente desiderativo",
     "imperfecto": "pretérito imperfecto",
     "preterito-clase": "pretérito perfecto simple",
+    "pasado-remoto": "pasado remoto",
     "perfecto": "pretérito perfecto compuesto",
     "pluscuamperfecto": "pretérito pluscuamperfecto",
     "condicional-perfecto": "pretérito condicional perfecto",
@@ -2913,7 +2946,7 @@ const TENSE_LINGUISTIC_GROUPS = {
             { heading: "Futuro/condicional · imperfectivo", tenses: ["futuro", "condicional"] },
         ],
         right: [
-            { heading: "Pasado · perfectivo (simple)", tenses: ["preterito-clase"] },
+            { heading: "Pasado · perfectivo (simple)", tenses: ["preterito-clase", "pasado-remoto"] },
             {
                 heading: "Pasado · perfecto (compuesto)",
                 tenses: ["perfecto", "pluscuamperfecto", "condicional-perfecto"],
@@ -3208,7 +3241,7 @@ function changeLanguage() {
         "vi-label": "(tachiwalis te taselia)",
         "tense-label": "Kawit",
         "presente-label": "tay panu",
-        "imperfecto-label": "tay panu katka",
+        "imperfecto-label": "tay panu ya",
         "preterito-izalco-label": "tay panuk (Ijtzalku)",
         "preterito-label": "tay panuk (Witzapan)",
         "perfecto-label": "tay panutuk",
@@ -3625,7 +3658,7 @@ if (isTransitive && verb.endsWith("ya")) {
                 break;
         }
     }
-// Class 1: Word "ita" (shape-based), deletion of last vowel and mutation, transitive (singular and plural)
+// Class 1: Word "ita"/"ida" (shape-based), deletion of last vowel and mutation, transitive (singular and plural)
     if (isTransitive && isItaSyllableSequence(splitVerbSyllables(analysisTarget))) {
         switch (tense) {
             case "preterito":
@@ -4093,27 +4126,6 @@ if (isIntransitive && getRuleLetterCount() >= 5 && verb.endsWith("uki")) {
             break;
     }
 }
-// Class 1: All verbs ending with [u] (panu, temu)
-    if (getRuleLetterCount() <= 5 && getVerbLetterFromEnd(verb, 1) === "u") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
 // Class 1: SHORT verbs with [ti], transitives (mati)
     if (
         verb.endsWith("ti") &&
@@ -5030,7 +5042,7 @@ function renderPretUniversalConjugations({ verb, objectPrefix, containerId = "al
     const buildBlock = (tenseValue, objectGroup, sectionEl) => {
         const { prefixes } = objectGroup;
         const groupKey = prefixes.join("|") || "intrans";
-        let activeObjectPrefix = prefixes[0] || "";
+        let activeObjectPrefix = getPreferredObjectPrefix(prefixes);
         if (!isNonactiveMode) {
             const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(groupKey);
             if (storedObjectPrefix && prefixes.includes(storedObjectPrefix)) {
@@ -5535,7 +5547,7 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
     const buildBlock = (tenseValue, objectGroup, sectionEl) => {
         const { prefixes } = objectGroup;
         const groupKey = prefixes.join("|") || "intrans";
-        let activeObjectPrefix = prefixes[0] || "";
+        let activeObjectPrefix = getPreferredObjectPrefix(prefixes);
         if (!isNonactiveMode) {
             const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(groupKey);
             if (storedObjectPrefix && prefixes.includes(storedObjectPrefix)) {
