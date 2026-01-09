@@ -2639,11 +2639,26 @@ function buildSearchPlanAcrossModes() {
 }
 
 function prepareSearchToggleState({ mode, group, tenseValue }) {
+    const subjectOptions = getSubjectToggleOptions();
+    const subjectOptionIds = subjectOptions
+        .filter((entry) => entry.id !== SUBJECT_TOGGLE_ALL)
+        .map((entry) => entry.id);
+    const fallbackSubject = subjectOptionIds[0] || SUBJECT_TOGGLE_ALL;
     if (mode === TENSE_MODE.sustantivo) {
         const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
         const groupKey = prefixes.join("|");
-        SUBJECT_TOGGLE_STATE.set(`noun|${tenseValue}|${groupKey}`, SUBJECT_TOGGLE_ALL);
-        OBJECT_TOGGLE_STATE.set(getObjectStateKey({ groupKey, tenseValue, mode: "noun" }), OBJECT_TOGGLE_ALL);
+        const subjectKey = `noun|${tenseValue}|${groupKey}`;
+        const defaultNounSubject = getDefaultNounSubjectId(subjectOptions);
+        const nonanimateId = getNonanimateSubjectId();
+        const subjectId = isNonanimateNounTense(tenseValue)
+            ? (nonanimateId || defaultNounSubject || fallbackSubject)
+            : (defaultNounSubject || fallbackSubject);
+        SUBJECT_TOGGLE_STATE.set(subjectKey, subjectId);
+        const verbMeta = getVerbInputMeta();
+        const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue);
+        const objectStateKey = getObjectStateKey({ groupKey, tenseValue, mode: "noun" });
+        const fallbackObject = allowedPrefixes[0] || "";
+        OBJECT_TOGGLE_STATE.set(objectStateKey, fallbackObject);
         return;
     }
     const objectPrefixes = getObjectPrefixesForTransitividad();
@@ -2653,14 +2668,16 @@ function prepareSearchToggleState({ mode, group, tenseValue }) {
     objectPrefixGroups.forEach((objectGroup) => {
         const { prefixes } = objectGroup;
         const groupKey = prefixes.join("|") || "intrans";
-        SUBJECT_TOGGLE_STATE.set(`${stateMode}|${tenseValue}|${groupKey}`, SUBJECT_TOGGLE_ALL);
+        const subjectKey = `${stateMode}|${tenseValue}|${groupKey}`;
+        SUBJECT_TOGGLE_STATE.set(subjectKey, fallbackSubject);
         const objectKey = getObjectStateKey({
             groupKey,
             tenseValue,
             mode: stateMode,
             isNonactive,
         });
-        OBJECT_TOGGLE_STATE.set(objectKey, prefixes.length > 1 ? OBJECT_TOGGLE_ALL : "");
+        const fallbackObject = getPreferredObjectPrefix(prefixes);
+        OBJECT_TOGGLE_STATE.set(objectKey, fallbackObject);
     });
 }
 
@@ -2681,6 +2698,45 @@ function getSearchPossessorPlan(tenseValue) {
     const values = POSSESSIVE_PREFIXES.map((entry) => entry.value);
     const ordered = [base, ...values.filter((value) => value !== base)];
     return ordered.filter((value, index) => ordered.indexOf(value) === index);
+}
+
+function isNonanimateNounTense(tenseValue) {
+    return tenseValue === "sustantivo-verbal"
+        || tenseValue === "instrumentivo"
+        || tenseValue === "calificativo-instrumentivo";
+}
+
+function getNonanimateSubjectId() {
+    const match = SUBJECT_COMBINATIONS.find((entry) => (
+        entry.subjectPrefix === "" && entry.subjectSuffix === ""
+    ));
+    return match ? match.id : "";
+}
+
+function buildSearchOptionPlan(options, stored, fallback) {
+    const list = options.slice();
+    if (!list.length) {
+        return [];
+    }
+    let base = list.includes(stored) ? stored : "";
+    if (!base || base === SUBJECT_TOGGLE_ALL || base === OBJECT_TOGGLE_ALL) {
+        base = list.includes(fallback) ? fallback : list[0];
+    }
+    const ordered = [base, ...list.filter((value) => value !== base)];
+    return ordered.filter((value, index) => ordered.indexOf(value) === index);
+}
+
+function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue) {
+    const analysisVerb = verbMeta.analysisVerb || verbMeta.verb;
+    const isTransitiveVerb = verbMeta.isMarkedTransitive || isInherentlyTransitive(analysisVerb);
+    const isCalificativoInstrumentivo = tenseValue === "calificativo-instrumentivo";
+    if (isCalificativoInstrumentivo) {
+        return isTransitiveVerb ? ["mu"] : [""];
+    }
+    if (!isTransitiveVerb) {
+        return [""];
+    }
+    return Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
 }
 
 function getSearchNonactiveSuffixPlan(verbMeta) {
@@ -2711,6 +2767,87 @@ function getSearchCombinedModePlan() {
         ? COMBINED_MODE.active
         : COMBINED_MODE.nonactive;
     return [current, other];
+}
+
+function getNonTodosSubjectOptionIds() {
+    return getSubjectToggleOptions()
+        .filter((entry) => entry.id !== SUBJECT_TOGGLE_ALL)
+        .map((entry) => entry.id);
+}
+
+function buildVerbSearchPlans({ tenseValue, group, isNonactive }) {
+    const stateMode = group === CONJUGATION_GROUPS.universal ? "universal" : "standard";
+    const objectPrefixes = getObjectPrefixesForTransitividad();
+    const objectPrefixGroups = buildObjectPrefixGroups(objectPrefixes);
+    const subjectOptionIds = getNonTodosSubjectOptionIds();
+    const fallbackSubject = subjectOptionIds[0] || SUBJECT_TOGGLE_ALL;
+    let storedSubject = "";
+    let storedPreferred = "";
+    const subjectKeys = [];
+    objectPrefixGroups.forEach((objectGroup) => {
+        const groupKey = objectGroup.prefixes.join("|") || "intrans";
+        const subjectKey = `${stateMode}|${tenseValue}|${groupKey}`;
+        subjectKeys.push(subjectKey);
+        const stored = SUBJECT_TOGGLE_STATE.get(subjectKey);
+        if (stored && stored !== SUBJECT_TOGGLE_ALL && subjectOptionIds.includes(stored)) {
+            if (objectGroup.prefixes.includes("ki")) {
+                storedPreferred = stored;
+            } else if (!storedSubject) {
+                storedSubject = stored;
+            }
+        }
+    });
+    const baseSubject = storedPreferred || storedSubject;
+    const subjectPlan = buildSearchOptionPlan(subjectOptionIds, baseSubject, fallbackSubject);
+    const objectPlans = objectPrefixGroups.map((objectGroup) => {
+        const prefixes = objectGroup.prefixes;
+        const groupKey = prefixes.join("|") || "intrans";
+        const objectStateKey = getObjectStateKey({
+            groupKey,
+            tenseValue,
+            mode: stateMode,
+            isNonactive,
+        });
+        const stored = OBJECT_TOGGLE_STATE.get(objectStateKey);
+        const fallbackObject = getPreferredObjectPrefix(prefixes);
+        const options = buildSearchOptionPlan(prefixes, stored, fallbackObject);
+        return {
+            objectStateKey,
+            options,
+            base: options[0] || "",
+        };
+    });
+    return { subjectPlan, subjectKeys, objectPlans };
+}
+
+function buildNounSearchPlans({ tenseValue, verbMeta }) {
+    const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
+    const groupKey = prefixes.join("|");
+    const subjectKey = `noun|${tenseValue}|${groupKey}`;
+    const subjectOptions = getSubjectToggleOptions();
+    const subjectOptionIds = subjectOptions
+        .filter((entry) => entry.id !== SUBJECT_TOGGLE_ALL)
+        .map((entry) => entry.id);
+    const fallbackSubject = getDefaultNounSubjectId(subjectOptions) || subjectOptionIds[0] || SUBJECT_TOGGLE_ALL;
+    let subjectPlan = [];
+    if (isNonanimateNounTense(tenseValue)) {
+        const nonanimateId = getNonanimateSubjectId();
+        subjectPlan = [nonanimateId || fallbackSubject];
+    } else {
+        const stored = SUBJECT_TOGGLE_STATE.get(subjectKey);
+        subjectPlan = buildSearchOptionPlan(subjectOptionIds, stored, fallbackSubject);
+    }
+    const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue);
+    const objectStateKey = getObjectStateKey({ groupKey, tenseValue, mode: "noun" });
+    const storedObject = OBJECT_TOGGLE_STATE.get(objectStateKey);
+    const fallbackObject = allowedPrefixes[0] || "";
+    const objectPlan = buildSearchOptionPlan(allowedPrefixes, storedObject, fallbackObject);
+    return {
+        subjectPlan,
+        subjectKey,
+        objectPlan,
+        objectStateKey,
+    };
 }
 
 function getTenseModeForValue(tenseValue) {
@@ -2804,7 +2941,6 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
         return false;
     }
     const objectPrefix = getCurrentObjectPrefix();
-    const nonactiveSuffixPlan = getSearchNonactiveSuffixPlan(parsedVerb);
     const savedState = {
         mode: getActiveTenseMode(),
         group: getActiveConjugationGroup(),
@@ -2837,31 +2973,70 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                     setSelectedTenseTab(target.tenseValue);
                 }
             }
-            prepareSearchToggleState(target);
-            const possessorPlan = target.mode === TENSE_MODE.sustantivo
-                ? getSearchPossessorPlan(target.tenseValue)
-                : [null];
-            const suffixPlan = combinedMode === COMBINED_MODE.nonactive
-                ? getSearchNonactiveSuffixPlan(parsedVerb)
-                : [null];
-            for (const possessor of possessorPlan) {
-                if (possessor !== null) {
+            if (target.mode === TENSE_MODE.sustantivo) {
+                const nounPlans = buildNounSearchPlans({
+                    tenseValue: target.tenseValue,
+                    verbMeta: parsedVerb,
+                });
+                const possessorPlan = getSearchPossessorPlan(target.tenseValue);
+                for (const possessor of possessorPlan) {
                     POSSESSOR_TOGGLE_STATE.set(getNounPossessorKey(target.tenseValue), possessor);
-                }
-                for (const suffix of suffixPlan) {
-                    if (suffix !== null) {
-                        setSelectedNonactiveSuffix(suffix);
+                    for (const subjectId of nounPlans.subjectPlan) {
+                        SUBJECT_TOGGLE_STATE.set(nounPlans.subjectKey, subjectId);
+                        for (const objectPrefix of nounPlans.objectPlan) {
+                            OBJECT_TOGGLE_STATE.set(nounPlans.objectStateKey, objectPrefix);
+                            renderActiveConjugations({
+                                verb: displayVerb,
+                                objectPrefix,
+                                onlyTense: target.tenseValue,
+                                tense: target.tenseValue,
+                            });
+                            if (scrollToMatchingConjugationRow(queryInfo.term, { matchMode: queryInfo.mode })) {
+                                renderTenseTabs();
+                                renderPretUniversalTabs();
+                                return true;
+                            }
+                        }
                     }
-                    renderTenseTabs();
-                    renderPretUniversalTabs();
-                    renderActiveConjugations({
-                        verb: displayVerb,
-                        objectPrefix,
-                        onlyTense: target.tenseValue,
-                        tense: target.tenseValue,
+                }
+                continue;
+            }
+            const isNonactive = combinedMode === COMBINED_MODE.nonactive;
+            const verbPlans = buildVerbSearchPlans({
+                tenseValue: target.tenseValue,
+                group: target.group,
+                isNonactive,
+            });
+            const suffixPlan = isNonactive ? getSearchNonactiveSuffixPlan(parsedVerb) : [null];
+            const baseObjectSelections = new Map(
+                verbPlans.objectPlans.map((plan) => [plan.objectStateKey, plan.base])
+            );
+            for (const suffix of suffixPlan) {
+                if (suffix !== null) {
+                    setSelectedNonactiveSuffix(suffix);
+                }
+                for (const subjectId of verbPlans.subjectPlan) {
+                    verbPlans.subjectKeys.forEach((subjectKey) => {
+                        SUBJECT_TOGGLE_STATE.set(subjectKey, subjectId);
                     });
-                    if (scrollToMatchingConjugationRow(queryInfo.term, { matchMode: queryInfo.mode })) {
-                        return true;
+                    for (const objectPlan of verbPlans.objectPlans) {
+                        baseObjectSelections.forEach((value, key) => {
+                            OBJECT_TOGGLE_STATE.set(key, value);
+                        });
+                        for (const objectPrefix of objectPlan.options) {
+                            OBJECT_TOGGLE_STATE.set(objectPlan.objectStateKey, objectPrefix);
+                            renderActiveConjugations({
+                                verb: displayVerb,
+                                objectPrefix,
+                                onlyTense: target.tenseValue,
+                                tense: target.tenseValue,
+                            });
+                            if (scrollToMatchingConjugationRow(queryInfo.term, { matchMode: queryInfo.mode })) {
+                                renderTenseTabs();
+                                renderPretUniversalTabs();
+                                return true;
+                            }
+                        }
                     }
                 }
             }

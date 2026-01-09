@@ -588,7 +588,7 @@ body.is-modal-open {
 .tutorial-panel {
   position: relative;
   width: min(92vw, 980px);
-  max-height: 88vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   border-radius: 22px;
@@ -608,7 +608,7 @@ body.is-modal-open {
 }
 
 .tutorial-header {
-  padding: 20px 24px 16px;
+  padding: 16px 20px 12px;
   background: linear-gradient(120deg, rgba(216, 106, 58, 0.2), rgba(44, 139, 126, 0.18));
   border-bottom: 1px solid rgba(216, 106, 58, 0.2);
   position: relative;
@@ -632,7 +632,7 @@ body.is-modal-open {
 .tutorial-lede {
   margin: 0;
   color: var(--ink-soft);
-  font-size: calc(0.95rem + var(--font-size-adjust));
+  font-size: calc(0.9rem + var(--font-size-adjust));
 }
 
 .tutorial-close {
@@ -655,71 +655,71 @@ body.is-modal-open {
 }
 
 .tutorial-body {
-  padding: 22px 24px 24px;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.tutorial-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.tutorial-block {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid rgba(29, 26, 21, 0.12);
-  box-shadow: 0 12px 28px rgba(24, 20, 14, 0.08);
+  padding: 16px 20px 18px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+.tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutorial-block {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  box-shadow: 0 12px 28px rgba(24, 20, 14, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .tutorial-block-title {
   font-weight: 700;
   color: var(--ink);
-  font-size: calc(1rem + var(--font-size-adjust));
+  font-size: calc(0.95rem + var(--font-size-adjust));
 }
 
 .tutorial-chip-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tutorial-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  padding: 4px 10px;
+  min-width: 30px;
+  padding: 3px 8px;
   border-radius: 999px;
   background: rgba(216, 106, 58, 0.18);
   color: var(--ink);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: calc(0.7rem + var(--font-size-adjust));
+  font-size: calc(0.65rem + var(--font-size-adjust));
 }
 
 .tutorial-chip-label {
   color: var(--ink-soft);
-  font-size: calc(0.85rem + var(--font-size-adjust));
+  font-size: calc(0.8rem + var(--font-size-adjust));
 }
 
 .tutorial-structure {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tutorial-structure-line {
   background: rgba(44, 139, 126, 0.12);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -729,6 +729,7 @@ body.is-modal-open {
 .tutorial-code {
   font-weight: 700;
   letter-spacing: 0.05em;
+  font-size: calc(0.75rem + var(--font-size-adjust));
 }
 
 .tutorial-example-inline {
@@ -744,15 +745,19 @@ body.is-modal-open {
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(29, 26, 21, 0.12);
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: calc(0.68rem + var(--font-size-adjust));
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
 }
 
 .tutorial-note {
   color: var(--ink-soft);
-  font-size: calc(0.8rem + var(--font-size-adjust));
+  font-size: calc(0.76rem + var(--font-size-adjust));
 }
 
 .tutorial-example-grid {
@@ -785,12 +790,12 @@ body.is-modal-open {
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid rgba(29, 26, 21, 0.08);
-  padding-top: 12px;
+  padding-top: 8px;
 }
 
 .tutorial-tip {
   color: var(--ink-soft);
-  font-size: calc(0.85rem + var(--font-size-adjust));
+  font-size: calc(0.8rem + var(--font-size-adjust));
 }
 
 .tutorial-close-pill {
@@ -897,6 +902,10 @@ input[type="submit"]:hover {
 
   .tutorial-panel {
     max-height: 92vh;
+  }
+
+  .tutorial-body {
+    overflow: auto;
   }
 
   .tutorial-footer {
