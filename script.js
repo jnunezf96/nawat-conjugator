@@ -1489,6 +1489,35 @@ function getObjectCategory(prefix) {
     return "direct";
 }
 
+function applyObjectSectionCategory(sectionEl, prefix) {
+    if (!sectionEl) {
+        return;
+    }
+    sectionEl.classList.remove(
+        "object-section--direct",
+        "object-section--indirect",
+        "object-section--reflexive",
+        "object-section--te"
+    );
+    const category = getObjectCategory(prefix);
+    if (category !== "intransitive") {
+        sectionEl.classList.add(`object-section--${category}`);
+    }
+    if (prefix === "te") {
+        sectionEl.classList.add("object-section--te");
+    }
+}
+
+function applyConjugationRowClasses(row, objectPrefix) {
+    if (!row) {
+        return;
+    }
+    row.classList.add(`conjugation-row--${getObjectCategory(objectPrefix)}`);
+    if (objectPrefix === "te") {
+        row.classList.add("conjugation-row--te");
+    }
+}
+
 function getPreferredObjectPrefix(prefixes) {
     const verbMeta = getVerbInputMeta();
     const forcedPrefix = verbMeta.indirectObjectMarker || "";
@@ -3737,15 +3766,6 @@ function getObjectToggleOptions(prefixes, options = {}) {
     return list;
 }
 
-function applyObjectToggleButtonDecorations(button, entry) {
-    if (!button || !entry || !entry.id || entry.id === OBJECT_TOGGLE_ALL) {
-        return;
-    }
-    button.dataset.objectPrefix = entry.id;
-    if (entry.id === "te") {
-        button.classList.add("object-toggle-button--te");
-    }
-}
 const SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES = new Set(["ta", "te", "mu"]);
 const SUSTANTIVO_VERBAL_PREFIXES = ["", ...SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES];
 const POSSESSIVE_PREFIXES = [
@@ -6132,7 +6152,7 @@ function renderAllConjugations({ verb, objectPrefix, tense }) {
 
         const row = document.createElement("div");
         row.className = "conjugation-row";
-        row.classList.add(`conjugation-row--${getObjectCategory(objectPrefix)}`);
+        applyConjugationRowClasses(row, objectPrefix);
 
         const label = document.createElement("div");
         label.className = "conjugation-label";
@@ -6277,7 +6297,6 @@ function renderPretUniversalConjugations({
                 if (!isNonactiveMode && isForcedObjectPrefix) {
                     button.disabled = entry.id !== forcedObjectPrefix;
                 }
-                applyObjectToggleButtonDecorations(button, entry);
                 button.textContent = entry.label;
                 button.addEventListener("click", () => {
                     setActivePrefix(entry.id);
@@ -6294,14 +6313,7 @@ function renderPretUniversalConjugations({
         list.className = "conjugation-list";
 
         const updateSectionCategory = (prefix) => {
-            if (!sectionEl) {
-                return;
-            }
-            sectionEl.classList.remove("object-section--direct", "object-section--indirect", "object-section--reflexive");
-            const category = getObjectCategory(prefix);
-            if (category !== "intransitive") {
-                sectionEl.classList.add(`object-section--${category}`);
-            }
+            applyObjectSectionCategory(sectionEl, prefix);
         };
 
         const renderRows = () => {
@@ -6318,7 +6330,7 @@ function renderPretUniversalConjugations({
                 const buildNonactiveRow = (labelText, subText, prefix) => {
                     const row = document.createElement("div");
                     row.className = "conjugation-row";
-                    row.classList.add(`conjugation-row--${getObjectCategory(prefix)}`);
+                    applyConjugationRowClasses(row, prefix);
 
                     const label = document.createElement("div");
                     label.className = "conjugation-label";
@@ -6414,7 +6426,7 @@ function renderPretUniversalConjugations({
                 subjectSelections.forEach(({ group, selection }) => {
                 const row = document.createElement("div");
                 row.className = "conjugation-row";
-                row.classList.add(`conjugation-row--${getObjectCategory(objectPrefix)}`);
+                applyConjugationRowClasses(row, objectPrefix);
 
                 const label = document.createElement("div");
                 label.className = "conjugation-label";
@@ -6687,7 +6699,6 @@ function renderNounConjugations({
             const button = document.createElement("button");
             button.type = "button";
             button.className = "object-toggle-button";
-            applyObjectToggleButtonDecorations(button, entry);
             button.textContent = entry.label;
             button.addEventListener("click", () => {
                 setActivePrefix(entry.id);
@@ -6704,11 +6715,7 @@ function renderNounConjugations({
     list.className = "conjugation-list";
 
     const updateSectionCategory = (prefix) => {
-        objSection.classList.remove("object-section--direct", "object-section--indirect", "object-section--reflexive");
-        const category = getObjectCategory(prefix);
-        if (category !== "intransitive") {
-            objSection.classList.add(`object-section--${category}`);
-        }
+        applyObjectSectionCategory(objSection, prefix);
     };
 
     const renderRows = () => {
@@ -6748,7 +6755,7 @@ function renderNounConjugations({
                 }
                 const row = document.createElement("div");
                 row.className = "conjugation-row";
-                row.classList.add(`conjugation-row--${getObjectCategory(objectPrefix)}`);
+                applyConjugationRowClasses(row, objectPrefix);
 
                 const label = document.createElement("div");
                 label.className = "conjugation-label";
@@ -6995,7 +7002,6 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
                 if (!isNonactiveMode && isForcedObjectPrefix) {
                     button.disabled = entry.id !== forcedObjectPrefix;
                 }
-                applyObjectToggleButtonDecorations(button, entry);
                 button.textContent = entry.label;
                 button.addEventListener("click", () => {
                     setActivePrefix(entry.id);
@@ -7012,14 +7018,7 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
         list.className = "conjugation-list";
 
         const updateSectionCategory = (prefix) => {
-            if (!sectionEl) {
-                return;
-            }
-            sectionEl.classList.remove("object-section--direct", "object-section--indirect", "object-section--reflexive");
-            const category = getObjectCategory(prefix);
-            if (category !== "intransitive") {
-                sectionEl.classList.add(`object-section--${category}`);
-            }
+            applyObjectSectionCategory(sectionEl, prefix);
         };
 
         const renderRows = () => {
@@ -7036,7 +7035,7 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
                 const buildNonactiveRow = (labelText, subText, prefix) => {
                     const row = document.createElement("div");
                     row.className = "conjugation-row";
-                    row.classList.add(`conjugation-row--${getObjectCategory(prefix)}`);
+                    applyConjugationRowClasses(row, prefix);
 
                     const label = document.createElement("div");
                     label.className = "conjugation-label";
@@ -7133,7 +7132,7 @@ function renderAllTenseConjugations({ verb, objectPrefix, onlyTense = null }) {
                 subjectSelections.forEach(({ group, selection }) => {
                 const row = document.createElement("div");
                 row.className = "conjugation-row";
-                row.classList.add(`conjugation-row--${getObjectCategory(objectPrefix)}`);
+                applyConjugationRowClasses(row, objectPrefix);
 
                 const label = document.createElement("div");
                 label.className = "conjugation-label";
