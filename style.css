@@ -65,9 +65,15 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+  background: linear-gradient(135deg, #f6efe2 0%, #f2e4cf 35%, #efe5d8 100%);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-body);
   font-size: calc(1rem + var(--font-size-adjust));
   color: var(--ink);
@@ -79,6 +85,12 @@ body {
   background-attachment: fixed;
   position: relative;
   overflow-x: hidden;
+}
+
+@media (hover: none), (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 body::before,
@@ -589,6 +601,7 @@ body.is-modal-open {
   position: relative;
   width: min(92vw, 980px);
   max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   border-radius: 22px;
@@ -656,10 +669,12 @@ body.is-modal-open {
 
 .tutorial-body {
   padding: 16px 20px 18px;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1;
+  min-height: 0;
 }
 
 .tutorial-grid {
