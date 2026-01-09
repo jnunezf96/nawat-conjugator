@@ -3327,7 +3327,7 @@ function updateVerbSuggestions() {
         return;
     }
     const preservedIndex = prevActive ? items.indexOf(prevActive) : -1;
-    VERB_SUGGESTION_STATE.activeIndex = preservedIndex >= 0 ? preservedIndex : 0;
+    VERB_SUGGESTION_STATE.activeIndex = preservedIndex >= 0 ? preservedIndex : -1;
     renderVerbSuggestions(container);
 }
 
@@ -3358,23 +3358,55 @@ function applyVerbSuggestion(value) {
 }
 
 function handleVerbSuggestionKeydown(event) {
-    if (!VERB_SUGGESTION_STATE.items.length) {
-        return;
-    }
     if (event.key === "ArrowDown") {
+        const container = getVerbSuggestionsElement();
+        if (container && !container.classList.contains("is-open")) {
+            updateVerbSuggestions();
+            if (!VERB_SUGGESTION_STATE.items.length) {
+                return;
+            }
+        }
+        if (!VERB_SUGGESTION_STATE.items.length) {
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
-        VERB_SUGGESTION_STATE.activeIndex =
-            (VERB_SUGGESTION_STATE.activeIndex + 1) % VERB_SUGGESTION_STATE.items.length;
+        if (VERB_SUGGESTION_STATE.activeIndex === -1) {
+            VERB_SUGGESTION_STATE.activeIndex = 0;
+        } else if (VERB_SUGGESTION_STATE.activeIndex === VERB_SUGGESTION_STATE.items.length - 1) {
+            VERB_SUGGESTION_STATE.activeIndex = -1;
+        } else {
+            VERB_SUGGESTION_STATE.activeIndex += 1;
+        }
         renderVerbSuggestions(getVerbSuggestionsElement());
     } else if (event.key === "ArrowUp") {
+        const container = getVerbSuggestionsElement();
+        if (container && !container.classList.contains("is-open")) {
+            updateVerbSuggestions();
+            if (!VERB_SUGGESTION_STATE.items.length) {
+                return;
+            }
+        }
+        if (!VERB_SUGGESTION_STATE.items.length) {
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
-        VERB_SUGGESTION_STATE.activeIndex =
-            (VERB_SUGGESTION_STATE.activeIndex - 1 + VERB_SUGGESTION_STATE.items.length)
-            % VERB_SUGGESTION_STATE.items.length;
+        if (VERB_SUGGESTION_STATE.activeIndex === -1) {
+            VERB_SUGGESTION_STATE.activeIndex = VERB_SUGGESTION_STATE.items.length - 1;
+        } else if (VERB_SUGGESTION_STATE.activeIndex === 0) {
+            VERB_SUGGESTION_STATE.activeIndex = -1;
+        } else {
+            VERB_SUGGESTION_STATE.activeIndex -= 1;
+        }
         renderVerbSuggestions(getVerbSuggestionsElement());
     } else if (event.key === "Enter") {
+        if (VERB_SUGGESTION_STATE.activeIndex === -1) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeVerbSuggestions();
+            return;
+        }
         event.preventDefault();
         event.stopPropagation();
         const value = VERB_SUGGESTION_STATE.items[VERB_SUGGESTION_STATE.activeIndex];
