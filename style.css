@@ -13,15 +13,37 @@
   --primary-color: #f5d89a;
   --secondary-color: var(--ink);
   --background-color: rgba(247, 241, 230, 0.75);
-  --reflexive-bg: #f8e7ea;
-  --reflexive-border: #a55b6e;
-  --reflexive-text: #6f2f3f;
-  --direct-bg: #e6f2f4;
+  --tense-block-bg-active: rgba(255, 255, 255, 0.85);
+  --tense-block-bg-nonactive: rgba(255, 255, 255, 0.9);
+  --tense-block-bg-noun: rgba(255, 252, 246, 0.92);
+  --direct-bg-active: #e6f2f4;
+  --direct-bg-nonactive: #edf4f6;
+  --direct-bg-noun: #f1ece4;
+  --indirect-bg-active: #e6f5ee;
+  --indirect-bg-nonactive: #edf5f0;
+  --indirect-bg-noun: #f2efe4;
+  --reflexive-bg-active: #f8e7ea;
+  --reflexive-bg-nonactive: #f7edf0;
+  --reflexive-bg-noun: #f4e8e6;
   --direct-border: #3f6d8a;
   --direct-text: #244a60;
-  --indirect-bg: #e6f5ee;
   --indirect-border: #2f7a5c;
   --indirect-text: #1f5a40;
+  --reflexive-border: #a55b6e;
+  --reflexive-text: #6f2f3f;
+  --row-stripe-direct: var(--direct-border);
+  --row-stripe-indirect: var(--indirect-border);
+  --row-stripe-reflexive: var(--reflexive-border);
+  --row-stripe-intransitive: rgba(29, 26, 21, 0.25);
+  --row-bg-tint: rgba(29, 26, 21, 0.05);
+  --row-bg-direct: linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--direct-bg);
+  --row-bg-indirect: linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--indirect-bg);
+  --row-bg-reflexive: linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--reflexive-bg);
+  --row-bg-intransitive: linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--tense-block-bg);
+  --tense-block-bg: var(--tense-block-bg-active);
+  --direct-bg: var(--direct-bg-active);
+  --indirect-bg: var(--indirect-bg-active);
+  --reflexive-bg: var(--reflexive-bg-active);
   --font-size-adjust: -4px;
   --font-size-base: calc(1.1rem + var(--font-size-adjust));
   --font-size-large: calc(2.6rem + var(--font-size-adjust));
@@ -75,6 +97,20 @@ body::after {
   bottom: -160px;
   left: -160px;
   background: radial-gradient(circle at 70% 70%, rgba(44, 139, 126, 0.4), transparent 60%);
+}
+
+body.is-nonactive-mode {
+  --tense-block-bg: var(--tense-block-bg-nonactive);
+  --direct-bg: var(--direct-bg-nonactive);
+  --indirect-bg: var(--indirect-bg-nonactive);
+  --reflexive-bg: var(--reflexive-bg-nonactive);
+}
+
+body.is-sustantivo-mode {
+  --tense-block-bg: var(--tense-block-bg-noun);
+  --direct-bg: var(--direct-bg-noun);
+  --indirect-bg: var(--indirect-bg-noun);
+  --reflexive-bg: var(--reflexive-bg-noun);
 }
 
 h1 {
@@ -884,14 +920,31 @@ input[type="submit"]:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 0;
+  padding: 6px 8px;
   gap: 12px;
+  border-radius: 10px;
+  background: transparent;
 }
 
 .conjugation-row + .conjugation-row {
-  border-top: 1px solid rgba(29, 26, 21, 0.12);
-  padding-top: 10px;
+  border-top: none;
   margin-top: 6px;
+}
+
+.conjugation-row--direct {
+  background: var(--row-bg-direct);
+}
+
+.conjugation-row--indirect {
+  background: var(--row-bg-indirect);
+}
+
+.conjugation-row--reflexive {
+  background: var(--row-bg-reflexive);
+}
+
+.conjugation-row--intransitive {
+  background: var(--row-bg-intransitive);
 }
 
 .conjugation-group {
@@ -1073,7 +1126,7 @@ input[type="submit"]:hover {
 }
 
 .tense-block {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--tense-block-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
@@ -1111,9 +1164,6 @@ input[type="submit"]:hover {
 .tense-block__controls--stacked {
   width: 100%;
   justify-content: flex-start;
-}
-
-body.is-sustantivo-mode .tense-block__controls--stacked {
   flex-direction: column;
   align-items: stretch;
   gap: 8px;
@@ -1426,9 +1476,9 @@ body.is-sustantivo-mode .tense-block__controls--stacked {
 }
 
 .conjugation-reflexive {
-  background: var(--reflexive-bg);
-  border-radius: 6px;
-  padding: 0 6px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
 }
 
 @media (max-width: 900px) {
