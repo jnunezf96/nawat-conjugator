@@ -577,7 +577,7 @@ body.is-modal-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
   background: rgba(20, 18, 14, 0.55);
   backdrop-filter: blur(6px);
   opacity: 0;
@@ -600,8 +600,8 @@ body.is-modal-open {
 .tutorial-panel {
   position: relative;
   width: min(92vw, 980px);
-  max-height: 90vh;
-  max-height: 90dvh;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   display: flex;
   flex-direction: column;
   border-radius: 22px;
@@ -621,7 +621,7 @@ body.is-modal-open {
 }
 
 .tutorial-header {
-  padding: 16px 20px 12px;
+  padding: 14px 18px 10px;
   background: linear-gradient(120deg, rgba(216, 106, 58, 0.2), rgba(44, 139, 126, 0.18));
   border-bottom: 1px solid rgba(216, 106, 58, 0.2);
   position: relative;
@@ -637,7 +637,7 @@ body.is-modal-open {
 
 .tutorial-header h2 {
   margin: 8px 0 4px;
-  font-size: calc(1.6rem + var(--font-size-adjust));
+  font-size: calc(1.45rem + var(--font-size-adjust));
   color: var(--ink);
   font-family: var(--font-title);
 }
@@ -645,7 +645,7 @@ body.is-modal-open {
 .tutorial-lede {
   margin: 0;
   color: var(--ink-soft);
-  font-size: calc(0.9rem + var(--font-size-adjust));
+  font-size: calc(0.82rem + var(--font-size-adjust));
 }
 
 .tutorial-close {
@@ -669,7 +669,7 @@ body.is-modal-open {
 
 .tutorial-body {
   padding: 16px 20px 18px;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -805,7 +805,7 @@ body.is-modal-open {
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid rgba(29, 26, 21, 0.08);
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .tutorial-tip {
@@ -926,6 +926,12 @@ input[type="submit"]:hover {
   .tutorial-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-height: 760px) {
+  .tutorial-body {
+    overflow: auto;
   }
 }
   
