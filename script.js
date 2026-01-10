@@ -1187,6 +1187,7 @@ function getInstrumentivoResult({
                 analysisVerb: analysisStem,
                 isYawi: false,
                 directionalPrefix,
+                hasSlashMarker: verbMeta.hasSlashMarker,
             });
             return `${applied.subjectPrefix}${applied.objectPrefix}${applied.verb}${applied.subjectSuffix}`;
         }).filter(Boolean);
@@ -1212,6 +1213,7 @@ function getInstrumentivoResult({
         analysisVerb,
         isYawi: verbMeta.isYawi,
         directionalPrefix,
+        hasSlashMarker: verbMeta.hasSlashMarker,
     });
     return {
         result: `${resolvedPossessivePrefix}${applied.objectPrefix}${applied.verb}${applied.subjectSuffix}`,
@@ -1275,6 +1277,7 @@ function getCalificativoInstrumentivoResult({
         isYawi: verbMeta.isYawi,
         directionalPrefix,
         suppletiveOverride: getSuppletiveOverride(verbMeta),
+        hasSlashMarker: verbMeta.hasSlashMarker,
     });
     const predicate = applied.verb;
     if (!predicate || predicate === "—") {
@@ -1365,6 +1368,7 @@ function getLocativoTemporalResult({
         analysisVerb: stemAnalysis,
         isYawi: isNonactive ? false : verbMeta.isYawi,
         directionalPrefix,
+        hasSlashMarker: verbMeta.hasSlashMarker,
     });
     const predicate = `${applied.objectPrefix}${applied.verb}${applied.subjectSuffix}`;
 
@@ -1752,6 +1756,7 @@ const PRETERITO_CLASS_TENSES = new Set([
 
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
+    const hasSlashMarker = options.hasSlashMarker === true;
     const nonRedupRoot = getNonReduplicatedRoot(analysisVerb);
     const analysisRoot = nonRedupRoot;
     const syllables = getSyllables(analysisRoot, {
@@ -1839,6 +1844,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         endsWithIaUa,
         isItaVerb,
         isYawi,
+        hasSlashMarker,
     };
 }
 
@@ -1921,7 +1927,7 @@ function buildPretUniversalClassA(context) {
     let allowZeroSuffix = context.totalVowels > 2;
     let allowKiSuffix = true;
     const endsWithKVDerivation = context.endsWithKV || context.endsWithKWV;
-    if (!context.isTransitive && context.endsWithKV && context.letterCount <= 4) {
+    if (!context.isTransitive && context.endsWithKV && !context.hasSlashMarker) {
         return null;
     }
     if (context.isTransitive && context.endsWithKA) {
@@ -1955,7 +1961,7 @@ function buildPretUniversalClassA(context) {
         }
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.endsWithYA) {
+    if (context.endsWithYA) {
         allowZeroSuffix = false;
     }
     if (!context.isTransitive && context.endsWithCVnV) {
@@ -2247,6 +2253,7 @@ function buildClassBasedResult({
     analysisVerb,
     classFilter = null,
     isYawi = false,
+    hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
     baseSubjectPrefix = subjectPrefix,
@@ -2259,7 +2266,10 @@ function buildClassBasedResult({
     if (suppletiveOverride) {
         variantsByClass = suppletiveOverride.variantsByClass;
     } else {
-        const context = buildPretUniversalContext(verb, analysisTarget, isTransitive, { isYawi });
+        const context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+            isYawi,
+            hasSlashMarker,
+        });
         variantsByClass = getPretUniversalVariantsByClass(context);
     }
     if (!variantsByClass.size) {
@@ -2267,12 +2277,16 @@ function buildClassBasedResult({
     }
     const classOrder = classFilter ? [classFilter] : ["A", "B", "C", "D"];
     const isPreterit = tense === "preterito-clase";
+    const allowClassBForIntransitive = isTransitive || isPreterit;
     const usePretPluralOverride = isPreterit && subjectSuffix === "t" && suppletiveOverride;
     const pretPluralSuffix = usePretPluralOverride ? suppletiveOverride.pretPluralSuffix : null;
     const pretPluralClasses = usePretPluralOverride ? suppletiveOverride.pretPluralClasses : null;
     const results = [];
     const seen = new Set();
     classOrder.forEach((classKey) => {
+        if (!allowClassBForIntransitive && classKey === "B") {
+            return;
+        }
         if (pretPluralClasses && !pretPluralClasses.has(classKey)) {
             return;
         }
@@ -2344,6 +2358,7 @@ function buildPretUniversalResult({
     tense,
     analysisVerb,
     isYawi = false,
+    hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
     baseSubjectPrefix = subjectPrefix,
@@ -2353,6 +2368,9 @@ function buildPretUniversalResult({
     const analysisTarget = analysisVerb || verb;
     const isTransitive = objectPrefix !== "" || isInherentlyTransitive(analysisTarget);
     const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
+    if (!isTransitive && classKey === "B") {
+        return null;
+    }
     let variants = null;
     let pluralSuffix = null;
     if (suppletiveOverride && classKey) {
@@ -2370,6 +2388,7 @@ function buildPretUniversalResult({
     } else {
         variants = getPretUniversalVariants(verb, tense, isTransitive, analysisTarget, {
             isYawi,
+            hasSlashMarker,
         });
     }
     if (!variants || variants.length === 0) {
@@ -2445,6 +2464,7 @@ function parseVerbInput(value) {
     let indirectObjectMarker = OBJECT_MARKERS.has(objectToken) ? objectToken : "";
     const directObjectToken = objectToken && !indirectObjectMarker ? objectToken : "";
     const hasCompoundMarker = COMPOUND_MARKER_SPLIT_RE.test(verbSegment);
+    const hasSlashMarker = verbSegment.includes("/");
     const hasSuffixSeparator = verbSegment.includes("-");
     let parts = verbSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
     if (parts.length > 1 && OBJECT_MARKERS.has(parts[0])) {
@@ -2488,6 +2508,7 @@ function parseVerbInput(value) {
         analysisVerb,
         rawAnalysisVerb,
         hasCompoundMarker,
+        hasSlashMarker,
         isMarkedTransitive,
         isYawi,
         directionalPrefix,
@@ -3910,6 +3931,7 @@ function renderTenseTabs() {
         }
         const variants = getPretUniversalVariants(verb, tenseValue, isTransitive, analysisVerb, {
             isYawi: verbMeta.isYawi,
+            hasSlashMarker: verbMeta.hasSlashMarker,
         });
         return { tenseValue, available: !!(variants && variants.length) };
     });
@@ -4811,6 +4833,7 @@ function applyMorphologyRules({
     isYawi,
     directionalPrefix,
     suppletiveOverride,
+    hasSlashMarker = false,
 }) {
     const baseSubjectPrefix = subjectPrefix;
     const baseObjectPrefix = objectPrefix;
@@ -4913,6 +4936,7 @@ function applyMorphologyRules({
             tense,
             analysisVerb,
             isYawi,
+            hasSlashMarker,
             directionalInputPrefix,
             directionalOutputPrefix,
             baseSubjectPrefix,
@@ -4939,6 +4963,7 @@ function applyMorphologyRules({
             analysisVerb,
             classFilter: nonactiveClassOverride ? "B" : CLASS_FILTER_STATE.activeClass,
             isYawi,
+            hasSlashMarker,
             directionalInputPrefix,
             directionalOutputPrefix,
             baseSubjectPrefix,
@@ -6479,6 +6504,7 @@ function generateWord(options = {}) {
         isYawi,
         directionalPrefix,
         suppletiveOverride,
+        hasSlashMarker: parsedVerb.hasSlashMarker,
     });
     ({ subjectPrefix, objectPrefix, subjectSuffix, verb } = appliedMorphology);
     const alternateForms = appliedMorphology.alternateForms || [];
