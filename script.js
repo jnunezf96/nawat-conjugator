@@ -1260,7 +1260,7 @@ function getCalificativoInstrumentivoResult({
             requirePronounceable: true,
         });
         if (rootPlusYaBase) {
-            stemAnalysis = rootPlusYaBase;
+            stemAnalysis = analysisVerb;
             if (stemVerb.endsWith("ya")) {
                 stemVerb = stemVerb.slice(0, -2);
             }
@@ -1757,8 +1757,13 @@ const PRETERITO_CLASS_TENSES = new Set([
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
     const hasSlashMarker = options.hasSlashMarker === true;
-    const nonRedupRoot = getNonReduplicatedRoot(analysisVerb);
-    const analysisRoot = nonRedupRoot;
+    const sourceVerb = analysisVerb || verb;
+    const nonRedupRoot = getNonReduplicatedRoot(sourceVerb);
+    const rootPlusYaBase = getRootPlusYaBase(sourceVerb, { isTransitive, isYawi });
+    const isRootPlusYa = Boolean(rootPlusYaBase);
+    const analysisRoot = isRootPlusYa ? rootPlusYaBase : nonRedupRoot;
+    const redupRoot = isRootPlusYa ? getNonReduplicatedRoot(rootPlusYaBase) : analysisRoot;
+    const isReduplicatedRootPlusYa = isRootPlusYa && redupRoot !== rootPlusYaBase;
     const syllables = getSyllables(analysisRoot, {
         analysis: true,
         assumeFinalV: true,
@@ -1769,8 +1774,12 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         ? syllableForms.length
         : getPretUniversalCoreVowelCount(analysisRoot);
     const vowelCount = getTrailingVowelCountFromSyllables(syllables);
-    const isMonosyllable = syllableCount === 1;
-    const isDerivedMonosyllable = isMonosyllable;
+    let isMonosyllable = syllableCount === 1;
+    let isDerivedMonosyllable = isMonosyllable;
+    if (isRootPlusYa) {
+        isMonosyllable = false;
+        isDerivedMonosyllable = false;
+    }
     const lastSyllable = syllables[syllables.length - 1] || null;
     const penultimateSyllable = syllables[syllables.length - 2] || null;
     const antepenultimateSyllable = syllables[syllables.length - 3] || null;
@@ -1813,6 +1822,8 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         verb,
         analysisVerb: analysisRoot,
         isTransitive,
+        fromRootPlusYa: isRootPlusYa,
+        isReduplicatedRootPlusYa,
         letterCount,
         vowelCount,
         syllableForms,
@@ -1853,6 +1864,12 @@ function getPretUniversalClassCandidates(context) {
     if (!context.rootSyllablesOk) {
         return candidates;
     }
+    if (!context.isTransitive && context.fromRootPlusYa) {
+        candidates.add("B");
+        if (context.isReduplicatedRootPlusYa) {
+            return candidates;
+        }
+    }
     if (context.endsWithU) {
         candidates.add("B");
         return candidates;
@@ -1863,7 +1880,9 @@ function getPretUniversalClassCandidates(context) {
             return candidates;
         }
         if (context.lastSyllableForm !== "C") {
-            candidates.add("D");
+            if (!(context.fromRootPlusYa && !context.isTransitive)) {
+                candidates.add("D");
+            }
             if (context.isTransitiveUniI) {
                 candidates.add("B");
             }
@@ -2277,14 +2296,22 @@ function buildClassBasedResult({
     }
     const classOrder = classFilter ? [classFilter] : ["A", "B", "C", "D"];
     const isPreterit = tense === "preterito-clase";
-    const allowClassBForIntransitive = isTransitive || isPreterit;
+    const hasClassA = variantsByClass.has("A");
+    const hasClassB = variantsByClass.has("B");
+    const shouldMaskClassBSelection =
+        classFilter === "B" && !isTransitive && !isPreterit && hasClassA && hasClassB;
+    const shouldSkipClassB =
+        !isTransitive && !isPreterit && !classFilter && hasClassA && hasClassB;
     const usePretPluralOverride = isPreterit && subjectSuffix === "t" && suppletiveOverride;
     const pretPluralSuffix = usePretPluralOverride ? suppletiveOverride.pretPluralSuffix : null;
     const pretPluralClasses = usePretPluralOverride ? suppletiveOverride.pretPluralClasses : null;
     const results = [];
     const seen = new Set();
+    if (shouldMaskClassBSelection) {
+        return "—";
+    }
     classOrder.forEach((classKey) => {
-        if (!allowClassBForIntransitive && classKey === "B") {
+        if (shouldSkipClassB && classKey === "B") {
             return;
         }
         if (pretPluralClasses && !pretPluralClasses.has(classKey)) {
@@ -2369,7 +2396,14 @@ function buildPretUniversalResult({
     const isTransitive = objectPrefix !== "" || isInherentlyTransitive(analysisTarget);
     const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
     if (!isTransitive && classKey === "B") {
-        return null;
+        const context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+            isYawi,
+            hasSlashMarker,
+        });
+        const candidates = getPretUniversalClassCandidates(context);
+        if (candidates.has("A")) {
+            return "—";
+        }
     }
     let variants = null;
     let pluralSuffix = null;
@@ -2547,7 +2581,6 @@ function isPerfectiveTense(tense) {
         PRETERITO_CLASS_TENSES.has(tense)
         || PRETERITO_UNIVERSAL_ORDER.includes(tense)
         || tense === "preterito"
-        || tense === "preterito-izalco"
     );
 }
 
@@ -3567,7 +3600,7 @@ function buildPretUniversalFlagsForContext(context, flags) {
             flags.classC = true;
         }
     }
-    if (candidates.has("D")) {
+    if (candidates.has("D") && !(context.fromRootPlusYa && !context.isTransitive)) {
         const variants = buildPretUniversalClassD(context);
         if (variants && variants.length) {
             flags.classD = true;
@@ -4611,7 +4644,6 @@ function changeLanguage() {
         "tense-label",
         "presente-label",
         "imperfecto-label",
-        "preterito-izalco-label",
         "preterito-label",
         "perfecto-label",
         "pluscuamperfecto-label",
@@ -4653,8 +4685,7 @@ function changeLanguage() {
         "tense-label": "Kawit",
         "presente-label": "tay panu",
         "imperfecto-label": "tay panu ya",
-        "preterito-izalco-label": "tay panuk (Ijtzalku)",
-        "preterito-label": "tay panuk (Witzapan)",
+        "preterito-label": "tay panuk",
         "perfecto-label": "tay panutuk",
         "pluscuamperfecto-label": "tay panutuya",
         "condicional-perfecto-label": "tay panutuskia",
@@ -4954,6 +4985,7 @@ function applyMorphologyRules({
     if (PRETERITO_CLASS_TENSES.has(tense)) {
         const nonactiveClassOverride =
             getActiveTenseMode() === TENSE_MODE.verbo && getActiveDerivationMode() === DERIVATION_MODE.nonactive;
+        const resolvedClassFilter = nonactiveClassOverride ? "B" : CLASS_FILTER_STATE.activeClass;
         const classResult = buildClassBasedResult({
             verb,
             subjectPrefix,
@@ -4961,7 +4993,7 @@ function applyMorphologyRules({
             subjectSuffix,
             tense,
             analysisVerb,
-            classFilter: nonactiveClassOverride ? "B" : CLASS_FILTER_STATE.activeClass,
+            classFilter: resolvedClassFilter,
             isYawi,
             hasSlashMarker,
             directionalInputPrefix,
@@ -4978,19 +5010,6 @@ function applyMorphologyRules({
         };
     }
 
-    // Preterito Izalco
-    if (tense === "preterito-izalco") {
-        if (subjectSuffix === "" && !verb.endsWith("tz")) {
-            subjectSuffix = "k";
-        }
-        if (subjectSuffix === "" && verb.endsWith("witz")) {
-            verb = verb.replace("witz", "wala");
-            subjectSuffix = "k"
-        }
-        if (subjectSuffix === "t") {
-            subjectSuffix = "ket";
-        }
-    }
 /* GRAMATICAL RULES */
 // Elision rule of double k (k/kw)
     const elisionTarget = directionalInputPrefix ? analysisTarget : verb;
@@ -4999,1144 +5018,6 @@ function applyMorphologyRules({
     }
     const isIntransitive = objectPrefix === "" && !isInherentlyTransitive(verb);
     const isTransitive = !isIntransitive;
-
-// Class 4: Words ending in "ia" or "ua", Izalco preterite
-if (endsWithAny(verb, IA_UA_SUFFIXES)) {
-    switch (tense) {
-        case "preterito-izalco":
-            verb = verb.slice(0, -1); // drop final vowel
-            switch (subjectSuffix) {
-                case "":
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb + "j";
-                    break;
-            }
-            break;
-    }
-}
-// Class 4: Words ending in "ia" or "ua", deletion of last vowel + j (singular and plural)
-    if (getRuleLetterCount() >= 4 && endsWithAny(verb, IA_UA_SUFFIXES)) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1) + "j";
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb.slice(0, -1);
-                break;
-        }
-    }
-// Class 1: Intransitives ending in ya
-    if (isIntransitive && verb.endsWith("ya")) {
-        const isYya = verb.endsWith("yya");
-        switch (tense) {
-            case "preterito":
-                if (isYya) {
-                    verb = verb.slice(0, -2);
-                    if (subjectSuffix === "") {
-                        subjectSuffix = "ki";
-                    }
-                    break;
-                }
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                if (isYya) {
-                    verb = verb.slice(0, -2);
-                } else {
-                    verb = verb;
-                }
-                break;
-        }
-    }
-// Class 1: Transitves ending in [ya]
-if (isTransitive && verb.endsWith("ya")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -2) + "sh";
-                    subjectSuffix = "ki";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -2) + "sh";
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -2) + "sh";
-            break;
-    }
-}
-    // Words ending in "ua", intransitives
-    if (isIntransitive && verb.endsWith("ua")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1) + "j"
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1) + "j";
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1) + "j";
-                break;
-        }
-    }
-// Class 1: Word "ita"/"ida" (shape-based), deletion of last vowel and mutation, transitive (singular and plural)
-    if (isTransitive && isItaSyllableSequence(splitVerbSyllables(analysisTarget))) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -2) + "tz";
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -2) + "tz";
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -2) + "tz";
-                break;
-        }
-    }
-// Class IRREGULAR: Word "witz", intransitive
-    if (isIntransitive && verb === "witz") {
-        switch (tense) {
-            case "presente":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        break;
-                    case "t":
-                        subjectSuffix = subjectSuffix.replace("t", "et");
-                        break;
-                }
-                break;
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                    case "ket":
-                        verb = verb.replace("witz", "wala") + "j";
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.replace("witz", "wala") + "j";
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb.replace("witz", "wala");
-                break;
-        }
-    }
-// Class 2: Applies to short words that end in -na, intransitives (ina, isa)
-    if (getRuleLetterCount() === 3 && verb.endsWith("a") && isIntransitive) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-}
-// Shorts verbs ending in wi, EWI
-if (getRuleLetterCount() === 3 && verb.endsWith("wi") && !verb.includes("kwi")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    if (verb.endsWith("uwi")) {
-                        const baseNoI = verb.slice(0, -1);
-                        verb = verb.slice(0, -2) + "j";
-                        subjectSuffix = "ki";
-                        alternateForms.push({ verb: baseNoI, subjectSuffix });
-                    } else {
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                    }
-                    break;
-                case "ket":
-                    if (verb.endsWith("uwi")) {
-                        const baseNoI = verb.slice(0, -1);
-                        verb = verb.slice(0, -2) + "j";
-                        alternateForms.push({ verb: baseNoI, subjectSuffix });
-                    } else {
-                        verb = verb.slice(0, -1);
-                    }
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            if (verb.endsWith("uwi")) {
-                const baseNoI = verb.slice(0, -1);
-                verb = verb.slice(0, -2) + "j";
-                alternateForms.push({ verb: baseNoI, subjectSuffix });
-            } else {
-                verb = verb.slice(0, -1);
-            }
-            break;
-        case "presente-desiderativo":
-        case "futuro":
-        case "condicional":
-            verb = verb;
-            break;
-    }
-}
-// KWA and KWI
-if (["kwi", "kwa"].includes(verb)) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb + "j";
-                    subjectSuffix = "";
-                    break;
-                case "ket":
-                    verb = verb  + "j";
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb + "j";
-            break;
-        case "presente-desiderativo":
-        case "futuro":
-        case "condicional":
-            verb = verb;
-            break;
-    }
-}
-// Class 2: Longer verbs ending in wi
-if (getRuleLetterCount() >= 4 && verb.endsWith("wi") && !verb.includes("kwi")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    if (verb.endsWith("uwi")) {
-                        const baseNoI = verb.slice(0, -1);
-                        verb = verb.slice(0, -2) + "j";
-                        subjectSuffix = "ki";
-                        alternateForms.push({ verb: baseNoI, subjectSuffix });
-                    } else {
-                        verb = verb;
-                        subjectSuffix = "k";
-                    }
-                    break;
-                case "ket":
-                    if (verb.endsWith("uwi")) {
-                        const baseNoI = verb.slice(0, -1);
-                        verb = verb.slice(0, -2) + "j";
-                        alternateForms.push({ verb: baseNoI, subjectSuffix });
-                    } else {
-                        verb = verb.slice(0, -1);
-                    }
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            if (verb.endsWith("uwi")) {
-                const baseNoI = verb.slice(0, -1);
-                verb = verb.slice(0, -2) + "j";
-                alternateForms.push({ verb: baseNoI, subjectSuffix });
-            } else {
-                verb = verb.slice(0, -1);
-            }
-            break;
-    }
-}
-// Class 2: Applies to words that have an [j] in the third position
-    if (getVerbLetterFromEnd(verb, 3) === "j") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-// Class 2: Applies to words that have an [l] in the second position (tajkali)
-    if (
-        isTransitive &&
-        getVerbLetterFromEnd(verb, 2) === "l" &&
-        getVerbLetterFromEnd(verb, 1) !== "u"
-    ) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-        }
-    }
-// Class 2: Rule for verbs with [i] in the first position, intransitives (tzakwik, tapuwik)
-// Excludes rule: wetzki instead of wetzik (tz)
-// Excludes rule: tantuk instead of tamtuk (m)
-// Excludes rule: kuchki instead of kuchik (ch)
-    if (isIntransitive && getVerbLetterFromEnd(verb, 1) === "i"
-                            && !verb.endsWith("tzi")
-                            && !verb.endsWith("wi")
-                            && !verb.endsWith("ki") /*kalak not kalakik*/
-                            && !verb.endsWith("mi")
-                            && !verb.endsWith("chi")
-                            && !verb.endsWith("ti")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        subjectSuffix = "k";
-                    case "t":
-                        break;
-                }
-                break;
-        }
-    }
-// Class 2: Intransitive verbs with [m]
-if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "m") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -2) + "n";
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -2) + "n";
-            break;
-    }
-}
-if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "t") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb;
-                    break;
-            }
-            break;
-    }
-}
-// Class 2: Intransitive verbs with [k], only preterite
-if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "k") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb
-                    break;
-            }
-            break;
-    }
-}
-// Class 2: Intransitive verbs with [kw]
-if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "kw") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -2);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -2);
-            break;
-    }
-}
-
-// Class 2: Intransitive verbs with [ch]
-if (isIntransitive && getVerbLetterFromEnd(verb, 2) === "ch") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -1);
-                    subjectSuffix = "ki";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -1);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-}
-// Class 2: SHORT verbs with [k] (piki, paka, chuka, naka)
-    if (verb.endsWith("ka")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-// Class 2: Intransitive verbs with [k] (chuka, naka, ijsika)
-if (
-    isIntransitive &&
-    getRuleLetterCount() < 6 &&
-    verb.endsWith("ka") &&
-    getVerbLetterFromEnd(verb, 3) !== "u"
-) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb;
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb;
-            break;
-    }
-}
-
-// Class 3: LONG verbs with [k], transitives (pustek, witek, sajsak)
-if (
-    isTransitive &&
-    getRuleLetterCount() >= 6 &&
-    !verb.endsWith("shka") &&
-    endsWithAny(verb, ["ka", "ki"])
-) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -1);
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -1);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-    }
-// Class 2: Verbs ending with [ki], transitives (piki, teki)
-if (isTransitive && verb.endsWith("ki")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb;
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-}
-// Class 2: LONG verbs ending with [aki], intransitives (kalak ONLY)
-if (isIntransitive && verb.endsWith("aki") && getRuleLetterCount() >= 5) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -1);
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -1);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-}
-// Class 1/2: SHORT intransitive verbs ending with [ki] (paki, miki, temiki)
-if (
-    isIntransitive &&
-    getVerbLetterFromEnd(verb, 3) !== "u" &&
-    ((getRuleLetterCount() <= 4 && verb.endsWith("aki")) || verb.endsWith("iki"))
-) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-}
-// Class 2: Intransitive verbs ending with [ki] (atuki)
-if (isIntransitive && getRuleLetterCount() >= 5 && verb.endsWith("uki")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb;
-                    subjectSuffix = "k";
-                    break;
-                case "ket":
-                    verb = verb;
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb;
-            break;
-    }
-}
-// Class 1: SHORT verbs with [ti], transitives (mati)
-    if (
-        verb.endsWith("ti") &&
-        !verb.endsWith("lti") &&
-        (isTransitive || getRuleLetterCount() > 5)
-    ) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-        }
-    }
-// Class 1: SHORT verbs with [ta], transitives (pata)
-    if (isTransitive && verb.endsWith("ta")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-// Class 1: Applies to short words that end in -tV, intransitives (pati)
-    if (isIntransitive && getRuleLetterCount() <= 5 && getVerbLetterFromEnd(verb, 2) === "t") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-// Class 1: Applies to LONG words that ends in -na, intransitives (mayana, tawana)
-    if (getRuleLetterCount() >= 5 && verb.endsWith("na") && isIntransitive) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-    /* CLASSIFICATION 3 */
-// Class 3: Rule end kisa, intransitives (alawakis-ki, piltzinkis-ki, puknajkis-ki)
-    if (isIntransitive && verb.endsWith("kisa")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-        }
-    }
-// Class 3: Applies to LONG words that ends in -na, transitives (tajtan-)
-    if (getRuleLetterCount() >= 5 && verb.endsWith("ni") && isTransitive) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-        }
-    }
-// Applies to short words that ends in -na, transitives (ana)
-    if (getRuleLetterCount() === 3 && verb.endsWith("na") && isTransitive) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-        }
-    }
-    // Clase 4: Rule for SHORT words ending in -kwV (kwa, kwi)
-    if (
-        isTransitive &&
-        ((verb.endsWith("kwa") && !verb.endsWith("tzakwa")) ||
-        (getRuleLetterCount() === 2 && verb.endsWith("kwi")))
-    ) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb + "j";
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Rule for LONG words ending in -kwV (-tzak, -ijnek)
-    if (
-        (isTransitive && verb.endsWith("tzakwa")) ||
-        (getRuleLetterCount() >= 4 && verb.endsWith("kwi"))
-    ) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -2);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Class 1: words ending in na & wa, deletion of last vowel + ki, intransitives (ewa)
-    if (getRuleLetterCount() === 4 && verb.endsWith("ni")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 3: Words ending in na & wa, deletion of last vowel (pewa)
-    if (
-        (isTransitive && getRuleLetterCount() >= 5 && verb.endsWith("na")) ||
-        (getRuleLetterCount() > 5 &&
-            verb.endsWith("wa") &&
-            getVerbLetterFromEnd(verb, 3) !== "j")
-    ) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Class 3: Words ending in na & wa, deletion of last vowel ishtuna
-    if (isIntransitive && getRuleLetterCount() >= 4 && verb.endsWith("na")) {
-        switch (tense) {
-            case "preterito":
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Class 1: tzajtzi
-    if (endsWithAny(verb, ["jtzi", "jtza"])) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 3: Words ending in na & wa, deletion of last vowel
-    if ((getRuleLetterCount() <= 5 && verb.endsWith("na"))) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -2) + "n";
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -2) + "n";
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb = verb.slice(0, -2) + "n";
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 3: Words ending in sha
-if (verb.endsWith("sha")) {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -1);
-                    subjectSuffix = "ki";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -1);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb = verb.slice(0, -1);
-            break;
-        case "presente-desiderativo":
-        case "futuro":
-        case "condicional":
-            verb = verb;
-            break;
-    }
-}
-// Class 3: Short words ending in -mV will be -nki, transitive (sun-ki)
-    if ((isTransitive && getRuleLetterCount() <= 5 && getVerbLetterFromEnd(verb, 2) === "m")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -2) + "n";
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -2) + "n";
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb = verb.slice(0, -2) + "n";
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 3: Short words ending in -nV will be -nki, transitive (-tajtan)
-    if ((isTransitive && getVerbLetterFromEnd(verb, 2) === "n")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb = verb.slice(0, -1);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 5: Single rule for words ending in wa, deletion of last vowel + ki (singular) APPLIES TO J WORDS
-    if (getRuleLetterCount() <= 4 && verb.endsWith("wa") && getVerbLetterFromEnd(verb, 3) !== "j") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-                }
-        }
-    }
-    // Class 5: Single rule for words ending in wa, deletion of last vowel + ki, transitives (singular -, pewa)
-    if (
-        isTransitive &&
-        getRuleLetterCount() >= 4 &&
-        getRuleLetterCount() <= 5 &&
-        verb.endsWith("wa")
-    ) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Class 1: Single rule for words ending in wa, deletion of last vowel + k (singular - )
-    if (isIntransitive && getRuleLetterCount() <= 5 && verb.endsWith("wa")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb
-                        break;
-                }
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb.slice(0, -1);
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-    // Class 1: Rule end wa, del last vowel + k, intransitive (ajwa)
-    if (isIntransitive && getVerbLetterFromEnd(verb, 3) === "j" && verb.endsWith("wa")) {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb;
-                        subjectSuffix = "k";
-                        break;
-                    case "ket":
-                        verb = verb;
-                        break;
-                }
-            case "perfecto":
-            case "pluscuamperfecto":
-            case "condicional-perfecto":
-                verb = verb;
-                break;
-            case "presente-desiderativo":
-            case "futuro":
-            case "condicional":
-                verb = verb;
-                break;
-        }
-    }
-// Class 2: Verbs with [p], del vowel (kwep-ki)
-    if (isTransitive && getVerbLetterFromEnd(verb, 2) === "p") {
-        switch (tense) {
-            case "preterito":
-                switch (subjectSuffix) {
-                    case "":
-                        verb = verb.slice(0, -1);
-                        subjectSuffix = "ki";
-                        break;
-                    case "ket":
-                        verb = verb.slice(0, -1);
-                        break;
-                }
-                break;
-        }
-    }
-// Class 2: Verbs with [tz], del vowel (wetz-ki, nutz-ki)
-if (getVerbLetterFromEnd(verb, 2) === "tz") {
-    switch (tense) {
-        case "preterito":
-            switch (subjectSuffix) {
-                case "":
-                    verb = verb.slice(0, -1);
-                    subjectSuffix = "ki";
-                    break;
-                case "ket":
-                    verb = verb.slice(0, -1);
-                    break;
-            }
-            break;
-        case "perfecto":
-        case "pluscuamperfecto":
-        case "condicional-perfecto":
-            verb = verb.slice(0, -1);
-            break;
-    }
-}
     if (directionalInputPrefix === "wal" && verb.startsWith(directionalInputPrefix)) {
         const stem = verb.slice(directionalInputPrefix.length);
         const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
