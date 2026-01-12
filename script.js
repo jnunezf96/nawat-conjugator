@@ -80,7 +80,6 @@ const MU_TO_M_VERB_PREFIXES = [
     "ijtunia",
     "itunia"
 ];
-const MU_TO_M_EXCEPTIONS = ["itki"];
 const DIRECTIONAL_PREFIXES = ["wal", "un"];
 const SUPPLETIVE_YE_FORMS = new Set(["ye", "ka", "kati"]);
 const SUPPLETIVE_YE_IMPERFECTIVE = "ye";
