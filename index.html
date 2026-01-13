@@ -69,25 +69,28 @@
                     </div>
                 </form>
                 <div class="panel tense-tabs-panel">
-                    <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
-                        <button type="button" class="tense-tabs-mode-button" data-tense-mode="verbo">Verbo</button>
-                        <button type="button" class="tense-tabs-mode-button" data-tense-mode="sustantivo">Sustantivo</button>
-                    </div>
-                    <div class="tense-tabs-mode voice-derivation-tabs" role="tablist" aria-label="Voz y derivación">
-                        <button type="button" class="tense-tabs-mode-button" data-combined-mode="active">Activo</button>
-                        <button type="button" class="tense-tabs-mode-button" data-combined-mode="nonactive">No activo</button>
+                    <div class="tense-tabs-mode-row">
+                        <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
+                            <button type="button" class="tense-tabs-mode-button" data-tense-mode="verbo">Verbo</button>
+                            <button type="button" class="tense-tabs-mode-button" data-tense-mode="sustantivo">Sustantivo</button>
+                        </div>
+                        <div class="tense-tabs-mode voice-derivation-tabs" role="tablist" aria-label="Voz y derivación">
+                            <button type="button" class="tense-tabs-mode-button" data-combined-mode="active">Activo</button>
+                            <button type="button" class="tense-tabs-mode-button" data-combined-mode="nonactive">No activo</button>
+                        </div>
                     </div>
                     <div class="nonactive-tabs is-hidden" id="nonactive-tabs" role="tablist" aria-label="Derivación no activa"></div>
                     <div id="tense-tabs" class="tense-tabs"></div>
                 </div>
             </div>
             <div class="panel container-tense-grid" id="container-tense-grid">
+                <div class="tense-description" id="tense-description" aria-live="polite"></div>
                 <div id="all-tense-conjugations"></div>
             </div>
         </div>
         <footer>
-            <p><label id="copyright-label">Copyright © 2023 Jaime Núñez</label></p>
-            <p>v1.19.20.1 Gracias a Sigfredo Olmedo</p>
+            <p><label id="copyright-label">Copyright © 2026 Jaime Núñez</label></p>
+            <p>Gracias a Sigfredo Olmedo</p>
         </footer>
     </main>
     <div class="tutorial-modal" id="tutorial-modal" aria-hidden="true">
