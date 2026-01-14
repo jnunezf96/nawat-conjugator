@@ -430,6 +430,67 @@ p {
   margin-bottom: 8px;
 }
 
+.form-group--search {
+  margin-top: 6px;
+}
+
+.form-search-label {
+  display: block;
+  font-size: calc(0.85rem + var(--font-size-adjust));
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.form-search-input {
+  width: 100%;
+}
+
+.form-search-results {
+  display: grid;
+  gap: 10px;
+}
+
+.form-search-results.is-hidden {
+  display: none;
+}
+
+.form-search-results__summary {
+  font-size: calc(0.9rem + var(--font-size-adjust));
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.form-search-results__list {
+  display: grid;
+  gap: 8px;
+}
+
+.form-search-result {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: var(--shadow-soft);
+}
+
+.form-search-result__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: calc(0.78rem + var(--font-size-adjust));
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.form-search-result__value {
+  font-size: calc(0.98rem + var(--font-size-adjust));
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 6px;
+}
+
 .tutorial-trigger {
   border: 1px solid rgba(216, 106, 58, 0.35);
   background: linear-gradient(135deg, rgba(216, 106, 58, 0.12), rgba(44, 139, 126, 0.12));
@@ -1095,6 +1156,7 @@ input[type="submit"]:hover {
   overflow-wrap: normal;
   word-break: normal;
 }
+
 
 .conjugation-error {
   color: red;

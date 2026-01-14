@@ -50,6 +50,11 @@
                                 <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
                             </div>
                             <button type="button" class="download-csv" id="download-csv">Descargar CSV</button>
+                            <button type="button" class="download-csv" id="download-diagnostics-csv">Descargar diagnóstico CSV</button>
+                        </div>
+                        <div class="form-group form-group--search">
+                            <label for="form-search" class="form-search-label">Buscar por forma</label>
+                            <input type="text" id="form-search" name="form-search" class="form-search-input" placeholder="Escribe la forma conjugada" autocomplete="off" autocapitalize="none" spellcheck="false">
                         </div>
                         <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
                         <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
@@ -84,6 +89,7 @@
                 </div>
             </div>
             <div class="panel container-tense-grid" id="container-tense-grid">
+                <div class="form-search-results" id="form-search-results" aria-live="polite"></div>
                 <div class="tense-description" id="tense-description" aria-live="polite"></div>
                 <div id="all-tense-conjugations"></div>
             </div>

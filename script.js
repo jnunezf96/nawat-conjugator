@@ -322,6 +322,57 @@ const CONJUGATION_GROUPS = {
     universal: "universal",
 };
 const VERB_SUGGESTION_LIMIT = 10;
+const FORM_SEARCH_RESULT_LIMIT = 60;
+const FORM_SEARCH_SUBJECT_PREFIXES = ["anh", "an", "ni", "ti", "n", "t"];
+const FORM_SEARCH_OBJECT_PREFIXES = [
+    "metzinh",
+    "metzin",
+    "nech",
+    "metz",
+    "tech",
+    "kinh",
+    "kin",
+    "ki",
+    "k",
+    "ta",
+    "te",
+    "mu",
+];
+const FORM_SEARCH_TENSE_SUFFIXES = [
+    "tuyat",
+    "tuya",
+    "tuskiat",
+    "tuskia",
+    "tiwit",
+    "tuk",
+    "kat",
+    "ka",
+    "ket",
+    "sket",
+    "skiat",
+    "skia",
+    "snekit",
+    "sneki",
+    "yat",
+    "ya",
+    "nit",
+    "ni",
+    "kan",
+    "nimet",
+    "niwan",
+    "lis",
+    "et",
+    "s",
+];
+const FORM_SEARCH_OPTIONAL_TRANSITIVE_STEMS = new Set([
+    "ajputza",
+    "ajsi",
+    "takwika",
+    "tisi",
+    "tzawa",
+]);
+const FORM_SEARCH_TEN_PREFIX_STEMS = new Set(["namiki", "shima"]);
+const FORM_SEARCH_SLASH_PREFIX_STEMS = new Set(["lx"]);
 const UI_SCALE_STORAGE_KEY = "ui-scale-offset";
 
 // === Runtime State ===
@@ -1507,6 +1558,1448 @@ function getPossessorLabelEs(prefix) {
     }
 }
 
+function getFormSearchInput() {
+    return document.getElementById("form-search");
+}
+
+function normalizeFormSearchValue(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/[()]/g, "")
+        .trim();
+}
+
+function stripLeadingPrefix(value, prefixes) {
+    for (const prefix of prefixes) {
+        if (value.startsWith(prefix)) {
+            return { prefix, rest: value.slice(prefix.length) };
+        }
+    }
+    return { prefix: "", rest: value };
+}
+
+function normalizeObjectPrefixRest(prefix, rest) {
+    if (prefix === "kin" && VOWEL_START_RE.test(rest)) {
+        return { prefix: "ki", rest: `n${rest}` };
+    }
+    return { prefix, rest };
+}
+
+function getFormSearchSuffixCandidates(value) {
+    const normalized = String(value || "");
+    const sorted = [...FORM_SEARCH_TENSE_SUFFIXES].sort((a, b) => b.length - a.length);
+    const candidates = new Set();
+    let matched = false;
+    const compoundSuffixes = ["tuyat", "tuya", "tuskiat", "tuskia"];
+    const compoundMatch = compoundSuffixes.find((suffix) => normalized.endsWith(suffix)) || "";
+    const compoundBlock = {
+        tuya: new Set(["ya"]),
+        tuyat: new Set(["yat"]),
+        tuskia: new Set(["skia"]),
+        tuskiat: new Set(["skiat"]),
+    };
+    sorted.forEach((suffix) => {
+        if (suffix === "lis" && normalized.endsWith("talis")) {
+            return;
+        }
+        if (compoundMatch && compoundBlock[compoundMatch]?.has(suffix)) {
+            return;
+        }
+        if (suffix && normalized.endsWith(suffix) && normalized.length > suffix.length) {
+            const base = normalized.slice(0, -suffix.length);
+            candidates.add(base);
+            if (suffix === "nit") {
+                candidates.add(`${base}ni`);
+            }
+            if (suffix === "yat") {
+                candidates.add(`${base}ya`);
+            }
+            matched = true;
+            if (normalized.endsWith(`t${suffix}`) && normalized.length > suffix.length + 1) {
+                candidates.add(normalized.slice(0, -(suffix.length + 1)));
+            }
+        }
+    });
+    if (matched && (
+        normalized.endsWith("ya")
+        || normalized.endsWith("ni")
+        || normalized.endsWith("nit")
+        || normalized.endsWith("yat")
+        || normalized.endsWith("ka")
+        || normalized.endsWith("kat")
+        || normalized.endsWith("ket")
+        || normalized.endsWith("tuk")
+        || normalized.endsWith("tiwit")
+        || normalized.endsWith("tuyat")
+        || normalized.endsWith("tuskia")
+        || normalized.endsWith("tuskiat")
+        || normalized.endsWith("s")
+    )) {
+        candidates.add(normalized);
+    }
+    if (!matched) {
+        candidates.add(normalized);
+    }
+    return Array.from(candidates);
+}
+
+function restoreVowelStems(stem) {
+    if (!stem) {
+        return [];
+    }
+    if (stem.endsWith("lki")) {
+        const base = stem.slice(0, -2);
+        return [stem, `${base}i`, `${base}a`];
+    }
+    if (stem.endsWith("lka")) {
+        const base = stem.slice(0, -2);
+        return [stem, `${base}i`, `${base}a`];
+    }
+    if (stem.startsWith("istaskat")) {
+        return [stem, "istaya"];
+    }
+    if (stem === "yu" || stem === "yut") {
+        return ["yawi"];
+    }
+    if (stem === "yani" || stem === "yanit") {
+        return ["yawi"];
+    }
+    if (stem === "ya") {
+        return ["ya", "yawi"];
+    }
+    if (stem === "yaya" || stem === "yayat") {
+        return ["yawi"];
+    }
+    if (stem.endsWith("yasneki")) {
+        return [stem, stem.replace(/yasneki$/, "yawi")];
+    }
+    if (stem.endsWith("yasnekit")) {
+        return [stem, stem.replace(/yasnekit$/, "yawi")];
+    }
+    if (stem.startsWith("istasket")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istaska")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istaski")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istaka")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastiwit")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatiwit")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastuk")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatuk")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastuya")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatuya")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastuyat")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatuyat")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastuskia")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatuskia")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istastuskiat")) {
+        return [stem, "istaya"];
+    }
+    if (stem.startsWith("istatuskiat")) {
+        return [stem, "istaya"];
+    }
+    if (stem.endsWith("stastiwit")) {
+        return [stem, stem.replace(/stastiwit$/, "istaya")];
+    }
+    if (stem.endsWith("statiwit")) {
+        return [stem, stem.replace(/statiwit$/, "istaya")];
+    }
+    if (stem.endsWith("stastuk")) {
+        return [stem, stem.replace(/stastuk$/, "istaya")];
+    }
+    if (stem.endsWith("statuk")) {
+        return [stem, stem.replace(/statuk$/, "istaya")];
+    }
+    if (stem.endsWith("stastuya")) {
+        return [stem, stem.replace(/stastuya$/, "istaya")];
+    }
+    if (stem.endsWith("statuya")) {
+        return [stem, stem.replace(/statuya$/, "istaya")];
+    }
+    if (stem.endsWith("stastuyat")) {
+        return [stem, stem.replace(/stastuyat$/, "istaya")];
+    }
+    if (stem.endsWith("statuyat")) {
+        return [stem, stem.replace(/statuyat$/, "istaya")];
+    }
+    if (stem.endsWith("stastuskia")) {
+        return [stem, stem.replace(/stastuskia$/, "istaya")];
+    }
+    if (stem.endsWith("statuskia")) {
+        return [stem, stem.replace(/statuskia$/, "istaya")];
+    }
+    if (stem.endsWith("stastuskiat")) {
+        return [stem, stem.replace(/stastuskiat$/, "istaya")];
+    }
+    if (stem.endsWith("statuskiat")) {
+        return [stem, stem.replace(/statuskiat$/, "istaya")];
+    }
+    if (stem.endsWith("staskat")) {
+        return [stem, stem.replace(/staskat$/, "istaya")];
+    }
+    if (stem.endsWith("stasket")) {
+        return [stem, stem.replace(/stasket$/, "istaya")];
+    }
+    if (stem.endsWith("staska")) {
+        return [stem, stem.replace(/staska$/, "istaya")];
+    }
+    if (stem.endsWith("staski")) {
+        return [stem, stem.replace(/staski$/, "istaya")];
+    }
+    if (stem.endsWith("staka")) {
+        return [stem, stem.replace(/staka$/, "istaya")];
+    }
+    if (stem.endsWith("kuk")) {
+        return [stem, stem.replace(/kuk$/, "kukuya")];
+    }
+    if (stem.endsWith("kuket")) {
+        return [stem, stem.replace(/kuket$/, "kukuya")];
+    }
+    if (stem.endsWith("kuka")) {
+        return [stem, stem.replace(/kuka$/, "kukuya")];
+    }
+    if (stem.endsWith("kukat")) {
+        return [stem, stem.replace(/kukat$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutiwit")) {
+        return [stem, stem.replace(/kukutiwit$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutuk")) {
+        return [stem, stem.replace(/kukutuk$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutuya")) {
+        return [stem, stem.replace(/kukutuya$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutuyat")) {
+        return [stem, stem.replace(/kukutuyat$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutuskia")) {
+        return [stem, stem.replace(/kukutuskia$/, "kukuya")];
+    }
+    if (stem.endsWith("kukutuskiat")) {
+        return [stem, stem.replace(/kukutuskiat$/, "kukuya")];
+    }
+    if (stem.endsWith("sesek")) {
+        return [stem, stem.replace(/sesek$/, "seseya")];
+    }
+    if (stem.endsWith("seseski")) {
+        return [stem, stem.replace(/seseski$/, "seseya")];
+    }
+    if (stem.endsWith("seseket")) {
+        return [stem, stem.replace(/seseket$/, "seseya")];
+    }
+    if (stem.endsWith("seseka")) {
+        return [stem, stem.replace(/seseka$/, "seseya")];
+    }
+    if (stem.endsWith("sesekat")) {
+        return [stem, stem.replace(/sesekat$/, "seseya")];
+    }
+    if (stem.endsWith("sesesket")) {
+        return [stem, stem.replace(/sesesket$/, "seseya")];
+    }
+    if (stem.endsWith("seseska")) {
+        return [stem, stem.replace(/seseska$/, "seseya")];
+    }
+    if (stem.endsWith("seseskat")) {
+        return [stem, stem.replace(/seseskat$/, "seseya")];
+    }
+    if (stem.endsWith("sesestiwit")) {
+        return [stem, stem.replace(/sesestiwit$/, "seseya")];
+    }
+    if (stem.endsWith("sesetiwit")) {
+        return [stem, stem.replace(/sesetiwit$/, "seseya")];
+    }
+    if (stem.endsWith("sesestuk")) {
+        return [stem, stem.replace(/sesestuk$/, "seseya")];
+    }
+    if (stem.endsWith("sesetuk")) {
+        return [stem, stem.replace(/sesetuk$/, "seseya")];
+    }
+    if (stem.endsWith("sesestuya")) {
+        return [stem, stem.replace(/sesestuya$/, "seseya")];
+    }
+    if (stem.endsWith("sesetuya")) {
+        return [stem, stem.replace(/sesetuya$/, "seseya")];
+    }
+    if (stem.endsWith("sesestuyat")) {
+        return [stem, stem.replace(/sesestuyat$/, "seseya")];
+    }
+    if (stem.endsWith("sesetuyat")) {
+        return [stem, stem.replace(/sesetuyat$/, "seseya")];
+    }
+    if (stem.endsWith("sesestuskia")) {
+        return [stem, stem.replace(/sesestuskia$/, "seseya")];
+    }
+    if (stem.endsWith("sesetuskia")) {
+        return [stem, stem.replace(/sesetuskia$/, "seseya")];
+    }
+    if (stem.endsWith("sesestuskiat")) {
+        return [stem, stem.replace(/sesestuskiat$/, "seseya")];
+    }
+    if (stem.endsWith("sesetuskiat")) {
+        return [stem, stem.replace(/sesetuskiat$/, "seseya")];
+    }
+    if (stem.endsWith("kumik")) {
+        return [stem, stem.replace(/kumik$/, "kumiya")];
+    }
+    if (stem.endsWith("kumiket")) {
+        return [stem, stem.replace(/kumiket$/, "kumiya")];
+    }
+    if (stem.endsWith("kumika")) {
+        return [stem, stem.replace(/kumika$/, "kumiya")];
+    }
+    if (stem.endsWith("kumikat")) {
+        return [stem, stem.replace(/kumikat$/, "kumiya")];
+    }
+    if (stem.endsWith("kumitiwit")) {
+        return [stem, stem.replace(/kumitiwit$/, "kumiya")];
+    }
+    if (stem.endsWith("kumituk")) {
+        return [stem, stem.replace(/kumituk$/, "kumiya")];
+    }
+    if (stem.endsWith("kumituya")) {
+        return [stem, stem.replace(/kumituya$/, "kumiya")];
+    }
+    if (stem.endsWith("kumituyat")) {
+        return [stem, stem.replace(/kumituyat$/, "kumiya")];
+    }
+    if (stem.endsWith("kumituskia")) {
+        return [stem, stem.replace(/kumituskia$/, "kumiya")];
+    }
+    if (stem.endsWith("kumituskiat")) {
+        return [stem, stem.replace(/kumituskiat$/, "kumiya")];
+    }
+    if (stem.endsWith("tutunik")) {
+        return [stem, stem.replace(/tutunik$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutuniket")) {
+        return [stem, stem.replace(/tutuniket$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunika")) {
+        return [stem, stem.replace(/tutunika$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunikat")) {
+        return [stem, stem.replace(/tutunikat$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunitiwit")) {
+        return [stem, stem.replace(/tutunitiwit$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunituk")) {
+        return [stem, stem.replace(/tutunituk$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunituya")) {
+        return [stem, stem.replace(/tutunituya$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunituyat")) {
+        return [stem, stem.replace(/tutunituyat$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunituskia")) {
+        return [stem, stem.replace(/tutunituskia$/, "tutuniya")];
+    }
+    if (stem.endsWith("tutunituskiat")) {
+        return [stem, stem.replace(/tutunituskiat$/, "tutuniya")];
+    }
+    if (stem.endsWith("tzitzikak")) {
+        return [stem, stem.replace(/tzitzikak$/, "tzitzikaya")];
+    }
+    if (stem.endsWith("tzitzikaket")) {
+        return [stem, stem.replace(/tzitzikaket$/, "tzitzikaya")];
+    }
+    if (stem.endsWith("tzitzikaka")) {
+        return [stem, stem.replace(/tzitzikaka$/, "tzitzikaya")];
+    }
+    if (stem.endsWith("tzitzikakat")) {
+        return [stem, stem.replace(/tzitzikakat$/, "tzitzikaya")];
+    }
+    if (stem.endsWith("pelik")) {
+        return [stem, stem.replace(/pelik$/, "peliya")];
+    }
+    if (stem.endsWith("peliket")) {
+        return [stem, stem.replace(/peliket$/, "peliya")];
+    }
+    if (stem.endsWith("pelika")) {
+        return [stem, stem.replace(/pelika$/, "peliya")];
+    }
+    if (stem.endsWith("pelikat")) {
+        return [stem, stem.replace(/pelikat$/, "peliya")];
+    }
+    if (stem.endsWith("pelitiwit")) {
+        return [stem, stem.replace(/pelitiwit$/, "peliya")];
+    }
+    if (stem.endsWith("pelituk")) {
+        return [stem, stem.replace(/pelituk$/, "peliya")];
+    }
+    if (stem.endsWith("pelituya")) {
+        return [stem, stem.replace(/pelituya$/, "peliya")];
+    }
+    if (stem.endsWith("pelituyat")) {
+        return [stem, stem.replace(/pelituyat$/, "peliya")];
+    }
+    if (stem.endsWith("pelituskia")) {
+        return [stem, stem.replace(/pelituskia$/, "peliya")];
+    }
+    if (stem.endsWith("pelituskiat")) {
+        return [stem, stem.replace(/pelituskiat$/, "peliya")];
+    }
+    if (stem.endsWith("wek")) {
+        return [stem, stem.replace(/wek$/, "weya")];
+    }
+    if (stem.endsWith("weket")) {
+        return [stem, stem.replace(/weket$/, "weya")];
+    }
+    if (stem.endsWith("weka")) {
+        return [stem, stem.replace(/weka$/, "weya")];
+    }
+    if (stem.endsWith("wekat")) {
+        return [stem, stem.replace(/wekat$/, "weya")];
+    }
+    if (stem.endsWith("wetiwit")) {
+        return [stem, stem.replace(/wetiwit$/, "weya")];
+    }
+    if (stem.endsWith("wetuk")) {
+        return [stem, stem.replace(/wetuk$/, "weya")];
+    }
+    if (stem.endsWith("wetuya")) {
+        return [stem, stem.replace(/wetuya$/, "weya")];
+    }
+    if (stem.endsWith("wetuyat")) {
+        return [stem, stem.replace(/wetuyat$/, "weya")];
+    }
+    if (stem.endsWith("wetuskia")) {
+        return [stem, stem.replace(/wetuskia$/, "weya")];
+    }
+    if (stem.endsWith("wetuskiat")) {
+        return [stem, stem.replace(/wetuskiat$/, "weya")];
+    }
+    if (stem.endsWith("manik")) {
+        return [stem, stem.replace(/manik$/, "maniya")];
+    }
+    if (stem.endsWith("maniket")) {
+        return [stem, stem.replace(/maniket$/, "maniya")];
+    }
+    if (stem.endsWith("manika")) {
+        return [stem, stem.replace(/manika$/, "maniya")];
+    }
+    if (stem.endsWith("manikat")) {
+        return [stem, stem.replace(/manikat$/, "maniya")];
+    }
+    if (stem.endsWith("manitiwit")) {
+        return [stem, stem.replace(/manitiwit$/, "maniya")];
+    }
+    if (stem.endsWith("manituk")) {
+        return [stem, stem.replace(/manituk$/, "maniya")];
+    }
+    if (stem.endsWith("manituya")) {
+        return [stem, stem.replace(/manituya$/, "maniya")];
+    }
+    if (stem.endsWith("manituyat")) {
+        return [stem, stem.replace(/manituyat$/, "maniya")];
+    }
+    if (stem.endsWith("manituskia")) {
+        return [stem, stem.replace(/manituskia$/, "maniya")];
+    }
+    if (stem.endsWith("manituskiat")) {
+        return [stem, stem.replace(/manituskiat$/, "maniya")];
+    }
+    if (stem === "tali") {
+        return [`${stem}a`];
+    }
+    if (stem.endsWith("tatalia")) {
+        return [stem.replace(/^ta/, "")];
+    }
+    if (stem.endsWith("ltuya")) {
+        return [stem, `${stem.slice(0, -4)}i`];
+    }
+    if (stem.endsWith("ltuskia")) {
+        return [stem, `${stem.slice(0, -6)}i`];
+    }
+    if (stem.endsWith("shki")) {
+        const base = stem.slice(0, -3);
+        return [stem, `${base}ya`, `${base}a`, `${base}yi`, stem.replace(/shki$/, "yi")];
+    }
+    if (stem.endsWith("nki")) {
+        const base = stem.slice(0, -3);
+        return [stem, `${base}na`, `${base}mi`, `${base}ma`];
+    }
+    if (stem.endsWith("tzki")) {
+        const base = stem.slice(0, -3);
+        const variants = [stem, `${base}ta`, `${base}ita`, `${base}tza`, `${stem.slice(0, -2)}i`];
+        if (base.length <= 1) {
+            variants.push("ita");
+        }
+        return variants;
+    }
+    if (stem.endsWith("nket")) {
+        const base = stem.slice(0, -4);
+        return [stem, `${base}ni`, `${base}mi`, `${base}ma`];
+    }
+    if (stem.endsWith("nka")) {
+        const base = stem.slice(0, -3);
+        return [stem, `${base}ni`, `${base}mi`, `${base}ma`];
+    }
+    if (stem.endsWith("ntuk")) {
+        const base = stem.slice(0, -4);
+        return [stem, `${base}ni`, `${base}mi`, `${base}ma`];
+    }
+    if (stem.endsWith("yatiwit")) {
+        return [stem, stem.replace(/yatiwit$/, "yaya")];
+    }
+    if (stem.endsWith("utaktiwit")) {
+        return [stem, stem.replace(/utaktiwit$/, "utaki")];
+    }
+    if (stem.endsWith("waktiwit")) {
+        return [stem, stem.replace(/waktiwit$/, "waki")];
+    }
+    if (stem.endsWith("watiwit")) {
+        return [stem, stem.replace(/watiwit$/, "waya")];
+    }
+    if (stem.endsWith("titiwit")) {
+        return [stem, stem.replace(/titiwit$/, "tiya")];
+    }
+    if (stem.endsWith("chitiwit")) {
+        return [stem, stem.replace(/chitiwit$/, "chiya")];
+    }
+    if (stem.endsWith("tiwit")) {
+        return [stem, stem.replace(/tiwit$/, "tiya")];
+    }
+    if (stem.endsWith("titiya")) {
+        return [stem, stem.replace(/titiya$/, "tiya")];
+    }
+    if (stem.endsWith("chituyat")) {
+        return [stem, stem.replace(/chituyat$/, "chiya")];
+    }
+    if (stem.endsWith("tituyat")) {
+        return [stem, stem.replace(/tituyat$/, "tiya")];
+    }
+    if (stem.endsWith("chituskia")) {
+        return [stem, stem.replace(/chituskia$/, "chiya")];
+    }
+    if (stem.endsWith("tituskia")) {
+        return [stem, stem.replace(/tituskia$/, "tiya")];
+    }
+    if (stem.endsWith("yatuskia")) {
+        return [stem, stem.replace(/yatuskia$/, "yaya")];
+    }
+    if (stem.endsWith("tituskiat")) {
+        return [stem, stem.replace(/tituskiat$/, "tiya")];
+    }
+    if (stem.endsWith("chituskiat")) {
+        return [stem, stem.replace(/chituskiat$/, "chiya")];
+    }
+    if (stem.endsWith("yatuskiat")) {
+        return [stem, stem.replace(/yatuskiat$/, "yaya")];
+    }
+    if (stem.endsWith("tituk")) {
+        return [stem, stem.replace(/tituk$/, "tiya")];
+    }
+    if (stem.endsWith("yatuk")) {
+        return [stem, stem.replace(/yatuk$/, "yaya")];
+    }
+    if (stem.endsWith("watuk")) {
+        return [stem, stem.replace(/watuk$/, "waya")];
+    }
+    if (stem.endsWith("chituk")) {
+        return [stem, stem.replace(/chituk$/, "chiya")];
+    }
+    if (stem.endsWith("tuk")) {
+        const base = stem.slice(0, -3);
+        return [stem, `${base}i`, `${base}a`, `${stem}i`];
+    }
+    if (stem.endsWith("nkat")) {
+        const base = stem.slice(0, -4);
+        return [stem, `${base}ni`, `${base}mi`, `${base}ma`];
+    }
+    if (stem.endsWith("skat")) {
+        const base = stem.slice(0, -4);
+        return [stem, `${base}si`, `${base}se`];
+    }
+    if (stem.endsWith("wkat")) {
+        const base = stem.slice(0, -4);
+        return [stem, stem.replace(/wkat$/, "waya"), `${base}wi`];
+    }
+    if (stem.endsWith("sket")) {
+        const base = stem.slice(0, -4);
+        return [stem, `${base}si`, `${base}se`];
+    }
+    if (stem.endsWith("wket")) {
+        const base = stem.slice(0, -4);
+        return [stem, stem.replace(/wket$/, "waya"), `${base}wi`];
+    }
+    if (stem.endsWith("snekit")) {
+        return [stem, "ita"];
+    }
+    if (stem.endsWith("ska")) {
+        return [stem, `${stem.slice(0, -2)}i`, `${stem.slice(0, -2)}e`];
+    }
+    if (stem.endsWith("waka")) {
+        return [stem, stem.replace(/waka$/, "waya")];
+    }
+    if (stem.endsWith("wka")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("ski")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("wki")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("chki")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("chka")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("yaket")) {
+        return [stem, stem.replace(/yaket$/, "yaya")];
+    }
+    if (stem.endsWith("yaka")) {
+        return [stem, stem.replace(/yaka$/, "yaya")];
+    }
+    if (stem.endsWith("yak")) {
+        return [stem, stem.replace(/yak$/, "yaya")];
+    }
+    if (stem.endsWith("wak")) {
+        return [stem, stem.replace(/wak$/, "waya")];
+    }
+    if (stem.endsWith("wik")) {
+        return [stem, stem.slice(0, -1)];
+    }
+    if (stem.endsWith("tki")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("tik")) {
+        return [stem, `${stem.slice(0, -1)}ya`];
+    }
+    if (stem.endsWith("chik")) {
+        return [stem, `${stem}i`, stem.replace(/chik$/, "chiya")];
+    }
+    if (stem.endsWith("chika")) {
+        return [stem, stem.replace(/chika$/, "chiya")];
+    }
+    if (stem.endsWith("chikat")) {
+        return [stem, stem.replace(/chikat$/, "chiya")];
+    }
+    if (stem.endsWith("kati")) {
+        return [stem, `${stem.slice(0, -2)}`];
+    }
+    if (stem.endsWith("katya")) {
+        return [stem, `${stem.slice(0, -3)}`];
+    }
+    if (stem.endsWith("yakat")) {
+        return [stem, stem.replace(/yakat$/, "yaya")];
+    }
+    if (stem.endsWith("wakat")) {
+        return [stem, stem.replace(/wakat$/, "waya")];
+    }
+    if (stem.endsWith("tikat")) {
+        return [stem, stem.replace(/tikat$/, "tiya"), stem.replace(/tikat$/, "tika")];
+    }
+    if (stem.endsWith("wakka")) {
+        return [stem, stem.replace(/wakka$/, "waki")];
+    }
+    if (stem.endsWith("wakkat")) {
+        return [stem, stem.replace(/wakkat$/, "waki")];
+    }
+    if (stem.endsWith("waktiwit")) {
+        return [stem, stem.replace(/waktiwit$/, "waki")];
+    }
+    if (stem.endsWith("waktuk")) {
+        return [stem, stem.replace(/waktuk$/, "waki")];
+    }
+    if (stem.endsWith("waktuya")) {
+        return [stem, stem.replace(/waktuya$/, "waki")];
+    }
+    if (stem.endsWith("waktuyat")) {
+        return [stem, stem.replace(/waktuyat$/, "waki")];
+    }
+    if (stem.endsWith("waktuskia")) {
+        return [stem, stem.replace(/waktuskia$/, "waki")];
+    }
+    if (stem.endsWith("waktuskiat")) {
+        return [stem, stem.replace(/waktuskiat$/, "waki")];
+    }
+    if (stem.endsWith("utakka")) {
+        return [stem, stem.replace(/utakka$/, "utaki")];
+    }
+    if (stem.endsWith("utakkat")) {
+        return [stem, stem.replace(/utakkat$/, "utaki")];
+    }
+    if (stem.endsWith("utaktiwit")) {
+        return [stem, stem.replace(/utaktiwit$/, "utaki")];
+    }
+    if (stem.endsWith("utaktuk")) {
+        return [stem, stem.replace(/utaktuk$/, "utaki")];
+    }
+    if (stem.endsWith("utaktuya")) {
+        return [stem, stem.replace(/utaktuya$/, "utaki")];
+    }
+    if (stem.endsWith("utaktuyat")) {
+        return [stem, stem.replace(/utaktuyat$/, "utaki")];
+    }
+    if (stem.endsWith("utaktuskia")) {
+        return [stem, stem.replace(/utaktuskia$/, "utaki")];
+    }
+    if (stem.endsWith("utaktuskiat")) {
+        return [stem, stem.replace(/utaktuskiat$/, "utaki")];
+    }
+    if (stem.endsWith("kat")) {
+        return [stem, `${stem.slice(0, -1)}`];
+    }
+    if (stem.endsWith("shkat")) {
+        return [stem.slice(0, -1), `${stem.slice(0, -1)}a`, `${stem.slice(0, -1)}ya`];
+    }
+    if (stem.endsWith("shka")) {
+        return [stem, `${stem.slice(0, -1)}ya`, `${stem.slice(0, -3)}yi`, stem.replace(/shka$/, "yi")];
+    }
+    if (stem.endsWith("shtuk")) {
+        return [stem, `${stem.slice(0, -5)}yi`, stem.replace(/shtuk$/, "yi")];
+    }
+    if (stem.endsWith("shtuya")) {
+        return [stem, `${stem.slice(0, -6)}yi`, stem.replace(/shtuya$/, "yi")];
+    }
+    if (stem.endsWith("shtuskia")) {
+        return [stem, `${stem.slice(0, -8)}yi`, stem.replace(/shtuskia$/, "yi")];
+    }
+    if (stem.endsWith("tika")) {
+        return [stem, stem.replace(/tika$/, "tiya")];
+    }
+    if (stem.endsWith("tikat")) {
+        return [stem, stem.replace(/tikat$/, "tiya"), stem.replace(/tikat$/, "tika")];
+    }
+    if (stem.endsWith("tiket")) {
+        return [stem, stem.replace(/tiket$/, "tiya")];
+    }
+    if (stem.endsWith("tituk")) {
+        return [stem, stem.replace(/tituk$/, "tiya")];
+    }
+    if (stem.endsWith("tituya")) {
+        return [stem, stem.replace(/tituya$/, "tiya")];
+    }
+    if (stem.endsWith("yatuya")) {
+        return [stem, stem.replace(/yatuya$/, "yaya")];
+    }
+    if (stem.endsWith("watuya")) {
+        return [stem, stem.replace(/watuya$/, "waya")];
+    }
+    if (stem.endsWith("yatuyat")) {
+        return [stem, stem.replace(/yatuyat$/, "yaya")];
+    }
+    if (stem.endsWith("watuyat")) {
+        return [stem, stem.replace(/watuyat$/, "waya")];
+    }
+    if (stem.endsWith("watuskia")) {
+        return [stem, stem.replace(/watuskia$/, "waya")];
+    }
+    if (stem.endsWith("watuskiat")) {
+        return [stem, stem.replace(/watuskiat$/, "waya")];
+    }
+    if (stem.endsWith("chituya")) {
+        return [stem, stem.replace(/chituya$/, "chiya")];
+    }
+    if (stem.endsWith("tituskia")) {
+        return [stem, stem.replace(/tituskia$/, "tiya")];
+    }
+    if (stem.endsWith("katka")) {
+        return [stem, stem.replace(/katka$/, "kati")];
+    }
+    if (stem.endsWith("kattuya")) {
+        return [stem, stem.replace(/kattuya$/, "kati")];
+    }
+    if (stem.endsWith("kattuskia")) {
+        return [stem, stem.replace(/kattuskia$/, "kati")];
+    }
+    if (stem.endsWith("chtuya")) {
+        return [stem, stem.replace(/chtuya$/, "chi")];
+    }
+    if (stem.endsWith("chtuskia")) {
+        return [stem, stem.replace(/chtuskia$/, "chi")];
+    }
+    if (stem.endsWith("sneki")) {
+        return [stem, `${stem.slice(0, -5)}ita`];
+    }
+    if (stem.endsWith("tza")) {
+        return [stem, `${stem.slice(0, -1)}i`];
+    }
+    if (stem.endsWith("tzi")) {
+        return [stem, stem.replace(/tzi$/, "ta")];
+    }
+    if (stem.endsWith("taski")) {
+        return [stem, stem.replace(/taski$/, "taya")];
+    }
+    if (stem.endsWith("tasket")) {
+        return [stem, stem.replace(/tasket$/, "taya")];
+    }
+    if (stem.endsWith("taka")) {
+        return [stem, `${stem}ti`];
+    }
+    if (stem.endsWith("tak") && !stem.endsWith("taka")) {
+        return [stem, stem.replace(/tak$/, "taya")];
+    }
+    if (stem.endsWith("zka")) {
+        return [stem, `${stem.slice(0, -2)}i`];
+    }
+    if (stem.endsWith("ztuya")) {
+        return [stem, `${stem.slice(0, -4)}i`];
+    }
+    if (stem.endsWith("ztuskia")) {
+        return [stem, `${stem.slice(0, -6)}i`];
+    }
+    if (stem.endsWith("s")) {
+        return [`${stem}a`, `${stem}e`, `${stem}i`];
+    }
+    if (stem.endsWith("w")) {
+        return [`${stem}i`, `${stem}a`];
+    }
+    if (stem.endsWith("sh")) {
+        return [`${stem}a`, `${stem.slice(0, -2)}ya`, `${stem.slice(0, -2)}yi`];
+    }
+    if (stem.endsWith("ch")) {
+        return [`${stem}i`, `${stem}a`];
+    }
+    if (stem.endsWith("tz")) {
+        return [`${stem}i`, `${stem}a`, stem.replace(/tz$/, "ta")];
+    }
+    if (stem.endsWith("l")) {
+        return [`${stem}i`, `${stem}a`];
+    }
+    if (stem.endsWith("in")) {
+        return [
+            `${stem}i`,
+            `${stem}a`,
+            `${stem.slice(0, -1)}mi`,
+            `${stem.slice(0, -1)}ma`,
+        ];
+    }
+    if (stem.endsWith("n")) {
+        return [`${stem}a`, `${stem}i`, `${stem.slice(0, -1)}ma`, `${stem.slice(0, -1)}mi`];
+    }
+    if (stem.endsWith("na")) {
+        return [stem, `${stem.slice(0, -2)}ma`, `${stem.slice(0, -1)}i`];
+    }
+    if (stem.endsWith("t")) {
+        return [`${stem}a`, `${stem}i`, `${stem}ya`];
+    }
+    if (stem.endsWith("wa")) {
+        return [stem, `${stem.slice(0, -1)}i`];
+    }
+    if (stem.endsWith("ni")) {
+        return [stem, `${stem.slice(0, -2)}mi`];
+    }
+    if (stem.endsWith("lis")) {
+        return [`${stem.slice(0, -1)}a`];
+    }
+    if (stem.endsWith("ela")) {
+        return [stem, `${stem.slice(0, -1)}i`];
+    }
+    if (stem.endsWith("ki")) {
+        return [stem, `${stem.slice(0, -2)}kwi`, `${stem.slice(0, -2)}a`];
+    }
+    if (stem === "li") {
+        return ["talia"];
+    }
+    if (stem.endsWith("lia") && !stem.endsWith("talia")) {
+        return [`${stem.slice(0, -3)}talia`];
+    }
+    if (stem === "ma" || stem === "mi") {
+        return [`te${stem}`];
+    }
+    if (stem.endsWith("us")) {
+        return [`${stem.slice(0, -1)}a`];
+    }
+    if (stem.endsWith("mu")) {
+        return [stem, `${stem}a`];
+    }
+    if (stem.endsWith("ni")) {
+        return [stem, `${stem}a`];
+    }
+    if (VOWEL_END_RE.test(stem)) {
+        return [stem];
+    }
+    if (stem.endsWith("k")) {
+        return [`${stem}i`, `${stem}wi`, `${stem}wa`, `${stem}a`];
+    }
+    if (stem.endsWith("j")) {
+        const base = stem.slice(0, -1);
+        const alternates = new Set();
+        if (base) {
+            alternates.add(base);
+            alternates.add(`${base}wi`);
+            alternates.add(`${base}wa`);
+        }
+        if (base.endsWith("i") || base.endsWith("u")) {
+            alternates.add(`${base}a`);
+            return Array.from(alternates);
+        }
+        alternates.add(`${base}ia`);
+        return Array.from(alternates);
+    }
+    const candidates = new Set();
+    if (stem.endsWith("itz")) {
+        candidates.add(`${stem.slice(0, -2)}ta`);
+    }
+    candidates.add(`${stem}a`);
+    return Array.from(candidates);
+}
+
+function deriveVerbstemCandidatesFromForm(rawValue) {
+    const rawLower = String(rawValue || "").toLowerCase();
+    const isImperativeForm = rawLower.startsWith("ma ") || rawLower.startsWith("shi");
+    let normalized = normalizeFormSearchValue(rawValue)
+        .replace(/^ma\s+/, "")
+        .replace(/^-+/, "");
+    const originalNormalized = normalized;
+    if (!normalized || normalized.includes("—")) {
+        return { hasObjectPrefix: false, stems: [] };
+    }
+    if (normalized.startsWith("shi")) {
+        normalized = normalized.slice(3);
+    }
+    if (normalized.startsWith("temu")) {
+        normalized = `temu-${normalized.slice(4)}`;
+    }
+    let hasObjectPrefix = false;
+    let hadSubjectPrefix = false;
+    let objectPrefixValue = "";
+    let objectRestValue = "";
+    let isObjectPrefixAmbiguous = false;
+    let preObjectNormalized = normalized;
+    let objectInfo = stripLeadingPrefix(normalized, FORM_SEARCH_OBJECT_PREFIXES);
+    if (objectInfo.prefix) {
+        objectInfo = normalizeObjectPrefixRest(objectInfo.prefix, objectInfo.rest);
+        hasObjectPrefix = true;
+        objectPrefixValue = objectInfo.prefix;
+        objectRestValue = objectInfo.rest;
+        normalized = objectInfo.rest;
+    } else {
+        const subjectInfo = stripLeadingPrefix(normalized, FORM_SEARCH_SUBJECT_PREFIXES);
+        hadSubjectPrefix = !!subjectInfo.prefix;
+        normalized = subjectInfo.rest;
+        preObjectNormalized = normalized;
+        objectInfo = stripLeadingPrefix(normalized, FORM_SEARCH_OBJECT_PREFIXES);
+        if (objectInfo.prefix) {
+            objectInfo = normalizeObjectPrefixRest(objectInfo.prefix, objectInfo.rest);
+            hasObjectPrefix = true;
+            objectPrefixValue = objectInfo.prefix;
+            objectRestValue = objectInfo.rest;
+            normalized = objectInfo.rest;
+        }
+    }
+    const restStartsWithConsonant = objectRestValue
+        && !VOWEL_START_RE.test(objectRestValue);
+    if (
+        objectPrefixValue
+        && ((OBJECT_MARKERS.has(objectPrefixValue) && objectRestValue.length >= 4)
+            || restStartsWithConsonant)
+    ) {
+        isObjectPrefixAmbiguous = true;
+        hasObjectPrefix = false;
+    }
+    const candidates = new Set();
+    const seedForms = [normalized];
+    if (hadSubjectPrefix && originalNormalized !== normalized) {
+        seedForms.push(originalNormalized);
+    }
+    if (isObjectPrefixAmbiguous) {
+        if (preObjectNormalized !== normalized) {
+            seedForms.push(preObjectNormalized);
+        }
+        if (originalNormalized !== normalized) {
+            seedForms.push(originalNormalized);
+        }
+    }
+    if (normalized.startsWith("m") && VOWEL_START_RE.test(normalized.slice(1))) {
+        seedForms.push(normalized.slice(1));
+    }
+    if (normalized.startsWith("n") && VOWEL_START_RE.test(normalized.slice(1))) {
+        seedForms.push(normalized.slice(1));
+    }
+    if (normalized.startsWith("t") && VOWEL_START_RE.test(normalized.slice(1))) {
+        seedForms.push(normalized.slice(1));
+    }
+    if (objectPrefixValue === "tech" && VOWEL_START_RE.test(objectRestValue)) {
+        seedForms.push(`ch${objectRestValue}`);
+    }
+    if (objectPrefixValue === "metzin" && VOWEL_START_RE.test(objectRestValue)) {
+        seedForms.push(`in${objectRestValue}`);
+    }
+    if (objectPrefixValue === "k" && VOWEL_START_RE.test(objectRestValue)) {
+        seedForms.push(`k${objectRestValue}`);
+    }
+    if (objectPrefixValue === "ki") {
+        seedForms.push(`ki${objectRestValue}`);
+    }
+    seedForms.forEach((seed) => {
+        let working = seed;
+        const indirectInfo = stripLeadingPrefix(working, OBJECT_MARKERS.has(working.slice(0, 2))
+            ? Array.from(OBJECT_MARKERS)
+            : ["ta", "te", "mu"]);
+        const indirectVariants = [];
+        if (indirectInfo.prefix) {
+            const combined = `${indirectInfo.prefix}${indirectInfo.rest}`;
+            if (
+                indirectInfo.prefix === "te"
+                && indirectInfo.rest.startsWith("mu")
+            ) {
+                indirectVariants.push(combined);
+            } else if (
+                indirectInfo.prefix === "ta"
+                && indirectInfo.rest.startsWith("li")
+            ) {
+                indirectVariants.push(combined);
+            } else if (indirectInfo.rest.length >= 4) {
+                indirectVariants.push(indirectInfo.rest);
+                indirectVariants.push(combined);
+                hasObjectPrefix = true;
+            } else {
+                indirectVariants.push(combined);
+            }
+        } else {
+            indirectVariants.push(working);
+        }
+        indirectVariants.forEach((indirectVariant) => {
+            const directionalInfo = stripLeadingPrefix(indirectVariant, DIRECTIONAL_PREFIXES.concat(["al"]));
+            const directionalVariants = directionalInfo.prefix
+                ? [directionalInfo.rest, `${directionalInfo.prefix}${directionalInfo.rest}`]
+                : [directionalInfo.rest];
+            directionalVariants.forEach((variant) => {
+            const hasKnownSuffix = FORM_SEARCH_TENSE_SUFFIXES.some((suffix) => (
+                suffix && variant.endsWith(suffix)
+            ));
+            const avoidClassBDrop = variant.endsWith("sneki") || variant.endsWith("snekit");
+            let adjusted = variant;
+            if (!hasKnownSuffix && adjusted.endsWith("t") && adjusted.length > 1) {
+                adjusted = adjusted.slice(0, -1);
+            }
+            const suffixStripped = getFormSearchSuffixCandidates(adjusted);
+            if (isImperativeForm && adjusted.endsWith("ni") && !suffixStripped.includes(adjusted)) {
+                suffixStripped.push(adjusted);
+            }
+                suffixStripped.forEach((base) => {
+                let baseStem = base;
+                if (!avoidClassBDrop && baseStem.endsWith("ki")) {
+                    candidates.add(baseStem.slice(0, -2));
+                }
+            if (!avoidClassBDrop && baseStem.endsWith("k")) {
+                candidates.add(baseStem.slice(0, -1));
+            }
+            if (baseStem.endsWith("kik")) {
+                candidates.add(baseStem.slice(0, -1));
+            }
+                let skipBaseStem = false;
+                if (hasObjectPrefix) {
+                    if (baseStem.startsWith("mia")) {
+                        candidates.add(`ta${baseStem}`);
+                        skipBaseStem = true;
+                    }
+                    if (baseStem.startsWith("wia")) {
+                        candidates.add(`ta${baseStem}`);
+                        skipBaseStem = true;
+                    }
+                    if (baseStem.startsWith("jchiw")) {
+                        candidates.add(`ta${baseStem}`);
+                        skipBaseStem = true;
+                    }
+                }
+                if (!skipBaseStem) {
+                    candidates.add(baseStem);
+                    if (
+                        (hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous)
+                        && baseStem
+                        && !VOWEL_START_RE.test(baseStem)
+                    ) {
+                        candidates.add(`i${baseStem}`);
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("ki")) {
+                        candidates.add(baseStem.slice(1));
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("m")) {
+                        candidates.add(baseStem.slice(1));
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("w")) {
+                        candidates.add(`k${baseStem}`);
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("u")) {
+                        candidates.add(`mu${baseStem}`);
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("mu")) {
+                        candidates.add(`mu${baseStem}`);
+                    }
+                    if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && baseStem.startsWith("ti")) {
+                        candidates.add(baseStem.slice(1));
+                    }
+                }
+                });
+            });
+        });
+    });
+    const restored = new Set();
+    candidates.forEach((stem) => {
+        restoreVowelStems(stem).forEach((entry) => {
+            if (VOWEL_END_RE.test(entry)) {
+                restored.add(entry);
+                if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && !VOWEL_START_RE.test(entry)) {
+                    restored.add(`i${entry}`);
+                }
+                if ((hasObjectPrefix || hadSubjectPrefix || isObjectPrefixAmbiguous) && entry.startsWith("w")) {
+                    restored.add(`kw${entry.slice(1)}`);
+                }
+            }
+        });
+    });
+    const list = Array.from(restored);
+    const expanded = new Set(list);
+    list.forEach((stem) => {
+        if (FORM_SEARCH_OPTIONAL_TRANSITIVE_STEMS.has(stem)) {
+            expanded.add(`(-)${stem}`);
+        }
+        if (FORM_SEARCH_TEN_PREFIX_STEMS.has(stem)) {
+            expanded.add(`ten-${stem}`);
+        }
+        if (stem.startsWith("lx")) {
+            expanded.add("/lx");
+        }
+    });
+    if (
+        rawLower.includes("witz")
+        || rawLower.includes("kwit")
+        || rawLower.includes("witk")
+        || rawLower.includes("witt")
+    ) {
+        expanded.add("witz");
+    }
+    if (
+        rawLower.includes("kink")
+        || rawLower.includes("kinti")
+        || rawLower.includes("kintuk")
+        || rawLower.includes("kintuya")
+        || rawLower.includes("kintuskia")
+    ) {
+        expanded.add("ina");
+    }
+    if (
+        rawLower.includes("lki")
+        || rawLower.includes("lka")
+        || rawLower.includes("ltu")
+        || rawLower.includes("ltuya")
+        || rawLower.includes("ltuskia")
+    ) {
+        expanded.add("/lx");
+    }
+    if (rawLower.includes("kyu") || rawLower.includes("kya")) {
+        expanded.add("yawi");
+    }
+    return {
+        hasObjectPrefix,
+        isObjectPrefixAmbiguous,
+        stems: expanded.size ? Array.from(expanded) : (normalized ? [normalized] : []),
+    };
+}
+
+function splitConjugationForms(value) {
+    if (!value) {
+        return [];
+    }
+    return String(value)
+        .split("/")
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) => part.replace(/[()]/g, ""));
+}
+
+function getFormSearchTenses() {
+    const base = getTenseOrderForMode(TENSE_MODE.verbo);
+    const combined = [...base, ...PRETERITO_UNIVERSAL_ORDER];
+    const seen = new Set();
+    return combined.filter((entry) => {
+        if (seen.has(entry)) {
+            return false;
+        }
+        seen.add(entry);
+        return true;
+    });
+}
+
+function getFormSearchTenseLabel(tenseValue) {
+    return TENSE_LABELS[tenseValue]
+        || PRETERITO_UNIVERSAL_LABELS[tenseValue]
+        || tenseValue;
+}
+
+function getCanonicalFormSearchStems(stems, query) {
+    if (!Array.isArray(stems) || stems.length <= 1) {
+        return stems || [];
+    }
+    const extraSuffixes = [
+        "jketya",
+        "jketi",
+        "jketa",
+        "jkwa",
+        "jkwi",
+        "jka",
+        "jki",
+        "kwi",
+        "kwa",
+        "ki",
+    ];
+    const suffixes = FORM_SEARCH_TENSE_SUFFIXES.filter(Boolean).concat(extraSuffixes);
+    const reduced = new Set(stems);
+    let changed = true;
+    while (changed) {
+        changed = false;
+        Array.from(reduced).forEach((stem) => {
+            suffixes.forEach((suffix) => {
+                if (stem.endsWith(suffix)) {
+                    const base = stem.slice(0, -suffix.length);
+                    if (base && reduced.has(base)) {
+                        reduced.delete(stem);
+                        changed = true;
+                    }
+                }
+            });
+        });
+    }
+    const prefixCandidates = [
+        "(-)",
+        "imumu",
+        "mumu",
+        "imun",
+        "mun",
+        "imu",
+        "in",
+        "mu",
+        "un",
+        "i",
+    ];
+    const prefixReduced = new Set(reduced);
+    prefixCandidates.forEach((prefix) => {
+        Array.from(prefixReduced).forEach((stem) => {
+            if (stem.startsWith(prefix)) {
+                const base = stem.slice(prefix.length);
+                if (base && prefixReduced.has(base)) {
+                    prefixReduced.delete(stem);
+                }
+            }
+        });
+    });
+    const reducedList = prefixReduced.size ? Array.from(prefixReduced) : Array.from(reduced);
+    const normalizedQuery = normalizeFormSearchValue(query || "");
+    if (!normalizedQuery) {
+        return reducedList;
+    }
+    let core = normalizedQuery.replace(/^-+/, "");
+    const subjectInfo = stripLeadingPrefix(core, FORM_SEARCH_SUBJECT_PREFIXES);
+    core = subjectInfo.rest || core;
+    const objectInfo = stripLeadingPrefix(core, FORM_SEARCH_OBJECT_PREFIXES);
+    core = objectInfo.rest || core;
+    const directionalInfo = stripLeadingPrefix(core, DIRECTIONAL_PREFIXES.concat(["al"]));
+    core = directionalInfo.rest || core;
+    suffixes.forEach((suffix) => {
+        if (core.endsWith(suffix) && core.length > suffix.length) {
+            core = core.slice(0, -suffix.length);
+        }
+    });
+    if (!core) {
+        return reducedList;
+    }
+    const baseCandidates = restoreVowelStems(core);
+    const coreBases = baseCandidates.length ? baseCandidates : [core];
+    let coreMatches = reducedList.filter((stem) => (
+        coreBases.some((base) => stem.includes(base))
+    ));
+    if (core.endsWith("tij")) {
+        const tiaMatches = coreMatches.filter((stem) => stem.endsWith("tia"));
+        if (tiaMatches.length) {
+            coreMatches = tiaMatches;
+        }
+    }
+    return coreMatches.length ? coreMatches : reducedList;
+}
+
+function renderFormSearchResults() {
+    const container = document.getElementById("form-search-results");
+    if (!container) {
+        return;
+    }
+    const input = getFormSearchInput();
+    const query = normalizeFormSearchValue(input?.value || "");
+    container.innerHTML = "";
+    if (!query) {
+        container.classList.add("is-hidden");
+        return;
+    }
+    const stemGuess = deriveVerbstemCandidatesFromForm(query);
+    const stemOptions = filterFormSearchStemsToKnownVerbs(
+        stemGuess.stems,
+        { hasObjectPrefix: stemGuess.hasObjectPrefix, allowBoth: stemGuess.isObjectPrefixAmbiguous }
+    );
+    if (stemOptions.length) {
+        const canonicalStems = getCanonicalFormSearchStems(stemOptions, query);
+        const stemLine = document.createElement("div");
+        stemLine.className = "form-search-results__summary";
+        const prefix = stemGuess.hasObjectPrefix ? "-" : "";
+        const formatStem = (stem) => {
+            if (stem.startsWith("tajchi")) {
+                return `taj-chi${stem.slice(6)}`;
+            }
+            return stem;
+        };
+        const formattedStems = (canonicalStems.length ? canonicalStems : stemOptions).map((stem) => {
+            const cleanStem = formatStem(stem);
+            const needsPrefix = prefix && !cleanStem.startsWith("(-)");
+            return `${needsPrefix ? prefix : ""}${cleanStem}`;
+        });
+        stemLine.textContent = `Verbstem sugerido: ${formattedStems.join(" / ")}`;
+        container.appendChild(stemLine);
+    }
+    const isActiveMode =
+        getActiveTenseMode() === TENSE_MODE.verbo && getCombinedMode() === COMBINED_MODE.active;
+    if (!isActiveMode) {
+        container.classList.remove("is-hidden");
+        const message = document.createElement("div");
+        message.className = "form-search-results__summary";
+        message.textContent = "Solo disponible en verbo activo.";
+        container.appendChild(message);
+        return;
+    }
+    const verbEl = document.getElementById("verb");
+    const rawVerb = verbEl ? getSearchInputBase(verbEl.value).trim() : "";
+    if (!rawVerb) {
+        container.classList.remove("is-hidden");
+        const message = document.createElement("div");
+        message.className = "form-search-results__summary";
+        message.textContent = "Ingresa un verbo para buscar por forma.";
+        container.appendChild(message);
+        return;
+    }
+    const objectPrefixes = getObjectPrefixesForTransitividad();
+    const subjectSelections = getSubjectPersonSelections();
+    const tenses = getFormSearchTenses();
+    const matches = [];
+    const seen = new Set();
+
+    tenses.forEach((tenseValue) => {
+        subjectSelections.forEach(({ selection }) => {
+            objectPrefixes.forEach((objectPrefix) => {
+                const result = generateWord({
+                    silent: true,
+                    skipTransitivityValidation: true,
+                    override: {
+                        verb: rawVerb,
+                        tense: tenseValue,
+                        subjectPrefix: selection.subjectPrefix,
+                        subjectSuffix: selection.subjectSuffix,
+                        objectPrefix,
+                    },
+                });
+                if (!result || result.error || !result.result) {
+                    return;
+                }
+                const { shouldMask } = getConjugationMaskState({
+                    result,
+                    subjectPrefix: selection.subjectPrefix,
+                    subjectSuffix: selection.subjectSuffix,
+                    objectPrefix,
+                });
+                if (shouldMask) {
+                    return;
+                }
+                const forms = splitConjugationForms(result.result);
+                const match = forms.find((form) => {
+                    const normalized = normalizeFormSearchValue(form);
+                    return normalized === query || normalized.includes(query);
+                });
+                if (!match) {
+                    return;
+                }
+                const key = `${tenseValue}|${selection.subjectPrefix}|${selection.subjectSuffix}|${objectPrefix}|${match}`;
+                if (seen.has(key)) {
+                    return;
+                }
+                seen.add(key);
+                matches.push({
+                    tenseValue,
+                    subject: selection,
+                    objectPrefix,
+                    value: match,
+                });
+            });
+        });
+    });
+
+    container.classList.remove("is-hidden");
+    if (!matches.length) {
+        const message = document.createElement("div");
+        message.className = "form-search-results__summary";
+        message.textContent = "Sin coincidencias en verbos activos.";
+        container.appendChild(message);
+        return;
+    }
+    const summary = document.createElement("div");
+    summary.className = "form-search-results__summary";
+    summary.textContent = `Coincidencias: ${matches.length}`;
+    container.appendChild(summary);
+
+    const list = document.createElement("div");
+    list.className = "form-search-results__list";
+    matches.slice(0, FORM_SEARCH_RESULT_LIMIT).forEach((match) => {
+        const item = document.createElement("div");
+        item.className = "form-search-result";
+        const meta = document.createElement("div");
+        meta.className = "form-search-result__meta";
+        const tenseLabel = document.createElement("span");
+        tenseLabel.textContent = getFormSearchTenseLabel(match.tenseValue);
+        const subjectLabel = document.createElement("span");
+        const subjectSub = getSubjectSubLabel(match.subject, {
+            isNawat: false,
+            mode: "verb",
+            tenseValue: match.tenseValue,
+        });
+        const objectLabel = match.objectPrefix
+            ? getObjectComboLabel(match.objectPrefix, false)
+            : "";
+        subjectLabel.textContent = buildPersonSub({
+            subjectLabel: subjectSub,
+            objectLabel,
+        });
+        meta.appendChild(tenseLabel);
+        meta.appendChild(subjectLabel);
+        item.appendChild(meta);
+        const value = document.createElement("div");
+        value.className = "form-search-result__value";
+        value.textContent = match.value;
+        item.appendChild(value);
+        list.appendChild(item);
+    });
+    container.appendChild(list);
+}
+
 function getPossessorPersonLabel(prefix) {
     const entry = POSSESSIVE_PREFIXES.find((option) => option.value === prefix);
     return entry ? entry.label : "";
@@ -2045,6 +3538,112 @@ function formatConjugationDisplay(value) {
     return lines.join("\n");
 }
 
+function buildClassBasedProvenance({
+    verb,
+    analysisTarget,
+    tense,
+    classKey,
+    isTransitive,
+    context,
+    variants,
+    subjectSuffix,
+    suppletiveStemSet,
+}) {
+    return {
+        verb,
+        analysisTarget,
+        tense,
+        classKey,
+        isTransitive,
+        stemPath: context?.stemPath || (suppletiveStemSet ? "suppletive" : null),
+        fromRootPlusYa: Boolean(context?.fromRootPlusYa),
+        isMonosyllable: Boolean(context?.isMonosyllable),
+        variants: (variants || []).map((variant) => ({
+            base: variant.base,
+            suffix: variant.suffix,
+        })),
+        subjectSuffix,
+        blockedReason: null,
+        usesSuppletiveSet: Boolean(suppletiveStemSet),
+    };
+}
+
+function buildClassBasedResultWithProvenance({
+    verb,
+    subjectPrefix,
+    objectPrefix,
+    subjectSuffix,
+    tense,
+    analysisVerb,
+    classFilter = null,
+    allowAllClasses = false,
+    isYawi = false,
+    hasSlashMarker = false,
+    directionalInputPrefix = "",
+    directionalOutputPrefix = "",
+    baseSubjectPrefix = subjectPrefix,
+    baseObjectPrefix = objectPrefix,
+    suppletiveStemSet = null,
+    forceTransitive = false,
+    indirectObjectMarker = "",
+}) {
+    const result = buildClassBasedResult({
+        verb,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        tense,
+        analysisVerb,
+        classFilter,
+        allowAllClasses,
+        isYawi,
+        hasSlashMarker,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        suppletiveStemSet,
+        forceTransitive,
+        indirectObjectMarker,
+    });
+    if (!result || result === "—") {
+        return { result, provenance: null };
+    }
+    const analysisTarget = analysisVerb || verb;
+    const isTransitive = forceTransitive || objectPrefix !== "";
+    const classKey = classFilter || null;
+    if (!classKey) {
+        return { result, provenance: null };
+    }
+    let context = null;
+    let variants = null;
+    if (suppletiveStemSet) {
+        variants = suppletiveStemSet.variantsByClass.get(classKey) || null;
+    } else {
+        context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+            isYawi,
+            hasSlashMarker,
+        });
+        const variantsByClass = getPretUniversalVariantsByClass(context);
+        variants = variantsByClass.get(classKey) || null;
+    }
+    if (!variants) {
+        return { result, provenance: null };
+    }
+    const provenance = buildClassBasedProvenance({
+        verb,
+        analysisTarget,
+        tense,
+        classKey,
+        isTransitive,
+        context,
+        variants,
+        subjectSuffix,
+        suppletiveStemSet,
+    });
+    return { result, provenance };
+}
+
 // === Input Validation ===
 function getInvalidVerbCharacters(rawValue) {
     const raw = String(rawValue || "");
@@ -2319,6 +3918,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const hasSlashMarker = options.hasSlashMarker === true;
     const sourceVerb = analysisVerb || verb;
     const nonRedupRoot = getNonReduplicatedRoot(sourceVerb);
+    const isReduplicated = sourceVerb !== nonRedupRoot;
     const rootPlusYaBase = getRootPlusYaBase(sourceVerb, { isTransitive, isYawi });
     const isRootPlusYa = Boolean(rootPlusYaBase);
     const analysisRoot = isRootPlusYa ? rootPlusYaBase : nonRedupRoot;
@@ -2368,6 +3968,37 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const endsWithVka = endsWithKA && penultimateSyllable?.form === "V";
     const endsWithCVka = endsWithKA && penultimateSyllable?.form === "CV";
     const endsWithCVnV = endsWithNV && penultimateSyllable?.form === "CV";
+    const endsWithVnV = endsWithNV && penultimateSyllable?.form === "V";
+    const matchesExactVnV = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "V"
+        && syls[startIndex + 1]?.form === "CV"
+        && syls[startIndex + 1]?.onset === "n"
+    );
+    const matchesExactCVnV = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "CV"
+        && syls[startIndex + 1]?.form === "CV"
+        && syls[startIndex + 1]?.onset === "n"
+    );
+    const matchesExactCVmV = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "CV"
+        && syls[startIndex + 1]?.form === "CV"
+        && syls[startIndex + 1]?.onset === "m"
+    );
+    const hasVnVRedupPrefix = syllables.length === 3
+        && (syllables[0]?.form === "V" || syllables[0]?.form === "Vj")
+        && matchesExactVnV(syllables, 1);
+    const hasCVnVRedupPrefix = syllables.length === 3
+        && (syllables[0]?.form === "CV" || syllables[0]?.form === "CVj")
+        && matchesExactCVnV(syllables, 1);
+    const hasCVmVRedupPrefix = syllables.length === 3
+        && (syllables[0]?.form === "CV" || syllables[0]?.form === "CVj")
+        && matchesExactCVmV(syllables, 1);
+    const isExactVnV = matchesExactVnV(syllables, 0) || hasVnVRedupPrefix;
+    const isExactCVnV = matchesExactCVnV(syllables, 0) || hasCVnVRedupPrefix;
+    const isExactCVmV = matchesExactCVmV(syllables, 0) || hasCVmVRedupPrefix;
     const endsWithNA = lastSyllable?.form === "CV" && lastOnset === "n" && lastNucleus === "a";
     const endsWithKisV = lastSyllable?.form === "CV"
         && lastOnset === "s"
@@ -2396,6 +4027,12 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         rootPlusYaBase,
         fromRootPlusYa: isRootPlusYa,
         isReduplicatedRootPlusYa,
+        isReduplicated: !isRootPlusYa && (
+            isReduplicated
+            || hasVnVRedupPrefix
+            || hasCVnVRedupPrefix
+            || hasCVmVRedupPrefix
+        ),
         letterCount,
         vowelCount,
         syllableForms,
@@ -2423,6 +4060,10 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         endsWithVka,
         endsWithCVka,
         endsWithCVnV,
+        endsWithVnV,
+        isExactCVnV,
+        isExactVnV,
+        isExactCVmV,
         endsWithNA,
         endsWithKisV,
         totalVowels,
@@ -2451,6 +4092,10 @@ function getPretUniversalClassCandidates(context) {
     if (!context.isTransitive && context.fromRootPlusYa) {
         candidates.add("A");
         candidates.add("B");
+        return candidates;
+    }
+    if (context.isTransitive && (context.isExactVnV || context.isExactCVnV || context.isExactCVmV)) {
+        candidates.add("A");
         return candidates;
     }
     if (context.endsWithU && !context.endsWithTV) {
@@ -2586,6 +4231,18 @@ function buildPretUniversalClassA(context) {
     }
     if (!context.isTransitive && context.endsWithCVnV) {
         allowZeroSuffix = false;
+    }
+    if (context.isTransitive && context.isExactVnV) {
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+    }
+    if (context.isTransitive && context.isExactCVnV) {
+        allowZeroSuffix = context.isReduplicated;
+        allowKiSuffix = !context.isReduplicated;
+    }
+    if (context.isTransitive && context.isExactCVmV) {
+        allowZeroSuffix = context.isReduplicated;
+        allowKiSuffix = !context.isReduplicated;
     }
     if (!context.isTransitive && context.endsWithKisV) {
         allowZeroSuffix = false;
@@ -3154,35 +4811,154 @@ function buildPretUniversalResult({
     forceTransitive = false,
     indirectObjectMarker = "",
 }) {
+    const { result } = buildPretUniversalResultWithProvenance({
+        verb,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        tense,
+        analysisVerb,
+        isYawi,
+        hasSlashMarker,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        suppletiveStemSet,
+        forceTransitive,
+        indirectObjectMarker,
+    });
+    return result;
+}
+
+function buildPretUniversalProvenance({
+    verb,
+    analysisTarget,
+    tense,
+    classKey,
+    isTransitive,
+    context,
+    variants,
+    subjectSuffix,
+    blockedReason = null,
+    suppletiveStemSet = null,
+}) {
+    return {
+        verb,
+        analysisTarget,
+        tense,
+        classKey,
+        isTransitive,
+        stemPath: context?.stemPath || null,
+        fromRootPlusYa: Boolean(context?.fromRootPlusYa),
+        isMonosyllable: Boolean(context?.isMonosyllable),
+        variants: (variants || []).map((variant) => ({
+            base: variant.base,
+            suffix: variant.suffix,
+        })),
+        subjectSuffix,
+        blockedReason,
+        usesSuppletiveSet: Boolean(suppletiveStemSet),
+    };
+}
+
+function buildPretUniversalResultWithProvenance({
+    verb,
+    subjectPrefix,
+    objectPrefix,
+    subjectSuffix,
+    tense,
+    analysisVerb,
+    isYawi = false,
+    hasSlashMarker = false,
+    directionalInputPrefix = "",
+    directionalOutputPrefix = "",
+    baseSubjectPrefix = subjectPrefix,
+    baseObjectPrefix = objectPrefix,
+    suppletiveStemSet = null,
+    forceTransitive = false,
+    indirectObjectMarker = "",
+}) {
     const analysisTarget = analysisVerb || verb;
     const isTransitive = forceTransitive || objectPrefix !== "";
     const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
+    let context = null;
+    let variants = null;
+    let pluralSuffix = null;
+    let blockedReason = null;
     if (classKey === "B") {
-        const context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+        context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
             isYawi,
             hasSlashMarker,
         });
         if (context.forceClassAForKWV) {
-            return "—";
+            blockedReason = "force-class-a-kwv";
+            return {
+                result: "—",
+                provenance: buildPretUniversalProvenance({
+                    verb,
+                    analysisTarget,
+                    tense,
+                    classKey,
+                    isTransitive,
+                    context,
+                    variants,
+                    subjectSuffix,
+                    blockedReason,
+                    suppletiveStemSet,
+                }),
+            };
         }
         if (!isTransitive && !context.fromRootPlusYa) {
             const candidates = getPretUniversalClassCandidates(context);
             const mvSource = context.analysisVerb || context.verb || "";
             const isMVEnding = context.endsWithMV || /m[ai]$/.test(mvSource);
             if (candidates.has("A") && !isMVEnding) {
-                return "—";
+                blockedReason = "class-b-blocked-by-class-a";
+                return {
+                    result: "—",
+                    provenance: buildPretUniversalProvenance({
+                        verb,
+                        analysisTarget,
+                        tense,
+                        classKey,
+                        isTransitive,
+                        context,
+                        variants,
+                        subjectSuffix,
+                        blockedReason,
+                        suppletiveStemSet,
+                    }),
+                };
             }
         }
     }
-    let variants = null;
-    let pluralSuffix = null;
     if (suppletiveStemSet && classKey) {
         if (
             subjectSuffix === "t"
             && suppletiveStemSet.pretPluralClasses
             && !suppletiveStemSet.pretPluralClasses.has(classKey)
         ) {
-            return null;
+            blockedReason = "suppletive-plural-class-blocked";
+            context = context || buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+                isYawi,
+                hasSlashMarker,
+            });
+            return {
+                result: null,
+                provenance: buildPretUniversalProvenance({
+                    verb,
+                    analysisTarget,
+                    tense,
+                    classKey,
+                    isTransitive,
+                    context,
+                    variants,
+                    subjectSuffix,
+                    blockedReason,
+                    suppletiveStemSet,
+                }),
+            };
         }
         variants = suppletiveStemSet.variantsByClass.get(classKey) || null;
         if (subjectSuffix === "t" && suppletiveStemSet.pretPluralSuffix) {
@@ -3194,10 +4970,31 @@ function buildPretUniversalResult({
             hasSlashMarker,
         });
     }
-    if (!variants || variants.length === 0) {
-        return null;
+    if (!context) {
+        context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
+            isYawi,
+            hasSlashMarker,
+        });
     }
-    return buildPretUniversalResultFromVariants(
+    if (!variants || variants.length === 0) {
+        blockedReason = blockedReason || "no-variants";
+        return {
+            result: null,
+            provenance: buildPretUniversalProvenance({
+                verb,
+                analysisTarget,
+                tense,
+                classKey,
+                isTransitive,
+                context,
+                variants,
+                subjectSuffix,
+                blockedReason,
+                suppletiveStemSet,
+            }),
+        };
+    }
+    const result = buildPretUniversalResultFromVariants(
         variants,
         subjectPrefix,
         objectPrefix,
@@ -3209,6 +5006,21 @@ function buildPretUniversalResult({
         pluralSuffix,
         indirectObjectMarker
     );
+    return {
+        result,
+        provenance: buildPretUniversalProvenance({
+            verb,
+            analysisTarget,
+            tense,
+            classKey,
+            isTransitive,
+            context,
+            variants,
+            subjectSuffix,
+            blockedReason,
+            suppletiveStemSet,
+        }),
+    };
 }
 
 // === UI State Sync ===
@@ -4263,6 +6075,244 @@ function parseVerbEntryToken(token) {
     };
 }
 
+function getVerbstemMatchKeys(token) {
+    const raw = String(token || "").trim();
+    if (!raw || raw.startsWith("/")) {
+        return [];
+    }
+    let base = raw;
+    let transitive = false;
+    let intransitive = false;
+    if (raw.startsWith("(-)")) {
+        base = raw.slice(3);
+        transitive = true;
+        intransitive = true;
+    } else if (raw.startsWith("-")) {
+        base = raw.slice(1);
+        transitive = true;
+    } else {
+        intransitive = true;
+    }
+    base = base.trim().toLowerCase();
+    if (!base) {
+        return [];
+    }
+    const keys = [];
+    if (transitive) {
+        keys.push(`t:${base}`);
+    }
+    if (intransitive) {
+        keys.push(`i:${base}`);
+    }
+    return keys;
+}
+
+function getVerbstemSuggestionMatchKeys(token, options = {}) {
+    const raw = String(token || "").trim();
+    if (!raw || raw.startsWith("/")) {
+        return [];
+    }
+    let base = raw;
+    let transitive = false;
+    let intransitive = false;
+    let hasExplicit = false;
+    if (raw.startsWith("(-)")) {
+        base = raw.slice(3);
+        transitive = true;
+        intransitive = true;
+        hasExplicit = true;
+    } else if (raw.startsWith("-")) {
+        base = raw.slice(1);
+        transitive = true;
+        hasExplicit = true;
+    } else {
+        intransitive = true;
+    }
+    base = base.trim().toLowerCase();
+    if (!base) {
+        return [];
+    }
+    if (!hasExplicit && options.allowBoth) {
+        transitive = true;
+        intransitive = true;
+    } else if (!hasExplicit && options.hasObjectPrefix) {
+        transitive = true;
+        intransitive = false;
+    }
+    const keys = [];
+    if (transitive) {
+        keys.push(`t:${base}`);
+    }
+    if (intransitive) {
+        keys.push(`i:${base}`);
+    }
+    return keys;
+}
+
+function matchesVerbstemSuggestion(originalToken, suggestions, options = {}) {
+    const targetKeys = new Set(getVerbstemMatchKeys(originalToken));
+    if (!targetKeys.size) {
+        return false;
+    }
+    for (const suggestion of suggestions || []) {
+        const keys = getVerbstemSuggestionMatchKeys(suggestion, options);
+        for (const key of keys) {
+            if (targetKeys.has(key)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getObjectPrefixesForVerbstemEntry(entry) {
+    const prefixes = new Set();
+    if (entry.transitive) {
+        OBJECT_PREFIXES.forEach((opt) => prefixes.add(opt.value));
+    }
+    if (entry.intransitive) {
+        prefixes.add("");
+    }
+    return Array.from(prefixes);
+}
+
+function getFormSearchMatchesForVerb({ verbToken, query }) {
+    const normalizedQuery = normalizeFormSearchValue(query);
+    if (!normalizedQuery) {
+        return [];
+    }
+    const rawToken = String(verbToken || "").trim();
+    if (!rawToken || rawToken.startsWith("/")) {
+        return [];
+    }
+    const entry = parseVerbEntryToken(rawToken);
+    if (!entry.base) {
+        return [];
+    }
+    const objectPrefixes = getObjectPrefixesForVerbstemEntry(entry);
+    const subjectSelections = getSubjectPersonSelections();
+    const tenses = getFormSearchTenses();
+    const matches = [];
+    const seen = new Set();
+    tenses.forEach((tenseValue) => {
+        subjectSelections.forEach(({ selection }) => {
+            objectPrefixes.forEach((objectPrefix) => {
+                const result = generateWord({
+                    silent: true,
+                    skipTransitivityValidation: true,
+                    override: {
+                        verb: entry.base,
+                        tense: tenseValue,
+                        subjectPrefix: selection.subjectPrefix,
+                        subjectSuffix: selection.subjectSuffix,
+                        objectPrefix,
+                    },
+                });
+                if (!result || result.error || !result.result) {
+                    return;
+                }
+                const { shouldMask } = getConjugationMaskState({
+                    result,
+                    subjectPrefix: selection.subjectPrefix,
+                    subjectSuffix: selection.subjectSuffix,
+                    objectPrefix,
+                });
+                if (shouldMask) {
+                    return;
+                }
+                const forms = splitConjugationForms(result.result);
+                const match = forms.find((form) => {
+                    const normalized = normalizeFormSearchValue(form);
+                    return normalized === normalizedQuery || normalized.includes(normalizedQuery);
+                });
+                if (!match) {
+                    return;
+                }
+                const key = `${tenseValue}|${selection.subjectPrefix}|${selection.subjectSuffix}|${objectPrefix}|${match}`;
+                if (seen.has(key)) {
+                    return;
+                }
+                seen.add(key);
+                matches.push({
+                    tenseValue,
+                    subject: selection,
+                    objectPrefix,
+                    value: match,
+                });
+            });
+        });
+    });
+    return matches;
+}
+
+function matchesFormSearchResultsForVerb(verbToken, query) {
+    return getFormSearchMatchesForVerb({ verbToken, query }).length > 0;
+}
+
+function shouldSkipFormSearchCircularToken(token) {
+    const raw = String(token || "").trim();
+    return !raw || raw.startsWith("/");
+}
+
+function matchesFormSearchCircularConfirmation(verbToken, formValue) {
+    if (shouldSkipFormSearchCircularToken(verbToken)) {
+        return null;
+    }
+    return matchesFormSearchResultsForVerb(verbToken, formValue);
+}
+
+function filterFormSearchStemsToKnownVerbs(stems, options = {}) {
+    if (!Array.isArray(stems) || stems.length === 0) {
+        return stems || [];
+    }
+    if (!VERB_SUGGESTIONS || VERB_SUGGESTIONS.length === 0) {
+        return stems;
+    }
+    const knownKeys = new Set();
+    VERB_SUGGESTIONS.forEach((entry) => {
+        const base = String(entry.base || "").trim().toLowerCase();
+        if (!base) {
+            return;
+        }
+        if (entry.transitive) {
+            knownKeys.add(`t:${base}`);
+        }
+        if (entry.intransitive) {
+            knownKeys.add(`i:${base}`);
+        }
+    });
+    const filtered = [];
+    stems.forEach((stem) => {
+        const keys = getVerbstemSuggestionMatchKeys(stem, options);
+        if (keys.some((key) => knownKeys.has(key))) {
+            filtered.push(stem);
+        }
+    });
+    return filtered.length ? filtered : stems;
+}
+
+function matchesCsvVerbToFormSearchResults(verbToken, formValue) {
+    if (shouldSkipFormSearchCircularToken(verbToken)) {
+        return null;
+    }
+    const entry = parseVerbEntryToken(verbToken);
+    if (!entry.base) {
+        return null;
+    }
+    const stemGuess = deriveVerbstemCandidatesFromForm(formValue);
+    const allowBoth = stemGuess.isObjectPrefixAmbiguous
+        || (entry.intransitive && !entry.transitive);
+    const stemOptions = filterFormSearchStemsToKnownVerbs(
+        stemGuess.stems,
+        { hasObjectPrefix: stemGuess.hasObjectPrefix, allowBoth }
+    );
+    return matchesVerbstemSuggestion(
+        verbToken,
+        stemOptions,
+        { hasObjectPrefix: stemGuess.hasObjectPrefix, allowBoth }
+    );
+}
+
 function parseVerbSuggestionCSV(text) {
     const suggestionsByBase = new Map();
     parseCSVRows(text).forEach((row, index) => {
@@ -4611,6 +6661,179 @@ function buildPretUniversalCSV(text) {
     return outputRows
         .map((row) => row.map((cell) => escapeCSVValue(cell)).join(","))
         .join("\n");
+}
+
+function normalizeDiagnosticsStem(stem) {
+    return String(stem || "")
+        .replace(/^\(-\)/, "")
+        .replace(/^-+/, "")
+        .trim();
+}
+
+function collectDiagnosticsCandidateFeatures(entries) {
+    const stemPaths = new Set();
+    const rootPlusYa = new Set();
+    const classCandidates = new Set();
+    const transitivity = new Set();
+    entries.forEach(({ stem, entry }) => {
+        const modes = [];
+        if (entry?.transitive) {
+            modes.push(true);
+        }
+        if (entry?.intransitive) {
+            modes.push(false);
+        }
+        if (!modes.length) {
+            modes.push(false);
+        }
+        modes.forEach((isTransitive) => {
+            const context = buildPretUniversalContext(stem, stem, isTransitive, {});
+            stemPaths.add(context.stemPath || "default");
+            rootPlusYa.add(Boolean(context.fromRootPlusYa));
+            transitivity.add(isTransitive ? "transitive" : "intransitive");
+            const candidates = getPretUniversalClassCandidates(context);
+            candidates.forEach((key) => classCandidates.add(key));
+        });
+    });
+    return {
+        stemPaths,
+        rootPlusYa,
+        classCandidates,
+        transitivity,
+    };
+}
+
+function buildDiagnosticsReason(features) {
+    const reasons = [];
+    if (features.transitivity.size > 1) {
+        reasons.push("transitividad");
+    }
+    if (features.stemPaths.size > 1) {
+        reasons.push("stemPath");
+    }
+    if (features.rootPlusYa.size > 1) {
+        reasons.push("raiz+ya");
+    }
+    if (features.classCandidates.size > 1) {
+        reasons.push("clase");
+    }
+    return reasons.join(" / ");
+}
+
+function buildPretUniversalDiagnosticsCSV(text) {
+    const rows = parseCSVRows(text);
+    if (!rows.length) {
+        return "";
+    }
+    const entries = new Map();
+    rows.forEach((row, index) => {
+        const firstCell = row[0] ? String(row[0]).trim() : "";
+        if (index === 0 && firstCell.toLowerCase() === "lx") {
+            return;
+        }
+        const entry = parseVerbEntryToken(firstCell);
+        const base = entry.base.toLowerCase();
+        if (!base) {
+            return;
+        }
+        entries.set(base, entry);
+    });
+    const header = [
+        "Verbo",
+        "Modo",
+        "Tense",
+        "Forma",
+        "Candidatos",
+        "Verbos candidatos",
+        "Ambiguedad hotspot",
+        "Condicion faltante",
+        "Excepcion amplia",
+        "Metadatos necesarios",
+    ];
+    const outputRows = [header];
+    entries.forEach((entry, base) => {
+        const modes = [];
+        if (entry.transitive) {
+            modes.push({ label: "transitivo", forceTransitive: true });
+        }
+        if (entry.intransitive) {
+            modes.push({ label: "intransitivo", forceTransitive: false });
+        }
+        if (!modes.length) {
+            modes.push({ label: "intransitivo", forceTransitive: false });
+        }
+        PRETERITO_UNIVERSAL_ORDER.forEach((tense) => {
+            modes.forEach((mode) => {
+                const output = buildPretUniversalResultWithProvenance({
+                    verb: base,
+                    subjectPrefix: "",
+                    objectPrefix: "",
+                    subjectSuffix: "",
+                    tense,
+                    forceTransitive: mode.forceTransitive,
+                });
+                if (!output.result || output.result === "—") {
+                    return;
+                }
+                const forms = splitConjugationForms(output.result);
+                forms.forEach((form) => {
+                    const stemGuess = deriveVerbstemCandidatesFromForm(form);
+                    const candidates = (stemGuess.stems || [])
+                        .map((stem) => normalizeDiagnosticsStem(stem))
+                        .filter(Boolean)
+                        .filter((stem) => entries.has(stem));
+                    const uniqueCandidates = Array.from(new Set(candidates));
+                    const candidateEntries = uniqueCandidates.map((stem) => ({
+                        stem,
+                        entry: entries.get(stem),
+                    }));
+                    const features = collectDiagnosticsCandidateFeatures(candidateEntries);
+                    const isHotspot = uniqueCandidates.length > 1;
+                    const isBroad = uniqueCandidates.length >= 6;
+                    const missingConditioning = isHotspot ? buildDiagnosticsReason(features) : "";
+                    const needsMetadata = isHotspot ? buildDiagnosticsReason(features) : "";
+                    outputRows.push([
+                        base,
+                        mode.label,
+                        getFormSearchTenseLabel(tense),
+                        form,
+                        uniqueCandidates.length ? String(uniqueCandidates.length) : "0",
+                        uniqueCandidates.join(" / "),
+                        isHotspot ? "Y" : "N",
+                        missingConditioning,
+                        isBroad ? "Y" : "N",
+                        needsMetadata,
+                    ]);
+                });
+            });
+        });
+    });
+    return outputRows
+        .map((row) => row.map((cell) => escapeCSVValue(cell)).join(","))
+        .join("\n");
+}
+
+function downloadPretUniversalDiagnosticsCSV() {
+    const sourcePromise = VERB_SUGGESTIONS_TEXT
+        ? Promise.resolve(VERB_SUGGESTIONS_TEXT)
+        : fetch("data/data.csv", { cache: "no-store" }).then((response) => response.text());
+    sourcePromise
+        .then((text) => {
+            const output = buildPretUniversalDiagnosticsCSV(text);
+            if (!output) {
+                return;
+            }
+            const blob = new Blob([output], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "diagnostico-preterito-universal.csv";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        })
+        .catch(() => {});
 }
 
 function downloadPretUniversalCSV() {
@@ -5593,7 +7816,7 @@ function applyMorphologyRules({
     }
 
     if (PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
-        const universalResult = buildPretUniversalResult({
+        const universalOutput = buildPretUniversalResultWithProvenance({
             verb,
             subjectPrefix,
             objectPrefix,
@@ -5614,7 +7837,8 @@ function applyMorphologyRules({
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: universalResult || "—",
+            verb: universalOutput.result || "—",
+            stemProvenance: universalOutput.provenance || null,
         };
     }
 
@@ -5622,7 +7846,7 @@ function applyMorphologyRules({
         const nonactiveClassOverride =
             getActiveTenseMode() === TENSE_MODE.verbo && getActiveDerivationMode() === DERIVATION_MODE.nonactive;
         const resolvedClassFilter = nonactiveClassOverride ? "B" : CLASS_FILTER_STATE.activeClass;
-        const classResult = buildClassBasedResult({
+        const classOutput = buildClassBasedResultWithProvenance({
             verb,
             subjectPrefix,
             objectPrefix,
@@ -5645,7 +7869,8 @@ function applyMorphologyRules({
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: classResult || "—",
+            verb: classOutput.result || "—",
+            stemProvenance: classOutput.provenance || null,
         };
     }
 
@@ -6145,6 +8370,7 @@ function generateWord(options = {}) {
     const appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     ({ subjectPrefix, objectPrefix, subjectSuffix, verb } = appliedMorphology);
     const alternateForms = [...(appliedMorphology.alternateForms || [])];
+    const stemProvenance = appliedMorphology.stemProvenance || null;
     // Combine the prefixes, verb, and suffixes into a single word
     let forms = [];
     if (
@@ -6232,13 +8458,14 @@ function generateWord(options = {}) {
         });
     }
 
-    return { result: generatedText, isReflexive };
+    return { result: generatedText, isReflexive, stemProvenance };
 }
 
 // === Output Rendering ===
 function renderAllOutputs({ verb, objectPrefix, tense, onlyTense = null }) {
     renderActiveConjugations({ verb, objectPrefix, onlyTense, tense });
     renderFullMatrix({ verb, objectPrefix });
+    renderFormSearchResults();
 }
 
 function updateTensePanelDescription() {
@@ -6664,8 +8891,10 @@ function buildVerbTenseBlock({
             renderRows();
         };
     }
-    const showObjectToggle = (!isNonactiveMode && prefixes.length > 1)
-        || (isNonactiveMode && (!isDirectGroup ? prefixes.length > 1 : allowObjectToggle));
+    const showObjectToggle = (
+        (!isNonactiveMode && prefixes.length > 1)
+        || (isNonactiveMode && (!isDirectGroup ? prefixes.length > 1 : allowObjectToggle))
+    );
     if (showObjectToggle) {
         const toggle = document.createElement("div");
         toggle.className = "object-toggle object-toggle--stacked";
@@ -6919,6 +9148,11 @@ function getVerbObjectPrefixGroups(isNonactiveMode, nonactiveConfig) {
     const objectPrefixes = getObjectPrefixesForTransitividad();
     if (isNonactiveMode && nonactiveConfig) {
         return nonactiveConfig.groups;
+    }
+    if (!isNonactiveMode && getTransitividadSelection() === "transitivo") {
+        const orderedPrefixes = ["nech", "metz", "ki", "tech", "metzin", "kin", "ta", "te", "mu"]
+            .filter((prefix) => objectPrefixes.includes(prefix));
+        return [{ prefixes: orderedPrefixes.length ? orderedPrefixes : objectPrefixes }];
     }
     return buildObjectPrefixGroups(objectPrefixes);
 }
@@ -7829,6 +10063,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (downloadCsvButton) {
         downloadCsvButton.addEventListener("click", downloadPretUniversalCSV);
     }
+    const downloadDiagnosticsButton = document.getElementById("download-diagnostics-csv");
+    if (downloadDiagnosticsButton) {
+        downloadDiagnosticsButton.addEventListener("click", downloadPretUniversalDiagnosticsCSV);
+    }
+    const formSearchInput = getFormSearchInput();
+    if (formSearchInput) {
+        formSearchInput.addEventListener("input", () => {
+            renderFormSearchResults();
+        });
+    }
     window.addEventListener("resize", () => {
         renderVerbMirror();
     });
@@ -7840,4 +10084,5 @@ document.addEventListener("DOMContentLoaded", () => {
         updateVerbSuggestions();
     });
     generateWord();
+    renderFormSearchResults();
 });
