@@ -50,11 +50,7 @@
                                 <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
                             </div>
                             <button type="button" class="download-csv" id="download-csv">Descargar CSV</button>
-                            <button type="button" class="download-csv" id="download-diagnostics-csv">Descargar diagnóstico CSV</button>
-                        </div>
-                        <div class="form-group form-group--search">
-                            <label for="form-search" class="form-search-label">Buscar por forma</label>
-                            <input type="text" id="form-search" name="form-search" class="form-search-input" placeholder="Escribe la forma conjugada" autocomplete="off" autocapitalize="none" spellcheck="false">
+                            <button type="button" class="download-csv" id="download-lexeme-classes-csv">Descargar clases CSV</button>
                         </div>
                         <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
                         <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
@@ -89,7 +85,6 @@
                 </div>
             </div>
             <div class="panel container-tense-grid" id="container-tense-grid">
-                <div class="form-search-results" id="form-search-results" aria-live="polite"></div>
                 <div class="tense-description" id="tense-description" aria-live="polite"></div>
                 <div id="all-tense-conjugations"></div>
             </div>
@@ -118,11 +113,19 @@
                         </div>
                         <div class="tutorial-chip-row">
                             <span class="tutorial-chip">/</span>
-                            <span class="tutorial-chip-label">separa partes; último tramo = verbo</span>
+                            <span class="tutorial-chip-label">separa partes; último tramo = verbo (lo demás = prefijos ligados)</span>
                         </div>
                         <div class="tutorial-chip-row">
                             <span class="tutorial-chip">ta/te/mu</span>
-                            <span class="tutorial-chip-label">al inicio sin "-" = fusión</span>
+                            <span class="tutorial-chip-label">ta‑fusión: objeto dentro del verbstem</span>
+                        </div>
+                        <div class="tutorial-chip-row">
+                            <span class="tutorial-chip">t</span>
+                            <span class="tutorial-chip-label">ta‑fusión corta (objeto fusionado)</span>
+                        </div>
+                        <div class="tutorial-chip-row">
+                            <span class="tutorial-chip">wal/un/ku</span>
+                            <span class="tutorial-chip-label">direccional; usa "/" antes del verbo</span>
                         </div>
                         <div class="tutorial-chip-row">
                             <span class="tutorial-chip">?</span>
@@ -156,12 +159,26 @@
                                     <button type="button" class="tutorial-token" data-example="-kal-ish/piya">-KAL-ISH/PIYA</button>
                                 </span>
                             </div>
+                            <div class="tutorial-structure-line">
+                                <span class="tutorial-code">prefijo ligado + ta‑fusión</span>
+                                <span class="tutorial-example-inline">
+                                    <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
+                                </span>
+                            </div>
+                            <div class="tutorial-structure-line">
+                                <span class="tutorial-code">direccional + ta‑fusión</span>
+                                <span class="tutorial-example-inline">
+                                    <button type="button" class="tutorial-token" data-example="-ku/ta-mima">-KU/TA-MIMA</button>
+                                </span>
+                            </div>
                         </div>
                         <div class="tutorial-note">
                             Transitivo mínimo:
                             <button type="button" class="tutorial-token" data-example="-piya">-PIYA</button>
                             · Fusión:
                             <button type="button" class="tutorial-token" data-example="ta-chiya">TA-CHIYA</button>
+                            · Prefijo ligado:
+                            <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
                         </div>
                     </div>
                     <div class="tutorial-block">
