@@ -1,4 +1,13 @@
 // === Configuration ===
+const SPECIFIC_VALENCE_PREFIXES = ["nech", "metz", "ki", "tech", "metzin", "kin"];
+const NONSPECIFIC_VALENCE_PREFIXES = ["ta", "te", "mu"];
+const NONSPECIFIC_VALENCE_AFFIXES = ["ta", "te", "mu", "taj", "tej", "t"];
+const SPECIFIC_VALENCE_PREFIX_SET = new Set(SPECIFIC_VALENCE_PREFIXES);
+const NONSPECIFIC_VALENCE_AFFIX_SET = new Set(NONSPECIFIC_VALENCE_AFFIXES);
+const VALENCE_CATEGORY_LABELS = {
+    specific: "valencia específica",
+    nonspecific: "valencia no específica",
+};
 const OBJECT_PREFIXES = [
     { value: "nech", labelText: "a mí (nech)" },
     { value: "metz", labelText: "a ti (metz)" },
@@ -14,8 +23,8 @@ const OBJECT_PREFIX_LABELS = new Map(
     OBJECT_PREFIXES.map((option) => [option.value, option.labelText])
 );
 const OBJECT_PREFIX_GROUPS = [
-    ["nech", "metz", "ki", "tech", "metzin", "kin"],
-    ["ta", "te", "mu"],
+    SPECIFIC_VALENCE_PREFIXES,
+    NONSPECIFIC_VALENCE_PREFIXES,
 ];
 const INVALID_COMBINATION_KEYS = new Set([
     "ni||t",
@@ -88,8 +97,8 @@ const REDUP_PREFIX_FORMS = new Set(["V", "Vj", "CV", "CVj"]);
 const COMPOUND_MARKER_RE = /[|~#()\/?-]/g;
 const COMPOUND_MARKER_SPLIT_RE = /[|~#()\/?-]/;
 const COMPOUND_ALLOWED_RE = /[^a-z|~#()\/?-]/g;
-const OBJECT_MARKERS = new Set(["ta", "te", "mu"]);
-const FUSION_PREFIXES = new Set(["ta", "te", "mu", "taj", "tej", "t"]);
+const OBJECT_MARKERS = new Set(NONSPECIFIC_VALENCE_PREFIXES);
+const FUSION_PREFIXES = new Set(NONSPECIFIC_VALENCE_AFFIXES);
 const NONANIMATE_NOUN_TENSES = new Set([
     "sustantivo-verbal",
     "instrumentivo",
@@ -1727,6 +1736,7 @@ function getInstrumentivoResult({
     const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
     const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta);
     if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
@@ -1791,6 +1801,7 @@ function getInstrumentivoResult({
                 analysisVerb: analysisStem,
                 isYawi: false,
                 directionalPrefix,
+                directionalRuleMode: resolvedDirectionalRuleMode,
                 hasSlashMarker: verbMeta.hasSlashMarker,
                 isTaFusion: verbMeta.isTaFusion,
                 indirectObjectMarker: verbMeta.indirectObjectMarker,
@@ -1820,6 +1831,7 @@ function getInstrumentivoResult({
         analysisVerb,
         isYawi: verbMeta.isYawi,
         directionalPrefix,
+        directionalRuleMode: resolvedDirectionalRuleMode,
         hasSlashMarker: verbMeta.hasSlashMarker,
         isTaFusion: verbMeta.isTaFusion,
         indirectObjectMarker: verbMeta.indirectObjectMarker,
@@ -1856,6 +1868,7 @@ function getCalificativoInstrumentivoResult({
     const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
     const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const conjugationIsTransitive = isTransitiveVerb || isTaFusion;
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta);
     if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
@@ -1891,6 +1904,7 @@ function getCalificativoInstrumentivoResult({
         analysisVerb: stemAnalysis,
         isYawi: verbMeta.isYawi,
         directionalPrefix,
+        directionalRuleMode: resolvedDirectionalRuleMode,
         suppletiveStemSet: getSuppletiveStemSet(verbMeta),
         hasSlashMarker: verbMeta.hasSlashMarker,
         isTaFusion: verbMeta.isTaFusion,
@@ -1944,6 +1958,7 @@ function getLocativoTemporalResult({
     const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
     const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta, { isNonactive });
     if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
@@ -2028,6 +2043,7 @@ function getLocativoTemporalResult({
             analysisVerb: stemAnalysisLocal,
             isYawi: isNonactive ? false : verbMeta.isYawi,
             directionalPrefix,
+            directionalRuleMode: resolvedDirectionalRuleMode,
             hasSlashMarker: verbMeta.hasSlashMarker,
             isTaFusion: verbMeta.isTaFusion,
             indirectObjectMarker: verbMeta.indirectObjectMarker,
@@ -2379,6 +2395,47 @@ function getObjectCategory(prefix) {
         return "indirect";
     }
     return "direct";
+}
+
+function getObjectValenceCategory(prefix) {
+    if (!prefix) {
+        return "";
+    }
+    if (NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix)) {
+        return "nonspecific";
+    }
+    if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
+        return "specific";
+    }
+    return "specific";
+}
+
+function getObjectValenceLabel(prefix) {
+    const category = getObjectValenceCategory(prefix);
+    return category ? (VALENCE_CATEGORY_LABELS[category] || "") : "";
+}
+
+function getObjectValenceLabelForGroup(prefixes) {
+    const categories = new Set();
+    prefixes.forEach((prefix) => {
+        const category = getObjectValenceCategory(prefix);
+        if (category) {
+            categories.add(category);
+        }
+    });
+    if (!categories.size) {
+        return "";
+    }
+    if (categories.size === 1) {
+        const only = categories.values().next().value;
+        return only ? (VALENCE_CATEGORY_LABELS[only] || "") : "";
+    }
+    const ordered = ["specific", "nonspecific"];
+    const labels = ordered
+        .filter((category) => categories.has(category))
+        .map((category) => VALENCE_CATEGORY_LABELS[category])
+        .filter(Boolean);
+    return labels.join(" / ");
 }
 
 function applyObjectSectionCategory(sectionEl, prefix) {
@@ -3230,12 +3287,16 @@ function getPretUniversalPrefixForBase(
         };
     }
     const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
+    const isThirdPersonSubject = baseSubjectPrefix === "" && subjectPrefix === "";
+    const subjectHead = (isThirdPersonSubject && outputDirectional === "al" && !isThirdPersonObject)
+        ? "k"
+        : subjectPrefix;
     if (isThirdPersonObject && outputDirectional === "al") {
         const dropK = baseSubjectPrefix === "ni" || baseSubjectPrefix === "ti";
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
         const objectHead = applyIndirectObjectMarker(dropK ? "" : "k", indirectObjectMarker);
         return {
-            prefix: `${subjectPrefix}${objectHead}${outputDirectional}${objectTail}`,
+            prefix: `${subjectHead}${objectHead}${outputDirectional}${objectTail}`,
             base: baseCore,
         };
     }
@@ -3245,7 +3306,7 @@ function getPretUniversalPrefixForBase(
     }
     adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
     return {
-        prefix: subjectPrefix + outputDirectional + adjustedObjectPrefix,
+        prefix: subjectHead + outputDirectional + adjustedObjectPrefix,
         base: baseCore,
     };
 }
@@ -4034,7 +4095,8 @@ function getDirectionalPrefixFromSlash(core, objectDirectionalPrefix, boundDirec
     }
     const slashIndex = core.indexOf("/");
     if (slashIndex > 0) {
-        const candidate = core.slice(0, slashIndex);
+        const rawCandidate = core.slice(0, slashIndex);
+        const candidate = rawCandidate.replace(/^-+/, "");
         if (DIRECTIONAL_PREFIXES.includes(candidate)) {
             return candidate;
         }
@@ -4069,6 +4131,69 @@ function getFusionDirectionalPrefix({
     return objectDirectionalPrefix
         || boundDirectionalPrefix
         || (directionalFusionPrefix ? directionalPrefixFromSlash : "");
+}
+
+function getValenceSlotsFromCleaned(cleaned) {
+    const slots = [];
+    let token = "";
+    for (let i = 0; i < cleaned.length; i += 1) {
+        const char = cleaned[i];
+        if (char === "-") {
+            slots.push(token);
+            token = "";
+            continue;
+        }
+        token += char;
+    }
+    return slots;
+}
+
+function getValenceCategoryFromToken(token) {
+    if (!token) {
+        return "specific";
+    }
+    const parts = token.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+    const suffix = parts.length ? parts[parts.length - 1] : "";
+    if (!suffix) {
+        return "specific";
+    }
+    return NONSPECIFIC_VALENCE_AFFIX_SET.has(suffix) ? "nonspecific" : "specific";
+}
+
+function hasConsecutiveSpecificValences(valenceSlots) {
+    let prevCategory = "";
+    for (let i = 0; i < valenceSlots.length; i += 1) {
+        const category = getValenceCategoryFromToken(valenceSlots[i]);
+        if (prevCategory === "specific" && category === "specific") {
+            return true;
+        }
+        prevCategory = category;
+    }
+    return false;
+}
+
+function resolveDirectionalRuleMode(parsedVerb, options = {}) {
+    if (!parsedVerb) {
+        return "";
+    }
+    const directionalPrefix = parsedVerb.directionalPrefix || "";
+    if (!directionalPrefix || !DIRECTIONAL_PREFIXES.includes(directionalPrefix)) {
+        return "";
+    }
+    const isNonactive = options.isNonactive === true;
+    const hasSpecificValence = isNonactive
+        ? parsedVerb.hasNonactiveSpecificValence
+        : parsedVerb.hasSpecificValence;
+    const hasNonspecificValence = isNonactive
+        ? parsedVerb.hasNonactiveNonspecificValence
+        : parsedVerb.hasNonspecificValence;
+    if (hasSpecificValence) {
+        return "transitive";
+    }
+    if (hasNonspecificValence) {
+        return "nonspecific";
+    }
+    return "intransitive";
 }
 
 function parseVerbInput(value) {
@@ -4199,6 +4324,34 @@ function parseVerbInput(value) {
     } else if (directionalPrefixFromSlash) {
         directionalPrefix = directionalPrefixFromSlash;
     }
+    const valenceSlots = getValenceSlotsFromCleaned(cleaned);
+    let hasSpecificValence = false;
+    let hasNonspecificValence = false;
+    valenceSlots.forEach((slot) => {
+        const category = getValenceCategoryFromToken(slot);
+        if (category === "specific") {
+            hasSpecificValence = true;
+        } else if (category === "nonspecific") {
+            hasNonspecificValence = true;
+        }
+    });
+    const nonactiveValenceSlots = valenceSlots.length > 0 ? valenceSlots.slice(1) : [];
+    let hasNonactiveSpecificValence = false;
+    let hasNonactiveNonspecificValence = false;
+    nonactiveValenceSlots.forEach((slot) => {
+        const category = getValenceCategoryFromToken(slot);
+        if (category === "specific") {
+            hasNonactiveSpecificValence = true;
+        } else if (category === "nonspecific") {
+            hasNonactiveNonspecificValence = true;
+        }
+    });
+    const hasSpecificSequence = hasConsecutiveSpecificValences(valenceSlots);
+    const directionalRuleMode = directionalPrefix && DIRECTIONAL_PREFIXES.includes(directionalPrefix)
+        ? (hasSpecificValence
+            ? "transitive"
+            : (hasNonspecificValence ? "nonspecific" : "intransitive"))
+        : "";
     const isYawi = analysisVerb === "yawi";
     if (analysisVerb === "yawi") {
         analysisVerb = "ya";
@@ -4217,6 +4370,12 @@ function parseVerbInput(value) {
         isTaFusion,
         isYawi,
         directionalPrefix,
+        directionalRuleMode,
+        hasSpecificValence,
+        hasNonspecificValence,
+        hasNonactiveSpecificValence,
+        hasNonactiveNonspecificValence,
+        hasConsecutiveSpecificValences: hasSpecificSequence,
         directObjectToken,
         indirectObjectMarker,
         selectorSuffix,
@@ -4373,6 +4532,12 @@ function getVerbInputMeta() {
             isMarkedTransitive: false,
             isYawi: false,
             directionalPrefix: "",
+            directionalRuleMode: "",
+            hasSpecificValence: false,
+            hasNonspecificValence: false,
+            hasNonactiveSpecificValence: false,
+            hasNonactiveNonspecificValence: false,
+            hasConsecutiveSpecificValences: false,
             directObjectToken: "",
             indirectObjectMarker: "",
             selectorSuffix: "",
@@ -5367,9 +5532,24 @@ function resolveThirdPersonObjectPrefixForCSV(verb, baseObjectPrefix) {
     return verb.startsWith("i") ? "k" : baseObjectPrefix;
 }
 
-function resolveDirectionalOutputPrefixForCSV(directionalInputPrefix, baseSubjectPrefix, baseObjectPrefix) {
+function resolveDirectionalOutputPrefixForCSV(
+    directionalInputPrefix,
+    baseSubjectPrefix,
+    baseObjectPrefix,
+    options = {}
+) {
     if (directionalInputPrefix !== "wal") {
         return directionalInputPrefix;
+    }
+    const directionalRuleMode = options.directionalRuleMode || "";
+    if (directionalRuleMode === "intransitive") {
+        return directionalInputPrefix;
+    }
+    if (directionalRuleMode === "transitive") {
+        return "al";
+    }
+    if (directionalRuleMode === "nonspecific") {
+        return baseSubjectPrefix === "" ? directionalInputPrefix : "al";
     }
     if (baseObjectPrefix === "ki" || baseObjectPrefix === "kin" || baseObjectPrefix === "k") {
         return "al";
@@ -5444,10 +5624,12 @@ function buildPretUniversalClassOutputForEntry({
         ? resolveThirdPersonObjectPrefixForCSV(verb, baseObjectPrefix)
         : "";
     const directionalInputPrefix = parsedVerb.directionalPrefix || "";
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(parsedVerb);
     const directionalOutputPrefix = resolveDirectionalOutputPrefixForCSV(
         directionalInputPrefix,
         subjectPrefix,
-        baseObjectPrefix || objectPrefix
+        baseObjectPrefix || objectPrefix,
+        { directionalRuleMode: resolvedDirectionalRuleMode }
     );
     return buildPretUniversalResultFromVariants(
         variants,
@@ -6586,6 +6768,7 @@ function applyMorphologyRules({
     analysisVerb,
     isYawi,
     directionalPrefix,
+    directionalRuleMode = "",
     suppletiveStemSet,
     suppletiveTenseSuffixes = null,
     hasSlashMarker = false,
@@ -6606,6 +6789,9 @@ function applyMorphologyRules({
         && !isTaFusion
         && !indirectObjectMarker
         && !isUnderlyingTransitive;
+    const forceTransitiveDirectional = directionalRuleMode === "transitive";
+    const forceIntransitiveDirectional = directionalRuleMode === "intransitive";
+    const forceNonspecificDirectional = directionalRuleMode === "nonspecific";
     if (directionalInputPrefix === "wal") {
         const hasSecondValent = Boolean(
             baseObjectPrefix
@@ -6613,17 +6799,24 @@ function applyMorphologyRules({
             || isTaFusion
         );
         const hasFirstValent = hasSubjectValent !== false;
+        const isThirdPersonSubject = baseSubjectPrefix === "";
+        const shouldUseAl = forceTransitiveDirectional
+            ? hasFirstValent
+            : (forceNonspecificDirectional
+                ? (hasFirstValent && !isThirdPersonSubject)
+                : (!forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasFirstValent));
         let useAl = false;
-        if (!isIntransitiveVerb && hasSecondValent && hasFirstValent) {
+        if (shouldUseAl) {
+            const isThirdPersonObject =
+                baseObjectPrefix === "ki" || baseObjectPrefix === "kin" || baseObjectPrefix === "k";
             if (baseSubjectPrefix === "ni") {
                 subjectPrefix = "n";
-                useAl = true;
             } else if (baseSubjectPrefix === "ti") {
                 subjectPrefix = "t";
-                useAl = true;
-            } else {
-                useAl = true;
+            } else if (baseSubjectPrefix === "" && !isThirdPersonObject) {
+                subjectPrefix = "k";
             }
+            useAl = true;
         }
         if (useAl && baseObjectPrefix === "ki") {
             objectPrefix = "k";
@@ -6787,7 +6980,10 @@ function applyMorphologyRules({
         const stem = verb.slice(directionalInputPrefix.length);
         const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
         if (directionalInputPrefix === "wal" && isThirdPersonObject) {
-            const dropK = baseSubjectPrefix === "ni" || baseSubjectPrefix === "ti";
+            const dropK = baseSubjectPrefix === "ni"
+                || baseSubjectPrefix === "ti"
+                || directionalRuleMode === "intransitive"
+                || directionalRuleMode === "nonspecific";
             objectPrefix = dropK ? "" : "k";
             const objectTail = baseObjectPrefix === "kin" ? "in" : "";
             verb = `${directionalOutputPrefix}${objectTail}${stem}`;
@@ -7253,6 +7449,7 @@ function generateWord(options = {}) {
     if (isNonactive && PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = getSelectedTenseTab();
     }
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(parsedVerb, { isNonactive });
     const nonactiveDerivation = applyNonactiveDerivation({
         isNonactive,
         verb,
@@ -7487,6 +7684,7 @@ function generateWord(options = {}) {
         analysisVerb,
         isYawi,
         directionalPrefix,
+        directionalRuleMode: resolvedDirectionalRuleMode,
         suppletiveStemSet,
         suppletiveTenseSuffixes,
         hasSlashMarker: parsedVerb.hasSlashMarker,
@@ -7923,9 +8121,21 @@ function buildVerbTenseBlock({
     const passiveSubjectOptionMap = new Map(passiveSubjectOptions.map((entry) => [entry.id, entry]));
     const passiveSubjectStateKey = allowSubjectToggle ? `${objectStateKey}|subject` : "";
     const isIntransitiveGroup = prefixes.length === 1 && prefixes[0] === "";
+    const shouldMapAllTenses =
+        prefixes.includes("ki");
+    const shouldSeedAllTensesDefault = shouldMapAllTenses;
+    const resolveTenseBlockPrefix = (prefix) => {
+        if (shouldMapAllTenses && prefix === "ki") {
+            return OBJECT_TOGGLE_ALL;
+        }
+        return prefix || "intrans";
+    };
     let activeObjectPrefix = isIntransitiveGroup
         ? ""
         : (isNonactiveMode ? OBJECT_TOGGLE_ALL : getPreferredObjectPrefix(prefixes));
+    if (shouldSeedAllTensesDefault && !OBJECT_TOGGLE_STATE.has(objectStateKey)) {
+        OBJECT_TOGGLE_STATE.set(objectStateKey, "ki");
+    }
     const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(objectStateKey);
     if (!isIntransitiveGroup && storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
         activeObjectPrefix = storedObjectPrefix;
@@ -7940,15 +8150,24 @@ function buildVerbTenseBlock({
     }
     const tenseBlock = document.createElement("div");
     tenseBlock.className = "tense-block";
-    tenseBlock.dataset.tenseBlock = `${activeObjectPrefix || "intrans"}-${tenseValue}`;
+    tenseBlock.dataset.tenseBlock = `${resolveTenseBlockPrefix(activeObjectPrefix)}-${tenseValue}`;
 
-    const blockLabel = isIntransitiveGroup ? "verbo intransitivo" : "verbo transitivo";
+    const groupValenceLabel = getObjectValenceLabelForGroup(prefixes);
+    const buildBlockLabel = (prefix) => {
+        if (isIntransitiveGroup) {
+            return "verbo intransitivo";
+        }
+        const valenceLabel = (!prefix || prefix === OBJECT_TOGGLE_ALL)
+            ? groupValenceLabel
+            : getObjectValenceLabel(prefix);
+        return valenceLabel ? `verbo transitivo · ${valenceLabel}` : "verbo transitivo";
+    };
     const tenseTitle = document.createElement("div");
     tenseTitle.className = "tense-block__title";
     const titleLabel = document.createElement("span");
     titleLabel.className = "tense-block__label";
     if (!isNonactiveMode) {
-        titleLabel.textContent = blockLabel;
+        titleLabel.textContent = buildBlockLabel(activeObjectPrefix);
     }
     tenseTitle.appendChild(titleLabel);
     const titleControls = document.createElement("div");
@@ -7959,6 +8178,9 @@ function buildVerbTenseBlock({
     }
     const resolvedSubjectKeyPrefix = subjectKeyPrefix || modeKey;
     const subjectKey = `${resolvedSubjectKeyPrefix}|${tenseValue}|${groupKey}`;
+    if (shouldSeedAllTensesDefault && !SUBJECT_TOGGLE_STATE.has(subjectKey)) {
+        SUBJECT_TOGGLE_STATE.set(subjectKey, SUBJECT_TOGGLE_ALL);
+    }
     const subjectOptions = getSubjectToggleOptions();
     const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     let activeSubject = SUBJECT_TOGGLE_STATE.get(subjectKey) ?? SUBJECT_TOGGLE_ALL;
@@ -8152,9 +8374,9 @@ function buildVerbTenseBlock({
         activeObjectPrefix = prefix;
         OBJECT_TOGGLE_STATE.set(objectStateKey, prefix);
         if (!isNonactiveMode) {
-            titleLabel.textContent = blockLabel;
+            titleLabel.textContent = buildBlockLabel(prefix);
         }
-        tenseBlock.dataset.tenseBlock = `${prefix || "intrans"}-${tenseValue}`;
+        tenseBlock.dataset.tenseBlock = `${resolveTenseBlockPrefix(prefix)}-${tenseValue}`;
         updateSectionCategory(resolveSectionPrefix(prefix));
         setToggleActiveState(toggleButtons, prefix);
         renderRows();
@@ -8276,7 +8498,7 @@ function resolveVerbTenseValue({ modeKey, tenseValue }) {
     return tenseValue || getSelectedTenseTab();
 }
 
-function renderVerbConjugationsCore({
+function buildVerbTabRenderContext({
     verb,
     containerId = "all-tense-conjugations",
     tenseValue = "",
@@ -8286,7 +8508,7 @@ function renderVerbConjugationsCore({
 }) {
     const container = document.getElementById(containerId);
     if (!container) {
-        return;
+        return null;
     }
     const isNonactiveMode =
         getActiveTenseMode() === TENSE_MODE.verbo && getCombinedMode() === COMBINED_MODE.nonactive;
@@ -8302,12 +8524,11 @@ function renderVerbConjugationsCore({
         ? valencySummary.baseObjectSlots > valencySummary.fusionObjectSlots
         : false;
     const fusionMarkers = parsedVerb.isTaFusion ? parsedVerb.fusionPrefixes || [] : [];
-
-    const buildBlock = (blockTenseValue, objectGroup, sectionEl) => buildVerbTenseBlock({
+    const objectPrefixGroups = getVerbObjectPrefixGroups(isNonactiveMode, nonactiveConfig);
+    return {
+        container,
         verb,
-        tenseValue: blockTenseValue,
-        objectGroup,
-        sectionEl,
+        resolvedTenseValue,
         isNonactiveMode,
         isNawat,
         modeKey,
@@ -8317,13 +8538,49 @@ function renderVerbConjugationsCore({
         nonactiveAvailableSlots,
         hasPromotableObject,
         fusionMarkers,
+        objectPrefixGroups,
+    };
+}
+
+function renderVerbConjugationsCore({
+    verb,
+    containerId = "all-tense-conjugations",
+    tenseValue = "",
+    modeKey,
+    subjectKeyPrefix,
+    subjectSubMode,
+}) {
+    const context = buildVerbTabRenderContext({
+        verb,
+        containerId,
+        tenseValue,
+        modeKey,
+        subjectKeyPrefix,
+        subjectSubMode,
+    });
+    if (!context) {
+        return;
+    }
+    const buildBlock = (blockTenseValue, objectGroup, sectionEl) => buildVerbTenseBlock({
+        verb: context.verb,
+        tenseValue: blockTenseValue,
+        objectGroup,
+        sectionEl,
+        isNonactiveMode: context.isNonactiveMode,
+        isNawat: context.isNawat,
+        modeKey: context.modeKey,
+        subjectKeyPrefix: context.subjectKeyPrefix,
+        subjectSubMode: context.subjectSubMode,
+        activeValency: context.activeValency,
+        nonactiveAvailableSlots: context.nonactiveAvailableSlots,
+        hasPromotableObject: context.hasPromotableObject,
+        fusionMarkers: context.fusionMarkers,
     });
 
-    const objectPrefixGroups = getVerbObjectPrefixGroups(isNonactiveMode, nonactiveConfig);
     renderVerbConjugationBlocks({
-        container,
-        objectPrefixGroups,
-        tenseValue: resolvedTenseValue,
+        container: context.container,
+        objectPrefixGroups: context.objectPrefixGroups,
+        tenseValue: context.resolvedTenseValue,
         buildBlock,
     });
 }
@@ -8650,14 +8907,14 @@ function renderLocativoTemporalConjugations({
     grid.appendChild(buildBlock({ mode: COMBINED_MODE.nonactive }));
 }
 
-function renderNounConjugations({
+function buildNounTabRenderContext({
     verb,
     containerId = "all-tense-conjugations",
     tenseValue = "",
 }) {
     const container = document.getElementById(containerId);
     if (!container) {
-        return;
+        return null;
     }
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
@@ -8667,13 +8924,13 @@ function renderNounConjugations({
         ? selectedTense
         : "sustantivo-verbal";
     if (resolvedTense === "locativo-temporal") {
-        renderLocativoTemporalConjugations({ verb, containerId });
-        return;
+        return { container, isNawat, resolvedTense, isLocativoTemporal: true };
     }
     const isInstrumentivo = resolvedTense === "instrumentivo";
     const isCalificativoInstrumentivo = resolvedTense === "calificativo-instrumentivo";
-    const isLocativoTemporal = resolvedTense === "locativo-temporal";
-    const showNonanimateOnly = resolvedTense === "sustantivo-verbal" || isInstrumentivo || isCalificativoInstrumentivo;
+    const showNonanimateOnly = resolvedTense === "sustantivo-verbal"
+        || isInstrumentivo
+        || isCalificativoInstrumentivo;
     const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
     const groupKey = prefixes.join("|");
     const possessorKey = `noun|${resolvedTense}|${groupKey}|possessor`;
@@ -8684,9 +8941,6 @@ function renderNounConjugations({
     const verbMeta = parseVerbInput(verb);
     const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
     const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
-
-    const { objSection, grid } = createObjectSectionGrid(container);
-
     const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, resolvedTense);
     let activeObjectPrefix = "";
     if (isTransitiveVerb && allowsObjectPrefix) {
@@ -8716,9 +8970,8 @@ function renderNounConjugations({
     );
     const showSubjectToggle = !showNonanimateOnly;
     const showObjectToggle = allowedPrefixes.length > 1;
-    const showPossessorToggle = !isLocativoTemporal;
+    const showPossessorToggle = true;
     if (showObjectToggle) {
-        const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(objectStateKey);
         if (storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
             activeObjectPrefix = storedObjectPrefix;
         } else if (allowedPrefixes.includes("ta")) {
@@ -8733,6 +8986,73 @@ function renderNounConjugations({
         activeSubject = defaultSubjectId;
         SUBJECT_TOGGLE_STATE.set(subjectKey, activeSubject);
     }
+    return {
+        container,
+        isNawat,
+        resolvedTense,
+        isInstrumentivo,
+        isCalificativoInstrumentivo,
+        isLocativoTemporal: false,
+        showNonanimateOnly,
+        possessorKey,
+        objectStateKey,
+        subjectKey,
+        subjectOptions,
+        subjectOptionMap,
+        verbMeta,
+        allowedPrefixes,
+        objectOptions,
+        objectOptionMap,
+        possessorValues,
+        activeObjectPrefix,
+        activePossessor,
+        activeSubject,
+        isSubjectOptionAllowed,
+        showSubjectToggle,
+        showObjectToggle,
+        showPossessorToggle,
+    };
+}
+
+function renderNounConjugations({
+    verb,
+    containerId = "all-tense-conjugations",
+    tenseValue = "",
+}) {
+    const context = buildNounTabRenderContext({ verb, containerId, tenseValue });
+    if (!context) {
+        return;
+    }
+    if (context.isLocativoTemporal) {
+        renderLocativoTemporalConjugations({ verb, containerId });
+        return;
+    }
+    const {
+        container,
+        isNawat,
+        resolvedTense,
+        isInstrumentivo,
+        isCalificativoInstrumentivo,
+        isLocativoTemporal,
+        showNonanimateOnly,
+        possessorKey,
+        objectStateKey,
+        subjectKey,
+        subjectOptions,
+        subjectOptionMap,
+        verbMeta,
+        allowedPrefixes,
+        objectOptions,
+        objectOptionMap,
+        possessorValues,
+        isSubjectOptionAllowed,
+        showSubjectToggle,
+        showObjectToggle,
+        showPossessorToggle,
+    } = context;
+    let { activeObjectPrefix, activePossessor, activeSubject } = context;
+
+    const { objSection, grid } = createObjectSectionGrid(container);
 
     const tenseBlock = document.createElement("div");
     tenseBlock.className = "tense-block";
