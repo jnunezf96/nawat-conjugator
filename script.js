@@ -10,6 +10,9 @@ const OBJECT_PREFIXES = [
     { value: "ta", labelText: "a algo (ta)" },
     { value: "te", labelText: "a alguien (te)" },
 ];
+const OBJECT_PREFIX_LABELS = new Map(
+    OBJECT_PREFIXES.map((option) => [option.value, option.labelText])
+);
 const OBJECT_PREFIX_GROUPS = [
     ["nech", "metz", "ki", "tech", "metzin", "kin"],
     ["ta", "te", "mu"],
@@ -137,6 +140,17 @@ const POSSESSIVE_PREFIXES = [
     { id: "2p", label: "2a persona", value: "anmu", number: "plural" },
     { id: "3p", label: "3a persona", value: "in", number: "plural" },
 ];
+const POSSESSIVE_PREFIX_LABELS = new Map(
+    POSSESSIVE_PREFIXES.map((option) => [option.value, option.label])
+);
+const POSSESSOR_LABELS_ES = {
+    nu: "de mi",
+    mu: "de ti",
+    i: "de él/ella/eso",
+    tu: "de nosotros",
+    anmu: "de ustedes",
+    in: "de ellos",
+};
 const POSSESSIVE_TO_OBJECT_PREFIX = {
     nu: "nech",
     mu: "metz",
@@ -383,7 +397,7 @@ function getKnownTenseSuffixes() {
 
 function getTransitividadSelection() {
     const parsed = getVerbInputMeta();
-    if (parsed.isMarkedTransitive) {
+    if (getBaseObjectSlots(parsed) > 0) {
         return "transitivo";
     }
     if (parsed.verb.length > 0) {
@@ -1029,10 +1043,32 @@ function getNonactiveDerivationSource(verbMeta, verb, analysisVerb) {
         && verb
         && verb.startsWith(verbMeta.directionalPrefix)
     ) {
-        const baseVerb = analysisVerb || verb.slice(verbMeta.directionalPrefix.length) || verb;
+        const rawBase = analysisVerb || verb.slice(verbMeta.directionalPrefix.length) || verb;
+        const baseVerb = rawBase.startsWith(verbMeta.directionalPrefix)
+            ? rawBase.slice(verbMeta.directionalPrefix.length)
+            : rawBase;
         return { baseVerb, prefix: verbMeta.directionalPrefix };
     }
     return { baseVerb: verb || analysisVerb || "", prefix: "" };
+}
+
+function getNonactiveRuleBase(source, verbMeta) {
+    if (!source || !verbMeta) {
+        return source;
+    }
+    let base = source;
+    if (verbMeta.directionalPrefix && base.startsWith(verbMeta.directionalPrefix)) {
+        base = base.slice(verbMeta.directionalPrefix.length);
+    }
+    const fusionPrefixes = Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [];
+    const boundPrefixes = Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : [];
+    const allPrefixes = fusionPrefixes.length
+        ? [...fusionPrefixes, ...boundPrefixes.filter((prefix) => !fusionPrefixes.includes(prefix))]
+        : boundPrefixes;
+    if (allPrefixes.length) {
+        base = stripLeadingPrefixes(base, allPrefixes);
+    }
+    return base || source;
 }
 
 function shouldForceAllNonactiveOptions() {
@@ -1040,49 +1076,76 @@ function shouldForceAllNonactiveOptions() {
 }
 
 function countFusionPrefixes(fusionPrefixes, boundPrefixes) {
-    let fusionCount = fusionPrefixes.length;
-    if (boundPrefixes.length) {
-        const boundSet = new Set(boundPrefixes);
-        fusionCount = fusionPrefixes.filter((prefix) => !boundSet.has(prefix)).length;
-    }
-    return fusionCount;
+    const candidates = fusionPrefixes.length ? fusionPrefixes : boundPrefixes;
+    return candidates.filter((prefix) => FUSION_PREFIXES.has(prefix)).length;
 }
 
-function getActiveVerbValency(verbMeta) {
+function getBaseObjectSlots(verbMeta) {
     if (!verbMeta) {
-        return 1;
+        return 0;
     }
-    let objectCount = 0;
-    if (verbMeta.hasLeadingDash) {
-        objectCount += 1;
+    if (Number.isFinite(verbMeta.dashCount)) {
+        return Math.max(0, Math.min(2, verbMeta.dashCount));
     }
-    if (OBJECT_MARKERS.has(verbMeta.indirectObjectMarker || "")) {
-        objectCount += 1;
+    return verbMeta.hasLeadingDash ? 1 : 0;
+}
+
+function getFusionObjectSlots(verbMeta) {
+    if (!verbMeta) {
+        return 0;
     }
     const fusionPrefixes = Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [];
     const boundPrefixes = Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : [];
-    const fusionCount = countFusionPrefixes(fusionPrefixes, boundPrefixes);
-    if (verbMeta.hasLeadingDash) {
-        objectCount += fusionCount;
-    } else if (fusionCount > 1) {
-        objectCount += fusionCount;
-    }
-    if (objectCount <= 0) {
+    return countFusionPrefixes(fusionPrefixes, boundPrefixes);
+}
+
+function getAvailableObjectSlots(verbMeta) {
+    return Math.max(0, getBaseObjectSlots(verbMeta) - getFusionObjectSlots(verbMeta));
+}
+
+function getActiveVerbValency(verbMeta) {
+    const objectSlots = getBaseObjectSlots(verbMeta);
+    if (objectSlots <= 0) {
         return 1;
     }
-    if (objectCount === 1) {
+    if (objectSlots === 1) {
         return 2;
     }
     return 3;
 }
 
+function getVerbValencySummary(verbMeta) {
+    const baseObjectSlots = getBaseObjectSlots(verbMeta);
+    const fusionObjectSlots = getFusionObjectSlots(verbMeta);
+    const availableObjectSlots = Math.max(0, baseObjectSlots - fusionObjectSlots);
+    const baseValency = baseObjectSlots + 1;
+    const nonactiveValency = Math.max(0, baseValency - 1);
+    const nonactiveObjectSlots = Math.max(0, baseObjectSlots - 1 - fusionObjectSlots);
+    return {
+        baseObjectSlots,
+        fusionObjectSlots,
+        availableObjectSlots,
+        baseValency,
+        nonactiveValency,
+        nonactiveObjectSlots,
+    };
+}
+
 function getNonactiveObjectPrefixGroups(verbMeta) {
-    const valency = getActiveVerbValency(verbMeta);
-    if (valency <= 1) {
-        return { valency, groups: [{ prefixes: [""] }] };
+    const summary = getVerbValencySummary(verbMeta);
+    if (summary.baseObjectSlots <= 0) {
+        return {
+            baseSlots: summary.baseObjectSlots,
+            availableSlots: summary.nonactiveObjectSlots,
+            groups: [{ prefixes: [""] }],
+        };
     }
     const directPrefixes = Array.from(PASSIVE_IMPERSONAL_DIRECT_OBJECTS);
-    return { valency, groups: buildObjectPrefixGroups(directPrefixes) };
+    return {
+        baseSlots: summary.baseObjectSlots,
+        availableSlots: summary.nonactiveObjectSlots,
+        groups: buildObjectPrefixGroups(directPrefixes),
+    };
 }
 
 function truncateNonactiveBase(stem, options = {}) {
@@ -1133,7 +1196,8 @@ function stripLeadingPrefixes(stem, prefixes) {
 
 function deriveNonactiveStem(verb, analysisVerb, options = {}) {
     const source = verb || analysisVerb;
-    if (!source || !VOWEL_END_RE.test(source)) {
+    const ruleBase = options.ruleBase || source;
+    if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
         return source;
     }
     const suppletiveOptions = getSuppletiveNonactiveOptions({
@@ -1143,7 +1207,7 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
     if (suppletiveOptions && suppletiveOptions.length) {
         return suppletiveOptions[0].stem;
     }
-    const letters = splitVerbLetters(source);
+    const letters = splitVerbLetters(ruleBase);
     const letterCount = letters.length;
     const last = letters[letterCount - 1];
     const prev = letters[letterCount - 2] || "";
@@ -1152,21 +1216,21 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
     const endsWithA = last === "a";
     const endsWithI = last === "i";
     const endsWithU = last === "u";
-    const endsWithWa = source.endsWith("wa");
-    const endsWithWi = source.endsWith("wi");
-    const endsWithYa = source.endsWith("ya");
-    const endsWithTa = source.endsWith("ta");
-    const endsWithTi = source.endsWith("ti");
-    const isClassC = endsWithAny(source, IA_UA_SUFFIXES);
-    const endsWithKwi = source.endsWith("kwi");
-    const endsWithTzi = source.endsWith("tzi");
-    const endsWithSi = source.endsWith("si");
-    const endsWithMi = source.endsWith("mi");
-    const endsWithNi = source.endsWith("ni");
+    const endsWithWa = ruleBase.endsWith("wa");
+    const endsWithWi = ruleBase.endsWith("wi");
+    const endsWithYa = ruleBase.endsWith("ya");
+    const endsWithTa = ruleBase.endsWith("ta");
+    const endsWithTi = ruleBase.endsWith("ti");
+    const isClassC = endsWithAny(ruleBase, IA_UA_SUFFIXES);
+    const endsWithKwi = ruleBase.endsWith("kwi");
+    const endsWithTzi = ruleBase.endsWith("tzi");
+    const endsWithSi = ruleBase.endsWith("si");
+    const endsWithMi = ruleBase.endsWith("mi");
+    const endsWithNi = ruleBase.endsWith("ni");
     const endsWithMV = prev === "m" && (endsWithA || endsWithI);
-    const endsWithTzka = source.endsWith("tzka");
-    const endsWithJsi = source.endsWith("jsi");
-    const hasMultipleTz = source.indexOf("tz") !== source.lastIndexOf("tz");
+    const endsWithTzka = ruleBase.endsWith("tzka");
+    const endsWithJsi = ruleBase.endsWith("jsi");
+    const hasMultipleTz = ruleBase.indexOf("tz") !== ruleBase.lastIndexOf("tz");
     const isTransitive = options.isTransitive === true;
 
     if (isClassC) {
@@ -1189,7 +1253,7 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
             )
         );
 
-    const uwaTransitive = isTransitive && source.endsWith("mali");
+    const uwaTransitive = isTransitive && ruleBase.endsWith("mali");
     let uwaCandidate = false;
     if (!isTransitive) {
         const uwaForA = endsWithA && ["k", "s", "w"].includes(prev);
@@ -1201,7 +1265,7 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
             );
         uwaCandidate = uwaForA || uwaForI;
         if (
-            source === "pinawa"
+            ruleBase === "pinawa"
             || endsWithMi
             || endsWithJsi
             || (endsWithSi && prevVowel === "i")
@@ -1273,7 +1337,8 @@ function getDefaultNonactiveSuffix(options) {
 
 function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     const source = verb || analysisVerb;
-    if (!source || !VOWEL_END_RE.test(source)) {
+    const ruleBase = options.ruleBase || source;
+    if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
         return [];
     }
     const suppletiveOptions = getSuppletiveNonactiveOptions({
@@ -1284,7 +1349,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         return suppletiveOptions;
     }
 
-    const letters = splitVerbLetters(source);
+    const letters = splitVerbLetters(ruleBase);
     const letterCount = letters.length;
     const last = letters[letterCount - 1];
     const prev = letters[letterCount - 2] || "";
@@ -1293,23 +1358,23 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     const endsWithA = last === "a";
     const endsWithI = last === "i";
     const endsWithU = last === "u";
-    const endsWithWa = source.endsWith("wa");
-    const endsWithWi = source.endsWith("wi");
-    const endsWithYa = source.endsWith("ya");
-    const endsWithTa = source.endsWith("ta");
-    const endsWithTi = source.endsWith("ti");
-    const isClassC = endsWithAny(source, IA_UA_SUFFIXES);
-    const endsWithKwi = source.endsWith("kwi");
-    const endsWithTzi = source.endsWith("tzi");
-    const endsWithSi = source.endsWith("si");
-    const endsWithMi = source.endsWith("mi");
-    const endsWithNi = source.endsWith("ni");
+    const endsWithWa = ruleBase.endsWith("wa");
+    const endsWithWi = ruleBase.endsWith("wi");
+    const endsWithYa = ruleBase.endsWith("ya");
+    const endsWithTa = ruleBase.endsWith("ta");
+    const endsWithTi = ruleBase.endsWith("ti");
+    const isClassC = endsWithAny(ruleBase, IA_UA_SUFFIXES);
+    const endsWithKwi = ruleBase.endsWith("kwi");
+    const endsWithTzi = ruleBase.endsWith("tzi");
+    const endsWithSi = ruleBase.endsWith("si");
+    const endsWithMi = ruleBase.endsWith("mi");
+    const endsWithNi = ruleBase.endsWith("ni");
     const endsWithMV = prev === "m" && (endsWithA || endsWithI);
-    const endsWithNa = source.endsWith("na");
-    const endsWithSa = source.endsWith("sa");
-    const endsWithTzka = source.endsWith("tzka");
-    const endsWithJsi = source.endsWith("jsi");
-    const hasMultipleTz = source.indexOf("tz") !== source.lastIndexOf("tz");
+    const endsWithNa = ruleBase.endsWith("na");
+    const endsWithSa = ruleBase.endsWith("sa");
+    const endsWithTzka = ruleBase.endsWith("tzka");
+    const endsWithJsi = ruleBase.endsWith("jsi");
+    const hasMultipleTz = ruleBase.indexOf("tz") !== ruleBase.lastIndexOf("tz");
     const isTransitive = options.isTransitive === true;
 
     const isTiChu = endsWithTi && isVerbLetterVowel(prev2);
@@ -1327,7 +1392,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
             )
         );
 
-    const uwaTransitive = isTransitive && source.endsWith("mali");
+    const uwaTransitive = isTransitive && ruleBase.endsWith("mali");
     let uwaCandidate = false;
     if (!isTransitive) {
         const uwaForA = endsWithA && ["k", "s", "w"].includes(prev);
@@ -1339,7 +1404,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
             );
         uwaCandidate = uwaForA || uwaForI;
         if (
-            source === "pinawa"
+            ruleBase === "pinawa"
             || endsWithMi
             || endsWithJsi
             || (endsWithSi && prevVowel === "i")
@@ -1421,7 +1486,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     }
 
     const allowLuVariant = isTransitive && (endsWithNa || endsWithNi || endsWithSa || endsWithTa || endsWithTi);
-    const allowLuForI = isTransitive && source === "i";
+    const allowLuForI = isTransitive && ruleBase === "i";
     if (allowLuVariant) {
         push("lu", buildLu());
     }
@@ -1435,7 +1500,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     if (allowWaVariant) {
         push("wa", buildWa());
     }
-    const allowWaluVariant = source === "kwi" || source.endsWith("mali");
+    const allowWaluVariant = ruleBase === "kwi" || ruleBase.endsWith("mali");
     if (allowWaluVariant) {
         push("walu", `${source}walu`);
     }
@@ -1478,7 +1543,9 @@ function getNonactiveStemForSelection(verb, analysisVerb, options = {}) {
 
 // === Object & Label Helpers ===
 function getObjectPrefixesForTransitividad() {
-    return getTransitividadSelection() === "transitivo"
+    const parsed = getVerbInputMeta();
+    const availableSlots = getAvailableObjectSlots(parsed);
+    return availableSlots > 0
         ? OBJECT_PREFIXES.map((opt) => opt.value)
         : [""];
 }
@@ -1514,7 +1581,7 @@ function getObjectLabel(prefix) {
     if (!prefix) {
         return "intransitivo";
     }
-    return OBJECT_PREFIXES.find((opt) => opt.value === prefix)?.labelText || prefix;
+    return OBJECT_PREFIX_LABELS.get(prefix) || prefix;
 }
 
 function getAllObjectPrefixValues() {
@@ -1551,27 +1618,11 @@ function getObjectComboLabel(prefix, isNawat) {
 }
 
 function getPossessorLabelEs(prefix) {
-    switch (prefix) {
-        case "nu":
-            return "de mi";
-        case "mu":
-            return "de ti";
-        case "i":
-            return "de él/ella/eso";
-        case "tu":
-            return "de nosotros";
-        case "anmu":
-            return "de ustedes";
-        case "in":
-            return "de ellos";
-        default:
-            return "";
-    }
+    return POSSESSOR_LABELS_ES[prefix] || "";
 }
 
 function getPossessorPersonLabel(prefix) {
-    const entry = POSSESSIVE_PREFIXES.find((option) => option.value === prefix);
-    return entry ? entry.label : "";
+    return POSSESSIVE_PREFIX_LABELS.get(prefix) || "";
 }
 
 function buildPersonSub({ subjectLabel, possessorLabel, objectLabel }) {
@@ -1673,9 +1724,10 @@ function getInstrumentivoResult({
     let analysisVerb = verbMeta.analysisVerb || verb;
     const directionalPrefix = verbMeta.directionalPrefix || "";
     const isTaFusion = verbMeta.isTaFusion;
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
-    if (isTaFusion && !verbMeta.isMarkedTransitive) {
+    if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
         }
@@ -1702,14 +1754,17 @@ function getInstrumentivoResult({
         const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
         const baseVerb = nonactiveSource.baseVerb;
         const basePrefix = nonactiveSource.prefix;
+        const nonactiveRuleBase = getNonactiveRuleBase(baseVerb, verbMeta);
         let options = getNonactiveDerivationOptions(baseVerb, baseVerb, {
             isTransitive: derivationIsTransitive,
             isYawi: verbMeta.isYawi,
+            ruleBase: nonactiveRuleBase,
         });
         if (!options.length) {
             const derived = deriveNonactiveStem(baseVerb, baseVerb, {
                 isTransitive: derivationIsTransitive,
                 isYawi: verbMeta.isYawi,
+                ruleBase: nonactiveRuleBase,
             });
             if (derived) {
                 options = [{ suffix: "default", stem: derived }];
@@ -1798,9 +1853,10 @@ function getCalificativoInstrumentivoResult({
     let analysisVerb = verbMeta.analysisVerb || verb;
     const directionalPrefix = verbMeta.directionalPrefix || "";
     const isTaFusion = verbMeta.isTaFusion;
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const conjugationIsTransitive = isTransitiveVerb || isTaFusion;
-    if (isTaFusion && !verbMeta.isMarkedTransitive) {
+    if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
         }
@@ -1885,9 +1941,10 @@ function getLocativoTemporalResult({
     const resolvedMode = combinedMode || getCombinedMode();
     const isNonactive = resolvedMode === COMBINED_MODE.nonactive;
     const isTaFusion = verbMeta.isTaFusion;
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
-    if (isTaFusion && !verbMeta.isMarkedTransitive) {
+    if (!allowsObjectPrefix) {
         if (objectPrefix !== "") {
             return { error: true };
         }
@@ -1918,10 +1975,12 @@ function getLocativoTemporalResult({
     let nonactiveStems = [stemVerb];
     if (isNonactive) {
         const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
+        const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
         const selection = resolveNonactiveStemSelection(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
             isTransitive: derivationIsTransitive,
             isYawi: verbMeta.isYawi,
             forceAll: shouldForceAllNonactiveOptions(),
+            ruleBase: nonactiveRuleBase,
         });
         const rawStems = (!selection.selectedSuffix && selection.allStems.length > 1)
             ? selection.allStems
@@ -3290,6 +3349,47 @@ function buildPretUniversalResultFromVariants(
     return results.join(" / ");
 }
 
+function buildNonactivePerfectiveResult({
+    verb,
+    subjectPrefix,
+    objectPrefix,
+    subjectSuffix,
+    tense,
+    directionalInputPrefix = "",
+    directionalOutputPrefix = "",
+    baseSubjectPrefix = subjectPrefix,
+    baseObjectPrefix = objectPrefix,
+    indirectObjectMarker = "",
+}) {
+    if (tense === "preterito-clase") {
+        const variants = [{ base: verb, suffix: "k" }];
+        return buildPretUniversalResultFromVariants(
+            variants,
+            subjectPrefix,
+            objectPrefix,
+            subjectSuffix,
+            directionalInputPrefix,
+            directionalOutputPrefix,
+            baseSubjectPrefix,
+            baseObjectPrefix,
+            null,
+            indirectObjectMarker
+        );
+    }
+    const suffix = subjectSuffix || "";
+    const { prefix, base } = getPretUniversalPrefixForBase(
+        verb,
+        subjectPrefix,
+        objectPrefix,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        indirectObjectMarker
+    );
+    return `${prefix}${base}${suffix}`;
+}
+
 function getKVClassPolicy({
     context,
     isTransitive,
@@ -3916,7 +4016,8 @@ function getObjectParts(objectSegment, hasLeadingDash) {
         objectDirectionalPrefix = objectParts.shift();
     }
     const objectToken = objectParts.length ? objectParts[objectParts.length - 1] : "";
-    return { objectParts, objectToken, objectDirectionalPrefix };
+    const objectBoundPrefixes = objectParts.length > 1 ? objectParts.slice(0, -1) : [];
+    return { objectParts, objectToken, objectDirectionalPrefix, objectBoundPrefixes };
 }
 
 function getVerbParts(verbSegment, objectDirectionalPrefix) {
@@ -3975,6 +4076,7 @@ function parseVerbInput(value) {
     const { base } = splitSearchInput(rawInput);
     const raw = base.toLowerCase();
     const cleaned = raw.replace(COMPOUND_ALLOWED_RE, "");
+    const dashCount = (cleaned.match(/-/g) || []).length;
     const hasLeadingDash = cleaned.startsWith("-");
     const core = hasLeadingDash ? cleaned.slice(1) : cleaned;
     const segmentInfo = splitVerbSegments(core, hasLeadingDash);
@@ -3987,6 +4089,7 @@ function parseVerbInput(value) {
     const objectParts = objectInfo.objectParts;
     const objectToken = objectInfo.objectToken;
     const objectDirectionalPrefix = objectInfo.objectDirectionalPrefix;
+    const objectBoundPrefixes = objectInfo.objectBoundPrefixes;
     const hasCompoundMarker = COMPOUND_MARKER_SPLIT_RE.test(verbSegment);
     const hasSlashMarker = verbSegment.includes("/");
     const hasSuffixSeparator = verbSegment.includes("-");
@@ -4005,8 +4108,7 @@ function parseVerbInput(value) {
     );
     let directionalFusionPrefix = directionalFusionExtraction.directionalFusionPrefix;
     verbParts = directionalFusionExtraction.verbParts;
-    const objectFusionPrefix = objectParts.length === 1
-        && FUSION_PREFIXES.has(objectToken)
+    const objectFusionPrefix = FUSION_PREFIXES.has(objectToken)
         && verbParts.length > 0;
     const shouldUseVerbFusion = !hasLeadingDash || objectFusionPrefix;
     const verbFusionPrefixes = [];
@@ -4041,6 +4143,9 @@ function parseVerbInput(value) {
         }
     }
     const fusionPrefixes = [];
+    if (objectFusionPrefix && objectBoundPrefixes.length) {
+        fusionPrefixes.push(...objectBoundPrefixes);
+    }
     if (objectFusionPrefix) {
         fusionPrefixes.push(objectToken);
         directObjectToken = "";
@@ -4062,7 +4167,7 @@ function parseVerbInput(value) {
         rawAnalysisVerb = analysisVerb;
     }
     const isTaFusion = fusionPrefixes.length > 0 && verb.length > 0;
-    let isMarkedTransitive = hasLeadingDash;
+    let isMarkedTransitive = dashCount > 0;
     if (isTaFusion) {
         const fusionDirectionalPrefix = getFusionDirectionalPrefix({
             objectDirectionalPrefix,
@@ -4117,6 +4222,7 @@ function parseVerbInput(value) {
         selectorSuffix,
         displayVerb: cleaned,
         hasLeadingDash,
+        dashCount,
         fusionPrefixes,
         boundPrefixes,
     };
@@ -4265,17 +4371,19 @@ function getVerbInputMeta() {
             rawAnalysisVerb: "",
             hasCompoundMarker: false,
             isMarkedTransitive: false,
-        isYawi: false,
-        directionalPrefix: "",
-        directObjectToken: "",
-        indirectObjectMarker: "",
-        selectorSuffix: "",
-        isTaFusion: false,
-        displayVerb: "",
-        hasLeadingDash: false,
-        fusionPrefixes: [],
-    };
-}
+            isYawi: false,
+            directionalPrefix: "",
+            directObjectToken: "",
+            indirectObjectMarker: "",
+            selectorSuffix: "",
+            isTaFusion: false,
+            displayVerb: "",
+            hasLeadingDash: false,
+            dashCount: 0,
+            fusionPrefixes: [],
+            boundPrefixes: [],
+        };
+    }
     const raw = verbInput.value;
     const effectiveRaw = getSearchInputBase(raw);
     return parseVerbInput(effectiveRaw);
@@ -4551,14 +4659,15 @@ function buildSearchOptionPlan(options, stored, fallback) {
 
 function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue) {
     const analysisVerb = verbMeta.analysisVerb || verbMeta.verb;
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const isCalificativoInstrumentivo = tenseValue === "calificativo-instrumentivo";
     const isLocativoTemporal = tenseValue === "locativo-temporal";
     if (isCalificativoInstrumentivo) {
-        return isTransitiveVerb ? ["mu"] : [""];
+        return (isTransitiveVerb && allowsObjectPrefix) ? ["mu"] : [""];
     }
     if (isLocativoTemporal) {
-        if (!isTransitiveVerb) {
+        if (!isTransitiveVerb || !allowsObjectPrefix) {
             return [""];
         }
         if (getCombinedMode() === COMBINED_MODE.nonactive) {
@@ -4569,7 +4678,7 @@ function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue) {
         }
         return Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
     }
-    if (!isTransitiveVerb) {
+    if (!isTransitiveVerb || !allowsObjectPrefix) {
         return [""];
     }
     return Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
@@ -4586,9 +4695,11 @@ function getSearchNonactiveSuffixPlan(verbMeta) {
     const analysisVerb = verbMeta.analysisVerb || verb;
     const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
     const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
+    const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
     const options = getNonactiveDerivationOptions(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
         isTransitive,
         isYawi: verbMeta.isYawi,
+        ruleBase: nonactiveRuleBase,
     });
     if (!options.length) {
         return [null];
@@ -5778,9 +5889,11 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
 
     const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
     const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
+    const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
     const options = getNonactiveDerivationOptions(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
         isTransitive,
         isYawi: verbMeta.isYawi,
+        ruleBase: nonactiveRuleBase,
     });
     const optionMap = new Map(options.map((option) => [option.suffix, option.stem]));
     let selected = getSelectedNonactiveSuffix();
@@ -6480,6 +6593,7 @@ function applyMorphologyRules({
     indirectObjectMarker = "",
     skipPretClass = false,
     isUnderlyingTransitive = false,
+    hasSubjectValent = true,
 }) {
     const baseSubjectSuffix = subjectSuffix;
     const baseSubjectPrefix = subjectPrefix;
@@ -6493,18 +6607,26 @@ function applyMorphologyRules({
         && !indirectObjectMarker
         && !isUnderlyingTransitive;
     if (directionalInputPrefix === "wal") {
+        const hasSecondValent = Boolean(
+            baseObjectPrefix
+            || indirectObjectMarker
+            || isTaFusion
+        );
+        const hasFirstValent = hasSubjectValent !== false;
         let useAl = false;
-        if (!isIntransitiveVerb) {
+        if (!isIntransitiveVerb && hasSecondValent && hasFirstValent) {
             if (baseSubjectPrefix === "ni") {
                 subjectPrefix = "n";
                 useAl = true;
             } else if (baseSubjectPrefix === "ti") {
                 subjectPrefix = "t";
                 useAl = true;
+            } else {
+                useAl = true;
             }
         }
-        if (baseObjectPrefix === "ki" || baseObjectPrefix === "kin") {
-            useAl = true;
+        if (useAl && baseObjectPrefix === "ki") {
+            objectPrefix = "k";
         }
         if (useAl) {
             directionalOutputPrefix = "al";
@@ -6600,9 +6722,29 @@ function applyMorphologyRules({
     }
 
     if (!skipPretClass && PRETERITO_CLASS_TENSES.has(tense)) {
-        const nonactiveClassOverride =
+        const isNonactiveMode =
             getActiveTenseMode() === TENSE_MODE.verbo && getActiveDerivationMode() === DERIVATION_MODE.nonactive;
-        const resolvedClassFilter = nonactiveClassOverride ? "B" : CLASS_FILTER_STATE.activeClass;
+        if (isNonactiveMode) {
+            const nonactiveResult = buildNonactivePerfectiveResult({
+                verb,
+                subjectPrefix,
+                objectPrefix,
+                subjectSuffix,
+                tense,
+                directionalInputPrefix,
+                directionalOutputPrefix,
+                baseSubjectPrefix,
+                baseObjectPrefix,
+                indirectObjectMarker,
+            });
+            return {
+                subjectPrefix: "",
+                objectPrefix: "",
+                subjectSuffix: "",
+                verb: nonactiveResult || "—",
+                stemProvenance: null,
+            };
+        }
         const classOutput = buildClassBasedResultWithProvenance({
             verb,
             subjectPrefix,
@@ -6610,8 +6752,8 @@ function applyMorphologyRules({
             subjectSuffix,
             tense,
             analysisVerb,
-            classFilter: resolvedClassFilter,
-            allowAllClasses: nonactiveClassOverride,
+            classFilter: CLASS_FILTER_STATE.activeClass,
+            allowAllClasses: false,
             isYawi,
             hasSlashMarker,
             directionalInputPrefix,
@@ -6731,10 +6873,12 @@ function applyNonactiveDerivation({
     suppletiveStemSet = null;
     const nonactiveIsTransitive = isNonactiveTransitiveVerb(objectPrefix, parsedVerb);
     const nonactiveSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
+    const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, parsedVerb);
     const selection = resolveNonactiveStemSelection(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
         isTransitive: nonactiveIsTransitive,
         isYawi,
         forceAll: shouldForceAllNonactiveOptions(),
+        ruleBase: nonactiveRuleBase,
     });
     verb = nonactiveSource.prefix
         ? `${nonactiveSource.prefix}${selection.selectedStem}`
@@ -6772,6 +6916,7 @@ function applyPassiveImpersonalValencyAdjustments({
     preserveSubjectForPassive,
     allowPassiveObject,
     morphologyObjectPrefix,
+    hasPromotableObject,
 }) {
     if (!isPassiveImpersonalMode) {
         return {
@@ -6785,14 +6930,14 @@ function applyPassiveImpersonalValencyAdjustments({
             morphologyObjectPrefix,
         };
     }
-    const shouldStripFusionPrefixes = fusionPrefixes.length
-        && (hasLeadingDash || fusionPrefixes.length > 1);
-    if (targetValency > 0 && shouldStripFusionPrefixes) {
-        verb = stripLeadingPrefixes(verb, fusionPrefixes);
-        analysisVerb = stripLeadingPrefixes(analysisVerb, fusionPrefixes);
-    }
     let valencyAdjustedPrefix = false;
-    if (targetValency <= 0) {
+    const forceImpersonal = targetValency > 0 && !hasPromotableObject;
+    if (forceImpersonal) {
+        subjectPrefix = "";
+        subjectSuffix = "";
+        preserveSubjectForPassive = false;
+        valencyAdjustedPrefix = true;
+    } else if (targetValency <= 0) {
         subjectPrefix = "";
         subjectSuffix = "";
         objectPrefix = "";
@@ -6938,7 +7083,6 @@ function generateWord(options = {}) {
             ? getSelectedPretUniversalTab()
             : getSelectedTenseTab();
     }
-    const isPretUniversal = PRETERITO_UNIVERSAL_ORDER.includes(tense);
     let baseObjectPrefix = objectPrefix;
     let isReflexive = objectPrefix === "mu";
     const rerenderOutputs = () =>
@@ -7074,6 +7218,12 @@ function generateWord(options = {}) {
         getActiveTenseMode() === TENSE_MODE.verbo && getActiveVoiceMode() === VOICE_MODE.passive;
     const targetValency = isPassiveImpersonalMode ? Math.max(0, sourceValency - 1) : sourceValency;
     let preserveSubjectForPassive = preservePassiveSubject;
+    const valencySummary = getVerbValencySummary(parsedVerb);
+    const hasOpenObjectSlot = valencySummary.baseObjectSlots > valencySummary.fusionObjectSlots;
+    const hasPromotableObject = PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(objectPrefix)
+        || fusionPrefixes.some((prefix) => PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(prefix))
+        || hasOpenObjectSlot;
+    const hasSubjectValent = !isPassiveImpersonalMode || (targetValency > 0 && hasPromotableObject);
     const allomorphyResult = applyObjectAllomorphy({
         verb,
         analysisVerb,
@@ -7100,6 +7250,9 @@ function generateWord(options = {}) {
 
     const isNonactive =
         getActiveTenseMode() === TENSE_MODE.verbo && getActiveDerivationMode() === DERIVATION_MODE.nonactive;
+    if (isNonactive && PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
+        tense = getSelectedTenseTab();
+    }
     const nonactiveDerivation = applyNonactiveDerivation({
         isNonactive,
         verb,
@@ -7129,6 +7282,7 @@ function generateWord(options = {}) {
         preserveSubjectForPassive,
         allowPassiveObject,
         morphologyObjectPrefix,
+        hasPromotableObject,
     });
     verb = passiveValencyAdjustments.verb;
     analysisVerb = passiveValencyAdjustments.analysisVerb;
@@ -7242,12 +7396,7 @@ function generateWord(options = {}) {
     
     // Check for invalid combinations of subject and object prefixes (verb-only constraint).
     const isCalificativoInstrumentivo = tense === "calificativo-instrumentivo";
-    const isNounTense = (
-        tense === "sustantivo-verbal"
-        || tense === "agentivo"
-        || tense === "instrumentivo"
-        || isCalificativoInstrumentivo
-    );
+    const isNounTense = isNonanimateNounTense(tense) || tense === "agentivo";
     if (!skipValidation && !isNounTense && INVALID_COMBINATION_KEYS.has(
         getComboKey(subjectPrefix, objectPrefix, subjectSuffix)
     )) {
@@ -7263,20 +7412,18 @@ function generateWord(options = {}) {
     }
     clearError("object-prefix");
 
-    if (tense === "sustantivo-verbal" || tense === "agentivo" || tense === "instrumentivo" || isCalificativoInstrumentivo) {
-        if (
-            (tense === "sustantivo-verbal" || tense === "instrumentivo" || isCalificativoInstrumentivo)
-            && !isNonanimateSubject(subjectPrefix, subjectSuffix)
-        ) {
+    if (isNounTense) {
+        if (isNonanimateNounTense(tense) && !isNonanimateSubject(subjectPrefix, subjectSuffix)) {
             const message = "Solo 3a persona no animada (singular o plural).";
             const error = returnError(message, ["subject-prefix", "subject-suffix"]);
             if (error) {
                 return error;
             }
         }
-        const isTransitiveVerb = parsedVerb.isMarkedTransitive;
+        const isTransitiveVerb = getBaseObjectSlots(parsedVerb) > 0;
+        const allowsObjectPrefix = getAvailableObjectSlots(parsedVerb) > 0;
         if (isCalificativoInstrumentivo) {
-            if (isTransitiveVerb) {
+            if (isTransitiveVerb && allowsObjectPrefix) {
                 if (objectPrefix !== "mu") {
                     const error = returnError("Calificativo transitivo solo con mu.", ["object-prefix"]);
                     if (error) {
@@ -7310,7 +7457,7 @@ function generateWord(options = {}) {
                         return "Sustantivo verbal intransitivo va sin prefijo.";
                 }
             })();
-            if (isTransitiveVerb) {
+            if (isTransitiveVerb && allowsObjectPrefix) {
                 if (!SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES.has(objectPrefix)) {
                     const error = returnError(transitiveMessage, ["object-prefix"]);
                     if (error) {
@@ -7346,8 +7493,10 @@ function generateWord(options = {}) {
         isTaFusion: parsedVerb.isTaFusion,
         indirectObjectMarker,
         skipPretClass,
-        isUnderlyingTransitive: (parsedVerb.isMarkedTransitive || parsedVerb.isTaFusion)
-            && (!isNonactive || targetValency > 1),
+        isUnderlyingTransitive: !isNonactive
+            ? (parsedVerb.isMarkedTransitive || parsedVerb.isTaFusion)
+            : Boolean(morphologyObjectPrefix || indirectObjectMarker || parsedVerb.isTaFusion),
+        hasSubjectValent,
     };
     const appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     ({ subjectPrefix, objectPrefix, subjectSuffix, verb } = appliedMorphology);
@@ -7603,6 +7752,7 @@ function renderNonactiveConjugationRows({
     activeObjectPrefix,
     passiveSubjectPrefixes,
     activePassiveSubject,
+    forceImpersonal = false,
 }) {
     const buildNonactiveRow = (labelText, subText, prefix, subjectOverride = null) => {
         const row = document.createElement("div");
@@ -7668,6 +7818,10 @@ function renderNonactiveConjugationRows({
     };
 
     const isIntransitiveOnly = prefixes.length === 1 && prefixes[0] === "";
+    if (forceImpersonal) {
+        buildNonactiveRow(getNonactivePersonLabel("", { isIntransitive: true }), "", "");
+        return;
+    }
     if (isIntransitiveOnly) {
         buildNonactiveRow(getNonactivePersonLabel("", { isIntransitive: true }), "", "");
         return;
@@ -7725,6 +7879,8 @@ function buildVerbTenseBlock({
     subjectKeyPrefix,
     subjectSubMode,
     activeValency,
+    nonactiveAvailableSlots = 0,
+    hasPromotableObject = false,
     fusionMarkers,
 }) {
     const { prefixes } = objectGroup;
@@ -7737,8 +7893,9 @@ function buildVerbTenseBlock({
     });
     const isDirectGroup = prefixes.every((prefix) => PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(prefix));
     const isPassiveNonactive = isNonactiveMode && isDirectGroup;
-    const allowSubjectToggle = isPassiveNonactive && activeValency >= 2;
-    const allowObjectToggle = isPassiveNonactive && activeValency === 3;
+    const forceImpersonal = isPassiveNonactive && !hasPromotableObject;
+    const allowSubjectToggle = isPassiveNonactive && activeValency >= 2 && !forceImpersonal;
+    const allowObjectToggle = isPassiveNonactive && nonactiveAvailableSlots > 0;
     let passiveSubjectPrefixes = allowSubjectToggle
         ? Array.from(PASSIVE_IMPERSONAL_DIRECT_OBJECTS)
         : [];
@@ -7894,6 +8051,7 @@ function buildVerbTenseBlock({
                 activeObjectPrefix,
                 passiveSubjectPrefixes,
                 activePassiveSubject,
+                forceImpersonal,
             });
             return;
         }
@@ -8137,7 +8295,12 @@ function renderVerbConjugationsCore({
     const resolvedTenseValue = resolveVerbTenseValue({ modeKey, tenseValue });
     const parsedVerb = parseVerbInput(verb);
     const nonactiveConfig = isNonactiveMode ? getNonactiveObjectPrefixGroups(parsedVerb) : null;
-    const activeValency = nonactiveConfig ? nonactiveConfig.valency : 1;
+    const valencySummary = isNonactiveMode ? getVerbValencySummary(parsedVerb) : null;
+    const activeValency = isNonactiveMode ? valencySummary.baseValency : 1;
+    const nonactiveAvailableSlots = valencySummary ? valencySummary.nonactiveObjectSlots : 0;
+    const hasPromotableObject = valencySummary
+        ? valencySummary.baseObjectSlots > valencySummary.fusionObjectSlots
+        : false;
     const fusionMarkers = parsedVerb.isTaFusion ? parsedVerb.fusionPrefixes || [] : [];
 
     const buildBlock = (blockTenseValue, objectGroup, sectionEl) => buildVerbTenseBlock({
@@ -8151,6 +8314,8 @@ function renderVerbConjugationsCore({
         subjectKeyPrefix,
         subjectSubMode,
         activeValency,
+        nonactiveAvailableSlots,
+        hasPromotableObject,
         fusionMarkers,
     });
 
@@ -8190,11 +8355,12 @@ function renderLocativoTemporalConjugations({
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
     const verbMeta = parseVerbInput(verb);
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const possessorValues = POSSESSIVE_PREFIXES
         .map((entry) => entry.value)
         .filter((value) => value);
-    const activeObjectValues = isTransitiveVerb
+    const activeObjectValues = (isTransitiveVerb && allowsObjectPrefix)
         ? Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)
         : [""];
     const activeObjectKey = getObjectStateKey({
@@ -8225,7 +8391,7 @@ function renderLocativoTemporalConjugations({
         possessorValues.forEach((value) => {
             options.push({ id: `pos:${value}`, label: value, value, type: "possessor" });
         });
-        if (isTransitiveVerb) {
+        if (isTransitiveVerb && allowsObjectPrefix) {
             Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES).forEach((value) => {
                 options.push({ id: `obj:${value}`, label: value, value, type: "object" });
             });
@@ -8516,13 +8682,14 @@ function renderNounConjugations({
     const subjectOptions = getSubjectToggleOptions();
     const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     const verbMeta = parseVerbInput(verb);
-    const isTransitiveVerb = verbMeta.isMarkedTransitive;
+    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
+    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
 
     const { objSection, grid } = createObjectSectionGrid(container);
 
     const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, resolvedTense);
     let activeObjectPrefix = "";
-    if (isTransitiveVerb) {
+    if (isTransitiveVerb && allowsObjectPrefix) {
         activeObjectPrefix = getPreferredNounObjectPrefix(allowedPrefixes);
     }
     const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(objectStateKey);
