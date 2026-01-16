@@ -2720,6 +2720,18 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         && syls[startIndex]?.form === "CV"
         && isWiFinalSyllable(syls[startIndex + 1])
     );
+    const matchesExactVCVwi = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "V"
+        && syls[startIndex + 1]?.form === "CV"
+        && isWiFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactVlVwi = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "Vl"
+        && syls[startIndex + 1]?.form === "V"
+        && isWiFinalSyllable(syls[startIndex + 2])
+    );
     const isWaFinalSyllable = (syllable) => (
         syllable?.form === "CV"
         && syllable.onset === "w"
@@ -2734,6 +2746,18 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         syls.length - startIndex === 3
         && syls[startIndex]?.form === "CV"
         && syls[startIndex + 1]?.form === "CV"
+        && isWaFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactVlVwa = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "Vl"
+        && syls[startIndex + 1]?.form === "V"
+        && isWaFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactCVlVwa = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CVl"
+        && syls[startIndex + 1]?.form === "V"
         && isWaFinalSyllable(syls[startIndex + 2])
     );
     const matchesExactCVCVwi = (syls, startIndex = 0) => (
@@ -2754,6 +2778,21 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         && syls[startIndex + 1]?.form === "CV"
         && syls[startIndex + 2]?.form === "CV"
         && isWiFinalSyllable(syls[startIndex + 3])
+    );
+    const matchesExactVjCVwi = (syls, startIndex = 0) => (
+        (
+            syls.length - startIndex === 3
+            && syls[startIndex]?.form === "Vj"
+            && syls[startIndex + 1]?.form === "CV"
+            && isWiFinalSyllable(syls[startIndex + 2])
+        ) || (
+            syls.length - startIndex === 4
+            && syls[startIndex]?.form === "V"
+            && syls[startIndex + 1]?.form === "C"
+            && syls[startIndex + 1]?.onset === "j"
+            && syls[startIndex + 2]?.form === "CV"
+            && isWiFinalSyllable(syls[startIndex + 3])
+        )
     );
     const matchesExactVjCVCVwi = (syls, startIndex = 0) => (
         syls.length - startIndex === 4
@@ -2785,20 +2824,29 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isExactCVsV = matchesExactCVsV(syllables, 0) || hasCVsVRedupPrefix;
     const isExactCVmV = matchesExactCVmV(syllables, 0) || hasCVmVRedupPrefix;
     const isExactCVwi = matchesExactCVwi(syllables, 0);
+    const isExactVCVwi = matchesExactVCVwi(syllables, 0);
+    const isExactVlVwi = matchesExactVlVwi(syllables, 0);
     const isExactCVwa = matchesExactCVwa(syllables, 0);
     const isExactCVCVwa = matchesExactCVCVwa(syllables, 0);
+    const isExactVlVwa = matchesExactVlVwa(syllables, 0);
+    const isExactCVlVwa = matchesExactCVlVwa(syllables, 0);
     const isExactCVCVwi = matchesExactCVCVwi(syllables, 0);
     const isExactCVlVwi = matchesExactCVlVwi(syllables, 0);
     const isExactCVCVCVwi = matchesExactCVCVCVwi(syllables, 0);
+    const isExactVjCVwi = matchesExactVjCVwi(syllables, 0);
     const isExactVjCVCVwi = matchesExactVjCVCVwi(syllables, 0);
     const isExactWiPattern = (
         isExactCVwi
+        || isExactVCVwi
+        || isExactVlVwi
         || isExactCVCVwi
         || isExactCVlVwi
         || isExactCVCVCVwi
+        || isExactVjCVwi
         || isExactVjCVCVwi
     );
     const isExactWaPattern = isExactCVwa || isExactCVCVwa;
+    const isExactLWaPattern = isExactVlVwa || isExactCVlVwa;
     const endsWithNA = lastSyllable?.form === "CV" && lastOnset === "n" && lastNucleus === "a";
     const endsWithKisV = lastSyllable?.form === "CV"
         && lastOnset === "s"
@@ -2867,14 +2915,20 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         isExactVnV,
         isExactCVmV,
         isExactCVwi,
+        isExactVCVwi,
+        isExactVlVwi,
         isExactCVwa,
         isExactCVCVwa,
+        isExactVlVwa,
+        isExactCVlVwa,
         isExactCVCVwi,
         isExactCVlVwi,
         isExactCVCVCVwi,
+        isExactVjCVwi,
         isExactVjCVCVwi,
         isExactWiPattern,
         isExactWaPattern,
+        isExactLWaPattern,
         endsWithNA,
         endsWithKisV,
         totalVowels,
@@ -2916,6 +2970,11 @@ function getPretUniversalClassCandidates(context) {
         return rootPlusYaCandidates;
     }
     if (context.endsWithU) {
+        candidates.add("B");
+        return candidates;
+    }
+    if (!context.isTransitive && context.isExactLWaPattern) {
+        candidates.add("A");
         candidates.add("B");
         return candidates;
     }
@@ -3028,10 +3087,17 @@ function buildPretUniversalClassA(context) {
     }
     let allowZeroSuffix = context.totalVowels > 2;
     let allowKiSuffix = true;
+    const isIntransitiveWiKiOnly = !context.isTransitive && (
+        context.isExactVCVwi
+        || context.isExactVjCVwi
+        || context.isExactVlVwi
+        || context.isExactCVlVwi
+    );
+    const isIntransitiveLWaKiOnly = !context.isTransitive && context.isExactLWaPattern;
     if (context.isExactCVsV) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.isExactWaPattern) {
+    if (!context.isTransitive && (context.isExactWaPattern || context.isExactLWaPattern)) {
         allowZeroSuffix = false;
     }
     const isKSeriesNoU = context.endsWithKSeriesNoU;
@@ -3101,7 +3167,16 @@ function buildPretUniversalClassA(context) {
             return null;
         }
     }
-    if (!context.isTransitive && context.isExactWiPattern && context.isReduplicated) {
+    if (isIntransitiveWiKiOnly || isIntransitiveLWaKiOnly) {
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+    }
+    if (
+        !context.isTransitive
+        && context.isExactWiPattern
+        && context.isReduplicated
+        && !isIntransitiveWiKiOnly
+    ) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
@@ -3472,8 +3547,10 @@ function getKVClassPolicy({
     const allowClassBWithA = !allowAllClasses
         && context
         && !isTransitive
-        && context.isExactCVCVwa
-        && !context.isReduplicated;
+        && (
+            (context.isExactCVCVwa && !context.isReduplicated)
+            || context.isExactLWaPattern
+        );
     const baseMaskClassB = !allowAllClasses
         && classFilter === "B"
         && !isTransitive
