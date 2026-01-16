@@ -2875,8 +2875,6 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isExactCVsV = matchesExactCVsV(syllables, 0) || hasCVsVRedupPrefix;
     const isExactCVmV = matchesExactCVmV(syllables, 0) || hasCVmVRedupPrefix;
     const isExactCVwi = matchesExactCVwi(syllables, 0);
-    const isExactVCVwi = matchesExactVCVwi(syllables, 0);
-    const isExactVlVwi = matchesExactVlVwi(syllables, 0);
     const isExactCVwa = matchesExactCVwa(syllables, 0);
     const isExactCVwaA = isExactCVwa && syllables[0]?.nucleus === "a";
     const isExactCewa = matchesExactCewa(syllables, 0);
