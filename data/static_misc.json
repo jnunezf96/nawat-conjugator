@@ -1,0 +1,9 @@
+{
+  "nonanimateNounTenses": [
+    "sustantivo-verbal",
+    "instrumentivo",
+    "calificativo-instrumentivo"
+  ],
+  "subjectPersonNumberOrder": ["singular", "plural"],
+  "nonactiveSuffixOrder": ["lu", "u", "wa", "luwa", "uwa", "walu"]
+}

@@ -915,9 +915,22 @@ input[type="submit"]:hover {
   box-shadow: 0 14px 28px rgba(216, 106, 58, 0.3);
   }
   
-  .error {
+.error {
   border: 2px solid #c9453b;
   box-shadow: 0 0 0 3px rgba(201, 69, 59, 0.15);
+  }
+
+  .shake {
+  animation: input-shake 0.35s ease;
+  }
+
+  @keyframes input-shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
   }
   
   .clearfix::after {
@@ -1140,11 +1153,11 @@ input[type="submit"]:hover {
 .tense-tabs-universal {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  background: linear-gradient(135deg, rgba(216, 106, 58, 0.08), rgba(44, 139, 126, 0.08));
-  border: 1px solid rgba(29, 26, 21, 0.12);
-  border-radius: 14px;
-  padding: 10px;
+  gap: 10px 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .tense-tabs.is-hidden {
@@ -1228,6 +1241,28 @@ input[type="submit"]:hover {
   background: linear-gradient(135deg, rgba(216, 106, 58, 0.18), rgba(216, 106, 58, 0.08));
   color: var(--ink);
   border-color: rgba(216, 106, 58, 0.35);
+}
+
+.tense-tab.is-empty:not(:disabled) {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  opacity: 0.55;
+}
+
+.tense-tab.is-empty.is-active {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.75;
+}
+
+.tense-tabs-universal .tense-tab:not(:disabled) {
+  opacity: 1;
+}
+
+.tense-tabs-universal .tense-tab.is-empty:not(:disabled) {
+  color: var(--ink);
 }
 
 .tense-tab:disabled {

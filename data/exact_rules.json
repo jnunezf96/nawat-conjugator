@@ -1,0 +1,713 @@
+{
+  "version": 1,
+  "description": "Exact-pattern reduplication checks for preterite universal classes.",
+  "cases": [
+    {
+      "name": "VnV",
+      "exactKey": "isExactVnV",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ani",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "aani",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVnV",
+      "exactKey": "isExactCVnV",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pani",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papani",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": [""]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVsV",
+      "exactKey": "isExactCVsV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pasi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papasi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVmV",
+      "exactKey": "isExactCVmV",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pama",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papama",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": [""]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVwi",
+      "exactKey": "isExactCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["", "ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "VCVwi",
+      "exactKey": "isExactVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "apawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "aapawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "VlVwi",
+      "exactKey": "isExactVlVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "alawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "aalawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "ajalawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVlVwi",
+      "exactKey": "isExactCVlVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "palawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papalawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "pajpalawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVCVwi",
+      "exactKey": "isExactCVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "tatapawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["", "ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVCVCVwi",
+      "exactKey": "isExactCVCVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapakawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "tatapakawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["", "ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "VjCVwi",
+      "exactKey": "isExactVjCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajpawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "ajajpawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "VjCVCVwi",
+      "exactKey": "isExactVjCVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajtapawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "ajajtapawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["", "ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVwaA",
+      "exactKey": "isExactCVwa",
+      "expectExactFlags": {
+        "isExactCVwaA": true
+      },
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kawa",
+      "exactKey": "isExactCVwa",
+      "expectExactFlags": {
+        "isExactCVwaA": true,
+        "isExactKawa": true
+      },
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"],
+            "hasJAlt": false
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "kakawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cuwa",
+      "exactKey": "isExactCVwa",
+      "expectExactFlags": {
+        "isExactCuwa": true
+      },
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kuwa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["B"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "kukuwa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["B"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVCVwa",
+      "exactKey": "isExactCVCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "tatapawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVCawa",
+      "exactKey": "isExactCVCawa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tipawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "titipawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVlawa",
+      "exactKey": "isExactCVlawa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "palawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papalawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "pajpalawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "VCCawa",
+      "exactKey": "isExactVCCawa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "atpawa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": false
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "aatpawa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cewa",
+      "exactKey": "isExactCewa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pewa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "pepewa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVCewa",
+      "exactKey": "isExactCVCewa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tipewa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "titipewa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "VjCewa",
+      "exactKey": "isExactVjCewa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajpewa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "ajajpewa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVlewa",
+      "exactKey": "isExactCVlewa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pelewa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "pepelewa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "pejpelewa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A"],
+            "classASuffixes": ["", "ki"],
+            "hasJAlt": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "VlVwa",
+      "exactKey": "isExactVlVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "aliwa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "aaliwa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "ajaliwa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVlVwa",
+      "exactKey": "isExactCVlVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "paliwa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papaliwa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        },
+        {
+          "label": "redupVj",
+          "verb": "pajpaliwa",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": ["A", "B"],
+            "classASuffixes": ["ki"]
+          }
+        }
+      ]
+    }
+  ]
+}

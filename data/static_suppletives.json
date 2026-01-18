@@ -1,0 +1,38 @@
+{
+  "suppletiveYeForms": ["ye", "ka", "kati"],
+  "suppletiveYeImperfective": "ye",
+  "suppletiveYeClassA": "kati",
+  "suppletiveYeClassD": "ka",
+  "suppletiveYeClassExclusions": {
+    "pasado-remoto": ["D"],
+    "perfecto": ["D"],
+    "pluscuamperfecto": ["D"],
+    "condicional-perfecto": ["D"]
+  },
+  "suppletiveYeNonactive": "yeluwa",
+  "suppletiveYawi": {
+    "forms": ["yawi", "ya"],
+    "canonical": "yawi",
+    "short": "yaw",
+    "yuVariant": "yu",
+    "tenses": {
+      "presente": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
+      "imperativo": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
+      "presente-habitual": { "verb": "ya" }
+    }
+  },
+  "suppletiveWitzi": {
+    "forms": ["witzi", "wi"],
+    "imperfective": "witzi",
+    "activeTenses": ["preterito-clase", "pasado-remoto", "imperativo"],
+    "tenses": {
+      "imperativo": { "verb": "wiki" },
+      "pasado-remoto": { "suffixOverrides": { "": "a", "t": "at" } }
+    },
+    "nonactive": {
+      "stem": "wiluwatz",
+      "suffix": "luwa",
+      "tenses": ["preterito-clase", "pasado-remoto"]
+    }
+  }
+}

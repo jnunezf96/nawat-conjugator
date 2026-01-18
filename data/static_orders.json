@@ -1,0 +1,27 @@
+{
+  "tenseOrder": [
+    "presente",
+    "imperativo",
+    "sustantivo-verbal",
+    "agentivo",
+    "instrumentivo",
+    "calificativo-instrumentivo",
+    "locativo-temporal",
+    "presente-habitual",
+    "presente-desiderativo",
+    "imperfecto",
+    "preterito-clase",
+    "pasado-remoto",
+    "perfecto",
+    "pluscuamperfecto",
+    "condicional-perfecto",
+    "futuro",
+    "condicional"
+  ],
+  "preteritoUniversalOrder": [
+    "preterito-universal-1",
+    "preterito-universal-2",
+    "preterito-universal-4",
+    "preterito-universal-3"
+  ]
+}

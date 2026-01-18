@@ -1,0 +1,9 @@
+{
+  "directionalPrefixes": ["wal", "un", "ku"],
+  "iaUaSuffixes": ["ia", "ua"],
+  "anPrefixVowelPrefixes": ["a", "e", "u"],
+  "vowels": "aeiu",
+  "validConsonants": ["p", "t", "k", "m", "n", "s", "l", "w", "y", "j", "c", "z", "d"],
+  "digraphs": ["tz", "sh", "ch", "kw", "nh"],
+  "syllableForms": ["C", "CV", "CVj", "CVl", "V", "Vj", "Vl"]
+}

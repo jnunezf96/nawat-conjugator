@@ -1,0 +1,26 @@
+{
+  "tenseMode": {
+    "verbo": { "value": "verbo", "labelNa": "muchiwalis" },
+    "sustantivo": { "value": "sustantivo", "labelNa": "Tukaytil" }
+  },
+  "voiceMode": {
+    "active": { "value": "active", "labelNa": "muchiwki" },
+    "passive": { "value": "passive-impersonal", "labelNa": "muselij-te muselij" }
+  },
+  "derivationMode": {
+    "active": { "value": "active", "labelNa": "muchiwki" },
+    "nonactive": { "value": "nonactive", "labelNa": "muselij" }
+  },
+  "combinedMode": {
+    "active": { "value": "active", "labelNa": "tachiwki" },
+    "nonactive": { "value": "nonactive", "labelNa": "taselij" }
+  },
+  "instrumentivoMode": {
+    "absolutivo": { "value": "absolutivo", "labelNa": "takawal" },
+    "posesivo": { "value": "posesivo", "labelNa": "tapiyal" }
+  },
+  "conjugationGroups": {
+    "tense": { "value": "tense", "labelNa": "kawit" },
+    "universal": { "value": "universal", "labelNa": "kawit muchiwki" }
+  }
+}

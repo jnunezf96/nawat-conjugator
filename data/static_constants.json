@@ -1,0 +1,9 @@
+{
+  "compoundMarkerRe": { "pattern": "[|~#()\\/?-]", "flags": "g" },
+  "compoundMarkerSplitRe": { "pattern": "[|~#()\\/?-]" },
+  "compoundAllowedRe": { "pattern": "[^a-z|~#()\\/?-]", "flags": "g" },
+  "subjectToggleAll": "all",
+  "objectToggleAll": "all",
+  "verbSuggestionLimit": 10,
+  "uiScaleStorageKey": "ui-scale-offset"
+}

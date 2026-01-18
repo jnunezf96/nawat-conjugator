@@ -1,0 +1,35 @@
+{
+  "paths": [
+    {
+      "id": "yawi",
+      "match": { "type": "yawi" },
+      "active": { "type": "suppletiveYawi" },
+      "nonactive": [{ "suffix": "luwa", "stem": "wiluwa" }]
+    },
+    {
+      "id": "ye",
+      "match": { "type": "verbInSet", "formsKey": "suppletiveYeForms" },
+      "active": { "type": "suppletiveYe" },
+      "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveYeNonactive" }]
+    },
+    {
+      "id": "witzi",
+      "match": { "type": "verbInSet", "formsKey": "suppletiveWitziForms" },
+      "active": { "type": "suppletiveWitzi" },
+      "activeTenses": ["preterito-clase", "pasado-remoto", "imperativo"],
+      "tenseSuffixOverrides": {
+        "pasado-remoto": { "": "a", "t": "at" }
+      },
+      "verbOverrides": {
+        "imperativo": { "valueKey": "suppletiveWitziImperative" }
+      },
+      "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveWitziNonactive" }],
+      "nonactiveTenses": ["preterito-clase", "pasado-remoto"]
+    },
+    {
+      "id": "wala",
+      "match": { "type": "verbEquals", "verb": "wala" },
+      "nonactive": [{ "suffix": "luwa", "stem": "walwiluwa" }]
+    }
+  ]
+}

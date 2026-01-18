@@ -1,0 +1,58 @@
+{
+  "tenseLinguisticGroups": {
+    "verbo": {
+      "left": [
+        {
+          "heading": { "labelEs": "Modo · imperativo", "labelNa": "Modo · imperativo" },
+          "tenses": ["imperativo"]
+        },
+        {
+          "heading": { "labelEs": "No pasado · imperfectivo", "labelNa": "No pasado · imperfectivo" },
+          "tenses": ["presente", "presente-habitual", "presente-desiderativo"]
+        },
+        {
+          "heading": { "labelEs": "Pasado · imperfectivo", "labelNa": "Pasado · imperfectivo" },
+          "tenses": ["imperfecto"]
+        },
+        {
+          "heading": {
+            "labelEs": "Futuro/condicional · imperfectivo",
+            "labelNa": "Futuro/condicional · imperfectivo"
+          },
+          "tenses": ["futuro", "condicional"]
+        }
+      ],
+      "right": [
+        {
+          "heading": {
+            "labelEs": "Pasado · perfectivo (simple)",
+            "labelNa": "Pasado · perfectivo (simple)"
+          },
+          "tenses": ["preterito-clase", "pasado-remoto"]
+        },
+        {
+          "heading": {
+            "labelEs": "Pasado · perfecto (compuesto)",
+            "labelNa": "Pasado · perfecto (compuesto)"
+          },
+          "tenses": ["perfecto", "pluscuamperfecto", "condicional-perfecto"]
+        }
+      ]
+    },
+    "sustantivo": {
+      "left": [
+        {
+          "heading": { "labelEs": "Nominalización", "labelNa": "Nominalización" },
+          "tenses": [
+            "sustantivo-verbal",
+            "agentivo",
+            "instrumentivo",
+            "calificativo-instrumentivo",
+            "locativo-temporal"
+          ]
+        }
+      ],
+      "right": []
+    }
+  }
+}

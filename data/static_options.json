@@ -1,0 +1,154 @@
+{
+  "specificValencePrefixes": ["nech", "metz", "ki", "tech", "metzin", "kin"],
+  "nonspecificValencePrefixes": ["ta", "te", "mu"],
+  "nonspecificValenceAffixes": ["ta", "te", "mu", "taj", "tajta", "tej", "tejte", "t", "mujmu"],
+  "objectPrefixes": [
+    { "value": "nech", "labelEs": "a mí (nech)", "labelNa": "a mí (nech)", "labelText": "a mí (nech)" },
+    { "value": "metz", "labelEs": "a ti (metz)", "labelNa": "a ti (metz)", "labelText": "a ti (metz)" },
+    { "value": "ki", "labelEs": "a él/ella/eso (ki~k)", "labelNa": "a él/ella/eso (ki~k)", "labelText": "a él/ella/eso (ki~k)" },
+    { "value": "tech", "labelEs": "a nosotros/as (tech)", "labelNa": "a nosotros/as (tech)", "labelText": "a nosotros/as (tech)" },
+    { "value": "metzin", "labelEs": "a ustedes (metzin)", "labelNa": "a ustedes (metzin)", "labelText": "a ustedes (metzin)" },
+    { "value": "kin", "labelEs": "a ellos/as (kin)", "labelNa": "a ellos/as (kin)", "labelText": "a ellos/as (kin)" },
+    { "value": "mu", "labelEs": "a uno mismo (mu)", "labelNa": "a uno mismo (mu)", "labelText": "a uno mismo (mu)" },
+    { "value": "ta", "labelEs": "a algo (ta)", "labelNa": "a algo (ta)", "labelText": "a algo (ta)" },
+    { "value": "te", "labelEs": "a alguien (te)", "labelNa": "a alguien (te)", "labelText": "a alguien (te)" }
+  ],
+  "subjectCombinations": [
+    { "id": "ni", "labelEs": "yo", "labelNa": "naja", "subjectPrefix": "ni", "subjectSuffix": "" },
+    { "id": "ti", "labelEs": "tú", "labelNa": "taja", "subjectPrefix": "ti", "subjectSuffix": "" },
+    { "id": "third-person", "labelEs": "él/ella/eso", "labelNa": "yaja", "subjectPrefix": "", "subjectSuffix": "" },
+    { "id": "1-pl", "labelEs": "nosotros", "labelNa": "tejemet", "subjectPrefix": "ti", "subjectSuffix": "t" },
+    { "id": "2-pl", "labelEs": "ustedes", "labelNa": "anmejemet", "subjectPrefix": "an", "subjectSuffix": "t" },
+    { "id": "3-pl", "labelEs": "ellos/ellas", "labelNa": "yejemet", "subjectPrefix": "", "subjectSuffix": "t" }
+  ],
+  "subjectPersonGroups": [
+    {
+      "id": "first",
+      "labelEs": "1a persona",
+      "labelNa": "Achtu teikniw",
+      "singular": { "labelEs": "yo", "labelNa": "naja", "subjectPrefix": "ni", "subjectSuffix": "" },
+      "plural": { "labelEs": "nosotros", "labelNa": "tejemet", "subjectPrefix": "ti", "subjectSuffix": "t" }
+    },
+    {
+      "id": "second",
+      "labelEs": "2a persona",
+      "labelNa": "Teikniw 2",
+      "singular": { "labelEs": "tú", "labelNa": "taja", "subjectPrefix": "ti", "subjectSuffix": "" },
+      "plural": { "labelEs": "ustedes", "labelNa": "anmejemet", "subjectPrefix": "an", "subjectSuffix": "t" }
+    },
+    {
+      "id": "third",
+      "labelEs": "3a persona",
+      "labelNa": "Teiknew 3",
+      "singular": { "labelEs": "él/ella/eso", "labelNa": "yaja", "subjectPrefix": "", "subjectSuffix": "" },
+      "plural": { "labelEs": "ellos/ellas", "labelNa": "yejemet", "subjectPrefix": "", "subjectSuffix": "t" }
+    }
+  ],
+  "possessivePrefixes": [
+    {
+      "id": "none",
+      "label": "forma absoluta",
+      "labelEs": "forma absoluta",
+      "labelNa": "forma absoluta",
+      "value": "",
+      "number": "none"
+    },
+    {
+      "id": "1s",
+      "label": "1a persona",
+      "labelEs": "1a persona",
+      "labelNa": "1a persona",
+      "value": "nu",
+      "number": "singular"
+    },
+    {
+      "id": "2s",
+      "label": "2a persona",
+      "labelEs": "2a persona",
+      "labelNa": "2a persona",
+      "value": "mu",
+      "number": "singular"
+    },
+    {
+      "id": "3s",
+      "label": "3a persona",
+      "labelEs": "3a persona",
+      "labelNa": "3a persona",
+      "value": "i",
+      "number": "singular"
+    },
+    {
+      "id": "1p",
+      "label": "1a persona",
+      "labelEs": "1a persona",
+      "labelNa": "1a persona",
+      "value": "tu",
+      "number": "plural"
+    },
+    {
+      "id": "2p",
+      "label": "2a persona",
+      "labelEs": "2a persona",
+      "labelNa": "2a persona",
+      "value": "anmu",
+      "number": "plural"
+    },
+    {
+      "id": "3p",
+      "label": "3a persona",
+      "labelEs": "3a persona",
+      "labelNa": "3a persona",
+      "value": "in",
+      "number": "plural"
+    }
+  ],
+  "possessorLabels": {
+    "nu": { "labelEs": "de mi", "labelNa": "nupal" },
+    "mu": { "labelEs": "de ti", "labelNa": "mupal" },
+    "i": { "labelEs": "de él/ella/eso", "labelNa": "ipal" },
+    "tu": { "labelEs": "de nosotros", "labelNa": "tupal" },
+    "anmu": { "labelEs": "de ustedes", "labelNa": "anmupal" },
+    "in": { "labelEs": "de ellos", "labelNa": "inpal" }
+  },
+  "possessiveToObjectPrefix": {
+    "nu": "nech",
+    "mu": "metz",
+    "i": "ki",
+    "tu": "tech",
+    "anmu": "metzin",
+    "in": "kin"
+  },
+  "passiveImpersonalSubjectMap": {
+    "nech": { "subjectPrefix": "ni", "subjectSuffix": "" },
+    "metz": { "subjectPrefix": "ti", "subjectSuffix": "" },
+    "ki": { "subjectPrefix": "", "subjectSuffix": "" },
+    "tech": { "subjectPrefix": "ti", "subjectSuffix": "t" },
+    "metzin": { "subjectPrefix": "an", "subjectSuffix": "t" },
+    "kin": { "subjectPrefix": "", "subjectSuffix": "t" }
+  },
+  "sustantivoVerbalTransitivePrefixes": ["ta", "te", "mu"],
+  "invalidCombinationKeys": [
+    "ni||t",
+    "ni|ki|t",
+    "ni|metz|t",
+    "ni|tech|t",
+    "ni|mu|t",
+    "ni|te|t",
+    "ni|ta|t",
+    "ni|metzin|t",
+    "ni|tech|",
+    "ni|kin|t",
+    "an||",
+    "ti|metzin|",
+    "an|metz|t",
+    "an|mu|",
+    "an|te|",
+    "an|ta|",
+    "an|tech|",
+    "an|nech|",
+    "an|kin|",
+    "an|metz|",
+    "an|ki|",
+    "ti|nech|t"
+  ]
+}
