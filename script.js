@@ -71,6 +71,7 @@ let TENSE_ORDER = [];
 let TENSE_LABELS = {};
 let UI_LABELS = {};
 let FINAL_W_SAFE_GATE = null;
+let FINAL_N_SAFE_GATE = null;
 const STATIC_LABELS_PATH = "data/static_labels.json";
 const STATIC_OPTIONS_PATH = "data/static_options.json";
 const STATIC_GROUPS_PATH = "data/static_groups.json";
@@ -92,6 +93,14 @@ const DEFAULT_FINAL_W_SAFE_GATE_CONFIG = {
         { vowel: "a", letters: "core", syllables: "core" },
         { vowel: "i", letters: "core", syllables: "core" },
         { vowel: "i", letters: "short", syllables: "short" },
+    ]),
+};
+const DEFAULT_FINAL_N_SAFE_GATE_CONFIG = {
+    enabled: true,
+    letterBuckets: { shortMax: 3, coreMax: 6 },
+    syllableBuckets: { shortMax: 3, coreValue: 4 },
+    allowBSet: buildFinalWSafegateAllowBSet([
+        { vowel: "i", letters: "core", syllables: "short" },
     ]),
 };
 const mergeLabelMap = (base, override) => (
@@ -158,6 +167,37 @@ function normalizeFinalWSafegate(raw) {
         letterBuckets,
         syllableBuckets,
         allowBSet: allowBSet.size ? allowBSet : new Set(DEFAULT_FINAL_W_SAFE_GATE_CONFIG.allowBSet),
+    };
+}
+function normalizeFinalNSafegate(raw) {
+    if (!raw || typeof raw !== "object") {
+        return null;
+    }
+    const enabled = raw.enabled !== false;
+    const letterBuckets = { ...DEFAULT_FINAL_N_SAFE_GATE_CONFIG.letterBuckets };
+    const syllableBuckets = { ...DEFAULT_FINAL_N_SAFE_GATE_CONFIG.syllableBuckets };
+    if (raw.letterBuckets && typeof raw.letterBuckets === "object") {
+        if (Number.isFinite(raw.letterBuckets.shortMax)) {
+            letterBuckets.shortMax = raw.letterBuckets.shortMax;
+        }
+        if (Number.isFinite(raw.letterBuckets.coreMax)) {
+            letterBuckets.coreMax = raw.letterBuckets.coreMax;
+        }
+    }
+    if (raw.syllableBuckets && typeof raw.syllableBuckets === "object") {
+        if (Number.isFinite(raw.syllableBuckets.shortMax)) {
+            syllableBuckets.shortMax = raw.syllableBuckets.shortMax;
+        }
+        if (Number.isFinite(raw.syllableBuckets.coreValue)) {
+            syllableBuckets.coreValue = raw.syllableBuckets.coreValue;
+        }
+    }
+    const allowBSet = buildFinalWSafegateAllowBSet(raw.allowB);
+    return {
+        enabled,
+        letterBuckets,
+        syllableBuckets,
+        allowBSet: allowBSet.size ? allowBSet : new Set(DEFAULT_FINAL_N_SAFE_GATE_CONFIG.allowBSet),
     };
 }
 function getFinalWSafegateLetterBucket(count, buckets) {
@@ -411,6 +451,9 @@ function applyStaticRules(data) {
     }
     if (data.finalOnsetWSafegate && typeof data.finalOnsetWSafegate === "object") {
         FINAL_W_SAFE_GATE = normalizeFinalWSafegate(data.finalOnsetWSafegate);
+    }
+    if (data.finalOnsetNSafegate && typeof data.finalOnsetNSafegate === "object") {
+        FINAL_N_SAFE_GATE = normalizeFinalNSafegate(data.finalOnsetNSafegate);
     }
 }
 async function loadStaticRules() {
@@ -3692,6 +3735,19 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isExactCVnV = matchExact(matchesExactCVnV) || hasCVnVRedupPrefix;
     const isExactCVsV = matchExact(matchesExactCVsV) || hasCVsVRedupPrefix;
     const isExactCVmV = matchExact(matchesExactCVmV) || hasCVmVRedupPrefix;
+    const isExactVna = matchExact(matchesExactVna);
+    const isExactCVna = matchExact(matchesExactCVna);
+    const isExactCVCVna = matchExact(matchesExactCVCVna);
+    const isExactCVlVna = matchExact(matchesExactCVlVna);
+    const isExactCVnia = matchExact(matchesExactCVnia);
+    const isExactCVCVnia = matchExact(matchesExactCVCVnia);
+    const isExactCVlVnia = matchExact(matchesExactCVlVnia);
+    const isExactVjCVnia = matchExact(matchesExactVjCVnia);
+    const isExactCVlVni = matchExact(matchesExactCVlVni);
+    const isExactVjCVni = matchExact(matchesExactVjCVni);
+    const isExactCVCVni = matchExact(matchesExactCVCVni);
+    const isExactCVni = matchExact(matchesExactCVni);
+    const isExactCVniU = isExactCVni && syllables[0]?.nucleus === "u";
     const isExactCVwi = matchExact(matchesExactCVwi);
     const isExactVCVwi = matchExact(matchesExactVCVwi);
     const isExactVlV = matchExact(matchesExactVlV);
@@ -3806,6 +3862,19 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         isExactCVsV,
         isExactVnV,
         isExactCVmV,
+        isExactVna,
+        isExactCVna,
+        isExactCVCVna,
+        isExactCVlVna,
+        isExactCVnia,
+        isExactCVCVnia,
+        isExactCVlVnia,
+        isExactVjCVnia,
+        isExactCVlVni,
+        isExactVjCVni,
+        isExactCVCVni,
+        isExactCVni,
+        isExactCVniU,
         isExactCVwi,
         isExactVCVwi,
         isExactVlV,
@@ -3870,7 +3939,7 @@ function getRootPlusYaClassCandidates(context) {
 
 function getPretUniversalClassCandidates(context) {
     // Precedence: root+ya > monosyllable > forced-B endings > endsWithLV > exact patterns
-    // > general class rules, with final-onset-w safegate applied as a post-filter.
+    // > general class rules, with final-onset-w/-n safegates applied as a post-filter.
     const candidates = new Set();
     if (!context.rootSyllablesOk) {
         return candidates;
@@ -3881,6 +3950,9 @@ function getPretUniversalClassCandidates(context) {
     }
     const isMonosyllablePath = context.stemPath === "monosyllable";
     const rootPlusYaCandidates = getRootPlusYaClassCandidates(context);
+    const hasExactPattern = Object.keys(context).some(
+        (key) => key.startsWith("isExact") && context[key]
+    );
     const applyFinalWGate = (set) => {
         if (!context.endsWithWV || !set || set.size === 0) {
             return set;
@@ -3888,9 +3960,6 @@ function getPretUniversalClassCandidates(context) {
         if (context.forceClassBEnding) {
             return set;
         }
-        const hasExactPattern = Object.keys(context).some(
-            (key) => key.startsWith("isExact") && context[key]
-        );
         if (hasExactPattern) {
             return set;
         }
@@ -3916,7 +3985,39 @@ function getPretUniversalClassCandidates(context) {
         }
         return set;
     };
-    const finalizeCandidates = (set) => applyFinalWGate(set);
+    const applyFinalNGate = (set) => {
+        if (!context.endsWithNV || !set || set.size === 0) {
+            return set;
+        }
+        if (context.forceClassBEnding) {
+            return set;
+        }
+        if (hasExactPattern) {
+            return set;
+        }
+        const safegate = FINAL_N_SAFE_GATE || DEFAULT_FINAL_N_SAFE_GATE_CONFIG;
+        if (!safegate.enabled) {
+            return set;
+        }
+        const vowel = context.lastNucleus;
+        const letterBucket = getFinalWSafegateLetterBucket(
+            context.letterCount,
+            safegate.letterBuckets
+        );
+        const syllableBucket = getFinalWSafegateSyllableBucket(
+            context.syllableCount,
+            safegate.syllableBuckets
+        );
+        const allowB = safegate.allowBSet.has(`${vowel}|${letterBucket}|${syllableBucket}`);
+        if (!allowB) {
+            set.delete("B");
+        }
+        if (set.size === 0) {
+            set.add("A");
+        }
+        return set;
+    };
+    const finalizeCandidates = (set) => applyFinalNGate(applyFinalWGate(set));
     if (rootPlusYaCandidates.size) {
         return finalizeCandidates(rootPlusYaCandidates);
     }
@@ -3944,6 +4045,46 @@ function getPretUniversalClassCandidates(context) {
     if (isExactLVICandidate) {
         candidates.add("A");
         candidates.add("B");
+        return finalizeCandidates(candidates);
+    }
+    const isExactNaPattern = context.isExactVna
+        || context.isExactCVna
+        || context.isExactCVCVna
+        || context.isExactCVlVna;
+    const isExactNiPattern = context.isExactCVni
+        || context.isExactCVCVni
+        || context.isExactCVlVni
+        || context.isExactVjCVni;
+    const isExactNiaPattern = context.isExactCVnia
+        || context.isExactCVCVnia
+        || context.isExactCVlVnia
+        || context.isExactVjCVnia;
+    if (context.isTransitive && isExactNiaPattern) {
+        candidates.add("C");
+        return finalizeCandidates(candidates);
+    }
+    if (!context.isTransitive && context.isExactVna) {
+        candidates.add("B");
+        return finalizeCandidates(candidates);
+    }
+    if (context.isExactCVCVna) {
+        candidates.add("A");
+        return finalizeCandidates(candidates);
+    }
+    if (context.isTransitive && context.isExactCVlVna) {
+        candidates.add("A");
+        return finalizeCandidates(candidates);
+    }
+    if (!context.isTransitive && context.isExactCVniU) {
+        candidates.add("B");
+        return finalizeCandidates(candidates);
+    }
+    if (context.isTransitive && isExactNiPattern) {
+        candidates.add("A");
+        return finalizeCandidates(candidates);
+    }
+    if (context.isTransitive && isExactNaPattern) {
+        candidates.add("A");
         return finalizeCandidates(candidates);
     }
     const disallowTransitiveWaB = context.isTransitive
@@ -4095,6 +4236,9 @@ function buildPretUniversalClassA(context) {
     }
     let allowZeroSuffix = context.totalVowels > 2;
     let allowKiSuffix = true;
+    if (!context.isTransitive && context.isExactCVniU) {
+        return null;
+    }
     const isIntransitiveWiKiOnly = !context.isTransitive && (
         context.isExactVCVwi
         || context.isExactVjCVwi
@@ -4161,7 +4305,7 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = false;
     }
     if (!context.isTransitive && context.endsWithNA) {
-        if (context.totalVowels <= 2) {
+        if (context.totalVowels <= 2 && !context.isExactCVna) {
             return null;
         }
         allowZeroSuffix = false;
@@ -4172,13 +4316,24 @@ function buildPretUniversalClassA(context) {
     if (!context.isTransitive && context.endsWithCVnV) {
         allowZeroSuffix = false;
     }
+    if (!context.isTransitive && context.isExactCVlVni) {
+        allowZeroSuffix = false;
+    }
     if (context.isTransitive && context.isExactVnV) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
     if (context.isTransitive && context.isExactCVnV) {
-        allowZeroSuffix = context.isReduplicated;
-        allowKiSuffix = !context.isReduplicated;
+        if (context.isExactCVna) {
+            allowZeroSuffix = context.isReduplicated;
+            allowKiSuffix = true;
+        } else if (context.isExactCVni) {
+            allowZeroSuffix = true;
+            allowKiSuffix = true;
+        } else {
+            allowZeroSuffix = context.isReduplicated;
+            allowKiSuffix = !context.isReduplicated;
+        }
     }
     if (context.isTransitive && context.isExactCVmV) {
         allowZeroSuffix = context.isReduplicated;
@@ -4306,6 +4461,24 @@ function buildPretUniversalClassB(context) {
             }
         }
         return variants;
+    }
+    const isExactNaPattern = context.isExactVna
+        || context.isExactCVna
+        || context.isExactCVCVna
+        || context.isExactCVlVna;
+    const isExactNiPattern = context.isExactCVni
+        || context.isExactCVCVni
+        || context.isExactCVlVni
+        || context.isExactVjCVni;
+    const isExactNiaPattern = context.isExactCVnia
+        || context.isExactCVCVnia
+        || context.isExactCVlVnia
+        || context.isExactVjCVnia;
+    if (context.isTransitive && (isExactNaPattern || isExactNiPattern || isExactNiaPattern)) {
+        return null;
+    }
+    if (!context.isTransitive && context.isExactCVCVna) {
+        return null;
     }
     if (!context.isTransitive && context.isExactWaPattern) {
         if (context.isExactCuwa) {

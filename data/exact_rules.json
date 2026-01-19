@@ -38,7 +38,7 @@
           "expect": {
             "isReduplicated": false,
             "candidates": ["A"],
-            "classASuffixes": ["ki"]
+            "classASuffixes": ["", "ki"]
           }
         },
         {
@@ -47,7 +47,7 @@
           "expect": {
             "isReduplicated": true,
             "candidates": ["A"],
-            "classASuffixes": [""]
+            "classASuffixes": ["", "ki"]
           }
         }
       ]

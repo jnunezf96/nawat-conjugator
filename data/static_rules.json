@@ -37,5 +37,13 @@
       { "vowel": "i", "letters": "core", "syllables": "core" },
       { "vowel": "i", "letters": "short", "syllables": "short" }
     ]
+  },
+  "finalOnsetNSafegate": {
+    "enabled": true,
+    "letterBuckets": { "shortMax": 3, "coreMax": 6 },
+    "syllableBuckets": { "shortMax": 3, "coreValue": 4 },
+    "allowB": [
+      { "vowel": "i", "letters": "core", "syllables": "short" }
+    ]
   }
 }
