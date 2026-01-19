@@ -70,6 +70,7 @@ let TENSE_MODE = {};
 let TENSE_ORDER = [];
 let TENSE_LABELS = {};
 let UI_LABELS = {};
+let FINAL_W_SAFE_GATE = null;
 const STATIC_LABELS_PATH = "data/static_labels.json";
 const STATIC_OPTIONS_PATH = "data/static_options.json";
 const STATIC_GROUPS_PATH = "data/static_groups.json";
@@ -83,6 +84,16 @@ const STATIC_REDUP_PATH = "data/static_redup.json";
 const STATIC_SUPPLETIVE_PATHS_PATH = "data/static_suppletive_paths.json";
 const STATIC_CONSTANTS_PATH = "data/static_constants.json";
 let TENSE_DESCRIPTIONS = {};
+const DEFAULT_FINAL_W_SAFE_GATE_CONFIG = {
+    enabled: true,
+    letterBuckets: { shortMax: 4, coreMax: 6 },
+    syllableBuckets: { shortMax: 2, coreValue: 3 },
+    allowBSet: buildFinalWSafegateAllowBSet([
+        { vowel: "a", letters: "core", syllables: "core" },
+        { vowel: "i", letters: "core", syllables: "core" },
+        { vowel: "i", letters: "short", syllables: "short" },
+    ]),
+};
 const mergeLabelMap = (base, override) => (
     override && typeof override === "object" ? { ...base, ...override } : base
 );
@@ -99,6 +110,78 @@ const mergeNumberLabels = (base, override) => {
     });
     return next;
 };
+function buildFinalWSafegateAllowBSet(allowB) {
+    const set = new Set();
+    if (!Array.isArray(allowB)) {
+        return set;
+    }
+    allowB.forEach((entry) => {
+        if (!entry || typeof entry !== "object") {
+            return;
+        }
+        const vowel = typeof entry.vowel === "string" ? entry.vowel : "";
+        const letters = typeof entry.letters === "string" ? entry.letters : "";
+        const syllables = typeof entry.syllables === "string" ? entry.syllables : "";
+        if (!vowel || !letters || !syllables) {
+            return;
+        }
+        set.add(`${vowel}|${letters}|${syllables}`);
+    });
+    return set;
+}
+function normalizeFinalWSafegate(raw) {
+    if (!raw || typeof raw !== "object") {
+        return null;
+    }
+    const enabled = raw.enabled !== false;
+    const letterBuckets = { ...DEFAULT_FINAL_W_SAFE_GATE_CONFIG.letterBuckets };
+    const syllableBuckets = { ...DEFAULT_FINAL_W_SAFE_GATE_CONFIG.syllableBuckets };
+    if (raw.letterBuckets && typeof raw.letterBuckets === "object") {
+        if (Number.isFinite(raw.letterBuckets.shortMax)) {
+            letterBuckets.shortMax = raw.letterBuckets.shortMax;
+        }
+        if (Number.isFinite(raw.letterBuckets.coreMax)) {
+            letterBuckets.coreMax = raw.letterBuckets.coreMax;
+        }
+    }
+    if (raw.syllableBuckets && typeof raw.syllableBuckets === "object") {
+        if (Number.isFinite(raw.syllableBuckets.shortMax)) {
+            syllableBuckets.shortMax = raw.syllableBuckets.shortMax;
+        }
+        if (Number.isFinite(raw.syllableBuckets.coreValue)) {
+            syllableBuckets.coreValue = raw.syllableBuckets.coreValue;
+        }
+    }
+    const allowBSet = buildFinalWSafegateAllowBSet(raw.allowB);
+    return {
+        enabled,
+        letterBuckets,
+        syllableBuckets,
+        allowBSet: allowBSet.size ? allowBSet : new Set(DEFAULT_FINAL_W_SAFE_GATE_CONFIG.allowBSet),
+    };
+}
+function getFinalWSafegateLetterBucket(count, buckets) {
+    const shortMax = Number.isFinite(buckets.shortMax) ? buckets.shortMax : 4;
+    const coreMax = Number.isFinite(buckets.coreMax) ? buckets.coreMax : 6;
+    if (count <= shortMax) {
+        return "short";
+    }
+    if (count <= coreMax) {
+        return "core";
+    }
+    return "long";
+}
+function getFinalWSafegateSyllableBucket(count, buckets) {
+    const shortMax = Number.isFinite(buckets.shortMax) ? buckets.shortMax : 2;
+    const coreValue = Number.isFinite(buckets.coreValue) ? buckets.coreValue : 3;
+    if (count <= shortMax) {
+        return "short";
+    }
+    if (count === coreValue) {
+        return "core";
+    }
+    return "long";
+}
 function applyStaticLabels(data) {
     if (!data || typeof data !== "object") {
         return;
@@ -325,6 +408,9 @@ function applyStaticRules(data) {
     }
     if (Array.isArray(data.nonspecificIDropVerbs)) {
         NONSPECIFIC_I_DROP_VERBS = [...data.nonspecificIDropVerbs];
+    }
+    if (data.finalOnsetWSafegate && typeof data.finalOnsetWSafegate === "object") {
+        FINAL_W_SAFE_GATE = normalizeFinalWSafegate(data.finalOnsetWSafegate);
     }
 }
 async function loadStaticRules() {
@@ -604,6 +690,20 @@ function applyStaticSuppletives(data) {
         }
         if (Array.isArray(witziNonactive.tenses)) {
             SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set(witziNonactive.tenses);
+        }
+    }
+    const weyaData = data.suppletiveWeya && typeof data.suppletiveWeya === "object"
+        ? data.suppletiveWeya
+        : null;
+    if (weyaData) {
+        if (Array.isArray(weyaData.forms)) {
+            SUPPLETIVE_WEYA_FORMS = new Set(weyaData.forms);
+        }
+        if (typeof weyaData.rootPlusYaBase === "string") {
+            SUPPLETIVE_WEYA_ROOT = weyaData.rootPlusYaBase;
+        }
+        if (typeof weyaData.canonical === "string") {
+            SUPPLETIVE_WEYA_CANONICAL = weyaData.canonical;
         }
     }
 }
@@ -1310,13 +1410,23 @@ function getRootPlusYaBase(verb, options = {}) {
     if (!verb || !verb.endsWith("ya")) {
         return null;
     }
-    if (verb.endsWith("yya")) {
-        return null;
-    }
     if (options.isTransitive) {
         return null;
     }
     if (options.isYawi) {
+        return null;
+    }
+    if (options.isWeya) {
+        const base = getSuppletiveWeyaRootPlusYaBase();
+        if (!base) {
+            return null;
+        }
+        if (options.requirePronounceable && !isSyllableSequencePronounceable(base)) {
+            return null;
+        }
+        return base;
+    }
+    if (verb.endsWith("yya")) {
         return null;
     }
     if (getVerbLetterCount(verb) <= 2) {
@@ -2330,6 +2440,7 @@ function getInstrumentivoResult({
                 tense: "presente-habitual",
                 analysisVerb: analysisStem,
                 isYawi: false,
+                isWeya: false,
                 directionalPrefix,
                 directionalRuleMode: resolvedDirectionalRuleMode,
                 hasSlashMarker: verbMeta.hasSlashMarker,
@@ -2360,6 +2471,7 @@ function getInstrumentivoResult({
         tense: "imperfecto",
         analysisVerb,
         isYawi: verbMeta.isYawi,
+        isWeya: verbMeta.isWeya,
         directionalPrefix,
         directionalRuleMode: resolvedDirectionalRuleMode,
         hasSlashMarker: verbMeta.hasSlashMarker,
@@ -2433,6 +2545,7 @@ function getCalificativoInstrumentivoResult({
         tense: "pasado-remoto",
         analysisVerb: stemAnalysis,
         isYawi: verbMeta.isYawi,
+        isWeya: verbMeta.isWeya,
         directionalPrefix,
         directionalRuleMode: resolvedDirectionalRuleMode,
         suppletiveStemSet: getSuppletiveStemSet(verbMeta),
@@ -2573,6 +2686,7 @@ function getLocativoTemporalResult({
             tense: "imperfecto",
             analysisVerb: stemAnalysisLocal,
             isYawi: isNonactive ? false : verbMeta.isYawi,
+            isWeya: isNonactive ? false : verbMeta.isWeya,
             directionalPrefix,
             directionalRuleMode: resolvedDirectionalRuleMode,
             hasSlashMarker: verbMeta.hasSlashMarker,
@@ -2750,6 +2864,7 @@ function buildClassBasedResultWithProvenance({
     classFilter = null,
     allowAllClasses = false,
     isYawi = false,
+    isWeya = false,
     hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
@@ -2770,6 +2885,7 @@ function buildClassBasedResultWithProvenance({
         classFilter,
         allowAllClasses,
         isYawi,
+        isWeya,
         hasSlashMarker,
         directionalInputPrefix,
         directionalOutputPrefix,
@@ -2795,6 +2911,7 @@ function buildClassBasedResultWithProvenance({
     } else {
         context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
             isYawi,
+            isWeya,
             hasSlashMarker,
             exactBaseVerb,
         });
@@ -3178,6 +3295,7 @@ function getMonosyllableStemPath(verb) {
 
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
+    const isWeya = options.isWeya === true;
     const hasSlashMarker = options.hasSlashMarker === true;
     const sourceVerb = options.exactBaseVerb || analysisVerb || verb;
     const rawSyllables = getSyllables(sourceVerb, {
@@ -3203,7 +3321,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         ? strictNonRedupRoot
         : getLooseRedupRoot(rawSyllables);
     const baseIsReduplicated = sourceVerb !== nonRedupRoot;
-    const rootPlusYaBase = getRootPlusYaBase(sourceVerb, { isTransitive, isYawi });
+    const rootPlusYaBase = getRootPlusYaBase(sourceVerb, { isTransitive, isYawi, isWeya });
     const isRootPlusYa = Boolean(rootPlusYaBase);
     const analysisRoot = isRootPlusYa ? rootPlusYaBase : nonRedupRoot;
     const redupRoot = isRootPlusYa ? getNonReduplicatedRoot(rootPlusYaBase) : analysisRoot;
@@ -3291,6 +3409,108 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         && syls[startIndex]?.form === "CV"
         && syls[startIndex + 1]?.form === "CV"
         && syls[startIndex + 1]?.onset === "s"
+    );
+    const isNaFinalSyllable = (syllable) => (
+        syllable?.form === "CV"
+        && syllable.onset === "n"
+        && syllable.nucleus === "a"
+    );
+    const isNiFinalSyllable = (syllable) => (
+        syllable?.form === "CV"
+        && syllable.onset === "n"
+        && syllable.nucleus === "i"
+    );
+    const matchesNiaSuffix = (syls, startIndex = 0) => (
+        syls.length - startIndex >= 2
+        && isNiFinalSyllable(syls[startIndex])
+        && syls[startIndex + 1]?.form === "V"
+        && syls[startIndex + 1]?.nucleus === "a"
+    );
+    const matchesExactVna = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "V"
+        && isNaFinalSyllable(syls[startIndex + 1])
+    );
+    const matchesExactCVna = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "CV"
+        && isNaFinalSyllable(syls[startIndex + 1])
+    );
+    const matchesExactCVCVna = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CV"
+        && syls[startIndex + 1]?.form === "CV"
+        && isNaFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactCVlVna = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CVl"
+        && syls[startIndex + 1]?.form === "V"
+        && isNaFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactCVnia = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CV"
+        && matchesNiaSuffix(syls, startIndex + 1)
+    );
+    const matchesExactCVCVnia = (syls, startIndex = 0) => (
+        syls.length - startIndex === 4
+        && syls[startIndex]?.form === "CV"
+        && syls[startIndex + 1]?.form === "CV"
+        && matchesNiaSuffix(syls, startIndex + 2)
+    );
+    const matchesExactCVlVnia = (syls, startIndex = 0) => (
+        syls.length - startIndex === 4
+        && syls[startIndex]?.form === "CVl"
+        && syls[startIndex + 1]?.form === "V"
+        && matchesNiaSuffix(syls, startIndex + 2)
+    );
+    const matchesExactVjCVnia = (syls, startIndex = 0) => (
+        (
+            syls.length - startIndex === 4
+            && syls[startIndex]?.form === "Vj"
+            && syls[startIndex + 1]?.form === "CV"
+            && matchesNiaSuffix(syls, startIndex + 2)
+        ) || (
+            syls.length - startIndex === 5
+            && syls[startIndex]?.form === "V"
+            && syls[startIndex + 1]?.form === "C"
+            && syls[startIndex + 1]?.onset === "j"
+            && syls[startIndex + 2]?.form === "CV"
+            && matchesNiaSuffix(syls, startIndex + 3)
+        )
+    );
+    const matchesExactCVlVni = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CVl"
+        && syls[startIndex + 1]?.form === "V"
+        && isNiFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactVjCVni = (syls, startIndex = 0) => (
+        (
+            syls.length - startIndex === 3
+            && syls[startIndex]?.form === "Vj"
+            && syls[startIndex + 1]?.form === "CV"
+            && isNiFinalSyllable(syls[startIndex + 2])
+        ) || (
+            syls.length - startIndex === 4
+            && syls[startIndex]?.form === "V"
+            && syls[startIndex + 1]?.form === "C"
+            && syls[startIndex + 1]?.onset === "j"
+            && syls[startIndex + 2]?.form === "CV"
+            && isNiFinalSyllable(syls[startIndex + 3])
+        )
+    );
+    const matchesExactCVCVni = (syls, startIndex = 0) => (
+        syls.length - startIndex === 3
+        && syls[startIndex]?.form === "CV"
+        && syls[startIndex + 1]?.form === "CV"
+        && isNiFinalSyllable(syls[startIndex + 2])
+    );
+    const matchesExactCVni = (syls, startIndex = 0) => (
+        syls.length - startIndex === 2
+        && syls[startIndex]?.form === "CV"
+        && isNiFinalSyllable(syls[startIndex + 1])
     );
     const isWiFinalSyllable = (syllable) => (
         syllable?.form === "CV"
@@ -3534,8 +3754,9 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isItaVerb = isItaSyllableSequence(syllables);
 
     const forceClassAForKWV = endsWithKWV && !endsWithKWU && !isRootPlusYa && !isMonosyllable;
+    const resolvedVerb = isWeya && rootPlusYaBase ? `${rootPlusYaBase}ya` : verb;
     return {
-        verb,
+        verb: resolvedVerb,
         analysisVerb: analysisRoot,
         isTransitive,
         rootPlusYaBase,
@@ -3630,6 +3851,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         endsWithIaUa,
         isItaVerb,
         isYawi,
+        isWeya,
         hasSlashMarker,
         allowIntransitiveKV: forceClassAForKWV,
         forceClassAForKWV,
@@ -3647,8 +3869,14 @@ function getRootPlusYaClassCandidates(context) {
 }
 
 function getPretUniversalClassCandidates(context) {
+    // Precedence: root+ya > monosyllable > forced-B endings > endsWithLV > exact patterns
+    // > general class rules, with final-onset-w safegate applied as a post-filter.
     const candidates = new Set();
     if (!context.rootSyllablesOk) {
+        return candidates;
+    }
+    if (context.verb === "e" && context.syllableCount === 1) {
+        candidates.add("D");
         return candidates;
     }
     const isMonosyllablePath = context.stemPath === "monosyllable";
@@ -3666,18 +3894,20 @@ function getPretUniversalClassCandidates(context) {
         if (hasExactPattern) {
             return set;
         }
+        const safegate = FINAL_W_SAFE_GATE || DEFAULT_FINAL_W_SAFE_GATE_CONFIG;
+        if (!safegate.enabled) {
+            return set;
+        }
         const vowel = context.lastNucleus;
-        const letterBucket = context.letterCount <= 4 ? "short"
-            : (context.letterCount <= 6 ? "core" : "long");
-        const syllableBucket = context.syllableCount <= 2 ? "short"
-            : (context.syllableCount === 3 ? "core" : "long");
-        const allowB = (
-            (vowel === "a" && letterBucket === "core" && syllableBucket === "core")
-            || (vowel === "i" && (
-                (letterBucket === "core" && syllableBucket === "core")
-                || (letterBucket === "short" && syllableBucket === "short")
-            ))
+        const letterBucket = getFinalWSafegateLetterBucket(
+            context.letterCount,
+            safegate.letterBuckets
         );
+        const syllableBucket = getFinalWSafegateSyllableBucket(
+            context.syllableCount,
+            safegate.syllableBuckets
+        );
+        const allowB = safegate.allowBSet.has(`${vowel}|${letterBucket}|${syllableBucket}`);
         if (!allowB) {
             set.delete("B");
         }
@@ -3840,7 +4070,15 @@ function buildPretUniversalClassD(context) {
 
 function buildPretUniversalClassA(context) {
     if (!context.isTransitive && context.fromRootPlusYa) {
-        const stems = getPerfectiveAlternationStems(context.verb, {
+        if (context.isWeya && context.rootPlusYaBase) {
+            const base = context.rootPlusYaBase;
+            if (!isSyllableSequencePronounceable(base)) {
+                return null;
+            }
+            return [{ base, suffix: "ki" }];
+        }
+        const rootPlusYaVerb = context.verb;
+        const stems = getPerfectiveAlternationStems(rootPlusYaVerb, {
             isTransitive: context.isTransitive,
             isRootPlusYa: true,
         });
@@ -4051,6 +4289,9 @@ function buildPretUniversalClassA(context) {
 
 function buildPretUniversalClassB(context) {
     if (!context.isTransitive && context.fromRootPlusYa) {
+        if (context.isWeya) {
+            return [{ base: context.verb, suffix: "k" }];
+        }
         const variants = [{ base: context.verb, suffix: "k" }];
         const rootPlusYaBase = context.rootPlusYaBase;
         if (rootPlusYaBase && isSyllableSequencePronounceable(rootPlusYaBase)) {
@@ -4090,6 +4331,7 @@ function buildPretUniversalClassB(context) {
     const rootPlusYaBase = getRootPlusYaBase(context.verb, {
         isTransitive: context.isTransitive,
         isYawi: context.isYawi,
+        isWeya: context.isWeya,
         requirePronounceable: true,
     });
     if (rootPlusYaBase) {
@@ -4517,6 +4759,7 @@ function buildClassBasedResult({
     classFilter = null,
     allowAllClasses = false,
     isYawi = false,
+    isWeya = false,
     hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
@@ -4535,6 +4778,7 @@ function buildClassBasedResult({
     } else {
         context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
             isYawi,
+            isWeya,
             hasSlashMarker,
             exactBaseVerb,
         });
@@ -4665,6 +4909,7 @@ function buildPretUniversalResult({
     analysisVerb,
     exactBaseVerb,
     isYawi = false,
+    isWeya = false,
     hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
@@ -4683,6 +4928,7 @@ function buildPretUniversalResult({
         analysisVerb,
         exactBaseVerb,
         isYawi,
+        isWeya,
         hasSlashMarker,
         directionalInputPrefix,
         directionalOutputPrefix,
@@ -4735,6 +4981,7 @@ function buildPretUniversalResultWithProvenance({
     analysisVerb,
     exactBaseVerb,
     isYawi = false,
+    isWeya = false,
     hasSlashMarker = false,
     directionalInputPrefix = "",
     directionalOutputPrefix = "",
@@ -4754,6 +5001,7 @@ function buildPretUniversalResultWithProvenance({
     if (classKey === "B") {
         context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
             isYawi,
+            isWeya,
             hasSlashMarker,
             exactBaseVerb,
         });
@@ -4812,6 +5060,7 @@ function buildPretUniversalResultWithProvenance({
             blockedReason = "suppletive-plural-class-blocked";
             context = context || buildPretUniversalContext(verb, analysisTarget, isTransitive, {
                 isYawi,
+                isWeya,
                 hasSlashMarker,
                 exactBaseVerb,
             });
@@ -4838,6 +5087,7 @@ function buildPretUniversalResultWithProvenance({
     } else {
         variants = getPretUniversalVariants(verb, tense, isTransitive, analysisTarget, {
             isYawi,
+            isWeya,
             hasSlashMarker,
             exactBaseVerb,
         });
@@ -4845,6 +5095,7 @@ function buildPretUniversalResultWithProvenance({
     if (!context) {
         context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
             isYawi,
+            isWeya,
             hasSlashMarker,
             exactBaseVerb,
         });
@@ -5311,6 +5562,15 @@ function parseVerbInput(value) {
             verb = verb.slice(0, -yawiCanonical.length) + yawiImperfective;
         }
     }
+    const isWeya = SUPPLETIVE_WEYA_FORMS.has(analysisVerb);
+    if (isWeya) {
+        const baseForm = analysisVerb;
+        const canonical = getSuppletiveWeyaCanonical();
+        analysisVerb = canonical;
+        if (verb.endsWith(baseForm)) {
+            verb = verb.slice(0, -baseForm.length) + canonical;
+        }
+    }
     return {
         verb,
         analysisVerb,
@@ -5321,6 +5581,7 @@ function parseVerbInput(value) {
         isMarkedTransitive,
         isTaFusion,
         isYawi,
+        isWeya,
         directionalPrefix,
         directionalRuleMode,
         hasSpecificValence,
@@ -5355,6 +5616,9 @@ let SUPPLETIVE_YAWI_CANONICAL = "";
 let SUPPLETIVE_YAWI_IMPERFECTIVE = "";
 let SUPPLETIVE_YAWI_SHORT = "";
 let SUPPLETIVE_YAWI_YU_VARIANT = "";
+let SUPPLETIVE_WEYA_FORMS = new Set();
+let SUPPLETIVE_WEYA_ROOT = "";
+let SUPPLETIVE_WEYA_CANONICAL = "";
 let SUPPLETIVE_WITZI_FORMS = new Set();
 let SUPPLETIVE_WITZI_IMPERFECTIVE = "";
 let SUPPLETIVE_WITZI_TENSES = new Set();
@@ -5385,6 +5649,18 @@ function getSuppletiveYawiShort() {
 
 function getSuppletiveYawiYuVariant() {
     return SUPPLETIVE_YAWI_YU_VARIANT || "yu";
+}
+
+function getSuppletiveWeyaRootPlusYaBase() {
+    return SUPPLETIVE_WEYA_ROOT || "wey";
+}
+
+function getSuppletiveWeyaCanonical() {
+    if (SUPPLETIVE_WEYA_CANONICAL) {
+        return SUPPLETIVE_WEYA_CANONICAL;
+    }
+    const rootBase = getSuppletiveWeyaRootPlusYaBase();
+    return rootBase ? `${rootBase}ya` : "weyya";
 }
 
 function buildSuppletiveYeStemSet() {
@@ -5480,6 +5756,7 @@ function getVerbInputMeta() {
             hasCompoundMarker: false,
             isMarkedTransitive: false,
             isYawi: false,
+            isWeya: false,
             directionalPrefix: "",
             directionalRuleMode: "",
             hasSpecificValence: false,
@@ -6288,7 +6565,7 @@ function parseVerbSuggestionCSV(text) {
 function normalizeVerbSuggestionInput(rawValue) {
     const raw = String(rawValue || "").trim();
     const parsed = parseVerbInput(raw);
-    const query = (parsed.analysisVerb || parsed.verb || "").toLowerCase();
+    const query = (parsed.rawAnalysisVerb || parsed.analysisVerb || parsed.verb || "").toLowerCase();
     return {
         raw: parsed.displayVerb,
         isTransitive: parsed.isMarkedTransitive,
@@ -6523,6 +6800,7 @@ function buildPretUniversalClassOutputForEntry({
     const analysisVerb = parsedVerb.analysisVerb || verb;
     const context = buildPretUniversalContext(verb, analysisVerb, isTransitive, {
         isYawi: parsedVerb.isYawi,
+        isWeya: parsedVerb.isWeya,
         hasSlashMarker: parsedVerb.hasSlashMarker,
         exactBaseVerb: parsedVerb.exactBaseVerb || "",
     });
@@ -6716,141 +6994,12 @@ function getPretUniversalFlagsForVerb(baseVerb, entry) {
     modes.forEach((isTransitive) => {
         const context = buildPretUniversalContext(verb, analysisVerb, isTransitive, {
             isYawi: parsedVerb.isYawi,
+            isWeya: parsedVerb.isWeya,
             exactBaseVerb: parsedVerb.exactBaseVerb || "",
         });
         buildPretUniversalFlagsForContext(context, flags);
     });
     return flags;
-}
-
-function buildPretUniversalCSV(text) {
-    const rows = parseCSVRows(text);
-    if (!rows.length) {
-        return "";
-    }
-    const headerLabels = [
-        "Class A (-V + ki)",
-        "Class A (-V + 0)",
-        "Class B (V + k)",
-        "Class C",
-        "Class D",
-        "Exception ita > itz",
-    ];
-    const outputRows = [];
-    rows.forEach((row, index) => {
-        const firstCell = row[0] ? String(row[0]).trim() : "";
-        if (index === 0 && firstCell.toLowerCase() === "lx") {
-            outputRows.push([...row, ...headerLabels]);
-            return;
-        }
-        const entry = parseVerbEntryToken(firstCell);
-        const base = entry.base.toLowerCase();
-        if (!base) {
-            outputRows.push([...row, "N", "N", "N", "N", "N"]);
-            return;
-        }
-        const flags = getPretUniversalFlagsForVerb(base, entry);
-        outputRows.push([
-            ...row,
-            flags.classAKi ? "Y" : "N",
-            flags.classAZero ? "Y" : "N",
-            flags.classB ? "Y" : "N",
-            flags.classC ? "Y" : "N",
-            flags.classD ? "Y" : "N",
-            flags.exceptionItaToItz ? "Y" : "N",
-        ]);
-    });
-    return outputRows
-        .map((row) => row.map((cell) => escapeCSVValue(cell)).join(","))
-        .join("\n");
-}
-
-function buildPretUniversalClassOutputsCSV(text) {
-    const rows = parseCSVRows(text);
-    if (!rows.length) {
-        return "";
-    }
-    const headerLabels = [
-        "Clase A (-V + ki)",
-        "Clase A (-V + Ø)",
-        "Clase B (V + k)",
-        "Clase C",
-        "Clase D",
-    ];
-    const outputRows = [];
-    rows.forEach((row, index) => {
-        const firstCell = row[0] ? String(row[0]).trim() : "";
-        const headerKey = firstCell.toLowerCase();
-        if (index === 0 && (headerKey === "lx" || headerKey === "/lx")) {
-            outputRows.push([...row, ...headerLabels]);
-            return;
-        }
-        const entry = parseVerbEntryToken(firstCell);
-        const base = entry.base.toLowerCase();
-        if (!base) {
-            outputRows.push([...row, "—", "—", "—", "—", "—"]);
-            return;
-        }
-        const parsedVerb = parseVerbInput(base);
-        const outputs = buildPretUniversalClassOutputsForEntry(parsedVerb, entry, base);
-        outputRows.push([
-            ...row,
-            outputs.classAKi,
-            outputs.classAZero,
-            outputs.classB,
-            outputs.classC,
-            outputs.classD,
-        ]);
-    });
-    return outputRows
-        .map((row) => row.map((cell) => escapeCSVValue(cell)).join(","))
-        .join("\n");
-}
-
-function downloadPretUniversalCSV() {
-    const sourcePromise = VERB_SUGGESTIONS_TEXT
-        ? Promise.resolve(VERB_SUGGESTIONS_TEXT)
-        : fetch("data/data.csv", { cache: "no-store" }).then((response) => response.text());
-    sourcePromise
-        .then((text) => {
-            const output = buildPretUniversalCSV(text);
-            if (!output) {
-                return;
-            }
-            const blob = new Blob([output], { type: "text/csv;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "data-preterito-universal.csv";
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-        })
-        .catch(() => {});
-}
-
-function downloadPretUniversalClassOutputsCSV() {
-    const sourcePromise = VERB_SUGGESTIONS_TEXT
-        ? Promise.resolve(VERB_SUGGESTIONS_TEXT)
-        : fetch("data/data.csv", { cache: "no-store" }).then((response) => response.text());
-    sourcePromise
-        .then((text) => {
-            const output = buildPretUniversalClassOutputsCSV(text);
-            if (!output) {
-                return;
-            }
-            const blob = new Blob([output], { type: "text/csv;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "data-preterito-universal-clases.csv";
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-        })
-        .catch(() => {});
 }
 
 // === UI Panels & Tabs ===
@@ -7261,6 +7410,7 @@ function renderTenseTabs() {
         }
         const variants = getPretUniversalVariants(verb, tenseValue, isTransitive, analysisVerb, {
             isYawi: verbMeta.isYawi,
+            isWeya: verbMeta.isWeya,
             hasSlashMarker: verbMeta.hasSlashMarker,
             exactBaseVerb: verbMeta.exactBaseVerb || "",
         });
@@ -7931,6 +8081,7 @@ function applyMorphologyRules({
     analysisVerb,
     analysisExactVerb,
     isYawi,
+    isWeya,
     directionalPrefix,
     directionalRuleMode = "",
     suppletiveStemSet,
@@ -8062,6 +8213,7 @@ function applyMorphologyRules({
             analysisVerb,
             exactBaseVerb: exactAnalysisVerb,
             isYawi,
+            isWeya,
             hasSlashMarker,
             directionalInputPrefix,
             directionalOutputPrefix,
@@ -8115,6 +8267,7 @@ function applyMorphologyRules({
             classFilter: CLASS_FILTER_STATE.activeClass,
             allowAllClasses: false,
             isYawi,
+            isWeya,
             hasSlashMarker,
             directionalInputPrefix,
             directionalOutputPrefix,
@@ -8160,7 +8313,7 @@ function applyMorphologyRules({
         }
     }
     const rootPlusYaBase = isPerfectiveTense(tense)
-        ? getRootPlusYaBase(verb, { isTransitive, isYawi, requirePronounceable: true })
+        ? getRootPlusYaBase(verb, { isTransitive, isYawi, isWeya, requirePronounceable: true })
         : null;
     if (rootPlusYaBase) {
         alternateForms.push({ verb: rootPlusYaBase, subjectSuffix });
@@ -8574,6 +8727,7 @@ function generateWord(options = {}) {
     const fusionPrefixes = Array.isArray(parsedVerb.fusionPrefixes) ? parsedVerb.fusionPrefixes : [];
     const validationVerb = verb;
     let isYawi = parsedVerb.isYawi;
+    const isWeya = parsedVerb.isWeya;
     isReflexive = objectPrefix === "mu";
     const directionalPrefix = parsedVerb.directionalPrefix;
     const suppletivePath = getSuppletiveStemPath(parsedVerb);
@@ -8859,6 +9013,7 @@ function generateWord(options = {}) {
         analysisVerb,
         analysisExactVerb,
         isYawi,
+        isWeya,
         directionalPrefix,
         directionalRuleMode: resolvedDirectionalRuleMode,
         suppletiveStemSet,
@@ -10775,14 +10930,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         verbEl.addEventListener("scroll", () => {
             renderVerbMirror();
         });
-    }
-    const downloadCsvButton = document.getElementById("download-csv");
-    if (downloadCsvButton) {
-        downloadCsvButton.addEventListener("click", downloadPretUniversalCSV);
-    }
-    const downloadLexemeClassesButton = document.getElementById("download-lexeme-classes-csv");
-    if (downloadLexemeClassesButton) {
-        downloadLexemeClassesButton.addEventListener("click", downloadPretUniversalClassOutputsCSV);
     }
     window.addEventListener("resize", () => {
         renderVerbMirror();

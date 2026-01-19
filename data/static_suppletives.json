@@ -34,5 +34,10 @@
       "suffix": "luwa",
       "tenses": ["preterito-clase", "pasado-remoto"]
     }
+  },
+  "suppletiveWeya": {
+    "forms": ["weya", "weiya", "weyya"],
+    "rootPlusYaBase": "wey",
+    "canonical": "weyya"
   }
 }

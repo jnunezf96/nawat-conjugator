@@ -708,6 +708,93 @@
           }
         }
       ]
+    },
+    {
+      "name": "ForceClassBEndingVjCV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajpa",
+          "expect": {
+            "candidates": ["B"]
+          }
+        },
+        {
+          "label": "cvj",
+          "verb": "pajka",
+          "expect": {
+            "candidates": ["B"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ForceClassBEndingVlCV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "alpa",
+          "expect": {
+            "candidates": ["B"]
+          }
+        },
+        {
+          "label": "cvl",
+          "verb": "palpa",
+          "expect": {
+            "candidates": ["B"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ForceClassBEndingVCCV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "akpa",
+          "expect": {
+            "candidates": ["B"]
+          }
+        },
+        {
+          "label": "cv",
+          "verb": "pakpa",
+          "expect": {
+            "candidates": ["B"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "EndsWithLV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ijkali",
+          "expect": {
+            "candidates": ["A"],
+            "classASuffixes": [""]
+          }
+        }
+      ]
+    },
+    {
+      "name": "FinalOnsetWSafegate",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ekchiwa",
+          "expect": {
+            "candidates": ["A"]
+          }
+        }
+      ]
     }
   ]
 }

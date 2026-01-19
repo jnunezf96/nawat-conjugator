@@ -20,6 +20,11 @@ def main() -> int:
         print(f"script.js not found at: {script_path}", file=sys.stderr)
         return 2
 
+    phonology_path = root / "data" / "static_phonology.json"
+    constants_path = root / "data" / "static_constants.json"
+    static_rules_path = root / "data" / "static_rules.json"
+    redup_path = root / "data" / "static_redup.json"
+
     js_runner = textwrap.dedent(
         """
         const fs = require("fs");
@@ -28,6 +33,10 @@ def main() -> int:
 
         const rulesPath = process.argv[1];
         const scriptPath = process.argv[2];
+        const phonologyPath = process.argv[3];
+        const constantsPath = process.argv[4];
+        const staticRulesPath = process.argv[5];
+        const redupPath = process.argv[6];
         const rules = JSON.parse(fs.readFileSync(rulesPath, "utf8"));
         const code = fs.readFileSync(scriptPath, "utf8");
 
@@ -61,6 +70,27 @@ def main() -> int:
 
         vm.createContext(context);
         vm.runInContext(code, context, { filename: path.basename(scriptPath) });
+
+        const applyStaticPhonology = context.applyStaticPhonology;
+        const applyStaticConstants = context.applyStaticConstants;
+        const applyStaticRules = context.applyStaticRules;
+        const applyStaticRedup = context.applyStaticRedup;
+        if (applyStaticPhonology) {
+          const phonology = JSON.parse(fs.readFileSync(phonologyPath, "utf8"));
+          applyStaticPhonology(phonology);
+        }
+        if (applyStaticConstants) {
+          const constants = JSON.parse(fs.readFileSync(constantsPath, "utf8"));
+          applyStaticConstants(constants);
+        }
+        if (applyStaticRules) {
+          const staticRules = JSON.parse(fs.readFileSync(staticRulesPath, "utf8"));
+          applyStaticRules(staticRules);
+        }
+        if (applyStaticRedup) {
+          const redup = JSON.parse(fs.readFileSync(redupPath, "utf8"));
+          applyStaticRedup(redup);
+        }
 
         const buildPretUniversalContext = context.buildPretUniversalContext;
         const getPretUniversalClassCandidates = context.getPretUniversalClassCandidates;
@@ -182,7 +212,17 @@ def main() -> int:
     ).strip()
 
     result = subprocess.run(
-        ["node", "-e", js_runner, str(rules_path), str(script_path)],
+        [
+            "node",
+            "-e",
+            js_runner,
+            str(rules_path),
+            str(script_path),
+            str(phonology_path),
+            str(constants_path),
+            str(static_rules_path),
+            str(redup_path),
+        ],
         text=True,
         capture_output=True,
     )

@@ -27,5 +27,15 @@
     "pluscuamperfecto",
     "condicional-perfecto"
   ],
-  "nonspecificIDropVerbs": ["itki"]
+  "nonspecificIDropVerbs": ["itki"],
+  "finalOnsetWSafegate": {
+    "enabled": true,
+    "letterBuckets": { "shortMax": 4, "coreMax": 6 },
+    "syllableBuckets": { "shortMax": 2, "coreValue": 3 },
+    "allowB": [
+      { "vowel": "a", "letters": "core", "syllables": "core" },
+      { "vowel": "i", "letters": "core", "syllables": "core" },
+      { "vowel": "i", "letters": "short", "syllables": "short" }
+    ]
+  }
 }
