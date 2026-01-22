@@ -1,47 +1,44 @@
 {
   "specificValencePrefixes": ["nech", "metz", "ki", "tech", "metzin", "kin"],
   "nonspecificValencePrefixes": ["ta", "te", "mu"],
-  "nonspecificValenceAffixes": ["ta", "te", "mu", "taj", "tajta", "tej", "tejte", "t", "mujmu"],
+  "nonspecificValenceAffixes": ["ta", "te", "mu", "taj", "tajta", "tej", "tejte", "t", "mujmu", "m"],
   "objectPrefixes": [
-    { "value": "nech", "labelEs": "a mí (nech)", "labelNa": "a mí (nech)", "labelText": "a mí (nech)" },
-    { "value": "metz", "labelEs": "a ti (metz)", "labelNa": "a ti (metz)", "labelText": "a ti (metz)" },
-    { "value": "ki", "labelEs": "a él/ella/eso (ki~k)", "labelNa": "a él/ella/eso (ki~k)", "labelText": "a él/ella/eso (ki~k)" },
-    { "value": "tech", "labelEs": "a nosotros/as (tech)", "labelNa": "a nosotros/as (tech)", "labelText": "a nosotros/as (tech)" },
-    { "value": "metzin", "labelEs": "a ustedes (metzin)", "labelNa": "a ustedes (metzin)", "labelText": "a ustedes (metzin)" },
-    { "value": "kin", "labelEs": "a ellos/as (kin)", "labelNa": "a ellos/as (kin)", "labelText": "a ellos/as (kin)" },
-    { "value": "mu", "labelEs": "a uno mismo (mu)", "labelNa": "a uno mismo (mu)", "labelText": "a uno mismo (mu)" },
-    { "value": "ta", "labelEs": "a algo (ta)", "labelNa": "a algo (ta)", "labelText": "a algo (ta)" },
-    { "value": "te", "labelEs": "a alguien (te)", "labelNa": "a alguien (te)", "labelText": "a alguien (te)" }
+    { "value": "nech" },
+    { "value": "metz" },
+    { "value": "ki", "labelSuffix": "ki~k" },
+    { "value": "tech" },
+    { "value": "metzin" },
+    { "value": "kin" },
+    { "value": "mu" },
+    { "value": "ta" },
+    { "value": "te" }
   ],
   "subjectCombinations": [
-    { "id": "ni", "labelEs": "yo", "labelNa": "naja", "subjectPrefix": "ni", "subjectSuffix": "" },
-    { "id": "ti", "labelEs": "tú", "labelNa": "taja", "subjectPrefix": "ti", "subjectSuffix": "" },
-    { "id": "third-person", "labelEs": "él/ella/eso", "labelNa": "yaja", "subjectPrefix": "", "subjectSuffix": "" },
-    { "id": "1-pl", "labelEs": "nosotros", "labelNa": "tejemet", "subjectPrefix": "ti", "subjectSuffix": "t" },
-    { "id": "2-pl", "labelEs": "ustedes", "labelNa": "anmejemet", "subjectPrefix": "an", "subjectSuffix": "t" },
-    { "id": "3-pl", "labelEs": "ellos/ellas", "labelNa": "yejemet", "subjectPrefix": "", "subjectSuffix": "t" }
+    { "id": "ni", "personSubKey": "1sg", "subjectPrefix": "ni", "subjectSuffix": "" },
+    { "id": "ti", "personSubKey": "2sg", "subjectPrefix": "ti", "subjectSuffix": "" },
+    { "id": "third-person", "personSubKey": "3sg", "subjectPrefix": "", "subjectSuffix": "" },
+    { "id": "1-pl", "personSubKey": "1pl", "subjectPrefix": "ti", "subjectSuffix": "t" },
+    { "id": "2-pl", "personSubKey": "2pl", "subjectPrefix": "an", "subjectSuffix": "t" },
+    { "id": "3-pl", "personSubKey": "3pl", "subjectPrefix": "", "subjectSuffix": "t" }
   ],
   "subjectPersonGroups": [
     {
       "id": "first",
-      "labelEs": "1a persona",
-      "labelNa": "Achtu teikniw",
-      "singular": { "labelEs": "yo", "labelNa": "naja", "subjectPrefix": "ni", "subjectSuffix": "" },
-      "plural": { "labelEs": "nosotros", "labelNa": "tejemet", "subjectPrefix": "ti", "subjectSuffix": "t" }
+      "labelKey": "first",
+      "singular": { "personSubKey": "1sg", "subjectPrefix": "ni", "subjectSuffix": "" },
+      "plural": { "personSubKey": "1pl", "subjectPrefix": "ti", "subjectSuffix": "t" }
     },
     {
       "id": "second",
-      "labelEs": "2a persona",
-      "labelNa": "Teikniw 2",
-      "singular": { "labelEs": "tú", "labelNa": "taja", "subjectPrefix": "ti", "subjectSuffix": "" },
-      "plural": { "labelEs": "ustedes", "labelNa": "anmejemet", "subjectPrefix": "an", "subjectSuffix": "t" }
+      "labelKey": "second",
+      "singular": { "personSubKey": "2sg", "subjectPrefix": "ti", "subjectSuffix": "" },
+      "plural": { "personSubKey": "2pl", "subjectPrefix": "an", "subjectSuffix": "t" }
     },
     {
       "id": "third",
-      "labelEs": "3a persona",
-      "labelNa": "Teiknew 3",
-      "singular": { "labelEs": "él/ella/eso", "labelNa": "yaja", "subjectPrefix": "", "subjectSuffix": "" },
-      "plural": { "labelEs": "ellos/ellas", "labelNa": "yejemet", "subjectPrefix": "", "subjectSuffix": "t" }
+      "labelKey": "third",
+      "singular": { "personSubKey": "3sg", "subjectPrefix": "", "subjectSuffix": "" },
+      "plural": { "personSubKey": "3pl", "subjectPrefix": "", "subjectSuffix": "t" }
     }
   ],
   "possessivePrefixes": [
@@ -55,49 +52,37 @@
     },
     {
       "id": "1s",
-      "label": "1a persona",
-      "labelEs": "1a persona",
-      "labelNa": "1a persona",
+      "personSubKey": "1sg",
       "value": "nu",
       "number": "singular"
     },
     {
       "id": "2s",
-      "label": "2a persona",
-      "labelEs": "2a persona",
-      "labelNa": "2a persona",
+      "personSubKey": "2sg",
       "value": "mu",
       "number": "singular"
     },
     {
       "id": "3s",
-      "label": "3a persona",
-      "labelEs": "3a persona",
-      "labelNa": "3a persona",
+      "personSubKey": "3sg",
       "value": "i",
       "number": "singular"
     },
     {
       "id": "1p",
-      "label": "1a persona",
-      "labelEs": "1a persona",
-      "labelNa": "1a persona",
+      "personSubKey": "1pl",
       "value": "tu",
       "number": "plural"
     },
     {
       "id": "2p",
-      "label": "2a persona",
-      "labelEs": "2a persona",
-      "labelNa": "2a persona",
+      "personSubKey": "2pl",
       "value": "anmu",
       "number": "plural"
     },
     {
       "id": "3p",
-      "label": "3a persona",
-      "labelEs": "3a persona",
-      "labelNa": "3a persona",
+      "personSubKey": "3pl",
       "value": "in",
       "number": "plural"
     }

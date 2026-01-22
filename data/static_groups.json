@@ -28,7 +28,7 @@
             "labelEs": "Pasado · perfectivo (simple)",
             "labelNa": "Pasado · perfectivo (simple)"
           },
-          "tenses": ["preterito-clase", "pasado-remoto"]
+          "tenses": ["preterito", "pasado-remoto"]
         },
         {
           "heading": {

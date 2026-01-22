@@ -21,29 +21,11 @@
     "preterito-universal-4": "C"
   },
   "preteritoClassTenses": [
-    "preterito-clase",
+    "preterito",
     "pasado-remoto",
     "perfecto",
     "pluscuamperfecto",
     "condicional-perfecto"
   ],
-  "nonspecificIDropVerbs": ["itki"],
-  "finalOnsetWSafegate": {
-    "enabled": true,
-    "letterBuckets": { "shortMax": 4, "coreMax": 6 },
-    "syllableBuckets": { "shortMax": 2, "coreValue": 3 },
-    "allowB": [
-      { "vowel": "a", "letters": "core", "syllables": "core" },
-      { "vowel": "i", "letters": "core", "syllables": "core" },
-      { "vowel": "i", "letters": "short", "syllables": "short" }
-    ]
-  },
-  "finalOnsetNSafegate": {
-    "enabled": true,
-    "letterBuckets": { "shortMax": 3, "coreMax": 6 },
-    "syllableBuckets": { "shortMax": 3, "coreValue": 4 },
-    "allowB": [
-      { "vowel": "i", "letters": "core", "syllables": "short" }
-    ]
-  }
+  "nonspecificIDropVerbs": ["itki"]
 }

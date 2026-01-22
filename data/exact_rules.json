@@ -3,7 +3,7 @@
   "description": "Exact-pattern reduplication checks for preterite universal classes.",
   "cases": [
     {
-      "name": "VnV",
+      "name": "V-CV(nV)",
       "exactKey": "isExactVnV",
       "isTransitive": true,
       "forms": [
@@ -12,8 +12,12 @@
           "verb": "ani",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -21,14 +25,18 @@
           "verb": "aani",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVnV",
+      "name": "CV-CV(nV)",
       "exactKey": "isExactCVnV",
       "isTransitive": true,
       "forms": [
@@ -37,8 +45,13 @@
           "verb": "pani",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         },
         {
@@ -46,14 +59,19 @@
           "verb": "papani",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVsV",
+      "name": "CV-CV(sV)",
       "exactKey": "isExactCVsV",
       "isTransitive": false,
       "forms": [
@@ -62,8 +80,13 @@
           "verb": "pasi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -71,14 +94,19 @@
           "verb": "papasi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVmV",
+      "name": "CV-CV(mV)",
       "exactKey": "isExactCVmV",
       "isTransitive": true,
       "forms": [
@@ -87,8 +115,13 @@
           "verb": "pama",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         },
         {
@@ -96,14 +129,19 @@
           "verb": "papama",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": [""]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVwi",
+      "name": "CV-CV(wi)",
       "exactKey": "isExactCVwi",
       "isTransitive": false,
       "forms": [
@@ -112,8 +150,13 @@
           "verb": "pawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -121,14 +164,76 @@
           "verb": "papawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "VCVwi",
+      "name": "V-CV(wi)",
+      "exactKey": "isExactVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "awi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV(wi) (transiCV(ti)ve)",
+      "exactKey": "isExactCVwi",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pawi",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
+          }
+        },
+        {
+          "label": "redup",
+          "verb": "papawi",
+          "expect": {
+            "isReduplicated": true,
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V-CV-CV(wi)",
       "exactKey": "isExactVCVwi",
       "isTransitive": false,
       "forms": [
@@ -137,8 +242,13 @@
           "verb": "apawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -146,14 +256,36 @@
           "verb": "aapawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "VlVwi",
+      "name": "V-CV-CV(wi) (transiCV(ti)ve)",
+      "exactKey": "isExactVCVwi",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "apawi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vl-V-CV(wi)",
       "exactKey": "isExactVlVwi",
       "isTransitive": false,
       "forms": [
@@ -162,8 +294,13 @@
           "verb": "alawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -171,8 +308,13 @@
           "verb": "aalawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -180,14 +322,19 @@
           "verb": "ajalawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVlVwi",
+      "name": "CVl-V-CV(wi)",
       "exactKey": "isExactCVlVwi",
       "isTransitive": false,
       "forms": [
@@ -196,8 +343,13 @@
           "verb": "palawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -205,8 +357,13 @@
           "verb": "papalawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -214,14 +371,19 @@
           "verb": "pajpalawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVCVwi",
+      "name": "CV-CV-CV(wi)",
       "exactKey": "isExactCVCVwi",
       "isTransitive": false,
       "forms": [
@@ -230,8 +392,13 @@
           "verb": "tapawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -239,14 +406,40 @@
           "verb": "tatapawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVCVCVwi",
+      "name": "CV-CV-CV(wi) (transiCV(ti)ve)",
+      "exactKey": "isExactCVCVwi",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "mayawi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV-CV(wi)",
       "exactKey": "isExactCVCVCVwi",
       "isTransitive": false,
       "forms": [
@@ -255,8 +448,13 @@
           "verb": "tapakawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -264,14 +462,20 @@
           "verb": "tatapakawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "VjCVwi",
+      "name": "Vj-CV-CV(wi)",
       "exactKey": "isExactVjCVwi",
       "isTransitive": false,
       "forms": [
@@ -280,8 +484,13 @@
           "verb": "ajpawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -289,14 +498,19 @@
           "verb": "ajajpawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "VjCVCVwi",
+      "name": "Vj-CV-CV-CV(wi)",
       "exactKey": "isExactVjCVCVwi",
       "isTransitive": false,
       "forms": [
@@ -305,8 +519,13 @@
           "verb": "ajtapawi",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -314,14 +533,37 @@
           "verb": "ajajtapawi",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["", "ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVwaA",
+      "name": "CV-Vj-CV-CV(wi)",
+      "exactKey": "isExactCVVjCVwi",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "teujsiwi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV(a)-CV(wa)",
       "exactKey": "isExactCVwa",
       "expectExactFlags": {
         "isExactCVwaA": true
@@ -333,8 +575,12 @@
           "verb": "pawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -343,15 +589,20 @@
           "verb": "papawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "Kawa",
+      "name": "CV(ka)-CV(wa)",
       "exactKey": "isExactCVwa",
       "expectExactFlags": {
         "isExactCVwaA": true,
@@ -364,8 +615,12 @@
           "verb": "kawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ],
             "hasJAlt": false
           }
         },
@@ -374,15 +629,20 @@
           "verb": "kakawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "Cuwa",
+      "name": "CV(u)-CV(wa)",
       "exactKey": "isExactCVwa",
       "expectExactFlags": {
         "isExactCuwa": true
@@ -394,7 +654,9 @@
           "verb": "kuwa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         },
         {
@@ -402,13 +664,52 @@
           "verb": "kukuwa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVCVwa",
+      "name": "V-CV(wa) (transiCV(ti)ve)",
+      "exactKey": "isExactVwa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "awa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vj-CV(wa)",
+      "exactKey": "isExactVjwa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajwa",
+          "expect": {
+            "isReduplicated": false,
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV(wa)",
       "exactKey": "isExactCVCVwa",
       "isTransitive": false,
       "forms": [
@@ -417,8 +718,13 @@
           "verb": "tapawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -426,14 +732,18 @@
           "verb": "tatapawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVCawa",
+      "name": "CV-CV(a)-CV(wa)",
       "exactKey": "isExactCVCawa",
       "isTransitive": true,
       "forms": [
@@ -442,8 +752,13 @@
           "verb": "tipawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -452,15 +767,20 @@
           "verb": "titipawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "CVlawa",
+      "name": "CVl-V(a)-CV(wa)",
       "exactKey": "isExactCVlawa",
       "isTransitive": true,
       "forms": [
@@ -469,8 +789,13 @@
           "verb": "palawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -479,8 +804,13 @@
           "verb": "papalawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -489,15 +819,20 @@
           "verb": "pajpalawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "VCCawa",
+      "name": "V-C-CV(a)-CV(wa)",
       "exactKey": "isExactVCCawa",
       "isTransitive": true,
       "forms": [
@@ -506,8 +841,13 @@
           "verb": "atpawa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": false
           }
         },
@@ -516,15 +856,20 @@
           "verb": "aatpawa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": false
           }
         }
       ]
     },
     {
-      "name": "Cewa",
+      "name": "CV(e)-CV(wa)",
       "exactKey": "isExactCewa",
       "isTransitive": true,
       "forms": [
@@ -533,8 +878,12 @@
           "verb": "pewa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -543,15 +892,19 @@
           "verb": "pepewa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "CVCewa",
+      "name": "CV-CV(e)-CV(wa)",
       "exactKey": "isExactCVCewa",
       "isTransitive": true,
       "forms": [
@@ -560,8 +913,13 @@
           "verb": "tipewa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -570,15 +928,20 @@
           "verb": "titipewa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "VjCewa",
+      "name": "Vj-CV(e)-CV(wa)",
       "exactKey": "isExactVjCewa",
       "isTransitive": true,
       "forms": [
@@ -587,8 +950,13 @@
           "verb": "ajpewa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -597,15 +965,20 @@
           "verb": "ajajpewa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "CVlewa",
+      "name": "CVl-V(e)-CV(wa)",
       "exactKey": "isExactCVlewa",
       "isTransitive": true,
       "forms": [
@@ -614,8 +987,13 @@
           "verb": "pelewa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -624,8 +1002,13 @@
           "verb": "pepelewa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         },
@@ -634,15 +1017,20 @@
           "verb": "pejpelewa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A"],
-            "classASuffixes": ["", "ki"],
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              "",
+              "ki"
+            ],
             "hasJAlt": true
           }
         }
       ]
     },
     {
-      "name": "VlVwa",
+      "name": "Vl-V-CV(wa)",
       "exactKey": "isExactVlVwa",
       "isTransitive": false,
       "forms": [
@@ -651,8 +1039,13 @@
           "verb": "aliwa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -660,8 +1053,13 @@
           "verb": "aaliwa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -669,14 +1067,19 @@
           "verb": "ajaliwa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         }
       ]
     },
     {
-      "name": "CVlVwa",
+      "name": "CVl-V-CV(wa)",
       "exactKey": "isExactCVlVwa",
       "isTransitive": false,
       "forms": [
@@ -685,8 +1088,13 @@
           "verb": "paliwa",
           "expect": {
             "isReduplicated": false,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -694,8 +1102,13 @@
           "verb": "papaliwa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
           }
         },
         {
@@ -703,8 +1116,420 @@
           "verb": "pajpaliwa",
           "expect": {
             "isReduplicated": true,
-            "candidates": ["A", "B"],
-            "classASuffixes": ["ki"]
+            "candidates": [
+              "A",
+              "B"
+            ],
+            "classASuffixes": [
+              "ki"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV(wa)",
+      "exactKey": "isExactCVCCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchiwa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV-CV(wa)",
+      "exactKey": "isExactCVCVCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakawa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV-CV(wa)",
+      "exactKey": "isExactCVCCVCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchikawa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVl-CV-CV-CV(wa)",
+      "exactKey": "isExactCVlCVCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kalpakawa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V-C-CV-CV-CV(wa)",
+      "exactKey": "isExactVCCVCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "akchikawa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CVl-V-CV(wi)",
+      "exactKey": "isExactCVCVlVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kupiliwi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV(wi)",
+      "exactKey": "isExactCVCCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchiwi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV-CV(wi)",
+      "exactKey": "isExactCVCCVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchikawi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVl-CV-CV-CV(wi)",
+      "exactKey": "isExactCVlCVCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kalpachiwi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV-CV(ni)",
+      "exactKey": "isExactCVCVCVni",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakani",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV-CV(ni)",
+      "exactKey": "isExactCVCCVCVni",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchikani",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV-CV-CV(ni)",
+      "exactKey": "isExactCVCVCVCVni",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakipani",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV(na)",
+      "exactKey": "isExactCVCCVna",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-CV-CV-CV(na)",
+      "exactKey": "isExactCVCVCVna",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-C-CV-CV-CV(na)",
+      "exactKey": "isExactCVCCVCVna",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kakchikana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Long-CV(wa)",
+      "exactKey": "isExactLongWa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakipakawa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Long-CV(wi)",
+      "exactKey": "isExactLongWi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakipakawi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Long-CV(na)",
+      "exactKey": "isExactLongNa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakipakana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Long-CV(ni)",
+      "exactKey": "isExactLongNi",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakipakani",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "C-CV(wi)",
+      "exactKey": "isExactCCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "twi",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V-C-CV(wi) (short)",
+      "exactKey": "isExactVCCVwiShort",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ishwi",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CVj-CV-CV(wi)",
+      "exactKey": "isExactCVjCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kwejsiwi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V-C-CV(wa) (intransiCV(ti)ve)",
+      "exactKey": "isExactVCCVwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ishwa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "V-C-CV(wa) (transiCV(ti)ve)",
+      "exactKey": "isExactVCCVwa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "itwa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV-V-CV(ni)",
+      "exactKey": "isExactCVVni",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "teini",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
           }
         }
       ]
@@ -717,14 +1542,18 @@
           "label": "base",
           "verb": "ajpa",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         },
         {
           "label": "cvj",
           "verb": "pajka",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         }
       ]
@@ -737,14 +1566,18 @@
           "label": "base",
           "verb": "alpa",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         },
         {
           "label": "cvl",
           "verb": "palpa",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         }
       ]
@@ -757,14 +1590,18 @@
           "label": "base",
           "verb": "akpa",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         },
         {
           "label": "cv",
           "verb": "pakpa",
           "expect": {
-            "candidates": ["B"]
+            "candidates": [
+              "B"
+            ]
           }
         }
       ]
@@ -777,21 +1614,12 @@
           "label": "base",
           "verb": "ijkali",
           "expect": {
-            "candidates": ["A"],
-            "classASuffixes": [""]
-          }
-        }
-      ]
-    },
-    {
-      "name": "FinalOnsetWSafegate",
-      "isTransitive": false,
-      "forms": [
-        {
-          "label": "base",
-          "verb": "ekchiwa",
-          "expect": {
-            "candidates": ["A"]
+            "candidates": [
+              "A"
+            ],
+            "classASuffixes": [
+              ""
+            ]
           }
         }
       ]

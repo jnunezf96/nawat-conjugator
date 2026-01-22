@@ -49,6 +49,14 @@
                                 <input type="text" id="verb" name="verb" class="verb-input" placeholder="Escriba verbo aquí" autocomplete="off" autocapitalize="none" spellcheck="false">
                                 <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
                             </div>
+                            <div class="verb-rule is-empty" id="verb-rule" aria-live="polite">
+                                <span class="verb-rule__label">Rule</span>
+                                <span class="verb-rule__text" id="verb-rule-text"></span>
+                            </div>
+                            <div class="verb-disambiguation is-empty" id="verb-disambiguation" aria-live="polite">
+                                <span class="verb-disambiguation__label" id="verb-disambiguation-label">Quisiste decir</span>
+                                <div class="verb-disambiguation__options" id="verb-disambiguation-options"></div>
+                            </div>
                         </div>
                         <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
                         <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
@@ -64,6 +72,27 @@
                                 <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
                                 <!-- Agregar más elementos de leyenda según sea necesario -->
                             </div>
+                        </div>
+                        <div class="bulk-export" id="bulk-export">
+                            <div class="bulk-export__header">
+                                <div class="bulk-export__title">Conjugación CSV</div>
+                                <div class="bulk-export__source" id="bulk-export-source"></div>
+                            </div>
+                            <div class="bulk-export__controls">
+                                <label class="bulk-export__select">
+                                    <span class="bulk-export__select-label">Fuente</span>
+                                    <select id="bulk-export-source-select" aria-label="Fuente CSV">
+                                        <option value="data">data.csv</option>
+                                        <option value="basic">basic data.csv</option>
+                                    </select>
+                                </label>
+                                <button type="button" class="bulk-export__button" id="bulk-export-open">Abrir CSV</button>
+                                <button type="button" class="bulk-export__button" id="bulk-export-save" disabled>Guardar cambios</button>
+                                <button type="button" class="bulk-export__button" id="bulk-export-generate">Generar</button>
+                                <button type="button" class="bulk-export__button" id="bulk-export-download" disabled>Descargar</button>
+                            </div>
+                            <div class="bulk-export__status" id="bulk-export-status"></div>
+                            <div class="bulk-export__table" id="bulk-export-table"></div>
                         </div>
                     </div>
                 </form>

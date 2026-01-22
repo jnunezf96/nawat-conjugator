@@ -24,7 +24,7 @@
   "suppletiveWitzi": {
     "forms": ["witzi", "wi"],
     "imperfective": "witzi",
-    "activeTenses": ["preterito-clase", "pasado-remoto", "imperativo"],
+    "activeTenses": ["preterito", "pasado-remoto", "imperativo"],
     "tenses": {
       "imperativo": { "verb": "wiki" },
       "pasado-remoto": { "suffixOverrides": { "": "a", "t": "at" } }
@@ -32,7 +32,7 @@
     "nonactive": {
       "stem": "wiluwatz",
       "suffix": "luwa",
-      "tenses": ["preterito-clase", "pasado-remoto"]
+      "tenses": ["preterito", "pasado-remoto"]
     }
   },
   "suppletiveWeya": {

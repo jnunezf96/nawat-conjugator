@@ -16,7 +16,7 @@
       "id": "witzi",
       "match": { "type": "verbInSet", "formsKey": "suppletiveWitziForms" },
       "active": { "type": "suppletiveWitzi" },
-      "activeTenses": ["preterito-clase", "pasado-remoto", "imperativo"],
+      "activeTenses": ["preterito", "pasado-remoto", "imperativo"],
       "tenseSuffixOverrides": {
         "pasado-remoto": { "": "a", "t": "at" }
       },
@@ -24,7 +24,7 @@
         "imperativo": { "valueKey": "suppletiveWitziImperative" }
       },
       "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveWitziNonactive" }],
-      "nonactiveTenses": ["preterito-clase", "pasado-remoto"]
+      "nonactiveTenses": ["preterito", "pasado-remoto"]
     },
     {
       "id": "wala",

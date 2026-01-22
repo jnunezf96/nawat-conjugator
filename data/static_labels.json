@@ -9,6 +9,19 @@
     "singular": { "es": "singular", "na": "isel" },
     "plural": { "es": "plural", "na": "imiaka" }
   },
+  "personGroupLabels": {
+    "first": { "labelEs": "1a persona", "labelNa": "teikniw 1" },
+    "second": { "labelEs": "2a persona", "labelNa": "teikniw 2" },
+    "third": { "labelEs": "3a persona", "labelNa": "teiknew 3" }
+  },
+  "personSubLabels": {
+    "1sg": { "labelEs": "yo", "labelNa": "naja" },
+    "2sg": { "labelEs": "tú", "labelNa": "taja" },
+    "3sg": { "labelEs": "él/ella/eso", "labelNa": "yaja" },
+    "1pl": { "labelEs": "nosotros", "labelNa": "tejemet" },
+    "2pl": { "labelEs": "ustedes", "labelNa": "anmejemet" },
+    "3pl": { "labelEs": "ellos/ellas", "labelNa": "yejemet" }
+  },
   "valenceCategoryLabels": {
     "specific": { "labelEs": "valencia específica", "labelNa": "taseliani tamapilwil" },
     "nonspecific": { "labelEs": "valencia no específica", "labelNa": "taseliani te tamapilwil" }
@@ -20,8 +33,8 @@
     "transitive": { "labelEs": "verbo transitivo", "labelNa": "muchiwalis taselia" },
     "intransitive": { "labelEs": "verbo intransitivo", "labelNa": "muchiwalis san tachiwa" },
     "passive": { "labelEs": "pasivo", "labelNa": "taselilis" },
-    "impersonal": { "labelEs": "impersonal", "labelNa": "Te akaj" },
-    "eventImpersonal": { "labelEs": "Evento impersonal", "labelNa": "muchiwalis Te akaj tachiwa" },
+    "impersonal": { "labelEs": "impersonal", "labelNa": "te akaj" },
+    "eventImpersonal": { "labelEs": "Evento impersonal", "labelNa": "muchiwalis te akaj tachiwa" },
     "patient": { "labelEs": "Paciente", "labelNa": "taseliani" }
   },
   "nonactiveGenericLabels": {
@@ -37,7 +50,7 @@
     "tech": { "labelEs": "a nosotros", "labelNa": "tejemet" },
     "metzin": { "labelEs": "a ustedes", "labelNa": "anmejemet" },
     "kin": { "labelEs": "a ellos/ellas", "labelNa": "yejemet" },
-    "mu": { "labelEs": "a uno mismo", "labelNa": "iselka" },
+    "mu": { "labelEs": "a uno mismo", "labelNa": "ajaka isel" },
     "ta": { "labelEs": "a algo", "labelNa": "tajtatka" },
     "te": { "labelEs": "a alguien", "labelNa": "ajaka" }
   },
@@ -86,7 +99,7 @@
     "presente-habitual": { "labelEs": "presente habitual", "labelNa": "ipan muchiwani" },
     "presente-desiderativo": { "labelEs": "presente desiderativo", "labelNa": "ipan muchiwasneki" },
     "imperfecto": { "labelEs": "pretérito imperfecto", "labelNa": "ipan muchiwaya" },
-    "preterito-clase": { "labelEs": "pretérito perfecto simple", "labelNa": "ipan muchiwki" },
+    "preterito": { "labelEs": "pretérito perfecto simple", "labelNa": "ipan muchiwki" },
     "pasado-remoto": { "labelEs": "pasado remoto", "labelNa": "ipan muchiwka" },
     "perfecto": { "labelEs": "pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
     "pluscuamperfecto": { "labelEs": "pretérito pluscuamperfecto", "labelNa": "ipan muchiwtuya" },
@@ -100,7 +113,7 @@
     "presente-habitual": { "labelEs": "acción repetida o costumbre", "labelNa": "keman muchiwa sejsenpa" },
     "presente-desiderativo": { "labelEs": "deseo, intención o propósito", "labelNa": "keman kineki muchiwa" },
     "imperfecto": { "labelEs": "pasado en desarrollo o continuo", "labelNa": "keman muchiwa katka" },
-    "preterito-clase": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman muchiwki wan tea ijkia né" },
+    "preterito": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman muchiwki wan tea ijkia né" },
     "pasado-remoto": { "labelEs": "pasado distante con cierre perfectivo", "labelNa": "keman muchiwki ikman" },
     "perfecto": { "labelEs": "pasado con resultado vigente", "labelNa": "keman muchiwki wan sanuk ijkia né" },
     "pluscuamperfecto": { "labelEs": "pasado anterior a otro pasado", "labelNa": "keman muchiwki katka" },
