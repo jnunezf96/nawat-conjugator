@@ -3438,6 +3438,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const endsWithKA = lastSyllable?.form === "CV" && lastOnset === "k" && lastNucleus === "a";
     const endsWithVka = endsWithKA && penultimateSyllable?.form === "V";
     const endsWithCVka = endsWithKA && penultimateSyllable?.form === "CV";
+    const endsWithCaka = endsWithCVka && penultimateSyllable?.nucleus === "a";
     const endsWithCVnV = endsWithNV && penultimateSyllable?.form === "CV";
     const endsWithVnV = endsWithNV && penultimateSyllable?.form === "V";
     const matchesExactVnV = (syls, startIndex = 0) => (
@@ -4289,6 +4290,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         endsWithKA,
         endsWithVka,
         endsWithCVka,
+        endsWithCaka,
         endsWithCVnV,
         endsWithVnV,
         endsWithPV,
@@ -4965,6 +4967,7 @@ function updateVerbRuleHint({
     hasSlashMarker = false,
     hasSuffixSeparator = false,
     hasLeadingDash = false,
+    hasImpersonalTaPrefix = false,
 }) {
     const wrapper = document.getElementById("verb-rule");
     const textEl = document.getElementById("verb-rule-text");
@@ -4994,7 +4997,11 @@ function updateVerbRuleHint({
         clearHint();
         return;
     }
-    const parts = [summary.ruleLabel];
+    const parts = [];
+    if (hasImpersonalTaPrefix) {
+        parts.push("ta-impersonal");
+    }
+    parts.push(summary.ruleLabel);
     if (summary.exactLabel) {
         parts.push(`exact ${summary.exactLabel}`);
     }
@@ -5113,6 +5120,18 @@ function buildPretUniversalClassA(context) {
         && (context.isExactCVCawa || context.isExactCVlawa);
     const isTransitiveCVwi = context.isTransitive && context.isExactCVwi;
     const isTransitiveMV = context.isTransitive && context.endsWithMV && !context.isMonosyllable;
+    const isTransitiveExactCVCVna = context.isTransitive && context.isExactCVCVna;
+    const isTransitiveExactNi = context.isTransitive && (
+        context.isExactCVni
+        || context.isExactCVCVni
+        || context.isExactCVlVni
+        || context.isExactVjCVni
+        || context.isExactCVVni
+        || context.isExactCVCVCVni
+        || context.isExactCVCCVCVni
+        || context.isExactCVCVCVCVni
+        || context.isExactLongNi
+    );
     const isTransitiveTaRedupCVCV = context.isTransitive
         && context.endsWithTA
         && context.isReduplicatedCVCV
@@ -5141,7 +5160,7 @@ function buildPretUniversalClassA(context) {
     ) {
         return null;
     }
-    if (context.isTransitive && context.endsWithKA) {
+    if (context.isTransitive && context.endsWithKA && !context.endsWithCaka) {
         return null;
     }
     if (!context.isTransitive && context.endsWithVka) {
@@ -5207,6 +5226,14 @@ function buildPretUniversalClassA(context) {
         allowKiSuffix = true;
     }
     if (context.isTransitive && context.isExactVlCVna) {
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+    }
+    if (isTransitiveExactCVCVna) {
+        allowZeroSuffix = true;
+        allowKiSuffix = true;
+    }
+    if (isTransitiveExactNi) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -6650,6 +6677,9 @@ function parseVerbInput(value) {
     const hasSlashMarker = verbSegment.includes("/");
     const hasSuffixSeparator = verbSegment.includes("-");
     let verbParts = getVerbParts(verbSegment, objectDirectionalPrefix);
+    const hasImpersonalTaPrefix = hasSlashMarker
+        && verbParts.length > 1
+        && verbParts[0] === "ta";
     const directionalPrefixFromSlash = getDirectionalPrefixFromSlash(
         core,
         objectDirectionalPrefix,
@@ -6670,6 +6700,9 @@ function parseVerbInput(value) {
     const verbFusionPrefixes = [];
     if (shouldUseVerbFusion) {
         for (let i = 0; i < verbParts.length - 1; i += 1) {
+            if (hasImpersonalTaPrefix) {
+                break;
+            }
             if (FUSION_PREFIXES.has(verbParts[i])) {
                 verbFusionPrefixes.push(verbParts[i]);
             } else {
@@ -6820,6 +6853,7 @@ function parseVerbInput(value) {
         hasCompoundMarker,
         hasSlashMarker,
         hasSuffixSeparator,
+        hasImpersonalTaPrefix,
         hasBoundMarker,
         isMarkedTransitive,
         isTaFusion,
@@ -6999,6 +7033,7 @@ function getVerbInputMeta() {
             hasCompoundMarker: false,
             hasSlashMarker: false,
             hasSuffixSeparator: false,
+            hasImpersonalTaPrefix: false,
             isMarkedTransitive: false,
             isYawi: false,
             isWeya: false,
@@ -11245,6 +11280,7 @@ function generateWord(options = {}) {
             hasSlashMarker: parsedVerb.hasSlashMarker,
             hasSuffixSeparator: parsedVerb.hasSuffixSeparator,
             hasLeadingDash: parsedVerb.hasLeadingDash,
+            hasImpersonalTaPrefix: parsedVerb.hasImpersonalTaPrefix,
         });
         updateVerbDisambiguation(verbInput ? verbInput.value : renderVerb);
     }
