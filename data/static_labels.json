@@ -93,6 +93,7 @@
     "imperativo": { "labelEs": "imperativo", "labelNa": "ipan ma muchiwa" },
     "sustantivo-verbal": { "labelEs": "sustantivo verbal", "labelNa": "muchiwalis" },
     "agentivo": { "labelEs": "agentivo", "labelNa": "tachiwani" },
+    "patientivo": { "labelEs": "patientivo", "labelNa": "taseliani" },
     "instrumentivo": { "labelEs": "instrumentivo", "labelNa": "tachiwaluni" },
     "calificativo-instrumentivo": { "labelEs": "calificativo/instrumentivo", "labelNa": "tachiwkayut" },
     "locativo-temporal": { "labelEs": "locativo/temporal", "labelNa": "tachiwaluyan" },
@@ -122,6 +123,7 @@
     "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
     "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
     "agentivo": { "labelEs": "persona o entidad que realiza la acción", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
+    "patientivo": { "labelEs": "persona o entidad que recibe la acción", "labelNa": "taseliani ne kichiwa tajtaya" },
     "instrumentivo": { "labelEs": "medio o herramienta de la acción", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
     "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }

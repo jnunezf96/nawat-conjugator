@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "wal-alternation",
+      "prefixes": ["wal"],
+      "handler": "wal-alternation",
+      "stages": ["prefix", "post-elision"],
+      "applyToNouns": false,
+      "applyToVerbs": true
+    },
+    {
+      "id": "wal-noun-placement",
+      "prefixes": ["wal"],
+      "handler": "wal-noun-placement",
+      "stages": ["prefix"],
+      "applyToNouns": true,
+      "applyToVerbs": false
+    }
+  ]
+}

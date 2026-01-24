@@ -1,316 +1,321 @@
-/lx
--ajkana
--ajkania
--ajkawa
--ajkewa
--ajsi
--ajsuma
--ajwa
--ana
--chakwani
--chayawa
--chichi
--chichina
--chijcha
--chijchimi
--chiwa
--chiya
--ekchiwa
--elkawa
--elmuyawa
--elnamiki
--ichkwa
--ichteki
--ijchiki
--ijisiwi
--ijiya
--ijkwani
--ijnekwi
--ijseki
--ijtzilitza
--ijtzuma
--inaya
--iseki
--ishka
--ishtuna
--ita
--ituniya
--kaki
--kashawa
--kawa
--kekelutza
--keluna
--ketza
--kupewa
--kutuna
--kuwa
--kuyuna
--kwa
--kwakwalatza
--kwepa
--kwi
--maka
--malina
--mana
--mati
--melawa
--mewa
--mima
--misuta
--mumulutza
--muta
--namaka
--namiki
--neki
--nesi
--nutza
--paka
--pata
--patawa
--patzka
--payana
--pejpena
--pepeta
--petawa
--piki
--pipina
--pishka
--pitza
-pitzini
--piya
--puchina
--pusteki
--sajsaka
-sewi
--shawa
--shima
--shipewa
--shisha
--shulewa
--shuta
--suma
--sutuma
--suwa
--tajkali
--tajtani
--takewa
--tamachiwa
--tamima
--tamuta
--tanewi
--tankwaketza
--tapana
--tasa
--tashtawa
--tasujta
--tayi
--teka
--teki
--tekwalutza
--tema
-temiki
--temiki
--tenewa
--ten-namiki
--ten-shima
--tepewa
--teuchiwa
--tilana
--tuka
--tukpewa
--tuma
--tumaya
--tupewa
--tzakwa
--tzayana
--tzinewa
--tzinketza
--tzinkutiya
--tzinkutuna
--tzuma
--tzuntapana
--tzunteki
--tzuntisi
--tzupina
--tzutzuna
--tzuyuna
--uchpana
--uni
--uya
--watza
--wawana
--wika
--wilewa
--witeki
--wiwita
--wiya
--yejyekchiwa
--yekchiwa
--yulkwi
-(-)ajputza
-(-)ajsi
-(-)takwika
-(-)tisi
-(-)tzawa
-ajkewi
-ajkwechiwi
-ajwi
-akalaki
-amesawi
-amiki
-apitza
-ateki
-ati
-atuki
-chachalaka
-chichiktiya
-chichiltiya
-chichinaka
-chichiya
-chikawaya
-chiltiya
-chipini
-chuka
-ejku
-eskisa
-ijkiti
-ijtakawi
-ijtisuluni
-ijtzilika
-ijyaya
-ijyumiki
-ilwikisa
-ina
-isa
-ishika
-ishtuna
-ishwi
-istaya
-kalaki
-kashani
-kawani
-kikinaka
-kisa
-kuchi
-kukuya
-kumuni
-kupewi
-kupini
-kutiya
-kuyuni
-kwajkwawi
-kwakwalaka
-kwalani
-kwalu
-kwechiwi
-kweliwi
-kikisa
-malini
-mawi
-mayana
-metzpetuni
-mijmiki
-miki
-mimilaka
-mimilika
-muluni
-naka
-nemi
-pajti
-paki
-palani
-panu
-papataka
-patani
-pati
-petuni
-pewa
-pinawa
-pishki
-puchini
-puliwi
-puni
-pupuluka
-pupusuka
-puputuka
-pusuni
-puyawi
-sajsayti
-samawa
-seseya
-shini
-shipewi
-shipinawi
-suluni
-sutawa
-sutawaya
-takati
-taketza
-takipini
-taksa
-takumi
-takumiya
-takwawaya
-tami
-tanesi
-tapani
-tashika
-tata
-tatasi
-tatwa
-tatwi
-tatzini
-tatziwi
-tawana
-tawani
-tejku
-tekiti
-temi
-temu
-tentatziwi
-tepewi
-tetzikwini
-tewaki
-tijtika
-tikwini
-tiltiya
-titikwika
-tiutaki
-tumawaya
-tutuniya
-tzajtzi
-tzalani
-tzawa
-tzayani
-tzikwini
-tzilini
-tzitzikaya
-tzupeliya
-tzuyuni
-uksi
-ulini
-waki
-weli
-wetzi
-wetzka
-weya
-wilewi
-witz
-yamaniya
-yawi
-yekawi
-yektiya
-yulkwi
-yuyumuka
-waki
-weli
-wetzi
-wetzka
-weya
-wilewi
-witz
-yamaniya
-yawi
-yekawi
-yektiya
-yulkwi
+verb,3s preterit,3pl preterit,3s perfect,3pl perfect
+-ajkana,kiajkan(ki),kiajkanket,kiajkantuk,kiajkantiwit
+-ajkania,kiajkanij,kiajkanijket,kiajkanijtuk,kiajkanijtiwit
+-ajkawa,kiajkaw(ki) / kiajkaj(ki),kiajkawket / kiajkajket,kiajkawtuk / kiajkajtuk,kiajkawtiwit / kiajkajtiwit
+-ajkewa,kiajkew(ki) / kiajkej(ki),kiajkewket / kiajkejket,kiajkewtuk / kiajkejtuk,kiajkewtiwit / kiajkejtiwit
+-ajsi,kiajsik,kiajsiket,kiajsituk,kiajsitiwit
+-ajsuma,kiajsun(ki),kiajsunket,kiajsuntuk,kiajsuntiwit
+-ajwa,kiajwak,kiajwaket,kiajwatuk,kiajwatiwit
+-ana,kianki,kianket,kiantuk,kiantiwit
+-chakwani,kichakwanki,kichakwanket,kichakwantuk,kichakwantiwit
+-chayawa,kichayaw(ki) / kichayaj(ki),kichayawket / kichayajket,kichayawtuk / kichayajtuk,kichayawtiwit / kichayajtiwit
+-chichi,kichichik,kichichiket,kichichituk,kichichitiwit
+-chichina,kichichin(ki),kichichinket,kichichintuk,kichichintiwit
+-chijcha,kichijchak,kichijchaket,kichijchatuk,kichijchatiwit
+-chijchimi,kichijchin(ki),kichijchinket,kichijchintuk,kichijchintiwit
+-chiwa,kichiw(ki) / kichij(ki),kichiwket / kichijket,kichiwtuk / kichijtuk,kichiwtiwit / kichijtiwit
+-chiya,kichishki / kichiyak,kichishket / kichiyaket,kichishtuk / kichiyatuk,kichishtiwit / kichiyatiwit
+-ekchiwa,kiekchiw(ki) / kiekchij(ki),kiekchiwket / kiekchijket,kiekchiwtuk / kiekchijtuk,kiekchiwtiwit / kiekchijtiwit
+-elkawa,kielkaw(ki) / kielkaj(ki),kielkawket / kielkajket,kielkawtuk / kielkajtuk,kielkawtiwit / kielkajtiwit
+-elmuyawa,kielmuyaw(ki) / kielmuyaj(ki),kielmuyawket / kielmuyajket,kielmuyawtuk / kielmuyajtuk,kielmuyawtiwit / kielmuyajtiwit
+-elnamiki,kielnamik / kielnamikik,kielnamikket / kielnamikiket,kielnamiktuk,kielnamiktiwit
+-ichkwa,kichkwak,kichkwaket,kichkwatuk,kichkwatiwit
+-ichteki,kichtek / kichtekik,kichtekket / kichtekiket,kichtektuk,kichtektiwit
+-ijchiki,kijchik / kijchikik,kijchikket / kijchikiket,kijchiktuk,kijchiktiwit
+-ijisiwi,kijisiw(ki) / kijisij(ki) / kijisiwik,kijisiwket / kijisijket / kijisiwiket,kijisiwtuk / kijisijtuk / kijisiwituk,kijisiwtiwit / kijisijtiwit / kijisiwitiwit
+-ijiya,kijishki / kijiyak,kijishket / kijiyaket,kijishtuk / kijiyatuk,kijishtiwit / kijiyatiwit
+-ijkwani,kijkwanki,kijkwanket,kijkwantuk,kijkwantiwit
+-ijnekwi,kijnek,kijnekket,kijnektuk,kijnektiwit
+-ijseki,kijsek / kijsekik,kijsekket / kijsekiket,kijsektuk,kijsektiwit
+-ijtzilitza,kijtzilitzki,kijtzilitzket,kijtzilitztuk,kijtzilitztiwit
+-ijtzuma,kijtzun(ki),kijtzunket,kijtzuntuk,kijtzuntiwit
+-inaya,kinashki / kinayak,kinashket / kinayaket,kinashtuk / kinayatuk,kinashtiwit / kinayatiwit
+-iseki,kisek / kisekik,kisekket / kisekiket,kisektuk,kisektiwit
+-ishka,kishkak,kishkaket,kishkatuk,kishkatiwit
+-ishtuna,kishtun(ki),kishtunket,kishtuntuk,kishtuntiwit
+-ita,kitzki / kitak,kitzket / kitaket,kitztuk / kitatuk,kitztiwit / kitatiwit
+-ituniya,kitunishki / kituniyak,kitunishket / kituniyaket,kitunishtuk / kituniyatuk,kitunishtiwit / kituniyatiwit
+-kaki,kikak / kikakik,kikakket / kikakiket,kikaktuk,kikaktiwit
+-kashawa,kikashaw(ki) / kikashaj(ki),kikashawket / kikashajket,kikashawtuk / kikashajtuk,kikashawtiwit / kikashajtiwit
+-kawa,kikawki,kikawket,kikawtuk,kikawtiwit
+-kekelutza,kikekelutzki,kikekelutzket,kikekelutztuk,kikekelutztiwit
+-keluna,kikelun(ki),kikelunket,kikeluntuk,kikeluntiwit
+-ketza,kiketzki,kiketzket,kiketztuk,kiketztiwit
+-kupewa,kikupew(ki) / kikupej(ki),kikupewket / kikupejket,kikupewtuk / kikupejtuk,kikupewtiwit / kikupejtiwit
+-kutuna,kikutun(ki),kikutunket,kikutuntuk,kikutuntiwit
+-kuwa,kikuwki / kikujki,kikuwket / kikujket,kikuwtuk / kikujtuk,kikuwtiwit / kikujtiwit
+-kuyuna,kikuyun(ki),kikuyunket,kikuyuntuk,kikuyuntiwit
+-kwa,kikwaj,kikwajket,kikwajtuk,kikwajtiwit
+-kwakwalatza,kikwakwalatzki,kikwakwalatzket,kikwakwalatztuk,kikwakwalatztiwit
+-kwepa,kikwepki,kikwepket,kikweptuk,kikweptiwit
+-kwi,kikwij,kikwijket,kikwijtuk,kikwijtiwit
+-maka,kimak / kimakak,kimakket / kimakaket,kimaktuk,kimaktiwit
+-malina,kimalin(ki),kimalinket,kimalintuk,kimalintiwit
+-mana,kiman(ki),kimanket,kimantuk,kimantiwit
+-mati,kimatki / kimatik,kimatket / kimatiket,kimattuk / kimatituk,kimattiwit / kimatitiwit
+-melawa,kimelaw(ki) / kimelaj(ki),kimelawket / kimelajket,kimelawtuk / kimelajtuk,kimelawtiwit / kimelajtiwit
+-mewa,kimewki / kimejki,kimewket / kimejket,kimewtuk / kimejtuk,kimewtiwit / kimejtiwit
+-mima,kimin(ki),kiminket,kimintuk,kimintiwit
+-misuta,kimisutak,kimisutaket,kimisutatuk,kimisutatiwit
+-mumulutza,kimumulutzki,kimumulutzket,kimumulutztuk,kimumulutztiwit
+-muta,kimutak,kimutaket,kimutatuk,kimutatiwit
+-namaka,kinamak / kinamakak,kinamakket / kinamakaket,kinamaktuk,kinamaktiwit
+-namiki,kinamik / kinamikik,kinamikket / kinamikiket,kinamiktuk,kinamiktiwit
+-neki,kinek / kinekik,kinekket / kinekiket,kinektuk,kinektiwit
+-nesi,kineski,kinesket,kinestuk,kinestiwit
+-nutza,kinutzki,kinutzket,kinutztuk,kinutztiwit
+-paka,kipak / kipakak,kipakket / kipakaket,kipaktuk,kipaktiwit
+-pata,kipatak,kipataket,kipatatuk,kipatatiwit
+-patawa,kipataw(ki) / kipataj(ki),kipatawket / kipatajket,kipatawtuk / kipatajtuk,kipatawtiwit / kipatajtiwit
+-patzka,kipatzkak,kipatzkaket,kipatzkatuk,kipatzkatiwit
+-payana,kipayan(ki),kipayanket,kipayantuk,kipayantiwit
+-pejpena,kipejpen(ki),kipejpenket,kipejpentuk,kipejpentiwit
+-pepeta,kipepetki / kipepetak,kipepetket / kipepetaket,kipepettuk / kipepetatuk,kipepettiwit / kipepetatiwit
+-petawa,kipetaw(ki) / kipetaj(ki),kipetawket / kipetajket,kipetawtuk / kipetajtuk,kipetawtiwit / kipetajtiwit
+-piki,kipik / kipikik,kipikket / kipikiket,kipiktuk,kipiktiwit
+-pipina,kipipin(ki),kipipinket,kipipintuk,kipipintiwit
+-pishka,kipishkak,kipishkaket,kipishkatuk,kipishkatiwit
+-pitza,kipitzki,kipitzket,kipitztuk,kipitztiwit
+pitzini,pitzinki / pitzinik,pitzinket / pitziniket,pitzintuk,pitzintiwit
+-piya,kipishki / kipiyak,kipishket / kipiyaket,kipishtuk / kipiyatuk,kipishtiwit / kipiyatiwit
+-puchina,kipuchin(ki),kipuchinket,kipuchintuk,kipuchintiwit
+-pusteki,kipustek / kipustekik,kipustekket / kipustekiket,kipustektuk,kipustektiwit
+-sajsaka,kisajsak / kisajsakak,kisajsakket / kisajsakaket,kisajsaktuk,kisajsaktiwit
+sewi,sewik,sewket / sejket,sewtuk / sejtuk,sewtiwit / sejtiwit
+-shawa,kishawki / kishajki,kishawket / kishajket,kishawtuk / kishajtuk,kishawtiwit / kishajtiwit
+-shima,kishin(ki),kishinket,kishintuk,kishintiwit
+-shipewa,kishipew(ki) / kishipej(ki),kishipewket / kishipejket,kishipewtuk / kishipejtuk,kishipewtiwit / kishipejtiwit
+-shisha,kishishki / kishishak,kishishket / kishishaket,kishishtuk / kishishatuk,kishishtiwit / kishishatiwit
+-shulewa,kishulew(ki) / kishulej(ki),kishulewket / kishulejket,kishulewtuk / kishulejtuk,kishulewtiwit / kishulejtiwit
+-shuta,kishutak,kishutaket,kishutatuk,kishutatiwit
+-suma,kisun(ki),kisunket,kisuntuk,kisuntiwit
+-sutuma,kisutun(ki),kisutunket,kisutuntuk,kisutuntiwit
+-suwa,kisuwki / kisujki,kisuwket / kisujket,kisuwtuk / kisujtuk,kisuwtiwit / kisujtiwit
+-tajkali,kitajkal,kitajkalket,kitajkaltuk,kitajkaltiwit
+-tajtani,kitajtanki,kitajtanket,kitajtantuk,kitajtantiwit
+-takewa,kitakew(ki) / kitakej(ki),kitakewket / kitakejket,kitakewtuk / kitakejtuk,kitakewtiwit / kitakejtiwit
+-tamachiwa,kitamachiw(ki) / kitamachij(ki),kitamachiwket / kitamachijket,kitamachiwtuk / kitamachijtuk,kitamachiwtiwit / kitamachijtiwit
+-tamima,kitamin(ki),kitaminket,kitamintuk,kitamintiwit
+-tamuta,kitamutak,kitamutaket,kitamutatuk,kitamutatiwit
+-tanewi,kitanew / kitanej / kitanewik,kitanewket / kitanejket / kitanewiket,kitanewtuk / kitanejtuk / kitanewituk,kitanewtiwit / kitanejtiwit / kitanewitiwit
+-tankwaketza,kitankwaketzki,kitankwaketzket,kitankwaketztuk,kitankwaketztiwit
+-tapana,kitapan(ki),kitapanket,kitapantuk,kitapantiwit
+-tasa,kitaski,kitasket,kitastuk,kitastiwit
+-tashtawa,kitashtaw(ki) / kitashtaj(ki),kitashtawket / kitashtajket,kitashtawtuk / kitashtajtuk,kitashtawtiwit / kitashtajtiwit
+-tasujta,kitasujtak,kitasujtaket,kitasujtatuk,kitasujtatiwit
+-tayi,kitashki / kitayik,kitashket / kitayiket,kitashtuk / kitayituk,kitashtiwit / kitayitiwit
+-teka,kitekak,kitekaket,kitekatuk,kitekatiwit
+-teki,kitek / kitekik,kitekket / kitekiket,kitektuk,kitektiwit
+-tekwalutza,kitekwalutzki,kitekwalutzket,kitekwalutztuk,kitekwalutztiwit
+-tema,kiten(ki),kitenket,kitentuk,kitentiwit
+temiki,temikik,temikiket,temiktuk,temiktiwit
+-temiki,kitemik / kitemikik,kitemikket / kitemikiket,kitemiktuk,kitemiktiwit
+-tenewa,kitenew(ki) / kitenej(ki),kitenewket / kitenejket,kitenewtuk / kitenejtuk,kitenewtiwit / kitenejtiwit
+-ten/namiki,kitennamik / kitennamikik,kitennamikket / kitennamikiket,kitennamiktuk,kitennamiktiwit
+-ten/shima,kitenshin(ki),kitenshinket,kitenshintuk,kitenshintiwit
+-tepewa,kitepew(ki) / kitepej(ki),kitepewket / kitepejket,kitepewtuk / kitepejtuk,kitepewtiwit / kitepejtiwit
+-teuchiwa,kiteuchiw(ki) / kiteuchij(ki),kiteuchiwket / kiteuchijket,kiteuchiwtuk / kiteuchijtuk,kiteuchiwtiwit / kiteuchijtiwit
+-tilana,kitilan(ki),kitilanket,kitilantuk,kitilantiwit
+-tuka,kitukak,kitukaket,kitukatuk,kitukatiwit
+-tukpewa,kitukpew(ki) / kitukpej(ki),kitukpewket / kitukpejket,kitukpewtuk / kitukpejtuk,kitukpewtiwit / kitukpejtiwit
+-tuma,kitun(ki),kitunket,kituntuk,kituntiwit
+-tumaya,kitumashki / kitumayak,kitumashket / kitumayaket,kitumashtuk / kitumayatuk,kitumashtiwit / kitumayatiwit
+-tupewa,kitupew(ki) / kitupej(ki),kitupewket / kitupejket,kitupewtuk / kitupejtuk,kitupewtiwit / kitupejtiwit
+-tzakwa,kitzak,kitzakket,kitzaktuk,kitzaktiwit
+-tzayana,kitzayan(ki),kitzayanket,kitzayantuk,kitzayantiwit
+-tzinewa,kitzinew(ki) / kitzinej(ki),kitzinewket / kitzinejket,kitzinewtuk / kitzinejtuk,kitzinewtiwit / kitzinejtiwit
+-tzinketza,kitzinketzki,kitzinketzket,kitzinketztuk,kitzinketztiwit
+-tzinkutiya,kitzinkutishki / kitzinkutiyak,kitzinkutishket / kitzinkutiyaket,kitzinkutishtuk / kitzinkutiyatuk,kitzinkutishtiwit / kitzinkutiyatiwit
+-tzinkutuna,kitzinkutun(ki),kitzinkutunket,kitzinkutuntuk,kitzinkutuntiwit
+-tzuma,kitzun(ki),kitzunket,kitzuntuk,kitzuntiwit
+-tzuntapana,kitzuntapan(ki),kitzuntapanket,kitzuntapantuk,kitzuntapantiwit
+-tzunteki,kitzuntek / kitzuntekik,kitzuntekket / kitzuntekiket,kitzuntektuk,kitzuntektiwit
+-tzuntisi,kitzuntis(ki) / kitzuntisik,kitzuntisket / kitzuntisiket,kitzuntistuk / kitzuntisituk,kitzuntistiwit / kitzuntisitiwit
+-tzupina,kitzupin(ki),kitzupinket,kitzupintuk,kitzupintiwit
+-tzutzuna,kitzutzun(ki),kitzutzunket,kitzutzuntuk,kitzutzuntiwit
+-tzuyuna,kitzuyun(ki),kitzuyunket,kitzuyuntuk,kitzuyuntiwit
+-uchpana,kiuchpan(ki),kiuchpanket,kiuchpantuk,kiuchpantiwit
+-uni,kiunki,kiunket,kiuntuk,kiuntiwit
+-uya,kiushki / kiuyak,kiushket / kiuyaket,kiushtuk / kiuyatuk,kiushtiwit / kiuyatiwit
+-watza,kiwatzki,kiwatzket,kiwatztuk,kiwatztiwit
+-wawana,kiwawan(ki),kiwawanket,kiwawantuk,kiwawantiwit
+-wika,kiwikak,kiwikaket,kiwikatuk,kiwikatiwit
+-wilewa,kiwilew(ki) / kiwilej(ki),kiwilewket / kiwilejket,kiwilewtuk / kiwilejtuk,kiwilewtiwit / kiwilejtiwit
+-witeki,kiwitek / kiwitekik,kiwitekket / kiwitekiket,kiwitektuk,kiwitektiwit
+-wiwita,kiwiwitki / kiwiwitak,kiwiwitket / kiwiwitaket,kiwiwittuk / kiwiwitatuk,kiwiwittiwit / kiwiwitatiwit
+-wiya,kiwishki / kiwiyak,kiwishket / kiwiyaket,kiwishtuk / kiwiyatuk,kiwishtiwit / kiwiyatiwit
+-yejyekchiwa,kiyejyekchiw(ki) / kiyejyekchij(ki),kiyejyekchiwket / kiyejyekchijket,kiyejyekchiwtuk / kiyejyekchijtuk,kiyejyekchiwtiwit / kiyejyekchijtiwit
+-yekchiwa,kiyekchiw(ki) / kiyekchij(ki),kiyekchiwket / kiyekchijket,kiyekchiwtuk / kiyekchijtuk,kiyekchiwtiwit / kiyekchijtiwit
+-yulkwi,kiyulkwik,kiyulkwiket,kiyulkwituk,kiyulkwitiwit
+ajputza,ajputzki,ajputzket,ajputztuk,ajputztiwit
+-ajputza,kiajputzki,kiajputzket,kiajputztuk,kiajputztiwit
+ajsi,ajsik,ajsiket,ajsituk,ajsitiwit
+-ajsi,kiajsik,kiajsiket,kiajsituk,kiajsitiwit
+takwika,takwikak,takwikaket,takwikatuk,takwikatiwit
+-takwika,kitakwikak,kitakwikaket,kitakwikatuk,kitakwikatiwit
+tisi,tiski / tisik,tisket / tisiket,tistuk,tistiwit
+-tisi,kitiski,kitisket,kitistuk,kitistiwit
+tzawa,tzawki / tzajki,tzawket / tzajket,tzawtuk / tzajtuk,tzawtiwit / tzajtiwit
+-tzawa,kitzawki / kitzajki,kitzawket / kitzajket,kitzawtuk / kitzajtuk,kitzawtiwit / kitzajtiwit
+ajkewi,ajkewik,ajkewket / ajkejket,ajkewtuk / ajkejtuk,ajkewtiwit / ajkejtiwit
+ajkwechiwi,ajkwechiwik,ajkwechiwket / ajkwechijket,ajkwechiwtuk / ajkwechijtuk,ajkwechiwtiwit / ajkwechijtiwit
+ajwi,ajwik,ajwiket,ajwituk,ajwitiwit
+akalaki,akalakik,akalakiket,akalaktuk,akalaktiwit
+amesawi,amesawik,amesawket / amesajket,amesawtuk / amesajtuk,amesawtiwit / amesajtiwit
+amiki,amikik,amikiket,amiktuk,amiktiwit
+apitza,apitzki,apitzket,apitztuk,apitztiwit
+ateki,atekik,atekiket,atekituk,atekitiwit
+ati,atik,atiket,atituk,atitiwit
+atuki,atukik,atukiket,atukituk,atukitiwit
+chachalaka,chachalakak,chachalakaket,chachalakatuk,chachalakatiwit
+chichiktiya,chichiktishki / chichiktiyak / chichiktik,chichiktishket / chichiktiyaket / chichiktiket,chichiktishtuk / chichiktiyatuk / chichiktituk,chichiktishtiwit / chichiktiyatiwit / chichiktitiwit
+chichiltiya,chichiltishki / chichiltiyak / chichiltik,chichiltishket / chichiltiyaket / chichiltiket,chichiltishtuk / chichiltiyatuk / chichiltituk,chichiltishtiwit / chichiltiyatiwit / chichiltitiwit
+chichinaka,chichinakak,chichinakaket,chichinakatuk,chichinakatiwit
+chichiya,chichishki / chichiyak / chichik,chichishket / chichiyaket / chichiket,chichishtuk / chichiyatuk / chichituk,chichishtiwit / chichiyatiwit / chichitiwit
+chikawaya,chikawashki / chikawayak / chikawak,chikawashket / chikawayaket / chikawaket,chikawashtuk / chikawayatuk / chikawatuk,chikawashtiwit / chikawayatiwit / chikawatiwit
+chiltiya,chiltishki / chiltiyak / chiltik,chiltishket / chiltiyaket / chiltiket,chiltishtuk / chiltiyatuk / chiltituk,chiltishtiwit / chiltiyatiwit / chiltitiwit
+chipini,chipinki / chipinik,chipinket / chipiniket,chipintuk,chipintiwit
+chuka,chukak,chukaket,chukatuk,chukatiwit
+ejku,ejkuk,ejkuket,ejkutuk,ejkutiwit
+eskisa,eskiski / eskisak,eskisket / eskisaket,eskistuk,eskistiwit
+ijkiti,ijkitki / ijkitik,ijkitket / ijkitiket,ijkittuk / ijkitituk,ijkittiwit / ijkititiwit
+ijtakawi,ijtakawik,ijtakawket / ijtakajket,ijtakawtuk / ijtakajtuk,ijtakawtiwit / ijtakajtiwit
+ijtisuluni,ijtisulunki / ijtisulunik,ijtisulunket / ijtisuluniket,ijtisuluntuk,ijtisuluntiwit
+ijtzilika,ijtzilikak,ijtzilikaket,ijtzilikatuk,ijtzilikatiwit
+ijyaya,ijyayak,ijyayaket,ijyayatuk,ijyayatiwit
+ijyumiki,ijyumikik,ijyumikiket,ijyumiktuk,ijyumiktiwit
+ilwikisa,ilwikiski / ilwikisak,ilwikisket / ilwikisaket,ilwikistuk,ilwikistiwit
+ina,inak,inaket,inatuk,inatiwit
+ijsa,ijsak,ijsaket,ijsatuk,ijsatiwit
+ishika,ishikak,ishikaket,ishikatuk,ishikatiwit
+ishtuna,ishtunki / ishtunak,ishtunket / ishtunaket,ishtuntuk,ishtuntiwit
+ishwi,ishwik,ishwiket,ishwituk,ishwitiwit
+istaya,istaski / istayak / istak,istasket / istayaket / istaket,istastuk / istayatuk / istatuk,istastiwit / istayatiwit / istatiwit
+kalaki,kalakik,kalakiket,kalaktuk,kalaktiwit
+kashani,kashanki / kashanik,kashanket / kashaniket,kashantuk,kashantiwit
+kawani,kawanki / kawanik,kawanket / kawaniket,kawantuk,kawantiwit
+kikinaka,kikinakak,kikinakaket,kikinakatuk,kikinakatiwit
+kisa,kiski,kisket,kistuk,kistiwit
+kuchi,kuchki / kuchik,kuchket / kuchiket,kuchtuk,kuchtiwit
+kukuya,kukushki / kukuyak / kukuk,kukushket / kukuyaket / kukuket,kukushtuk / kukuyatuk / kukutuk,kukushtiwit / kukuyatiwit / kukutiwit
+kumuni,kumunki / kumunik,kumunket / kumuniket,kumuntuk,kumuntiwit
+kupewi,kupewik,kupewket / kupejket,kupewtuk / kupejtuk,kupewtiwit / kupejtiwit
+kupini,kupinki / kupinik,kupinket / kupiniket,kupintuk,kupintiwit
+kutiya,kutishki / kutiyak / kutik,kutishket / kutiyaket / kutiket,kutishtuk / kutiyatuk / kutituk,kutishtiwit / kutiyatiwit / kutitiwit
+kuyuni,kuyunki / kuyunik,kuyunket / kuyuniket,kuyuntuk,kuyuntiwit
+kwajkwawi,kwajkwawki / kwajkwajki,kwajkwawket / kwajkwajket,kwajkwawtuk / kwajkwajtuk,kwajkwawtiwit / kwajkwajtiwit
+kwakwalaka,kwakwalakak,kwakwalakaket,kwakwalakatuk,kwakwalakatiwit
+kwalani,kwalanki / kwalanik,kwalanket / kwalaniket,kwalantuk,kwalantiwit
+kwalu,kwaluk,kwaluket,kwalutuk,kwalutiwit
+kwechiwi,kwechiwik,kwechiwket / kwechijket,kwechiwtuk / kwechijtuk,kwechiwtiwit / kwechijtiwit
+kweliwi,kweliwik,kweliwket / kwelijket,kweliwtuk / kwelijtuk,kweliwtiwit / kwelijtiwit
+kikisa,kikiski,kikisket,kikistuk,kikistiwit
+malini,malinki / malinik,malinket / maliniket,malintuk,malintiwit
+mawi,mawik,mawket / majket,mawtuk / majtuk,mawtiwit / majtiwit
+mayana,mayanki,mayanket,mayantuk,mayantiwit
+metzpetuni,metzpetunki / metzpetunik,metzpetunket / metzpetuniket,metzpetuntuk,metzpetuntiwit
+mijmiki,mijmikik,mijmikiket,mijmiktuk,mijmiktiwit
+miki,mikik,mikiket,miktuk,miktiwit
+mimilaka,mimilakak,mimilakaket,mimilakatuk,mimilakatiwit
+mimilika,mimilikak,mimilikaket,mimilikatuk,mimilikatiwit
+muluni,mulunki / mulunik,mulunket / muluniket,muluntuk,muluntiwit
+naka,nakak,nakaket,nakatuk,nakatiwit
+nemi,nenki / nemik,nenket / nemiket,nentuk / nemituk,nentiwit / nemitiwit
+pajti,pajtik,pajtiket,pajtituk,pajtitiwit
+paki,pakik,pakiket,paktuk,paktiwit
+palani,palanki / palanik,palanket / palaniket,palantuk,palantiwit
+panu,panuk,panuket,panutuk,panutiwit
+papataka,papatakak,papatakaket,papatakatuk,papatakatiwit
+patani,patanki / patanik,patanket / pataniket,patantuk,patantiwit
+pati,patki / patik,patket / patiket,pattuk / patituk,pattiwit / patitiwit
+petuni,petunki / petunik,petunket / petuniket,petuntuk,petuntiwit
+pewa,pewki / pejki,pewket / pejket,pewtuk / pejtuk,pewtiwit / pejtiwit
+pinawa,pinawki / pinajki / pinawak,pinawket / pinajket / pinawaket,pinawtuk / pinajtuk / pinawatuk,pinawtiwit / pinajtiwit / pinawatiwit
+pishki,pishkik,pishkiket,pishkituk,pishkitiwit
+puchini,puchinki / puchinik,puchinket / puchiniket,puchintuk,puchintiwit
+puliwi,puliwik,puliwket / pulijket,puliwtuk / pulijtuk,puliwtiwit / pulijtiwit
+puni,punik,puniket,punituk,punitiwit
+pupuluka,pupulukak,pupulukaket,pupulukatuk,pupulukatiwit
+pupusuka,pupusukak,pupusukaket,pupusukatuk,pupusukatiwit
+puputuka,puputukak,puputukaket,puputukatuk,puputukatiwit
+pusuni,pusunki / pusunik,pusunket / pusuniket,pusuntuk,pusuntiwit
+puyawi,puyawik,puyawket / puyajket,puyawtuk / puyajtuk,puyawtiwit / puyajtiwit
+sajsayti,sajsaytik,sajsaytiket,sajsaytituk,sajsaytitiwit
+samawa,samawki / samajki / samawak,samawket / samajket / samawaket,samawtuk / samajtuk / samawatuk,samawtiwit / samajtiwit / samawatiwit
+seseya,seseski / seseyak / sesek,sesesket / seseyaket / seseket,sesestuk / seseyatuk / sesetuk,sesestiwit / seseyatiwit / sesetiwit
+shini,shinki / shinik,shinket / shiniket,shintuk,shintiwit
+shipewi,shipewik,shipewket / shipejket,shipewtuk / shipejtuk,shipewtiwit / shipejtiwit
+shipinawi,shipinawik,shipinawket / shipinajket,shipinawtuk / shipinajtuk,shipinawtiwit / shipinajtiwit
+suluni,sulunki / sulunik,sulunket / suluniket,suluntuk,suluntiwit
+sutawa,sutawki / sutajki / sutawak,sutawket / sutajket / sutawaket,sutawtuk / sutajtuk / sutawatuk,sutawtiwit / sutajtiwit / sutawatiwit
+sutawaya,sutawashki / sutawayak / sutawak,sutawashket / sutawayaket / sutawaket,sutawashtuk / sutawayatuk / sutawatuk,sutawashtiwit / sutawayatiwit / sutawatiwit
+takati,takatki / takatik,takatket / takatiket,takattuk / takatituk,takattiwit / takatitiwit
+taketza,taketzki,taketzket,taketztuk,taketztiwit
+takipini,takipinki / takipinik,takipinket / takipiniket,takipintuk,takipintiwit
+ta-ksa,taksak,taksaket,taksatuk,taksatiwit
+takumi,takunki / takumik,takunket / takumiket,takuntuk / takumituk,takuntiwit / takumitiwit
+takumiya,takumishki / takumiyak / takumik,takumishket / takumiyaket / takumiket,takumishtuk / takumiyatuk / takumituk,takumishtiwit / takumiyatiwit / takumitiwit
+takwawaya,takwawashki / takwawayak / takwawak,takwawashket / takwawayaket / takwawaket,takwawashtuk / takwawayatuk / takwawatuk,takwawashtiwit / takwawayatiwit / takwawatiwit
+tami,tanki / tamik,tanket / tamiket,tantuk / tamituk,tantiwit / tamitiwit
+tanesi,taneski / tanesik,tanesket / tanesiket,tanestuk,tanestiwit
+tapani,tapanki / tapanik,tapanket / tapaniket,tapantuk,tapantiwit
+tashika,tashikak,tashikaket,tashikatuk,tashikatiwit
+tata,tatak,tataket,tatatuk,tatatiwit
+tatasi,tataski / tatasik,tatasket / tatasiket,tatastuk,tatastiwit
+tatwa,tatwak,tatwaket,tatwatuk,tatwatiwit
+ta-twi,tatwik,tatwiket,tatwituk,tatwitiwit
+tatzini,tatzinki / tatzinik,tatzinket / tatziniket,tatzintuk,tatzintiwit
+tatziwi,tatziwik,tatziwket / tatzijket,tatziwtuk / tatzijtuk,tatziwtiwit / tatzijtiwit
+tawana,tawanki,tawanket,tawantuk,tawantiwit
+tawani,tawanki / tawanik,tawanket / tawaniket,tawantuk,tawantiwit
+tejku,tejkuk,tejkuket,tejkutuk,tejkutiwit
+tekiti,tekitki / tekitik,tekitket / tekitiket,tekittuk / tekitituk,tekittiwit / tekititiwit
+temi,tenki / temik,tenket / temiket,tentuk / temituk,tentiwit / temitiwit
+temu,temuk,temuket,temutuk,temutiwit
+tentatziwi,tentatziwik,tentatziwket / tentatzijket,tentatziwtuk / tentatzijtuk,tentatziwtiwit / tentatzijtiwit
+tepewi,tepewik,tepewket / tepejket,tepewtuk / tepejtuk,tepewtiwit / tepejtiwit
+tetzikwini,tetzikwinki / tetzikwinik,tetzikwinket / tetzikwiniket,tetzikwintuk,tetzikwintiwit
+tewaki,tewakik,tewakiket,tewaktuk,tewaktiwit
+tijtika,tijtikak,tijtikaket,tijtikatuk,tijtikatiwit
+tikwini,tikwinki / tikwinik,tikwinket / tikwiniket,tikwintuk,tikwintiwit
+tiltiya,tiltishki / tiltiyak / tiltik,tiltishket / tiltiyaket / tiltiket,tiltishtuk / tiltiyatuk / tiltituk,tiltishtiwit / tiltiyatiwit / tiltitiwit
+titikwika,titikwikak,titikwikaket,titikwikatuk,titikwikatiwit
+tiutaki,tiutakik,tiutakiket,tiutaktuk,tiutaktiwit
+tumawaya,tumawashki / tumawayak / tumawak,tumawashket / tumawayaket / tumawaket,tumawashtuk / tumawayatuk / tumawatuk,tumawashtiwit / tumawayatiwit / tumawatiwit
+tutuniya,tutunishki / tutuniyak / tutunik,tutunishket / tutuniyaket / tutuniket,tutunishtuk / tutuniyatuk / tutunituk,tutunishtiwit / tutuniyatiwit / tutunitiwit
+tzajtzi,tzajtzik,tzajtziket,tzajtzituk,tzajtzitiwit
+tzalani,tzalanki / tzalanik,tzalanket / tzalaniket,tzalantuk,tzalantiwit
+tzawa,tzawki / tzajki,tzawket / tzajket,tzawtuk / tzajtuk,tzawtiwit / tzajtiwit
+tzayani,tzayanki / tzayanik,tzayanket / tzayaniket,tzayantuk,tzayantiwit
+tzikwini,tzikwinki / tzikwinik,tzikwinket / tzikwiniket,tzikwintuk,tzikwintiwit
+tzilini,tzilinki / tzilinik,tzilinket / tziliniket,tzilintuk,tzilintiwit
+tzitzikaya,tzitzikayak / tzitzikak,tzitzikayaket / tzitzikaket,tzitzikashtuk,tzitzikashtiwit
+tzupeliya,tzupeliyak / tzupelik,tzupeliyaket / tzupeliket,tzupeliyatuk / tzupelituk,tzupeliyatiwit / tzupelitiwit
+tzuyuni,tzuyunki / tzuyunik,tzuyunket / tzuyuniket,tzuyuntuk,tzuyuntiwit
+uksi,uksik,uksiket,uksituk,uksitiwit
+ulini,ulinik,uliniket,ulinituk,ulinitiwit
+waki,wakik,wakiket,waktuk,waktiwit
+weli,welik,weliket,welituk,welitiwit
+wetzi,wetzki,wetzket,wetztuk,wetztiwit
+wetzka,wetzkak,wetzkaket,wetzkatuk,wetzkatiwit
+weya,weyki / weyyak,weyket / weyyaket,weytuk / weyyatuk,weytiwit / weyyatiwit
+wilewi,wilewik,wilewket / wilejket,wilewtuk / wilejtuk,wilewtiwit / wilejtiwit
+witzi,witz,witzet,—,—
+yamaniya,yamanishki / yamaniyak / yamanik,yamanishket / yamaniyaket / yamaniket,yamanishtuk / yamaniyatuk / yamanituk,yamanishtiwit / yamaniyatiwit / yamanitiwit
+yawi,yajki,yajket,yajtuk,yajtiwit
+yekawi,yekawik,yekawket / yekajket,yekawtuk / yekajtuk,yekawtiwit / yekajtiwit
+yektiya,yektishki / yektiyak / yektik,yektishket / yektiyaket / yektiket,yektishtuk / yektiyatuk / yektituk,yektishtiwit / yektiyatiwit / yektitiwit
+yulkwi,yulkwik,yulkwiket,yulkwituk,yulkwitiwit
+yuyumuka,yuyumukak,yuyumukaket,yuyumukatuk,yuyumukatiwit
+waki,wakik,wakiket,waktuk,waktiwit
+weli,welik,weliket,welituk,welitiwit
+wetzi,wetzki,wetzket,wetztuk,wetztiwit
+wetzka,wetzkak,wetzkaket,wetzkatuk,wetzkatiwit
+weya,weyki / weyyak,weyket / weyyaket,weytuk / weyyatuk,weytiwit / weyyatiwit
+wilewi,wilewik,wilewket / wilejket,wilewtuk / wilejtuk,wilewtiwit / wilejtiwit
+,—,—,—,—
+yamaniya,yamanishki / yamaniyak / yamanik,yamanishket / yamaniyaket / yamaniket,yamanishtuk / yamaniyatuk / yamanituk,yamanishtiwit / yamaniyatiwit / yamanitiwit
+yawi,yajki,yajket,yajtuk,yajtiwit
+yekawi,yekawik,yekawket / yekajket,yekawtuk / yekajtuk,yekawtiwit / yekajtiwit
+yektiya,yektishki / yektiyak / yektik,yektishket / yektiyaket / yektiket,yektishtuk / yektiyatuk / yektituk,yektishtiwit / yektiyatiwit / yektitiwit
+yulkwi,yulkwik,yulkwiket,yulkwituk,yulkwitiwit

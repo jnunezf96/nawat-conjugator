@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "input": "a/t-i",
+      "expect": {
+        "verb": "ati",
+        "analysisVerb": "i",
+        "rawAnalysisVerb": "i",
+        "hasBoundMarker": true,
+        "isTaFusion": true,
+        "hasNonspecificValence": true,
+        "boundPrefixes": ["a", "t"],
+        "fusionPrefixes": ["a", "t"]
+      }
+    },
+    {
+      "input": "-taka/mati",
+      "expect": {
+        "verb": "takamati",
+        "analysisVerb": "mati",
+        "rawAnalysisVerb": "mati",
+        "hasSlashMarker": true,
+        "hasLeadingDash": true,
+        "hasImpersonalTaPrefix": false
+      }
+    },
+    {
+      "input": "ta-chiya",
+      "expect": {
+        "verb": "tachiya",
+        "analysisVerb": "tachiya",
+        "isTaFusion": true,
+        "hasSuffixSeparator": true,
+        "hasNonspecificValence": true
+      }
+    },
+    {
+      "input": "ta/nesi",
+      "expect": {
+        "verb": "tanesi",
+        "analysisVerb": "nesi",
+        "hasImpersonalTaPrefix": true,
+        "hasSlashMarker": true,
+        "isMarkedTransitive": false,
+        "valenceSlotCount": 0
+      }
+    },
+    {
+      "input": "wal/ya",
+      "expect": {
+        "verb": "walya",
+        "analysisVerb": "ya",
+        "directionalPrefix": "wal",
+        "hasSlashMarker": true
+      }
+    }
+  ]
+}

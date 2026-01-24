@@ -12,6 +12,7 @@
     "presente-habitual": { "": "ni", "t": "nit" },
     "imperativo": { "": "", "t": "kan" },
     "sustantivo-verbal": { "": "lis", "t": "lis" },
+    "patientivo": { "": "lis", "t": "lis" },
     "agentivo": { "": "ni", "t": "nimet", "p": "niwan" }
   },
   "pretUniversalClassByTense": {

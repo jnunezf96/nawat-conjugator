@@ -11,7 +11,7 @@
   },
   "suppletiveYeNonactive": "yeluwa",
   "suppletiveYawi": {
-    "forms": ["yawi", "ya"],
+    "forms": ["yawi"],
     "canonical": "yawi",
     "short": "yaw",
     "yuVariant": "yu",
