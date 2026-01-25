@@ -29,9 +29,6 @@
   "objectLabels": {
     "intransitive": { "labelEs": "intransitivo", "labelNa": "san tachiwa" }
   },
-  "nounObjectLabels": {
-    "intransitive": { "labelEs": "a él/ella/eso", "labelNa": "yaja" }
-  },
   "verbBlockLabels": {
     "transitive": { "labelEs": "verbo transitivo", "labelNa": "muchiwalis taselia" },
     "intransitive": { "labelEs": "verbo intransitivo", "labelNa": "muchiwalis san tachiwa" },
@@ -65,7 +62,6 @@
     "subject": { "labelEs": "Sujeto", "labelNa": "Ayini" },
     "object": { "labelEs": "Objeto", "labelNa": "Taseliani" },
     "possessor": { "labelEs": "Poseedor", "labelNa": "Tajpiyani" },
-    "ownership": { "labelEs": "Posesion", "labelNa": "Posesion" },
     "possessorObject": { "labelEs": "Poseedor / Objeto", "labelNa": "Matajpiyani / Museliani" },
     "intransitive": { "labelEs": "intransitivo", "labelNa": "San tachiwa" }
   },
@@ -97,14 +93,13 @@
     "imperativo": { "labelEs": "imperativo", "labelNa": "ipan ma muchiwa" },
     "sustantivo-verbal": { "labelEs": "sustantivo verbal", "labelNa": "muchiwalis" },
     "agentivo": { "labelEs": "agentivo", "labelNa": "tachiwani" },
-    "patientivo": { "labelEs": "patientivo", "labelNa": "taseliani" },
     "instrumentivo": { "labelEs": "instrumentivo", "labelNa": "tachiwaluni" },
     "calificativo-instrumentivo": { "labelEs": "calificativo/instrumentivo", "labelNa": "tachiwkayut" },
     "locativo-temporal": { "labelEs": "locativo/temporal", "labelNa": "tachiwaluyan" },
     "presente-habitual": { "labelEs": "presente habitual", "labelNa": "ipan muchiwani" },
     "presente-desiderativo": { "labelEs": "presente desiderativo", "labelNa": "ipan muchiwasneki" },
     "imperfecto": { "labelEs": "pretérito imperfecto", "labelNa": "ipan muchiwaya" },
-    "preterito": { "labelEs": "pretérito perfecto simple", "labelNa": "ipan muchiwki" },
+    "preterito-clase": { "labelEs": "pretérito perfecto simple", "labelNa": "ipan muchiwki" },
     "pasado-remoto": { "labelEs": "pasado remoto", "labelNa": "ipan muchiwka" },
     "perfecto": { "labelEs": "pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
     "pluscuamperfecto": { "labelEs": "pretérito pluscuamperfecto", "labelNa": "ipan muchiwtuya" },
@@ -118,7 +113,7 @@
     "presente-habitual": { "labelEs": "acción repetida o costumbre", "labelNa": "keman muchiwa sejsenpa" },
     "presente-desiderativo": { "labelEs": "deseo, intención o propósito", "labelNa": "keman kineki muchiwa" },
     "imperfecto": { "labelEs": "pasado en desarrollo o continuo", "labelNa": "keman muchiwa katka" },
-    "preterito": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman muchiwki wan tea ijkia né" },
+    "preterito-clase": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman muchiwki wan tea ijkia né" },
     "pasado-remoto": { "labelEs": "pasado distante con cierre perfectivo", "labelNa": "keman muchiwki ikman" },
     "perfecto": { "labelEs": "pasado con resultado vigente", "labelNa": "keman muchiwki wan sanuk ijkia né" },
     "pluscuamperfecto": { "labelEs": "pasado anterior a otro pasado", "labelNa": "keman muchiwki katka" },
@@ -127,26 +122,25 @@
     "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
     "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
     "agentivo": { "labelEs": "persona o entidad que realiza la acción", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
-    "patientivo": { "labelEs": "persona o entidad que recibe la acción", "labelNa": "taseliani ne kichiwa tajtaya" },
     "instrumentivo": { "labelEs": "medio o herramienta de la acción", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
     "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }
   },
   "preteritoClassDetailByKey": {
     "A": {
-      "label": { "labelEs": "Clase A: -ki / -Ø", "labelNa": "Taputzal A: -ki / -Ø" },
+      "label": { "labelEs": "Clase A: -ki / -Ø", "labelNa": "Taputzul A: -ki / -Ø" },
       "description": { "labelEs": "pérdida de vocal final en perfectivo", "labelNa": "mupulua itamiya wan mumaka -ki" }
     },
     "B": {
-      "label": { "labelEs": "Clase B: +k", "labelNa": "Taputzal B: +k" },
+      "label": { "labelEs": "Clase B: +k", "labelNa": "Taputzul B: +k" },
       "description": { "labelEs": "conserva vocal y añade -k", "labelNa": "mukawa itamiya wan mumaka +k" }
     },
     "C": {
-      "label": { "labelEs": "Clase C: -j", "labelNa": "Taputzal C: -j" },
+      "label": { "labelEs": "Clase C: -j", "labelNa": "Taputzul C: -j" },
       "description": { "labelEs": "alterna la raíz a -j", "labelNa": "mupata itamiya -j" }
     },
     "D": {
-      "label": { "labelEs": "Clase D: +j", "labelNa": "Taputzal D: +j" },
+      "label": { "labelEs": "Clase D: +j", "labelNa": "Taputzul D: +j" },
       "description": { "labelEs": "añade -j al perfectivo", "labelNa": "mumaka -j" }
     }
   }
