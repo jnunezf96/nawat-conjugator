@@ -2669,6 +2669,7 @@ function buildPatientivoTroncoDerivations({
     verb,
     analysisVerb,
     rawAnalysisVerb = "",
+    isTransitive = false,
     directionalPrefix = "",
     boundPrefix = "",
     hasImpersonalTaPrefix = false,
@@ -2712,6 +2713,121 @@ function buildPatientivoTroncoDerivations({
     if (!base) {
         return [];
     }
+    const isLuaEnding = base.endsWith("lua");
+    const syllables = getSyllables(base, { analysis: true, assumeFinalV: true });
+    const isWaFinalSyllable = (syllable) => (
+        syllable?.form === "CV" && syllable.onset === "w" && syllable.nucleus === "a"
+    );
+    const endsWithVCCVwa = (() => {
+        if (syllables.length < 3) {
+            return false;
+        }
+        const tail = syllables.slice(-3);
+        return tail[0]?.form === "V"
+            && tail[1]?.form === "C"
+            && isWaFinalSyllable(tail[2]);
+    })();
+    const endsWithVCCVwi = (() => {
+        if (syllables.length < 3) {
+            return false;
+        }
+        const tail = syllables.slice(-3);
+        return tail[0]?.form === "V"
+            && tail[1]?.form === "C"
+            && tail[2]?.form === "CV"
+            && tail[2]?.onset === "w"
+            && tail[2]?.nucleus === "i";
+    })();
+    const endsWithVjCVwa = (() => {
+        if (syllables.length >= 3) {
+            const shortTail = syllables.slice(-3);
+            if (shortTail[0]?.form === "Vj"
+                && shortTail[1]?.form === "CV"
+                && isWaFinalSyllable(shortTail[2])) {
+                return true;
+            }
+        }
+        if (syllables.length >= 4) {
+            const longTail = syllables.slice(-4);
+            return longTail[0]?.form === "V"
+                && longTail[1]?.form === "C"
+                && longTail[1]?.onset === "j"
+                && longTail[2]?.form === "CV"
+                && isWaFinalSyllable(longTail[3]);
+        }
+        return false;
+    })();
+    const endsWithVjCVwi = (() => {
+        if (syllables.length >= 2) {
+            const shortTail = syllables.slice(-2);
+            if (shortTail[0]?.form === "Vj"
+                && shortTail[1]?.form === "CV"
+                && shortTail[1]?.onset === "w"
+                && shortTail[1]?.nucleus === "i") {
+                return true;
+            }
+        }
+        if (syllables.length >= 3) {
+            const shortTail = syllables.slice(-3);
+            if (shortTail[0]?.form === "Vj"
+                && shortTail[1]?.form === "CV"
+                && shortTail[2]?.form === "CV"
+                && shortTail[2]?.onset === "w"
+                && shortTail[2]?.nucleus === "i") {
+                return true;
+            }
+        }
+        if (syllables.length >= 4) {
+            const longTail = syllables.slice(-4);
+            return longTail[0]?.form === "V"
+                && longTail[1]?.form === "C"
+                && longTail[1]?.onset === "j"
+                && longTail[2]?.form === "CV"
+                && longTail[3]?.form === "CV"
+                && longTail[3]?.onset === "w"
+                && longTail[3]?.nucleus === "i";
+        }
+        return false;
+    })();
+    const endsWithVlCVwa = (() => {
+        if (syllables.length < 3) {
+            return false;
+        }
+        const tail = syllables.slice(-3);
+        return tail[0]?.form === "Vl"
+            && tail[1]?.form === "CV"
+            && isWaFinalSyllable(tail[2]);
+    })();
+    const endsWithVlCVwi = (() => {
+        if (syllables.length >= 2) {
+            const shortTail = syllables.slice(-2);
+            if (shortTail[0]?.form === "Vl"
+                && shortTail[1]?.form === "CV"
+                && shortTail[1]?.onset === "w"
+                && shortTail[1]?.nucleus === "i") {
+                return true;
+            }
+        }
+        if (syllables.length < 3) {
+            return false;
+        }
+        const tail = syllables.slice(-3);
+        return tail[0]?.form === "Vl"
+            && tail[1]?.form === "CV"
+            && tail[2]?.form === "CV"
+            && tail[2]?.onset === "w"
+            && tail[2]?.nucleus === "i";
+    })();
+    if (
+        endsWithVCCVwa
+        || endsWithVCCVwi
+        || endsWithVjCVwa
+        || endsWithVjCVwi
+        || endsWithVlCVwa
+        || endsWithVlCVwi
+    ) {
+        return [];
+    }
     const results = [];
     const seen = new Set();
     const normalizeStem = (stem) => {
@@ -2719,6 +2835,19 @@ function buildPatientivoTroncoDerivations({
             return stem.slice(0, -1);
         }
         return stem;
+    };
+    const addRawResult = (stem, suffix) => {
+        const normalized = normalizeStem(stem);
+        if (!normalized) {
+            return;
+        }
+        const nounStem = prefix ? `${prefix}${normalized}` : normalized;
+        const key = `${nounStem}|${suffix}`;
+        if (seen.has(key)) {
+            return;
+        }
+        seen.add(key);
+        results.push({ verb: nounStem, subjectSuffix: suffix });
     };
     const addResult = (stem) => {
         const normalized = normalizeStem(stem);
@@ -2734,6 +2863,14 @@ function buildPatientivoTroncoDerivations({
         seen.add(key);
         results.push({ verb: nounStem, subjectSuffix: suffix });
     };
+    if (isTransitive) {
+        if (!isLuaEnding) {
+            return [];
+        }
+        const core = base.slice(0, -1);
+        addRawResult(`${core}l`, "");
+        return results;
+    }
     const addWithConsonants = (stem, consonants) => {
         consonants.forEach((consonant) => {
             addResult(`${stem}${consonant}`);
@@ -12087,10 +12224,10 @@ function applyMorphologyRules({
         }
     }
     if (tense === "patientivo") {
-        if (patientivoSource === "tronco-verbal" && !isIntransitiveVerb) {
+        const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
             return { error: true };
         }
-        const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
         const pluralMarker = baseSubjectSuffix === "p"
             ? "wan"
             : (baseSubjectSuffix === "t" ? "met" : "");
@@ -12105,6 +12242,7 @@ function applyMorphologyRules({
             analysisVerb,
             rawAnalysisVerb,
             isTransitive,
+            objectPrefix,
             directionalPrefix: directionalInputPrefix,
             isYawi,
             hasImpersonalTaPrefix,
@@ -12863,7 +13001,8 @@ function generateWord(options = {}) {
     preserveSubjectForPassive = passiveValencyAdjustments.preserveSubjectForPassive;
     morphologyObjectPrefix = passiveValencyAdjustments.morphologyObjectPrefix;
     const isWitziNonactive = isNonactive && suppletivePath?.id === "witzi";
-    const allowConsonantEnding = isWitziNonactive && verb === SUPPLETIVE_WITZI_NONACTIVE;
+    const allowConsonantEnding = (isWitziNonactive && verb === SUPPLETIVE_WITZI_NONACTIVE)
+        || SUPPLETIVE_WITZI_FORMS.has(validationVerb);
     if (
         isNonactive
         && getActiveTenseMode() === TENSE_MODE.verbo
