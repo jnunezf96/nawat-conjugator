@@ -29,6 +29,9 @@
   "objectLabels": {
     "intransitive": { "labelEs": "intransitivo", "labelNa": "san tachiwa" }
   },
+  "nounObjectLabels": {
+    "intransitive": { "labelEs": "a él/ella/eso", "labelNa": "yaja" }
+  },
   "verbBlockLabels": {
     "transitive": { "labelEs": "verbo transitivo", "labelNa": "muchiwalis taselia" },
     "intransitive": { "labelEs": "verbo intransitivo", "labelNa": "muchiwalis san tachiwa" },
@@ -62,6 +65,7 @@
     "subject": { "labelEs": "Sujeto", "labelNa": "Ayini" },
     "object": { "labelEs": "Objeto", "labelNa": "Taseliani" },
     "possessor": { "labelEs": "Poseedor", "labelNa": "Tajpiyani" },
+    "ownership": { "labelEs": "Posesion", "labelNa": "Posesion" },
     "possessorObject": { "labelEs": "Poseedor / Objeto", "labelNa": "Matajpiyani / Museliani" },
     "intransitive": { "labelEs": "intransitivo", "labelNa": "San tachiwa" }
   },

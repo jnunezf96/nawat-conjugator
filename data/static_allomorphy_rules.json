@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "supportiveI": {
+    "keepSlashPrefixes": ["wal", "un", "ku"]
+  },
+  "patientivoPerfectivo": {
+    "allowedFinals": ["w", "k", "kw", "s", "sh", "n", "l", "tz", "p", "t"],
+    "allowedFinalsClassC": ["j"],
+    "allowedFinalsClassD": ["j"]
+  }
+}
