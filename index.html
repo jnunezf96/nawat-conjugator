@@ -1,250 +1,362 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-       <head>
-              <meta charset="UTF-8">
-              <meta name="description" content="Conjugador de verbos en náhuat pipil de El Salvador. Conjugue verbos en náhuat pipil fácil y rápido con esta herramienta en línea gratuita.">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40"/>
-              <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE" />
-              <meta http-equiv="X-UA-Compatible" content="ie=edge">
-              <link rel="preconnect" href="https://fonts.googleapis.com">
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-              <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-              <link rel="stylesheet" href="style.css">
-              <script src="script.js"></script>
-              <title>Conjugador de verbos en náhuat</title>
-          </head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Conjugador de verbos en náhuat pipil de El Salvador. Conjugue verbos en náhuat pipil fácil y rápido con esta herramienta en línea gratuita."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40" />
+    <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+    <title>Conjugador de verbos en náhuat</title>
+  </head>
+  <body>
     <main class="app-shell">
-        <div class="form-container-word hero-panel" id="container-header">
-            <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
-            <div class="hero-controls">
-                <div class="ui-scale-control">
-                    <label class="ui-scale-label" for="ui-scale">Tamaño UI</label>
-                    <div class="ui-scale-row">
-                        <input type="range" id="ui-scale" min="-6" max="6" step="1" value="0" aria-label="Tamaño UI">
-                        <span class="ui-scale-value" id="ui-scale-value">0</span>
-                    </div>
-                </div>
-                <!-- Language toggle button -->
-                <label class="switch">
-                    <input type="checkbox" id="language" onchange="changeLanguage()">
-                    <span class="slider round"></span>
-                </label>
+      <div class="form-container-word hero-panel" id="container-header">
+        <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
+        <div class="hero-controls">
+          <div class="ui-scale-control">
+            <label class="ui-scale-label" for="ui-scale">Tamaño UI</label>
+            <div class="ui-scale-row">
+              <input
+                type="range"
+                id="ui-scale"
+                min="-6"
+                max="6"
+                step="1"
+                value="0"
+                aria-label="Tamaño UI"
+              />
+              <span class="ui-scale-value" id="ui-scale-value">0</span>
             </div>
+          </div>
+          <!-- Language toggle button -->
+          <label class="switch">
+            <input type="checkbox" id="language" onchange="changeLanguage()" />
+            <span class="slider round"></span>
+          </label>
         </div>
-        <div class="panel-grid">
-            <div class="panel-stack">
-                <form>
-                    <div class="form-container panel" id="container-inputs">
-                        <div class="form-group">
-                            <div class="form-header">
-                                <label for="verb" id="verb-label">Verbo</label>
-                                <button type="button" class="tutorial-trigger" id="tutorial-trigger">Guía regex</button>
-                            </div>
-                            <div class="verb-input-wrap">
-                                <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
-                                    <div class="verb-mirror-content" id="verb-mirror-content"></div>
-                                </div>
-                                <input type="text" id="verb" name="verb" class="verb-input" placeholder="Escriba verbo aquí" autocomplete="off" autocapitalize="none" spellcheck="false">
-                                <div class="verb-suggestions" id="verb-suggestions" role="listbox" aria-label="Sugerencias"></div>
-                            </div>
-                            <div class="verb-rule is-empty" id="verb-rule" aria-live="polite">
-                                <span class="verb-rule__label">Rule</span>
-                                <span class="verb-rule__text" id="verb-rule-text"></span>
-                            </div>
-                            <div class="verb-disambiguation is-empty" id="verb-disambiguation" aria-live="polite">
-                                <span class="verb-disambiguation__label" id="verb-disambiguation-label">Quisiste decir</span>
-                                <div class="verb-disambiguation__options" id="verb-disambiguation-options"></div>
-                            </div>
-                        </div>
-                        <input type="hidden" id="subject-prefix" name="subject-prefix" value="">
-                        <input type="hidden" id="subject-suffix" name="subject-suffix" value="">
-                        <div class="legend-wrapper">
-                            <!-- "?" Button to show the keyboard legend -->
-                            <button class="legend-button">?</button>
-                            <!-- Keyboard Legend Container -->
-                            <div class="keyboard-legend-container" id="keyboard-legend">
-                                <p><strong>Atajos:</strong></p>
-                                <p>Space/Esc: enfocar / salir del verbo</p>
-                                <p>Enter: generar</p>
-                                <p>Escribe para ver sugerencias</p>
-                                <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
-                                <!-- Agregar más elementos de leyenda según sea necesario -->
-                            </div>
-                        </div>
-                        <div class="bulk-export" id="bulk-export">
-                            <div class="bulk-export__header">
-                                <div class="bulk-export__title">Conjugación CSV</div>
-                                <div class="bulk-export__source" id="bulk-export-source"></div>
-                            </div>
-                            <div class="bulk-export__controls">
-                                <label class="bulk-export__select">
-                                    <span class="bulk-export__select-label">Fuente</span>
-                                    <select id="bulk-export-source-select" aria-label="Fuente CSV">
-                                        <option value="data">data.csv</option>
-                                        <option value="basic">basic data.csv</option>
-                                    </select>
-                                </label>
-                                <button type="button" class="bulk-export__button" id="bulk-export-open">Abrir CSV</button>
-                                <button type="button" class="bulk-export__button" id="bulk-export-save" disabled>Guardar cambios</button>
-                                <button type="button" class="bulk-export__button" id="bulk-export-generate">Generar</button>
-                                <button type="button" class="bulk-export__button" id="bulk-export-download" disabled>Descargar</button>
-                            </div>
-                            <div class="bulk-export__status" id="bulk-export-status"></div>
-                            <div class="bulk-export__table" id="bulk-export-table"></div>
-                        </div>
-                    </div>
-                </form>
-                <div class="panel tense-tabs-panel">
-                    <div class="tense-tabs-mode-row">
-                        <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
-                            <button type="button" class="tense-tabs-mode-button" data-tense-mode="verbo" id="tense-tabs-mode-verb">Verbo</button>
-                            <button type="button" class="tense-tabs-mode-button" data-tense-mode="sustantivo" id="tense-tabs-mode-noun">Sustantivo</button>
-                        </div>
-                        <div class="tense-tabs-mode voice-derivation-tabs" role="tablist" aria-label="Voz y derivación">
-                            <button type="button" class="tense-tabs-mode-button" data-combined-mode="active" id="tense-tabs-mode-active">Activo</button>
-                            <button type="button" class="tense-tabs-mode-button" data-combined-mode="nonactive" id="tense-tabs-mode-nonactive">No activo</button>
-                        </div>
-                    </div>
-                    <div class="nonactive-tabs is-hidden" id="nonactive-tabs" role="tablist" aria-label="Derivación no activa"></div>
-                    <div id="tense-tabs" class="tense-tabs"></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel-stack">
+          <form>
+            <div class="form-container panel" id="container-inputs">
+              <div class="form-group">
+                <div class="form-header">
+                  <label for="verb" id="verb-label">Verbo</label>
+                  <button type="button" class="tutorial-trigger" id="tutorial-trigger">
+                    Guía regex
+                  </button>
                 </div>
+                <div class="verb-input-wrap">
+                  <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
+                    <div class="verb-mirror-content" id="verb-mirror-content"></div>
+                  </div>
+                  <input
+                    type="text"
+                    id="verb"
+                    name="verb"
+                    class="verb-input"
+                    placeholder="Escriba verbo aquí"
+                    autocomplete="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                  />
+                  <div
+                    class="verb-suggestions"
+                    id="verb-suggestions"
+                    role="listbox"
+                    aria-label="Sugerencias"
+                  ></div>
+                </div>
+                <div class="verb-rule is-empty" id="verb-rule" aria-live="polite">
+                  <span class="verb-rule__label">Rule</span>
+                  <span class="verb-rule__text" id="verb-rule-text"></span>
+                </div>
+                <div
+                  class="verb-disambiguation is-empty"
+                  id="verb-disambiguation"
+                  aria-live="polite"
+                >
+                  <span class="verb-disambiguation__label" id="verb-disambiguation-label"
+                    >Quisiste decir</span
+                  >
+                  <div class="verb-disambiguation__options" id="verb-disambiguation-options"></div>
+                </div>
+              </div>
+              <input type="hidden" id="subject-prefix" name="subject-prefix" value="" />
+              <input type="hidden" id="subject-suffix" name="subject-suffix" value="" />
+              <div class="legend-wrapper">
+                <!-- "?" Button to show the keyboard legend -->
+                <button class="legend-button">?</button>
+                <!-- Keyboard Legend Container -->
+                <div class="keyboard-legend-container" id="keyboard-legend">
+                  <p><strong>Atajos:</strong></p>
+                  <p>Space/Esc: enfocar / salir del verbo</p>
+                  <p>Enter: generar</p>
+                  <p>Escribe para ver sugerencias</p>
+                  <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
+                  <!-- Agregar más elementos de leyenda según sea necesario -->
+                </div>
+              </div>
+              <div class="bulk-export" id="bulk-export">
+                <div class="bulk-export__header">
+                  <div class="bulk-export__title">Conjugación CSV</div>
+                  <div class="bulk-export__source" id="bulk-export-source"></div>
+                </div>
+                <div class="bulk-export__controls">
+                  <label class="bulk-export__select">
+                    <span class="bulk-export__select-label">Fuente</span>
+                    <select id="bulk-export-source-select" aria-label="Fuente CSV">
+                      <option value="data">data.csv</option>
+                      <option value="basic">basic data.csv</option>
+                    </select>
+                  </label>
+                  <button type="button" class="bulk-export__button" id="bulk-export-open">
+                    Abrir CSV
+                  </button>
+                  <button type="button" class="bulk-export__button" id="bulk-export-save" disabled>
+                    Guardar cambios
+                  </button>
+                  <button type="button" class="bulk-export__button" id="bulk-export-generate">
+                    Generar
+                  </button>
+                  <button
+                    type="button"
+                    class="bulk-export__button"
+                    id="bulk-export-download"
+                    disabled
+                  >
+                    Descargar
+                  </button>
+                </div>
+                <div class="bulk-export__status" id="bulk-export-status"></div>
+                <div class="bulk-export__table" id="bulk-export-table"></div>
+              </div>
             </div>
-            <div class="panel container-tense-grid" id="container-tense-grid">
-                <div class="tense-description" id="tense-description" aria-live="polite"></div>
-                <div id="all-tense-conjugations"></div>
+          </form>
+          <div class="panel tense-tabs-panel">
+            <div class="tense-tabs-mode-row">
+              <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
+                <button
+                  type="button"
+                  class="tense-tabs-mode-button"
+                  data-tense-mode="verbo"
+                  id="tense-tabs-mode-verb"
+                >
+                  Verbo
+                </button>
+                <button
+                  type="button"
+                  class="tense-tabs-mode-button"
+                  data-tense-mode="sustantivo"
+                  id="tense-tabs-mode-noun"
+                >
+                  Sustantivo
+                </button>
+              </div>
+              <div
+                class="tense-tabs-mode voice-derivation-tabs"
+                role="tablist"
+                aria-label="Voz y derivación"
+              >
+                <button
+                  type="button"
+                  class="tense-tabs-mode-button"
+                  data-combined-mode="active"
+                  id="tense-tabs-mode-active"
+                >
+                  Activo
+                </button>
+                <button
+                  type="button"
+                  class="tense-tabs-mode-button"
+                  data-combined-mode="nonactive"
+                  id="tense-tabs-mode-nonactive"
+                >
+                  No activo
+                </button>
+              </div>
             </div>
+            <div
+              class="nonactive-tabs is-hidden"
+              id="nonactive-tabs"
+              role="tablist"
+              aria-label="Derivación no activa"
+            ></div>
+            <div id="tense-tabs" class="tense-tabs"></div>
+          </div>
         </div>
-        <footer>
-            <p><label id="copyright-label">Copyright © 2026 Jaime Núñez</label></p>
-            <p>Gracias a Sigfredo Olmedo</p>
-        </footer>
+        <div class="panel container-tense-grid" id="container-tense-grid">
+          <div class="tense-description" id="tense-description" aria-live="polite"></div>
+          <div id="all-tense-conjugations"></div>
+        </div>
+      </div>
+      <footer>
+        <p><label id="copyright-label">Copyright © 2026 Jaime Núñez</label></p>
+        <p>Gracias a Sigfredo Olmedo</p>
+      </footer>
     </main>
     <div class="tutorial-modal" id="tutorial-modal" aria-hidden="true">
-        <div class="tutorial-backdrop" data-tutorial-close></div>
-        <div class="tutorial-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
-            <div class="tutorial-header">
-                <span class="tutorial-eyebrow">Guía de patrones</span>
-                <h2 id="tutorial-title">Escribe con símbolos</h2>
-                <p class="tutorial-lede">Marca transitividad, compuestos y búsquedas para guiar la conjugación sin menús extra.</p>
-                <button type="button" class="tutorial-close" data-tutorial-close aria-label="Cerrar guía">×</button>
-            </div>
-            <div class="tutorial-body">
-                <div class="tutorial-grid">
-                    <div class="tutorial-block">
-                        <div class="tutorial-block-title">Símbolos clave</div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">-</span>
-                            <span class="tutorial-chip-label">con = transitivo; sin = intransitivo</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">/</span>
-                            <span class="tutorial-chip-label">separador</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">ta-,te-,mu-</span>
-                            <span class="tutorial-chip-label">objeto indefinido</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">t-,m-</span>
-                            <span class="tutorial-chip-label">forma corta de objeto indefinido</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">(i)</span>
-                            <span class="tutorial-chip-label">i de apoyo opcional; con ta/te/mu se elimina (ej.: -(i)twa, ta-(i)twa)</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">wal/un/ku/</span>
-                            <span class="tutorial-chip-label">direccional; usa "/" antes del verbo</span>
-                        </div>
-                        <div class="tutorial-chip-row">
-                            <span class="tutorial-chip">?</span>
-                            <span class="tutorial-chip-label">búsqueda rápida</span>
-                        </div>
-                    </div>
-                    <div class="tutorial-block">
-                        <div class="tutorial-block-title">Estructuras</div>
-                        <div class="tutorial-structure">
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">intransitivo con prefijo</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="tzin/pewa">TZIN/PEWA</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">transitivo con prefijo</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-ten/tzakwa">-TEN/TZAKWA</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">transitivo con OI (ta/te/mu)</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-ta-ish/piya">-TA-ISH/PIYA</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">transitivo con OD + prefijo</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-kal-ish/piya">-KAL-ISH/PIYA</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">prefijo ligado + ta‑fusión</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">direccional + ta‑fusión</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-ku/ta-mima">-KU/TA-MIMA</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="tutorial-note">
-                            Transitivo mínimo:
-                            <button type="button" class="tutorial-token" data-example="-piya">-PIYA</button>
-                            · Fusión:
-                            <button type="button" class="tutorial-token" data-example="ta-chiya">TA-CHIYA</button>
-                            · Prefijo ligado:
-                            <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
-                        </div>
-                    </div>
-                    <div class="tutorial-block">
-                        <div class="tutorial-block-title">Búsqueda rápida</div>
-                        <div class="tutorial-structure">
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">termina en</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-piya?-lis">-PIYA?-LIS</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">empieza con</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-piya?ta-">-PIYA?TA-</button>
-                                </span>
-                            </div>
-                            <div class="tutorial-structure-line">
-                                <span class="tutorial-code">contiene</span>
-                                <span class="tutorial-example-inline">
-                                    <button type="button" class="tutorial-token" data-example="-piya?-ka-">-PIYA?-KA-</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="tutorial-note">Busca en todas las tablas y salta a la primera coincidencia.</div>
-                    </div>
-                </div>
-                <div class="tutorial-footer">
-                    <div class="tutorial-tip">
-                        Tip: escribe un prefijo y mira las sugerencias debajo del verbo.
-                    </div>
-                    <button type="button" class="tutorial-close-pill" data-tutorial-close>Entendido</button>
-                </div>
-            </div>
+      <div class="tutorial-backdrop" data-tutorial-close></div>
+      <div class="tutorial-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
+        <div class="tutorial-header">
+          <span class="tutorial-eyebrow">Guía de patrones</span>
+          <h2 id="tutorial-title">Escribe con símbolos</h2>
+          <p class="tutorial-lede">
+            Marca transitividad, compuestos y búsquedas para guiar la conjugación sin menús extra.
+          </p>
+          <button type="button" class="tutorial-close" data-tutorial-close aria-label="Cerrar guía">
+            ×
+          </button>
         </div>
+        <div class="tutorial-body">
+          <div class="tutorial-grid">
+            <div class="tutorial-block">
+              <div class="tutorial-block-title">Símbolos clave</div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">-</span>
+                <span class="tutorial-chip-label">con = transitivo; sin = intransitivo</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">/</span>
+                <span class="tutorial-chip-label">separador</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">ta-,te-,mu-</span>
+                <span class="tutorial-chip-label">objeto indefinido</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">t-,m-</span>
+                <span class="tutorial-chip-label">forma corta de objeto indefinido</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">(i)</span>
+                <span class="tutorial-chip-label"
+                  >i de apoyo opcional; con ta/te/mu se elimina (ej.: -(i)twa, ta-(i)twa)</span
+                >
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">wal/un/ku/</span>
+                <span class="tutorial-chip-label">direccional; usa "/" antes del verbo</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">?</span>
+                <span class="tutorial-chip-label">búsqueda rápida</span>
+              </div>
+            </div>
+            <div class="tutorial-block">
+              <div class="tutorial-block-title">Estructuras</div>
+              <div class="tutorial-structure">
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">intransitivo con prefijo</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="tzin/pewa">
+                      TZIN/PEWA
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">transitivo con prefijo</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-ten/tzakwa">
+                      -TEN/TZAKWA
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">transitivo con OI (ta/te/mu)</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-ta-ish/piya">
+                      -TA-ISH/PIYA
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">transitivo con OD + prefijo</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-kal-ish/piya">
+                      -KAL-ISH/PIYA
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">prefijo ligado + ta‑fusión</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">direccional + ta‑fusión</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-ku/ta-mima">
+                      -KU/TA-MIMA
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div class="tutorial-note">
+                Transitivo mínimo:
+                <button type="button" class="tutorial-token" data-example="-piya">-PIYA</button>
+                · Fusión:
+                <button type="button" class="tutorial-token" data-example="ta-chiya">
+                  TA-CHIYA
+                </button>
+                · Prefijo ligado:
+                <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
+              </div>
+            </div>
+            <div class="tutorial-block">
+              <div class="tutorial-block-title">Búsqueda rápida</div>
+              <div class="tutorial-structure">
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">termina en</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-piya?-lis">
+                      -PIYA?-LIS
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">empieza con</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-piya?ta-">
+                      -PIYA?TA-
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">contiene</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="-piya?-ka-">
+                      -PIYA?-KA-
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div class="tutorial-note">
+                Busca en todas las tablas y salta a la primera coincidencia.
+              </div>
+            </div>
+          </div>
+          <div class="tutorial-footer">
+            <div class="tutorial-tip">
+              Tip: escribe un prefijo y mira las sugerencias debajo del verbo.
+            </div>
+            <button type="button" class="tutorial-close-pill" data-tutorial-close>Entendido</button>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
