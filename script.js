@@ -1749,6 +1749,9 @@ function isValencyFilled(objectPrefix, verbMeta) {
     if (!verbMeta) {
         return false;
     }
+    if (verbMeta.isMarkedTransitive) {
+        return true;
+    }
     return getActiveVerbValency(verbMeta) > 1;
 }
 
@@ -1862,11 +1865,20 @@ function getBaseObjectSlots(verbMeta) {
     if (!verbMeta) {
         return 0;
     }
-    if (Number.isFinite(verbMeta.valenceSlotCount)) {
-        return Math.max(0, Math.min(2, verbMeta.valenceSlotCount));
+    const valenceSlots = Number.isFinite(verbMeta.valenceSlotCount)
+        ? Math.max(0, Math.min(2, verbMeta.valenceSlotCount))
+        : null;
+    if (valenceSlots && valenceSlots > 0) {
+        return valenceSlots;
     }
-    if (Number.isFinite(verbMeta.dashCount)) {
-        return Math.max(0, Math.min(2, verbMeta.dashCount));
+    const dashSlots = Number.isFinite(verbMeta.dashCount)
+        ? Math.max(0, Math.min(2, verbMeta.dashCount))
+        : null;
+    if (dashSlots && dashSlots > 0) {
+        return dashSlots;
+    }
+    if (verbMeta.isMarkedTransitive || verbMeta.isTaFusion) {
+        return 1;
     }
     return verbMeta.hasLeadingDash ? 1 : 0;
 }
@@ -1997,6 +2009,10 @@ function buildNonactiveUStem(stem, lastOnset, lastNucleus, options = {}) {
         }
     } else if (lastOnset === "s") {
         letters[onsetIndex] = "sh";
+    } else if (lastOnset === "tz") {
+        if (!options.blockCh) {
+            letters[onsetIndex] = "ch";
+        }
     } else if (lastOnset === "kw" && lastNucleus === "i") {
         letters[onsetIndex] = "k";
     }
@@ -2150,6 +2166,7 @@ function getNonactiveCandidateParts(info) {
     const allowUFromM = lastOnset === "m" && endsWithNucleusI;
     const allowUFromKwI = lastOnset === "kw" && endsWithNucleusI;
     const allowUFromT = lastOnset === "t" && endsWithNucleusI;
+    const allowUFromTz = lastOnset === "tz" && endsWithNucleusA;
     const allowUFromTTa = lastOnset === "t" && endsWithNucleusA && prev === "t" && prev2 === "t";
     return {
         isMonosyllable,
@@ -2161,6 +2178,7 @@ function getNonactiveCandidateParts(info) {
         allowUFromM,
         allowUFromKwI,
         allowUFromT,
+        allowUFromTz,
         allowUFromTTa,
     };
 }
@@ -2241,11 +2259,12 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
         allowUFromM,
         allowUFromKwI,
         allowUFromT,
+        allowUFromTz,
         allowUFromTTa,
     } = getNonactiveCandidateParts(info);
     const uCandidate = isTransitive
         && !isMonosyllable
-        && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTTa)
+        && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTz || allowUFromTTa)
         && !blockUForWaWi;
     const uwaCandidate = !isTransitive
         && !isMonosyllable
@@ -3068,11 +3087,12 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         allowUFromM,
         allowUFromKwI,
         allowUFromT,
+        allowUFromTz,
         allowUFromTTa,
     } = getNonactiveCandidateParts(info);
     const uCandidate = isTransitive
         && !isMonosyllable
-        && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTTa)
+        && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTz || allowUFromTTa)
         && !blockUForWaWi;
     const uwaCandidate = !isTransitive
         && (
@@ -5435,7 +5455,8 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isExactVCCVwiShort = matchExact(matchesExactVCCVwiShort);
     const isExactCVkwi = matchExact(matchesExactCVkwi);
     const isExactVCVwi = matchExact(matchesExactVCVwi);
-    const isExactVCVCu = matchExact(matchesExactVCVCu);
+    const isExactVCVCu = matchesExactVCVCu(syllables, 0)
+        || (baseIsReduplicated && matchesExactVCVCu(analysisSyllables, 1));
     const isExactVlV = matchExact(matchesExactVlV);
     const isExactCVlV = matchExact(matchesExactCVlV);
     const isExactVlVwi = matchExact(matchesExactVlVwi);
@@ -7251,18 +7272,6 @@ function resolvePretClassPolicy({
             shouldSkipClassB: false,
         };
     }
-    const forceClassAForTVRemoto = !!(
-        context
-        && context.endsWithTV
-        && tense === "pasado-remoto"
-        && !context.fromRootPlusYa
-    );
-    if (forceClassAForTVRemoto) {
-        if (classFilter === "B") {
-            shouldMaskClassBSelection = true;
-        }
-        shouldSkipClassB = true;
-    }
     const isWiPattern = !!(
         context
         && context.isExactWiPattern
@@ -7636,9 +7645,21 @@ function buildPretUniversalResultWithProvenance({
         const hasClassAVariants = Array.isArray(classAVariants) && classAVariants.length > 0;
         if (context.forceClassAForKWV) {
             if (hasClassAVariants) {
-                blockedReason = "force-class-a-kwv";
+                blockedReason = "class-b-fallback-to-a-kwv";
+                const result = buildPretUniversalResultFromVariants(
+                    classAVariants,
+                    subjectPrefix,
+                    objectPrefix,
+                    subjectSuffix,
+                    directionalInputPrefix,
+                    directionalOutputPrefix,
+                    baseSubjectPrefix,
+                    baseObjectPrefix,
+                    null,
+                    indirectObjectMarker
+                );
                 return {
-                    result: "—",
+                    result,
                     provenance: buildPretUniversalProvenance({
                         verb,
                         analysisTarget,
@@ -7646,7 +7667,7 @@ function buildPretUniversalResultWithProvenance({
                         classKey,
                         isTransitive,
                         context,
-                        variants,
+                        variants: classAVariants,
                         subjectSuffix,
                         blockedReason,
                         suppletiveStemSet,
@@ -7662,9 +7683,21 @@ function buildPretUniversalResultWithProvenance({
                 || context.isExactCVCVwa
             ) && !isTransitive && !context.isReduplicated;
             if (candidates.has("A") && hasClassAVariants && !isMVEnding && !allowClassBWithA) {
-                blockedReason = "class-b-blocked-by-class-a";
+                blockedReason = "class-b-fallback-to-a";
+                const result = buildPretUniversalResultFromVariants(
+                    classAVariants,
+                    subjectPrefix,
+                    objectPrefix,
+                    subjectSuffix,
+                    directionalInputPrefix,
+                    directionalOutputPrefix,
+                    baseSubjectPrefix,
+                    baseObjectPrefix,
+                    null,
+                    indirectObjectMarker
+                );
                 return {
-                    result: "—",
+                    result,
                     provenance: buildPretUniversalProvenance({
                         verb,
                         analysisTarget,
@@ -7672,7 +7705,7 @@ function buildPretUniversalResultWithProvenance({
                         classKey,
                         isTransitive,
                         context,
-                        variants,
+                        variants: classAVariants,
                         subjectSuffix,
                         blockedReason,
                         suppletiveStemSet,
@@ -9969,8 +10002,16 @@ function buildVerbDisambiguationCandidates(rawValue) {
     const originalClassList = original.classList;
     const patternSet = new Set(original.exactLabels || []);
     const patterns = Array.from(patternSet);
+    const maxDashCount = Math.max(
+        1,
+        Math.min(2, Number.isFinite(parsedBase.dashCount) ? parsedBase.dashCount : 0)
+    );
     const considerCandidate = (candidateValue, options = {}) => {
         if (!candidateValue || candidateValue === display || seen.has(candidateValue)) {
+            return;
+        }
+        const candidateDashCount = (candidateValue.match(/-/g) || []).length;
+        if (candidateDashCount > maxDashCount) {
             return;
         }
         const candidate = getPretClassSignatureFromValue(candidateValue);
