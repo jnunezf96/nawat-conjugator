@@ -60,6 +60,7 @@
   --placeholder-color: rgba(59, 51, 40, 0.55);
   --font-title: "Fraunces", serif;
   --font-body: "Space Grotesk", sans-serif;
+  --mode-toggle-height: 34px;
 }
 
 *,
@@ -344,26 +345,62 @@ p {
   margin-bottom: 0;
 }
 
+.derivation-type-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.derivation-type-row label {
+  font-size: calc(0.72rem + var(--font-size-adjust));
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.derivation-type-row select {
+  max-width: 220px;
+  height: var(--mode-toggle-height);
+  min-height: var(--mode-toggle-height);
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--tense-block-bg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.derivation-type-row.is-disabled {
+  opacity: 0.6;
+}
+
 .tense-tabs-mode {
   display: flex;
-  border: 1px solid rgba(29, 26, 21, 0.14);
-  border-radius: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   overflow: hidden;
   margin-bottom: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--tense-block-bg);
   width: 100%;
+  min-height: var(--mode-toggle-height);
 }
 
 .tense-tabs-mode-button {
   border: none;
   background: transparent;
   color: var(--ink-soft);
-  padding: 6px 10px;
+  padding: 0 12px;
   font-size: calc(0.86rem + var(--font-size-adjust));
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
+  min-height: var(--mode-toggle-height);
   transition:
     background 0.2s ease,
     color 0.2s ease;
@@ -486,6 +523,12 @@ select,
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     background-color 0.2s ease;
+}
+
+select {
+  height: var(--mode-toggle-height);
+  min-height: var(--mode-toggle-height);
+  padding: 0 12px;
 }
 
 input[type="text"]:focus,
@@ -666,8 +709,9 @@ input.verb-input::selection {
 }
 
 .bulk-export__select select {
-  height: 34px;
-  padding: 6px 10px;
+  height: var(--mode-toggle-height);
+  min-height: var(--mode-toggle-height);
+  padding: 0 10px;
   font-size: calc(0.72rem + var(--font-size-adjust));
   width: auto;
 }
@@ -1626,7 +1670,8 @@ input[type="submit"]:hover {
 .object-toggle--stacked .object-toggle-button {
   width: 100%;
   text-align: left;
-  padding: 8px 12px;
+  padding: 0 12px;
+  min-height: var(--mode-toggle-height);
 }
 
 .object-toggle--stacked .object-toggle-button + .object-toggle-button {
@@ -1647,14 +1692,14 @@ input[type="submit"]:hover {
   border-radius: 10px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
   pointer-events: auto;
+  min-height: var(--mode-toggle-height);
 }
 
 .object-toggle-button {
   border: none;
   background: transparent;
-  padding: 4px 10px;
+  padding: 0 10px;
   font-size: calc(0.72rem + var(--font-size-adjust));
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1662,6 +1707,7 @@ input[type="submit"]:hover {
   color: var(--ink-soft);
   cursor: pointer;
   pointer-events: auto;
+  min-height: var(--mode-toggle-height);
 }
 
 .object-toggle-button + .object-toggle-button {

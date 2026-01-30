@@ -1,0 +1,13 @@
+{
+  "intransitiveToApplicative": {
+    "verbs": [],
+    "suffixes": []
+  },
+  "intransitiveToCausative": {
+    "verbs": ["witeki", "pusteki", "wetzka", "pishka", "tuka", "mayana", "tisi", "tesi", "ajsi", "mati", "siyawi", "paki"],
+    "suffixes": ["teki", "miki", "siwi"]
+  },
+  "transitiveToApplicative": {
+    "verbs": ["maka"]
+  }
+}
