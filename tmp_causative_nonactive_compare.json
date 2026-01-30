@@ -1,0 +1,2556 @@
+{
+  "version": 1,
+  "generatedAt": "2026-01-30T05:14:45.236Z",
+  "totalEntries": 2539,
+  "mismatchCount": 249,
+  "mismatches": [
+    {
+      "source": "-kwi",
+      "causative": [
+        "kwitia",
+        "kwiltia"
+      ],
+      "matchedVerb": "-kwitia",
+      "directNonactive": "kwitilu",
+      "causativeNonactive": "kwitiawa / kwitialu / kwitiawalu"
+    },
+    {
+      "source": "wi",
+      "causative": [
+        "wa",
+        "wia"
+      ],
+      "matchedVerb": "-chil/wia",
+      "directNonactive": "chilwilu",
+      "causativeNonactive": "wawa / walu / wawalu"
+    },
+    {
+      "source": "-kawa",
+      "causative": [
+        "kawaltia"
+      ],
+      "matchedVerb": "-kawaltia",
+      "directNonactive": "kawaltilu",
+      "causativeNonactive": "kawaltialu"
+    },
+    {
+      "source": "-kaki",
+      "causative": [
+        "kaktia",
+        "kakitia"
+      ],
+      "matchedVerb": "-kaktia",
+      "directNonactive": "kaktilu",
+      "causativeNonactive": "kaktiu / kaktiawa / kaktiawalu"
+    },
+    {
+      "source": "-kaki",
+      "causative": [
+        "kaktia",
+        "kakitia"
+      ],
+      "matchedVerb": "-kakitia",
+      "directNonactive": "kakitilu",
+      "causativeNonactive": "kaktiu / kaktiawa / kaktiawalu"
+    },
+    {
+      "source": "sewa",
+      "causative": [
+        "sewa",
+        "sewaltia",
+        "sewtia"
+      ],
+      "matchedVerb": "sewa",
+      "directNonactive": "sewalu / seuwa",
+      "causativeNonactive": "sewalu"
+    },
+    {
+      "source": "sewi",
+      "causative": [
+        "sewa",
+        "sewia"
+      ],
+      "matchedVerb": "sewa",
+      "directNonactive": "sewalu / seuwa",
+      "causativeNonactive": "sewawa / sewalu / sewawalu"
+    },
+    {
+      "source": "sewi",
+      "causative": [
+        "sewa",
+        "sewia"
+      ],
+      "matchedVerb": "-sewia",
+      "directNonactive": "sewilu",
+      "causativeNonactive": "sewawa / sewalu / sewawalu"
+    },
+    {
+      "source": "seya",
+      "causative": [
+        "selia",
+        "seltia",
+        "seyaltia"
+      ],
+      "matchedVerb": "-selia",
+      "directNonactive": "selilu",
+      "causativeNonactive": "selialu"
+    },
+    {
+      "source": "-chiya",
+      "causative": [
+        "chiyaltia"
+      ],
+      "matchedVerb": "chiyaltia",
+      "directNonactive": "chiyaltilu",
+      "causativeNonactive": "chiyaltialu"
+    },
+    {
+      "source": "chuka",
+      "causative": [
+        "chukaltia",
+        "chukiltia",
+        "chuktia"
+      ],
+      "matchedVerb": "chuktia",
+      "directNonactive": "chuktilu",
+      "causativeNonactive": "chukaltialu / chukaltiilu / chukaltiu"
+    },
+    {
+      "source": "waki",
+      "causative": [
+        "watza"
+      ],
+      "matchedVerb": "-watza",
+      "directNonactive": "watzalu / wachu",
+      "causativeNonactive": "watzu / watzawa / watzawalu"
+    },
+    {
+      "source": "-wika",
+      "causative": [
+        "wikaltia",
+        "wikiltia",
+        "wiktia"
+      ],
+      "matchedVerb": "-wikaltia",
+      "directNonactive": "wikaltilu",
+      "causativeNonactive": "wikaltialu / wikaltiilu / wikaltiu"
+    },
+    {
+      "source": "-mama",
+      "causative": [
+        "mamaltia"
+      ],
+      "matchedVerb": "-mamaltia",
+      "directNonactive": "mamaltilu",
+      "causativeNonactive": "mamaltialu"
+    },
+    {
+      "source": "mani",
+      "causative": [
+        "mana"
+      ],
+      "matchedVerb": "-mana",
+      "directNonactive": "manalu / manu",
+      "causativeNonactive": "manu / manawa / manalu / manawalu"
+    },
+    {
+      "source": "mani",
+      "causative": [
+        "mana"
+      ],
+      "matchedVerb": "-kwa/mana",
+      "directNonactive": "kwamanalu / kwamanu",
+      "causativeNonactive": "manu / manawa / manalu / manawalu"
+    },
+    {
+      "source": "-mati",
+      "causative": [
+        "machtia",
+        "matitia",
+        "machitia",
+        "matilia"
+      ],
+      "matchedVerb": "-machtia",
+      "directNonactive": "machtilu",
+      "causativeNonactive": "machtchu / machtiawa / machtiilu / machtialu / machtiawalu"
+    },
+    {
+      "source": "-mati",
+      "causative": [
+        "machtia",
+        "matitia",
+        "machitia",
+        "matilia"
+      ],
+      "matchedVerb": "-machitia",
+      "directNonactive": "machitilu",
+      "causativeNonactive": "machtchu / machtiawa / machtiilu / machtialu / machtiawalu"
+    },
+    {
+      "source": "-neki",
+      "causative": [
+        "nektia",
+        "nekitia"
+      ],
+      "matchedVerb": "-nektia",
+      "directNonactive": "nektilu",
+      "causativeNonactive": "nektiu / nektiawa / nektiawalu"
+    },
+    {
+      "source": "-paka",
+      "causative": [
+        "pakaltia",
+        "pakiltia",
+        "paktia"
+      ],
+      "matchedVerb": "-pakiltia",
+      "directNonactive": "pakiltilu",
+      "causativeNonactive": "pakaltialu / pakaltiilu / pakaltiu"
+    },
+    {
+      "source": "-paka",
+      "causative": [
+        "pakaltia",
+        "pakiltia",
+        "paktia"
+      ],
+      "matchedVerb": "-paktia",
+      "directNonactive": "paktilu",
+      "causativeNonactive": "pakaltialu / pakaltiilu / pakaltiu"
+    },
+    {
+      "source": "paki",
+      "causative": [
+        "paki"
+      ],
+      "matchedVerb": "paki",
+      "directNonactive": "pakiwa / pakuwa / pakiwalu",
+      "causativeNonactive": "paku / pakiwa / pakiwalu"
+    },
+    {
+      "source": "pewa",
+      "causative": [
+        "pewa",
+        "pewaltia",
+        "pewtia"
+      ],
+      "matchedVerb": "pewa",
+      "directNonactive": "pewalu / peuwa",
+      "causativeNonactive": "pewalu"
+    },
+    {
+      "source": "pewa",
+      "causative": [
+        "pewa",
+        "pewaltia",
+        "pewtia"
+      ],
+      "matchedVerb": "-pewaltia",
+      "directNonactive": "pewaltilu",
+      "causativeNonactive": "pewalu"
+    },
+    {
+      "source": "-piya",
+      "causative": [
+        "piyaltia"
+      ],
+      "matchedVerb": "-piyaltia",
+      "directNonactive": "piyaltilu",
+      "causativeNonactive": "piyaltialu"
+    },
+    {
+      "source": "puwi",
+      "causative": [
+        "puwa"
+      ],
+      "matchedVerb": "-puwa",
+      "directNonactive": "puwalu",
+      "causativeNonactive": "puwawa / puwalu / puwawalu"
+    },
+    {
+      "source": "kisa",
+      "causative": [
+        "kisaltia",
+        "kishtia"
+      ],
+      "matchedVerb": "-kishtia",
+      "directNonactive": "kishtilu",
+      "causativeNonactive": "kishtialu / kishtshu"
+    },
+    {
+      "source": "tisi",
+      "causative": [
+        "tisi"
+      ],
+      "matchedVerb": "tisi",
+      "directNonactive": "tishiwa / tishuwa / tisiwalu",
+      "causativeNonactive": "tishu / tishiwa / tisiwalu"
+    },
+    {
+      "source": "-teka",
+      "causative": [
+        "tekaltia",
+        "tekiltia",
+        "tektia"
+      ],
+      "matchedVerb": "-tekaltia",
+      "directNonactive": "tekaltilu",
+      "causativeNonactive": "tekaltialu / tekaltiilu / tekaltiu"
+    },
+    {
+      "source": "temi",
+      "causative": [
+        "tema",
+        "temia"
+      ],
+      "matchedVerb": "-tema",
+      "directNonactive": "temalu",
+      "causativeNonactive": "temu / temawa / temawalu"
+    },
+    {
+      "source": "temi",
+      "causative": [
+        "tema",
+        "temia"
+      ],
+      "matchedVerb": "-temia",
+      "directNonactive": "temilu",
+      "causativeNonactive": "temu / temawa / temawalu"
+    },
+    {
+      "source": "ta-i",
+      "causative": [
+        "taitia"
+      ],
+      "matchedVerb": "taitia",
+      "directNonactive": "taitilu",
+      "causativeNonactive": "taitiawa / taitialu / taitiawalu"
+    },
+    {
+      "source": "tami",
+      "causative": [
+        "tamia"
+      ],
+      "matchedVerb": "-tamia",
+      "directNonactive": "tamilu",
+      "causativeNonactive": "tamiu / tamiawa / tamiawalu"
+    },
+    {
+      "source": "-tasa",
+      "causative": [
+        "tasaltia",
+        "tashtia"
+      ],
+      "matchedVerb": "-tasaltia",
+      "directNonactive": "tasaltilu",
+      "causativeNonactive": "tasaltialu / tasaltshu"
+    },
+    {
+      "source": "tumi",
+      "causative": [
+        "tuma"
+      ],
+      "matchedVerb": "-tuma",
+      "directNonactive": "tumalu",
+      "causativeNonactive": "tumu / tumawa / tumawalu"
+    },
+    {
+      "source": "-tzakwa",
+      "causative": [
+        "tzakwaltia",
+        "tzakwiltia"
+      ],
+      "matchedVerb": "-tzakwiltia",
+      "directNonactive": "tzakwiltilu",
+      "causativeNonactive": "tzakwaltialu / tzakwaltiilu"
+    },
+    {
+      "source": "tzakwi",
+      "causative": [
+        "tzakwa"
+      ],
+      "matchedVerb": "-tzakwa",
+      "directNonactive": "tzakwalu / tzakwilu",
+      "causativeNonactive": "tzaku / tzakwawa / tzakwalu / tzakwawalu"
+    },
+    {
+      "source": "tzupi",
+      "causative": [
+        "tzupa"
+      ],
+      "matchedVerb": "-tzupa",
+      "directNonactive": "tzupalu",
+      "causativeNonactive": "tzupawa / tzupawalu"
+    },
+    {
+      "source": "shuta",
+      "causative": [
+        "shutaltia",
+        "shuchtia"
+      ],
+      "matchedVerb": "-shutaltia",
+      "directNonactive": "shutaltilu",
+      "causativeNonactive": "shutaltiilu / shutaltialu"
+    },
+    {
+      "source": "yuwa",
+      "causative": [
+        "yuwa",
+        "yuwaltia"
+      ],
+      "matchedVerb": "a/yuwa",
+      "directNonactive": "ayuwalu",
+      "causativeNonactive": "yuwalu"
+    },
+    {
+      "source": "yuwa",
+      "causative": [
+        "yuwa",
+        "yuwaltia"
+      ],
+      "matchedVerb": "ta/yuwa",
+      "directNonactive": "tayuwalu",
+      "causativeNonactive": "yuwalu"
+    },
+    {
+      "source": "sawa",
+      "causative": [
+        "sawa",
+        "sawaltia",
+        "sawtia"
+      ],
+      "matchedVerb": "sawa",
+      "directNonactive": "sawalu / sauwa",
+      "causativeNonactive": "sawalu"
+    },
+    {
+      "source": "-itki",
+      "causative": [
+        "itkitia"
+      ],
+      "matchedVerb": "-itkitia",
+      "directNonactive": "itkitilu",
+      "causativeNonactive": "itkitiu / itkitiawa / itkitiawalu"
+    },
+    {
+      "source": "-itta",
+      "causative": [
+        "ittiltia",
+        "ittaltia",
+        "ittitia"
+      ],
+      "matchedVerb": "-ittitia",
+      "directNonactive": "ittitilu",
+      "causativeNonactive": "ittiltiilu / ittiltialu / ittiltiu"
+    },
+    {
+      "source": "ishwi",
+      "causative": [
+        "ishwa",
+        "ishwia"
+      ],
+      "matchedVerb": "ishwa",
+      "directNonactive": "ishwalu / ishuwa",
+      "causativeNonactive": "ishwawa / ishwalu / ishwawalu"
+    },
+    {
+      "source": "ishwi",
+      "causative": [
+        "ishwa",
+        "ishwia"
+      ],
+      "matchedVerb": "-ishwia",
+      "directNonactive": "ishwilu",
+      "causativeNonactive": "ishwawa / ishwalu / ishwawalu"
+    },
+    {
+      "source": "atiya",
+      "causative": [
+        "atia",
+        "atilia",
+        "atiltia",
+        "atiyaltia"
+      ],
+      "matchedVerb": "atilia",
+      "directNonactive": "atililu",
+      "causativeNonactive": "atialu"
+    },
+    {
+      "source": "kakti",
+      "causative": [
+        "kaktia"
+      ],
+      "matchedVerb": "-kaktia",
+      "directNonactive": "kaktilu",
+      "causativeNonactive": "kaktchu / kaktiawa / kaktiilu / kaktialu / kaktiawalu"
+    },
+    {
+      "source": "kawani",
+      "causative": [
+        "kawania",
+        "kawana",
+        "kawantia"
+      ],
+      "matchedVerb": "-kawantia",
+      "directNonactive": "kawantilu",
+      "causativeNonactive": "kawaniu / kawaniawa / kawanialu / kawaniawalu"
+    },
+    {
+      "source": "kal/aki",
+      "causative": [
+        "kalakia"
+      ],
+      "matchedVerb": "-kalakia",
+      "directNonactive": "kalakilu",
+      "causativeNonactive": "kalkalakiu / kalkalakiawa / kalkalakiawalu"
+    },
+    {
+      "source": "kamawa",
+      "causative": [
+        "kamawa",
+        "kamawaltia",
+        "kamawtia"
+      ],
+      "matchedVerb": "kamawa",
+      "directNonactive": "kamawalu / kamauwa",
+      "causativeNonactive": "kamawalu"
+    },
+    {
+      "source": "kapani",
+      "causative": [
+        "kapania",
+        "kapana",
+        "kapantia"
+      ],
+      "matchedVerb": "-kapania",
+      "directNonactive": "kapanilu",
+      "causativeNonactive": "kapaniu / kapaniawa / kapanialu / kapaniawalu"
+    },
+    {
+      "source": "kashani",
+      "causative": [
+        "kashania",
+        "kashana",
+        "kashantia"
+      ],
+      "matchedVerb": "-kashania",
+      "directNonactive": "kashanilu",
+      "causativeNonactive": "kashaniu / kashaniawa / kashanialu / kashaniawalu"
+    },
+    {
+      "source": "chawa/ti",
+      "causative": [
+        "chawatia"
+      ],
+      "matchedVerb": "chawatia",
+      "directNonactive": "chawatilu",
+      "causativeNonactive": "chawachawatiawa / chawachawatiilu / chawachawatialu / chawachawatiawalu"
+    },
+    {
+      "source": "chan/ti",
+      "causative": [
+        "chantia"
+      ],
+      "matchedVerb": "-chantia",
+      "directNonactive": "chantilu",
+      "causativeNonactive": "chanchantiawa / chanchantiilu / chanchantialu / chanchantiawalu"
+    },
+    {
+      "source": "chapani",
+      "causative": [
+        "chapania",
+        "chapana",
+        "chapantia"
+      ],
+      "matchedVerb": "-chapania",
+      "directNonactive": "chapanilu",
+      "causativeNonactive": "chapaniu / chapaniawa / chapanialu / chapaniawalu"
+    },
+    {
+      "source": "chayawi",
+      "causative": [
+        "chayawa",
+        "chayawia"
+      ],
+      "matchedVerb": "-chayawa",
+      "directNonactive": "chayawalu",
+      "causativeNonactive": "chayawawa / chayawalu / chayawawalu"
+    },
+    {
+      "source": "chichiya",
+      "causative": [
+        "chichilia",
+        "chichiltia",
+        "chichiyaltia"
+      ],
+      "matchedVerb": "-chichilia",
+      "directNonactive": "chichililu",
+      "causativeNonactive": "chichilialu"
+    },
+    {
+      "source": "chul/ua",
+      "causative": [
+        "chulultia"
+      ],
+      "matchedVerb": "-chulultia",
+      "directNonactive": "chulultilu",
+      "causativeNonactive": "chulchulultilu"
+    },
+    {
+      "source": "siyawi",
+      "causative": [
+        "siyawi"
+      ],
+      "matchedVerb": "siyawi",
+      "directNonactive": "siyawiwa / siyauwa / siyawiwalu",
+      "causativeNonactive": "siyawiwa / siyawilu / siyawiwalu"
+    },
+    {
+      "source": "kukuya",
+      "causative": [
+        "kukua",
+        "kukulia",
+        "kukultia",
+        "kukuyaltia"
+      ],
+      "matchedVerb": "-kukua",
+      "directNonactive": "kukulu",
+      "causativeNonactive": "kukualu"
+    },
+    {
+      "source": "kukuya",
+      "causative": [
+        "kukua",
+        "kukulia",
+        "kukultia",
+        "kukuyaltia"
+      ],
+      "matchedVerb": "-kukulia",
+      "directNonactive": "kukulilu",
+      "causativeNonactive": "kukualu"
+    },
+    {
+      "source": "kuliwi",
+      "causative": [
+        "kulua"
+      ],
+      "matchedVerb": "-kulua",
+      "directNonactive": "kululu",
+      "causativeNonactive": "kuluawa / kulualu / kuluawalu"
+    },
+    {
+      "source": "kumuni",
+      "causative": [
+        "kumunia",
+        "kumuna",
+        "kumuntia"
+      ],
+      "matchedVerb": "-kumunia",
+      "directNonactive": "kumunilu",
+      "causativeNonactive": "kumuniu / kumuniawa / kumunialu / kumuniawalu"
+    },
+    {
+      "source": "kupini",
+      "causative": [
+        "kupinia",
+        "kupina",
+        "kupintia"
+      ],
+      "matchedVerb": "-kupinia",
+      "directNonactive": "kupinilu",
+      "causativeNonactive": "kupiniu / kupiniawa / kupinialu / kupiniawalu"
+    },
+    {
+      "source": "kupini",
+      "causative": [
+        "kupinia",
+        "kupina",
+        "kupintia"
+      ],
+      "matchedVerb": "-kupina",
+      "directNonactive": "kupinalu / kupinu",
+      "causativeNonactive": "kupiniu / kupiniawa / kupinialu / kupiniawalu"
+    },
+    {
+      "source": "kutuni",
+      "causative": [
+        "kutunia",
+        "kutuna",
+        "kutuntia"
+      ],
+      "matchedVerb": "-kutuna",
+      "directNonactive": "kutunalu / kutunu",
+      "causativeNonactive": "kutuniu / kutuniawa / kutunialu / kutuniawalu"
+    },
+    {
+      "source": "kushuni",
+      "causative": [
+        "kushunia",
+        "kushuna",
+        "kushuntia"
+      ],
+      "matchedVerb": "-kushunia",
+      "directNonactive": "kushunilu",
+      "causativeNonactive": "kushuniu / kushuniawa / kushunialu / kushuniawalu"
+    },
+    {
+      "source": "kuyuni",
+      "causative": [
+        "kuyunia",
+        "kuyuna",
+        "kuyuntia"
+      ],
+      "matchedVerb": "-kuyunia",
+      "directNonactive": "kuyunilu",
+      "causativeNonactive": "kuyuniu / kuyuniawa / kuyunialu / kuyuniawalu"
+    },
+    {
+      "source": "kwalani",
+      "causative": [
+        "kwalania",
+        "kwalana",
+        "kwalantia"
+      ],
+      "matchedVerb": "-kwalantia",
+      "directNonactive": "kwalantilu",
+      "causativeNonactive": "kwalaniu / kwalaniawa / kwalanialu / kwalaniawalu"
+    },
+    {
+      "source": "kwal/tiya",
+      "causative": [
+        "kwaltia",
+        "kwaltilia",
+        "kwaltiltia",
+        "kwaltiyaltia"
+      ],
+      "matchedVerb": "-kwaltilia",
+      "directNonactive": "kwaltililu",
+      "causativeNonactive": "kwalkwaltialu"
+    },
+    {
+      "source": "kwechawa",
+      "causative": [
+        "kwechawa",
+        "kwechawaltia",
+        "kwechawtia"
+      ],
+      "matchedVerb": "kwechawa",
+      "directNonactive": "kwechawalu / kwechauwa",
+      "causativeNonactive": "kwechawalu"
+    },
+    {
+      "source": "kwechawi",
+      "causative": [
+        "kwechawa",
+        "kwechawia"
+      ],
+      "matchedVerb": "kwechawa",
+      "directNonactive": "kwechawalu / kwechauwa",
+      "causativeNonactive": "kwechawawa / kwechawalu / kwechawawalu"
+    },
+    {
+      "source": "kwechawi",
+      "causative": [
+        "kwechawa",
+        "kwechawia"
+      ],
+      "matchedVerb": "-kwechawia",
+      "directNonactive": "kwechawilu",
+      "causativeNonactive": "kwechawawa / kwechawalu / kwechawawalu"
+    },
+    {
+      "source": "kweliwi",
+      "causative": [
+        "kwelua"
+      ],
+      "matchedVerb": "-kwelua",
+      "directNonactive": "kwelulu",
+      "causativeNonactive": "kweluawa / kwelualu / kweluawalu"
+    },
+    {
+      "source": "kwepuni",
+      "causative": [
+        "kwepunia",
+        "kwepuna",
+        "kwepuntia"
+      ],
+      "matchedVerb": "-kwepunia",
+      "directNonactive": "kwepunilu",
+      "causativeNonactive": "kwepuniu / kwepuniawa / kwepunialu / kwepuniawalu"
+    },
+    {
+      "source": "kwetani",
+      "causative": [
+        "kwetania",
+        "kwetana",
+        "kwetantia"
+      ],
+      "matchedVerb": "-kwetania",
+      "directNonactive": "kwetanilu",
+      "causativeNonactive": "kwetaniu / kwetaniawa / kwetanialu / kwetaniawalu"
+    },
+    {
+      "source": "wetzka",
+      "causative": [
+        "wetzka"
+      ],
+      "matchedVerb": "wetzka",
+      "directNonactive": "wetzkalu / wetzkilu / wetzkuwa",
+      "causativeNonactive": "wetzkalu / wetzkilu / wetzku"
+    },
+    {
+      "source": "wiyuni",
+      "causative": [
+        "wiyunia",
+        "wiyuna",
+        "wiyuntia"
+      ],
+      "matchedVerb": "-wiyunia",
+      "directNonactive": "wiyunilu",
+      "causativeNonactive": "wiyuniu / wiyuniawa / wiyunialu / wiyuniawalu"
+    },
+    {
+      "source": "ishwa",
+      "causative": [
+        "ishwa",
+        "ishwaltia",
+        "ishwtia"
+      ],
+      "matchedVerb": "ishwa",
+      "directNonactive": "ishwalu / ishuwa",
+      "causativeNonactive": "ishwalu"
+    },
+    {
+      "source": "ma/kisa",
+      "causative": [
+        "makisaltia",
+        "makishtia"
+      ],
+      "matchedVerb": "-makishtia",
+      "directNonactive": "makishtilu",
+      "causativeNonactive": "mamakishtialu / mamakishtshu"
+    },
+    {
+      "source": "-ma/tia",
+      "causative": [
+        "matiltia"
+      ],
+      "matchedVerb": "-matiltia",
+      "directNonactive": "matiltilu",
+      "causativeNonactive": "mamatiltilu"
+    },
+    {
+      "source": "mayana",
+      "causative": [
+        "mayana"
+      ],
+      "matchedVerb": "mayana",
+      "directNonactive": "mayanalu",
+      "causativeNonactive": "mayanalu / mayanu"
+    },
+    {
+      "source": "milini",
+      "causative": [
+        "milinia",
+        "milina",
+        "milintia"
+      ],
+      "matchedVerb": "-milintia",
+      "directNonactive": "milintilu",
+      "causativeNonactive": "miliniu / miliniawa / milinialu / miliniawalu"
+    },
+    {
+      "source": "mimiki",
+      "causative": [
+        "mimiki"
+      ],
+      "matchedVerb": "mimiki",
+      "directNonactive": "mimikiwa / mimikuwa / mimikiwalu",
+      "causativeNonactive": "mimiku / mimikiwa / mimikiwalu"
+    },
+    {
+      "source": "muluni",
+      "causative": [
+        "mulunia",
+        "muluna",
+        "muluntia"
+      ],
+      "matchedVerb": "-mulunia",
+      "directNonactive": "mulunilu",
+      "causativeNonactive": "muluniu / muluniawa / mulunialu / muluniawalu"
+    },
+    {
+      "source": "mu-tta",
+      "causative": [
+        "muttiltia",
+        "muttaltia",
+        "muttitia"
+      ],
+      "matchedVerb": "-muttitia",
+      "directNonactive": "muttitilu",
+      "causativeNonactive": "muttiltiilu / muttiltialu / muttiltiu"
+    },
+    {
+      "source": "nawa/ti",
+      "causative": [
+        "nawatia"
+      ],
+      "matchedVerb": "-nawatia",
+      "directNonactive": "nawatilu",
+      "causativeNonactive": "nawanawatiawa / nawanawatiilu / nawanawatialu / nawanawatiawalu"
+    },
+    {
+      "source": "-namiki",
+      "causative": [
+        "namiktia",
+        "namikitia"
+      ],
+      "matchedVerb": "-namiktia",
+      "directNonactive": "namiktilu",
+      "causativeNonactive": "namiktiu / namiktiawa / namiktiawalu"
+    },
+    {
+      "source": "-nejneki",
+      "causative": [
+        "nejnektia",
+        "nejnekitia"
+      ],
+      "matchedVerb": "-nejnektia",
+      "directNonactive": "nejnektilu",
+      "causativeNonactive": "nejnektiu / nejnektiawa / nejnektiawalu"
+    },
+    {
+      "source": "uj-maka",
+      "causative": [
+        "makaltia",
+        "makiltia",
+        "maktia"
+      ],
+      "matchedVerb": "-maktia",
+      "directNonactive": "maktilu",
+      "causativeNonactive": "makaltialu / makaltiilu / makaltiu"
+    },
+    {
+      "source": "-pajpaka",
+      "causative": [
+        "pajpakaltia",
+        "pajpakiltia",
+        "pajpaktia"
+      ],
+      "matchedVerb": "-pajpakiltia",
+      "directNonactive": "pajpakiltilu",
+      "causativeNonactive": "pajpakaltialu / pajpakaltiilu / pajpakaltiu"
+    },
+    {
+      "source": "pal/tiya",
+      "causative": [
+        "paltia",
+        "paltilia",
+        "paltiltia",
+        "paltiyaltia"
+      ],
+      "matchedVerb": "-paltilia",
+      "directNonactive": "paltililu",
+      "causativeNonactive": "palpaltialu"
+    },
+    {
+      "source": "patawa",
+      "causative": [
+        "patawa",
+        "patawaltia",
+        "patawtia"
+      ],
+      "matchedVerb": "patawa",
+      "directNonactive": "patawalu / patauwa",
+      "causativeNonactive": "patawalu"
+    },
+    {
+      "source": "petani",
+      "causative": [
+        "petania",
+        "petana",
+        "petantia"
+      ],
+      "matchedVerb": "petania",
+      "directNonactive": "petanilu",
+      "causativeNonactive": "petaniu / petaniawa / petanialu / petaniawalu"
+    },
+    {
+      "source": "peshuni",
+      "causative": [
+        "peshunia",
+        "peshuna",
+        "peshuntia"
+      ],
+      "matchedVerb": "-peshuntia",
+      "directNonactive": "peshuntilu",
+      "causativeNonactive": "peshuniu / peshuniawa / peshunialu / peshuniawalu"
+    },
+    {
+      "source": "pinawa",
+      "causative": [
+        "pinawa",
+        "pinawaltia",
+        "pinawtia"
+      ],
+      "matchedVerb": "pinawa",
+      "directNonactive": "pinawalu / pinauwa",
+      "causativeNonactive": "pinawalu"
+    },
+    {
+      "source": "pinawa",
+      "causative": [
+        "pinawa",
+        "pinawaltia",
+        "pinawtia"
+      ],
+      "matchedVerb": "-pinawtia",
+      "directNonactive": "pinawtilu",
+      "causativeNonactive": "pinawalu"
+    },
+    {
+      "source": "pitzawi",
+      "causative": [
+        "pitzawa",
+        "pitzawia"
+      ],
+      "matchedVerb": "pitzawa",
+      "directNonactive": "pitzawalu / pitzauwa",
+      "causativeNonactive": "pitzawawa / pitzawalu / pitzawawalu"
+    },
+    {
+      "source": "pitzawa",
+      "causative": [
+        "pitzawa",
+        "pitzawaltia",
+        "pitzawtia"
+      ],
+      "matchedVerb": "pitzawa",
+      "directNonactive": "pitzawalu / pitzauwa",
+      "causativeNonactive": "pitzawalu"
+    },
+    {
+      "source": "pishka",
+      "causative": [
+        "pishka"
+      ],
+      "matchedVerb": "pishka",
+      "directNonactive": "pishkalu / pishkilu / pishkuwa",
+      "causativeNonactive": "pishkalu / pishkilu / pishku"
+    },
+    {
+      "source": "-puchina",
+      "causative": [
+        "puchinaltia",
+        "puchintia"
+      ],
+      "matchedVerb": "-puchinaltia",
+      "directNonactive": "puchinaltilu",
+      "causativeNonactive": "puchinaltialu / puchinaltiu"
+    },
+    {
+      "source": "puliwi",
+      "causative": [
+        "pulua"
+      ],
+      "matchedVerb": "-pulua",
+      "directNonactive": "pululu",
+      "causativeNonactive": "puluawa / pulualu / puluawalu"
+    },
+    {
+      "source": "puyawi",
+      "causative": [
+        "puyawa",
+        "puyawia"
+      ],
+      "matchedVerb": "-puyawa",
+      "directNonactive": "puyawalu",
+      "causativeNonactive": "puyawawa / puyawalu / puyawawalu"
+    },
+    {
+      "source": "puyawi",
+      "causative": [
+        "puyawa",
+        "puyawia"
+      ],
+      "matchedVerb": "ta/puyawa",
+      "directNonactive": "tapuyawalu / tapuyauwa",
+      "causativeNonactive": "puyawawa / puyawalu / puyawawalu"
+    },
+    {
+      "source": "pusawi",
+      "causative": [
+        "pusawa",
+        "pusawia"
+      ],
+      "matchedVerb": "-pusawa",
+      "directNonactive": "pusawalu",
+      "causativeNonactive": "pusawawa / pusawalu / pusawawalu"
+    },
+    {
+      "source": "pusuni",
+      "causative": [
+        "pusunia",
+        "pusuna",
+        "pusuntia"
+      ],
+      "matchedVerb": "-pusunia",
+      "directNonactive": "pusunilu",
+      "causativeNonactive": "pusuniu / pusuniawa / pusunialu / pusuniawalu"
+    },
+    {
+      "source": "teini",
+      "causative": [
+        "teinia",
+        "teina",
+        "teintia"
+      ],
+      "matchedVerb": "-teinia",
+      "directNonactive": "teinilu",
+      "causativeNonactive": "teiniu / teiniawa / teinialu / teiniawalu"
+    },
+    {
+      "source": "telawi",
+      "causative": [
+        "telua"
+      ],
+      "matchedVerb": "-telua",
+      "directNonactive": "telulu",
+      "causativeNonactive": "teluawa / telualu / teluawalu"
+    },
+    {
+      "source": "-temaka",
+      "causative": [
+        "temakaltia",
+        "temakiltia",
+        "temaktia"
+      ],
+      "matchedVerb": "-temaktia",
+      "directNonactive": "temaktilu",
+      "causativeNonactive": "temakaltialu / temakaltiilu / temakaltiu"
+    },
+    {
+      "source": "teu/ti",
+      "causative": [
+        "teutia"
+      ],
+      "matchedVerb": "-teutia",
+      "directNonactive": "teutilu",
+      "causativeNonactive": "teuteutiawa / teuteutiilu / teuteutialu / teuteutiawalu"
+    },
+    {
+      "source": "tetzawi",
+      "causative": [
+        "tetzawa",
+        "tetzawia"
+      ],
+      "matchedVerb": "-tetzawa",
+      "directNonactive": "tetzawalu",
+      "causativeNonactive": "tetzawawa / tetzawalu / tetzawawalu"
+    },
+    {
+      "source": "tetzawi",
+      "causative": [
+        "tetzawa",
+        "tetzawia"
+      ],
+      "matchedVerb": "-tetzawia",
+      "directNonactive": "tetzawilu",
+      "causativeNonactive": "tetzawawa / tetzawalu / tetzawawalu"
+    },
+    {
+      "source": "takwawa",
+      "causative": [
+        "takwawa",
+        "takwawaltia",
+        "takwawtia"
+      ],
+      "matchedVerb": "takwawa",
+      "directNonactive": "takwawalu / takwauwa",
+      "causativeNonactive": "takwawalu"
+    },
+    {
+      "source": "tawana",
+      "causative": [
+        "tawanaltia"
+      ],
+      "matchedVerb": "-tawanaltia",
+      "directNonactive": "tawanaltilu",
+      "causativeNonactive": "tawanaltialu / tawanaltiu"
+    },
+    {
+      "source": "tapani",
+      "causative": [
+        "tapania",
+        "tapana",
+        "tapantia"
+      ],
+      "matchedVerb": "-tapana",
+      "directNonactive": "tapanalu / tapanu",
+      "causativeNonactive": "tapaniu / tapaniawa / tapanialu / tapaniawalu"
+    },
+    {
+      "source": "tapewa",
+      "causative": [
+        "tapewa",
+        "tapewaltia",
+        "tapewtia"
+      ],
+      "matchedVerb": "tapewa",
+      "directNonactive": "tapewalu / tapeuwa",
+      "causativeNonactive": "tapewalu"
+    },
+    {
+      "source": "tapuwi",
+      "causative": [
+        "tapua"
+      ],
+      "matchedVerb": "-tapua",
+      "directNonactive": "tapulu",
+      "causativeNonactive": "tapuawa / tapualu / tapuawalu"
+    },
+    {
+      "source": "ta-tzakwa",
+      "causative": [
+        "tatzakwaltia",
+        "tatzakwiltia"
+      ],
+      "matchedVerb": "tatzakwiltia",
+      "directNonactive": "tatzakwiltilu",
+      "causativeNonactive": "tatzakwaltialu / tatzakwaltiilu"
+    },
+    {
+      "source": "tatzini",
+      "causative": [
+        "tatzinia",
+        "tatzina",
+        "tatzintia"
+      ],
+      "matchedVerb": "-tatzinia",
+      "directNonactive": "tatzinilu",
+      "causativeNonactive": "tatziniu / tatziniawa / tatzinialu / tatziniawalu"
+    },
+    {
+      "source": "-tasujta",
+      "causative": [
+        "tasujtiltia",
+        "tasujtaltia"
+      ],
+      "matchedVerb": "-tasujtaltia",
+      "directNonactive": "tasujtaltilu",
+      "causativeNonactive": "tasujtiltiilu / tasujtiltialu"
+    },
+    {
+      "source": "temiki",
+      "causative": [
+        "temiki"
+      ],
+      "matchedVerb": "temiki",
+      "directNonactive": "temikiwa / temikuwa / temikiwalu",
+      "causativeNonactive": "temiku / temikiwa / temikiwalu"
+    },
+    {
+      "source": "tukti",
+      "causative": [
+        "tuktia"
+      ],
+      "matchedVerb": "-tuktia",
+      "directNonactive": "tuktilu",
+      "causativeNonactive": "tuktchu / tuktiawa / tuktiilu / tuktialu / tuktiawalu"
+    },
+    {
+      "source": "tumuni",
+      "causative": [
+        "tumunia",
+        "tumuna",
+        "tumuntia"
+      ],
+      "matchedVerb": "-tumunia",
+      "directNonactive": "tumunilu",
+      "causativeNonactive": "tumuniu / tumuniawa / tumunialu / tumuniawalu"
+    },
+    {
+      "source": "tupuni",
+      "causative": [
+        "tupunia",
+        "tupuna",
+        "tupuntia"
+      ],
+      "matchedVerb": "-tupunia",
+      "directNonactive": "tupunilu",
+      "causativeNonactive": "tupuniu / tupuniawa / tupunialu / tupuniawalu"
+    },
+    {
+      "source": "tzayani",
+      "causative": [
+        "tzayania",
+        "tzayana",
+        "tzayantia"
+      ],
+      "matchedVerb": "-tzayana",
+      "directNonactive": "tzayanalu / tzayanu",
+      "causativeNonactive": "tzayaniu / tzayaniawa / tzayanialu / tzayaniawalu"
+    },
+    {
+      "source": "tzikwewa",
+      "causative": [
+        "tzikwewa",
+        "tzikwewaltia",
+        "tzikwewtia"
+      ],
+      "matchedVerb": "tzikwewa",
+      "directNonactive": "tzikwewalu / tzikweuwa",
+      "causativeNonactive": "tzikwewalu"
+    },
+    {
+      "source": "tzilini",
+      "causative": [
+        "tzilinia",
+        "tzilina",
+        "tzilintia"
+      ],
+      "matchedVerb": "-tzilinia",
+      "directNonactive": "tzilinilu",
+      "causativeNonactive": "tziliniu / tziliniawa / tzilinialu / tziliniawalu"
+    },
+    {
+      "source": "tzuliwi",
+      "causative": [
+        "tzulua"
+      ],
+      "matchedVerb": "-tzulua",
+      "directNonactive": "tzululu",
+      "causativeNonactive": "tzuluawa / tzulualu / tzuluawalu"
+    },
+    {
+      "source": "tzumuni",
+      "causative": [
+        "tzumunia",
+        "tzumuna",
+        "tzumuntia"
+      ],
+      "matchedVerb": "-tzumunia",
+      "directNonactive": "tzumunilu",
+      "causativeNonactive": "tzumuniu / tzumuniawa / tzumunialu / tzumuniawalu"
+    },
+    {
+      "source": "tzuyuni",
+      "causative": [
+        "tzuyunia",
+        "tzuyuna",
+        "tzuyuntia"
+      ],
+      "matchedVerb": "-tzuyunia",
+      "directNonactive": "tzuyunilu",
+      "causativeNonactive": "tzuyuniu / tzuyuniawa / tzuyunialu / tzuyuniawalu"
+    },
+    {
+      "source": "shawani",
+      "causative": [
+        "shawania",
+        "shawana",
+        "shawantia"
+      ],
+      "matchedVerb": "shawania",
+      "directNonactive": "shawanilu",
+      "causativeNonactive": "shawaniu / shawaniawa / shawanialu / shawaniawalu"
+    },
+    {
+      "source": "shamani",
+      "causative": [
+        "shamania",
+        "shamana",
+        "shamantia"
+      ],
+      "matchedVerb": "-shamania",
+      "directNonactive": "shamanilu",
+      "causativeNonactive": "shamaniu / shamaniawa / shamanialu / shamaniawalu"
+    },
+    {
+      "source": "shikawi",
+      "causative": [
+        "shikua"
+      ],
+      "matchedVerb": "-shikua",
+      "directNonactive": "shikulu",
+      "causativeNonactive": "shikuawa / shikualu / shikuawalu"
+    },
+    {
+      "source": "shipewi",
+      "causative": [
+        "shipewa",
+        "shipewia"
+      ],
+      "matchedVerb": "-shipewa",
+      "directNonactive": "shipewalu",
+      "causativeNonactive": "shipewawa / shipewalu / shipewawalu"
+    },
+    {
+      "source": "shitini",
+      "causative": [
+        "shitinia",
+        "shitina",
+        "shitintia"
+      ],
+      "matchedVerb": "-shitinia",
+      "directNonactive": "shitinilu",
+      "causativeNonactive": "shitiniu / shitiniawa / shitinialu / shitiniawalu"
+    },
+    {
+      "source": "shituni",
+      "causative": [
+        "shitunia",
+        "shituna",
+        "shituntia"
+      ],
+      "matchedVerb": "-shitunia",
+      "directNonactive": "shitunilu",
+      "causativeNonactive": "shituniu / shituniawa / shitunialu / shituniawalu"
+    },
+    {
+      "source": "yul/sewi",
+      "causative": [
+        "yulsewa",
+        "yulsewia"
+      ],
+      "matchedVerb": "-yulsewia",
+      "directNonactive": "yulsewilu",
+      "causativeNonactive": "yulyulsewawa / yulyulsewalu / yulyulsewawalu"
+    },
+    {
+      "source": "yulmiki",
+      "causative": [
+        "yulmiki"
+      ],
+      "matchedVerb": "yulmiki",
+      "directNonactive": "yulmikiwa / yulmikuwa / yulmikiwalu",
+      "causativeNonactive": "yulmiku / yulmikiwa / yulmikiwalu"
+    },
+    {
+      "source": "sawani",
+      "causative": [
+        "sawania",
+        "sawana",
+        "sawantia"
+      ],
+      "matchedVerb": "sawana",
+      "directNonactive": "sawanalu",
+      "causativeNonactive": "sawaniu / sawaniawa / sawanialu / sawaniawalu"
+    },
+    {
+      "source": "-sunewa",
+      "causative": [
+        "sunewaltia"
+      ],
+      "matchedVerb": "-sunewaltia",
+      "directNonactive": "sunewaltilu",
+      "causativeNonactive": "sunewaltialu"
+    },
+    {
+      "source": "sunewi",
+      "causative": [
+        "sunewa",
+        "sunewia"
+      ],
+      "matchedVerb": "-sunewa",
+      "directNonactive": "sunewalu",
+      "causativeNonactive": "sunewawa / sunewalu / sunewawalu"
+    },
+    {
+      "source": "sutawa",
+      "causative": [
+        "sutawa",
+        "sutawaltia",
+        "sutawtia"
+      ],
+      "matchedVerb": "sutawa",
+      "directNonactive": "sutawalu / sutauwa",
+      "causativeNonactive": "sutawalu"
+    },
+    {
+      "source": "ijsiwi",
+      "causative": [
+        "ijsiwi"
+      ],
+      "matchedVerb": "ijsiwi",
+      "directNonactive": "ijsiwiwa / ijsiuwa / ijsiwiwalu",
+      "causativeNonactive": "ijsiwiwa / ijsiwilu / ijsiwiwalu"
+    },
+    {
+      "source": "-ilnamiki",
+      "causative": [
+        "ilnamiktia",
+        "ilnamikitia"
+      ],
+      "matchedVerb": "-ilnamiktia",
+      "directNonactive": "ilnamiktilu",
+      "causativeNonactive": "ilnamiktiu / ilnamiktiawa / ilnamiktiawalu"
+    },
+    {
+      "source": "akateki",
+      "causative": [
+        "akateki"
+      ],
+      "matchedVerb": "akateki",
+      "directNonactive": "akatekiwa / akatekuwa / akatekiwalu",
+      "causativeNonactive": "akateku / akatekiwa / akatekiwalu"
+    },
+    {
+      "source": "ajawiya",
+      "causative": [
+        "ajawia",
+        "ajawilia",
+        "ajawiltia",
+        "ajawiyaltia"
+      ],
+      "matchedVerb": "-ajawia",
+      "directNonactive": "ajawilu",
+      "causativeNonactive": "ajawialu"
+    },
+    {
+      "source": "ajtejtiya",
+      "causative": [
+        "ajtejtia",
+        "ajtejtilia",
+        "ajtejtiltia",
+        "ajtejtiyaltia"
+      ],
+      "matchedVerb": "-ajtejtilia",
+      "directNonactive": "ajtejtililu",
+      "causativeNonactive": "ajtejtialu"
+    },
+    {
+      "source": "asuluni",
+      "causative": [
+        "asulunia",
+        "asuluna",
+        "asuluntia"
+      ],
+      "matchedVerb": "-asulunia",
+      "directNonactive": "asulunilu",
+      "causativeNonactive": "asuluniu / asuluniawa / asulunialu / asuluniawalu"
+    },
+    {
+      "source": "kakchiwa",
+      "causative": [
+        "kakchiwa",
+        "kakchiwaltia",
+        "kakchiwtia"
+      ],
+      "matchedVerb": "kakchiwa",
+      "directNonactive": "kakchiwalu / kakchiuwa",
+      "causativeNonactive": "kakchiwalu"
+    },
+    {
+      "source": "sekmiki",
+      "causative": [
+        "sekmiki"
+      ],
+      "matchedVerb": "sekmiki",
+      "directNonactive": "sekmikiwa / sekmikuwa / sekmikiwalu",
+      "causativeNonactive": "sekmiku / sekmikiwa / sekmikiwalu"
+    },
+    {
+      "source": "sewapawa",
+      "causative": [
+        "sewapawa",
+        "sewapawaltia",
+        "sewapawtia"
+      ],
+      "matchedVerb": "sewapawa",
+      "directNonactive": "sewapawalu / sewapauwa",
+      "causativeNonactive": "sewapawalu"
+    },
+    {
+      "source": "senmani",
+      "causative": [
+        "senmania",
+        "senmana",
+        "senmantia"
+      ],
+      "matchedVerb": "-senmana",
+      "directNonactive": "senmanalu / senmanu",
+      "causativeNonactive": "senmaniu / senmaniawa / senmanialu / senmaniawalu"
+    },
+    {
+      "source": "sepuwiya",
+      "causative": [
+        "sepuwia",
+        "sepuwilia",
+        "sepuwiltia",
+        "sepuwiyaltia"
+      ],
+      "matchedVerb": "-sepuwia",
+      "directNonactive": "sepuwilu",
+      "causativeNonactive": "sepuwialu"
+    },
+    {
+      "source": "kuchijtewa",
+      "causative": [
+        "kuchijtewa",
+        "kuchijtewaltia",
+        "kuchijtewtia"
+      ],
+      "matchedVerb": "kuchijtewa",
+      "directNonactive": "kuchijtewalu / kuchijteuwa",
+      "causativeNonactive": "kuchijtewalu"
+    },
+    {
+      "source": "kusewi",
+      "causative": [
+        "kusewa",
+        "kusewia"
+      ],
+      "matchedVerb": "-kusewa",
+      "directNonactive": "kusewalu",
+      "causativeNonactive": "kusewawa / kusewalu / kusewawalu"
+    },
+    {
+      "source": "kwejsiwi",
+      "causative": [
+        "kwejsiwi"
+      ],
+      "matchedVerb": "kwejsiwi",
+      "directNonactive": "kwejsiwiwa / kwejsiuwa / kwejsiwiwalu",
+      "causativeNonactive": "kwejsiwiwa / kwejsiwilu / kwejsiwiwalu"
+    },
+    {
+      "source": "elimiki",
+      "causative": [
+        "elimiki"
+      ],
+      "matchedVerb": "elimiki",
+      "directNonactive": "elimikiwa / elimikuwa / elimikiwalu",
+      "causativeNonactive": "elimiku / elimikiwa / elimikiwalu"
+    },
+    {
+      "source": "eltelkisa",
+      "causative": [
+        "eltelkisaltia",
+        "eltelkishtia"
+      ],
+      "matchedVerb": "-eltelkishtia",
+      "directNonactive": "eltelkishtilu",
+      "causativeNonactive": "eltelkishtialu / eltelkishtshu"
+    },
+    {
+      "source": "elmimiki",
+      "causative": [
+        "elmimiki"
+      ],
+      "matchedVerb": "elmimiki",
+      "directNonactive": "elmimikiwa / elmimikuwa / elmimikiwalu",
+      "causativeNonactive": "elmimiku / elmimikiwa / elmimikiwalu"
+    },
+    {
+      "source": "iwinti",
+      "causative": [
+        "iwintia"
+      ],
+      "matchedVerb": "-iwintia",
+      "directNonactive": "iwintilu",
+      "causativeNonactive": "iwintchu / iwintiawa / iwintiilu / iwintialu / iwintiawalu"
+    },
+    {
+      "source": "ipanti",
+      "causative": [
+        "ipantia"
+      ],
+      "matchedVerb": "-ipantia",
+      "directNonactive": "ipantilu",
+      "causativeNonactive": "ipantchu / ipantiawa / ipantiilu / ipantialu / ipantiawalu"
+    },
+    {
+      "source": "ishmiki",
+      "causative": [
+        "ishmiki"
+      ],
+      "matchedVerb": "ishmiki",
+      "directNonactive": "ishmikiwa / ishmikuwa / ishmikiwalu",
+      "causativeNonactive": "ishmiku / ishmikiwa / ishmikiwalu"
+    },
+    {
+      "source": "masiwi",
+      "causative": [
+        "masiwi"
+      ],
+      "matchedVerb": "masiwi",
+      "directNonactive": "masiwiwa / masiuwa / masiwiwalu",
+      "causativeNonactive": "masiwiwa / masiwilu / masiwiwalu"
+    },
+    {
+      "source": "miakiya",
+      "causative": [
+        "miakilia",
+        "miakiltia",
+        "miakiyaltia"
+      ],
+      "matchedVerb": "-miakilia",
+      "directNonactive": "miakililu",
+      "causativeNonactive": "miakilialu"
+    },
+    {
+      "source": "milchipawa",
+      "causative": [
+        "milchipawa",
+        "milchipawaltia",
+        "milchipawtia"
+      ],
+      "matchedVerb": "milchipawa",
+      "directNonactive": "milchipawalu / milchipauwa",
+      "causativeNonactive": "milchipawalu"
+    },
+    {
+      "source": "nujnukiwa",
+      "causative": [
+        "nujnukiwa",
+        "nujnukiwaltia",
+        "nujnukiwtia"
+      ],
+      "matchedVerb": "nujnukiwa",
+      "directNonactive": "nujnukiwalu / nujnukiuwa",
+      "causativeNonactive": "nujnukiwalu"
+    },
+    {
+      "source": "pankisa",
+      "causative": [
+        "pankisaltia",
+        "pankishtia"
+      ],
+      "matchedVerb": "-pankishtia",
+      "directNonactive": "pankishtilu",
+      "causativeNonactive": "pankishtialu / pankishtshu"
+    },
+    {
+      "source": "patziwi",
+      "causative": [
+        "patzua"
+      ],
+      "matchedVerb": "-patzua",
+      "directNonactive": "patzulu",
+      "causativeNonactive": "patzuawa / patzualu / patzuawalu"
+    },
+    {
+      "source": "petziwi",
+      "causative": [
+        "petzua"
+      ],
+      "matchedVerb": "-petzua",
+      "directNonactive": "petzulu",
+      "causativeNonactive": "petzuawa / petzualu / petzuawalu"
+    },
+    {
+      "source": "puchewi",
+      "causative": [
+        "puchewa",
+        "puchewia"
+      ],
+      "matchedVerb": "-puchewa",
+      "directNonactive": "puchewalu",
+      "causativeNonactive": "puchewawa / puchewalu / puchewawalu"
+    },
+    {
+      "source": "puyumiki",
+      "causative": [
+        "puyumiki"
+      ],
+      "matchedVerb": "puyumiki",
+      "directNonactive": "puyumikiwa / puyumikuwa / puyumikiwalu",
+      "causativeNonactive": "puyumiku / puyumikiwa / puyumikiwalu"
+    },
+    {
+      "source": "tesiwi",
+      "causative": [
+        "tesiwi"
+      ],
+      "matchedVerb": "tesiwi",
+      "directNonactive": "tesiwiwa / tesiuwa / tesiwiwalu",
+      "causativeNonactive": "tesiwiwa / tesiwilu / tesiwiwalu"
+    },
+    {
+      "source": "tekupini",
+      "causative": [
+        "tekupinia",
+        "tekupina",
+        "tekupintia"
+      ],
+      "matchedVerb": "-tekupina",
+      "directNonactive": "tekupinalu / tekupinu",
+      "causativeNonactive": "tekupiniu / tekupiniawa / tekupinialu / tekupiniawalu"
+    },
+    {
+      "source": "tenkisa",
+      "causative": [
+        "tenkisaltia",
+        "tenkishtia"
+      ],
+      "matchedVerb": "-tenkishtia",
+      "directNonactive": "tenkishtilu",
+      "causativeNonactive": "tenkishtialu / tenkishtshu"
+    },
+    {
+      "source": "tiamiki",
+      "causative": [
+        "tiamiki"
+      ],
+      "matchedVerb": "tiamiki",
+      "directNonactive": "tiamikiwa / tiamikuwa / tiamikiwalu",
+      "causativeNonactive": "tiamiku / tiamikiwa / tiamikiwalu"
+    },
+    {
+      "source": "taseseya",
+      "causative": [
+        "taseselia",
+        "taseseltia",
+        "taseseyaltia"
+      ],
+      "matchedVerb": "-taseseltia",
+      "directNonactive": "taseseltilu",
+      "causativeNonactive": "taseselialu"
+    },
+    {
+      "source": "takwalchiwa",
+      "causative": [
+        "takwalchiwa",
+        "takwalchiwaltia",
+        "takwalchiwtia"
+      ],
+      "matchedVerb": "takwalchiwa",
+      "directNonactive": "takwalchiwalu / takwalchiuwa",
+      "causativeNonactive": "takwalchiwalu"
+    },
+    {
+      "source": "taijtani",
+      "causative": [
+        "taijtania",
+        "taijtana",
+        "taijtantia"
+      ],
+      "matchedVerb": "-taijtania",
+      "directNonactive": "taijtanilu",
+      "causativeNonactive": "taijtaniu / taijtaniawa / taijtanialu / taijtaniawalu"
+    },
+    {
+      "source": "tawelmiki",
+      "causative": [
+        "tawelmiki"
+      ],
+      "matchedVerb": "tawelmiki",
+      "directNonactive": "tawelmikiwa / tawelmikuwa / tawelmikiwalu",
+      "causativeNonactive": "tawelmiku / tawelmikiwa / tawelmikiwalu"
+    },
+    {
+      "source": "tawilteki",
+      "causative": [
+        "tawilteki"
+      ],
+      "matchedVerb": "tawilteki",
+      "directNonactive": "tawiltekiwa / tawiltekuwa / tawiltekiwalu",
+      "causativeNonactive": "tawilteku / tawiltekiwa / tawiltekiwalu"
+    },
+    {
+      "source": "tamajsewa",
+      "causative": [
+        "tamajsewa",
+        "tamajsewaltia",
+        "tamajsewtia"
+      ],
+      "matchedVerb": "tamajsewa",
+      "directNonactive": "tamajsewalu / tamajseuwa",
+      "causativeNonactive": "tamajsewalu"
+    },
+    {
+      "source": "tamajsewa",
+      "causative": [
+        "tamajsewa",
+        "tamajsewaltia",
+        "tamajsewtia"
+      ],
+      "matchedVerb": "-tamajsewaltia",
+      "directNonactive": "tamajsewaltilu",
+      "causativeNonactive": "tamajsewalu"
+    },
+    {
+      "source": "tamatiya",
+      "causative": [
+        "tamatia",
+        "tamatilia",
+        "tamatiltia",
+        "tamatiyaltia"
+      ],
+      "matchedVerb": "-tamatilia",
+      "directNonactive": "tamatililu",
+      "causativeNonactive": "tamatialu"
+    },
+    {
+      "source": "tamuchiwa",
+      "causative": [
+        "tamuchiwa",
+        "tamuchiwaltia",
+        "tamuchiwtia"
+      ],
+      "matchedVerb": "tamuchiwa",
+      "directNonactive": "tamuchiwalu / tamuchiuwa",
+      "causativeNonactive": "tamuchiwalu"
+    },
+    {
+      "source": "taneltuka",
+      "causative": [
+        "taneltukaltia",
+        "taneltukiltia",
+        "taneltuktia"
+      ],
+      "matchedVerb": "-taneltuktia",
+      "directNonactive": "taneltuktilu",
+      "causativeNonactive": "taneltukaltialu / taneltukaltiilu / taneltukaltiu"
+    },
+    {
+      "source": "taukuya",
+      "causative": [
+        "taukulia",
+        "taukultia",
+        "taukuyaltia"
+      ],
+      "matchedVerb": "-taukulia",
+      "directNonactive": "taukulilu",
+      "causativeNonactive": "taukulialu"
+    },
+    {
+      "source": "taukuya",
+      "causative": [
+        "taukulia",
+        "taukultia",
+        "taukuyaltia"
+      ],
+      "matchedVerb": "-taukultia",
+      "directNonactive": "taukultilu",
+      "causativeNonactive": "taukulialu"
+    },
+    {
+      "source": "tapatawa",
+      "causative": [
+        "tapatawa",
+        "tapatawaltia",
+        "tapatawtia"
+      ],
+      "matchedVerb": "tapatawa",
+      "directNonactive": "tapatawalu / tapatauwa",
+      "causativeNonactive": "tapatawalu"
+    },
+    {
+      "source": "tapiwiya",
+      "causative": [
+        "tapiwia",
+        "tapiwilia",
+        "tapiwiltia",
+        "tapiwiyaltia"
+      ],
+      "matchedVerb": "-tapiwilia",
+      "directNonactive": "tapiwililu",
+      "causativeNonactive": "tapiwialu"
+    },
+    {
+      "source": "tatupuni",
+      "causative": [
+        "tatupunia",
+        "tatupuna",
+        "tatupuntia"
+      ],
+      "matchedVerb": "tatupunia",
+      "directNonactive": "tatupunilu",
+      "causativeNonactive": "tatupuniu / tatupuniawa / tatupunialu / tatupuniawalu"
+    },
+    {
+      "source": "tatziwi",
+      "causative": [
+        "tatzua"
+      ],
+      "matchedVerb": "-tatzua",
+      "directNonactive": "tatzulu",
+      "causativeNonactive": "tatzuawa / tatzualu / tatzuawalu"
+    },
+    {
+      "source": "tunalsewi",
+      "causative": [
+        "tunalsewa",
+        "tunalsewia"
+      ],
+      "matchedVerb": "-tunalsewia",
+      "directNonactive": "tunalsewilu",
+      "causativeNonactive": "tunalsewawa / tunalsewalu / tunalsewawalu"
+    },
+    {
+      "source": "tunalmiki",
+      "causative": [
+        "tunalmiki"
+      ],
+      "matchedVerb": "tunalmiki",
+      "directNonactive": "tunalmikiwa / tunalmikuwa / tunalmikiwalu",
+      "causativeNonactive": "tunalmiku / tunalmikiwa / tunalmikiwalu"
+    },
+    {
+      "source": "tutuniya",
+      "causative": [
+        "tutunilia",
+        "tutuniltia",
+        "tutuniyaltia"
+      ],
+      "matchedVerb": "tutunilia",
+      "directNonactive": "tutunililu",
+      "causativeNonactive": "tutunilialu"
+    },
+    {
+      "source": "tzinewa",
+      "causative": [
+        "tzinewa",
+        "tzinewaltia",
+        "tzinewtia"
+      ],
+      "matchedVerb": "tzinewa",
+      "directNonactive": "tzinewalu / tzineuwa",
+      "causativeNonactive": "tzinewalu"
+    },
+    {
+      "source": "tzinkisa",
+      "causative": [
+        "tzinkisaltia",
+        "tzinkishtia"
+      ],
+      "matchedVerb": "-tzinkishtia",
+      "directNonactive": "tzinkishtilu",
+      "causativeNonactive": "tzinkishtialu / tzinkishtshu"
+    },
+    {
+      "source": "tzunkisa",
+      "causative": [
+        "tzunkisaltia",
+        "tzunkishtia"
+      ],
+      "matchedVerb": "-tzunkishtia",
+      "directNonactive": "tzunkishtilu",
+      "causativeNonactive": "tzunkishtialu / tzunkishtshu"
+    },
+    {
+      "source": "tzupeliya",
+      "causative": [
+        "tzupelilia",
+        "tzupeliltia",
+        "tzupeliyaltia"
+      ],
+      "matchedVerb": "tzupelilia",
+      "directNonactive": "tzupelililu",
+      "causativeNonactive": "tzupelilialu"
+    },
+    {
+      "source": "shikalewi",
+      "causative": [
+        "shikalewa",
+        "shikalewia"
+      ],
+      "matchedVerb": "-shikalewa",
+      "directNonactive": "shikalewalu",
+      "causativeNonactive": "shikalewawa / shikalewalu / shikalewawalu"
+    },
+    {
+      "source": "shikupini",
+      "causative": [
+        "shikupinia",
+        "shikupina",
+        "shikupintia"
+      ],
+      "matchedVerb": "-shikupina",
+      "directNonactive": "shikupinalu / shikupinu",
+      "causativeNonactive": "shikupiniu / shikupiniawa / shikupinialu / shikupiniawalu"
+    },
+    {
+      "source": "shuchiteki",
+      "causative": [
+        "shuchiteki"
+      ],
+      "matchedVerb": "shuchiteki",
+      "directNonactive": "shuchitekiwa / shuchitekuwa / shuchitekiwalu",
+      "causativeNonactive": "shuchiteku / shuchitekiwa / shuchitekiwalu"
+    },
+    {
+      "source": "yankwiya",
+      "causative": [
+        "yankwia",
+        "yankwilia",
+        "yankwiltia",
+        "yankwiyaltia"
+      ],
+      "matchedVerb": "-yankwilia",
+      "directNonactive": "yankwililu",
+      "causativeNonactive": "yankwialu"
+    },
+    {
+      "source": "yektiya",
+      "causative": [
+        "yektia",
+        "yektilia",
+        "yektiltia",
+        "yektiyaltia"
+      ],
+      "matchedVerb": "-yektilia",
+      "directNonactive": "yektililu",
+      "causativeNonactive": "yektialu"
+    },
+    {
+      "source": "sukichiwa",
+      "causative": [
+        "sukichiwa",
+        "sukichiwaltia",
+        "sukichiwtia"
+      ],
+      "matchedVerb": "sukichiwa",
+      "directNonactive": "sukichiwalu / sukichiuwa",
+      "causativeNonactive": "sukichiwalu"
+    },
+    {
+      "source": "itztewa",
+      "causative": [
+        "itztewa",
+        "itztewaltia",
+        "itztewtia"
+      ],
+      "matchedVerb": "itztewa",
+      "directNonactive": "itztewalu / itzteuwa",
+      "causativeNonactive": "itztewalu"
+    },
+    {
+      "source": "apismiki",
+      "causative": [
+        "apismiki"
+      ],
+      "matchedVerb": "apismiki",
+      "directNonactive": "apismikiwa / apismikuwa / apismikiwalu",
+      "causativeNonactive": "apismiku / apismikiwa / apismikiwalu"
+    },
+    {
+      "source": "kamapinawa",
+      "causative": [
+        "kamapinawa",
+        "kamapinawaltia",
+        "kamapinawtia"
+      ],
+      "matchedVerb": "kamapinawa",
+      "directNonactive": "kamapinawalu / kamapinauwa",
+      "causativeNonactive": "kamapinawalu"
+    },
+    {
+      "source": "kayajsiwi",
+      "causative": [
+        "kayajsiwi"
+      ],
+      "matchedVerb": "kayajsiwi",
+      "directNonactive": "kayajsiwiwa / kayajsiuwa / kayajsiwiwalu",
+      "causativeNonactive": "kayajsiwiwa / kayajsiwilu / kayajsiwiwalu"
+    },
+    {
+      "source": "chinanteki",
+      "causative": [
+        "chinanteki"
+      ],
+      "matchedVerb": "chinanteki",
+      "directNonactive": "chinantekiwa / chinantekuwa / chinantekiwalu",
+      "causativeNonactive": "chinanteku / chinantekiwa / chinantekiwalu"
+    },
+    {
+      "source": "siawmiki",
+      "causative": [
+        "siawmiki"
+      ],
+      "matchedVerb": "siawmiki",
+      "directNonactive": "siawmikiwa / siawmikuwa / siawmikiwalu",
+      "causativeNonactive": "siawmiku / siawmikiwa / siawmikiwalu"
+    },
+    {
+      "source": "kwasenmani",
+      "causative": [
+        "kwasenmania",
+        "kwasenmana",
+        "kwasenmantia"
+      ],
+      "matchedVerb": "-kwasenmana",
+      "directNonactive": "kwasenmanalu / kwasenmanu",
+      "causativeNonactive": "kwasenmaniu / kwasenmaniawa / kwasenmanialu / kwasenmaniawalu"
+    },
+    {
+      "source": "kwawteteki",
+      "causative": [
+        "kwawteteki"
+      ],
+      "matchedVerb": "kwawteteki",
+      "directNonactive": "kwawtetekiwa / kwawtetekuwa / kwawtetekiwalu",
+      "causativeNonactive": "kwawteteku / kwawtetekiwa / kwawtetekiwalu"
+    },
+    {
+      "source": "ewtewa",
+      "causative": [
+        "ewtewa",
+        "ewtewaltia",
+        "ewtewtia"
+      ],
+      "matchedVerb": "ewtewa",
+      "directNonactive": "ewtewalu / ewteuwa",
+      "causativeNonactive": "ewtewalu"
+    },
+    {
+      "source": "ijichteki",
+      "causative": [
+        "ijichteki"
+      ],
+      "matchedVerb": "ijichteki",
+      "directNonactive": "ijichtekiwa / ijichtekuwa / ijichtekiwalu",
+      "causativeNonactive": "ijichteku / ijichtekiwa / ijichtekiwalu"
+    },
+    {
+      "source": "ijiyumiki",
+      "causative": [
+        "ijiyumiki"
+      ],
+      "matchedVerb": "ijiyumiki",
+      "directNonactive": "ijiyumikiwa / ijiyumikuwa / ijiyumikiwalu",
+      "causativeNonactive": "ijiyumiku / ijiyumikiwa / ijiyumikiwalu"
+    },
+    {
+      "source": "ishmijmiki",
+      "causative": [
+        "ishmijmiki"
+      ],
+      "matchedVerb": "ishmijmiki",
+      "directNonactive": "ishmijmikiwa / ishmijmikuwa / ishmijmikiwalu",
+      "causativeNonactive": "ishmijmiku / ishmijmikiwa / ishmijmikiwalu"
+    },
+    {
+      "source": "ishtumawa",
+      "causative": [
+        "ishtumawa",
+        "ishtumawaltia",
+        "ishtumawtia"
+      ],
+      "matchedVerb": "ishtumawa",
+      "directNonactive": "ishtumawalu / ishtumauwa",
+      "causativeNonactive": "ishtumawalu"
+    },
+    {
+      "source": "istalewa",
+      "causative": [
+        "istalewa",
+        "istalewaltia",
+        "istalewtia"
+      ],
+      "matchedVerb": "istalewa",
+      "directNonactive": "istalewalu / istaleuwa",
+      "causativeNonactive": "istalewalu"
+    },
+    {
+      "source": "istalewi",
+      "causative": [
+        "istalewa",
+        "istalewia"
+      ],
+      "matchedVerb": "istalewa",
+      "directNonactive": "istalewalu / istaleuwa",
+      "causativeNonactive": "istalewawa / istalewalu / istalewawalu"
+    },
+    {
+      "source": "mawkamiki",
+      "causative": [
+        "mawkamiki"
+      ],
+      "matchedVerb": "mawkamiki",
+      "directNonactive": "mawkamikiwa / mawkamikuwa / mawkamikiwalu",
+      "causativeNonactive": "mawkamiku / mawkamikiwa / mawkamikiwalu"
+    },
+    {
+      "source": "mayanmiki",
+      "causative": [
+        "mayanmiki"
+      ],
+      "matchedVerb": "mayanmiki",
+      "directNonactive": "mayanmikiwa / mayanmikuwa / mayanmikiwalu",
+      "causativeNonactive": "mayanmiku / mayanmikiwa / mayanmikiwalu"
+    },
+    {
+      "source": "metzkupini",
+      "causative": [
+        "metzkupinia",
+        "metzkupina",
+        "metzkupintia"
+      ],
+      "matchedVerb": "-metzkupina",
+      "directNonactive": "metzkupinalu / metzkupinu",
+      "causativeNonactive": "metzkupiniu / metzkupiniawa / metzkupinialu / metzkupiniawalu"
+    },
+    {
+      "source": "teujsiwi",
+      "causative": [
+        "teujsiwi"
+      ],
+      "matchedVerb": "teujsiwi",
+      "directNonactive": "teujsiwiwa / teujsiuwa / teujsiwiwalu",
+      "causativeNonactive": "teujsiwiwa / teujsiwilu / teujsiwiwalu"
+    },
+    {
+      "source": "tepanchiwa",
+      "causative": [
+        "tepanchiwa",
+        "tepanchiwaltia",
+        "tepanchiwtia"
+      ],
+      "matchedVerb": "tepanchiwa",
+      "directNonactive": "tepanchiwalu / tepanchiuwa",
+      "causativeNonactive": "tepanchiwalu"
+    },
+    {
+      "source": "takawapawa",
+      "causative": [
+        "takawapawa",
+        "takawapawaltia",
+        "takawapawtia"
+      ],
+      "matchedVerb": "takawapawa",
+      "directNonactive": "takawapawalu / takawapauwa",
+      "causativeNonactive": "takawapawalu"
+    },
+    {
+      "source": "takwajnamiki",
+      "causative": [
+        "takwajnamiki"
+      ],
+      "matchedVerb": "takwajnamiki",
+      "directNonactive": "takwajnamikiwa / takwajnamikuwa / takwajnamikiwalu",
+      "causativeNonactive": "takwajnamiku / takwajnamikiwa / takwajnamikiwalu"
+    },
+    {
+      "source": "takwalmimiki",
+      "causative": [
+        "takwalmimiki"
+      ],
+      "matchedVerb": "takwalmimiki",
+      "directNonactive": "takwalmimikiwa / takwalmimikuwa / takwalmimikiwalu",
+      "causativeNonactive": "takwalmimiku / takwalmimikiwa / takwalmimikiwalu"
+    },
+    {
+      "source": "tatalchipawa",
+      "causative": [
+        "tatalchipawa",
+        "tatalchipawaltia",
+        "tatalchipawtia"
+      ],
+      "matchedVerb": "tatalchipawa",
+      "directNonactive": "tatalchipawalu / tatalchipauwa",
+      "causativeNonactive": "tatalchipawalu"
+    },
+    {
+      "source": "tatzkutuni",
+      "causative": [
+        "tatzkutunia",
+        "tatzkutuna",
+        "tatzkutuntia"
+      ],
+      "matchedVerb": "-tatzkutuna",
+      "directNonactive": "tatzkutunalu / tatzkutunu",
+      "causativeNonactive": "tatzkutuniu / tatzkutuniawa / tatzkutunialu / tatzkutuniawalu"
+    },
+    {
+      "source": "tashkalchiwa",
+      "causative": [
+        "tashkalchiwa",
+        "tashkalchiwaltia",
+        "tashkalchiwtia"
+      ],
+      "matchedVerb": "tashkalchiwa",
+      "directNonactive": "tashkalchiwalu / tashkalchiuwa",
+      "causativeNonactive": "tashkalchiwalu"
+    },
+    {
+      "source": "-tasujkamati",
+      "causative": [
+        "tasujkamachtia",
+        "tasujkamatitia",
+        "tasujkamachitia",
+        "tasujkamatilia"
+      ],
+      "matchedVerb": "-tasujkamatilia",
+      "directNonactive": "tasujkamatililu",
+      "causativeNonactive": "tasujkamachtchu / tasujkamachtiawa / tasujkamachtiilu / tasujkamachtialu / tasujkamachtiawalu"
+    },
+    {
+      "source": "shittumuni",
+      "causative": [
+        "shittumunia",
+        "shittumuna",
+        "shittumuntia"
+      ],
+      "matchedVerb": "-shittumunia",
+      "directNonactive": "shittumunilu",
+      "causativeNonactive": "shittumuniu / shittumuniawa / shittumunialu / shittumuniawalu"
+    },
+    {
+      "source": "aijiyumiki",
+      "causative": [
+        "aijiyumiki"
+      ],
+      "matchedVerb": "aijiyumiki",
+      "directNonactive": "aijiyumikiwa / aijiyumikuwa / aijiyumikiwalu",
+      "causativeNonactive": "aijiyumiku / aijiyumikiwa / aijiyumikiwalu"
+    },
+    {
+      "source": "kuchtamelawa",
+      "causative": [
+        "kuchtamelawa",
+        "kuchtamelawaltia",
+        "kuchtamelawtia"
+      ],
+      "matchedVerb": "kuchtamelawa",
+      "directNonactive": "kuchtamelawalu / kuchtamelauwa",
+      "causativeNonactive": "kuchtamelawalu"
+    },
+    {
+      "source": "elsiijsiwi",
+      "causative": [
+        "elsiijsiwi"
+      ],
+      "matchedVerb": "elsiijsiwi",
+      "directNonactive": "elsiijsiwiwa / elsiijsiuwa / elsiijsiwiwalu",
+      "causativeNonactive": "elsiijsiwiwa / elsiijsiwilu / elsiijsiwiwalu"
+    },
+    {
+      "source": "ishtawelmiki",
+      "causative": [
+        "ishtawelmiki"
+      ],
+      "matchedVerb": "ishtawelmiki",
+      "directNonactive": "ishtawelmikiwa / ishtawelmikuwa / ishtawelmikiwalu",
+      "causativeNonactive": "ishtawelmiku / ishtawelmikiwa / ishtawelmikiwalu"
+    },
+    {
+      "source": "majmaijsiwi",
+      "causative": [
+        "majmaijsiwi"
+      ],
+      "matchedVerb": "majmaijsiwi",
+      "directNonactive": "majmaijsiwiwa / majmaijsiuwa / majmaijsiwiwalu",
+      "causativeNonactive": "majmaijsiwiwa / majmaijsiwilu / majmaijsiwiwalu"
+    },
+    {
+      "source": "takuchmelawa",
+      "causative": [
+        "takuchmelawa",
+        "takuchmelawaltia",
+        "takuchmelawtia"
+      ],
+      "matchedVerb": "takuchmelawa",
+      "directNonactive": "takuchmelawalu / takuchmelauwa",
+      "causativeNonactive": "takuchmelawalu"
+    },
+    {
+      "source": "taijtakulkawa",
+      "causative": [
+        "taijtakulkawa",
+        "taijtakulkawaltia",
+        "taijtakulkawtia"
+      ],
+      "matchedVerb": "taijtakulkawa",
+      "directNonactive": "taijtakulkawalu / taijtakulkauwa",
+      "causativeNonactive": "taijtakulkawalu"
+    },
+    {
+      "source": "taijtakulchiwa",
+      "causative": [
+        "taijtakulchiwa",
+        "taijtakulchiwaltia",
+        "taijtakulchiwtia"
+      ],
+      "matchedVerb": "taijtakulchiwa",
+      "directNonactive": "taijtakulchiwalu / taijtakulchiuwa",
+      "causativeNonactive": "taijtakulchiwalu"
+    },
+    {
+      "source": "yulneijsiwi",
+      "causative": [
+        "yulneijsiwi"
+      ],
+      "matchedVerb": "yulneijsiwi",
+      "directNonactive": "yulneijsiwiwa / yulneijsiuwa / yulneijsiwiwalu",
+      "causativeNonactive": "yulneijsiwiwa / yulneijsiwilu / yulneijsiwiwalu"
+    },
+    {
+      "source": "tawelishnamiki",
+      "causative": [
+        "tawelishnamiki"
+      ],
+      "matchedVerb": "tawelishnamiki",
+      "directNonactive": "tawelishnamikiwa / tawelishnamikuwa / tawelishnamikiwalu",
+      "causativeNonactive": "tawelishnamiku / tawelishnamikiwa / tawelishnamikiwalu"
+    },
+    {
+      "source": "tzuntekuntapani",
+      "causative": [
+        "tzuntekuntapania",
+        "tzuntekuntapana",
+        "tzuntekuntapantia"
+      ],
+      "matchedVerb": "-tzuntekuntapana",
+      "directNonactive": "tzuntekuntapanalu / tzuntekuntapanu",
+      "causativeNonactive": "tzuntekuntapaniu / tzuntekuntapaniawa / tzuntekuntapanialu / tzuntekuntapaniawalu"
+    },
+    {
+      "source": "machiwa",
+      "causative": [
+        "machiwa",
+        "machiwaltia",
+        "machiwtia"
+      ],
+      "matchedVerb": "machiwa",
+      "directNonactive": "machiwalu / machiuwa",
+      "causativeNonactive": "machiwalu"
+    },
+    {
+      "source": "pawashiwa",
+      "causative": [
+        "pawashiwa",
+        "pawashiwaltia",
+        "pawashiwtia"
+      ],
+      "matchedVerb": "pawashiwa",
+      "directNonactive": "pawashiwalu / pawashiuwa",
+      "causativeNonactive": "pawashiwalu"
+    },
+    {
+      "source": "ishajshiwa",
+      "causative": [
+        "ishajshiwa",
+        "ishajshiwaltia",
+        "ishajshiwtia"
+      ],
+      "matchedVerb": "ishajshiwa",
+      "directNonactive": "ishajshiwalu / ishajshiuwa",
+      "causativeNonactive": "ishajshiwalu"
+    },
+    {
+      "source": "kwiwa",
+      "causative": [
+        "kwiwa",
+        "kwiwaltia",
+        "kwiwtia"
+      ],
+      "matchedVerb": "kwiwa",
+      "directNonactive": "kwiwalu / kwiuwa",
+      "causativeNonactive": "kwiwalu"
+    },
+    {
+      "source": "sekwiwa",
+      "causative": [
+        "sekwiwa",
+        "sekwiwaltia",
+        "sekwiwtia"
+      ],
+      "matchedVerb": "sekwiwa",
+      "directNonactive": "sekwiwalu / sekwiuwa",
+      "causativeNonactive": "sekwiwalu"
+    }
+  ]
+}
