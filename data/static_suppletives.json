@@ -15,6 +15,10 @@
     "canonical": "yawi",
     "short": "yaw",
     "yuVariant": "yu",
+    "causative": {
+      "active": "wika",
+      "nonactive": "wikalu"
+    },
     "tenses": {
       "presente": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
       "imperativo": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },

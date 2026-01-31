@@ -1,0 +1,322 @@
+{
+  "summary": {
+    "totalPairs": 329,
+    "mismatches": 0,
+    "sample": [
+      {
+        "source": "aki",
+        "causativeStem": "akitia",
+        "matchedDirect": "akitia",
+        "expectedNonactiveSet": [
+          "akitilu"
+        ],
+        "actualNonactiveSet": [
+          "akitilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "akitilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-ayi",
+        "causativeStem": "ayiltia",
+        "matchedDirect": "ayiltia",
+        "expectedNonactiveSet": [
+          "ayiltilu"
+        ],
+        "actualNonactiveSet": [
+          "ayiltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "ayiltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-kawa",
+        "causativeStem": "kawaltia",
+        "matchedDirect": "-kawaltia",
+        "expectedNonactiveSet": [
+          "kawaltilu"
+        ],
+        "actualNonactiveSet": [
+          "kawaltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "kawaltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-kaki",
+        "causativeStem": "kaktia",
+        "matchedDirect": "-kaktia",
+        "expectedNonactiveSet": [
+          "kaktilu"
+        ],
+        "actualNonactiveSet": [
+          "kaktilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "kaktilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "sewa",
+        "causativeStem": "sewa",
+        "matchedDirect": "sewa",
+        "expectedNonactiveSet": [
+          "seuwa",
+          "sewalu"
+        ],
+        "actualNonactiveSet": [
+          "seuwa",
+          "sewalu"
+        ],
+        "actualMergedNonactiveSet": [
+          "seuwa",
+          "sewalu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "sewi",
+        "causativeStem": "sewa",
+        "matchedDirect": "sewa",
+        "expectedNonactiveSet": [
+          "seuwa",
+          "sewalu"
+        ],
+        "actualNonactiveSet": [
+          "seuwa",
+          "sewalu"
+        ],
+        "actualMergedNonactiveSet": [
+          "seuwa",
+          "sewalu",
+          "sewilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "sewi",
+        "causativeStem": "sewia",
+        "matchedDirect": "-sewia",
+        "expectedNonactiveSet": [
+          "sewilu"
+        ],
+        "actualNonactiveSet": [
+          "sewilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "sewilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "seya",
+        "causativeStem": "selia",
+        "matchedDirect": "-selia",
+        "expectedNonactiveSet": [
+          "selilu"
+        ],
+        "actualNonactiveSet": [
+          "selilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "selilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-chiya",
+        "causativeStem": "chiyaltia",
+        "matchedDirect": "chiyaltia",
+        "expectedNonactiveSet": [
+          "chiyaltilu"
+        ],
+        "actualNonactiveSet": [
+          "chiyaltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "chiyaltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "chuka",
+        "causativeStem": "chuktia",
+        "matchedDirect": "chuktia",
+        "expectedNonactiveSet": [
+          "chuktilu"
+        ],
+        "actualNonactiveSet": [
+          "chuktilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "chuktilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "kuchi",
+        "causativeStem": "kuchitia",
+        "matchedDirect": "-kuchitia",
+        "expectedNonactiveSet": [
+          "kuchitilu"
+        ],
+        "actualNonactiveSet": [
+          "kuchitilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "kuchitilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "kwalti",
+        "causativeStem": "kwaltilia",
+        "matchedDirect": "-kwaltilia",
+        "expectedNonactiveSet": [
+          "kwaltililu"
+        ],
+        "actualNonactiveSet": [
+          "kwaltililu"
+        ],
+        "actualMergedNonactiveSet": [
+          "kwaltililu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "waki",
+        "causativeStem": "watza",
+        "matchedDirect": "-watza",
+        "expectedNonactiveSet": [
+          "wachu",
+          "watzalu"
+        ],
+        "actualNonactiveSet": [
+          "wachu",
+          "watzalu"
+        ],
+        "actualMergedNonactiveSet": [
+          "wachu",
+          "watzalu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "wetzi",
+        "causativeStem": "wetzitia",
+        "matchedDirect": "wetzitia",
+        "expectedNonactiveSet": [
+          "wetzitilu"
+        ],
+        "actualNonactiveSet": [
+          "wetzitilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "wetzitilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-wika",
+        "causativeStem": "wikaltia",
+        "matchedDirect": "-wikaltia",
+        "expectedNonactiveSet": [
+          "wikaltilu"
+        ],
+        "actualNonactiveSet": [
+          "wikaltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "wikaltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "mawi",
+        "causativeStem": "mawtia",
+        "matchedDirect": "-mawtia",
+        "expectedNonactiveSet": [
+          "mawtilu"
+        ],
+        "actualNonactiveSet": [
+          "mawtilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "mawtilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-mama",
+        "causativeStem": "mamaltia",
+        "matchedDirect": "-mamaltia",
+        "expectedNonactiveSet": [
+          "mamaltilu"
+        ],
+        "actualNonactiveSet": [
+          "mamaltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "mamaltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "mani",
+        "causativeStem": "mana",
+        "matchedDirect": "-mana",
+        "expectedNonactiveSet": [
+          "manalu",
+          "manu"
+        ],
+        "actualNonactiveSet": [
+          "manalu",
+          "manu"
+        ],
+        "actualMergedNonactiveSet": [
+          "manalu",
+          "manu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-mati",
+        "causativeStem": "machtia",
+        "matchedDirect": "-machtia",
+        "expectedNonactiveSet": [
+          "machtilu"
+        ],
+        "actualNonactiveSet": [
+          "machtilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "machtilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "-mati",
+        "causativeStem": "matiltia",
+        "matchedDirect": "-matiltia",
+        "expectedNonactiveSet": [
+          "matiltilu"
+        ],
+        "actualNonactiveSet": [
+          "matiltilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "matiltilu"
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "mismatches": []
+}

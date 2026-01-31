@@ -40,6 +40,7 @@ let PATIENTIVO_PERFECTIVO_ALLOWED_FINALS_CLASS_D = new Set();
 const OPTIONAL_SUPPORTIVE_I_MARKER = "(i)";
 const OPTIONAL_SUPPORTIVE_I_RE = /\(i\)/g;
 let DERIVATIONAL_RULES = {};
+let DERIVATIONAL_RULES_DOCS = {};
 let VALENCE_NEUTRAL_RULES = {};
 let OBJECT_MARKERS = new Set();
 let FUSION_PREFIXES = new Set();
@@ -168,7 +169,15 @@ function applyStaticDerivationalRules(data) {
     if (!data || typeof data !== "object") {
         return;
     }
+    // Support { config, docs } shape so we can keep long-form documentation
+    // separate from the actual data the engine consumes.
+    if (data.config && typeof data.config === "object") {
+        DERIVATIONAL_RULES = { ...data.config };
+        DERIVATIONAL_RULES_DOCS = data.docs && typeof data.docs === "object" ? { ...data.docs } : {};
+        return;
+    }
     DERIVATIONAL_RULES = { ...data };
+    DERIVATIONAL_RULES_DOCS = {};
 }
 
 function applyStaticValenceNeutral(data) {
@@ -784,6 +793,9 @@ function applyStaticSuppletives(data) {
         if (Array.isArray(yawiData.forms)) {
             SUPPLETIVE_YAWI_FORMS = new Set(yawiData.forms);
         }
+        const yawiCausative = yawiData.causative && typeof yawiData.causative === "object"
+            ? yawiData.causative
+            : null;
         const yawiTenses = yawiData.tenses && typeof yawiData.tenses === "object"
             ? yawiData.tenses
             : {};
@@ -813,6 +825,14 @@ function applyStaticSuppletives(data) {
         }
         if (typeof imperfective === "string") {
             SUPPLETIVE_YAWI_IMPERFECTIVE = imperfective;
+        }
+        if (yawiCausative) {
+            if (typeof yawiCausative.active === "string") {
+                SUPPLETIVE_YAWI_CAUSATIVE_ACTIVE = yawiCausative.active;
+            }
+            if (typeof yawiCausative.nonactive === "string") {
+                SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE = yawiCausative.nonactive;
+            }
         }
         if (typeof yawiImperative.long === "string" && !SUPPLETIVE_YAWI_CANONICAL) {
             SUPPLETIVE_YAWI_CANONICAL = yawiImperative.long;
@@ -1120,6 +1140,8 @@ let BASIC_DATA_CANONICAL_MAP = new Map();
 const BULK_EXPORT_HEADERS = [
     "verb",
     "3s nonactive",
+    "3s causative",
+    "3s causative nonactive",
 ];
 const BULK_EXPORT_SOURCES = {
     data: { path: "data/data.csv", label: "data.csv" },
@@ -2124,12 +2146,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (!wiStockSuppressA && (replacementOnly.length === 0 || replacementOnlyMatch)) {
             push(`${dropped}a`, { type: "type-one", rule: "drop-final-i" });
         }
-        const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
-            ? rules.intransitiveEndsWithI.replaceFinalConsonant
-            : [];
-        const replaceFinalBases = replaceFinalRules.flatMap((entry) => extractExampleBases(entry?.examples));
-        const matchesReplaceFinal = replaceFinalBases.includes(ruleBase)
-            || (fullRuleBase && replaceFinalBases.includes(fullRuleBase));
+    const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
+        ? rules.intransitiveEndsWithI.replaceFinalConsonant
+        : [];
+    const replaceFinalBases = replaceFinalRules.flatMap((entry) => (
+        Array.isArray(entry?.verbs) ? entry.verbs : extractExampleBases(entry?.examples)
+    ));
+    const matchesReplaceFinal = replaceFinalBases.includes(ruleBase)
+        || (fullRuleBase && replaceFinalBases.includes(fullRuleBase));
         replaceFinalRules.forEach((entry) => {
             if (!entry || entry.from !== "k" || entry.to !== "tz") {
                 return;
@@ -2217,7 +2241,12 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                     : ["replaceFinalI", "addSuffix"];
                 addWithOrder(order, {
                     addSuffix: () => `${ruleBase}a`,
-                    replaceFinalI: () => (ruleBase.endsWith("i") ? `${ruleBase.slice(0, -1)}a` : ""),
+                    // Treat -kwi as distinct from a true -wi stem-formative; don't apply I->A replacement there.
+                    replaceFinalI: () => (
+                        ruleBase.endsWith("i") && !info.endsWithKwi
+                            ? `${ruleBase.slice(0, -1)}a`
+                            : ""
+                    ),
                 });
             }
         }
@@ -2276,8 +2305,12 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
 
         if (isIntransitive && info.endsWithU && hasNonactiveSuffix("wa")) {
             const uRules = rules.intransitiveEndsWithU?.nonactiveWa?.typeTwo || {};
-            const additionBases = extractExampleBases(uRules?.addition?.examples);
-            const replacementBases = extractExampleBases(uRules?.replacement?.examples);
+            const additionBases = Array.isArray(uRules?.addition?.verbs)
+                ? uRules.addition.verbs
+                : extractExampleBases(uRules?.addition?.examples);
+            const replacementBases = Array.isArray(uRules?.replacement?.verbs)
+                ? uRules.replacement.verbs
+                : extractExampleBases(uRules?.replacement?.examples);
             const matchBase = (baseList) => baseList.includes(ruleBase) || (fullRuleBase && baseList.includes(fullRuleBase));
             const useAddition = additionBases.length ? matchBase(additionBases) : true;
             const useReplacement = replacementBases.length ? matchBase(replacementBases) : true;
@@ -2299,6 +2332,36 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (blockUwaTypeTwo && option.suffix === "uwa") {
                 return;
             }
+            if (isIntransitive && option.suffix === "wa" && info.lastOnset === "k" && hasNonactiveSuffix("uwa")) {
+                // For intransitives with last onset k (and an available -uwa nonactive),
+                // only accept the -uwa-based type-two causative (drop -uwa + tia), not the -wa-based one.
+                return;
+            }
+            if (isIntransitive && info.endsWithTi && option.suffix === "wa") {
+                // Intransitive stems ending in -ti do not form type-two causatives from the -wa nonactive base.
+                return;
+            }
+            if (isIntransitive && info.endsWithU && option.suffix === "wa") {
+                // For intransitive -u verbs, WIA can be formed either by addition (temu -> temuwia)
+                // or by replacement (panu -> panawia). If the verb is listed as replacement,
+                // suppress the default -wia output derived from the -wa nonactive base.
+                const uRules = rules.intransitiveEndsWithU?.nonactiveWa?.typeTwo || {};
+                const additionBases = Array.isArray(uRules?.addition?.verbs)
+                    ? uRules.addition.verbs
+                    : extractExampleBases(uRules?.addition?.examples);
+                const replacementBases = Array.isArray(uRules?.replacement?.verbs)
+                    ? uRules.replacement.verbs
+                    : extractExampleBases(uRules?.replacement?.examples);
+                if (replacementBases.length) {
+                    const matchBase = (baseList) => baseList.includes(ruleBase)
+                        || (fullRuleBase && baseList.includes(fullRuleBase));
+                    const inAdditionList = additionBases.length ? matchBase(additionBases) : false;
+                    const inReplacementList = matchBase(replacementBases);
+                    if (inReplacementList && !inAdditionList) {
+                        return;
+                    }
+                }
+            }
             let baseStem = option.stem;
             if (option.suffix === "lu") {
                 baseStem = option.stem.endsWith("lu") ? option.stem.slice(0, -1) : option.stem;
@@ -2318,7 +2381,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (info.endsWithU && option.suffix === "wa") {
                 suffix = "wia";
             }
-            if (option.suffix === "lu" && info.endsWithTi) {
+            if (isIntransitive && option.suffix === "lu" && info.endsWithTi) {
                 suffix = "ia";
             }
             if (["u", "uwa"].includes(option.suffix) && suffix === typeTwoSuffix) {
@@ -2381,15 +2444,49 @@ function applyCausativeDerivation({
             suppletiveStemSet,
         };
     }
+    // Suppletive: yawi has a fixed causative stem.
+    if (parsedVerb?.isYawi) {
+        const causativeSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
+        const prefix = causativeSource.prefix || "";
+        const baseStem = getSuppletiveYawiCausativeActive();
+        const selectedStem = prefix ? `${prefix}${baseStem}` : baseStem;
+        let nextAnalysis = selectedStem;
+        if (directionalPrefix && selectedStem.startsWith(directionalPrefix)) {
+            nextAnalysis = selectedStem.slice(directionalPrefix.length);
+        }
+        return {
+            verb: selectedStem,
+            analysisVerb: nextAnalysis,
+            isYawi: false,
+            causativeAllStems: [selectedStem],
+            noCausativeStem: false,
+            suppletiveStemSet: null,
+        };
+    }
     const canonicalRuleBase = parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || "";
     const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase || parsedVerb?.canonical?.fullRuleBase || "";
     const ruleBaseForGate = canonicalRuleBase
         || getNonactiveRuleBase(analysisVerb || verb || "", parsedVerb);
     let allowTypeTwoIntransitiveA = false;
     let allowTypeTwoIntransitiveNiUwa = false;
+    let allowTypeTwoIntransitiveU = false;
+    let allowTypeTwoIntransitiveUwa = false;
     if (ruleBaseForGate) {
+        const typeTwoGate = DERIVATIONAL_RULES?.causative?.typeTwo?.allowTypeTwoForIntransitives || {};
         const gateInfo = getNonactiveBaseInfo(ruleBaseForGate);
-        if (!parsedVerb.isMarkedTransitive && gateInfo.endsWithA) {
+        if (
+            !parsedVerb.isMarkedTransitive
+            && gateInfo.endsWithU
+            && typeTwoGate.endsWithU !== false
+        ) {
+            // Intransitive stems ending in -u can form type-two causatives (WIA/TIA) based on their nonactive.
+            allowTypeTwoIntransitiveU = true;
+        }
+        if (
+            !parsedVerb.isMarkedTransitive
+            && gateInfo.endsWithA
+            && typeTwoGate.endsWithA !== false
+        ) {
             const aRules = DERIVATIONAL_RULES?.causative?.intransitiveEndsWithA || {};
             const allowList = Array.isArray(aRules.replacementOnly) ? aRules.replacementOnly : [];
             const typeTwoAllow = Array.isArray(aRules.typeTwoAllow) ? aRules.typeTwoAllow : [];
@@ -2398,9 +2495,22 @@ function applyCausativeDerivation({
             allowTypeTwoIntransitiveA = allowTypeTwoList
                 || (allowList.length > 0 && !allowList.includes(baseForGate));
         }
-        if (!parsedVerb.isMarkedTransitive && gateInfo.endsWithNi) {
+        if (
+            !parsedVerb.isMarkedTransitive
+            && gateInfo.endsWithNi
+            && typeTwoGate.endsWithNi !== false
+        ) {
+            const niGate = typeTwoGate.endsWithNi && typeof typeTwoGate.endsWithNi === "object"
+                ? typeTwoGate.endsWithNi
+                : {};
+            const minSyllables = Number.isFinite(niGate.minSyllables)
+                ? Math.max(0, niGate.minSyllables)
+                : 3;
+            const requiredSuffix = typeof niGate.requireNonactiveSuffix === "string"
+                ? niGate.requireNonactiveSuffix
+                : "uwa";
             const niSyllables = getSyllables(ruleBaseForGate, { analysis: true, assumeFinalV: true });
-            const allowNiByLength = niSyllables.length > 2;
+            const allowNiByLength = niSyllables.length >= minSyllables;
             if (allowNiByLength) {
                 const niOptions = getNonactiveDerivationOptions(
                     ruleBaseForGate,
@@ -2411,7 +2521,24 @@ function applyCausativeDerivation({
                         rootPlusYaBase: parsedVerb.rootPlusYaBase,
                     }
                 );
-                allowTypeTwoIntransitiveNiUwa = niOptions.some((option) => option.suffix === "uwa");
+                allowTypeTwoIntransitiveNiUwa = niOptions.some((option) => option.suffix === requiredSuffix);
+            }
+        }
+        if (!parsedVerb.isMarkedTransitive) {
+            const allowSuffixes = Array.isArray(typeTwoGate.allowWhenHasNonactiveSuffixes)
+                ? typeTwoGate.allowWhenHasNonactiveSuffixes.filter(Boolean)
+                : [];
+            if (allowSuffixes.length) {
+                const nonactiveOptions = getNonactiveDerivationOptions(
+                    ruleBaseForGate,
+                    ruleBaseForGate,
+                    {
+                        isTransitive: false,
+                        ruleBase: ruleBaseForGate,
+                        rootPlusYaBase: parsedVerb.rootPlusYaBase,
+                    }
+                );
+                allowTypeTwoIntransitiveUwa = nonactiveOptions.some((option) => allowSuffixes.includes(option.suffix));
             }
         }
     }
@@ -2436,7 +2563,13 @@ function applyCausativeDerivation({
         canonicalRuleBase,
         canonicalFullRuleBase,
         rootPlusYaBase: parsedVerb.rootPlusYaBase,
-        allowTypeTwo: baseIsTransitive || allowTypeTwoIntransitiveA || allowTypeTwoIntransitiveNiUwa,
+        // Intransitives that can form nonactive -uwa should also be able to form type-two causatives
+        // by dropping -uwa and adding -tia (with m->n before t where applicable).
+        allowTypeTwo: baseIsTransitive
+            || allowTypeTwoIntransitiveA
+            || allowTypeTwoIntransitiveNiUwa
+            || allowTypeTwoIntransitiveU
+            || allowTypeTwoIntransitiveUwa,
         hasLeadingDash: parsedVerb.hasLeadingDash === true,
         parsedVerb,
     });
@@ -2669,6 +2802,12 @@ function buildNonactiveUStem(stem, lastOnset, lastNucleus, options = {}) {
             letters[onsetIndex] = "ch";
         }
     } else if (lastOnset === "kw" && lastNucleus === "i") {
+        // If kw is preceded by a consonant (i.e. kw is part of a larger cluster like j+k+w),
+        // we don't form a -u nonactive at all for this path (e.g. -majkwi should not yield majku/majkwu).
+        const prevLetter = letters[onsetIndex - 1] || "";
+        if (isVerbLetterConsonant(prevLetter)) {
+            return null;
+        }
         letters[onsetIndex] = "k";
     }
     letters[lastIndex] = "u";
@@ -2821,7 +2960,9 @@ function getNonactiveCandidateParts(info) {
     const allowUwaFromT = lastOnset === "t" && (endsWithNucleusA || endsWithNucleusI);
     const allowUFromKNS = ["k", "n", "s"].includes(lastOnset) && (endsWithNucleusA || endsWithNucleusI);
     const allowUFromM = lastOnset === "m" && endsWithNucleusI;
-    const allowUFromKwI = lastOnset === "kw" && endsWithNucleusI;
+    // For kw+i, a preceding coda creates a larger consonant cluster (e.g. -majkwi),
+    // and we don't allow the -u nonactive on this path.
+    const allowUFromKwI = lastOnset === "kw" && endsWithNucleusI && !penultimateHasCoda;
     const allowUFromT = lastOnset === "t" && endsWithNucleusI;
     const allowUFromTz = lastOnset === "tz" && endsWithNucleusA;
     const allowUFromTTa = lastOnset === "t" && endsWithNucleusA && prev === "t" && prev2 === "t";
@@ -3648,9 +3789,10 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         endsWithNucleusI,
         endsWithNucleusA,
         endsWithNucleusU,
+        syllableCount,
     } = info;
     const isTransitive = options.isTransitive === true;
-    const allowWaluVariant = endsWithNucleusI;
+    const allowWaluVariant = !isTransitive && endsWithNucleusI;
     const allowChiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "t";
     const allowShiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "s";
     const allowChiwaOrShiwa = allowChiwaVariant || allowShiwaVariant;
@@ -3681,8 +3823,18 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         && !blockUForWaWi
         && !blockUwaForPenultimateU
         && !blockUwaForCoda;
+    // For (>=)3-syllable transitives ending in -wa, also allow -uwa (e.g. -petawa -> petauwa).
+    // This is separate from the intransitive -uwa candidate so it doesn't interfere with lu/u selection logic.
+    const uwaCandidateTransitiveWa = isTransitive
+        && syllableCount >= 3
+        && ruleBase.endsWith("wa")
+        && lastOnset === "w"
+        && !blockUForWaWi
+        && !blockUwaForPenultimateU
+        && !blockUwaForCoda;
 
-    const waCandidate = endsWithNucleusI || endsWithNucleusU;
+    // -wa nonactive is intransitive-only in this system; transitives use -u/-lu paths.
+    const waCandidate = !isTransitive && (endsWithNucleusI || endsWithNucleusU);
     const allowLuVariantTzV = isTransitive && endsWithTzV;
     const allowLuVariantTV = isTransitive && endsWithA && prev === "t";
     const allowLuVariantTransitiveA = isTransitive && endsWithA;
@@ -3786,9 +3938,13 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     if (uwaCandidate) {
         pushWithVariants("uwa", buildUwa());
     }
+    if (uwaCandidateTransitiveWa) {
+        pushWithVariants("uwa", buildUwa());
+    }
 
+    // Transitive verbs ending in nucleus -i also allow -lu nonactive.
     const allowLuVariant = isTransitive
-        && (endsWithNa || endsWithNi || endsWithSa || endsWithTa || endsWithTi || endsWithTV || endsWithWi);
+        && (endsWithNucleusI || endsWithNa || endsWithNi || endsWithSa || endsWithTa || endsWithTi || endsWithTV || endsWithWi);
     const allowLuForI = isTransitive && ruleBase === "i";
     if (allowLuVariant) {
         push("lu", buildLu());
@@ -9382,6 +9538,8 @@ let SUPPLETIVE_YAWI_CANONICAL = "";
 let SUPPLETIVE_YAWI_IMPERFECTIVE = "";
 let SUPPLETIVE_YAWI_SHORT = "";
 let SUPPLETIVE_YAWI_YU_VARIANT = "";
+let SUPPLETIVE_YAWI_CAUSATIVE_ACTIVE = "";
+let SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE = "";
 let SUPPLETIVE_WEYA_FORMS = new Set();
 let SUPPLETIVE_WEYA_ROOT = "";
 let SUPPLETIVE_WEYA_CANONICAL = "";
@@ -9413,6 +9571,14 @@ function getSuppletiveYawiShort() {
 
 function getSuppletiveYawiYuVariant() {
     return SUPPLETIVE_YAWI_YU_VARIANT || "yu";
+}
+
+function getSuppletiveYawiCausativeActive() {
+    return SUPPLETIVE_YAWI_CAUSATIVE_ACTIVE || "wika";
+}
+
+function getSuppletiveYawiCausativeNonactive() {
+    return SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE || "wikalu";
 }
 
 function getSuppletiveWeyaRootPlusYaBase() {
@@ -11184,7 +11350,15 @@ function expandBulkExportEntries(entries) {
     return expanded;
 }
 
-function getBulkExportConjugation({ verb, tense, subjectSuffix, objectPrefix }) {
+function getBulkExportConjugation({
+    verb,
+    tense,
+    subjectSuffix,
+    objectPrefix,
+    derivationMode = DERIVATION_MODE.nonactive,
+    derivationType = DERIVATION_TYPE.direct,
+    indirectObjectMarker = "",
+}) {
     const result = generateWord({
         silent: true,
         override: {
@@ -11193,8 +11367,10 @@ function getBulkExportConjugation({ verb, tense, subjectSuffix, objectPrefix }) 
             subjectPrefix: "",
             subjectSuffix,
             objectPrefix,
+            indirectObjectMarker,
             tenseMode: TENSE_MODE.verbo,
-            derivationMode: DERIVATION_MODE.nonactive,
+            derivationMode,
+            derivationType,
             voiceMode: VOICE_MODE.active,
         },
     });
@@ -11205,17 +11381,34 @@ function getBulkExportConjugation({ verb, tense, subjectSuffix, objectPrefix }) 
 }
 
 function buildBulkExportRow({ verb, isTransitive }) {
-    const objectPrefix = "";
     const nonactive3s = getBulkExportConjugation({
         verb,
         tense: "presente",
         subjectSuffix: "",
-        objectPrefix,
+        objectPrefix: "",
+    });
+    const causative3s = getBulkExportConjugation({
+        verb,
+        tense: "presente",
+        subjectSuffix: "",
+        objectPrefix: "ki",
+        derivationMode: DERIVATION_MODE.active,
+        derivationType: DERIVATION_TYPE.causative,
+    });
+    const causativeNonactive3s = getBulkExportConjugation({
+        verb,
+        tense: "presente",
+        subjectSuffix: "",
+        objectPrefix: "",
+        derivationMode: DERIVATION_MODE.nonactive,
+        derivationType: DERIVATION_TYPE.causative,
     });
     return {
         verb,
         isTransitive,
         nonactive3s,
+        causative3s,
+        causativeNonactive3s,
     };
 }
 
@@ -11246,6 +11439,8 @@ function buildBulkExportCSV(rows) {
     const lines = rows.map((row) => ([
         row.verb,
         row.nonactive3s,
+        row.causative3s,
+        row.causativeNonactive3s,
     ].map((value) => escapeCSVValue(value)).join(",")));
     return [header, ...lines].join("\n");
 }
@@ -11277,7 +11472,7 @@ function updateBulkExportStatusSummary() {
         return;
     }
     const missingRows = rows.filter((row) => (
-        [row.nonactive3s].some((value) => !value || value === "—")
+        [row.nonactive3s, row.causative3s, row.causativeNonactive3s].some((value) => !value || value === "—")
     )).length;
     let statusMessage = `Listo: ${rows.length} filas.`;
     if (missingRows) {
@@ -11295,6 +11490,8 @@ function updateBulkExportRowData(index, rawValue) {
     if (!normalized.verb) {
         row.verb = "";
         row.nonactive3s = "—";
+        row.causative3s = "—";
+        row.causativeNonactive3s = "—";
         return normalized;
     }
     const updated = buildBulkExportRow({
@@ -11304,6 +11501,8 @@ function updateBulkExportRowData(index, rawValue) {
     row.verb = updated.verb;
     row.isTransitive = updated.isTransitive;
     row.nonactive3s = updated.nonactive3s;
+    row.causative3s = updated.causative3s;
+    row.causativeNonactive3s = updated.causativeNonactive3s;
     updateBulkExportControlState();
     return normalized;
 }
@@ -11346,8 +11545,16 @@ function renderBulkExportTable(container, rows) {
         const nonactive3sCell = document.createElement("td");
         nonactive3sCell.textContent = row.nonactive3s;
         tr.appendChild(nonactive3sCell);
+        const causative3sCell = document.createElement("td");
+        causative3sCell.textContent = row.causative3s;
+        tr.appendChild(causative3sCell);
+        const causativeNonactive3sCell = document.createElement("td");
+        causativeNonactive3sCell.textContent = row.causativeNonactive3s;
+        tr.appendChild(causativeNonactive3sCell);
         const syncCells = () => {
             nonactive3sCell.textContent = row.nonactive3s;
+            causative3sCell.textContent = row.causative3s;
+            causativeNonactive3sCell.textContent = row.causativeNonactive3s;
         };
         const applyUpdate = (options = {}) => {
             const normalized = updateBulkExportRowData(index, verbInput.value);
