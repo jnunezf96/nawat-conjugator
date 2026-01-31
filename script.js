@@ -2121,6 +2121,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         : [];
     const replacementOnlyMatch = replacementOnly.includes(ruleBase)
         || (fullRuleBase && replacementOnly.includes(fullRuleBase));
+    const additionRules = rules?.intransitiveEndsWithI?.addition || {};
+    const allowVerbs = Array.isArray(additionRules.allowVerbs)
+        ? additionRules.allowVerbs
+        : [];
+    const allowSuffixes = Array.isArray(additionRules.allowSuffixes)
+        ? additionRules.allowSuffixes
+        : [];
+    const matchesAddition = allowVerbs.includes(ruleBase)
+        || (fullRuleBase && allowVerbs.includes(fullRuleBase))
+        || allowSuffixes.some((suffix) => suffix && ruleBase.endsWith(suffix))
+        || (fullRuleBase && allowSuffixes.some((suffix) => suffix && fullRuleBase.endsWith(suffix)));
+    const hasExplicitILists = replacementOnly.length > 0 || allowVerbs.length > 0 || allowSuffixes.length > 0;
+    const allowExplicitI = replacementOnlyMatch || matchesAddition;
     const wiStockFormativeRules = rules?.destockal?.wiStockFormative || null;
     const wiStockSuppressA = (() => {
         if (!wiStockFormativeRules || !isIntransitive) {
@@ -2162,17 +2175,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 push(`${dropped.slice(0, -1)}${entry.to}a`, { type: "type-one", rule: "replace-final-consonant" });
             }
         });
-        const additionRules = rules?.intransitiveEndsWithI?.addition || {};
-        const allowVerbs = Array.isArray(additionRules.allowVerbs)
-            ? additionRules.allowVerbs
-            : [];
-        const allowSuffixes = Array.isArray(additionRules.allowSuffixes)
-            ? additionRules.allowSuffixes
-            : [];
-        const matchesAddition = allowVerbs.includes(ruleBase)
-            || (fullRuleBase && allowVerbs.includes(fullRuleBase))
-            || allowSuffixes.some((suffix) => suffix && ruleBase.endsWith(suffix))
-            || (fullRuleBase && allowSuffixes.some((suffix) => suffix && fullRuleBase.endsWith(suffix)));
         const allowAddition = (allowVerbs.length || allowSuffixes.length)
             ? matchesAddition
             : (ruleBase.endsWith("ki") || info.endsWithConsonantCluster);
@@ -2232,7 +2234,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         if (ruleBase.endsWith("wi") && destockal.wi) {
             const suppressDestockalWi = wiStockSuppressA || ruleBase.endsWith("uwi");
-            if (!suppressDestockalWi) {
+            if (!suppressDestockalWi && (!hasExplicitILists || allowExplicitI)) {
                 const order = Array.isArray(destockal.wi.prefer)
                     ? destockal.wi.prefer
                     : ["replaceFinalI", "addSuffix"];
@@ -2254,7 +2256,9 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             const wiRules = destockal.wiStockFormative || {};
             const blockVerbs = Array.isArray(wiRules.blockVerbs) ? wiRules.blockVerbs : [];
             const allowPatterns = Array.isArray(wiRules.allowPatterns) ? wiRules.allowPatterns : [];
+            const nonRedupRuleBase = getNonReduplicatedRoot(ruleBase);
             const blocked = blockVerbs.includes(ruleBase)
+                || (nonRedupRuleBase && blockVerbs.includes(nonRedupRuleBase))
                 || (fullRuleBase && blockVerbs.includes(fullRuleBase));
             const letters = splitVerbLetters(ruleBase);
             const matchesPattern = allowPatterns.length === 0
@@ -2395,7 +2399,11 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 suffix = "ia";
             }
             if (["u", "uwa"].includes(option.suffix) && suffix === typeTwoSuffix) {
-                if (createsConsonantClusterAfterFinalDeletion(baseStem)) {
+                const nonRedupBaseStem = baseStem ? getNonReduplicatedRoot(baseStem) : "";
+                const clusterStem = nonRedupBaseStem && nonRedupBaseStem !== baseStem
+                    ? nonRedupBaseStem
+                    : baseStem;
+                if (createsConsonantClusterAfterFinalDeletion(clusterStem)) {
                     suffix = `i${suffix}`;
                 }
             }
