@@ -4,9 +4,9 @@
     "suffixes": []
   },
   "intransitiveToCausative": {
-    "verbs": ["witeki", "pusteki", "wetzka", "pishka", "tuka", "mayana", "tisi", "tesi", "ajsi", "mati", "siyawi", "paki"],
+    "verbs": ["witeki", "pusteki", "wetzka", "pishka", "tuka", "mayana", "tisi", "tesi", "ajsi", "mati", "siyawi"],
     "suffixes": ["teki", "miki", "siwi"],
-    "allowAdditionalDerivations": ["mati"]
+    "allowAdditionalDerivations": ["mati", "paki"]
   },
   "transitiveToApplicative": {
     "verbs": ["maka"]
