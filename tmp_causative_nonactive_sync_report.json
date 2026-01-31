@@ -1,23 +1,8 @@
 {
   "summary": {
-    "totalPairs": 329,
+    "totalPairs": 327,
     "mismatches": 0,
     "sample": [
-      {
-        "source": "aki",
-        "causativeStem": "akitia",
-        "matchedDirect": "akitia",
-        "expectedNonactiveSet": [
-          "akitilu"
-        ],
-        "actualNonactiveSet": [
-          "akitilu"
-        ],
-        "actualMergedNonactiveSet": [
-          "akitilu"
-        ],
-        "ok": true
-      },
       {
         "source": "-ayi",
         "causativeStem": "ayiltia",
@@ -313,6 +298,21 @@
         ],
         "actualMergedNonactiveSet": [
           "matiltilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "miki",
+        "causativeStem": "miktia",
+        "matchedDirect": "-miktia",
+        "expectedNonactiveSet": [
+          "miktilu"
+        ],
+        "actualNonactiveSet": [
+          "miktilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "miktilu"
         ],
         "ok": true
       }
