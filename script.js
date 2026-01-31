@@ -2323,6 +2323,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (!allowedSuffixes.includes(option.suffix)) {
                 return;
             }
+            if (isIntransitive && info.endsWithWi) {
+                const wiSyllableCount = info.nonRedupSyllableCount || info.syllableCount;
+                const wiCluster = info.endsWithConsonantCluster;
+                if (wiCluster && option.suffix === "uwa") {
+                    return;
+                }
+                if (!wiCluster && wiSyllableCount >= 3 && option.suffix === "uwa") {
+                    return;
+                }
+                if (!wiCluster && wiSyllableCount === 2 && option.suffix === "wa") {
+                    return;
+                }
+            }
             if (forceUwaOnly && option.suffix === "wa") {
                 return;
             }
