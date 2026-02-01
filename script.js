@@ -1280,7 +1280,8 @@ function createsConsonantClusterAfterFinalDeletion(verb) {
     if (letters.length < 3) {
         return false;
     }
-    const base = letters.slice(0, -1);
+    const dropTwo = endsWithAny(verb, IA_UA_SUFFIXES);
+    const base = dropTwo ? letters.slice(0, -2) : letters.slice(0, -1);
     if (base.length < 2) {
         return false;
     }
@@ -2956,16 +2957,20 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         const onsetIndex = letters.length - 2;
         const lastNucleus = letters[nucleusIndex];
         const lastOnset = onsetIndex >= 0 ? letters[onsetIndex] : "";
-        if (!isRootPlusYa && !isDirectClassD) {
+        const blockReplaciveForCluster = info.isClassC && clusterAfterDeletion;
+        if (!isRootPlusYa && !isDirectClassD && !blockReplaciveForCluster) {
             if (lastOnset === "tz") {
                 letters[onsetIndex] = "ch";
             } else if (lastOnset === "t") {
-                letters[onsetIndex] = "ch";
+                const prevLetter = letters[onsetIndex - 1] || "";
+                if (!isVerbLetterConsonant(prevLetter)) {
+                    letters[onsetIndex] = "ch";
+                }
             } else if (lastOnset === "s") {
                 letters[onsetIndex] = "sh";
             }
         }
-        if (lastNucleus === "a" && !isDirectClassD && !blockReplaciveNucleus) {
+        if (lastNucleus === "a" && !isDirectClassD && !blockReplaciveNucleus && !blockReplaciveForCluster) {
             letters[nucleusIndex] = "i";
         }
         const adjustedBase = `${letters.join("")}${coda}`;
