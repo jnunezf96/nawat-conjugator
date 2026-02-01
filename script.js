@@ -2017,7 +2017,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         return [];
     }
     const rules = DERIVATIONAL_RULES?.causative || {};
-    const isTransitive = options.isTransitive === true;
+    const isTransitive = options.isTransitive === true || options.hasLeadingDash === true;
     const isIntransitive = options.isTransitive === false ? true : !isTransitive;
     const neutralCausative = VALENCE_NEUTRAL_RULES?.intransitiveToCausative || {};
     const neutralVerbs = Array.isArray(neutralCausative?.verbs)
@@ -2361,7 +2361,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (!allowedSuffixes.includes(option.suffix)) {
                 return;
             }
-            if (isRootPlusYa && option.suffix === "lu" && option.stem && option.stem.endsWith("yalu")) {
+            if (isRootPlusYa && option.suffix === "lu" && option.stem === `${ruleBase}lu`) {
                 return;
             }
             if (option.suffix === "wa" && uwaClusterBase) {
@@ -2770,6 +2770,50 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         push(ruleBase, { type: "neutral", rule: "valence-neutral" });
         return results;
     }
+    const rootPlusYaBase = typeof options.rootPlusYaBase === "string" ? options.rootPlusYaBase : "";
+    const isRootPlusYa = Boolean(rootPlusYaBase)
+        || options.parsedVerb?.isRootPlusYa === true
+        || options.parsedVerb?.rootPlusYaBase;
+    const inferWiStockFormative = (baseStem) => {
+        if (!baseStem) {
+            return "";
+        }
+        const rootBase = getNonReduplicatedRoot(baseStem) || baseStem;
+        const letters = splitVerbLetters(rootBase);
+        if (!letters.length) {
+            return "";
+        }
+        if (letters[letters.length - 1] === "l") {
+            return "i";
+        }
+        for (let i = letters.length - 1; i >= 0; i -= 1) {
+            const letter = letters[i];
+            if (!isVerbLetterVowel(letter)) {
+                continue;
+            }
+            if (letter === "e" || letter === "a") {
+                return "i";
+            }
+            if (letter === "i" || letter === "u") {
+                return "a";
+            }
+            return "";
+        }
+        return "";
+    };
+    const uaStockFormativeU = Array.isArray(rules?.uaStockFormativeU)
+        ? rules.uaStockFormativeU
+        : [];
+    const uaLia = Array.isArray(rules?.uaLia)
+        ? rules.uaLia
+        : [];
+    const uaLiaKeepYa = Array.isArray(rules?.uaLiaKeepYa)
+        ? rules.uaLiaKeepYa
+        : [];
+    const matchesUaStock = uaStockFormativeU.includes(ruleBase)
+        || (fullRuleBase && uaStockFormativeU.includes(fullRuleBase));
+    const matchesUaLia = uaLia.includes(ruleBase)
+        || (fullRuleBase && uaLia.includes(fullRuleBase));
     if (
         info.isClassC
         && (ruleBase.endsWith("ia") || ruleBase.endsWith("ua"))
@@ -2791,12 +2835,35 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
             return results;
         }
     }
+    if (isTransitive && (ruleBase.endsWith("ua") || matchesUaStock || matchesUaLia)) {
+        let baseStem = ruleBase.endsWith("ua") ? ruleBase.slice(0, -2) : ruleBase;
+        if (matchesUaLia) {
+            const keepYa = uaLiaKeepYa.includes(ruleBase)
+                || (fullRuleBase && uaLiaKeepYa.includes(fullRuleBase));
+            if (keepYa) {
+                baseStem = ruleBase;
+            } else if (ruleBase.endsWith("ya")) {
+                baseStem = ruleBase.slice(0, -2);
+            } else if (ruleBase.endsWith("ua")) {
+                baseStem = ruleBase.slice(0, -1);
+            } else if (ruleBase.endsWith("a")) {
+                baseStem = ruleBase.slice(0, -1);
+            }
+            push(`${baseStem}lia`, { type: "class-c", rule: "class-c-ua-lia" });
+            return results;
+        }
+        const stockFormative = matchesUaStock ? "u" : inferWiStockFormative(baseStem);
+        if (stockFormative) {
+            push(
+                `${baseStem}${stockFormative}lwia`,
+                { type: "class-c", rule: "class-c-ua-stock-formative" },
+            );
+            return results;
+        }
+    }
     const syllableCount = info.nonRedupSyllableCount || info.syllableCount;
     const isDirectClassD = syllableCount === 1;
-    const rootPlusYaBase = typeof options.rootPlusYaBase === "string" ? options.rootPlusYaBase : "";
-    const isRootPlusYa = Boolean(rootPlusYaBase)
-        || options.parsedVerb?.isRootPlusYa === true
-        || options.parsedVerb?.rootPlusYaBase;
+    const blockReplaciveNucleus = isRootPlusYa || (isTransitive && ruleBase.endsWith("ya"));
     const nonRedupRoot = getNonReduplicatedRoot(ruleBase);
     const clusterBase = nonRedupRoot || ruleBase;
     const clusterAfterDeletion = createsConsonantClusterAfterFinalDeletion(clusterBase);
@@ -2828,7 +2895,8 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
     });
     let luOptions = nonactiveOptions.filter((option) => option.suffix === "lu" && option.stem);
     if (isRootPlusYa) {
-        luOptions = luOptions.filter((option) => !(option.stem && option.stem.endsWith("yalu")));
+        const retainedYaStem = `${ruleBase}lu`;
+        luOptions = luOptions.filter((option) => option.stem !== retainedYaStem);
     }
     if (isIntransitive && info.endsWithU) {
         const uRules = DERIVATIONAL_RULES?.causative?.intransitiveEndsWithU || {};
@@ -2888,7 +2956,7 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         const onsetIndex = letters.length - 2;
         const lastNucleus = letters[nucleusIndex];
         const lastOnset = onsetIndex >= 0 ? letters[onsetIndex] : "";
-        if (!isRootPlusYa) {
+        if (!isRootPlusYa && !isDirectClassD) {
             if (lastOnset === "tz") {
                 letters[onsetIndex] = "ch";
             } else if (lastOnset === "t") {
@@ -2896,9 +2964,9 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
             } else if (lastOnset === "s") {
                 letters[onsetIndex] = "sh";
             }
-            if (lastNucleus === "a" && !isDirectClassD) {
-                letters[nucleusIndex] = "i";
-            }
+        }
+        if (lastNucleus === "a" && !isDirectClassD && !blockReplaciveNucleus) {
+            letters[nucleusIndex] = "i";
         }
         const adjustedBase = `${letters.join("")}${coda}`;
         push(`${adjustedBase}ia`, { type: "type-two", rule: "nonactive-lu" });
@@ -3054,15 +3122,34 @@ function getBaseObjectSlots(verbMeta) {
             baseSlots = verbMeta.hasLeadingDash ? 1 : 0;
         }
     }
-    const delta = Number.isFinite(verbMeta.derivationValencyDelta)
-        ? verbMeta.derivationValencyDelta
-        : 0;
+    const delta = getEffectiveDerivationValencyDelta(verbMeta);
     const inferredDelta = delta ? 0 : getInferredCausativeValencyDelta(verbMeta);
     const totalDelta = delta + inferredDelta;
     if (!totalDelta) {
         return baseSlots;
     }
     return Math.max(0, Math.min(2, baseSlots + totalDelta));
+}
+
+function getDirectActiveObjectSlots(verbMeta) {
+    if (!verbMeta) {
+        return 0;
+    }
+    const currentSlots = getBaseObjectSlots(verbMeta);
+    const delta = getEffectiveDerivationValencyDelta(verbMeta);
+    return Math.max(0, Math.min(2, currentSlots - delta));
+}
+
+function getValencyFromDirectActive(verbMeta) {
+    const directActiveSlots = getDirectActiveObjectSlots(verbMeta);
+    const delta = getEffectiveDerivationValencyDelta(verbMeta);
+    const activeSlots = Math.max(0, Math.min(2, directActiveSlots + delta));
+    const nonactiveSlots = Math.max(0, activeSlots - 1);
+    return {
+        directActiveSlots,
+        activeSlots,
+        nonactiveSlots,
+    };
 }
 
 function getFusionObjectSlots(verbMeta) {
@@ -3091,13 +3178,14 @@ function getActiveVerbValency(verbMeta) {
 }
 
 function getVerbValencySummary(verbMeta) {
-    const baseObjectSlots = getBaseObjectSlots(verbMeta);
+    const valency = getValencyFromDirectActive(verbMeta);
+    const baseObjectSlots = valency.activeSlots;
     const fusionObjectSlots = getFusionObjectSlots(verbMeta);
     const embeddedSlots = Number.isFinite(verbMeta?.embeddedValenceCount) ? verbMeta.embeddedValenceCount : 0;
     const availableObjectSlots = Math.max(0, baseObjectSlots - fusionObjectSlots - embeddedSlots);
     const baseValency = baseObjectSlots + 1;
     const nonactiveValency = Math.max(0, baseValency - 1);
-    const nonactiveObjectSlots = Math.max(0, baseObjectSlots - 1 - fusionObjectSlots - embeddedSlots);
+    const nonactiveObjectSlots = Math.max(0, valency.nonactiveSlots - fusionObjectSlots - embeddedSlots);
     return {
         baseObjectSlots,
         fusionObjectSlots,
@@ -3105,6 +3193,7 @@ function getVerbValencySummary(verbMeta) {
         baseValency,
         nonactiveValency,
         nonactiveObjectSlots,
+        directActiveObjectSlots: valency.directActiveSlots,
     };
 }
 
@@ -5579,6 +5668,9 @@ function applyConjugationRowClasses(row, objectPrefix) {
 // === Prefix Selection ===
 function applyIndirectObjectMarker(prefix, marker) {
     if (!marker) {
+        return prefix;
+    }
+    if (SPECIFIC_VALENCE_PREFIX_SET.has(marker)) {
         return prefix;
     }
     if (prefix === marker) {
@@ -13225,6 +13317,17 @@ function getDerivationValencyDelta(type) {
     return 0;
 }
 
+function getEffectiveDerivationValencyDelta(verbMeta) {
+    if (!verbMeta) {
+        return 0;
+    }
+    if (Number.isFinite(verbMeta.derivationValencyDelta)) {
+        return verbMeta.derivationValencyDelta;
+    }
+    const type = verbMeta.derivationType || "";
+    return getDerivationValencyDelta(type);
+}
+
 function getSelectedNonactiveSuffix() {
     return NONACTIVE_SUFFIX_STATE.selected;
 }
@@ -15489,26 +15592,27 @@ function buildVerbTenseBlock({
     const intransitiveLabel = getVerbBlockLabel("intransitive", isNawat, "verbo intransitivo");
     const passiveLabel = getVerbBlockLabel("passive", isNawat, "pasivo");
     const impersonalLabel = getVerbBlockLabel("impersonal", isNawat, "impersonal");
-    const groupValenceLabel = getObjectValenceLabelForGroup(prefixes, isNawat);
+    const labelValency = Number.isFinite(activeValency)
+        ? (isNonactiveMode ? Math.max(0, activeValency - 1) : activeValency)
+        : null;
+    const valencyLabel = Number.isFinite(labelValency) ? `valencia total: ${labelValency}` : "";
     const buildBlockLabel = (prefix) => {
         if (embeddedObjectFilled) {
-            return transitiveLabel;
+            const baseLabel = transitiveLabel;
+            return valencyLabel ? `${baseLabel} · ${valencyLabel}` : baseLabel;
         }
         if (isIntransitiveGroup) {
-            return intransitiveLabel;
+            const baseLabel = intransitiveLabel;
+            return valencyLabel ? `${baseLabel} · ${valencyLabel}` : baseLabel;
         }
-        const valenceLabel = (!prefix || prefix === OBJECT_TOGGLE_ALL)
-            ? groupValenceLabel
-            : getObjectValenceLabel(prefix, isNawat);
-        return valenceLabel ? `${transitiveLabel} · ${valenceLabel}` : transitiveLabel;
+        const baseLabel = transitiveLabel;
+        return valencyLabel ? `${baseLabel} · ${valencyLabel}` : baseLabel;
     };
     const tenseTitle = document.createElement("div");
     tenseTitle.className = "tense-block__title";
     const titleLabel = document.createElement("span");
     titleLabel.className = "tense-block__label";
-    if (!isNonactiveMode) {
-        titleLabel.textContent = buildBlockLabel(activeObjectPrefix);
-    }
+    titleLabel.textContent = buildBlockLabel(activeObjectPrefix);
     tenseTitle.appendChild(titleLabel);
     const titleControls = document.createElement("div");
     titleControls.className = "tense-block__controls";
@@ -15684,9 +15788,7 @@ function buildVerbTenseBlock({
         objectSelections.forEach((objectPrefix) => {
             subjectSelections.forEach(({ group, selection }) => {
             indirectSelections.forEach((indirectMarker) => {
-            const effectiveIndirectMarker = SPECIFIC_VALENCE_PREFIX_SET.has(indirectMarker)
-                ? ""
-                : indirectMarker;
+            const effectiveIndirectMarker = indirectMarker;
             const row = document.createElement("div");
             row.className = "conjugation-row";
             applyConjugationRowClasses(row, objectPrefix);
@@ -15912,10 +16014,10 @@ function buildVerbTabRenderContext({
     const parsedVerb = getParsedVerbForTab(modeKey || "verb", verb);
     const forceDefaultTodosKi = parsedVerb.hasConsecutiveSpecificValences;
     const nonactiveConfig = isNonactiveMode ? getNonactiveObjectPrefixGroups(parsedVerb) : null;
-    const valencySummary = isNonactiveMode ? getVerbValencySummary(parsedVerb) : null;
-    const activeValency = isNonactiveMode ? valencySummary.baseValency : 1;
-    const nonactiveAvailableSlots = valencySummary ? valencySummary.nonactiveObjectSlots : 0;
-    const hasPromotableObject = valencySummary
+    const valencySummary = getVerbValencySummary(parsedVerb);
+    const activeValency = valencySummary.baseValency;
+    const nonactiveAvailableSlots = isNonactiveMode ? valencySummary.nonactiveObjectSlots : 0;
+    const hasPromotableObject = isNonactiveMode
         ? valencySummary.baseObjectSlots > valencySummary.fusionObjectSlots
         : false;
     const embeddedObjectFilled = parsedVerb.embeddedValenceCount > 0
@@ -15928,7 +16030,7 @@ function buildVerbTabRenderContext({
     const allowIndirectObjectToggle = !isNonactiveMode
         && (
             (derivationType === DERIVATION_TYPE.causative || derivationType === DERIVATION_TYPE.applicative)
-                && getBaseObjectSlots(parsedVerb) > 1
+                && getAvailableObjectSlots(parsedVerb) > 1
         );
     const allowIndirectFromDash = parsedVerb.hasDoubleDash === true;
     const allowIndirectObjectToggleFinal = allowIndirectObjectToggle || allowIndirectFromDash;

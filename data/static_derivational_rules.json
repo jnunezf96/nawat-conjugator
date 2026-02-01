@@ -90,6 +90,7 @@
             "tanawi",
             "tumawi",
             "kusawi",
+            "sepuwi",
             "mawi"
           ]
         },
@@ -114,7 +115,10 @@
       "valenceNeutralPairs": {
         "verbs": ["wetzka", "mayana"],
         "suffixes": ["miki", "siwi"]
-      }
+      },
+      "uaStockFormativeU": ["tapua", "kukua", "sakamua"],
+      "uaLia": ["temua", "yukuya", "namuya"],
+      "uaLiaKeepYa": ["namuya"]
     }
   },
   "docs": {
