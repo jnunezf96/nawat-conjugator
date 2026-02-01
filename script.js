@@ -2295,6 +2295,40 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         });
         const hasNonactiveSuffix = (suffix) => nonactiveOptions.some((option) => option.suffix === suffix);
         const typeTwoOptions = [...nonactiveOptions];
+        const endsWithCluster = (stem) => {
+            if (!stem) {
+                return false;
+            }
+            const letters = splitVerbLetters(stem);
+            if (letters.length < 2) {
+                return false;
+            }
+            const last = letters[letters.length - 1];
+            const prev = letters[letters.length - 2];
+            return isVerbLetterConsonant(last) && isVerbLetterConsonant(prev);
+        };
+        const getClusterBaseStem = (stem) => {
+            if (!stem) {
+                return "";
+            }
+            const nonRedup = getNonReduplicatedRoot(stem);
+            return nonRedup && nonRedup !== stem ? nonRedup : stem;
+        };
+        const uwaClusterBase = (() => {
+            const uwaOption = typeTwoOptions.find((option) => option.suffix === "uwa");
+            if (!uwaOption || !uwaOption.stem) {
+                return "";
+            }
+            if (!uwaOption.stem.endsWith("uwa")) {
+                return "";
+            }
+            let baseStem = uwaOption.stem.slice(0, -3);
+            if (info.endsWithNi && baseStem.endsWith("u")) {
+                baseStem = baseStem.slice(0, -1);
+            }
+            const clusterStem = getClusterBaseStem(baseStem);
+            return endsWithCluster(clusterStem) ? clusterStem : "";
+        })();
         if (forceUwaOnly && !typeTwoOptions.some((option) => option.suffix === "uwa")) {
             const uwaStem = buildNonactiveUwaStem(ruleBase, info.lastOnset, info.lastNucleus, {
                 blockCh: info.penultimateHasCoda,
@@ -2325,6 +2359,12 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
 
         typeTwoOptions.forEach((option) => {
             if (!allowedSuffixes.includes(option.suffix)) {
+                return;
+            }
+            if (isRootPlusYa && option.suffix === "lu" && option.stem && option.stem.endsWith("yalu")) {
+                return;
+            }
+            if (option.suffix === "wa" && uwaClusterBase) {
                 return;
             }
             if (isIntransitive && info.endsWithWi) {
@@ -2399,21 +2439,18 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 suffix = "ia";
             }
             if (["u", "uwa"].includes(option.suffix) && suffix === typeTwoSuffix) {
-                const nonRedupBaseStem = baseStem ? getNonReduplicatedRoot(baseStem) : "";
-                const clusterStem = nonRedupBaseStem && nonRedupBaseStem !== baseStem
-                    ? nonRedupBaseStem
-                    : baseStem;
-                if (createsConsonantClusterAfterFinalDeletion(clusterStem)) {
+                const clusterStem = getClusterBaseStem(baseStem);
+                if (endsWithCluster(clusterStem)) {
                     suffix = `i${suffix}`;
                 }
             }
             if (option.suffix === "uwa" && suffix.endsWith(typeTwoSuffix) && info.lastOnset === "w") {
                 suffix = `w${suffix}`;
             }
-            if (option.suffix === "lu" && isRootPlusYa && rootPlusYaBase) {
-                const rootStem = `${rootPlusYaBase}l`;
-                push(`${rootStem}ia`, { type: "type-two", rule: "root-plus-ya-lia" });
-            }
+        if (option.suffix === "lu" && isRootPlusYa && rootPlusYaBase) {
+            const rootStem = `${rootPlusYaBase}l`;
+            push(`${rootStem}ia`, { type: "type-two", rule: "root-plus-ya-lia" });
+        }
             if (option.suffix === "lu" && rootPlusYaBase && (rootPlusYaBase.endsWith("ti") || rootPlusYaBase.endsWith("wi"))) {
                 const rootStem = `${rootPlusYaBase}l`;
                 push(`${rootStem}ia`, { type: "type-two", rule: "root-plus-ya-tiwi-lia" });
@@ -2638,6 +2675,324 @@ function applyCausativeDerivation({
         isYawi: false,
         causativeAllStems,
         noCausativeStem: false,
+        suppletiveStemSet,
+    };
+}
+
+function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
+    const source = verb || analysisVerb;
+    const ruleBase = getCanonicalRuleBaseFromOptions(source, options);
+    const fullRuleBase = options.canonicalFullRuleBase
+        || (options.parsedVerb && options.parsedVerb.canonicalFullRuleBase)
+        || (options.parsedVerb && options.parsedVerb.canonical && options.parsedVerb.canonical.fullRuleBase)
+        || (options.verbMeta && options.verbMeta.canonicalFullRuleBase)
+        || (options.verbMeta && options.verbMeta.canonical && options.verbMeta.canonical.fullRuleBase)
+        || normalizeRuleBase(options.fullRuleBase || "");
+    if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
+        return [];
+    }
+    const isTransitive = options.isTransitive === true;
+    const isIntransitive = options.isTransitive === false ? true : !isTransitive;
+    const rules = DERIVATIONAL_RULES?.applicative || {};
+    const info = getNonactiveBaseInfo(ruleBase);
+    const extractExampleBases = (examples) => (
+        Array.isArray(examples)
+            ? examples.map((entry) => String(entry || "").split("->")[0].trim()).filter(Boolean)
+            : []
+    );
+    const results = [];
+    const seen = new Set();
+    const push = (stem, meta = {}) => {
+        if (!stem) {
+            return;
+        }
+        const key = stem;
+        if (seen.has(key)) {
+            return;
+        }
+        seen.add(key);
+        results.push({ stem, ...meta });
+    };
+    const normalizeExceptionStems = (list) => (
+        Array.isArray(list)
+            ? list.map((stem) => String(stem || "").replace(/^-+/, "")).filter(Boolean)
+            : []
+    );
+    const matchesExceptionBase = (base, entry) => {
+        if (!base) {
+            return false;
+        }
+        const applyToPrefixes = entry?.applyToPrefixes === true;
+        if (ruleBase === base || fullRuleBase === base) {
+            return true;
+        }
+        if (!applyToPrefixes) {
+            return false;
+        }
+        return ruleBase.endsWith(base) || (fullRuleBase && fullRuleBase.endsWith(base));
+    };
+    const exceptions = rules.exceptions && typeof rules.exceptions === "object"
+        ? rules.exceptions
+        : {};
+    for (const [key, entry] of Object.entries(exceptions)) {
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+        const base = entry.base || key;
+        if (!matchesExceptionBase(base, entry)) {
+            continue;
+        }
+        const directStems = normalizeExceptionStems(entry.directStems);
+        const applicativeStems = normalizeExceptionStems(entry.applicativeStems);
+        const singleStem = typeof entry.applicativeStem === "string"
+            ? entry.applicativeStem.replace(/^-+/, "")
+            : "";
+        directStems.forEach((stem) => push(stem, { type: "exception", rule: "direct" }));
+        applicativeStems.forEach((stem) => push(stem, { type: "exception", rule: "applicative" }));
+        if (singleStem) {
+            push(singleStem, { type: "exception", rule: "applicative" });
+        }
+        return results;
+    }
+    const valenceNeutral = rules.valenceNeutralPairs || {};
+    const neutralVerbs = Array.isArray(valenceNeutral?.verbs) ? valenceNeutral.verbs : [];
+    const neutralSuffixes = Array.isArray(valenceNeutral?.suffixes) ? valenceNeutral.suffixes : [];
+    const matchesNeutralSuffix = (base) => neutralSuffixes.some((suffix) => (
+        suffix
+        && base.endsWith(suffix)
+        && base.length > suffix.length
+    ));
+    const isNeutral = neutralVerbs.includes(ruleBase)
+        || (fullRuleBase && neutralVerbs.includes(fullRuleBase))
+        || matchesNeutralSuffix(ruleBase)
+        || (fullRuleBase && matchesNeutralSuffix(fullRuleBase));
+    if (isIntransitive && isNeutral) {
+        push(ruleBase, { type: "neutral", rule: "valence-neutral" });
+        return results;
+    }
+    if (
+        info.isClassC
+        && (ruleBase.endsWith("ia") || ruleBase.endsWith("ua"))
+    ) {
+        const syllables = splitVerbSyllables(ruleBase);
+        let lastCoda = "";
+        for (let i = syllables.length - 1; i >= 0; i -= 1) {
+            if (syllables[i]?.coda) {
+                lastCoda = syllables[i].coda;
+                break;
+            }
+        }
+        if (lastCoda === "l") {
+            push(`${ruleBase.slice(0, -2)}wia`, { type: "class-c", rule: "class-c-l-wia" });
+            return results;
+        }
+        if (!lastCoda && isIntransitive) {
+            push(`${ruleBase.slice(0, -2)}ilwia`, { type: "class-c", rule: "class-c-ilwia" });
+            return results;
+        }
+    }
+    const syllableCount = info.nonRedupSyllableCount || info.syllableCount;
+    const isDirectClassD = syllableCount === 1;
+    const rootPlusYaBase = typeof options.rootPlusYaBase === "string" ? options.rootPlusYaBase : "";
+    const isRootPlusYa = Boolean(rootPlusYaBase)
+        || options.parsedVerb?.isRootPlusYa === true
+        || options.parsedVerb?.rootPlusYaBase;
+    const nonRedupRoot = getNonReduplicatedRoot(ruleBase);
+    const clusterBase = nonRedupRoot || ruleBase;
+    const clusterAfterDeletion = createsConsonantClusterAfterFinalDeletion(clusterBase);
+    const allowIntransitive = info.endsWithNucleusA
+        || (info.endsWithNucleusI && info.lastOnset === "w")
+        || clusterAfterDeletion;
+    const allowTypeOne = (isTransitive || allowIntransitive)
+        && !info.isClassC
+        && !isRootPlusYa
+        && (!isDirectClassD || ruleBase.endsWith("kwi"))
+        && (info.lastOnset !== "k" || clusterAfterDeletion)
+        && !(isIntransitive && info.endsWithU)
+        && !(isTransitive && info.lastOnset === "y");
+    if (allowTypeOne) {
+        const dropped = dropFinalVowel(ruleBase);
+        if (dropped) {
+            let stemBase = dropped;
+            if (stemBase.endsWith("tz")) {
+                stemBase = `${stemBase.slice(0, -2)}ch`;
+            }
+            push(`${stemBase}ia`, { type: "type-one", rule: "drop-final-vowel" });
+        }
+    }
+    const nonactiveOptions = getNonactiveDerivationOptions(ruleBase, ruleBase, {
+        isTransitive,
+        isYawi: options.isYawi === true,
+        ruleBase,
+        rootPlusYaBase,
+    });
+    let luOptions = nonactiveOptions.filter((option) => option.suffix === "lu" && option.stem);
+    if (isRootPlusYa) {
+        luOptions = luOptions.filter((option) => !(option.stem && option.stem.endsWith("yalu")));
+    }
+    if (isIntransitive && info.endsWithU) {
+        const uRules = DERIVATIONAL_RULES?.causative?.intransitiveEndsWithU || {};
+        const waRules = uRules?.nonactiveWa?.typeTwo || {};
+        const additionBases = Array.isArray(waRules?.addition?.verbs)
+            ? waRules.addition.verbs
+            : extractExampleBases(waRules?.addition?.examples);
+        const replacementBases = Array.isArray(waRules?.replacement?.verbs)
+            ? waRules.replacement.verbs
+            : extractExampleBases(waRules?.replacement?.examples);
+        const matchBase = (baseList) => baseList.includes(ruleBase)
+            || (fullRuleBase && baseList.includes(fullRuleBase));
+        const hasNonactiveWa = nonactiveOptions.some((option) => option.suffix === "wa");
+        if (hasNonactiveWa) {
+            const useAddition = additionBases.length ? matchBase(additionBases) : true;
+            const useReplacement = replacementBases.length ? matchBase(replacementBases) : true;
+            if (useAddition) {
+                push(`${ruleBase}wia`, { type: "type-two", rule: "u-wa-wia" });
+            }
+            if (useReplacement) {
+                push(`${ruleBase.slice(0, -1)}awia`, { type: "type-two", rule: "u-wa-wia-replace" });
+            }
+        }
+        if (luOptions.length) {
+            luOptions.forEach((option) => {
+                let baseStem = option.stem;
+                if (baseStem.endsWith("lu")) {
+                    baseStem = baseStem.slice(0, -1);
+                }
+                if (baseStem) {
+                    push(`${baseStem}tia`, { type: "type-two", rule: "u-lu-tia" });
+                }
+            });
+        }
+        return results;
+    }
+    if (!luOptions.length && isIntransitive && info.endsWithNucleusI) {
+        luOptions = [{ suffix: "lu", stem: `${ruleBase}lu` }];
+    }
+    luOptions.forEach((option) => {
+        let baseStem = option.stem;
+        if (baseStem.endsWith("lu")) {
+            baseStem = baseStem.slice(0, -1);
+        }
+        const letters = splitVerbLetters(baseStem);
+        if (!letters.length) {
+            return;
+        }
+        let coda = "";
+        if (isVerbLetterConsonant(letters[letters.length - 1])) {
+            coda = letters.pop();
+        }
+        if (!letters.length) {
+            return;
+        }
+        const nucleusIndex = letters.length - 1;
+        const onsetIndex = letters.length - 2;
+        const lastNucleus = letters[nucleusIndex];
+        const lastOnset = onsetIndex >= 0 ? letters[onsetIndex] : "";
+        if (!isRootPlusYa) {
+            if (lastOnset === "tz") {
+                letters[onsetIndex] = "ch";
+            } else if (lastOnset === "t") {
+                letters[onsetIndex] = "ch";
+            } else if (lastOnset === "s") {
+                letters[onsetIndex] = "sh";
+            }
+            if (lastNucleus === "a" && !isDirectClassD) {
+                letters[nucleusIndex] = "i";
+            }
+        }
+        const adjustedBase = `${letters.join("")}${coda}`;
+        push(`${adjustedBase}ia`, { type: "type-two", rule: "nonactive-lu" });
+    });
+    return results;
+}
+
+function applyApplicativeDerivation({
+    isApplicative,
+    verb,
+    analysisVerb,
+    objectPrefix,
+    parsedVerb,
+    directionalPrefix,
+    isYawi,
+    suppletiveStemSet,
+}) {
+    if (!isApplicative) {
+        return {
+            verb,
+            analysisVerb,
+            isYawi,
+            applicativeAllStems: null,
+            noApplicativeStem: false,
+            suppletiveStemSet,
+        };
+    }
+    suppletiveStemSet = null;
+    const canonicalRuleBase = parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || "";
+    const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase || parsedVerb?.canonical?.fullRuleBase || "";
+    const applicativeSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
+    const ruleBase = canonicalRuleBase
+        || getNonactiveRuleBase(applicativeSource.baseVerb, parsedVerb);
+    const fullRuleBase = canonicalFullRuleBase || applicativeSource.baseVerb || "";
+    const explicitSlots = Number.isFinite(parsedVerb.totalValenceSlotCount)
+        ? Math.max(0, Math.min(2, parsedVerb.totalValenceSlotCount))
+        : 0;
+    const baseSlots = explicitSlots > 0
+        ? explicitSlots
+        : Math.max(0, getBaseObjectSlots(parsedVerb) - (parsedVerb.derivationValencyDelta || 0));
+    let baseIsTransitive = baseSlots > 0;
+    if (
+        !baseIsTransitive
+        && BASIC_DATA_CANONICAL_MAP.size
+        && (canonicalFullRuleBase || canonicalRuleBase)
+        && (
+            parsedVerb.hasBoundMarker
+            || parsedVerb.hasSlashMarker
+            || parsedVerb.hasSuffixSeparator
+            || parsedVerb.hasCompoundMarker
+        )
+    ) {
+        const key = String(canonicalFullRuleBase || canonicalRuleBase).toLowerCase();
+        const info = BASIC_DATA_CANONICAL_MAP.get(key);
+        if (info && info.transitive && !info.intransitive) {
+            baseIsTransitive = true;
+        }
+    }
+    const options = getApplicativeDerivationOptions(ruleBase, ruleBase, {
+        isTransitive: baseIsTransitive,
+        ruleBase,
+        fullRuleBase,
+        canonicalRuleBase,
+        canonicalFullRuleBase,
+        hasLeadingDash: parsedVerb?.hasLeadingDash === true,
+        rootPlusYaBase: parsedVerb?.rootPlusYaBase || "",
+        parsedVerb,
+    });
+    if (!options.length) {
+        return {
+            verb,
+            analysisVerb,
+            isYawi,
+            applicativeAllStems: null,
+            noApplicativeStem: true,
+            suppletiveStemSet,
+        };
+    }
+    const prefix = applicativeSource.prefix || "";
+    const applicativeAllStems = options.map((option) => (prefix ? `${prefix}${option.stem}` : option.stem));
+    const preferred = options.find((option) => option.preferred);
+    const selectedStem = preferred
+        ? (prefix ? `${prefix}${preferred.stem}` : preferred.stem)
+        : (applicativeAllStems[0] || verb);
+    let nextAnalysis = selectedStem;
+    if (directionalPrefix && selectedStem.startsWith(directionalPrefix)) {
+        nextAnalysis = selectedStem.slice(directionalPrefix.length);
+    }
+    return {
+        verb: selectedStem,
+        analysisVerb: nextAnalysis,
+        isYawi: false,
+        applicativeAllStems,
+        noApplicativeStem: false,
         suppletiveStemSet,
     };
 }
@@ -5226,7 +5581,7 @@ function applyIndirectObjectMarker(prefix, marker) {
     if (!marker) {
         return prefix;
     }
-    if (OBJECT_MARKERS.has(prefix)) {
+    if (prefix === marker) {
         return prefix;
     }
     return `${prefix}${marker}`;
@@ -7876,7 +8231,7 @@ function getPretUniversalPrefixForBase(
     const baseCore = split.base;
     if (!split.directional) {
         let adjustedObjectPrefix = objectPrefix;
-        if (adjustedObjectPrefix === "k" && baseCore.startsWith("k")) {
+        if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
             adjustedObjectPrefix = "";
         }
         adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
@@ -7900,7 +8255,7 @@ function getPretUniversalPrefixForBase(
         };
     }
     let adjustedObjectPrefix = objectPrefix;
-    if (adjustedObjectPrefix === "k" && baseCore.startsWith("k")) {
+    if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
         adjustedObjectPrefix = "";
     }
     adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
@@ -8983,6 +9338,12 @@ function resolveDirectionalRuleMode(parsedVerb, options = {}) {
         return "";
     }
     const isNonactive = options.isNonactive === true;
+    const derivationType = Object.values(DERIVATION_TYPE).includes(options.derivationType)
+        ? options.derivationType
+        : (parsedVerb.derivationType || "");
+    const derivationDelta = Number.isFinite(parsedVerb.derivationValencyDelta)
+        ? parsedVerb.derivationValencyDelta
+        : getDerivationValencyDelta(derivationType);
     const hasSpecificValence = isNonactive
         ? parsedVerb.hasNonactiveSpecificValence
         : parsedVerb.hasSpecificValence;
@@ -8994,6 +9355,9 @@ function resolveDirectionalRuleMode(parsedVerb, options = {}) {
     }
     if (hasNonspecificValence) {
         return "nonspecific";
+    }
+    if (!isNonactive && derivationDelta > 0) {
+        return "transitive";
     }
     return "intransitive";
 }
@@ -12319,6 +12683,38 @@ function renderTenseTabs() {
             });
             suppletiveStemSet = causativeDerivation.suppletiveStemSet;
         }
+    } else if (derivationType === DERIVATION_TYPE.applicative) {
+        const applicativeDerivation = applyApplicativeDerivation({
+            isApplicative: true,
+            verb,
+            analysisVerb,
+            objectPrefix: getCurrentObjectPrefix(),
+            parsedVerb: verbMeta,
+            directionalPrefix: verbMeta.directionalPrefix,
+            isYawi: verbMeta.isYawi,
+            suppletiveStemSet,
+        });
+        if (applicativeDerivation.noApplicativeStem) {
+            availabilityTargets = [];
+        } else {
+            const stems = Array.isArray(applicativeDerivation.applicativeAllStems)
+                && applicativeDerivation.applicativeAllStems.length
+                ? applicativeDerivation.applicativeAllStems
+                : [applicativeDerivation.verb];
+            availabilityTargets = stems.map((stem) => {
+                let stemAnalysis = stem;
+                if (verbMeta.directionalPrefix && stem.startsWith(verbMeta.directionalPrefix)) {
+                    stemAnalysis = stem.slice(verbMeta.directionalPrefix.length);
+                }
+                return {
+                    verb: stem,
+                    analysisVerb: stemAnalysis,
+                    isYawi: applicativeDerivation.isYawi,
+                    isWeya: false,
+                };
+            });
+            suppletiveStemSet = applicativeDerivation.suppletiveStemSet;
+        }
     }
     const availability = PRETERITO_UNIVERSAL_ORDER.map((tenseValue) => {
         if (!hasVerb) {
@@ -13501,7 +13897,7 @@ function applyMorphologyRules({
     const elisionTarget = directionalInputPrefix === "ku"
         ? verb
         : (directionalInputPrefix ? analysisTarget : verb);
-    if (allowDirectionalElision && objectPrefix === "k" && elisionTarget.startsWith("k")) {
+    if (allowDirectionalElision && objectPrefix === "k" && elisionTarget.startsWith("k") && !marker) {
         objectPrefix = "";
     }
     const isTransitive = objectPrefix !== "" || forceTransitiveBase;
@@ -14219,12 +14615,16 @@ function generateWord(options = {}) {
     }
 
     const isCausative = resolvedDerivationType === DERIVATION_TYPE.causative;
+    const isApplicative = resolvedDerivationType === DERIVATION_TYPE.applicative;
     const isNonactive =
         resolvedTenseMode === TENSE_MODE.verbo && resolvedDerivationMode === DERIVATION_MODE.nonactive;
     if (isNonactive && PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = getSelectedTenseTab();
     }
-    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(parsedVerb, { isNonactive });
+    const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(parsedVerb, {
+        isNonactive,
+        derivationType: resolvedDerivationType,
+    });
     const causativeDerivation = applyCausativeDerivation({
         isCausative,
         verb,
@@ -14241,6 +14641,32 @@ function generateWord(options = {}) {
     let causativeAllStems = causativeDerivation.causativeAllStems;
     suppletiveStemSet = causativeDerivation.suppletiveStemSet;
     if (isCausative && causativeDerivation.noCausativeStem) {
+        if (!silent) {
+            renderAllOutputs({
+                verb: renderVerb,
+                objectPrefix: baseObjectPrefix,
+                tense,
+                onlyTense: renderOnlyTense,
+            });
+        }
+        return { result: "—", isReflexive };
+    }
+    const applicativeDerivation = applyApplicativeDerivation({
+        isApplicative,
+        verb,
+        analysisVerb,
+        objectPrefix,
+        parsedVerb,
+        directionalPrefix,
+        isYawi,
+        suppletiveStemSet,
+    });
+    verb = applicativeDerivation.verb;
+    analysisVerb = applicativeDerivation.analysisVerb;
+    isYawi = applicativeDerivation.isYawi;
+    let applicativeAllStems = applicativeDerivation.applicativeAllStems;
+    suppletiveStemSet = applicativeDerivation.suppletiveStemSet;
+    if (isApplicative && applicativeDerivation.noApplicativeStem) {
         if (!silent) {
             renderAllOutputs({
                 verb: renderVerb,
@@ -14673,6 +15099,13 @@ function generateWord(options = {}) {
         && causativeAllStems.length > 1
     ) {
         causativeAllStems.forEach((stem) => collectFormsForStem(stem));
+    } else if (
+        isApplicative
+        && !isNonactive
+        && Array.isArray(applicativeAllStems)
+        && applicativeAllStems.length > 1
+    ) {
+        applicativeAllStems.forEach((stem) => collectFormsForStem(stem));
     } else {
         const baseText = buildWord();
         forms.push(baseText);

@@ -93,6 +93,26 @@
         },
         "wiStockFormativeU": {}
       }
+    },
+    "applicative": {
+      "exceptions": {
+        "maka": {
+          "base": "maka",
+          "applyToPrefixes": true,
+          "directStems": ["-maka"],
+          "applicativeStems": ["--maka", "--makilia"]
+        },
+        "itzi": {
+          "base": "itzi",
+          "applyToPrefixes": true,
+          "applicativeStem": "-itta",
+          "perfectiveBase": "-itz"
+        }
+      },
+      "valenceNeutralPairs": {
+        "verbs": ["wetzka", "mayana"],
+        "suffixes": ["miki", "siwi"]
+      }
     }
   },
   "docs": {
