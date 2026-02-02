@@ -2259,8 +2259,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
 
     if (isIntransitive && !replacementOnlyMatch) {
         const destockal = rules.destockal || {};
-        const nonRedupRoot = getNonReduplicatedRoot(ruleBase);
-        const isReduplicated = info.endsWithWi && nonRedupRoot && nonRedupRoot !== ruleBase;
         const addWithOrder = (order, actions) => {
             (order || []).forEach((action) => {
                 const builder = actions[action];
@@ -2302,7 +2300,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "destockal-wa" });
         }
         if (destockal.wiStockFormative) {
-            if (!isReduplicated && !(replacementOnlyMatch && ruleBase.endsWith("wi"))) {
+            if (!(replacementOnlyMatch && ruleBase.endsWith("wi"))) {
                 const wiRules = destockal.wiStockFormative || {};
                 const blockVerbs = Array.isArray(wiRules.blockVerbs) ? wiRules.blockVerbs : [];
                 const allowPatterns = Array.isArray(wiRules.allowPatterns) ? wiRules.allowPatterns : [];
@@ -2464,7 +2462,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 if (!wiCluster && wiSyllableCount >= 3 && option.suffix === "uwa") {
                     return;
                 }
-                if (!isShortWi && !wiCluster && wiSyllableCount === 2 && option.suffix === "wa") {
+                if (!wiCluster && wiSyllableCount === 2 && option.suffix === "wa") {
                     return;
                 }
             }
@@ -8467,9 +8465,17 @@ function getPretUniversalPrefixForBase(
             adjustedObjectPrefix = "";
         }
         adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+        let adjustedBase = baseCore;
+        if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
+            if (adjustedBase.startsWith("kw")) {
+                adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
+            } else {
+                adjustedBase = adjustedBase.slice(1);
+            }
+        }
         return {
             prefix: subjectPrefix + adjustedObjectPrefix,
-            base: baseCore,
+            base: adjustedBase,
         };
     }
     const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
@@ -8491,9 +8497,17 @@ function getPretUniversalPrefixForBase(
         adjustedObjectPrefix = "";
     }
     adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+    let adjustedBase = baseCore;
+    if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
+        if (adjustedBase.startsWith("kw")) {
+            adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
+        } else {
+            adjustedBase = adjustedBase.slice(1);
+        }
+    }
     return {
         prefix: subjectHead + outputDirectional + adjustedObjectPrefix,
-        base: baseCore,
+        base: adjustedBase,
     };
 }
 
@@ -14182,6 +14196,13 @@ function applyMorphologyRules({
         alternateForms.push({ verb: rootPlusYaBaseResolved, subjectSuffix });
     }
     objectPrefix = applyIndirectObjectMarker(objectPrefix, marker);
+    if (objectPrefix.endsWith("k") && verb.startsWith("k")) {
+        if (verb.startsWith("kw")) {
+            objectPrefix = objectPrefix.slice(0, -1);
+        } else {
+            verb = verb.slice(1);
+        }
+    }
     return {
         subjectPrefix,
         objectPrefix,
@@ -16006,7 +16027,7 @@ function buildVerbTenseBlock({
             if (objectLabel || indirectLabel) {
                 const roleParts = [];
                 if (objectLabel) {
-                    const role = derivationType === DERIVATION_TYPE.applicative && indirectMarker
+                    const role = derivationType === DERIVATION_TYPE.applicative
                         ? "benefactive"
                         : "direct";
                     roleParts.push(`${getObjectRoleLabel(role, isNawat)} ${objectLabel}`.trim());
