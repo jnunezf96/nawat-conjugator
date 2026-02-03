@@ -55,7 +55,7 @@
   --te-bg: var(--te-bg-active);
   --reflexive-bg: var(--reflexive-bg-active);
   --font-size-adjust: -1px;
-  --font-size-base: calc(1.1rem + var(--font-size-adjust));
+  --font-size-base: calc(0.2rem + var(--font-size-adjust));
   --font-size-large: calc(2.6rem + var(--font-size-adjust));
   --placeholder-color: rgba(59, 51, 40, 0.55);
   --font-title: "Fraunces", serif;

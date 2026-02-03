@@ -2120,6 +2120,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 && tail[3] === "a"
                 && tail[4] === "w"
                 && tail[5] === "i";
+        case "VjC-i-wi":
+            return isVerbLetterVowel(tail[0])
+                && tail[1] === "j"
+                && isVerbLetterConsonant(tail[2])
+                && tail[3] === "i"
+                && tail[4] === "w"
+                && tail[5] === "i";
         case "CVl-i-wi":
             return isVerbLetterConsonant(tail[0])
                 && isVerbLetterVowel(tail[1])
@@ -2144,6 +2151,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     const replacementOnly = Array.isArray(rules?.intransitiveEndsWithI?.replacementOnly)
         ? rules.intransitiveEndsWithI.replacementOnly
         : [];
+    const blockTypeOneList = Array.isArray(rules?.intransitiveEndsWithI?.blockTypeOne)
+        ? rules.intransitiveEndsWithI.blockTypeOne
+        : [];
+    const blockTypeOneMatch = matchesDerivationRuleBaseList(
+        blockTypeOneList,
+        ruleBase,
+        fullRuleBase
+    );
     const replacementOnlyMatch = matchesDerivationRuleBaseList(
         replacementOnly,
         ruleBase,
@@ -2193,7 +2208,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         wiStockSuppressA = false;
     }
 
-    if (isIntransitive && info.endsWithI) {
+    if (isIntransitive && info.endsWithI && !blockTypeOneMatch) {
         const dropped = ruleBase.slice(0, -1);
         if (!wiStockSuppressA && (replacementOnly.length === 0 || replacementOnlyMatch || wiStockBlockMatch)) {
             push(`${dropped}a`, { type: "type-one", rule: "drop-final-i" });
@@ -2279,7 +2294,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 replaceFinalI: () => (ruleBase.endsWith("i") ? `${ruleBase.slice(0, -1)}a` : ""),
             });
         }
-        if (ruleBase.endsWith("wi") && destockal.wi) {
+        if (!blockTypeOneMatch && ruleBase.endsWith("wi") && destockal.wi) {
             const suppressDestockalWi = wiStockSuppressA || ruleBase.endsWith("uwi");
             if (!suppressDestockalWi && (!hasExplicitILists || allowExplicitI)) {
                 const order = Array.isArray(destockal.wi.prefer)
@@ -2452,13 +2467,9 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (isIntransitive && info.endsWithWi) {
                 const wiSyllableCount = info.nonRedupSyllableCount || info.syllableCount;
                 const wiCluster = info.endsWithConsonantCluster;
-                const isShortWi = wiSyllableCount <= 2;
-                if (isShortWi && option.suffix === "uwa") {
-                    return;
-                }
-                if (wiCluster && option.suffix === "uwa") {
-                    return;
-                }
+            if (wiCluster && option.suffix === "uwa") {
+                return;
+            }
                 if (!wiCluster && wiSyllableCount >= 3 && option.suffix === "uwa") {
                     return;
                 }
@@ -5805,13 +5816,53 @@ function applyIndirectObjectMarker(prefix, marker) {
     if (!marker) {
         return prefix;
     }
-    if (SPECIFIC_VALENCE_PREFIX_SET.has(marker)) {
-        return prefix;
+    if (SPECIFIC_VALENCE_PREFIX_SET.has(marker) || marker === "k") {
+        if (!prefix) {
+            return marker;
+        }
+        if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
+            return marker;
+        }
+        return `${prefix}${marker}`;
     }
     if (prefix === marker) {
         return prefix;
     }
     return `${prefix}${marker}`;
+}
+
+function resolveValencePositionPrefixes({
+    objectPrefix,
+    indirectObjectMarker,
+    derivationType,
+}) {
+    if (!indirectObjectMarker) {
+        return { objectPrefix, indirectObjectMarker };
+    }
+    const isApplicative = derivationType === DERIVATION_TYPE.applicative;
+    const isSpecific = (prefix) => SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k";
+    const isNonspecific = (prefix) => NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix);
+    const isReflexive = (prefix) => prefix === "mu";
+    if (isApplicative) {
+        if (isSpecific(indirectObjectMarker) || isReflexive(indirectObjectMarker)) {
+            indirectObjectMarker = "";
+        }
+        return { objectPrefix, indirectObjectMarker };
+    }
+    if (isSpecific(indirectObjectMarker)) {
+        if (isSpecific(objectPrefix) || isReflexive(objectPrefix)) {
+            objectPrefix = "";
+        }
+        return { objectPrefix, indirectObjectMarker };
+    }
+    if (isReflexive(indirectObjectMarker)) {
+        objectPrefix = "";
+        return { objectPrefix, indirectObjectMarker };
+    }
+    if (isSpecific(objectPrefix) || isReflexive(objectPrefix)) {
+        objectPrefix = "";
+    }
+    return { objectPrefix, indirectObjectMarker };
 }
 
 function getPreferredObjectPrefix(prefixes) {
@@ -6905,7 +6956,8 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const isExactCVCCVna = matchExact(matchesExactCVCCVna);
     const isExactCVCVCVna = matchExact(matchesExactCVCVCVna);
     const isExactCVCCVCVna = matchExact(matchesExactCVCCVCVna);
-    const isExactCVta = matchExact(matchesExactCVta);
+    const isExactCVta = matchExact(matchesExactCVta)
+        || (baseIsReduplicated && matchesExactCVta(rawSyllables, 0));
     const isExactCVtza = matchExact(matchesExactCVtza);
     const isExactVjCVtza = matchExact(matchesExactVjCVtza);
     const isExactCVnia = matchExact(matchesExactCVnia);
@@ -9791,6 +9843,7 @@ function applyWalDirectionalRule(context, rule, stage) {
         const hasSecondValent = Boolean(baseObjectPrefix || indirectObjectMarker || isTaFusion);
         const hasFirstValent = hasSubjectValent !== false;
         const isThirdPersonSubject = baseSubjectPrefix === "";
+        const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
         const shouldUseAl = forceTransitiveDirectional
             ? hasFirstValent
             : (forceNonspecificDirectional
@@ -9799,7 +9852,8 @@ function applyWalDirectionalRule(context, rule, stage) {
         let useAl = false;
         if (shouldUseAl) {
             const isThirdPersonObject =
-                baseObjectPrefix === "ki" || baseObjectPrefix === "kin" || baseObjectPrefix === "k";
+                isThirdPersonMarker(baseObjectPrefix)
+                || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
             if (baseSubjectPrefix === "ni") {
                 subjectPrefix = "n";
             } else if (baseSubjectPrefix === "ti") {
@@ -9818,7 +9872,10 @@ function applyWalDirectionalRule(context, rule, stage) {
     }
     if (stage === "post-elision" && verb.startsWith(directionalInputPrefix)) {
         const stem = verb.slice(directionalInputPrefix.length);
-        const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
+        const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
+        const isThirdPersonObject =
+            isThirdPersonMarker(baseObjectPrefix)
+            || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
         if (directionalInputPrefix === "wal" && isThirdPersonObject) {
             const dropK = baseSubjectPrefix === "ni"
                 || baseSubjectPrefix === "ti"
@@ -9925,6 +9982,10 @@ function parseStageDirectionalFusion(state) {
     state.directionalPrefixFromSlash = directionalPrefixFromSlash;
     if (directionalPrefixFromSlash === "wal" && verbParts[0] === "al") {
         verbParts[0] = "wal";
+    }
+    if (hasImpersonalTaPrefix && verbParts.length > 1 && verbParts[0] === "ta") {
+        // Drop impersonal ta/ prefix from the base so it doesn't duplicate in the stem.
+        verbParts = verbParts.slice(1);
     }
     const directionalFusionExtraction = extractDirectionalFusionPrefix(
         verbParts,
@@ -13787,6 +13848,17 @@ function applyMorphologyRules({
     const baseSubjectSuffix = subjectSuffix;
     const baseSubjectPrefix = subjectPrefix;
     let baseObjectPrefix = objectPrefix;
+    const prefixCheckCandidate = rawAnalysisVerb || analysisExactVerb || analysisVerb || verb;
+    const prefixCheckBase = getDerivationRuleBase(prefixCheckCandidate, {
+        analysisVerb: prefixCheckCandidate,
+        hasSlashMarker,
+        hasSuffixSeparator,
+        hasLeadingDash,
+        hasBoundMarker,
+        hasCompoundMarker,
+        boundPrefix,
+    });
+    const prefixCheckTarget = prefixCheckBase || verb;
     const directionalInputPrefix = directionalPrefix || "";
     let directionalOutputPrefix = directionalInputPrefix;
     const alternateForms = [];
@@ -13831,10 +13903,22 @@ function applyMorphologyRules({
         verb,
         directionalOutputPrefix,
     } = directionalPrefixResult);
+    const shortenKiPrefix = (prefix) => {
+        if (!prefix) {
+            return prefix;
+        }
+        if (prefix.endsWith("ki") && prefix.length > 2) {
+            return `${prefix.slice(0, -2)}k`;
+        }
+        if (prefix === "ki" && ["ni", "ti"].includes(baseSubjectPrefix)) {
+            return "k";
+        }
+        return prefix;
+    };
+    const marker = indirectObjectMarker || "";
+    objectPrefix = applyIndirectObjectMarker(objectPrefix, marker);
     // Check if the object prefix "ki" should be shortened to "k"
-    if (objectPrefix !== "kin" && (["ni", "ti"].includes(baseSubjectPrefix) || verb.startsWith("i"))) {
-        objectPrefix = objectPrefix.replace("ki", "k");
-    }
+    objectPrefix = shortenKiPrefix(objectPrefix);
 
     const applyNhBeforeVowel = (prefix, nextVerb) => {
         if (!prefix || !nextVerb || !VOWEL_START_RE.test(nextVerb)) {
@@ -13868,8 +13952,6 @@ function applyMorphologyRules({
     if (VOWEL_START_RE.test(verb) && ["kin", "metzin"].includes(objectPrefix)) {
         objectPrefix = applyNhBeforeVowel(objectPrefix, verb);
     }
-
-    const marker = indirectObjectMarker || "";
 
     // When reflexive, iskalia loses initial 'i'
     if ((objectPrefix === "mu" || marker === "mu") && verb.startsWith("iskalia")) {
@@ -14195,7 +14277,6 @@ function applyMorphologyRules({
     if (rootPlusYaBaseResolved) {
         alternateForms.push({ verb: rootPlusYaBaseResolved, subjectSuffix });
     }
-    objectPrefix = applyIndirectObjectMarker(objectPrefix, marker);
     if (objectPrefix.endsWith("k") && verb.startsWith("k")) {
         if (verb.startsWith("kw")) {
             objectPrefix = objectPrefix.slice(0, -1);
@@ -14813,6 +14894,15 @@ function generateWord(options = {}) {
         objectPrefix = rightmostObject;
         baseObjectPrefix = rightmostObject;
     }
+    ({
+        objectPrefix,
+        indirectObjectMarker,
+    } = resolveValencePositionPrefixes({
+        objectPrefix,
+        indirectObjectMarker,
+        derivationType: resolvedDerivationType,
+    }));
+    baseObjectPrefix = objectPrefix;
     const sourceValency = getActiveVerbValency(parsedVerb);
     const fusionPrefixes = Array.isArray(parsedVerb.fusionPrefixes) ? parsedVerb.fusionPrefixes : [];
     const validationVerb = verb;
@@ -15102,13 +15192,17 @@ function generateWord(options = {}) {
     }
 
     // Auto-switch to reflexive when subject/object are the same person and number.
-    const reflexiveUpdate = applyReflexiveAutoSwitch({
-        subjectPrefix,
-        subjectSuffix,
-        objectPrefix,
-        isPassiveImpersonal,
-        clearError,
-    });
+    const allowReflexiveAutoSwitch =
+        !indirectObjectMarker || resolvedDerivationType === DERIVATION_TYPE.applicative;
+    const reflexiveUpdate = allowReflexiveAutoSwitch
+        ? applyReflexiveAutoSwitch({
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix,
+            isPassiveImpersonal,
+            clearError,
+        })
+        : { objectPrefix, isReflexive: objectPrefix === "mu" };
     objectPrefix = reflexiveUpdate.objectPrefix;
     isReflexive = reflexiveUpdate.isReflexive;
     

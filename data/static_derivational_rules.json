@@ -22,8 +22,10 @@
           "kuwi",
           "pini",
           "tzupi",
-          "pati"
+          "pati",
+          "ti"
         ],
+        "blockTypeOne": ["ijsiwi", "ijisiwi"],
         "replaceFinalConsonant": [
           { "from": "k", "to": "tz", "verbs": ["waki"] }
         ],
@@ -71,7 +73,7 @@
         "wi": { "prefer": ["replaceFinalI", "addSuffix"] },
         "wa": {},
         "wiStockFormative": {
-          "allowPatterns": ["CVC-i-wi", "CVC-a-wi", "CVl-i-wi", "VjC-a-wi"],
+          "allowPatterns": ["CVC-i-wi", "CVC-a-wi", "CVl-i-wi", "VjC-a-wi", "VjC-i-wi"],
           "blockVerbs": [
             "tuyawi",
             "chayawi",
@@ -90,7 +92,9 @@
             "tanawi",
             "tumawi",
             "kusawi",
-            "sepuwi"
+            "sepuwi",
+            "ijsiwi",
+            "ijisiwi"
           ]
         },
         "wiStockFormativeU": {}
@@ -115,12 +119,39 @@
         "verbs": ["wetzka", "mayana"],
         "suffixes": ["miki"]
       },
-      "uaStockFormativeU": ["tapua", "kukua", "sakamua"],
+      "uaStockFormativeU": ["tapua", "kukua", "sakamua", "panua"],
       "uaLia": ["temua", "yukuya", "namuya"],
       "uaLiaKeepYa": ["namuya"]
     }
   },
   "docs": {
+    "valencePositions": {
+      "summary": "Rules governing how multiple valence positions are filled and ordered in VNCs.",
+      "orderingPriorities": ["direct", "indirect", "benefactive"],
+      "orderingExample": "I give it < to you < for her.",
+      "rules": [
+        {
+          "id": 1,
+          "text": "Every position and subposition is obligatorily present and must be filled, even if only by a silent morph."
+        },
+        {
+          "id": 2,
+          "text": "Only one reflexive object pronoun can have a mainline shape (mu); except in rare anomalies, this mainline object is controlled by the verbstem's last-added derivational suffix. It may be the only object of a nonderived transitive stem."
+        },
+        {
+          "id": 3,
+          "text": "A derived verbstem may be built of only causative suffixes, only applicative suffixes, or a combination; in combinations, causative suffixes are added before applicative ones."
+        },
+        {
+          "id": 4,
+          "text": "The leftward sequence of valence positions does not mirror stem suffix order; object pronoun order follows the ordering priorities."
+        },
+        {
+          "id": 5,
+          "text": "Specific projective object pronouns are incompatible with one another; therefore, only one can be represented by sounded morphs."
+        }
+      ]
+    },
     "causative": {
       "vnc": {
         "typeTwo": {
