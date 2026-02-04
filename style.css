@@ -55,12 +55,18 @@
   --te-bg: var(--te-bg-active);
   --reflexive-bg: var(--reflexive-bg-active);
   --font-size-adjust: -1px;
-  --font-size-base: calc(0.2rem + var(--font-size-adjust));
+  --font-size-base: clamp(0.7rem, calc(0.2rem + var(--font-size-adjust)), 1rem);
+  --font-size-input: max(var(--font-size-base), 12px);
+  --font-size-button: clamp(0.6rem, calc(0.5rem + var(--font-size-adjust)), 0.84rem);
+  --font-size-label: clamp(0.56rem, calc(0.48rem + var(--font-size-adjust)), 0.76rem);
+  --font-size-heading: clamp(0.64rem, calc(0.56rem + var(--font-size-adjust)), 0.82rem);
+  --button-padding-y: 3px;
+  --button-padding-x: 8px;
   --font-size-large: calc(2.6rem + var(--font-size-adjust));
   --placeholder-color: rgba(59, 51, 40, 0.55);
   --font-title: "Fraunces", serif;
   --font-body: "Space Grotesk", sans-serif;
-  --mode-toggle-height: 34px;
+  --mode-toggle-height: 36px;
 }
 
 *,
@@ -168,7 +174,7 @@ p {
 .app-shell {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 32px 20px 48px;
   display: flex;
@@ -239,10 +245,11 @@ p {
 }
 
 .ui-scale-label {
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   color: var(--ink-soft);
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .ui-scale-row {
@@ -257,7 +264,7 @@ p {
 }
 
 .ui-scale-value {
-  font-size: calc(0.75rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   color: var(--ink-soft);
   min-width: 20px;
   text-align: right;
@@ -288,6 +295,29 @@ p {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.tense-tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-export-button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  line-height: 1.1;
+}
+
+.view-export-button:hover {
+  border-color: rgba(216, 106, 58, 0.6);
 }
 
 .tense-description {
@@ -326,19 +356,11 @@ p {
 }
 
 .tense-tabs-mode-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 12px;
-  flex-wrap: nowrap;
   margin-bottom: 12px;
-}
-
-.tense-tabs-mode-row .tense-tabs-mode {
-  margin-bottom: 0;
-  width: auto;
-  flex: 1 1 0;
-  min-width: 0;
 }
 
 .tense-tabs-mode-row .voice-derivation-tabs {
@@ -355,9 +377,9 @@ p {
 }
 
 .derivation-type-row label {
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   color: var(--ink-soft);
   font-weight: 600;
 }
@@ -366,7 +388,7 @@ p {
   max-width: 220px;
   height: var(--mode-toggle-height);
   min-height: var(--mode-toggle-height);
-  padding: 0 12px;
+  padding: 4px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--tense-block-bg);
@@ -381,6 +403,7 @@ p {
 
 .tense-tabs-mode {
   display: flex;
+  align-items: stretch;
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
@@ -390,17 +413,30 @@ p {
   min-height: var(--mode-toggle-height);
 }
 
+.tense-tabs-mode-row .tense-tabs-mode {
+  margin-bottom: 0;
+  width: 100%;
+  min-width: 0;
+}
+
 .tense-tabs-mode-button {
   border: none;
   background: transparent;
   color: var(--ink-soft);
-  padding: 0 12px;
-  font-size: calc(0.86rem + var(--font-size-adjust));
+  padding: var(--button-padding-y) var(--button-padding-x);
+  font-size: var(--font-size-button);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   cursor: pointer;
   min-height: var(--mode-toggle-height);
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  white-space: normal;
   transition:
     background 0.2s ease,
     color 0.2s ease;
@@ -447,9 +483,9 @@ p {
 }
 
 .nonactive-tabs-heading {
-  font-size: calc(0.62rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: var(--ink-soft);
   opacity: 0.7;
   padding-left: 2px;
@@ -516,7 +552,7 @@ select,
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.85);
   color: var(--ink);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-input);
   font-family: var(--font-body);
   height: 44px;
   transition:
@@ -574,14 +610,14 @@ input.verb-input::selection {
   flex-wrap: wrap;
   gap: 6px;
   align-items: baseline;
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: var(--font-size-heading);
   color: var(--ink-soft);
 }
 
 .verb-rule__label {
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: calc(0.58rem + var(--font-size-adjust));
+  letter-spacing: 0.14em;
+  font-size: var(--font-size-label);
   font-weight: 600;
 }
 
@@ -600,14 +636,14 @@ input.verb-input::selection {
   flex-wrap: wrap;
   gap: 6px 8px;
   align-items: center;
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: var(--font-size-heading);
   color: var(--ink-soft);
 }
 
 .verb-disambiguation__label {
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: calc(0.58rem + var(--font-size-adjust));
+  letter-spacing: 0.14em;
+  font-size: var(--font-size-label);
   font-weight: 600;
 }
 
@@ -620,7 +656,7 @@ input.verb-input::selection {
 .verb-disambiguation__pattern-label {
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: calc(0.56rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--ink-soft);
   margin-left: 4px;
@@ -630,7 +666,7 @@ input.verb-input::selection {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.9);
   color: var(--ink);
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  font-size: var(--font-size-heading);
   font-weight: 500;
   border-radius: 999px;
   padding: 4px 10px;
@@ -651,7 +687,7 @@ input.verb-input::selection {
   border: 1px dashed rgba(29, 26, 21, 0.25);
   background: rgba(255, 255, 255, 0.7);
   color: var(--ink);
-  font-size: calc(0.7rem + var(--font-size-adjust));
+  font-size: var(--font-size-heading);
   font-weight: 500;
   border-radius: 999px;
   padding: 4px 10px;
@@ -703,7 +739,7 @@ input.verb-input::selection {
 .bulk-export__select-label {
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: calc(0.58rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--ink-soft);
 }
@@ -721,8 +757,8 @@ input.verb-input::selection {
   background: linear-gradient(135deg, rgba(216, 106, 58, 0.12), rgba(44, 139, 126, 0.12));
   color: var(--ink);
   border-radius: 999px;
-  padding: 6px 12px;
-  font-size: calc(0.78rem + var(--font-size-adjust));
+  padding: 6px 10px;
+  font-size: var(--font-size-button);
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -730,7 +766,8 @@ input.verb-input::selection {
     box-shadow 0.2s ease,
     border-color 0.2s ease,
     opacity 0.2s ease;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .bulk-export__button:hover {
@@ -828,7 +865,7 @@ input.verb-input::selection {
   border: 1px solid var(--border);
   border-radius: 12px;
   box-sizing: border-box;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-input);
   font-family: inherit;
   color: var(--ink);
   font-weight: 500;
@@ -1532,9 +1569,9 @@ input[type="submit"]:hover {
 }
 
 .tense-tabs-heading {
-  font-size: calc(0.62rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: var(--ink-soft);
   opacity: 0.7;
   padding-left: 2px;
@@ -1559,9 +1596,9 @@ input[type="submit"]:hover {
   background: transparent;
   color: var(--ink-soft);
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 6px 10px;
   cursor: pointer;
-  font-size: calc(0.95rem + var(--font-size-adjust));
+  font-size: var(--font-size-button);
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -1573,11 +1610,14 @@ input[type="submit"]:hover {
   align-items: flex-start;
   gap: 4px;
   text-align: left;
+  line-height: 1.25;
+  white-space: normal;
 }
 
 .tense-tab-label {
   font-size: inherit;
   font-weight: 600;
+  white-space: normal;
 }
 
 .tense-tab.is-active {
@@ -1699,15 +1739,17 @@ input[type="submit"]:hover {
 .object-toggle-button {
   border: none;
   background: transparent;
-  padding: 0 10px;
-  font-size: calc(0.72rem + var(--font-size-adjust));
+  padding: var(--button-padding-y) var(--button-padding-x);
+  font-size: var(--font-size-button);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--ink-soft);
   cursor: pointer;
   pointer-events: auto;
   min-height: var(--mode-toggle-height);
+  line-height: 1.2;
+  white-space: normal;
 }
 
 .object-toggle-button + .object-toggle-button {

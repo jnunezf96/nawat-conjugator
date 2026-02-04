@@ -1141,9 +1141,8 @@ let VERB_DISAMBIGUATION_BASE_INFO = new Map();
 let BASIC_DATA_CANONICAL_MAP = new Map();
 const BULK_EXPORT_HEADERS = [
     "verb",
-    "3s nonactive",
-    "3s causative",
-    "3s causative nonactive",
+    "3s applicative",
+    "3s applicative nonactive",
 ];
 const BULK_EXPORT_SOURCES = {
     data: { path: "data/data.csv", label: "data.csv" },
@@ -5816,19 +5815,70 @@ function applyIndirectObjectMarker(prefix, marker) {
     if (!marker) {
         return prefix;
     }
+    let combined = "";
     if (SPECIFIC_VALENCE_PREFIX_SET.has(marker) || marker === "k") {
         if (!prefix) {
-            return marker;
+            combined = marker;
+        } else if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
+            combined = marker;
+        } else {
+            combined = `${prefix}${marker}`;
         }
-        if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
-            return marker;
-        }
-        return `${prefix}${marker}`;
+    } else if (prefix === marker) {
+        combined = prefix;
+    } else {
+        combined = `${prefix}${marker}`;
     }
-    if (prefix === marker) {
+    return normalizeValenceMarkerOrder(combined);
+}
+
+function normalizeValenceMarkerOrder(prefix) {
+    if (!prefix) {
         return prefix;
     }
-    return `${prefix}${marker}`;
+    const full = prefix;
+    let directional = "";
+    let rest = prefix;
+    if (rest.startsWith("al") && rest !== "al") {
+        directional = "al";
+        rest = rest.slice(2);
+    }
+    const tokens = [];
+    let working = rest;
+    while (working) {
+        if (working.startsWith("ki")) {
+            tokens.push("ki");
+            working = working.slice(2);
+            continue;
+        }
+        if (working.startsWith("k")) {
+            tokens.push("k");
+            working = working.slice(1);
+            continue;
+        }
+        if (working.startsWith("mu")) {
+            tokens.push("mu");
+            working = working.slice(2);
+            continue;
+        }
+        if (working.startsWith("te")) {
+            tokens.push("te");
+            working = working.slice(2);
+            continue;
+        }
+        if (working.startsWith("ta")) {
+            tokens.push("ta");
+            working = working.slice(2);
+            continue;
+        }
+        return full;
+    }
+    if (tokens.length <= 1) {
+        return full;
+    }
+    const rank = { ki: 0, k: 0, mu: 1, te: 2, ta: 3 };
+    tokens.sort((a, b) => rank[a] - rank[b]);
+    return `${directional}${tokens.join("")}`;
 }
 
 function resolveValencePositionPrefixes({
@@ -5840,11 +5890,22 @@ function resolveValencePositionPrefixes({
         return { objectPrefix, indirectObjectMarker };
     }
     const isApplicative = derivationType === DERIVATION_TYPE.applicative;
+    const allowSpecificWithNonspecific = isApplicative || derivationType === DERIVATION_TYPE.causative;
+    if (allowSpecificWithNonspecific && indirectObjectMarker === "mu") {
+        return { objectPrefix, indirectObjectMarker };
+    }
     const isSpecific = (prefix) => SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k";
     const isNonspecific = (prefix) => NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix);
     const isReflexive = (prefix) => prefix === "mu";
+    const keepReflexiveIndirect = allowSpecificWithNonspecific && indirectObjectMarker === "mu";
     if (isApplicative) {
         if (isSpecific(indirectObjectMarker) || isReflexive(indirectObjectMarker)) {
+            if (keepReflexiveIndirect) {
+                return { objectPrefix, indirectObjectMarker };
+            }
+            if (allowSpecificWithNonspecific && isNonspecific(objectPrefix)) {
+                return { objectPrefix, indirectObjectMarker };
+            }
             indirectObjectMarker = "";
         }
         return { objectPrefix, indirectObjectMarker };
@@ -5856,10 +5917,16 @@ function resolveValencePositionPrefixes({
         return { objectPrefix, indirectObjectMarker };
     }
     if (isReflexive(indirectObjectMarker)) {
+        if (keepReflexiveIndirect) {
+            return { objectPrefix, indirectObjectMarker };
+        }
         objectPrefix = "";
         return { objectPrefix, indirectObjectMarker };
     }
     if (isSpecific(objectPrefix) || isReflexive(objectPrefix)) {
+        if (allowSpecificWithNonspecific && isNonspecific(indirectObjectMarker)) {
+            return { objectPrefix, indirectObjectMarker };
+        }
         objectPrefix = "";
     }
     return { objectPrefix, indirectObjectMarker };
@@ -7329,30 +7396,21 @@ function getPretUniversalClassCandidates(context, trace = null) {
             candidates.add("B");
             return finalizeCandidates(candidates);
         }
-        if (context.lastNucleus === "i" || context.lastNucleus === "u") {
-            setRule("monosyllable transitive -i/-u");
-            candidates.add("B");
-            return finalizeCandidates(candidates);
-        }
-        if (context.lastNucleus === "a" || context.lastNucleus === "e") {
-            setRule("monosyllable transitive -a/-e");
+        if (context.lastSyllableForm === "CV") {
+            setRule("monosyllable transitive CV");
             candidates.add("D");
             return finalizeCandidates(candidates);
         }
     }
     if (context.isMonosyllable && !context.isTransitive) {
+        const isTaMonosyllable = context.analysisVerb === "ta" || context.verb === "ta";
         if (context.lastSyllableForm === "V") {
             setRule("monosyllable intransitive V");
             candidates.add("B");
             return finalizeCandidates(candidates);
         }
-        if (context.lastNucleus === "i" || context.lastNucleus === "u") {
-            setRule("monosyllable intransitive -i/-u");
-            candidates.add("B");
-            return finalizeCandidates(candidates);
-        }
-        if (context.lastNucleus === "a" || context.lastNucleus === "e") {
-            setRule("monosyllable intransitive -a/-e");
+        if (context.lastSyllableForm === "CV" && !isTaMonosyllable) {
+            setRule("monosyllable intransitive CV");
             candidates.add("D");
             return finalizeCandidates(candidates);
         }
@@ -9651,11 +9709,11 @@ function resolveDirectionalRuleMode(parsedVerb, options = {}) {
     if (hasSpecificValence) {
         return "transitive";
     }
-    if (hasNonspecificValence) {
-        return "nonspecific";
-    }
     if (!isNonactive && derivationDelta > 0) {
         return "transitive";
+    }
+    if (hasNonspecificValence) {
+        return "nonspecific";
     }
     return "intransitive";
 }
@@ -9843,22 +9901,27 @@ function applyWalDirectionalRule(context, rule, stage) {
         const hasSecondValent = Boolean(baseObjectPrefix || indirectObjectMarker || isTaFusion);
         const hasFirstValent = hasSubjectValent !== false;
         const isThirdPersonSubject = baseSubjectPrefix === "";
+        const hasNonspecificObject = NONSPECIFIC_VALENCE_AFFIX_SET.has(baseObjectPrefix)
+            || NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker || "");
         const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
-        const shouldUseAl = forceTransitiveDirectional
+        const shouldUseAl = (forceTransitiveDirectional
             ? hasFirstValent
             : (forceNonspecificDirectional
                 ? (hasFirstValent && !isThirdPersonSubject)
-                : (!forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasFirstValent));
+                : (!forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasFirstValent)))
+            && !hasNonspecificObject;
         let useAl = false;
         if (shouldUseAl) {
             const isThirdPersonObject =
                 isThirdPersonMarker(baseObjectPrefix)
                 || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
+            const hasNonspecificObject = NONSPECIFIC_VALENCE_AFFIX_SET.has(baseObjectPrefix)
+                || NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker || "");
             if (baseSubjectPrefix === "ni") {
                 subjectPrefix = "n";
             } else if (baseSubjectPrefix === "ti") {
                 subjectPrefix = "t";
-            } else if (baseSubjectPrefix === "" && !isThirdPersonObject) {
+            } else if (baseSubjectPrefix === "" && !isThirdPersonObject && !hasNonspecificObject) {
                 subjectPrefix = "k";
             }
             useAl = true;
@@ -9982,10 +10045,6 @@ function parseStageDirectionalFusion(state) {
     state.directionalPrefixFromSlash = directionalPrefixFromSlash;
     if (directionalPrefixFromSlash === "wal" && verbParts[0] === "al") {
         verbParts[0] = "wal";
-    }
-    if (hasImpersonalTaPrefix && verbParts.length > 1 && verbParts[0] === "ta") {
-        // Drop impersonal ta/ prefix from the base so it doesn't duplicate in the stem.
-        verbParts = verbParts.slice(1);
     }
     const directionalFusionExtraction = extractDirectionalFusionPrefix(
         verbParts,
@@ -12196,34 +12255,27 @@ function getBulkExportConjugation({
 }
 
 function buildBulkExportRow({ verb, isTransitive }) {
-    const nonactive3s = getBulkExportConjugation({
-        verb,
-        tense: "presente",
-        subjectSuffix: "",
-        objectPrefix: "",
-    });
-    const causative3s = getBulkExportConjugation({
+    const applicative3s = getBulkExportConjugation({
         verb,
         tense: "presente",
         subjectSuffix: "",
         objectPrefix: "ki",
         derivationMode: DERIVATION_MODE.active,
-        derivationType: DERIVATION_TYPE.causative,
+        derivationType: DERIVATION_TYPE.applicative,
     });
-    const causativeNonactive3s = getBulkExportConjugation({
+    const applicativeNonactive3s = getBulkExportConjugation({
         verb,
         tense: "presente",
         subjectSuffix: "",
         objectPrefix: "",
         derivationMode: DERIVATION_MODE.nonactive,
-        derivationType: DERIVATION_TYPE.causative,
+        derivationType: DERIVATION_TYPE.applicative,
     });
     return {
         verb,
         isTransitive,
-        nonactive3s,
-        causative3s,
-        causativeNonactive3s,
+        applicative3s,
+        applicativeNonactive3s,
     };
 }
 
@@ -12253,11 +12305,107 @@ function buildBulkExportCSV(rows) {
     const header = BULK_EXPORT_HEADERS.map((label) => escapeCSVValue(label)).join(",");
     const lines = rows.map((row) => ([
         row.verb,
-        row.nonactive3s,
-        row.causative3s,
-        row.causativeNonactive3s,
+        row.applicative3s,
+        row.applicativeNonactive3s,
     ].map((value) => escapeCSVValue(value)).join(",")));
     return [header, ...lines].join("\n");
+}
+
+function collectVisibleConjugationRows() {
+    const container = document.getElementById("all-tense-conjugations");
+    if (!container) {
+        return [];
+    }
+    const rows = [];
+    const blocks = Array.from(container.querySelectorAll(".tense-block"));
+    blocks.forEach((block) => {
+        const blockLabel = block.querySelector(".tense-block__label")?.textContent.trim() || "";
+        const toggleMap = { subject: "", object: "", object2: "" };
+        const toggles = Array.from(block.querySelectorAll(".tense-block__controls .object-toggle"));
+        toggles.forEach((toggle) => {
+            const ariaLabel = (toggle.getAttribute("aria-label") || "").toLowerCase();
+            const activeButton = toggle.querySelector(".object-toggle-button.is-active");
+            const value = activeButton ? activeButton.textContent.trim() : "";
+            if (!value) {
+                return;
+            }
+            if (ariaLabel.includes("suj") || ariaLabel.includes("subject")) {
+                toggleMap.subject = value;
+            } else if (ariaLabel.includes("objeto 2") || ariaLabel.includes("object 2") || ariaLabel.includes("objeto2")) {
+                toggleMap.object2 = value;
+            } else if (ariaLabel.includes("objeto") || ariaLabel.includes("object")) {
+                toggleMap.object = value;
+            }
+        });
+        const rowNodes = Array.from(block.querySelectorAll(".conjugation-row"));
+        rowNodes.forEach((row) => {
+            const personLabel = row.querySelector(".person-label")?.textContent.trim() || "";
+            const value = row.querySelector(".conjugation-value")?.textContent.trim() || "";
+            if (!personLabel && !value) {
+                return;
+            }
+            rows.push({
+                subjectToggle: toggleMap.subject,
+                objectToggle: toggleMap.object,
+                objectToggle2: toggleMap.object2,
+                block: blockLabel,
+                person: personLabel,
+                value,
+            });
+        });
+    });
+    return rows;
+}
+
+function buildViewExportCSV() {
+    const rows = collectVisibleConjugationRows();
+    if (!rows.length) {
+        return "";
+    }
+    const verbInput = document.getElementById("verb");
+    const inputValue = verbInput ? verbInput.value.trim() : "";
+    const derivationSelect = document.getElementById("derivation-type");
+    const derivationValue = derivationSelect ? derivationSelect.value : "";
+    const header = ["entrada", "derivación", "sujeto", "objeto", "objeto 2", "bloque", "persona", "forma"]
+        .map((label) => escapeCSVValue(label))
+        .join(",");
+    const lines = rows.map((row) => ([
+        inputValue,
+        derivationValue,
+        row.subjectToggle,
+        row.objectToggle,
+        row.objectToggle2,
+        row.block,
+        row.person,
+        row.value,
+    ].map((value) => escapeCSVValue(value)).join(",")));
+    return [header, ...lines].join("\n");
+}
+
+function downloadViewExportCSV() {
+    const csvText = buildViewExportCSV();
+    if (!csvText) {
+        return;
+    }
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "vista-conjugaciones.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function initViewExport() {
+    const button = document.getElementById("view-export-csv");
+    if (!button) {
+        return;
+    }
+    button.addEventListener("click", () => {
+        downloadViewExportCSV();
+    });
 }
 
 function normalizeBulkExportVerbInput(rawValue, fallbackTransitive) {
@@ -12287,7 +12435,7 @@ function updateBulkExportStatusSummary() {
         return;
     }
     const missingRows = rows.filter((row) => (
-        [row.nonactive3s, row.causative3s, row.causativeNonactive3s].some((value) => !value || value === "—")
+        [row.applicative3s, row.applicativeNonactive3s].some((value) => !value || value === "—")
     )).length;
     let statusMessage = `Listo: ${rows.length} filas.`;
     if (missingRows) {
@@ -12304,9 +12452,8 @@ function updateBulkExportRowData(index, rawValue) {
     const normalized = normalizeBulkExportVerbInput(rawValue, row.isTransitive);
     if (!normalized.verb) {
         row.verb = "";
-        row.nonactive3s = "—";
-        row.causative3s = "—";
-        row.causativeNonactive3s = "—";
+        row.applicative3s = "—";
+        row.applicativeNonactive3s = "—";
         return normalized;
     }
     const updated = buildBulkExportRow({
@@ -12315,9 +12462,8 @@ function updateBulkExportRowData(index, rawValue) {
     });
     row.verb = updated.verb;
     row.isTransitive = updated.isTransitive;
-    row.nonactive3s = updated.nonactive3s;
-    row.causative3s = updated.causative3s;
-    row.causativeNonactive3s = updated.causativeNonactive3s;
+    row.applicative3s = updated.applicative3s;
+    row.applicativeNonactive3s = updated.applicativeNonactive3s;
     updateBulkExportControlState();
     return normalized;
 }
@@ -12357,19 +12503,15 @@ function renderBulkExportTable(container, rows) {
         verbInput.spellcheck = false;
         verbCell.appendChild(verbInput);
         tr.appendChild(verbCell);
-        const nonactive3sCell = document.createElement("td");
-        nonactive3sCell.textContent = row.nonactive3s;
-        tr.appendChild(nonactive3sCell);
-        const causative3sCell = document.createElement("td");
-        causative3sCell.textContent = row.causative3s;
-        tr.appendChild(causative3sCell);
-        const causativeNonactive3sCell = document.createElement("td");
-        causativeNonactive3sCell.textContent = row.causativeNonactive3s;
-        tr.appendChild(causativeNonactive3sCell);
+        const applicative3sCell = document.createElement("td");
+        applicative3sCell.textContent = row.applicative3s;
+        tr.appendChild(applicative3sCell);
+        const applicativeNonactive3sCell = document.createElement("td");
+        applicativeNonactive3sCell.textContent = row.applicativeNonactive3s;
+        tr.appendChild(applicativeNonactive3sCell);
         const syncCells = () => {
-            nonactive3sCell.textContent = row.nonactive3s;
-            causative3sCell.textContent = row.causative3s;
-            causativeNonactive3sCell.textContent = row.causativeNonactive3s;
+            applicative3sCell.textContent = row.applicative3s;
+            applicativeNonactive3sCell.textContent = row.applicativeNonactive3s;
         };
         const applyUpdate = (options = {}) => {
             const normalized = updateBulkExportRowData(index, verbInput.value);
@@ -12623,7 +12765,11 @@ function initUiScaleControl() {
     const baseAdjust = Number.parseFloat(baseAdjustRaw) || 0;
     const minValue = Number.parseFloat(scaleInput.min) || -6;
     const maxValue = Number.parseFloat(scaleInput.max) || 6;
-    const clampValue = (value) => Math.min(maxValue, Math.max(minValue, value));
+    const safeMin = Math.max(minValue, -3);
+    if (safeMin !== minValue) {
+        scaleInput.min = String(safeMin);
+    }
+    const clampValue = (value) => Math.min(maxValue, Math.max(safeMin, value));
     const formatValue = (value) => (value > 0 ? `+${value}` : `${value}`);
     const applyScale = (offset) => {
         const nextAdjust = baseAdjust + offset;
@@ -12659,6 +12805,34 @@ function initUiScaleControl() {
             // Ignore storage failures.
         }
     });
+}
+
+function initZoomFontLock() {
+    const root = document.documentElement;
+    if (!root) {
+        return;
+    }
+    const baseFontSize = Number.parseFloat(getComputedStyle(root).fontSize) || 16;
+    const baseDpr = window.devicePixelRatio || 1;
+    const getScale = () => {
+        if (window.visualViewport && Number.isFinite(window.visualViewport.scale)) {
+            return window.visualViewport.scale;
+        }
+        const dpr = window.devicePixelRatio || 1;
+        return dpr / baseDpr;
+    };
+    const applyScale = () => {
+        const scale = getScale();
+        if (!scale || !Number.isFinite(scale) || scale <= 0) {
+            return;
+        }
+        root.style.fontSize = `${baseFontSize / scale}px`;
+    };
+    applyScale();
+    window.addEventListener("resize", applyScale);
+    if (window.visualViewport && typeof window.visualViewport.addEventListener === "function") {
+        window.visualViewport.addEventListener("resize", applyScale);
+    }
 }
 
 function initTutorialPanel() {
@@ -13907,6 +14081,12 @@ function applyMorphologyRules({
         if (!prefix) {
             return prefix;
         }
+        if (prefix.startsWith("ki") && prefix.length > 2 && ["ni", "ti"].includes(baseSubjectPrefix)) {
+            const tail = prefix.slice(2);
+            if (NONSPECIFIC_VALENCE_AFFIX_SET.has(tail)) {
+                return `k${tail}`;
+            }
+        }
         if (prefix.endsWith("ki") && prefix.length > 2) {
             return `${prefix.slice(0, -2)}k`;
         }
@@ -13919,6 +14099,13 @@ function applyMorphologyRules({
     objectPrefix = applyIndirectObjectMarker(objectPrefix, marker);
     // Check if the object prefix "ki" should be shortened to "k"
     objectPrefix = shortenKiPrefix(objectPrefix);
+    // Avoid double-i when object prefix ends in "i" and the verb starts with "i".
+    if (objectPrefix && objectPrefix.endsWith("i") && verb.startsWith("i")) {
+        verb = verb.slice(1);
+        if (analysisVerb.startsWith("i")) {
+            analysisVerb = analysisVerb.slice(1);
+        }
+    }
 
     const applyNhBeforeVowel = (prefix, nextVerb) => {
         if (!prefix || !nextVerb || !VOWEL_START_RE.test(nextVerb)) {
@@ -14284,6 +14471,61 @@ function applyMorphologyRules({
             verb = verb.slice(1);
         }
     }
+    const hasDerivedMuPrefix = Boolean(hasSuffixSeparator || hasCompoundMarker || hasSlashMarker || directionalInputPrefix);
+    if (hasDerivedMuPrefix) {
+        if (verb.startsWith("mu") && objectPrefix.endsWith("mu")) {
+            objectPrefix = objectPrefix.slice(0, -2);
+        }
+        if (objectPrefix === "mu" && verb.startsWith("mu")) {
+            objectPrefix = "";
+        }
+        if (verb.startsWith("mu")) {
+            const embeddedMarker = objectPrefix === "ta" || objectPrefix === "te"
+                ? objectPrefix
+                : (objectPrefix.startsWith("al") && (objectPrefix.slice(2) === "ta" || objectPrefix.slice(2) === "te")
+                    ? objectPrefix.slice(2)
+                    : (objectPrefix.startsWith("wal") && (objectPrefix.slice(3) === "ta" || objectPrefix.slice(3) === "te")
+                        ? objectPrefix.slice(3)
+                        : ""));
+            if (embeddedMarker && !verb.startsWith(`mu${embeddedMarker}`)) {
+                if (objectPrefix.startsWith("al")) {
+                    objectPrefix = "al";
+                } else if (objectPrefix.startsWith("wal")) {
+                    objectPrefix = "wal";
+                } else {
+                    objectPrefix = "";
+                }
+                verb = `mu${embeddedMarker}${verb.slice(2)}`;
+                if (alternateForms.length) {
+                    alternateForms.forEach((form) => {
+                        if (
+                            form
+                            && form.verb
+                            && form.verb.startsWith("mu")
+                            && !form.verb.startsWith(`mu${embeddedMarker}`)
+                        ) {
+                            form.verb = `mu${embeddedMarker}${form.verb.slice(2)}`;
+                        }
+                    });
+                }
+            }
+        } else if (
+            !objectPrefix
+            && (verb.startsWith("tamu") || verb.startsWith("temu"))
+        ) {
+            const embeddedMarker = verb.slice(0, 2);
+            verb = `mu${embeddedMarker}${verb.slice(4)}`;
+            if (alternateForms.length) {
+                alternateForms.forEach((form) => {
+                    if (form && form.verb && (form.verb.startsWith("tamu") || form.verb.startsWith("temu"))) {
+                        const formMarker = form.verb.slice(0, 2);
+                        form.verb = `mu${formMarker}${form.verb.slice(4)}`;
+                    }
+                });
+            }
+        }
+    }
+    objectPrefix = normalizeValenceMarkerOrder(objectPrefix);
     return {
         subjectPrefix,
         objectPrefix,
@@ -14886,13 +15128,21 @@ function generateWord(options = {}) {
         indirectObjectMarker = "";
     }
     if (
-        resolvedDerivationType === DERIVATION_TYPE.applicative
+        (resolvedDerivationType === DERIVATION_TYPE.applicative
+            || resolvedDerivationType === DERIVATION_TYPE.causative)
         && indirectObjectMarker
     ) {
-        const rightmostObject = indirectObjectMarker;
-        indirectObjectMarker = objectPrefix || "";
-        objectPrefix = rightmostObject;
-        baseObjectPrefix = rightmostObject;
+        const isSpecific = (prefix) => SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k" || prefix === "mu";
+        const isNonspecific = (prefix) => NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix);
+        const objectIsNonspecific = isNonspecific(objectPrefix);
+        const indirectIsSpecific = isSpecific(indirectObjectMarker);
+        const shouldSwap = !objectPrefix || (objectIsNonspecific && indirectIsSpecific);
+        if (shouldSwap) {
+            const rightmostObject = indirectObjectMarker;
+            indirectObjectMarker = objectPrefix || "";
+            objectPrefix = rightmostObject;
+            baseObjectPrefix = rightmostObject;
+        }
     }
     ({
         objectPrefix,
@@ -15099,6 +15349,27 @@ function generateWord(options = {}) {
     indirectObjectMarker = passiveValencyAdjustments.indirectObjectMarker;
     preserveSubjectForPassive = passiveValencyAdjustments.preserveSubjectForPassive;
     morphologyObjectPrefix = passiveValencyAdjustments.morphologyObjectPrefix;
+    const shouldApplyDerivedAllomorphy = isCausative || isApplicative;
+    if (shouldApplyDerivedAllomorphy) {
+        const derivedAllomorphy = applyObjectAllomorphy({
+            verb,
+            analysisVerb,
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix: morphologyObjectPrefix,
+            indirectObjectMarker,
+            isTaFusion: parsedVerb.isTaFusion,
+            isPassiveImpersonalMode,
+            hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI,
+            hasNonspecificValence: parsedVerb.hasNonspecificValence
+                || parsedVerb.hasNonactiveNonspecificValence,
+            hasSlashMarker: parsedVerb.hasSlashMarker,
+            directionalPrefix: parsedVerb.directionalPrefix,
+        });
+        verb = derivedAllomorphy.verb;
+        analysisVerb = derivedAllomorphy.analysisVerb;
+        morphologyObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
+    }
     const isWitziNonactive = isNonactive && suppletivePath?.id === "witzi";
     const allowConsonantEnding = (isWitziNonactive && verb === SUPPLETIVE_WITZI_NONACTIVE)
         || SUPPLETIVE_WITZI_FORMS.has(validationVerb);
@@ -15401,11 +15672,35 @@ function generateWord(options = {}) {
         if (directionalPrefix && stem.startsWith(directionalPrefix)) {
             stemAnalysis = stem.slice(directionalPrefix.length);
         }
+        let stemVerb = stem;
+        let stemAnalysisResolved = stemAnalysis;
+        let stemObjectPrefix = baseMorphologyInput.objectPrefix;
+        if (shouldApplyDerivedAllomorphy) {
+            const derivedAllomorphy = applyObjectAllomorphy({
+                verb: stemVerb,
+                analysisVerb: stemAnalysisResolved,
+                subjectPrefix: baseMorphologyInput.subjectPrefix,
+                subjectSuffix: baseMorphologyInput.subjectSuffix,
+                objectPrefix: stemObjectPrefix,
+                indirectObjectMarker,
+                isTaFusion: parsedVerb.isTaFusion,
+                isPassiveImpersonalMode,
+                hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI,
+                hasNonspecificValence: parsedVerb.hasNonspecificValence
+                    || parsedVerb.hasNonactiveNonspecificValence,
+                hasSlashMarker: parsedVerb.hasSlashMarker,
+                directionalPrefix: parsedVerb.directionalPrefix,
+            });
+            stemVerb = derivedAllomorphy.verb;
+            stemAnalysisResolved = derivedAllomorphy.analysisVerb;
+            stemObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
+        }
         const applied = applyMorphologyRules({
             ...baseMorphologyInput,
-            verb: stem,
-            analysisVerb: stemAnalysis,
-            analysisExactVerb: stemAnalysis,
+            verb: stemVerb,
+            analysisVerb: stemAnalysisResolved,
+            analysisExactVerb: stemAnalysisResolved,
+            objectPrefix: stemObjectPrefix,
         });
         if (!applied || applied.error) {
             return;
@@ -17551,12 +17846,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadStaticRedup();
     await loadStaticSuppletivePaths();
     setBrowserClasses();
+    initZoomFontLock();
     initUiScaleControl();
     initTutorialPanel();
     initTenseModeTabs();
     initCombinedModeTabs();
     initDerivationTypeControl();
     initBulkExport();
+    initViewExport();
     const verbEl = document.getElementById("verb");
     if (verbEl) {
         verbEl.dataset.prevValue = verbEl.value || "";
