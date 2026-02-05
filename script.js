@@ -2874,20 +2874,22 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return results;
     }
-    const valenceNeutral = rules.valenceNeutralPairs || {};
-    const neutralVerbs = Array.isArray(valenceNeutral?.verbs) ? valenceNeutral.verbs : [];
-    const neutralSuffixes = Array.isArray(valenceNeutral?.suffixes) ? valenceNeutral.suffixes : [];
-    const matchesNeutralSuffix = (base) => neutralSuffixes.some((suffix) => (
-        suffix
-        && base.endsWith(suffix)
-        && base.length > suffix.length
-    ));
-    const isNeutral = matchesDerivationRuleBaseList(neutralVerbs, ruleBase, fullRuleBase)
-        || matchesNeutralSuffix(ruleBase)
-        || (fullRuleBase && matchesNeutralSuffix(fullRuleBase));
-    if (isIntransitive && isNeutral) {
-        push(ruleBase, { type: "neutral", rule: "valence-neutral" });
-        return results;
+    if (options.allowValenceNeutral === true) {
+        const valenceNeutral = rules.valenceNeutralPairs || {};
+        const neutralVerbs = Array.isArray(valenceNeutral?.verbs) ? valenceNeutral.verbs : [];
+        const neutralSuffixes = Array.isArray(valenceNeutral?.suffixes) ? valenceNeutral.suffixes : [];
+        const matchesNeutralSuffix = (base) => neutralSuffixes.some((suffix) => (
+            suffix
+            && base.endsWith(suffix)
+            && base.length > suffix.length
+        ));
+        const isNeutral = matchesDerivationRuleBaseList(neutralVerbs, ruleBase, fullRuleBase)
+            || matchesNeutralSuffix(ruleBase)
+            || (fullRuleBase && matchesNeutralSuffix(fullRuleBase));
+        if (isIntransitive && isNeutral) {
+            push(ruleBase, { type: "neutral", rule: "valence-neutral" });
+            return results;
+        }
     }
     const rootPlusYaBase = typeof options.rootPlusYaBase === "string" ? options.rootPlusYaBase : "";
     const isRootPlusYa = Boolean(rootPlusYaBase)
@@ -2968,7 +2970,15 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
             push(`${baseStem}lia`, { type: "class-c", rule: "class-c-ua-lia" });
             return results;
         }
-        const stockFormative = matchesUaStock ? "u" : inferWiStockFormative(baseStem);
+        let stockFormative = matchesUaStock ? "u" : inferWiStockFormative(baseStem);
+        if (
+            !stockFormative
+            && options.parsedVerb?.hasOptionalSupportiveI
+            && baseStem
+            && !VOWEL_RE.test(baseStem)
+        ) {
+            stockFormative = inferWiStockFormative(`i${baseStem}`);
+        }
         if (stockFormative) {
             push(
                 `${baseStem}${stockFormative}lwia`,
@@ -3086,7 +3096,7 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         const lastNucleus = letters[nucleusIndex];
         const lastOnset = onsetIndex >= 0 ? letters[onsetIndex] : "";
         const blockReplaciveForCluster = info.isClassC && clusterAfterDeletion;
-        const allowReplaciveOnset = !isRootPlusYa && !isDirectClassD && !blockReplaciveForCluster;
+        const allowReplaciveOnset = !isRootPlusYa && !isDirectClassD && !info.isClassC;
         const allowSaChange = lastNucleus === "i" || lastNucleus === "a";
         const allowTzChange = allowSaChange && !info.penultimateHasCoda;
         if (allowReplaciveOnset) {
@@ -3094,7 +3104,7 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
                 letters[onsetIndex] = "ch";
             } else if (allowSaChange && lastOnset === "s") {
                 letters[onsetIndex] = "sh";
-            } else if (!blockReplaciveOnsetForShort && lastOnset === "t") {
+            } else if (!blockReplaciveOnsetForShort && lastOnset === "t" && ruleBase !== "pata") {
                 const prevLetter = letters[onsetIndex - 1] || "";
                 if (!isVerbLetterConsonant(prevLetter)) {
                     letters[onsetIndex] = "ch";

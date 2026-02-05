@@ -116,7 +116,7 @@
         }
       },
       "valenceNeutralPairs": {
-        "verbs": ["wetzka", "mayana"],
+        "verbs": ["mayana"],
         "suffixes": ["miki"]
       },
       "uaStockFormativeU": ["tapua", "kukua", "sakamua", "panua"],
