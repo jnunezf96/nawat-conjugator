@@ -2964,7 +2964,17 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
     }
     const syllableCount = info.nonRedupSyllableCount || info.syllableCount;
-    const isDirectClassD = syllableCount === 1;
+    const fusionPrefixes = Array.isArray(options.parsedVerb?.fusionPrefixes)
+        ? options.parsedVerb.fusionPrefixes
+        : [];
+    const fusionStrippedBase = fusionPrefixes.length
+        ? stripLeadingPrefixes(ruleBase, fusionPrefixes)
+        : ruleBase;
+    const classDBase = getNonReduplicatedRoot(fusionStrippedBase) || fusionStrippedBase;
+    const classDSyllableCount = classDBase
+        ? getSyllables(classDBase, { analysis: true, assumeFinalV: true }).length
+        : syllableCount;
+    const isDirectClassD = classDSyllableCount === 1;
     const blockReplaciveNucleus = isRootPlusYa || (isTransitive && ruleBase.endsWith("ya"));
     const blockReplaciveOnsetForShort = isShortReplaciveOnsetBase(ruleBase);
     const nonRedupRoot = getNonReduplicatedRoot(ruleBase);
@@ -5825,7 +5835,11 @@ function applyIndirectObjectMarker(prefix, marker) {
             combined = `${prefix}${marker}`;
         }
     } else if (prefix === marker) {
-        combined = prefix;
+        if (marker === "ta" || marker === "te") {
+            combined = `${prefix}${marker}`;
+        } else {
+            combined = prefix;
+        }
     } else {
         combined = `${prefix}${marker}`;
     }
@@ -17091,10 +17105,10 @@ function buildNounTabRenderContext({
     const possessorValues = POSSESSIVE_PREFIXES.map((entry) => entry.value);
     let activePossessor = POSSESSOR_TOGGLE_STATE.get(possessorKey);
     if (activePossessor === undefined) {
-        activePossessor = (isInstrumentivo || isCalificativoInstrumentivo) ? "i" : "";
+        activePossessor = "";
     }
     if (!possessorValues.includes(activePossessor) && activePossessor !== OBJECT_TOGGLE_ALL) {
-        activePossessor = (isInstrumentivo || isCalificativoInstrumentivo) ? "i" : "";
+        activePossessor = "";
     }
     const ownershipOptions = PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id);
     let activeOwnership = PATIENTIVO_OWNERSHIP_STATE.get(ownershipKey);
