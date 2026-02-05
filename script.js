@@ -14246,6 +14246,17 @@ function applyMorphologyRules({
             verb = verb.slice(0, -1);
         }
     }
+    const dropClassCNucleusTenses = new Set(["presente-desiderativo", "futuro", "condicional"]);
+    if (dropClassCNucleusTenses.has(tense) && endsWithAny(verb, IA_UA_SUFFIXES)) {
+        verb = verb.slice(0, -1);
+        if (alternateForms.length) {
+            alternateForms.forEach((form) => {
+                if (form && form.verb && endsWithAny(form.verb, IA_UA_SUFFIXES)) {
+                    form.verb = form.verb.slice(0, -1);
+                }
+            });
+        }
+    }
     if (tense === "sustantivo-verbal") {
         const nounSource = verb;
         if (endsWithAny(verb, IA_UA_SUFFIXES)) {

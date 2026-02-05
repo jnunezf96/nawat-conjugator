@@ -1412,9 +1412,9 @@ input[type="submit"]:hover {
 }
 
 .conjugation-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1fr);
+  align-items: start;
   padding: 6px 8px;
   gap: 12px;
   border-radius: 10px;
@@ -1467,6 +1467,7 @@ input[type="submit"]:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  text-align: left;
 }
 
 .person-label {
@@ -1482,7 +1483,8 @@ input[type="submit"]:hover {
 .conjugation-value {
   color: var(--ink);
   font-weight: 600;
-  text-align: right;
+  text-align: left;
+  justify-self: start;
   white-space: pre-line;
   overflow-wrap: normal;
   word-break: normal;
@@ -1763,11 +1765,9 @@ input[type="submit"]:hover {
 
 @media (max-width: 768px) {
   .conjugation-row {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
   }
   .conjugation-value {
-    text-align: left;
     width: 100%;
   }
   .tense-grid {
