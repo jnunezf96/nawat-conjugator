@@ -2598,11 +2598,15 @@ function applyCausativeDerivation({
     if (parsedVerb?.isYawi) {
         const causativeSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
         const prefix = causativeSource.prefix || "";
+        const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
         const baseStem = getSuppletiveYawiCausativeActive();
-        const selectedStem = prefix ? `${prefix}${baseStem}` : baseStem;
+        const baseSelectedStem = prefix ? `${prefix}${baseStem}` : baseStem;
+        const selectedStem = applyEmbeddedPrefixToStem(baseSelectedStem, embeddedPrefix, directionalPrefix);
         let nextAnalysis = selectedStem;
-        if (directionalPrefix && selectedStem.startsWith(directionalPrefix)) {
-            nextAnalysis = selectedStem.slice(directionalPrefix.length);
+        if (directionalPrefix && baseSelectedStem.startsWith(directionalPrefix)) {
+            nextAnalysis = baseSelectedStem.slice(directionalPrefix.length);
+        } else {
+            nextAnalysis = baseSelectedStem;
         }
         return {
             verb: selectedStem,
@@ -2764,14 +2768,24 @@ function applyCausativeDerivation({
         };
     }
     const prefix = causativeSource.prefix || "";
-    const causativeAllStems = options.map((option) => (prefix ? `${prefix}${option.stem}` : option.stem));
-    const preferred = options.find((option) => option.preferred);
-    let selectedStem = preferred
-        ? (prefix ? `${prefix}${preferred.stem}` : preferred.stem)
-        : (causativeAllStems[0] || verb);
-    let nextAnalysis = selectedStem;
-    if (directionalPrefix && selectedStem.startsWith(directionalPrefix)) {
-        nextAnalysis = selectedStem.slice(directionalPrefix.length);
+    const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
+    const stemEntries = options.map((option) => {
+        const baseStem = prefix ? `${prefix}${option.stem}` : option.stem;
+        const surfaceStem = applyEmbeddedPrefixToStem(baseStem, embeddedPrefix, directionalPrefix);
+        return {
+            baseStem,
+            surfaceStem,
+            preferred: option.preferred === true,
+        };
+    });
+    const causativeAllStems = stemEntries.map((entry) => entry.surfaceStem);
+    const preferredEntry = stemEntries.find((entry) => entry.preferred);
+    const selectedEntry = preferredEntry || stemEntries[0];
+    const selectedStem = selectedEntry ? selectedEntry.surfaceStem : (verb || "");
+    const baseSelectedStem = selectedEntry ? selectedEntry.baseStem : selectedStem;
+    let nextAnalysis = baseSelectedStem;
+    if (directionalPrefix && baseSelectedStem.startsWith(directionalPrefix)) {
+        nextAnalysis = baseSelectedStem.slice(directionalPrefix.length);
     }
     return {
         verb: selectedStem,
@@ -2988,14 +3002,17 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         && !isRootPlusYa
         && (!isDirectClassD || ruleBase.endsWith("kwi"))
         && (info.lastOnset !== "k" || clusterAfterDeletion)
+        && !(info.lastOnset === "t" && info.lastNucleus === "a")
         && !(isIntransitive && info.endsWithU)
         && !(isTransitive && info.lastOnset === "y");
     if (allowTypeOne) {
         const dropped = dropFinalVowel(ruleBase);
         if (dropped) {
             let stemBase = dropped;
-            if (!blockReplaciveOnsetForShort && stemBase.endsWith("tz")) {
+            if (!blockReplaciveOnsetForShort && !info.penultimateHasCoda && stemBase.endsWith("tz")) {
                 stemBase = `${stemBase.slice(0, -2)}ch`;
+            } else if (stemBase.endsWith("s")) {
+                stemBase = `${stemBase.slice(0, -1)}sh`;
             }
             push(`${stemBase}ia`, { type: "type-one", rule: "drop-final-vowel" });
         }
@@ -3069,21 +3086,19 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         const lastNucleus = letters[nucleusIndex];
         const lastOnset = onsetIndex >= 0 ? letters[onsetIndex] : "";
         const blockReplaciveForCluster = info.isClassC && clusterAfterDeletion;
-        if (
-            !isRootPlusYa
-            && !isDirectClassD
-            && !blockReplaciveForCluster
-            && !blockReplaciveOnsetForShort
-        ) {
-            if (lastOnset === "tz") {
+        const allowReplaciveOnset = !isRootPlusYa && !isDirectClassD && !blockReplaciveForCluster;
+        const allowSaChange = lastNucleus === "i" || lastNucleus === "a";
+        const allowTzChange = allowSaChange && !info.penultimateHasCoda;
+        if (allowReplaciveOnset) {
+            if (allowTzChange && lastOnset === "tz") {
                 letters[onsetIndex] = "ch";
-            } else if (lastOnset === "t") {
+            } else if (allowSaChange && lastOnset === "s") {
+                letters[onsetIndex] = "sh";
+            } else if (!blockReplaciveOnsetForShort && lastOnset === "t") {
                 const prevLetter = letters[onsetIndex - 1] || "";
                 if (!isVerbLetterConsonant(prevLetter)) {
                     letters[onsetIndex] = "ch";
                 }
-            } else if (lastOnset === "s") {
-                letters[onsetIndex] = "sh";
             }
         }
         if (lastNucleus === "a" && !isDirectClassD && !blockReplaciveNucleus && !blockReplaciveForCluster) {
@@ -3167,14 +3182,24 @@ function applyApplicativeDerivation({
         };
     }
     const prefix = applicativeSource.prefix || "";
-    const applicativeAllStems = options.map((option) => (prefix ? `${prefix}${option.stem}` : option.stem));
-    const preferred = options.find((option) => option.preferred);
-    const selectedStem = preferred
-        ? (prefix ? `${prefix}${preferred.stem}` : preferred.stem)
-        : (applicativeAllStems[0] || verb);
-    let nextAnalysis = selectedStem;
-    if (directionalPrefix && selectedStem.startsWith(directionalPrefix)) {
-        nextAnalysis = selectedStem.slice(directionalPrefix.length);
+    const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
+    const stemEntries = options.map((option) => {
+        const baseStem = prefix ? `${prefix}${option.stem}` : option.stem;
+        const surfaceStem = applyEmbeddedPrefixToStem(baseStem, embeddedPrefix, directionalPrefix);
+        return {
+            baseStem,
+            surfaceStem,
+            preferred: option.preferred === true,
+        };
+    });
+    const applicativeAllStems = stemEntries.map((entry) => entry.surfaceStem);
+    const preferredEntry = stemEntries.find((entry) => entry.preferred);
+    const selectedEntry = preferredEntry || stemEntries[0];
+    const selectedStem = selectedEntry ? selectedEntry.surfaceStem : (verb || "");
+    const baseSelectedStem = selectedEntry ? selectedEntry.baseStem : selectedStem;
+    let nextAnalysis = baseSelectedStem;
+    if (directionalPrefix && baseSelectedStem.startsWith(directionalPrefix)) {
+        nextAnalysis = baseSelectedStem.slice(directionalPrefix.length);
     }
     return {
         verb: selectedStem,
@@ -3624,6 +3649,39 @@ function stripLeadingPrefixes(stem, prefixes) {
         }
     });
     return result;
+}
+
+function getEmbeddedVerbPrefix(parsedVerb) {
+    if (!parsedVerb || !parsedVerb.verbSegment) {
+        return "";
+    }
+    if (!parsedVerb.hasSuffixSeparator && !parsedVerb.hasCompoundMarker) {
+        return "";
+    }
+    if (parsedVerb.hasBoundMarker) {
+        return "";
+    }
+    const parts = parsedVerb.verbSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+    if (parts.length <= 1) {
+        return "";
+    }
+    const prefixParts = parts.slice(0, -1).filter((part) => (
+        part && part !== "al" && !DIRECTIONAL_PREFIXES.includes(part)
+    ));
+    return prefixParts.length ? prefixParts.join("") : "";
+}
+
+function applyEmbeddedPrefixToStem(stem, embeddedPrefix, directionalPrefix = "") {
+    if (!embeddedPrefix || !stem) {
+        return stem;
+    }
+    if (stem.startsWith(embeddedPrefix)) {
+        return stem;
+    }
+    if (directionalPrefix && stem.startsWith(directionalPrefix)) {
+        return `${directionalPrefix}${embeddedPrefix}${stem.slice(directionalPrefix.length)}`;
+    }
+    return `${embeddedPrefix}${stem}`;
 }
 
 function deriveNonactiveStem(verb, analysisVerb, options = {}) {
@@ -15681,10 +15739,14 @@ function generateWord(options = {}) {
     const stemProvenance = appliedMorphology.stemProvenance || null;
     // Combine the prefixes, verb, and suffixes into a single word
     let forms = [];
+    const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
     const collectFormsForStem = (stem) => {
         let stemAnalysis = stem;
         if (directionalPrefix && stem.startsWith(directionalPrefix)) {
             stemAnalysis = stem.slice(directionalPrefix.length);
+        }
+        if (embeddedPrefix && stemAnalysis.startsWith(embeddedPrefix)) {
+            stemAnalysis = stemAnalysis.slice(embeddedPrefix.length);
         }
         let stemVerb = stem;
         let stemAnalysisResolved = stemAnalysis;
