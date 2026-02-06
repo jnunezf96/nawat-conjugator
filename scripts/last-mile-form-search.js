@@ -3,7 +3,11 @@ const vm = require("vm");
 const path = require("path");
 
 const repoRoot = "/Users/jaimenunez/Desktop/Nawat_Conjugator";
+const contextPath = path.join(repoRoot, "pret_universal_context.js");
+const enginePath = path.join(repoRoot, "pret_universal_engine.js");
 const scriptPath = path.join(repoRoot, "script.js");
+const contextCode = fs.readFileSync(contextPath, "utf8");
+const engineCode = fs.readFileSync(enginePath, "utf8");
 const code = fs.readFileSync(scriptPath, "utf8");
 
 function Event() {}
@@ -78,6 +82,8 @@ const sandbox = {
 };
 
 vm.createContext(sandbox);
+vm.runInContext(contextCode, sandbox, { filename: "pret_universal_context.js" });
+vm.runInContext(engineCode, sandbox, { filename: "pret_universal_engine.js" });
 vm.runInContext(code, sandbox, { filename: "script.js" });
 
 const generateWord = vm.runInContext("generateWord", sandbox);

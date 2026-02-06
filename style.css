@@ -16,6 +16,11 @@
   --tense-block-bg-active: rgba(255, 255, 255, 0.85);
   --tense-block-bg-nonactive: rgba(255, 255, 255, 0.9);
   --tense-block-bg-noun: rgba(255, 252, 246, 0.92);
+  --intransitive-bg-active: #f3e8da;
+  --intransitive-bg-nonactive: #f4ece0;
+  --intransitive-bg-noun: #f5ede3;
+  --intransitive-border: #9c7a54;
+  --intransitive-text: #5e462b;
   --direct-bg-active: #e6f2f4;
   --direct-bg-nonactive: #edf4f6;
   --direct-bg-noun: #f1ece4;
@@ -48,8 +53,9 @@
   --row-bg-reflexive:
     linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--reflexive-bg);
   --row-bg-intransitive:
-    linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--tense-block-bg);
+    linear-gradient(0deg, var(--row-bg-tint), var(--row-bg-tint)), var(--intransitive-bg);
   --tense-block-bg: var(--tense-block-bg-active);
+  --intransitive-bg: var(--intransitive-bg-active);
   --direct-bg: var(--direct-bg-active);
   --indirect-bg: var(--indirect-bg-active);
   --te-bg: var(--te-bg-active);
@@ -130,6 +136,7 @@ body::after {
 
 body.is-nonactive-mode {
   --tense-block-bg: var(--tense-block-bg-nonactive);
+  --intransitive-bg: var(--intransitive-bg-nonactive);
   --direct-bg: var(--direct-bg-nonactive);
   --indirect-bg: var(--indirect-bg-nonactive);
   --te-bg: var(--te-bg-nonactive);
@@ -138,6 +145,7 @@ body.is-nonactive-mode {
 
 body.is-sustantivo-mode {
   --tense-block-bg: var(--tense-block-bg-noun);
+  --intransitive-bg: var(--intransitive-bg-noun);
   --direct-bg: var(--direct-bg-noun);
   --indirect-bg: var(--indirect-bg-noun);
   --te-bg: var(--te-bg-noun);
@@ -602,6 +610,280 @@ input.verb-input::selection {
   margin: 0;
   border-radius: 12px;
   overflow: visible;
+}
+
+.verb-editor-mode {
+  margin-top: 10px;
+  display: inline-flex;
+  border: 1px solid rgba(29, 26, 21, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 2px;
+  gap: 2px;
+}
+
+.verb-editor-mode__button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.verb-editor-mode__button.is-active {
+  color: var(--ink);
+  background: linear-gradient(135deg, rgba(216, 106, 58, 0.22), rgba(44, 139, 126, 0.18));
+}
+
+.verb-composer {
+  margin-top: 10px;
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  border-radius: 12px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.86), rgba(244, 239, 231, 0.78));
+  padding: 10px;
+}
+
+.verb-composer.is-hidden {
+  display: none;
+}
+
+.verb-composer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.verb-composer__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.verb-composer__slot {
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.verb-composer__slot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.verb-composer__slot-transitivity {
+  border: 1px solid rgba(29, 26, 21, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink-soft);
+  min-height: 28px;
+  padding: 2px 10px;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.verb-composer__slot-transitivity:hover {
+  border-color: rgba(216, 106, 58, 0.45);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.verb-composer__slot-transitivity.is-active {
+  border-color: rgba(216, 106, 58, 0.58);
+  background: rgba(216, 106, 58, 0.14);
+  color: var(--ink);
+}
+
+.verb-composer__valence-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.verb-composer__valence-main {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.verb-composer__stem-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.verb-composer__stem-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.verb-composer__sub-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.verb-composer__valence-embed-input {
+  text-transform: none;
+}
+
+.verb-composer__valence-embed-input.is-blocked {
+  cursor: not-allowed;
+  opacity: 0.85;
+  background: rgba(245, 241, 233, 0.9);
+}
+
+.verb-composer__label {
+  font-size: var(--font-size-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.verb-composer__input,
+.verb-composer__select {
+  height: 36px;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  font-size: var(--font-size-heading);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+}
+
+.verb-composer__select.is-hidden-control {
+  display: none;
+}
+
+.verb-composer__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.verb-chip {
+  border: 1px solid rgba(29, 26, 21, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-soft);
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.verb-chip:hover {
+  border-color: rgba(216, 106, 58, 0.45);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.verb-chip.is-active {
+  border-color: rgba(216, 106, 58, 0.58);
+  background: rgba(216, 106, 58, 0.14);
+  color: var(--ink);
+}
+
+.verb-chip:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.verb-composer__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: start;
+  min-height: 36px;
+  font-size: var(--font-size-heading);
+  color: var(--ink);
+}
+
+.verb-composer__checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+.verb-composer__checkbox.is-blocked {
+  opacity: 0.55;
+}
+
+.verb-composer__actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.verb-composer__action {
+  border: 1px solid rgba(29, 26, 21, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.verb-composer__action:hover {
+  border-color: rgba(216, 106, 58, 0.45);
+  background: rgba(216, 106, 58, 0.12);
+  transform: translateY(-1px);
+}
+
+.verb-composer__hint {
+  margin-top: 8px;
+  min-height: 18px;
+  font-size: var(--font-size-label);
+  color: var(--ink-soft);
+}
+
+.is-composer-input-mode input.verb-input {
+  cursor: not-allowed;
+}
+
+.is-composer-input-mode .verb-input-wrap {
+  opacity: 0.85;
 }
 
 .verb-rule {
@@ -1371,6 +1653,23 @@ input[type="submit"]:hover {
     align-items: flex-start;
   }
 
+  .verb-composer__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .verb-composer__valence-row {
+    flex-wrap: wrap;
+  }
+
+  .verb-composer__stem-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .verb-composer__valence-embed-input {
+    width: 100%;
+    min-width: 0;
+  }
+
   .tutorial-panel {
     max-height: 92vh;
   }
@@ -1987,6 +2286,16 @@ input:checked + .slider:before {
 .object-section h3 {
   margin: 0 0 8px;
   color: var(--ink);
+}
+
+.object-section .tense-block {
+  border-color: var(--intransitive-border);
+  box-shadow: 0 12px 24px rgba(94, 70, 43, 0.14);
+  background: var(--intransitive-bg);
+}
+
+.object-section .tense-block__title {
+  color: var(--intransitive-text);
 }
 
 .object-section--direct .tense-block {

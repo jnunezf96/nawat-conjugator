@@ -40,14 +40,20 @@ function buildVmContext() {
 
 function main() {
   const root = path.resolve(__dirname, "..");
+  const contextPath = path.join(root, "pret_universal_context.js");
+  const enginePath = path.join(root, "pret_universal_engine.js");
   const scriptPath = path.join(root, "script.js");
   const basicCsvPath = path.join(root, "data", "basic data.csv");
 
+  const contextCode = fs.readFileSync(contextPath, "utf8");
+  const engineCode = fs.readFileSync(enginePath, "utf8");
   const code = fs.readFileSync(scriptPath, "utf8");
   const basicCsvText = fs.readFileSync(basicCsvPath, "utf8");
 
   const context = buildVmContext();
   vm.createContext(context);
+  vm.runInContext(contextCode, context, { filename: "pret_universal_context.js" });
+  vm.runInContext(engineCode, context, { filename: "pret_universal_engine.js" });
   vm.runInContext(code, context, { filename: "script.js" });
 
   // Static loaders needed for parse + nonactive/causative rules.

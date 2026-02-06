@@ -1,6 +1,6 @@
 {
   "summary": {
-    "totalPairs": 327,
+    "totalPairs": 338,
     "mismatches": 0,
     "sample": [
       {
@@ -63,40 +63,6 @@
         "actualMergedNonactiveSet": [
           "seuwa",
           "sewalu"
-        ],
-        "ok": true
-      },
-      {
-        "source": "sewi",
-        "causativeStem": "sewa",
-        "matchedDirect": "sewa",
-        "expectedNonactiveSet": [
-          "seuwa",
-          "sewalu"
-        ],
-        "actualNonactiveSet": [
-          "seuwa",
-          "sewalu"
-        ],
-        "actualMergedNonactiveSet": [
-          "seuwa",
-          "sewalu",
-          "sewilu"
-        ],
-        "ok": true
-      },
-      {
-        "source": "sewi",
-        "causativeStem": "sewia",
-        "matchedDirect": "-sewia",
-        "expectedNonactiveSet": [
-          "sewilu"
-        ],
-        "actualNonactiveSet": [
-          "sewilu"
-        ],
-        "actualMergedNonactiveSet": [
-          "sewilu"
         ],
         "ok": true
       },
@@ -302,6 +268,24 @@
         "ok": true
       },
       {
+        "source": "-mini",
+        "causativeStem": "mina",
+        "matchedDirect": "-mina",
+        "expectedNonactiveSet": [
+          "minalu",
+          "minu"
+        ],
+        "actualNonactiveSet": [
+          "minalu",
+          "minu"
+        ],
+        "actualMergedNonactiveSet": [
+          "minalu",
+          "minu"
+        ],
+        "ok": true
+      },
+      {
         "source": "miki",
         "causativeStem": "miktia",
         "matchedDirect": "-miktia",
@@ -313,6 +297,21 @@
         ],
         "actualMergedNonactiveSet": [
           "miktilu"
+        ],
+        "ok": true
+      },
+      {
+        "source": "nesi",
+        "causativeStem": "neshitia",
+        "matchedDirect": "-neshitia",
+        "expectedNonactiveSet": [
+          "neshitilu"
+        ],
+        "actualNonactiveSet": [
+          "neshitilu"
+        ],
+        "actualMergedNonactiveSet": [
+          "neshitilu"
         ],
         "ok": true
       }

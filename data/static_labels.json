@@ -136,12 +136,12 @@
     "condicional-perfecto": { "labelEs": "pasado hipotético o no realizado", "labelNa": "keman te wel muchiwki" },
     "futuro": { "labelEs": "evento proyectado o esperado", "labelNa": "keman ipan muchiwas" },
     "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
-    "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
-    "agentivo": { "labelEs": "persona o entidad que realiza la acción", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
-    "patientivo": { "labelEs": "persona o entidad que existe cuando ocurre un evento", "labelNa": "kajkajsan wan tajtaysan nemi kwak muchiwa tajtaya" },
-    "instrumentivo": { "labelEs": "medio o herramienta de la acción", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
-    "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
-    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }
+    "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo (sustantivo derivado del verbo con -lis)", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
+    "agentivo": { "labelEs": "persona o entidad que realiza la acción (sustantivo derivado del presente habitual -ni)", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
+    "patientivo": { "labelEs": "persona o entidad que existe cuando ocurre un evento (sustantivo derivado de base no activa/perfectiva/imperfectiva/tronco verbal)", "labelNa": "kajkajsan wan tajtaysan nemi kwak muchiwa tajtaya" },
+    "instrumentivo": { "labelEs": "medio o herramienta de la acción (sustantivo derivado de base no activa + presente habitual -ni, o de base activa + imperfecto -ya)", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
+    "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado (sustantivo derivado del pasado remoto -ka + -yut/posesivo)", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
+    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción (sustantivo derivado del imperfecto -ya + -n en base activa/no activa)", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }
   },
   "preteritoClassDetailByKey": {
     "A": {

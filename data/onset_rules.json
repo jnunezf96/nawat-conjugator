@@ -1,0 +1,307 @@
+{
+  "version": 1,
+  "description": "Onset-focused checks for explicit preterite universal candidate rules.",
+  "cases": [
+    {
+      "name": "Onset t: endsWithTA intransitive",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pata",
+          "expect": {
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset t: endsWithTA transitive",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pata",
+          "expect": {
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset ch: endsWithChi intransitive",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pachi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset p: endsWithPA transitive",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset m: endsWithMV transitive",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pama",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset p: endsWithPI intransitive",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset tz: endsWithTZV",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patzi",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact Vjwa",
+      "exactKey": "isExactVjwa",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ajwa",
+          "expect": {
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact CVwaI",
+      "exactKey": "isExactCVwaI",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "piwa",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact VwaI",
+      "exactKey": "isExactVwaI",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "iwa",
+          "expect": {
+            "candidates": [
+              "D"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact Cuwa intransitive",
+      "exactKey": "isExactCuwa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "kuwa",
+          "expect": {
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact Vwi intransitive",
+      "exactKey": "isExactVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "awi",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset w: exact CVwi intransitive",
+      "exactKey": "isExactCVwi",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pawi",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: exact Vna intransitive",
+      "exactKey": "isExactVna",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "ana",
+          "expect": {
+            "candidates": [
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: exact CVna intransitive",
+      "exactKey": "isExactCVna",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pana",
+          "expect": {
+            "candidates": [
+              "A",
+              "B"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: exact CVCVna intransitive",
+      "exactKey": "isExactCVCVna",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "tapana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: long Na intransitive (gradient)",
+      "exactKey": "isExactLongNa",
+      "isTransitive": false,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "patakalana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: exact Ni transitive",
+      "exactKey": "isExactCVni",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pani",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Onset n: exact Na transitive",
+      "exactKey": "isExactCVna",
+      "isTransitive": true,
+      "forms": [
+        {
+          "label": "base",
+          "verb": "pana",
+          "expect": {
+            "candidates": [
+              "A"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

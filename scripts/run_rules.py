@@ -19,6 +19,14 @@ def main() -> int:
     if not script_path.exists():
         print(f"script.js not found at: {script_path}", file=sys.stderr)
         return 2
+    context_path = root / "pret_universal_context.js"
+    if not context_path.exists():
+        print(f"pret_universal_context.js not found at: {context_path}", file=sys.stderr)
+        return 2
+    engine_path = root / "pret_universal_engine.js"
+    if not engine_path.exists():
+        print(f"pret_universal_engine.js not found at: {engine_path}", file=sys.stderr)
+        return 2
 
     phonology_path = root / "data" / "static_phonology.json"
     constants_path = root / "data" / "static_constants.json"
@@ -32,12 +40,16 @@ def main() -> int:
         const vm = require("vm");
 
         const rulesPath = process.argv[1];
-        const scriptPath = process.argv[2];
-        const phonologyPath = process.argv[3];
-        const constantsPath = process.argv[4];
-        const staticRulesPath = process.argv[5];
-        const redupPath = process.argv[6];
+        const contextPath = process.argv[2];
+        const enginePath = process.argv[3];
+        const scriptPath = process.argv[4];
+        const phonologyPath = process.argv[5];
+        const constantsPath = process.argv[6];
+        const staticRulesPath = process.argv[7];
+        const redupPath = process.argv[8];
         const rules = JSON.parse(fs.readFileSync(rulesPath, "utf8"));
+        const contextCode = fs.readFileSync(contextPath, "utf8");
+        const engineCode = fs.readFileSync(enginePath, "utf8");
         const code = fs.readFileSync(scriptPath, "utf8");
 
         const noop = () => {};
@@ -69,6 +81,8 @@ def main() -> int:
         };
 
         vm.createContext(context);
+        vm.runInContext(contextCode, context, { filename: path.basename(contextPath) });
+        vm.runInContext(engineCode, context, { filename: path.basename(enginePath) });
         vm.runInContext(code, context, { filename: path.basename(scriptPath) });
 
         const applyStaticPhonology = context.applyStaticPhonology;
@@ -97,7 +111,7 @@ def main() -> int:
         const buildPretUniversalClassA = context.buildPretUniversalClassA;
 
         if (!buildPretUniversalContext || !getPretUniversalClassCandidates || !buildPretUniversalClassA) {
-          console.error("Missing expected functions from script.js");
+          console.error("Missing expected preterite functions from loaded scripts.");
           process.exit(2);
         }
 
@@ -217,6 +231,8 @@ def main() -> int:
             "-e",
             js_runner,
             str(rules_path),
+            str(context_path),
+            str(engine_path),
             str(script_path),
             str(phonology_path),
             str(constants_path),

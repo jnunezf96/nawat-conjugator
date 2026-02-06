@@ -31,6 +31,7 @@
         "verb": "tachiya",
         "analysisVerb": "tachiya",
         "isTaFusion": true,
+        "hasImpersonalTaPrefix": false,
         "hasSuffixSeparator": true,
         "hasNonspecificValence": true
       }
@@ -44,6 +45,20 @@
         "hasSlashMarker": true,
         "isMarkedTransitive": false,
         "valenceSlotCount": 0
+      }
+    },
+    {
+      "input": "-ta/nesi",
+      "expect": {
+        "hasLeadingDash": true,
+        "hasImpersonalTaPrefix": false
+      }
+    },
+    {
+      "input": "ta/nesi-k",
+      "expect": {
+        "hasBoundMarker": true,
+        "hasImpersonalTaPrefix": false
       }
     },
     {

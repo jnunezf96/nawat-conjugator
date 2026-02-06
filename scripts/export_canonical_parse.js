@@ -4,6 +4,8 @@ const path = require("path");
 const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
+const contextPath = path.join(root, "pret_universal_context.js");
+const enginePath = path.join(root, "pret_universal_engine.js");
 const scriptPath = path.join(root, "script.js");
 const defaultCsv = path.join(root, "data", "basic data.csv");
 const defaultOut = path.join(root, "tmp_canonical_parse.json");
@@ -15,11 +17,21 @@ if (!fs.existsSync(scriptPath)) {
   console.error(`script.js not found at ${scriptPath}`);
   process.exit(2);
 }
+if (!fs.existsSync(contextPath)) {
+  console.error(`pret_universal_context.js not found at ${contextPath}`);
+  process.exit(2);
+}
+if (!fs.existsSync(enginePath)) {
+  console.error(`pret_universal_engine.js not found at ${enginePath}`);
+  process.exit(2);
+}
 if (!fs.existsSync(inputCsv)) {
   console.error(`CSV not found at ${inputCsv}`);
   process.exit(2);
 }
 
+const contextCode = fs.readFileSync(contextPath, "utf8");
+const engineCode = fs.readFileSync(enginePath, "utf8");
 const code = fs.readFileSync(scriptPath, "utf8");
 const noop = () => {};
 const context = {
@@ -50,6 +62,8 @@ const context = {
 };
 
 vm.createContext(context);
+vm.runInContext(contextCode, context, { filename: path.basename(contextPath) });
+vm.runInContext(engineCode, context, { filename: path.basename(enginePath) });
 vm.runInContext(code, context, { filename: path.basename(scriptPath) });
 
 const applyStaticPhonology = context.applyStaticPhonology;
