@@ -572,6 +572,25 @@ function splitDirectionalPrefixFromBase(base, directionalPrefix) {
     return { directional: "", base };
 }
 
+function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "") {
+    let adjustedPrefix = prefix || "";
+    let adjustedBase = base || "";
+    const shouldDropLeadingI =
+        (adjustedPrefix && adjustedPrefix.endsWith("i") && adjustedBase.startsWith("i"))
+        || (
+            adjustedPrefix === "k"
+            && ["ni", "ti"].includes(baseSubjectPrefix)
+            && adjustedBase.startsWith("ii")
+        );
+    if (shouldDropLeadingI) {
+        adjustedBase = adjustedBase.slice(1);
+    }
+    return {
+        prefix: adjustedPrefix,
+        base: adjustedBase,
+    };
+}
+
 function getPretUniversalPrefixForBase(
     base,
     subjectPrefix,
@@ -599,9 +618,14 @@ function getPretUniversalPrefixForBase(
                 adjustedBase = adjustedBase.slice(1);
             }
         }
+        const contactAdjusted = adjustPretPrefixBaseContact(
+            adjustedObjectPrefix,
+            adjustedBase,
+            baseSubjectPrefix
+        );
         return {
-            prefix: subjectPrefix + adjustedObjectPrefix,
-            base: adjustedBase,
+            prefix: subjectPrefix + contactAdjusted.prefix,
+            base: contactAdjusted.base,
         };
     }
     const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
@@ -631,9 +655,14 @@ function getPretUniversalPrefixForBase(
             adjustedBase = adjustedBase.slice(1);
         }
     }
+    const contactAdjusted = adjustPretPrefixBaseContact(
+        adjustedObjectPrefix,
+        adjustedBase,
+        baseSubjectPrefix
+    );
     return {
-        prefix: subjectHead + outputDirectional + adjustedObjectPrefix,
-        base: adjustedBase,
+        prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
+        base: contactAdjusted.base,
     };
 }
 

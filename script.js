@@ -12819,8 +12819,17 @@ function applyMorphologyRules({
     objectPrefix = applyIndirectObjectMarker(objectPrefix, marker);
     // Check if the object prefix "ki" should be shortened to "k"
     objectPrefix = shortenKiPrefix(objectPrefix);
-    // Avoid double-i when object prefix ends in "i" and the verb starts with "i".
-    if (objectPrefix && objectPrefix.endsWith("i") && verb.startsWith("i")) {
+    // Avoid double-i after object prefix + stem contact:
+    // 1) direct ...i + i... (e.g. ki + i...)
+    // 2) shortened ki -> k with ni/ti, when stem already begins ii...
+    const shouldDropLeadingI =
+        (objectPrefix && objectPrefix.endsWith("i") && verb.startsWith("i"))
+        || (
+            objectPrefix === "k"
+            && ["ni", "ti"].includes(baseSubjectPrefix)
+            && verb.startsWith("ii")
+        );
+    if (shouldDropLeadingI) {
         verb = verb.slice(1);
         if (analysisVerb.startsWith("i")) {
             analysisVerb = analysisVerb.slice(1);
