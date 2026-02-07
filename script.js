@@ -55,6 +55,9 @@ const COMPOSER_SYLLABLE_MODE = {
 const COMPOSER_VALENCE_OPTIONS = ["", "ta", "te", "mu"];
 const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "",
+    "te-2",
+    "ta-2",
+    "mu-2",
     "te+te",
     "ta+ta",
     "te+ta",
@@ -64,8 +67,6 @@ const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "ta",
     "te",
     "mu",
-    "ta-2",
-    "te-2",
 ];
 const VERB_COMPOSER_STATE = {
     mode: VERB_INPUT_MODE.composer,
@@ -3056,25 +3057,29 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
     const nonRedupRoot = getNonReduplicatedRoot(ruleBase);
     const clusterBase = nonRedupRoot || ruleBase;
     const clusterAfterDeletion = createsConsonantClusterAfterFinalDeletion(clusterBase);
-    const allowIntransitive = info.endsWithNucleusA
-        || (info.endsWithNucleusI && info.lastOnset === "w")
-        || clusterAfterDeletion;
-    const allowTypeOne = (isTransitive || allowIntransitive)
-        && !info.isClassC
-        && !isRootPlusYa
-        && (!isDirectClassD || ruleBase.endsWith("kwi"))
-        && (info.lastOnset !== "k" || clusterAfterDeletion)
-        && !(info.lastOnset === "t" && info.lastNucleus === "a")
-        && !(isIntransitive && info.endsWithU)
-        && !(isTransitive && info.lastOnset === "y");
+    const lastOnset = info.lastOnset || "";
+    const lastNucleus = info.lastNucleus || "";
+    const endsWithAorI = lastNucleus === "a" || lastNucleus === "i";
+    const allowTypeOneTransitive = endsWithAorI && (
+        (lastOnset === "w")
+        || (lastOnset === "k" && lastNucleus === "a" && clusterAfterDeletion)
+        || (lastOnset === "m" && lastNucleus === "a")
+        || (lastOnset === "n")
+        || (lastOnset === "kw")
+        || (lastOnset === "tz" && lastNucleus === "a")
+    );
+    const allowTypeOneIntransitive = endsWithAorI && (
+        (lastOnset === "w")
+        || (lastOnset === "n" && lastNucleus === "a")
+    );
+    const allowTypeOne = (isTransitive ? allowTypeOneTransitive : allowTypeOneIntransitive)
+        && !info.isClassC;
     if (allowTypeOne) {
         const dropped = dropFinalVowel(ruleBase);
         if (dropped) {
             let stemBase = dropped;
-            if (!blockReplaciveOnsetForShort && !info.penultimateHasCoda && stemBase.endsWith("tz")) {
+            if (isTransitive && lastOnset === "tz" && lastNucleus === "a" && stemBase.endsWith("tz")) {
                 stemBase = `${stemBase.slice(0, -2)}ch`;
-            } else if (stemBase.endsWith("s")) {
-                stemBase = `${stemBase.slice(0, -1)}sh`;
             }
             push(`${stemBase}ia`, { type: "type-one", rule: "drop-final-vowel" });
         }
@@ -4970,12 +4975,18 @@ function getConjugationMaskState({
     result,
     subjectPrefix,
     subjectSuffix,
-    objectPrefix,
+    objectPrefix = "",
     comboObjectPrefix,
+    derivationType = "",
+    indirectObjectMarker = "",
     enforceInvalidCombo = true,
     invalidComboSet = INVALID_COMBINATION_KEYS,
 }) {
-    const effectiveObjectPrefix = comboObjectPrefix ?? objectPrefix;
+    const effectiveObjectPrefix = comboObjectPrefix ?? resolveComboValidationObjectPrefix({
+        objectPrefix,
+        indirectObjectMarker,
+        derivationType,
+    });
     const invalidCombo = enforceInvalidCombo && invalidComboSet.has(
         getComboKey(subjectPrefix, effectiveObjectPrefix, subjectSuffix)
     );
@@ -6178,6 +6189,17 @@ function getCurrentObjectPrefix() {
 // === Conjugation Utilities ===
 function getComboKey(subjectPrefix, objectPrefix, subjectSuffix) {
     return `${subjectPrefix}|${objectPrefix}|${subjectSuffix}`;
+}
+
+function resolveComboValidationObjectPrefix({
+    objectPrefix = "",
+    indirectObjectMarker = "",
+    derivationType = "",
+}) {
+    if (derivationType === DERIVATION_TYPE.causative && indirectObjectMarker) {
+        return indirectObjectMarker;
+    }
+    return objectPrefix;
 }
 
 function applyTenseSuffixRules(tense, subjectSuffix) {
@@ -8204,13 +8226,13 @@ function getVerbComposerElements() {
         valenceSelectSecondary: document.getElementById("composer-valence-2"),
         valenceChipsSecondary: document.getElementById("composer-valence-2-chips"),
         valenceEmbedSecondaryInput: slotCValenceLeftEmbedInput,
+        directionalField: document.getElementById("composer-directional-field"),
+        directionalHosts: document.querySelectorAll("[data-composer-directional-host]"),
         directionalSelect: document.getElementById("composer-directional"),
         directionalChips: document.getElementById("composer-directional-chips"),
         embedStemInput,
         embedInput: embedStemInput,
         supportiveICheckbox: document.getElementById("composer-supportive-i"),
-        applySelectionButton: document.getElementById("composer-apply-selection"),
-        autoSegmentButton: document.getElementById("composer-auto-segment"),
         hint: document.getElementById("verb-composer-hint"),
     };
 }
@@ -8269,6 +8291,11 @@ function syncComposerTransitivitySlotButtons() {
     if (transitivitySelect) {
         transitivitySelect.value = VERB_COMPOSER_STATE.transitivity;
     }
+    const slotsWrap = document.querySelector(".verb-composer__slots");
+    if (slotsWrap) {
+        slotsWrap.setAttribute("data-active-transitivity", VERB_COMPOSER_STATE.transitivity);
+    }
+    syncComposerSlotPanelVisibility();
     if (!transitivitySlotButtons || !transitivitySlotButtons.length) {
         return;
     }
@@ -8277,7 +8304,88 @@ function syncComposerTransitivitySlotButtons() {
         const isActive = token === VERB_COMPOSER_STATE.transitivity;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
     });
+}
+
+function syncComposerSlotPanelVisibility() {
+    const { panels, directionalField } = (() => {
+        const composerPanels = document.querySelectorAll("[data-slot-transitivity]");
+        const composerDirectionalField = document.getElementById("composer-directional-field");
+        return {
+            panels: composerPanels,
+            directionalField: composerDirectionalField,
+        };
+    })();
+    if (!panels.length) {
+        return;
+    }
+    const activeToken = VERB_COMPOSER_STATE.transitivity;
+    let activeDirectionalHost = null;
+    panels.forEach((panel) => {
+        const token = panel.getAttribute("data-slot-transitivity") || "";
+        const isActive = token === activeToken;
+        panel.classList.toggle("is-hidden-slot", !isActive);
+        panel.hidden = !isActive;
+        panel.setAttribute("aria-hidden", String(!isActive));
+        if (isActive) {
+            activeDirectionalHost = panel.querySelector("[data-composer-directional-host]");
+        }
+    });
+    if (directionalField && activeDirectionalHost && directionalField.parentElement !== activeDirectionalHost) {
+        activeDirectionalHost.appendChild(directionalField);
+    }
+}
+
+function transposeComposerSlotTextboxes(fromTransitivity, toTransitivity) {
+    const sourceSlot = getComposerSlotKeyForTransitivity(fromTransitivity);
+    const targetSlot = getComposerSlotKeyForTransitivity(toTransitivity);
+    if (!sourceSlot || !targetSlot || sourceSlot === targetSlot) {
+        return;
+    }
+    const {
+        slotAEmbedInput,
+        slotAStemInput,
+        slotAValenceLeftEmbedInput,
+        slotBEmbedInput,
+        slotBStemInput,
+        slotBValenceLeftEmbedInput,
+        slotCEmbedInput,
+        slotCStemInput,
+        slotCValenceLeftEmbedInput,
+    } = getVerbComposerElements();
+    const slotMap = {
+        a: {
+            embedInput: slotAEmbedInput,
+            stemInput: slotAStemInput,
+            objectInput: slotAValenceLeftEmbedInput,
+        },
+        b: {
+            embedInput: slotBEmbedInput,
+            stemInput: slotBStemInput,
+            objectInput: slotBValenceLeftEmbedInput,
+        },
+        c: {
+            embedInput: slotCEmbedInput,
+            stemInput: slotCStemInput,
+            objectInput: slotCValenceLeftEmbedInput,
+        },
+    };
+    const source = slotMap[sourceSlot];
+    const target = slotMap[targetSlot];
+    if (!source || !target) {
+        return;
+    }
+    if (source.embedInput && target.embedInput) {
+        target.embedInput.value = source.embedInput.value;
+    }
+    if (source.stemInput && target.stemInput) {
+        target.stemInput.value = source.stemInput.value;
+    }
+    if (source.objectInput && target.objectInput) {
+        target.objectInput.value = source.objectInput.value;
+    }
 }
 
 function syncComposerChipGroupsFromState() {
@@ -8300,6 +8408,24 @@ function syncComposerChipGroupsFromState() {
 
 function isVerbInputModeComposer() {
     return VERB_COMPOSER_STATE.mode === VERB_INPUT_MODE.composer;
+}
+
+function getVerbRegexPlaceholder() {
+    const verbInput = document.getElementById("verb");
+    if (!originalPlaceholder) {
+        originalPlaceholder = verbInput?.getAttribute("placeholder") || "Escriba verbo aquí";
+    }
+    const isNawat = Boolean(document.getElementById("language")?.checked);
+    return isNawat ? "Shitajkwilu kalijtik" : originalPlaceholder;
+}
+
+function updateVerbInputPlaceholder() {
+    const verbInput = document.getElementById("verb");
+    if (!verbInput) {
+        return;
+    }
+    verbInput.placeholder = isVerbInputModeComposer() ? "" : getVerbRegexPlaceholder();
+    renderVerbMirror();
 }
 
 function normalizeComposerStem(value) {
@@ -8329,11 +8455,14 @@ function normalizeComposerEmbedValue(value) {
 
 function normalizeComposerValenceToken(value) {
     const token = String(value || "").trim();
-    if (token === "ta-2") {
+    if (token === "ta-1" || token === "ta-2") {
         return "ta";
     }
-    if (token === "te-2") {
+    if (token === "te-1" || token === "te-2") {
         return "te";
+    }
+    if (token === "mu-1" || token === "mu-2") {
+        return "mu";
     }
     return COMPOSER_VALENCE_OPTIONS.includes(token) ? token : "";
 }
@@ -8352,11 +8481,51 @@ function parseComposerSecondaryValenceSelection(value) {
             };
         }
     }
+    if (token === "ta-1") {
+        return { first: "ta", second: "" };
+    }
+    if (token === "te-1") {
+        return { first: "te", second: "" };
+    }
+    if (token === "mu-1") {
+        return { first: "mu", second: "" };
+    }
+    if (token === "ta-2") {
+        return { first: "", second: "ta" };
+    }
+    if (token === "te-2") {
+        return { first: "", second: "te" };
+    }
+    if (token === "mu-2" || token === "mu") {
+        return { first: "", second: "mu" };
+    }
     const single = normalizeComposerValenceToken(token);
     return {
         first: "",
         second: single,
     };
+}
+
+function encodeComposerSecondaryValenceSelection(firstValue, secondValue) {
+    const first = normalizeComposerValenceToken(firstValue);
+    const second = normalizeComposerValenceToken(secondValue);
+    if (first && second) {
+        return `${first}+${second}`;
+    }
+    const canonical = second || first;
+    if (canonical === "te") {
+        return "te-2";
+    }
+    if (canonical === "ta") {
+        return "ta-2";
+    }
+    if (canonical === "mu") {
+        return "mu-2";
+    }
+    if (canonical) {
+        return canonical;
+    }
+    return "";
 }
 
 function shouldUseNhBeforeMatrixStem(matrixStem, supportiveI = false) {
@@ -8388,6 +8557,20 @@ function normalizeComposerMatrixAdjacentEmbed(embedValue, matrixStem, supportive
         embedTokens[lastIndex] = `${lastToken}h`;
     }
     return embedTokens.join("/");
+}
+
+function formatComposerSupportiveStem(stemValue, supportiveI = false) {
+    const stem = normalizeComposerStem(stemValue);
+    if (!stem) {
+        return "";
+    }
+    if (!supportiveI) {
+        return stem;
+    }
+    if (stem.startsWith("i")) {
+        return `${OPTIONAL_SUPPORTIVE_I_MARKER}${stem.slice(1)}`;
+    }
+    return `${OPTIONAL_SUPPORTIVE_I_MARKER}${stem}`;
 }
 
 function getComposerStemSyllableCount(stem) {
@@ -8489,10 +8672,6 @@ function syncComposerValenceAvailability() {
         option.disabled = !allowedPrimary.has(option.value);
     });
     const isBitransitive = VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.bitransitive;
-    if (isBitransitive) {
-        VERB_COMPOSER_STATE.valence = "";
-        VERB_COMPOSER_STATE.valenceEmbedPrimary = "";
-    }
     if (!allowedPrimary.has(VERB_COMPOSER_STATE.valence)) {
         VERB_COMPOSER_STATE.valence = "";
     }
@@ -8510,9 +8689,6 @@ function syncComposerValenceAvailability() {
         valenceEmbedPrimaryInput.readOnly = isBitransitive;
         valenceEmbedPrimaryInput.classList.toggle("is-blocked", isBitransitive);
         valenceEmbedPrimaryInput.setAttribute("aria-disabled", String(isBitransitive));
-        if (isBitransitive) {
-            valenceEmbedPrimaryInput.value = "";
-        }
     }
     if (valenceEmbedSecondaryInput) {
         valenceEmbedSecondaryInput.readOnly = false;
@@ -8559,9 +8735,7 @@ function buildRegexFromComposerState(state) {
             matrixStem,
             state.supportiveI
         );
-        const supportiveMatrixStem = state.supportiveI
-            ? `${OPTIONAL_SUPPORTIVE_I_MARKER}${matrixStem}`
-            : matrixStem;
+        const supportiveMatrixStem = formatComposerSupportiveStem(matrixStem, state.supportiveI);
         const taRightSegment = taRightEmbed
             ? `${taRightEmbed}/${supportiveMatrixStem}`
             : supportiveMatrixStem;
@@ -8571,7 +8745,7 @@ function buildRegexFromComposerState(state) {
     if (!matrixStem) {
         return "";
     }
-    const supportiveStem = state.supportiveI ? `${OPTIONAL_SUPPORTIVE_I_MARKER}${matrixStem}` : matrixStem;
+    const supportiveStem = formatComposerSupportiveStem(matrixStem, state.supportiveI);
     const normalizedMatrixAdjacentEmbed = normalizeComposerMatrixAdjacentEmbed(
         matrixAdjacentEmbed,
         matrixStem,
@@ -8599,10 +8773,22 @@ function buildRegexFromComposerState(state) {
     };
     if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
         const secondaryPair = parseComposerSecondaryValenceSelection(valenceSecondaryRaw);
-        const slotOneValue = secondaryPair.first || valence;
-        const slotTwoValue = secondaryPair.second || valenceSecondary;
-        const slotOne = appendOptionalSlot(slotOneValue, valenceEmbedPrimary);
-        const slotTwo = appendOptionalSlot(slotTwoValue, valenceEmbedSecondary);
+        let slotOneValue = secondaryPair.first;
+        let slotTwoValue = secondaryPair.second;
+        if (!slotOneValue && !slotTwoValue) {
+            slotOneValue = valence;
+            slotTwoValue = valenceSecondary;
+        }
+        const governingEmbed = normalizeComposerEmbedValue(valenceEmbedSecondary || valenceEmbedPrimary || "");
+        const governingSlot = !slotOneValue ? 1 : (!slotTwoValue ? 2 : 0);
+        const slotOne = appendOptionalSlot(
+            slotOneValue,
+            governingSlot === 1 ? governingEmbed : ""
+        );
+        const slotTwo = appendOptionalSlot(
+            slotTwoValue,
+            governingSlot === 2 ? governingEmbed : ""
+        );
         const slotBlock = `${slotOne}${slotTwo}`;
         if (!directionalSegment) {
             return `${slotBlock}${transitiveStem}`;
@@ -8986,6 +9172,11 @@ function parseComposerStateFromRegexValue(rawValue) {
         : (globalEmbed || parsedEmbedFallback);
     const stemSource = parsed?.rawAnalysisVerb || parsed?.analysisVerb || parsed?.verb || baseValue;
     state.stem = normalizeComposerStem(stemSource);
+    if (state.supportiveI && state.stem && !state.stem.startsWith("i")) {
+        // Keep composer controls in sync with optional-i display by restoring
+        // the leading i in the editable stem when regex uses the "(i)X..." form.
+        state.stem = `i${state.stem}`;
+    }
     const syllables = getComposerStemSyllableCount(state.stem);
     state.syllableMode = syllables === 1
         ? COMPOSER_SYLLABLE_MODE.monosyllable
@@ -9015,19 +9206,20 @@ function parseComposerStateFromRegexValue(rawValue) {
         state.stem = state.slotBStem;
         state.embedPrefix = state.slotBEmbed;
     } else {
-        const primaryForCombo = normalizeComposerValenceToken(state.valence);
-        const secondaryForCombo = normalizeComposerValenceToken(state.valenceSecondary);
-        if (primaryForCombo && secondaryForCombo) {
-            state.valenceSecondary = `${primaryForCombo}+${secondaryForCombo}`;
-        } else if (secondaryForCombo) {
-            state.valenceSecondary = secondaryForCombo;
-        } else if (primaryForCombo) {
-            state.valenceSecondary = primaryForCombo;
-        } else {
-            state.valenceSecondary = "";
+        const parsedSecondary = parseComposerSecondaryValenceSelection(state.valenceSecondary);
+        let firstForCombo = normalizeComposerValenceToken(parsedSecondary.first);
+        let secondForCombo = normalizeComposerValenceToken(parsedSecondary.second);
+        if (!firstForCombo && !secondForCombo) {
+            firstForCombo = normalizeComposerValenceToken(state.valence);
+            secondForCombo = normalizeComposerValenceToken(state.valenceSecondary);
         }
+        state.valenceSecondary = encodeComposerSecondaryValenceSelection(firstForCombo, secondForCombo);
         state.valence = "";
+        const governingEmbed = normalizeComposerEmbedValue(
+            state.valenceEmbedSecondary || state.valenceEmbedPrimary || ""
+        );
         state.valenceEmbedPrimary = "";
+        state.valenceEmbedSecondary = governingEmbed;
         state.slotBEmbed = "";
         state.slotCStem = state.stem;
         state.slotCEmbed = globalEmbed;
@@ -9065,7 +9257,9 @@ function renderVerbComposerFromState() {
     document.body.classList.toggle("is-composer-input-mode", isComposer);
     if (verbInput) {
         verbInput.readOnly = isComposer;
+        verbInput.setAttribute("aria-readonly", String(isComposer));
     }
+    updateVerbInputPlaceholder();
     if (panel) {
         panel.classList.toggle("is-hidden", !isComposer);
     }
@@ -9167,52 +9361,6 @@ function syncComposerStateFromVerbInput(rawValue = "") {
         VERB_COMPOSER_STATE.sourceBase = normalizeComposerStem(baseValue);
         VERB_COMPOSER_STATE.stemManualOverride = false;
     }
-}
-
-function shouldAutoSegmentComposerBase(baseValue) {
-    const base = String(baseValue || "").trim().toLowerCase();
-    if (!base) {
-        return false;
-    }
-    // Only auto-segment plain input; regex/dev forms keep full manual control.
-    if (!/^[a-z]+$/.test(base)) {
-        return false;
-    }
-    return true;
-}
-
-function maybeAutoSegmentComposerInputFromTyping() {
-    if (!isVerbInputModeComposer() || VERB_COMPOSER_STATE.isApplying) {
-        return false;
-    }
-    const verbEl = document.getElementById("verb");
-    if (!verbEl) {
-        return false;
-    }
-    const searchParts = splitSearchInput(verbEl.value);
-    const plainBase = String(searchParts.base || "").trim().toLowerCase();
-    if (!shouldAutoSegmentComposerBase(plainBase)) {
-        return false;
-    }
-    const segmentedBase = getComposerAutoSegmentBase(plainBase);
-    if (!segmentedBase || segmentedBase === plainBase) {
-        return false;
-    }
-    VERB_COMPOSER_STATE.sourceBase = normalizeComposerStem(plainBase);
-    VERB_COMPOSER_STATE.stemManualOverride = false;
-    const nextValue = searchParts.hasQuery
-        ? `${segmentedBase}?${searchParts.query}`
-        : segmentedBase;
-    VERB_COMPOSER_STATE.isApplying = true;
-    try {
-        verbEl.value = nextValue;
-        verbEl.dispatchEvent(new Event("input", { bubbles: true }));
-    } finally {
-        VERB_COMPOSER_STATE.isApplying = false;
-    }
-    syncComposerStateFromVerbInput(verbEl.value);
-    renderVerbComposerFromState();
-    return true;
 }
 
 function applyComposerStateToVerbInput(options = {}) {
@@ -9363,37 +9511,45 @@ function deriveComposerStemFromSelections(rawBase, state) {
         result.warnings.push(`No se detectó embed ${embedToken}/ en la base.`);
     });
     const valenceItems = [];
-    if (primaryValence) {
+    if (state?.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        const governingEmbed = normalizeComposerEmbedValue(
+            state?.valenceEmbedSecondary || state?.valenceEmbedPrimary || ""
+        );
+        const governingSlot = !primaryValence ? 1 : (!secondaryValence ? 2 : 0);
         valenceItems.push({
             token: primaryValence,
-            embed: state?.transitivity === COMPOSER_TRANSITIVITY.intransitive
-                ? normalizeComposerEmbedValue(state?.valenceIntransitiveEmbed || "")
-                : normalizeComposerEmbedValue(state?.valenceEmbedPrimary || ""),
-            embedSeparator: "/",
+            embed: governingSlot === 1 ? governingEmbed : "",
+            embedSeparator: primaryValence ? "/" : "-",
         });
-    } else {
-        const dashEmbed = normalizeComposerEmbedValue(state?.valenceEmbedPrimary || "");
-        if (dashEmbed) {
-            valenceItems.push({
-                token: "",
-                embed: dashEmbed,
-                embedSeparator: "-",
-            });
-        }
-    }
-    if (secondaryValence) {
         valenceItems.push({
             token: secondaryValence,
-            embed: normalizeComposerEmbedValue(state?.valenceEmbedSecondary || ""),
-            embedSeparator: "/",
+            embed: governingSlot === 2 ? governingEmbed : "",
+            embedSeparator: secondaryValence ? "/" : "-",
         });
-    } else if (state?.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
-        const dashEmbed = normalizeComposerEmbedValue(state?.valenceEmbedSecondary || "");
-        if (dashEmbed) {
+    } else {
+        if (primaryValence) {
             valenceItems.push({
-                token: "",
-                embed: dashEmbed,
-                embedSeparator: "-",
+                token: primaryValence,
+                embed: state?.transitivity === COMPOSER_TRANSITIVITY.intransitive
+                    ? normalizeComposerEmbedValue(state?.valenceIntransitiveEmbed || "")
+                    : normalizeComposerEmbedValue(state?.valenceEmbedPrimary || ""),
+                embedSeparator: "/",
+            });
+        } else {
+            const dashEmbed = normalizeComposerEmbedValue(state?.valenceEmbedPrimary || "");
+            if (dashEmbed) {
+                valenceItems.push({
+                    token: "",
+                    embed: dashEmbed,
+                    embedSeparator: "-",
+                });
+            }
+        }
+        if (secondaryValence) {
+            valenceItems.push({
+                token: secondaryValence,
+                embed: normalizeComposerEmbedValue(state?.valenceEmbedSecondary || ""),
+                embedSeparator: "/",
             });
         }
     }
@@ -9436,177 +9592,6 @@ function deriveComposerStemFromSelections(rawBase, state) {
     }
     result.stem = working;
     return result;
-}
-
-function applyComposerSelectionComposition() {
-    if (!isVerbInputModeComposer()) {
-        return;
-    }
-    const verbEl = document.getElementById("verb");
-    const { hint } = getVerbComposerElements();
-    if (!verbEl) {
-        return;
-    }
-    const searchParts = splitSearchInput(verbEl.value);
-    const base = String(searchParts.base || "").trim();
-    if (!base) {
-        if (hint) {
-            hint.textContent = "Escribe primero una base verbal para componer.";
-        }
-        return;
-    }
-    collectComposerStateFromControls();
-    const derived = deriveComposerStemFromSelections(base, VERB_COMPOSER_STATE);
-    if (!derived.stem) {
-        if (hint) {
-            hint.textContent = "No se pudo derivar una raíz para la composición.";
-        }
-        return;
-    }
-    setComposerActiveSlotStem(derived.stem);
-    applyComposerSyllableModeDefaultFromStem();
-    syncComposerValenceAvailability();
-    renderVerbComposerFromState();
-    applyComposerStateToVerbInput({ triggerGenerate: true });
-    if (hint) {
-        const consumedLabel = derived.consumed.length
-            ? `Composición aplicada (${derived.consumed.join(" + ")}).`
-            : "Composición aplicada sin recorte de prefijos.";
-        const warningLabel = derived.warnings.length ? ` ${derived.warnings[0]}` : "";
-        hint.textContent = `${consumedLabel} Raíz matriz: ${VERB_COMPOSER_STATE.stem}.${warningLabel}`;
-    }
-}
-
-function shouldAddOptionalSupportiveIMarker(stem) {
-    const normalized = normalizeComposerStem(stem);
-    if (!normalized || normalized.startsWith("i") || normalized.startsWith(OPTIONAL_SUPPORTIVE_I_MARKER)) {
-        return false;
-    }
-    const letters = splitVerbLetters(normalized);
-    if (letters.length < 2) {
-        return false;
-    }
-    return isVerbLetterConsonant(letters[0]) && isVerbLetterConsonant(letters[1]);
-}
-
-function normalizeComposerTaStem(stem) {
-    const normalized = normalizeComposerStem(stem);
-    if (!normalized) {
-        return "";
-    }
-    if (normalized.startsWith("i")) {
-        return normalized;
-    }
-    if (shouldAddOptionalSupportiveIMarker(normalized)) {
-        return `${OPTIONAL_SUPPORTIVE_I_MARKER}${normalized}`;
-    }
-    return normalized;
-}
-
-function buildTaSegmentationFromSlashCandidate(value) {
-    const candidate = String(value || "").toLowerCase();
-    const slashIndex = candidate.indexOf("/");
-    if (slashIndex <= 0 || slashIndex >= candidate.length - 1) {
-        return "";
-    }
-    const prefix = candidate.slice(0, slashIndex);
-    const suffix = candidate.slice(slashIndex + 1);
-    if (!prefix || !suffix.startsWith("ta") || suffix.length <= 2) {
-        return "";
-    }
-    const stem = normalizeComposerTaStem(suffix.slice(2));
-    if (!stem) {
-        return "";
-    }
-    return `${prefix}/ta-${stem}`;
-}
-
-function buildTaSegmentationFallback(rawBase) {
-    const base = normalizeComposerStem(rawBase);
-    if (base.length < 5) {
-        return "";
-    }
-    for (let index = 2; index <= base.length - 3; index += 1) {
-        if (base.slice(index, index + 2) !== "ta") {
-            continue;
-        }
-        const prefix = base.slice(0, index);
-        const stemRaw = base.slice(index + 2);
-        if (!prefix || !stemRaw) {
-            continue;
-        }
-        const stem = normalizeComposerTaStem(stemRaw);
-        if (!stem) {
-            continue;
-        }
-        return `${prefix}/ta-${stem}`;
-    }
-    return "";
-}
-
-function getComposerAutoSegmentBase(rawBase) {
-    const base = String(rawBase || "").toLowerCase().trim();
-    if (!base) {
-        return "";
-    }
-    const directSplit = buildTaSegmentationFromSlashCandidate(base);
-    if (directSplit) {
-        return directSplit;
-    }
-    const disambiguation = buildVerbDisambiguationCandidates(base);
-    const suggestions = Array.isArray(disambiguation?.suggestions) ? disambiguation.suggestions : [];
-    for (const suggestion of suggestions) {
-        if (!suggestion || typeof suggestion.value !== "string") {
-            continue;
-        }
-        const segmented = buildTaSegmentationFromSlashCandidate(suggestion.value);
-        if (segmented) {
-            return segmented;
-        }
-    }
-    const fallback = buildTaSegmentationFallback(base);
-    if (fallback) {
-        return fallback;
-    }
-    return suggestions[0]?.value || base;
-}
-
-function applyComposerAutoSegmentation() {
-    if (!isVerbInputModeComposer()) {
-        return;
-    }
-    const verbEl = document.getElementById("verb");
-    const { hint } = getVerbComposerElements();
-    if (!verbEl) {
-        return;
-    }
-    const searchParts = splitSearchInput(verbEl.value);
-    const base = String(searchParts.base || "").trim();
-    if (!base) {
-        return;
-    }
-    const segmentedBase = getComposerAutoSegmentBase(base);
-    if (!segmentedBase || segmentedBase === base.toLowerCase()) {
-        if (hint) {
-            hint.textContent = "No se encontró una segmentación más precisa.";
-        }
-        return;
-    }
-    const nextValue = searchParts.hasQuery
-        ? `${segmentedBase}?${searchParts.query}`
-        : segmentedBase;
-    VERB_COMPOSER_STATE.isApplying = true;
-    try {
-        verbEl.value = nextValue;
-        verbEl.dispatchEvent(new Event("input", { bubbles: true }));
-    } finally {
-        VERB_COMPOSER_STATE.isApplying = false;
-    }
-    if (hint) {
-        hint.textContent = `Segmentación aplicada: ${segmentedBase}`;
-    }
-    syncComposerStateFromVerbInput(verbEl.value);
-    renderVerbComposerFromState();
 }
 
 function applyComposerSyllableModeDefaultFromStem() {
@@ -9736,8 +9721,6 @@ function initVerbComposer() {
         valenceSelectSecondary,
         directionalSelect,
         supportiveICheckbox,
-        applySelectionButton,
-        autoSegmentButton,
     } = getVerbComposerElements();
     if (!modeButtons.length) {
         return;
@@ -9771,21 +9754,7 @@ function initVerbComposer() {
                     return;
                 }
                 const previousToken = transitivitySelect?.value || VERB_COMPOSER_STATE.transitivity;
-                if (
-                    token === COMPOSER_TRANSITIVITY.bitransitive
-                    && previousToken !== COMPOSER_TRANSITIVITY.bitransitive
-                ) {
-                    const {
-                        valenceSelect,
-                        valenceEmbedPrimaryInput,
-                    } = getVerbComposerElements();
-                    if (valenceSelect) {
-                        valenceSelect.value = "";
-                    }
-                    if (valenceEmbedPrimaryInput) {
-                        valenceEmbedPrimaryInput.value = "";
-                    }
-                }
+                transposeComposerSlotTextboxes(previousToken, token);
                 if (transitivitySelect) {
                     transitivitySelect.value = token;
                 }
@@ -9812,12 +9781,6 @@ function initVerbComposer() {
     });
     if (supportiveICheckbox) {
         supportiveICheckbox.addEventListener("change", () => onVerbComposerControlChange("supportive"));
-    }
-    if (applySelectionButton) {
-        applySelectionButton.addEventListener("click", applyComposerSelectionComposition);
-    }
-    if (autoSegmentButton) {
-        autoSegmentButton.addEventListener("click", applyComposerAutoSegmentation);
     }
     const verbEl = document.getElementById("verb");
     syncComposerStateFromVerbInput(verbEl?.value || "");
@@ -12224,6 +12187,18 @@ function resetToggleStateForTense(tenseValue) {
     clearToggleStateByPrefix(OBJECT_TOGGLE_STATE, `noun|${tenseValue}|`);
     clearToggleStateByPrefix(POSSESSOR_TOGGLE_STATE, `noun|${tenseValue}|`);
     clearToggleStateByPrefix(PATIENTIVO_OWNERSHIP_STATE, `noun|${tenseValue}|`);
+    const appliedFragments = [
+        `|standard|${tenseValue}|`,
+        `|standard|nonactive|${tenseValue}|`,
+        `|universal|${tenseValue}|`,
+        `|universal|nonactive|${tenseValue}|`,
+        `|noun|${tenseValue}|`,
+    ];
+    for (const appliedKey of Array.from(DEFAULT_TOGGLE_APPLIED)) {
+        if (appliedFragments.some((fragment) => appliedKey.includes(fragment))) {
+            DEFAULT_TOGGLE_APPLIED.delete(appliedKey);
+        }
+    }
 }
 
 function getSubjectToggleOptions() {
@@ -12317,6 +12292,7 @@ function setActiveTenseMode(mode) {
         OBJECT_TOGGLE_STATE.clear();
         POSSESSOR_TOGGLE_STATE.clear();
         PATIENTIVO_OWNERSHIP_STATE.clear();
+        DEFAULT_TOGGLE_APPLIED.clear();
     }
     TENSE_MODE_STATE.mode = mode;
     if (mode === TENSE_MODE.sustantivo) {
@@ -12437,6 +12413,94 @@ function getTenseOrderForMode(mode) {
         && tense !== "calificativo-instrumentivo"
         && tense !== "locativo-temporal"
     ));
+}
+
+function isThreeColumnPanelLayout() {
+    return typeof window !== "undefined"
+        && typeof window.matchMedia === "function"
+        && window.matchMedia("(min-width: 1280px)").matches;
+}
+
+function setLeftPanelStackMode(mode) {
+    const normalizedMode = mode === "tense" ? "tense" : "inputs";
+    const buttons = Array.from(document.querySelectorAll("[data-panel-stack-tab]"));
+    const panes = Array.from(document.querySelectorAll("[data-panel-stack-pane]"));
+    const stackRoot = document.querySelector(".panel-stack");
+    const showAllPanes = isThreeColumnPanelLayout();
+    if (stackRoot) {
+        stackRoot.setAttribute("data-active-pane", normalizedMode);
+    }
+    buttons.forEach((button) => {
+        const isActive = button.getAttribute("data-panel-stack-tab") === normalizedMode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = showAllPanes ? -1 : (isActive ? 0 : -1);
+    });
+    panes.forEach((pane) => {
+        const isActive = showAllPanes
+            ? true
+            : pane.getAttribute("data-panel-stack-pane") === normalizedMode;
+        pane.hidden = !isActive;
+        pane.classList.toggle("is-active", isActive);
+        pane.setAttribute("aria-hidden", String(!isActive));
+    });
+}
+
+function initLeftPanelStackTabs() {
+    const buttons = Array.from(document.querySelectorAll("[data-panel-stack-tab]"));
+    if (!buttons.length) {
+        return;
+    }
+    const focusButtonAt = (index) => {
+        if (index < 0 || index >= buttons.length) {
+            return;
+        }
+        const target = buttons[index];
+        if (target && typeof target.focus === "function") {
+            target.focus();
+        }
+    };
+    buttons.forEach((button, index) => {
+        button.addEventListener("click", () => {
+            const mode = button.getAttribute("data-panel-stack-tab") || "inputs";
+            setLeftPanelStackMode(mode);
+        });
+        button.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowRight") {
+                event.preventDefault();
+                const nextIndex = (index + 1) % buttons.length;
+                focusButtonAt(nextIndex);
+                const mode = buttons[nextIndex].getAttribute("data-panel-stack-tab") || "inputs";
+                setLeftPanelStackMode(mode);
+            } else if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                const previousIndex = (index - 1 + buttons.length) % buttons.length;
+                focusButtonAt(previousIndex);
+                const mode = buttons[previousIndex].getAttribute("data-panel-stack-tab") || "inputs";
+                setLeftPanelStackMode(mode);
+            } else if (event.key === "Home") {
+                event.preventDefault();
+                focusButtonAt(0);
+                const mode = buttons[0].getAttribute("data-panel-stack-tab") || "inputs";
+                setLeftPanelStackMode(mode);
+            } else if (event.key === "End") {
+                event.preventDefault();
+                const lastIndex = buttons.length - 1;
+                focusButtonAt(lastIndex);
+                const mode = buttons[lastIndex].getAttribute("data-panel-stack-tab") || "inputs";
+                setLeftPanelStackMode(mode);
+            }
+        });
+    });
+    const initialActive = buttons.find((button) => button.classList.contains("is-active"));
+    const initialMode = initialActive?.getAttribute("data-panel-stack-tab") || "inputs";
+    setLeftPanelStackMode(initialMode);
+    const syncOnResize = () => {
+        const stackRoot = document.querySelector(".panel-stack");
+        const activeMode = stackRoot?.getAttribute("data-active-pane") || initialMode;
+        setLeftPanelStackMode(activeMode);
+    };
+    window.addEventListener("resize", syncOnResize, { passive: true });
 }
 
 function updateTenseModeTabs() {
@@ -12613,19 +12677,9 @@ function changeLanguage() {
       });
     }
   
-        // Handle the placeholder of the verb text input
-        var verbInput = document.getElementById("verb");
-        if (selectedLanguage === "nawat") {
-            // Store the original placeholder
-            originalPlaceholder = verbInput.placeholder;
-            // Replace with the translated placeholder
-            verbInput.placeholder = "Shitajkwilu kalijtik";
-        } else if (originalPlaceholder) {
-            // Restore the original placeholder
-            verbInput.placeholder = originalPlaceholder;
-        }
-    renderTenseTabs();
-    renderPretUniversalTabs();
+	    updateVerbInputPlaceholder();
+	    renderTenseTabs();
+	    renderPretUniversalTabs();
     renderAllOutputs({
         verb: getVerbInputMeta().displayVerb,
         objectPrefix: getCurrentObjectPrefix(),
@@ -14182,8 +14236,13 @@ function generateWord(options = {}) {
     // Check for invalid combinations of subject and object prefixes (verb-only constraint).
     const isCalificativoInstrumentivo = tense === "calificativo-instrumentivo";
     const isNounTense = isNonanimateNounTense(tense) || tense === "agentivo" || tense === "patientivo";
+    const invalidComboObjectPrefix = resolveComboValidationObjectPrefix({
+        objectPrefix,
+        indirectObjectMarker,
+        derivationType: resolvedDerivationType,
+    });
     if (!skipValidation && !isNounTense && INVALID_COMBINATION_KEYS.has(
-        getComboKey(subjectPrefix, objectPrefix, subjectSuffix)
+        getComboKey(subjectPrefix, invalidComboObjectPrefix, subjectSuffix)
     )) {
         const message = "Combinacion inválida";
         const error = returnError(message, [
@@ -14825,15 +14884,48 @@ function buildVerbTenseBlock({
         ? getObjectToggleOptions(passiveSubjectPrefixes, { labelForPrefix: getPassiveToggleLabel })
         : [];
     const passiveSubjectOptionMap = new Map(passiveSubjectOptions.map((entry) => [entry.id, entry]));
+    const resolveDefaultToggleId = (optionMap, preferredId, fallbackIds = []) => {
+        if (!(optionMap instanceof Map) || !optionMap.size) {
+            return "";
+        }
+        const ordered = [preferredId, ...fallbackIds];
+        for (let index = 0; index < ordered.length; index += 1) {
+            const candidate = ordered[index];
+            if (candidate !== undefined && candidate !== null && optionMap.has(candidate)) {
+                return candidate;
+            }
+        }
+        const iterator = optionMap.keys();
+        const first = iterator.next();
+        return first.done ? "" : first.value;
+    };
+    const subjectOptions = getSubjectToggleOptions();
+    const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     const passiveSubjectStateKey = allowSubjectToggle ? `${objectStateKey}|subject` : "";
     const verbKey = verb || "";
     const shouldDefaultTripleValency = !isNonactiveMode && activeValency >= 3 && verbKey;
+    const tripleValencySeedKey = shouldDefaultTripleValency ? `${verbKey}|valency-3` : verbKey;
+    const tripleDefaultObjectId = shouldDefaultTripleValency
+        ? resolveDefaultToggleId(
+            objectOptionMap,
+            "ki",
+            [OBJECT_TOGGLE_ALL, getPreferredObjectPrefix(prefixes), ""]
+        )
+        : "";
+    const tripleDefaultSubjectId = shouldDefaultTripleValency
+        ? resolveDefaultToggleId(subjectOptionMap, SUBJECT_TOGGLE_ALL, [])
+        : SUBJECT_TOGGLE_ALL;
     const shouldForceDefaults = forceDefaultTodosKi && verbKey;
     if (shouldForceDefaults && objectOptionMap.has("ki")) {
         applyDefaultToggleStateOnce(OBJECT_TOGGLE_STATE, objectStateKey, verbKey, "ki");
     }
-    if (shouldDefaultTripleValency && objectOptionMap.has("ki")) {
-        applyDefaultToggleStateOnce(OBJECT_TOGGLE_STATE, objectStateKey, verbKey, "ki");
+    if (shouldDefaultTripleValency) {
+        applyDefaultToggleStateOnce(
+            OBJECT_TOGGLE_STATE,
+            objectStateKey,
+            tripleValencySeedKey,
+            tripleDefaultObjectId
+        );
     }
     const isIntransitiveGroup = prefixes.length === 1 && prefixes[0] === "";
     const shouldMapAllTenses =
@@ -14914,13 +15006,16 @@ function buildVerbTenseBlock({
         }
     }
     if (shouldDefaultTripleValency) {
-        applyDefaultToggleStateOnce(SUBJECT_TOGGLE_STATE, subjectKey, verbKey, SUBJECT_TOGGLE_ALL);
+        applyDefaultToggleStateOnce(
+            SUBJECT_TOGGLE_STATE,
+            subjectKey,
+            tripleValencySeedKey,
+            tripleDefaultSubjectId
+        );
     }
     if (shouldSeedAllTensesDefault && !SUBJECT_TOGGLE_STATE.has(subjectKey)) {
         SUBJECT_TOGGLE_STATE.set(subjectKey, SUBJECT_TOGGLE_ALL);
     }
-    const subjectOptions = getSubjectToggleOptions();
-    const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     let activeSubject = SUBJECT_TOGGLE_STATE.get(subjectKey) ?? SUBJECT_TOGGLE_ALL;
     if (!subjectOptionMap.has(activeSubject)) {
         activeSubject = SUBJECT_TOGGLE_ALL;
@@ -14943,11 +15038,13 @@ function buildVerbTenseBlock({
         });
         subjectButtons = subjectToggleControl.buttons;
         titleControls.appendChild(subjectToggleControl.toggle);
-        setActiveSubject = (subjectId) => {
+        setActiveSubject = (subjectId, options = {}) => {
             activeSubject = subjectId;
             SUBJECT_TOGGLE_STATE.set(subjectKey, subjectId);
             setToggleActiveState(subjectButtons, subjectId);
-            renderRows();
+            if (options.render !== false) {
+                renderRows();
+            }
         };
     }
     if (allowSubjectToggle) {
@@ -14959,11 +15056,13 @@ function buildVerbTenseBlock({
         });
         passiveSubjectButtons = passiveSubjectToggleControl.buttons;
         titleControls.appendChild(passiveSubjectToggleControl.toggle);
-        setActivePassiveSubject = (subjectId) => {
+        setActivePassiveSubject = (subjectId, options = {}) => {
             activePassiveSubject = subjectId;
             OBJECT_TOGGLE_STATE.set(passiveSubjectStateKey, subjectId);
             setToggleActiveState(passiveSubjectButtons, subjectId);
-            renderRows();
+            if (options.render !== false) {
+                renderRows();
+            }
         };
     }
     const showObjectToggle = (
@@ -14983,8 +15082,16 @@ function buildVerbTenseBlock({
     let activeIndirectMarker = allowIndirectObjectToggle ? "" : null;
     const indirectStateKey = allowIndirectObjectToggle ? `${objectStateKey}|indirect` : "";
     if (allowIndirectObjectToggle && indirectOptions.length) {
-        if (shouldDefaultTripleValency && indirectOptionMap.has("ki")) {
-            applyDefaultToggleStateOnce(OBJECT_TOGGLE_STATE, indirectStateKey, verbKey, "ki");
+        const tripleDefaultIndirectId = shouldDefaultTripleValency
+            ? resolveDefaultToggleId(indirectOptionMap, "ki", [OBJECT_TOGGLE_ALL, ""])
+            : "";
+        if (shouldDefaultTripleValency) {
+            applyDefaultToggleStateOnce(
+                OBJECT_TOGGLE_STATE,
+                indirectStateKey,
+                tripleValencySeedKey,
+                tripleDefaultIndirectId
+            );
         }
         const storedIndirect = OBJECT_TOGGLE_STATE.get(indirectStateKey);
         if (storedIndirect !== undefined && indirectOptionMap.has(storedIndirect)) {
@@ -15002,11 +15109,13 @@ function buildVerbTenseBlock({
         });
         indirectToggleButtons = indirectToggleControl.buttons;
         titleControls.appendChild(indirectToggleControl.toggle);
-        setActiveIndirect = (markerId) => {
+        setActiveIndirect = (markerId, options = {}) => {
             activeIndirectMarker = markerId;
             OBJECT_TOGGLE_STATE.set(indirectStateKey, markerId);
             setToggleActiveState(indirectToggleButtons, markerId);
-            renderRows();
+            if (options.render !== false) {
+                renderRows();
+            }
         };
     }
     tenseTitle.appendChild(titleControls);
@@ -15111,6 +15220,8 @@ function buildVerbTenseBlock({
                 subjectPrefix: selection.subjectPrefix,
                 subjectSuffix: selection.subjectSuffix,
                 objectPrefix,
+                derivationType,
+                indirectObjectMarker: effectiveIndirectMarker,
             });
             const basePersonSub = getSubjectSubLabel(selection, {
                 isNawat,
@@ -15165,7 +15276,7 @@ function buildVerbTenseBlock({
         return "";
     };
 
-    const setActivePrefix = (prefix) => {
+    const setActivePrefix = (prefix, options = {}) => {
         activeObjectPrefix = prefix;
         OBJECT_TOGGLE_STATE.set(objectStateKey, prefix);
         if (!isNonactiveMode) {
@@ -15174,7 +15285,9 @@ function buildVerbTenseBlock({
         tenseBlock.dataset.tenseBlock = `${resolveTenseBlockPrefix(prefix)}-${tenseValue}`;
         updateSectionCategory(resolveSectionPrefix(prefix));
         setToggleActiveState(toggleButtons, prefix);
-        renderRows();
+        if (options.render !== false) {
+            renderRows();
+        }
     };
 
     tenseBlock.appendChild(list);
@@ -15183,16 +15296,20 @@ function buildVerbTenseBlock({
         titleLabel.textContent = isIntransitiveOnly
             ? impersonalLabel
             : (isDirectGroup ? passiveLabel : impersonalLabel);
-        setActivePrefix(activeObjectPrefix);
+        setActivePrefix(activeObjectPrefix, { render: false });
         if (setActivePassiveSubject) {
-            setActivePassiveSubject(activePassiveSubject);
+            setActivePassiveSubject(activePassiveSubject, { render: false });
         }
     } else {
-        setActivePrefix(activeObjectPrefix);
+        setActivePrefix(activeObjectPrefix, { render: false });
         if (setActiveSubject) {
-            setActiveSubject(activeSubject);
+            setActiveSubject(activeSubject, { render: false });
         }
     }
+    if (setActiveIndirect && activeIndirectMarker !== null) {
+        setActiveIndirect(activeIndirectMarker, { render: false });
+    }
+    renderRows();
     return tenseBlock;
 }
 
@@ -16555,6 +16672,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initZoomFontLock();
     initUiScaleControl();
     initTutorialPanel();
+    initLeftPanelStackTabs();
     initTenseModeTabs();
     initCombinedModeTabs();
     initDerivationTypeControl();
