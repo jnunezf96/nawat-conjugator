@@ -69,6 +69,60 @@ const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "mu",
 ];
 const COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS = 450;
+const COMPOSER_TRANSITIVITY_ORDER = [
+    COMPOSER_TRANSITIVITY.intransitive,
+    COMPOSER_TRANSITIVITY.transitive,
+    COMPOSER_TRANSITIVITY.bitransitive,
+];
+const COMPOSER_SLOT_CONFIG = {
+    a: {
+        transitivity: COMPOSER_TRANSITIVITY.intransitive,
+        ids: {
+            embed: "composer-embed",
+            stem: "composer-stem-a",
+            objectEmbed: "composer-valence-a-embed-left",
+        },
+        state: {
+            embed: "slotAEmbed",
+            stem: "slotAStem",
+            objectEmbed: "valenceIntransitiveEmbed",
+        },
+    },
+    b: {
+        transitivity: COMPOSER_TRANSITIVITY.transitive,
+        ids: {
+            embed: "composer-valence-embed-1",
+            stem: "composer-stem-b",
+            objectEmbed: "composer-valence-left-1",
+        },
+        state: {
+            embed: "slotBEmbed",
+            stem: "slotBStem",
+            objectEmbed: "valenceEmbedPrimary",
+        },
+    },
+    c: {
+        transitivity: COMPOSER_TRANSITIVITY.bitransitive,
+        ids: {
+            embed: "composer-valence-embed-2",
+            stem: "composer-stem-c",
+            objectEmbed: "composer-valence-left-2",
+        },
+        state: {
+            embed: "slotCEmbed",
+            stem: "slotCStem",
+            objectEmbed: "valenceEmbedSecondary",
+        },
+    },
+};
+const COMPOSER_SLOT_KEYS = ["a", "b", "c"];
+const COMPOSER_SLOT_KEY_BY_TRANSITIVITY = COMPOSER_SLOT_KEYS.reduce((acc, slotKey) => {
+    const config = COMPOSER_SLOT_CONFIG[slotKey];
+    if (config?.transitivity) {
+        acc[config.transitivity] = slotKey;
+    }
+    return acc;
+}, {});
 const VERB_COMPOSER_STATE = {
     mode: VERB_INPUT_MODE.composer,
     transitivity: COMPOSER_TRANSITIVITY.intransitive,
@@ -94,6 +148,11 @@ const VERB_COMPOSER_STATE = {
     isApplying: false,
 };
 let LAST_COMPOSER_ESCAPE_TS = 0;
+const VERB_SCREEN_ANS_STATE = {
+    stem: "",
+    regexBase: "",
+    form: "",
+};
 let DERIVATIONAL_RULES = {};
 let DERIVATIONAL_RULES_DOCS = {};
 let VALENCE_NEUTRAL_RULES = {};
@@ -8254,13 +8313,22 @@ function maybeAutoScrollToConjugationRow(rawValue, options = {}) {
 
 // === Verb Composer ===
 function getComposerSlotKeyForTransitivity(transitivity) {
-    if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
-        return "c";
-    }
-    if (transitivity === COMPOSER_TRANSITIVITY.transitive) {
-        return "b";
-    }
-    return "a";
+    return COMPOSER_SLOT_KEY_BY_TRANSITIVITY[transitivity] || "a";
+}
+
+function getComposerSlotConfig(slotKey) {
+    return COMPOSER_SLOT_CONFIG[slotKey] || COMPOSER_SLOT_CONFIG.a;
+}
+
+function getComposerSlotStateKeys(slotKey) {
+    return getComposerSlotConfig(slotKey).state;
+}
+
+function syncComposerActiveStemAndEmbedFromState() {
+    const activeSlot = getComposerActiveSlotFromState();
+    const stateKeys = getComposerSlotStateKeys(activeSlot);
+    VERB_COMPOSER_STATE.stem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+    VERB_COMPOSER_STATE.embedPrefix = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
 }
 
 function getComposerActiveSlotFromState() {
@@ -8270,43 +8338,44 @@ function getComposerActiveSlotFromState() {
 function setComposerActiveSlotStem(stemValue) {
     const stem = normalizeComposerStem(stemValue || "");
     const slot = getComposerActiveSlotFromState();
-    if (slot === "c") {
-        VERB_COMPOSER_STATE.slotCStem = stem;
-    } else if (slot === "b") {
-        VERB_COMPOSER_STATE.slotBStem = stem;
-    } else {
-        VERB_COMPOSER_STATE.slotAStem = stem;
-    }
+    const stateKeys = getComposerSlotStateKeys(slot);
+    VERB_COMPOSER_STATE[stateKeys.stem] = stem;
     VERB_COMPOSER_STATE.stem = stem;
 }
 
 function getVerbComposerElements() {
-    const slotAEmbedInput = document.getElementById("composer-embed");
-    const slotAStemInput = document.getElementById("composer-stem-a");
-    const slotBEmbedInput = document.getElementById("composer-valence-embed-1");
-    const slotBStemInput = document.getElementById("composer-stem-b");
-    const slotCEmbedInput = document.getElementById("composer-valence-embed-2");
-    const slotCStemInput = document.getElementById("composer-stem-c");
-    const slotAValenceLeftEmbedInput = document.getElementById("composer-valence-a-embed-left");
-    const slotBValenceLeftEmbedInput = document.getElementById("composer-valence-left-1");
-    const slotCValenceLeftEmbedInput = document.getElementById("composer-valence-left-2");
+    const slots = COMPOSER_SLOT_KEYS.reduce((acc, slotKey) => {
+        const config = getComposerSlotConfig(slotKey);
+        acc[slotKey] = {
+            embedInput: document.getElementById(config.ids.embed),
+            stemInput: document.getElementById(config.ids.stem),
+            objectInput: document.getElementById(config.ids.objectEmbed),
+        };
+        return acc;
+    }, {});
+    const slotAEmbedInput = slots.a?.embedInput || null;
+    const slotAStemInput = slots.a?.stemInput || null;
+    const slotAValenceLeftEmbedInput = slots.a?.objectInput || null;
+    const slotBEmbedInput = slots.b?.embedInput || null;
+    const slotBStemInput = slots.b?.stemInput || null;
+    const slotBValenceLeftEmbedInput = slots.b?.objectInput || null;
+    const slotCEmbedInput = slots.c?.embedInput || null;
+    const slotCStemInput = slots.c?.stemInput || null;
+    const slotCValenceLeftEmbedInput = slots.c?.objectInput || null;
     const activeSlot = getComposerActiveSlotFromState();
-    const activeMatrixBySlot = {
-        a: slotAStemInput,
-        b: slotBStemInput,
-        c: slotCStemInput,
-    };
-    const activeEmbedBySlot = {
-        a: slotAEmbedInput,
-        b: slotBEmbedInput,
-        c: slotCEmbedInput,
-    };
-    const matrixStemInput = activeMatrixBySlot[activeSlot] || slotAStemInput || slotBStemInput || slotCStemInput;
-    const embedStemInput = activeEmbedBySlot[activeSlot] || slotAEmbedInput || slotBEmbedInput || slotCEmbedInput;
+    const matrixStemInput = slots[activeSlot]?.stemInput
+        || slotAStemInput
+        || slotBStemInput
+        || slotCStemInput;
+    const embedStemInput = slots[activeSlot]?.embedInput
+        || slotAEmbedInput
+        || slotBEmbedInput
+        || slotCEmbedInput;
     return {
         modeRoot: document.getElementById("verb-editor-mode"),
         modeButtons: document.querySelectorAll("[data-verb-input-mode]"),
         panel: document.getElementById("verb-composer"),
+        slots,
         slotAEmbedInput,
         slotAStemInput,
         slotAValenceLeftEmbedInput,
@@ -8449,36 +8518,9 @@ function transposeComposerSlotTextboxes(fromTransitivity, toTransitivity) {
     if (!sourceSlot || !targetSlot || sourceSlot === targetSlot) {
         return;
     }
-    const {
-        slotAEmbedInput,
-        slotAStemInput,
-        slotAValenceLeftEmbedInput,
-        slotBEmbedInput,
-        slotBStemInput,
-        slotBValenceLeftEmbedInput,
-        slotCEmbedInput,
-        slotCStemInput,
-        slotCValenceLeftEmbedInput,
-    } = getVerbComposerElements();
-    const slotMap = {
-        a: {
-            embedInput: slotAEmbedInput,
-            stemInput: slotAStemInput,
-            objectInput: slotAValenceLeftEmbedInput,
-        },
-        b: {
-            embedInput: slotBEmbedInput,
-            stemInput: slotBStemInput,
-            objectInput: slotBValenceLeftEmbedInput,
-        },
-        c: {
-            embedInput: slotCEmbedInput,
-            stemInput: slotCStemInput,
-            objectInput: slotCValenceLeftEmbedInput,
-        },
-    };
-    const source = slotMap[sourceSlot];
-    const target = slotMap[targetSlot];
+    const { slots } = getVerbComposerElements();
+    const source = slots[sourceSlot];
+    const target = slots[targetSlot];
     if (!source || !target) {
         return;
     }
@@ -8728,7 +8770,7 @@ function updateVerbComposerHint() {
     const stem = VERB_COMPOSER_STATE.stem;
     const syllableCount = getComposerStemSyllableCount(stem);
     if (!stem) {
-        hint.textContent = "Define raíz matriz y raíz encorporada para construir el regex.";
+        hint.textContent = "Define raíz matriz y raíz incorporada para construir el regex.";
         return;
     }
     const directionalPrefix = String(VERB_COMPOSER_STATE.directionalPrefix || "").trim();
@@ -9341,15 +9383,7 @@ function renderVerbComposerFromState() {
     const {
         modeButtons,
         panel,
-        slotAEmbedInput,
-        slotAStemInput,
-        slotAValenceLeftEmbedInput,
-        slotBEmbedInput,
-        slotBStemInput,
-        slotBValenceLeftEmbedInput,
-        slotCEmbedInput,
-        slotCStemInput,
-        slotCValenceLeftEmbedInput,
+        slots,
         transitivitySelect,
         valenceSelectIntransitive,
         valenceSelect,
@@ -9379,33 +9413,21 @@ function renderVerbComposerFromState() {
         clearTextboxesButton.disabled = !isComposer;
         clearTextboxesButton.setAttribute("aria-disabled", String(!isComposer));
     }
-    if (slotAEmbedInput) {
-        slotAEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotAEmbed);
-    }
-    if (slotAStemInput) {
-        slotAStemInput.value = normalizeComposerStem(VERB_COMPOSER_STATE.slotAStem);
-    }
-    if (slotAValenceLeftEmbedInput) {
-        slotAValenceLeftEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.valenceIntransitiveEmbed);
-    }
-    if (slotBEmbedInput) {
-        slotBEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotBEmbed);
-    }
-    if (slotBStemInput) {
-        slotBStemInput.value = normalizeComposerStem(VERB_COMPOSER_STATE.slotBStem);
-    }
-    if (slotBValenceLeftEmbedInput) {
-        slotBValenceLeftEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.valenceEmbedPrimary);
-    }
-    if (slotCEmbedInput) {
-        slotCEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotCEmbed);
-    }
-    if (slotCStemInput) {
-        slotCStemInput.value = normalizeComposerStem(VERB_COMPOSER_STATE.slotCStem);
-    }
-    if (slotCValenceLeftEmbedInput) {
-        slotCValenceLeftEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.valenceEmbedSecondary);
-    }
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const slotRefs = slots[slotKey] || {};
+        const stateKeys = getComposerSlotStateKeys(slotKey);
+        if (slotRefs.embedInput) {
+            slotRefs.embedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
+        }
+        if (slotRefs.stemInput) {
+            slotRefs.stemInput.value = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+        }
+        if (slotRefs.objectInput) {
+            slotRefs.objectInput.value = normalizeComposerEmbedValue(
+                VERB_COMPOSER_STATE[stateKeys.objectEmbed] || ""
+            );
+        }
+    });
     if (transitivitySelect) {
         transitivitySelect.value = VERB_COMPOSER_STATE.transitivity;
     }
@@ -9424,20 +9446,12 @@ function renderVerbComposerFromState() {
     if (supportiveICheckbox) {
         supportiveICheckbox.checked = VERB_COMPOSER_STATE.supportiveI;
     }
-    if (VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
-        VERB_COMPOSER_STATE.stem = normalizeComposerStem(VERB_COMPOSER_STATE.slotCStem);
-        VERB_COMPOSER_STATE.embedPrefix = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotCEmbed);
-    } else if (VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.transitive) {
-        VERB_COMPOSER_STATE.stem = normalizeComposerStem(VERB_COMPOSER_STATE.slotBStem);
-        VERB_COMPOSER_STATE.embedPrefix = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotBEmbed);
-    } else {
-        VERB_COMPOSER_STATE.stem = normalizeComposerStem(VERB_COMPOSER_STATE.slotAStem);
-        VERB_COMPOSER_STATE.embedPrefix = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotAEmbed);
-    }
+    syncComposerActiveStemAndEmbedFromState();
     syncComposerSupportiveIAvailability();
     syncComposerValenceAvailability();
     syncComposerChipGroupsFromState();
     updateVerbComposerHint();
+    syncVerbScreenCalculatorState();
 }
 
 function syncComposerStateFromVerbInput(rawValue = "") {
@@ -9497,15 +9511,7 @@ function applyComposerStateToVerbInput(options = {}) {
 
 function collectComposerStateFromControls() {
     const {
-        slotAEmbedInput,
-        slotAStemInput,
-        slotAValenceLeftEmbedInput,
-        slotBEmbedInput,
-        slotBStemInput,
-        slotBValenceLeftEmbedInput,
-        slotCEmbedInput,
-        slotCStemInput,
-        slotCValenceLeftEmbedInput,
+        slots,
         transitivitySelect,
         valenceSelectIntransitive,
         valenceSelect,
@@ -9521,34 +9527,17 @@ function collectComposerStateFromControls() {
         VERB_COMPOSER_STATE.transitivity = COMPOSER_TRANSITIVITY.intransitive;
     }
     VERB_COMPOSER_STATE.valenceIntransitive = (valenceSelectIntransitive?.value === "ta") ? "ta" : "";
-    VERB_COMPOSER_STATE.valenceIntransitiveEmbed = normalizeComposerEmbedValue(
-        slotAValenceLeftEmbedInput?.value || ""
-    );
     VERB_COMPOSER_STATE.valence = valenceSelect?.value || "";
     VERB_COMPOSER_STATE.valenceSecondary = valenceSelectSecondary?.value || "";
-    VERB_COMPOSER_STATE.valenceEmbedPrimary = normalizeComposerEmbedValue(
-        slotBValenceLeftEmbedInput?.value || ""
-    );
-    VERB_COMPOSER_STATE.valenceEmbedSecondary = normalizeComposerEmbedValue(
-        slotCValenceLeftEmbedInput?.value || ""
-    );
-    VERB_COMPOSER_STATE.slotAEmbed = normalizeComposerEmbedValue(slotAEmbedInput?.value || "");
-    VERB_COMPOSER_STATE.slotAStem = normalizeComposerStem(slotAStemInput?.value || "");
-    VERB_COMPOSER_STATE.slotBEmbed = normalizeComposerEmbedValue(slotBEmbedInput?.value || "");
-    VERB_COMPOSER_STATE.slotBStem = normalizeComposerStem(slotBStemInput?.value || "");
-    VERB_COMPOSER_STATE.slotCEmbed = normalizeComposerEmbedValue(slotCEmbedInput?.value || "");
-    VERB_COMPOSER_STATE.slotCStem = normalizeComposerStem(slotCStemInput?.value || "");
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const stateKeys = getComposerSlotStateKeys(slotKey);
+        const slotRefs = slots[slotKey] || {};
+        VERB_COMPOSER_STATE[stateKeys.embed] = normalizeComposerEmbedValue(slotRefs.embedInput?.value || "");
+        VERB_COMPOSER_STATE[stateKeys.stem] = normalizeComposerStem(slotRefs.stemInput?.value || "");
+        VERB_COMPOSER_STATE[stateKeys.objectEmbed] = normalizeComposerEmbedValue(slotRefs.objectInput?.value || "");
+    });
     VERB_COMPOSER_STATE.directionalPrefix = directionalSelect?.value || "";
-    if (VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
-        VERB_COMPOSER_STATE.stem = VERB_COMPOSER_STATE.slotCStem;
-        VERB_COMPOSER_STATE.embedPrefix = VERB_COMPOSER_STATE.slotCEmbed;
-    } else if (VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.transitive) {
-        VERB_COMPOSER_STATE.stem = VERB_COMPOSER_STATE.slotBStem;
-        VERB_COMPOSER_STATE.embedPrefix = VERB_COMPOSER_STATE.slotBEmbed;
-    } else {
-        VERB_COMPOSER_STATE.stem = VERB_COMPOSER_STATE.slotAStem;
-        VERB_COMPOSER_STATE.embedPrefix = VERB_COMPOSER_STATE.slotAEmbed;
-    }
+    syncComposerActiveStemAndEmbedFromState();
     VERB_COMPOSER_STATE.syllableMode = getComposerStemSyllableCount(VERB_COMPOSER_STATE.stem) === 1
         ? COMPOSER_SYLLABLE_MODE.monosyllable
         : COMPOSER_SYLLABLE_MODE.multisyllable;
@@ -9816,15 +9805,12 @@ function clearVerbComposerTextboxInputs() {
     if (!isVerbInputModeComposer()) {
         return;
     }
-    VERB_COMPOSER_STATE.slotAEmbed = "";
-    VERB_COMPOSER_STATE.slotAStem = "";
-    VERB_COMPOSER_STATE.slotBEmbed = "";
-    VERB_COMPOSER_STATE.slotBStem = "";
-    VERB_COMPOSER_STATE.slotCEmbed = "";
-    VERB_COMPOSER_STATE.slotCStem = "";
-    VERB_COMPOSER_STATE.valenceIntransitiveEmbed = "";
-    VERB_COMPOSER_STATE.valenceEmbedPrimary = "";
-    VERB_COMPOSER_STATE.valenceEmbedSecondary = "";
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const stateKeys = getComposerSlotStateKeys(slotKey);
+        VERB_COMPOSER_STATE[stateKeys.embed] = "";
+        VERB_COMPOSER_STATE[stateKeys.stem] = "";
+        VERB_COMPOSER_STATE[stateKeys.objectEmbed] = "";
+    });
     VERB_COMPOSER_STATE.stem = "";
     VERB_COMPOSER_STATE.embedPrefix = "";
     VERB_COMPOSER_STATE.sourceBase = "";
@@ -9832,6 +9818,346 @@ function clearVerbComposerTextboxInputs() {
     VERB_COMPOSER_STATE.syllableMode = COMPOSER_SYLLABLE_MODE.multisyllable;
     renderVerbComposerFromState();
     applyComposerStateToVerbInput({ triggerGenerate: true });
+}
+
+function isEditableTextInput(element) {
+    return Boolean(
+        element
+        && element.tagName === "INPUT"
+        && element.type === "text"
+        && !element.disabled
+        && !element.readOnly
+    );
+}
+
+function dispatchTextInputUpdate(element) {
+    if (!element) {
+        return;
+    }
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function removeLastTextUnit(value) {
+    const units = splitVerbLetters(String(value || ""));
+    if (units.length <= 1) {
+        return "";
+    }
+    return units.slice(0, -1).join("");
+}
+
+function getComposerPreferredEntryInput() {
+    const { matrixStemInput, embedStemInput } = getVerbComposerElements();
+    return matrixStemInput || embedStemInput || null;
+}
+
+function getScreenCalculatorAnsFallbackFromForm(rawFormOverride = null) {
+    const rawForm = rawFormOverride == null
+        ? String(VERB_SCREEN_ANS_STATE.form || "")
+        : String(rawFormOverride || "");
+    if (!rawForm) {
+        return "";
+    }
+    const firstForm = rawForm
+        .split(/\s*\/\s*/g)
+        .map((token) => token.trim())
+        .find(Boolean) || "";
+    return normalizeComposerStem(firstForm.replace(/\s+/g, ""));
+}
+
+function rememberScreenCalculatorAnsState({ generatedText = "", parsedVerb = null, stemProvenance = null } = {}) {
+    const normalizedForm = String(generatedText || "").trim();
+    if (!normalizedForm || normalizedForm === "—") {
+        return;
+    }
+    const regexBase = normalizeComposerStem(parsedVerb?.displayVerb || "");
+    const composerStem = normalizeComposerStem(VERB_COMPOSER_STATE.stem || "");
+    const parsedStemFromRegex = regexBase
+        ? normalizeComposerStem(parseComposerStateFromRegexValue(regexBase).stem || "")
+        : "";
+    const provenanceVariant = Array.isArray(stemProvenance?.variants) && stemProvenance.variants.length
+        ? stemProvenance.variants[0]
+        : null;
+    const provenanceStem = provenanceVariant
+        ? normalizeComposerStem(`${provenanceVariant.base || ""}${provenanceVariant.suffix || ""}`)
+        : "";
+    const resolvedStem = composerStem
+        || parsedStemFromRegex
+        || provenanceStem
+        || regexBase
+        || getScreenCalculatorAnsFallbackFromForm(normalizedForm);
+    VERB_SCREEN_ANS_STATE.form = normalizedForm;
+    VERB_SCREEN_ANS_STATE.regexBase = regexBase;
+    VERB_SCREEN_ANS_STATE.stem = resolvedStem;
+    syncVerbScreenCalculatorState();
+}
+
+function getVerbScreenCalculatorButtons() {
+    return {
+        ansButton: document.getElementById("verb-key-ans"),
+        modeButton: document.getElementById("verb-key-mode"),
+        transitivityButton: document.getElementById("verb-key-transitivity"),
+        supportiveIButton: document.getElementById("verb-key-supportive-i"),
+        acButton: document.getElementById("verb-key-ac"),
+        ceButton: document.getElementById("verb-key-ce"),
+        delButton: document.getElementById("verb-key-del"),
+        equalsButton: document.getElementById("verb-key-eq"),
+    };
+}
+
+function syncVerbScreenCalculatorState() {
+    const {
+        ansButton,
+        modeButton,
+        transitivityButton,
+        supportiveIButton,
+    } = getVerbScreenCalculatorButtons();
+    const hasAns = Boolean(
+        VERB_SCREEN_ANS_STATE.stem
+        || VERB_SCREEN_ANS_STATE.regexBase
+        || VERB_SCREEN_ANS_STATE.form
+    );
+    if (ansButton) {
+        ansButton.disabled = !hasAns;
+        ansButton.setAttribute("aria-disabled", String(!hasAns));
+        ansButton.title = hasAns
+            ? "Restaurar última raíz o forma generada"
+            : "Genera primero para habilitar ANS";
+    }
+    const isComposer = isVerbInputModeComposer();
+    if (modeButton) {
+        modeButton.classList.toggle("is-active", isComposer);
+        modeButton.setAttribute("aria-pressed", String(isComposer));
+        modeButton.title = isComposer
+            ? "Modo actual: Selecciones (cambiar a Regex Dev)"
+            : "Modo actual: Regex Dev (cambiar a Selecciones)";
+    }
+    const currentTransitivity = VERB_COMPOSER_STATE.transitivity;
+    const transitivityLabelMap = {
+        [COMPOSER_TRANSITIVITY.intransitive]: "Intransitivo",
+        [COMPOSER_TRANSITIVITY.transitive]: "Transitivo",
+        [COMPOSER_TRANSITIVITY.bitransitive]: "Bitransitivo",
+    };
+    if (transitivityButton) {
+        const readable = transitivityLabelMap[currentTransitivity] || "Intransitivo";
+        transitivityButton.classList.toggle(
+            "is-active",
+            currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive
+        );
+        transitivityButton.setAttribute("aria-pressed", "false");
+        transitivityButton.title = `Transitividad actual: ${readable}.`;
+        transitivityButton.setAttribute(
+            "aria-label",
+            `Transitividad actual ${readable}. Cambiar transitividad`
+        );
+    }
+    if (supportiveIButton) {
+        const { supportiveICheckbox } = getVerbComposerElements();
+        const supportiveOn = Boolean(supportiveICheckbox?.checked);
+        const unavailableInComposer = isComposer && Boolean(supportiveICheckbox?.disabled);
+        supportiveIButton.disabled = unavailableInComposer;
+        supportiveIButton.setAttribute("aria-disabled", String(unavailableInComposer));
+        supportiveIButton.classList.toggle("is-active", supportiveOn);
+        supportiveIButton.setAttribute("aria-pressed", String(supportiveOn));
+        supportiveIButton.title = unavailableInComposer
+            ? "Solo disponible si raíz matriz inicia con i"
+            : (supportiveOn ? "Quitar i de apoyo opcional" : "Aplicar i de apoyo opcional");
+    }
+}
+
+function runScreenCalculatorAC() {
+    const verbInput = document.getElementById("verb");
+    if (isVerbInputModeComposer()) {
+        clearVerbComposerTextboxInputs();
+        return;
+    }
+    if (!verbInput) {
+        return;
+    }
+    if (!verbInput.value) {
+        return;
+    }
+    verbInput.value = "";
+    dispatchTextInputUpdate(verbInput);
+    verbInput.focus();
+}
+
+function runScreenCalculatorCE() {
+    const active = document.activeElement;
+    if (isEditableTextInput(active)) {
+        if (active.value) {
+            active.value = "";
+            dispatchTextInputUpdate(active);
+        }
+        active.focus();
+        return;
+    }
+    const verbInput = document.getElementById("verb");
+    if (isVerbInputModeComposer()) {
+        const preferredInput = getComposerPreferredEntryInput();
+        if (preferredInput && preferredInput.value) {
+            preferredInput.value = "";
+            dispatchTextInputUpdate(preferredInput);
+            preferredInput.focus();
+        }
+        return;
+    }
+    if (!verbInput || !verbInput.value) {
+        return;
+    }
+    verbInput.value = "";
+    dispatchTextInputUpdate(verbInput);
+    verbInput.focus();
+}
+
+function runScreenCalculatorDEL() {
+    const active = document.activeElement;
+    if (isEditableTextInput(active)) {
+        const nextValue = removeLastTextUnit(active.value);
+        if (nextValue !== active.value) {
+            active.value = nextValue;
+            dispatchTextInputUpdate(active);
+        }
+        active.focus();
+        return;
+    }
+    const verbInput = document.getElementById("verb");
+    if (isVerbInputModeComposer()) {
+        const preferredInput = getComposerPreferredEntryInput();
+        if (preferredInput) {
+            const nextValue = removeLastTextUnit(preferredInput.value);
+            if (nextValue !== preferredInput.value) {
+                preferredInput.value = nextValue;
+                dispatchTextInputUpdate(preferredInput);
+            }
+            preferredInput.focus();
+        }
+        return;
+    }
+    if (!verbInput) {
+        return;
+    }
+    const nextValue = removeLastTextUnit(verbInput.value);
+    if (nextValue === verbInput.value) {
+        return;
+    }
+    verbInput.value = nextValue;
+    dispatchTextInputUpdate(verbInput);
+    verbInput.focus();
+}
+
+function runScreenCalculatorANS() {
+    const verbInput = document.getElementById("verb");
+    const ansStem = normalizeComposerStem(VERB_SCREEN_ANS_STATE.stem || "");
+    const ansRegexBase = normalizeComposerStem(VERB_SCREEN_ANS_STATE.regexBase || "");
+    const fallbackFromForm = getScreenCalculatorAnsFallbackFromForm();
+    if (isVerbInputModeComposer()) {
+        const preferredInput = getComposerPreferredEntryInput();
+        const nextStem = ansStem || ansRegexBase || fallbackFromForm;
+        if (!preferredInput || !nextStem) {
+            return;
+        }
+        preferredInput.value = nextStem;
+        dispatchTextInputUpdate(preferredInput);
+        preferredInput.focus();
+        return;
+    }
+    if (!verbInput) {
+        return;
+    }
+    const searchParts = splitSearchInput(verbInput.value);
+    const nextBase = ansRegexBase || ansStem || fallbackFromForm;
+    if (!nextBase) {
+        return;
+    }
+    verbInput.value = searchParts.hasQuery
+        ? `${nextBase}?${searchParts.query}`
+        : nextBase;
+    dispatchTextInputUpdate(verbInput);
+    verbInput.focus();
+}
+
+function runScreenCalculatorModeToggle() {
+    const nextMode = isVerbInputModeComposer() ? VERB_INPUT_MODE.regex : VERB_INPUT_MODE.composer;
+    setVerbInputMode(nextMode, { syncFromInput: true });
+    if (nextMode === VERB_INPUT_MODE.composer) {
+        const preferredInput = getComposerPreferredEntryInput();
+        preferredInput?.focus();
+    } else {
+        const verbInput = document.getElementById("verb");
+        verbInput?.focus();
+    }
+    syncVerbScreenCalculatorState();
+}
+
+function runScreenCalculatorCycleTransitivity() {
+    if (!isVerbInputModeComposer()) {
+        setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+    }
+    const { transitivitySelect } = getVerbComposerElements();
+    const current = transitivitySelect?.value || VERB_COMPOSER_STATE.transitivity;
+    const currentIndex = COMPOSER_TRANSITIVITY_ORDER.indexOf(current);
+    const next = COMPOSER_TRANSITIVITY_ORDER[(currentIndex + 1) % COMPOSER_TRANSITIVITY_ORDER.length];
+    transposeComposerSlotTextboxes(current, next);
+    if (transitivitySelect) {
+        transitivitySelect.value = next;
+    }
+    onVerbComposerControlChange("other");
+    const preferredInput = getComposerPreferredEntryInput();
+    preferredInput?.focus();
+}
+
+function runScreenCalculatorToggleSupportiveI() {
+    if (!isVerbInputModeComposer()) {
+        setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+    }
+    const { supportiveICheckbox } = getVerbComposerElements();
+    if (!supportiveICheckbox || supportiveICheckbox.disabled) {
+        syncVerbScreenCalculatorState();
+        return;
+    }
+    supportiveICheckbox.checked = !supportiveICheckbox.checked;
+    supportiveICheckbox.dispatchEvent(new Event("change", { bubbles: true }));
+    supportiveICheckbox.focus();
+    syncVerbScreenCalculatorState();
+}
+
+function runScreenCalculatorEquals() {
+    LAST_COMPOSER_ESCAPE_TS = 0;
+    generateWord();
+}
+
+function initVerbScreenCalculator() {
+    const {
+        ansButton,
+        modeButton,
+        transitivityButton,
+        supportiveIButton,
+        acButton,
+        ceButton,
+        delButton,
+        equalsButton,
+    } = getVerbScreenCalculatorButtons();
+    if (
+        !ansButton
+        || !modeButton
+        || !transitivityButton
+        || !supportiveIButton
+        || !acButton
+        || !ceButton
+        || !delButton
+        || !equalsButton
+    ) {
+        return;
+    }
+    ansButton.addEventListener("click", () => runScreenCalculatorANS());
+    modeButton.addEventListener("click", () => runScreenCalculatorModeToggle());
+    transitivityButton.addEventListener("click", () => runScreenCalculatorCycleTransitivity());
+    supportiveIButton.addEventListener("click", () => runScreenCalculatorToggleSupportiveI());
+    acButton.addEventListener("click", () => runScreenCalculatorAC());
+    ceButton.addEventListener("click", () => runScreenCalculatorCE());
+    delButton.addEventListener("click", () => runScreenCalculatorDEL());
+    equalsButton.addEventListener("click", () => runScreenCalculatorEquals());
+    syncVerbScreenCalculatorState();
 }
 
 function handleComposerDoubleEscapeShortcut(event) {
@@ -9858,15 +10184,7 @@ function handleComposerDoubleEscapeShortcut(event) {
 function initVerbComposer() {
     const {
         modeButtons,
-        slotAEmbedInput,
-        slotAStemInput,
-        slotAValenceLeftEmbedInput,
-        slotBEmbedInput,
-        slotBStemInput,
-        slotBValenceLeftEmbedInput,
-        slotCEmbedInput,
-        slotCStemInput,
-        slotCValenceLeftEmbedInput,
+        slots,
         transitivitySelect,
         transitivitySlotButtons,
         valenceSelectIntransitive,
@@ -9879,12 +10197,21 @@ function initVerbComposer() {
     if (!modeButtons.length) {
         return;
     }
+    const slotNavigationPairs = COMPOSER_SLOT_KEYS.map((slotKey) => ({
+        embedInput: slots[slotKey]?.embedInput || null,
+        matrixInput: slots[slotKey]?.stemInput || null,
+    }));
+    const slotStemInputs = COMPOSER_SLOT_KEYS
+        .map((slotKey) => slots[slotKey]?.stemInput || null)
+        .filter(Boolean);
+    const slotOtherControls = COMPOSER_SLOT_KEYS
+        .flatMap((slotKey) => [
+            slots[slotKey]?.objectInput || null,
+            slots[slotKey]?.embedInput || null,
+        ])
+        .filter(Boolean);
     populateComposerDirectionalOptions();
-    bindComposerStemTabNavigation([
-        { embedInput: slotAEmbedInput, matrixInput: slotAStemInput },
-        { embedInput: slotBEmbedInput, matrixInput: slotBStemInput },
-        { embedInput: slotCEmbedInput, matrixInput: slotCStemInput },
-    ]);
+    bindComposerStemTabNavigation(slotNavigationPairs);
     modeButtons.forEach((button) => {
         button.addEventListener("click", () => {
             const mode = button.getAttribute("data-verb-input-mode");
@@ -9894,12 +10221,10 @@ function initVerbComposer() {
             setVerbInputMode(mode, { syncFromInput: true });
         });
     });
-    [slotAStemInput, slotBStemInput, slotCStemInput]
-        .filter(Boolean)
-        .forEach((stemInput) => {
-            stemInput.addEventListener("input", () => onVerbComposerControlChange("matrix-stem"));
-            stemInput.addEventListener("change", () => onVerbComposerControlChange("matrix-stem"));
-        });
+    slotStemInputs.forEach((stemInput) => {
+        stemInput.addEventListener("input", () => onVerbComposerControlChange("matrix-stem"));
+        stemInput.addEventListener("change", () => onVerbComposerControlChange("matrix-stem"));
+    });
     if (transitivitySlotButtons?.length) {
         transitivitySlotButtons.forEach((button) => {
             button.addEventListener("click", () => {
@@ -9922,12 +10247,7 @@ function initVerbComposer() {
         valenceSelect,
         valenceSelectSecondary,
         directionalSelect,
-        slotAValenceLeftEmbedInput,
-        slotAEmbedInput,
-        slotBValenceLeftEmbedInput,
-        slotBEmbedInput,
-        slotCValenceLeftEmbedInput,
-        slotCEmbedInput,
+        ...slotOtherControls,
     ].filter(Boolean);
     controls.forEach((control) => {
         control.addEventListener("input", () => onVerbComposerControlChange("other"));
@@ -14739,6 +15059,11 @@ function generateWord(options = {}) {
     const generatedText = forms.join(" / ");
 
     if (!silent) {
+        rememberScreenCalculatorAnsState({
+            generatedText,
+            parsedVerb,
+            stemProvenance,
+        });
         renderAllOutputs({
             verb: renderVerb,
             objectPrefix: baseObjectPrefix,
@@ -16862,6 +17187,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initBulkExport();
     initViewExport();
     initVerbComposer();
+    initVerbScreenCalculator();
     const verbEl = document.getElementById("verb");
     if (verbEl) {
         verbEl.dataset.prevValue = verbEl.value || "";

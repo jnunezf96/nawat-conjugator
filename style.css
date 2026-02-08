@@ -327,6 +327,7 @@ p {
 .view-export-button,
 .tutorial-trigger,
 .verb-editor-mode__button,
+.verb-screen-key,
 .tense-tabs-mode-button,
 .verb-composer__slot-transitivity,
 .verb-composer__slot-tab,
@@ -356,6 +357,7 @@ p {
 .view-export-button:hover:not(:disabled),
 .tutorial-trigger:hover:not(:disabled),
 .verb-editor-mode__button:hover:not(:disabled),
+.verb-screen-key:hover:not(:disabled),
 .tense-tabs-mode-button:hover:not(:disabled),
 .verb-composer__slot-transitivity:hover:not(:disabled),
 .verb-composer__slot-tab:hover:not(:disabled),
@@ -376,6 +378,7 @@ p {
 .view-export-button:focus-visible,
 .tutorial-trigger:focus-visible,
 .verb-editor-mode__button:focus-visible,
+.verb-screen-key:focus-visible,
 .tense-tabs-mode-button:focus-visible,
 .verb-composer__slot-transitivity:focus-visible,
 .verb-composer__slot-tab:focus-visible,
@@ -393,6 +396,7 @@ p {
 
 .panel-stack-tab.is-active,
 .verb-editor-mode__button.is-active,
+.verb-screen-key.is-active,
 .tense-tabs-mode-button.is-active,
 .verb-composer__slot-transitivity.is-active,
 .verb-composer__slot-tab.is-active,
@@ -409,6 +413,7 @@ p {
 
 .tense-tabs-mode-button:disabled,
 .tutorial-trigger:disabled,
+.verb-screen-key:disabled,
 .verb-composer__slot-tab:disabled,
 .verb-chip:disabled,
 .nonactive-tab:disabled,
@@ -423,6 +428,7 @@ p {
 
 .panel-stack-tab,
 .verb-editor-mode__button,
+.verb-screen-key,
 .tense-tabs-mode-button,
 .verb-composer__slot-transitivity,
 .verb-composer__slot-tab,
@@ -815,6 +821,52 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   display: none;
 }
 
+.verb-block {
+  display: grid;
+  gap: 10px;
+}
+
+.verb-block__display,
+.verb-block__controls {
+  display: grid;
+  gap: 8px;
+}
+
+.verb-block__separator {
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(29, 26, 21, 0),
+    rgba(29, 26, 21, 0.26),
+    rgba(216, 106, 58, 0.48),
+    rgba(29, 26, 21, 0.26),
+    rgba(29, 26, 21, 0)
+  );
+  opacity: 0.95;
+}
+
+.verb-block__display,
+.verb-block__controls,
+.verb-block__header,
+.verb-block__screen,
+.verb-block__hint-row,
+.verb-block__keys,
+.verb-block__composer {
+  min-width: 0;
+}
+
+.verb-block__feedback {
+  display: grid;
+  gap: 6px;
+}
+
+.verb-block__utilities {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
 .verb-input-wrap {
   position: relative;
   display: block;
@@ -824,12 +876,70 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 }
 
 .verb-editor-controls {
-  margin-top: 0;
-  margin-bottom: 6px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.verb-screen-keys {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  grid-template-areas:
+    "meta meta"
+    "ops eq";
+  align-items: stretch;
+  gap: 10px;
+  margin: 0;
+}
+
+.verb-screen-keys__meta {
+  grid-area: meta;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.verb-screen-keys__ops {
+  grid-area: ops;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+  min-width: 0;
+  padding-right: 8px;
+  border-right: 1px solid rgba(29, 26, 21, 0.2);
+}
+
+.verb-screen-key {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  border-radius: 10px;
+  padding: 4px 8px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  font-size: var(--font-size-label);
+  text-transform: uppercase;
+}
+
+.verb-screen-key--utility {
+  min-height: 32px;
+  border-radius: 8px;
+  letter-spacing: 0.04em;
+}
+
+.verb-screen-key--equals {
+  grid-area: eq;
+  align-self: stretch;
+  background: var(--glass-btn-bg-active);
+  border-color: var(--glass-btn-border-active);
+  color: var(--ink);
+  box-shadow: var(--glass-btn-shadow-active);
+  font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
 .verb-editor-mode {
@@ -850,7 +960,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 }
 
 .verb-composer {
-  margin-top: 6px;
+  margin-top: 0;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -1140,8 +1250,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 }
 
 .verb-composer__hint {
-  margin-top: 6px;
-  margin-bottom: 8px;
+  margin: 0;
   min-height: 0;
   font-size: var(--font-size-label);
   color: var(--ink-soft);
@@ -1194,7 +1303,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 }
 
 .verb-rule {
-  margin-top: 8px;
+  margin-top: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1220,7 +1329,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 }
 
 .verb-disambiguation {
-  margin-top: 6px;
+  margin-top: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 6px 8px;
@@ -1917,6 +2026,24 @@ input[type="submit"]:hover {
   .verb-editor-controls {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .verb-screen-keys {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "meta"
+      "ops"
+      "eq";
+    gap: 8px;
+  }
+
+  .verb-screen-keys__meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .verb-screen-keys__ops {
+    padding-right: 0;
+    border-right: none;
   }
 
   .verb-composer__grid {
