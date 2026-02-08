@@ -3533,9 +3533,7 @@ function buildWaOnsetVariant(stem, options = {}) {
     const onsetIndex = letters.length - 2;
     const onset = letters[onsetIndex];
     if (onset === "s") {
-        if (options.blockOnsetReplacement) {
-            return null;
-        }
+        // Keep s->sh for wa even when short-base onset replacement is otherwise blocked.
         letters[onsetIndex] = "sh";
     } else if (onset === "t") {
         if (options.blockCh || options.blockOnsetReplacement) {
@@ -3567,9 +3565,8 @@ function buildNonactiveUStem(stem, lastOnset, lastNucleus, options = {}) {
             letters[onsetIndex] = "ch";
         }
     } else if (lastOnset === "s") {
-        if (!blockOnsetReplacement) {
-            letters[onsetIndex] = "sh";
-        }
+        // Keep s->sh for u even when short-base onset replacement is otherwise blocked.
+        letters[onsetIndex] = "sh";
     } else if (lastOnset === "tz") {
         if (!options.blockCh && !blockOnsetReplacement) {
             letters[onsetIndex] = "ch";
@@ -3605,9 +3602,8 @@ function buildNonactiveUwaStem(stem, lastOnset, lastNucleus, options = {}) {
         letters.splice(onsetIndex, 2);
     } else {
         if (lastOnset === "s") {
-            if (!blockOnsetReplacement) {
-                letters[onsetIndex] = "sh";
-            }
+            // Keep s->sh for uwa even when short-base onset replacement is otherwise blocked.
+            letters[onsetIndex] = "sh";
         } else if (lastOnset === "tz") {
             if (!options.blockCh && !blockOnsetReplacement) {
                 letters[onsetIndex] = "ch";
@@ -3981,6 +3977,10 @@ function buildPatientivoDerivations({
                 options = filtered;
             }
         }
+    }
+    const selectedNonactiveSuffix = shouldForceAllNonactiveOptions() ? null : getSelectedNonactiveSuffix();
+    if (selectedNonactiveSuffix && options.some((option) => option.suffix === selectedNonactiveSuffix)) {
+        options = options.filter((option) => option.suffix === selectedNonactiveSuffix);
     }
     if (!options.length) {
         return [];
@@ -4651,7 +4651,6 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         : [];
     const allowTransitiveUwa = isTransitive
         && matchesDerivationRuleBaseList(transitiveUwaAllowList, ruleBase, "");
-    const allowWaluVariant = !isTransitive && endsWithNucleusI;
     const allowChiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "t";
     const allowShiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "s";
     const allowChiwaOrShiwa = allowChiwaVariant || allowShiwaVariant;
@@ -4669,6 +4668,17 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         allowUFromTz,
         allowUFromTTa,
     } = getNonactiveCandidateParts(info);
+    const allowIntransitiveKitiWalu = !isTransitive && ruleBase.endsWith("kiti");
+    const allowMonosyllableUWalu = isMonosyllable && endsWithNucleusU;
+    const allowWaluVariant = (
+        endsWithNucleusI
+        && (
+            isMonosyllable
+            || penultimateHasCoda
+            || preTiConsonant
+            || allowIntransitiveKitiWalu
+        )
+    ) || allowMonosyllableUWalu;
     const uCandidate = isTransitive
         && !isMonosyllable
         && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTz || allowUFromTTa)
@@ -5188,6 +5198,10 @@ function getInstrumentivoResult({
             && !options.some((option) => option.suffix === "lu")
         ) {
             options.push({ suffix: "lu", stem: `${baseVerb}lu` });
+        }
+        const selectedNonactiveSuffix = shouldForceAllNonactiveOptions() ? null : getSelectedNonactiveSuffix();
+        if (selectedNonactiveSuffix && options.some((option) => option.suffix === selectedNonactiveSuffix)) {
+            options = options.filter((option) => option.suffix === selectedNonactiveSuffix);
         }
         const forms = options.map((option) => {
             const stem = basePrefix ? `${basePrefix}${option.stem}` : option.stem;
@@ -6054,9 +6068,16 @@ function getInputGateRightmostStem(rawValue, parsedVerb = null) {
     const raw = String(rawValue || "").toLowerCase();
     const cleaned = raw.replace(COMPOUND_ALLOWED_RE, "").replace(/\s+/g, "");
     const cleanedSupportive = cleaned.includes(OPTIONAL_SUPPORTIVE_I_MARKER)
-        ? cleaned.replace(OPTIONAL_SUPPORTIVE_I_RE, "")
+        ? cleaned.replace(OPTIONAL_SUPPORTIVE_I_RE, "i")
         : cleaned;
     return getExactBaseVerbFromCleaned(cleanedSupportive);
+}
+
+function startsWithConsonantCluster(stem) {
+    const letters = splitVerbLetters(stem);
+    return letters.length >= 2
+        && isVerbLetterConsonant(letters[0])
+        && isVerbLetterConsonant(letters[1]);
 }
 
 function evaluateVerbStemInputGate(rawValue, parsedVerb = null) {
@@ -6074,16 +6095,22 @@ function evaluateVerbStemInputGate(rawValue, parsedVerb = null) {
     const letters = splitVerbLetters(stem);
     const startsWithConsonant = letters.length > 0 && isVerbLetterConsonant(letters[0]);
     const startsWithVowel = letters.length > 0 && isVerbLetterVowel(letters[0]);
+    const hasOptionalSupportiveMarker = String(rawValue || "").includes(OPTIONAL_SUPPORTIVE_I_MARKER)
+        || Boolean(parsedVerb?.hasOptionalSupportiveI);
+    const hasInitialCluster = startsWithConsonantCluster(stem);
+    const requiresExplicitSupportiveI = hasInitialCluster && !hasOptionalSupportiveMarker;
     const supportiveCandidate = startsWithConsonant && !startsWithVowel ? `i${stem}` : "";
     const supportivePronounceable = supportiveCandidate
         ? isSyllableSequencePronounceable(supportiveCandidate)
         : false;
+    const canUseBaseAsTyped = basePronounceable && !requiresExplicitSupportiveI;
+    const canUseSupportiveFallback = supportivePronounceable && !requiresExplicitSupportiveI;
     return {
         stem,
-        basePronounceable,
+        basePronounceable: canUseBaseAsTyped,
         supportiveCandidate,
-        supportivePronounceable,
-        isValid: basePronounceable || supportivePronounceable,
+        supportivePronounceable: canUseSupportiveFallback,
+        isValid: canUseBaseAsTyped || canUseSupportiveFallback,
     };
 }
 
@@ -7144,7 +7171,7 @@ function parseStageSupportiveI(state) {
     const cleaned = state.cleaned || "";
     state.hasOptionalSupportiveI = cleaned.includes(OPTIONAL_SUPPORTIVE_I_MARKER);
     state.cleanedSupportive = state.hasOptionalSupportiveI
-        ? cleaned.replace(OPTIONAL_SUPPORTIVE_I_RE, "")
+        ? cleaned.replace(OPTIONAL_SUPPORTIVE_I_RE, "i")
         : cleaned;
 }
 
@@ -12147,13 +12174,15 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
     const isNawat = Boolean(document.getElementById("language")?.checked);
     const tenseMode = getActiveTenseMode();
     const isVerbMode = tenseMode === TENSE_MODE.verbo;
-    const isNonactiveMode = isVerbMode && getCombinedMode() === COMBINED_MODE.nonactive;
+    const isNounMode = tenseMode === TENSE_MODE.sustantivo;
+    const isNonactiveMode = getCombinedMode() === COMBINED_MODE.nonactive;
+    const shouldShowNonactiveTabs = isNonactiveMode && (isVerbMode || isNounMode);
     container.classList.remove("is-hidden");
-    container.classList.toggle("is-disabled", !isVerbMode || !isNonactiveMode);
-    container.setAttribute("aria-hidden", String(!isVerbMode || !isNonactiveMode));
-    container.setAttribute("aria-disabled", String(!isVerbMode || !isNonactiveMode));
+    container.classList.toggle("is-disabled", !shouldShowNonactiveTabs);
+    container.setAttribute("aria-hidden", String(!shouldShowNonactiveTabs));
+    container.setAttribute("aria-disabled", String(!shouldShowNonactiveTabs));
     container.innerHTML = "";
-    if (!isVerbMode || !isNonactiveMode) {
+    if (!shouldShowNonactiveTabs) {
         return;
     }
 
@@ -13068,7 +13097,7 @@ function getTenseOrderForMode(mode) {
 }
 
 function isNounPossessionSplitTense(tenseValue) {
-    return tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo";
+    return tenseValue === "instrumentivo";
 }
 
 function isNounTenseVisibleForCombinedMode(tenseValue, combinedMode = getCombinedMode()) {
