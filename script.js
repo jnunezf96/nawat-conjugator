@@ -4532,7 +4532,9 @@ function buildPatientivoTroncoDerivations({
     }
     const addWithConsonants = (stem, consonants) => {
         consonants.forEach((consonant) => {
-            addResult(`${stem}${consonant}`);
+            const extendedStem = `${stem}${consonant}`;
+            addRawResult(extendedStem, "");
+            addResult(extendedStem);
         });
     };
     const isIwiAwi = base.endsWith("iwi") || base.endsWith("awi");
@@ -5621,6 +5623,29 @@ function isWjAlternationPair(left, right) {
     return diffIndex !== -1;
 }
 
+function getExpectedAbsolutiveSuffix(form) {
+    if (!form) {
+        return "";
+    }
+    const letters = splitVerbLetters(form);
+    const last = letters[letters.length - 1] || "";
+    if (!last) {
+        return "";
+    }
+    return isVerbLetterVowel(last) ? "t" : "ti";
+}
+
+function isAbsolutivePair(base, candidate) {
+    if (!base || !candidate) {
+        return false;
+    }
+    const suffix = getExpectedAbsolutiveSuffix(base);
+    if (!suffix) {
+        return false;
+    }
+    return candidate === `${base}${suffix}`;
+}
+
 function expandOptionalParentheticalForms(forms) {
     if (!Array.isArray(forms) || forms.length === 0) {
         return [];
@@ -5700,17 +5725,31 @@ function formatConjugationDisplay(value) {
             continue;
         }
         let pairedIndex = -1;
+        let pairText = "";
         for (let j = i + 1; j < expandedForms.length; j += 1) {
             if (used[j]) {
                 continue;
             }
-            if (isWjAlternationPair(expandedForms[i], expandedForms[j])) {
+            const left = expandedForms[i];
+            const right = expandedForms[j];
+            if (isWjAlternationPair(left, right)) {
                 pairedIndex = j;
+                pairText = `${left} / ${right}`;
+                break;
+            }
+            if (isAbsolutivePair(left, right)) {
+                pairedIndex = j;
+                pairText = `${left} / ${right}`;
+                break;
+            }
+            if (isAbsolutivePair(right, left)) {
+                pairedIndex = j;
+                pairText = `${right} / ${left}`;
                 break;
             }
         }
         if (pairedIndex !== -1) {
-            lines.push(`${expandedForms[i]} / ${expandedForms[pairedIndex]}`);
+            lines.push(pairText || `${expandedForms[i]} / ${expandedForms[pairedIndex]}`);
             used[i] = true;
             used[pairedIndex] = true;
         } else {
