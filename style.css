@@ -784,10 +784,13 @@ input.verb-input {
   position: relative;
   z-index: 3;
   margin: 0;
+  text-align: right;
   color: transparent;
   -webkit-text-fill-color: transparent;
   caret-color: var(--accent-strong);
-  background-color: transparent;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
   font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
@@ -802,48 +805,36 @@ input.verb-input::selection {
   color: transparent;
 }
 
-body:not(.is-composer-input-mode) input.verb-input {
-  color: var(--ink);
-  -webkit-text-fill-color: var(--ink);
-  background-color: rgba(255, 255, 255, 0.92);
-}
-
-body:not(.is-composer-input-mode) input.verb-input::placeholder {
-  color: var(--placeholder-color);
-}
-
-body:not(.is-composer-input-mode) input.verb-input::selection {
-  background: rgba(216, 106, 58, 0.3);
-  color: var(--ink);
-}
-
-body:not(.is-composer-input-mode) .verb-input-mirror {
-  display: none;
+input.verb-input:focus,
+input.verb-input:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .verb-block {
   display: grid;
-  gap: 10px;
+  gap: 9px;
 }
 
 .verb-block__display,
 .verb-block__controls {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .verb-block__separator {
-  height: 1px;
+  height: 2px;
   border-radius: 999px;
+  margin: 0 2px;
   background: linear-gradient(
     90deg,
     rgba(29, 26, 21, 0),
-    rgba(29, 26, 21, 0.26),
-    rgba(216, 106, 58, 0.48),
-    rgba(29, 26, 21, 0.26),
+    rgba(29, 26, 21, 0.22),
+    rgba(216, 106, 58, 0.4),
+    rgba(29, 26, 21, 0.22),
     rgba(29, 26, 21, 0)
   );
-  opacity: 0.95;
+  opacity: 0.92;
 }
 
 .verb-block__display,
@@ -867,20 +858,46 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   margin-top: 10px;
 }
 
+/* Redundant with calculator controls (AC and i key): keep wired, hide from UI. */
+#composer-clear-textboxes,
+.verb-composer__checkbox {
+  display: none !important;
+}
+
 .verb-input-wrap {
   position: relative;
   display: block;
   margin: 0;
-  border-radius: 12px;
+  border-radius: 10px;
+  padding-bottom: 8px;
   overflow: visible;
+}
+
+.verb-input-wrap::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(29, 26, 21, 0),
+    rgba(29, 26, 21, 0.2),
+    rgba(216, 106, 58, 0.36),
+    rgba(29, 26, 21, 0.2),
+    rgba(29, 26, 21, 0)
+  );
+  pointer-events: none;
 }
 
 .verb-editor-controls {
   margin: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .verb-screen-keys {
@@ -890,7 +907,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
     "meta meta"
     "ops eq";
   align-items: stretch;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
 }
 
@@ -898,7 +915,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   grid-area: meta;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -906,57 +923,103 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   grid-area: ops;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   align-items: stretch;
   min-width: 0;
-  padding-right: 8px;
-  border-right: 1px solid rgba(29, 26, 21, 0.2);
+  padding-right: 10px;
+  border-right: 1px solid rgba(29, 26, 21, 0.24);
 }
 
 .verb-screen-key {
   width: 100%;
   min-width: 0;
-  min-height: 36px;
-  border-radius: 10px;
-  padding: 4px 8px;
+  min-height: 34px;
+  border-radius: 9px;
+  padding: 3px 8px;
   line-height: 1;
   letter-spacing: 0.08em;
   font-size: var(--font-size-label);
+  font-weight: 600;
   text-transform: uppercase;
 }
 
 .verb-screen-key--utility {
-  min-height: 32px;
+  min-height: 30px;
   border-radius: 8px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .verb-screen-key--equals {
   grid-area: eq;
   align-self: stretch;
+  min-height: 40px;
+  border-radius: 10px;
   background: var(--glass-btn-bg-active);
   border-color: var(--glass-btn-border-active);
   color: var(--ink);
   box-shadow: var(--glass-btn-shadow-active);
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
 }
 
 .verb-editor-mode {
   display: inline-flex;
-  border: 1px solid rgba(29, 26, 21, 0.16);
+  width: 100%;
+  border: 1px solid rgba(29, 26, 21, 0.18);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.8), rgba(246, 238, 223, 0.72));
   padding: 2px;
   gap: 2px;
 }
 
 .verb-editor-mode__button {
+  flex: 1 1 0;
+  width: 100%;
   font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.verb-editor-mode__button[data-verb-input-mode="composer"] {
+  border-color: rgba(216, 106, 58, 0.4);
+  background: linear-gradient(145deg, rgba(255, 251, 243, 0.96), rgba(255, 239, 211, 0.92));
+  color: rgba(29, 26, 21, 0.96);
+}
+
+.verb-editor-mode__button[data-verb-input-mode="composer"].is-active {
+  border-color: rgba(216, 106, 58, 0.72);
+  background: linear-gradient(145deg, rgba(216, 106, 58, 0.28), rgba(246, 191, 133, 0.24));
+  color: #1d1a15;
+}
+
+.verb-editor-mode__button[data-verb-input-mode="regex"] {
+  border-color: rgba(29, 26, 21, 0.18);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.86), rgba(245, 240, 231, 0.8));
+  color: rgba(59, 51, 40, 0.84);
+}
+
+.verb-editor-mode__button[data-verb-input-mode="regex"].is-active {
+  border-color: rgba(29, 26, 21, 0.34);
+  background: linear-gradient(145deg, rgba(44, 139, 126, 0.16), rgba(59, 51, 40, 0.12));
+  color: rgba(29, 26, 21, 0.96);
+}
+
+.verb-block__header .tutorial-trigger {
+  min-height: var(--mode-toggle-height);
+  padding: 2px 11px;
+  font-size: var(--font-size-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  justify-self: end;
+}
+
+.verb-block__screen {
+  padding: 4px;
+  border: 1px solid rgba(29, 26, 21, 0.18);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(244, 236, 223, 0.66));
 }
 
 .verb-composer {
@@ -966,16 +1029,32 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   background: transparent;
   box-shadow: none;
   padding: 2px 0 0;
+  max-height: 780px;
+  opacity: 1;
+  transform: translateY(0);
+  transform-origin: top;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    max-height 0.22s ease,
+    padding 0.18s ease;
+  will-change: opacity, transform, max-height;
 }
 
 .verb-composer.is-hidden {
-  display: none;
+  display: block;
+  pointer-events: none;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-5px);
+  padding-top: 0;
 }
 
 .verb-composer__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .verb-composer__field {
@@ -987,7 +1066,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 .verb-composer__slots {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .verb-composer__slot-tabs {
@@ -995,8 +1074,8 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 4px;
   margin-bottom: 0;
   padding-left: 0;
   position: relative;
@@ -1038,7 +1117,7 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 .verb-composer__slot {
   border: none;
   border-radius: 0;
-  padding: 6px 0;
+  padding: 4px 0;
   background: transparent;
   box-shadow: none;
   position: relative;
@@ -1049,14 +1128,14 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   order: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .verb-composer__bottom-row {
   order: 3;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
 }
 
@@ -1262,44 +1341,6 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 
 .is-composer-input-mode input.verb-input {
   cursor: not-allowed;
-  text-align: right;
-}
-
-.is-composer-input-mode .verb-input-wrap {
-  opacity: 0.9;
-  margin-bottom: 2px;
-  padding-bottom: 10px;
-}
-
-.is-composer-input-mode .verb-input-mirror {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.is-composer-input-mode .verb-mirror-content {
-  margin-left: auto;
-  justify-content: flex-end;
-}
-
-.is-composer-input-mode .verb-input-wrap::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 0;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(29, 26, 21, 0.1),
-    rgba(29, 26, 21, 0.24),
-    rgba(216, 106, 58, 0.45),
-    rgba(29, 26, 21, 0.24),
-    rgba(29, 26, 21, 0.1)
-  );
-  pointer-events: none;
 }
 
 .verb-rule {
@@ -1537,23 +1578,26 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   left: 0;
   z-index: 2;
   pointer-events: none;
-  padding: 10px 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(29, 26, 21, 0.22);
+  border-radius: 10px;
   box-sizing: border-box;
   font-size: var(--font-size-input);
   font-family: inherit;
   color: var(--ink);
   font-weight: 500;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
   overflow: hidden;
   white-space: nowrap;
-  background-color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 230, 0.9));
   background-clip: padding-box;
 }
 
 .verb-input-wrap:focus-within .verb-input-mirror {
-  border-color: rgba(216, 106, 58, 0.6);
+  border-color: rgba(216, 106, 58, 0.72);
   box-shadow: 0 0 0 3px rgba(216, 106, 58, 0.15);
 }
 
@@ -1579,6 +1623,8 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 .verb-mirror-content {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
   flex-wrap: nowrap;
   white-space: pre;
   will-change: transform;
@@ -2024,8 +2070,12 @@ input[type="submit"]:hover {
   }
 
   .verb-editor-controls {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .verb-block__header .tutorial-trigger {
+    justify-self: start;
   }
 
   .verb-screen-keys {

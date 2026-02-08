@@ -131,7 +131,10 @@
                           class="verb-input"
                           aria-label="Verbo"
                           placeholder="Escriba verbo aquí"
-                          autocomplete="off"
+                          autocomplete="new-password"
+                          autocorrect="off"
+                          data-lpignore="true"
+                          data-1p-ignore="true"
                           autocapitalize="none"
                           spellcheck="false"
                         />
@@ -191,10 +194,22 @@
                           </button>
                         </div>
                         <div class="verb-screen-keys__ops">
-                          <button type="button" class="verb-screen-key" id="verb-key-ac" aria-label="Borrar todo">
+                          <button
+                            type="button"
+                            class="verb-screen-key"
+                            id="verb-key-ac"
+                            aria-label="Borrar todo"
+                            title="AC · borrar todo"
+                          >
                             AC
                           </button>
-                          <button type="button" class="verb-screen-key" id="verb-key-ce" aria-label="Borrar entrada">
+                          <button
+                            type="button"
+                            class="verb-screen-key"
+                            id="verb-key-ce"
+                            aria-label="Borrar entrada"
+                            title="CE · borrar entrada activa"
+                          >
                             CE
                           </button>
                           <button
@@ -202,6 +217,7 @@
                             class="verb-screen-key"
                             id="verb-key-del"
                             aria-label="Borrar ultimo"
+                            title="DEL · borrar último carácter"
                           >
                             DEL
                           </button>
@@ -211,6 +227,7 @@
                           class="verb-screen-key verb-screen-key--equals"
                           id="verb-key-eq"
                           aria-label="Generar"
+                          title="= · generar"
                         >
                           =
                         </button>

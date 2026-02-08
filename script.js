@@ -5457,10 +5457,16 @@ function getLocativoTemporalResult({
             isYawi: verbMeta.isYawi,
             forceAll: shouldForceAllNonactiveOptions(),
             ruleBase: nonactiveRuleBase,
+            rootPlusYaBase: verbMeta.rootPlusYaBase,
         });
+        const selectedStemList = Array.isArray(selection.selectedStems)
+            ? selection.selectedStems.filter(Boolean)
+            : [];
         const rawStems = (!selection.selectedSuffix && selection.allStems.length > 1)
             ? selection.allStems
-            : [selection.selectedStem];
+            : ((selection.selectedSuffix && selectedStemList.length > 1)
+                ? selectedStemList
+                : [selection.selectedStem]);
         nonactiveStems = nonactiveSource.prefix
             ? rawStems.map((stem) => `${nonactiveSource.prefix}${stem}`)
             : rawStems;
@@ -8411,6 +8417,27 @@ function getVerbComposerElements() {
     };
 }
 
+function applyNoAutofillAttributes(inputEl) {
+    if (!inputEl) {
+        return;
+    }
+    inputEl.autocomplete = "new-password";
+    inputEl.setAttribute("autocomplete", "new-password");
+    inputEl.setAttribute("autocorrect", "off");
+    inputEl.setAttribute("autocapitalize", "none");
+    inputEl.setAttribute("spellcheck", "false");
+    inputEl.setAttribute("data-lpignore", "true");
+    inputEl.setAttribute("data-1p-ignore", "true");
+}
+
+function enforceNoAutofillOnTextboxes(root = document) {
+    if (!root || typeof root.querySelectorAll !== "function") {
+        return;
+    }
+    const inputs = root.querySelectorAll("input[type=\"text\"]");
+    inputs.forEach((inputEl) => applyNoAutofillAttributes(inputEl));
+}
+
 function getComposerChipOptionSignature(selectEl) {
     if (!selectEl || !selectEl.options) {
         return "";
@@ -8764,7 +8791,7 @@ function updateVerbComposerHint() {
         return;
     }
     if (!isVerbInputModeComposer()) {
-        hint.textContent = "";
+        hint.textContent = "Regex Dev: escribe el patrón directamente en la pantalla.";
         return;
     }
     const stem = VERB_COMPOSER_STATE.stem;
@@ -9402,6 +9429,8 @@ function renderVerbComposerFromState() {
     updateVerbInputPlaceholder();
     if (panel) {
         panel.classList.toggle("is-hidden", !isComposer);
+        panel.setAttribute("aria-hidden", String(!isComposer));
+        panel.inert = !isComposer;
     }
     modeButtons.forEach((button) => {
         const mode = button.getAttribute("data-verb-input-mode");
@@ -9904,6 +9933,50 @@ function getVerbScreenCalculatorButtons() {
     };
 }
 
+function getRegexSupportiveIToggleInfo(rawValue = "") {
+    const { base, query, hasQuery } = splitSearchInput(rawValue);
+    const baseValue = String(base || "");
+    if (!baseValue.trim()) {
+        return {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: rawValue,
+        };
+    }
+    if (baseValue.includes(OPTIONAL_SUPPORTIVE_I_MARKER)) {
+        const nextBase = baseValue.replace(OPTIONAL_SUPPORTIVE_I_RE, "i");
+        return {
+            canToggle: true,
+            hasMarker: true,
+            nextValue: hasQuery ? `${nextBase}?${query}` : nextBase,
+        };
+    }
+    const parsedBase = parseVerbInput(baseValue);
+    const stem = normalizeComposerStem(getInputGateRightmostStem(baseValue, parsedBase));
+    if (!stem || !stem.startsWith("i")) {
+        return {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: rawValue,
+        };
+    }
+    const stemIndex = baseValue.toLowerCase().lastIndexOf(stem);
+    if (stemIndex < 0) {
+        return {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: rawValue,
+        };
+    }
+    const markedStem = `${OPTIONAL_SUPPORTIVE_I_MARKER}${stem.slice(1)}`;
+    const nextBase = `${baseValue.slice(0, stemIndex)}${markedStem}${baseValue.slice(stemIndex + stem.length)}`;
+    return {
+        canToggle: true,
+        hasMarker: false,
+        nextValue: hasQuery ? `${nextBase}?${query}` : nextBase,
+    };
+}
+
 function syncVerbScreenCalculatorState() {
     const {
         ansButton,
@@ -9939,28 +10012,64 @@ function syncVerbScreenCalculatorState() {
     };
     if (transitivityButton) {
         const readable = transitivityLabelMap[currentTransitivity] || "Intransitivo";
+        const transitivityUnavailable = !isComposer;
+        transitivityButton.disabled = transitivityUnavailable;
+        transitivityButton.setAttribute("aria-disabled", String(transitivityUnavailable));
         transitivityButton.classList.toggle(
             "is-active",
-            currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive
+            !transitivityUnavailable && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive
         );
-        transitivityButton.setAttribute("aria-pressed", "false");
-        transitivityButton.title = `Transitividad actual: ${readable}.`;
+        transitivityButton.setAttribute(
+            "aria-pressed",
+            String(!transitivityUnavailable && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive)
+        );
+        transitivityButton.title = transitivityUnavailable
+            ? "Disponible solo en Selecciones"
+            : `Transitividad actual: ${readable}.`;
         transitivityButton.setAttribute(
             "aria-label",
-            `Transitividad actual ${readable}. Cambiar transitividad`
+            transitivityUnavailable
+                ? "Transitividad disponible solo en Selecciones"
+                : `Transitividad actual ${readable}. Cambiar transitividad`
         );
     }
     if (supportiveIButton) {
         const { supportiveICheckbox } = getVerbComposerElements();
-        const supportiveOn = Boolean(supportiveICheckbox?.checked);
-        const unavailableInComposer = isComposer && Boolean(supportiveICheckbox?.disabled);
-        supportiveIButton.disabled = unavailableInComposer;
-        supportiveIButton.setAttribute("aria-disabled", String(unavailableInComposer));
-        supportiveIButton.classList.toggle("is-active", supportiveOn);
-        supportiveIButton.setAttribute("aria-pressed", String(supportiveOn));
-        supportiveIButton.title = unavailableInComposer
-            ? "Solo disponible si raíz matriz inicia con i"
-            : (supportiveOn ? "Quitar i de apoyo opcional" : "Aplicar i de apoyo opcional");
+        if (isComposer) {
+            const supportiveOn = Boolean(supportiveICheckbox?.checked);
+            const supportiveUnavailable = Boolean(supportiveICheckbox?.disabled);
+            supportiveIButton.disabled = supportiveUnavailable;
+            supportiveIButton.setAttribute("aria-disabled", String(supportiveUnavailable));
+            supportiveIButton.classList.toggle("is-active", !supportiveUnavailable && supportiveOn);
+            supportiveIButton.setAttribute("aria-pressed", String(!supportiveUnavailable && supportiveOn));
+            supportiveIButton.title = supportiveUnavailable
+                ? "Solo disponible si raíz matriz inicia con i"
+                : (supportiveOn ? "Quitar i de apoyo opcional" : "Aplicar i de apoyo opcional");
+            supportiveIButton.setAttribute(
+                "aria-label",
+                supportiveUnavailable
+                    ? "i de apoyo opcional disponible solo si raíz matriz inicia con i"
+                    : (supportiveOn ? "Quitar i de apoyo opcional" : "Aplicar i de apoyo opcional")
+            );
+        } else {
+            const verbInput = document.getElementById("verb");
+            const toggleInfo = getRegexSupportiveIToggleInfo(verbInput?.value || "");
+            const regexHasMarker = toggleInfo.hasMarker;
+            const regexUnavailable = !toggleInfo.canToggle;
+            supportiveIButton.disabled = regexUnavailable;
+            supportiveIButton.setAttribute("aria-disabled", String(regexUnavailable));
+            supportiveIButton.classList.toggle("is-active", !regexUnavailable && regexHasMarker);
+            supportiveIButton.setAttribute("aria-pressed", String(!regexUnavailable && regexHasMarker));
+            supportiveIButton.title = regexUnavailable
+                ? "Regex Dev: disponible si el tronco inicia con i o ya contiene (i)"
+                : (regexHasMarker ? "Regex Dev: quitar (i) opcional" : "Regex Dev: agregar (i) opcional");
+            supportiveIButton.setAttribute(
+                "aria-label",
+                regexUnavailable
+                    ? "i de apoyo opcional en Regex Dev disponible si el tronco inicia con i o ya contiene (i)"
+                    : (regexHasMarker ? "Regex Dev quitar i de apoyo opcional" : "Regex Dev agregar i de apoyo opcional")
+            );
+        }
     }
 }
 
@@ -10091,7 +10200,8 @@ function runScreenCalculatorModeToggle() {
 
 function runScreenCalculatorCycleTransitivity() {
     if (!isVerbInputModeComposer()) {
-        setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+        syncVerbScreenCalculatorState();
+        return;
     }
     const { transitivitySelect } = getVerbComposerElements();
     const current = transitivitySelect?.value || VERB_COMPOSER_STATE.transitivity;
@@ -10108,7 +10218,21 @@ function runScreenCalculatorCycleTransitivity() {
 
 function runScreenCalculatorToggleSupportiveI() {
     if (!isVerbInputModeComposer()) {
-        setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+        const verbInput = document.getElementById("verb");
+        if (!verbInput) {
+            syncVerbScreenCalculatorState();
+            return;
+        }
+        const toggleInfo = getRegexSupportiveIToggleInfo(verbInput.value);
+        if (!toggleInfo.canToggle) {
+            syncVerbScreenCalculatorState();
+            return;
+        }
+        verbInput.value = toggleInfo.nextValue;
+        dispatchTextInputUpdate(verbInput);
+        verbInput.focus();
+        syncVerbScreenCalculatorState();
+        return;
     }
     const { supportiveICheckbox } = getVerbComposerElements();
     if (!supportiveICheckbox || supportiveICheckbox.disabled) {
@@ -11600,11 +11724,7 @@ function renderBulkExportTable(container, rows) {
         verbInput.type = "text";
         verbInput.className = "bulk-export__verb-input";
         verbInput.value = row.verb;
-        verbInput.autocomplete = "off";
-        verbInput.setAttribute("data-lpignore", "true");
-        verbInput.setAttribute("data-1p-ignore", "true");
-        verbInput.autocapitalize = "none";
-        verbInput.spellcheck = false;
+        applyNoAutofillAttributes(verbInput);
         verbCell.appendChild(verbInput);
         tr.appendChild(verbCell);
         const applicative3sCell = document.createElement("td");
@@ -12224,9 +12344,16 @@ function renderTenseTabs() {
     renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithConsonant });
     const tenseMode = getActiveTenseMode();
     const allowedTenses = getTenseOrderForMode(tenseMode);
+    const nounVisibleTenses = tenseMode === TENSE_MODE.sustantivo
+        ? getNounTenseOrderForCombinedMode(getCombinedMode())
+        : [];
+    const visibleTenses = nounVisibleTenses.length
+        ? nounVisibleTenses
+        : allowedTenses;
+    const visibleTenseSet = new Set(visibleTenses);
     const selectedTenseValue = getSelectedTenseTab();
-    if (!allowedTenses.includes(selectedTenseValue)) {
-        setSelectedTenseTab(allowedTenses[0] || TENSE_ORDER[0]);
+    if (!visibleTenseSet.has(selectedTenseValue)) {
+        setSelectedTenseTab(visibleTenses[0] || allowedTenses[0] || TENSE_ORDER[0]);
     }
     const isTransitive = isValencyFilled(getCurrentObjectPrefix(), verbMeta);
     const derivationType = verbMeta.derivationType || getActiveDerivationType();
@@ -12442,6 +12569,10 @@ function renderTenseTabs() {
 
     const appendTenseGroups = (groups, columnEl) => {
         groups.forEach((group) => {
+            const groupTenses = group.tenses.filter((tenseValue) => visibleTenseSet.has(tenseValue));
+            if (!groupTenses.length) {
+                return;
+            }
             const groupEl = document.createElement("div");
             groupEl.className = "tense-tabs-group";
             if (group.heading) {
@@ -12450,7 +12581,7 @@ function renderTenseTabs() {
                 heading.textContent = getLocalizedLabel(group.heading, isNawat, "");
                 groupEl.appendChild(heading);
             }
-            group.tenses.forEach((tenseValue) => {
+            groupTenses.forEach((tenseValue) => {
                 groupEl.appendChild(buildTenseButton(tenseValue));
             });
             columnEl.appendChild(groupEl);
@@ -12897,6 +13028,29 @@ function getTenseOrderForMode(mode) {
     ));
 }
 
+function isNounPossessionSplitTense(tenseValue) {
+    return tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo";
+}
+
+function isNounTenseVisibleForCombinedMode(tenseValue, combinedMode = getCombinedMode()) {
+    if (!tenseValue) {
+        return false;
+    }
+    if (isNounPossessionSplitTense(tenseValue)) {
+        return true;
+    }
+    if (combinedMode !== COMBINED_MODE.nonactive) {
+        return true;
+    }
+    return tenseValue === "patientivo" || tenseValue === "locativo-temporal";
+}
+
+function getNounTenseOrderForCombinedMode(combinedMode = getCombinedMode()) {
+    return getTenseOrderForMode(TENSE_MODE.sustantivo).filter((tenseValue) =>
+        isNounTenseVisibleForCombinedMode(tenseValue, combinedMode)
+    );
+}
+
 function isThreeColumnPanelLayout() {
     return typeof window !== "undefined"
         && typeof window.matchMedia === "function"
@@ -13029,18 +13183,17 @@ function updateCombinedModeTabs() {
     if (!buttons.length) {
         return;
     }
-    const isSustantivoMode = getActiveTenseMode() === TENSE_MODE.sustantivo;
     const mode = getCombinedMode();
     const container = document.querySelector(".voice-derivation-tabs");
     if (container) {
-        container.classList.toggle("is-disabled", isSustantivoMode);
-        container.setAttribute("aria-disabled", String(isSustantivoMode));
+        container.classList.remove("is-disabled");
+        container.setAttribute("aria-disabled", "false");
     }
     buttons.forEach((button) => {
         const isActive = button.getAttribute("data-combined-mode") === mode;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
-        button.disabled = isSustantivoMode;
+        button.disabled = false;
     });
 }
 
@@ -16041,6 +16194,7 @@ function renderPretUniversalConjugations({
 function renderLocativoTemporalConjugations({
     verb,
     containerId = "all-tense-conjugations",
+    modeFilter = null,
 }) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -16358,8 +16512,14 @@ function renderLocativoTemporalConjugations({
         return tenseBlock;
     };
 
-    grid.appendChild(buildBlock({ mode: COMBINED_MODE.active }));
-    grid.appendChild(buildBlock({ mode: COMBINED_MODE.nonactive }));
+    const modesToRender = modeFilter === COMBINED_MODE.active
+        ? [COMBINED_MODE.active]
+        : (modeFilter === COMBINED_MODE.nonactive
+            ? [COMBINED_MODE.nonactive]
+            : [COMBINED_MODE.active, COMBINED_MODE.nonactive]);
+    modesToRender.forEach((mode) => {
+        grid.appendChild(buildBlock({ mode }));
+    });
 }
 
 function buildNounTabRenderContext({
@@ -16373,16 +16533,19 @@ function buildNounTabRenderContext({
     }
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
-    const allowedNounTenses = getTenseOrderForMode(TENSE_MODE.sustantivo);
+    const combinedMode = getCombinedMode();
+    const allowedNounTenses = getNounTenseOrderForCombinedMode(combinedMode);
     const selectedTense = tenseValue || getSelectedTenseTab();
+    const fallbackTense = allowedNounTenses[0] || "sustantivo-verbal";
     const resolvedTense = allowedNounTenses.includes(selectedTense)
         ? selectedTense
-        : "sustantivo-verbal";
+        : fallbackTense;
     if (resolvedTense === "locativo-temporal") {
-        return { container, isNawat, resolvedTense, isLocativoTemporal: true };
+        return { container, isNawat, resolvedTense, isLocativoTemporal: true, combinedMode };
     }
     const isInstrumentivo = resolvedTense === "instrumentivo";
     const isCalificativoInstrumentivo = resolvedTense === "calificativo-instrumentivo";
+    const isPossessionSplit = isNounPossessionSplitTense(resolvedTense);
     const showNonanimateOnly = resolvedTense === "sustantivo-verbal"
         || isInstrumentivo
         || isCalificativoInstrumentivo;
@@ -16412,12 +16575,22 @@ function buildNounTabRenderContext({
         activeObjectPrefix = storedObjectPrefix;
     }
     const possessorValues = POSSESSIVE_PREFIXES.map((entry) => entry.value);
+    const visiblePossessorValues = isPossessionSplit
+        ? (
+            combinedMode === COMBINED_MODE.nonactive
+                ? [""]
+                : possessorValues
+        )
+        : possessorValues;
     let activePossessor = POSSESSOR_TOGGLE_STATE.get(possessorKey);
-    if (activePossessor === undefined) {
-        activePossessor = "";
-    }
-    if (!possessorValues.includes(activePossessor) && activePossessor !== OBJECT_TOGGLE_ALL) {
-        activePossessor = "";
+    if (activePossessor === undefined || !visiblePossessorValues.includes(activePossessor)) {
+        if (visiblePossessorValues.includes("")) {
+            activePossessor = "";
+        } else if (visiblePossessorValues.includes("i")) {
+            activePossessor = "i";
+        } else {
+            activePossessor = visiblePossessorValues[0] ?? "";
+        }
     }
     const ownershipOptions = PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id);
     let activeOwnership = PATIENTIVO_OWNERSHIP_STATE.get(ownershipKey);
@@ -16434,7 +16607,7 @@ function buildNounTabRenderContext({
     );
     const showSubjectToggle = !showNonanimateOnly;
     const showObjectToggle = allowedPrefixes.length > 1;
-    const showPossessorToggle = true;
+    const showPossessorToggle = visiblePossessorValues.length > 1;
     if (showObjectToggle) {
         if (storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
             activeObjectPrefix = storedObjectPrefix;
@@ -16453,7 +16626,9 @@ function buildNounTabRenderContext({
     return {
         container,
         isNawat,
+        combinedMode,
         resolvedTense,
+        isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
         isLocativoTemporal: false,
@@ -16468,7 +16643,7 @@ function buildNounTabRenderContext({
         allowedPrefixes,
         objectOptions,
         objectOptionMap,
-        possessorValues,
+        visiblePossessorValues,
         activeOwnership,
         activeObjectPrefix,
         activePossessor,
@@ -16491,13 +16666,19 @@ function renderNounConjugations({
         return;
     }
     if (context.isLocativoTemporal) {
-        renderLocativoTemporalConjugations({ verb, containerId });
+        renderLocativoTemporalConjugations({
+            verb,
+            containerId,
+            modeFilter: context.combinedMode,
+        });
         return;
     }
     const {
         container,
         isNawat,
+        combinedMode,
         resolvedTense,
+        isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
         isLocativoTemporal,
@@ -16511,7 +16692,7 @@ function renderNounConjugations({
         verbMeta,
         allowedPrefixes,
         objectOptions,
-        possessorValues,
+        visiblePossessorValues,
         activeOwnership,
         isSubjectOptionAllowed,
         showSubjectToggle,
@@ -16541,24 +16722,28 @@ function renderNounConjugations({
                 id: "patientivo-pasivo",
                 label: getVerbBlockLabel("patientivo-pasivo", isNawat, "patientivo · pasivo/impersonal"),
                 patientivoSource: "nonactive",
+                mode: COMBINED_MODE.nonactive,
                 showControls: true,
             },
             {
                 id: "patientivo-perfectivo",
                 label: getVerbBlockLabel("patientivo-perfectivo", isNawat, "patientivo · perfectivo"),
                 patientivoSource: "perfectivo",
-                showControls: false,
+                mode: COMBINED_MODE.active,
+                showControls: true,
             },
             {
                 id: "patientivo-imperfectivo",
                 label: getVerbBlockLabel("patientivo-imperfectivo", isNawat, "patientivo · imperfectivo"),
                 patientivoSource: "imperfectivo",
+                mode: COMBINED_MODE.active,
                 showControls: false,
             },
             {
                 id: "patientivo-tronco",
                 label: getVerbBlockLabel("patientivo-tronco", isNawat, "patientivo · raíz verbal"),
                 patientivoSource: "tronco-verbal",
+                mode: COMBINED_MODE.active,
                 showControls: false,
             },
         ]
@@ -16567,9 +16752,13 @@ function renderNounConjugations({
                 id: resolvedTense,
                 label: tenseLabel,
                 patientivoSource: "nonactive",
+                mode: isPossessionSplit ? null : COMBINED_MODE.active,
                 showControls: true,
             },
         ];
+    const visibleBlockConfigs = blockConfigs.filter((entry) =>
+        !entry.mode || entry.mode === combinedMode
+    );
     let toggleButtons = new Map();
     let possessorButtons = new Map();
     let ownershipButtons = new Map();
@@ -16613,11 +16802,11 @@ function renderNounConjugations({
             if (showPossessorToggle) {
                 const possessorOptions = [
                     { id: OBJECT_TOGGLE_ALL, label: allToggleLabel, value: OBJECT_TOGGLE_ALL },
-                    ...POSSESSIVE_PREFIXES.map((entry) => ({
-                        id: entry.value,
-                        label: entry.value ? entry.value : "Ø",
-                        value: entry.value,
-                        title: getPossessorPersonLabel(entry.value, isNawat),
+                    ...visiblePossessorValues.map((value) => ({
+                        id: value,
+                        label: value ? value : "Ø",
+                        value,
+                        title: getPossessorPersonLabel(value, isNawat),
                     })),
                 ];
                 const { toggle: possessorToggle, buttons } = buildToggleControl({
@@ -16632,7 +16821,7 @@ function renderNounConjugations({
                 possessorButtons = buttons;
                 titleControls.appendChild(possessorToggle);
             } else {
-                activePossessor = "";
+                activePossessor = visiblePossessorValues[0] ?? "";
             }
             if (showOwnershipToggle) {
                 PATIENTIVO_OWNERSHIP_STATE.set(ownershipKey, activePatientivoOwnership);
@@ -16714,7 +16903,7 @@ function renderNounConjugations({
             ? allowedPrefixes
             : [activeObjectPrefix];
         const possessorSelections = activePossessor === OBJECT_TOGGLE_ALL
-            ? possessorValues
+            ? visiblePossessorValues
             : [activePossessor];
         const patientivoOverride = resolvedTense === "patientivo"
             ? (patientivoSource || "nonactive")
@@ -16885,7 +17074,7 @@ function renderNounConjugations({
         renderRows();
     };
 
-    blockConfigs.forEach((entry) => createTenseBlock(entry));
+    visibleBlockConfigs.forEach((entry) => createTenseBlock(entry));
     setActivePrefix(activeObjectPrefix);
     setActiveSubject(activeSubject);
     if (showPossessorToggle) {
@@ -17188,6 +17377,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initViewExport();
     initVerbComposer();
     initVerbScreenCalculator();
+    enforceNoAutofillOnTextboxes(document);
     const verbEl = document.getElementById("verb");
     if (verbEl) {
         verbEl.dataset.prevValue = verbEl.value || "";
