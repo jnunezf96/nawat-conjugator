@@ -408,6 +408,7 @@ p {
 }
 
 .tense-tabs-mode-button:disabled,
+.tutorial-trigger:disabled,
 .verb-composer__slot-tab:disabled,
 .verb-chip:disabled,
 .nonactive-tab:disabled,
@@ -640,6 +641,8 @@ p {
   margin-bottom: 0;
   width: 100%;
   min-width: 0;
+  flex-wrap: nowrap;
+  align-items: stretch;
 }
 
 .tense-tabs-mode-button {
@@ -652,6 +655,21 @@ p {
   box-sizing: border-box;
   white-space: nowrap;
   text-align: center;
+}
+
+.tense-tabs-mode-row .tense-tabs-mode .tense-tabs-mode-button {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+  padding: 2px 6px;
+  font-size: clamp(0.54rem, calc(0.46rem + var(--font-size-adjust)), 0.74rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .tense-tabs-mode-button + .tense-tabs-mode-button {
@@ -713,14 +731,6 @@ p {
 .form-group {
   width: 100%;
   text-align: left;
-}
-
-.form-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
 }
 
 .tutorial-trigger {
@@ -813,8 +823,15 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
   overflow: visible;
 }
 
-.verb-editor-mode {
+.verb-editor-controls {
   margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.verb-editor-mode {
   display: inline-flex;
   border: 1px solid rgba(29, 26, 21, 0.16);
   border-radius: 999px;
@@ -864,12 +881,29 @@ body:not(.is-composer-input-mode) .verb-input-mirror {
 
 .verb-composer__slot-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 6px;
   margin-bottom: 0;
   padding-left: 0;
   position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.verb-composer__slot-tabs .verb-composer__slot-tab {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+  padding: 2px 6px;
+  font-size: clamp(0.52rem, calc(0.44rem + var(--font-size-adjust)), 0.72rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .verb-composer__slot {
@@ -1783,7 +1817,7 @@ input[type="submit"]:hover {
     flex-basis: 100%;
   }
 
-  .form-header {
+  .verb-editor-controls {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -1929,7 +1963,7 @@ input[type="submit"]:hover {
   font-size: clamp(0.62rem, calc(0.56rem + 0.18vw), 0.86rem);
   text-align: left;
   justify-self: start;
-  white-space: normal;
+  white-space: pre-line;
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
@@ -2245,12 +2279,18 @@ input[type="submit"]:hover {
 }
 
 .legend-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
+  gap: 6px;
   margin-left: auto;
   flex: 0 0 auto;
   align-self: flex-end;
+}
+
+.legend-help {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .keyboard-legend-container {
@@ -2274,8 +2314,9 @@ input[type="submit"]:hover {
   font-size: calc(0.95rem + var(--font-size-adjust));
 }
 
-.legend-wrapper:hover .keyboard-legend-container,
-.legend-wrapper:focus-within .keyboard-legend-container {
+.legend-help:hover .keyboard-legend-container,
+.legend-help:focus-within .keyboard-legend-container,
+.keyboard-legend-container:hover {
   display: block;
 }
 

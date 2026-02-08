@@ -397,6 +397,20 @@ function buildPretUniversalClassB(context) {
         }
         const variants = [{ base: context.verb, suffix: "k" }];
         const rootPlusYaBase = context.rootPlusYaBase;
+        const addRootPlusYaVariant = (candidateBase) => {
+            if (!candidateBase || !isAllowedStem(candidateBase)) {
+                return;
+            }
+            let base = candidateBase;
+            let suffix = "k";
+            if (shouldCoalesceFinalI(base)) {
+                base = `${base.slice(0, -1)}y`;
+                suffix = "ka";
+            }
+            if (!variants.some((variant) => variant.base === base && variant.suffix === suffix)) {
+                variants.push({ base, suffix });
+            }
+        };
         const isShortRootPlusYaBase = (() => {
             if (!rootPlusYaBase) {
                 return false;
@@ -406,18 +420,16 @@ function buildPretUniversalClassB(context) {
                 return false;
             }
             const form = baseSyllables[0]?.form;
-            return form === "CV" || form === "Vj";
+            return form === "V" || form === "CV" || form === "Vj";
         })();
-        if (!isShortRootPlusYaBase && rootPlusYaBase && isAllowedStem(rootPlusYaBase)) {
-            let base = rootPlusYaBase;
-            let suffix = "k";
-            if (shouldCoalesceFinalI(base)) {
-                base = `${base.slice(0, -1)}y`;
-                suffix = "ka";
-            }
-            if (!variants.some((variant) => variant.base === base && variant.suffix === suffix)) {
-                variants.push({ base, suffix });
-            }
+        if (!isShortRootPlusYaBase && rootPlusYaBase) {
+            addRootPlusYaVariant(rootPlusYaBase);
+        }
+        const slashEmbeddedYaBase = context.hasSlashMarker && context.verb.endsWith("ya")
+            ? context.verb.slice(0, -2)
+            : "";
+        if (slashEmbeddedYaBase) {
+            addRootPlusYaVariant(slashEmbeddedYaBase);
         }
         return variants;
     }

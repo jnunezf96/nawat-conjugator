@@ -84,12 +84,6 @@
           >
             <div class="form-container panel" id="container-inputs">
               <div class="form-group">
-                <div class="form-header">
-                  <label for="verb" id="verb-label">Verbo</label>
-                  <button type="button" class="tutorial-trigger" id="tutorial-trigger">
-                    Guía regex
-                  </button>
-                </div>
                 <div class="verb-input-wrap">
                   <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
                     <div class="verb-mirror-content" id="verb-mirror-content"></div>
@@ -99,6 +93,7 @@
                     id="verb"
                     name="verb"
                     class="verb-input"
+                    aria-label="Verbo"
                     placeholder="Escriba verbo aquí"
                     autocomplete="off"
                     autocapitalize="none"
@@ -111,24 +106,29 @@
                     aria-label="Sugerencias"
                   ></div>
                 </div>
-                <div class="verb-editor-mode" id="verb-editor-mode" role="tablist" aria-label="Modo de entrada">
-                  <button
-                    type="button"
-                    class="verb-editor-mode__button is-active"
-                    data-verb-input-mode="composer"
-                    id="verb-input-mode-composer"
-                    aria-pressed="true"
-                  >
-                    Selecciones
-                  </button>
-                  <button
-                    type="button"
-                    class="verb-editor-mode__button"
-                    data-verb-input-mode="regex"
-                    id="verb-input-mode-regex"
-                    aria-pressed="false"
-                  >
-                    Regex Dev
+                <div class="verb-editor-controls">
+                  <div class="verb-editor-mode" id="verb-editor-mode" role="tablist" aria-label="Modo de entrada">
+                    <button
+                      type="button"
+                      class="verb-editor-mode__button is-active"
+                      data-verb-input-mode="composer"
+                      id="verb-input-mode-composer"
+                      aria-pressed="true"
+                    >
+                      Selecciones
+                    </button>
+                    <button
+                      type="button"
+                      class="verb-editor-mode__button"
+                      data-verb-input-mode="regex"
+                      id="verb-input-mode-regex"
+                      aria-pressed="false"
+                    >
+                      Regex Dev
+                    </button>
+                  </div>
+                  <button type="button" class="tutorial-trigger" id="tutorial-trigger">
+                    Guía regex
                   </button>
                 </div>
                 <div class="verb-composer" id="verb-composer">
@@ -439,17 +439,23 @@
               <input type="hidden" id="subject-prefix" name="subject-prefix" value="" />
               <input type="hidden" id="subject-suffix" name="subject-suffix" value="" />
               <div class="legend-wrapper">
-                <!-- "?" Button to show the keyboard legend -->
-                <button class="legend-button">?</button>
-                <!-- Keyboard Legend Container -->
-                <div class="keyboard-legend-container" id="keyboard-legend">
-                  <p><strong>Atajos:</strong></p>
-                  <p>Space/Esc: enfocar / salir del verbo</p>
-                  <p>Enter: generar</p>
-                  <p>Escribe para ver sugerencias</p>
-                  <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
-                  <!-- Agregar más elementos de leyenda según sea necesario -->
+                <div class="legend-help">
+                  <!-- "?" Button to show the keyboard legend -->
+                  <button class="legend-button">?</button>
+                  <!-- Keyboard Legend Container -->
+                  <div class="keyboard-legend-container" id="keyboard-legend">
+                    <p><strong>Atajos:</strong></p>
+                    <p>Space/Esc: enfocar / salir del verbo</p>
+                    <p>Esc x2: limpiar cajas (selecciones)</p>
+                    <p>Enter: generar</p>
+                    <p>Escribe para ver sugerencias</p>
+                    <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
+                    <!-- Agregar más elementos de leyenda según sea necesario -->
+                  </div>
                 </div>
+                <button type="button" class="tutorial-trigger" id="composer-clear-textboxes">
+                  Limpiar cajas
+                </button>
               </div>
               <div class="bulk-export" id="bulk-export">
                 <div class="bulk-export__header">

@@ -68,6 +68,7 @@ const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "te",
     "mu",
 ];
+const COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS = 450;
 const VERB_COMPOSER_STATE = {
     mode: VERB_INPUT_MODE.composer,
     transitivity: COMPOSER_TRANSITIVITY.intransitive,
@@ -92,6 +93,7 @@ const VERB_COMPOSER_STATE = {
     stemManualOverride: false,
     isApplying: false,
 };
+let LAST_COMPOSER_ESCAPE_TS = 0;
 let DERIVATIONAL_RULES = {};
 let DERIVATIONAL_RULES_DOCS = {};
 let VALENCE_NEUTRAL_RULES = {};
@@ -4281,6 +4283,41 @@ function buildPatientivoTroncoDerivations({
     const isWaFinalSyllable = (syllable) => (
         syllable?.form === "CV" && syllable.onset === "w" && syllable.nucleus === "a"
     );
+    const startsWithInitialRedup = (() => {
+        if (syllables.length < 2) {
+            return false;
+        }
+        const first = syllables[0];
+        const second = syllables[1];
+        if (!first || !second) {
+            return false;
+        }
+        const isStandardRedup = (
+            REDUP_PREFIX_FORMS.has(first.form)
+            && second.nucleus
+            && isOpenSyllable(second)
+            && (first.onset || second.onset)
+            && getSyllableBaseKey(first) === getSyllableBaseKey(second)
+        );
+        const isLRedup = (
+            second.nucleus
+            && getSyllableBaseKey(first) === getSyllableBaseKey(second)
+            && (
+                ((first.form === "V" || first.form === "Vj") && second.form === "Vl")
+                || ((first.form === "CV" || first.form === "CVj") && second.form === "CVl")
+            )
+        );
+        return isStandardRedup || isLRedup;
+    })();
+    const startsWithVj = syllables[0]?.form === "Vj";
+    const hasMultisyllableCoreBeforeSuffix = (suffix) => {
+        if (!suffix || !base.endsWith(suffix) || base.length <= suffix.length) {
+            return false;
+        }
+        const core = base.slice(0, -suffix.length);
+        const coreSyllables = getSyllables(core, { analysis: true, assumeFinalV: true });
+        return coreSyllables.length > 1;
+    };
     const endsWithVCCVwa = (() => {
         if (syllables.length < 3) {
             return false;
@@ -4440,7 +4477,7 @@ function buildPatientivoTroncoDerivations({
         });
     };
     const isIwiAwi = base.endsWith("iwi") || base.endsWith("awi");
-    if (isIwiAwi) {
+    if (isIwiAwi && hasMultisyllableCoreBeforeSuffix("wi")) {
         const coreDropAwi = base.slice(0, -3);
         const coreDropWi = base.slice(0, -2);
         const coreLetters = splitVerbLetters(coreDropAwi);
@@ -4449,10 +4486,14 @@ function buildPatientivoTroncoDerivations({
         const hasVowel = coreLetters.some((letter) => isVerbLetterVowel(letter));
         if (endsWithConsonant && hasVowel) {
             addWithConsonants(coreDropWi, ["sh", "k"]);
-            addResult(coreDropAwi);
+            addRawResult(coreDropAwi, "");
         }
     }
     if (!isIwiAwi && (base.endsWith("wi") || base.endsWith("wa"))) {
+        const wiWaSuffix = base.endsWith("wi") ? "wi" : "wa";
+        if (!hasMultisyllableCoreBeforeSuffix(wiWaSuffix)) {
+            return results;
+        }
         const core = base.slice(0, -2);
         if (base.endsWith("wi")) {
             const coreLetters = splitVerbLetters(core);
@@ -4465,14 +4506,16 @@ function buildPatientivoTroncoDerivations({
             addResult(core);
         }
     }
-    if (base.endsWith("ni") || base.endsWith("na")) {
+    if (base.endsWith("ni")) {
         const core = base.slice(0, -2);
         addWithConsonants(core, ["k", "sh", "s", "ch"]);
-        if (base.endsWith("ni")) {
-            addResult(core);
-        }
+        addResult(core);
     }
-    if (base.endsWith("ka")) {
+    if (
+        base.endsWith("ka")
+        && hasMultisyllableCoreBeforeSuffix("ka")
+        && (startsWithInitialRedup || startsWithVj)
+    ) {
         const core = base.slice(0, -2);
         addWithConsonants(core, ["k", "ch", "j"]);
     }
@@ -5513,6 +5556,46 @@ function isWjAlternationPair(left, right) {
     return diffIndex !== -1;
 }
 
+function expandOptionalParentheticalForms(forms) {
+    if (!Array.isArray(forms) || forms.length === 0) {
+        return [];
+    }
+    const expanded = [];
+    const seen = new Set();
+    const expandOne = (form) => {
+        const match = form.match(/^(.*)\(([^()]+)\)(.*)$/);
+        if (!match) {
+            return [form];
+        }
+        const before = match[1] || "";
+        const optionalPart = match[2] || "";
+        const after = match[3] || "";
+        const withoutOptional = `${before}${after}`;
+        const withOptional = `${before}${optionalPart}${after}`;
+        return [
+            ...expandOne(withoutOptional),
+            ...expandOne(withOptional),
+        ];
+    };
+    forms.forEach((form) => {
+        expandOne(form).forEach((variant) => {
+            if (!variant || seen.has(variant)) {
+                return;
+            }
+            seen.add(variant);
+            expanded.push(variant);
+        });
+    });
+    return expanded;
+}
+
+function hasOptionalParentheticalForm(forms) {
+    if (!Array.isArray(forms) || forms.length === 0) {
+        return false;
+    }
+    return forms.some((form) => /\([^()]+\)/.test(form));
+}
+
 function formatConjugationDisplay(value) {
     if (!value) {
         return value;
@@ -5521,31 +5604,52 @@ function formatConjugationDisplay(value) {
         .split(/\s*\/\s*/g)
         .map((form) => form.trim())
         .filter(Boolean);
-    if (forms.length <= 1) {
-        return forms[0] || value.trim();
+    const expandedForms = expandOptionalParentheticalForms(forms);
+    if (expandedForms.length <= 1) {
+        return expandedForms[0] || value.trim();
     }
-    const used = new Array(forms.length).fill(false);
+    if (hasOptionalParentheticalForm(forms)) {
+        const seen = new Set();
+        const lines = [];
+        forms.forEach((form) => {
+            const grouped = expandOptionalParentheticalForms([form]).filter((variant) => {
+                if (!variant || seen.has(variant)) {
+                    return false;
+                }
+                seen.add(variant);
+                return true;
+            });
+            if (grouped.length) {
+                lines.push(grouped.join(" / "));
+            }
+        });
+        if (lines.length) {
+            return lines.join("\n");
+        }
+        return expandedForms.join(" / ");
+    }
+    const used = new Array(expandedForms.length).fill(false);
     const lines = [];
-    for (let i = 0; i < forms.length; i += 1) {
+    for (let i = 0; i < expandedForms.length; i += 1) {
         if (used[i]) {
             continue;
         }
         let pairedIndex = -1;
-        for (let j = i + 1; j < forms.length; j += 1) {
+        for (let j = i + 1; j < expandedForms.length; j += 1) {
             if (used[j]) {
                 continue;
             }
-            if (isWjAlternationPair(forms[i], forms[j])) {
+            if (isWjAlternationPair(expandedForms[i], expandedForms[j])) {
                 pairedIndex = j;
                 break;
             }
         }
         if (pairedIndex !== -1) {
-            lines.push(`${forms[i]} / ${forms[pairedIndex]}`);
+            lines.push(`${expandedForms[i]} / ${expandedForms[pairedIndex]}`);
             used[i] = true;
             used[pairedIndex] = true;
         } else {
-            lines.push(forms[i]);
+            lines.push(expandedForms[i]);
             used[i] = true;
         }
     }
@@ -8232,6 +8336,7 @@ function getVerbComposerElements() {
         directionalChips: document.getElementById("composer-directional-chips"),
         embedStemInput,
         embedInput: embedStemInput,
+        clearTextboxesButton: document.getElementById("composer-clear-textboxes"),
         supportiveICheckbox: document.getElementById("composer-supportive-i"),
         hint: document.getElementById("verb-composer-hint"),
     };
@@ -9250,6 +9355,7 @@ function renderVerbComposerFromState() {
         valenceSelect,
         valenceSelectSecondary,
         directionalSelect,
+        clearTextboxesButton,
         supportiveICheckbox,
     } = getVerbComposerElements();
     const isComposer = isVerbInputModeComposer();
@@ -9269,6 +9375,10 @@ function renderVerbComposerFromState() {
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
     });
+    if (clearTextboxesButton) {
+        clearTextboxesButton.disabled = !isComposer;
+        clearTextboxesButton.setAttribute("aria-disabled", String(!isComposer));
+    }
     if (slotAEmbedInput) {
         slotAEmbedInput.value = normalizeComposerEmbedValue(VERB_COMPOSER_STATE.slotAEmbed);
     }
@@ -9702,6 +9812,49 @@ function onVerbComposerControlChange(source = "") {
     applyComposerStateToVerbInput({ triggerGenerate: true });
 }
 
+function clearVerbComposerTextboxInputs() {
+    if (!isVerbInputModeComposer()) {
+        return;
+    }
+    VERB_COMPOSER_STATE.slotAEmbed = "";
+    VERB_COMPOSER_STATE.slotAStem = "";
+    VERB_COMPOSER_STATE.slotBEmbed = "";
+    VERB_COMPOSER_STATE.slotBStem = "";
+    VERB_COMPOSER_STATE.slotCEmbed = "";
+    VERB_COMPOSER_STATE.slotCStem = "";
+    VERB_COMPOSER_STATE.valenceIntransitiveEmbed = "";
+    VERB_COMPOSER_STATE.valenceEmbedPrimary = "";
+    VERB_COMPOSER_STATE.valenceEmbedSecondary = "";
+    VERB_COMPOSER_STATE.stem = "";
+    VERB_COMPOSER_STATE.embedPrefix = "";
+    VERB_COMPOSER_STATE.sourceBase = "";
+    VERB_COMPOSER_STATE.stemManualOverride = false;
+    VERB_COMPOSER_STATE.syllableMode = COMPOSER_SYLLABLE_MODE.multisyllable;
+    renderVerbComposerFromState();
+    applyComposerStateToVerbInput({ triggerGenerate: true });
+}
+
+function handleComposerDoubleEscapeShortcut(event) {
+    if (event?.key !== "Escape" || event?.repeat) {
+        return false;
+    }
+    const modalOpen = document.body?.classList?.contains("is-modal-open");
+    if (modalOpen || !isVerbInputModeComposer()) {
+        LAST_COMPOSER_ESCAPE_TS = 0;
+        return false;
+    }
+    const now = Date.now();
+    const withinWindow = LAST_COMPOSER_ESCAPE_TS > 0
+        && (now - LAST_COMPOSER_ESCAPE_TS) <= COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS;
+    LAST_COMPOSER_ESCAPE_TS = now;
+    if (!withinWindow) {
+        return false;
+    }
+    LAST_COMPOSER_ESCAPE_TS = 0;
+    clearVerbComposerTextboxInputs();
+    return true;
+}
+
 function initVerbComposer() {
     const {
         modeButtons,
@@ -9720,6 +9873,7 @@ function initVerbComposer() {
         valenceSelect,
         valenceSelectSecondary,
         directionalSelect,
+        clearTextboxesButton,
         supportiveICheckbox,
     } = getVerbComposerElements();
     if (!modeButtons.length) {
@@ -9779,6 +9933,11 @@ function initVerbComposer() {
         control.addEventListener("input", () => onVerbComposerControlChange("other"));
         control.addEventListener("change", () => onVerbComposerControlChange("other"));
     });
+    if (clearTextboxesButton) {
+        clearTextboxesButton.addEventListener("click", () => {
+            clearVerbComposerTextboxInputs();
+        });
+    }
     if (supportiveICheckbox) {
         supportiveICheckbox.addEventListener("change", () => onVerbComposerControlChange("supportive"));
     }
@@ -12627,7 +12786,6 @@ function changeLanguage() {
   
     var labelElementIds = [
         "word-heading",
-        "verb-label",
         "tutorial-title",
         "tutorial-trigger",
         "copyright-label",
@@ -12640,7 +12798,6 @@ function changeLanguage() {
 
     var translations = {
         "word-heading": "Sentajkwiluluni tik Nawat ipal El Salvador",
-        "verb-label": "Tachiwalis",
         "tutorial-title": "Shitajkwilu iwan majmachiyut",
         "tutorial-trigger": "Tajkwilulpamit regex",
         "copyright-label": "Copyright © 2026 Jaime Núñez",
@@ -12911,6 +13068,7 @@ function applyMorphologyRules({
         }
         const isIntransitive = isIntransitiveVerb;
         const nounBase = verb;
+        let hasLuNonactivePath = false;
         const nounAlternates = new Set();
         const addNounAlternate = (base) => {
             if (!base || base === nounBase || nounAlternates.has(base)) {
@@ -12953,7 +13111,9 @@ function applyMorphologyRules({
                 ruleBase: nonactiveRuleBase,
                 rootPlusYaBase,
             });
-            nonactiveOptions.forEach((option) => {
+            const luOnlyOptions = nonactiveOptions.filter((option) => option?.suffix === "lu");
+            hasLuNonactivePath = luOnlyOptions.length > 0;
+            luOnlyOptions.forEach((option) => {
                 const base = stripNonactiveSuffix(option.stem, option.suffix);
                 addNounAlternate(base);
             });
@@ -12969,6 +13129,9 @@ function applyMorphologyRules({
         const endsWithSourceWa = nounSource.endsWith("wa");
         const endsWithSourceKa = nounSource.endsWith("ka");
         const endsWithSourceLi = nounSource.endsWith("li");
+        if (isIntransitive && endsWithSourceI) {
+            hasLuNonactivePath = true;
+        }
         const addSVariant = (base) => {
             if (!base) {
                 return;
@@ -12979,7 +13142,7 @@ function applyMorphologyRules({
             if (endsWithSourceWa || endsWithSourceKa) {
                 addSVariant(nounBase.endsWith("a") ? `${nounBase.slice(0, -1)}i` : nounBase);
             }
-            if (endsWithSourceI || endsWithSourceU || endsWithSourceUa) {
+            if (!hasLuNonactivePath && (endsWithSourceI || endsWithSourceU || endsWithSourceUa)) {
                 addSVariant(nounBase);
             }
         } else if (endsWithSourceLi) {
@@ -16643,18 +16806,26 @@ if (typeof window !== "undefined") {
 document.addEventListener("keydown", (event) => {
     const verbEl = document.getElementById("verb");
     if (event.key === " ") {
+        LAST_COMPOSER_ESCAPE_TS = 0;
         if (verbEl) {
             verbEl.focus();
         }
         event.preventDefault();
     } else if (event.key === "Escape") {
+        const handledComposerClear = handleComposerDoubleEscapeShortcut(event);
         if (verbEl) {
             verbEl.blur();
         }
         event.preventDefault();
+        if (handledComposerClear) {
+            return;
+        }
     } else if (event.key === "Enter") {
+        LAST_COMPOSER_ESCAPE_TS = 0;
         generateWord();
         event.preventDefault();
+    } else {
+        LAST_COMPOSER_ESCAPE_TS = 0;
     }
 });
 
