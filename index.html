@@ -81,31 +81,10 @@
             data-panel-stack-pane="inputs"
             role="tabpanel"
             aria-labelledby="panel-stack-tab-inputs"
+            autocomplete="off"
           >
             <div class="form-container panel" id="container-inputs">
               <div class="form-group">
-                <div class="verb-input-wrap">
-                  <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
-                    <div class="verb-mirror-content" id="verb-mirror-content"></div>
-                  </div>
-                  <input
-                    type="text"
-                    id="verb"
-                    name="verb"
-                    class="verb-input"
-                    aria-label="Verbo"
-                    placeholder="Escriba verbo aquí"
-                    autocomplete="off"
-                    autocapitalize="none"
-                    spellcheck="false"
-                  />
-                  <div
-                    class="verb-suggestions"
-                    id="verb-suggestions"
-                    role="listbox"
-                    aria-label="Sugerencias"
-                  ></div>
-                </div>
                 <div class="verb-editor-controls">
                   <div class="verb-editor-mode" id="verb-editor-mode" role="tablist" aria-label="Modo de entrada">
                     <button
@@ -131,6 +110,29 @@
                     Guía regex
                   </button>
                 </div>
+                <div class="verb-input-wrap">
+                  <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
+                    <div class="verb-mirror-content" id="verb-mirror-content"></div>
+                  </div>
+                  <input
+                    type="text"
+                    id="verb"
+                    name="verb"
+                    class="verb-input"
+                    aria-label="Verbo"
+                    placeholder="Escriba verbo aquí"
+                    autocomplete="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                  />
+                  <div
+                    class="verb-suggestions"
+                    id="verb-suggestions"
+                    role="listbox"
+                    aria-label="Sugerencias"
+                  ></div>
+                </div>
+                <div class="verb-composer__hint" id="verb-composer-hint" aria-live="polite"></div>
                 <div class="verb-composer" id="verb-composer">
                   <div class="verb-composer__grid">
                     <div class="verb-composer__slots">
@@ -419,7 +421,6 @@
                       <span>i de apoyo opcional (i)</span>
                     </label>
                   </div>
-                  <div class="verb-composer__hint" id="verb-composer-hint" aria-live="polite"></div>
                 </div>
                 <div class="verb-rule is-empty" id="verb-rule" aria-live="polite">
                   <span class="verb-rule__label">Rule</span>

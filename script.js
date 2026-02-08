@@ -11280,6 +11280,9 @@ function renderBulkExportTable(container, rows) {
         verbInput.type = "text";
         verbInput.className = "bulk-export__verb-input";
         verbInput.value = row.verb;
+        verbInput.autocomplete = "off";
+        verbInput.setAttribute("data-lpignore", "true");
+        verbInput.setAttribute("data-1p-ignore", "true");
         verbInput.autocapitalize = "none";
         verbInput.spellcheck = false;
         verbCell.appendChild(verbInput);
