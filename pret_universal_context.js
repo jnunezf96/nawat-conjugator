@@ -78,6 +78,7 @@ function getMonosyllableStemPath(verb) {
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
     const isWeya = options.isWeya === true;
+    const isBitransitive = options.isBitransitive === true;
     const hasSlashMarker = options.hasSlashMarker === true;
     const hasSuffixSeparator = options.hasSuffixSeparator === true;
     const hasLeadingDash = options.hasLeadingDash === true;
@@ -1067,6 +1068,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         classAKiOnly,
         supportiveInitialI,
         isTransitive,
+        isBitransitive,
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
         fromRootPlusYa: isRootPlusYa,

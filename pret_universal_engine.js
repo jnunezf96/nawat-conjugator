@@ -105,6 +105,9 @@ function buildPretUniversalClassA(context) {
     const isTransitiveCVwi = context.isTransitive && context.isExactCVwi;
     const isTransitiveMV = context.isTransitive && context.endsWithMV && !context.isMonosyllable;
     const isTransitiveExactCVCVna = context.isTransitive && context.isExactCVCVna;
+    const isTransitiveCVnaAllowZero = context.isTransitive
+        && context.isExactCVna
+        && (context.isReduplicated || context.isBitransitive);
     const isTransitiveExactNi = context.isTransitive
         && !context.isExactCVnV
         && (
@@ -219,6 +222,10 @@ function buildPretUniversalClassA(context) {
         allowKiSuffix = true;
     }
     if (isTransitiveExactCVCVna) {
+        allowZeroSuffix = true;
+        allowKiSuffix = true;
+    }
+    if (isTransitiveCVnaAllowZero) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
@@ -584,7 +591,24 @@ function splitDirectionalPrefixFromBase(base, directionalPrefix) {
     return { directional: "", base };
 }
 
-function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "") {
+function maybeShortenZeroBitransitiveKi(prefix, baseSubjectPrefix, allowZeroBitransitiveDrop) {
+    if (!allowZeroBitransitiveDrop) {
+        return prefix;
+    }
+    if (prefix === "ki" && ["ni", "ti"].includes(baseSubjectPrefix)) {
+        return "k";
+    }
+    return prefix;
+}
+
+function shouldAllowZeroBitransitiveKiDrop({
+    hasDoubleDash = false,
+    indirectObjectMarker = "",
+}) {
+    return hasDoubleDash && indirectObjectMarker === "ki";
+}
+
+function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
     let adjustedPrefix = prefix || "";
     let adjustedBase = base || "";
     const shouldDropLeadingI =
@@ -611,17 +635,27 @@ function getPretUniversalPrefixForBase(
     directionalOutputPrefix = "",
     baseSubjectPrefix = subjectPrefix,
     baseObjectPrefix = objectPrefix,
-    indirectObjectMarker = ""
+    indirectObjectMarker = "",
+    hasDoubleDash = false
 ) {
     const split = splitDirectionalPrefixFromBase(base, directionalInputPrefix);
     const outputDirectional = split.directional ? (directionalOutputPrefix || split.directional) : "";
     const baseCore = split.base;
     if (!split.directional) {
+        const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
+            hasDoubleDash,
+            indirectObjectMarker,
+        });
         let adjustedObjectPrefix = objectPrefix;
         if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
             adjustedObjectPrefix = "";
         }
         adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+        adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
+            adjustedObjectPrefix,
+            baseSubjectPrefix,
+            allowZeroBitransitiveDrop
+        );
         let adjustedBase = baseCore;
         if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
             if (adjustedBase.startsWith("kw")) {
@@ -633,7 +667,8 @@ function getPretUniversalPrefixForBase(
         const contactAdjusted = adjustPretPrefixBaseContact(
             adjustedObjectPrefix,
             adjustedBase,
-            baseSubjectPrefix
+            baseSubjectPrefix,
+            { allowZeroBitransitiveDrop }
         );
         return {
             prefix: subjectPrefix + contactAdjusted.prefix,
@@ -655,10 +690,19 @@ function getPretUniversalPrefixForBase(
         };
     }
     let adjustedObjectPrefix = objectPrefix;
+    const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
+        hasDoubleDash,
+        indirectObjectMarker,
+    });
     if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
         adjustedObjectPrefix = "";
     }
     adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+    adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
+        adjustedObjectPrefix,
+        baseSubjectPrefix,
+        allowZeroBitransitiveDrop
+    );
     let adjustedBase = baseCore;
     if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
         if (adjustedBase.startsWith("kw")) {
@@ -670,7 +714,8 @@ function getPretUniversalPrefixForBase(
     const contactAdjusted = adjustPretPrefixBaseContact(
         adjustedObjectPrefix,
         adjustedBase,
-        baseSubjectPrefix
+        baseSubjectPrefix,
+        { allowZeroBitransitiveDrop }
     );
     return {
         prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
@@ -688,7 +733,8 @@ function buildPretUniversalResultFromVariants(
     baseSubjectPrefix = subjectPrefix,
     baseObjectPrefix = objectPrefix,
     pluralSuffix = null,
-    indirectObjectMarker = ""
+    indirectObjectMarker = "",
+    hasDoubleDash = false
 ) {
     if (!variants || variants.length === 0) {
         return null;
@@ -707,7 +753,8 @@ function buildPretUniversalResultFromVariants(
                 directionalOutputPrefix,
                 baseSubjectPrefix,
                 baseObjectPrefix,
-                indirectObjectMarker
+                indirectObjectMarker,
+                hasDoubleDash
             );
             const form = `${prefix}${base}${resolvedPluralSuffix}`;
             if (!seen.has(form)) {
@@ -728,7 +775,8 @@ function buildPretUniversalResultFromVariants(
             directionalOutputPrefix,
             baseSubjectPrefix,
             baseObjectPrefix,
-            indirectObjectMarker
+            indirectObjectMarker,
+            hasDoubleDash
         );
         const baseKey = `${prefix}${base}`;
         let entry = groups.get(baseKey);
@@ -1094,6 +1142,7 @@ function buildClassBasedResult({
     suppletiveStemSet = null,
     forceTransitive = false,
     indirectObjectMarker = "",
+    hasDoubleDash = false,
 }) {
     const analysisTarget = getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
@@ -1104,6 +1153,7 @@ function buildClassBasedResult({
         hasCompoundMarker,
     });
     const isTransitive = forceTransitive || objectPrefix !== "";
+    const isBitransitive = Boolean(baseObjectPrefix && (indirectObjectMarker || hasNonspecificValence));
     let variantsByClass = null;
     let context = null;
     if (suppletiveStemSet) {
@@ -1120,6 +1170,7 @@ function buildClassBasedResult({
             hasImpersonalTaPrefix,
             hasOptionalSupportiveI,
             hasNonspecificValence,
+            isBitransitive,
             exactBaseVerb,
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
@@ -1197,7 +1248,8 @@ function buildClassBasedResult({
                 baseSubjectPrefix,
                 baseObjectPrefix,
                 pretPluralSuffix,
-                indirectObjectMarker
+                indirectObjectMarker,
+                hasDoubleDash
             );
         } else {
             const suffix = subjectSuffix || "";
@@ -1220,7 +1272,8 @@ function buildClassBasedResult({
                     directionalOutputPrefix,
                     baseSubjectPrefix,
                     baseObjectPrefix,
-                    indirectObjectMarker
+                    indirectObjectMarker,
+                    hasDoubleDash
                 );
                 const form = `${prefix}${baseCore}${suffix}`;
                 if (!seenForm.has(form)) {
@@ -1302,6 +1355,7 @@ function buildPretUniversalResultWithProvenance({
     suppletiveStemSet = null,
     forceTransitive = false,
     indirectObjectMarker = "",
+    hasDoubleDash = false,
 }) {
     const analysisTarget = getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
@@ -1312,6 +1366,7 @@ function buildPretUniversalResultWithProvenance({
         hasCompoundMarker,
     });
     const isTransitive = forceTransitive || objectPrefix !== "";
+    const isBitransitive = Boolean(baseObjectPrefix && (indirectObjectMarker || hasNonspecificValence));
     const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
     let context = null;
     let variants = null;
@@ -1329,6 +1384,7 @@ function buildPretUniversalResultWithProvenance({
             hasImpersonalTaPrefix,
             hasOptionalSupportiveI,
             hasNonspecificValence,
+            isBitransitive,
             exactBaseVerb,
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
@@ -1350,7 +1406,8 @@ function buildPretUniversalResultWithProvenance({
                     baseSubjectPrefix,
                     baseObjectPrefix,
                     null,
-                    indirectObjectMarker
+                    indirectObjectMarker,
+                    hasDoubleDash
                 );
                 return {
                     result,
@@ -1388,7 +1445,8 @@ function buildPretUniversalResultWithProvenance({
                     baseSubjectPrefix,
                     baseObjectPrefix,
                     null,
-                    indirectObjectMarker
+                    indirectObjectMarker,
+                    hasDoubleDash
                 );
                 return {
                     result,
@@ -1426,6 +1484,7 @@ function buildPretUniversalResultWithProvenance({
                 hasImpersonalTaPrefix,
                 hasOptionalSupportiveI,
                 hasNonspecificValence,
+                isBitransitive,
                 exactBaseVerb,
                 rootPlusYaBase,
                 rootPlusYaBasePronounceable,
@@ -1463,6 +1522,7 @@ function buildPretUniversalResultWithProvenance({
             hasImpersonalTaPrefix,
             hasOptionalSupportiveI,
             hasNonspecificValence,
+            isBitransitive,
             exactBaseVerb,
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
@@ -1481,6 +1541,7 @@ function buildPretUniversalResultWithProvenance({
             hasImpersonalTaPrefix,
             hasOptionalSupportiveI,
             hasNonspecificValence,
+            isBitransitive,
             exactBaseVerb,
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
@@ -1515,7 +1576,8 @@ function buildPretUniversalResultWithProvenance({
         baseSubjectPrefix,
         baseObjectPrefix,
         pluralSuffix,
-        indirectObjectMarker
+        indirectObjectMarker,
+        hasDoubleDash
     );
     return {
         result,

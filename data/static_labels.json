@@ -32,7 +32,10 @@
   "objectRoleLabels": {
     "direct": { "labelEs": "a", "labelNa": "a" },
     "indirect": { "labelEs": "a", "labelNa": "a" },
-    "benefactive": { "labelEs": "para", "labelNa": "para" }
+    "benefactive": { "labelEs": "para", "labelNa": "para" },
+    "mainline": { "labelEs": "mainline", "labelNa": "mainline" },
+    "shuntline": { "labelEs": "shuntline", "labelNa": "shuntline" },
+    "shuntline2": { "labelEs": "shuntline 2", "labelNa": "shuntline 2" }
   },
   "verbBlockLabels": {
     "transitive": { "labelEs": "verbo transitivo", "labelNa": "muchiwalis taselil" },

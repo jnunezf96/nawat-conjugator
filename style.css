@@ -80,6 +80,31 @@
   --glass-btn-bg-active: linear-gradient(145deg, rgba(216, 106, 58, 0.24), rgba(44, 139, 126, 0.16));
   --glass-btn-shadow: none;
   --glass-btn-shadow-active: none;
+  --controller-silent-toggle-border: rgba(47, 122, 92, 0.46);
+  --controller-silent-toggle-border-hover: rgba(47, 122, 92, 0.62);
+  --controller-silent-toggle-border-active: rgba(47, 122, 92, 0.76);
+  --controller-silent-toggle-bg: linear-gradient(145deg, rgba(47, 122, 92, 0.16), rgba(255, 255, 255, 0.9));
+  --controller-silent-toggle-bg-active: linear-gradient(145deg, rgba(47, 122, 92, 0.34), rgba(216, 106, 58, 0.14));
+  --controller-silent-toggle-text: #1f5a40;
+  --shuntline-overt-toggle-border: rgba(183, 92, 34, 0.52);
+  --shuntline-overt-toggle-border-hover: rgba(183, 92, 34, 0.7);
+  --shuntline-overt-toggle-border-active: rgba(183, 92, 34, 0.82);
+  --shuntline-overt-toggle-bg: linear-gradient(145deg, rgba(229, 138, 64, 0.2), rgba(255, 255, 255, 0.92));
+  --shuntline-overt-toggle-bg-active: linear-gradient(145deg, rgba(229, 138, 64, 0.36), rgba(199, 90, 53, 0.18));
+  --shuntline-overt-toggle-text: #6f3b18;
+  --silent-zero-toggle-border: rgba(33, 124, 113, 0.44);
+  --silent-zero-toggle-bg: linear-gradient(145deg, rgba(44, 139, 126, 0.14), rgba(255, 255, 255, 0.9));
+  --silent-zero-toggle-text: #1f5d55;
+  --viable-toggle-border: rgba(42, 132, 80, 0.56);
+  --viable-toggle-bg: linear-gradient(145deg, rgba(66, 171, 110, 0.18), rgba(255, 255, 255, 0.92));
+  --masked-toggle-border: rgba(191, 121, 36, 0.62);
+  --masked-toggle-bg: linear-gradient(145deg, rgba(221, 156, 69, 0.2), rgba(255, 255, 255, 0.9));
+  --impossible-toggle-border: rgba(138, 74, 84, 0.46);
+  --impossible-toggle-bg: linear-gradient(145deg, rgba(173, 98, 111, 0.16), rgba(255, 255, 255, 0.88));
+  --impossible-toggle-text: #7d4b57;
+  --selected-viable-ring: rgba(42, 132, 80, 0.4);
+  --selected-masked-ring: rgba(191, 121, 36, 0.44);
+  --selected-impossible-ring: rgba(138, 74, 84, 0.4);
 }
 
 *,
@@ -409,6 +434,87 @@ p {
   color: var(--ink);
   box-shadow: var(--glass-btn-shadow-active);
   transform: none;
+}
+
+.object-toggle-button.object-toggle-button--controller-silent {
+  border-color: var(--controller-silent-toggle-border);
+  background: var(--controller-silent-toggle-bg);
+  color: var(--controller-silent-toggle-text);
+}
+
+.object-toggle-button.object-toggle-button--controller-silent:hover:not(:disabled) {
+  border-color: var(--controller-silent-toggle-border-hover);
+  color: var(--controller-silent-toggle-text);
+}
+
+.object-toggle-button.object-toggle-button--controller-silent.is-active {
+  background: var(--controller-silent-toggle-bg-active);
+  border-color: var(--controller-silent-toggle-border-active);
+  color: var(--ink);
+  box-shadow: 0 0 0 2px rgba(47, 122, 92, 0.28) inset;
+}
+
+.object-toggle-button.object-toggle-button--shuntline-overt {
+  border-color: var(--shuntline-overt-toggle-border);
+  background: var(--shuntline-overt-toggle-bg);
+  color: var(--shuntline-overt-toggle-text);
+}
+
+.object-toggle-button.object-toggle-button--shuntline-overt:hover:not(:disabled) {
+  border-color: var(--shuntline-overt-toggle-border-hover);
+  color: var(--shuntline-overt-toggle-text);
+}
+
+.object-toggle-button.object-toggle-button--shuntline-overt.is-active {
+  background: var(--shuntline-overt-toggle-bg-active);
+  border-color: var(--shuntline-overt-toggle-border-active);
+  color: var(--ink);
+  box-shadow: 0 0 0 2px rgba(183, 92, 34, 0.3) inset;
+}
+
+.object-toggle-button.object-toggle-button--silent-zero {
+  border-color: var(--silent-zero-toggle-border);
+  background: var(--silent-zero-toggle-bg);
+  color: var(--silent-zero-toggle-text);
+  border-style: dashed;
+}
+
+.object-toggle-button.object-toggle-button--viable {
+  border-color: var(--viable-toggle-border);
+  background: var(--viable-toggle-bg);
+}
+
+.object-toggle-button.object-toggle-button--masked {
+  border-color: var(--masked-toggle-border);
+  background: var(--masked-toggle-bg);
+}
+
+.object-toggle-button.object-toggle-button--impossible {
+  border-color: var(--impossible-toggle-border);
+  background: var(--impossible-toggle-bg);
+  color: var(--impossible-toggle-text);
+  opacity: 0.78;
+}
+
+.object-toggle-button.object-toggle-button--selected-viable.is-active {
+  outline: 2px solid var(--selected-viable-ring);
+  outline-offset: -1px;
+  border-color: rgba(42, 132, 80, 0.88);
+  background: linear-gradient(145deg, rgba(66, 171, 110, 0.32), rgba(255, 255, 255, 0.94));
+}
+
+.object-toggle-button.object-toggle-button--selected-masked.is-active {
+  outline: 2px solid var(--selected-masked-ring);
+  outline-offset: -1px;
+  border-color: rgba(191, 121, 36, 0.9);
+  background: linear-gradient(145deg, rgba(221, 156, 69, 0.34), rgba(255, 255, 255, 0.93));
+}
+
+.object-toggle-button.object-toggle-button--selected-impossible.is-active {
+  outline: 2px solid var(--selected-impossible-ring);
+  outline-offset: -1px;
+  border-color: rgba(138, 74, 84, 0.88);
+  background: linear-gradient(145deg, rgba(173, 98, 111, 0.3), rgba(255, 255, 255, 0.9));
 }
 
 .tense-tabs-mode-button:disabled,
@@ -2162,33 +2268,14 @@ input[type="submit"]:hover {
   padding: 6px 8px;
   gap: 12px;
   border-radius: 10px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   min-width: 0;
 }
 
 .conjugation-row + .conjugation-row {
   border-top: none;
   margin-top: 6px;
-}
-
-.conjugation-row--direct {
-  background: var(--row-bg-direct);
-}
-
-.conjugation-row--indirect {
-  background: var(--row-bg-indirect);
-}
-
-.conjugation-row--te {
-  background: var(--row-bg-te);
-}
-
-.conjugation-row--reflexive {
-  background: var(--row-bg-reflexive);
-}
-
-.conjugation-row--intransitive {
-  background: var(--row-bg-intransitive);
 }
 
 .conjugation-group {
@@ -2806,6 +2893,16 @@ input:checked + .slider:before {
 
 .object-section--reflexive .tense-block__title {
   color: var(--reflexive-text);
+}
+
+.tense-block.tense-block--combo-palette {
+  background: var(--combo-block-bg, var(--tense-block-bg));
+  border-color: var(--combo-block-border, var(--border));
+  box-shadow: var(--combo-block-shadow, var(--shadow-soft));
+}
+
+.tense-block.tense-block--combo-palette .tense-block__title {
+  color: var(--combo-block-text, var(--ink-soft));
 }
 
 .conjugation-reflexive {
