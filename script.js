@@ -290,10 +290,12 @@ function applyStaticDerivationalRules(data) {
     if (data.config && typeof data.config === "object") {
         DERIVATIONAL_RULES = { ...data.config };
         DERIVATIONAL_RULES_DOCS = data.docs && typeof data.docs === "object" ? { ...data.docs } : {};
+        resetDerivationalLookupCaches();
         return;
     }
     DERIVATIONAL_RULES = { ...data };
     DERIVATIONAL_RULES_DOCS = {};
+    resetDerivationalLookupCaches();
 }
 
 function applyStaticValenceNeutral(data) {
@@ -301,6 +303,7 @@ function applyStaticValenceNeutral(data) {
         return;
     }
     VALENCE_NEUTRAL_RULES = { ...data };
+    resetDerivationalLookupCaches();
 }
 async function loadStaticLabels() {
     if (typeof fetch !== "function") {
@@ -2262,6 +2265,35 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return stem;
     };
+    const getUwiRootProfile = () => {
+        const resolveFromBase = (base) => {
+            if (!base) {
+                return null;
+            }
+            const normalized = normalizeDerivationStemValue(base);
+            if (!normalized || !normalized.endsWith("uwi")) {
+                return null;
+            }
+            const nonRedup = getNonReduplicatedRoot(normalized) || normalized;
+            if (!nonRedup.endsWith("uwi") || nonRedup.length <= 3) {
+                return null;
+            }
+            const root = nonRedup.slice(0, -3);
+            const letters = splitVerbLetters(root);
+            const rootVowel = letters.find((letter) => isVerbLetterVowel(letter)) || "";
+            const isVccShape = letters.length === 3
+                && isVerbLetterVowel(letters[0])
+                && isVerbLetterConsonant(letters[1])
+                && isVerbLetterConsonant(letters[2]);
+            // Monosyllabic Cuwi stems (e.g., puwi/suwi/kuwi) have no vowel left in `root`,
+            // but their effective root-vowel class for this split is /u/.
+            return {
+                vowel: rootVowel || "u",
+                isVccShape,
+            };
+        };
+        return resolveFromBase(ruleBase) || resolveFromBase(fullRuleBase);
+    };
 
     const replacementOnly = Array.isArray(rules?.intransitiveEndsWithI?.replacementOnly)
         ? rules.intransitiveEndsWithI.replacementOnly
@@ -2322,10 +2354,24 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     if (replacementOnlyMatch) {
         wiStockSuppressA = false;
     }
+    const uwiProfile = getUwiRootProfile();
+    const uwiRootVowel = uwiProfile?.vowel || "";
+    const isUwiStem = ruleBase.endsWith("uwi");
+    const forceUwiUaByShape = isUwiStem && uwiProfile?.isVccShape === true;
+    const preferUwiUa = isUwiStem && (forceUwiUaByShape || uwiRootVowel === "a" || uwiRootVowel === "i");
+    const preferUwiUwa = isUwiStem && !forceUwiUaByShape && (uwiRootVowel === "e" || uwiRootVowel === "u");
+    const allowUwiDropFinalI = !isUwiStem || !preferUwiUa;
+    const allowUwiDestockalUa = isUwiStem && (preferUwiUa || !preferUwiUwa);
+    const allowDropFinalIByList = (replacementOnly.length === 0 || replacementOnlyMatch || wiStockBlockMatch)
+        || preferUwiUwa;
 
     if (isIntransitive && info.endsWithI && !blockTypeOneMatch) {
         const dropped = ruleBase.slice(0, -1);
-        if (!wiStockSuppressA && (replacementOnly.length === 0 || replacementOnlyMatch || wiStockBlockMatch)) {
+        if (
+            allowUwiDropFinalI
+            && !wiStockSuppressA
+            && allowDropFinalIByList
+        ) {
             push(`${dropped}a`, { type: "type-one", rule: "drop-final-i" });
         }
     const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
@@ -2445,7 +2491,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             }
         }
         if (destockal.wiStockFormativeU) {
-            if (ruleBase.endsWith("uwi")) {
+            if (allowUwiDestockalUa && !wiStockBlockMatch) {
                 push(`${ruleBase.slice(0, -2)}a`, { type: "type-one", rule: "destockal-wi-u" });
             }
         }
@@ -3338,6 +3384,428 @@ function applyApplicativeDerivation({
         applicativeAllStems,
         noApplicativeStem: false,
         suppletiveStemSet,
+    };
+}
+
+const DERIVATION_ANTIDERIVATIVE_SUFFIX_HINTS = Object.freeze({
+    [DERIVATION_TYPE.causative]: [
+        { suffix: "tia", bases: ["", "a", "i", "u", "ya"] },
+        { suffix: "ia", bases: ["", "a", "i", "u"] },
+        { suffix: "wia", bases: ["u", "ua", "wi", "a", "i"] },
+    ],
+    [DERIVATION_TYPE.applicative]: [
+        { suffix: "lia", bases: ["a", "i", "u", "ya", "ua"] },
+        { suffix: "lwia", bases: ["ua", "ia", "ya", "a", "i"] },
+        { suffix: "ilwia", bases: ["ia", "i", "a", "ua"] },
+        { suffix: "ia", bases: ["", "a", "i", "u"] },
+        { suffix: "wia", bases: ["u", "ua", "wi", "a", "i"] },
+    ],
+});
+
+const DERIVATION_ANTIDERIVATIVE_CACHE_MAX = 256;
+let DERIVATION_LOOKUP_CACHE_REV = 0;
+let DERIVATION_ANTIDERIVATIVE_RESULT_CACHE = new Map();
+let DERIVATION_LEXICON_BASE_CANDIDATE_CACHE = {
+    rev: -1,
+    rows: [],
+};
+
+function normalizeDerivationStemValue(value) {
+    return normalizeRuleBase(String(value || "").toLowerCase().trim());
+}
+
+function normalizeAntiderivativeRequestedType(type = "") {
+    return Object.values(DERIVATION_TYPE).includes(type) ? type : "";
+}
+
+function resetDerivationalLookupCaches() {
+    DERIVATION_LOOKUP_CACHE_REV += 1;
+    DERIVATION_ANTIDERIVATIVE_RESULT_CACHE = new Map();
+    DERIVATION_LEXICON_BASE_CANDIDATE_CACHE = {
+        rev: DERIVATION_LOOKUP_CACHE_REV,
+        rows: [],
+    };
+}
+
+function buildDerivationalAntiderivativeCacheKey(targetStem, requestedType = "") {
+    const normalizedType = normalizeAntiderivativeRequestedType(requestedType) || "both";
+    return `${DERIVATION_LOOKUP_CACHE_REV}|${normalizedType}|${targetStem}`;
+}
+
+function getCachedDerivationalAntiderivativeResult(targetStem, requestedType = "") {
+    if (!targetStem) {
+        return null;
+    }
+    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType);
+    return DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.get(cacheKey) || null;
+}
+
+function setCachedDerivationalAntiderivativeResult(targetStem, requestedType = "", value = null) {
+    if (!targetStem || !value || typeof value !== "object") {
+        return;
+    }
+    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType);
+    if (DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.has(cacheKey)) {
+        DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.delete(cacheKey);
+    }
+    DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.set(cacheKey, value);
+    while (DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.size > DERIVATION_ANTIDERIVATIVE_CACHE_MAX) {
+        const firstKey = DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.keys().next().value;
+        if (!firstKey) {
+            break;
+        }
+        DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.delete(firstKey);
+    }
+}
+
+function dedupeDerivationRows(rows = [], keyFactory = null) {
+    const seen = new Set();
+    const nextRows = [];
+    rows.forEach((row) => {
+        if (!row || typeof row !== "object") {
+            return;
+        }
+        const key = keyFactory
+            ? keyFactory(row)
+            : JSON.stringify(row);
+        if (!key || seen.has(key)) {
+            return;
+        }
+        seen.add(key);
+        nextRows.push(row);
+    });
+    return nextRows;
+}
+
+function buildDerivationOptionsForType(derivationType, stem, optionContext = {}) {
+    const normalizedStem = normalizeDerivationStemValue(stem);
+    if (!normalizedStem) {
+        return [];
+    }
+    const normalizedType = Object.values(DERIVATION_TYPE).includes(derivationType)
+        ? derivationType
+        : DERIVATION_TYPE.direct;
+    if (normalizedType === DERIVATION_TYPE.direct) {
+        return [{ stem: normalizedStem, type: "direct", rule: "identity", preferred: true }];
+    }
+    if (normalizedType === DERIVATION_TYPE.causative) {
+        return getCausativeDerivationOptions(normalizedStem, normalizedStem, optionContext);
+    }
+    if (normalizedType === DERIVATION_TYPE.applicative) {
+        return getApplicativeDerivationOptions(normalizedStem, normalizedStem, optionContext);
+    }
+    return [];
+}
+
+function buildForwardDerivationRows({
+    directStem,
+    derivationType,
+    parsedVerb,
+    transitivityModes = [false, true],
+}) {
+    const rows = [];
+    const normalizedDirect = normalizeDerivationStemValue(directStem);
+    if (!normalizedDirect) {
+        return rows;
+    }
+    const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase
+        || parsedVerb?.canonical?.fullRuleBase
+        || "";
+    const rootPlusYaBase = parsedVerb?.rootPlusYaBase || "";
+    transitivityModes.forEach((isTransitive) => {
+        const optionContext = {
+            isTransitive,
+            hasLeadingDash: isTransitive,
+            ruleBase: normalizedDirect,
+            fullRuleBase: canonicalFullRuleBase,
+            canonicalRuleBase: normalizedDirect,
+            canonicalFullRuleBase,
+            rootPlusYaBase,
+            parsedVerb,
+            allowTypeTwo: true,
+        };
+        const options = buildDerivationOptionsForType(
+            derivationType,
+            normalizedDirect,
+            optionContext,
+        );
+        options.forEach((option) => {
+            const stem = normalizeDerivationStemValue(option?.stem || "");
+            if (!stem) {
+                return;
+            }
+            rows.push({
+                stem,
+                derivationType,
+                transitivity: isTransitive ? "transitive" : "intransitive",
+                isTransitive,
+                rule: option?.rule || "",
+                patternType: option?.type || "",
+                preferred: option?.preferred === true,
+            });
+        });
+    });
+    return dedupeDerivationRows(
+        rows,
+        (row) => `${row.derivationType}|${row.transitivity}|${row.stem}|${row.rule}|${row.patternType}`,
+    );
+}
+
+function traceDerivationalFunction(rawInput, options = {}) {
+    const baseInput = String(getSearchInputBase(rawInput || "") || "");
+    const parsedVerb = parseVerbInput(baseInput);
+    const canonicalDirect = normalizeDerivationStemValue(
+        parsedVerb?.canonicalRuleBase
+        || parsedVerb?.canonical?.ruleBase
+        || getNonactiveRuleBase(parsedVerb?.analysisVerb || parsedVerb?.verb || "", parsedVerb)
+        || parsedVerb?.analysisVerb
+        || parsedVerb?.verb
+        || "",
+    );
+    const inferredIsTransitive = getBaseObjectSlots(parsedVerb) > 0;
+    const primaryIsTransitive = options.isTransitive === true
+        ? true
+        : (options.isTransitive === false ? false : inferredIsTransitive);
+    const includeBothTransitivity = options.includeBothTransitivity !== false;
+    const transitivityModes = includeBothTransitivity
+        ? (primaryIsTransitive ? [true, false] : [false, true])
+        : [primaryIsTransitive];
+    const direct = canonicalDirect
+        ? [{
+            stem: canonicalDirect,
+            derivationType: DERIVATION_TYPE.direct,
+            transitivity: primaryIsTransitive ? "transitive" : "intransitive",
+            isTransitive: primaryIsTransitive,
+            rule: "identity",
+            patternType: "direct",
+            preferred: true,
+        }]
+        : [];
+    const causative = buildForwardDerivationRows({
+        directStem: canonicalDirect,
+        derivationType: DERIVATION_TYPE.causative,
+        parsedVerb,
+        transitivityModes,
+    });
+    const applicative = buildForwardDerivationRows({
+        directStem: canonicalDirect,
+        derivationType: DERIVATION_TYPE.applicative,
+        parsedVerb,
+        transitivityModes,
+    });
+    return {
+        input: rawInput,
+        normalizedInput: baseInput,
+        direct,
+        causative,
+        applicative,
+        primaryTransitivity: primaryIsTransitive ? "transitive" : "intransitive",
+        inferredTransitivity: inferredIsTransitive ? "transitive" : "intransitive",
+    };
+}
+
+function buildAntiderivativeSeedBases(stem, derivationType) {
+    const normalizedStem = normalizeDerivationStemValue(stem);
+    if (!normalizedStem) {
+        return [];
+    }
+    const seeds = new Set([normalizedStem]);
+    const nonRedup = getNonReduplicatedRoot(normalizedStem);
+    if (nonRedup) {
+        seeds.add(normalizeDerivationStemValue(nonRedup));
+    }
+    const hintRules = DERIVATION_ANTIDERIVATIVE_SUFFIX_HINTS[derivationType] || [];
+    hintRules.forEach((rule) => {
+        const suffix = normalizeDerivationStemValue(rule?.suffix || "");
+        if (!suffix || !normalizedStem.endsWith(suffix) || normalizedStem.length <= suffix.length) {
+            return;
+        }
+        const root = normalizedStem.slice(0, -suffix.length);
+        if (!root) {
+            return;
+        }
+        seeds.add(root);
+        const bases = Array.isArray(rule?.bases) ? rule.bases : [];
+        bases.forEach((baseSuffix) => {
+            seeds.add(`${root}${normalizeDerivationStemValue(baseSuffix)}`);
+        });
+        if (root.endsWith("ch")) {
+            seeds.add(`${root.slice(0, -2)}tz`);
+            seeds.add(`${root.slice(0, -2)}t`);
+        }
+        if (root.endsWith("sh")) {
+            seeds.add(`${root.slice(0, -2)}s`);
+        }
+    });
+    return Array.from(seeds)
+        .map((value) => normalizeDerivationStemValue(value))
+        .filter(Boolean);
+}
+
+function getLexiconDerivationBaseCandidates() {
+    if (!BASIC_DATA_CANONICAL_MAP.size) {
+        return [];
+    }
+    if (
+        DERIVATION_LEXICON_BASE_CANDIDATE_CACHE.rev === DERIVATION_LOOKUP_CACHE_REV
+        && DERIVATION_LEXICON_BASE_CANDIDATE_CACHE.rows.length
+    ) {
+        return DERIVATION_LEXICON_BASE_CANDIDATE_CACHE.rows;
+    }
+    const rows = [];
+    BASIC_DATA_CANONICAL_MAP.forEach((entry) => {
+        const transitiveParsed = entry?.transitiveParsed || null;
+        const intransitiveParsed = entry?.intransitiveParsed || null;
+        if (intransitiveParsed) {
+            rows.push({
+                parsedVerb: intransitiveParsed,
+                isTransitive: false,
+                source: "lexicon",
+                lexeme: entry?.base || intransitiveParsed.displayVerb || "",
+            });
+        }
+        if (transitiveParsed) {
+            rows.push({
+                parsedVerb: transitiveParsed,
+                isTransitive: true,
+                source: "lexicon",
+                lexeme: entry?.base || transitiveParsed.displayVerb || "",
+            });
+        }
+    });
+    const deduped = dedupeDerivationRows(
+        rows,
+        (row) => `${row.isTransitive ? "t" : "i"}|${row.parsedVerb?.canonicalRuleBase || row.parsedVerb?.verb || ""}`,
+    );
+    DERIVATION_LEXICON_BASE_CANDIDATE_CACHE = {
+        rev: DERIVATION_LOOKUP_CACHE_REV,
+        rows: deduped,
+    };
+    return deduped;
+}
+
+function findDerivationalAntiderivatives(derivedInput, options = {}) {
+    const targetStem = normalizeDerivationStemValue(getSearchInputBase(derivedInput || ""));
+    if (!targetStem) {
+        return {
+            input: derivedInput,
+            normalizedInput: "",
+            candidates: [],
+        };
+    }
+    const requestedType = normalizeAntiderivativeRequestedType(options.derivationType);
+    const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType);
+    if (cachedResult) {
+        return {
+            input: derivedInput,
+            normalizedInput: cachedResult.normalizedInput || targetStem,
+            candidates: Array.isArray(cachedResult.candidates) ? cachedResult.candidates : [],
+        };
+    }
+    const derivationTypes = requestedType && requestedType !== DERIVATION_TYPE.direct
+        ? [requestedType]
+        : [DERIVATION_TYPE.causative, DERIVATION_TYPE.applicative];
+    const heuristicCandidates = derivationTypes.flatMap((derivationType) => (
+        buildAntiderivativeSeedBases(targetStem, derivationType).map((seedBase) => ({
+            seedBase,
+            derivationType,
+            source: "heuristic",
+        }))
+    ));
+    const lexiconCandidates = getLexiconDerivationBaseCandidates().flatMap((entry) => {
+        const directStem = normalizeDerivationStemValue(
+            entry.parsedVerb?.canonicalRuleBase
+            || entry.parsedVerb?.canonical?.ruleBase
+            || getDerivationRuleBase(entry.parsedVerb?.analysisVerb || entry.parsedVerb?.verb || "", entry.parsedVerb)
+            || "",
+        );
+        if (!directStem) {
+            return [];
+        }
+        return derivationTypes.map((derivationType) => ({
+            seedBase: directStem,
+            derivationType,
+            source: entry.source,
+            lexeme: entry.lexeme,
+            parsedVerb: entry.parsedVerb,
+            forcedIsTransitive: entry.isTransitive,
+        }));
+    });
+    const allCandidates = [...heuristicCandidates, ...lexiconCandidates];
+    const matches = [];
+    allCandidates.forEach((candidate) => {
+        const normalizedBase = normalizeDerivationStemValue(candidate.seedBase || "");
+        if (!normalizedBase) {
+            return;
+        }
+        const parsedVerb = candidate.parsedVerb || parseVerbInput(normalizedBase);
+        const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase
+            || parsedVerb?.canonical?.fullRuleBase
+            || "";
+        const rootPlusYaBase = parsedVerb?.rootPlusYaBase || "";
+        const transitivityModes = typeof candidate.forcedIsTransitive === "boolean"
+            ? [candidate.forcedIsTransitive]
+            : [false, true];
+        transitivityModes.forEach((isTransitive) => {
+            const optionsForForward = buildDerivationOptionsForType(
+                candidate.derivationType,
+                normalizedBase,
+                {
+                    isTransitive,
+                    hasLeadingDash: isTransitive,
+                    ruleBase: normalizedBase,
+                    fullRuleBase: canonicalFullRuleBase,
+                    canonicalRuleBase: normalizedBase,
+                    canonicalFullRuleBase,
+                    rootPlusYaBase,
+                    parsedVerb,
+                    allowTypeTwo: true,
+                },
+            );
+            optionsForForward.forEach((option) => {
+                const forwardStem = normalizeDerivationStemValue(option?.stem || "");
+                if (!forwardStem || forwardStem !== targetStem) {
+                    return;
+                }
+                const isLexiconIdentityMatch = candidate.source !== "heuristic"
+                    && (option?.rule || "") === "direct";
+                if (isLexiconIdentityMatch && normalizedBase !== targetStem) {
+                    return;
+                }
+                matches.push({
+                    directStem: normalizedBase,
+                    derivedStem: forwardStem,
+                    derivationType: candidate.derivationType,
+                    transitivity: isTransitive ? "transitive" : "intransitive",
+                    isTransitive,
+                    source: candidate.source,
+                    lexeme: candidate.lexeme || "",
+                    rule: option?.rule || "",
+                    patternType: option?.type || "",
+                    preferred: option?.preferred === true,
+                });
+            });
+        });
+    });
+    const deduped = dedupeDerivationRows(
+        matches,
+        (row) => `${row.derivationType}|${row.directStem}|${row.transitivity}|${row.derivedStem}|${row.rule}|${row.patternType}|${row.source}|${row.lexeme}`,
+    );
+    const payload = {
+        normalizedInput: targetStem,
+        candidates: deduped,
+    };
+    setCachedDerivationalAntiderivativeResult(targetStem, requestedType, payload);
+    return {
+        input: derivedInput,
+        ...payload,
+    };
+}
+
+function traceDerivationCalculus(rawInput, options = {}) {
+    return {
+        forward: traceDerivationalFunction(rawInput, options),
+        antiderivatives: findDerivationalAntiderivatives(rawInput, options),
     };
 }
 
@@ -11278,6 +11746,7 @@ function loadVerbSuggestions() {
                     const extraEntries = parseVerbSuggestionCSV(extraText);
                     VERB_DISAMBIGUATION_BASE_INFO = buildSuggestionBaseInfo(extraEntries);
                     BASIC_DATA_CANONICAL_MAP = buildCanonicalVerbMapFromCSV(extraText);
+                    resetDerivationalLookupCaches();
                     extraEntries.forEach((entry) => {
                         VERB_SUGGESTION_BASE_SET.add(entry.base.toLowerCase());
                     });
@@ -11285,6 +11754,7 @@ function loadVerbSuggestions() {
                 .catch(() => {
                     VERB_DISAMBIGUATION_BASE_INFO = new Map();
                     BASIC_DATA_CANONICAL_MAP = new Map();
+                    resetDerivationalLookupCaches();
                 });
         })
         .catch(() => {
@@ -11293,6 +11763,7 @@ function loadVerbSuggestions() {
             VERB_SUGGESTION_BASE_INFO = new Map();
             VERB_DISAMBIGUATION_BASE_INFO = new Map();
             BASIC_DATA_CANONICAL_MAP = new Map();
+            resetDerivationalLookupCaches();
         });
 }
 
@@ -13244,6 +13715,7 @@ function renderTenseTabs() {
     const verb = verbMeta.verb;
     const analysisVerb = verbMeta.analysisVerb || verb;
     const displayVerb = verbMeta.displayVerb;
+    renderDerivationAntiderivativePanel(verbMeta);
     let suppletiveStemSet = getSuppletiveStemSet(verbMeta);
     const endsWithConsonant = verb !== "" && !VOWEL_END_RE.test(verb);
     const hasVerb = verb !== "" && VOWEL_RE.test(verb);
@@ -14247,6 +14719,126 @@ function initCombinedModeTabs() {
     updateCombinedModeTabs();
 }
 
+function getDerivationTypeDisplayLabel(type, isNawat = false) {
+    const normalizedType = String(type || "");
+    if (!normalizedType) {
+        return "";
+    }
+    if (normalizedType === DERIVATION_TYPE.direct) {
+        return isNawat ? "Tisemiltilis" : "Directo";
+    }
+    if (normalizedType === DERIVATION_TYPE.causative) {
+        return isNawat ? "Teyutilis" : "Causativo";
+    }
+    if (normalizedType === DERIVATION_TYPE.applicative) {
+        return isNawat ? "Tayektilis" : "Aplicativo";
+    }
+    return normalizedType;
+}
+
+const DERIVATION_ANTIDERIVATIVE_RENDER_DEBOUNCE_MS = 140;
+let DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
+let DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN = 0;
+
+function clearDerivationAntiderivativeRenderTimer() {
+    if (DERIVATION_ANTIDERIVATIVE_RENDER_TIMER) {
+        clearTimeout(DERIVATION_ANTIDERIVATIVE_RENDER_TIMER);
+        DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
+    }
+}
+
+function getUniqueAntiderivativeDirectStems(result) {
+    const rows = Array.isArray(result?.candidates) ? result.candidates : [];
+    return Array.from(
+        new Set(rows.map((entry) => String(entry?.directStem || "").trim()).filter(Boolean))
+    );
+}
+
+function renderDerivationAntiderivativePanel(verbMeta = null) {
+    const panel = document.getElementById("derivation-antiderivative");
+    if (!panel) {
+        return;
+    }
+    const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
+    panel.classList.toggle("is-hidden", !isVerbMode);
+    panel.innerHTML = "";
+    if (!isVerbMode) {
+        clearDerivationAntiderivativeRenderTimer();
+        return;
+    }
+    const isNawat = getIsNawat();
+    const derivationType = getActiveDerivationType();
+    const derivationLabel = getDerivationTypeDisplayLabel(derivationType, isNawat);
+    const heading = document.createElement("div");
+    heading.className = "derivation-antiderivative__label";
+    heading.textContent = `${isNawat ? "Antiderivada" : "Antiderivada"} · ${derivationLabel}`;
+    panel.appendChild(heading);
+
+    const verbInput = document.getElementById("verb");
+    const inputValue = getSearchInputBase(verbInput?.value || "");
+    const normalizedInput = String(inputValue || "").trim();
+    const empty = document.createElement("div");
+    empty.className = "derivation-antiderivative__empty";
+    if (!normalizedInput) {
+        clearDerivationAntiderivativeRenderTimer();
+        empty.textContent = isNawat
+            ? "Shikijkuilu se verbo para antiderivada."
+            : "Ingresa un verbo para antiderivada.";
+        panel.appendChild(empty);
+        return;
+    }
+    clearDerivationAntiderivativeRenderTimer();
+
+    const requestedType = normalizeAntiderivativeRequestedType(derivationType);
+    const targetStem = normalizeDerivationStemValue(getSearchInputBase(normalizedInput));
+    const lookupOptions = requestedType
+        ? { derivationType: requestedType }
+        : {};
+    const renderKey = `${targetStem}|${requestedType || "both"}|${isNawat ? "na" : "es"}`;
+    panel.dataset.antiderivativeLookupKey = renderKey;
+    const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType);
+    if (!cachedResult) {
+        empty.textContent = isNawat
+            ? "Timotlatlajtilia antiderivada..."
+            : "Calculando antiderivada...";
+        panel.appendChild(empty);
+        clearDerivationAntiderivativeRenderTimer();
+        const renderToken = ++DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN;
+        DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = setTimeout(() => {
+            DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
+            if (renderToken !== DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN) {
+                return;
+            }
+            const livePanel = document.getElementById("derivation-antiderivative");
+            if (!livePanel || livePanel.dataset.antiderivativeLookupKey !== renderKey) {
+                return;
+            }
+            findDerivationalAntiderivatives(normalizedInput, lookupOptions);
+            if (renderToken !== DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN) {
+                return;
+            }
+            renderDerivationAntiderivativePanel();
+        }, DERIVATION_ANTIDERIVATIVE_RENDER_DEBOUNCE_MS);
+        return;
+    }
+
+    const uniqueDirectStems = getUniqueAntiderivativeDirectStems(cachedResult);
+    if (!uniqueDirectStems.length) {
+        empty.textContent = "—";
+        panel.appendChild(empty);
+        return;
+    }
+    const list = document.createElement("div");
+    list.className = "derivation-antiderivative__list";
+    uniqueDirectStems.forEach((stem) => {
+        const item = document.createElement("span");
+        item.className = "derivation-antiderivative__item";
+        item.textContent = stem;
+        list.appendChild(item);
+    });
+    panel.appendChild(list);
+}
+
 function updateDerivationTypeControl() {
     const select = document.getElementById("derivation-type");
     if (!select) {
@@ -14260,6 +14852,7 @@ function updateDerivationTypeControl() {
     }
     select.disabled = !isVerbMode;
     select.value = getActiveDerivationType();
+    renderDerivationAntiderivativePanel();
 }
 
 function initDerivationTypeControl() {
@@ -19056,6 +19649,9 @@ async function runParsePipelineTests(testData = null) {
 if (typeof window !== "undefined") {
     window.runExactRedupTests = runExactRedupTests;
     window.runParsePipelineTests = runParsePipelineTests;
+    window.traceDerivationalFunction = traceDerivationalFunction;
+    window.findDerivationalAntiderivatives = findDerivationalAntiderivatives;
+    window.traceDerivationCalculus = traceDerivationCalculus;
 }
 
 // === Event Wiring ===

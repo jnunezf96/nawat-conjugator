@@ -735,6 +735,51 @@ p {
   opacity: 0.6;
 }
 
+.derivation-antiderivative {
+  display: grid;
+  gap: 6px;
+  margin: -2px 0 12px;
+}
+
+.derivation-antiderivative.is-hidden {
+  display: none;
+}
+
+.derivation-antiderivative__label {
+  font-size: var(--font-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  font-weight: 600;
+  text-align: center;
+}
+
+.derivation-antiderivative__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.derivation-antiderivative__item {
+  border-radius: 999px;
+  border: 1px solid rgba(29, 26, 21, 0.16);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(244, 236, 223, 0.72));
+  color: var(--ink);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.derivation-antiderivative__empty {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: calc(0.74rem + var(--font-size-adjust));
+}
+
 .tense-tabs-mode {
   display: flex;
   align-items: center;
