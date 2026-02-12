@@ -14299,11 +14299,11 @@ function changeLanguage() {
     ];
 
     var translations = {
-        "word-heading": "Sentajkwiluluni tik Nawat ipal El Salvador",
+        "word-heading": "Sentapuwaluni tik Nawat ipal El Salvador",
         "tutorial-title": "Shitajkwilu iwan majmachiyut",
-        "tutorial-trigger": "Tajkwilulpamit regex",
+        "tutorial-trigger": "Machiyut",
         "copyright-label": "Copyright © 2026 Jaime Núñez",
-        "derivation-type-label": "Derivación",
+        "derivation-type-label": "Tapatkawilis",
     };
   
     if (selectedLanguage === "nawat") {
