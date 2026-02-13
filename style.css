@@ -736,8 +736,7 @@ p {
 }
 
 .derivation-antiderivative {
-  display: grid;
-  gap: 6px;
+  display: block;
   margin: -2px 0 12px;
 }
 
@@ -745,39 +744,60 @@ p {
   display: none;
 }
 
-.derivation-antiderivative__label {
-  font-size: var(--font-size-label);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--ink-soft);
-  font-weight: 600;
-  text-align: center;
-}
-
-.derivation-antiderivative__list {
+.derivation-antiderivative__row {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
-.derivation-antiderivative__item {
+.derivation-antiderivative__action {
+  border: 1px solid rgba(29, 26, 21, 0.2);
   border-radius: 999px;
-  border: 1px solid rgba(29, 26, 21, 0.16);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(244, 236, 223, 0.72));
-  color: var(--ink);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(246, 239, 226, 0.82));
+  color: var(--ink-soft);
   font-size: var(--font-size-label);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  padding: 4px 10px;
-  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
-.derivation-antiderivative__empty {
-  text-align: center;
+.derivation-antiderivative__action:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.derivation-antiderivative__action:hover {
+  border-color: rgba(44, 139, 126, 0.4);
+  color: var(--ink);
+}
+
+.derivation-antiderivative__action.is-on {
+  border-color: rgba(182, 137, 32, 0.52);
+  background: linear-gradient(145deg, rgba(255, 245, 205, 0.9), rgba(246, 229, 166, 0.82));
+  color: rgba(120, 83, 12, 0.96);
+}
+
+.derivation-antiderivative__action.is-lock {
+  border-color: rgba(44, 139, 126, 0.52);
+  background: linear-gradient(145deg, rgba(224, 247, 240, 0.88), rgba(204, 236, 226, 0.82));
+  color: rgba(18, 84, 74, 0.96);
+}
+
+.derivation-antiderivative__action:focus-visible {
+  outline: 2px solid rgba(44, 139, 126, 0.45);
+  outline-offset: 1px;
+}
+
+.derivation-antiderivative__result {
   color: var(--ink-soft);
-  font-size: calc(0.74rem + var(--font-size-adjust));
+  font-size: var(--font-size-label);
+  line-height: 1.35;
+  text-align: left;
+  word-break: break-word;
 }
 
 .tense-tabs-mode {

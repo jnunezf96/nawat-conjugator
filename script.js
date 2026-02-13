@@ -1843,6 +1843,15 @@ function isSamePersonAcrossNumber(subjectPrefix, subjectSuffix, objectPrefix) {
     return subject.person === object.person;
 }
 
+function isHierarchyOrderViolation(subjectPrefix, subjectSuffix, objectPrefix) {
+    const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    const object = getObjectPersonInfo(objectPrefix);
+    if (!subject || !object) {
+        return false;
+    }
+    return subject.person === 3 && (object.person === 1 || object.person === 2);
+}
+
 function isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix) {
     const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
     const object = getObjectPersonInfo(objectPrefix);
@@ -3392,6 +3401,8 @@ const DERIVATION_ANTIDERIVATIVE_SUFFIX_HINTS = Object.freeze({
         { suffix: "tia", bases: ["", "a", "i", "u", "ya"] },
         { suffix: "ia", bases: ["", "a", "i", "u"] },
         { suffix: "wia", bases: ["u", "ua", "wi", "a", "i"] },
+        // Reverse of destockal-wi-ia path: ...iwi / ...awi -> ...ua
+        { suffix: "ua", bases: [] },
     ],
     [DERIVATION_TYPE.applicative]: [
         { suffix: "lia", bases: ["a", "i", "u", "ya", "ua"] },
@@ -3403,6 +3414,8 @@ const DERIVATION_ANTIDERIVATIVE_SUFFIX_HINTS = Object.freeze({
 });
 
 const DERIVATION_ANTIDERIVATIVE_CACHE_MAX = 256;
+const DERIVATION_ANTIDERIVATIVE_FULL_REVERSE_MAX_DEPTH = 2;
+const DERIVATION_ANTIDERIVATIVE_FULL_REVERSE_MAX_SEEDS = 480;
 let DERIVATION_LOOKUP_CACHE_REV = 0;
 let DERIVATION_ANTIDERIVATIVE_RESULT_CACHE = new Map();
 let DERIVATION_LEXICON_BASE_CANDIDATE_CACHE = {
@@ -3414,8 +3427,57 @@ function normalizeDerivationStemValue(value) {
     return normalizeRuleBase(String(value || "").toLowerCase().trim());
 }
 
+function getDestockalWiReverseBaseSuffixes(root = "") {
+    const normalizedRoot = normalizeDerivationStemValue(root);
+    if (!normalizedRoot) {
+        return ["iwi", "awi"];
+    }
+    const letters = splitVerbLetters(normalizedRoot);
+    if (!letters.length) {
+        return ["iwi", "awi"];
+    }
+    const wiSelectionRules = DERIVATIONAL_RULES_DOCS?.causative?.destockal?.wiStockFormative?.selection || {};
+    const rootVowelMap = wiSelectionRules?.rootVowelsToStockFormative || {
+        e: "i",
+        a: "i",
+        i: "a",
+        u: "a",
+    };
+    const rootFinalLForcesStockFormative = wiSelectionRules?.rootFinalLForcesStockFormative || "i";
+    const lastLetter = letters[letters.length - 1];
+    if (lastLetter === "l" && (rootFinalLForcesStockFormative === "i" || rootFinalLForcesStockFormative === "a")) {
+        return [`${rootFinalLForcesStockFormative}wi`];
+    }
+    const rootVowel = letters.find((letter) => isVerbLetterVowel(letter)) || "";
+    const stockFormative = rootVowel ? rootVowelMap[rootVowel] : "";
+    if (stockFormative === "i" || stockFormative === "a") {
+        return [`${stockFormative}wi`];
+    }
+    return ["iwi", "awi"];
+}
+
 function normalizeAntiderivativeRequestedType(type = "") {
     return Object.values(DERIVATION_TYPE).includes(type) ? type : "";
+}
+
+function normalizeAntiderivativeExpectedValence(valence) {
+    const numeric = Number(valence);
+    if (!Number.isFinite(numeric)) {
+        return "";
+    }
+    const rounded = Math.trunc(numeric);
+    return String(Math.max(1, Math.min(MAX_OBJECT_SLOTS + 1, rounded)));
+}
+
+function normalizeAntiderivativeExpectedTransitivity(isTransitive) {
+    if (typeof isTransitive !== "boolean") {
+        return "";
+    }
+    return isTransitive ? "t" : "i";
+}
+
+function normalizeAntiderivativeFullReverseFlag(fullReverseSeeds) {
+    return fullReverseSeeds === true ? "full" : "lite";
 }
 
 function resetDerivationalLookupCaches() {
@@ -3427,24 +3489,27 @@ function resetDerivationalLookupCaches() {
     };
 }
 
-function buildDerivationalAntiderivativeCacheKey(targetStem, requestedType = "") {
+function buildDerivationalAntiderivativeCacheKey(targetStem, requestedType = "", options = {}) {
     const normalizedType = normalizeAntiderivativeRequestedType(requestedType) || "both";
-    return `${DERIVATION_LOOKUP_CACHE_REV}|${normalizedType}|${targetStem}`;
+    const normalizedValence = normalizeAntiderivativeExpectedValence(options.expectedValence) || "any";
+    const normalizedTransitivity = normalizeAntiderivativeExpectedTransitivity(options.expectedIsTransitive) || "any";
+    const normalizedFullReverse = normalizeAntiderivativeFullReverseFlag(options.fullReverseSeeds);
+    return `${DERIVATION_LOOKUP_CACHE_REV}|${normalizedType}|${normalizedValence}|${normalizedTransitivity}|${normalizedFullReverse}|${targetStem}`;
 }
 
-function getCachedDerivationalAntiderivativeResult(targetStem, requestedType = "") {
+function getCachedDerivationalAntiderivativeResult(targetStem, requestedType = "", options = {}) {
     if (!targetStem) {
         return null;
     }
-    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType);
+    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType, options);
     return DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.get(cacheKey) || null;
 }
 
-function setCachedDerivationalAntiderivativeResult(targetStem, requestedType = "", value = null) {
+function setCachedDerivationalAntiderivativeResult(targetStem, requestedType = "", options = {}, value = null) {
     if (!targetStem || !value || typeof value !== "object") {
         return;
     }
-    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType);
+    const cacheKey = buildDerivationalAntiderivativeCacheKey(targetStem, requestedType, options);
     if (DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.has(cacheKey)) {
         DERIVATION_ANTIDERIVATIVE_RESULT_CACHE.delete(cacheKey);
     }
@@ -3604,7 +3669,7 @@ function traceDerivationalFunction(rawInput, options = {}) {
     };
 }
 
-function buildAntiderivativeSeedBases(stem, derivationType) {
+function buildBasicAntiderivativeSeedBases(stem, derivationType) {
     const normalizedStem = normalizeDerivationStemValue(stem);
     if (!normalizedStem) {
         return [];
@@ -3625,7 +3690,9 @@ function buildAntiderivativeSeedBases(stem, derivationType) {
             return;
         }
         seeds.add(root);
-        const bases = Array.isArray(rule?.bases) ? rule.bases : [];
+        const bases = suffix === "ua" && derivationType === DERIVATION_TYPE.causative
+            ? getDestockalWiReverseBaseSuffixes(root)
+            : (Array.isArray(rule?.bases) ? rule.bases : []);
         bases.forEach((baseSuffix) => {
             seeds.add(`${root}${normalizeDerivationStemValue(baseSuffix)}`);
         });
@@ -3640,6 +3707,61 @@ function buildAntiderivativeSeedBases(stem, derivationType) {
     return Array.from(seeds)
         .map((value) => normalizeDerivationStemValue(value))
         .filter(Boolean);
+}
+
+function buildFullReverseAntiderivativeSeedBases(stem, derivationType) {
+    const normalizedStem = normalizeDerivationStemValue(stem);
+    if (!normalizedStem) {
+        return [];
+    }
+    const queue = [{ seed: normalizedStem, depth: 0 }];
+    const visitedStates = new Set();
+    const allSeeds = new Set();
+    while (queue.length) {
+        const node = queue.shift();
+        const normalizedSeed = normalizeDerivationStemValue(node?.seed || "");
+        const depth = Number.isFinite(node?.depth) ? node.depth : 0;
+        if (!normalizedSeed) {
+            continue;
+        }
+        const stateKey = `${depth}|${normalizedSeed}`;
+        if (visitedStates.has(stateKey)) {
+            continue;
+        }
+        visitedStates.add(stateKey);
+        const seeds = buildBasicAntiderivativeSeedBases(normalizedSeed, derivationType);
+        seeds.forEach((candidate) => {
+            const normalizedCandidate = normalizeDerivationStemValue(candidate);
+            if (!normalizedCandidate) {
+                return;
+            }
+            if (allSeeds.size >= DERIVATION_ANTIDERIVATIVE_FULL_REVERSE_MAX_SEEDS) {
+                return;
+            }
+            if (!allSeeds.has(normalizedCandidate)) {
+                allSeeds.add(normalizedCandidate);
+            }
+            if (depth >= DERIVATION_ANTIDERIVATIVE_FULL_REVERSE_MAX_DEPTH) {
+                return;
+            }
+            const canExpandFurther = normalizedCandidate.length >= 3 && normalizedCandidate !== normalizedSeed;
+            if (canExpandFurther) {
+                queue.push({ seed: normalizedCandidate, depth: depth + 1 });
+            }
+        });
+        if (allSeeds.size >= DERIVATION_ANTIDERIVATIVE_FULL_REVERSE_MAX_SEEDS) {
+            break;
+        }
+    }
+    return Array.from(allSeeds);
+}
+
+function buildAntiderivativeSeedBases(stem, derivationType, options = {}) {
+    const fullReverseSeeds = options.fullReverseSeeds === true;
+    if (fullReverseSeeds) {
+        return buildFullReverseAntiderivativeSeedBases(stem, derivationType);
+    }
+    return buildBasicAntiderivativeSeedBases(stem, derivationType);
 }
 
 function getLexiconDerivationBaseCandidates() {
@@ -3684,6 +3806,23 @@ function getLexiconDerivationBaseCandidates() {
     return deduped;
 }
 
+function getAntiderivativeDerivedValence(derivationType, isTransitive) {
+    const baseValence = isTransitive ? 2 : 1;
+    const delta = derivationType === DERIVATION_TYPE.direct ? 0 : 1;
+    return baseValence + delta;
+}
+
+function getExpectedSourceTransitivityForAntiderivative(expectedValence, derivationType) {
+    const normalizedValence = Number(expectedValence);
+    if (!Number.isFinite(normalizedValence)) {
+        return null;
+    }
+    const roundedValence = Math.max(1, Math.min(MAX_OBJECT_SLOTS + 1, Math.trunc(normalizedValence)));
+    const delta = derivationType === DERIVATION_TYPE.direct ? 0 : 1;
+    const sourceValence = Math.max(1, roundedValence - delta);
+    return sourceValence > 1;
+}
+
 function findDerivationalAntiderivatives(derivedInput, options = {}) {
     const targetStem = normalizeDerivationStemValue(getSearchInputBase(derivedInput || ""));
     if (!targetStem) {
@@ -3694,7 +3833,22 @@ function findDerivationalAntiderivatives(derivedInput, options = {}) {
         };
     }
     const requestedType = normalizeAntiderivativeRequestedType(options.derivationType);
-    const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType);
+    const expectedValence = normalizeAntiderivativeExpectedValence(options.expectedValence);
+    const expectedValenceNumber = expectedValence ? Number(expectedValence) : NaN;
+    const expectedIsTransitive = typeof options.expectedIsTransitive === "boolean"
+        ? options.expectedIsTransitive
+        : null;
+    const fullReverseSeeds = options.fullReverseSeeds === true;
+    const cacheLookupOptions = {
+        expectedValence,
+        expectedIsTransitive,
+        fullReverseSeeds,
+    };
+    const cachedResult = getCachedDerivationalAntiderivativeResult(
+        targetStem,
+        requestedType,
+        cacheLookupOptions,
+    );
     if (cachedResult) {
         return {
             input: derivedInput,
@@ -3706,7 +3860,7 @@ function findDerivationalAntiderivatives(derivedInput, options = {}) {
         ? [requestedType]
         : [DERIVATION_TYPE.causative, DERIVATION_TYPE.applicative];
     const heuristicCandidates = derivationTypes.flatMap((derivationType) => (
-        buildAntiderivativeSeedBases(targetStem, derivationType).map((seedBase) => ({
+        buildAntiderivativeSeedBases(targetStem, derivationType, { fullReverseSeeds }).map((seedBase) => ({
             seedBase,
             derivationType,
             source: "heuristic",
@@ -3738,6 +3892,20 @@ function findDerivationalAntiderivatives(derivedInput, options = {}) {
         if (!normalizedBase) {
             return;
         }
+        const sourceTransitivityByValence = getExpectedSourceTransitivityForAntiderivative(
+            expectedValenceNumber,
+            candidate.derivationType,
+        );
+        const effectiveExpectedIsTransitive = sourceTransitivityByValence !== null
+            ? sourceTransitivityByValence
+            : expectedIsTransitive;
+        if (
+            typeof effectiveExpectedIsTransitive === "boolean"
+            && typeof candidate.forcedIsTransitive === "boolean"
+            && candidate.forcedIsTransitive !== effectiveExpectedIsTransitive
+        ) {
+            return;
+        }
         const parsedVerb = candidate.parsedVerb || parseVerbInput(normalizedBase);
         const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase
             || parsedVerb?.canonical?.fullRuleBase
@@ -3745,8 +3913,19 @@ function findDerivationalAntiderivatives(derivedInput, options = {}) {
         const rootPlusYaBase = parsedVerb?.rootPlusYaBase || "";
         const transitivityModes = typeof candidate.forcedIsTransitive === "boolean"
             ? [candidate.forcedIsTransitive]
-            : [false, true];
+            : (typeof effectiveExpectedIsTransitive === "boolean"
+                ? [effectiveExpectedIsTransitive]
+                : [false, true]);
         transitivityModes.forEach((isTransitive) => {
+            if (
+                Number.isFinite(expectedValenceNumber)
+                && expectedValenceNumber <= MAX_OBJECT_SLOTS
+            ) {
+                const derivedValence = getAntiderivativeDerivedValence(candidate.derivationType, isTransitive);
+                if (derivedValence !== expectedValenceNumber) {
+                    return;
+                }
+            }
             const optionsForForward = buildDerivationOptionsForType(
                 candidate.derivationType,
                 normalizedBase,
@@ -3795,7 +3974,12 @@ function findDerivationalAntiderivatives(derivedInput, options = {}) {
         normalizedInput: targetStem,
         candidates: deduped,
     };
-    setCachedDerivationalAntiderivativeResult(targetStem, requestedType, payload);
+    setCachedDerivationalAntiderivativeResult(
+        targetStem,
+        requestedType,
+        cacheLookupOptions,
+        payload,
+    );
     return {
         input: derivedInput,
         ...payload,
@@ -4202,13 +4386,31 @@ function evaluateGrammarConstraintSet({
         || normalizedRoleValues.shuntline1 !== rawRoleValues.shuntline1
     );
     const controllerRole = getCanonicalControllerRole(state.derivationType);
-    const controllerPrefix = rawRoleValues[controllerRole] || "";
+    const rawControllerPrefix = rawRoleValues[controllerRole] || "";
+    const controllerPriority = getDerivationControllerSlotPriority(state.derivationType);
+    const roleValuesBySlotId = {
+        [getCanonicalSlotIdForRole("mainline")]: rawRoleValues.mainline || "",
+        [getCanonicalSlotIdForRole("shuntline1")]: rawRoleValues.shuntline1 || "",
+    };
+    const controllerPrefix = resolveComboValidationObjectPrefix({
+        objectPrefix: roleValuesBySlotId.object || "",
+        indirectObjectMarker: roleValuesBySlotId.object2 || "",
+        derivationType: state.derivationType,
+        controllerObjectMarker: rawControllerPrefix !== ""
+            ? rawControllerPrefix
+            : controllerPriority
+                .map((slotId) => roleValuesBySlotId[slotId] || "")
+                .find((prefix) => Boolean(prefix)) || null,
+    });
     const subjectPrefix = subjectSelection?.subjectPrefix || "";
     const subjectSuffix = subjectSelection?.subjectSuffix || "";
     const shouldApplyPersonAgreement = Number(state.modeValency) >= 2;
     const personAgreementViolation = shouldApplyPersonAgreement
         && !!controllerPrefix
         && isSamePersonAcrossNumber(subjectPrefix, subjectSuffix, controllerPrefix);
+    const hierarchyOrderViolation = shouldApplyPersonAgreement
+        && !!controllerPrefix
+        && isHierarchyOrderViolation(subjectPrefix, subjectSuffix, controllerPrefix);
     const valence4Violation = enforceValence4Matrix && !isValidValence4Combo({
         objectPrefix: rawRoleValues.mainline,
         indirectObjectMarker: rawRoleValues.shuntline1,
@@ -4218,18 +4420,23 @@ function evaluateGrammarConstraintSet({
     if (personAgreementViolation) {
         violations.push(GRAMMAR_CONSTRAINT_IDS.personAgreement);
     }
+    if (hierarchyOrderViolation) {
+        violations.push(GRAMMAR_CONSTRAINT_IDS.hierarchyOrder);
+    }
     if (valence4Violation) {
         violations.push(GRAMMAR_CONSTRAINT_IDS.valence4Matrix);
     }
     return {
         controllerRole,
         controllerPrefix,
+        rawControllerPrefix,
         rawRoleValues,
         normalizedRoleValues,
         rawSlotValuesById: mapRoleValuesToSlotIds(rawRoleValues),
         normalizedSlotValuesById: mapRoleValuesToSlotIds(normalizedRoleValues),
         hierarchyAdjusted,
         personAgreementViolation,
+        hierarchyOrderViolation,
         valence4Violation,
         shouldMask: violations.length > 0,
         maskedConstraintIds: violations,
@@ -6014,19 +6221,37 @@ function getConjugationMaskState({
     enforceInvalidCombo = true,
     invalidComboSet = INVALID_COMBINATION_KEYS,
 }) {
-    const effectiveObjectPrefix = comboObjectPrefix ?? resolveComboValidationObjectPrefix({
-        objectPrefix,
-        indirectObjectMarker,
-        derivationType,
-        controllerObjectMarker,
-    });
+    const hasExplicitComboObjectPrefix = (
+        comboObjectPrefix !== undefined
+        && comboObjectPrefix !== null
+        && comboObjectPrefix !== ""
+    );
+    const effectiveObjectPrefix = hasExplicitComboObjectPrefix
+        ? comboObjectPrefix
+        : resolveComboValidationObjectPrefix({
+            objectPrefix,
+            indirectObjectMarker,
+            derivationType,
+            controllerObjectMarker,
+        });
     const invalidCombo = enforceInvalidCombo && invalidComboSet.has(
         getComboKey(subjectPrefix, effectiveObjectPrefix, subjectSuffix)
     );
     const samePerson = isSamePersonAcrossNumber(subjectPrefix, subjectSuffix, effectiveObjectPrefix);
+    const hierarchyOrderViolation = isHierarchyOrderViolation(
+        subjectPrefix,
+        subjectSuffix,
+        effectiveObjectPrefix
+    );
     const hideReflexive = !!(result && result.isReflexive && getObjectCategory(objectPrefix) !== "reflexive");
-    const shouldMask = !!(result?.error || hideReflexive || invalidCombo || samePerson);
-    const isError = !!(result?.error || invalidCombo || samePerson);
+    const shouldMask = !!(
+        result?.error
+        || hideReflexive
+        || invalidCombo
+        || samePerson
+        || hierarchyOrderViolation
+    );
+    const isError = !!(result?.error || invalidCombo || samePerson || hierarchyOrderViolation);
     return { shouldMask, isError };
 }
 
@@ -7340,6 +7565,71 @@ function applyIndirectObjectMarker(prefix, marker) {
     return normalizeValenceMarkerOrder(combined);
 }
 
+function parseProjectiveMarkerChain(value, inventory) {
+    if (!value) {
+        return false;
+    }
+    let remaining = value;
+    while (remaining) {
+        const token = inventory.find((item) => remaining.startsWith(item));
+        if (!token) {
+            return false;
+        }
+        remaining = remaining.slice(token.length);
+    }
+    return true;
+}
+
+function shortenProjectiveKiPrefix(prefix, subjectPrefix = "") {
+    if (!prefix) {
+        return prefix;
+    }
+    const nonspecificInventory = Array.from(NONSPECIFIC_VALENCE_AFFIX_SET)
+        .filter(Boolean)
+        .sort((a, b) => b.length - a.length);
+    const valenceMarkerInventory = Array.from(new Set([
+        ...Array.from(SPECIFIC_VALENCE_PREFIX_SET || []),
+        ...Array.from(NONSPECIFIC_VALENCE_AFFIX_SET || []),
+        "k",
+    ]))
+        .filter(Boolean)
+        .sort((a, b) => b.length - a.length);
+    if (prefix.startsWith("ki") && prefix.length > 2 && ["ni", "ti"].includes(subjectPrefix)) {
+        const tail = prefix.slice(2);
+        const isNonspecificMarkerChain = parseProjectiveMarkerChain(tail, nonspecificInventory);
+        const isValenceMarkerChain = parseProjectiveMarkerChain(tail, valenceMarkerInventory);
+        if (isNonspecificMarkerChain || isValenceMarkerChain) {
+            return `k${tail}`;
+        }
+    }
+    if (prefix.endsWith("ki") && prefix.length > 2) {
+        const leading = prefix.slice(0, -2);
+        if (isNonspecificProjectivePrefix(leading)) {
+            return prefix;
+        }
+        return `${prefix.slice(0, -2)}k`;
+    }
+    if (prefix === "ki" && ["ni", "ti"].includes(subjectPrefix)) {
+        return "k";
+    }
+    return prefix;
+}
+
+function composeProjectiveObjectPrefix({
+    objectPrefix = "",
+    markers = [],
+    subjectPrefix = "",
+}) {
+    let combined = objectPrefix || "";
+    const markerChain = Array.isArray(markers) ? markers : [];
+    markerChain
+        .filter(Boolean)
+        .forEach((marker) => {
+            combined = applyIndirectObjectMarker(combined, marker);
+        });
+    return shortenProjectiveKiPrefix(combined, subjectPrefix);
+}
+
 function isSpecificProjectivePrefix(prefix) {
     return SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k";
 }
@@ -8244,7 +8534,6 @@ function buildParseState(rawInput) {
         indirectObjectMarker: "",
         directObjectToken: "",
         parts: [],
-        selectorSuffix: "",
         fusionPrefixes: [],
         verb: "",
         analysisVerb: "",
@@ -8329,19 +8618,24 @@ function applyWalDirectionalRule(context, rule, stage) {
         forceNonspecificDirectional,
         directionalRuleMode,
     } = context;
+    const isFirstPersonSubject = baseSubjectPrefix === "ni" || baseSubjectPrefix === "n";
+    const isSecondPersonSubject = baseSubjectPrefix === "ti" || baseSubjectPrefix === "t";
+    const isThirdPersonSubject = baseSubjectPrefix === "";
+    const isSecondPluralSubject = baseSubjectPrefix === "an";
     if (stage === "prefix") {
         const hasSecondValent = Boolean(baseObjectPrefix || indirectObjectMarker || isTaFusion);
         const hasFirstValent = hasSubjectValent !== false;
-        const isThirdPersonSubject = baseSubjectPrefix === "";
         const hasNonspecificObject = NONSPECIFIC_VALENCE_AFFIX_SET.has(baseObjectPrefix)
             || NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker || "");
         const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
+        const allowMainlineThirdPersonAlWithNonspecific = isThirdPersonMarker(baseObjectPrefix)
+            && !forceNonspecificDirectional;
         const shouldUseAl = (forceTransitiveDirectional
             ? hasFirstValent
             : (forceNonspecificDirectional
                 ? (hasFirstValent && !isThirdPersonSubject)
                 : (!forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasFirstValent)))
-            && !hasNonspecificObject;
+            && (!hasNonspecificObject || allowMainlineThirdPersonAlWithNonspecific);
         let useAl = false;
         if (shouldUseAl) {
             const isThirdPersonObject =
@@ -8349,11 +8643,11 @@ function applyWalDirectionalRule(context, rule, stage) {
                 || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
             const hasNonspecificObject = NONSPECIFIC_VALENCE_AFFIX_SET.has(baseObjectPrefix)
                 || NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker || "");
-            if (baseSubjectPrefix === "ni") {
+            if (isFirstPersonSubject) {
                 subjectPrefix = "n";
-            } else if (baseSubjectPrefix === "ti") {
+            } else if (isSecondPersonSubject) {
                 subjectPrefix = "t";
-            } else if (baseSubjectPrefix === "" && !isThirdPersonObject && !hasNonspecificObject) {
+            } else if (isThirdPersonSubject && !isThirdPersonObject && !hasNonspecificObject) {
                 subjectPrefix = "k";
             }
             useAl = true;
@@ -8368,17 +8662,64 @@ function applyWalDirectionalRule(context, rule, stage) {
     if (stage === "post-elision" && verb.startsWith(directionalInputPrefix)) {
         const stem = verb.slice(directionalInputPrefix.length);
         const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
+        const isMainlineThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
         const isThirdPersonObject =
-            isThirdPersonMarker(baseObjectPrefix)
+            isMainlineThirdPersonObject
             || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
         if (directionalInputPrefix === "wal" && isThirdPersonObject) {
-            const dropK = baseSubjectPrefix === "ni"
-                || baseSubjectPrefix === "ti"
-                || directionalRuleMode === "intransitive"
-                || directionalRuleMode === "nonspecific";
-            objectPrefix = dropK ? "" : "k";
-            const objectTail = baseObjectPrefix === "kin" ? "in" : "";
-            verb = `${directionalOutputPrefix}${objectTail}${stem}`;
+            if (isMainlineThirdPersonObject) {
+                const dropK = (
+                    isFirstPersonSubject
+                    || isSecondPersonSubject
+                    || directionalRuleMode === "intransitive"
+                    || directionalRuleMode === "nonspecific"
+                );
+                const objectTail = baseObjectPrefix === "kin" ? "in" : "";
+                const objectHead = applyIndirectObjectMarker(
+                    `${dropK ? "" : "k"}${objectTail}`,
+                    indirectObjectMarker
+                );
+                if (objectHead.startsWith("k")) {
+                    objectPrefix = `k${directionalOutputPrefix}${objectHead.slice(1)}`;
+                } else {
+                    objectPrefix = `${directionalOutputPrefix}${objectHead}`;
+                }
+                let adjustedStem = stem;
+                if (objectPrefix.endsWith("i") && adjustedStem.startsWith("i")) {
+                    adjustedStem = adjustedStem.slice(1);
+                }
+                verb = adjustedStem;
+            } else {
+                // When 3rd-person is carried by shuntline, keep wal before object chain.
+                if (isThirdPersonSubject && !subjectPrefix) {
+                    subjectPrefix = "k";
+                }
+                const startsWithK = objectPrefix.startsWith("k");
+                const objectTail = startsWithK
+                    ? (objectPrefix === "kin" ? "in" : "")
+                    : objectPrefix;
+                const shouldDropLeadK = (
+                    startsWithK
+                    && (
+                        isFirstPersonSubject
+                        || isSecondPersonSubject
+                        || isThirdPersonSubject
+                    )
+                );
+                const shouldPreposeKBeforeDirectional = startsWithK && isSecondPluralSubject;
+                let adjustedStem = stem;
+                if (shouldPreposeKBeforeDirectional) {
+                    objectPrefix = `k${directionalOutputPrefix}${objectTail}`;
+                } else if (shouldDropLeadK) {
+                    objectPrefix = `${directionalOutputPrefix}${objectTail}`;
+                } else {
+                    objectPrefix = `${directionalOutputPrefix}${objectPrefix}`;
+                }
+                if (objectPrefix.endsWith("i") && adjustedStem.startsWith("i")) {
+                    adjustedStem = adjustedStem.slice(1);
+                }
+                verb = adjustedStem;
+            }
         } else {
             verb = stem;
             objectPrefix = `${directionalOutputPrefix}${objectPrefix}`;
@@ -8539,11 +8880,9 @@ function parseStageDirectionalFusion(state) {
         parts = parts.slice(1);
     }
     const knownSuffixes = getKnownTenseSuffixes();
-    let selectorSuffix = "";
     if (state.hasSuffixSeparator && parts.length > 1) {
         const suffixToken = parts[parts.length - 1];
         if (knownSuffixes.has(suffixToken)) {
-            selectorSuffix = suffixToken;
             parts = parts.slice(0, -1);
         }
     }
@@ -8631,7 +8970,6 @@ function parseStageDirectionalFusion(state) {
     state.indirectObjectMarker = indirectObjectMarker;
     state.directObjectToken = directObjectToken;
     state.parts = parts;
-    state.selectorSuffix = selectorSuffix;
     state.fusionPrefixes = fusionPrefixes;
     state.verb = verb;
     state.analysisVerb = analysisVerb;
@@ -8777,7 +9115,6 @@ function buildCanonicalVerbState(state) {
         objectToken: state.objectToken,
         directObjectToken: state.directObjectToken,
         indirectObjectMarker: state.indirectObjectMarker,
-        selectorSuffix: state.selectorSuffix,
         boundPrefixes: state.boundPrefixes,
         fusionPrefixes: state.fusionPrefixes,
         directionalPrefix: state.directionalPrefix,
@@ -8846,7 +9183,6 @@ function parseVerbInput(value) {
         hasConsecutiveSpecificValences: state.hasConsecutiveSpecificValences,
         directObjectToken: state.directObjectToken,
         indirectObjectMarker: state.indirectObjectMarker,
-        selectorSuffix: state.selectorSuffix,
         displayVerb: state.displayVerb,
         exactBaseVerb: state.exactBaseVerb,
         hasLeadingDash: state.hasLeadingDash,
@@ -9016,6 +9352,123 @@ function isPerfectiveTense(tense) {
     );
 }
 
+function getParsedVerbNonactiveStemMetadata(parsedVerb, options = {}) {
+    if (!parsedVerb || !parsedVerb.verb) {
+        return {
+            nonactiveStems: null,
+            nonactiveAllStems: null,
+            derivedNonactiveStems: null,
+        };
+    }
+    const derivationType = Object.values(DERIVATION_TYPE).includes(options.derivationType)
+        ? options.derivationType
+        : DERIVATION_TYPE.direct;
+    const objectPrefix = typeof options.objectPrefix === "string"
+        ? options.objectPrefix
+        : "";
+    const uniqueStems = (stems) => Array.from(new Set((stems || []).filter(Boolean)));
+    const parsedWithDerivation = {
+        ...parsedVerb,
+        derivationType,
+        derivationValencyDelta: getDerivationValencyDelta(derivationType),
+    };
+    const previousNonactiveSuffix = getSelectedNonactiveSuffix();
+    setSelectedNonactiveSuffix(null);
+    try {
+        let verb = parsedWithDerivation.verb || "";
+        let analysisVerb = parsedWithDerivation.analysisVerb || verb;
+        let isYawi = parsedWithDerivation.isYawi === true;
+        let suppletiveStemSet = getSuppletiveStemSet(parsedWithDerivation);
+        let causativeAllStems = null;
+        let applicativeAllStems = null;
+
+        if (derivationType === DERIVATION_TYPE.causative) {
+            const causativeDerivation = applyCausativeDerivation({
+                isCausative: true,
+                verb,
+                analysisVerb,
+                objectPrefix,
+                parsedVerb: parsedWithDerivation,
+                directionalPrefix: parsedWithDerivation.directionalPrefix || "",
+                isYawi,
+                suppletiveStemSet,
+            });
+            if (causativeDerivation.noCausativeStem) {
+                return {
+                    nonactiveStems: null,
+                    nonactiveAllStems: null,
+                    derivedNonactiveStems: null,
+                };
+            }
+            verb = causativeDerivation.verb || verb;
+            analysisVerb = causativeDerivation.analysisVerb || analysisVerb;
+            isYawi = causativeDerivation.isYawi;
+            suppletiveStemSet = causativeDerivation.suppletiveStemSet;
+            causativeAllStems = uniqueStems(causativeDerivation.causativeAllStems);
+        } else if (derivationType === DERIVATION_TYPE.applicative) {
+            const applicativeDerivation = applyApplicativeDerivation({
+                isApplicative: true,
+                verb,
+                analysisVerb,
+                objectPrefix,
+                parsedVerb: parsedWithDerivation,
+                directionalPrefix: parsedWithDerivation.directionalPrefix || "",
+                isYawi,
+                suppletiveStemSet,
+            });
+            if (applicativeDerivation.noApplicativeStem) {
+                return {
+                    nonactiveStems: null,
+                    nonactiveAllStems: null,
+                    derivedNonactiveStems: null,
+                };
+            }
+            verb = applicativeDerivation.verb || verb;
+            analysisVerb = applicativeDerivation.analysisVerb || analysisVerb;
+            isYawi = applicativeDerivation.isYawi;
+            suppletiveStemSet = applicativeDerivation.suppletiveStemSet;
+            applicativeAllStems = uniqueStems(applicativeDerivation.applicativeAllStems);
+        }
+
+        const nonactiveDerivation = applyNonactiveDerivation({
+            isNonactive: true,
+            verb,
+            analysisVerb,
+            objectPrefix,
+            parsedVerb: parsedWithDerivation,
+            directionalPrefix: parsedWithDerivation.directionalPrefix || "",
+            derivationType,
+            causativeAllStems,
+            applicativeAllStems,
+            isYawi,
+            suppletiveStemSet,
+        });
+
+        const nonactiveStems = uniqueStems([
+            nonactiveDerivation.verb,
+            nonactiveDerivation.analysisVerb,
+        ]);
+        const nonactiveAllStems = uniqueStems(
+            Array.isArray(nonactiveDerivation.nonactiveAllStems)
+                ? nonactiveDerivation.nonactiveAllStems
+                : nonactiveStems
+        );
+        const derivedNonactiveStems = derivationType === DERIVATION_TYPE.direct
+            ? null
+            : nonactiveAllStems;
+
+        return {
+            nonactiveStems: nonactiveStems.length ? nonactiveStems : null,
+            nonactiveAllStems: nonactiveAllStems.length ? nonactiveAllStems : null,
+            derivedNonactiveStems: derivedNonactiveStems && derivedNonactiveStems.length
+                ? derivedNonactiveStems
+                : null,
+        };
+    } finally {
+        setSelectedNonactiveSuffix(previousNonactiveSuffix);
+    }
+}
+
 function getParsedVerbForTab(tabId, rawValue, options = {}) {
     const raw = typeof rawValue === "string" ? rawValue : "";
     const effectiveRaw = options.useSearchBase === false ? raw : getSearchInputBase(raw);
@@ -9024,11 +9477,23 @@ function getParsedVerbForTab(tabId, rawValue, options = {}) {
         ? options.derivationType
         : getActiveDerivationType();
     const derivationValencyDelta = getDerivationValencyDelta(derivationType);
-    return {
+    const parsedWithContext = {
         ...parsed,
         tabId: tabId || "",
         derivationType,
         derivationValencyDelta,
+    };
+    const includeNonactiveStemMetadata = options.includeNonactiveStemMetadata !== false;
+    if (!includeNonactiveStemMetadata) {
+        return parsedWithContext;
+    }
+    const nonactiveStemMetadata = getParsedVerbNonactiveStemMetadata(parsedWithContext, {
+        derivationType,
+        objectPrefix: options.objectPrefix,
+    });
+    return {
+        ...parsedWithContext,
+        ...nonactiveStemMetadata,
     };
 }
 
@@ -9057,7 +9522,6 @@ function getVerbInputMeta() {
             hasConsecutiveSpecificValences: false,
             directObjectToken: "",
             indirectObjectMarker: "",
-            selectorSuffix: "",
             isTaFusion: false,
             displayVerb: "",
             exactBaseVerb: "",
@@ -14736,15 +15200,38 @@ function getDerivationTypeDisplayLabel(type, isNawat = false) {
     return normalizedType;
 }
 
-const DERIVATION_ANTIDERIVATIVE_RENDER_DEBOUNCE_MS = 140;
-let DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
-let DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN = 0;
+let DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
+let DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+let DERIVATION_ANTIDERIVATIVE_STAGE = "off";
 
-function clearDerivationAntiderivativeRenderTimer() {
-    if (DERIVATION_ANTIDERIVATIVE_RENDER_TIMER) {
-        clearTimeout(DERIVATION_ANTIDERIVATIVE_RENDER_TIMER);
-        DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
+function getNextAntiderivativeStage(stage = "off") {
+    if (stage === "off") {
+        return "on";
     }
+    if (stage === "on") {
+        return "lock";
+    }
+    return "off";
+}
+
+function requestDerivationAntiderivativeLookup(renderKey, normalizedInput, lookupOptions) {
+    if (!renderKey || !normalizedInput) {
+        return;
+    }
+    if (
+        DERIVATION_ANTIDERIVATIVE_PENDING_KEY === renderKey
+        || DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY === renderKey
+    ) {
+        return;
+    }
+    DERIVATION_ANTIDERIVATIVE_PENDING_KEY = renderKey;
+    renderDerivationAntiderivativePanel();
+    setTimeout(() => {
+        findDerivationalAntiderivatives(normalizedInput, lookupOptions);
+        DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = renderKey;
+        DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+        renderDerivationAntiderivativePanel();
+    }, 0);
 }
 
 function getUniqueAntiderivativeDirectStems(result) {
@@ -14763,80 +15250,108 @@ function renderDerivationAntiderivativePanel(verbMeta = null) {
     panel.classList.toggle("is-hidden", !isVerbMode);
     panel.innerHTML = "";
     if (!isVerbMode) {
-        clearDerivationAntiderivativeRenderTimer();
+        DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
+        DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+        DERIVATION_ANTIDERIVATIVE_STAGE = "off";
         return;
     }
-    const isNawat = getIsNawat();
+
+    const row = document.createElement("div");
+    row.className = "derivation-antiderivative__row";
+    panel.appendChild(row);
+
     const derivationType = getActiveDerivationType();
-    const derivationLabel = getDerivationTypeDisplayLabel(derivationType, isNawat);
-    const heading = document.createElement("div");
-    heading.className = "derivation-antiderivative__label";
-    heading.textContent = `${isNawat ? "Antiderivada" : "Antiderivada"} · ${derivationLabel}`;
-    panel.appendChild(heading);
+    const resolvedVerbMeta = verbMeta || getVerbInputMeta();
+    const expectedValence = getActiveVerbValency(resolvedVerbMeta);
 
     const verbInput = document.getElementById("verb");
     const inputValue = getSearchInputBase(verbInput?.value || "");
     const normalizedInput = String(inputValue || "").trim();
-    const empty = document.createElement("div");
-    empty.className = "derivation-antiderivative__empty";
+
+    const result = document.createElement("div");
+    result.className = "derivation-antiderivative__result";
+    result.textContent = "—";
+
+    const fullReverseButton = document.createElement("button");
+    fullReverseButton.type = "button";
+    fullReverseButton.className = "derivation-antiderivative__action";
+    fullReverseButton.textContent = "antiderivada";
+
+    row.appendChild(fullReverseButton);
+    row.appendChild(result);
+
     if (!normalizedInput) {
-        clearDerivationAntiderivativeRenderTimer();
-        empty.textContent = isNawat
-            ? "Shikijkuilu se verbo para antiderivada."
-            : "Ingresa un verbo para antiderivada.";
-        panel.appendChild(empty);
+        DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
+        DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+        fullReverseButton.disabled = true;
         return;
     }
-    clearDerivationAntiderivativeRenderTimer();
 
     const requestedType = normalizeAntiderivativeRequestedType(derivationType);
     const targetStem = normalizeDerivationStemValue(getSearchInputBase(normalizedInput));
+    const normalizedExpectedValence = normalizeAntiderivativeExpectedValence(expectedValence) || "any";
+    const renderKey = `${targetStem}|${requestedType || "both"}|${normalizedExpectedValence}`;
+    const isPending = DERIVATION_ANTIDERIVATIVE_PENDING_KEY === renderKey;
+    const hasResult = DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY === renderKey;
+    const stage = DERIVATION_ANTIDERIVATIVE_STAGE;
+    fullReverseButton.classList.toggle("is-on", stage === "on");
+    fullReverseButton.classList.toggle("is-lock", stage === "lock");
+    fullReverseButton.setAttribute("aria-pressed", String(stage !== "off"));
+    fullReverseButton.disabled = isPending;
+    if (isPending) {
+        fullReverseButton.textContent = "...";
+    }
     const lookupOptions = requestedType
-        ? { derivationType: requestedType }
-        : {};
-    const renderKey = `${targetStem}|${requestedType || "both"}|${isNawat ? "na" : "es"}`;
-    panel.dataset.antiderivativeLookupKey = renderKey;
-    const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType);
-    if (!cachedResult) {
-        empty.textContent = isNawat
-            ? "Timotlatlajtilia antiderivada..."
-            : "Calculando antiderivada...";
-        panel.appendChild(empty);
-        clearDerivationAntiderivativeRenderTimer();
-        const renderToken = ++DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN;
-        DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = setTimeout(() => {
-            DERIVATION_ANTIDERIVATIVE_RENDER_TIMER = null;
-            if (renderToken !== DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN) {
-                return;
-            }
-            const livePanel = document.getElementById("derivation-antiderivative");
-            if (!livePanel || livePanel.dataset.antiderivativeLookupKey !== renderKey) {
-                return;
-            }
-            findDerivationalAntiderivatives(normalizedInput, lookupOptions);
-            if (renderToken !== DERIVATION_ANTIDERIVATIVE_RENDER_TOKEN) {
-                return;
-            }
+        ? {
+            derivationType: requestedType,
+            expectedValence,
+            fullReverseSeeds: true,
+        }
+        : {
+            expectedValence,
+            fullReverseSeeds: true,
+        };
+    fullReverseButton.addEventListener("click", () => {
+        const nextStage = getNextAntiderivativeStage(DERIVATION_ANTIDERIVATIVE_STAGE);
+        DERIVATION_ANTIDERIVATIVE_STAGE = nextStage;
+        if (nextStage === "off") {
+            DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+            DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
             renderDerivationAntiderivativePanel();
-        }, DERIVATION_ANTIDERIVATIVE_RENDER_DEBOUNCE_MS);
+            return;
+        }
+        requestDerivationAntiderivativeLookup(renderKey, normalizedInput, lookupOptions);
+        renderDerivationAntiderivativePanel();
+    });
+    if (isPending) {
+        result.textContent = "...";
+        return;
+    }
+    if (stage === "off") {
+        result.textContent = "—";
+        return;
+    }
+    if (stage === "lock" && !hasResult) {
+        requestDerivationAntiderivativeLookup(renderKey, normalizedInput, lookupOptions);
+        result.textContent = "...";
+        return;
+    }
+    if (!hasResult) {
+        result.textContent = "—";
+        return;
+    }
+    const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType, lookupOptions);
+    if (!cachedResult) {
+        result.textContent = "—";
         return;
     }
 
     const uniqueDirectStems = getUniqueAntiderivativeDirectStems(cachedResult);
     if (!uniqueDirectStems.length) {
-        empty.textContent = "—";
-        panel.appendChild(empty);
+        result.textContent = "—";
         return;
     }
-    const list = document.createElement("div");
-    list.className = "derivation-antiderivative__list";
-    uniqueDirectStems.forEach((stem) => {
-        const item = document.createElement("span");
-        item.className = "derivation-antiderivative__item";
-        item.textContent = stem;
-        list.appendChild(item);
-    });
-    panel.appendChild(list);
+    result.textContent = uniqueDirectStems.join(" / ");
 }
 
 function updateDerivationTypeControl() {
@@ -15052,51 +15567,12 @@ function applyMorphologyRules({
         verb,
         directionalOutputPrefix,
     } = directionalPrefixResult);
-    const shortenKiPrefix = (prefix) => {
-        const isNonspecificMarkerChain = (value) => {
-            if (!value) {
-                return false;
-            }
-            const inventory = Array.from(NONSPECIFIC_VALENCE_AFFIX_SET)
-                .filter(Boolean)
-                .sort((a, b) => b.length - a.length);
-            let remaining = value;
-            while (remaining) {
-                const token = inventory.find((item) => remaining.startsWith(item));
-                if (!token) {
-                    return false;
-                }
-                remaining = remaining.slice(token.length);
-            }
-            return true;
-        };
-        if (!prefix) {
-            return prefix;
-        }
-        if (prefix.startsWith("ki") && prefix.length > 2 && ["ni", "ti"].includes(baseSubjectPrefix)) {
-            const tail = prefix.slice(2);
-            if (isNonspecificMarkerChain(tail)) {
-                return `k${tail}`;
-            }
-        }
-        if (prefix.endsWith("ki") && prefix.length > 2) {
-            const leading = prefix.slice(0, -2);
-            if (isNonspecificProjectivePrefix(leading)) {
-                return prefix;
-            }
-            return `${prefix.slice(0, -2)}k`;
-        }
-        if (prefix === "ki" && ["ni", "ti"].includes(baseSubjectPrefix)) {
-            return "k";
-        }
-        return prefix;
-    };
-    const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""].filter(Boolean);
-    markerChain.forEach((markerItem) => {
-        objectPrefix = applyIndirectObjectMarker(objectPrefix, markerItem);
+    const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
+    objectPrefix = composeProjectiveObjectPrefix({
+        objectPrefix,
+        markers: markerChain,
+        subjectPrefix: baseSubjectPrefix,
     });
-    // Check if the object prefix "ki" should be shortened to "k"
-    objectPrefix = shortenKiPrefix(objectPrefix);
     // Avoid double-i after object prefix + stem contact:
     // 1) direct ...i + i... (e.g. ki + i...)
     // 2) shortened ki -> k with ni/ti, when stem already begins ii...
@@ -15138,7 +15614,12 @@ function applyMorphologyRules({
 
     // Check if subject prefix "an" should be changed to "anh" when the object prefix is empty and the verb starts with
     // "a", "e", "u".
-    if (subjectPrefix === "an" && objectPrefix === "" && startsWithAny(verb, AN_PREFIX_VOWEL_PREFIXES)) {
+    if (
+        subjectPrefix === "an"
+        && objectPrefix === ""
+        && !markerChain.some((marker) => marker !== "")
+        && startsWithAny(verb, AN_PREFIX_VOWEL_PREFIXES)
+    ) {
         subjectPrefix = applyNhBeforeVowel(subjectPrefix, verb);
     }
 
@@ -15449,7 +15930,12 @@ function applyMorphologyRules({
     const elisionTarget = directionalInputPrefix === "ku"
         ? verb
         : (directionalInputPrefix ? analysisTarget : verb);
-    if (allowDirectionalElision && objectPrefix === "k" && elisionTarget.startsWith("k") && !markerChain.length) {
+    if (
+        allowDirectionalElision
+        && objectPrefix === "k"
+        && elisionTarget.startsWith("k")
+        && !markerChain.some((marker) => marker !== "")
+    ) {
         objectPrefix = "";
     }
     const isTransitive = objectPrefix !== "" || forceTransitiveBase;
@@ -16213,21 +16699,6 @@ function generateWord(options = {}) {
         baseObjectPrefix = "";
         indirectObjectMarker = "";
         thirdObjectMarker = "";
-    }
-    if (
-        (resolvedDerivationType === DERIVATION_TYPE.applicative
-            || resolvedDerivationType === DERIVATION_TYPE.causative)
-        && indirectObjectMarker
-    ) {
-        const isSpecific = (prefix) => SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k" || prefix === "mu";
-        const indirectIsSpecific = isSpecific(indirectObjectMarker);
-        const shouldSwap = !objectPrefix && indirectIsSpecific;
-        if (shouldSwap) {
-            const rightmostObject = indirectObjectMarker;
-            indirectObjectMarker = objectPrefix || "";
-            objectPrefix = rightmostObject;
-            baseObjectPrefix = rightmostObject;
-        }
     }
     ({
         objectPrefix,

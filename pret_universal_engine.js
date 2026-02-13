@@ -601,6 +601,33 @@ function maybeShortenZeroBitransitiveKi(prefix, baseSubjectPrefix, allowZeroBitr
     return prefix;
 }
 
+function composePretUniversalObjectPrefix({
+    objectPrefix = "",
+    baseSubjectPrefix = "",
+    indirectObjectMarker = "",
+    hasDoubleDash = false,
+}) {
+    const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
+        hasDoubleDash,
+        indirectObjectMarker,
+    });
+    if (typeof composeProjectiveObjectPrefix === "function") {
+        return composeProjectiveObjectPrefix({
+            objectPrefix,
+            markers: [indirectObjectMarker || ""],
+            subjectPrefix: baseSubjectPrefix,
+        });
+    }
+    let adjustedObjectPrefix = objectPrefix;
+    adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+    adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
+        adjustedObjectPrefix,
+        baseSubjectPrefix,
+        allowZeroBitransitiveDrop
+    );
+    return adjustedObjectPrefix;
+}
+
 function shouldAllowZeroBitransitiveKiDrop({
     hasDoubleDash = false,
     indirectObjectMarker = "",
@@ -650,12 +677,12 @@ function getPretUniversalPrefixForBase(
         if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
             adjustedObjectPrefix = "";
         }
-        adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
-        adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
-            adjustedObjectPrefix,
+        adjustedObjectPrefix = composePretUniversalObjectPrefix({
+            objectPrefix: adjustedObjectPrefix,
             baseSubjectPrefix,
-            allowZeroBitransitiveDrop
-        );
+            indirectObjectMarker,
+            hasDoubleDash,
+        });
         let adjustedBase = baseCore;
         if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
             if (adjustedBase.startsWith("kw")) {
@@ -675,18 +702,63 @@ function getPretUniversalPrefixForBase(
             base: contactAdjusted.base,
         };
     }
-    const isThirdPersonObject = baseObjectPrefix === "ki" || baseObjectPrefix === "kin";
+    const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
+    const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
+    const isShuntlineThirdPersonObject = !isThirdPersonObject && isThirdPersonMarker(indirectObjectMarker);
     const isThirdPersonSubject = baseSubjectPrefix === "" && subjectPrefix === "";
     const subjectHead = (isThirdPersonSubject && outputDirectional === "al" && !isThirdPersonObject)
         ? "k"
         : subjectPrefix;
     if (isThirdPersonObject && outputDirectional === "al") {
-        const dropK = baseSubjectPrefix === "ni" || baseSubjectPrefix === "ti";
+        const dropK = (
+            baseSubjectPrefix === "ni"
+            || baseSubjectPrefix === "ti"
+            || baseSubjectPrefix === "n"
+            || baseSubjectPrefix === "t"
+        );
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
-        const objectHead = applyIndirectObjectMarker(dropK ? "" : "k", indirectObjectMarker);
+        const objectHead = applyIndirectObjectMarker(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
+        const directionalizedObjectHead = objectHead.startsWith("k")
+            ? `k${outputDirectional}${objectHead.slice(1)}`
+            : `${outputDirectional}${objectHead}`;
         return {
-            prefix: `${subjectHead}${objectHead}${outputDirectional}${objectTail}`,
+            prefix: `${subjectHead}${directionalizedObjectHead}`,
             base: baseCore,
+        };
+    }
+    if (isShuntlineThirdPersonObject && outputDirectional === "al") {
+        const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
+            hasDoubleDash,
+            indirectObjectMarker,
+        });
+        let adjustedObjectPrefix = composePretUniversalObjectPrefix({
+            objectPrefix,
+            baseSubjectPrefix,
+            indirectObjectMarker,
+            hasDoubleDash,
+        });
+        let adjustedBase = baseCore;
+        const startsWithK = adjustedObjectPrefix.startsWith("k");
+        const objectTail = startsWithK
+            ? (adjustedObjectPrefix === "kin" ? "in" : "")
+            : adjustedObjectPrefix;
+        const isSecondPluralSubject = baseSubjectPrefix === "an" || subjectPrefix === "an";
+        if (startsWithK && isSecondPluralSubject) {
+            adjustedObjectPrefix = `k${outputDirectional}${objectTail}`;
+        } else if (startsWithK) {
+            adjustedObjectPrefix = `${outputDirectional}${objectTail}`;
+        } else {
+            adjustedObjectPrefix = `${outputDirectional}${adjustedObjectPrefix}`;
+        }
+        const contactAdjusted = adjustPretPrefixBaseContact(
+            adjustedObjectPrefix,
+            adjustedBase,
+            baseSubjectPrefix,
+            { allowZeroBitransitiveDrop }
+        );
+        return {
+            prefix: subjectHead + contactAdjusted.prefix,
+            base: contactAdjusted.base,
         };
     }
     let adjustedObjectPrefix = objectPrefix;
@@ -697,12 +769,12 @@ function getPretUniversalPrefixForBase(
     if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
         adjustedObjectPrefix = "";
     }
-    adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
-    adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
-        adjustedObjectPrefix,
+    adjustedObjectPrefix = composePretUniversalObjectPrefix({
+        objectPrefix: adjustedObjectPrefix,
         baseSubjectPrefix,
-        allowZeroBitransitiveDrop
-    );
+        indirectObjectMarker,
+        hasDoubleDash,
+    });
     let adjustedBase = baseCore;
     if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
         if (adjustedBase.startsWith("kw")) {
