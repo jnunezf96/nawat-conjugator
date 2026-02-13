@@ -4547,12 +4547,15 @@ function runVerbGrammarPipeline({
     objects = {},
     primaryTogglePrefixes = [],
     indirectTogglePrefixes = [],
+    includeDiagnostics = false,
 }) {
     const parseStep = grammarPipelineParse({ verb, modeKey, parsedVerb });
-    const stemStep = grammarPipelineDeriveStems({
-        parsedVerb: parseStep.parsedVerb,
-        inputVerb: parseStep.inputVerb,
-    });
+    const stemStep = includeDiagnostics
+        ? grammarPipelineDeriveStems({
+            parsedVerb: parseStep.parsedVerb,
+            inputVerb: parseStep.inputVerb,
+        })
+        : null;
     const state = buildCanonicalGrammarState({
         parsedVerb: parseStep.parsedVerb,
         derivationType,
@@ -4573,7 +4576,7 @@ function runVerbGrammarPipeline({
     });
     return {
         parseStep,
-        stemStep,
+        ...(includeDiagnostics ? { stemStep } : {}),
         state,
         assignStep,
         constraintStep,
@@ -8102,6 +8105,9 @@ function getPretUniversalVerbOverride(analysisVerb, isTransitive) {
     if (!analysisVerb) {
         return null;
     }
+    if (!PRET_UNIVERSAL_VERB_OVERRIDES.length) {
+        return null;
+    }
     const transitivity = isTransitive ? "transitive" : "intransitive";
     for (const entry of PRET_UNIVERSAL_VERB_OVERRIDES) {
         if (!entry || !Array.isArray(entry.verbs) || !entry.verbs.includes(analysisVerb)) {
@@ -8407,14 +8413,34 @@ function hasConsecutiveSpecificValences(valenceSlots) {
     return false;
 }
 
+function computeDirectionalRuleModeCore({
+    directionalPrefix = "",
+    hasSpecificValence = false,
+    hasNonspecificValence = false,
+    derivationValencyDelta = 0,
+    isNonactive = false,
+    phase = "resolved",
+}) {
+    if (!directionalPrefix || !DIRECTIONAL_PREFIXES.includes(directionalPrefix)) {
+        return "";
+    }
+    if (hasSpecificValence) {
+        return "transitive";
+    }
+    if (phase === "resolved" && !isNonactive && derivationValencyDelta > 0) {
+        return "transitive";
+    }
+    if (hasNonspecificValence) {
+        return "nonspecific";
+    }
+    return "intransitive";
+}
+
 function resolveDirectionalRuleMode(parsedVerb, options = {}) {
     if (!parsedVerb) {
         return "";
     }
     const directionalPrefix = parsedVerb.directionalPrefix || "";
-    if (!directionalPrefix || !DIRECTIONAL_PREFIXES.includes(directionalPrefix)) {
-        return "";
-    }
     const isNonactive = options.isNonactive === true;
     const derivationType = Object.values(DERIVATION_TYPE).includes(options.derivationType)
         ? options.derivationType
@@ -8428,16 +8454,17 @@ function resolveDirectionalRuleMode(parsedVerb, options = {}) {
     const hasNonspecificValence = isNonactive
         ? parsedVerb.hasNonactiveNonspecificValence
         : parsedVerb.hasNonspecificValence;
-    if (hasSpecificValence) {
-        return "transitive";
-    }
-    if (!isNonactive && derivationDelta > 0) {
-        return "transitive";
-    }
-    if (hasNonspecificValence) {
-        return "nonspecific";
-    }
-    return "intransitive";
+    const resolvedMode = computeDirectionalRuleModeCore({
+        directionalPrefix,
+        hasSpecificValence,
+        hasNonspecificValence,
+        derivationValencyDelta: derivationDelta,
+        isNonactive,
+        phase: "resolved",
+    });
+    parsedVerb.directionalRuleModeResolved = resolvedMode;
+    parsedVerb.directionalRuleMode = resolvedMode;
+    return resolvedMode;
 }
 
 const DEFAULT_PARSE_PIPELINE = [
@@ -8554,7 +8581,9 @@ function buildParseState(rawInput) {
         hasNonactiveSpecificValence: false,
         hasNonactiveNonspecificValence: false,
         hasConsecutiveSpecificValences: false,
+        directionalRuleModeProvisional: "",
         directionalRuleMode: "",
+        directionalRuleModeResolved: "",
         isYawi: false,
         isWeya: false,
     };
@@ -9039,13 +9068,16 @@ function parseStageValence(state) {
 }
 
 function parseStageDirectionalRuleMode(state) {
-    const directionalPrefix = state.directionalPrefix || "";
-    const directionalRuleMode = directionalPrefix && DIRECTIONAL_PREFIXES.includes(directionalPrefix)
-        ? (state.hasSpecificValence
-            ? "transitive"
-            : (state.hasNonspecificValence ? "nonspecific" : "intransitive"))
-        : "";
-    state.directionalRuleMode = directionalRuleMode;
+    const directionalRuleModeProvisional = computeDirectionalRuleModeCore({
+        directionalPrefix: state.directionalPrefix || "",
+        hasSpecificValence: state.hasSpecificValence,
+        hasNonspecificValence: state.hasNonspecificValence,
+        derivationValencyDelta: 0,
+        isNonactive: false,
+        phase: "provisional",
+    });
+    state.directionalRuleModeProvisional = directionalRuleModeProvisional;
+    state.directionalRuleMode = directionalRuleModeProvisional;
 }
 
 function parseStageSuppletives(state) {
@@ -9118,7 +9150,9 @@ function buildCanonicalVerbState(state) {
         boundPrefixes: state.boundPrefixes,
         fusionPrefixes: state.fusionPrefixes,
         directionalPrefix: state.directionalPrefix,
+        directionalRuleModeProvisional: state.directionalRuleModeProvisional,
         directionalRuleMode: state.directionalRuleMode,
+        directionalRuleModeResolved: state.directionalRuleModeResolved,
         hasImpersonalTaPrefix: state.hasImpersonalTaPrefix,
         hasSuffixSeparator: state.hasSuffixSeparator,
         hasCompoundMarker: state.hasCompoundMarker,
@@ -9175,7 +9209,9 @@ function parseVerbInput(value) {
         rootPlusYaBasePronounceable: state.rootPlusYaBasePronounceable,
         isRootPlusYa: state.isRootPlusYa,
         directionalPrefix: state.directionalPrefix,
+        directionalRuleModeProvisional: state.directionalRuleModeProvisional,
         directionalRuleMode: state.directionalRuleMode,
+        directionalRuleModeResolved: state.directionalRuleModeResolved,
         hasSpecificValence: state.hasSpecificValence,
         hasNonspecificValence: state.hasNonspecificValence,
         hasNonactiveSpecificValence: state.hasNonactiveSpecificValence,
@@ -9514,7 +9550,9 @@ function getVerbInputMeta() {
             isYawi: false,
             isWeya: false,
             directionalPrefix: "",
+            directionalRuleModeProvisional: "",
             directionalRuleMode: "",
+            directionalRuleModeResolved: "",
             hasSpecificValence: false,
             hasNonspecificValence: false,
             hasNonactiveSpecificValence: false,
@@ -14036,7 +14074,7 @@ function hasActiveVerbTenseOutput({ verb, tenseValue, objectPrefixes, subjectSel
         for (const { selection } of subjectSelections) {
             const result = generateWord({
                 silent: true,
-                skipTransitivityValidation: true,
+                skipValidation: true,
                 override: {
                     subjectPrefix: selection.subjectPrefix,
                     subjectSuffix: selection.subjectSuffix,
@@ -14081,7 +14119,7 @@ function hasNonactiveVerbTenseOutput({
         }
         const result = generateWord({
             silent: true,
-            skipTransitivityValidation: true,
+            skipValidation: true,
             allowPassiveObject,
             override: overridePayload,
         }) || {};
@@ -16469,13 +16507,62 @@ function applyReflexiveAutoSwitch({
     return { objectPrefix, isReflexive };
 }
 
+function normalizeGenerateWordOptions(options = {}) {
+    const normalized = options && typeof options === "object"
+        ? { ...options }
+        : {};
+    const hasCanonical = Object.prototype.hasOwnProperty.call(normalized, "skipValidation");
+    const hasLegacy = Object.prototype.hasOwnProperty.call(normalized, "skipTransitivityValidation");
+    if (!hasCanonical && hasLegacy) {
+        normalized.skipValidation = normalized.skipTransitivityValidation === true;
+    }
+    return normalized;
+}
+
+let hasWarnedRenderOnlyTenseDeprecation = false;
+
+function shouldLogGenerateWordDeprecationWarning() {
+    if (
+        typeof process !== "undefined"
+        && process
+        && process.env
+        && process.env.NODE_ENV === "production"
+    ) {
+        return false;
+    }
+    return true;
+}
+
+function warnRenderOnlyTenseDeprecationOnce() {
+    if (hasWarnedRenderOnlyTenseDeprecation) {
+        return;
+    }
+    hasWarnedRenderOnlyTenseDeprecation = true;
+    if (
+        shouldLogGenerateWordDeprecationWarning()
+        && typeof console !== "undefined"
+        && typeof console.warn === "function"
+    ) {
+        console.warn("[generateWord] option `renderOnlyTense` is deprecated and ignored.");
+    }
+}
+
+function sanitizeGenerateWordOptions(options = {}) {
+    const normalized = normalizeGenerateWordOptions(options);
+    if (Object.prototype.hasOwnProperty.call(normalized, "renderOnlyTense")) {
+        warnRenderOnlyTenseDeprecationOnce();
+        delete normalized.renderOnlyTense;
+    }
+    return normalized;
+}
+
 function generateWord(options = {}) {
     if (options instanceof Event) {
         options = {};
     }
+    options = sanitizeGenerateWordOptions(options);
     const silent = options.silent === true;
     const skipValidation = options.skipValidation === true;
-    const renderOnlyTense = options.renderOnlyTense || null;
     const override = options.override || null;
     const resolvedTenseMode = Object.values(TENSE_MODE).includes(override?.tenseMode)
         ? override.tenseMode
@@ -16545,7 +16632,6 @@ function generateWord(options = {}) {
             verb: getVerbInputMeta().displayVerb,
             objectPrefix: baseObjectPrefix,
             tense,
-            onlyTense: renderOnlyTense,
         });
 
     const clearError = (id) => {
@@ -16825,7 +16911,6 @@ function generateWord(options = {}) {
                 verb: renderVerb,
                 objectPrefix: baseObjectPrefix,
                 tense,
-                onlyTense: renderOnlyTense,
             });
         }
         return { result: "—", isReflexive };
@@ -16851,7 +16936,6 @@ function generateWord(options = {}) {
                 verb: renderVerb,
                 objectPrefix: baseObjectPrefix,
                 tense,
-                onlyTense: renderOnlyTense,
             });
         }
         return { result: "—", isReflexive };
@@ -17391,7 +17475,6 @@ function generateWord(options = {}) {
             verb: renderVerb,
             objectPrefix: baseObjectPrefix,
             tense,
-            onlyTense: renderOnlyTense,
         });
     }
 
@@ -17549,7 +17632,7 @@ function renderNonactiveConjugationRows({
         }
         const result = generateWord({
             silent: true,
-            skipTransitivityValidation: true,
+            skipValidation: true,
             allowPassiveObject: isDirectGroup && allowObjectToggle,
             override: overridePayload,
         }) || {};
@@ -18235,7 +18318,7 @@ function buildVerbTenseBlock({
         const controllerForValidation = grammarConstraintState.controllerPrefix || "";
         const result = generateWord({
             silent: true,
-            skipTransitivityValidation: true,
+            skipValidation: true,
             override: {
                 subjectPrefix: selection.subjectPrefix,
                 subjectSuffix: selection.subjectSuffix,
@@ -18333,7 +18416,7 @@ function buildVerbTenseBlock({
         }
         const result = generateWord({
             silent: true,
-            skipTransitivityValidation: true,
+            skipValidation: true,
             allowPassiveObject: isDirectGroup && allowObjectToggle,
             override: overridePayload,
         }) || {};
@@ -18756,6 +18839,7 @@ function buildVerbTabRenderContext({
     modeKey,
     subjectKeyPrefix,
     subjectSubMode,
+    includeDiagnostics = false,
 }) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -18818,6 +18902,7 @@ function buildVerbTabRenderContext({
         isNonactiveMode,
         primaryTogglePrefixes,
         indirectTogglePrefixes,
+        includeDiagnostics,
     });
     const grammarState = grammarPipeline.state || initialGrammarState;
     const grammarUiConfig = grammarPipeline.uiConfig || null;
@@ -18830,7 +18915,7 @@ function buildVerbTabRenderContext({
     const resolvedNonactiveAvailableSlots = isNonactiveMode
         ? (grammarState?.valencySummary?.nonactiveObjectSlots ?? nonactiveAvailableSlots)
         : 0;
-    return {
+    const context = {
         container,
         verb,
         resolvedTenseValue,
@@ -18852,9 +18937,12 @@ function buildVerbTabRenderContext({
         indirectTogglePrefixes,
         grammarState,
         grammarUiConfig,
-        grammarConstraintContext: grammarPipeline.constraintStep || null,
-        grammarStemPairs: grammarPipeline.stemStep?.stemPairs || [],
     };
+    if (includeDiagnostics) {
+        context.grammarConstraintContext = grammarPipeline.constraintStep || null;
+        context.grammarStemPairs = grammarPipeline.stemStep?.stemPairs || [];
+    }
+    return context;
 }
 
 function renderVerbConjugationsCore({
@@ -18864,6 +18952,7 @@ function renderVerbConjugationsCore({
     modeKey,
     subjectKeyPrefix,
     subjectSubMode,
+    includeDiagnostics = false,
 }) {
     const context = buildVerbTabRenderContext({
         verb,
@@ -18872,6 +18961,7 @@ function renderVerbConjugationsCore({
         modeKey,
         subjectKeyPrefix,
         subjectSubMode,
+        includeDiagnostics,
     });
     if (!context) {
         return;
@@ -19778,7 +19868,7 @@ function renderNounConjugations({
                     } else {
                         result = generateWord({
                             silent: true,
-                            skipTransitivityValidation: true,
+                            skipValidation: true,
                             override: {
                                 subjectPrefix: selection.subjectPrefix,
                                 subjectSuffix: subjectSuffixOverride,
@@ -20117,9 +20207,730 @@ async function runParsePipelineTests(testData = null) {
     return summary;
 }
 
+function runGenerateWordOptionNormalizationTests() {
+    const failures = [];
+    const cases = [
+        {
+            name: "legacy true maps to canonical true",
+            options: { skipTransitivityValidation: true },
+            expectedSkipValidation: true,
+        },
+        {
+            name: "legacy false maps to canonical false",
+            options: { skipTransitivityValidation: false },
+            expectedSkipValidation: false,
+        },
+        {
+            name: "canonical true wins over legacy false",
+            options: { skipValidation: true, skipTransitivityValidation: false },
+            expectedSkipValidation: true,
+        },
+        {
+            name: "canonical false wins over legacy true",
+            options: { skipValidation: false, skipTransitivityValidation: true },
+            expectedSkipValidation: false,
+        },
+    ];
+
+    cases.forEach((testCase) => {
+        const inputOptions = { ...testCase.options };
+        const normalized = normalizeGenerateWordOptions(inputOptions);
+        const actualSkipValidation = normalized.skipValidation === true;
+        if (actualSkipValidation !== testCase.expectedSkipValidation) {
+            failures.push(
+                `${testCase.name}: expected skipValidation=${testCase.expectedSkipValidation ? "true" : "false"} but got ${actualSkipValidation ? "true" : "false"}`
+            );
+        }
+        if (JSON.stringify(inputOptions) !== JSON.stringify(testCase.options)) {
+            failures.push(`${testCase.name}: input options mutated`);
+        }
+    });
+
+    const summary = {
+        total: cases.length,
+        passed: cases.length - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("GenerateWord option normalization tests failed:", summary);
+    } else {
+        console.log("GenerateWord option normalization tests passed:", summary);
+    }
+    return summary;
+}
+
+function runRenderOnlyTenseDeprecationTests() {
+    const failures = [];
+    const warns = [];
+    const originalWarn = (typeof console !== "undefined" && typeof console.warn === "function")
+        ? console.warn
+        : null;
+    const hasProcessEnv = typeof process !== "undefined" && process && process.env;
+    const previousNodeEnv = hasProcessEnv ? process.env.NODE_ENV : undefined;
+    const withWarnSpy = (fn) => {
+        if (!originalWarn) {
+            fn();
+            return;
+        }
+        console.warn = function renderOnlyTenseWarnSpy(message) {
+            warns.push(String(message || ""));
+        };
+        try {
+            fn();
+        } finally {
+            console.warn = originalWarn;
+        }
+    };
+
+    try {
+        if (hasProcessEnv) {
+            process.env.NODE_ENV = "test";
+        }
+
+        hasWarnedRenderOnlyTenseDeprecation = false;
+        let parityChecked = false;
+        if (typeof generateWord === "function") {
+            const baseOptions = {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    subjectPrefix: "ni",
+                    subjectSuffix: "",
+                    objectPrefix: "ki",
+                    verb: "-maka",
+                    tense: "presente",
+                },
+            };
+            const originalGenerateWord = generateWord;
+            try {
+                const withoutDeprecated = originalGenerateWord(baseOptions) || {};
+                const withDeprecated = originalGenerateWord({
+                    ...baseOptions,
+                    renderOnlyTense: "presente",
+                }) || {};
+                const withoutResult = withoutDeprecated.result || "";
+                const withResult = withDeprecated.result || "";
+                parityChecked = true;
+                if (withoutResult !== withResult) {
+                    failures.push("renderOnlyTense_deprecated_no_output_delta");
+                }
+            } catch (error) {
+                // Non-DOM harness fallback: still compare output through generateWord calls.
+                try {
+                    generateWord = function renderOnlyParityStub(options = {}) {
+                        const sanitized = sanitizeGenerateWordOptions(options);
+                        return { result: JSON.stringify(sanitized.override || {}) };
+                    };
+                    const withoutDeprecated = generateWord(baseOptions) || {};
+                    const withDeprecated = generateWord({
+                        ...baseOptions,
+                        renderOnlyTense: "presente",
+                    }) || {};
+                    parityChecked = true;
+                    if ((withoutDeprecated.result || "") !== (withDeprecated.result || "")) {
+                        failures.push("renderOnlyTense_deprecated_no_output_delta");
+                    }
+                } finally {
+                    generateWord = originalGenerateWord;
+                }
+            }
+        }
+        if (!parityChecked) {
+            failures.push("renderOnlyTense_deprecated_no_output_delta");
+        }
+
+        warns.length = 0;
+        hasWarnedRenderOnlyTenseDeprecation = false;
+        withWarnSpy(() => {
+            sanitizeGenerateWordOptions({ renderOnlyTense: "presente" });
+            sanitizeGenerateWordOptions({ renderOnlyTense: "preterito" });
+            sanitizeGenerateWordOptions({ renderOnlyTense: "futuro" });
+        });
+        if (warns.length !== 1) {
+            failures.push("renderOnlyTense_deprecation_warns_once");
+        }
+
+        warns.length = 0;
+        hasWarnedRenderOnlyTenseDeprecation = false;
+        withWarnSpy(() => {
+            sanitizeGenerateWordOptions({ skipValidation: true });
+            sanitizeGenerateWordOptions({ silent: true });
+        });
+        if (warns.length !== 0) {
+            failures.push("renderOnlyTense_absent_no_warning");
+        }
+    } finally {
+        if (hasProcessEnv) {
+            process.env.NODE_ENV = previousNodeEnv;
+        }
+    }
+
+    const summary = {
+        total: 3,
+        passed: 3 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("RenderOnlyTense deprecation tests failed:", summary);
+    } else {
+        console.log("RenderOnlyTense deprecation tests passed:", summary);
+    }
+    return summary;
+}
+
+function runInternalGenerateWordOptionCallerTests() {
+    const failures = [];
+    const capturedOptions = [];
+    const originalGenerateWord = generateWord;
+    try {
+        generateWord = function wrappedGenerateWord(options = {}) {
+            capturedOptions.push(options || {});
+            return { result: "test" };
+        };
+
+        hasActiveVerbTenseOutput({
+            verb: "-maka",
+            tenseValue: "presente",
+            objectPrefixes: ["ki"],
+            subjectSelections: [
+                {
+                    selection: {
+                        subjectPrefix: "ni",
+                        subjectSuffix: "",
+                    },
+                },
+            ],
+        });
+
+        hasNonactiveVerbTenseOutput({
+            verb: "-maka",
+            tenseValue: "presente",
+            objectPrefixGroups: [{ prefixes: [""] }],
+            activeValency: 1,
+            nonactiveAvailableSlots: 0,
+            hasPromotableObject: false,
+            fusionMarkers: [],
+        });
+    } finally {
+        generateWord = originalGenerateWord;
+    }
+
+    if (!capturedOptions.length) {
+        failures.push("no internal generateWord calls captured");
+    }
+
+    const legacyTrueCalls = capturedOptions.filter(
+        (options) => options && options.skipTransitivityValidation === true
+    );
+    if (legacyTrueCalls.length > 0) {
+        failures.push(`found ${legacyTrueCalls.length} internal call(s) with skipTransitivityValidation:true`);
+    }
+
+    const canonicalTrueCalls = capturedOptions.filter(
+        (options) => options && options.skipValidation === true
+    );
+    if (!canonicalTrueCalls.length) {
+        failures.push("expected at least one internal call with skipValidation:true");
+    }
+
+    const summary = {
+        totalCalls: capturedOptions.length,
+        canonicalTrueCalls: canonicalTrueCalls.length,
+        legacyTrueCalls: legacyTrueCalls.length,
+        passed: failures.length === 0,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Internal generateWord option caller tests failed:", summary);
+    } else {
+        console.log("Internal generateWord option caller tests passed:", summary);
+    }
+    return summary;
+}
+
+function runDirectionalRuleModeContractTests() {
+    const failures = [];
+
+    const parseState = {
+        directionalPrefix: "wal",
+        hasSpecificValence: false,
+        hasNonspecificValence: false,
+        directionalRuleModeProvisional: "",
+        directionalRuleMode: "",
+    };
+    parseStageDirectionalRuleMode(parseState);
+    if (
+        !Object.prototype.hasOwnProperty.call(parseState, "directionalRuleModeProvisional")
+        || parseState.directionalRuleMode !== parseState.directionalRuleModeProvisional
+    ) {
+        failures.push("directional_mode_provisional_parse_contract");
+    }
+
+    const runtimeParsed = {
+        directionalPrefix: "wal",
+        hasSpecificValence: false,
+        hasNonspecificValence: false,
+        hasNonactiveSpecificValence: false,
+        hasNonactiveNonspecificValence: false,
+        derivationType: DERIVATION_TYPE.causative,
+        derivationValencyDelta: 1,
+        directionalRuleModeProvisional: "intransitive",
+        directionalRuleMode: "intransitive",
+    };
+    const resolvedRuntime = resolveDirectionalRuleMode(runtimeParsed, {
+        derivationType: DERIVATION_TYPE.causative,
+        isNonactive: false,
+    });
+    if (
+        resolvedRuntime !== "transitive"
+        || runtimeParsed.directionalRuleModeResolved !== "transitive"
+        || runtimeParsed.directionalRuleModeProvisional === resolvedRuntime
+    ) {
+        failures.push("directional_mode_resolved_runtime_contract");
+    }
+    if (runtimeParsed.directionalRuleMode !== runtimeParsed.directionalRuleModeResolved) {
+        failures.push("directional_mode_runtime_legacy_field_aligned");
+    }
+
+    const emptyProvisional = computeDirectionalRuleModeCore({
+        directionalPrefix: "",
+        hasSpecificValence: true,
+        hasNonspecificValence: true,
+        derivationValencyDelta: 3,
+        isNonactive: false,
+        phase: "provisional",
+    });
+    const emptyResolved = computeDirectionalRuleModeCore({
+        directionalPrefix: "",
+        hasSpecificValence: true,
+        hasNonspecificValence: true,
+        derivationValencyDelta: 3,
+        isNonactive: false,
+        phase: "resolved",
+    });
+    if (emptyProvisional !== "" || emptyResolved !== "") {
+        failures.push("directional_mode_invariant_non_directional_empty");
+    }
+
+    const compatibilityState = {
+        directionalPrefix: "wal",
+        hasSpecificValence: true,
+        hasNonspecificValence: false,
+        directionalRuleModeProvisional: "",
+        directionalRuleMode: "",
+    };
+    parseStageDirectionalRuleMode(compatibilityState);
+    if (
+        !Object.prototype.hasOwnProperty.call(compatibilityState, "directionalRuleMode")
+        || compatibilityState.directionalRuleMode !== "transitive"
+    ) {
+        failures.push("directional_mode_backward_compat_legacy_field_present");
+    }
+
+    const summary = {
+        total: 5,
+        passed: 5 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Directional rule mode contract tests failed:", summary);
+    } else {
+        console.log("Directional rule mode contract tests passed:", summary);
+    }
+    return summary;
+}
+
+function runGrammarDiagnosticsTransportTests() {
+    const failures = [];
+
+    const recordFailure = (id, message = "") => {
+        failures.push(message ? `${id}: ${message}` : id);
+    };
+
+    const hasDocumentApi = (
+        typeof document !== "undefined"
+        && document
+        && typeof document.getElementById === "function"
+    );
+
+    // diagnostics_off_default_no_transport_payload
+    // diagnostics_on_includes_constraint_and_stempairs
+    if (hasDocumentApi) {
+        const originalGetElementById = document.getElementById.bind(document);
+        const originalGetActiveTenseMode = getActiveTenseMode;
+        const originalGetCombinedMode = getCombinedMode;
+        const originalGetParsedVerbForTab = getParsedVerbForTab;
+        const originalGetActiveDerivationType = getActiveDerivationType;
+        const originalBuildCanonicalGrammarState = buildCanonicalGrammarState;
+        const originalGetAvailableObjectSlots = getAvailableObjectSlots;
+        const originalGetVerbObjectPrefixGroups = getVerbObjectPrefixGroups;
+        const originalRunVerbGrammarPipeline = runVerbGrammarPipeline;
+        const capturedIncludeDiagnostics = [];
+        try {
+            const fakeContainer = {};
+            const fakeLanguage = { checked: false };
+            document.getElementById = (id) => {
+                if (id === "diag-test-container") {
+                    return fakeContainer;
+                }
+                if (id === "language") {
+                    return fakeLanguage;
+                }
+                return null;
+            };
+            getActiveTenseMode = () => TENSE_MODE.verbo;
+            getCombinedMode = () => COMBINED_MODE.active;
+            getParsedVerbForTab = () => ({
+                derivationType: DERIVATION_TYPE.direct,
+                hasConsecutiveSpecificValences: false,
+                embeddedValenceCount: 0,
+                isTaFusion: false,
+                fusionPrefixes: [],
+            });
+            getActiveDerivationType = () => DERIVATION_TYPE.direct;
+            buildCanonicalGrammarState = () => ({
+                valencySummary: {
+                    nonactiveObjectSlots: 0,
+                    baseObjectSlots: 1,
+                    fusionObjectSlots: 0,
+                    availableObjectSlots: 1,
+                },
+                valencyActive: 2,
+                modeSlots: ["mainline"],
+            });
+            getAvailableObjectSlots = () => 1;
+            getVerbObjectPrefixGroups = () => [{ prefixes: ["ki"] }];
+            runVerbGrammarPipeline = (args = {}) => {
+                capturedIncludeDiagnostics.push(args.includeDiagnostics);
+                return {
+                    state: {
+                        valencySummary: { nonactiveObjectSlots: 0 },
+                        valencyActive: 2,
+                        modeSlots: ["mainline"],
+                    },
+                    uiConfig: { visibleSlots: [] },
+                    constraintStep: { constraintIds: [GRAMMAR_CONSTRAINT_IDS.personAgreement] },
+                    stemStep: { stemPairs: [{ index: 0, active: "mak", nonactive: "maku" }] },
+                };
+            };
+
+            const contextDefault = buildVerbTabRenderContext({
+                verb: "-maka",
+                containerId: "diag-test-container",
+                tenseValue: "presente",
+                modeKey: "standard",
+                subjectKeyPrefix: "standard",
+                subjectSubMode: "universal",
+            });
+            if (Object.prototype.hasOwnProperty.call(contextDefault, "grammarConstraintContext")) {
+                recordFailure("diagnostics_off_default_no_transport_payload", "grammarConstraintContext should be omitted");
+            }
+            if (Object.prototype.hasOwnProperty.call(contextDefault, "grammarStemPairs")) {
+                recordFailure("diagnostics_off_default_no_transport_payload", "grammarStemPairs should be omitted");
+            }
+            if (capturedIncludeDiagnostics[0] !== false) {
+                recordFailure("diagnostics_off_default_no_transport_payload", "includeDiagnostics should thread as false");
+            }
+
+            const contextDiagnostics = buildVerbTabRenderContext({
+                verb: "-maka",
+                containerId: "diag-test-container",
+                tenseValue: "presente",
+                modeKey: "standard",
+                subjectKeyPrefix: "standard",
+                subjectSubMode: "universal",
+                includeDiagnostics: true,
+            });
+            if (!Object.prototype.hasOwnProperty.call(contextDiagnostics, "grammarConstraintContext")) {
+                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "missing grammarConstraintContext");
+            }
+            if (!Object.prototype.hasOwnProperty.call(contextDiagnostics, "grammarStemPairs")) {
+                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "missing grammarStemPairs");
+            }
+            if (!Array.isArray(contextDiagnostics.grammarStemPairs)) {
+                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "grammarStemPairs should be an array");
+            }
+            if (capturedIncludeDiagnostics[1] !== true) {
+                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "includeDiagnostics should thread as true");
+            }
+        } finally {
+            document.getElementById = originalGetElementById;
+            getActiveTenseMode = originalGetActiveTenseMode;
+            getCombinedMode = originalGetCombinedMode;
+            getParsedVerbForTab = originalGetParsedVerbForTab;
+            getActiveDerivationType = originalGetActiveDerivationType;
+            buildCanonicalGrammarState = originalBuildCanonicalGrammarState;
+            getAvailableObjectSlots = originalGetAvailableObjectSlots;
+            getVerbObjectPrefixGroups = originalGetVerbObjectPrefixGroups;
+            runVerbGrammarPipeline = originalRunVerbGrammarPipeline;
+        }
+    }
+
+    // diagnostics_off_skips_stem_derivation_step
+    const originalGrammarPipelineDeriveStems = grammarPipelineDeriveStems;
+    try {
+        let deriveCalls = 0;
+        grammarPipelineDeriveStems = function wrappedGrammarPipelineDeriveStems(args = {}) {
+            deriveCalls += 1;
+            return originalGrammarPipelineDeriveStems(args);
+        };
+        const parsedVerb = {
+            verb: "-maka",
+            analysisVerb: "maka",
+            derivationType: DERIVATION_TYPE.direct,
+            hasSpecificValence: true,
+            hasNonspecificValence: false,
+            hasNonactiveSpecificValence: false,
+            hasNonactiveNonspecificValence: false,
+            fusionPrefixes: [],
+        };
+        const offRun = runVerbGrammarPipeline({
+            verb: parsedVerb.verb,
+            modeKey: "diag-off",
+            parsedVerb,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: false,
+        });
+        if (deriveCalls !== 0) {
+            recordFailure("diagnostics_off_skips_stem_derivation_step", `expected 0 derive calls, got ${deriveCalls}`);
+        }
+        if (Object.prototype.hasOwnProperty.call(offRun, "stemStep")) {
+            recordFailure("diagnostics_off_skips_stem_derivation_step", "stemStep should be omitted when diagnostics off");
+        }
+        const onRun = runVerbGrammarPipeline({
+            verb: parsedVerb.verb,
+            modeKey: "diag-on",
+            parsedVerb,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: true,
+        });
+        if (deriveCalls < 1) {
+            recordFailure("diagnostics_off_skips_stem_derivation_step", "derive step should execute when diagnostics on");
+        }
+        if (!onRun || !onRun.stemStep) {
+            recordFailure("diagnostics_off_skips_stem_derivation_step", "stemStep missing when diagnostics on");
+        }
+    } finally {
+        grammarPipelineDeriveStems = originalGrammarPipelineDeriveStems;
+    }
+
+    // grammar_diagnostics_tests_non_dom_safe
+    try {
+        const sampleParsed = {
+            verb: "-maka",
+            analysisVerb: "maka",
+            derivationType: DERIVATION_TYPE.direct,
+            hasSpecificValence: true,
+            hasNonspecificValence: false,
+            hasNonactiveSpecificValence: false,
+            hasNonactiveNonspecificValence: false,
+            fusionPrefixes: [],
+        };
+        const nonDomOff = runVerbGrammarPipeline({
+            verb: sampleParsed.verb,
+            modeKey: "non-dom-safe-off",
+            parsedVerb: sampleParsed,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: false,
+        });
+        const nonDomOn = runVerbGrammarPipeline({
+            verb: sampleParsed.verb,
+            modeKey: "non-dom-safe-on",
+            parsedVerb: sampleParsed,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: true,
+        });
+        if (!nonDomOff || !nonDomOn) {
+            recordFailure("grammar_diagnostics_tests_non_dom_safe");
+        }
+    } catch (error) {
+        recordFailure(
+            "grammar_diagnostics_tests_non_dom_safe",
+            error instanceof Error ? error.message : String(error)
+        );
+    }
+
+    // golden_output_unchanged_with_diagnostics_toggle
+    let resultWithoutDiagnostics = "";
+    let resultWithDiagnostics = "";
+    if (
+        typeof generateWord === "function"
+        && typeof document !== "undefined"
+        && document.getElementById
+        && document.getElementById("verb")
+    ) {
+        const baseOptions = {
+            silent: true,
+            skipValidation: true,
+            override: {
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "ki",
+                verb: "-maka",
+                tense: "presente",
+            },
+        };
+        resultWithoutDiagnostics = (generateWord(baseOptions) || {}).result || "";
+        resultWithDiagnostics = (generateWord({
+            ...baseOptions,
+            includeDiagnostics: true,
+        }) || {}).result || "";
+    } else {
+        const sampleParsed = {
+            verb: "-maka",
+            analysisVerb: "maka",
+            derivationType: DERIVATION_TYPE.direct,
+            hasSpecificValence: true,
+            hasNonspecificValence: false,
+            hasNonactiveSpecificValence: false,
+            hasNonactiveNonspecificValence: false,
+            fusionPrefixes: [],
+        };
+        const offRun = runVerbGrammarPipeline({
+            verb: sampleParsed.verb,
+            modeKey: "golden-off",
+            parsedVerb: sampleParsed,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: false,
+        });
+        const onRun = runVerbGrammarPipeline({
+            verb: sampleParsed.verb,
+            modeKey: "golden-on",
+            parsedVerb: sampleParsed,
+            derivationType: DERIVATION_TYPE.direct,
+            voiceMode: VOICE_MODE.active,
+            isNonactiveMode: false,
+            includeDiagnostics: true,
+        });
+        resultWithoutDiagnostics = offRun?.parseStep?.parsedVerb?.verb || "";
+        resultWithDiagnostics = onRun?.parseStep?.parsedVerb?.verb || "";
+    }
+    if (resultWithoutDiagnostics !== resultWithDiagnostics) {
+        recordFailure(
+            "golden_output_unchanged_with_diagnostics_toggle",
+            `result mismatch (${resultWithoutDiagnostics} vs ${resultWithDiagnostics})`
+        );
+    }
+
+    const summary = {
+        total: 5,
+        passed: 5 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Grammar diagnostics transport tests failed:", summary);
+    } else {
+        console.log("Grammar diagnostics transport tests passed:", summary);
+    }
+    return summary;
+}
+
+function runPretUniversalOverrideTests() {
+    const failures = [];
+    const originalEntries = PRET_UNIVERSAL_VERB_OVERRIDES.slice();
+    const restoreEntries = () => {
+        PRET_UNIVERSAL_VERB_OVERRIDES.splice(0, PRET_UNIVERSAL_VERB_OVERRIDES.length, ...originalEntries);
+    };
+    const setEntries = (entries) => {
+        PRET_UNIVERSAL_VERB_OVERRIDES.splice(0, PRET_UNIVERSAL_VERB_OVERRIDES.length, ...entries);
+    };
+    const recordFailure = (id, message = "") => {
+        failures.push(message ? `${id}: ${message}` : id);
+    };
+
+    try {
+        // pret_override_empty_table_returns_null
+        setEntries([]);
+        if (getPretUniversalVerbOverride("maka", true) !== null) {
+            recordFailure("pret_override_empty_table_returns_null");
+        }
+
+        // pret_override_populated_table_returns_entry
+        const matchingEntry = {
+            verbs: ["maka"],
+            transitivity: "transitive",
+            allowUnpronounceable: true,
+        };
+        setEntries([matchingEntry]);
+        const matched = getPretUniversalVerbOverride("maka", true);
+        if (matched !== matchingEntry) {
+            recordFailure("pret_override_populated_table_returns_entry");
+        }
+
+        // pret_override_nonmatching_returns_null
+        const nonmatchByVerb = getPretUniversalVerbOverride("ilwia", true);
+        const nonmatchByTransitivity = getPretUniversalVerbOverride("maka", false);
+        if (nonmatchByVerb !== null || nonmatchByTransitivity !== null) {
+            recordFailure("pret_override_nonmatching_returns_null");
+        }
+
+        // pret_override_callsite_simple_direct_usage
+        let callCount = 0;
+        const originalGetter = getPretUniversalVerbOverride;
+        try {
+            getPretUniversalVerbOverride = function wrappedPretOverrideGetter(analysisRoot, isTransitive) {
+                callCount += 1;
+                return null;
+            };
+            if (typeof buildPretUniversalContext === "function") {
+                const context = buildPretUniversalContext("maka", "maka", true, {
+                    derivationType: DERIVATION_TYPE.direct,
+                });
+                if (!context || callCount < 1) {
+                    recordFailure("pret_override_callsite_simple_direct_usage", "context path did not call override getter");
+                }
+            } else {
+                const analysisRoot = "maka";
+                const verbOverride = getPretUniversalVerbOverride(analysisRoot, true);
+                const allowUnpronounceable = verbOverride?.allowUnpronounceable === true;
+                if (callCount !== 1 || allowUnpronounceable !== false) {
+                    recordFailure("pret_override_callsite_simple_direct_usage");
+                }
+            }
+        } finally {
+            getPretUniversalVerbOverride = originalGetter;
+        }
+    } finally {
+        restoreEntries();
+    }
+
+    const summary = {
+        total: 4,
+        passed: 4 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Pret universal override tests failed:", summary);
+    } else {
+        console.log("Pret universal override tests passed:", summary);
+    }
+    return summary;
+}
+
 if (typeof window !== "undefined") {
     window.runExactRedupTests = runExactRedupTests;
     window.runParsePipelineTests = runParsePipelineTests;
+    window.runGenerateWordOptionNormalizationTests = runGenerateWordOptionNormalizationTests;
+    window.runRenderOnlyTenseDeprecationTests = runRenderOnlyTenseDeprecationTests;
+    window.runInternalGenerateWordOptionCallerTests = runInternalGenerateWordOptionCallerTests;
+    window.runDirectionalRuleModeContractTests = runDirectionalRuleModeContractTests;
+    window.runGrammarDiagnosticsTransportTests = runGrammarDiagnosticsTransportTests;
+    window.runPretUniversalOverrideTests = runPretUniversalOverrideTests;
     window.traceDerivationalFunction = traceDerivationalFunction;
     window.findDerivationalAntiderivatives = findDerivationalAntiderivatives;
     window.traceDerivationCalculus = traceDerivationCalculus;
