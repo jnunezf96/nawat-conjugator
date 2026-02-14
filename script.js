@@ -6460,10 +6460,7 @@ function getInstrumentivoResult({
 
     const resolvedPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
-        : getPossessivePrefixForSubject(subjectPrefix, subjectSuffix);
-    if (!resolvedPossessivePrefix && resolvedPossessivePrefix !== "") {
-        return { error: true };
-    }
+        : "";
     const applied = applyMorphologyRules({
         subjectPrefix,
         objectPrefix: morphologyObjectPrefix,
@@ -6600,7 +6597,7 @@ function getCalificativoInstrumentivoResult({
 
     const resolvedPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
-        : getPossessivePrefixForSubject(subjectPrefix, subjectSuffix);
+        : "";
     if (resolvedPossessivePrefix === "") {
         const forms = baseForms.map((form) => `${form}yut`);
         return { result: Array.from(new Set(forms)).join(" / ") };
@@ -20078,16 +20075,16 @@ function renderNounConjugations({
                         possessorLabel,
                         objectLabel,
                     });
-                    const comboObjectPrefix = possessorPrefix
-                        ? (POSSESSIVE_TO_OBJECT_PREFIX[possessorPrefix] || "")
-                        : "";
+                    // In noun mode, possessor prefixes are not verb-object agreement markers.
+                    // Keep masking tied to actual objectPrefix only.
+                    const comboObjectPrefix = undefined;
                     const { shouldMask, isError } = getConjugationMaskState({
                         result,
                         subjectPrefix: selection.subjectPrefix,
                         subjectSuffix: selection.subjectSuffix,
                         objectPrefix,
                         comboObjectPrefix,
-                        enforceInvalidCombo: Boolean(possessorPrefix),
+                        enforceInvalidCombo: true,
                     });
                     value.classList.remove("conjugation-error", "conjugation-reflexive");
                     if (shouldMask) {
