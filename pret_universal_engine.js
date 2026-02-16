@@ -648,6 +648,9 @@ function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", optio
     if (shouldDropLeadingI) {
         adjustedBase = adjustedBase.slice(1);
     }
+    if (options.dropYAfterWal === true && adjustedBase.startsWith("ya")) {
+        adjustedBase = adjustedBase.slice(1);
+    }
     return {
         prefix: adjustedPrefix,
         base: adjustedBase,
@@ -663,11 +666,13 @@ function getPretUniversalPrefixForBase(
     baseSubjectPrefix = subjectPrefix,
     baseObjectPrefix = objectPrefix,
     indirectObjectMarker = "",
-    hasDoubleDash = false
+    hasDoubleDash = false,
+    isYawi = false
 ) {
     const split = splitDirectionalPrefixFromBase(base, directionalInputPrefix);
     const outputDirectional = split.directional ? (directionalOutputPrefix || split.directional) : "";
     const baseCore = split.base;
+    const dropYAfterWal = Boolean(isYawi && split.directional);
     if (!split.directional) {
         const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
             hasDoubleDash,
@@ -695,7 +700,7 @@ function getPretUniversalPrefixForBase(
             adjustedObjectPrefix,
             adjustedBase,
             baseSubjectPrefix,
-            { allowZeroBitransitiveDrop }
+            { allowZeroBitransitiveDrop, dropYAfterWal: false }
         );
         return {
             prefix: subjectPrefix + contactAdjusted.prefix,
@@ -723,7 +728,7 @@ function getPretUniversalPrefixForBase(
             : `${outputDirectional}${objectHead}`;
         return {
             prefix: `${subjectHead}${directionalizedObjectHead}`,
-            base: baseCore,
+            base: dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore,
         };
     }
     if (isShuntlineThirdPersonObject && outputDirectional === "al") {
@@ -754,7 +759,7 @@ function getPretUniversalPrefixForBase(
             adjustedObjectPrefix,
             adjustedBase,
             baseSubjectPrefix,
-            { allowZeroBitransitiveDrop }
+            { allowZeroBitransitiveDrop, dropYAfterWal }
         );
         return {
             prefix: subjectHead + contactAdjusted.prefix,
@@ -787,12 +792,27 @@ function getPretUniversalPrefixForBase(
         adjustedObjectPrefix,
         adjustedBase,
         baseSubjectPrefix,
-        { allowZeroBitransitiveDrop }
+        { allowZeroBitransitiveDrop, dropYAfterWal }
     );
     return {
         prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
         base: contactAdjusted.base,
     };
+}
+
+function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
+    if (!isYawi || tense !== "preterito" || !Array.isArray(variants)) {
+        return variants;
+    }
+    return variants.map((variant) => {
+        if (!variant || variant.suffix !== "ki") {
+            return variant;
+        }
+        return {
+            ...variant,
+            suffix: "",
+        };
+    });
 }
 
 function buildPretUniversalResultFromVariants(
@@ -806,7 +826,8 @@ function buildPretUniversalResultFromVariants(
     baseObjectPrefix = objectPrefix,
     pluralSuffix = null,
     indirectObjectMarker = "",
-    hasDoubleDash = false
+    hasDoubleDash = false,
+    isYawi = false
 ) {
     if (!variants || variants.length === 0) {
         return null;
@@ -826,7 +847,8 @@ function buildPretUniversalResultFromVariants(
                 baseSubjectPrefix,
                 baseObjectPrefix,
                 indirectObjectMarker,
-                hasDoubleDash
+                hasDoubleDash,
+                isYawi
             );
             const form = `${prefix}${base}${resolvedPluralSuffix}`;
             if (!seen.has(form)) {
@@ -848,7 +870,8 @@ function buildPretUniversalResultFromVariants(
             baseSubjectPrefix,
             baseObjectPrefix,
             indirectObjectMarker,
-            hasDoubleDash
+            hasDoubleDash,
+            isYawi
         );
         const baseKey = `${prefix}${base}`;
         let entry = groups.get(baseKey);
@@ -1308,7 +1331,11 @@ function buildClassBasedResult({
         if (pretPluralClasses && !pretPluralClasses.has(classKey)) {
             return;
         }
-        const variants = variantsByClass.get(classKey);
+        const variants = normalizePretYawiPreteriteVariants(
+            variantsByClass.get(classKey),
+            tense,
+            isYawi
+        );
         if (!variants || variants.length === 0) {
             return;
         }
@@ -1325,7 +1352,8 @@ function buildClassBasedResult({
                 baseObjectPrefix,
                 pretPluralSuffix,
                 indirectObjectMarker,
-                hasDoubleDash
+                hasDoubleDash,
+                isYawi
             );
         } else {
             const suffix = subjectSuffix || "";
@@ -1349,7 +1377,8 @@ function buildClassBasedResult({
                     baseSubjectPrefix,
                     baseObjectPrefix,
                     indirectObjectMarker,
-                    hasDoubleDash
+                    hasDoubleDash,
+                    isYawi
                 );
                 const form = `${prefix}${baseCore}${suffix}`;
                 if (!seenForm.has(form)) {
@@ -1467,7 +1496,11 @@ function buildPretUniversalResultWithProvenance({
             derivationType,
         });
         const candidates = getPretUniversalClassCandidates(context);
-        const classAVariants = candidates.has("A") ? buildPretUniversalClassA(context) : null;
+        const classAVariants = normalizePretYawiPreteriteVariants(
+            candidates.has("A") ? buildPretUniversalClassA(context) : null,
+            tense,
+            isYawi
+        );
         const hasClassAVariants = Array.isArray(classAVariants) && classAVariants.length > 0;
         if (context.forceClassAForKWV) {
             if (hasClassAVariants) {
@@ -1483,7 +1516,8 @@ function buildPretUniversalResultWithProvenance({
                     baseObjectPrefix,
                     null,
                     indirectObjectMarker,
-                    hasDoubleDash
+                    hasDoubleDash,
+                    isYawi
                 );
                 return {
                     result,
@@ -1522,7 +1556,8 @@ function buildPretUniversalResultWithProvenance({
                     baseObjectPrefix,
                     null,
                     indirectObjectMarker,
-                    hasDoubleDash
+                    hasDoubleDash,
+                    isYawi
                 );
                 return {
                     result,
@@ -1582,12 +1617,17 @@ function buildPretUniversalResultWithProvenance({
                 }),
             };
         }
-        variants = suppletiveStemSet.variantsByClass.get(classKey) || null;
+        variants = normalizePretYawiPreteriteVariants(
+            suppletiveStemSet.variantsByClass.get(classKey) || null,
+            tense,
+            isYawi
+        );
         if (subjectSuffix === "t" && suppletiveStemSet.pretPluralSuffix) {
             pluralSuffix = suppletiveStemSet.pretPluralSuffix;
         }
     } else {
-        variants = getPretUniversalVariants(verb, tense, isTransitive, analysisTarget, {
+        variants = normalizePretYawiPreteriteVariants(
+            getPretUniversalVariants(verb, tense, isTransitive, analysisTarget, {
             isYawi,
             isWeya,
             hasSlashMarker,
@@ -1603,7 +1643,10 @@ function buildPretUniversalResultWithProvenance({
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
             derivationType,
-        });
+        }),
+            tense,
+            isYawi
+        );
     }
     if (!context) {
         context = buildPretUniversalContext(verb, analysisTarget, isTransitive, {
@@ -1653,7 +1696,8 @@ function buildPretUniversalResultWithProvenance({
         baseObjectPrefix,
         pluralSuffix,
         indirectObjectMarker,
-        hasDoubleDash
+        hasDoubleDash,
+        isYawi
     );
     return {
         result,

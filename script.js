@@ -8209,6 +8209,7 @@ function applyWalDirectionalRule(context, rule, stage) {
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        isYawi,
     } = context;
     if (stage === "prefix") {
         const hasSecondValent = Boolean(baseObjectPrefix || indirectObjectMarker || isTaFusion);
@@ -8247,7 +8248,10 @@ function applyWalDirectionalRule(context, rule, stage) {
         }
     }
     if (stage === "post-elision" && verb.startsWith(directionalInputPrefix)) {
-        const stem = verb.slice(directionalInputPrefix.length);
+        let stem = verb.slice(directionalInputPrefix.length);
+        if (directionalInputPrefix === "wal" && isYawi && stem.startsWith("ya")) {
+            stem = stem.slice(1);
+        }
         const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
         const isThirdPersonObject =
             isThirdPersonMarker(baseObjectPrefix)
@@ -14876,6 +14880,7 @@ function applyMorphologyRules({
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        isYawi,
         isNounTense: isNounContextFinal,
     }, "prefix");
     ({
@@ -15301,6 +15306,7 @@ function applyMorphologyRules({
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        isYawi,
         isNounTense: isNounContextFinal,
     }, "post-elision");
     ({
@@ -15926,9 +15932,13 @@ function generateWord(options = {}) {
         && getSubjectPersonInfo(subjectPrefix, subjectSuffix)?.person === 2;
     let isYawiImperativeSingular = false;
     let shouldAddYuVariant = false;
-    const yawiPresentLong = getSuppletiveYawiCanonical();
-    const yawiPresentShort = getSuppletiveYawiShort();
-    const yawiHabitual = getSuppletiveYawiImperfective();
+    // Surface yawi as ya in active generation, while preserving legacy non-wal alternants.
+    const yawiSurfaceBase = getSuppletiveYawiImperfective();
+    const yawiPresentLong = yawiSurfaceBase;
+    const yawiPresentShort = yawiSurfaceBase;
+    const yawiHabitual = yawiSurfaceBase;
+    const yawiLegacyLong = getSuppletiveYawiCanonical();
+    const yawiLegacyShort = getSuppletiveYawiShort();
     const yawiYuVariant = getSuppletiveYawiYuVariant();
     const buildWord = (overrideVerb = verb, overrideSuffix = subjectSuffix) => {
         if (tense === "sustantivo-verbal" || tense === "agentivo" || tense === "patientivo") {
@@ -16109,6 +16119,8 @@ function generateWord(options = {}) {
     const yawiPresentLongPrefixed = applyYawiPrefix(yawiPresentLong);
     const yawiPresentShortPrefixed = applyYawiPrefix(yawiPresentShort);
     const yawiHabitualPrefixed = applyYawiPrefix(yawiHabitual);
+    const yawiLegacyLongPrefixed = applyYawiPrefix(yawiLegacyLong);
+    const yawiLegacyShortPrefixed = applyYawiPrefix(yawiLegacyShort);
     const yawiYuVariantPrefixed = applyYawiPrefix(yawiYuVariant);
     if (suppletiveStemSet && !isPerfectiveTense(tense)) {
         verb = suppletiveStemSet.imperfective.verb;
@@ -16364,7 +16376,8 @@ function generateWord(options = {}) {
         clearError("verb");
     }
     if (isYawi && (tense === "presente" || isYawiImperativeSingular)) {
-        if (subjectSuffix === "t" || subjectPrefix === "") {
+        const useLongYawiSlot = subjectSuffix === "t" || subjectPrefix === "";
+        if (useLongYawiSlot) {
             verb = yawiPresentLongPrefixed;
         } else {
             verb = yawiPresentShortPrefixed;
@@ -16733,6 +16746,16 @@ function generateWord(options = {}) {
                 forms.push(altText);
             }
         });
+    }
+    if (isYawi && tense === "presente" && directionalPrefix !== "wal") {
+        const useLongYawiSlot = subjectSuffix === "t" || subjectPrefix === "";
+        const legacyYawiForm = useLongYawiSlot
+            ? yawiLegacyLongPrefixed
+            : yawiLegacyShortPrefixed;
+        const legacyText = buildWord(legacyYawiForm, subjectSuffix);
+        if (legacyText && !forms.includes(legacyText)) {
+            forms.push(legacyText);
+        }
     }
     if (shouldAddYuVariant && (verb === yawiPresentShortPrefixed || verb === yawiPresentLongPrefixed)) {
         const yuText = buildWord(yawiYuVariantPrefixed);
