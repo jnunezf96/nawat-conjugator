@@ -1260,7 +1260,11 @@ function buildClassBasedResult({
     if (!variantsByClass.size) {
         return null;
     }
-    const classOrder = classFilter ? [classFilter] : ["A", "B", "C", "D"];
+    const classOrder = classFilter
+        ? [classFilter]
+        : (typeof getPretUniversalClassOrder === "function"
+            ? getPretUniversalClassOrder()
+            : ["A", "B", "C", "D"]);
     const hasClassA = variantsByClass.has("A");
     const hasClassB = variantsByClass.has("B");
     const {

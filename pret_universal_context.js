@@ -75,6 +75,97 @@ function getMonosyllableStemPath(verb) {
     };
 }
 
+const PRET_UNIVERSAL_CLASS_ORDER = Object.freeze(["A", "B", "C", "D"]);
+const PRET_UNIVERSAL_RULE_TIER_ORDER = Object.freeze([
+    "override",
+    "path",
+    "monosyllable",
+    "forced",
+    "exact",
+    "default",
+]);
+const PRET_UNIVERSAL_DEFAULT_RULE_LABEL = "default class rules";
+const PRET_UNIVERSAL_DEFAULT_RULE_TIER = "default";
+const PRET_UNIVERSAL_CLASS_ORDER_INDEX = Object.freeze(
+    PRET_UNIVERSAL_CLASS_ORDER.reduce((acc, classKey, index) => {
+        acc[classKey] = index;
+        return acc;
+    }, {}),
+);
+const PRET_UNIVERSAL_CLASS_GATE_RULES = Object.freeze([
+    {
+        id: "unpronounceable_root",
+        label: "unpronounceable root",
+        tier: PRET_UNIVERSAL_DEFAULT_RULE_TIER,
+        when: (context, flags) => !context?.rootSyllablesOk && !flags?.allowUnpronounceable,
+        classes: [],
+    },
+    {
+        id: "override_classes",
+        tier: "override",
+        when: (_context, flags) => {
+            const override = flags?.override;
+            return Boolean(override && Array.isArray(override.classes) && override.classes.length);
+        },
+        resolveLabel: (context, flags) => {
+            const override = flags?.override || {};
+            const labelBase = override.id || context?.analysisVerb || override.verbs?.[0] || "lexical";
+            return `override ${labelBase}`;
+        },
+        resolveCandidates: (_context, flags) => {
+            const override = flags?.override || {};
+            return toPretUniversalCandidateSet(override.classes);
+        },
+    },
+]);
+
+function getPretUniversalClassOrder() {
+    return PRET_UNIVERSAL_CLASS_ORDER.slice();
+}
+
+function sortPretUniversalClassKeys(values) {
+    const entries = Array.isArray(values)
+        ? values
+        : Array.from(values || []);
+    return Array.from(new Set(entries.filter(Boolean))).sort((left, right) => {
+        const leftIndex = Object.prototype.hasOwnProperty.call(PRET_UNIVERSAL_CLASS_ORDER_INDEX, left)
+            ? PRET_UNIVERSAL_CLASS_ORDER_INDEX[left]
+            : Number.MAX_SAFE_INTEGER;
+        const rightIndex = Object.prototype.hasOwnProperty.call(PRET_UNIVERSAL_CLASS_ORDER_INDEX, right)
+            ? PRET_UNIVERSAL_CLASS_ORDER_INDEX[right]
+            : Number.MAX_SAFE_INTEGER;
+        if (leftIndex !== rightIndex) {
+            return leftIndex - rightIndex;
+        }
+        return String(left).localeCompare(String(right));
+    });
+}
+
+function formatPretUniversalClassList(candidates) {
+    return sortPretUniversalClassKeys(candidates).join("/");
+}
+
+function inferPretUniversalRuleTier(ruleLabel = "") {
+    const label = String(ruleLabel || "").toLowerCase();
+    if (!label) {
+        return PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+    }
+    const mappedTier = PRET_UNIVERSAL_RULE_TIER_BY_LABEL?.[label];
+    if (mappedTier) {
+        return mappedTier;
+    }
+    if (label.startsWith("override")) {
+        return "override";
+    }
+    if (
+        label === PRET_UNIVERSAL_DEFAULT_RULE_LABEL
+        || label === "unpronounceable root"
+    ) {
+        return PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+    }
+    return PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+}
+
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
     const isWeya = options.isWeya === true;
@@ -1253,444 +1344,809 @@ function getRootPlusYaClassCandidates(context) {
     return candidates;
 }
 
+const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
+    {
+        id: "root_plus_ya",
+        label: "root+ya",
+        tier: "path",
+        resolveCandidates: (context) => getRootPlusYaClassCandidates(context),
+    },
+    {
+        id: "causative_type_two",
+        label: "causative type-two (-ia/-ua)",
+        tier: "path",
+        when: (context) => context.isCausativeTypeTwo,
+        classes: ["C"],
+    },
+    {
+        id: "monosyllable_transitive_v",
+        label: "monosyllable transitive V",
+        tier: "monosyllable",
+        when: (context) => context.isMonosyllable && context.isTransitive && context.lastSyllableForm === "V",
+        classes: ["B"],
+    },
+    {
+        id: "monosyllable_transitive_cv",
+        label: "monosyllable transitive CV",
+        tier: "monosyllable",
+        when: (context) => context.isMonosyllable && context.isTransitive && context.lastSyllableForm === "CV",
+        classes: ["D"],
+    },
+    {
+        id: "monosyllable_intransitive_v",
+        label: "monosyllable intransitive V",
+        tier: "monosyllable",
+        when: (context) => context.isMonosyllable && !context.isTransitive && context.lastSyllableForm === "V",
+        classes: ["B"],
+    },
+    {
+        id: "monosyllable_intransitive_cv",
+        label: "monosyllable intransitive CV",
+        tier: "monosyllable",
+        when: (context) => (
+            context.isMonosyllable
+            && !context.isTransitive
+            && context.lastSyllableForm === "CV"
+            && context.analysisVerb !== "ta"
+            && context.verb !== "ta"
+        ),
+        classes: ["D"],
+    },
+    {
+        id: "deleted_vowel_cluster_intransitive",
+        label: "deleted vowel cluster (intransitive)",
+        tier: "forced",
+        when: (context) => {
+            if (context.isTransitive || !context.deletionCreatesCluster) {
+                return false;
+            }
+            const allowClusterExactWiWa = context.isExactCCVwi
+                || context.isExactVCCVwiShort
+                || context.isExactVCCVwa;
+            return !allowClusterExactWiWa;
+        },
+        classes: ["B"],
+    },
+    {
+        id: "ends_with_ta_intransitive",
+        label: "ends with ta (intransitive)",
+        tier: "forced",
+        when: (context) => !context.isTransitive && context.endsWithTA,
+        classes: ["B"],
+    },
+    {
+        id: "ends_with_chi_intransitive",
+        label: "ends with chi (intransitive)",
+        tier: "forced",
+        when: (context) => !context.isTransitive && context.endsWithChi && !context.isMonosyllable,
+        classes: ["A", "B"],
+    },
+    {
+        id: "ends_with_pa_transitive",
+        label: "ends with pa (transitive)",
+        tier: "forced",
+        when: (context) => context.isTransitive && context.endsWithPA && !context.isMonosyllable,
+        classes: ["A"],
+    },
+    {
+        id: "ends_with_ma_mi_transitive",
+        label: "ends with ma/mi (transitive)",
+        tier: "forced",
+        when: (context) => context.isTransitive && context.endsWithMV && !context.isMonosyllable,
+        classes: ["A"],
+    },
+    {
+        id: "ends_with_pi_intransitive",
+        label: "ends with pi (intransitive)",
+        tier: "forced",
+        when: (context) => !context.isTransitive && context.endsWithPI && !context.isMonosyllable,
+        classes: ["A", "B"],
+    },
+    {
+        id: "ends_with_ta_transitive_redup_cvcv",
+        label: "ends with ta (transitive redup CVCV)",
+        tier: "forced",
+        when: (context) => (
+            context.isTransitive
+            && context.endsWithTA
+            && context.analysisVerb !== "ita"
+            && context.isReduplicatedCVCV
+        ),
+        classes: ["A", "B"],
+    },
+    {
+        id: "ends_with_ta_transitive",
+        label: "ends with ta (transitive)",
+        tier: "forced",
+        when: (context) => context.isTransitive && context.endsWithTA && context.analysisVerb !== "ita",
+        classes: ["B"],
+    },
+    {
+        id: "ends_with_tzv",
+        label: "ends with tzV",
+        tier: "forced",
+        when: (context) => context.endsWithTZV && !context.endsWithVCCV,
+        classes: ["A"],
+    },
+    {
+        id: "forced_b_ending",
+        label: "forced B ending",
+        tier: "forced",
+        when: (context) => context.forceClassBEnding,
+        classes: ["B"],
+    },
+]);
+
+const PRET_UNIVERSAL_LV_TIER_RULES = Object.freeze([
+    {
+        id: "lv_i",
+        label: "LV (i)",
+        tier: "forced",
+        when: (context) => (
+            !context.isTransitive
+            && context.lastNucleus === "i"
+            && (context.isExactVlV || context.isExactCVlV)
+        ),
+        classes: ["A", "B"],
+    },
+    {
+        id: "ends_with_lv",
+        label: "ends with LV",
+        tier: "forced",
+        when: (context) => context.endsWithLV,
+        classes: ["A"],
+    },
+    {
+        id: "exact_lv_i",
+        label: "exact LV (i)",
+        tier: "exact",
+        when: (context) => (
+            context.lastNucleus === "i"
+            && (context.isExactVlV || context.isExactCVlV)
+        ),
+        classes: ["A", "B"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_CORE_TIER_RULES = Object.freeze([
+    {
+        id: "exact_nia_transitive",
+        label: "exact Nia (transitive)",
+        tier: "exact",
+        when: (context, flags) => context.isTransitive && flags.isExactNiaPattern,
+        classes: ["C"],
+    },
+    {
+        id: "exact_cvv_transitive",
+        label: "exact CV-V (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVV,
+        classes: ["C"],
+    },
+    {
+        id: "exact_vv_intransitive",
+        label: "exact V-V (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactVV,
+        classes: ["C"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_NA_INTRANSITIVE_TIER_RULES = Object.freeze([
+    {
+        id: "exact_vna_intransitive",
+        label: "exact V-CV(na) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactVna,
+        classes: ["B"],
+    },
+    {
+        id: "exact_cvna_intransitive",
+        label: "exact CV-CV(na) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVna,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_cvcvna_intransitive",
+        label: "exact CV-CV-CV(na) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVCVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvcvcvna_intransitive",
+        label: "exact CV-CV-CV-CV(na) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVCVCVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vwi_intransitive",
+        label: "exact V-CV(wi) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactVwi,
+        classes: ["A"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_NA_TRANSITIVE_TIER_RULES = Object.freeze([
+    {
+        id: "exact_cvcvna",
+        label: "exact CV-CV-CV(na)",
+        tier: "exact",
+        when: (context) => context.isExactCVCVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvlvna_transitive",
+        label: "exact CVl-V-CV(na) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVlVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vlcvna_transitive",
+        label: "exact Vl-CV-CV(na) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVlCVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vjcvna_transitive",
+        label: "exact Vj-CV-CV(na) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVjCVna,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvtza_transitive",
+        label: "exact CV-CV(tza) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && (context.isExactCVtza || context.isExactVjCVtza),
+        classes: ["A"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_TA_PV_TIER_RULES = Object.freeze([
+    {
+        id: "exact_cvta_intransitive",
+        label: "exact CV-CV(ta) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVta,
+        classes: ["B"],
+    },
+    {
+        id: "exact_cvpv_transitive",
+        label: "exact CV-CV(pV) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVpV,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvpv_intransitive",
+        label: "exact CV-CV(pV) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVpV,
+        classes: ["A", "B"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_MA_KWI_NI_TIER_RULES = Object.freeze([
+    {
+        id: "exact_cvma_transitive",
+        label: "exact CV-CV(ma) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && (context.isExactCVma || context.isExactVjCVma),
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvkwi_intransitive",
+        label: "exact CV-CV(kwi) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVkwi,
+        classes: ["B"],
+    },
+    {
+        id: "exact_vcvcu_intransitive",
+        label: "exact V-CV-CV(u) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactVCVCu,
+        classes: ["B"],
+    },
+    {
+        id: "exact_vlcvwi_intransitive",
+        label: "exact Vl-CV-CV(wi) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactVlCVwi,
+        classes: ["B"],
+    },
+    {
+        id: "exact_cvniu_intransitive",
+        label: "exact CV(u)-CV(ni) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVniU,
+        classes: ["B"],
+    },
+    {
+        id: "exact_cvvni_intransitive",
+        label: "exact CV-V-CV(ni) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCVVni,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_ni_transitive",
+        label: "exact Ni (transitive)",
+        tier: "exact",
+        when: (context, flags) => context.isTransitive && flags.isExactNiPattern,
+        classes: ["A"],
+    },
+    {
+        id: "exact_na_transitive",
+        label: "exact Na (transitive)",
+        tier: "exact",
+        when: (context, flags) => context.isTransitive && flags.isExactNaPattern,
+        classes: ["A"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_WA_ENTRY_TIER_RULES = Object.freeze([
+    {
+        id: "exact_vjwa",
+        label: "exact Vj-CV(wa)",
+        tier: "exact",
+        when: (context) => context.isExactVjwa,
+        classes: ["B"],
+    },
+    {
+        id: "ends_with_u",
+        label: "ends with U",
+        tier: "forced",
+        when: (context) => context.endsWithU,
+        classes: ["B"],
+    },
+    {
+        id: "exact_cvwai_transitive",
+        label: "exact CV(i)-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVwaI,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vwai_transitive",
+        label: "exact V(i)-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVwaI,
+        classes: ["D"],
+    },
+    {
+        id: "exact_vwa_transitive",
+        label: "exact V-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVwa && !context.isExactVwaI,
+        classes: ["A"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_WA_REST_TIER_RULES = Object.freeze([
+    {
+        id: "exact_vccawa_transitive",
+        label: "exact V-C-CV(a)-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVCCawa,
+        classes: ["A"],
+    },
+    {
+        id: "exact_wa_transitive",
+        label: "exact Wa (transitive)",
+        tier: "exact",
+        when: (context) => (
+            context.isTransitive
+            && (context.isExactCVwaA || context.isExactCVCawa || context.isExactCVlawa)
+        ),
+        classes: ["A"],
+    },
+    {
+        id: "exact_ewa_transitive",
+        label: "exact Ewa (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactEwaPattern,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vjcvwa_transitive",
+        label: "exact Vj-CV-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVjCVwa,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvjcvwa_transitive",
+        label: "exact CVj-CV-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVjCVwa,
+        classes: ["A"],
+    },
+    {
+        id: "exact_vlcvwa_transitive",
+        label: "exact Vl-CV-CV(wa) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactVlCVwa,
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvwi_transitive",
+        label: "exact CV-CV(wi) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVwi,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_cvcvwi_transitive",
+        label: "exact CV-CV-CV(wi) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactCVCVwi,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_wi_transitive",
+        label: "exact Wi (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && context.isExactWiPattern,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_cuwa_intransitive",
+        label: "exact CV(u)-CV(wa) (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactCuwa,
+        classes: ["B"],
+    },
+    {
+        id: "exact_lwa_intransitive",
+        label: "exact Lwa (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactLWaPattern,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_short_wi_intransitive",
+        label: "exact short Wi (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && (context.isExactVCCVwiShort || context.isExactCCVwi),
+        classes: ["A"],
+    },
+    {
+        id: "exact_wi_intransitive",
+        label: "exact Wi (intransitive)",
+        tier: "exact",
+        when: (context) => !context.isTransitive && context.isExactWiPattern,
+        classes: ["A", "B"],
+    },
+    {
+        id: "exact_wa_intransitive",
+        label: "exact Wa (intransitive)",
+        tier: "exact",
+        resolveCandidates: (context) => {
+            if (!context.isTransitive && context.isExactWaPattern) {
+                const classes = ["A"];
+                if (context.isExactCVCVwa && !context.isReduplicated) {
+                    classes.push("B");
+                }
+                return classes;
+            }
+            return [];
+        },
+    },
+    {
+        id: "length_gradient_na_intransitive",
+        label: "length gradient Na (intransitive)",
+        tier: "exact",
+        when: (context) => (
+            !context.isTransitive
+            && (context.isExactCVCCVna || context.isExactCVCCVCVna || context.isExactLongNa)
+        ),
+        classes: ["A"],
+    },
+    {
+        id: "exact_vnv_cvnv_cvmv_transitive",
+        label: "exact V-CV(nV)/CV-CV(nV)/CV-CV(mV) (transitive)",
+        tier: "exact",
+        when: (context) => context.isTransitive && (context.isExactVnV || context.isExactCVnV || context.isExactCVmV),
+        classes: ["A"],
+    },
+    {
+        id: "exact_cvsv",
+        label: "exact CV-CV(sV)",
+        tier: "exact",
+        resolveCandidates: (context) => {
+            if (!context.isExactCVsV) {
+                return [];
+            }
+            const classes = ["A"];
+            if (context.lastNucleus === "i" && !context.isTransitive) {
+                classes.push("B");
+            }
+            return classes;
+        },
+    },
+]);
+
+const PRET_UNIVERSAL_DEFAULT_CLASS_RULES = Object.freeze([
+    {
+        label: "force class A for KWV",
+        when: (ctx) => ctx.forceClassAForKWV,
+        classes: ["A"],
+    },
+    {
+        label: "default class B",
+        when: (_ctx, flags) => !flags.disallowTransitiveWaB && !flags.forceClassAForKWV,
+        classes: ["B"],
+    },
+    {
+        label: "open syllable non-u adds class A",
+        when: (ctx) => ctx.endsInOpenSyllableNonU,
+        classes: ["A"],
+    },
+    {
+        label: "open syllable non-u ia/ua adds class C",
+        when: (ctx) => (
+            ctx.endsInOpenSyllableNonU
+            && ctx.vowelCount === 2
+            && ctx.endsWithIaUa
+        ),
+        classes: ["C"],
+    },
+    {
+        label: "intransitive yya adds class A",
+        when: (ctx) => !ctx.isTransitive && ctx.verb.endsWith("yya"),
+        classes: ["A"],
+    },
+]);
+
+const PRET_UNIVERSAL_EXACT_NA_PATTERN_KEYS = Object.freeze([
+    "isExactVna",
+    "isExactCVna",
+    "isExactCVCVna",
+    "isExactCVlVna",
+    "isExactCVCCVna",
+    "isExactCVCVCVna",
+    "isExactCVCCVCVna",
+    "isExactLongNa",
+]);
+
+const PRET_UNIVERSAL_EXACT_NI_PATTERN_KEYS = Object.freeze([
+    "isExactCVni",
+    "isExactCVCVni",
+    "isExactCVlVni",
+    "isExactVjCVni",
+    "isExactCVVni",
+    "isExactCVCVCVni",
+    "isExactCVCCVCVni",
+    "isExactCVCVCVCVni",
+    "isExactLongNi",
+]);
+
+const PRET_UNIVERSAL_EXACT_NIA_PATTERN_KEYS = Object.freeze([
+    "isExactCVnia",
+    "isExactCVCVnia",
+    "isExactCVlVnia",
+    "isExactVjCVnia",
+]);
+
+const PRET_UNIVERSAL_CLASS_TIER_TABLES = Object.freeze([
+    PRET_UNIVERSAL_EARLY_TIER_RULES,
+    PRET_UNIVERSAL_LV_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_CORE_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_NA_INTRANSITIVE_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_NA_TRANSITIVE_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_TA_PV_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_MA_KWI_NI_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_WA_ENTRY_TIER_RULES,
+    PRET_UNIVERSAL_EXACT_WA_REST_TIER_RULES,
+]);
+
+function buildPretUniversalRuleTierByLabelMap() {
+    const tierMap = {};
+    PRET_UNIVERSAL_CLASS_TIER_TABLES.forEach((rules) => {
+        (rules || []).forEach((rule) => {
+            const label = String(rule?.label || "").toLowerCase();
+            if (!label) {
+                return;
+            }
+            tierMap[label] = rule.tier || PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+        });
+    });
+    tierMap[PRET_UNIVERSAL_DEFAULT_RULE_LABEL] = PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+    tierMap["unpronounceable root"] = PRET_UNIVERSAL_DEFAULT_RULE_TIER;
+    return tierMap;
+}
+
+const PRET_UNIVERSAL_RULE_TIER_BY_LABEL = Object.freeze(
+    buildPretUniversalRuleTierByLabelMap(),
+);
+
+function toPretUniversalCandidateSet(values) {
+    const set = new Set();
+    (Array.isArray(values) ? values : []).forEach((value) => {
+        if (value) {
+            set.add(value);
+        }
+    });
+    return set;
+}
+
+function normalizePretUniversalRuleCandidates(values) {
+    if (values instanceof Set) {
+        return new Set(values);
+    }
+    if (Array.isArray(values)) {
+        return toPretUniversalCandidateSet(values);
+    }
+    return new Set();
+}
+
+function resolvePretUniversalRuleMatch(rule, context, flags = {}) {
+    if (!rule) {
+        return null;
+    }
+    let candidates = null;
+    if (typeof rule.resolveCandidates === "function") {
+        candidates = normalizePretUniversalRuleCandidates(
+            rule.resolveCandidates(context, flags),
+        );
+        if (!candidates.size) {
+            return null;
+        }
+    } else {
+        const matched = typeof rule.when === "function"
+            ? rule.when(context, flags)
+            : false;
+        if (!matched) {
+            return null;
+        }
+        // For plain `when + classes`, empty candidate sets are still considered
+        // a valid match for control-flow rules (e.g., gate rules).
+        candidates = toPretUniversalCandidateSet(rule.classes || []);
+    }
+    const resolvedLabel = typeof rule.resolveLabel === "function"
+        ? rule.resolveLabel(context, flags)
+        : rule.label;
+    return {
+        id: rule.id,
+        label: resolvedLabel,
+        tier: rule.tier,
+        candidates,
+    };
+}
+
+function evaluatePretUniversalRuleTable(ruleTable, context, flags = {}) {
+    return findPretUniversalRuleMatch(ruleTable, context, flags);
+}
+
+function collectPretUniversalRuleTableCandidates(ruleTable, context, flags = {}) {
+    const matches = collectPretUniversalRuleMatches(ruleTable, context, flags);
+    const candidates = new Set();
+    for (const match of matches) {
+        match.candidates.forEach((classKey) => candidates.add(classKey));
+    }
+    return candidates;
+}
+
+function collectPretUniversalRuleMatches(ruleTable, context, flags = {}) {
+    const matches = [];
+    for (const rule of ruleTable) {
+        const match = resolvePretUniversalRuleMatch(rule, context, flags);
+        if (!match) {
+            continue;
+        }
+        matches.push(match);
+    }
+    return matches;
+}
+
+function findPretUniversalRuleMatch(ruleTable, context, flags = {}) {
+    for (const rule of ruleTable) {
+        const match = resolvePretUniversalRuleMatch(rule, context, flags);
+        if (!match) {
+            continue;
+        }
+        return match;
+    }
+    return null;
+}
+
+function hasAnyPretPatternFlag(context, patternKeys = []) {
+    return (patternKeys || []).some((key) => context?.[key]);
+}
+
+function buildPretUniversalClassComputationFlags(context) {
+    const override = context?.verbOverride || null;
+    const allowUnpronounceable = override?.allowUnpronounceable === true || context?.allowUnpronounceable === true;
+    const isExactNaPattern = hasAnyPretPatternFlag(context, PRET_UNIVERSAL_EXACT_NA_PATTERN_KEYS);
+    const isExactNiPattern = hasAnyPretPatternFlag(context, PRET_UNIVERSAL_EXACT_NI_PATTERN_KEYS);
+    const isExactNiaPattern = hasAnyPretPatternFlag(context, PRET_UNIVERSAL_EXACT_NIA_PATTERN_KEYS);
+    const disallowTransitiveWaB = Boolean(
+        context?.isTransitive
+        && context?.endsWithWa
+        && context?.letterCount >= 4,
+    );
+    const forceClassAForKWV = context?.forceClassAForKWV === true;
+    return {
+        override,
+        allowUnpronounceable,
+        isExactNaPattern,
+        isExactNiPattern,
+        isExactNiaPattern,
+        disallowTransitiveWaB,
+        forceClassAForKWV,
+    };
+}
+
+function evaluatePretUniversalClassSelectionPipeline(context, flags = {}) {
+    const gateMatch = evaluatePretUniversalRuleTable(
+        PRET_UNIVERSAL_CLASS_GATE_RULES,
+        context,
+        flags,
+    );
+    if (gateMatch) {
+        return gateMatch;
+    }
+    for (const ruleTable of PRET_UNIVERSAL_CLASS_TIER_TABLES) {
+        const tierMatch = evaluatePretUniversalRuleTable(ruleTable, context, flags);
+        if (tierMatch) {
+            return tierMatch;
+        }
+    }
+    return {
+        label: PRET_UNIVERSAL_DEFAULT_RULE_LABEL,
+        tier: PRET_UNIVERSAL_DEFAULT_RULE_TIER,
+        candidates: collectPretUniversalRuleTableCandidates(
+            PRET_UNIVERSAL_DEFAULT_CLASS_RULES,
+            context,
+            flags,
+        ),
+    };
+}
+
+function recordPretUniversalSelectionTrace(traceState, {
+    ruleLabel = "",
+    ruleTier = "",
+    ruleTierIndex = -1,
+} = {}) {
+    if (!traceState || traceState.rule) {
+        return;
+    }
+    traceState.rule = ruleLabel;
+    traceState.ruleTier = ruleTier;
+    traceState.ruleTierIndex = ruleTierIndex;
+}
+
+function resolvePretUniversalClassSelection(context, options = {}) {
+    const traceState = options.trace && typeof options.trace === "object"
+        ? options.trace
+        : null;
+    const flags = buildPretUniversalClassComputationFlags(context);
+    const selectionMatch = evaluatePretUniversalClassSelectionPipeline(context, flags);
+    const candidates = normalizePretUniversalRuleCandidates(selectionMatch.candidates);
+    const ruleLabel = selectionMatch.label || PRET_UNIVERSAL_DEFAULT_RULE_LABEL;
+    const ruleTier = selectionMatch.tier || inferPretUniversalRuleTier(ruleLabel);
+    const ruleTierIndex = PRET_UNIVERSAL_RULE_TIER_ORDER.indexOf(ruleTier);
+    recordPretUniversalSelectionTrace(traceState, { ruleLabel, ruleTier, ruleTierIndex });
+    return {
+        candidates,
+        ruleLabel,
+        ruleTier,
+        ruleTierIndex,
+        gates: traceState?.gates || [],
+    };
+}
+
 function getPretUniversalClassCandidates(context, trace = null) {
     // Precedence: root+ya > monosyllable > forced-B endings > endsWithLV > exact patterns
     // > general class rules.
-    const traceState = trace && typeof trace === "object" ? trace : null;
-    const setRule = (label) => {
-        if (!traceState || traceState.rule) {
-            return;
-        }
-        traceState.rule = label;
-    };
-    const candidates = new Set();
-    const override = context?.verbOverride || null;
-    const allowUnpronounceable = override?.allowUnpronounceable === true || context?.allowUnpronounceable === true;
-    if (!context.rootSyllablesOk && !allowUnpronounceable) {
-        setRule("unpronounceable root");
-        return candidates;
-    }
-    if (override && Array.isArray(override.classes) && override.classes.length) {
-        const label = override.id || context.analysisVerb || override.verbs?.[0] || "lexical";
-        setRule(`override ${label}`);
-        override.classes.forEach((classKey) => candidates.add(classKey));
-        return candidates;
-    }
-    const isMonosyllablePath = context.stemPath === "monosyllable";
-    const rootPlusYaCandidates = getRootPlusYaClassCandidates(context);
-    const finalizeCandidates = (set) => set;
-    if (rootPlusYaCandidates.size) {
-        setRule("root+ya");
-        return finalizeCandidates(rootPlusYaCandidates);
-    }
-    if (context.isCausativeTypeTwo) {
-        setRule("causative type-two (-ia/-ua)");
-        candidates.add("C");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isMonosyllable && context.isTransitive) {
-        if (context.lastSyllableForm === "V") {
-            setRule("monosyllable transitive V");
-            candidates.add("B");
-            return finalizeCandidates(candidates);
-        }
-        if (context.lastSyllableForm === "CV") {
-            setRule("monosyllable transitive CV");
-            candidates.add("D");
-            return finalizeCandidates(candidates);
-        }
-    }
-    if (context.isMonosyllable && !context.isTransitive) {
-        const isTaMonosyllable = context.analysisVerb === "ta" || context.verb === "ta";
-        if (context.lastSyllableForm === "V") {
-            setRule("monosyllable intransitive V");
-            candidates.add("B");
-            return finalizeCandidates(candidates);
-        }
-        if (context.lastSyllableForm === "CV" && !isTaMonosyllable) {
-            setRule("monosyllable intransitive CV");
-            candidates.add("D");
-            return finalizeCandidates(candidates);
-        }
-    }
-    const allowClusterExactWiWa = !context.isTransitive && (
-        context.isExactCCVwi
-        || context.isExactVCCVwiShort
-        || context.isExactVCCVwa
-    );
-    if (!context.isTransitive && context.deletionCreatesCluster && !allowClusterExactWiWa) {
-        setRule("deleted vowel cluster (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.endsWithTA) {
-        setRule("ends with ta (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.endsWithChi && !context.isMonosyllable) {
-        setRule("ends with chi (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.endsWithPA && !context.isMonosyllable) {
-        setRule("ends with pa (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.endsWithMV && !context.isMonosyllable) {
-        setRule("ends with ma/mi (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.endsWithPI && !context.isMonosyllable) {
-        setRule("ends with pi (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.endsWithTA && context.analysisVerb !== "ita") {
-        if (context.isReduplicatedCVCV) {
-            setRule("ends with ta (transitive redup CVCV)");
-            candidates.add("A");
-            candidates.add("B");
-            return finalizeCandidates(candidates);
-        }
-        setRule("ends with ta (transitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.endsWithTZV && !context.endsWithVCCV) {
-        setRule("ends with tzV");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.forceClassBEnding) {
-        setRule("forced B ending");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    const isLiEndingCandidate = !context.isTransitive
-        && context.lastNucleus === "i"
-        && (context.isExactVlV || context.isExactCVlV);
-    if (isLiEndingCandidate) {
-        setRule("LV (i)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.endsWithLV) {
-        setRule("ends with LV");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    const isExactLVICandidate = context.lastNucleus === "i"
-        && (context.isExactVlV || context.isExactCVlV);
-    if (isExactLVICandidate) {
-        setRule("exact LV (i)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    const isExactNaPattern = context.isExactVna
-        || context.isExactCVna
-        || context.isExactCVCVna
-        || context.isExactCVlVna
-        || context.isExactCVCCVna
-        || context.isExactCVCVCVna
-        || context.isExactCVCCVCVna
-        || context.isExactLongNa;
-    const isExactNiPattern = context.isExactCVni
-        || context.isExactCVCVni
-        || context.isExactCVlVni
-        || context.isExactVjCVni
-        || context.isExactCVVni
-        || context.isExactCVCVCVni
-        || context.isExactCVCCVCVni
-        || context.isExactCVCVCVCVni
-        || context.isExactLongNi;
-    const isExactNiaPattern = context.isExactCVnia
-        || context.isExactCVCVnia
-        || context.isExactCVlVnia
-        || context.isExactVjCVnia;
-    if (context.isTransitive && isExactNiaPattern) {
-        setRule("exact Nia (transitive)");
-        candidates.add("C");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVV) {
-        setRule("exact CV-V (transitive)");
-        candidates.add("C");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactVV) {
-        setRule("exact V-V (intransitive)");
-        candidates.add("C");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactVna) {
-        setRule("exact V-CV(na) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVna) {
-        setRule("exact CV-CV(na) (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVCVna) {
-        setRule("exact CV-CV-CV(na) (intransitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVCVCVna) {
-        setRule("exact CV-CV-CV-CV(na) (intransitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactVwi) {
-        setRule("exact V-CV(wi) (intransitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isExactCVCVna) {
-        setRule("exact CV-CV-CV(na)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVlVna) {
-        setRule("exact CVl-V-CV(na) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVlCVna) {
-        setRule("exact Vl-CV-CV(na) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVjCVna) {
-        setRule("exact Vj-CV-CV(na) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && (context.isExactCVtza || context.isExactVjCVtza)) {
-        setRule("exact CV-CV(tza) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVta) {
-        setRule("exact CV-CV(ta) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVpV) {
-        setRule("exact CV-CV(pV) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVpV) {
-        setRule("exact CV-CV(pV) (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && (context.isExactCVma || context.isExactVjCVma)) {
-        setRule("exact CV-CV(ma) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVkwi) {
-        setRule("exact CV-CV(kwi) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactVCVCu) {
-        setRule("exact V-CV-CV(u) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactVlCVwi) {
-        setRule("exact Vl-CV-CV(wi) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVniU) {
-        setRule("exact CV(u)-CV(ni) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCVVni) {
-        setRule("exact CV-V-CV(ni) (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && isExactNiPattern) {
-        setRule("exact Ni (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && isExactNaPattern) {
-        setRule("exact Na (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isExactVjwa) {
-        setRule("exact Vj-CV(wa)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    const disallowTransitiveWaB = context.isTransitive
-        && context.endsWithWa
-        && context.letterCount >= 4;
-    if (context.endsWithU) {
-        setRule("ends with U");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVwaI) {
-        setRule("exact CV(i)-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVwaI) {
-        setRule("exact V(i)-CV(wa) (transitive)");
-        candidates.add("D");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVwa && !context.isExactVwaI) {
-        setRule("exact V-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVCCawa) {
-        setRule("exact V-C-CV(a)-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (
-        context.isTransitive
-        && (context.isExactCVwaA || context.isExactCVCawa || context.isExactCVlawa)
-    ) {
-        setRule("exact Wa (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isExactEwaPattern && context.isTransitive) {
-        setRule("exact Ewa (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVjCVwa) {
-        setRule("exact Vj-CV-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVjCVwa) {
-        setRule("exact CVj-CV-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactVlCVwa) {
-        setRule("exact Vl-CV-CV(wa) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVwi) {
-        setRule("exact CV-CV(wi) (transitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactCVCVwi) {
-        setRule("exact CV-CV-CV(wi) (transitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && context.isExactWiPattern) {
-        setRule("exact Wi (transitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactCuwa) {
-        setRule("exact CV(u)-CV(wa) (intransitive)");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactLWaPattern) {
-        setRule("exact Lwa (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && (context.isExactVCCVwiShort || context.isExactCCVwi)) {
-        setRule("exact short Wi (intransitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactWiPattern) {
-        setRule("exact Wi (intransitive)");
-        candidates.add("A");
-        candidates.add("B");
-        return finalizeCandidates(candidates);
-    }
-    if (!context.isTransitive && context.isExactWaPattern) {
-        setRule("exact Wa (intransitive)");
-        candidates.add("A");
-        if (context.isExactCVCVwa && !context.isReduplicated) {
-            candidates.add("B");
-        }
-        return finalizeCandidates(candidates);
-    }
-    const isIntransitiveLongNaGradient = !context.isTransitive
-        && (
-            context.isExactCVCCVna
-            || context.isExactCVCCVCVna
-            || context.isExactLongNa
-        );
-    if (isIntransitiveLongNaGradient) {
-        setRule("length gradient Na (intransitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isTransitive && (context.isExactVnV || context.isExactCVnV || context.isExactCVmV)) {
-        setRule("exact V-CV(nV)/CV-CV(nV)/CV-CV(mV) (transitive)");
-        candidates.add("A");
-        return finalizeCandidates(candidates);
-    }
-    if (context.isExactCVsV) {
-        setRule("exact CV-CV(sV)");
-        candidates.add("A");
-        if (context.lastNucleus === "i" && !context.isTransitive) {
-            candidates.add("B");
-        }
-        return finalizeCandidates(candidates);
-    }
-    setRule("default class rules");
-    const forceClassAForKWV = context.forceClassAForKWV;
-    if (forceClassAForKWV) {
-        candidates.add("A");
-    } else if (!disallowTransitiveWaB) {
-        candidates.add("B");
-    }
-    if (context.endsInOpenSyllableNonU) {
-        candidates.add("A");
-    }
-    if (
-        context.endsInOpenSyllableNonU &&
-        context.vowelCount === 2 &&
-        context.endsWithIaUa
-    ) {
-        candidates.add("C");
-    }
-    if (!context.isTransitive && context.verb.endsWith("yya")) {
-        candidates.add("A");
-    }
-    return finalizeCandidates(candidates);
+    return resolvePretUniversalClassSelection(context, { trace }).candidates;
 }
 
 const PRET_EXACT_PATTERN_LABELS = [
@@ -1785,29 +2241,39 @@ const PRET_EXACT_PATTERN_LABELS = [
     { key: "isExactLongWa", label: "Long-CV(wa)" },
 ];
 
-function getPrimaryExactPatternLabel(context) {
+function getPretUniversalExactPatternLabels(context) {
     if (!context) {
-        return "";
+        return [];
     }
-    const match = PRET_EXACT_PATTERN_LABELS.find((entry) => context[entry.key]);
-    return match ? match.label : "";
+    const labels = [];
+    for (let i = 0; i < PRET_EXACT_PATTERN_LABELS.length; i += 1) {
+        const entry = PRET_EXACT_PATTERN_LABELS[i];
+        if (context[entry.key]) {
+            labels.push(entry.label);
+        }
+    }
+    return labels;
 }
 
 function buildPretUniversalRuleSummary(context) {
     if (!context) {
         return null;
     }
-    const trace = { rule: "", gates: [] };
-    const candidates = getPretUniversalClassCandidates(context, trace);
-    const ruleLabel = trace.rule || "default class rules";
-    const exactLabel = getPrimaryExactPatternLabel(context);
-    const classList = candidates.size
-        ? Array.from(candidates).sort().join("/")
-        : "";
+    const selection = resolvePretUniversalClassSelection(context, {
+        trace: { rule: "", gates: [] },
+    });
+    const candidates = selection.candidates;
+    const ruleLabel = selection.ruleLabel;
+    const ruleTier = selection.ruleTier;
+    const exactLabels = getPretUniversalExactPatternLabels(context);
+    const exactLabel = exactLabels.length ? exactLabels[0] : "";
+    const classList = candidates.size ? formatPretUniversalClassList(candidates) : "";
     return {
         ruleLabel,
+        ruleTier,
         exactLabel,
+        exactLabels,
         classList,
-        gates: trace.gates || [],
+        gates: selection.gates,
     };
 }
