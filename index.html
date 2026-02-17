@@ -89,6 +89,7 @@
             autocomplete="off"
           >
             <div class="form-container panel" id="container-inputs">
+              <div class="panel-block-title">ENTRADA</div>
               <div class="form-group">
                 <section class="verb-block" id="verb-block" aria-label="Entrada principal del verbo">
                   <div class="verb-block__display">
@@ -169,31 +170,35 @@
                             type="button"
                             class="verb-screen-key verb-screen-key--utility"
                             id="verb-key-ans"
-                            aria-label="Restaurar ultimo generado"
+                            aria-label="Recuperar último resultado"
+                            title="RES · recuperar último resultado"
                           >
-                            ANS
+                            RES
                           </button>
                           <button
                             type="button"
                             class="verb-screen-key verb-screen-key--utility"
                             id="verb-key-mode"
-                            aria-label="Cambiar modo de entrada"
+                            aria-label="Cambiar modo"
+                            title="MODO · cambiar entre Selecciones y Regex"
                           >
-                            MODE
+                            MODO
                           </button>
                           <button
                             type="button"
                             class="verb-screen-key verb-screen-key--utility"
                             id="verb-key-transitivity"
                             aria-label="Cambiar transitividad"
+                            title="TR · cambiar transitividad"
                           >
-                            T
+                            TR
                           </button>
                           <button
                             type="button"
                             class="verb-screen-key verb-screen-key--utility"
                             id="verb-key-supportive-i"
                             aria-label="Alternar i de apoyo opcional"
+                            title="i · alternar i de apoyo opcional"
                           >
                             i
                           </button>
@@ -221,10 +226,10 @@
                             type="button"
                             class="verb-screen-key"
                             id="verb-key-del"
-                            aria-label="Borrar ultimo"
-                            title="DEL · borrar último carácter"
+                            aria-label="Borrar último"
+                            title="BOR · borrar último carácter"
                           >
-                            DEL
+                            BOR
                           </button>
                         </div>
                         <button
@@ -232,7 +237,7 @@
                           class="verb-screen-key verb-screen-key--equals"
                           id="verb-key-eq"
                           aria-label="Generar"
-                          title="= · generar"
+                          title="= · generar conjugaciones"
                         >
                           =
                         </button>
@@ -242,7 +247,9 @@
                       <div class="verb-composer" id="verb-composer">
                         <div class="verb-composer__grid">
                           <div class="verb-composer__slots">
+                            <span class="verb-composer__sub-label">Ingrese aquí:</span>
                             <div class="verb-composer__slot-tabs" role="tablist" aria-label="Slots de transitividad">
+                              <span class="verb-composer__sub-label verb-composer__slot-tabs-label">Transitividad</span>
                               <button
                                 type="button"
                                 class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -581,6 +588,7 @@
             aria-labelledby="panel-stack-tab-tense"
             hidden
           >
+                <div class="panel-block-title">DERIVADA</div>
                 <div class="tense-tabs-mode-row">
                   <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
                     <button
@@ -646,6 +654,7 @@
           </div>
         </div>
         <div class="panel container-tense-grid" id="container-tense-grid">
+          <div class="panel-block-title">SALIDA</div>
           <div class="tense-tools">
             <button type="button" class="view-export-button" id="view-export-csv">
               CSV vista

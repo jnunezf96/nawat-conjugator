@@ -626,6 +626,13 @@ p {
   overflow: visible;
   position: relative;
   z-index: 3;
+  gap: 14px;
+}
+
+#panel-stack-pane-tense {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .form-container-word h2 {
@@ -639,7 +646,16 @@ p {
 .container-tense-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+
+.panel-block-title {
+  margin: 0;
+  font-size: var(--font-size-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
 }
 
 .tense-tools {
@@ -702,6 +718,10 @@ p {
   margin-bottom: 12px;
 }
 
+#panel-stack-pane-tense .tense-tabs-mode-row {
+  margin-bottom: 0;
+}
+
 .tense-tabs-mode-row .voice-derivation-tabs {
   margin-bottom: 0;
 }
@@ -713,6 +733,10 @@ p {
   gap: 10px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+}
+
+#panel-stack-pane-tense .derivation-type-row {
+  margin-bottom: 0;
 }
 
 .derivation-type-row label {
@@ -1292,6 +1316,10 @@ input.verb-input:focus-visible {
   position: relative;
   width: 100%;
   min-width: 0;
+}
+
+.verb-composer__slot-tabs-label {
+  grid-column: 1 / -1;
 }
 
 .verb-composer__slot-tabs::after {
