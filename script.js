@@ -14096,13 +14096,13 @@ function getDerivationTypeDisplayLabel(type, isNawat = false) {
         return "";
     }
     if (normalizedType === DERIVATION_TYPE.direct) {
-        return isNawat ? "Tisemiltilis" : "Directo";
+        return isNawat ? "Tayilis" : "Directo";
     }
     if (normalizedType === DERIVATION_TYPE.causative) {
-        return isNawat ? "Teyutilis" : "Causativo";
+        return isNawat ? "Tetayiltilis" : "Causativo";
     }
     if (normalizedType === DERIVATION_TYPE.applicative) {
-        return isNawat ? "Tayektilis" : "Aplicativo";
+        return isNawat ? "Tetayililis" : "Aplicativo";
     }
     return normalizedType;
 }
@@ -14217,11 +14217,11 @@ function changeLanguage() {
     ];
 
     var translations = {
-        "word-heading": "Sentapuwaluni tik Nawat ipal El Salvador",
+        "word-heading": "Sentapuwaluni ipal muchiwalis tik Nawat ipal El Salvador",
         "tutorial-title": "Shitajkwilu iwan majmachiyut",
         "tutorial-trigger": "Machiyut",
         "copyright-label": "Copyright © 2026 Jaime Núñez",
-        "derivation-type-label": "Tapatkawilis",
+        "derivation-type-label": "Tapiwilis",
     };
   
     if (selectedLanguage === "nawat") {

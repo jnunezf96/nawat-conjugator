@@ -195,8 +195,23 @@ h1 {
   line-height: 1.1;
 }
 
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 #container-header h1 {
   max-width: 720px;
+}
+
+.hero-subheading {
+  margin: 0;
+  max-width: 760px;
+  color: var(--ink-soft);
+  font-size: calc(0.95rem + var(--font-size-adjust));
+  line-height: 1.35;
+  font-weight: 500;
 }
 
 h3 {
