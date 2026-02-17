@@ -2268,12 +2268,28 @@ function buildPretUniversalRuleSummary(context) {
     const exactLabels = getPretUniversalExactPatternLabels(context);
     const exactLabel = exactLabels.length ? exactLabels[0] : "";
     const classList = candidates.size ? formatPretUniversalClassList(candidates) : "";
+    let resolvedClassList = "";
+    if (typeof getPretUniversalVariantsByClass === "function") {
+        const variantsByClass = getPretUniversalVariantsByClass(context);
+        if (variantsByClass && variantsByClass.size) {
+            const resolvedClasses = new Set();
+            variantsByClass.forEach((_variants, classKey) => {
+                if (classKey) {
+                    resolvedClasses.add(classKey);
+                }
+            });
+            if (resolvedClasses.size) {
+                resolvedClassList = formatPretUniversalClassList(resolvedClasses);
+            }
+        }
+    }
     return {
         ruleLabel,
         ruleTier,
         exactLabel,
         exactLabels,
         classList,
+        resolvedClassList,
         gates: selection.gates,
     };
 }

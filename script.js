@@ -8501,8 +8501,9 @@ function updateVerbRuleHint({
     if (summary.exactLabel) {
         parts.push(`exact ${summary.exactLabel}`);
     }
-    if (summary.classList) {
-        parts.push(`classes ${summary.classList}`);
+    const classSummary = summary.resolvedClassList || summary.classList || "";
+    if (classSummary) {
+        parts.push(`classes ${classSummary}`);
     }
     if (summary.gates && summary.gates.length) {
         parts.push(`safegate ${summary.gates.join(", ")}`);
@@ -13478,7 +13479,9 @@ function getPretClassSignatureFromParsed(parsedVerb) {
     const context = resolvedBundle.context;
     const summary = resolvedBundle.summary;
     let classList = "";
-    if (summary && typeof summary.classList === "string") {
+    if (summary && typeof summary.resolvedClassList === "string" && summary.resolvedClassList) {
+        classList = summary.resolvedClassList;
+    } else if (summary && typeof summary.classList === "string") {
         classList = summary.classList;
     } else {
         const candidates = getPretUniversalClassCandidates(context);
@@ -14486,40 +14489,138 @@ function renderTenseTabs() {
                     suppletiveStemSet = applicativeDerivation.suppletiveStemSet;
                 }
             }
+            const canResolveClassPolicy = typeof buildPretUniversalContext === "function"
+                && typeof getPretUniversalVariantsByClass === "function"
+                && typeof resolvePretClassPolicy === "function";
+            const subjectSuffixes = ["", "t"];
+            const baseObjectPrefix = getCurrentObjectPrefix();
+            const resolveAllowedClassesForTarget = (target) => {
+                const allowed = new Set();
+                if (suppletiveStemSet && suppletiveStemSet.variantsByClass) {
+                    suppletiveStemSet.variantsByClass.forEach((variants, classKey) => {
+                        if (variants && variants.length) {
+                            allowed.add(classKey);
+                        }
+                    });
+                    return allowed;
+                }
+                if (!target || !canResolveClassPolicy) {
+                    return allowed;
+                }
+                const analysisVerbTarget = target.analysisVerb || target.verb || "";
+                const contextOptions = typeof buildPretContextOptionsFromMeta === "function"
+                    ? buildPretContextOptionsFromMeta(verbMeta, {
+                        isYawi: target.isYawi,
+                        isWeya: target.isWeya,
+                        derivationType,
+                    })
+                    : {
+                        isYawi: target.isYawi,
+                        isWeya: target.isWeya,
+                        hasSlashMarker: verbMeta.hasSlashMarker,
+                        hasSuffixSeparator: verbMeta.hasSuffixSeparator,
+                        hasLeadingDash: verbMeta.hasLeadingDash,
+                        hasBoundMarker: verbMeta.hasBoundMarker,
+                        hasCompoundMarker: verbMeta.hasCompoundMarker,
+                        hasImpersonalTaPrefix: verbMeta.hasImpersonalTaPrefix,
+                        hasOptionalSupportiveI: verbMeta.hasOptionalSupportiveI,
+                        hasNonspecificValence: resolveHasNonspecificValence(verbMeta),
+                        exactBaseVerb: verbMeta.exactBaseVerb || "",
+                        rootPlusYaBase: verbMeta.rootPlusYaBase,
+                        rootPlusYaBasePronounceable: verbMeta.rootPlusYaBasePronounceable,
+                        derivationType,
+                    };
+                const context = buildPretUniversalContext(
+                    target.verb,
+                    analysisVerbTarget,
+                    isTransitive,
+                    contextOptions
+                );
+                if (!context) {
+                    return allowed;
+                }
+                const variantsByClass = getPretUniversalVariantsByClass(context);
+                if (!variantsByClass || !variantsByClass.size) {
+                    return allowed;
+                }
+                const hasClassA = variantsByClass.has("A");
+                const hasClassB = variantsByClass.has("B");
+                variantsByClass.forEach((variants, classKey) => {
+                    if (!variants || !variants.length) {
+                        return;
+                    }
+                    if (classKey !== "A" && classKey !== "B") {
+                        allowed.add(classKey);
+                        return;
+                    }
+                    const allowsForAnySuffix = subjectSuffixes.some((suffix) => {
+                        const policy = resolvePretClassPolicy({
+                            context,
+                            tense: "preterito",
+                            isTransitive,
+                            classFilter: classKey,
+                            baseObjectPrefix,
+                            hasClassA,
+                            hasClassB,
+                            allowAllClasses: false,
+                            subjectSuffix: suffix,
+                        });
+                        if (!policy) {
+                            return true;
+                        }
+                        if (classKey === "A") {
+                            return !policy.shouldSkipClassA;
+                        }
+                        return !policy.shouldSkipClassB && !policy.shouldMaskClassBSelection;
+                    });
+                    if (allowsForAnySuffix) {
+                        allowed.add(classKey);
+                    }
+                });
+                return allowed;
+            };
+            const allowedClasses = new Set();
+            if (hasVerb) {
+                if (suppletiveStemSet) {
+                    resolveAllowedClassesForTarget(null).forEach((classKey) => allowedClasses.add(classKey));
+                } else if (availabilityTargets.length) {
+                    availabilityTargets.forEach((target) => {
+                        resolveAllowedClassesForTarget(target).forEach((classKey) => allowedClasses.add(classKey));
+                    });
+                }
+            }
+            if (!canResolveClassPolicy && availabilityTargets.length) {
+                availabilityTargets.forEach((target) => {
+                    PRETERITO_UNIVERSAL_ORDER.forEach((tenseValue) => {
+                        const variants = getPretUniversalVariants(
+                            target.verb,
+                            tenseValue,
+                            isTransitive,
+                            target.analysisVerb,
+                            buildPretVariantsOptionsFromMeta(verbMeta, {
+                                isYawi: target.isYawi,
+                                isWeya: target.isWeya,
+                                derivationType,
+                            })
+                        );
+                        if (variants && variants.length) {
+                            const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
+                            if (classKey) {
+                                allowedClasses.add(classKey);
+                            }
+                        }
+                    });
+                });
+            }
             availability = PRETERITO_UNIVERSAL_ORDER.map((tenseValue) => {
                 if (!hasVerb) {
                     return { tenseValue, available: false };
                 }
-                if (suppletiveStemSet) {
-                    const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
-                    const variants = classKey ? suppletiveStemSet.variantsByClass.get(classKey) : null;
-                    return { tenseValue, available: !!(variants && variants.length) };
-                }
-                if (!availabilityTargets.length) {
+                if (!suppletiveStemSet && !availabilityTargets.length) {
                     return { tenseValue, available: false };
                 }
-                const hasVariants = availabilityTargets.some((target) => {
-                    const variants = getPretUniversalVariants(
-                        target.verb,
-                        tenseValue,
-                        isTransitive,
-                        target.analysisVerb,
-                        {
-                            isYawi: target.isYawi,
-                            isWeya: target.isWeya,
-                            hasSlashMarker: verbMeta.hasSlashMarker,
-                            hasSuffixSeparator: verbMeta.hasSuffixSeparator,
-                            hasLeadingDash: verbMeta.hasLeadingDash,
-                            hasBoundMarker: verbMeta.hasBoundMarker,
-                            hasCompoundMarker: verbMeta.hasCompoundMarker,
-                            hasImpersonalTaPrefix: verbMeta.hasImpersonalTaPrefix,
-                            exactBaseVerb: verbMeta.exactBaseVerb || "",
-                            derivationType,
-                        }
-                    );
-                    return !!(variants && variants.length);
-                });
-                return { tenseValue, available: hasVariants };
+                const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
+                return { tenseValue, available: Boolean(classKey && allowedClasses.has(classKey)) };
             });
             PRETERITO_UNIVERSAL_AVAILABILITY_CACHE = availability;
         }
