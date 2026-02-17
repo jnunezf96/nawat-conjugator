@@ -10647,8 +10647,6 @@ function getVerbComposerElements() {
         || slotBEmbedInput
         || slotCEmbedInput;
     return {
-        modeRoot: document.getElementById("verb-editor-mode"),
-        modeButtons: document.querySelectorAll("[data-verb-input-mode]"),
         tutorialTrigger: document.getElementById("tutorial-trigger"),
         panel: document.getElementById("verb-composer"),
         slots,
@@ -11110,10 +11108,24 @@ function syncComposerValenceAvailability() {
     }
     valenceSelectIntransitive.value = VERB_COMPOSER_STATE.valenceIntransitive;
     if (valenceIntransitiveEmbedInput) {
-        const isBlocked = VERB_COMPOSER_STATE.valenceIntransitive !== "ta";
-        valenceIntransitiveEmbedInput.readOnly = isBlocked;
-        valenceIntransitiveEmbedInput.classList.toggle("is-blocked", isBlocked);
-        valenceIntransitiveEmbedInput.setAttribute("aria-disabled", String(isBlocked));
+        const showEmbed = (
+            VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.intransitive
+            && VERB_COMPOSER_STATE.valenceIntransitive === "ta"
+        );
+        const embedField = valenceIntransitiveEmbedInput.closest(".verb-composer__stem-field");
+        if (embedField) {
+            embedField.hidden = !showEmbed;
+            embedField.setAttribute("aria-hidden", String(!showEmbed));
+            const embedLabel = embedField.querySelector(".verb-composer__sub-label");
+            if (embedLabel) {
+                embedLabel.hidden = !showEmbed;
+                embedLabel.setAttribute("aria-hidden", String(!showEmbed));
+            }
+        }
+        valenceIntransitiveEmbedInput.hidden = !showEmbed;
+        valenceIntransitiveEmbedInput.readOnly = !showEmbed;
+        valenceIntransitiveEmbedInput.classList.toggle("is-blocked", !showEmbed);
+        valenceIntransitiveEmbedInput.setAttribute("aria-disabled", String(!showEmbed));
     }
     const allowedPrimary = getComposerAllowedValenceOptions(COMPOSER_TRANSITIVITY.transitive);
     Array.from(valenceSelect.options).forEach((option) => {
@@ -11682,7 +11694,6 @@ function parseComposerStateFromRegexValue(rawValue) {
 
 function renderVerbComposerFromState() {
     const {
-        modeButtons,
         tutorialTrigger,
         panel,
         slots,
@@ -11707,12 +11718,6 @@ function renderVerbComposerFromState() {
         panel.setAttribute("aria-hidden", String(!isComposer));
         panel.inert = !isComposer;
     }
-    modeButtons.forEach((button) => {
-        const mode = button.getAttribute("data-verb-input-mode");
-        const isActive = mode === VERB_COMPOSER_STATE.mode;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-pressed", String(isActive));
-    });
     if (tutorialTrigger) {
         const showTutorialTrigger = !isComposer;
         tutorialTrigger.hidden = !showTutorialTrigger;
@@ -12589,7 +12594,6 @@ function handleComposerDoubleEscapeShortcut(event) {
 
 function initVerbComposer() {
     const {
-        modeButtons,
         slots,
         transitivitySelect,
         transitivitySlotButtons,
@@ -12600,9 +12604,6 @@ function initVerbComposer() {
         clearTextboxesButton,
         supportiveICheckbox,
     } = getVerbComposerElements();
-    if (!modeButtons.length) {
-        return;
-    }
     const slotNavigationPairs = COMPOSER_SLOT_KEYS.map((slotKey) => ({
         embedInput: slots[slotKey]?.embedInput || null,
         matrixInput: slots[slotKey]?.stemInput || null,
@@ -12618,15 +12619,6 @@ function initVerbComposer() {
         .filter(Boolean);
     populateComposerDirectionalOptions();
     bindComposerStemTabNavigation(slotNavigationPairs);
-    modeButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const mode = button.getAttribute("data-verb-input-mode");
-            if (!mode || mode === VERB_COMPOSER_STATE.mode) {
-                return;
-            }
-            setVerbInputMode(mode, { syncFromInput: true });
-        });
-    });
     slotStemInputs.forEach((stemInput) => {
         stemInput.addEventListener("input", () => onVerbComposerControlChange("matrix-stem"));
         stemInput.addEventListener("change", () => onVerbComposerControlChange("matrix-stem"));

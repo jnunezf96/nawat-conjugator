@@ -366,7 +366,6 @@ p {
 .panel-stack-tab,
 .view-export-button,
 .tutorial-trigger,
-.verb-editor-mode__button,
 .verb-screen-key,
 .tense-tabs-mode-button,
 .verb-composer__slot-transitivity,
@@ -395,7 +394,6 @@ p {
 .panel-stack-tab:hover:not(:disabled),
 .view-export-button:hover:not(:disabled),
 .tutorial-trigger:hover:not(:disabled),
-.verb-editor-mode__button:hover:not(:disabled),
 .verb-screen-key:hover:not(:disabled),
 .tense-tabs-mode-button:hover:not(:disabled),
 .verb-composer__slot-transitivity:hover:not(:disabled),
@@ -415,7 +413,6 @@ p {
 .panel-stack-tab:focus-visible,
 .view-export-button:focus-visible,
 .tutorial-trigger:focus-visible,
-.verb-editor-mode__button:focus-visible,
 .verb-screen-key:focus-visible,
 .tense-tabs-mode-button:focus-visible,
 .verb-composer__slot-transitivity:focus-visible,
@@ -432,7 +429,6 @@ p {
 }
 
 .panel-stack-tab.is-active,
-.verb-editor-mode__button.is-active,
 .verb-screen-key.is-active,
 .tense-tabs-mode-button.is-active,
 .verb-composer__slot-transitivity.is-active,
@@ -544,7 +540,6 @@ p {
 }
 
 .panel-stack-tab,
-.verb-editor-mode__button,
 .verb-screen-key,
 .tense-tabs-mode-button,
 .verb-composer__slot-transitivity,
@@ -1196,50 +1191,6 @@ input.verb-input:focus-visible {
   letter-spacing: 0.12em;
 }
 
-.verb-editor-mode {
-  display: inline-flex;
-  width: 100%;
-  border: 1px solid rgba(29, 26, 21, 0.18);
-  border-radius: 999px;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.8), rgba(246, 238, 223, 0.72));
-  padding: 2px;
-  gap: 2px;
-}
-
-.verb-editor-mode__button {
-  flex: 1 1 0;
-  width: 100%;
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.verb-editor-mode__button[data-verb-input-mode="composer"] {
-  border-color: rgba(216, 106, 58, 0.4);
-  background: linear-gradient(145deg, rgba(255, 251, 243, 0.96), rgba(255, 239, 211, 0.92));
-  color: rgba(29, 26, 21, 0.96);
-}
-
-.verb-editor-mode__button[data-verb-input-mode="composer"].is-active {
-  border-color: rgba(216, 106, 58, 0.72);
-  background: linear-gradient(145deg, rgba(216, 106, 58, 0.28), rgba(246, 191, 133, 0.24));
-  color: #1d1a15;
-}
-
-.verb-editor-mode__button[data-verb-input-mode="regex"] {
-  border-color: rgba(29, 26, 21, 0.18);
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.86), rgba(245, 240, 231, 0.8));
-  color: rgba(59, 51, 40, 0.84);
-}
-
-.verb-editor-mode__button[data-verb-input-mode="regex"].is-active {
-  border-color: rgba(29, 26, 21, 0.34);
-  background: linear-gradient(145deg, rgba(44, 139, 126, 0.16), rgba(59, 51, 40, 0.12));
-  color: rgba(29, 26, 21, 0.96);
-}
-
 .verb-block__header .tutorial-trigger {
   min-height: var(--mode-toggle-height);
   padding: 2px 11px;
@@ -1500,12 +1451,20 @@ input.verb-input:focus-visible {
   min-width: 0;
 }
 
+.verb-composer__stem-field[hidden] {
+  display: none;
+}
+
 .verb-composer__sub-label {
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-soft);
   font-weight: 600;
+}
+
+.verb-composer__sub-label[hidden] {
+  display: none;
 }
 
 .verb-composer__valence-embed-input {
@@ -1566,25 +1525,50 @@ input.verb-input:focus-visible {
     0 8px 18px rgba(216, 106, 58, 0.18);
 }
 
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"],
 .verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"],
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"] {
+.verb-composer__input[aria-label^="Objeto incorporado"] {
   background: #fff;
-  border: 3px double rgba(29, 26, 21, 0.44);
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: none;
+}
+
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"] {
+  border-color: rgba(216, 106, 58, 0.92);
+  font-weight: 700;
+}
+
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"] {
+  border-color: rgba(29, 26, 21, 0.5);
+  font-weight: 600;
+}
+
+.verb-composer__input[aria-label^="Objeto incorporado"] {
+  border-color: rgba(29, 26, 21, 0.28);
+  color: rgba(29, 26, 21, 0.86);
+  font-weight: 500;
+}
+
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:hover,
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:focus,
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:focus-visible {
+  border-color: rgba(216, 106, 58, 1);
   box-shadow: none;
 }
 
 .verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"]:hover,
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:hover {
-  border-color: rgba(216, 106, 58, 0.66);
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"]:focus,
+.verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"]:focus-visible {
+  border-color: rgba(29, 26, 21, 0.7);
+  box-shadow: none;
 }
 
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"]:focus,
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz incorporada"]:focus-visible,
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:focus,
-.verb-composer__top-row .verb-composer__input[aria-label^="Raíz matriz"]:focus-visible {
-  background: #fff;
-  border: 3px double rgba(216, 106, 58, 0.78);
-  box-shadow: 0 0 0 3px rgba(216, 106, 58, 0.16);
+.verb-composer__input[aria-label^="Objeto incorporado"]:hover,
+.verb-composer__input[aria-label^="Objeto incorporado"]:focus,
+.verb-composer__input[aria-label^="Objeto incorporado"]:focus-visible {
+  border-color: rgba(29, 26, 21, 0.45);
+  box-shadow: none;
 }
 
 .verb-composer__select.is-hidden-control {
