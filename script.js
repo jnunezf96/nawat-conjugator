@@ -1253,23 +1253,6 @@ let VERB_SUGGESTION_BASE_SET = new Set();
 let VERB_SUGGESTION_BASE_INFO = new Map();
 let VERB_DISAMBIGUATION_BASE_INFO = new Map();
 let BASIC_DATA_CANONICAL_MAP = new Map();
-const BULK_EXPORT_HEADERS = [
-    "verb",
-    "3s applicative",
-    "3s applicative nonactive",
-];
-const BULK_EXPORT_SOURCES = {
-    data: { path: "data/data.csv", label: "data.csv" },
-    basic: { path: "data/basic data.csv", label: "basic data.csv" },
-};
-const BULK_EXPORT_STATE = {
-    rows: [],
-    csvText: "",
-    filename: "conjugaciones.csv",
-    sourcePath: "",
-    sourceKind: "select",
-    fileHandle: null,
-};
 const OBJECT_TOGGLE_STATE = new Map();
 const POSSESSOR_TOGGLE_STATE = new Map();
 const SUBJECT_TOGGLE_STATE = new Map();
@@ -8200,6 +8183,7 @@ function applyWalDirectionalRule(context, rule, stage) {
         directionalOutputPrefix,
         directionalInputPrefix,
         baseSubjectPrefix,
+        baseSubjectSuffix,
         baseObjectPrefix,
         isIntransitiveVerb,
         hasSubjectValent,
@@ -8209,6 +8193,7 @@ function applyWalDirectionalRule(context, rule, stage) {
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        tense,
         isYawi,
     } = context;
     if (stage === "prefix") {
@@ -8257,8 +8242,13 @@ function applyWalDirectionalRule(context, rule, stage) {
             isThirdPersonMarker(baseObjectPrefix)
             || (indirectObjectMarker && isThirdPersonMarker(indirectObjectMarker));
         if (directionalInputPrefix === "wal" && isThirdPersonObject) {
+            const isImperativeSecondPlural =
+                tense === "imperativo"
+                && baseSubjectPrefix === "an"
+                && baseSubjectSuffix === "t";
             const dropK = baseSubjectPrefix === "ni"
                 || baseSubjectPrefix === "ti"
+                || isImperativeSecondPlural
                 || directionalRuleMode === "intransitive"
                 || directionalRuleMode === "nonspecific";
             objectPrefix = dropK ? "" : "k";
@@ -12528,221 +12518,6 @@ function escapeCSVValue(value) {
     return raw;
 }
 
-// === Bulk Export ===
-function getBulkExportElements() {
-    return {
-        container: document.getElementById("bulk-export"),
-        generateButton: document.getElementById("bulk-export-generate"),
-        downloadButton: document.getElementById("bulk-export-download"),
-        status: document.getElementById("bulk-export-status"),
-        table: document.getElementById("bulk-export-table"),
-        source: document.getElementById("bulk-export-source"),
-        sourceSelect: document.getElementById("bulk-export-source-select"),
-        openButton: document.getElementById("bulk-export-open"),
-        saveButton: document.getElementById("bulk-export-save"),
-    };
-}
-
-function setBulkExportStatus(message, options = {}) {
-    const { status } = getBulkExportElements();
-    if (!status) {
-        return;
-    }
-    status.textContent = message || "";
-    status.classList.toggle("is-error", options.isError === true);
-}
-
-function supportsFileSystemAccess() {
-    return typeof window !== "undefined"
-        && typeof window.showOpenFilePicker === "function"
-        && typeof window.showSaveFilePicker === "function";
-}
-
-async function verifyFilePermission(handle, mode = "readwrite") {
-    if (!handle || typeof handle.queryPermission !== "function") {
-        return true;
-    }
-    const options = { mode };
-    const current = await handle.queryPermission(options);
-    if (current === "granted") {
-        return true;
-    }
-    const requested = await handle.requestPermission(options);
-    return requested === "granted";
-}
-
-function setBulkExportSourceLabel(label, kind = "select") {
-    const { source } = getBulkExportElements();
-    if (!source) {
-        return;
-    }
-    if (!label) {
-        source.textContent = "";
-        return;
-    }
-    source.textContent = kind === "file" ? `Archivo: ${label}` : `Fuente: ${label}`;
-}
-
-function updateBulkExportControlState() {
-    const { openButton, saveButton, downloadButton } = getBulkExportElements();
-    const supportsFS = supportsFileSystemAccess();
-    if (openButton) {
-        openButton.disabled = !supportsFS;
-    }
-    if (saveButton) {
-        saveButton.disabled = !supportsFS || !BULK_EXPORT_STATE.rows.length;
-    }
-    if (downloadButton) {
-        downloadButton.disabled = !BULK_EXPORT_STATE.rows.length;
-    }
-}
-
-function getBulkExportSourceConfig() {
-    const { sourceSelect } = getBulkExportElements();
-    const value = sourceSelect?.value || "data";
-    return BULK_EXPORT_SOURCES[value] || BULK_EXPORT_SOURCES.data;
-}
-
-async function loadBulkExportCSVText(sourceConfig) {
-    if (typeof fetch !== "function") {
-        throw new Error("CSV no disponible.");
-    }
-    const config = sourceConfig || BULK_EXPORT_SOURCES.data;
-    const path = config.path;
-    try {
-        const response = await fetch(encodeURI(path), { cache: "no-store" });
-        if (!response.ok) {
-            throw new Error(`${path} (${response.status})`);
-        }
-        const text = await response.text();
-        return { text, sourcePath: config.label };
-    } catch {
-        throw new Error(`No se encontro ${config.label}.`);
-    }
-}
-
-function parseBulkExportEntries(text) {
-    const entries = [];
-    parseCSVRows(text).forEach((row, index) => {
-        const firstCell = row[0] ? String(row[0]).trim() : "";
-        if (!firstCell) {
-            return;
-        }
-        const normalized = firstCell.toLowerCase().replace(/^\//, "");
-        if (index === 0 && (normalized === "lx" || normalized === "verb")) {
-            return;
-        }
-        const entry = parseVerbEntryToken(firstCell);
-        if (!entry.base) {
-            return;
-        }
-        entries.push(entry);
-    });
-    return entries;
-}
-
-function expandBulkExportEntries(entries) {
-    const expanded = [];
-    entries.forEach((entry) => {
-        if (entry.intransitive) {
-            expanded.push({ verb: entry.base, isTransitive: false });
-        }
-        if (entry.transitive) {
-            expanded.push({ verb: `-${entry.base}`, isTransitive: true });
-        }
-        if (!entry.intransitive && !entry.transitive && entry.base) {
-            expanded.push({ verb: entry.base, isTransitive: false });
-        }
-    });
-    return expanded;
-}
-
-function getBulkExportConjugation({
-    verb,
-    tense,
-    subjectSuffix,
-    objectPrefix,
-    derivationMode = DERIVATION_MODE.nonactive,
-    derivationType = DERIVATION_TYPE.direct,
-    indirectObjectMarker = "",
-}) {
-    const result = generateWord({
-        silent: true,
-        override: {
-            verb,
-            tense,
-            subjectPrefix: "",
-            subjectSuffix,
-            objectPrefix,
-            indirectObjectMarker,
-            tenseMode: TENSE_MODE.verbo,
-            derivationMode,
-            derivationType,
-            voiceMode: VOICE_MODE.active,
-        },
-    });
-    if (!result || result.error || typeof result.result !== "string" || !result.result) {
-        return "—";
-    }
-    return result.result;
-}
-
-function buildBulkExportRow({ verb, isTransitive }) {
-    const applicative3s = getBulkExportConjugation({
-        verb,
-        tense: "presente",
-        subjectSuffix: "",
-        objectPrefix: "ki",
-        derivationMode: DERIVATION_MODE.active,
-        derivationType: DERIVATION_TYPE.applicative,
-    });
-    const applicativeNonactive3s = getBulkExportConjugation({
-        verb,
-        tense: "presente",
-        subjectSuffix: "",
-        objectPrefix: "",
-        derivationMode: DERIVATION_MODE.nonactive,
-        derivationType: DERIVATION_TYPE.applicative,
-    });
-    return {
-        verb,
-        isTransitive,
-        applicative3s,
-        applicativeNonactive3s,
-    };
-}
-
-function buildBulkExportRows(entries) {
-    return expandBulkExportEntries(entries).map((entry) => buildBulkExportRow(entry));
-}
-
-function applyBulkExportText(text, sourceLabel, options = {}) {
-    const { table } = getBulkExportElements();
-    const entries = parseBulkExportEntries(text);
-    const rows = buildBulkExportRows(entries);
-    BULK_EXPORT_STATE.rows = rows;
-    BULK_EXPORT_STATE.csvText = buildBulkExportCSV(rows);
-    renderBulkExportTable(table, rows);
-    updateBulkExportStatusSummary();
-    if (options.sourceKind) {
-        BULK_EXPORT_STATE.sourceKind = options.sourceKind;
-    }
-    if (sourceLabel) {
-        BULK_EXPORT_STATE.sourcePath = sourceLabel;
-        setBulkExportSourceLabel(sourceLabel, options.sourceKind || BULK_EXPORT_STATE.sourceKind);
-    }
-    updateBulkExportControlState();
-}
-
-function buildBulkExportCSV(rows) {
-    const header = BULK_EXPORT_HEADERS.map((label) => escapeCSVValue(label)).join(",");
-    const lines = rows.map((row) => ([
-        row.verb,
-        row.applicative3s,
-        row.applicativeNonactive3s,
-    ].map((value) => escapeCSVValue(value)).join(",")));
-    return [header, ...lines].join("\n");
-}
 
 function collectVisibleConjugationRows() {
     const container = document.getElementById("all-tense-conjugations");
@@ -12888,292 +12663,6 @@ function initViewExport() {
     button.addEventListener("click", () => {
         downloadViewExportCSV();
     });
-}
-
-function normalizeBulkExportVerbInput(rawValue, fallbackTransitive) {
-    const trimmed = String(rawValue || "").trim();
-    if (!trimmed) {
-        return { verb: "", isTransitive: fallbackTransitive, display: "" };
-    }
-    const entry = parseVerbEntryToken(trimmed);
-    const base = entry.base;
-    if (!base) {
-        return { verb: "", isTransitive: fallbackTransitive, display: "" };
-    }
-    let isTransitive = fallbackTransitive;
-    if (entry.transitive && !entry.intransitive) {
-        isTransitive = true;
-    } else if (entry.intransitive && !entry.transitive) {
-        isTransitive = false;
-    }
-    const verb = isTransitive ? `-${base}` : base;
-    return { verb, isTransitive, display: verb };
-}
-
-function updateBulkExportStatusSummary() {
-    const rows = BULK_EXPORT_STATE.rows || [];
-    if (!rows.length) {
-        setBulkExportStatus("");
-        return;
-    }
-    const missingRows = rows.filter((row) => (
-        [row.applicative3s, row.applicativeNonactive3s].some((value) => !value || value === "—")
-    )).length;
-    let statusMessage = `Listo: ${rows.length} filas.`;
-    if (missingRows) {
-        statusMessage += ` ${missingRows} con salida vacia.`;
-    }
-    setBulkExportStatus(statusMessage);
-}
-
-function updateBulkExportRowData(index, rawValue) {
-    const row = BULK_EXPORT_STATE.rows[index];
-    if (!row) {
-        return null;
-    }
-    const normalized = normalizeBulkExportVerbInput(rawValue, row.isTransitive);
-    if (!normalized.verb) {
-        row.verb = "";
-        row.applicative3s = "—";
-        row.applicativeNonactive3s = "—";
-        return normalized;
-    }
-    const updated = buildBulkExportRow({
-        verb: normalized.verb,
-        isTransitive: normalized.isTransitive,
-    });
-    row.verb = updated.verb;
-    row.isTransitive = updated.isTransitive;
-    row.applicative3s = updated.applicative3s;
-    row.applicativeNonactive3s = updated.applicativeNonactive3s;
-    updateBulkExportControlState();
-    return normalized;
-}
-
-function renderBulkExportTable(container, rows) {
-    if (!container) {
-        return;
-    }
-    container.innerHTML = "";
-    if (!rows.length) {
-        const empty = document.createElement("div");
-        empty.className = "bulk-export__empty";
-        empty.textContent = "Sin datos.";
-        container.appendChild(empty);
-        return;
-    }
-    const table = document.createElement("table");
-    table.className = "bulk-export__table-table";
-    const thead = document.createElement("thead");
-    const headRow = document.createElement("tr");
-    BULK_EXPORT_HEADERS.forEach((label) => {
-        const th = document.createElement("th");
-        th.textContent = label;
-        headRow.appendChild(th);
-    });
-    thead.appendChild(headRow);
-    table.appendChild(thead);
-    const tbody = document.createElement("tbody");
-    rows.forEach((row, index) => {
-        const tr = document.createElement("tr");
-        const verbCell = document.createElement("td");
-        const verbInput = document.createElement("input");
-        verbInput.type = "text";
-        verbInput.className = "bulk-export__verb-input";
-        verbInput.value = row.verb;
-        applyNoAutofillAttributes(verbInput);
-        verbCell.appendChild(verbInput);
-        tr.appendChild(verbCell);
-        const applicative3sCell = document.createElement("td");
-        applicative3sCell.textContent = row.applicative3s;
-        tr.appendChild(applicative3sCell);
-        const applicativeNonactive3sCell = document.createElement("td");
-        applicativeNonactive3sCell.textContent = row.applicativeNonactive3s;
-        tr.appendChild(applicativeNonactive3sCell);
-        const syncCells = () => {
-            applicative3sCell.textContent = row.applicative3s;
-            applicativeNonactive3sCell.textContent = row.applicativeNonactive3s;
-        };
-        const applyUpdate = (options = {}) => {
-            const normalized = updateBulkExportRowData(index, verbInput.value);
-            syncCells();
-            BULK_EXPORT_STATE.csvText = buildBulkExportCSV(BULK_EXPORT_STATE.rows);
-            updateBulkExportStatusSummary();
-            if (options.normalizeDisplay && normalized) {
-                verbInput.value = normalized.display;
-            }
-        };
-        verbInput.addEventListener("input", () => {
-            applyUpdate();
-        });
-        verbInput.addEventListener("blur", () => {
-            applyUpdate({ normalizeDisplay: true });
-        });
-        tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    container.appendChild(table);
-}
-
-async function runBulkExportGeneration() {
-    const { generateButton, downloadButton, table, source } = getBulkExportElements();
-    if (!generateButton || !table) {
-        return;
-    }
-    generateButton.disabled = true;
-    if (downloadButton) {
-        downloadButton.disabled = true;
-    }
-    setBulkExportStatus("Generando...");
-    if (source) {
-        source.textContent = "";
-    }
-    try {
-        const sourceConfig = getBulkExportSourceConfig();
-        const { text, sourcePath } = await loadBulkExportCSVText(sourceConfig);
-        BULK_EXPORT_STATE.fileHandle = null;
-        BULK_EXPORT_STATE.filename = "conjugaciones.csv";
-        applyBulkExportText(text, sourcePath, { sourceKind: "select" });
-    } catch (error) {
-        BULK_EXPORT_STATE.rows = [];
-        BULK_EXPORT_STATE.csvText = "";
-        renderBulkExportTable(table, []);
-        const message = error instanceof Error && error.message ? error.message : "No se pudo generar.";
-        setBulkExportStatus(message, { isError: true });
-        if (downloadButton) {
-            downloadButton.disabled = true;
-        }
-        updateBulkExportControlState();
-    } finally {
-        generateButton.disabled = false;
-    }
-}
-
-async function openBulkExportFile() {
-    if (!supportsFileSystemAccess()) {
-        setBulkExportStatus("El navegador no permite abrir archivos locales.", { isError: true });
-        return;
-    }
-    try {
-        const [handle] = await window.showOpenFilePicker({
-            multiple: false,
-            types: [
-                {
-                    description: "CSV",
-                    accept: { "text/csv": [".csv"] },
-                },
-            ],
-        });
-        if (!handle) {
-            return;
-        }
-        const file = await handle.getFile();
-        const text = await file.text();
-        BULK_EXPORT_STATE.fileHandle = handle;
-        BULK_EXPORT_STATE.filename = file.name || "conjugaciones.csv";
-        applyBulkExportText(text, file.name || "archivo.csv", { sourceKind: "file" });
-    } catch (error) {
-        if (error && error.name === "AbortError") {
-            return;
-        }
-        setBulkExportStatus("No se pudo abrir el archivo.", { isError: true });
-    }
-}
-
-async function saveBulkExportFile() {
-    if (!BULK_EXPORT_STATE.csvText) {
-        setBulkExportStatus("No hay datos para guardar.", { isError: true });
-        return;
-    }
-    if (!supportsFileSystemAccess()) {
-        setBulkExportStatus("El navegador no permite guardar archivos locales.", { isError: true });
-        return;
-    }
-    try {
-        let handle = BULK_EXPORT_STATE.fileHandle;
-        if (!handle) {
-            handle = await window.showSaveFilePicker({
-                suggestedName: BULK_EXPORT_STATE.filename || "conjugaciones.csv",
-                types: [
-                    {
-                        description: "CSV",
-                        accept: { "text/csv": [".csv"] },
-                    },
-                ],
-            });
-            if (!handle) {
-                return;
-            }
-            BULK_EXPORT_STATE.fileHandle = handle;
-        }
-        const hasPermission = await verifyFilePermission(handle, "readwrite");
-        if (!hasPermission) {
-            setBulkExportStatus("Permiso denegado para guardar.", { isError: true });
-            return;
-        }
-        const writable = await handle.createWritable();
-        await writable.write(BULK_EXPORT_STATE.csvText);
-        await writable.close();
-        const fileName = handle.name || BULK_EXPORT_STATE.filename || "conjugaciones.csv";
-        setBulkExportStatus(`Guardado en ${fileName}.`);
-    } catch (error) {
-        if (error && error.name === "AbortError") {
-            return;
-        }
-        setBulkExportStatus("No se pudo guardar el archivo.", { isError: true });
-    }
-}
-
-function downloadBulkExportCSV() {
-    const csvText = BULK_EXPORT_STATE.csvText;
-    if (!csvText) {
-        return;
-    }
-    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = BULK_EXPORT_STATE.filename || "conjugaciones.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
-
-function initBulkExport() {
-    const {
-        container,
-        generateButton,
-        downloadButton,
-        sourceSelect,
-        openButton,
-        saveButton,
-    } = getBulkExportElements();
-    if (!container || !generateButton || !downloadButton) {
-        return;
-    }
-    generateButton.addEventListener("click", () => {
-        runBulkExportGeneration();
-    });
-    downloadButton.addEventListener("click", () => {
-        downloadBulkExportCSV();
-    });
-    if (openButton) {
-        openButton.addEventListener("click", () => {
-            openBulkExportFile();
-        });
-    }
-    if (saveButton) {
-        saveButton.addEventListener("click", () => {
-            saveBulkExportFile();
-        });
-    }
-    if (sourceSelect) {
-        sourceSelect.addEventListener("change", () => {
-            setBulkExportStatus("");
-        });
-    }
-    updateBulkExportControlState();
 }
 
 // === UI Panels & Tabs ===
@@ -14871,6 +14360,7 @@ function applyMorphologyRules({
         objectPrefix,
         verb,
         baseSubjectPrefix,
+        baseSubjectSuffix,
         baseObjectPrefix,
         isIntransitiveVerb,
         hasSubjectValent,
@@ -14880,6 +14370,7 @@ function applyMorphologyRules({
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        tense,
         isYawi,
         isNounTense: isNounContextFinal,
     }, "prefix");
@@ -15001,7 +14492,21 @@ function applyMorphologyRules({
     const useAnalysisForCounts = Boolean(directionalInputPrefix) || nonRedupAnalysis !== rawAnalysis;
     const analysisTarget = useAnalysisForCounts ? nonRedupAnalysis : rawAnalysis;
     if (tense === "imperativo") {
-        if ((subjectPrefix === "ti" && subjectSuffix === "") || subjectPrefix.startsWith("an")) {
+        const isImperativeSecondSingular =
+            baseSubjectPrefix === "ti"
+            && baseSubjectSuffix === "";
+        const isImperativeSecondPlural =
+            baseSubjectPrefix === "an"
+            && baseSubjectSuffix === "t";
+        if (
+            isImperativeSecondPlural
+            && objectPrefix === "ki"
+            && verb
+            && !VOWEL_START_RE.test(verb)
+        ) {
+            objectPrefix = "k";
+        }
+        if (isImperativeSecondSingular || isImperativeSecondPlural) {
             subjectPrefix = "shi";
         }
         if (endsWithAny(verb, IA_UA_SUFFIXES)) {
@@ -15297,6 +14802,7 @@ function applyMorphologyRules({
         objectPrefix,
         verb,
         baseSubjectPrefix,
+        baseSubjectSuffix,
         baseObjectPrefix,
         isIntransitiveVerb,
         hasSubjectValent,
@@ -15306,6 +14812,7 @@ function applyMorphologyRules({
         forceIntransitiveDirectional,
         forceNonspecificDirectional,
         directionalRuleMode,
+        tense,
         isYawi,
         isNounTense: isNounContextFinal,
     }, "post-elision");
@@ -15315,6 +14822,18 @@ function applyMorphologyRules({
         verb,
         directionalOutputPrefix,
     } = directionalPostResult);
+    const isImperativeSecondPersonBase =
+        tense === "imperativo"
+        && (
+            (baseSubjectPrefix === "ti" && baseSubjectSuffix === "")
+            || (baseSubjectPrefix === "an" && baseSubjectSuffix === "t")
+        );
+    const hasWalAlContactAfterDirectional =
+        (objectPrefix === "" && verb.startsWith("al"))
+        || (typeof objectPrefix === "string" && objectPrefix.startsWith("al"));
+    if (isImperativeSecondPersonBase && subjectPrefix === "shi" && hasWalAlContactAfterDirectional) {
+        subjectPrefix = "sh";
+    }
     const disallowRootPlusYa = exactAnalysisVerb === "ya"
         && (hasSlashMarker || hasSuffixSeparator || hasLeadingDash);
     const rootPlusYaBaseResolved = isPerfectiveTense(tense) && !disallowRootPlusYa
@@ -19564,7 +19083,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTenseModeTabs();
     initCombinedModeTabs();
     initDerivationTypeControl();
-    initBulkExport();
     initViewExport();
     initVerbComposer();
     initVerbScreenCalculator();
