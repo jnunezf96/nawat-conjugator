@@ -356,6 +356,10 @@ p {
     grid-area: tabs;
   }
 
+  .panel-pane-nav-btn {
+    display: inline-flex;
+  }
+
   #panel-stack-pane-inputs,
   #panel-stack-pane-tense,
   #container-tense-grid {
@@ -710,6 +714,47 @@ p {
 
 .panel-block-text {
   letter-spacing: 0.18em;
+}
+
+.panel-pane-nav-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--glass-btn-border);
+  background: var(--glass-btn-bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: calc(var(--font-size-label) - 0.02rem);
+  line-height: 1;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.panel-pane-nav-btn--next {
+  margin-left: auto;
+}
+
+.panel-pane-nav-btn:hover:not(:disabled) {
+  border-color: var(--glass-btn-border-hover);
+  color: var(--ink);
+}
+
+.panel-pane-nav-btn:focus-visible {
+  outline: 2px solid rgba(44, 139, 126, 0.45);
+  outline-offset: 1px;
+}
+
+.panel-pane-nav-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
 }
 
 .calc-input-mode {

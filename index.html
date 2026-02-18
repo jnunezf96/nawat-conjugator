@@ -101,8 +101,28 @@
           >
             <div class="form-container panel" id="container-inputs">
               <div class="panel-block-title">
+                <button
+                  type="button"
+                  class="panel-pane-nav-btn panel-pane-nav-btn--prev"
+                  data-pane-nav-from="inputs"
+                  data-pane-nav-direction="prev"
+                  aria-label="Ir al panel anterior"
+                  title="Panel anterior"
+                >
+                  <span aria-hidden="true">◀</span>
+                </button>
                 <span class="panel-block-step">1</span>
                 <span class="panel-block-text">ENTRADA</span>
+                <button
+                  type="button"
+                  class="panel-pane-nav-btn panel-pane-nav-btn--next"
+                  data-pane-nav-from="inputs"
+                  data-pane-nav-direction="next"
+                  aria-label="Ir al siguiente panel"
+                  title="Panel siguiente"
+                >
+                  <span aria-hidden="true">▶</span>
+                </button>
               </div>
               <div class="form-group">
                 <section class="verb-block" id="verb-block" aria-label="Entrada principal del verbo">
@@ -599,8 +619,28 @@
             aria-labelledby="panel-stack-tab-tense"
           >
             <div class="panel-block-title">
+              <button
+                type="button"
+                class="panel-pane-nav-btn panel-pane-nav-btn--prev"
+                data-pane-nav-from="tense"
+                data-pane-nav-direction="prev"
+                aria-label="Ir al panel anterior"
+                title="Panel anterior"
+              >
+                <span aria-hidden="true">◀</span>
+              </button>
               <span class="panel-block-step">2</span>
               <span class="panel-block-text">DERIVADA</span>
+              <button
+                type="button"
+                class="panel-pane-nav-btn panel-pane-nav-btn--next"
+                data-pane-nav-from="tense"
+                data-pane-nav-direction="next"
+                aria-label="Ir al siguiente panel"
+                title="Panel siguiente"
+              >
+                <span aria-hidden="true">▶</span>
+              </button>
             </div>
                 <div class="calc-operators">
                   <div class="calc-operator calc-operator--mode" role="group" aria-label="Modo">
@@ -710,8 +750,28 @@
           aria-labelledby="panel-stack-tab-output"
         >
           <div class="panel-block-title">
+            <button
+              type="button"
+              class="panel-pane-nav-btn panel-pane-nav-btn--prev"
+              data-pane-nav-from="output"
+              data-pane-nav-direction="prev"
+              aria-label="Ir al panel anterior"
+              title="Panel anterior"
+            >
+              <span aria-hidden="true">◀</span>
+            </button>
             <span class="panel-block-step">3</span>
             <span class="panel-block-text">SALIDA</span>
+            <button
+              type="button"
+              class="panel-pane-nav-btn panel-pane-nav-btn--next"
+              data-pane-nav-from="output"
+              data-pane-nav-direction="next"
+              aria-label="Ir al siguiente panel"
+              title="Panel siguiente"
+            >
+              <span aria-hidden="true">▶</span>
+            </button>
           </div>
           <div class="tense-tools">
             <button type="button" class="view-export-button" id="view-export-csv">

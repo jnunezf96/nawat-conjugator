@@ -15637,12 +15637,31 @@ function isThreeColumnPanelLayout() {
         && window.matchMedia("(min-width: 1025px)").matches;
 }
 
+const PANEL_STACK_ORDER = ["inputs", "tense", "output"];
+
+function normalizePanelStackMode(mode) {
+    if (mode === "tense") {
+        return "tense";
+    }
+    if (mode === "output") {
+        return "output";
+    }
+    return "inputs";
+}
+
+function getAdjacentPanelStackMode(mode, direction = 1) {
+    const normalizedMode = normalizePanelStackMode(mode);
+    const currentIndex = PANEL_STACK_ORDER.indexOf(normalizedMode);
+    if (currentIndex === -1) {
+        return PANEL_STACK_ORDER[0];
+    }
+    const delta = direction < 0 ? -1 : 1;
+    const nextIndex = (currentIndex + delta + PANEL_STACK_ORDER.length) % PANEL_STACK_ORDER.length;
+    return PANEL_STACK_ORDER[nextIndex];
+}
+
 function setLeftPanelStackMode(mode) {
-    const normalizedMode = mode === "tense"
-        ? "tense"
-        : mode === "output"
-            ? "output"
-            : "inputs";
+    const normalizedMode = normalizePanelStackMode(mode);
     const buttons = Array.from(document.querySelectorAll("[data-panel-stack-tab]"));
     const panes = Array.from(document.querySelectorAll("[data-panel-stack-pane]"));
     const stackRoot = document.querySelector(".panel-stack");
@@ -15663,6 +15682,31 @@ function setLeftPanelStackMode(mode) {
         pane.hidden = !isActive;
         pane.classList.toggle("is-active", isActive);
         pane.setAttribute("aria-hidden", String(!isActive));
+    });
+}
+
+function initPanelEdgeNavigation() {
+    const buttons = Array.from(
+        document.querySelectorAll("[data-pane-nav-direction][data-pane-nav-from]")
+    );
+    if (!buttons.length) {
+        return;
+    }
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const directionAttr = button.getAttribute("data-pane-nav-direction");
+            const direction = directionAttr === "prev" ? -1 : 1;
+            const stackRoot = document.querySelector(".panel-stack");
+            const activeMode = stackRoot?.getAttribute("data-active-pane");
+            const fallbackMode = button.getAttribute("data-pane-nav-from");
+            const originMode = activeMode || fallbackMode || "inputs";
+            const targetMode = getAdjacentPanelStackMode(originMode, direction);
+            setLeftPanelStackMode(targetMode);
+            const targetTab = document.querySelector(`[data-panel-stack-tab="${targetMode}"]`);
+            if (targetTab && typeof targetTab.focus === "function") {
+                targetTab.focus({ preventScroll: true });
+            }
+        });
     });
 }
 
@@ -24191,6 +24235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initUiScaleControl();
     initTutorialPanel();
     initLeftPanelStackTabs();
+    initPanelEdgeNavigation();
     initTenseModeTabs();
     initCombinedModeTabs();
     initDerivationTypeControl();
