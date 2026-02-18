@@ -14101,6 +14101,18 @@ function initUiScaleControl() {
 }
 
 function initZoomFontLock() {
+    const isTouchMobile = typeof window !== "undefined"
+        && typeof window.matchMedia === "function"
+        && window.matchMedia("(max-width: 1024px)").matches
+        && (
+            ("ontouchstart" in window)
+            || (navigator && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints > 0)
+        );
+    // On mobile/touch, keep native viewport behavior so manual pinch zoom
+    // feels normal and the page does not fight user scale changes.
+    if (isTouchMobile) {
+        return;
+    }
     const root = document.documentElement;
     if (!root) {
         return;
