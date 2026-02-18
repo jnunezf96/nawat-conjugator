@@ -756,6 +756,42 @@ p {
 @media (max-width: 1024px) {
   .panel-pane-nav-btn {
     display: inline-flex;
+    position: absolute;
+    top: 44px;
+    bottom: 10px;
+    width: 16px;
+    min-width: 16px;
+    min-height: auto;
+    height: auto;
+    padding: 0;
+    border-radius: 999px;
+    z-index: 8;
+    border: 1px solid rgba(29, 26, 21, 0.2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(244, 232, 210, 0.86));
+  }
+
+  .panel-pane-nav-btn--prev {
+    left: -10px;
+  }
+
+  .panel-pane-nav-btn--next {
+    right: -10px;
+    margin-left: 0;
+  }
+
+  .panel-pane-nav-btn span {
+    font-size: calc(var(--font-size-label) - 0.06rem);
+    line-height: 1;
+    opacity: 0.9;
+  }
+
+  .panel-pane-nav-btn:active {
+    background: linear-gradient(180deg, rgba(216, 106, 58, 0.22), rgba(44, 139, 126, 0.14));
+    border-color: rgba(216, 106, 58, 0.48);
+  }
+
+  .panel-block-title {
+    justify-content: center;
   }
 }
 
