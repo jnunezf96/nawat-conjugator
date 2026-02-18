@@ -356,10 +356,6 @@ p {
     grid-area: tabs;
   }
 
-  .panel-pane-nav-btn {
-    display: inline-flex;
-  }
-
   #panel-stack-pane-inputs,
   #panel-stack-pane-tense,
   #container-tense-grid {
@@ -755,6 +751,12 @@ p {
 .panel-pane-nav-btn:disabled {
   opacity: 0.48;
   cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .panel-pane-nav-btn {
+    display: inline-flex;
+  }
 }
 
 .calc-input-mode {
