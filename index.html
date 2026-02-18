@@ -54,9 +54,9 @@
           </label>
         </div>
       </div>
-      <div class="panel-grid">
+      <div class="panel-grid calc-grid">
         <div class="panel-stack">
-          <div class="panel-stack-tabs" role="tablist" aria-label="Panel izquierdo">
+          <div class="panel-stack-tabs" role="tablist" aria-label="Etapas">
             <button
               type="button"
               class="panel-stack-tab is-active"
@@ -66,7 +66,7 @@
               aria-selected="true"
               aria-controls="panel-stack-pane-inputs"
             >
-              Entradas
+              Entrada
             </button>
             <button
               type="button"
@@ -77,7 +77,7 @@
               aria-selected="false"
               aria-controls="panel-stack-pane-tense"
             >
-              Tiempos
+              Derivada
             </button>
           </div>
           <form
@@ -89,7 +89,10 @@
             autocomplete="off"
           >
             <div class="form-container panel" id="container-inputs">
-              <div class="panel-block-title">ENTRADA</div>
+              <div class="panel-block-title">
+                <span class="panel-block-step">1</span>
+                <span class="panel-block-text">ENTRADA</span>
+              </div>
               <div class="form-group">
                 <section class="verb-block" id="verb-block" aria-label="Entrada principal del verbo">
                   <div class="verb-block__display">
@@ -126,6 +129,24 @@
                   </div>
                   <div class="verb-block__separator" aria-hidden="true"></div>
                   <div class="verb-block__controls">
+                    <div class="calc-input-mode" role="group" aria-label="Modo de entrada">
+                      <button
+                        type="button"
+                        class="calc-input-mode__button"
+                        data-input-mode="composer"
+                        aria-pressed="true"
+                      >
+                        Selecciones
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-input-mode__button"
+                        data-input-mode="regex"
+                        aria-pressed="false"
+                      >
+                        Regex
+                      </button>
+                    </div>
                     <div class="verb-block__keys">
                       <div
                         class="verb-screen-keys"
@@ -204,10 +225,10 @@
                           type="button"
                           class="verb-screen-key verb-screen-key--equals"
                           id="verb-key-eq"
-                          aria-label="Generar"
-                          title="= · generar conjugaciones"
+                          aria-label="Copiar resultado"
+                          title="COP · copiar resultado"
                         >
-                          =
+                          COP
                         </button>
                       </div>
                     </div>
@@ -503,6 +524,14 @@
                           </label>
                         </div>
                       </div>
+                      <div class="verb-composer__placeholder" id="verb-composer-placeholder" aria-hidden="true">
+                        <div class="calc-regex-card">
+                          <div class="calc-regex-title">Regex activo</div>
+                          <div class="calc-regex-body">
+                            Escribe el patrón directo en la pantalla para buscar o derivar sin menús.
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div class="verb-block__feedback">
@@ -557,80 +586,123 @@
             data-panel-stack-pane="tense"
             role="tabpanel"
             aria-labelledby="panel-stack-tab-tense"
-            hidden
           >
-                <div class="panel-block-title">DERIVADA</div>
-                <div class="tense-tabs-mode-row">
-                  <div class="tense-tabs-mode" role="tablist" aria-label="Tipo">
-                    <button
-                      type="button"
-                      class="tense-tabs-mode-button"
-                      data-tense-mode="verbo"
-                      id="tense-tabs-mode-verb"
-                    >
-                      Verbo
-                    </button>
-                    <button
-                      type="button"
-                      class="tense-tabs-mode-button"
-                      data-tense-mode="sustantivo"
-                      id="tense-tabs-mode-noun"
-                    >
-                      Sustantivo
-                    </button>
+            <div class="panel-block-title">
+              <span class="panel-block-step">2</span>
+              <span class="panel-block-text">DERIVADA</span>
+            </div>
+                <div class="calc-operators">
+                  <div class="calc-operator calc-operator--mode" role="group" aria-label="Modo">
+                    <div class="calc-operator__label">Modo</div>
+                    <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-label="Modo">
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-tense-mode="verbo"
+                        id="calc-mode-verb"
+                        data-ui-label-key="tense-tabs-mode-verb"
+                      >
+                        Verbo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-tense-mode="sustantivo"
+                        id="calc-mode-noun"
+                        data-ui-label-key="tense-tabs-mode-noun"
+                      >
+                        Sustantivo
+                      </button>
+                    </div>
                   </div>
-                  <div
-                    class="tense-tabs-mode voice-derivation-tabs"
-                    role="tablist"
-                    aria-label="Voz y derivación"
-                  >
-                    <button
-                      type="button"
-                      class="tense-tabs-mode-button"
-                      data-combined-mode="active"
-                      id="tense-tabs-mode-active"
+                  <div class="calc-operator calc-operator--voice" role="group" aria-label="Voz">
+                    <div class="calc-operator__label">Voz</div>
+                    <div
+                      class="calc-operator-grid calc-operator-grid--voice"
+                      role="tablist"
+                      aria-label="Voz"
                     >
-                      Activo
-                    </button>
-                    <button
-                      type="button"
-                      class="tense-tabs-mode-button"
-                      data-combined-mode="nonactive"
-                      id="tense-tabs-mode-nonactive"
-                    >
-                      No activo
-                    </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-combined-mode="active"
+                        id="calc-voice-active"
+                        data-ui-label-key="tense-tabs-mode-active"
+                      >
+                        Activo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-combined-mode="nonactive"
+                        id="calc-voice-nonactive"
+                        data-ui-label-key="tense-tabs-mode-nonactive"
+                      >
+                        No activo
+                      </button>
+                    </div>
+                  </div>
+                  <div class="calc-operator calc-operator--derivation" role="group" aria-label="Derivación">
+                    <div class="calc-operator__label" id="derivation-type-label">Derivación</div>
+                    <div class="calc-operator-grid calc-operator-grid--derivation" role="group" aria-label="Derivación">
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="direct"
+                        aria-pressed="true"
+                      >
+                        Directo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="causative"
+                        aria-pressed="false"
+                      >
+                        Causativo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="applicative"
+                        aria-pressed="false"
+                      >
+                        Aplicativo
+                      </button>
+                    </div>
+                    <select id="derivation-type" class="is-hidden-control" aria-label="Derivación">
+                      <option value="direct">Directo</option>
+                      <option value="causative">Causativo</option>
+                      <option value="applicative">Aplicativo</option>
+                    </select>
                   </div>
                 </div>
-                <div class="derivation-type-row" role="group" aria-label="Derivación">
-                  <label for="derivation-type" id="derivation-type-label">Derivación</label>
-                  <select id="derivation-type" aria-label="Derivación">
-                    <option value="direct">Directo</option>
-                    <option value="causative">Causativo</option>
-                    <option value="applicative">Aplicativo</option>
-                  </select>
-                </div>
-                <div
-                  class="derivation-antiderivative"
-                  id="derivation-antiderivative"
-                  aria-live="polite"
-                ></div>
-                <div
-                  class="nonactive-tabs is-hidden"
-                  id="nonactive-tabs"
-                  role="tablist"
-                  aria-label="Derivación no activa"
-                ></div>
-                <div id="tense-tabs" class="tense-tabs"></div>
+            <div
+              class="derivation-antiderivative calc-operator-hint"
+              id="derivation-antiderivative"
+              aria-live="polite"
+            ></div>
+            <div
+              class="nonactive-tabs is-hidden"
+              id="nonactive-tabs"
+              role="tablist"
+              aria-label="Derivación no activa"
+            ></div>
+            <div id="tense-tabs" class="tense-tabs"></div>
           </div>
         </div>
         <div class="panel container-tense-grid" id="container-tense-grid">
-          <div class="panel-block-title">SALIDA</div>
+          <div class="panel-block-title">
+            <span class="panel-block-step">3</span>
+            <span class="panel-block-text">SALIDA</span>
+          </div>
           <div class="tense-tools">
             <button type="button" class="view-export-button" id="view-export-csv">
               CSV vista
             </button>
           </div>
+          <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
+          <div class="calc-status" id="calc-status" aria-live="polite"></div>
           <div class="tense-description" id="tense-description" aria-live="polite"></div>
           <div id="all-tense-conjugations"></div>
         </div>

@@ -80,6 +80,14 @@
   --glass-btn-bg-active: linear-gradient(145deg, rgba(216, 106, 58, 0.24), rgba(44, 139, 126, 0.16));
   --glass-btn-shadow: none;
   --glass-btn-shadow-active: none;
+  --calc-screen-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(242, 232, 215, 0.9));
+  --calc-screen-border: rgba(29, 26, 21, 0.18);
+  --calc-operator-bg: rgba(255, 255, 255, 0.7);
+  --calc-operator-border: rgba(29, 26, 21, 0.12);
+  --calc-step-bg: rgba(216, 106, 58, 0.14);
+  --calc-step-text: var(--accent-strong);
+  --calc-summary-bg: rgba(255, 255, 255, 0.75);
+  --calc-status-bg: rgba(44, 139, 126, 0.12);
   --controller-silent-toggle-border: rgba(47, 122, 92, 0.46);
   --controller-silent-toggle-border-hover: rgba(47, 122, 92, 0.62);
   --controller-silent-toggle-border-active: rgba(47, 122, 92, 0.76);
@@ -233,28 +241,26 @@ p {
   max-width: none;
   margin: 0 auto;
   width: 100%;
-  padding: 32px 20px 48px;
+  padding: 22px 12px 26px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 9px;
 }
 
 .panel-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.35fr);
-  grid-template-areas: "left conjugations";
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  grid-template-areas: "inputs derivation output";
+  gap: 12px;
   align-items: start;
+  overflow-x: auto;
+  padding-bottom: 2px;
   animation: float-in 0.85s ease both;
   animation-delay: 0.05s;
 }
 
 .panel-stack {
-  grid-area: left;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
+  display: contents;
 }
 
 .panel-stack > form {
@@ -263,19 +269,7 @@ p {
 }
 
 .panel-stack-tabs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 0;
-  margin-bottom: 0;
-  position: relative;
-  z-index: 1;
-  width: fit-content;
-  border: 1px solid rgba(29, 26, 21, 0.14);
-  border-radius: 999px;
-  padding: 3px;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: var(--shadow-soft);
+  display: none;
 }
 
 .panel-stack-tab {
@@ -315,42 +309,24 @@ p {
   box-shadow: 0 16px 30px rgba(24, 20, 14, 0.14);
 }
 
+#panel-stack-pane-inputs {
+  grid-area: inputs;
+  min-width: 320px;
+}
+
+#panel-stack-pane-tense {
+  grid-area: derivation;
+  min-width: 320px;
+}
+
 #container-tense-grid {
-  grid-area: conjugations;
+  grid-area: output;
+  min-width: 320px;
 }
 
 @media (min-width: 1280px) {
   .app-shell {
     padding-inline: 24px;
-  }
-
-  .panel-grid {
-    grid-template-columns: minmax(360px, 1fr) minmax(460px, 1.35fr) minmax(360px, 1fr);
-    grid-template-areas: "inputs conjugations tense";
-    gap: 20px;
-  }
-
-  .panel-stack {
-    display: contents;
-  }
-
-  .panel-stack-tabs {
-    display: none;
-  }
-
-  #panel-stack-pane-inputs {
-    grid-area: inputs;
-    min-width: 0;
-  }
-
-  #panel-stack-pane-tense {
-    grid-area: tense;
-    min-width: 0;
-  }
-
-  #container-tense-grid {
-    grid-area: conjugations;
-    min-width: 0;
   }
 }
 
@@ -359,7 +335,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 11px;
   animation: float-in 0.8s ease both;
 }
 
@@ -367,7 +343,8 @@ p {
 .view-export-button,
 .tutorial-trigger,
 .verb-screen-key,
-.tense-tabs-mode-button,
+.calc-input-mode__button,
+.calc-operator-chip,
 .verb-composer__slot-transitivity,
 .verb-composer__slot-tab,
 .verb-chip,
@@ -380,7 +357,7 @@ p {
   border: 1px solid var(--glass-btn-border);
   background: var(--glass-btn-bg);
   color: var(--ink-soft);
-  border-radius: 999px;
+  border-radius: 12px;
   box-shadow: var(--glass-btn-shadow);
   transition:
     background 0.2s ease,
@@ -395,7 +372,8 @@ p {
 .view-export-button:hover:not(:disabled),
 .tutorial-trigger:hover:not(:disabled),
 .verb-screen-key:hover:not(:disabled),
-.tense-tabs-mode-button:hover:not(:disabled),
+.calc-input-mode__button:hover:not(:disabled),
+.calc-operator-chip:hover:not(:disabled),
 .verb-composer__slot-transitivity:hover:not(:disabled),
 .verb-composer__slot-tab:hover:not(:disabled),
 .verb-chip:hover:not(:disabled),
@@ -414,7 +392,8 @@ p {
 .view-export-button:focus-visible,
 .tutorial-trigger:focus-visible,
 .verb-screen-key:focus-visible,
-.tense-tabs-mode-button:focus-visible,
+.calc-input-mode__button:focus-visible,
+.calc-operator-chip:focus-visible,
 .verb-composer__slot-transitivity:focus-visible,
 .verb-composer__slot-tab:focus-visible,
 .verb-chip:focus-visible,
@@ -430,7 +409,8 @@ p {
 
 .panel-stack-tab.is-active,
 .verb-screen-key.is-active,
-.tense-tabs-mode-button.is-active,
+.calc-input-mode__button.is-active,
+.calc-operator-chip.is-active,
 .verb-composer__slot-transitivity.is-active,
 .verb-composer__slot-tab.is-active,
 .verb-chip.is-active,
@@ -525,9 +505,10 @@ p {
   background: linear-gradient(145deg, rgba(173, 98, 111, 0.3), rgba(255, 255, 255, 0.9));
 }
 
-.tense-tabs-mode-button:disabled,
+.calc-operator-chip:disabled,
 .tutorial-trigger:disabled,
 .verb-screen-key:disabled,
+.calc-input-mode__button:disabled,
 .verb-composer__slot-tab:disabled,
 .verb-chip:disabled,
 .nonactive-tab:disabled,
@@ -541,7 +522,7 @@ p {
 
 .panel-stack-tab,
 .verb-screen-key,
-.tense-tabs-mode-button,
+.calc-operator-chip,
 .verb-composer__slot-transitivity,
 .verb-composer__slot-tab,
 .verb-chip,
@@ -557,6 +538,24 @@ p {
   max-width: 100%;
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+/* Keep toggle/button labels inside bounds even with long text or larger UI scale. */
+.calc-input-mode__button,
+.calc-operator-chip,
+.verb-composer__slot-transitivity,
+.verb-composer__slot-tab,
+.nonactive-tab {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+  text-wrap: balance;
+  text-align: center;
+  justify-content: center;
 }
 
 .hero-panel {
@@ -627,7 +626,7 @@ p {
 #panel-stack-pane-tense {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .form-container-word h2 {
@@ -641,7 +640,7 @@ p {
 .container-tense-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .panel-block-title {
@@ -651,11 +650,184 @@ p {
   text-transform: uppercase;
   color: var(--ink-soft);
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-block-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--calc-step-bg);
+  color: var(--calc-step-text);
+  font-family: var(--font-title);
+  font-size: calc(0.62rem + var(--font-size-adjust));
+  letter-spacing: 0.08em;
+}
+
+.panel-block-text {
+  letter-spacing: 0.18em;
+}
+
+.calc-input-mode {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.calc-input-mode__button {
+  font-size: var(--font-size-label);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  padding: 7px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calc-operators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 0;
+}
+
+.calc-operator {
+  display: grid;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--calc-operator-border);
+  background: var(--calc-operator-bg);
+}
+
+.calc-operator--derivation {
+  grid-column: 1 / -1;
+  gap: 9px;
+  padding: 9px 11px;
+  border-radius: 9px;
+}
+
+@media (min-width: 900px) {
+  .calc-operators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .calc-operator--derivation {
+    grid-column: span 2;
+  }
+}
+
+.calc-operator.is-disabled {
+  opacity: 0.6;
+}
+
+.calc-operator__label {
+  font-size: var(--font-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.calc-operator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.calc-operator-grid--mode,
+.calc-operator-grid--voice {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+
+.calc-operator-grid--derivation {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+
+.calc-operator-chip {
+  font-size: var(--font-size-label);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-btn-border);
+  background: var(--glass-btn-bg);
+  color: var(--ink-soft);
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  line-height: 1.15;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  text-wrap: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calc-operator-chip:hover:not(:disabled),
+.calc-operator-chip.is-active {
+  background: var(--glass-btn-bg-active);
+  border-color: var(--glass-btn-border-active);
+  color: var(--ink);
+}
+
+.calc-operator-hint {
+  background: linear-gradient(135deg, rgba(255, 248, 232, 0.68), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: calc(0.62rem + var(--font-size-adjust));
+  color: var(--ink-soft);
+}
+
+.calc-summary,
+.calc-status {
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: calc(0.62rem + var(--font-size-adjust));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.calc-summary {
+  background: var(--calc-summary-bg);
+  border: 1px solid rgba(29, 26, 21, 0.12);
+  color: var(--ink);
+}
+
+.calc-status {
+  background: var(--calc-status-bg);
+  border: 1px solid rgba(44, 139, 126, 0.26);
+  color: #1f5d55;
+}
+
+.calc-status.is-error {
+  background: rgba(183, 92, 34, 0.12);
+  border-color: rgba(183, 92, 34, 0.35);
+  color: #6f3b18;
 }
 
 .tense-tools {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 
 .view-export-button {
@@ -703,22 +875,6 @@ p {
   border-top: 0;
   position: relative;
   z-index: 1;
-}
-
-.tense-tabs-mode-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: stretch;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-#panel-stack-pane-tense .tense-tabs-mode-row {
-  margin-bottom: 0;
-}
-
-.tense-tabs-mode-row .voice-derivation-tabs {
-  margin-bottom: 0;
 }
 
 .derivation-type-row {
@@ -830,63 +986,6 @@ p {
   word-break: break-word;
 }
 
-.tense-tabs-mode {
-  display: flex;
-  align-items: center;
-  border: none;
-  border-radius: 0;
-  overflow: visible;
-  margin-bottom: 12px;
-  background: transparent;
-  width: 100%;
-  min-height: 0;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tense-tabs-mode-row .tense-tabs-mode {
-  margin-bottom: 0;
-  width: 100%;
-  min-width: 0;
-  flex-wrap: nowrap;
-  align-items: stretch;
-}
-
-.tense-tabs-mode-button {
-  font-size: var(--font-size-button);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  cursor: pointer;
-  justify-content: center;
-  box-sizing: border-box;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.tense-tabs-mode-row .tense-tabs-mode .tense-tabs-mode-button {
-  flex: 1 1 0;
-  width: 0;
-  min-width: 0;
-  max-width: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.1;
-  padding: 2px 6px;
-  font-size: clamp(0.54rem, calc(0.46rem + var(--font-size-adjust)), 0.74rem);
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-}
-
-.tense-tabs-mode-button + .tense-tabs-mode-button {
-  border-left: none;
-}
-
-.voice-derivation-tabs {
-  margin-bottom: 12px;
-}
-
 .nonactive-tabs {
   display: grid;
   gap: 8px;
@@ -897,7 +996,7 @@ p {
   display: none;
 }
 
-.voice-derivation-tabs.is-disabled,
+.calc-operator-grid--voice.is-disabled,
 .nonactive-tabs.is-disabled {
   opacity: 0.5;
 }
@@ -907,7 +1006,7 @@ p {
   margin-bottom: 0;
 }
 
-.voice-derivation-tabs.is-disabled .tense-tabs-mode-button,
+.calc-operator-grid--voice.is-disabled .calc-operator-chip,
 .nonactive-tabs.is-disabled .tense-tab {
   cursor: not-allowed;
 }
@@ -1020,13 +1119,18 @@ input.verb-input:focus-visible {
 
 .verb-block {
   display: grid;
-  gap: 9px;
+  gap: 8px;
 }
 
 .verb-block__display,
 .verb-block__controls {
   display: grid;
-  gap: 7px;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.verb-block__controls {
+  gap: 12px;
 }
 
 .verb-block__separator {
@@ -1056,13 +1160,67 @@ input.verb-input:focus-visible {
 
 .verb-block__feedback {
   display: grid;
-  gap: 6px;
+  gap: 10px;
 }
 
 .verb-block__utilities {
   display: grid;
-  gap: 12px;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.verb-block__screen {
+  background: var(--calc-screen-bg);
+  border: 1px solid var(--calc-screen-border);
+  border-radius: 18px;
+  padding: 10px;
+}
+
+.verb-block__keys {
+  margin-bottom: 6px;
+}
+
+.verb-composer__placeholder {
+  display: none;
   margin-top: 10px;
+}
+
+body:not(.is-composer-input-mode) .verb-composer__placeholder {
+  display: block;
+}
+
+.calc-regex-card {
+  border-radius: 16px;
+  border: 1px dashed rgba(29, 26, 21, 0.2);
+  background: rgba(255, 255, 255, 0.66);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.calc-regex-title {
+  font-size: var(--font-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.calc-regex-body {
+  font-size: calc(0.64rem + var(--font-size-adjust));
+  color: var(--ink);
+}
+
+@media (min-width: 900px) {
+  .verb-block__controls {
+    grid-template-columns: 1fr;
+    align-items: start;
+    row-gap: 20px;
+  }
+
+  .calc-input-mode {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Redundant with calculator controls (AC and i key): keep wired, hide from UI. */
@@ -1114,10 +1272,13 @@ input.verb-input:focus-visible {
     "meta meta"
     "ops eq";
   align-items: stretch;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
   position: relative;
-  padding-bottom: 9px;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid var(--calc-operator-border);
+  background: var(--calc-operator-bg);
 }
 
 .verb-screen-keys::after {
@@ -1144,7 +1305,7 @@ input.verb-input:focus-visible {
   grid-area: meta;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -1152,28 +1313,28 @@ input.verb-input:focus-visible {
   grid-area: ops;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: 4px;
   align-items: stretch;
   min-width: 0;
-  padding-right: 10px;
+  padding-right: 6px;
   border-right: 1px solid rgba(29, 26, 21, 0.24);
 }
 
 .verb-screen-key {
   width: 100%;
   min-width: 0;
-  min-height: 34px;
-  border-radius: 9px;
-  padding: 3px 8px;
+  min-height: 28px;
+  border-radius: 8px;
+  padding: 2px 6px;
   line-height: 1;
-  letter-spacing: 0.08em;
-  font-size: var(--font-size-label);
+  letter-spacing: 0.06em;
+  font-size: calc(var(--font-size-label) - 0.08rem);
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .verb-screen-key--utility {
-  min-height: 30px;
+  min-height: 26px;
   border-radius: 8px;
   letter-spacing: 0.03em;
 }
@@ -1181,14 +1342,14 @@ input.verb-input:focus-visible {
 .verb-screen-key--equals {
   grid-area: eq;
   align-self: stretch;
-  min-height: 40px;
-  border-radius: 10px;
+  min-height: 32px;
+  border-radius: 9px;
   background: var(--glass-btn-bg-active);
   border-color: var(--glass-btn-border-active);
   color: var(--ink);
   box-shadow: var(--glass-btn-shadow-active);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 
 .verb-block__header .tutorial-trigger {
@@ -1201,10 +1362,10 @@ input.verb-input:focus-visible {
 }
 
 .verb-block__screen {
-  padding: 4px;
-  border: 1px solid rgba(29, 26, 21, 0.18);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(244, 236, 223, 0.66));
+  padding: 12px;
+  border: 1px solid var(--calc-screen-border);
+  border-radius: 18px;
+  background: var(--calc-screen-bg);
 }
 
 .verb-composer {
@@ -1572,6 +1733,10 @@ input.verb-input:focus-visible {
 }
 
 .verb-composer__select.is-hidden-control {
+  display: none;
+}
+
+.is-hidden-control {
   display: none;
 }
 
@@ -2191,13 +2356,6 @@ input[type="submit"]:hover {
     background-attachment: scroll;
   }
 
-  .panel-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "left"
-      "conjugations";
-  }
-
   .hero-panel {
     flex-direction: column;
     align-items: flex-start;
@@ -2236,7 +2394,7 @@ input[type="submit"]:hover {
       "meta"
       "ops"
       "eq";
-    gap: 8px;
+    gap: 6px;
   }
 
   .verb-screen-keys__meta {
@@ -2385,22 +2543,22 @@ input[type="submit"]:hover {
 .tense-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 14px;
+  margin-top: 12px;
   justify-items: stretch;
 }
 
 #all-tense-conjugations {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 18px;
   align-items: start;
 }
 
 .tense-tabs {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
   align-items: start;
   margin-bottom: 0;
   padding: 0;
@@ -2414,14 +2572,14 @@ input[type="submit"]:hover {
 .tense-tabs-main {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 0;
+  gap: 12px 0;
   align-items: start;
 }
 
 .tense-tabs-universal {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 0;
+  gap: 12px 0;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -2435,27 +2593,27 @@ input[type="submit"]:hover {
 .tense-tabs-column {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
   align-content: start;
   min-width: 0;
 }
 
 .tense-tabs-column:first-child {
-  padding-right: 12px;
+  padding-right: 14px;
 }
 
 .tense-tabs-column + .tense-tabs-column {
-  padding-left: 12px;
+  padding-left: 14px;
   border-left: none;
 }
 
 .tense-tabs-group {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .tense-tabs-group + .tense-tabs-group {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .tense-tabs-heading {
@@ -2464,7 +2622,7 @@ input[type="submit"]:hover {
   letter-spacing: 0.12em;
   color: var(--ink-soft);
   opacity: 0.7;
-  padding-left: 2px;
+  padding-left: 4px;
 }
 
 .tense-tab-break {
@@ -2958,13 +3116,6 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 900px) {
-  .panel-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "left"
-      "conjugations";
-  }
-
   #all-tense-conjugations {
     grid-template-columns: 1fr;
   }

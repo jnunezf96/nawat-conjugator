@@ -11718,6 +11718,12 @@ function renderVerbComposerFromState() {
         panel.setAttribute("aria-hidden", String(!isComposer));
         panel.inert = !isComposer;
     }
+    const placeholder = document.getElementById("verb-composer-placeholder");
+    if (placeholder) {
+        placeholder.hidden = isComposer;
+        placeholder.setAttribute("aria-hidden", String(isComposer));
+    }
+    updateCalcInputModeButtons();
     if (tutorialTrigger) {
         const showTutorialTrigger = !isComposer;
         tutorialTrigger.hidden = !showTutorialTrigger;
@@ -11766,6 +11772,7 @@ function renderVerbComposerFromState() {
     syncComposerChipGroupsFromState();
     updateVerbComposerHint();
     syncVerbScreenCalculatorState();
+    updateCalcSummaryAndStatus();
 }
 
 function syncComposerStateFromVerbInput(rawValue = "") {
@@ -12012,6 +12019,19 @@ function applyComposerSyllableModeDefaultFromStem() {
     VERB_COMPOSER_STATE.syllableMode = syllableCount === 1
         ? COMPOSER_SYLLABLE_MODE.monosyllable
         : COMPOSER_SYLLABLE_MODE.multisyllable;
+}
+
+function updateCalcInputModeButtons() {
+    const buttons = Array.from(document.querySelectorAll("[data-input-mode]"));
+    if (!buttons.length) {
+        return;
+    }
+    const activeMode = isVerbInputModeComposer() ? VERB_INPUT_MODE.composer : VERB_INPUT_MODE.regex;
+    buttons.forEach((button) => {
+        const isActive = button.getAttribute("data-input-mode") === activeMode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+    });
 }
 
 function populateComposerDirectionalOptions() {
@@ -12268,12 +12288,14 @@ function syncVerbScreenCalculatorState() {
         modeButton,
         transitivityButton,
         supportiveIButton,
+        equalsButton,
     } = getVerbScreenCalculatorButtons();
     const hasAns = Boolean(
         VERB_SCREEN_ANS_STATE.stem
         || VERB_SCREEN_ANS_STATE.regexBase
         || VERB_SCREEN_ANS_STATE.form
     );
+    const hasCopyText = Boolean(VERB_SCREEN_ANS_STATE.form);
     if (ansButton) {
         ansButton.disabled = !hasAns;
         ansButton.setAttribute("aria-disabled", String(!hasAns));
@@ -12355,6 +12377,13 @@ function syncVerbScreenCalculatorState() {
                     : (regexHasMarker ? "Regex Dev quitar i de apoyo opcional" : "Regex Dev agregar i de apoyo opcional")
             );
         }
+    }
+    if (equalsButton) {
+        equalsButton.disabled = !hasCopyText;
+        equalsButton.setAttribute("aria-disabled", String(!hasCopyText));
+        equalsButton.title = hasCopyText
+            ? "COP · copiar resultado"
+            : "COP · genera para copiar";
     }
 }
 
@@ -12530,11 +12559,36 @@ function runScreenCalculatorToggleSupportiveI() {
     syncVerbScreenCalculatorState();
 }
 
-function runScreenCalculatorEquals() {
-    LAST_COMPOSER_ESCAPE_TS = 0;
-    cancelDeferredToggleAvailabilityPass();
-    cancelScheduledVerbInputRefresh();
-    generateWord();
+function copyTextToClipboard(text) {
+    if (!text) {
+        return Promise.resolve(false);
+    }
+    if (navigator?.clipboard?.writeText) {
+        return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+    }
+    try {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        temp.setAttribute("readonly", "true");
+        temp.style.position = "fixed";
+        temp.style.top = "-9999px";
+        temp.style.opacity = "0";
+        document.body.appendChild(temp);
+        temp.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(temp);
+        return Promise.resolve(ok);
+    } catch (_error) {
+        return Promise.resolve(false);
+    }
+}
+
+function runScreenCalculatorCopy() {
+    const text = String(VERB_SCREEN_ANS_STATE.form || "").trim();
+    if (!text) {
+        return;
+    }
+    void copyTextToClipboard(text);
 }
 
 function initVerbScreenCalculator() {
@@ -12567,8 +12621,31 @@ function initVerbScreenCalculator() {
     acButton.addEventListener("click", () => runScreenCalculatorAC());
     ceButton.addEventListener("click", () => runScreenCalculatorCE());
     delButton.addEventListener("click", () => runScreenCalculatorDEL());
-    equalsButton.addEventListener("click", () => runScreenCalculatorEquals());
+    equalsButton.addEventListener("click", () => runScreenCalculatorCopy());
     syncVerbScreenCalculatorState();
+}
+
+function initCalcInputModeButtons() {
+    const buttons = Array.from(document.querySelectorAll("[data-input-mode]"));
+    if (!buttons.length) {
+        return;
+    }
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const mode = button.getAttribute("data-input-mode");
+            if (!mode) {
+                return;
+            }
+            setVerbInputMode(mode, { syncFromInput: true });
+            if (mode === VERB_INPUT_MODE.composer) {
+                getComposerPreferredEntryInput()?.focus();
+            } else {
+                document.getElementById("verb")?.focus();
+            }
+            syncVerbScreenCalculatorState();
+        });
+    });
+    updateCalcInputModeButtons();
 }
 
 function handleComposerDoubleEscapeShortcut(event) {
@@ -15555,9 +15632,7 @@ function getNounTenseOrderForCombinedMode(combinedMode = getCombinedMode()) {
 }
 
 function isThreeColumnPanelLayout() {
-    return typeof window !== "undefined"
-        && typeof window.matchMedia === "function"
-        && window.matchMedia("(min-width: 1280px)").matches;
+    return true;
 }
 
 function setLeftPanelStackMode(mode) {
@@ -15687,7 +15762,7 @@ function updateCombinedModeTabs() {
         return;
     }
     const mode = getCombinedMode();
-    const container = document.querySelector(".voice-derivation-tabs");
+    const container = document.querySelector(".calc-operator-grid--voice");
     if (container) {
         container.classList.remove("is-disabled");
         container.setAttribute("aria-disabled", "false");
@@ -15897,36 +15972,159 @@ function renderDerivationAntiderivativePanel(verbMeta = null) {
 
 function updateDerivationTypeControl() {
     const select = document.getElementById("derivation-type");
-    if (!select) {
+    const buttons = Array.from(document.querySelectorAll("[data-derivation-type]"));
+    if (!select && !buttons.length) {
         return;
     }
     const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
-    const container = document.querySelector(".derivation-type-row");
+    const container = document.querySelector(".derivation-type-row")
+        || document.querySelector(".calc-operator--derivation");
     if (container) {
         container.classList.toggle("is-disabled", !isVerbMode);
         container.setAttribute("aria-disabled", String(!isVerbMode));
     }
-    select.disabled = !isVerbMode;
-    select.value = getActiveDerivationType();
+    const activeType = getActiveDerivationType();
+    if (select) {
+        select.disabled = !isVerbMode;
+        select.value = activeType;
+    }
+    if (buttons.length) {
+        buttons.forEach((button) => {
+            const isActive = button.getAttribute("data-derivation-type") === activeType;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+            button.disabled = !isVerbMode;
+            button.setAttribute("aria-disabled", String(!isVerbMode));
+        });
+    }
     renderDerivationAntiderivativePanel();
 }
 
 function initDerivationTypeControl() {
     const select = document.getElementById("derivation-type");
-    if (!select) {
+    const buttons = Array.from(document.querySelectorAll("[data-derivation-type]"));
+    if (!select && !buttons.length) {
         return;
     }
-    select.addEventListener("change", () => {
-        setActiveDerivationType(select.value);
-        updateDerivationTypeControl();
-        renderTenseTabs();
-        const verbMeta = getVerbInputMeta();
-        renderActiveConjugations({
-            verb: verbMeta.displayVerb,
-            objectPrefix: getCurrentObjectPrefix(),
+    if (select) {
+        select.addEventListener("change", () => {
+            setActiveDerivationType(select.value);
+            updateDerivationTypeControl();
+            renderTenseTabs();
+            const verbMeta = getVerbInputMeta();
+            renderActiveConjugations({
+                verb: verbMeta.displayVerb,
+                objectPrefix: getCurrentObjectPrefix(),
+            });
         });
-    });
+    }
+    if (buttons.length) {
+        buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const type = button.getAttribute("data-derivation-type");
+                if (!type) {
+                    return;
+                }
+                setActiveDerivationType(type);
+                if (select) {
+                    select.value = type;
+                }
+                updateDerivationTypeControl();
+                renderTenseTabs();
+                const verbMeta = getVerbInputMeta();
+                renderActiveConjugations({
+                    verb: verbMeta.displayVerb,
+                    objectPrefix: getCurrentObjectPrefix(),
+                });
+            });
+        });
+    }
     updateDerivationTypeControl();
+}
+
+function getCalcTransitivityLabel() {
+    const activeButton = document.querySelector(".verb-composer__slot-tab.is-active");
+    if (activeButton?.textContent) {
+        return activeButton.textContent.trim();
+    }
+    const select = document.getElementById("composer-transitivity");
+    const option = select?.selectedOptions?.[0];
+    return option?.textContent?.trim() || "";
+}
+
+function getCalcDerivationLabel() {
+    const select = document.getElementById("derivation-type");
+    const option = select?.selectedOptions?.[0];
+    return option?.textContent?.trim() || "";
+}
+
+function getCalcTenseLabel() {
+    const isNawat = getIsNawat();
+    const activeGroup = getActiveConjugationGroup();
+    if (activeGroup === CONJUGATION_GROUPS.universal) {
+        const tenseValue = getSelectedPretUniversalTab();
+        const classDetail = getPretUniversalClassDetail(tenseValue);
+        const resolved = classDetail?.label
+            ? getLocalizedLabel(classDetail.label, isNawat, classDetail.label || tenseValue)
+            : (tenseValue || "");
+        return resolved ? `Pretérito universal ${resolved}` : "Pretérito universal";
+    }
+    const tenseValue = getSelectedTenseTab() || TENSE_ORDER[0] || "";
+    return getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
+}
+
+function updateCalcSummary() {
+    const summaryEl = document.getElementById("calc-summary");
+    if (!summaryEl) {
+        return;
+    }
+    const mode = getActiveTenseMode();
+    const modeButton = document.querySelector(`[data-tense-mode="${mode}"]`);
+    const modeLabel = modeButton?.textContent?.trim()
+        || (mode === TENSE_MODE.sustantivo ? "Sustantivo" : "Verbo");
+    const voice = getCombinedMode();
+    const voiceButton = document.querySelector(`[data-combined-mode="${voice}"]`);
+    const voiceLabel = voiceButton?.textContent?.trim()
+        || (voice === COMBINED_MODE.nonactive ? "No activo" : "Activo");
+    const derivationLabel = mode === TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
+    const transitivityLabel = getCalcTransitivityLabel();
+    const tenseLabel = getCalcTenseLabel();
+    const parts = [modeLabel, voiceLabel, derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
+    summaryEl.textContent = parts.length ? parts.join(" · ") : "Selecciona derivación y tiempo";
+}
+
+function updateCalcStatus() {
+    const statusEl = document.getElementById("calc-status");
+    if (!statusEl) {
+        return;
+    }
+    const verbMeta = getVerbInputMeta();
+    const hasVerb = Boolean(verbMeta?.displayVerb);
+    const hasError = Boolean(document.querySelector("#all-tense-conjugations .conjugation-error"))
+        || Boolean(document.getElementById("verb")?.classList.contains("error"));
+    const hasRows = Boolean(document.querySelector("#all-tense-conjugations .conjugation-row"));
+    statusEl.classList.toggle("is-error", hasError);
+    if (!hasVerb) {
+        statusEl.textContent = "Ingresa un verbo para generar.";
+        statusEl.classList.remove("is-error");
+        return;
+    }
+    if (!hasRows) {
+        statusEl.textContent = "Sin resultados para esta combinación.";
+        statusEl.classList.add("is-error");
+        return;
+    }
+    if (hasError) {
+        statusEl.textContent = "Revisa la combinación: hay formas incompatibles.";
+        return;
+    }
+    const modeLabel = isVerbInputModeComposer() ? "Selecciones" : "Regex";
+    statusEl.textContent = `Modo ${modeLabel} · salida actualizada.`;
+}
+
+function updateCalcSummaryAndStatus() {
+    updateCalcSummary();
+    updateCalcStatus();
 }
 
 // === Localization ===
@@ -15940,10 +16138,12 @@ function changeLanguage() {
         "tutorial-title",
         "tutorial-trigger",
         "copyright-label",
-        "tense-tabs-mode-verb",
-        "tense-tabs-mode-noun",
-        "tense-tabs-mode-active",
-        "tense-tabs-mode-nonactive",
+        "panel-stack-tab-inputs",
+        "panel-stack-tab-tense",
+        "calc-mode-verb",
+        "calc-mode-noun",
+        "calc-voice-active",
+        "calc-voice-nonactive",
         "derivation-type-label",
     ];
 
@@ -15961,8 +16161,9 @@ function changeLanguage() {
         if (labelElement) {
           // Store the original text
           originalLabels[elementId] = originalLabels[elementId] || labelElement.textContent;
+          const labelKey = labelElement.dataset.uiLabelKey || elementId;
           const localized = getLocalizedLabel(
-              UI_LABELS[elementId],
+              UI_LABELS[labelKey],
               true,
               translations[elementId] || labelElement.textContent
           );
@@ -18285,6 +18486,7 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
             containerId: "all-tense-conjugations",
             tenseValue: tenseOverride,
         });
+        updateCalcSummaryAndStatus();
         return;
     }
     if (getActiveConjugationGroup() === CONJUGATION_GROUPS.universal) {
@@ -18294,9 +18496,11 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
             containerId: "all-tense-conjugations",
             tenseValue: tenseOverride,
         });
+        updateCalcSummaryAndStatus();
         return;
     }
     renderAllTenseConjugations({ verb, onlyTense: tenseOverride });
+    updateCalcSummaryAndStatus();
 }
 
 function renderNonactiveConjugationRows({
@@ -23902,6 +24106,34 @@ if (typeof window !== "undefined") {
 // Keyboard navigation (kept minimal now that radios are removed)
 document.addEventListener("keydown", (event) => {
     const verbEl = document.getElementById("verb");
+    if (event.altKey && !event.ctrlKey && !event.metaKey) {
+        const key = event.key.toLowerCase();
+        const clickTarget = (selector) => {
+            const button = document.querySelector(selector);
+            if (button) {
+                button.click();
+                return true;
+            }
+            return false;
+        };
+        const handled = (
+            (key === "1" && clickTarget("[data-composer-transitivity=\"intransitive\"]"))
+            || (key === "2" && clickTarget("[data-composer-transitivity=\"transitive\"]"))
+            || (key === "3" && clickTarget("[data-composer-transitivity=\"bitransitive\"]"))
+            || (key === "v" && clickTarget("[data-tense-mode=\"verbo\"]"))
+            || (key === "s" && clickTarget("[data-tense-mode=\"sustantivo\"]"))
+            || (key === "a" && clickTarget("[data-combined-mode=\"active\"]"))
+            || (key === "n" && clickTarget("[data-combined-mode=\"nonactive\"]"))
+            || (key === "d" && clickTarget("[data-derivation-type=\"direct\"]"))
+            || (key === "c" && clickTarget("[data-derivation-type=\"causative\"]"))
+            || (key === "p" && clickTarget("[data-derivation-type=\"applicative\"]"))
+            || (key === "m" && (runScreenCalculatorModeToggle(), true))
+        );
+        if (handled) {
+            event.preventDefault();
+            return;
+        }
+    }
     if (event.key === " ") {
         LAST_COMPOSER_ESCAPE_TS = 0;
         if (verbEl) {
@@ -23958,6 +24190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initViewExport();
     initVerbComposer();
     initVerbScreenCalculator();
+    initCalcInputModeButtons();
     enforceNoAutofillOnTextboxes(document);
     const verbEl = document.getElementById("verb");
     if (verbEl) {
