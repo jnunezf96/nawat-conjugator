@@ -259,6 +259,19 @@ p {
   animation-delay: 0.05s;
 }
 
+@media (max-width: 1024px) {
+  .panel-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "tabs"
+      "inputs"
+      "derivation"
+      "output";
+    overflow-x: visible;
+    gap: 10px;
+  }
+}
+
 .panel-stack {
   display: contents;
 }
@@ -270,6 +283,18 @@ p {
 
 .panel-stack-tabs {
   display: none;
+  align-items: center;
+  gap: 6px;
+  padding-left: 0;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  border: 1px solid rgba(29, 26, 21, 0.14);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-soft);
 }
 
 .panel-stack-tab {
@@ -305,7 +330,8 @@ p {
 }
 
 #panel-stack-pane-inputs.is-active #container-inputs,
-#panel-stack-pane-tense.is-active {
+#panel-stack-pane-tense.is-active,
+#container-tense-grid.is-active {
   box-shadow: 0 16px 30px rgba(24, 20, 14, 0.14);
 }
 
@@ -322,6 +348,19 @@ p {
 #container-tense-grid {
   grid-area: output;
   min-width: 320px;
+}
+
+@media (max-width: 1024px) {
+  .panel-stack-tabs {
+    display: flex;
+    grid-area: tabs;
+  }
+
+  #panel-stack-pane-inputs,
+  #panel-stack-pane-tense,
+  #container-tense-grid {
+    min-width: 0;
+  }
 }
 
 @media (min-width: 1280px) {

@@ -79,6 +79,17 @@
             >
               Derivada
             </button>
+            <button
+              type="button"
+              class="panel-stack-tab"
+              id="panel-stack-tab-output"
+              data-panel-stack-tab="output"
+              role="tab"
+              aria-selected="false"
+              aria-controls="container-tense-grid"
+            >
+              Salida
+            </button>
           </div>
           <form
             class="panel-stack-pane is-active"
@@ -691,7 +702,13 @@
             <div id="tense-tabs" class="tense-tabs"></div>
           </div>
         </div>
-        <div class="panel container-tense-grid" id="container-tense-grid">
+        <div
+          class="panel container-tense-grid"
+          id="container-tense-grid"
+          data-panel-stack-pane="output"
+          role="tabpanel"
+          aria-labelledby="panel-stack-tab-output"
+        >
           <div class="panel-block-title">
             <span class="panel-block-step">3</span>
             <span class="panel-block-text">SALIDA</span>

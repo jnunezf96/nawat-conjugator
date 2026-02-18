@@ -15632,11 +15632,17 @@ function getNounTenseOrderForCombinedMode(combinedMode = getCombinedMode()) {
 }
 
 function isThreeColumnPanelLayout() {
-    return true;
+    return typeof window !== "undefined"
+        && typeof window.matchMedia === "function"
+        && window.matchMedia("(min-width: 1025px)").matches;
 }
 
 function setLeftPanelStackMode(mode) {
-    const normalizedMode = mode === "tense" ? "tense" : "inputs";
+    const normalizedMode = mode === "tense"
+        ? "tense"
+        : mode === "output"
+            ? "output"
+            : "inputs";
     const buttons = Array.from(document.querySelectorAll("[data-panel-stack-tab]"));
     const panes = Array.from(document.querySelectorAll("[data-panel-stack-pane]"));
     const stackRoot = document.querySelector(".panel-stack");
@@ -16140,6 +16146,7 @@ function changeLanguage() {
         "copyright-label",
         "panel-stack-tab-inputs",
         "panel-stack-tab-tense",
+        "panel-stack-tab-output",
         "calc-mode-verb",
         "calc-mode-noun",
         "calc-voice-active",
