@@ -9698,14 +9698,21 @@ function parseStageDirectionalRuleMode(state) {
 function parseStageSuppletives(state) {
     const yawiCanonical = getSuppletiveYawiCanonical();
     const yawiImperfective = getSuppletiveYawiImperfective();
-    const isYawi = state.analysisVerb === yawiCanonical;
+    const hasExplicitTransitivityMarkers = (
+        state.isMarkedTransitive === true
+        || state.hasSpecificValence === true
+        || state.hasNonspecificValence === true
+        || (Number.isFinite(state.totalValenceSlotCount) && state.totalValenceSlotCount > 0)
+        || (Number.isFinite(state.valenceSlotCount) && state.valenceSlotCount > 0)
+    );
+    const isYawi = !hasExplicitTransitivityMarkers && state.analysisVerb === yawiCanonical;
     if (isYawi) {
         state.analysisVerb = yawiImperfective;
         if (state.verb.endsWith(yawiCanonical)) {
             state.verb = state.verb.slice(0, -yawiCanonical.length) + yawiImperfective;
         }
     }
-    const isWeya = SUPPLETIVE_WEYA_FORMS.has(state.analysisVerb);
+    const isWeya = !hasExplicitTransitivityMarkers && SUPPLETIVE_WEYA_FORMS.has(state.analysisVerb);
     if (isWeya) {
         const baseForm = state.analysisVerb;
         const canonical = getSuppletiveWeyaCanonical();
@@ -9876,6 +9883,20 @@ let SUPPLETIVE_WITZI_IMPERATIVE = "";
 let SUPPLETIVE_WITZI_NONACTIVE = "";
 let SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set();
 let SUPPLETIVE_STEM_PATHS = [];
+const INTRANSITIVE_ONLY_SUPPLETIVE_IDS = new Set(["yawi", "weya", "ye", "witzi"]);
+
+function isIntransitiveOnlySuppletiveId(id = "") {
+    return INTRANSITIVE_ONLY_SUPPLETIVE_IDS.has(String(id || "").toLowerCase());
+}
+
+function isSuppletiveIntransitiveOnlyContext(parsedVerb, options = {}) {
+    if (!parsedVerb) {
+        return false;
+    }
+    const hasObjectSelection = options.hasObjectSelection === true;
+    const baseObjectSlots = getBaseObjectSlots(parsedVerb);
+    return baseObjectSlots === 0 && !hasObjectSelection;
+}
 
 function dropFinalVowel(stem) {
     if (!stem) {
@@ -9970,6 +9991,12 @@ function getSuppletiveStemPath(parsedVerb) {
     };
     for (const entry of SUPPLETIVE_STEM_PATHS) {
         if (entry.match(parsedVerb)) {
+            if (
+                isIntransitiveOnlySuppletiveId(entry.id)
+                && !isSuppletiveIntransitiveOnlyContext(parsedVerb)
+            ) {
+                continue;
+            }
             return {
                 path: "suppletive",
                 id: entry.id,
@@ -16990,16 +17017,13 @@ function applyMorphologyRules({
         markers: markerChain,
         subjectPrefix: baseSubjectPrefix,
     });
-    // Avoid double-i after object prefix + stem contact:
-    // 1) direct ...i + i... (e.g. ki + i...)
-    // 2) shortened ki -> k with ni/ti, when stem already begins ii...
-    const shouldDropLeadingI =
-        (objectPrefix && objectPrefix.endsWith("i") && verb.startsWith("i"))
-        || (
-            objectPrefix === "k"
-            && ["ni", "ti"].includes(baseSubjectPrefix)
-            && verb.startsWith("ii")
-        );
+    // Avoid direct double-i after object prefix + stem contact (e.g. ki + i...).
+    // Keep ii-initial stems intact so reduplicated inputs like -iitta remain available.
+    const shouldApplyEarlyContactElision = !isPerfectiveTense(tense);
+    const shouldDropLeadingI = shouldApplyEarlyContactElision
+        && objectPrefix
+        && objectPrefix.endsWith("i")
+        && verb.startsWith("i");
     if (shouldDropLeadingI) {
         verb = verb.slice(1);
         if (analysisVerb.startsWith("i")) {
@@ -18470,11 +18494,20 @@ function generateWord(options = {}) {
     const sourceValency = getActiveVerbValency(parsedVerb);
     const fusionPrefixes = Array.isArray(parsedVerb.fusionPrefixes) ? parsedVerb.fusionPrefixes : [];
     const validationVerb = verb;
-    let isYawi = parsedVerb.isYawi;
-    const isWeya = parsedVerb.isWeya;
+    const hasObjectSelection = Boolean(objectPrefix || indirectObjectMarker || thirdObjectMarker);
+    const allowIntransitiveSuppletiveContext = isSuppletiveIntransitiveOnlyContext(parsedVerb, {
+        hasObjectSelection,
+    });
+    let isYawi = parsedVerb.isYawi === true && allowIntransitiveSuppletiveContext;
+    const isWeya = parsedVerb.isWeya === true && allowIntransitiveSuppletiveContext;
     isReflexive = objectPrefix === "mu";
     const directionalPrefix = parsedVerb.directionalPrefix;
-    const suppletivePath = getSuppletiveStemPath(parsedVerb);
+    const rawSuppletivePath = getSuppletiveStemPath(parsedVerb);
+    const suppletivePath = (
+        rawSuppletivePath
+        && isIntransitiveOnlySuppletiveId(rawSuppletivePath.id)
+        && !allowIntransitiveSuppletiveContext
+    ) ? null : rawSuppletivePath;
     let suppletiveStemSet = suppletivePath?.stemSet || null;
     const isYawiSuppletive = suppletivePath?.id === "yawi";
     const yawiPrefix = isYawiSuppletive

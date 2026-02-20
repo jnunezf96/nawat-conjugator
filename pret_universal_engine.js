@@ -638,13 +638,7 @@ function shouldAllowZeroBitransitiveKiDrop({
 function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
     let adjustedPrefix = prefix || "";
     let adjustedBase = base || "";
-    const shouldDropLeadingI =
-        (adjustedPrefix && adjustedPrefix.endsWith("i") && adjustedBase.startsWith("i"))
-        || (
-            adjustedPrefix === "k"
-            && ["ni", "ti"].includes(baseSubjectPrefix)
-            && adjustedBase.startsWith("ii")
-        );
+    const shouldDropLeadingI = adjustedPrefix && adjustedPrefix.endsWith("i") && adjustedBase.startsWith("i");
     if (shouldDropLeadingI) {
         adjustedBase = adjustedBase.slice(1);
     }

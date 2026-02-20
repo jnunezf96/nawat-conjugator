@@ -1359,6 +1359,18 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
         classes: ["C"],
     },
     {
+        id: "monosyllable_transitive_v_e",
+        label: "monosyllable transitive V (e)",
+        tier: "monosyllable",
+        when: (context) => (
+            context.isMonosyllable
+            && context.isTransitive
+            && context.lastSyllableForm === "V"
+            && context.lastNucleus === "e"
+        ),
+        classes: ["D"],
+    },
+    {
         id: "monosyllable_transitive_v",
         label: "monosyllable transitive V",
         tier: "monosyllable",
@@ -1387,10 +1399,8 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
             context.isMonosyllable
             && !context.isTransitive
             && context.lastSyllableForm === "CV"
-            && context.analysisVerb !== "ta"
-            && context.verb !== "ta"
         ),
-        classes: ["D"],
+        classes: ["B"],
     },
     {
         id: "deleted_vowel_cluster_intransitive",
