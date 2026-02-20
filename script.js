@@ -6438,6 +6438,20 @@ function getConjugationMaskState({
     return { shouldMask, isError };
 }
 
+function getLocativoTemporalMaskState({
+    result,
+    objectPrefix = "",
+}) {
+    return getConjugationMaskState({
+        result,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix,
+        controllerObjectMarker: "",
+        enforceInvalidCombo: false,
+    });
+}
+
 function resolveHasNonspecificValence(meta) {
     return Boolean(meta?.hasNonspecificValence || meta?.hasNonactiveNonspecificValence);
 }
@@ -6484,6 +6498,166 @@ function buildNonspecificAllomorphyOptions(meta, overrides = {}) {
     };
 }
 
+function applyNounForwardDerivation({
+    verbMeta = null,
+    verb = "",
+    analysisVerb = "",
+    objectPrefix = "",
+}) {
+    const suppletiveStemSet = getSuppletiveStemSet(verbMeta);
+    const directionalPrefix = verbMeta?.directionalPrefix || "";
+    const derivationType = Object.values(DERIVATION_TYPE).includes(verbMeta?.derivationType)
+        ? verbMeta.derivationType
+        : DERIVATION_TYPE.direct;
+    const fallbackStemTargets = [{
+        verb,
+        analysisVerb: analysisVerb || verb,
+    }];
+    const fallback = {
+        blocked: false,
+        verb,
+        analysisVerb,
+        isYawi: verbMeta?.isYawi === true,
+        isWeya: verbMeta?.isWeya === true,
+        suppletiveStemSet,
+        stemTargets: fallbackStemTargets,
+    };
+    const forwardConfig = getForwardDerivationConfig(derivationType);
+    if (!forwardConfig) {
+        return fallback;
+    }
+    const forwardDerivation = applySelectedForwardDerivation({
+        derivationType,
+        derivationOptions: buildDerivationAvailabilityCoreOptions({
+            verb,
+            analysisVerb,
+            objectPrefix,
+            verbMeta,
+            suppletiveStemSet,
+        }),
+        enabled: true,
+    });
+    if (forwardDerivation.blocked) {
+        return {
+            ...fallback,
+            blocked: true,
+        };
+    }
+    const derivedVerb = forwardDerivation.verb || fallback.verb;
+    const derivedAnalysisVerb = forwardDerivation.analysisVerb || fallback.analysisVerb;
+    const derivedStemList = uniqueNonEmptyValues(resolveDerivedStemList(
+        forwardDerivation[forwardConfig.resultField],
+        derivedVerb,
+    ));
+    const stemTargets = derivedStemList.length
+        ? derivedStemList.map((stem) => ({
+            verb: stem,
+            analysisVerb: stripDirectionalPrefixFromStem(stem, directionalPrefix),
+        }))
+        : [{
+            verb: derivedVerb,
+            analysisVerb: derivedAnalysisVerb || derivedVerb,
+        }];
+    return {
+        blocked: false,
+        verb: derivedVerb,
+        analysisVerb: derivedAnalysisVerb,
+        isYawi: forwardDerivation.isYawi ?? fallback.isYawi,
+        isWeya: false,
+        suppletiveStemSet: forwardDerivation.suppletiveStemSet ?? suppletiveStemSet,
+        stemTargets,
+    };
+}
+
+function getNounNonactiveRuleBase(baseVerb = "", verbMeta = null) {
+    const derivationType = Object.values(DERIVATION_TYPE).includes(verbMeta?.derivationType)
+        ? verbMeta.derivationType
+        : DERIVATION_TYPE.direct;
+    if (getForwardDerivationConfig(derivationType)) {
+        return normalizeRuleBase(baseVerb || "");
+    }
+    return getNonactiveRuleBase(baseVerb, verbMeta);
+}
+
+function getNounForwardStemTargets(nounForwardDerivation, fallbackVerb = "", fallbackAnalysisVerb = "") {
+    const stemTargets = Array.isArray(nounForwardDerivation?.stemTargets)
+        ? nounForwardDerivation.stemTargets.filter((entry) => entry && entry.verb)
+        : [];
+    if (stemTargets.length) {
+        return stemTargets;
+    }
+    if (!fallbackVerb) {
+        return [];
+    }
+    return [{
+        verb: fallbackVerb,
+        analysisVerb: fallbackAnalysisVerb || fallbackVerb,
+    }];
+}
+
+function buildNounForwardStemContexts({
+    stemTargets = [],
+    objectPrefix = "",
+    verbMeta = null,
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+}) {
+    return (Array.isArray(stemTargets) ? stemTargets : []).map((stemTarget) => {
+        const targetVerb = stemTarget?.verb || "";
+        const targetAnalysisVerb = stemTarget?.analysisVerb || targetVerb;
+        if (!targetVerb) {
+            return null;
+        }
+        const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+            verb: targetVerb,
+            analysisVerb: targetAnalysisVerb,
+            objectPrefix,
+            ...buildNonspecificAllomorphyOptions(verbMeta),
+            indirectObjectMarker,
+            thirdObjectMarker,
+        });
+        return {
+            verb: nonspecificAllomorphy.verb || targetVerb,
+            analysisVerb: nonspecificAllomorphy.analysisVerb || targetAnalysisVerb,
+            morphologyObjectPrefix: nonspecificAllomorphy.objectPrefix || objectPrefix,
+        };
+    }).filter((entry) => entry && entry.verb);
+}
+
+function collapseCalificativoMarkerEcho({
+    form = "",
+    morphologyObjectPrefix = "",
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+    enable = false,
+}) {
+    const sourceForm = String(form || "");
+    if (!enable || !sourceForm) {
+        return sourceForm;
+    }
+    const markerValues = [indirectObjectMarker || "", thirdObjectMarker || ""].filter(Boolean);
+    if (!markerValues.length) {
+        return sourceForm;
+    }
+    const echoMarker = markerValues[markerValues.length - 1] || "";
+    if (!echoMarker || !NONSPECIFIC_VALENCE_AFFIX_SET.has(echoMarker)) {
+        return sourceForm;
+    }
+    const markerChain = composeProjectiveObjectPrefix({
+        objectPrefix: morphologyObjectPrefix || "",
+        markers: markerValues,
+        subjectPrefix: "",
+    });
+    if (!markerChain) {
+        return sourceForm;
+    }
+    const duplicatedPrefix = `${markerChain}${echoMarker}`;
+    if (!sourceForm.startsWith(duplicatedPrefix)) {
+        return sourceForm;
+    }
+    return `${markerChain}${sourceForm.slice(duplicatedPrefix.length)}`;
+}
+
 // === Noun Derivations ===
 function getInstrumentivoResult({
     rawVerb,
@@ -6491,6 +6665,8 @@ function getInstrumentivoResult({
     subjectPrefix,
     subjectSuffix,
     objectPrefix,
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
     mode,
     possessivePrefix,
 }) {
@@ -6507,96 +6683,126 @@ function getInstrumentivoResult({
     }
     if (verbMeta.hasImpersonalTaPrefix) {
         objectPrefix = "";
+        indirectObjectMarker = "";
+        thirdObjectMarker = "";
     }
     let analysisVerb = verbMeta.analysisVerb || verb;
     const directionalPrefix = verbMeta.directionalPrefix || "";
-    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
-    const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, "instrumentivo");
+    const selectedBySlot = {
+        object: objectPrefix || "",
+        object2: indirectObjectMarker || "",
+        object3: thirdObjectMarker || "",
+    };
+    const hasOverflowedSlotSelection = NOUN_OBJECT_SLOT_SCHEMA
+        .slice(slotPlanBundle.slotPlans.length)
+        .some((slotMeta) => Boolean(selectedBySlot[slotMeta.id]));
+    const hasInvalidSlotSelection = slotPlanBundle.slotPlans.some((slotPlan) => (
+        !slotPlan.toggleValues.includes(selectedBySlot[slotPlan.id] || "")
+    ));
+    const derivationIsTransitive = isNonactiveTransitiveVerb(
+        objectPrefix || indirectObjectMarker || thirdObjectMarker,
+        verbMeta
+    );
     const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta);
-    if (!allowsObjectPrefix) {
-        if (objectPrefix !== "") {
-            return { error: true };
-        }
-    } else if (isTransitiveVerb) {
-        const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, "instrumentivo");
-        if (!allowedPrefixes.includes(objectPrefix)) {
-            return { error: true };
-        }
-    } else if (objectPrefix !== "") {
+    if (hasOverflowedSlotSelection || hasInvalidSlotSelection) {
         return { error: true };
     }
-
-    const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+    const nounForwardDerivation = applyNounForwardDerivation({
+        verbMeta,
         verb,
         analysisVerb,
         objectPrefix,
-        ...buildNonspecificAllomorphyOptions(verbMeta),
     });
-    verb = nonspecificAllomorphy.verb;
-    analysisVerb = nonspecificAllomorphy.analysisVerb;
-    const morphologyObjectPrefix = nonspecificAllomorphy.objectPrefix || objectPrefix;
+    if (nounForwardDerivation.blocked) {
+        return { error: true };
+    }
+    const derivedIsYawi = nounForwardDerivation.isYawi;
+    const derivedIsWeya = nounForwardDerivation.isWeya;
+    const forwardStemTargets = getNounForwardStemTargets(nounForwardDerivation, verb, analysisVerb);
+    const forwardStemContexts = buildNounForwardStemContexts({
+        stemTargets: forwardStemTargets,
+        objectPrefix,
+        verbMeta,
+        indirectObjectMarker,
+        thirdObjectMarker,
+    });
+    if (!forwardStemContexts.length) {
+        return { error: true };
+    }
 
     if (mode === INSTRUMENTIVO_MODE.absolutivo) {
-        const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
-        const baseVerb = nonactiveSource.baseVerb;
-        const basePrefix = nonactiveSource.prefix;
-        const nonactiveRuleBase = getNonactiveRuleBase(baseVerb, verbMeta);
-        let options = getNonactiveDerivationOptions(baseVerb, baseVerb, {
-            isTransitive: derivationIsTransitive,
-            isYawi: verbMeta.isYawi,
-            ruleBase: nonactiveRuleBase,
-            rootPlusYaBase: verbMeta.rootPlusYaBase,
-        });
-        if (!options.length) {
-            const derived = deriveNonactiveStem(baseVerb, baseVerb, {
+        const forms = new Set();
+        forwardStemContexts.forEach((stemContext) => {
+            const nonactiveSource = getNonactiveDerivationSource(
+                verbMeta,
+                stemContext.verb,
+                stemContext.analysisVerb,
+            );
+            const baseVerb = nonactiveSource.baseVerb;
+            const basePrefix = nonactiveSource.prefix;
+            const nonactiveRuleBase = getNounNonactiveRuleBase(baseVerb, verbMeta);
+            let options = getNonactiveDerivationOptions(baseVerb, baseVerb, {
                 isTransitive: derivationIsTransitive,
-                isYawi: verbMeta.isYawi,
+                isYawi: derivedIsYawi,
                 ruleBase: nonactiveRuleBase,
                 rootPlusYaBase: verbMeta.rootPlusYaBase,
             });
-            if (derived) {
-                options = [{ suffix: "default", stem: derived }];
+            if (!options.length) {
+                const derived = deriveNonactiveStem(baseVerb, baseVerb, {
+                    isTransitive: derivationIsTransitive,
+                    isYawi: derivedIsYawi,
+                    ruleBase: nonactiveRuleBase,
+                    rootPlusYaBase: verbMeta.rootPlusYaBase,
+                });
+                if (derived) {
+                    options = [{ suffix: "default", stem: derived }];
+                }
             }
-        }
-        if (
-            derivationIsTransitive
-            && baseVerb.endsWith("i")
-            && !options.some((option) => option.suffix === "lu")
-        ) {
-            options.push({ suffix: "lu", stem: `${baseVerb}lu` });
-        }
-        const selectedNonactiveSuffix = shouldForceAllNonactiveOptions() ? null : getSelectedNonactiveSuffix();
-        if (selectedNonactiveSuffix && options.some((option) => option.suffix === selectedNonactiveSuffix)) {
-            options = options.filter((option) => option.suffix === selectedNonactiveSuffix);
-        }
-        const forms = options.map((option) => {
-            const stem = basePrefix ? `${basePrefix}${option.stem}` : option.stem;
-            const analysisStem = directionalPrefix && stem.startsWith(directionalPrefix)
-                ? stem.slice(directionalPrefix.length)
-                : (basePrefix ? option.stem : stem);
-            const applied = applyMorphologyRules({
-                subjectPrefix,
-                objectPrefix: morphologyObjectPrefix,
-                subjectSuffix: commonNumberSuffix,
-                verb: stem,
-                tense: "presente-habitual",
-                analysisVerb: analysisStem,
-                isYawi: false,
-                isWeya: false,
-                directionalPrefix,
-                directionalRuleMode: resolvedDirectionalRuleMode,
-                isNounContext: true,
-                ...buildMorphologyMetaOptions(verbMeta),
+            if (
+                derivationIsTransitive
+                && baseVerb.endsWith("i")
+                && !options.some((option) => option.suffix === "lu")
+            ) {
+                options.push({ suffix: "lu", stem: `${baseVerb}lu` });
+            }
+            const selectedNonactiveSuffix = shouldForceAllNonactiveOptions() ? null : getSelectedNonactiveSuffix();
+            if (selectedNonactiveSuffix && options.some((option) => option.suffix === selectedNonactiveSuffix)) {
+                options = options.filter((option) => option.suffix === selectedNonactiveSuffix);
+            }
+            options.forEach((option) => {
+                const stem = basePrefix ? `${basePrefix}${option.stem}` : option.stem;
+                const analysisStem = directionalPrefix && stem.startsWith(directionalPrefix)
+                    ? stem.slice(directionalPrefix.length)
+                    : (basePrefix ? option.stem : stem);
+                const applied = applyMorphologyRules({
+                    subjectPrefix,
+                    objectPrefix: stemContext.morphologyObjectPrefix,
+                    subjectSuffix: commonNumberSuffix,
+                    verb: stem,
+                    tense: "presente-habitual",
+                    analysisVerb: analysisStem,
+                    isYawi: false,
+                    isWeya: false,
+                    directionalPrefix,
+                    directionalRuleMode: resolvedDirectionalRuleMode,
+                    isNounContext: true,
+                    ...buildMorphologyMetaOptions(verbMeta),
+                    indirectObjectMarker,
+                    thirdObjectMarker,
+                });
+                const core = buildPrefixedChain({
+                    subjectPrefix: applied.subjectPrefix,
+                    objectPrefix: applied.objectPrefix,
+                    verb: applied.verb,
+                });
+                const text = `${core}${applied.subjectSuffix}`;
+                if (text) {
+                    forms.add(text);
+                }
             });
-            const core = buildPrefixedChain({
-                subjectPrefix: applied.subjectPrefix,
-                objectPrefix: applied.objectPrefix,
-                verb: applied.verb,
-            });
-            return `${core}${applied.subjectSuffix}`;
-        }).filter(Boolean);
-        const uniqueForms = Array.from(new Set(forms));
+        });
+        const uniqueForms = Array.from(forms);
         if (!uniqueForms.length) {
             return { error: true };
         }
@@ -6606,27 +6812,38 @@ function getInstrumentivoResult({
     const resolvedPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
         : "";
-    const applied = applyMorphologyRules({
-        subjectPrefix,
-        objectPrefix: morphologyObjectPrefix,
-        subjectSuffix: commonNumberSuffix,
-        verb,
-        tense: "imperfecto",
-        analysisVerb,
-        isYawi: verbMeta.isYawi,
-        isWeya: verbMeta.isWeya,
-        directionalPrefix,
-        directionalRuleMode: resolvedDirectionalRuleMode,
-        isNounContext: true,
-        ...buildMorphologyMetaOptions(verbMeta),
-    });
-    return {
-        result: `${buildPrefixedChain({
+    const forms = new Set();
+    forwardStemContexts.forEach((stemContext) => {
+        const applied = applyMorphologyRules({
+            subjectPrefix,
+            objectPrefix: stemContext.morphologyObjectPrefix,
+            subjectSuffix: commonNumberSuffix,
+            verb: stemContext.verb,
+            tense: "imperfecto",
+            analysisVerb: stemContext.analysisVerb,
+            isYawi: derivedIsYawi,
+            isWeya: derivedIsWeya,
+            directionalPrefix,
+            directionalRuleMode: resolvedDirectionalRuleMode,
+            isNounContext: true,
+            ...buildMorphologyMetaOptions(verbMeta),
+            indirectObjectMarker,
+            thirdObjectMarker,
+        });
+        const text = `${buildPrefixedChain({
             possessivePrefix: resolvedPossessivePrefix,
             objectPrefix: applied.objectPrefix,
             verb: applied.verb,
-        })}${applied.subjectSuffix}`,
-    };
+        })}${applied.subjectSuffix}`;
+        if (text) {
+            forms.add(text);
+        }
+    });
+    const uniqueForms = Array.from(forms);
+    if (!uniqueForms.length) {
+        return { error: true };
+    }
+    return { result: uniqueForms.join(" / ") };
 }
 
 function getCalificativoInstrumentivoResult({
@@ -6635,6 +6852,8 @@ function getCalificativoInstrumentivoResult({
     subjectPrefix,
     subjectSuffix,
     objectPrefix,
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
     possessivePrefix,
 }) {
     const invalidCharacters = getInvalidVerbCharacters(rawVerb);
@@ -6652,80 +6871,129 @@ function getCalificativoInstrumentivoResult({
     }
     if (verbMeta.hasImpersonalTaPrefix) {
         objectPrefix = "";
+        indirectObjectMarker = "";
+        thirdObjectMarker = "";
     }
     let analysisVerb = verbMeta.analysisVerb || verb;
     const directionalPrefix = verbMeta.directionalPrefix || "";
-    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, "calificativo-instrumentivo");
+    const selectedBySlot = {
+        object: objectPrefix || "",
+        object2: indirectObjectMarker || "",
+        object3: thirdObjectMarker || "",
+    };
+    const hasOverflowedSlotSelection = NOUN_OBJECT_SLOT_SCHEMA
+        .slice(slotPlanBundle.slotPlans.length)
+        .some((slotMeta) => Boolean(selectedBySlot[slotMeta.id]));
+    const hasInvalidSlotSelection = slotPlanBundle.slotPlans.some((slotPlan) => (
+        !slotPlan.toggleValues.includes(selectedBySlot[slotPlan.id] || "")
+    ));
     const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta);
-    if (!allowsObjectPrefix) {
-        if (objectPrefix !== "") {
-            return { error: true };
-        }
-    } else if (isTransitiveVerb) {
-        const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, "calificativo-instrumentivo");
-        if (!allowedPrefixes.includes(objectPrefix)) {
-            return { error: true };
-        }
-    } else if (objectPrefix !== "") {
+    if (hasOverflowedSlotSelection || hasInvalidSlotSelection) {
         return { error: true };
     }
-
-    const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+    const nounForwardDerivation = applyNounForwardDerivation({
+        verbMeta,
         verb,
         analysisVerb,
         objectPrefix,
-        ...buildNonspecificAllomorphyOptions(verbMeta),
     });
-    verb = nonspecificAllomorphy.verb;
-    analysisVerb = nonspecificAllomorphy.analysisVerb;
-    const morphologyObjectPrefix = nonspecificAllomorphy.objectPrefix || objectPrefix;
-
-    const stemVerb = verb;
-    const stemAnalysis = analysisVerb;
-
-    const applied = applyMorphologyRules({
-        subjectPrefix: "",
-        objectPrefix: morphologyObjectPrefix,
-        subjectSuffix: "",
-        verb: stemVerb,
-        tense: "pasado-remoto",
-        analysisVerb: stemAnalysis,
-        isYawi: verbMeta.isYawi,
-        isWeya: verbMeta.isWeya,
-        directionalPrefix,
-        directionalRuleMode: resolvedDirectionalRuleMode,
-        suppletiveStemSet: getSuppletiveStemSet(verbMeta),
-        isNounContext: true,
-        ...buildMorphologyMetaOptions(verbMeta),
-    });
-    const predicate = applied.verb;
-    if (!predicate || predicate === "—") {
+    if (nounForwardDerivation.blocked) {
         return { error: true };
     }
-    const baseForms = predicate.split(" / ").map((form) => form.trim()).filter(Boolean);
-    if (!baseForms.length) {
+    const derivedIsYawi = nounForwardDerivation.isYawi;
+    const derivedIsWeya = nounForwardDerivation.isWeya;
+    const derivedSuppletiveStemSet = nounForwardDerivation.suppletiveStemSet;
+    const forwardStemTargets = getNounForwardStemTargets(nounForwardDerivation, verb, analysisVerb);
+    const forwardStemContexts = buildNounForwardStemContexts({
+        stemTargets: forwardStemTargets,
+        objectPrefix,
+        verbMeta,
+        indirectObjectMarker,
+        thirdObjectMarker,
+    });
+    if (!forwardStemContexts.length) {
         return { error: true };
     }
-
     const resolvedPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
         : "";
-    if (resolvedPossessivePrefix === "") {
-        const forms = baseForms.map((form) => `${form}yut`);
-        return { result: Array.from(new Set(forms)).join(" / ") };
-    }
-    if (!resolvedPossessivePrefix) {
+    const shouldCollapseMarkerEcho = Boolean(
+        getForwardDerivationConfig(getNounDerivationTypeFromMeta(verbMeta))
+        && (indirectObjectMarker || thirdObjectMarker)
+    );
+    const forms = new Set();
+    forwardStemContexts.forEach((stemContext) => {
+        const applied = applyMorphologyRules({
+            subjectPrefix: "",
+            objectPrefix: stemContext.morphologyObjectPrefix,
+            subjectSuffix: "",
+            verb: stemContext.verb,
+            tense: "pasado-remoto",
+            analysisVerb: stemContext.analysisVerb,
+            isYawi: derivedIsYawi,
+            isWeya: derivedIsWeya,
+            directionalPrefix,
+            directionalRuleMode: resolvedDirectionalRuleMode,
+            suppletiveStemSet: derivedSuppletiveStemSet,
+            isNounContext: true,
+            ...buildMorphologyMetaOptions(verbMeta),
+            indirectObjectMarker,
+            thirdObjectMarker,
+        });
+        const predicate = applied.verb;
+        if (!predicate || predicate === "—") {
+            return;
+        }
+        const baseForms = predicate
+            .split(" / ")
+            .map((form) => form.trim())
+            .filter(Boolean)
+            .map((form) => collapseCalificativoMarkerEcho({
+                form,
+                morphologyObjectPrefix: applied.objectPrefix || stemContext.morphologyObjectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                enable: shouldCollapseMarkerEcho,
+            }));
+        if (!baseForms.length) {
+            return;
+        }
+        const objectChainForms = baseForms.map((form) => buildPrefixedChain({
+            objectPrefix: applied.objectPrefix || "",
+            verb: form,
+        }));
+        if (resolvedPossessivePrefix === "") {
+            objectChainForms.forEach((form) => {
+                const text = `${form}yut`;
+                if (text) {
+                    forms.add(text);
+                }
+            });
+            return;
+        }
+        objectChainForms.forEach((form) => {
+            const text = buildPrefixedChain({
+                possessivePrefix: resolvedPossessivePrefix,
+                verb: form,
+            });
+            if (text) {
+                forms.add(text);
+            }
+        });
+    });
+    if (!forms.size) {
         return { error: true };
     }
-    const forms = baseForms.map((form) => `${resolvedPossessivePrefix}${form}`);
-    return { result: Array.from(new Set(forms)).join(" / ") };
+    return { result: Array.from(forms).join(" / ") };
 }
 
 function getLocativoTemporalResult({
     rawVerb,
     verbMeta,
     objectPrefix,
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
     possessivePrefix,
     combinedMode,
 }) {
@@ -6741,114 +7009,140 @@ function getLocativoTemporalResult({
     }
     if (verbMeta.hasImpersonalTaPrefix) {
         objectPrefix = "";
+        indirectObjectMarker = "";
+        thirdObjectMarker = "";
     }
     let analysisVerb = verbMeta.analysisVerb || verb;
     const directionalPrefix = verbMeta.directionalPrefix || "";
     const resolvedMode = combinedMode || getCombinedMode();
     const isNonactive = resolvedMode === COMBINED_MODE.nonactive;
-    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
-    const derivationIsTransitive = isNonactiveTransitiveVerb(objectPrefix, verbMeta);
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, "locativo-temporal", {
+        combinedMode: resolvedMode,
+    });
+    const selectedBySlot = {
+        object: objectPrefix || "",
+        object2: indirectObjectMarker || "",
+        object3: thirdObjectMarker || "",
+    };
+    const hasOverflowedSlotSelection = NOUN_OBJECT_SLOT_SCHEMA
+        .slice(slotPlanBundle.slotPlans.length)
+        .some((slotMeta) => Boolean(selectedBySlot[slotMeta.id]));
+    const hasInvalidSlotSelection = slotPlanBundle.slotPlans.some((slotPlan) => (
+        !slotPlan.toggleValues.includes(selectedBySlot[slotPlan.id] || "")
+    ));
+    const derivationIsTransitive = isNonactiveTransitiveVerb(
+        objectPrefix || indirectObjectMarker || thirdObjectMarker,
+        verbMeta
+    );
     const resolvedDirectionalRuleMode = resolveDirectionalRuleMode(verbMeta, { isNonactive });
-    if (!allowsObjectPrefix) {
-        if (objectPrefix !== "") {
-            return { error: true };
-        }
-    } else if (isTransitiveVerb) {
-        const allowedPrefixes = isNonactive
-            ? getAllObjectPrefixValues()
-            : Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
-        if (!allowedPrefixes.includes(objectPrefix)) {
-            return { error: true };
-        }
-    } else if (objectPrefix !== "") {
+    if (hasOverflowedSlotSelection || hasInvalidSlotSelection) {
         return { error: true };
     }
-
-    const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+    const nounForwardDerivation = applyNounForwardDerivation({
+        verbMeta,
         verb,
         analysisVerb,
         objectPrefix,
-        ...buildNonspecificAllomorphyOptions(verbMeta),
     });
-    verb = nonspecificAllomorphy.verb;
-    analysisVerb = nonspecificAllomorphy.analysisVerb;
-    const morphologyObjectPrefix = nonspecificAllomorphy.objectPrefix || objectPrefix;
-
-    let stemVerb = verb;
-    let stemAnalysis = analysisVerb;
-    let nonactiveStems = [stemVerb];
-    if (isNonactive) {
-        const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
-        const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
-        const selection = resolveNonactiveStemSelection(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
-            isTransitive: derivationIsTransitive,
-            isYawi: verbMeta.isYawi,
-            forceAll: shouldForceAllNonactiveOptions(),
-            ruleBase: nonactiveRuleBase,
-            rootPlusYaBase: verbMeta.rootPlusYaBase,
-        });
-        const selectedStemList = Array.isArray(selection.selectedStems)
-            ? selection.selectedStems.filter(Boolean)
-            : [];
-        const rawStems = (!selection.selectedSuffix && selection.allStems.length > 1)
-            ? selection.allStems
-            : ((selection.selectedSuffix && selectedStemList.length > 1)
-                ? selectedStemList
-                : [selection.selectedStem]);
-        nonactiveStems = nonactiveSource.prefix
-            ? rawStems.map((stem) => `${nonactiveSource.prefix}${stem}`)
-            : rawStems;
-        stemVerb = nonactiveStems[0];
-        stemAnalysis = stripDirectionalPrefixFromStem(stemVerb, directionalPrefix);
+    if (nounForwardDerivation.blocked) {
+        return { error: true };
     }
-
-    let sourceObjectPrefix = objectPrefix;
-    if (isNonactive) {
-        const passive = applyPassiveImpersonal({
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix,
-            analysisVerb: stemAnalysis,
-        });
-        sourceObjectPrefix = passive.objectPrefix;
+    const derivedIsYawi = nounForwardDerivation.isYawi;
+    const derivedIsWeya = nounForwardDerivation.isWeya;
+    const forwardStemTargets = getNounForwardStemTargets(nounForwardDerivation, verb, analysisVerb);
+    const forwardStemContexts = buildNounForwardStemContexts({
+        stemTargets: forwardStemTargets,
+        objectPrefix,
+        verbMeta,
+        indirectObjectMarker,
+        thirdObjectMarker,
+    });
+    if (!forwardStemContexts.length) {
+        return { error: true };
     }
-    const resolvedObjectPrefix = sourceObjectPrefix === objectPrefix
-        ? morphologyObjectPrefix
-        : sourceObjectPrefix;
 
     const possessorInput = typeof possessivePrefix === "string" ? possessivePrefix : "";
-    const isImpersonal = isNonactive && !PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(objectPrefix);
-    const possessorPrefix = isImpersonal ? "" : possessorInput;
+    const isImpersonal = isNonactive && !possessorInput;
+    const possessorPrefix = possessorInput;
     const forms = new Set();
 
-    nonactiveStems.forEach((stem) => {
-        const stemAnalysisLocal = stripDirectionalPrefixFromStem(stem, directionalPrefix);
-        const applied = applyMorphologyRules({
-            subjectPrefix: "",
-            objectPrefix: resolvedObjectPrefix,
-            subjectSuffix: "",
-            verb: stem,
-            tense: "imperfecto",
-            analysisVerb: stemAnalysisLocal,
-            isYawi: isNonactive ? false : verbMeta.isYawi,
-            isWeya: isNonactive ? false : verbMeta.isWeya,
-            directionalPrefix,
-            directionalRuleMode: resolvedDirectionalRuleMode,
-            isNounContext: true,
-            ...buildMorphologyMetaOptions(verbMeta),
-        });
-        if (!applied || !applied.verb) {
+    forwardStemContexts.forEach((stemContext) => {
+        let nonactiveStems = [stemContext.verb];
+        if (isNonactive) {
+            const nonactiveSource = getNonactiveDerivationSource(
+                verbMeta,
+                stemContext.verb,
+                stemContext.analysisVerb,
+            );
+            const nonactiveRuleBase = getNounNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
+            const selection = resolveNonactiveStemSelection(nonactiveSource.baseVerb, nonactiveSource.baseVerb, {
+                isTransitive: derivationIsTransitive,
+                isYawi: derivedIsYawi,
+                forceAll: shouldForceAllNonactiveOptions(),
+                ruleBase: nonactiveRuleBase,
+                rootPlusYaBase: verbMeta.rootPlusYaBase,
+            });
+            const selectedStemList = Array.isArray(selection.selectedStems)
+                ? selection.selectedStems.filter(Boolean)
+                : [];
+            const rawStems = (!selection.selectedSuffix && selection.allStems.length > 1)
+                ? selection.allStems
+                : ((selection.selectedSuffix && selectedStemList.length > 1)
+                    ? selectedStemList
+                    : [selection.selectedStem]);
+            nonactiveStems = nonactiveSource.prefix
+                ? rawStems.map((stem) => `${nonactiveSource.prefix}${stem}`)
+                : rawStems;
+        }
+        nonactiveStems = (nonactiveStems || []).filter(Boolean);
+        if (!nonactiveStems.length) {
             return;
         }
-        const predicate = `${buildPrefixedChain({
-            objectPrefix: applied.objectPrefix,
-            verb: applied.verb,
-        })}${applied.subjectSuffix}`;
-        const text = `${possessorPrefix}${predicate}n`;
-        if (text) {
-            forms.add(text);
+
+        let sourceObjectPrefix = objectPrefix;
+        if (isNonactive) {
+            const passive = applyPassiveImpersonal({
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix,
+                analysisVerb: stripDirectionalPrefixFromStem(nonactiveStems[0], directionalPrefix),
+            });
+            sourceObjectPrefix = passive.objectPrefix;
         }
+        const resolvedObjectPrefix = sourceObjectPrefix === objectPrefix
+            ? stemContext.morphologyObjectPrefix
+            : sourceObjectPrefix;
+
+        nonactiveStems.forEach((stem) => {
+            const stemAnalysisLocal = stripDirectionalPrefixFromStem(stem, directionalPrefix);
+            const applied = applyMorphologyRules({
+                subjectPrefix: "",
+                objectPrefix: resolvedObjectPrefix,
+                subjectSuffix: "",
+                verb: stem,
+                tense: "imperfecto",
+                analysisVerb: stemAnalysisLocal,
+                isYawi: isNonactive ? false : derivedIsYawi,
+                isWeya: isNonactive ? false : derivedIsWeya,
+                directionalPrefix,
+                directionalRuleMode: resolvedDirectionalRuleMode,
+                isNounContext: true,
+                ...buildMorphologyMetaOptions(verbMeta),
+                indirectObjectMarker,
+                thirdObjectMarker,
+            });
+            if (!applied || !applied.verb) {
+                return;
+            }
+            const predicate = `${buildPrefixedChain({
+                objectPrefix: applied.objectPrefix,
+                verb: applied.verb,
+            })}${applied.subjectSuffix}`;
+            const text = `${possessorPrefix}${predicate}n`;
+            if (text) {
+                forms.add(text);
+            }
+        });
     });
 
     return {
@@ -7727,9 +8021,11 @@ function buildBlockComboPaletteSignature({
         : 1;
     if (mode === "noun") {
         const normalizedObject = normalizePrefixForComboPalette(objectPrefix);
+        const normalizedIndirect = normalizePrefixForComboPalette(indirectObjectMarker);
+        const normalizedThird = normalizePrefixForComboPalette(thirdObjectMarker);
         const normalizedPossessor = normalizePrefixForComboPalette(possessorPrefix);
         const normalizedOwnership = ownership ? String(ownership) : "default";
-        return `noun|v${numericValency}|${normalizedObject}|${normalizedPossessor}|${normalizedOwnership}`;
+        return `noun|v${numericValency}|${normalizedObject}|${normalizedIndirect}|${normalizedThird}|${normalizedPossessor}|${normalizedOwnership}`;
     }
     if (numericValency >= 4) {
         return `verb|v4|${getValence4ComboSignature({
@@ -10233,35 +10529,233 @@ function buildSearchOptionPlan(options, stored, fallback) {
     return ordered.filter((value, index) => ordered.indexOf(value) === index);
 }
 
-function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue) {
+const NOUN_OBJECT_SLOT_SCHEMA = Object.freeze([
+    Object.freeze({
+        id: "object",
+        stateSuffix: "",
+        datasetKey: "objectPrefix",
+    }),
+    Object.freeze({
+        id: "object2",
+        stateSuffix: "indirect",
+        datasetKey: "indirectObjectMarker",
+    }),
+    Object.freeze({
+        id: "object3",
+        stateSuffix: "object3",
+        datasetKey: "thirdObjectMarker",
+    }),
+]);
+
+function getNounDerivationTypeFromMeta(verbMeta) {
+    if (Object.values(DERIVATION_TYPE).includes(verbMeta?.derivationType)) {
+        return verbMeta.derivationType;
+    }
+    return getActiveDerivationType();
+}
+
+function getNounObjectSlotSummary(verbMeta) {
+    const derivationType = getNounDerivationTypeFromMeta(verbMeta);
+    const derivationValencyDelta = getDerivationValencyDelta(derivationType);
+    const availableObjectSlots = Math.max(0, Math.min(MAX_OBJECT_SLOTS, getAvailableObjectSlots(verbMeta)));
+    const directObjectSlots = Math.max(0, availableObjectSlots - Math.max(0, derivationValencyDelta));
+    const derivedAddedSlots = Math.max(0, availableObjectSlots - directObjectSlots);
+    return {
+        derivationType,
+        derivationValencyDelta,
+        availableObjectSlots,
+        directObjectSlots,
+        derivedAddedSlots,
+    };
+}
+
+function getNounObjectSlotStateKey(baseObjectStateKey = "", slotId = "object") {
+    const slotMeta = NOUN_OBJECT_SLOT_SCHEMA.find((entry) => entry.id === slotId);
+    if (!slotMeta || !slotMeta.stateSuffix) {
+        return baseObjectStateKey;
+    }
+    return `${baseObjectStateKey}|${slotMeta.stateSuffix}`;
+}
+
+function getPreferredNounObjectSlotPrefix(toggleValues, options = {}) {
+    const values = Array.isArray(toggleValues) ? toggleValues : [];
+    if (!values.length) {
+        return "";
+    }
+    const isPrimary = options.isPrimary === true;
+    const isAddedSlot = options.isAddedSlot === true;
+    if (isPrimary) {
+        return getPreferredNounObjectPrefix(values);
+    }
+    if (!isAddedSlot && values.includes("")) {
+        return "";
+    }
+    if (values.includes("ta")) {
+        return "ta";
+    }
+    return values[0] || "";
+}
+
+function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue, options = {}) {
     const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
+    const slotSummary = getNounObjectSlotSummary(verbMeta);
+    const allowsObjectPrefix = slotSummary.availableObjectSlots > 0;
+    const hasOnlyDerivedSlot = slotSummary.derivedAddedSlots > 0 && slotSummary.directObjectSlots <= 0;
+    const nounTransitivePrefixes = Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
     const isCalificativoInstrumentivo = tenseValue === "calificativo-instrumentivo";
     const isLocativoTemporal = tenseValue === "locativo-temporal";
+    const resolvedCombinedMode = options.combinedMode || getCombinedMode();
     if (isCalificativoInstrumentivo) {
         return (isTransitiveVerb && allowsObjectPrefix)
-            ? Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)
+            ? nounTransitivePrefixes
             : [""];
     }
     if (isLocativoTemporal) {
         if (!isTransitiveVerb || !allowsObjectPrefix) {
             return [""];
         }
-        if (getCombinedMode() === COMBINED_MODE.nonactive) {
+        if (hasOnlyDerivedSlot) {
+            return nounTransitivePrefixes;
+        }
+        if (resolvedCombinedMode === COMBINED_MODE.nonactive) {
             return [
                 ...Array.from(PASSIVE_IMPERSONAL_DIRECT_OBJECTS),
-                ...Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES),
+                ...nounTransitivePrefixes,
             ];
         }
-        return Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
+        return nounTransitivePrefixes;
     }
     if (!isTransitiveVerb || !allowsObjectPrefix) {
         return [""];
     }
-    if (tenseValue === "agentivo") {
-        return Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
+    if (tenseValue === "agentivo" || hasOnlyDerivedSlot) {
+        return nounTransitivePrefixes;
     }
-    return ["", ...Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)];
+    return ["", ...nounTransitivePrefixes];
+}
+
+function getNounObjectSlotPlansFromMeta(verbMeta, tenseValue, options = {}) {
+    const slotSummary = getNounObjectSlotSummary(verbMeta);
+    const nounTransitivePrefixes = Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES);
+    const primaryPrefixes = Array.from(new Set([
+        "",
+        ...getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue, options),
+    ]));
+    const slotPlans = NOUN_OBJECT_SLOT_SCHEMA
+        .slice(0, slotSummary.availableObjectSlots)
+        .map((slotMeta, index) => {
+            const isPrimary = index === 0;
+            const isAddedSlot = index >= slotSummary.directObjectSlots;
+            const seedValues = isPrimary
+                ? primaryPrefixes
+                : nounTransitivePrefixes;
+            const toggleValues = Array.from(new Set(seedValues.filter((value) => value !== undefined && value !== null)))
+                .map((value) => String(value || ""));
+            const normalizedValues = toggleValues.length ? toggleValues : [""];
+            return {
+                ...slotMeta,
+                index,
+                isPrimary,
+                isAddedSlot,
+                toggleValues: normalizedValues,
+                preferredId: getPreferredNounObjectSlotPrefix(normalizedValues, {
+                    isPrimary,
+                    isAddedSlot,
+                }),
+            };
+        });
+    return {
+        ...slotSummary,
+        primaryPrefixes,
+        nounTransitivePrefixes,
+        slotPlans,
+    };
+}
+
+function buildNounObjectSlotToggleStates({
+    verbMeta,
+    tenseValue,
+    baseObjectStateKey,
+    isNawat = false,
+    combinedMode = "",
+}) {
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, tenseValue, { combinedMode });
+    const slotStates = slotPlanBundle.slotPlans.map((slotPlan) => {
+        const stateKey = getNounObjectSlotStateKey(baseObjectStateKey, slotPlan.id);
+        const options = getObjectToggleOptions(slotPlan.toggleValues, {
+            includeAll: true,
+            labelForPrefix: getNonspecificToggleLabel,
+            isNawat,
+        });
+        const showToggle = slotPlan.toggleValues.length > 1;
+        const storedValue = OBJECT_TOGGLE_STATE.get(stateKey);
+        const isStoredValid = storedValue !== undefined
+            && (
+                slotPlan.toggleValues.includes(storedValue)
+                || (showToggle && storedValue === OBJECT_TOGGLE_ALL)
+            );
+        let activeId = isStoredValid ? storedValue : slotPlan.preferredId;
+        if (activeId !== OBJECT_TOGGLE_ALL && !slotPlan.toggleValues.includes(activeId)) {
+            activeId = slotPlan.toggleValues[0] || "";
+        }
+        if (showToggle && !isStoredValid && activeId === "") {
+            activeId = slotPlan.preferredId || slotPlan.toggleValues[0] || "";
+        }
+        OBJECT_TOGGLE_STATE.set(stateKey, activeId);
+        return {
+            ...slotPlan,
+            stateKey,
+            options,
+            optionMap: new Map(options.map((entry) => [entry.id, entry])),
+            activeId,
+            showToggle,
+        };
+    });
+    return {
+        ...slotPlanBundle,
+        slotStates,
+    };
+}
+
+function buildNounObjectSlotSelectionModels(slotStates = [], options = {}) {
+    const includeSlot = typeof options.includeSlot === "function"
+        ? options.includeSlot
+        : () => true;
+    return (Array.isArray(slotStates) ? slotStates : [])
+        .filter((slotState) => includeSlot(slotState))
+        .map((slotState) => {
+            const values = slotState.activeId === OBJECT_TOGGLE_ALL
+                ? slotState.toggleValues
+                : [slotState.activeId];
+            return {
+                ...slotState,
+                values: values.length ? values : [""],
+            };
+        });
+}
+
+function iterateNounObjectSlotSelections(slotSelectionModels = [], onSelection = null) {
+    if (typeof onSelection !== "function") {
+        return;
+    }
+    const models = Array.isArray(slotSelectionModels) ? slotSelectionModels : [];
+    const visit = (slotIndex, selectedBySlot) => {
+        if (slotIndex >= models.length) {
+            onSelection(selectedBySlot);
+            return;
+        }
+        const slotModel = models[slotIndex];
+        const values = Array.isArray(slotModel.values) && slotModel.values.length
+            ? slotModel.values
+            : [""];
+        values.forEach((value) => {
+            visit(slotIndex + 1, {
+                ...selectedBySlot,
+                [slotModel.id]: value || "",
+            });
+        });
+    };
+    visit(0, {});
 }
 
 function getSearchNonactiveSuffixPlan(verbMeta) {
@@ -10372,16 +10866,35 @@ function buildNounSearchPlans({ tenseValue, verbMeta }) {
         const stored = SUBJECT_TOGGLE_STATE.get(subjectKey);
         subjectPlan = buildSearchOptionPlan(subjectOptionIds, stored, fallbackSubject);
     }
-    const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue);
     const objectStateKey = getObjectStateKey({ groupKey, tenseValue, mode: "noun" });
-    const storedObject = OBJECT_TOGGLE_STATE.get(objectStateKey);
-    const fallbackObject = allowedPrefixes[0] || "";
-    const objectPlan = buildSearchOptionPlan(allowedPrefixes, storedObject, fallbackObject);
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, tenseValue);
+    const objectSlotPlans = slotPlanBundle.slotPlans.map((slotPlan) => {
+        const slotStateKey = getNounObjectSlotStateKey(objectStateKey, slotPlan.id);
+        const stored = OBJECT_TOGGLE_STATE.get(slotStateKey);
+        const options = buildSearchOptionPlan(
+            slotPlan.toggleValues,
+            stored,
+            slotPlan.preferredId
+        );
+        return {
+            slotId: slotPlan.id,
+            objectStateKey: slotStateKey,
+            options,
+            base: options[0] || "",
+        };
+    });
+    const primaryPlan = objectSlotPlans[0] || {
+        slotId: "object",
+        objectStateKey,
+        options: [""],
+        base: "",
+    };
     return {
         subjectPlan,
         subjectKey,
-        objectPlan,
-        objectStateKey,
+        objectPlan: primaryPlan.options,
+        objectStateKey: primaryPlan.objectStateKey,
+        objectSlotPlans,
     };
 }
 
@@ -10471,15 +10984,45 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                     verbMeta: parsedVerb,
                 });
                 const possessorPlan = getSearchPossessorPlan(target.tenseValue);
+                const nounObjectPlans = Array.isArray(nounPlans.objectSlotPlans) && nounPlans.objectSlotPlans.length
+                    ? nounPlans.objectSlotPlans
+                    : [{
+                        slotId: "object",
+                        objectStateKey: nounPlans.objectStateKey,
+                        options: nounPlans.objectPlan,
+                    }];
+                const iterateNounObjectSelections = (planIndex, selectionsBySlot, onSelection) => {
+                    if (planIndex >= nounObjectPlans.length) {
+                        return onSelection(selectionsBySlot);
+                    }
+                    const plan = nounObjectPlans[planIndex];
+                    const values = Array.isArray(plan.options) && plan.options.length
+                        ? plan.options
+                        : [""];
+                    for (const value of values) {
+                        const nextSelections = {
+                            ...selectionsBySlot,
+                            [plan.slotId]: value || "",
+                        };
+                        if (iterateNounObjectSelections(planIndex + 1, nextSelections, onSelection)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
                 for (const possessor of possessorPlan) {
                     POSSESSOR_TOGGLE_STATE.set(getNounPossessorKey(target.tenseValue), possessor);
                     for (const subjectId of nounPlans.subjectPlan) {
                         SUBJECT_TOGGLE_STATE.set(nounPlans.subjectKey, subjectId);
-                        for (const objectPrefix of nounPlans.objectPlan) {
-                            OBJECT_TOGGLE_STATE.set(nounPlans.objectStateKey, objectPrefix);
+                        if (iterateNounObjectSelections(0, {}, (selectionBySlot) => {
+                            nounObjectPlans.forEach((plan) => {
+                                const value = selectionBySlot[plan.slotId] || "";
+                                OBJECT_TOGGLE_STATE.set(plan.objectStateKey, value);
+                            });
+                            const primaryObjectPrefix = selectionBySlot.object || "";
                             renderActiveConjugations({
                                 verb: displayVerb,
-                                objectPrefix,
+                                objectPrefix: primaryObjectPrefix,
                                 onlyTense: target.tenseValue,
                                 tense: target.tenseValue,
                             });
@@ -10487,6 +11030,9 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                                 renderTenseTabs();
                                 return true;
                             }
+                            return false;
+                        })) {
+                            return true;
                         }
                     }
                 }
@@ -15878,6 +16424,48 @@ function getDerivationTypeDisplayLabel(type, isNawat = false) {
     return normalizedType;
 }
 
+function getBlockedNounDerivationTypes(tenseValue = "") {
+    const blocked = new Set();
+    const verbInput = document.getElementById("verb");
+    const rawInput = getSearchInputBase(verbInput?.value || "");
+    const baseInput = String(rawInput || "").trim();
+    if (!baseInput) {
+        return blocked;
+    }
+    const resolvedTenseValue = tenseValue || getSelectedTenseTab() || "sustantivo-verbal";
+    const derivedTypes = [
+        DERIVATION_TYPE.causative,
+        DERIVATION_TYPE.applicative,
+    ];
+    derivedTypes.forEach((derivationType) => {
+        const parsedVerb = getParsedVerbForTab("noun-derivation-switch", baseInput, {
+            derivationType,
+            includeNonactiveStemMetadata: false,
+            useSearchBase: false,
+        });
+        const availability = buildDerivationAvailabilityTargets({
+            derivationType,
+            verb: parsedVerb.verb || "",
+            analysisVerb: parsedVerb.analysisVerb || parsedVerb.verb || "",
+            objectPrefix: "",
+            verbMeta: parsedVerb,
+            suppletiveStemSet: getSuppletiveStemSet(parsedVerb),
+        });
+        const hasDerivedStem = Array.isArray(availability?.availabilityTargets)
+            && availability.availabilityTargets.length > 0;
+        const slotPlanBundle = getNounObjectSlotPlansFromMeta(parsedVerb, resolvedTenseValue);
+        const derivedSlots = slotPlanBundle.slotPlans.filter((slot) => slot.isAddedSlot);
+        const hasNonspecificFiller = derivedSlots.length > 0
+            && derivedSlots.every((slot) =>
+                slot.toggleValues.some((prefix) => SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES.has(prefix))
+            );
+        if (!hasDerivedStem || !hasNonspecificFiller) {
+            blocked.add(derivationType);
+        }
+    });
+    return blocked;
+}
+
 let DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
 let DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
 let DERIVATION_ANTIDERIVATIVE_STAGE = "off";
@@ -16039,24 +16627,43 @@ function updateDerivationTypeControl() {
         return;
     }
     const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
+    const isNounMode = getActiveTenseMode() === TENSE_MODE.sustantivo;
+    const canUseControl = isVerbMode || isNounMode;
+    const nounTenseValue = isNounMode
+        ? (getSelectedTenseTab() || getNounTenseOrderForCombinedMode(getCombinedMode())[0] || "sustantivo-verbal")
+        : "";
+    const blockedNounTypes = isNounMode ? getBlockedNounDerivationTypes(nounTenseValue) : new Set();
+    let activeType = getActiveDerivationType();
     const container = document.querySelector(".derivation-type-row")
         || document.querySelector(".calc-operator--derivation");
     if (container) {
-        container.classList.toggle("is-disabled", !isVerbMode);
-        container.setAttribute("aria-disabled", String(!isVerbMode));
+        container.classList.toggle("is-disabled", !canUseControl);
+        container.setAttribute("aria-disabled", String(!canUseControl));
     }
-    const activeType = getActiveDerivationType();
     if (select) {
-        select.disabled = !isVerbMode;
+        const options = Array.from(select.options || []);
+        options.forEach((option) => {
+            const isBlocked = isNounMode && blockedNounTypes.has(option.value);
+            // Keep the currently active derivation selectable to avoid silent fallback to direct.
+            option.disabled = isBlocked && option.value !== activeType;
+        });
+        select.disabled = !canUseControl;
+        if (!options.some((option) => option.value === activeType)) {
+            activeType = DERIVATION_TYPE.direct;
+            setActiveDerivationType(activeType);
+        }
         select.value = activeType;
     }
     if (buttons.length) {
         buttons.forEach((button) => {
-            const isActive = button.getAttribute("data-derivation-type") === activeType;
+            const type = button.getAttribute("data-derivation-type") || "";
+            const isBlocked = isNounMode && blockedNounTypes.has(type);
+            const isActive = type === activeType;
+            const isDisabled = !canUseControl || (isBlocked && !isActive);
             button.classList.toggle("is-active", isActive);
             button.setAttribute("aria-pressed", String(isActive));
-            button.disabled = !isVerbMode;
-            button.setAttribute("aria-disabled", String(!isVerbMode));
+            button.disabled = isDisabled;
+            button.setAttribute("aria-disabled", String(isDisabled));
         });
     }
     renderDerivationAntiderivativePanel();
@@ -18181,19 +18788,60 @@ function generateWord(options = {}) {
             if (error) return error;
         }
         const isTransitiveVerb = getBaseObjectSlots(parsedVerb) > 0;
-        const allowsObjectPrefix = getAvailableObjectSlots(parsedVerb) > 0;
-    if (isCalificativoInstrumentivo) {
-        if (isTransitiveVerb && allowsObjectPrefix) {
-            if (!SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES.has(objectPrefix)) {
-                const error = returnIfError("Calificativo transitivo solo con ta/te/mu.", ["object-prefix"]);
-                if (error) return error;
-            }
-        } else if (objectPrefix !== "") {
-            const error = returnIfError("Calificativo intransitivo va sin prefijo.", ["object-prefix"]);
+        const slotPlanBundle = getNounObjectSlotPlansFromMeta(parsedVerb, tense);
+        const slotPlans = slotPlanBundle.slotPlans;
+        const selectedBySlot = {
+            object: objectPrefix || "",
+            object2: indirectObjectMarker || "",
+            object3: thirdObjectMarker || "",
+        };
+        const hasDerivedValencyIncrease = getDerivationValencyDelta(resolvedDerivationType) > 0;
+        const derivationLabel = getDerivationTypeDisplayLabel(resolvedDerivationType, false).toLowerCase();
+        const derivedSlots = slotPlans.filter((slotPlan) => slotPlan.isAddedSlot);
+        if (hasDerivedValencyIncrease && !derivedSlots.length) {
+            const error = returnIfError(
+                `La derivación ${derivationLabel} no tiene espacio para prefijo no específico (ta/te/mu).`,
+                ["object-prefix"]
+            );
             if (error) return error;
         }
-    } else {
+        const overflowedSlot = NOUN_OBJECT_SLOT_SCHEMA
+            .slice(slotPlans.length)
+            .find((slotMeta) => Boolean(selectedBySlot[slotMeta.id]));
+        if (overflowedSlot) {
+            const derivationLabel = getDerivationTypeDisplayLabel(resolvedDerivationType, false).toLowerCase();
+            const error = returnIfError(
+                `La derivación ${derivationLabel} no tiene espacio para marcadores de valencia adicionales.`,
+                ["object-prefix"]
+            );
+            if (error) return error;
+        }
+        const invalidSlotPlan = slotPlans.find((slotPlan) => (
+            !slotPlan.toggleValues.includes(selectedBySlot[slotPlan.id] || "")
+        ));
+        if (invalidSlotPlan) {
+            if (invalidSlotPlan.id !== "object") {
+                const slotNumber = Number.isFinite(invalidSlotPlan.index) ? invalidSlotPlan.index + 1 : 2;
+                const error = returnIfError(
+                    `Derivación ${derivationLabel} nominal requiere ta/te/mu en objeto ${slotNumber}.`,
+                    ["object-prefix"]
+                );
+                if (error) return error;
+            }
+            if (isCalificativoInstrumentivo) {
+                if (isTransitiveVerb && slotPlans.length > 0) {
+                    const error = returnIfError("Calificativo transitivo solo con ta/te/mu.", ["object-prefix"]);
+                    if (error) return error;
+                } else {
+                    const error = returnIfError("Calificativo intransitivo va sin prefijo.", ["object-prefix"]);
+                    if (error) return error;
+                }
+            }
+            const primaryUsesDerivedSlot = slotPlans[0]?.isAddedSlot === true;
             const transitiveMessage = (() => {
+                if (hasDerivedValencyIncrease && primaryUsesDerivedSlot) {
+                    return `Derivación ${derivationLabel} nominal transitiva solo con ta/te/mu.`;
+                }
                 switch (tense) {
                     case "agentivo":
                         return "Agentivo transitivo solo con ta/te/mu.";
@@ -18217,13 +18865,43 @@ function generateWord(options = {}) {
                         return "Sustantivo verbal intransitivo va sin prefijo.";
                 }
             })();
-            const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(parsedVerb, tense);
-            if (isTransitiveVerb && allowsObjectPrefix) {
-                if (!allowedPrefixes.includes(objectPrefix)) {
-                    const error = returnIfError(transitiveMessage, ["object-prefix"]);
-                    if (error) return error;
-                }
-            } else if (objectPrefix !== "") {
+            if (isTransitiveVerb && slotPlans.length > 0) {
+                const error = returnIfError(transitiveMessage, ["object-prefix"]);
+                if (error) return error;
+            }
+            const error = returnIfError(intransitiveMessage, ["object-prefix"]);
+            if (error) return error;
+        }
+        if (slotPlans.length >= 3 && !isValidValence4Combo({
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+        })) {
+            const error = returnIfError(
+                "Combinación de objetos no permitida para valencia nominal 4.",
+                ["object-prefix"]
+            );
+            if (error) return error;
+        }
+        if (!slotPlans.length) {
+            const hasUnexpectedObjectMarker = Boolean(
+                selectedBySlot.object
+                || selectedBySlot.object2
+                || selectedBySlot.object3
+            );
+            if (hasUnexpectedObjectMarker) {
+                const intransitiveMessage = (() => {
+                    switch (tense) {
+                        case "agentivo":
+                            return "Agentivo intransitivo va sin prefijo.";
+                        case "patientivo":
+                            return "Patientivo intransitivo va sin prefijo.";
+                        case "instrumentivo":
+                            return "Instrumentivo intransitivo va sin prefijo.";
+                        default:
+                            return "Sustantivo verbal intransitivo va sin prefijo.";
+                    }
+                })();
                 const error = returnIfError(intransitiveMessage, ["object-prefix"]);
                 if (error) return error;
             }
@@ -20073,54 +20751,162 @@ function renderLocativoTemporalConjugations({
     const impersonalLabel = getVerbBlockLabel("impersonal", isNawat, "impersonal");
     const possessorToggleLabel = getToggleLabel("possessor", isNawat, "Poseedor");
     const objectToggleLabel = getToggleLabel("object", isNawat, "Objeto");
-    const possessorObjectToggleLabel = getToggleLabel("possessorObject", isNawat, "Poseedor / Objeto");
     const verbMeta = getParsedVerbForTab("noun", verb);
-    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
     const possessorValues = POSSESSIVE_PREFIXES
         .map((entry) => entry.value)
         .filter((value) => value);
-    const activeObjectValues = (isTransitiveVerb && allowsObjectPrefix)
-        ? Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)
-        : [""];
     const activeObjectKey = getObjectStateKey({
-        groupKey: "locativo-temporal|active",
+        groupKey: "locativo-temporal|active|objects",
         tenseValue: "locativo-temporal",
         mode: "noun",
     });
     const activePossessorKey = "noun|locativo-temporal|active|possessor";
-    const combinedKey = getObjectStateKey({
-        groupKey: "locativo-temporal|nonactive|combined",
+    const nonactiveObjectKey = getObjectStateKey({
+        groupKey: "locativo-temporal|nonactive|objects",
         tenseValue: "locativo-temporal",
         mode: "noun",
-        isNonactive: true,
     });
+    const nonactivePrimaryKey = "noun|locativo-temporal|nonactive|primary";
+    const slotBundlesByMode = {
+        [COMBINED_MODE.active]: buildNounObjectSlotToggleStates({
+            verbMeta,
+            tenseValue: "locativo-temporal",
+            baseObjectStateKey: activeObjectKey,
+            isNawat,
+            combinedMode: COMBINED_MODE.active,
+        }),
+        [COMBINED_MODE.nonactive]: buildNounObjectSlotToggleStates({
+            verbMeta,
+            tenseValue: "locativo-temporal",
+            baseObjectStateKey: nonactiveObjectKey,
+            isNawat,
+            combinedMode: COMBINED_MODE.nonactive,
+        }),
+    };
+    const resolveStoredPossessor = ({ stateKey, allowedValues, fallbackValue = "" }) => {
+        const allowedSet = new Set([OBJECT_TOGGLE_ALL, ...allowedValues]);
+        let value = POSSESSOR_TOGGLE_STATE.get(stateKey);
+        if (!allowedSet.has(value)) {
+            value = fallbackValue;
+        }
+        POSSESSOR_TOGGLE_STATE.set(stateKey, value);
+        return value;
+    };
 
     const { grid } = createObjectSectionGrid(container);
 
-    const buildPossessorOptions = () => {
+    const buildPossessorOptions = (values) => {
         const options = [{ id: OBJECT_TOGGLE_ALL, label: allToggleLabel, value: "" }];
-        possessorValues.forEach((value) => {
-            options.push({ id: value, label: value, value });
-        });
-        return options;
-    };
-
-    const buildCombinedOptions = () => {
-        const options = [{ id: OBJECT_TOGGLE_ALL, label: allToggleLabel, value: "" }];
-        possessorValues.forEach((value) => {
-            options.push({ id: `pos:${value}`, label: value, value, type: "possessor" });
-        });
-        if (isTransitiveVerb && allowsObjectPrefix) {
-            Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES).forEach((value) => {
-                options.push({ id: `obj:${value}`, label: value, value, type: "object" });
+        values.forEach((value) => {
+            options.push({
+                id: value,
+                label: value || "Ø",
+                value,
             });
-        }
+        });
         return options;
     };
 
     const buildBlock = ({ mode }) => {
         const isNonactive = mode === COMBINED_MODE.nonactive;
+        const slotBundle = slotBundlesByMode[mode] || slotBundlesByMode[COMBINED_MODE.active];
+        const mutableSlotStates = slotBundle.slotStates.map((slot) => ({ ...slot }));
+        const nonactiveObjectToggleValues = Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)
+            .map((value) => String(value || ""))
+            .filter(Boolean);
+        if (isNonactive && nonactiveObjectToggleValues.length) {
+            mutableSlotStates.forEach((slotState) => {
+                slotState.toggleValues = nonactiveObjectToggleValues;
+                slotState.options = getObjectToggleOptions(slotState.toggleValues, {
+                    includeAll: true,
+                    labelForPrefix: getNonspecificToggleLabel,
+                    isNawat,
+                });
+                slotState.optionMap = new Map(slotState.options.map((entry) => [entry.id, entry]));
+                slotState.showToggle = slotState.toggleValues.length > 1;
+                const isActiveValid = slotState.activeId !== undefined
+                    && (
+                        slotState.toggleValues.includes(slotState.activeId)
+                        || (slotState.showToggle && slotState.activeId === OBJECT_TOGGLE_ALL)
+                    );
+                if (!isActiveValid) {
+                    slotState.activeId = slotState.toggleValues.includes("ta")
+                        ? "ta"
+                        : (slotState.toggleValues[0] || "");
+                }
+                OBJECT_TOGGLE_STATE.set(slotState.stateKey, slotState.activeId);
+            });
+        }
+        const buildNonactivePrimaryOptions = () => {
+            const options = [{ id: OBJECT_TOGGLE_ALL, label: allToggleLabel, type: "all", value: "" }];
+            possessorValues.forEach((value) => {
+                options.push({
+                    id: `pos:${value}`,
+                    label: value,
+                    value,
+                    type: "possessor",
+                });
+            });
+            nonactiveObjectToggleValues.forEach((value) => {
+                options.push({
+                    id: `obj:${value}`,
+                    label: value,
+                    value,
+                    type: "object",
+                });
+            });
+            return options;
+        };
+        const slotStateById = new Map(mutableSlotStates.map((slot) => [slot.id, slot]));
+        const slotButtonsById = new Map();
+        const resolveActiveSlotValue = (slotId) => slotStateById.get(slotId)?.activeId || "";
+        const possessorStateKey = activePossessorKey;
+        const possessorToggleValues = possessorValues;
+        const defaultPossessor = possessorValues.includes("i") ? "i" : (possessorValues[0] || "");
+        let activePossessor = resolveStoredPossessor({
+            stateKey: possessorStateKey,
+            allowedValues: possessorToggleValues,
+            fallbackValue: defaultPossessor,
+        });
+        const nonactivePrimaryOptions = isNonactive ? buildNonactivePrimaryOptions() : [];
+        const nonactivePrimaryOptionMap = new Map(nonactivePrimaryOptions.map((option) => [option.id, option]));
+        let activeNonactivePrimary = OBJECT_TOGGLE_STATE.get(nonactivePrimaryKey);
+        if (isNonactive) {
+            const hasStoredPrimary = activeNonactivePrimary === OBJECT_TOGGLE_ALL
+                || nonactivePrimaryOptionMap.has(activeNonactivePrimary);
+            if (!hasStoredPrimary) {
+                activeNonactivePrimary = nonactivePrimaryOptionMap.has("obj:ta")
+                    ? "obj:ta"
+                    : ((nonactivePrimaryOptions.find((option) => option.id !== OBJECT_TOGGLE_ALL)?.id) || OBJECT_TOGGLE_ALL);
+            }
+            OBJECT_TOGGLE_STATE.set(nonactivePrimaryKey, activeNonactivePrimary);
+        }
+        const resolveNonactivePrimarySelection = (selectionId) => {
+            const option = nonactivePrimaryOptionMap.get(selectionId);
+            if (!option) {
+                return {
+                    objectPrefix: "",
+                    possessorPrefix: "",
+                };
+            }
+            if (option.type === "possessor") {
+                return {
+                    objectPrefix: POSSESSIVE_TO_OBJECT_PREFIX[option.value] || "",
+                    possessorPrefix: option.value || "",
+                };
+            }
+            if (option.type === "object") {
+                return {
+                    objectPrefix: option.value || "",
+                    possessorPrefix: "",
+                };
+            }
+            return {
+                objectPrefix: "",
+                possessorPrefix: "",
+            };
+        };
+
         const tenseBlock = document.createElement("div");
         tenseBlock.className = "tense-block";
         tenseBlock.dataset.tenseBlock = `${mode}-locativo-temporal`;
@@ -20147,133 +20933,37 @@ function renderLocativoTemporalConjugations({
         const list = document.createElement("div");
         list.className = "conjugation-list";
 
-        const renderRows = (state) => {
-            list.innerHTML = "";
-            if (!verb) {
-                const placeholder = document.createElement("div");
-                placeholder.className = "tense-placeholder";
-                placeholder.textContent = placeholderText;
-                list.appendChild(placeholder);
-                return;
-            }
-            if (!isTransitiveVerb && state.objectSelections.some((value) => value)) {
-                state.objectSelections = [""];
-            }
-            state.selections.forEach((selection) => {
-                const row = document.createElement("div");
-                row.className = "conjugation-row";
-                applyConjugationRowClasses(row, selection.objectPrefix);
-
-                const label = document.createElement("div");
-                label.className = "conjugation-label";
-                const personLabel = document.createElement("div");
-                personLabel.className = "person-label";
-                personLabel.textContent = selection.personLabel || "";
-                const personSub = document.createElement("div");
-                personSub.className = "person-sub";
-                const possessorLabel = selection.possessorPrefix
-                    ? getPossessorLabel(selection.possessorPrefix, isNawat)
-                    : "";
-                const objectLabel = getNounObjectComboLabel(selection.objectPrefix, isNawat);
-                personSub.textContent = buildPersonSub({
-                    subjectLabel: "",
-                    possessorLabel,
-                    objectLabel,
-                });
-                label.appendChild(personLabel);
-                label.appendChild(personSub);
-
-                const value = document.createElement("div");
-                value.className = "conjugation-value";
-                const result = getLocativoTemporalResult({
-                    rawVerb: verb,
-                    verbMeta,
-                    objectPrefix: selection.objectPrefix,
-                    possessivePrefix: selection.possessorPrefix,
-                    combinedMode: mode,
-                }) || {};
-                const comboObjectPrefix = selection.possessorPrefix
-                    ? (POSSESSIVE_TO_OBJECT_PREFIX[selection.possessorPrefix] || "")
-                    : "";
-                const { shouldMask, isError } = getConjugationMaskState({
-                    result,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: selection.objectPrefix,
-                    comboObjectPrefix,
-                    enforceInvalidCombo: Boolean(selection.possessorPrefix),
-                });
-                value.classList.remove("conjugation-error", "conjugation-reflexive");
-                if (shouldMask) {
-                    value.textContent = "—";
-                    if (isError) {
-                        value.classList.add("conjugation-error");
-                    }
-                } else {
-                    value.textContent = formatConjugationDisplay(result.result);
-                }
-
-                row.appendChild(label);
-                row.appendChild(value);
-                list.appendChild(row);
-            });
-        };
-
-        let activePossessor = POSSESSOR_TOGGLE_STATE.get(activePossessorKey);
-        if (!possessorValues.includes(activePossessor) && activePossessor !== OBJECT_TOGGLE_ALL) {
-            activePossessor = "i";
-        }
-        let activeObject = OBJECT_TOGGLE_STATE.get(activeObjectKey);
-        if (!activeObjectValues.includes(activeObject) && activeObject !== OBJECT_TOGGLE_ALL) {
-            activeObject = getPreferredNounObjectPrefix(activeObjectValues);
-        }
-
-        let combinedSelection = OBJECT_TOGGLE_STATE.get(combinedKey);
-        POSSESSOR_TOGGLE_STATE.set(activePossessorKey, activePossessor);
-        OBJECT_TOGGLE_STATE.set(activeObjectKey, activeObject);
-        if (combinedSelection === undefined) {
-            combinedSelection = isTransitiveVerb ? "obj:ta" : OBJECT_TOGGLE_ALL;
-        }
-        OBJECT_TOGGLE_STATE.set(combinedKey, combinedSelection);
         const resolveLocativoBlockPaletteSignature = () => {
-            if (!isTransitiveVerb) {
-                return buildBlockComboPaletteSignature({
-                    mode: "noun",
-                    valency: 1,
-                    objectPrefix: "",
-                    possessorPrefix: "",
-                });
-            }
             if (isNonactive) {
-                if (combinedSelection === OBJECT_TOGGLE_ALL) {
+                const hasMixedObjectSlot = mutableSlotStates
+                    .filter((slotState) => slotState.id !== "object")
+                    .some((slotState) => slotState.activeId === OBJECT_TOGGLE_ALL);
+                if (hasMixedObjectSlot || activeNonactivePrimary === OBJECT_TOGGLE_ALL) {
                     return "mixed";
                 }
-                if (typeof combinedSelection === "string" && combinedSelection.startsWith("obj:")) {
-                    return buildBlockComboPaletteSignature({
-                        mode: "noun",
-                        valency: 2,
-                        objectPrefix: combinedSelection.slice(4),
-                        possessorPrefix: "",
-                    });
-                }
-                if (typeof combinedSelection === "string" && combinedSelection.startsWith("pos:")) {
-                    const possessorPrefix = combinedSelection.slice(4);
-                    return buildBlockComboPaletteSignature({
-                        mode: "noun",
-                        valency: 2,
-                        objectPrefix: POSSESSIVE_TO_OBJECT_PREFIX[possessorPrefix] || "",
-                        possessorPrefix,
-                    });
-                }
+                const primarySelection = resolveNonactivePrimarySelection(activeNonactivePrimary);
+                return buildBlockComboPaletteSignature({
+                    mode: "noun",
+                    valency: Math.max(1, mutableSlotStates.length + 1),
+                    objectPrefix: primarySelection.objectPrefix,
+                    indirectObjectMarker: resolveActiveSlotValue("object2"),
+                    thirdObjectMarker: resolveActiveSlotValue("object3"),
+                    possessorPrefix: primarySelection.possessorPrefix,
+                });
+            }
+            const hasMixedObjectSlot = mutableSlotStates.some((slotState) => (
+                slotState.activeId === OBJECT_TOGGLE_ALL
+            ));
+            if (hasMixedObjectSlot || activePossessor === OBJECT_TOGGLE_ALL) {
                 return "mixed";
             }
-            if (activeObject === OBJECT_TOGGLE_ALL || activePossessor === OBJECT_TOGGLE_ALL) {
-                return "mixed";
-            }
+            const objectPrefix = resolveActiveSlotValue("object");
             return buildBlockComboPaletteSignature({
                 mode: "noun",
-                valency: 2,
-                objectPrefix: activeObject || "",
+                valency: Math.max(1, mutableSlotStates.length + 1),
+                objectPrefix,
+                indirectObjectMarker: resolveActiveSlotValue("object2"),
+                thirdObjectMarker: resolveActiveSlotValue("object3"),
                 possessorPrefix: activePossessor || "",
             });
         };
@@ -20281,145 +20971,171 @@ function renderLocativoTemporalConjugations({
             applyTenseBlockComboPalette(tenseBlock, resolveLocativoBlockPaletteSignature());
         };
 
-        if (isNonactive) {
-            if (!isTransitiveVerb) {
-                const selections = [{
-                    possessorPrefix: "",
-                    objectPrefix: "",
-                    personLabel: impersonalLabel,
-                }];
-                renderRows({ selections, objectSelections: [""] });
+        const renderRows = () => {
+            list.innerHTML = "";
+            if (!verb) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "tense-placeholder";
+                placeholder.textContent = placeholderText;
+                list.appendChild(placeholder);
                 updateLocativoBlockPalette();
-            } else {
-                const combinedOptions = buildCombinedOptions();
-                const combinedMap = new Map(combinedOptions.map((option) => [option.id, option]));
-                if (!combinedMap.has(combinedSelection)) {
-                    combinedSelection = combinedMap.has("obj:ta") ? "obj:ta" : OBJECT_TOGGLE_ALL;
-                }
-                const { toggle, buttons } = buildToggleControl({
-                    options: combinedOptions,
-                    activeId: combinedSelection,
-                    ariaLabel: possessorObjectToggleLabel,
-                    onSelect: (id) => {
-                        combinedSelection = id;
-                        OBJECT_TOGGLE_STATE.set(combinedKey, id);
-                        buttons.forEach((button, key) => {
-                            const isActive = key === id;
-                            button.classList.toggle("is-active", isActive);
-                            button.setAttribute("aria-pressed", String(isActive));
-                        });
-                        updateNonactiveRows();
-                    },
-                    getTitle: (option) => {
-                        if (!option.type) {
-                            return "";
-                        }
-                        return option.type === "possessor" ? possessorToggleLabel : objectToggleLabel;
-                    },
-                });
-                titleControls.appendChild(toggle);
-
-                const updateNonactiveRows = () => {
-                    const selectionIds = combinedSelection === OBJECT_TOGGLE_ALL
-                        ? combinedOptions.filter((option) => option.id !== OBJECT_TOGGLE_ALL).map((option) => option.id)
-                        : [combinedSelection];
-                    const selections = selectionIds.map((id) => {
-                        const option = combinedMap.get(id);
-                        if (!option) {
-                            return null;
-                        }
-                        if (option.type === "object") {
-                            return {
-                                possessorPrefix: "",
-                                objectPrefix: option.value,
-                                personLabel: impersonalLabel,
-                            };
-                        }
-                        return {
-                            possessorPrefix: option.value,
-                            objectPrefix: POSSESSIVE_TO_OBJECT_PREFIX[option.value] || "",
-                            personLabel: getPossessorPersonLabel(option.value, isNawat),
-                        };
-                    }).filter(Boolean);
-                    renderRows({ selections, objectSelections: [] });
-                    updateLocativoBlockPalette();
-                };
-
-                updateNonactiveRows();
+                return;
             }
-        } else {
-            const possessorOptions = buildPossessorOptions();
-            const { toggle: possessorToggle, buttons: possessorButtons } = buildToggleControl({
-                options: possessorOptions,
-                activeId: activePossessor,
-                ariaLabel: possessorToggleLabel,
-                onSelect: (id) => {
-                    activePossessor = id;
-                    POSSESSOR_TOGGLE_STATE.set(activePossessorKey, id);
-                    possessorButtons.forEach((button, key) => {
-                        const isActive = key === id;
-                        button.classList.toggle("is-active", isActive);
-                        button.setAttribute("aria-pressed", String(isActive));
-                    });
-                    updateActiveRows();
-                },
+            const objectSlotSelectionModels = buildNounObjectSlotSelectionModels(mutableSlotStates, {
+                includeSlot: (slotState) => !isNonactive || slotState.id !== "object",
             });
-            titleControls.appendChild(possessorToggle);
 
-            const showObjectToggle = activeObjectValues.length > 1;
-            let objectButtons = new Map();
-            if (showObjectToggle) {
-                const objectOptions = getObjectToggleOptions(activeObjectValues);
-                const { toggle: objectToggle, buttons } = buildToggleControl({
-                    options: objectOptions.map((option) => ({
+            iterateNounObjectSlotSelections(objectSlotSelectionModels, (selectedBySlot) => {
+                const indirectObjectMarker = selectedBySlot.object2 || "";
+                const thirdObjectMarker = selectedBySlot.object3 || "";
+                const rowSelections = isNonactive
+                    ? (
+                        activeNonactivePrimary === OBJECT_TOGGLE_ALL
+                            ? nonactivePrimaryOptions
+                                .filter((option) => option.id !== OBJECT_TOGGLE_ALL)
+                                .map((option) => option.id)
+                            : [activeNonactivePrimary]
+                    ).map((selectionId) => resolveNonactivePrimarySelection(selectionId))
+                    : (
+                        (activePossessor === OBJECT_TOGGLE_ALL ? possessorToggleValues : [activePossessor])
+                            .map((possessorPrefix) => ({
+                                objectPrefix: selectedBySlot.object || "",
+                                possessorPrefix,
+                            }))
+                    );
+                rowSelections.forEach(({ objectPrefix = "", possessorPrefix = "" }) => {
+                    const row = document.createElement("div");
+                    row.className = "conjugation-row";
+                    applyConjugationRowClasses(row, objectPrefix);
+
+                    const label = document.createElement("div");
+                    label.className = "conjugation-label";
+                    const personLabel = document.createElement("div");
+                    personLabel.className = "person-label";
+                    personLabel.textContent = isNonactive
+                        ? (possessorPrefix ? getPossessorPersonLabel(possessorPrefix, isNawat) : impersonalLabel)
+                        : getPossessorPersonLabel(possessorPrefix, isNawat);
+                    const personSub = document.createElement("div");
+                    personSub.className = "person-sub";
+                    const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
+                    const objectLabel = objectMarkers.length
+                        ? objectMarkers.map((prefix) => getNounObjectComboLabel(prefix, isNawat)).join(" + ")
+                        : getNounObjectComboLabel("", isNawat);
+                    label.appendChild(personLabel);
+                    label.appendChild(personSub);
+
+                    const value = document.createElement("div");
+                    value.className = "conjugation-value";
+                    const result = getLocativoTemporalResult({
+                        rawVerb: verb,
+                        verbMeta,
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        possessivePrefix: possessorPrefix,
+                        combinedMode: mode,
+                    }) || {};
+                    const possessorLabel = result.possessorPrefix
+                        ? getPossessorLabel(result.possessorPrefix, isNawat)
+                        : "";
+                    personSub.textContent = buildPersonSub({
+                        subjectLabel: "",
+                        possessorLabel,
+                        objectLabel,
+                    });
+                    const { shouldMask, isError } = getLocativoTemporalMaskState({
+                        result,
+                        objectPrefix,
+                    });
+                    value.classList.remove("conjugation-error", "conjugation-reflexive");
+                    if (shouldMask) {
+                        value.textContent = "—";
+                        if (isError) {
+                            value.classList.add("conjugation-error");
+                        }
+                    } else {
+                        value.textContent = formatConjugationDisplay(result.result);
+                    }
+
+                    row.appendChild(label);
+                    row.appendChild(value);
+                    list.appendChild(row);
+                });
+            });
+            updateLocativoBlockPalette();
+        };
+        if (isNonactive) {
+            const showPrimaryToggle = nonactivePrimaryOptions.length > 1;
+            if (showPrimaryToggle) {
+                const { toggle: primaryToggle, buttons: primaryButtons } = buildToggleControl({
+                    options: nonactivePrimaryOptions.map((option) => ({
                         id: option.id,
                         label: option.label,
                     })),
-                    activeId: activeObject,
-                    ariaLabel: objectToggleLabel,
+                    activeId: activeNonactivePrimary,
+                    ariaLabel: possessorToggleLabel,
                     onSelect: (id) => {
-                        activeObject = id;
-                        OBJECT_TOGGLE_STATE.set(activeObjectKey, id);
-                        objectButtons.forEach((button, key) => {
-                            const isActive = key === id;
-                            button.classList.toggle("is-active", isActive);
-                            button.setAttribute("aria-pressed", String(isActive));
-                        });
-                        updateActiveRows();
+                        activeNonactivePrimary = id;
+                        OBJECT_TOGGLE_STATE.set(nonactivePrimaryKey, id);
+                        setToggleActiveState(primaryButtons, id);
+                        renderRows();
                     },
                 });
-                objectButtons = buttons;
-                titleControls.appendChild(objectToggle);
+                titleControls.appendChild(primaryToggle);
             }
-
-            const updateActiveRows = () => {
-                const possessorSelections = activePossessor === OBJECT_TOGGLE_ALL
-                    ? possessorValues
-                    : [activePossessor];
-                const objectSelections = activeObject === OBJECT_TOGGLE_ALL
-                    ? activeObjectValues
-                    : [activeObject];
-                const selections = [];
-                possessorSelections.forEach((possessorPrefix) => {
-                    objectSelections.forEach((objectPrefix) => {
-                        selections.push({
-                            possessorPrefix,
-                            objectPrefix,
-                            personLabel: getPossessorPersonLabel(possessorPrefix, isNawat),
-                        });
-                    });
+        } else {
+            const showPossessorToggle = possessorToggleValues.length > 1;
+            if (showPossessorToggle) {
+                const possessorOptions = buildPossessorOptions(possessorToggleValues);
+                const { toggle: possessorToggle, buttons: possessorButtons } = buildToggleControl({
+                    options: possessorOptions,
+                    activeId: activePossessor,
+                    ariaLabel: possessorToggleLabel,
+                    onSelect: (id) => {
+                        activePossessor = id;
+                        POSSESSOR_TOGGLE_STATE.set(possessorStateKey, id);
+                        setToggleActiveState(possessorButtons, id);
+                        renderRows();
+                    },
                 });
-                renderRows({ selections, objectSelections });
-                updateLocativoBlockPalette();
-            };
-
-            updateActiveRows();
+                titleControls.appendChild(possessorToggle);
+            }
         }
+        const objectSlotsForToggle = isNonactive
+            ? mutableSlotStates.filter((slotState) => slotState.id !== "object")
+            : mutableSlotStates;
+        const showObjectToggle = objectSlotsForToggle.some((slotState) => slotState.showToggle);
+        if (showObjectToggle) {
+            objectSlotsForToggle.forEach((slotState, index) => {
+                if (!slotState.showToggle) {
+                    return;
+                }
+                const slotAriaLabel = slotState.id === "object"
+                    ? objectToggleLabel
+                    : `${getValence3PlusSlotRoleLabel(slotState.id, isNawat) || objectToggleLabel} (${index + 1})`;
+                const { toggle: objectToggle, buttons } = buildToggleControl({
+                    options: slotState.options,
+                    activeId: slotState.activeId,
+                    ariaLabel: slotAriaLabel,
+                    onSelect: (id) => {
+                        slotState.activeId = id;
+                        OBJECT_TOGGLE_STATE.set(slotState.stateKey, id);
+                        const slotButtons = slotButtonsById.get(slotState.id);
+                        if (slotButtons) {
+                            setToggleActiveState(slotButtons, id);
+                        }
+                        renderRows();
+                    },
+                });
+                slotButtonsById.set(slotState.id, buttons);
+                titleControls.appendChild(objectToggle);
+            });
+        }
+        renderRows();
 
         tenseTitle.appendChild(titleControls);
         tenseBlock.appendChild(tenseTitle);
         tenseBlock.appendChild(list);
-        updateLocativoBlockPalette();
         return tenseBlock;
     };
 
@@ -20469,22 +21185,22 @@ function buildNounTabRenderContext({
     const subjectOptions = getSubjectToggleOptions();
     const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     const verbMeta = getParsedVerbForTab("noun", verb);
-    const isTransitiveVerb = getBaseObjectSlots(verbMeta) > 0;
-    const allowsObjectPrefix = getAvailableObjectSlots(verbMeta) > 0;
-    const allowedPrefixes = getAllowedNounObjectPrefixesFromMeta(verbMeta, resolvedTense);
-    let activeObjectPrefix = "";
-    if (isTransitiveVerb && allowsObjectPrefix) {
-        activeObjectPrefix = getPreferredNounObjectPrefix(allowedPrefixes);
-    }
-    const storedObjectPrefix = OBJECT_TOGGLE_STATE.get(objectStateKey);
-    if (!allowedPrefixes.includes(activeObjectPrefix)) {
-        activeObjectPrefix = allowedPrefixes[0] || "";
-    }
-    const objectOptions = getObjectToggleOptions(allowedPrefixes, { labelForPrefix: getNonspecificToggleLabel });
-    const objectOptionMap = new Map(objectOptions.map((entry) => [entry.id, entry]));
-    if (storedObjectPrefix !== undefined && allowedPrefixes.includes(storedObjectPrefix)) {
-        activeObjectPrefix = storedObjectPrefix;
-    }
+    const nounObjectSlotBundle = buildNounObjectSlotToggleStates({
+        verbMeta,
+        tenseValue: resolvedTense,
+        baseObjectStateKey: objectStateKey,
+        isNawat,
+    });
+    const nounObjectSlotStates = nounObjectSlotBundle.slotStates;
+    const primaryObjectSlot = nounObjectSlotStates.find((slot) => slot.id === "object") || null;
+    const allowedPrefixes = primaryObjectSlot ? primaryObjectSlot.toggleValues : [""];
+    let activeObjectPrefix = primaryObjectSlot ? primaryObjectSlot.activeId : "";
+    const objectOptions = primaryObjectSlot
+        ? primaryObjectSlot.options
+        : getObjectToggleOptions(allowedPrefixes, { labelForPrefix: getNonspecificToggleLabel });
+    const objectOptionMap = primaryObjectSlot
+        ? primaryObjectSlot.optionMap
+        : new Map(objectOptions.map((entry) => [entry.id, entry]));
     const possessorValues = POSSESSIVE_PREFIXES.map((entry) => entry.value);
     const visiblePossessorValues = isPossessionSplit
         ? (
@@ -20517,17 +21233,8 @@ function buildNounTabRenderContext({
         || isNonanimateSubject(entry.subjectPrefix, entry.subjectSuffix)
     );
     const showSubjectToggle = !showNonanimateOnly;
-    const showObjectToggle = allowedPrefixes.length > 1;
+    const showObjectToggle = nounObjectSlotStates.some((slot) => slot.showToggle);
     const showPossessorToggle = visiblePossessorValues.length > 1;
-    if (showObjectToggle) {
-        if (storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
-            activeObjectPrefix = storedObjectPrefix;
-        } else if (allowedPrefixes.includes("ta")) {
-            activeObjectPrefix = "ta";
-        } else {
-            activeObjectPrefix = OBJECT_TOGGLE_ALL;
-        }
-    }
     const defaultSubjectId = getDefaultNounSubjectId(subjectOptions);
     let activeSubject = SUBJECT_TOGGLE_STATE.get(subjectKey) ?? defaultSubjectId;
     if (!subjectOptionMap.has(activeSubject) || !isSubjectOptionAllowed(subjectOptionMap.get(activeSubject))) {
@@ -20554,6 +21261,8 @@ function buildNounTabRenderContext({
         allowedPrefixes,
         objectOptions,
         objectOptionMap,
+        nounObjectSlotStates,
+        nounObjectSlotSummary: nounObjectSlotBundle,
         visiblePossessorValues,
         activeOwnership,
         activeObjectPrefix,
@@ -20603,6 +21312,8 @@ function renderNounConjugations({
         verbMeta,
         allowedPrefixes,
         objectOptions,
+        nounObjectSlotStates,
+        nounObjectSlotSummary,
         visiblePossessorValues,
         activeOwnership,
         isSubjectOptionAllowed,
@@ -20613,6 +21324,11 @@ function renderNounConjugations({
     } = context;
     let { activeObjectPrefix, activePossessor, activeSubject } = context;
     let activePatientivoOwnership = activeOwnership;
+    const mutableNounObjectSlots = nounObjectSlotStates.map((slot) => ({ ...slot }));
+    const nounObjectSlotStateById = new Map(mutableNounObjectSlots.map((slot) => [slot.id, slot]));
+    const nounObjectToggleButtonsById = new Map();
+    const getActiveNounSlotValue = (slotId) => nounObjectSlotStateById.get(slotId)?.activeId || "";
+    activeObjectPrefix = getActiveNounSlotValue("object");
 
     const { objSection, grid } = createObjectSectionGrid(container);
     const placeholderText = getPlaceholderLabel(
@@ -20676,14 +21392,19 @@ function renderNounConjugations({
     let subjectButtons = new Map();
     const blocks = [];
     const resolveNounBlockPaletteSignature = () => {
-        if (activeObjectPrefix === OBJECT_TOGGLE_ALL || activePossessor === OBJECT_TOGGLE_ALL) {
+        const hasMixedSlotSelection = mutableNounObjectSlots.some((slotState) =>
+            slotState.activeId === OBJECT_TOGGLE_ALL
+        );
+        if (hasMixedSlotSelection || activePossessor === OBJECT_TOGGLE_ALL) {
             return "mixed";
         }
-        const effectiveValency = activeObjectPrefix ? 2 : 1;
+        const effectiveValency = Math.max(1, mutableNounObjectSlots.length + 1);
         return buildBlockComboPaletteSignature({
             mode: "noun",
             valency: effectiveValency,
-            objectPrefix: activeObjectPrefix || "",
+            objectPrefix: getActiveNounSlotValue("object"),
+            indirectObjectMarker: getActiveNounSlotValue("object2"),
+            thirdObjectMarker: getActiveNounSlotValue("object3"),
             possessorPrefix: showPossessorToggle ? (activePossessor || "") : "",
             ownership: showOwnershipToggle ? (activePatientivoOwnership || "") : "",
         });
@@ -20772,16 +21493,27 @@ function renderNounConjugations({
                 titleControls.appendChild(ownershipToggle);
             }
             if (showObjectToggle) {
-                const { toggle: objectToggle, buttons } = buildToggleControl({
-                    options: objectOptions,
-                    activeId: activeObjectPrefix,
-                    ariaLabel: objectToggleLabel,
-                    onSelect: (id) => {
-                        setActivePrefix(id);
-                    },
+                mutableNounObjectSlots.forEach((slotState, index) => {
+                    if (!slotState.showToggle) {
+                        return;
+                    }
+                    const slotAriaLabel = slotState.id === "object"
+                        ? objectToggleLabel
+                        : `${getValence3PlusSlotRoleLabel(slotState.id, isNawat) || objectToggleLabel} (${index + 1})`;
+                    const { toggle: objectToggle, buttons } = buildToggleControl({
+                        options: slotState.options,
+                        activeId: slotState.activeId,
+                        ariaLabel: slotAriaLabel,
+                        onSelect: (id) => {
+                            setActiveObjectSlot(slotState.id, id);
+                        },
+                    });
+                    if (slotState.id === "object") {
+                        toggleButtons = buttons;
+                    }
+                    nounObjectToggleButtonsById.set(slotState.id, buttons);
+                    titleControls.appendChild(objectToggle);
                 });
-                toggleButtons = buttons;
-                titleControls.appendChild(objectToggle);
             }
             tenseTitle.appendChild(titleControls);
         }
@@ -20830,16 +21562,17 @@ function renderNounConjugations({
                 isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)
             );
         }
-        const objectSelections = activeObjectPrefix === OBJECT_TOGGLE_ALL
-            ? allowedPrefixes
-            : [activeObjectPrefix];
+        const objectSlotSelectionModels = buildNounObjectSlotSelectionModels(mutableNounObjectSlots);
         const possessorSelections = activePossessor === OBJECT_TOGGLE_ALL
             ? visiblePossessorValues
             : [activePossessor];
         const patientivoOverride = resolvedTense === "patientivo"
             ? (patientivoSource || "nonactive")
             : null;
-        objectSelections.forEach((objectPrefix) => {
+        iterateNounObjectSlotSelections(objectSlotSelectionModels, (selectedBySlot) => {
+            const objectPrefix = selectedBySlot.object || "";
+            const indirectObjectMarker = selectedBySlot.object2 || "";
+            const thirdObjectMarker = selectedBySlot.object3 || "";
             selections.forEach(({ group, selection, number }) => {
                 possessorSelections.forEach((possessorPrefix) => {
                     const isAgentivo = resolvedTense === "agentivo";
@@ -20865,7 +21598,10 @@ function renderNounConjugations({
                         mode: "noun",
                         tenseValue: resolvedTense,
                     });
-                    const objectLabel = getNounObjectComboLabel(objectPrefix, isNawat);
+                    const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
+                    const objectLabel = objectMarkers.length
+                        ? objectMarkers.map((prefix) => getNounObjectComboLabel(prefix, isNawat)).join(" + ")
+                        : getNounObjectComboLabel("", isNawat);
                     let possessorLabel = getPossessorLabel(possessorPrefix, isNawat);
                     label.appendChild(personLabel);
                     label.appendChild(personSub);
@@ -20883,6 +21619,8 @@ function renderNounConjugations({
                             subjectPrefix: selection.subjectPrefix,
                             subjectSuffix: selection.subjectSuffix,
                             objectPrefix,
+                            indirectObjectMarker,
+                            thirdObjectMarker,
                             mode: instrumentivoMode,
                             possessivePrefix: possessorPrefix,
                         }) || {};
@@ -20893,6 +21631,8 @@ function renderNounConjugations({
                             subjectPrefix: selection.subjectPrefix,
                             subjectSuffix: selection.subjectSuffix,
                             objectPrefix,
+                            indirectObjectMarker,
+                            thirdObjectMarker,
                             possessivePrefix: possessorPrefix,
                         }) || {};
                     } else if (isLocativoTemporal) {
@@ -20913,6 +21653,8 @@ function renderNounConjugations({
                                 subjectPrefix: selection.subjectPrefix,
                                 subjectSuffix: subjectSuffixOverride,
                                 objectPrefix,
+                                indirectObjectMarker,
+                                thirdObjectMarker,
                                 verb,
                                 tense: tenseValue,
                                 possessivePrefix: possessorPrefix,
@@ -20926,17 +21668,25 @@ function renderNounConjugations({
                         possessorLabel,
                         objectLabel,
                     });
-                    // In noun mode, possessor prefixes are not verb-object agreement markers.
-                    // Keep masking tied to actual objectPrefix only.
                     const comboObjectPrefix = undefined;
-                    const { shouldMask, isError } = getConjugationMaskState({
+                    const maskState = getConjugationMaskState({
                         result,
                         subjectPrefix: selection.subjectPrefix,
                         subjectSuffix: selection.subjectSuffix,
                         objectPrefix,
+                        indirectObjectMarker,
+                        derivationType: nounObjectSlotSummary.derivationType,
                         comboObjectPrefix,
                         enforceInvalidCombo: true,
                     });
+                    const valence4Violation = mutableNounObjectSlots.length >= 3
+                        && !isValidValence4Combo({
+                            objectPrefix,
+                            indirectObjectMarker,
+                            thirdObjectMarker,
+                        });
+                    const shouldMask = maskState.shouldMask || valence4Violation;
+                    const isError = maskState.isError || valence4Violation;
                     value.classList.remove("conjugation-error", "conjugation-reflexive");
                     if (shouldMask) {
                         value.textContent = "—";
@@ -20960,23 +21710,35 @@ function renderNounConjugations({
         });
     };
 
-    const setActivePrefix = (prefix) => {
-        activeObjectPrefix = prefix;
-        OBJECT_TOGGLE_STATE.set(objectStateKey, prefix);
-        blocks.forEach((entry) => {
-            if (entry.titleLabel) {
-                entry.titleLabel.textContent = entry.label;
+    const setActiveObjectSlot = (slotId, prefix) => {
+        const slotState = nounObjectSlotStateById.get(slotId);
+        if (!slotState || !slotState.optionMap.has(prefix)) {
+            return;
+        }
+        slotState.activeId = prefix;
+        OBJECT_TOGGLE_STATE.set(slotState.stateKey, prefix);
+        const slotButtons = nounObjectToggleButtonsById.get(slotId);
+        if (slotButtons) {
+            setToggleActiveState(slotButtons, prefix);
+        }
+        if (slotId === "object") {
+            activeObjectPrefix = prefix;
+            blocks.forEach((entry) => {
+                if (entry.titleLabel) {
+                    entry.titleLabel.textContent = entry.label;
+                }
+                entry.block.dataset.tenseBlock = `${prefix}-${entry.blockKey}`;
+            });
+            updateSectionCategory(prefix === OBJECT_TOGGLE_ALL ? "" : prefix);
+            if (toggleButtons.size) {
+                setToggleActiveState(toggleButtons, prefix);
             }
-            entry.block.dataset.tenseBlock = `${prefix}-${entry.blockKey}`;
-        });
-        updateSectionCategory(prefix === OBJECT_TOGGLE_ALL ? "" : prefix);
+        }
         updateNounBlockPalettes();
-        toggleButtons.forEach((button, key) => {
-            const isActive = key === prefix;
-            button.classList.toggle("is-active", isActive);
-            button.setAttribute("aria-pressed", String(isActive));
-        });
         renderRows();
+    };
+    const setActivePrefix = (prefix) => {
+        setActiveObjectSlot("object", prefix);
     };
 
     const setActivePossessor = (prefix) => {
@@ -23595,6 +24357,338 @@ function runConstraintCoreUnificationTests() {
     return summary;
 }
 
+function runNounForwardDerivationRegressionTests() {
+    const failures = [];
+    let executed = 0;
+    let passed = 0;
+    let failed = 0;
+    const recordFailure = (id, message = "") => {
+        failures.push(message ? `${id}: ${message}` : id);
+    };
+    const runCase = (id, fn) => {
+        const failureCountBefore = failures.length;
+        try {
+            fn();
+        } catch (error) {
+            recordFailure(id, error instanceof Error ? error.message : String(error));
+        }
+        executed += 1;
+        if (failures.length > failureCountBefore) {
+            failed += 1;
+        } else {
+            passed += 1;
+        }
+    };
+    const splitForms = (value = "") => String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((part) => part.trim())
+        .filter(Boolean);
+    const withStubbedNounForwardEnvironment = (run, overrides = {}) => {
+        const originalGetInvalidVerbCharacters = getInvalidVerbCharacters;
+        const originalGetInvalidVerbLetters = getInvalidVerbLetters;
+        const originalGetInvalidVerbStructure = getInvalidVerbStructure;
+        const originalGetNounObjectSlotPlansFromMeta = getNounObjectSlotPlansFromMeta;
+        const originalIsNonactiveTransitiveVerb = isNonactiveTransitiveVerb;
+        const originalIsNonanimateSubject = isNonanimateSubject;
+        const originalGetBaseObjectSlots = getBaseObjectSlots;
+        const originalGetAvailableObjectSlots = getAvailableObjectSlots;
+        const originalResolveDirectionalRuleMode = resolveDirectionalRuleMode;
+        const originalApplyNounForwardDerivation = applyNounForwardDerivation;
+        const originalApplyNonspecificObjectAllomorphy = applyNonspecificObjectAllomorphy;
+        const originalApplyMorphologyRules = applyMorphologyRules;
+        const originalBuildMorphologyMetaOptions = buildMorphologyMetaOptions;
+        const originalBuildPrefixedChain = buildPrefixedChain;
+        try {
+            getInvalidVerbCharacters = overrides.getInvalidVerbCharacters || (() => []);
+            getInvalidVerbLetters = overrides.getInvalidVerbLetters || (() => []);
+            getInvalidVerbStructure = overrides.getInvalidVerbStructure || (() => false);
+            getNounObjectSlotPlansFromMeta = overrides.getNounObjectSlotPlansFromMeta
+                || (() => ({
+                    slotPlans: [
+                        { id: "object", toggleValues: [""] },
+                        { id: "object2", toggleValues: [""] },
+                        { id: "object3", toggleValues: [""] },
+                    ],
+                }));
+            isNonactiveTransitiveVerb = overrides.isNonactiveTransitiveVerb || (() => false);
+            isNonanimateSubject = overrides.isNonanimateSubject || (() => true);
+            getBaseObjectSlots = overrides.getBaseObjectSlots || (() => 0);
+            getAvailableObjectSlots = overrides.getAvailableObjectSlots || (() => 0);
+            resolveDirectionalRuleMode = overrides.resolveDirectionalRuleMode || (() => "");
+            applyNounForwardDerivation = overrides.applyNounForwardDerivation || (() => ({
+                blocked: false,
+                isYawi: false,
+                isWeya: false,
+                suppletiveStemSet: new Set(),
+                stemTargets: [
+                    { verb: "stemA", analysisVerb: "stemA" },
+                    { verb: "stemB", analysisVerb: "stemB" },
+                ],
+            }));
+            applyNonspecificObjectAllomorphy = overrides.applyNonspecificObjectAllomorphy || ((options = {}) => ({
+                verb: options.verb || "",
+                analysisVerb: options.analysisVerb || options.verb || "",
+                objectPrefix: options.objectPrefix || "",
+            }));
+            applyMorphologyRules = overrides.applyMorphologyRules || ((options = {}) => ({
+                subjectPrefix: options.subjectPrefix || "",
+                objectPrefix: options.objectPrefix || "",
+                subjectSuffix: options.subjectSuffix || "",
+                verb: options.verb || "",
+            }));
+            buildMorphologyMetaOptions = overrides.buildMorphologyMetaOptions || (() => ({}));
+            buildPrefixedChain = overrides.buildPrefixedChain || ((options = {}) => (
+                `${options.possessivePrefix || ""}${options.subjectPrefix || ""}${options.objectPrefix || ""}${options.verb || ""}`
+            ));
+            run();
+        } finally {
+            getInvalidVerbCharacters = originalGetInvalidVerbCharacters;
+            getInvalidVerbLetters = originalGetInvalidVerbLetters;
+            getInvalidVerbStructure = originalGetInvalidVerbStructure;
+            getNounObjectSlotPlansFromMeta = originalGetNounObjectSlotPlansFromMeta;
+            isNonactiveTransitiveVerb = originalIsNonactiveTransitiveVerb;
+            isNonanimateSubject = originalIsNonanimateSubject;
+            getBaseObjectSlots = originalGetBaseObjectSlots;
+            getAvailableObjectSlots = originalGetAvailableObjectSlots;
+            resolveDirectionalRuleMode = originalResolveDirectionalRuleMode;
+            applyNounForwardDerivation = originalApplyNounForwardDerivation;
+            applyNonspecificObjectAllomorphy = originalApplyNonspecificObjectAllomorphy;
+            applyMorphologyRules = originalApplyMorphologyRules;
+            buildMorphologyMetaOptions = originalBuildMorphologyMetaOptions;
+            buildPrefixedChain = originalBuildPrefixedChain;
+        }
+    };
+
+    runCase("instrumentivo_uses_all_forward_stems", () => {
+        withStubbedNounForwardEnvironment(() => {
+            const instrumentivo = getInstrumentivoResult({
+                rawVerb: "maka",
+                verbMeta: {
+                    verb: "maka",
+                    analysisVerb: "maka",
+                    directionalPrefix: "",
+                },
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+                indirectObjectMarker: "",
+                thirdObjectMarker: "",
+                mode: "posesivo",
+                possessivePrefix: "",
+            });
+            const forms = splitForms(instrumentivo.result);
+            if (instrumentivo.error || !forms.includes("stemA") || !forms.includes("stemB")) {
+                recordFailure(
+                    "instrumentivo_uses_all_forward_stems",
+                    `unexpected forms: ${instrumentivo.result || "∅"}`
+                );
+            }
+        });
+    });
+
+    runCase("calificativo_uses_all_forward_stems", () => {
+        withStubbedNounForwardEnvironment(() => {
+            const calificativo = getCalificativoInstrumentivoResult({
+                rawVerb: "maka",
+                verbMeta: {
+                    verb: "maka",
+                    analysisVerb: "maka",
+                    directionalPrefix: "",
+                },
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+                indirectObjectMarker: "",
+                thirdObjectMarker: "",
+                possessivePrefix: "",
+            });
+            const forms = splitForms(calificativo.result);
+            if (calificativo.error || !forms.includes("stemAyut") || !forms.includes("stemByut")) {
+                recordFailure(
+                    "calificativo_uses_all_forward_stems",
+                    `unexpected forms: ${calificativo.result || "∅"}`
+                );
+            }
+        });
+    });
+
+    runCase("locativo_uses_all_forward_stems", () => {
+        withStubbedNounForwardEnvironment(() => {
+            const locativo = getLocativoTemporalResult({
+                rawVerb: "maka",
+                verbMeta: {
+                    verb: "maka",
+                    analysisVerb: "maka",
+                    directionalPrefix: "",
+                },
+                objectPrefix: "",
+                possessivePrefix: "",
+                combinedMode: "active",
+            });
+            const forms = splitForms(locativo.result);
+            if (!forms.includes("stemAn") || !forms.includes("stemBn")) {
+                recordFailure(
+                    "locativo_uses_all_forward_stems",
+                    `unexpected forms: ${locativo.result || "∅"}`
+                );
+            }
+        });
+    });
+
+    runCase("derivation_control_keeps_blocked_active_type", () => {
+        const directType = DERIVATION_TYPE.direct || "direct";
+        const causativeType = DERIVATION_TYPE.causative || "causative";
+        const applicativeType = DERIVATION_TYPE.applicative || "applicative";
+        const originalGetElementById = document?.getElementById;
+        const originalQuerySelectorAll = document?.querySelectorAll;
+        const originalQuerySelector = document?.querySelector;
+        const originalGetActiveTenseMode = getActiveTenseMode;
+        const originalGetSelectedTenseTab = getSelectedTenseTab;
+        const originalGetNounTenseOrderForCombinedMode = getNounTenseOrderForCombinedMode;
+        const originalGetCombinedMode = getCombinedMode;
+        const originalGetBlockedNounDerivationTypes = getBlockedNounDerivationTypes;
+        const originalGetActiveDerivationType = getActiveDerivationType;
+        const originalSetActiveDerivationType = setActiveDerivationType;
+        const originalRenderDerivationAntiderivativePanel = renderDerivationAntiderivativePanel;
+        const originalTenseMode = TENSE_MODE;
+        let setActiveCalls = 0;
+        const select = {
+            options: [
+                { value: directType, disabled: false },
+                { value: causativeType, disabled: false },
+                { value: applicativeType, disabled: false },
+            ],
+            disabled: false,
+            value: causativeType,
+        };
+        const container = {
+            classList: { toggle: () => {} },
+            setAttribute: () => {},
+        };
+        try {
+            if (typeof document === "undefined") {
+                recordFailure("derivation_control_keeps_blocked_active_type", "document unavailable");
+                return;
+            }
+            TENSE_MODE = {
+                ...(TENSE_MODE || {}),
+                verbo: (TENSE_MODE && TENSE_MODE.verbo) || "verbo",
+                sustantivo: (TENSE_MODE && TENSE_MODE.sustantivo) || "sustantivo",
+            };
+            document.getElementById = (id) => (id === "derivation-type" ? select : null);
+            document.querySelectorAll = () => [];
+            document.querySelector = () => container;
+            getActiveTenseMode = () => TENSE_MODE.sustantivo;
+            getSelectedTenseTab = () => "instrumentivo";
+            getNounTenseOrderForCombinedMode = () => ["sustantivo-verbal"];
+            getCombinedMode = () => "active";
+            getBlockedNounDerivationTypes = () => new Set([causativeType]);
+            getActiveDerivationType = () => causativeType;
+            setActiveDerivationType = () => {
+                setActiveCalls += 1;
+            };
+            renderDerivationAntiderivativePanel = () => {};
+
+            updateDerivationTypeControl();
+
+            const activeOption = select.options.find((option) => option.value === causativeType);
+            if (setActiveCalls !== 0 || select.value !== causativeType || !activeOption || activeOption.disabled) {
+                recordFailure(
+                    "derivation_control_keeps_blocked_active_type",
+                    `setActiveCalls=${setActiveCalls}, value=${select.value}, disabled=${activeOption ? activeOption.disabled : "missing"}`
+                );
+            }
+        } finally {
+            if (typeof document !== "undefined") {
+                document.getElementById = originalGetElementById;
+                document.querySelectorAll = originalQuerySelectorAll;
+                document.querySelector = originalQuerySelector;
+            }
+            getActiveTenseMode = originalGetActiveTenseMode;
+            getSelectedTenseTab = originalGetSelectedTenseTab;
+            getNounTenseOrderForCombinedMode = originalGetNounTenseOrderForCombinedMode;
+            getCombinedMode = originalGetCombinedMode;
+            getBlockedNounDerivationTypes = originalGetBlockedNounDerivationTypes;
+            getActiveDerivationType = originalGetActiveDerivationType;
+            setActiveDerivationType = originalSetActiveDerivationType;
+            renderDerivationAntiderivativePanel = originalRenderDerivationAntiderivativePanel;
+            TENSE_MODE = originalTenseMode;
+        }
+    });
+
+    runCase("calificativo_marker_echo_collapses_extra_nonspecific", () => {
+        const originalNonspecificSet = NONSPECIFIC_VALENCE_AFFIX_SET;
+        try {
+            NONSPECIFIC_VALENCE_AFFIX_SET = new Set(["ta", "te", "mu"]);
+            const collapsed = collapseCalificativoMarkerEcho({
+                form: "tatatamakaltijka",
+                morphologyObjectPrefix: "ta",
+                indirectObjectMarker: "ta",
+                thirdObjectMarker: "",
+                enable: true,
+            });
+            if (collapsed !== "tatamakaltijka") {
+                recordFailure(
+                    "calificativo_marker_echo_collapses_extra_nonspecific",
+                    `expected tatamakaltijka but got ${collapsed || "∅"}`
+                );
+            }
+            const unchanged = collapseCalificativoMarkerEcho({
+                form: "tamakaltijka",
+                morphologyObjectPrefix: "ta",
+                indirectObjectMarker: "",
+                thirdObjectMarker: "",
+                enable: true,
+            });
+            if (unchanged !== "tamakaltijka") {
+                recordFailure(
+                    "calificativo_marker_echo_collapses_extra_nonspecific",
+                    `unexpected non-echo change: ${unchanged || "∅"}`
+                );
+            }
+        } finally {
+            NONSPECIFIC_VALENCE_AFFIX_SET = originalNonspecificSet;
+        }
+    });
+
+    runCase("locativo_possessor_rows_skip_hierarchy_mask", () => {
+        const clean = getLocativoTemporalMaskState({
+            result: { result: "numakayan", error: false },
+            objectPrefix: "nech",
+        });
+        if (clean.shouldMask || clean.isError) {
+            recordFailure(
+                "locativo_possessor_rows_skip_hierarchy_mask",
+                `expected no mask but got shouldMask=${clean.shouldMask ? "true" : "false"}`
+            );
+        }
+        const errored = getLocativoTemporalMaskState({
+            result: { error: true },
+            objectPrefix: "nech",
+        });
+        if (!errored.shouldMask || !errored.isError) {
+            recordFailure(
+                "locativo_possessor_rows_skip_hierarchy_mask",
+                "generation errors must still mask"
+            );
+        }
+    });
+
+    const summary = {
+        total: executed,
+        executed,
+        passed,
+        failed,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Noun forward derivation regression tests failed:", summary);
+    } else {
+        console.log("Noun forward derivation regression tests passed:", summary);
+    }
+    return summary;
+}
+
 function getBasicDataParityScenarioDefinitions() {
     const tenseModeVerb = TENSE_MODE.verbo || "verbo";
     const derivationModeActive = DERIVATION_MODE.active || "active";
@@ -24153,6 +25247,7 @@ if (typeof window !== "undefined") {
     window.runPreloadBootstrapSafetyTests = runPreloadBootstrapSafetyTests;
     window.runGrammarDiagnosticsTransportTests = runGrammarDiagnosticsTransportTests;
     window.runConstraintCoreUnificationTests = runConstraintCoreUnificationTests;
+    window.runNounForwardDerivationRegressionTests = runNounForwardDerivationRegressionTests;
     window.runBasicDataBeforeAfterParity = runBasicDataBeforeAfterParity;
     window.runBasicDataBeforeAfterParityQuick = runBasicDataBeforeAfterParityQuick;
     window.captureBasicDataParityBaseline = captureBasicDataParityBaseline;
