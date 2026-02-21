@@ -1304,6 +1304,10 @@ function buildClassBasedResult({
     const pretPluralSuffix = usePretPluralOverride ? suppletiveStemSet.pretPluralSuffix : null;
     const pretPluralClasses = usePretPluralOverride ? suppletiveStemSet.pretPluralClasses : null;
     const classExclusionsByTense = suppletiveStemSet?.classExclusionsByTense || null;
+    const tenseVariantsByClass = suppletiveStemSet?.tenseVariantsByClass || null;
+    const tenseClassVariants = tenseVariantsByClass && tenseVariantsByClass[tense]
+        ? tenseVariantsByClass[tense]
+        : null;
     const excludedClasses = classExclusionsByTense && classExclusionsByTense[tense]
         ? classExclusionsByTense[tense]
         : null;
@@ -1326,7 +1330,8 @@ function buildClassBasedResult({
             return;
         }
         const variants = normalizePretYawiPreteriteVariants(
-            variantsByClass.get(classKey),
+            (tenseClassVariants && tenseClassVariants.get(classKey))
+                || variantsByClass.get(classKey),
             tense,
             isYawi
         );

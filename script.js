@@ -6386,6 +6386,33 @@ function getPossessivePrefixForSubject(subjectPrefix, subjectSuffix) {
     }
 }
 
+function getPossessivePersonInfo(possessivePrefix) {
+    if (!possessivePrefix) {
+        return null;
+    }
+    const objectEquivalent = POSSESSIVE_TO_OBJECT_PREFIX[possessivePrefix] || "";
+    if (!objectEquivalent) {
+        return null;
+    }
+    return getObjectPersonInfo(objectEquivalent);
+}
+
+function isSameSubjectPossessor(subjectPrefix, subjectSuffix, possessivePrefix) {
+    if (!possessivePrefix) {
+        return false;
+    }
+    const subjectInfo = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    const possessorInfo = getPossessivePersonInfo(possessivePrefix);
+    if (subjectInfo && possessorInfo) {
+        if (subjectInfo.person === 3 && possessorInfo.person === 3) {
+            return false;
+        }
+        return subjectInfo.person === possessorInfo.person;
+    }
+    const expectedPossessivePrefix = getPossessivePrefixForSubject(subjectPrefix, subjectSuffix);
+    return Boolean(expectedPossessivePrefix && expectedPossessivePrefix === possessivePrefix);
+}
+
 function isNonanimateSubject(subjectPrefix, subjectSuffix) {
     return subjectPrefix === "" && subjectSuffix === "";
 }
@@ -6395,10 +6422,12 @@ function getConjugationMaskState({
     subjectPrefix,
     subjectSuffix,
     objectPrefix = "",
+    possessivePrefix = "",
     comboObjectPrefix,
     derivationType = "",
     indirectObjectMarker = "",
     controllerObjectMarker = null,
+    requireDistinctPossessor = false,
     enforceInvalidCombo = true,
     invalidComboSet = INVALID_COMBINATION_KEYS,
 }) {
@@ -6426,6 +6455,8 @@ function getConjugationMaskState({
     });
     const samePerson = constraintViolations.personAgreementViolation;
     const hierarchyOrderViolation = constraintViolations.hierarchyOrderViolation;
+    const subjectPossessorCollision = requireDistinctPossessor
+        && isSameSubjectPossessor(subjectPrefix, subjectSuffix, possessivePrefix);
     const hideReflexive = !!(result && result.isReflexive && getObjectCategory(objectPrefix) !== "reflexive");
     const shouldMask = !!(
         result?.error
@@ -6433,8 +6464,15 @@ function getConjugationMaskState({
         || invalidCombo
         || samePerson
         || hierarchyOrderViolation
+        || subjectPossessorCollision
     );
-    const isError = !!(result?.error || invalidCombo || samePerson || hierarchyOrderViolation);
+    const isError = !!(
+        result?.error
+        || invalidCombo
+        || samePerson
+        || hierarchyOrderViolation
+        || subjectPossessorCollision
+    );
     return { shouldMask, isError };
 }
 
@@ -7629,7 +7667,13 @@ function buildClassBasedResultWithProvenance({
     let context = null;
     let variants = null;
     if (suppletiveStemSet) {
-        variants = suppletiveStemSet.variantsByClass.get(classKey) || null;
+        const tenseVariantsByClass = suppletiveStemSet.tenseVariantsByClass || null;
+        const tenseClassVariants = tenseVariantsByClass && tenseVariantsByClass[tense]
+            ? tenseVariantsByClass[tense]
+            : null;
+        variants = (tenseClassVariants && tenseClassVariants.get(classKey))
+            || suppletiveStemSet.variantsByClass.get(classKey)
+            || null;
     } else {
         const contextOptions = buildPretContextOptionsFromFlags({
             isYawi,
@@ -9944,10 +9988,17 @@ function getSuppletiveWeyaCanonical() {
 function buildSuppletiveYeStemSet() {
     const variantsByClass = new Map();
     variantsByClass.set("A", [{ base: dropFinalVowel(SUPPLETIVE_YE_CLASS_A), suffix: "ki" }]);
-    variantsByClass.set("D", [{ base: `${SUPPLETIVE_YE_CLASS_D}j`, suffix: "" }]);
+    const compoundPerfectTenses = ["perfecto", "pluscuamperfecto", "condicional-perfecto"];
+    const tenseVariantsByClass = compoundPerfectTenses.reduce((acc, tenseKey) => {
+        const perTenseVariants = new Map();
+        perTenseVariants.set("A", [{ base: SUPPLETIVE_YE_IMPERFECTIVE, suffix: "" }]);
+        acc[tenseKey] = perTenseVariants;
+        return acc;
+    }, {});
     return {
         imperfective: { verb: SUPPLETIVE_YE_IMPERFECTIVE, analysisVerb: SUPPLETIVE_YE_IMPERFECTIVE },
         variantsByClass,
+        tenseVariantsByClass,
         pretPluralSuffix: "et",
         pretPluralClasses: new Set(["A"]),
         classExclusionsByTense: SUPPLETIVE_YE_CLASS_EXCLUSIONS,
@@ -15390,7 +15441,7 @@ function renderTenseTabs() {
         label.className = "tense-tab-label";
         label.textContent = getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
         button.appendChild(label);
-        button.disabled = endsWithConsonant;
+        button.disabled = endsWithConsonant || hasOutput === false;
         button.addEventListener("click", () => {
             const wasActive = activeGroup === CONJUGATION_GROUPS.tense && tenseValue === selectedTense;
             setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
@@ -15465,7 +15516,7 @@ function renderTenseTabs() {
             button.textContent = classDetail
                 ? getLocalizedLabel(classDetail.label, isNawat, tenseValue)
                 : tenseValue;
-            button.disabled = endsWithConsonant || !available;
+            button.disabled = endsWithConsonant || !available || hasOutput === false;
             button.addEventListener("click", () => {
                 if (activeGroup === CONJUGATION_GROUPS.universal && tenseValue === activeUniversal) {
                     setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
@@ -18731,6 +18782,13 @@ function generateWord(options = {}) {
         clearError("verb");
     }
     if (!VOWEL_END_RE.test(validationVerb) && !allowConsonantEnding) {
+        if (skipValidation) {
+            return {
+                result: "—",
+                error: true,
+                isReflexive,
+            };
+        }
         const message = "El verbo debe terminar en vocal.";
         const error = returnIfError(message, ["verb"]);
         if (error) return error;
@@ -21003,8 +21061,324 @@ function renderLocativoTemporalConjugations({
         const updateLocativoBlockPalette = () => {
             applyTenseBlockComboPalette(tenseBlock, resolveLocativoBlockPaletteSignature());
         };
+        const TOGGLE_AVAILABILITY_CLASS_NAMES = [
+            "object-toggle-button--viable",
+            "object-toggle-button--masked",
+            "object-toggle-button--impossible",
+        ];
+        const TOGGLE_SELECTED_AVAILABILITY_CLASS_NAMES = [
+            "object-toggle-button--selected-viable",
+            "object-toggle-button--selected-masked",
+            "object-toggle-button--selected-impossible",
+        ];
+        const clearToggleAvailabilityClasses = (button) => {
+            if (!button) {
+                return;
+            }
+            TOGGLE_AVAILABILITY_CLASS_NAMES.forEach((className) => {
+                button.classList.remove(className);
+            });
+            TOGGLE_SELECTED_AVAILABILITY_CLASS_NAMES.forEach((className) => {
+                button.classList.remove(className);
+            });
+        };
+        const applyToggleAvailabilityClass = (button, state) => {
+            clearToggleAvailabilityClasses(button);
+            if (!button || !state) {
+                return;
+            }
+            if (state === "viable") {
+                button.classList.add("object-toggle-button--viable");
+                return;
+            }
+            if (state === "masked") {
+                button.classList.add("object-toggle-button--masked");
+                return;
+            }
+            if (state === "impossible") {
+                button.classList.add("object-toggle-button--impossible");
+            }
+        };
+        const applySelectedAvailabilityClass = (button, state, isSelected) => {
+            if (!button || !isSelected) {
+                return;
+            }
+            if (state === "viable") {
+                button.classList.add("object-toggle-button--selected-viable");
+                return;
+            }
+            if (state === "masked") {
+                button.classList.add("object-toggle-button--selected-masked");
+                return;
+            }
+            if (state === "impossible") {
+                button.classList.add("object-toggle-button--selected-impossible");
+            }
+        };
+        const classifyToggleAvailability = ({
+            hasAnyCombination = false,
+            hasViable = false,
+            hasMasked = false,
+        }) => {
+            if (!hasAnyCombination) {
+                return "impossible";
+            }
+            if (hasViable) {
+                return "viable";
+            }
+            if (hasMasked) {
+                return "masked";
+            }
+            return "impossible";
+        };
+        const buildLocativoObjectSlotModelsForState = ({
+            slotOverrides = {},
+            includeObjectSlot = !isNonactive,
+        } = {}) => (
+            mutableSlotStates
+                .filter((slotState) => includeObjectSlot || slotState.id !== "object")
+                .map((slotState) => {
+                    const hasOverride = Object.prototype.hasOwnProperty.call(slotOverrides, slotState.id);
+                    const overrideId = hasOverride ? slotOverrides[slotState.id] : slotState.activeId;
+                    const values = overrideId === OBJECT_TOGGLE_ALL
+                        ? slotState.toggleValues
+                        : [overrideId];
+                    return {
+                        id: slotState.id,
+                        values: values.length ? values : [""],
+                    };
+                })
+        );
+        const getActivePossessorSelections = (possessorId = activePossessor) => {
+            if (possessorId === OBJECT_TOGGLE_ALL) {
+                return possessorToggleValues.length ? possessorToggleValues : [defaultPossessor];
+            }
+            if (possessorToggleValues.includes(possessorId)) {
+                return [possessorId];
+            }
+            return [defaultPossessor];
+        };
+        const getNonactivePrimarySelectionIds = (selectionId = activeNonactivePrimary) => {
+            const allPrimarySelectionIds = nonactivePrimaryOptions
+                .filter((option) => option.id !== OBJECT_TOGGLE_ALL)
+                .map((option) => option.id);
+            if (selectionId === OBJECT_TOGGLE_ALL) {
+                return allPrimarySelectionIds;
+            }
+            if (nonactivePrimaryOptionMap.has(selectionId)) {
+                return [selectionId];
+            }
+            return allPrimarySelectionIds.length ? [allPrimarySelectionIds[0]] : [];
+        };
+        const locativoCombinationEvaluationCache = new Map();
+        let locativoAvailabilityMemo = new Map();
+        const evaluateLocativoCombinationState = ({
+            objectPrefix = "",
+            indirectObjectMarker = "",
+            thirdObjectMarker = "",
+            possessorPrefix = "",
+        }) => {
+            const cacheKey = [
+                objectPrefix || "",
+                indirectObjectMarker || "",
+                thirdObjectMarker || "",
+                possessorPrefix || "",
+            ].join("|");
+            const cached = locativoCombinationEvaluationCache.get(cacheKey);
+            if (cached) {
+                return cached;
+            }
+            const result = getLocativoTemporalResult({
+                rawVerb: verb,
+                verbMeta,
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                possessivePrefix: possessorPrefix,
+                combinedMode: mode,
+            }) || {};
+            const { shouldMask, isError } = getLocativoTemporalMaskState({
+                result,
+                objectPrefix,
+            });
+            const evaluation = {
+                result,
+                shouldMaskRow: shouldMask,
+                isErrorRow: isError,
+            };
+            locativoCombinationEvaluationCache.set(cacheKey, evaluation);
+            return evaluation;
+        };
+        const resolveActiveToggleAvailabilityState = ({
+            possessorSelections,
+            objectSlotModels,
+        }) => {
+            const memoKey = [
+                "active",
+                possessorSelections.join(","),
+                objectSlotModels.map((slotModel) => (
+                    `${slotModel.id}:${(slotModel.values || []).join(",")}`
+                )).join(";"),
+            ].join("|");
+            if (locativoAvailabilityMemo.has(memoKey)) {
+                return locativoAvailabilityMemo.get(memoKey);
+            }
+            const summary = {
+                hasAnyCombination: false,
+                hasViable: false,
+                hasMasked: false,
+            };
+            iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+                const objectPrefix = selectedBySlot.object || "";
+                const indirectObjectMarker = selectedBySlot.object2 || "";
+                const thirdObjectMarker = selectedBySlot.object3 || "";
+                possessorSelections.forEach((possessorPrefix) => {
+                    const evaluation = evaluateLocativoCombinationState({
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        possessorPrefix,
+                    });
+                    summary.hasAnyCombination = true;
+                    if (evaluation.shouldMaskRow) {
+                        summary.hasMasked = true;
+                    } else {
+                        summary.hasViable = true;
+                    }
+                });
+            });
+            const resolvedState = classifyToggleAvailability(summary);
+            locativoAvailabilityMemo.set(memoKey, resolvedState);
+            return resolvedState;
+        };
+        const resolveNonactiveToggleAvailabilityState = ({
+            primarySelectionIds,
+            objectSlotModels,
+        }) => {
+            const memoKey = [
+                "nonactive",
+                primarySelectionIds.join(","),
+                objectSlotModels.map((slotModel) => (
+                    `${slotModel.id}:${(slotModel.values || []).join(",")}`
+                )).join(";"),
+            ].join("|");
+            if (locativoAvailabilityMemo.has(memoKey)) {
+                return locativoAvailabilityMemo.get(memoKey);
+            }
+            const summary = {
+                hasAnyCombination: false,
+                hasViable: false,
+                hasMasked: false,
+            };
+            primarySelectionIds.forEach((selectionId) => {
+                const selection = resolveNonactivePrimarySelection(selectionId);
+                iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+                    const indirectObjectMarker = selectedBySlot.object2 || "";
+                    const thirdObjectMarker = selectedBySlot.object3 || "";
+                    const evaluation = evaluateLocativoCombinationState({
+                        objectPrefix: selection.objectPrefix || "",
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        possessorPrefix: selection.possessorPrefix || "",
+                    });
+                    summary.hasAnyCombination = true;
+                    if (evaluation.shouldMaskRow) {
+                        summary.hasMasked = true;
+                    } else {
+                        summary.hasViable = true;
+                    }
+                });
+            });
+            const resolvedState = classifyToggleAvailability(summary);
+            locativoAvailabilityMemo.set(memoKey, resolvedState);
+            return resolvedState;
+        };
+        let primaryButtons = new Map();
+        let possessorButtons = new Map();
+        const clearLocativoToggleAvailabilityStyling = () => {
+            possessorButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+            primaryButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+            slotButtonsById.forEach((slotButtons) => {
+                slotButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+            });
+        };
+        const updateLocativoToggleOptionAvailabilityStyling = () => {
+            clearLocativoToggleAvailabilityStyling();
+            if (!verb) {
+                return;
+            }
+            if (isNonactive) {
+                const activePrimarySelections = getNonactivePrimarySelectionIds(activeNonactivePrimary);
+                const activeObjectSlotModels = buildLocativoObjectSlotModelsForState({ includeObjectSlot: false });
+                if (primaryButtons.size) {
+                    primaryButtons.forEach((button, selectionId) => {
+                        const primarySelectionIds = getNonactivePrimarySelectionIds(selectionId);
+                        const state = resolveNonactiveToggleAvailabilityState({
+                            primarySelectionIds,
+                            objectSlotModels: activeObjectSlotModels,
+                        });
+                        applyToggleAvailabilityClass(button, state);
+                        applySelectedAvailabilityClass(button, state, selectionId === activeNonactivePrimary);
+                    });
+                }
+                mutableSlotStates
+                    .filter((slotState) => slotState.id !== "object")
+                    .forEach((slotState) => {
+                        const slotButtons = slotButtonsById.get(slotState.id);
+                        if (!slotButtons || !slotButtons.size) {
+                            return;
+                        }
+                        slotButtons.forEach((button, optionId) => {
+                            const objectSlotModels = buildLocativoObjectSlotModelsForState({
+                                slotOverrides: { [slotState.id]: optionId },
+                                includeObjectSlot: false,
+                            });
+                            const state = resolveNonactiveToggleAvailabilityState({
+                                primarySelectionIds: activePrimarySelections,
+                                objectSlotModels,
+                            });
+                            applyToggleAvailabilityClass(button, state);
+                            applySelectedAvailabilityClass(button, state, optionId === slotState.activeId);
+                        });
+                    });
+                return;
+            }
+            const activePossessorSelections = getActivePossessorSelections(activePossessor);
+            const activeObjectSlotModels = buildLocativoObjectSlotModelsForState({ includeObjectSlot: true });
+            if (possessorButtons.size) {
+                possessorButtons.forEach((button, possessorId) => {
+                    const possessorSelections = getActivePossessorSelections(possessorId);
+                    const state = resolveActiveToggleAvailabilityState({
+                        possessorSelections,
+                        objectSlotModels: activeObjectSlotModels,
+                    });
+                    applyToggleAvailabilityClass(button, state);
+                    applySelectedAvailabilityClass(button, state, possessorId === activePossessor);
+                });
+            }
+            mutableSlotStates.forEach((slotState) => {
+                const slotButtons = slotButtonsById.get(slotState.id);
+                if (!slotButtons || !slotButtons.size) {
+                    return;
+                }
+                slotButtons.forEach((button, optionId) => {
+                    const objectSlotModels = buildLocativoObjectSlotModelsForState({
+                        slotOverrides: { [slotState.id]: optionId },
+                        includeObjectSlot: true,
+                    });
+                    const state = resolveActiveToggleAvailabilityState({
+                        possessorSelections: activePossessorSelections,
+                        objectSlotModels,
+                    });
+                    applyToggleAvailabilityClass(button, state);
+                    applySelectedAvailabilityClass(button, state, optionId === slotState.activeId);
+                });
+            });
+        };
 
         const renderRows = () => {
+            locativoCombinationEvaluationCache.clear();
+            locativoAvailabilityMemo = new Map();
             list.innerHTML = "";
             if (!verb) {
                 const placeholder = document.createElement("div");
@@ -21012,6 +21386,7 @@ function renderLocativoTemporalConjugations({
                 placeholder.textContent = placeholderText;
                 list.appendChild(placeholder);
                 updateLocativoBlockPalette();
+                updateLocativoToggleOptionAvailabilityStyling();
                 return;
             }
             const objectSlotSelectionModels = buildNounObjectSlotSelectionModels(mutableSlotStates, {
@@ -21059,35 +21434,28 @@ function renderLocativoTemporalConjugations({
 
                     const value = document.createElement("div");
                     value.className = "conjugation-value";
-                    const result = getLocativoTemporalResult({
-                        rawVerb: verb,
-                        verbMeta,
+                    const evaluation = evaluateLocativoCombinationState({
                         objectPrefix,
                         indirectObjectMarker,
                         thirdObjectMarker,
-                        possessivePrefix: possessorPrefix,
-                        combinedMode: mode,
-                    }) || {};
-                    const possessorLabel = result.possessorPrefix
-                        ? getPossessorLabel(result.possessorPrefix, isNawat)
+                        possessorPrefix,
+                    });
+                    const possessorLabel = evaluation.result.possessorPrefix
+                        ? getPossessorLabel(evaluation.result.possessorPrefix, isNawat)
                         : "";
                     personSub.textContent = buildPersonSub({
                         subjectLabel: "",
                         possessorLabel,
                         objectLabel,
                     });
-                    const { shouldMask, isError } = getLocativoTemporalMaskState({
-                        result,
-                        objectPrefix,
-                    });
                     value.classList.remove("conjugation-error", "conjugation-reflexive");
-                    if (shouldMask) {
+                    if (evaluation.shouldMaskRow) {
                         value.textContent = "—";
-                        if (isError) {
+                        if (evaluation.isErrorRow) {
                             value.classList.add("conjugation-error");
                         }
                     } else {
-                        value.textContent = formatConjugationDisplay(result.result);
+                        value.textContent = formatConjugationDisplay(evaluation.result.result);
                     }
 
                     row.appendChild(label);
@@ -21096,11 +21464,12 @@ function renderLocativoTemporalConjugations({
                 });
             });
             updateLocativoBlockPalette();
+            updateLocativoToggleOptionAvailabilityStyling();
         };
         if (isNonactive) {
             const showPrimaryToggle = nonactivePrimaryOptions.length > 1;
             if (showPrimaryToggle) {
-                const { toggle: primaryToggle, buttons: primaryButtons } = buildToggleControl({
+                const { toggle: primaryToggle, buttons } = buildToggleControl({
                     options: nonactivePrimaryOptions.map((option) => ({
                         id: option.id,
                         label: option.label,
@@ -21114,13 +21483,14 @@ function renderLocativoTemporalConjugations({
                         renderRows();
                     },
                 });
+                primaryButtons = buttons;
                 titleControls.appendChild(primaryToggle);
             }
         } else {
             const showPossessorToggle = possessorToggleValues.length > 1;
             if (showPossessorToggle) {
                 const possessorOptions = buildPossessorOptions(possessorToggleValues);
-                const { toggle: possessorToggle, buttons: possessorButtons } = buildToggleControl({
+                const { toggle: possessorToggle, buttons } = buildToggleControl({
                     options: possessorOptions,
                     activeId: activePossessor,
                     ariaLabel: possessorToggleLabel,
@@ -21131,6 +21501,7 @@ function renderLocativoTemporalConjugations({
                         renderRows();
                     },
                 });
+                possessorButtons = buttons;
                 titleControls.appendChild(possessorToggle);
             }
         }
@@ -21448,6 +21819,366 @@ function renderNounConjugations({
             applyTenseBlockComboPalette(entry.block, signature);
         });
     };
+    const TOGGLE_AVAILABILITY_CLASS_NAMES = [
+        "object-toggle-button--viable",
+        "object-toggle-button--masked",
+        "object-toggle-button--impossible",
+    ];
+    const TOGGLE_SELECTED_AVAILABILITY_CLASS_NAMES = [
+        "object-toggle-button--selected-viable",
+        "object-toggle-button--selected-masked",
+        "object-toggle-button--selected-impossible",
+    ];
+    const clearToggleAvailabilityClasses = (button) => {
+        if (!button) {
+            return;
+        }
+        TOGGLE_AVAILABILITY_CLASS_NAMES.forEach((className) => {
+            button.classList.remove(className);
+        });
+        TOGGLE_SELECTED_AVAILABILITY_CLASS_NAMES.forEach((className) => {
+            button.classList.remove(className);
+        });
+    };
+    const applyToggleAvailabilityClass = (button, state) => {
+        clearToggleAvailabilityClasses(button);
+        if (!button || !state) {
+            return;
+        }
+        if (state === "viable") {
+            button.classList.add("object-toggle-button--viable");
+            return;
+        }
+        if (state === "masked") {
+            button.classList.add("object-toggle-button--masked");
+            return;
+        }
+        if (state === "impossible") {
+            button.classList.add("object-toggle-button--impossible");
+        }
+    };
+    const applySelectedAvailabilityClass = (button, state, isSelected) => {
+        if (!button || !isSelected) {
+            return;
+        }
+        if (state === "viable") {
+            button.classList.add("object-toggle-button--selected-viable");
+            return;
+        }
+        if (state === "masked") {
+            button.classList.add("object-toggle-button--selected-masked");
+            return;
+        }
+        if (state === "impossible") {
+            button.classList.add("object-toggle-button--selected-impossible");
+        }
+    };
+    const classifyToggleAvailability = ({
+        hasAnyCombination = false,
+        hasViable = false,
+        hasMasked = false,
+    }) => {
+        if (!hasAnyCombination) {
+            return "impossible";
+        }
+        if (hasViable) {
+            return "viable";
+        }
+        if (hasMasked) {
+            return "masked";
+        }
+        return "impossible";
+    };
+    const getSubjectSelectionsForId = (subjectId = activeSubject) => {
+        let selections = getSubjectPersonSelections();
+        if (subjectId !== SUBJECT_TOGGLE_ALL) {
+            const activeEntry = subjectOptionMap.get(subjectId);
+            if (!activeEntry) {
+                return [];
+            }
+            selections = selections.filter(({ selection }) => (
+                selection.subjectPrefix === activeEntry.subjectPrefix
+                && selection.subjectSuffix === activeEntry.subjectSuffix
+            ));
+        }
+        if (showNonanimateOnly) {
+            selections = selections.filter(({ selection }) => (
+                isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)
+            ));
+        }
+        return selections;
+    };
+    const getPossessorSelectionsForId = (possessorId = activePossessor) => {
+        const fallback = visiblePossessorValues[0] ?? "";
+        if (possessorId === OBJECT_TOGGLE_ALL) {
+            return visiblePossessorValues.length ? visiblePossessorValues : [fallback];
+        }
+        if (visiblePossessorValues.includes(possessorId)) {
+            return [possessorId];
+        }
+        return [fallback];
+    };
+    const buildNounObjectSlotModelsForState = (slotOverrides = {}) => (
+        mutableNounObjectSlots.map((slotState) => {
+            const hasOverride = Object.prototype.hasOwnProperty.call(slotOverrides, slotState.id);
+            const overrideId = hasOverride ? slotOverrides[slotState.id] : slotState.activeId;
+            const values = overrideId === OBJECT_TOGGLE_ALL
+                ? slotState.toggleValues
+                : [overrideId];
+            return {
+                id: slotState.id,
+                values: values.length ? values : [""],
+            };
+        })
+    );
+    const nounAvailabilityPatientivoSources = (() => {
+        if (resolvedTense !== "patientivo") {
+            return [null];
+        }
+        const sources = visibleBlockConfigs
+            .map((entry) => entry.patientivoSource || "nonactive")
+            .filter(Boolean);
+        return Array.from(new Set(sources.length ? sources : ["nonactive"]));
+    })();
+    const nounCombinationEvaluationCache = new Map();
+    let nounToggleAvailabilityMemo = new Map();
+    const evaluateNounCombinationState = ({
+        selection,
+        number = "",
+        possessorPrefix = "",
+        objectPrefix = "",
+        indirectObjectMarker = "",
+        thirdObjectMarker = "",
+        patientivoSource = null,
+        patientivoOwnership = activePatientivoOwnership,
+    }) => {
+        const isAgentivo = resolvedTense === "agentivo";
+        const isPatientivo = resolvedTense === "patientivo";
+        const resolvedPatientivoSource = isPatientivo
+            ? (patientivoSource || "nonactive")
+            : null;
+        const resolvedPatientivoOwnership = patientivoOwnership || DEFAULT_PATIENTIVO_OWNERSHIP;
+        const cacheKey = [
+            selection.subjectPrefix || "",
+            selection.subjectSuffix || "",
+            number || "",
+            possessorPrefix || "",
+            objectPrefix || "",
+            indirectObjectMarker || "",
+            thirdObjectMarker || "",
+            resolvedPatientivoSource || "",
+            resolvedPatientivoOwnership || "",
+        ].join("|");
+        const cached = nounCombinationEvaluationCache.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+        const isPossessed = possessorPrefix !== "";
+        let subjectSuffixOverride = "";
+        if ((isAgentivo || isPatientivo) && number === "plural") {
+            subjectSuffixOverride = isPossessed ? "p" : "t";
+        }
+        let result = {};
+        if (isInstrumentivo) {
+            const instrumentivoMode = possessorPrefix === ""
+                ? INSTRUMENTIVO_MODE.absolutivo
+                : INSTRUMENTIVO_MODE.posesivo;
+            result = getInstrumentivoResult({
+                rawVerb: verb,
+                verbMeta,
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: selection.subjectSuffix,
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                mode: instrumentivoMode,
+                possessivePrefix: possessorPrefix,
+            }) || {};
+        } else if (isCalificativoInstrumentivo) {
+            result = getCalificativoInstrumentivoResult({
+                rawVerb: verb,
+                verbMeta,
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: selection.subjectSuffix,
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                possessivePrefix: possessorPrefix,
+            }) || {};
+        } else {
+            result = getCachedSilentGenerateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    subjectPrefix: selection.subjectPrefix,
+                    subjectSuffix: subjectSuffixOverride,
+                    objectPrefix,
+                    indirectObjectMarker,
+                    thirdObjectMarker,
+                    verb,
+                    tense: tenseValue,
+                    possessivePrefix: possessorPrefix,
+                    patientivoOwnership: resolvedPatientivoOwnership,
+                    patientivoSource: resolvedPatientivoSource,
+                },
+            }) || {};
+        }
+        const maskState = getConjugationMaskState({
+            result,
+            subjectPrefix: selection.subjectPrefix,
+            subjectSuffix: selection.subjectSuffix,
+            objectPrefix,
+            possessivePrefix: possessorPrefix,
+            indirectObjectMarker,
+            derivationType: nounObjectSlotSummary.derivationType,
+            comboObjectPrefix: undefined,
+            requireDistinctPossessor: isAgentivo || isPatientivo,
+            enforceInvalidCombo: true,
+        });
+        const valence4Violation = mutableNounObjectSlots.length >= 3
+            && !isValidValence4Combo({
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+            });
+        const evaluation = {
+            result,
+            shouldMaskRow: maskState.shouldMask || valence4Violation,
+            isErrorRow: maskState.isError || valence4Violation,
+        };
+        nounCombinationEvaluationCache.set(cacheKey, evaluation);
+        return evaluation;
+    };
+    const resolveNounToggleAvailabilityState = ({
+        subjectSelections,
+        possessorSelections,
+        objectSlotModels,
+        patientivoOwnership = activePatientivoOwnership,
+    }) => {
+        const memoKey = [
+            subjectSelections.map(({ selection, number }) => (
+                `${selection.subjectPrefix || ""}:${selection.subjectSuffix || ""}:${number || ""}`
+            )).join(","),
+            possessorSelections.join(","),
+            objectSlotModels.map((slotModel) => (
+                `${slotModel.id}:${(slotModel.values || []).join(",")}`
+            )).join(";"),
+            patientivoOwnership || "",
+            nounAvailabilityPatientivoSources.join(","),
+        ].join("|");
+        if (nounToggleAvailabilityMemo.has(memoKey)) {
+            return nounToggleAvailabilityMemo.get(memoKey);
+        }
+        const summary = {
+            hasAnyCombination: false,
+            hasViable: false,
+            hasMasked: false,
+        };
+        nounAvailabilityPatientivoSources.forEach((source) => {
+            iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+                const objectPrefix = selectedBySlot.object || "";
+                const indirectObjectMarker = selectedBySlot.object2 || "";
+                const thirdObjectMarker = selectedBySlot.object3 || "";
+                subjectSelections.forEach(({ selection, number }) => {
+                    possessorSelections.forEach((possessorPrefix) => {
+                        const evaluation = evaluateNounCombinationState({
+                            selection,
+                            number,
+                            possessorPrefix,
+                            objectPrefix,
+                            indirectObjectMarker,
+                            thirdObjectMarker,
+                            patientivoSource: source,
+                            patientivoOwnership,
+                        });
+                        summary.hasAnyCombination = true;
+                        if (evaluation.shouldMaskRow) {
+                            summary.hasMasked = true;
+                        } else {
+                            summary.hasViable = true;
+                        }
+                    });
+                });
+            });
+        });
+        const resolvedState = classifyToggleAvailability(summary);
+        nounToggleAvailabilityMemo.set(memoKey, resolvedState);
+        return resolvedState;
+    };
+    const clearNounToggleAvailabilityStyling = () => {
+        subjectButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+        possessorButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+        ownershipButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+        nounObjectToggleButtonsById.forEach((slotButtons) => {
+            slotButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+        });
+    };
+    const updateNounToggleOptionAvailabilityStyling = () => {
+        clearNounToggleAvailabilityStyling();
+        if (!verb) {
+            return;
+        }
+        const activeSubjectSelections = getSubjectSelectionsForId(activeSubject);
+        const activePossessorSelections = getPossessorSelectionsForId(activePossessor);
+        mutableNounObjectSlots.forEach((slotState) => {
+            const slotButtons = nounObjectToggleButtonsById.get(slotState.id);
+            if (!slotButtons || !slotButtons.size) {
+                return;
+            }
+            slotButtons.forEach((button, optionId) => {
+                const objectSlotModels = buildNounObjectSlotModelsForState({ [slotState.id]: optionId });
+                const state = resolveNounToggleAvailabilityState({
+                    subjectSelections: activeSubjectSelections,
+                    possessorSelections: activePossessorSelections,
+                    objectSlotModels,
+                    patientivoOwnership: activePatientivoOwnership,
+                });
+                applyToggleAvailabilityClass(button, state);
+                applySelectedAvailabilityClass(button, state, optionId === slotState.activeId);
+            });
+        });
+        if (subjectButtons.size) {
+            const activeObjectSlotModels = buildNounObjectSlotModelsForState();
+            subjectButtons.forEach((button, subjectId) => {
+                const subjectSelections = getSubjectSelectionsForId(subjectId);
+                const state = resolveNounToggleAvailabilityState({
+                    subjectSelections,
+                    possessorSelections: activePossessorSelections,
+                    objectSlotModels: activeObjectSlotModels,
+                    patientivoOwnership: activePatientivoOwnership,
+                });
+                applyToggleAvailabilityClass(button, state);
+                applySelectedAvailabilityClass(button, state, subjectId === activeSubject);
+            });
+        }
+        if (possessorButtons.size) {
+            const activeObjectSlotModels = buildNounObjectSlotModelsForState();
+            possessorButtons.forEach((button, possessorId) => {
+                const possessorSelections = getPossessorSelectionsForId(possessorId);
+                const state = resolveNounToggleAvailabilityState({
+                    subjectSelections: activeSubjectSelections,
+                    possessorSelections,
+                    objectSlotModels: activeObjectSlotModels,
+                    patientivoOwnership: activePatientivoOwnership,
+                });
+                applyToggleAvailabilityClass(button, state);
+                applySelectedAvailabilityClass(button, state, possessorId === activePossessor);
+            });
+        }
+        if (ownershipButtons.size) {
+            const activeObjectSlotModels = buildNounObjectSlotModelsForState();
+            ownershipButtons.forEach((button, ownershipId) => {
+                const state = resolveNounToggleAvailabilityState({
+                    subjectSelections: activeSubjectSelections,
+                    possessorSelections: activePossessorSelections,
+                    objectSlotModels: activeObjectSlotModels,
+                    patientivoOwnership: ownershipId,
+                });
+                applyToggleAvailabilityClass(button, state);
+                applySelectedAvailabilityClass(button, state, ownershipId === activePatientivoOwnership);
+            });
+        }
+    };
 
     const createTenseBlock = ({
         id,
@@ -21580,41 +22311,15 @@ function renderNounConjugations({
             targetList.appendChild(placeholder);
             return;
         }
-        let selections = getSubjectPersonSelections();
-        if (activeSubject !== SUBJECT_TOGGLE_ALL) {
-            const activeEntry = subjectOptionMap.get(activeSubject);
-            if (activeEntry) {
-                selections = selections.filter(({ selection }) => (
-                    selection.subjectPrefix === activeEntry.subjectPrefix
-                    && selection.subjectSuffix === activeEntry.subjectSuffix
-                ));
-            }
-        }
-        if (showNonanimateOnly) {
-            selections = selections.filter(({ selection }) =>
-                isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)
-            );
-        }
-        const objectSlotSelectionModels = buildNounObjectSlotSelectionModels(mutableNounObjectSlots);
-        const possessorSelections = activePossessor === OBJECT_TOGGLE_ALL
-            ? visiblePossessorValues
-            : [activePossessor];
-        const patientivoOverride = resolvedTense === "patientivo"
-            ? (patientivoSource || "nonactive")
-            : null;
+        const selections = getSubjectSelectionsForId(activeSubject);
+        const objectSlotSelectionModels = buildNounObjectSlotModelsForState();
+        const possessorSelections = getPossessorSelectionsForId(activePossessor);
         iterateNounObjectSlotSelections(objectSlotSelectionModels, (selectedBySlot) => {
             const objectPrefix = selectedBySlot.object || "";
             const indirectObjectMarker = selectedBySlot.object2 || "";
             const thirdObjectMarker = selectedBySlot.object3 || "";
             selections.forEach(({ group, selection, number }) => {
                 possessorSelections.forEach((possessorPrefix) => {
-                    const isAgentivo = resolvedTense === "agentivo";
-                    const isPatientivo = resolvedTense === "patientivo";
-                    const isPossessed = possessorPrefix !== "";
-                    let subjectSuffixOverride = "";
-                    if ((isAgentivo || isPatientivo) && number === "plural") {
-                        subjectSuffixOverride = isPossessed ? "p" : "t";
-                    }
                     const row = document.createElement("div");
                     row.className = "conjugation-row";
                     applyConjugationRowClasses(row, objectPrefix);
@@ -21641,93 +22346,29 @@ function renderNounConjugations({
 
                     const value = document.createElement("div");
                     value.className = "conjugation-value";
-                    let result = {};
-                    if (isInstrumentivo) {
-                        const instrumentivoMode = possessorPrefix === ""
-                            ? INSTRUMENTIVO_MODE.absolutivo
-                            : INSTRUMENTIVO_MODE.posesivo;
-                        result = getInstrumentivoResult({
-                            rawVerb: verb,
-                            verbMeta,
-                            subjectPrefix: selection.subjectPrefix,
-                            subjectSuffix: selection.subjectSuffix,
-                            objectPrefix,
-                            indirectObjectMarker,
-                            thirdObjectMarker,
-                            mode: instrumentivoMode,
-                            possessivePrefix: possessorPrefix,
-                        }) || {};
-                    } else if (isCalificativoInstrumentivo) {
-                        result = getCalificativoInstrumentivoResult({
-                            rawVerb: verb,
-                            verbMeta,
-                            subjectPrefix: selection.subjectPrefix,
-                            subjectSuffix: selection.subjectSuffix,
-                            objectPrefix,
-                            indirectObjectMarker,
-                            thirdObjectMarker,
-                            possessivePrefix: possessorPrefix,
-                        }) || {};
-                    } else if (isLocativoTemporal) {
-                        result = getLocativoTemporalResult({
-                            rawVerb: verb,
-                            verbMeta,
-                            objectPrefix,
-                            possessivePrefix: possessorPrefix,
-                        }) || {};
-                        possessorLabel = result.possessorPrefix
-                            ? getPossessorLabel(result.possessorPrefix, isNawat)
-                            : "";
-                    } else {
-                        result = getCachedSilentGenerateWord({
-                            silent: true,
-                            skipValidation: true,
-                            override: {
-                                subjectPrefix: selection.subjectPrefix,
-                                subjectSuffix: subjectSuffixOverride,
-                                objectPrefix,
-                                indirectObjectMarker,
-                                thirdObjectMarker,
-                                verb,
-                                tense: tenseValue,
-                                possessivePrefix: possessorPrefix,
-                                patientivoOwnership: activePatientivoOwnership,
-                                patientivoSource: patientivoOverride,
-                            },
-                        }) || {};
-                    }
+                    const evaluation = evaluateNounCombinationState({
+                        selection,
+                        number,
+                        possessorPrefix,
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        patientivoSource,
+                        patientivoOwnership: activePatientivoOwnership,
+                    });
                     personSub.textContent = buildPersonSub({
                         subjectLabel: basePersonSub,
                         possessorLabel,
                         objectLabel,
                     });
-                    const comboObjectPrefix = undefined;
-                    const maskState = getConjugationMaskState({
-                        result,
-                        subjectPrefix: selection.subjectPrefix,
-                        subjectSuffix: selection.subjectSuffix,
-                        objectPrefix,
-                        indirectObjectMarker,
-                        derivationType: nounObjectSlotSummary.derivationType,
-                        comboObjectPrefix,
-                        enforceInvalidCombo: true,
-                    });
-                    const valence4Violation = mutableNounObjectSlots.length >= 3
-                        && !isValidValence4Combo({
-                            objectPrefix,
-                            indirectObjectMarker,
-                            thirdObjectMarker,
-                        });
-                    const shouldMask = maskState.shouldMask || valence4Violation;
-                    const isError = maskState.isError || valence4Violation;
                     value.classList.remove("conjugation-error", "conjugation-reflexive");
-                    if (shouldMask) {
+                    if (evaluation.shouldMaskRow) {
                         value.textContent = "—";
-                        if (isError) {
+                        if (evaluation.isErrorRow) {
                             value.classList.add("conjugation-error");
                         }
                     } else {
-                        value.textContent = formatConjugationDisplay(result.result);
+                        value.textContent = formatConjugationDisplay(evaluation.result.result);
                     }
 
                     row.appendChild(label);
@@ -21738,9 +22379,12 @@ function renderNounConjugations({
         });
     };
     const renderRows = () => {
+        nounCombinationEvaluationCache.clear();
+        nounToggleAvailabilityMemo = new Map();
         blocks.forEach((entry) => {
             renderRowsForList(entry.list, entry.patientivoSource);
         });
+        updateNounToggleOptionAvailabilityStyling();
     };
 
     const setActiveObjectSlot = (slotId, prefix) => {
@@ -24703,6 +25347,147 @@ function runNounForwardDerivationRegressionTests() {
             recordFailure(
                 "locativo_possessor_rows_skip_hierarchy_mask",
                 "generation errors must still mask"
+            );
+        }
+    });
+
+    runCase("agentivo_masks_same_subject_possessor", () => {
+        const blocked = getConjugationMaskState({
+            result: { result: "tumiktiani", error: false },
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "ta",
+            possessivePrefix: "tu",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (!blocked.shouldMask || !blocked.isError) {
+            recordFailure(
+                "agentivo_masks_same_subject_possessor",
+                `expected mask for same subject/possessor but got shouldMask=${blocked.shouldMask ? "true" : "false"}`
+            );
+        }
+        const allowed = getConjugationMaskState({
+            result: { result: "mumiktiani", error: false },
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "ta",
+            possessivePrefix: "mu",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (allowed.shouldMask || allowed.isError) {
+            recordFailure(
+                "agentivo_masks_same_subject_possessor",
+                `unexpected mask for distinct possessor: shouldMask=${allowed.shouldMask ? "true" : "false"}`
+            );
+        }
+        const blockedAcrossNumber = getConjugationMaskState({
+            result: { result: "tumiktiani", error: false },
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "tu",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (!blockedAcrossNumber.shouldMask || !blockedAcrossNumber.isError) {
+            recordFailure(
+                "agentivo_masks_same_subject_possessor",
+                "expected same-person cross-number mask for 1sg subject + 1pl possessor"
+            );
+        }
+        const thirdSingularAllowed = getConjugationMaskState({
+            result: { result: "imiktiani", error: false },
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "i",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (thirdSingularAllowed.shouldMask || thirdSingularAllowed.isError) {
+            recordFailure(
+                "agentivo_masks_same_subject_possessor",
+                "3rd person should be exempt from subject/possessor collision masking"
+            );
+        }
+        const thirdAcrossNumberAllowed = getConjugationMaskState({
+            result: { result: "imiktian", error: false },
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "in",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (thirdAcrossNumberAllowed.shouldMask || thirdAcrossNumberAllowed.isError) {
+            recordFailure(
+                "agentivo_masks_same_subject_possessor",
+                "3rd person cross-number should stay exempt from subject/possessor collision masking"
+            );
+        }
+    });
+
+    runCase("patientivo_masks_same_subject_possessor", () => {
+        const blocked = getConjugationMaskState({
+            result: { result: "tumiktiut", error: false },
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "ta",
+            possessivePrefix: "tu",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (!blocked.shouldMask || !blocked.isError) {
+            recordFailure(
+                "patientivo_masks_same_subject_possessor",
+                `expected mask for same subject/possessor but got shouldMask=${blocked.shouldMask ? "true" : "false"}`
+            );
+        }
+        const blockedAcrossNumber = getConjugationMaskState({
+            result: { result: "numiktiut", error: false },
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "tu",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (!blockedAcrossNumber.shouldMask || !blockedAcrossNumber.isError) {
+            recordFailure(
+                "patientivo_masks_same_subject_possessor",
+                "expected same-person cross-number mask for 1sg subject + 1pl possessor"
+            );
+        }
+        const thirdSingularAllowed = getConjugationMaskState({
+            result: { result: "imiktiut", error: false },
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "i",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (thirdSingularAllowed.shouldMask || thirdSingularAllowed.isError) {
+            recordFailure(
+                "patientivo_masks_same_subject_possessor",
+                "3rd person should be exempt from subject/possessor collision masking"
+            );
+        }
+        const thirdAcrossNumberAllowed = getConjugationMaskState({
+            result: { result: "imiktiut", error: false },
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "in",
+            requireDistinctPossessor: true,
+            enforceInvalidCombo: false,
+        });
+        if (thirdAcrossNumberAllowed.shouldMask || thirdAcrossNumberAllowed.isError) {
+            recordFailure(
+                "patientivo_masks_same_subject_possessor",
+                "3rd person cross-number should stay exempt from subject/possessor collision masking"
             );
         }
     });
