@@ -53,7 +53,13 @@ function buildPretUniversalClassA(context) {
             }
             return [{ base, suffix: "ki" }];
         }
-        const rootPlusYaVerb = context.verb;
+        const rootPlusYaVerb = (
+            context.isDenominalMatrixInput
+            && context.denominalMatrixStem === "ya"
+            && context.rootPlusYaBase
+        )
+            ? `${context.rootPlusYaBase}ya`
+            : context.verb;
         const stems = getPerfectiveAlternationStems(rootPlusYaVerb, {
             isTransitive: context.isTransitive,
             isRootPlusYa: true,
@@ -128,6 +134,10 @@ function buildPretUniversalClassA(context) {
     const allowSlashAkiZero = !context.isTransitive
         && context.hasSlashMarker
         && context.analysisVerb === "aki";
+    const isDenominalWiVowelSourceClassA = !context.isTransitive
+        && context.isDenominalMatrixInput
+        && context.isDenominalWiMatrix
+        && context.denominalSourceEndsWithVowel;
     if (context.isExactCVsV) {
         allowZeroSuffix = false;
     }
@@ -256,7 +266,7 @@ function buildPretUniversalClassA(context) {
     if (!context.forceClassAForKWV) {
         const allowIntransitiveWiVtV = !context.isTransitive && context.isExactWiPattern;
         if (
-            (context.isMonosyllable && !context.endsWithTV) ||
+            (context.isMonosyllable && !context.endsWithTV && !isDenominalWiVowelSourceClassA) ||
             (
                 !context.isTransitive
                 && (context.isVtVStart || context.isVVtVStart)
@@ -1089,6 +1099,41 @@ function resolvePretClassPolicy({
             shouldMaskClassBSelection: false,
             shouldSkipClassA: true,
             shouldSkipClassB: false,
+        };
+    }
+    const isRootPlusYaIntransitive = Boolean(
+        context
+        && !context.isTransitive
+        && context.fromRootPlusYa
+    );
+    if (isRootPlusYaIntransitive) {
+        return {
+            isPreterit,
+            shouldMaskClassBSelection,
+            shouldSkipClassA,
+            shouldSkipClassB,
+        };
+    }
+    const isDenominalWiFromVowelSource = Boolean(
+        context
+        && context.isDenominalMatrixInput
+        && context.isDenominalWiMatrix
+        && context.denominalSourceEndsWithVowel
+    );
+    if (isDenominalWiFromVowelSource) {
+        if (isPreterit) {
+            return {
+                isPreterit,
+                shouldMaskClassBSelection: false,
+                shouldSkipClassA: false,
+                shouldSkipClassB: false,
+            };
+        }
+        return {
+            isPreterit,
+            shouldMaskClassBSelection: classFilter === "B",
+            shouldSkipClassA: false,
+            shouldSkipClassB: true,
         };
     }
     const isWiPattern = !!(
