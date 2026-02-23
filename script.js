@@ -17795,6 +17795,12 @@ function applyMorphologyRules({
     }
     if (isPotencialActiveProfile) {
         const activeWrapperSourceTense = getPotencialActiveSourceTense(tense);
+        const wrapperObjectPrefix = baseObjectPrefix || "";
+        const wrapperIndirectObjectMarker = composeProjectiveObjectPrefix({
+            objectPrefix: "",
+            markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+            subjectPrefix: baseSubjectPrefix,
+        });
         const sourceSubjectSuffix = (() => {
             let resolved = applyTenseSuffixRules(activeWrapperSourceTense, baseSubjectSuffix);
             if (
@@ -17851,7 +17857,7 @@ function applyMorphologyRules({
             const classOutput = buildClassBasedResultWithProvenance({
                 verb: sourceVerb,
                 subjectPrefix,
-                objectPrefix,
+                objectPrefix: wrapperObjectPrefix,
                 subjectSuffix: sourceSubjectSuffix,
                 tense: activeWrapperSourceTense,
                 analysisVerb: sourceAnalysis || sourceVerb,
@@ -17874,10 +17880,10 @@ function applyMorphologyRules({
                 directionalInputPrefix,
                 directionalOutputPrefix,
                 baseSubjectPrefix,
-                baseObjectPrefix,
+                baseObjectPrefix: wrapperObjectPrefix,
                 suppletiveStemSet,
                 forceTransitive: forceTransitiveBase,
-                indirectObjectMarker,
+                indirectObjectMarker: wrapperIndirectObjectMarker,
                 hasDoubleDash,
             });
             splitWrapperForms(classOutput?.result).forEach((formValue) => addWrapperForm(formValue));
@@ -22128,8 +22134,8 @@ function buildNounTabRenderContext({
         || isNonanimateSubject(entry.subjectPrefix, entry.subjectSuffix)
     );
     const showSubjectToggle = !showNonanimateOnly && !isSubjectlessTense;
-    const showObjectToggle = !isSubjectlessTense && nounObjectSlotStates.some((slot) => slot.showToggle);
-    const showPossessorToggle = !isSubjectlessTense && visiblePossessorValues.length > 1;
+    const showObjectToggle = nounObjectSlotStates.some((slot) => slot.showToggle);
+    const showPossessorToggle = visiblePossessorValues.length > 1;
     const defaultSubjectId = getDefaultNounSubjectId(subjectOptions);
     let activeSubject = SUBJECT_TOGGLE_STATE.get(subjectKey) ?? defaultSubjectId;
     if (!subjectOptionMap.has(activeSubject) || !isSubjectOptionAllowed(subjectOptionMap.get(activeSubject))) {
@@ -22288,7 +22294,7 @@ function renderNounConjugations({
                 label: tenseLabel,
                 patientivoSource: "nonactive",
                 mode: resolvedNounBlockMode,
-                showControls: !isSubjectlessTense,
+                showControls: true,
             },
         ];
     const visibleBlockConfigs = blockConfigs.filter((entry) =>
@@ -22323,6 +22329,14 @@ function renderNounConjugations({
             applyTenseBlockComboPalette(entry.block, signature);
         });
     };
+    const subjectlessSelection = Object.freeze({
+        group: null,
+        selection: {
+            subjectPrefix: "",
+            subjectSuffix: "",
+        },
+        number: "",
+    });
     const TOGGLE_AVAILABILITY_CLASS_NAMES = [
         "object-toggle-button--viable",
         "object-toggle-button--masked",
@@ -22394,6 +22408,9 @@ function renderNounConjugations({
         return "impossible";
     };
     const getSubjectSelectionsForId = (subjectId = activeSubject) => {
+        if (isSubjectlessTense) {
+            return [subjectlessSelection];
+        }
         let selections = getSubjectPersonSelections();
         if (subjectId !== SUBJECT_TOGGLE_ALL) {
             const activeEntry = subjectOptionMap.get(subjectId);
@@ -22701,7 +22718,9 @@ function renderNounConjugations({
         titleLabel.textContent = label;
         tenseTitle.appendChild(titleLabel);
 
-        if (showControls) {
+        const shouldRenderControls = showControls
+            && (showSubjectToggle || showPossessorToggle || showOwnershipToggle || showObjectToggle);
+        if (shouldRenderControls) {
             const titleControls = document.createElement("div");
             titleControls.className = "tense-block__controls";
             titleControls.classList.add("tense-block__controls--stacked");
@@ -22816,14 +22835,6 @@ function renderNounConjugations({
             targetList.appendChild(placeholder);
             return;
         }
-        const subjectlessSelection = {
-            group: null,
-            selection: {
-                subjectPrefix: "",
-                subjectSuffix: "",
-            },
-            number: "",
-        };
         const selections = isSubjectlessTense
             ? [subjectlessSelection]
             : getSubjectSelectionsForId(activeSubject);
