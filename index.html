@@ -139,7 +139,7 @@
                           class="verb-input"
                           aria-label="Verbo"
                           placeholder="Escriba verbo aquí"
-                          autocomplete="new-password"
+                          autocomplete="off"
                           autocorrect="off"
                           data-lpignore="true"
                           data-1p-ignore="true"
@@ -664,6 +664,24 @@
                       >
                         Sustantivo
                       </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-tense-mode="adjetivo"
+                        id="calc-mode-adjective"
+                        data-ui-label-key="tense-tabs-mode-adjective"
+                      >
+                        Adjetivo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-tense-mode="adverbio"
+                        id="calc-mode-adverb"
+                        data-ui-label-key="tense-tabs-mode-adverb"
+                      >
+                        Adverbio
+                      </button>
                     </div>
                   </div>
                   <div class="calc-operator calc-operator--voice" role="group" aria-label="Voz">
@@ -829,8 +847,8 @@
                 >
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">wal/un/ku/</span>
-                <span class="tutorial-chip-label">direccional; usa "/" antes del verbo</span>
+                <span class="tutorial-chip">[wal]/[un]/[ku]/</span>
+                <span class="tutorial-chip-label">direccional; usa [prefijo]/. sin corchetes queda como raíz incorporada.</span>
               </div>
               <div class="tutorial-chip-row">
                 <span class="tutorial-chip">?</span>

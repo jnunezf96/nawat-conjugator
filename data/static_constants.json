@@ -1,7 +1,7 @@
 {
-  "compoundMarkerRe": { "pattern": "[|~#()\\/?-]", "flags": "g" },
+  "compoundMarkerRe": { "pattern": "[|~#()\\[\\]\\\\/?-]", "flags": "g" },
   "compoundMarkerSplitRe": { "pattern": "[|~#()\\/?-]" },
-  "compoundAllowedRe": { "pattern": "[^a-z|~#()\\/?-]", "flags": "g" },
+  "compoundAllowedRe": { "pattern": "[^a-z|~#()\\[\\]\\\\/?-]", "flags": "g" },
   "subjectToggleAll": "all",
   "objectToggleAll": "all",
   "verbSuggestionLimit": 10,

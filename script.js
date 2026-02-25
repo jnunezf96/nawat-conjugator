@@ -27,9 +27,9 @@ let DIGRAPH_SET = new Set();
 let SYLLABLE_FORMS = [];
 let SYLLABLE_FORM_SET = new Set();
 let REDUP_PREFIX_FORMS = new Set();
-let COMPOUND_MARKER_RE = /[|~#()\\/?-]/g;
+let COMPOUND_MARKER_RE = /[|~#()\[\]\\/?-]/g;
 let COMPOUND_MARKER_SPLIT_RE = /[|~#()\\/?-]/;
-let COMPOUND_ALLOWED_RE = /[|~#()\\/?-]/g;
+let COMPOUND_ALLOWED_RE = /[|~#()\[\]\\/?-]/g;
 let PARSE_PIPELINE = [];
 let DIRECTIONAL_RULES = [];
 let SUPPORTIVE_I_KEEP_SLASH_PREFIXES = new Set();
@@ -54,6 +54,16 @@ function isDirectionalPrefixToken(value = "") {
         return false;
     }
     return getDirectionalPrefixesSource().includes(token);
+}
+
+function getBracketDirectionalPrefixToken(value = "") {
+    const token = String(value || "").trim().toLowerCase();
+    const match = token.match(/^\[([a-z]+)\]$/);
+    if (!match) {
+        return "";
+    }
+    const directional = match[1];
+    return isDirectionalPrefixToken(directional) ? directional : "";
 }
 const VERB_INPUT_MODE = {
     composer: "composer",
@@ -2032,7 +2042,10 @@ function getNonactiveDerivationSource(verbMeta, verb, analysisVerb) {
         if (
             verbMeta.directionalPrefix
             && verbMeta.displayVerb
-            && verbMeta.displayVerb.startsWith(`${verbMeta.directionalPrefix}/`)
+            && (
+                verbMeta.displayVerb.startsWith(`[${verbMeta.directionalPrefix}]/`)
+                || verbMeta.displayVerb.startsWith(`${verbMeta.directionalPrefix}/`)
+            )
             && prefixParts[0] !== verbMeta.directionalPrefix
         ) {
             prefixParts.unshift(verbMeta.directionalPrefix);
@@ -2074,7 +2087,7 @@ function normalizeRuleBase(value) {
     if (!base) {
         return base;
     }
-    const markerRe = COMPOUND_MARKER_RE || /[|~#()\\/?-]/g;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     return base.replace(markerRe, "");
 }
 
@@ -4934,7 +4947,7 @@ function getEmbeddedVerbPrefix(parsedVerb) {
         return "";
     }
     const prefixParts = parts.slice(0, -1).filter((part) => (
-        part && part !== "al" && !isDirectionalPrefixToken(part)
+        part && !getBracketDirectionalPrefixToken(part)
     ));
     return prefixParts.length ? prefixParts.join("") : "";
 }
@@ -5607,6 +5620,15 @@ function buildPatientivoTroncoDerivations({
         return [];
     }
     let { base, prefix } = resolvedBase;
+    const shouldFuseSplitSuffixBase = (
+        (hasSlashMarker || hasSuffixSeparator)
+        && Boolean(prefix)
+        && (base === "wi" || base === "wa" || base === "iwi" || base === "awi" || base === "ni")
+    );
+    if (shouldFuseSplitSuffixBase) {
+        base = `${prefix}${base}`;
+        prefix = "";
+    }
     if (!base) {
         return [];
     }
@@ -5816,25 +5838,40 @@ function buildPatientivoTroncoDerivations({
     };
     const isIwiAwi = base.endsWith("iwi") || base.endsWith("awi");
     const gateIsIwiAwi = gateBase.endsWith("iwi") || gateBase.endsWith("awi");
-    if (isIwiAwi && gateIsIwiAwi && hasMultisyllableCoreBeforeSuffix("wi", gateBase)) {
+    const allowMonosyllableIwiAwi = gateBase === "iwi" || gateBase === "awi";
+    if (
+        isIwiAwi
+        && gateIsIwiAwi
+        && (
+            hasMultisyllableCoreBeforeSuffix("wi", gateBase)
+            || allowMonosyllableIwiAwi
+        )
+    ) {
         const coreDropAwi = base.slice(0, -3);
-        const coreDropWi = base.slice(0, -2);
-        const coreLetters = splitVerbLetters(coreDropAwi);
-        const endsWithConsonant = coreLetters.length
-            && isVerbLetterConsonant(coreLetters[coreLetters.length - 1]);
-        const hasVowel = coreLetters.some((letter) => isVerbLetterVowel(letter));
-        if (endsWithConsonant && hasVowel) {
-            addWithConsonants(coreDropWi, ["sh", "k"]);
+        if (coreDropAwi) {
             addRawResult(coreDropAwi, "");
+        } else if (allowMonosyllableIwiAwi) {
+            const nounStem = prefix || "";
+            const key = `${nounStem}|`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                results.push({ verb: nounStem, subjectSuffix: "" });
+            }
         }
     }
     if (!isIwiAwi && (base.endsWith("wi") || base.endsWith("wa"))) {
         const wiWaSuffix = base.endsWith("wi") ? "wi" : "wa";
         const gateWiWaSuffix = gateBase.endsWith("wi") ? "wi" : (gateBase.endsWith("wa") ? "wa" : "");
+        const allowMonosyllableWiWa = gateBase === "ewa" || gateBase === "ewi" || gateBase === "awa";
+        const allowReduplicatedCore = gateBase !== base
+            && hasMultisyllableCoreBeforeSuffix(wiWaSuffix, base);
+        const hasAllowedCore = hasMultisyllableCoreBeforeSuffix(wiWaSuffix, gateBase)
+            || allowMonosyllableWiWa
+            || allowReduplicatedCore;
         if (
             !gateWiWaSuffix
             || gateWiWaSuffix !== wiWaSuffix
-            || !hasMultisyllableCoreBeforeSuffix(wiWaSuffix, gateBase)
+            || !hasAllowedCore
         ) {
             return results;
         }
@@ -7725,7 +7762,7 @@ function getInvalidVerbCharacters(rawValue) {
     const raw = String(rawValue || "");
     const invalid = new Set();
     for (const char of raw) {
-        if (/[a-z|~#()\/?\s-]/i.test(char)) {
+        if (/[a-z|~#()\[\]\/?\s-]/i.test(char)) {
             continue;
         }
         invalid.add(char);
@@ -7763,7 +7800,7 @@ function getInvalidVerbStructure(rawValue, options = {}) {
     if (cleaned.includes("/-") || cleaned.includes("-/")) {
         return "separator";
     }
-    const markerRe = COMPOUND_MARKER_RE || /[|~#()\\/?-]/g;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     const tokens = [];
     const separators = [];
     let current = "";
@@ -7829,8 +7866,9 @@ function getInvalidVerbStructure(rawValue, options = {}) {
                     && Boolean(next)
                     && !isPrefixToken(right)
                 );
+                const leftDirectionalFromBracket = getBracketDirectionalPrefixToken(leftRaw.replace(/^-+/, ""));
                 const allowDirectionalRightEmbed = (
-                    isDirectionalPrefixToken(left)
+                    Boolean(leftDirectionalFromBracket)
                     && Boolean(right)
                     && Boolean(next)
                     && !isPrefixToken(right)
@@ -8910,7 +8948,13 @@ function splitVerbSegments(core, hasLeadingDash) {
             if (hasObjectToken) {
                 verbStartIndex = 1;
             } else {
-                while (verbStartIndex > 0 && isDirectionalPrefixToken(dashSegments[verbStartIndex - 1])) {
+                while (verbStartIndex > 0) {
+                    const directionalCandidate = dashSegments[verbStartIndex - 1];
+                    const normalizedDirectional = getBracketDirectionalPrefixToken(directionalCandidate)
+                        || directionalCandidate;
+                    if (!isDirectionalPrefixToken(normalizedDirectional)) {
+                        break;
+                    }
                     verbStartIndex -= 1;
                 }
             }
@@ -8923,13 +8967,16 @@ function splitVerbSegments(core, hasLeadingDash) {
 
 function getBoundDirectionalPrefix(boundPrefixes, hasBoundMarker) {
     let boundDirectionalPrefix = "";
+    const firstBoundRaw = String(boundPrefixes[0] || "");
+    const firstBoundDirectional = getBracketDirectionalPrefixToken(firstBoundRaw);
     if (
         hasBoundMarker
         && boundPrefixes.length > 1
-        && isDirectionalPrefixToken(boundPrefixes[0])
+        && firstBoundDirectional
         && FUSION_PREFIXES.has(boundPrefixes[1])
     ) {
-        boundDirectionalPrefix = boundPrefixes.shift();
+        boundDirectionalPrefix = firstBoundDirectional;
+        boundPrefixes.shift();
     }
     return boundDirectionalPrefix;
 }
@@ -8937,13 +8984,16 @@ function getBoundDirectionalPrefix(boundPrefixes, hasBoundMarker) {
 function getObjectParts(objectSegment, hasLeadingDash) {
     const objectParts = objectSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
     let objectDirectionalPrefix = "";
+    const firstObjectRaw = String(objectParts[0] || "");
+    const firstObjectDirectional = getBracketDirectionalPrefixToken(firstObjectRaw);
     if (
         hasLeadingDash
         && objectParts.length > 1
-        && isDirectionalPrefixToken(objectParts[0])
+        && firstObjectDirectional
         && FUSION_PREFIXES.has(objectParts[1])
     ) {
-        objectDirectionalPrefix = objectParts.shift();
+        objectDirectionalPrefix = firstObjectDirectional;
+        objectParts.shift();
     }
     const objectToken = objectParts.length ? objectParts[objectParts.length - 1] : "";
     const objectBoundPrefixes = objectParts.length > 1 ? objectParts.slice(0, -1) : [];
@@ -8951,7 +9001,13 @@ function getObjectParts(objectSegment, hasLeadingDash) {
 }
 
 function getVerbParts(verbSegment, objectDirectionalPrefix) {
-    const verbParts = verbSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+    const verbParts = verbSegment
+        .split(COMPOUND_MARKER_SPLIT_RE)
+        .filter(Boolean)
+        .map((part) => {
+            const bracketDirectional = getBracketDirectionalPrefixToken(part);
+            return bracketDirectional || part;
+        });
     if (objectDirectionalPrefix && verbParts[0] !== objectDirectionalPrefix) {
         verbParts.unshift(objectDirectionalPrefix);
     }
@@ -8966,11 +9022,9 @@ function getDirectionalPrefixFromSlash(core, objectDirectionalPrefix, boundDirec
     if (slashIndex > 0) {
         const rawCandidate = core.slice(0, slashIndex);
         const candidate = rawCandidate.replace(/^-+/, "");
-        if (isDirectionalPrefixToken(candidate)) {
-            return candidate;
-        }
-        if (candidate === "al") {
-            return "wal";
+        const bracketDirectional = getBracketDirectionalPrefixToken(candidate);
+        if (bracketDirectional) {
+            return bracketDirectional;
         }
     }
     return "";
@@ -9026,7 +9080,7 @@ function getExactBaseVerbFromCleaned(cleaned) {
         return "";
     }
     const lastSegment = segments[segments.length - 1];
-    const markerRe = COMPOUND_MARKER_RE || /[|~#()\\/?-]/g;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     return lastSegment.replace(markerRe, "");
 }
 
@@ -9514,13 +9568,11 @@ function parseStageDirectionalFusion(state) {
         && !boundDirectionalPrefix
         && verbParts.length > 1
         && isDirectionalPrefixToken(verbParts[0])
+        && !state.hasSlashMarker
     ) {
         directionalPrefixFromSlash = verbParts[0];
     }
     state.directionalPrefixFromSlash = directionalPrefixFromSlash;
-    if (directionalPrefixFromSlash === "wal" && verbParts[0] === "al") {
-        verbParts[0] = "wal";
-    }
     const directionalFusionExtraction = extractDirectionalFusionPrefix(
         verbParts,
         directionalPrefixFromSlash
@@ -9531,7 +9583,8 @@ function parseStageDirectionalFusion(state) {
     state.verbParts = verbParts;
     if (state.hasSlashMarker && verbParts.length > 1) {
         const slashPrefix = verbParts[0];
-        const isDirectionalSlash = isDirectionalPrefixToken(slashPrefix) || slashPrefix === "al";
+        const isDirectionalSlash = Boolean(directionalPrefixFromSlash)
+            && slashPrefix === directionalPrefixFromSlash;
         const isImpersonalSlash = slashPrefix === "ta" && state.hasImpersonalTaPrefix;
         if (!isDirectionalSlash && !isImpersonalSlash) {
             state.hasBoundMarker = true;
@@ -10082,6 +10135,8 @@ function isPerfectiveTense(tense) {
         || tense === "preterito"
         || tense === "potencial-activo"
         || tense === "perfecto-compuesto-activo"
+        || tense === "tronco-preterito-activo"
+        || tense === "tronco-perfecto-compuesto-activo"
         || tense === "pasado-remoto-adverbio-activo"
     );
 }
@@ -11754,7 +11809,7 @@ function updateVerbComposerHint() {
     }
     const directionalPrefix = String(VERB_COMPOSER_STATE.directionalPrefix || "").trim();
     if (directionalPrefix) {
-        hint.textContent = `Sílabas detectadas (raíz matriz): ${syllableCount || 0}. Direccional en posición guía: ${directionalPrefix}/ al inicio del bloque.`;
+        hint.textContent = `Sílabas detectadas (raíz matriz): ${syllableCount || 0}. Direccional en posición guía: [${directionalPrefix}]/ al inicio del bloque.`;
         return;
     }
     hint.textContent = `Sílabas detectadas (raíz matriz): ${syllableCount || 0}.`;
@@ -11865,6 +11920,7 @@ function buildRegexFromComposerState(state) {
         ? slotCEmbed
         : (transitivity === COMPOSER_TRANSITIVITY.transitive ? slotBEmbed : slotAEmbed);
     const directionalPrefix = state.directionalPrefix || "";
+    const directionalRegexPrefix = directionalPrefix ? `[${directionalPrefix}]` : "";
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive && valenceIntransitive === "ta") {
         if (!matrixStem) {
             return "";
@@ -11880,7 +11936,7 @@ function buildRegexFromComposerState(state) {
             ? `${taRightEmbed}/${supportiveMatrixStem}`
             : supportiveMatrixStem;
         const core = `${taLeftSegment}ta/${taRightSegment}`;
-        return directionalPrefix ? `${directionalPrefix}/${core}` : core;
+        return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
     if (!matrixStem) {
         return "";
@@ -11894,9 +11950,9 @@ function buildRegexFromComposerState(state) {
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
         const embedSegment = normalizedMatrixAdjacentEmbed ? `${normalizedMatrixAdjacentEmbed}/` : "";
         const core = `${embedSegment}${supportiveStem}`;
-        return directionalPrefix ? `${directionalPrefix}/${core}` : core;
+        return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
-    const directionalSegment = directionalPrefix ? `${directionalPrefix}/` : "";
+    const directionalSegment = directionalRegexPrefix ? `${directionalRegexPrefix}/` : "";
     const transitiveStem = normalizedMatrixAdjacentEmbed
         ? `${normalizedMatrixAdjacentEmbed}/${supportiveStem}`
         : supportiveStem;
@@ -11966,12 +12022,12 @@ function resolveComposerDirectionalPrefixFromBase(baseValue = "") {
     }
     const tokens = base
         .split(/[-/]/)
-        .map((token) => normalizeComposerStem(token))
+        .map((token) => String(token || "").trim().toLowerCase().replace(/^-+/, ""))
         .filter(Boolean);
     for (let index = 0; index < tokens.length; index += 1) {
-        const token = tokens[index];
-        if (isDirectionalPrefixToken(token)) {
-            return token;
+        const bracketDirectional = getBracketDirectionalPrefixToken(tokens[index]);
+        if (bracketDirectional) {
+            return bracketDirectional;
         }
     }
     return "";
@@ -12036,17 +12092,25 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
     }
     const rawParts = String(baseValue || "")
         .split(/[-/]/)
-        .map((part) => normalizeComposerStem(part.replace(/^-+/, "")))
+        .map((part) => String(part || "").trim().toLowerCase().replace(/^-+/, ""))
         .filter(Boolean);
-    if (rawParts.length < 2) {
+    const normalizedParts = rawParts.map((part) => normalizeComposerStem(part));
+    if (normalizedParts.length < 2) {
         return result;
     }
     const directionalToken = normalizeComposerStem(resolvedDirectional);
+    const isDirectionalPartAtIndex = (index) => {
+        const rawToken = rawParts[index] || "";
+        return Boolean(getBracketDirectionalPrefixToken(rawToken));
+    };
     let startIndex = 0;
-    if (directionalToken && rawParts[0] === directionalToken) {
+    if (directionalToken && normalizedParts[0] === directionalToken) {
+        startIndex = 1;
+    } else if (isDirectionalPartAtIndex(0)) {
         startIndex = 1;
     }
-    const nonStemParts = rawParts.slice(startIndex, -1);
+    const nonStemParts = normalizedParts.slice(startIndex, -1);
+    const nonStemRawParts = rawParts.slice(startIndex, -1);
     if (!nonStemParts.length) {
         return result;
     }
@@ -12071,9 +12135,9 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
             const prevIndex = index - 1;
             if (prevIndex >= 0 && !consumedEmbedIndexes.has(prevIndex)) {
                 const previous = nonStemParts[prevIndex];
+                const previousRaw = nonStemRawParts[prevIndex] || "";
                 const previousIsDirectional = previous === directionalToken
-                    || isDirectionalPrefixToken(previous)
-                    || previous === "al";
+                    || Boolean(getBracketDirectionalPrefixToken(previousRaw));
                 if (
                     previous
                     && !isValenceToken(previous)
@@ -12095,10 +12159,11 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
     const globalTokens = [];
     for (let index = 0; index < nonStemParts.length; index += 1) {
         const token = nonStemParts[index];
+        const rawToken = nonStemRawParts[index] || "";
         if (!token || consumedEmbedIndexes.has(index) || isValenceToken(token)) {
             continue;
         }
-        if (token === directionalToken || isDirectionalPrefixToken(token) || token === "al") {
+        if (token === directionalToken || Boolean(getBracketDirectionalPrefixToken(rawToken))) {
             continue;
         }
         if (OBJECT_MARKERS.has(token)) {
@@ -12123,16 +12188,15 @@ function resolveComposerNoPrefixValenceEmbedsFromBase(baseValue, resolvedDirecti
     const prefixChunk = raw.slice(0, lastDashIndex);
     return prefixChunk
         .split(/[-/]/)
-        .map((part) => normalizeComposerStem(part.replace(/^-+/, "")))
+        .map((part) => String(part || "").trim().toLowerCase().replace(/^-+/, ""))
         .filter(Boolean)
-        .filter((token) => {
+        .map((rawToken) => ({ rawToken, token: normalizeComposerStem(rawToken) }))
+        .filter(({ token }) => Boolean(token))
+        .filter(({ rawToken, token }) => {
             if (!token) {
                 return false;
             }
-            if (token === directionalToken || token === "al") {
-                return false;
-            }
-            if (isDirectionalPrefixToken(token)) {
+            if (token === directionalToken || Boolean(getBracketDirectionalPrefixToken(rawToken))) {
                 return false;
             }
             if (COMPOSER_VALENCE_OPTIONS.includes(token)) {
@@ -12142,7 +12206,8 @@ function resolveComposerNoPrefixValenceEmbedsFromBase(baseValue, resolvedDirecti
                 return false;
             }
             return true;
-        });
+        })
+        .map(({ token }) => token);
 }
 
 function resolveComposerEmbedFromParsed(parsed, resolvedValences = [], resolvedDirectional = "", baseValue = "") {
@@ -12159,17 +12224,15 @@ function resolveComposerEmbedFromParsed(parsed, resolvedValences = [], resolvedD
     const embedded = [];
     const addTokens = (tokens) => {
         tokens.forEach((token) => {
-            const normalized = normalizeToken(token);
+            const rawToken = String(token || "").trim().toLowerCase();
+            const normalized = normalizeToken(rawToken);
             if (!normalized) {
                 return;
             }
-            if (normalized === directionalToken) {
+            if (normalized === directionalToken || Boolean(getBracketDirectionalPrefixToken(rawToken))) {
                 return;
             }
             if (valenceTokenSet.has(normalized) || COMPOSER_VALENCE_OPTIONS.includes(normalized)) {
-                return;
-            }
-            if (isDirectionalPrefixToken(normalized) || normalized === "al") {
                 return;
             }
             if (OBJECT_MARKERS.has(normalized)) {
@@ -12188,7 +12251,7 @@ function resolveComposerEmbedFromParsed(parsed, resolvedValences = [], resolvedD
     if (!embedded.length) {
         const slashParts = String(baseValue || "")
             .split("/")
-            .map((part) => normalizeToken(part.replace(/^-+/, "")))
+            .map((part) => String(part || "").trim().toLowerCase().replace(/^-+/, ""))
             .filter(Boolean);
         if (slashParts.length > 1) {
             addTokens(slashParts.slice(0, -1));
@@ -12577,7 +12640,7 @@ function deriveComposerStemFromSelections(rawBase, state) {
     if (directionalPrefix) {
         if (working.startsWith(directionalPrefix)) {
             working = working.slice(directionalPrefix.length);
-            result.consumed.push(`${directionalPrefix}/`);
+            result.consumed.push(`[${directionalPrefix}]/`);
         } else {
             result.warnings.push(`La base no inicia con el direccional ${directionalPrefix}.`);
         }
@@ -13618,7 +13681,7 @@ function stripOptionalSupportiveI(value) {
 }
 
 function hasCompoundMarkers(value) {
-    const markerRe = COMPOUND_MARKER_SPLIT_RE || /[|~#()\\/?-]/;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     if (!markerRe) {
         return false;
     }
@@ -13654,7 +13717,7 @@ function buildSuggestionBaseInfo(entries) {
     if (!Array.isArray(entries)) {
         return map;
     }
-    const hasNonHyphenMarker = (base) => /[|~#()\\/?]/.test(base);
+    const hasNonHyphenMarker = (base) => /[|~#()\[\]\\/?]/.test(base);
     const addEntry = (key, entry, displayBase) => {
         if (!key) {
             return;
@@ -14129,7 +14192,7 @@ function getDisambiguationKnownSuffixCandidates(core, options = {}) {
     if (!normalized || !baseInfo.size) {
         return [];
     }
-    const markerRe = COMPOUND_MARKER_SPLIT_RE || /[|~#()\\/?-]/;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     if (markerRe) {
         markerRe.lastIndex = 0;
         if (markerRe.test(normalized)) {
@@ -14190,7 +14253,7 @@ function getDisambiguationLongSplitCandidates(core) {
     if (!normalized) {
         return [];
     }
-    const markerRe = COMPOUND_MARKER_SPLIT_RE || /[|~#()\\/?-]/;
+    const markerRe = COMPOUND_MARKER_RE || /[|~#()\[\]\\/?-]/g;
     if (markerRe) {
         markerRe.lastIndex = 0;
         if (markerRe.test(normalized)) {
@@ -16243,6 +16306,8 @@ function isPotencialProfileTense(tenseValue = "") {
         || tenseValue === "potencial-habitual"
         || tenseValue === "potencial-activo"
         || tenseValue === "perfecto-compuesto-activo"
+        || tenseValue === "tronco-preterito-activo"
+        || tenseValue === "tronco-perfecto-compuesto-activo"
         || tenseValue === "pasado-remoto-adverbio-activo";
 }
 
@@ -16271,7 +16336,14 @@ function allowsCollapsedDerivedNounSlot({
 function isPotencialActiveTense(tenseValue = "") {
     return tenseValue === "potencial-activo"
         || tenseValue === "perfecto-compuesto-activo"
+        || tenseValue === "tronco-preterito-activo"
+        || tenseValue === "tronco-perfecto-compuesto-activo"
         || tenseValue === "pasado-remoto-adverbio-activo";
+}
+
+function isPotencialTroncoActiveTense(tenseValue = "") {
+    return tenseValue === "tronco-preterito-activo"
+        || tenseValue === "tronco-perfecto-compuesto-activo";
 }
 
 function isSubjectlessNominalTense(tenseValue = "") {
@@ -16280,6 +16352,9 @@ function isSubjectlessNominalTense(tenseValue = "") {
 
 function getPotencialActiveSourceTense(tenseValue = "") {
     if (tenseValue === "perfecto-compuesto-activo") {
+        return "perfecto";
+    }
+    if (tenseValue === "tronco-perfecto-compuesto-activo") {
         return "perfecto";
     }
     if (tenseValue === "pasado-remoto-adverbio-activo") {
@@ -16436,7 +16511,14 @@ function getTenseOrderForMode(mode) {
         ];
     }
     if (mode === TENSE_MODE.adjetivo) {
-        return ["potencial", "potencial-habitual", "potencial-activo", "perfecto-compuesto-activo"];
+        return [
+            "potencial",
+            "potencial-habitual",
+            "potencial-activo",
+            "perfecto-compuesto-activo",
+            "tronco-preterito-activo",
+            "tronco-perfecto-compuesto-activo",
+        ];
     }
     if (mode === TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
@@ -16447,6 +16529,8 @@ function getTenseOrderForMode(mode) {
         && tense !== "potencial-habitual"
         && tense !== "potencial-activo"
         && tense !== "perfecto-compuesto-activo"
+        && tense !== "tronco-preterito-activo"
+        && tense !== "tronco-perfecto-compuesto-activo"
         && tense !== "pasado-remoto-adverbio-activo"
         && tense !== "agentivo"
         && tense !== "patientivo"
@@ -17795,6 +17879,7 @@ function applyMorphologyRules({
     }
     if (isPotencialActiveProfile) {
         const activeWrapperSourceTense = getPotencialActiveSourceTense(tense);
+        const isTroncoActiveWrapper = isPotencialTroncoActiveTense(tense);
         const wrapperObjectPrefix = baseObjectPrefix || "";
         const wrapperIndirectObjectMarker = composeProjectiveObjectPrefix({
             objectPrefix: "",
@@ -17818,7 +17903,7 @@ function applyMorphologyRules({
             .split(" / ")
             .map((entry) => entry.trim())
             .filter(Boolean);
-        const stemCandidates = [{
+        const baseStemCandidates = [{
             verb,
             analysisVerb,
         }];
@@ -17830,11 +17915,109 @@ function applyMorphologyRules({
             const formAnalysis = directionalInputPrefix
                 ? stripDirectionalPrefixFromStem(formVerb, directionalInputPrefix)
                 : formVerb;
-            stemCandidates.push({
+            baseStemCandidates.push({
                 verb: formVerb,
                 analysisVerb: formAnalysis || formVerb,
             });
         });
+        const wrapperStemCandidates = [];
+        const seenWrapperStemCandidates = new Set();
+        const addWrapperStemCandidate = (candidateVerb = "", candidateAnalysis = "") => {
+            const stemVerb = String(candidateVerb || "").trim();
+            if (!stemVerb) {
+                return;
+            }
+            const resolvedAnalysis = String(candidateAnalysis || "")
+                || (directionalInputPrefix
+                    ? stripDirectionalPrefixFromStem(stemVerb, directionalInputPrefix)
+                    : stemVerb);
+            const key = `${stemVerb}|${resolvedAnalysis}`;
+            if (seenWrapperStemCandidates.has(key)) {
+                return;
+            }
+            seenWrapperStemCandidates.add(key);
+            wrapperStemCandidates.push({
+                verb: stemVerb,
+                analysisVerb: resolvedAnalysis || stemVerb,
+            });
+        };
+        if (isTroncoActiveWrapper) {
+            const troncoIsTransitive = forceTransitiveBase && !hasImpersonalTaPrefix;
+            baseStemCandidates.forEach((candidate) => {
+                const sourceVerb = String(candidate?.verb || "").trim();
+                if (!sourceVerb) {
+                    return;
+                }
+                const sourceAnalysis = String(candidate?.analysisVerb || "")
+                    || (directionalInputPrefix
+                        ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
+                        : sourceVerb);
+                const troncoDerivations = buildPatientivoTroncoDerivations({
+                    verb: sourceVerb,
+                    analysisVerb: sourceAnalysis || sourceVerb,
+                    rawAnalysisVerb: sourceAnalysis || sourceVerb,
+                    isTransitive: troncoIsTransitive,
+                    directionalPrefix: directionalInputPrefix,
+                    boundPrefix,
+                    hasImpersonalTaPrefix,
+                    hasOptionalSupportiveI,
+                    hasSlashMarker,
+                    hasSuffixSeparator,
+                    hasLeadingDash,
+                    hasBoundMarker,
+                    hasCompoundMarker,
+                });
+                const troncoNounDerivations = troncoDerivations
+                    .map((entry) => {
+                        const troncoStem = String(entry?.verb || "").trim();
+                        const troncoSuffix = String(entry?.subjectSuffix || "");
+                        if (!troncoStem) {
+                            return null;
+                        }
+                        return {
+                            stem: troncoStem,
+                            suffix: troncoSuffix,
+                            nounForm: `${troncoStem}${troncoSuffix}`,
+                        };
+                    })
+                    .filter(Boolean);
+                const troncoKFamily = troncoNounDerivations.filter((entry) => entry.stem.endsWith("k"));
+                const hasKTroncoNoun = troncoKFamily.length > 0;
+                if (hasKTroncoNoun) {
+                    const preferredKFamily = troncoKFamily.filter((entry) => entry.suffix !== "");
+                    const selectedKFamily = preferredKFamily.length ? preferredKFamily : troncoKFamily;
+                    selectedKFamily.forEach((entry) => {
+                        const patientivoNoun = String(entry.nounForm || "");
+                        if (!patientivoNoun) {
+                            return;
+                        }
+                        // Built from patientivo noun (+k family). The tiya step is represented
+                        // in perfectives with final -ya deletion: ...tiya -> ...ti + k/tuk.
+                        addWrapperStemCandidate(patientivoNoun);
+                    });
+                    return;
+                }
+                const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
+                    const troncoStem = String(entry?.stem || "").trim();
+                    const troncoSuffix = String(entry?.suffix || "");
+                    return Boolean(troncoStem) && troncoSuffix === "";
+                });
+                troncoBaseDerivations.forEach((entry) => {
+                    const patientivoNoun = String(entry?.nounForm || "").trim();
+                    const troncoStem = String(entry?.stem || "").trim();
+                    if (!troncoStem) {
+                        return;
+                    }
+                    // If no +k patientivo noun exists (e.g. iwi/awi path), use the
+                    // tiya-derived path but surface the deleted-ya base (...ti).
+                    addWrapperStemCandidate(`${patientivoNoun || troncoStem}ti`);
+                });
+            });
+        } else {
+            baseStemCandidates.forEach((candidate) => {
+                addWrapperStemCandidate(candidate?.verb, candidate?.analysisVerb);
+            });
+        }
         const wrapperForms = [];
         const seenWrapperForms = new Set();
         const addWrapperForm = (formValue = "") => {
@@ -17845,7 +18028,7 @@ function applyMorphologyRules({
             seenWrapperForms.add(form);
             wrapperForms.push(form);
         };
-        stemCandidates.forEach((candidate) => {
+        wrapperStemCandidates.forEach((candidate) => {
             const sourceVerb = String(candidate?.verb || "");
             if (!sourceVerb) {
                 return;
@@ -19004,9 +19187,26 @@ function generateWord(options = {}) {
         verb = suppletiveStemSet.imperfective.verb;
         analysisVerb = suppletiveStemSet.imperfective.analysisVerb;
     }
-    const isPotencialHabitualNominalNonactive = isPotencialHabitualTense(tense)
+    const hasPotencialHabitualTransitiveBase = getBaseObjectSlots(parsedVerb) > 0;
+    const isPotencialHabitualNominalProfile = isPotencialHabitualTense(tense)
         && resolvedTenseMode === TENSE_MODE.adjetivo
         && resolvedDerivationMode === DERIVATION_MODE.nonactive;
+    if (isPotencialHabitualNominalProfile && !hasPotencialHabitualTransitiveBase) {
+        if (skipValidation) {
+            return {
+                result: "—",
+                error: true,
+                isReflexive,
+            };
+        }
+        const error = returnIfError(
+            "Potencial habitual no activo requiere base transitiva.",
+            ["verb"]
+        );
+        if (error) return error;
+    }
+    const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile
+        && hasPotencialHabitualTransitiveBase;
     const isPassiveImpersonalMode =
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedVoiceMode === VOICE_MODE.passive)
         || isPotencialHabitualNominalNonactive;
@@ -19386,6 +19586,8 @@ function generateWord(options = {}) {
                         return "Potencial transitivo solo con Ø.";
                     case "potencial-activo":
                     case "perfecto-compuesto-activo":
+                    case "tronco-preterito-activo":
+                    case "tronco-perfecto-compuesto-activo":
                         return "Adjetivo activo transitivo solo con ta/te/mu.";
                     case "potencial-habitual":
                         return "Adjetivo no activo transitivo solo con ta/te/mu.";
@@ -19409,6 +19611,8 @@ function generateWord(options = {}) {
                         return "Potencial intransitivo va sin prefijo.";
                     case "potencial-activo":
                     case "perfecto-compuesto-activo":
+                    case "tronco-preterito-activo":
+                    case "tronco-perfecto-compuesto-activo":
                         return "Adjetivo activo intransitivo va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo intransitivo va sin prefijo.";
@@ -19455,6 +19659,8 @@ function generateWord(options = {}) {
                             return "Potencial intransitivo va sin prefijo.";
                         case "potencial-activo":
                         case "perfecto-compuesto-activo":
+                        case "tronco-preterito-activo":
+                        case "tronco-perfecto-compuesto-activo":
                             return "Adjetivo activo intransitivo va sin prefijo.";
                         case "potencial-habitual":
                             return "Adjetivo no activo intransitivo va sin prefijo.";
@@ -23567,7 +23773,7 @@ function runApiDriftCleanupTests() {
 
     // parse_directional_mode_fields_semantic_contract
     try {
-        const parsed = parseVerbInput("wal/maka");
+        const parsed = parseVerbInput("[wal]/maka");
         const hasProvisional = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleModeProvisional");
         const hasLegacy = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleMode");
         const hasResolved = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleModeResolved");
@@ -23612,7 +23818,7 @@ function runApiDriftCleanupTests() {
 
     // directional_mode_runtime_resolution_contract
     try {
-        const parsed = parseVerbInput("wal/maka");
+        const parsed = parseVerbInput("[wal]/maka");
         if (parsed.directionalRuleModeProvisional !== "intransitive") {
             recordFailure(
                 "directional_mode_runtime_resolution_contract",
@@ -24704,7 +24910,7 @@ function runPreloadBootstrapSafetyTests() {
                 subjectPrefix: "ni",
                 subjectSuffix: "",
                 objectPrefix: "ki",
-                verb: "-wal/maka",
+                verb: "-[wal]/maka",
                 tense: "presente",
             },
         }) || {};
@@ -24743,7 +24949,7 @@ function runPreloadBootstrapSafetyTests() {
     // parse_before_static_load_no_throw
     try {
         setPreloadState();
-        parseVerbInput("-wal/maka");
+        parseVerbInput("-[wal]/maka");
         parseVerbInput("--maka");
         runSampleGeneration();
     } catch (error) {
@@ -24785,7 +24991,7 @@ function runPreloadBootstrapSafetyTests() {
     // directional_mode_preload_safe_non_throw
     try {
         setPreloadState();
-        const parsedPreload = parseVerbInput("-wal/maka");
+        const parsedPreload = parseVerbInput("-[wal]/maka");
         const resolvedPreloadMode = resolveDirectionalRuleMode(parsedPreload, {
             derivationType: DERIVATION_TYPE.direct,
             isNonactive: false,
@@ -24813,7 +25019,7 @@ function runPreloadBootstrapSafetyTests() {
 
     // directional_mode_postload_expected
     try {
-        const parsedPostload = parseVerbInput("-wal/maka");
+        const parsedPostload = parseVerbInput("-[wal]/maka");
         const resolvedPostloadMode = resolveDirectionalRuleMode(parsedPostload, {
             derivationType: DERIVATION_TYPE.direct,
             isNonactive: false,

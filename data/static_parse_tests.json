@@ -62,11 +62,34 @@
       }
     },
     {
-      "input": "wal/ya",
+      "input": "[wal]/ya",
       "expect": {
         "verb": "walya",
         "analysisVerb": "ya",
         "directionalPrefix": "wal",
+        "hasSlashMarker": true
+      }
+    },
+    {
+      "input": "[un]/ya",
+      "expect": {
+        "directionalPrefix": "un",
+        "hasSlashMarker": true
+      }
+    },
+    {
+      "input": "un/ya",
+      "expect": {
+        "directionalPrefix": "",
+        "hasBoundMarker": true,
+        "hasSlashMarker": true
+      }
+    },
+    {
+      "input": "wal/awa",
+      "expect": {
+        "directionalPrefix": "",
+        "hasBoundMarker": true,
         "hasSlashMarker": true
       }
     }
