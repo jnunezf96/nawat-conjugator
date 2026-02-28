@@ -100,6 +100,25 @@ const COMPOSER_TRANSITIVITY_ORDER = [
     COMPOSER_TRANSITIVITY.transitive,
     COMPOSER_TRANSITIVITY.bitransitive,
 ];
+const COMPOSER_MATRIX_ROOT_TOKENS = Object.freeze({
+    [COMPOSER_TRANSITIVITY.intransitive]: Object.freeze(["ni", "na", "wi", "wa", "ti", "ya", "ua"]),
+    [COMPOSER_TRANSITIVITY.transitive]: Object.freeze(["nia", "na", "wia", "wa", "tia", "ia", "ua"]),
+    [COMPOSER_TRANSITIVITY.bitransitive]: Object.freeze(["nia", "na", "wia", "wa", "tia", "ia", "ua"]),
+});
+const COMPOSER_MATRIX_ROOT_YA_BASES = new Set(["ti", "wi"]);
+const COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES = new Set(["ni", "na", "nia"]);
+const COMPOSER_MATRIX_ROOT_NI_SHORT_VOWELS = Object.freeze(["a", "i"]);
+const COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS = Object.freeze(["a", "e", "i", "u"]);
+const COMPOSER_MATRIX_NH_BLOCKED_STEMS = new Set([
+    "wi",
+    "iwi",
+    "awi",
+    "ia",
+    "ua",
+    "nia",
+    "wia",
+    "tia",
+]);
 const COMPOSER_SLOT_CONFIG = {
     a: {
         transitivity: COMPOSER_TRANSITIVITY.intransitive,
@@ -7652,6 +7671,7 @@ function buildClassBasedResultWithProvenance({
     forceTransitive = false,
     indirectObjectMarker = "",
     hasDoubleDash = false,
+    forceClassBSelection = false,
 }) {
     const result = buildClassBasedResult({
         verb,
@@ -7684,6 +7704,7 @@ function buildClassBasedResultWithProvenance({
         forceTransitive,
         indirectObjectMarker,
         hasDoubleDash,
+        forceClassBSelection,
     });
     if (!result || result === "—") {
         return { result, provenance: null };
@@ -10137,6 +10158,8 @@ function isPerfectiveTense(tense) {
         || tense === "perfecto-compuesto-activo"
         || tense === "tronco-preterito-activo"
         || tense === "tronco-perfecto-compuesto-activo"
+        || tense === "tronco-preterito-activo-2"
+        || tense === "tronco-perfecto-compuesto-activo-2"
         || tense === "pasado-remoto-adverbio-activo"
     );
 }
@@ -10708,6 +10731,15 @@ function getNounDerivationTypeFromMeta(verbMeta) {
 function getNounObjectSlotSummary(verbMeta, tenseValue = "", options = {}) {
     const derivationType = getNounDerivationTypeFromMeta(verbMeta);
     const derivationValencyDelta = getDerivationValencyDelta(derivationType);
+    if (isPotencialTroncoActiveObjectTense(tenseValue)) {
+        return {
+            derivationType,
+            derivationValencyDelta,
+            availableObjectSlots: 0,
+            directObjectSlots: 0,
+            derivedAddedSlots: 0,
+        };
+    }
     let availableObjectSlots = Math.max(0, Math.min(MAX_OBJECT_SLOTS, getAvailableObjectSlots(verbMeta)));
     const resolvedCombinedMode = options.combinedMode || getCombinedMode();
     const shouldUseNonactiveSlots = resolvedCombinedMode === COMBINED_MODE.nonactive
@@ -11372,12 +11404,15 @@ function getVerbComposerElements() {
         slotAEmbedInput,
         slotAStemInput,
         slotAValenceLeftEmbedInput,
+        slotAStemChips: document.getElementById("composer-stem-a-chips"),
         slotBEmbedInput,
         slotBStemInput,
         slotBValenceLeftEmbedInput,
+        slotBStemChips: document.getElementById("composer-stem-b-chips"),
         slotCEmbedInput,
         slotCStemInput,
         slotCValenceLeftEmbedInput,
+        slotCStemChips: document.getElementById("composer-stem-c-chips"),
         activeSlot,
         matrixStemInput,
         stemInput: matrixStemInput,
@@ -11396,6 +11431,11 @@ function getVerbComposerElements() {
         directionalHosts: document.querySelectorAll("[data-composer-directional-host]"),
         directionalSelect: document.getElementById("composer-directional"),
         directionalChips: document.getElementById("composer-directional-chips"),
+        matrixStemChipsBySlot: {
+            a: document.getElementById("composer-stem-a-chips"),
+            b: document.getElementById("composer-stem-b-chips"),
+            c: document.getElementById("composer-stem-c-chips"),
+        },
         embedStemInput,
         embedInput: embedStemInput,
         clearTextboxesButton: document.getElementById("composer-clear-textboxes"),
@@ -11587,6 +11627,326 @@ function syncComposerChipGroupsFromState() {
     syncComposerChipGroup(directionalChips, directionalSelect, "other");
 }
 
+function getComposerMatrixRootTokensForSlot(slotKey = "") {
+    const slotConfig = getComposerSlotConfig(slotKey);
+    const transitivity = slotConfig?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
+    return COMPOSER_MATRIX_ROOT_TOKENS[transitivity]
+        || COMPOSER_MATRIX_ROOT_TOKENS[COMPOSER_TRANSITIVITY.intransitive];
+}
+
+function getComposerMatrixEmbedStem(embedValue = "") {
+    const embedTokens = getComposerEmbedTokens(embedValue);
+    if (embedTokens.length) {
+        return embedTokens[embedTokens.length - 1];
+    }
+    return normalizeComposerStem(embedValue);
+}
+
+function getComposerLastNucleusFromStem(stemValue = "") {
+    const normalizedStem = normalizeComposerStem(stemValue);
+    if (!normalizedStem) {
+        return "";
+    }
+    const letters = splitVerbLetters(normalizedStem);
+    for (let i = letters.length - 1; i >= 0; i -= 1) {
+        if (isVerbLetterVowel(letters[i])) {
+            return letters[i];
+        }
+    }
+    return "";
+}
+
+function getComposerNiCyclePrefixVowelsFromEmbed(embedStem = "") {
+    const lastNucleus = getComposerLastNucleusFromStem(embedStem);
+    if (lastNucleus === "a" || lastNucleus === "i") {
+        return COMPOSER_MATRIX_ROOT_NI_SHORT_VOWELS.slice();
+    }
+    if (lastNucleus === "e" || lastNucleus === "u") {
+        return COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS.slice();
+    }
+    return COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS.slice();
+}
+
+function getComposerNiFamilyCycleForms(token = "", embedStem = "") {
+    const normalizedToken = normalizeComposerStem(token);
+    if (!COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES.has(normalizedToken)) {
+        return [];
+    }
+    const forms = [];
+    const prefixVowels = getComposerNiCyclePrefixVowelsFromEmbed(embedStem);
+    prefixVowels.forEach((vowel) => {
+        forms.push(`${vowel}${normalizedToken}`);
+    });
+    return Array.from(new Set(forms));
+}
+
+function getComposerNiFamilyStemVariant(stemValue = "") {
+    const normalizedStem = normalizeComposerStem(stemValue);
+    if (!normalizedStem) {
+        return null;
+    }
+    const bases = ["nia", "ni", "na"];
+    for (let i = 0; i < bases.length; i += 1) {
+        const base = bases[i];
+        if (normalizedStem === base) {
+            return { base, prefix: "" };
+        }
+        if (normalizedStem.endsWith(base) && normalizedStem.length === base.length + 1) {
+            const prefix = normalizedStem[0];
+            if (COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS.includes(prefix)) {
+                return { base, prefix };
+            }
+        }
+    }
+    return null;
+}
+
+function inferWiStockFormativeFromBaseStem(baseStem = "") {
+    const normalizedBaseStem = normalizeComposerStem(baseStem);
+    if (!normalizedBaseStem) {
+        return "";
+    }
+    const rootBase = getNonReduplicatedRoot(normalizedBaseStem) || normalizedBaseStem;
+    const letters = splitVerbLetters(rootBase);
+    if (!letters.length) {
+        return "";
+    }
+    if (letters[letters.length - 1] === "l") {
+        return "i";
+    }
+    let lastVowelIndex = -1;
+    for (let i = letters.length - 1; i >= 0; i -= 1) {
+        if (isVerbLetterVowel(letters[i])) {
+            lastVowelIndex = i;
+            break;
+        }
+    }
+    if (lastVowelIndex < 0) {
+        return "";
+    }
+    const hasPostNucleusCoda = letters
+        .slice(lastVowelIndex + 1)
+        .some((letter) => isVerbLetterConsonant(letter));
+    if (!hasPostNucleusCoda) {
+        return "";
+    }
+    const lastVowel = letters[lastVowelIndex];
+    if (lastVowel === "e" || lastVowel === "a") {
+        return "i";
+    }
+    if (lastVowel === "i" || lastVowel === "u") {
+        return "a";
+    }
+    return "";
+}
+
+function resolveComposerWiMatrixRootFromEmbed(embedStem = "") {
+    const stockFormative = inferWiStockFormativeFromBaseStem(embedStem);
+    if (stockFormative === "i" || stockFormative === "a") {
+        return `${stockFormative}wi`;
+    }
+    return "wi";
+}
+
+function isComposerMatrixTokenActiveForStem({
+    token = "",
+    stem = "",
+    transitivity = COMPOSER_TRANSITIVITY.intransitive,
+} = {}) {
+    const normalizedToken = normalizeComposerStem(token);
+    const normalizedStem = normalizeComposerStem(stem);
+    if (!normalizedToken || !normalizedStem) {
+        return false;
+    }
+    if (COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES.has(normalizedToken)) {
+        if (
+            normalizedStem.endsWith(normalizedToken)
+            && normalizedStem.length === normalizedToken.length + 1
+            && COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS.includes(normalizedStem[0])
+        ) {
+            return true;
+        }
+    }
+    if (normalizedToken === normalizedStem) {
+        return true;
+    }
+    if (transitivity !== COMPOSER_TRANSITIVITY.intransitive) {
+        return false;
+    }
+    if (normalizedToken === "ya" && (normalizedStem === "tiya" || normalizedStem === "wiya")) {
+        return true;
+    }
+    if (normalizedToken === "wi" && (normalizedStem === "iwi" || normalizedStem === "awi")) {
+        return true;
+    }
+    return false;
+}
+
+function maybeRefreshComposerManualMatrixStemFromEmbed() {
+    if (!VERB_COMPOSER_STATE.stemManualOverride) {
+        return false;
+    }
+    const activeSlot = getComposerActiveSlotFromState();
+    const slotConfig = getComposerSlotConfig(activeSlot);
+    const stateKeys = getComposerSlotStateKeys(activeSlot);
+    const currentStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+    const embedValue = VERB_COMPOSER_STATE[stateKeys.embed] || "";
+    const embedStem = getComposerMatrixEmbedStem(embedValue);
+    if (
+        slotConfig?.transitivity === COMPOSER_TRANSITIVITY.intransitive
+        && isComposerMatrixTokenActiveForStem({
+            token: "wi",
+            stem: currentStem,
+            transitivity: COMPOSER_TRANSITIVITY.intransitive,
+        })
+    ) {
+        const refreshedWiStem = resolveComposerMatrixRootTokenSelection({
+            token: "wi",
+            currentStem,
+            embedStem,
+            transitivity: COMPOSER_TRANSITIVITY.intransitive,
+        });
+        const normalizedWiStem = normalizeComposerStem(refreshedWiStem);
+        if (normalizedWiStem && normalizedWiStem !== currentStem) {
+            VERB_COMPOSER_STATE[stateKeys.stem] = normalizedWiStem;
+            VERB_COMPOSER_STATE.stem = normalizedWiStem;
+            return true;
+        }
+    }
+    const niVariant = getComposerNiFamilyStemVariant(currentStem);
+    if (!niVariant) {
+        return false;
+    }
+    const niCycleForms = getComposerNiFamilyCycleForms(niVariant.base, embedStem);
+    if (!niCycleForms.length) {
+        if (!currentStem) {
+            return false;
+        }
+        VERB_COMPOSER_STATE[stateKeys.stem] = "";
+        VERB_COMPOSER_STATE.stem = "";
+        return true;
+    }
+    if (niCycleForms.includes(currentStem)) {
+        return false;
+    }
+    const refreshedNiStem = niCycleForms[0] || "";
+    if (!refreshedNiStem || refreshedNiStem === currentStem) {
+        return false;
+    }
+    VERB_COMPOSER_STATE[stateKeys.stem] = refreshedNiStem;
+    VERB_COMPOSER_STATE.stem = refreshedNiStem;
+    return true;
+}
+
+function resolveComposerMatrixRootTokenSelection({
+    token = "",
+    currentStem = "",
+    embedStem = "",
+    transitivity = COMPOSER_TRANSITIVITY.intransitive,
+} = {}) {
+    const normalizedToken = normalizeComposerStem(token);
+    const normalizedCurrentStem = normalizeComposerStem(currentStem);
+    if (!normalizedToken) {
+        return "";
+    }
+    if (COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES.has(normalizedToken)) {
+        const niCycleForms = getComposerNiFamilyCycleForms(normalizedToken, embedStem);
+        return niCycleForms[0] || "";
+    }
+    if (transitivity === COMPOSER_TRANSITIVITY.intransitive && normalizedToken === "wi") {
+        return resolveComposerWiMatrixRootFromEmbed(embedStem);
+    }
+    if (
+        transitivity === COMPOSER_TRANSITIVITY.intransitive
+        && normalizedToken === "ya"
+        && COMPOSER_MATRIX_ROOT_YA_BASES.has(normalizedCurrentStem)
+    ) {
+        return `${normalizedCurrentStem}ya`;
+    }
+    return normalizedToken;
+}
+
+function syncComposerMatrixStemChips() {
+    const { slots, matrixStemChipsBySlot } = getVerbComposerElements();
+    const isComposer = isVerbInputModeComposer();
+    const activeSlot = getComposerActiveSlotFromState();
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const stemInput = slots[slotKey]?.stemInput || null;
+        const embedInput = slots[slotKey]?.embedInput || null;
+        const chipsContainer = matrixStemChipsBySlot?.[slotKey] || null;
+        if (!stemInput || !chipsContainer) {
+            return;
+        }
+        const slotConfig = getComposerSlotConfig(slotKey);
+        const tokens = getComposerMatrixRootTokensForSlot(slotKey);
+        const optionSignature = tokens.join("|");
+        if ((chipsContainer.dataset.optionSignature || "") !== optionSignature) {
+            chipsContainer.innerHTML = "";
+            tokens.forEach((token) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "verb-chip";
+                button.dataset.matrixRoot = token;
+                button.dataset.matrixSlot = slotKey;
+                button.textContent = token;
+                button.addEventListener("click", () => {
+                    if (button.disabled) {
+                        return;
+                    }
+                    const currentStem = stemInput.value || "";
+                    const normalizedCurrentStem = normalizeComposerStem(currentStem);
+                    const embedStem = getComposerMatrixEmbedStem(embedInput?.value || "");
+                    const transitivity = slotConfig?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
+                    const isTokenActive = isComposerMatrixTokenActiveForStem({
+                        token,
+                        stem: currentStem,
+                        transitivity,
+                    });
+                    const niCycleForms = getComposerNiFamilyCycleForms(token, embedStem);
+                    const selectedStem = resolveComposerMatrixRootTokenSelection({
+                        token,
+                        currentStem,
+                        embedStem,
+                        transitivity,
+                    });
+                    if (isTokenActive && niCycleForms.length > 1) {
+                        const currentIndex = niCycleForms.indexOf(normalizedCurrentStem);
+                        if (currentIndex >= 0 && currentIndex < niCycleForms.length - 1) {
+                            stemInput.value = niCycleForms[currentIndex + 1];
+                        } else if (currentIndex === niCycleForms.length - 1) {
+                            stemInput.value = "";
+                        } else {
+                            stemInput.value = niCycleForms[0] || "";
+                        }
+                    } else {
+                        stemInput.value = isTokenActive ? "" : selectedStem;
+                    }
+                    onVerbComposerControlChange("matrix-stem");
+                    stemInput.focus();
+                });
+                chipsContainer.appendChild(button);
+            });
+            chipsContainer.dataset.optionSignature = optionSignature;
+        }
+        const normalizedStem = normalizeComposerStem(stemInput.value || "");
+        const slotIsActive = slotKey === activeSlot;
+        const isDisabled = !isComposer || !slotIsActive;
+        const buttons = Array.from(chipsContainer.querySelectorAll(".verb-chip"));
+        buttons.forEach((button) => {
+            const token = button.dataset.matrixRoot || "";
+            const isActive = isComposerMatrixTokenActiveForStem({
+                token,
+                stem: normalizedStem,
+                transitivity: slotConfig?.transitivity || COMPOSER_TRANSITIVITY.intransitive,
+            });
+            button.disabled = isDisabled;
+            button.setAttribute("aria-disabled", String(isDisabled));
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
+    });
+}
+
 function isVerbInputModeComposer() {
     return VERB_COMPOSER_STATE.mode === VERB_INPUT_MODE.composer;
 }
@@ -11712,6 +12072,10 @@ function encodeComposerSecondaryValenceSelection(firstValue, secondValue) {
 function shouldUseNhBeforeMatrixStem(matrixStem, supportiveI = false) {
     const normalizedMatrix = normalizeComposerStem(matrixStem);
     if (!normalizedMatrix) {
+        return false;
+    }
+    // Keep selected matrix-button families from forcing n->nh on the adjacent embed.
+    if (COMPOSER_MATRIX_NH_BLOCKED_STEMS.has(normalizedMatrix)) {
         return false;
     }
     if (supportiveI) {
@@ -12513,6 +12877,7 @@ function renderVerbComposerFromState() {
     syncComposerSupportiveIAvailability();
     syncComposerValenceAvailability();
     syncComposerChipGroupsFromState();
+    syncComposerMatrixStemChips();
     updateVerbComposerHint();
     syncVerbScreenCalculatorState();
     updateCalcSummaryAndStatus();
@@ -12908,14 +13273,16 @@ function onVerbComposerControlChange(source = "") {
         return;
     }
     collectComposerStateFromControls();
+    let refreshedManualMatrixStem = false;
     if (source === "matrix-stem") {
         VERB_COMPOSER_STATE.stemManualOverride = true;
     } else {
+        refreshedManualMatrixStem = maybeRefreshComposerManualMatrixStemFromEmbed();
         maybeDeriveComposerStemFromSelectionsSource();
     }
     if (source === "matrix-stem") {
         applyComposerSyllableModeDefaultFromStem();
-    } else if (!VERB_COMPOSER_STATE.stemManualOverride) {
+    } else if (!VERB_COMPOSER_STATE.stemManualOverride || refreshedManualMatrixStem) {
         applyComposerSyllableModeDefaultFromStem();
     }
     syncComposerValenceAvailability();
@@ -16308,6 +16675,8 @@ function isPotencialProfileTense(tenseValue = "") {
         || tenseValue === "perfecto-compuesto-activo"
         || tenseValue === "tronco-preterito-activo"
         || tenseValue === "tronco-perfecto-compuesto-activo"
+        || tenseValue === "tronco-preterito-activo-2"
+        || tenseValue === "tronco-perfecto-compuesto-activo-2"
         || tenseValue === "pasado-remoto-adverbio-activo";
 }
 
@@ -16338,12 +16707,21 @@ function isPotencialActiveTense(tenseValue = "") {
         || tenseValue === "perfecto-compuesto-activo"
         || tenseValue === "tronco-preterito-activo"
         || tenseValue === "tronco-perfecto-compuesto-activo"
+        || tenseValue === "tronco-preterito-activo-2"
+        || tenseValue === "tronco-perfecto-compuesto-activo-2"
         || tenseValue === "pasado-remoto-adverbio-activo";
 }
 
 function isPotencialTroncoActiveTense(tenseValue = "") {
     return tenseValue === "tronco-preterito-activo"
-        || tenseValue === "tronco-perfecto-compuesto-activo";
+        || tenseValue === "tronco-perfecto-compuesto-activo"
+        || tenseValue === "tronco-preterito-activo-2"
+        || tenseValue === "tronco-perfecto-compuesto-activo-2";
+}
+
+function isPotencialTroncoActiveObjectTense(tenseValue = "") {
+    return tenseValue === "tronco-preterito-activo-2"
+        || tenseValue === "tronco-perfecto-compuesto-activo-2";
 }
 
 function isSubjectlessNominalTense(tenseValue = "") {
@@ -16357,10 +16735,96 @@ function getPotencialActiveSourceTense(tenseValue = "") {
     if (tenseValue === "tronco-perfecto-compuesto-activo") {
         return "perfecto";
     }
+    if (tenseValue === "tronco-perfecto-compuesto-activo-2") {
+        return "perfecto";
+    }
     if (tenseValue === "pasado-remoto-adverbio-activo") {
         return "pasado-remoto";
     }
     return "preterito";
+}
+
+function getActiveAdjectiveProfileType(tenseValue = "") {
+    switch (tenseValue) {
+        case "potencial-activo":
+            return "adjetivo-activo-preterito-simple";
+        case "perfecto-compuesto-activo":
+            return "adjetivo-activo-preterito-compuesto";
+        case "tronco-preterito-activo":
+            return "adjetivo-tronco-preterito-simple";
+        case "tronco-perfecto-compuesto-activo":
+            return "adjetivo-tronco-preterito-compuesto";
+        case "tronco-preterito-activo-2":
+            return "adjetivo-tronco2-preterito-simple";
+        case "tronco-perfecto-compuesto-activo-2":
+            return "adjetivo-tronco2-preterito-compuesto";
+        default:
+            return "";
+    }
+}
+
+function resolveActiveAdjectiveClassPolicy({
+    tenseValue = "",
+    sourceTense = "",
+    isAdjectiveMode = false,
+    hasSlashMarker = false,
+    hasBoundMarker = false,
+    inputMatrix = "",
+    candidateMatrix = "",
+} = {}) {
+    const defaultPolicy = {
+        classFilter: null,
+        forceClassBSelection: false,
+        filterDeletedYaOnly: false,
+    };
+    if (!isAdjectiveMode) {
+        return defaultPolicy;
+    }
+    const profileType = getActiveAdjectiveProfileType(tenseValue);
+    if (!profileType) {
+        return defaultPolicy;
+    }
+    const isTroncoObjectProfile = (
+        profileType === "adjetivo-tronco2-preterito-simple"
+        || profileType === "adjetivo-tronco2-preterito-compuesto"
+    );
+    if (isTroncoObjectProfile) {
+        // tronco ...2 uses an object-incorporated preterit stem + matrix -na path
+        // and must not inherit matrix-/ya adjective forcing.
+        return defaultPolicy;
+    }
+    const normalizedInputMatrix = normalizeRuleBase(inputMatrix);
+    const normalizedCandidateMatrix = normalizeRuleBase(candidateMatrix);
+    const isSlashYaInput = (
+        hasSlashMarker
+        && hasBoundMarker
+        && normalizedInputMatrix === "ya"
+    );
+    if (isSlashYaInput) {
+        if (sourceTense === "preterito") {
+            return {
+                classFilter: "B",
+                forceClassBSelection: true,
+                filterDeletedYaOnly: true,
+            };
+        }
+        if (sourceTense === "perfecto") {
+            return {
+                classFilter: "A",
+                forceClassBSelection: false,
+                filterDeletedYaOnly: false,
+            };
+        }
+        return defaultPolicy;
+    }
+    if (normalizedCandidateMatrix.endsWith("ya")) {
+        return {
+            classFilter: "B",
+            forceClassBSelection: true,
+            filterDeletedYaOnly: false,
+        };
+    }
+    return defaultPolicy;
 }
 
 // === Mode State Accessors ===
@@ -16518,6 +16982,8 @@ function getTenseOrderForMode(mode) {
             "perfecto-compuesto-activo",
             "tronco-preterito-activo",
             "tronco-perfecto-compuesto-activo",
+            "tronco-preterito-activo-2",
+            "tronco-perfecto-compuesto-activo-2",
         ];
     }
     if (mode === TENSE_MODE.adverbio) {
@@ -16531,6 +16997,8 @@ function getTenseOrderForMode(mode) {
         && tense !== "perfecto-compuesto-activo"
         && tense !== "tronco-preterito-activo"
         && tense !== "tronco-perfecto-compuesto-activo"
+        && tense !== "tronco-preterito-activo-2"
+        && tense !== "tronco-perfecto-compuesto-activo-2"
         && tense !== "pasado-remoto-adverbio-activo"
         && tense !== "agentivo"
         && tense !== "patientivo"
@@ -17309,6 +17777,9 @@ function applyMorphologyRules({
     isUnderlyingTransitive = false,
     hasSubjectValent = true,
     boundPrefix = "",
+    embeddedPrefix = "",
+    boundPrefixes = [],
+    verbSegment = "",
     isNounContext = false,
     patientivoSource = "nonactive",
     rootPlusYaBase = "",
@@ -17472,6 +17943,7 @@ function applyMorphologyRules({
         }
     }
     const exactAnalysisVerb = analysisExactVerb || analysisVerb || verb;
+    const hasYaEndingMatrixRoot = exactAnalysisVerb.endsWith("ya");
     const rawAnalysis = analysisVerb || verb;
     const nonRedupAnalysis = getNonReduplicatedRoot(rawAnalysis);
     const useAnalysisForCounts = Boolean(directionalInputPrefix) || nonRedupAnalysis !== rawAnalysis;
@@ -17712,6 +18184,8 @@ function applyMorphologyRules({
     }
 
     if (!skipPretClass && PRETERITO_CLASS_TENSES.has(tense)) {
+        const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
+        const forceAdjectiveClassB = isAdjectiveMode && hasYaEndingMatrixRoot;
         const isNonactiveMode =
             getActiveTenseMode() === TENSE_MODE.verbo && getActiveDerivationMode() === DERIVATION_MODE.nonactive;
         if (isNonactiveMode) {
@@ -17737,8 +18211,9 @@ function applyMorphologyRules({
         }
         const classOutput = buildClassBasedResultWithProvenance({
             ...pretDerivationSharedOptions,
-            classFilter: CLASS_FILTER_STATE.activeClass,
+            classFilter: forceAdjectiveClassB ? "B" : CLASS_FILTER_STATE.activeClass,
             allowAllClasses: false,
+            forceClassBSelection: forceAdjectiveClassB,
         });
         return {
             subjectPrefix: "",
@@ -17803,8 +18278,16 @@ function applyMorphologyRules({
     if (isImperativeSecondPersonBase && subjectPrefix === "shi" && hasWalAlContactAfterDirectional) {
         subjectPrefix = "sh";
     }
-    const disallowRootPlusYa = exactAnalysisVerb === "ya"
-        && (hasSlashMarker || hasSuffixSeparator || hasLeadingDash);
+    const isSlashDenominalMatrixInput = hasSlashMarker
+        && hasBoundMarker
+        && (exactAnalysisVerb === "tiya" || exactAnalysisVerb === "wiya");
+    const isPotencialActiveBoundInput = isPotencialActiveProfile
+        && hasSlashMarker
+        && hasBoundMarker;
+    const disallowRootPlusYa = (
+        exactAnalysisVerb === "ya"
+        && (hasSlashMarker || hasSuffixSeparator || hasLeadingDash)
+    ) || isSlashDenominalMatrixInput || isPotencialActiveBoundInput;
     const rootPlusYaBaseResolved = isPerfectiveTense(tense) && !disallowRootPlusYa
         ? (rootPlusYaBasePronounceable || getRootPlusYaBase(verb, {
             isTransitive,
@@ -17880,6 +18363,9 @@ function applyMorphologyRules({
     if (isPotencialActiveProfile) {
         const activeWrapperSourceTense = getPotencialActiveSourceTense(tense);
         const isTroncoActiveWrapper = isPotencialTroncoActiveTense(tense);
+        const isTroncoActiveObjectWrapper = isPotencialTroncoActiveObjectTense(tense);
+        const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
+        const inputMatrixRoot = normalizeRuleBase(exactAnalysisVerb);
         const wrapperObjectPrefix = baseObjectPrefix || "";
         const wrapperIndirectObjectMarker = composeProjectiveObjectPrefix({
             objectPrefix: "",
@@ -17941,78 +18427,296 @@ function applyMorphologyRules({
                 analysisVerb: resolvedAnalysis || stemVerb,
             });
         };
+        const MATRIX_NA_STEM = "na";
+        const PRETERIT_OBJECT_MATRIX_STEMS = new Set(["ti", "tiya", "ya"]);
+        const TRANSITIVE_MATRIX_OBJECT_MARKERS = new Set([
+            ...Array.from(SPECIFIC_VALENCE_PREFIX_SET || []),
+            ...Array.from(NONSPECIFIC_VALENCE_AFFIX_SET || []),
+            ...Array.from(OBJECT_MARKERS || []),
+            "k",
+        ]);
+        const normalizeIncorporatedStemToken = (value = "") => normalizeRuleBase(String(value || ""));
+        const isEmbeddedObjectMarkerToken = (value = "") => {
+            const token = normalizeIncorporatedStemToken(value);
+            return Boolean(token) && TRANSITIVE_MATRIX_OBJECT_MARKERS.has(token);
+        };
+        const pickIncorporatedStemFromTokens = (tokens = []) => {
+            const list = Array.isArray(tokens) ? tokens : [];
+            for (let index = 0; index < list.length; index += 1) {
+                const tokenRaw = String(list[index] || "").trim();
+                const token = normalizeIncorporatedStemToken(tokenRaw);
+                if (!token || isEmbeddedObjectMarkerToken(token)) {
+                    continue;
+                }
+                if (getBracketDirectionalPrefixToken(tokenRaw)) {
+                    continue;
+                }
+                return token;
+            }
+            return "";
+        };
+        const resolveTroncoObjectWrapperStem = ({
+            sourceVerb = "",
+            sourceAnalysis = "",
+            matrixStem = "",
+            allowedMatrixStems = null,
+        } = {}) => {
+            const matrix = normalizeIncorporatedStemToken(matrixStem || sourceAnalysis || exactAnalysisVerb || "");
+            const allowedStemSet = allowedMatrixStems instanceof Set
+                ? allowedMatrixStems
+                : new Set([MATRIX_NA_STEM]);
+            if (!allowedStemSet.has(matrix)) {
+                return "";
+            }
+            const boundList = Array.isArray(boundPrefixes)
+                ? boundPrefixes.map((token) => String(token || "").trim())
+                : [];
+            const fromBoundPrefixes = pickIncorporatedStemFromTokens(boundList);
+            if (fromBoundPrefixes && fromBoundPrefixes !== matrix) {
+                return fromBoundPrefixes;
+            }
+            const verbParts = String(verbSegment || "")
+                .split(COMPOUND_MARKER_SPLIT_RE)
+                .map((token) => String(token || "").trim())
+                .filter(Boolean);
+            if (verbParts.length > 1) {
+                const fromVerbSegment = pickIncorporatedStemFromTokens(verbParts.slice(0, -1));
+                if (fromVerbSegment && fromVerbSegment !== matrix) {
+                    return fromVerbSegment;
+                }
+            }
+            const directEmbedded = normalizeIncorporatedStemToken(embeddedPrefix);
+            if (directEmbedded && directEmbedded !== matrix) {
+                return directEmbedded;
+            }
+            const sourceVerbNormalized = normalizeIncorporatedStemToken(sourceVerb);
+            const sourceAnalysisNormalized = normalizeIncorporatedStemToken(sourceAnalysis || matrix);
+            if (
+                sourceVerbNormalized
+                && sourceAnalysisNormalized
+                && sourceVerbNormalized.endsWith(sourceAnalysisNormalized)
+                && sourceVerbNormalized.length > sourceAnalysisNormalized.length
+            ) {
+                const fallback = sourceVerbNormalized.slice(0, -sourceAnalysisNormalized.length);
+                if (fallback && fallback !== matrix) {
+                    return fallback;
+                }
+            }
+            return "";
+        };
+        const buildPreteritObjectIncorporatedStems = ({
+            matrixStem = "",
+            incorporatedStem = "",
+        } = {}) => {
+            const matrix = normalizeIncorporatedStemToken(matrixStem);
+            const incorporated = normalizeIncorporatedStemToken(incorporatedStem);
+            if (!matrix || !incorporated) {
+                return [];
+            }
+            const preteritSource = `${incorporated}${matrix}`;
+            const preteritClassOutput = buildClassBasedResultWithProvenance({
+                verb: preteritSource,
+                subjectPrefix: "",
+                objectPrefix: "",
+                subjectSuffix: "",
+                tense: "preterito",
+                analysisVerb: preteritSource,
+                exactBaseVerb: matrix,
+                classFilter: "B",
+                allowAllClasses: false,
+                forceClassBSelection: true,
+                isYawi: false,
+                isWeya: false,
+                hasSlashMarker: true,
+                hasSuffixSeparator: false,
+                hasLeadingDash: false,
+                hasBoundMarker: true,
+                hasCompoundMarker: false,
+                hasImpersonalTaPrefix: false,
+                hasOptionalSupportiveI,
+                hasNonspecificValence: false,
+                rootPlusYaBase: "",
+                rootPlusYaBasePronounceable: "",
+                derivationType: DERIVATION_TYPE.direct,
+                directionalInputPrefix: "",
+                directionalOutputPrefix: "",
+                baseSubjectPrefix: "",
+                baseObjectPrefix: "",
+                suppletiveStemSet: null,
+                forceTransitive: false,
+                indirectObjectMarker: "",
+                hasDoubleDash: false,
+            });
+            const classForms = splitWrapperForms(preteritClassOutput?.result)
+                .map((entry) => normalizeIncorporatedStemToken(entry))
+                .filter((entry) => entry && entry !== "—");
+            if (!classForms.length) {
+                return [];
+            }
+            if (matrix.endsWith("ya")) {
+                const deletedYaVariants = classForms.filter((form) => (
+                    form.endsWith("k") && !form.endsWith("yak")
+                ));
+                if (deletedYaVariants.length) {
+                    return deletedYaVariants;
+                }
+            }
+            return classForms;
+        };
         if (isTroncoActiveWrapper) {
-            const troncoIsTransitive = forceTransitiveBase && !hasImpersonalTaPrefix;
-            baseStemCandidates.forEach((candidate) => {
-                const sourceVerb = String(candidate?.verb || "").trim();
-                if (!sourceVerb) {
-                    return;
+            if (isTroncoActiveObjectWrapper) {
+                const matrixStem = normalizeIncorporatedStemToken(exactAnalysisVerb || analysisVerb || "");
+                if (hasImpersonalTaPrefix) {
+                    return { error: true };
                 }
-                const sourceAnalysis = String(candidate?.analysisVerb || "")
-                    || (directionalInputPrefix
-                        ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
-                        : sourceVerb);
-                const troncoDerivations = buildPatientivoTroncoDerivations({
-                    verb: sourceVerb,
-                    analysisVerb: sourceAnalysis || sourceVerb,
-                    rawAnalysisVerb: sourceAnalysis || sourceVerb,
-                    isTransitive: troncoIsTransitive,
-                    directionalPrefix: directionalInputPrefix,
-                    boundPrefix,
-                    hasImpersonalTaPrefix,
-                    hasOptionalSupportiveI,
-                    hasSlashMarker,
-                    hasSuffixSeparator,
-                    hasLeadingDash,
-                    hasBoundMarker,
-                    hasCompoundMarker,
-                });
-                const troncoNounDerivations = troncoDerivations
-                    .map((entry) => {
-                        const troncoStem = String(entry?.verb || "").trim();
-                        const troncoSuffix = String(entry?.subjectSuffix || "");
-                        if (!troncoStem) {
-                            return null;
-                        }
-                        return {
-                            stem: troncoStem,
-                            suffix: troncoSuffix,
-                            nounForm: `${troncoStem}${troncoSuffix}`,
-                        };
-                    })
-                    .filter(Boolean);
-                const troncoKFamily = troncoNounDerivations.filter((entry) => entry.stem.endsWith("k"));
-                const hasKTroncoNoun = troncoKFamily.length > 0;
-                if (hasKTroncoNoun) {
-                    const preferredKFamily = troncoKFamily.filter((entry) => entry.suffix !== "");
-                    const selectedKFamily = preferredKFamily.length ? preferredKFamily : troncoKFamily;
-                    selectedKFamily.forEach((entry) => {
-                        const patientivoNoun = String(entry.nounForm || "");
-                        if (!patientivoNoun) {
-                            return;
-                        }
-                        // Built from patientivo noun (+k family). The tiya step is represented
-                        // in perfectives with final -ya deletion: ...tiya -> ...ti + k/tuk.
-                        addWrapperStemCandidate(patientivoNoun);
-                    });
-                    return;
-                }
-                const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
-                    const troncoStem = String(entry?.stem || "").trim();
-                    const troncoSuffix = String(entry?.suffix || "");
-                    return Boolean(troncoStem) && troncoSuffix === "";
-                });
-                troncoBaseDerivations.forEach((entry) => {
-                    const patientivoNoun = String(entry?.nounForm || "").trim();
-                    const troncoStem = String(entry?.stem || "").trim();
-                    if (!troncoStem) {
+                const hasExplicitMatrixNa = matrixStem === MATRIX_NA_STEM;
+                const isPreteritObjectMatrix = (
+                    hasSlashMarker
+                    && hasBoundMarker
+                    && PRETERIT_OBJECT_MATRIX_STEMS.has(matrixStem)
+                );
+                baseStemCandidates.forEach((candidate) => {
+                    const sourceVerb = String(candidate?.verb || "").trim();
+                    if (!sourceVerb) {
                         return;
                     }
-                    // If no +k patientivo noun exists (e.g. iwi/awi path), use the
-                    // tiya-derived path but surface the deleted-ya base (...ti).
-                    addWrapperStemCandidate(`${patientivoNoun || troncoStem}ti`);
+                    const sourceAnalysis = String(candidate?.analysisVerb || "")
+                        || (directionalInputPrefix
+                            ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
+                            : sourceVerb);
+                    const incorporatedStems = [];
+                    if (hasExplicitMatrixNa) {
+                        const incorporatedStem = resolveTroncoObjectWrapperStem({
+                            sourceVerb,
+                            sourceAnalysis,
+                            matrixStem,
+                            allowedMatrixStems: new Set([MATRIX_NA_STEM]),
+                        });
+                        if (incorporatedStem) {
+                            incorporatedStems.push(incorporatedStem);
+                        }
+                    } else if (isPreteritObjectMatrix) {
+                        const incorporatedStem = resolveTroncoObjectWrapperStem({
+                            sourceVerb,
+                            sourceAnalysis,
+                            matrixStem,
+                            allowedMatrixStems: PRETERIT_OBJECT_MATRIX_STEMS,
+                        });
+                        if (incorporatedStem) {
+                            buildPreteritObjectIncorporatedStems({
+                                matrixStem,
+                                incorporatedStem,
+                            }).forEach((stem) => incorporatedStems.push(stem));
+                        }
+                    } else {
+                        const troncoDerivations = buildPatientivoTroncoDerivations({
+                            verb: sourceVerb,
+                            analysisVerb: sourceAnalysis || sourceVerb,
+                            rawAnalysisVerb: sourceAnalysis || sourceVerb,
+                            isTransitive: forceTransitiveBase && !hasImpersonalTaPrefix,
+                            directionalPrefix: directionalInputPrefix,
+                            boundPrefix,
+                            hasImpersonalTaPrefix,
+                            hasOptionalSupportiveI,
+                            hasSlashMarker,
+                            hasSuffixSeparator,
+                            hasLeadingDash,
+                            hasBoundMarker,
+                            hasCompoundMarker,
+                        });
+                        const troncoCandidates = troncoDerivations
+                            .map((entry) => ({
+                                stem: String(entry?.verb || "").trim(),
+                                suffix: String(entry?.subjectSuffix || ""),
+                            }))
+                            .filter((entry) => Boolean(entry.stem));
+                        const kFamily = troncoCandidates.filter((entry) => entry.stem.endsWith("k"));
+                        if (kFamily.length) {
+                            kFamily.forEach((entry) => incorporatedStems.push(entry.stem));
+                        } else {
+                            troncoCandidates
+                                .filter((entry) => entry.suffix === "")
+                                .forEach((entry) => incorporatedStems.push(entry.stem));
+                        }
+                    }
+                    incorporatedStems.forEach((incorporatedStem) => {
+                        const matrixWrapperStem = `${incorporatedStem}${MATRIX_NA_STEM}`;
+                        addWrapperStemCandidate(matrixWrapperStem, MATRIX_NA_STEM);
+                    });
                 });
-            });
+            } else {
+                const troncoIsTransitive = forceTransitiveBase && !hasImpersonalTaPrefix;
+                baseStemCandidates.forEach((candidate) => {
+                    const sourceVerb = String(candidate?.verb || "").trim();
+                    if (!sourceVerb) {
+                        return;
+                    }
+                    const sourceAnalysis = String(candidate?.analysisVerb || "")
+                        || (directionalInputPrefix
+                            ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
+                            : sourceVerb);
+                    const troncoDerivations = buildPatientivoTroncoDerivations({
+                        verb: sourceVerb,
+                        analysisVerb: sourceAnalysis || sourceVerb,
+                        rawAnalysisVerb: sourceAnalysis || sourceVerb,
+                        isTransitive: troncoIsTransitive,
+                        directionalPrefix: directionalInputPrefix,
+                        boundPrefix,
+                        hasImpersonalTaPrefix,
+                        hasOptionalSupportiveI,
+                        hasSlashMarker,
+                        hasSuffixSeparator,
+                        hasLeadingDash,
+                        hasBoundMarker,
+                        hasCompoundMarker,
+                    });
+                    const troncoNounDerivations = troncoDerivations
+                        .map((entry) => {
+                            const troncoStem = String(entry?.verb || "").trim();
+                            const troncoSuffix = String(entry?.subjectSuffix || "");
+                            if (!troncoStem) {
+                                return null;
+                            }
+                            return {
+                                stem: troncoStem,
+                                suffix: troncoSuffix,
+                                nounForm: `${troncoStem}${troncoSuffix}`,
+                            };
+                        })
+                        .filter(Boolean);
+                    const troncoKFamily = troncoNounDerivations.filter((entry) => entry.stem.endsWith("k"));
+                    const hasKTroncoNoun = troncoKFamily.length > 0;
+                    if (hasKTroncoNoun) {
+                        const preferredKFamily = troncoKFamily.filter((entry) => entry.suffix !== "");
+                        const selectedKFamily = preferredKFamily.length ? preferredKFamily : troncoKFamily;
+                        selectedKFamily.forEach((entry) => {
+                            const patientivoNoun = String(entry.nounForm || "");
+                            if (!patientivoNoun) {
+                                return;
+                            }
+                            // Built from patientivo noun (+k family). The tiya step is represented
+                            // in perfectives with final -ya deletion: ...tiya -> ...ti + k/tuk.
+                            addWrapperStemCandidate(patientivoNoun);
+                        });
+                        return;
+                    }
+                    const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
+                        const troncoStem = String(entry?.stem || "").trim();
+                        const troncoSuffix = String(entry?.suffix || "");
+                        return Boolean(troncoStem) && troncoSuffix === "";
+                    });
+                    troncoBaseDerivations.forEach((entry) => {
+                        const patientivoNoun = String(entry?.nounForm || "").trim();
+                        const troncoStem = String(entry?.stem || "").trim();
+                        if (!troncoStem) {
+                            return;
+                        }
+                        // If no +k patientivo noun exists (e.g. iwi/awi path), use the
+                        // tiya-derived path but surface the deleted-ya base (...ti).
+                        addWrapperStemCandidate(`${patientivoNoun || troncoStem}ti`);
+                    });
+                });
+            }
         } else {
             baseStemCandidates.forEach((candidate) => {
                 addWrapperStemCandidate(candidate?.verb, candidate?.analysisVerb);
@@ -18037,6 +18741,19 @@ function applyMorphologyRules({
                 || (directionalInputPrefix
                     ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
                     : sourceVerb);
+            const candidateExactBaseVerb = isTroncoActiveObjectWrapper
+                ? (sourceAnalysis || "")
+                : exactAnalysisVerb;
+            const candidateMatrix = normalizeRuleBase(candidateExactBaseVerb);
+            const adjectiveClassPolicy = resolveActiveAdjectiveClassPolicy({
+                tenseValue: tense,
+                sourceTense: activeWrapperSourceTense,
+                isAdjectiveMode,
+                hasSlashMarker,
+                hasBoundMarker,
+                inputMatrix: inputMatrixRoot,
+                candidateMatrix,
+            });
             const classOutput = buildClassBasedResultWithProvenance({
                 verb: sourceVerb,
                 subjectPrefix,
@@ -18044,8 +18761,8 @@ function applyMorphologyRules({
                 subjectSuffix: sourceSubjectSuffix,
                 tense: activeWrapperSourceTense,
                 analysisVerb: sourceAnalysis || sourceVerb,
-                exactBaseVerb: exactAnalysisVerb,
-                classFilter: null,
+                exactBaseVerb: candidateExactBaseVerb,
+                classFilter: adjectiveClassPolicy.classFilter,
                 allowAllClasses: false,
                 isYawi,
                 isWeya,
@@ -18065,11 +18782,30 @@ function applyMorphologyRules({
                 baseSubjectPrefix,
                 baseObjectPrefix: wrapperObjectPrefix,
                 suppletiveStemSet,
-                forceTransitive: forceTransitiveBase,
+                forceTransitive: isTroncoActiveObjectWrapper ? true : forceTransitiveBase,
                 indirectObjectMarker: wrapperIndirectObjectMarker,
                 hasDoubleDash,
+                forceClassBSelection: adjectiveClassPolicy.forceClassBSelection,
             });
-            splitWrapperForms(classOutput?.result).forEach((formValue) => addWrapperForm(formValue));
+            let candidateForms = splitWrapperForms(classOutput?.result);
+            if (adjectiveClassPolicy.filterDeletedYaOnly) {
+                const normalizedSource = normalizeRuleBase(sourceVerb);
+                const deletedYaTarget = normalizedSource.endsWith("ya")
+                    ? `${normalizedSource.slice(0, -2)}k`
+                    : "";
+                const retainedYaTarget = normalizedSource.endsWith("ya")
+                    ? `${normalizedSource}k`
+                    : "";
+                candidateForms = candidateForms.filter((formValue) => {
+                    const normalized = normalizeRuleBase(formValue);
+                    if (deletedYaTarget) {
+                        return normalized.includes(deletedYaTarget)
+                            && (!retainedYaTarget || !normalized.includes(retainedYaTarget));
+                    }
+                    return normalized.endsWith("k");
+                });
+            }
+            candidateForms.forEach((formValue) => addWrapperForm(formValue));
         });
         if (!wrapperForms.length) {
             return { error: true };
@@ -18954,8 +19690,12 @@ function generateWord(options = {}) {
             ? getSelectedPretUniversalTab()
             : getSelectedTenseTab();
     }
+    const isTroncoActiveObjectWrapperTense = isPotencialTroncoActiveObjectTense(tense);
     if (isPotencialProfileTense(tense)) {
         possessivePrefix = "";
+    }
+    if (isTroncoActiveObjectWrapperTense) {
+        objectPrefix = "";
     }
     let baseObjectPrefix = objectPrefix;
     let isReflexive = objectPrefix === "mu";
@@ -19145,6 +19885,11 @@ function generateWord(options = {}) {
         indirectObjectMarker,
         derivationType: resolvedDerivationType,
     }));
+    if (isTroncoActiveObjectWrapperTense) {
+        objectPrefix = "";
+        indirectObjectMarker = "";
+        thirdObjectMarker = "";
+    }
     baseObjectPrefix = objectPrefix;
     const sourceValency = getActiveVerbValency(parsedVerb);
     const fusionPrefixes = Array.isArray(parsedVerb.fusionPrefixes) ? parsedVerb.fusionPrefixes : [];
@@ -19589,6 +20334,9 @@ function generateWord(options = {}) {
                     case "tronco-preterito-activo":
                     case "tronco-perfecto-compuesto-activo":
                         return "Adjetivo activo transitivo solo con ta/te/mu.";
+                    case "tronco-preterito-activo-2":
+                    case "tronco-perfecto-compuesto-activo-2":
+                        return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo transitivo solo con ta/te/mu.";
                     case "pasado-remoto-adverbio-activo":
@@ -19614,6 +20362,9 @@ function generateWord(options = {}) {
                     case "tronco-preterito-activo":
                     case "tronco-perfecto-compuesto-activo":
                         return "Adjetivo activo intransitivo va sin prefijo.";
+                    case "tronco-preterito-activo-2":
+                    case "tronco-perfecto-compuesto-activo-2":
+                        return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo intransitivo va sin prefijo.";
                     case "pasado-remoto-adverbio-activo":
@@ -19662,6 +20413,9 @@ function generateWord(options = {}) {
                         case "tronco-preterito-activo":
                         case "tronco-perfecto-compuesto-activo":
                             return "Adjetivo activo intransitivo va sin prefijo.";
+                        case "tronco-preterito-activo-2":
+                        case "tronco-perfecto-compuesto-activo-2":
+                            return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                         case "potencial-habitual":
                             return "Adjetivo no activo intransitivo va sin prefijo.";
                         case "pasado-remoto-adverbio-activo":
@@ -19726,6 +20480,9 @@ function generateWord(options = {}) {
         boundPrefix: parsedVerb.hasBoundMarker
             ? (parsedVerb.boundPrefixes || []).join("")
             : "",
+        embeddedPrefix: getEmbeddedVerbPrefix(parsedVerb),
+        boundPrefixes: Array.isArray(parsedVerb.boundPrefixes) ? parsedVerb.boundPrefixes.slice() : [],
+        verbSegment: parsedVerb.verbSegment || "",
         patientivoOwnership: override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP,
         patientivoSource,
         derivationType: resolvedDerivationType,
