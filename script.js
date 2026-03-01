@@ -109,6 +109,7 @@ const COMPOSER_MATRIX_ROOT_YA_BASES = new Set(["ti", "wi"]);
 const COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES = new Set(["ni", "na", "nia"]);
 const COMPOSER_MATRIX_ROOT_NI_SHORT_VOWELS = Object.freeze(["a", "i"]);
 const COMPOSER_MATRIX_ROOT_NI_FULL_VOWELS = Object.freeze(["a", "e", "i", "u"]);
+const COMPOSER_MATRIX_ROOT_WA_TRANSITIVE_VOWELS = Object.freeze(["a", "e", "i", "u"]);
 const COMPOSER_MATRIX_NH_BLOCKED_STEMS = new Set([
     "wi",
     "iwi",
@@ -191,6 +192,16 @@ const VERB_COMPOSER_STATE = {
     sourceBase: "",
     stemManualOverride: false,
     isApplying: false,
+};
+const COMPOSER_EMBED_OPEN_STATE = {
+    a: false,
+    b: false,
+    c: false,
+};
+const COMPOSER_EMBED_PREVIEW_STATE = {
+    a: false,
+    b: false,
+    c: false,
 };
 let LAST_COMPOSER_ESCAPE_TS = 0;
 const VERB_SCREEN_ANS_STATE = {
@@ -1280,6 +1291,16 @@ let PRETERITO_CLASS_DETAIL_BY_KEY = {};
 let CONJUGATION_GROUPS = {};
 let VERB_SUGGESTION_LIMIT = 0;
 let UI_SCALE_STORAGE_KEY = "";
+const UI_DENSITY_MODE = Object.freeze({
+    simple: "simple",
+    advanced: "advanced",
+});
+const UI_DENSITY_STORAGE_KEY = "nawat_ui_density_mode";
+const UI_DENSITY_ADVANCED_TENSES = new Set([
+    "presente-habitual",
+    "imperfecto",
+    "pasado-remoto",
+]);
 
 // === Runtime State ===
 var originalLabels = {};
@@ -11354,7 +11375,8 @@ function syncComposerActiveStemAndEmbedFromState() {
     const activeSlot = getComposerActiveSlotFromState();
     const stateKeys = getComposerSlotStateKeys(activeSlot);
     VERB_COMPOSER_STATE.stem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
-    VERB_COMPOSER_STATE.embedPrefix = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
+    const embedValue = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
+    VERB_COMPOSER_STATE.embedPrefix = COMPOSER_EMBED_OPEN_STATE[activeSlot] ? embedValue : "";
 }
 
 function getComposerActiveSlotFromState() {
@@ -11373,6 +11395,9 @@ function getVerbComposerElements() {
     const slots = COMPOSER_SLOT_KEYS.reduce((acc, slotKey) => {
         const config = getComposerSlotConfig(slotKey);
         acc[slotKey] = {
+            topRow: document.querySelector(`[data-composer-top-row="${slotKey}"]`),
+            embedField: document.querySelector(`[data-composer-embed-field="${slotKey}"]`),
+            prefixToggleButton: document.querySelector(`[data-composer-prefix-toggle="${slotKey}"]`),
             embedInput: document.getElementById(config.ids.embed),
             stemInput: document.getElementById(config.ids.stem),
             objectInput: document.getElementById(config.ids.objectEmbed),
@@ -11442,6 +11467,94 @@ function getVerbComposerElements() {
         supportiveICheckbox: document.getElementById("composer-supportive-i"),
         hint: document.getElementById("verb-composer-hint"),
     };
+}
+
+function getComposerEmbedValueForSlot(slotKey, slotRefs = null) {
+    const refs = slotRefs || getVerbComposerElements().slots[slotKey] || {};
+    const stateKeys = getComposerSlotStateKeys(slotKey);
+    const inputValue = normalizeComposerEmbedValue(refs.embedInput?.value || "");
+    const stateValue = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
+    return inputValue || stateValue;
+}
+
+function syncComposerEmbedSlotUi(slotKey, slotRefs = null) {
+    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
+        return;
+    }
+    const refs = slotRefs || getVerbComposerElements().slots[slotKey] || {};
+    const topRow = refs.topRow || null;
+    const embedField = refs.embedField || null;
+    const toggleButton = refs.prefixToggleButton || null;
+    const embedInput = refs.embedInput || null;
+    const embedValue = getComposerEmbedValueForSlot(slotKey, refs);
+    const isFilled = Boolean(embedValue);
+    const isOpen = Boolean(COMPOSER_EMBED_OPEN_STATE[slotKey]);
+    const isPreview = Boolean(COMPOSER_EMBED_PREVIEW_STATE[slotKey]) && !isOpen;
+    const isVisible = isOpen || isPreview;
+    if (topRow) {
+        topRow.classList.toggle("is-embed-open", isOpen);
+        topRow.classList.toggle("is-embed-preview", isPreview);
+        topRow.classList.toggle("is-embed-filled", isFilled);
+    }
+    if (embedField) {
+        embedField.setAttribute("aria-hidden", "false");
+    }
+    if (embedInput) {
+        embedInput.disabled = !isOpen;
+        embedInput.tabIndex = isOpen ? 0 : -1;
+        embedInput.setAttribute("aria-hidden", String(!isVisible));
+    }
+    if (toggleButton) {
+        toggleButton.classList.toggle("is-active", isOpen);
+        toggleButton.setAttribute("aria-expanded", String(isOpen));
+        toggleButton.setAttribute("aria-pressed", String(isOpen));
+        toggleButton.textContent = isOpen ? "-" : "+";
+    }
+}
+
+function syncComposerEmbedUiFromState() {
+    const { slots } = getVerbComposerElements();
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        syncComposerEmbedSlotUi(slotKey, slots[slotKey] || {});
+    });
+}
+
+function setComposerEmbedPreviewState(slotKey, isPreview) {
+    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
+        return;
+    }
+    COMPOSER_EMBED_PREVIEW_STATE[slotKey] = Boolean(isPreview);
+    syncComposerEmbedSlotUi(slotKey);
+}
+
+function toggleComposerEmbedOpen(slotKey) {
+    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
+        return;
+    }
+    const { slots } = getVerbComposerElements();
+    const refs = slots[slotKey] || {};
+    const stateKeys = getComposerSlotStateKeys(slotKey);
+    if (refs.embedInput) {
+        VERB_COMPOSER_STATE[stateKeys.embed] = normalizeComposerEmbedValue(refs.embedInput.value || "");
+    }
+    const currentlyOpen = Boolean(COMPOSER_EMBED_OPEN_STATE[slotKey]);
+    const nextOpen = !currentlyOpen;
+    COMPOSER_EMBED_OPEN_STATE[slotKey] = nextOpen;
+    COMPOSER_EMBED_PREVIEW_STATE[slotKey] = false;
+    if (slotKey === getComposerActiveSlotFromState()) {
+        VERB_COMPOSER_STATE.embedPrefix = nextOpen
+            ? normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "")
+            : "";
+        applyComposerStateToVerbInput({ triggerGenerate: true });
+    }
+    syncComposerEmbedSlotUi(slotKey, refs);
+    if (nextOpen && refs.embedInput && typeof refs.embedInput.focus === "function" && !refs.embedInput.disabled) {
+        refs.embedInput.focus();
+        if (typeof refs.embedInput.setSelectionRange === "function") {
+            const caret = String(refs.embedInput.value || "").length;
+            refs.embedInput.setSelectionRange(caret, caret);
+        }
+    }
 }
 
 function applyNoAutofillAttributes(inputEl) {
@@ -11701,6 +11814,36 @@ function getComposerNiFamilyStemVariant(stemValue = "") {
     return null;
 }
 
+function getComposerWaTransitiveCycleForms(token = "", transitivity = COMPOSER_TRANSITIVITY.intransitive) {
+    const normalizedToken = normalizeComposerStem(token);
+    if (normalizedToken !== "wa" && normalizedToken !== "wia") {
+        return [];
+    }
+    if (
+        transitivity !== COMPOSER_TRANSITIVITY.transitive
+        && transitivity !== COMPOSER_TRANSITIVITY.bitransitive
+    ) {
+        return [];
+    }
+    return COMPOSER_MATRIX_ROOT_WA_TRANSITIVE_VOWELS.map((vowel) => `${vowel}${normalizedToken}`);
+}
+
+function getComposerMatrixTokenCycleForms({
+    token = "",
+    embedStem = "",
+    transitivity = COMPOSER_TRANSITIVITY.intransitive,
+} = {}) {
+    const niForms = getComposerNiFamilyCycleForms(token, embedStem);
+    if (niForms.length) {
+        return niForms;
+    }
+    const waForms = getComposerWaTransitiveCycleForms(token, transitivity);
+    if (waForms.length) {
+        return waForms;
+    }
+    return [];
+}
+
 function inferWiStockFormativeFromBaseStem(baseStem = "") {
     const normalizedBaseStem = normalizeComposerStem(baseStem);
     if (!normalizedBaseStem) {
@@ -11713,6 +11856,9 @@ function inferWiStockFormativeFromBaseStem(baseStem = "") {
     }
     if (letters[letters.length - 1] === "l") {
         return "i";
+    }
+    if (letters[letters.length - 1] === "t") {
+        return "a";
     }
     let lastVowelIndex = -1;
     for (let i = letters.length - 1; i >= 0; i -= 1) {
@@ -11766,6 +11912,10 @@ function isComposerMatrixTokenActiveForStem({
         ) {
             return true;
         }
+    }
+    const waCycleForms = getComposerWaTransitiveCycleForms(normalizedToken, transitivity);
+    if (waCycleForms.includes(normalizedStem)) {
+        return true;
     }
     if (normalizedToken === normalizedStem) {
         return true;
@@ -11853,6 +12003,10 @@ function resolveComposerMatrixRootTokenSelection({
         const niCycleForms = getComposerNiFamilyCycleForms(normalizedToken, embedStem);
         return niCycleForms[0] || "";
     }
+    const waCycleForms = getComposerWaTransitiveCycleForms(normalizedToken, transitivity);
+    if (waCycleForms.length) {
+        return waCycleForms[0] || "";
+    }
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive && normalizedToken === "wi") {
         return resolveComposerWiMatrixRootFromEmbed(embedStem);
     }
@@ -11902,21 +12056,25 @@ function syncComposerMatrixStemChips() {
                         stem: currentStem,
                         transitivity,
                     });
-                    const niCycleForms = getComposerNiFamilyCycleForms(token, embedStem);
+                    const tokenCycleForms = getComposerMatrixTokenCycleForms({
+                        token,
+                        embedStem,
+                        transitivity,
+                    });
                     const selectedStem = resolveComposerMatrixRootTokenSelection({
                         token,
                         currentStem,
                         embedStem,
                         transitivity,
                     });
-                    if (isTokenActive && niCycleForms.length > 1) {
-                        const currentIndex = niCycleForms.indexOf(normalizedCurrentStem);
-                        if (currentIndex >= 0 && currentIndex < niCycleForms.length - 1) {
-                            stemInput.value = niCycleForms[currentIndex + 1];
-                        } else if (currentIndex === niCycleForms.length - 1) {
+                    if (isTokenActive && tokenCycleForms.length > 0) {
+                        const currentIndex = tokenCycleForms.indexOf(normalizedCurrentStem);
+                        if (currentIndex >= 0 && currentIndex < tokenCycleForms.length - 1) {
+                            stemInput.value = tokenCycleForms[currentIndex + 1];
+                        } else if (currentIndex === tokenCycleForms.length - 1) {
                             stemInput.value = "";
                         } else {
-                            stemInput.value = niCycleForms[0] || "";
+                            stemInput.value = tokenCycleForms[0] || "";
                         }
                     } else {
                         stemInput.value = isTokenActive ? "" : selectedStem;
@@ -12257,6 +12415,17 @@ function syncComposerValenceAvailability() {
     syncComposerChipGroupsFromState();
 }
 
+function getComposerSlotEmbedForRegex(slotKey = "", embedValue = "") {
+    const normalizedEmbed = normalizeComposerEmbedValue(embedValue || "");
+    if (!normalizedEmbed) {
+        return "";
+    }
+    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
+        return normalizedEmbed;
+    }
+    return COMPOSER_EMBED_OPEN_STATE[slotKey] ? normalizedEmbed : "";
+}
+
 function buildRegexFromComposerState(state) {
     const transitivity = (
         state.transitivity === COMPOSER_TRANSITIVITY.transitive
@@ -12265,11 +12434,11 @@ function buildRegexFromComposerState(state) {
         ? state.transitivity
         : COMPOSER_TRANSITIVITY.intransitive;
     const slotAStem = normalizeComposerStem(state.slotAStem || "");
-    const slotAEmbed = normalizeComposerEmbedValue(state.slotAEmbed || "");
+    const slotAEmbed = getComposerSlotEmbedForRegex("a", state.slotAEmbed || "");
     const slotBStem = normalizeComposerStem(state.slotBStem || "");
-    const slotBEmbed = normalizeComposerEmbedValue(state.slotBEmbed || "");
+    const slotBEmbed = getComposerSlotEmbedForRegex("b", state.slotBEmbed || "");
     const slotCStem = normalizeComposerStem(state.slotCStem || "");
-    const slotCEmbed = normalizeComposerEmbedValue(state.slotCEmbed || "");
+    const slotCEmbed = getComposerSlotEmbedForRegex("c", state.slotCEmbed || "");
     const valenceIntransitive = state.valenceIntransitive === "ta" ? "ta" : "";
     const valenceIntransitiveEmbed = normalizeComposerEmbedValue(state.valenceIntransitiveEmbed || "");
     const valence = normalizeComposerValenceToken(state.valence);
@@ -12873,6 +13042,7 @@ function renderVerbComposerFromState() {
     if (supportiveICheckbox) {
         supportiveICheckbox.checked = VERB_COMPOSER_STATE.supportiveI;
     }
+    syncComposerEmbedUiFromState();
     syncComposerActiveStemAndEmbedFromState();
     syncComposerSupportiveIAvailability();
     syncComposerValenceAvailability();
@@ -13173,6 +13343,11 @@ function setVerbInputMode(mode, options = {}) {
         syncComposerStateFromVerbInput(verbEl?.value || "");
     }
     renderVerbComposerFromState();
+    if (nextMode === VERB_INPUT_MODE.regex) {
+        updateVerbDisambiguation();
+    } else {
+        clearVerbDisambiguation();
+    }
 }
 
 function bindComposerStemTabNavigation(pairs = []) {
@@ -13218,6 +13393,9 @@ function bindComposerStemTabNavigation(pairs = []) {
         const targetSlot = slots[targetSlotKey] || null;
         let targetInput = null;
         if (inputRole === "embed") {
+            COMPOSER_EMBED_OPEN_STATE[targetSlotKey] = true;
+            COMPOSER_EMBED_PREVIEW_STATE[targetSlotKey] = false;
+            syncComposerEmbedSlotUi(targetSlotKey, targetSlot);
             targetInput = targetSlot?.embedInput || null;
         } else if (inputRole === "object") {
             targetInput = targetSlot?.objectInput || null;
@@ -13296,6 +13474,8 @@ function clearVerbComposerTextboxInputs() {
     }
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const stateKeys = getComposerSlotStateKeys(slotKey);
+        COMPOSER_EMBED_OPEN_STATE[slotKey] = false;
+        COMPOSER_EMBED_PREVIEW_STATE[slotKey] = false;
         VERB_COMPOSER_STATE[stateKeys.embed] = "";
         VERB_COMPOSER_STATE[stateKeys.stem] = "";
         VERB_COMPOSER_STATE[stateKeys.objectEmbed] = "";
@@ -13855,6 +14035,20 @@ function initVerbComposer() {
     slotStemInputs.forEach((stemInput) => {
         stemInput.addEventListener("input", () => onVerbComposerControlChange("matrix-stem"));
         stemInput.addEventListener("change", () => onVerbComposerControlChange("matrix-stem"));
+    });
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const slotRefs = slots[slotKey] || {};
+        const toggleButton = slotRefs.prefixToggleButton;
+        if (!toggleButton) {
+            return;
+        }
+        toggleButton.addEventListener("mouseenter", () => setComposerEmbedPreviewState(slotKey, true));
+        toggleButton.addEventListener("mouseleave", () => setComposerEmbedPreviewState(slotKey, false));
+        toggleButton.addEventListener("focus", () => setComposerEmbedPreviewState(slotKey, true));
+        toggleButton.addEventListener("blur", () => setComposerEmbedPreviewState(slotKey, false));
+        toggleButton.addEventListener("click", () => {
+            toggleComposerEmbedOpen(slotKey);
+        });
     });
     if (transitivitySlotButtons?.length) {
         transitivitySlotButtons.forEach((button) => {
@@ -14477,6 +14671,10 @@ function getVerbDisambiguationElements() {
     };
 }
 
+function isVerbDisambiguationEnabled() {
+    return !isVerbInputModeComposer();
+}
+
 function clearVerbDisambiguation() {
     VERB_DISAMBIGUATION_STATE.suggestions = [];
     VERB_DISAMBIGUATION_STATE.patterns = [];
@@ -14910,6 +15108,10 @@ function updateVerbDisambiguation(rawValue = null) {
     if (!wrapper || !options) {
         return;
     }
+    if (!isVerbDisambiguationEnabled()) {
+        clearVerbDisambiguation();
+        return;
+    }
     const verbInput = document.getElementById("verb");
     const value = rawValue !== null ? String(rawValue || "") : String(verbInput?.value || "");
     if (!value || isSearchModeInput(value)) {
@@ -15253,6 +15455,120 @@ function initUiScaleControl() {
         } catch {
             // Ignore storage failures.
         }
+    });
+}
+
+function normalizeUiDensityMode(mode = "") {
+    return mode === UI_DENSITY_MODE.advanced
+        ? UI_DENSITY_MODE.advanced
+        : UI_DENSITY_MODE.simple;
+}
+
+function getActiveUiDensityMode() {
+    if (document.body?.classList.contains("is-ui-advanced")) {
+        return UI_DENSITY_MODE.advanced;
+    }
+    return UI_DENSITY_MODE.simple;
+}
+
+function filterTenseOrderForUiDensity(tenses = [], mode = getActiveTenseMode()) {
+    const list = Array.isArray(tenses) ? tenses : [];
+    if (getActiveUiDensityMode() !== UI_DENSITY_MODE.simple) {
+        return list.slice();
+    }
+    if (mode !== TENSE_MODE.verbo) {
+        return list.slice();
+    }
+    return list.filter((tenseValue) => !UI_DENSITY_ADVANCED_TENSES.has(tenseValue));
+}
+
+function getUiDensityButtons() {
+    return Array.from(document.querySelectorAll("[data-ui-density]"));
+}
+
+function forceDirectDerivationForSimpleMode() {
+    if (getActiveDerivationType() === DERIVATION_TYPE.direct) {
+        return;
+    }
+    setActiveDerivationType(DERIVATION_TYPE.direct);
+    const select = document.getElementById("derivation-type");
+    if (select) {
+        select.value = DERIVATION_TYPE.direct;
+    }
+    updateDerivationTypeControl();
+    renderTenseTabs();
+    const verbMeta = getVerbInputMeta();
+    renderActiveConjugations({
+        verb: verbMeta.displayVerb,
+        objectPrefix: getCurrentObjectPrefix(),
+    });
+}
+
+function forceSimpleModeGrammarDefaults() {
+    const defaultTenseMode = TENSE_MODE.verbo;
+    if (getActiveTenseMode() !== defaultTenseMode) {
+        setActiveTenseMode(defaultTenseMode);
+    }
+    if (getCombinedMode() !== COMBINED_MODE.active) {
+        setCombinedMode(COMBINED_MODE.active);
+        updateCombinedModeTabs();
+    }
+    forceDirectDerivationForSimpleMode();
+    updateTenseModeTabs();
+    renderTenseTabs();
+    const verbMeta = getVerbInputMeta();
+    renderActiveConjugations({
+        verb: verbMeta.displayVerb,
+        objectPrefix: getCurrentObjectPrefix(),
+    });
+}
+
+function applyUiDensityMode(mode = "", { persist = true } = {}) {
+    const nextMode = normalizeUiDensityMode(mode);
+    const body = document.body;
+    if (body) {
+        body.classList.toggle("is-ui-simple", nextMode === UI_DENSITY_MODE.simple);
+        body.classList.toggle("is-ui-advanced", nextMode === UI_DENSITY_MODE.advanced);
+    }
+    const buttons = getUiDensityButtons();
+    buttons.forEach((button) => {
+        const buttonMode = normalizeUiDensityMode(button.getAttribute("data-ui-density") || "");
+        const isActive = buttonMode === nextMode;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+    });
+    if (nextMode === UI_DENSITY_MODE.simple) {
+        forceSimpleModeGrammarDefaults();
+    }
+    if (!persist) {
+        return;
+    }
+    try {
+        if (window.localStorage) {
+            localStorage.setItem(UI_DENSITY_STORAGE_KEY, nextMode);
+        }
+    } catch {
+        // Ignore storage failures.
+    }
+}
+
+function initUiDensityControl() {
+    const buttons = getUiDensityButtons();
+    let initialMode = UI_DENSITY_MODE.simple;
+    try {
+        const saved = window.localStorage ? localStorage.getItem(UI_DENSITY_STORAGE_KEY) : null;
+        if (saved) {
+            initialMode = normalizeUiDensityMode(saved);
+        }
+    } catch {
+        initialMode = UI_DENSITY_MODE.simple;
+    }
+    applyUiDensityMode(initialMode, { persist: false });
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const mode = button.getAttribute("data-ui-density") || "";
+            applyUiDensityMode(mode);
+        });
     });
 }
 
@@ -15638,7 +15954,8 @@ function renderTenseTabs() {
     const hasVerb = verb !== "" && VOWEL_RE.test(verb);
     renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithConsonant });
     const tenseMode = getActiveTenseMode();
-    const allowedTenses = getTenseOrderForMode(tenseMode);
+    const allowedTensesRaw = getTenseOrderForMode(tenseMode);
+    const allowedTenses = filterTenseOrderForUiDensity(allowedTensesRaw, tenseMode);
     const nounVisibleTenses = isNominalTenseMode(tenseMode)
         ? getNounTenseOrderForCombinedMode(getCombinedMode(), tenseMode)
         : [];
@@ -15986,8 +16303,10 @@ function renderTenseTabs() {
             if (PRETERITO_CLASS_TENSES.has(tenseValue) && wasActive && CLASS_FILTER_STATE.activeClass) {
                 CLASS_FILTER_STATE.activeClass = null;
             }
-            renderTenseTabs();
-            rerenderActiveConjugations(tenseValue);
+            preserveOutputPanelViewportPosition(() => {
+                renderTenseTabs();
+                rerenderActiveConjugations(tenseValue);
+            });
         });
         return button;
     };
@@ -16057,21 +16376,27 @@ function renderTenseTabs() {
             button.addEventListener("click", () => {
                 if (activeGroup === CONJUGATION_GROUPS.universal && tenseValue === activeUniversal) {
                     setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
-                    renderTenseTabs();
-                    rerenderActiveConjugations(selectedTense);
+                    preserveOutputPanelViewportPosition(() => {
+                        renderTenseTabs();
+                        rerenderActiveConjugations(selectedTense);
+                    });
                     return;
                 }
                 if (activeGroup === CONJUGATION_GROUPS.tense && isClassTenseSelected && classKey) {
                     CLASS_FILTER_STATE.activeClass =
                         CLASS_FILTER_STATE.activeClass === classKey ? null : classKey;
-                    renderTenseTabs();
-                    rerenderActiveConjugations(selectedTense);
+                    preserveOutputPanelViewportPosition(() => {
+                        renderTenseTabs();
+                        rerenderActiveConjugations(selectedTense);
+                    });
                     return;
                 }
                 setActiveConjugationGroup(CONJUGATION_GROUPS.universal);
                 setSelectedPretUniversalTab(tenseValue);
-                renderTenseTabs();
-                rerenderActiveConjugations();
+                preserveOutputPanelViewportPosition(() => {
+                    renderTenseTabs();
+                    rerenderActiveConjugations();
+                });
             });
             universalWrap.appendChild(button);
         });
@@ -17047,6 +17372,35 @@ function isThreeColumnPanelLayout() {
         && window.matchMedia("(min-width: 1025px)").matches;
 }
 
+function preserveOutputPanelViewportPosition(callback) {
+    if (typeof callback !== "function") {
+        return;
+    }
+    const outputPanel = document.getElementById("container-tense-grid");
+    if (
+        !outputPanel
+        || typeof window === "undefined"
+        || typeof window.scrollBy !== "function"
+    ) {
+        callback();
+        return;
+    }
+    const beforeTop = outputPanel.getBoundingClientRect().top;
+    callback();
+    const restore = () => {
+        const afterTop = outputPanel.getBoundingClientRect().top;
+        const delta = afterTop - beforeTop;
+        if (Number.isFinite(delta) && Math.abs(delta) > 0.5) {
+            window.scrollBy(0, delta);
+        }
+    };
+    if (typeof window.requestAnimationFrame === "function") {
+        window.requestAnimationFrame(restore);
+        return;
+    }
+    setTimeout(restore, 0);
+}
+
 const PANEL_STACK_ORDER = ["inputs", "tense", "output"];
 
 function normalizePanelStackMode(mode) {
@@ -17617,6 +17971,7 @@ function updateCalcSummary() {
     if (!summaryEl) {
         return;
     }
+    const isSimpleView = getActiveUiDensityMode() === UI_DENSITY_MODE.simple;
     const mode = getActiveTenseMode();
     const modeButton = document.querySelector(`[data-tense-mode="${mode}"]`);
     const modeLabel = modeButton?.textContent?.trim()
@@ -17632,8 +17987,12 @@ function updateCalcSummary() {
     const derivationLabel = mode === TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
     const transitivityLabel = getCalcTransitivityLabel();
     const tenseLabel = getCalcTenseLabel();
-    const parts = [modeLabel, voiceLabel, derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
-    summaryEl.textContent = parts.length ? parts.join(" · ") : "Selecciona derivación y tiempo";
+    const parts = isSimpleView
+        ? [transitivityLabel, tenseLabel].filter(Boolean)
+        : [modeLabel, voiceLabel, derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
+    summaryEl.textContent = parts.length
+        ? parts.join(" · ")
+        : (isSimpleView ? "Selecciona transitividad y tiempo" : "Selecciona derivación y tiempo");
 }
 
 function updateCalcStatus() {
@@ -23292,14 +23651,29 @@ function renderNounConjugations({
             applyTenseBlockComboPalette(entry.block, signature);
         });
     };
-    const subjectlessSelection = Object.freeze({
-        group: null,
-        selection: {
-            subjectPrefix: "",
-            subjectSuffix: "",
-        },
-        number: "",
-    });
+    const subjectlessSelection = (() => {
+        const thirdSingularSelection = getSubjectPersonSelections().find(({ group, selection, number }) => (
+            number === "singular"
+            && group?.id === "third"
+            && selection?.subjectPrefix === ""
+            && selection?.subjectSuffix === ""
+        ));
+        if (thirdSingularSelection) {
+            return Object.freeze({
+                group: thirdSingularSelection.group || null,
+                selection: Object.freeze({ ...thirdSingularSelection.selection }),
+                number: thirdSingularSelection.number || "",
+            });
+        }
+        return Object.freeze({
+            group: null,
+            selection: Object.freeze({
+                subjectPrefix: "",
+                subjectSuffix: "",
+            }),
+            number: "",
+        });
+    })();
     const TOGGLE_AVAILABILITY_CLASS_NAMES = [
         "object-toggle-button--viable",
         "object-toggle-button--masked",
@@ -23798,9 +24172,7 @@ function renderNounConjugations({
             targetList.appendChild(placeholder);
             return;
         }
-        const selections = isSubjectlessTense
-            ? [subjectlessSelection]
-            : getSubjectSelectionsForId(activeSubject);
+        const selections = getSubjectSelectionsForId(activeSubject);
         const objectSlotSelectionModels = buildNounObjectSlotModelsForState();
         const possessorSelections = getPossessorSelectionsForId(activePossessor);
         iterateNounObjectSlotSelections(objectSlotSelectionModels, (selectedBySlot) => {
@@ -23817,18 +24189,18 @@ function renderNounConjugations({
                     label.className = "conjugation-label";
                     const personLabel = document.createElement("div");
                     personLabel.className = "person-label";
-                    personLabel.textContent = isSubjectlessTense
-                        ? ""
-                        : getSubjectPersonLabel(group, selection, isNawat);
+                    personLabel.textContent = selection
+                        ? getSubjectPersonLabel(group, selection, isNawat)
+                        : "";
                     const personSub = document.createElement("div");
                     personSub.className = "person-sub";
-                    const basePersonSub = isSubjectlessTense
-                        ? ""
-                        : getSubjectSubLabel(selection, {
+                    const basePersonSub = selection
+                        ? getSubjectSubLabel(selection, {
                             isNawat,
                             mode: "noun",
                             tenseValue: resolvedTense,
-                        });
+                        })
+                        : "";
                     const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
                     const suppressZeroObjectLabel = isPotencialProfileTense(resolvedTense);
                     const objectLabel = objectMarkers.length
@@ -27670,6 +28042,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setBrowserClasses();
     initZoomFontLock();
     initUiScaleControl();
+    initUiDensityControl();
     initTutorialPanel();
     initLeftPanelStackTabs();
     initPanelEdgeNavigation();
