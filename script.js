@@ -95,6 +95,7 @@ const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "mu",
 ];
 const COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS = 450;
+const COMPOSER_SPACE_DOUBLE_READY_WINDOW_MS = 450;
 const COMPOSER_TRANSITIVITY_ORDER = [
     COMPOSER_TRANSITIVITY.intransitive,
     COMPOSER_TRANSITIVITY.transitive,
@@ -204,6 +205,7 @@ const COMPOSER_EMBED_PREVIEW_STATE = {
     c: false,
 };
 let LAST_COMPOSER_ESCAPE_TS = 0;
+let LAST_COMPOSER_SPACE_TS = 0;
 const VERB_SCREEN_ANS_STATE = {
     stem: "",
     regexBase: "",
@@ -940,28 +942,28 @@ function applyStaticSuppletives(data) {
     if (!data || typeof data !== "object") {
         return;
     }
-    if (Array.isArray(data.suppletiveYeForms)) {
-        SUPPLETIVE_YE_FORMS = new Set(data.suppletiveYeForms);
+    if (Array.isArray(data.suppletiveKatiForms)) {
+        SUPPLETIVE_KATI_FORMS = new Set(data.suppletiveKatiForms);
     }
-    if (typeof data.suppletiveYeImperfective === "string") {
-        SUPPLETIVE_YE_IMPERFECTIVE = data.suppletiveYeImperfective;
+    if (typeof data.suppletiveKatiImperfective === "string") {
+        SUPPLETIVE_KATI_IMPERFECTIVE = data.suppletiveKatiImperfective;
     }
-    if (typeof data.suppletiveYeClassA === "string") {
-        SUPPLETIVE_YE_CLASS_A = data.suppletiveYeClassA;
+    if (typeof data.suppletiveKatiClassA === "string") {
+        SUPPLETIVE_KATI_CLASS_A = data.suppletiveKatiClassA;
     }
-    if (typeof data.suppletiveYeClassD === "string") {
-        SUPPLETIVE_YE_CLASS_D = data.suppletiveYeClassD;
+    if (typeof data.suppletiveKatiClassD === "string") {
+        SUPPLETIVE_KATI_CLASS_D = data.suppletiveKatiClassD;
     }
-    if (data.suppletiveYeClassExclusions && typeof data.suppletiveYeClassExclusions === "object") {
-        SUPPLETIVE_YE_CLASS_EXCLUSIONS = Object.entries(data.suppletiveYeClassExclusions).reduce((acc, [tense, classes]) => {
+    if (data.suppletiveKatiClassExclusions && typeof data.suppletiveKatiClassExclusions === "object") {
+        SUPPLETIVE_KATI_CLASS_EXCLUSIONS = Object.entries(data.suppletiveKatiClassExclusions).reduce((acc, [tense, classes]) => {
             if (Array.isArray(classes) && classes.length) {
                 acc[tense] = new Set(classes);
             }
             return acc;
         }, {});
     }
-    if (typeof data.suppletiveYeNonactive === "string") {
-        SUPPLETIVE_YE_NONACTIVE = data.suppletiveYeNonactive;
+    if (typeof data.suppletiveKatiNonactive === "string") {
+        SUPPLETIVE_KATI_NONACTIVE = data.suppletiveKatiNonactive;
     }
     const yawiData = data.suppletiveYawi && typeof data.suppletiveYawi === "object"
         ? data.suppletiveYawi
@@ -1113,17 +1115,17 @@ function applyStaticSuppletivePaths(data) {
         return;
     }
     const valueLookup = {
-        suppletiveYeNonactive: () => SUPPLETIVE_YE_NONACTIVE,
+        suppletiveKatiNonactive: () => SUPPLETIVE_KATI_NONACTIVE,
         suppletiveWitziNonactive: () => SUPPLETIVE_WITZI_NONACTIVE,
         suppletiveWitziImperative: () => SUPPLETIVE_WITZI_IMPERATIVE,
     };
     const setLookup = {
-        suppletiveYeForms: () => SUPPLETIVE_YE_FORMS,
+        suppletiveKatiForms: () => SUPPLETIVE_KATI_FORMS,
         suppletiveYawiForms: () => SUPPLETIVE_YAWI_FORMS,
         suppletiveWitziForms: () => SUPPLETIVE_WITZI_FORMS,
     };
     const activeBuilders = {
-        suppletiveYe: buildSuppletiveYeStemSet,
+        suppletiveKati: buildSuppletiveKatiStemSet,
         suppletiveYawi: buildSuppletiveYawiStemSet,
         suppletiveWitzi: buildSuppletiveWitziStemSet,
     };
@@ -2078,6 +2080,17 @@ function getNonactiveDerivationSource(verbMeta, verb, analysisVerb) {
         return { baseVerb: resolvedBase, prefix: `${prefix}${impersonalPrefix}` };
     };
     if (verbMeta?.hasBoundMarker && Array.isArray(verbMeta.boundPrefixes) && verbMeta.boundPrefixes.length) {
+        const slashCompositeBase = getSlashMatrixCompositeRuleBase({
+            hasSlashMarker: verbMeta.hasSlashMarker === true,
+            hasBoundMarker: true,
+            hasImpersonalTaPrefix: verbMeta.hasImpersonalTaPrefix === true,
+            boundPrefixes: verbMeta.boundPrefixes,
+            analysisVerb: analysisVerb || verb || "",
+            sourceVerb: verb || analysisVerb || "",
+        });
+        if (slashCompositeBase) {
+            return applyImpersonalPrefix(slashCompositeBase, "");
+        }
         const prefixParts = [...verbMeta.boundPrefixes];
         if (
             verbMeta.directionalPrefix
@@ -2298,6 +2311,15 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     }
     const rootPlusYaBase = options.rootPlusYaBase || "";
     const isRootPlusYa = Boolean(rootPlusYaBase) && ruleBase.endsWith("ya");
+    const isSlashMatrixTiInput = Boolean(
+        options?.parsedVerb?.hasSlashMarker
+        && options?.parsedVerb?.hasBoundMarker
+        && normalizeRuleBase(options?.parsedVerb?.analysisVerb || "") === "ti"
+    );
+    const blockExpandedTiCausatives = isIntransitive
+        && ruleBase.endsWith("ti")
+        && !isSlashMatrixTiInput;
+    const allowTiUwaChtia = blockExpandedTiCausatives && ruleBase === "mati";
     const info = getNonactiveBaseInfo(ruleBase);
     const extractExampleBases = (examples) => (
         Array.isArray(examples)
@@ -2349,6 +2371,167 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return false;
         }
     };
+    const getStemLastVowel = (stemValue = "") => {
+        const letters = splitVerbLetters(stemValue);
+        for (let i = letters.length - 1; i >= 0; i -= 1) {
+            if (isVerbLetterVowel(letters[i])) {
+                return letters[i];
+            }
+        }
+        return "";
+    };
+    const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
+        const normalized = normalizeDerivationStemValue(baseStem);
+        if (!isIntransitive || !normalized) {
+            return null;
+        }
+        if (normalized.endsWith("wa")) {
+            return {
+                sourceClass: "final_wa",
+                stockFamily: "wa",
+                typeOneTarget: "wa",
+                typeTwoTarget: null,
+                chain: "wa > wa",
+            };
+        }
+        if (!normalized.endsWith("wi")) {
+            return null;
+        }
+        if (normalized === "ewi") {
+            return {
+                sourceClass: "exact_ewi",
+                stockFamily: "awi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "ewi > ewa",
+            };
+        }
+        if (normalized === "kwetawi") {
+            return {
+                sourceClass: "exact_kwetawi",
+                stockFamily: "awi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "kwetawi > kwetua",
+            };
+        }
+        if (normalized.endsWith("uwi")) {
+            return {
+                sourceClass: "final_uwi",
+                stockFamily: "awi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "uwi > ua",
+            };
+        }
+        const patternBase = getNonReduplicatedRoot(normalized) || normalized;
+        const patternLetters = splitVerbLetters(patternBase);
+        const hasDigraphInPattern = patternLetters.some((letter) => DIGRAPH_SET.has(letter));
+        if (hasDigraphInPattern) {
+            return {
+                sourceClass: "digraph_wi",
+                stockFamily: "wi",
+                typeOneTarget: null,
+                typeTwoTarget: "witia",
+                chain: "digraph > witia",
+            };
+        }
+        const isVjC = matchesWiStockPattern("VjC-a-wi", patternLetters)
+            || matchesWiStockPattern("VjC-i-wi", patternLetters);
+        if (isVjC) {
+            return {
+                sourceClass: "vjc",
+                stockFamily: "awi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "VjC > ua",
+            };
+        }
+        const wiRoot = (normalized.endsWith("awi") || normalized.endsWith("iwi"))
+            ? normalized.slice(0, -3)
+            : normalized.slice(0, -2);
+        const wiRootLetters = splitVerbLetters(wiRoot);
+        const wiRootFinal = wiRootLetters[wiRootLetters.length - 1] || "";
+        if (wiRootFinal === "t") {
+            return {
+                sourceClass: "final_t",
+                stockFamily: "awi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "t > awi > awa",
+            };
+        }
+        if (wiRootFinal === "l") {
+            return {
+                sourceClass: "final_l",
+                stockFamily: "iwi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "l > iwi > ua",
+            };
+        }
+        if (wiRootFinal === "y") {
+            return {
+                sourceClass: "final_y",
+                stockFamily: "awi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "y > awi > awa",
+            };
+        }
+        const wiRootLastVowel = getStemLastVowel(wiRoot);
+        if (wiRootLastVowel === "i" || wiRootLastVowel === "u") {
+            return {
+                sourceClass: "vowel_iu",
+                stockFamily: "awi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "i/u > awi > ua",
+            };
+        }
+        if (wiRootLastVowel === "a" || wiRootLastVowel === "e") {
+            return {
+                sourceClass: "vowel_ae",
+                stockFamily: "iwi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "a/e > iwi > ua",
+            };
+        }
+        return {
+            sourceClass: "default",
+            stockFamily: "wi",
+            typeOneTarget: null,
+            typeTwoTarget: "witia",
+            chain: "wi > witia",
+        };
+    };
+    const buildIntransitiveWiWaTypeOneStem = (baseStem = "", typeOneTarget = null) => {
+        if (!baseStem || !typeOneTarget) {
+            return "";
+        }
+        if (typeOneTarget === "wa") {
+            if (baseStem.endsWith("wa")) {
+                return baseStem;
+            }
+            if (baseStem.endsWith("wi")) {
+                return `${baseStem.slice(0, -1)}a`;
+            }
+            return "";
+        }
+        if (typeOneTarget === "ua") {
+            if (baseStem.endsWith("awi") || baseStem.endsWith("iwi") || baseStem.endsWith("uwi")) {
+                return `${baseStem.slice(0, -3)}ua`;
+            }
+            if (baseStem.endsWith("wi")) {
+                return `${baseStem.slice(0, -2)}ua`;
+            }
+            return "";
+        }
+        return "";
+    };
+    const wiWaPolicy = resolveIntransitiveWiWaPolicy(ruleBase);
+    const hasIntransitiveWiWaPolicy = Boolean(wiWaPolicy);
     const adjustTypeTwoStem = (stem, suffix) => {
         if (!stem || !suffix) {
             return stem;
@@ -2358,36 +2541,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return stem;
     };
-    const getUwiRootProfile = () => {
-        const resolveFromBase = (base) => {
-            if (!base) {
-                return null;
-            }
-            const normalized = normalizeDerivationStemValue(base);
-            if (!normalized || !normalized.endsWith("uwi")) {
-                return null;
-            }
-            const nonRedup = getNonReduplicatedRoot(normalized) || normalized;
-            if (!nonRedup.endsWith("uwi") || nonRedup.length <= 3) {
-                return null;
-            }
-            const root = nonRedup.slice(0, -3);
-            const letters = splitVerbLetters(root);
-            const rootVowel = letters.find((letter) => isVerbLetterVowel(letter)) || "";
-            const isVccShape = letters.length === 3
-                && isVerbLetterVowel(letters[0])
-                && isVerbLetterConsonant(letters[1])
-                && isVerbLetterConsonant(letters[2]);
-            // Monosyllabic Cuwi stems (e.g., puwi/suwi/kuwi) have no vowel left in `root`,
-            // but their effective root-vowel class for this split is /u/.
-            return {
-                vowel: rootVowel || "u",
-                isVccShape,
-            };
-        };
-        return resolveFromBase(ruleBase) || resolveFromBase(fullRuleBase);
-    };
-
     const replacementOnly = Array.isArray(rules?.intransitiveEndsWithI?.replacementOnly)
         ? rules.intransitiveEndsWithI.replacementOnly
         : [];
@@ -2404,8 +2557,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         ruleBase,
         fullRuleBase
     );
+    const allowReplacementOnlyReplaceFinalI = replacementOnlyMatch
+        && info.endsWithI
+        && ruleBase.endsWith("i");
     if (replacementOnlyMatch) {
         isIntransitive = true;
+    }
+    if (allowReplacementOnlyReplaceFinalI) {
+        push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "replacement-only-final-i" });
     }
     const additionRules = rules?.intransitiveEndsWithI?.addition || {};
     const allowVerbs = Array.isArray(additionRules.allowVerbs)
@@ -2421,63 +2580,35 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     )
         || allowSuffixes.some((suffix) => suffix && ruleBase.endsWith(suffix))
         || (fullRuleBase && allowSuffixes.some((suffix) => suffix && fullRuleBase.endsWith(suffix)));
-    const hasExplicitILists = replacementOnly.length > 0 || allowVerbs.length > 0 || allowSuffixes.length > 0;
-    const allowExplicitI = replacementOnlyMatch || matchesAddition;
-    const wiStockFormativeRules = rules?.destockal?.wiStockFormative || null;
-    const wiStockBlockVerbs = wiStockFormativeRules && Array.isArray(wiStockFormativeRules.blockVerbs)
-        ? wiStockFormativeRules.blockVerbs
-        : [];
-    const wiStockBlockMatch = matchesDerivationRuleBaseList(
-        wiStockBlockVerbs,
-        ruleBase,
-        fullRuleBase
-    );
-    let wiStockSuppressA = (() => {
-        if (!wiStockFormativeRules || !isIntransitive) {
-            return false;
+    if (hasIntransitiveWiWaPolicy && wiWaPolicy.typeOneTarget) {
+        const policyStem = buildIntransitiveWiWaTypeOneStem(ruleBase, wiWaPolicy.typeOneTarget);
+        if (policyStem) {
+            push(policyStem, {
+                type: "type-one",
+                rule: `wi-policy-${wiWaPolicy.sourceClass}`,
+                wiPolicy: wiWaPolicy.chain,
+            });
         }
-        if (!(ruleBase.endsWith("iwi") || ruleBase.endsWith("awi"))) {
-            return false;
-        }
-        if (wiStockBlockMatch) {
-            return false;
-        }
-        return true;
-    })();
-    if (replacementOnlyMatch) {
-        wiStockSuppressA = false;
     }
-    const uwiProfile = getUwiRootProfile();
-    const uwiRootVowel = uwiProfile?.vowel || "";
-    const isUwiStem = ruleBase.endsWith("uwi");
-    const forceUwiUaByShape = isUwiStem && uwiProfile?.isVccShape === true;
-    const preferUwiUa = isUwiStem && (forceUwiUaByShape || uwiRootVowel === "a" || uwiRootVowel === "i");
-    const preferUwiUwa = isUwiStem && !forceUwiUaByShape && (uwiRootVowel === "e" || uwiRootVowel === "u");
-    const allowUwiDropFinalI = !isUwiStem || !preferUwiUa;
-    const allowUwiDestockalUa = isUwiStem && (preferUwiUa || !preferUwiUwa);
-    const allowDropFinalIByList = (replacementOnly.length === 0 || replacementOnlyMatch || wiStockBlockMatch)
-        || preferUwiUwa;
 
-    if (isIntransitive && info.endsWithI && !blockTypeOneMatch) {
+    if (
+        isIntransitive
+        && info.endsWithI
+        && !blockTypeOneMatch
+        && !(hasIntransitiveWiWaPolicy && info.endsWithWi)
+    ) {
         const dropped = ruleBase.slice(0, -1);
-        if (
-            allowUwiDropFinalI
-            && !wiStockSuppressA
-            && allowDropFinalIByList
-        ) {
-            push(`${dropped}a`, { type: "type-one", rule: "drop-final-i" });
-        }
-    const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
-        ? rules.intransitiveEndsWithI.replaceFinalConsonant
-        : [];
-    const replaceFinalBases = replaceFinalRules.flatMap((entry) => (
-        Array.isArray(entry?.verbs) ? entry.verbs : extractExampleBases(entry?.examples)
-    ));
-    const matchesReplaceFinal = matchesDerivationRuleBaseList(
-        replaceFinalBases,
-        ruleBase,
-        fullRuleBase
-    );
+        const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
+            ? rules.intransitiveEndsWithI.replaceFinalConsonant
+            : [];
+        const replaceFinalBases = replaceFinalRules.flatMap((entry) => (
+            Array.isArray(entry?.verbs) ? entry.verbs : extractExampleBases(entry?.examples)
+        ));
+        const matchesReplaceFinal = matchesDerivationRuleBaseList(
+            replaceFinalBases,
+            ruleBase,
+            fullRuleBase
+        );
         replaceFinalRules.forEach((entry) => {
             if (!entry || entry.from !== "k" || entry.to !== "tz") {
                 return;
@@ -2492,7 +2623,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         const allowAddition = (allowVerbs.length || allowSuffixes.length)
             ? matchesAddition
             : (ruleBase.endsWith("ki") || info.endsWithConsonantCluster);
-        if (!wiStockSuppressA && allowAddition) {
+        if (allowAddition && !blockExpandedTiCausatives) {
             push(`${ruleBase}a`, { type: "type-one", rule: "addition" });
         }
     }
@@ -2502,7 +2633,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         : [];
     const allowReplaceFinalA = replacementOnlyA.length === 0
         || matchesDerivationRuleBaseList(replacementOnlyA, ruleBase, fullRuleBase);
-    if (isIntransitive && info.endsWithA) {
+    if (isIntransitive && info.endsWithA && !(hasIntransitiveWiWaPolicy && ruleBase.endsWith("wa"))) {
         if (isRootPlusYa && rootPlusYaBase) {
             const rootPlusYaRules = rules?.intransitiveEndsWithA?.rootPlusYa || {};
             const allowVerbs = Array.isArray(rootPlusYaRules.allowVerbs)
@@ -2548,46 +2679,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 replaceFinalI: () => (ruleBase.endsWith("i") ? `${ruleBase.slice(0, -1)}a` : ""),
             });
         }
-        if (!blockTypeOneMatch && ruleBase.endsWith("wi") && destockal.wi) {
-            const suppressDestockalWi = wiStockSuppressA || ruleBase.endsWith("uwi");
-            if (!suppressDestockalWi && (!hasExplicitILists || allowExplicitI)) {
-                const order = Array.isArray(destockal.wi.prefer)
-                    ? destockal.wi.prefer
-                    : ["replaceFinalI", "addSuffix"];
-                addWithOrder(order, {
-                    addSuffix: () => `${ruleBase}a`,
-                    // Treat -kwi as distinct from a true -wi stem-formative; don't apply I->A replacement there.
-                    replaceFinalI: () => (
-                        ruleBase.endsWith("i") && !info.endsWithKwi
-                            ? `${ruleBase.slice(0, -1)}a`
-                            : ""
-                    ),
-                });
-            }
-        }
-        if (ruleBase.endsWith("wa") && destockal.wa) {
-            push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "destockal-wa" });
-        }
-        if (destockal.wiStockFormative) {
-            if (!(replacementOnlyMatch && ruleBase.endsWith("wi"))) {
-                const wiRules = destockal.wiStockFormative || {};
-                const blockVerbs = Array.isArray(wiRules.blockVerbs) ? wiRules.blockVerbs : [];
-                const allowPatterns = Array.isArray(wiRules.allowPatterns) ? wiRules.allowPatterns : [];
-                const blocked = matchesDerivationRuleBaseList(blockVerbs, ruleBase, fullRuleBase);
-                const patternBase = getNonReduplicatedRoot(ruleBase) || ruleBase;
-                const letters = splitVerbLetters(patternBase);
-                const matchesPattern = allowPatterns.length === 0
-                    || allowPatterns.some((pattern) => matchesWiStockPattern(pattern, letters));
-                if (!blocked && matchesPattern && (ruleBase.endsWith("iwi") || ruleBase.endsWith("awi"))) {
-                    push(`${ruleBase.slice(0, -3)}ua`, { type: "type-one", rule: "destockal-wi-ia" });
-                }
-            }
-        }
-        if (destockal.wiStockFormativeU) {
-            if (allowUwiDestockalUa && !wiStockBlockMatch) {
-                push(`${ruleBase.slice(0, -2)}a`, { type: "type-one", rule: "destockal-wi-u" });
-            }
-        }
     }
 
     const typeTwo = rules.typeTwo || {};
@@ -2605,7 +2696,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     const blockUwaTypeTwo = matchesTypeTwoList(uwaBlockList);
     if (allowTypeTwo) {
         const deleteSuffixes = new Set(Array.isArray(typeTwo.deleteSuffixes) ? typeTwo.deleteSuffixes : []);
+        const shortStemDeleteSuffixes = new Set(
+            Array.from(deleteSuffixes).filter((suffix) => suffix !== "wa")
+        );
         const typeTwoSuffix = typeof typeTwo.suffix === "string" ? typeTwo.suffix : "tia";
+        if (wiWaPolicy?.typeTwoTarget === "witia" && ruleBase.endsWith("wi")) {
+            push(`${ruleBase}tia`, { type: "type-two", rule: "wi-direct-tia" });
+        }
         const nonactiveOptions = getNonactiveDerivationOptions(ruleBase, ruleBase, {
             isTransitive,
             isYawi: options.isYawi === true,
@@ -2645,6 +2742,38 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 blockOnsetReplacement,
             }));
             addSynthesized("lu", () => `${ruleBase}lu`);
+        }
+        const hasTransitiveCodaS = isTransitive && info.endsWithSi;
+        if (hasTransitiveCodaS && !typeTwoOptions.some((option) => option.suffix === "uwa")) {
+            const uwaStem = buildNonactiveUwaStem(ruleBase, info.lastOnset, info.lastNucleus, {
+                blockCh: info.penultimateHasCoda || (info.endsWithTi && info.preTiConsonant),
+                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase),
+            });
+            if (uwaStem) {
+                typeTwoOptions.push({ suffix: "uwa", stem: uwaStem });
+            }
+        }
+        if (isTransitive && info.endsWithWi && allowedSuffixes.includes("u")
+            && !typeTwoOptions.some((option) => option.suffix === "u")) {
+            const uStem = buildNonactiveUStem(ruleBase, info.lastOnset, info.lastNucleus, {
+                blockCh: info.penultimateHasCoda || (info.endsWithTi && info.preTiConsonant),
+                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase),
+            });
+            if (uStem) {
+                typeTwoOptions.push({ suffix: "u", stem: uStem });
+            }
+        }
+        const allowTransitiveChiwaUBase = isTransitive
+            && matchesDerivationRuleBaseList(["chiwa"], ruleBase, fullRuleBase);
+        if (allowTransitiveChiwaUBase && allowedSuffixes.includes("u")
+            && !typeTwoOptions.some((option) => option.suffix === "u")) {
+            const uStem = buildNonactiveUStem(ruleBase, info.lastOnset, info.lastNucleus, {
+                blockCh: info.penultimateHasCoda || (info.endsWithTi && info.preTiConsonant),
+                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase),
+            });
+            if (uStem) {
+                typeTwoOptions.push({ suffix: "u", stem: uStem });
+            }
         }
         const endsWithCluster = (stem) => {
             if (!stem) {
@@ -2688,6 +2817,35 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 typeTwoOptions.push({ suffix: "uwa", stem: uwaStem });
             }
         }
+        const sourceSyllableCount = info.nonRedupSyllableCount || info.syllableCount || 0;
+        const isIntransitiveMonosyllable = isIntransitive && sourceSyllableCount <= 1;
+        const allowIntransitiveMonosyllableUwaTypeTwo = isIntransitiveMonosyllable
+            && typeTwoOptions.some((option) => option.suffix === "uwa");
+        const shouldUseSupportiveITypeTwo = (optionSuffix, baseStem, currentSuffix) => {
+            if (currentSuffix !== typeTwoSuffix) {
+                return false;
+            }
+            if (allowIntransitiveMonosyllableUwaTypeTwo && optionSuffix === "uwa") {
+                return true;
+            }
+            if (!["u", "uwa"].includes(optionSuffix)) {
+                return false;
+            }
+            const clusterStem = getClusterBaseStem(baseStem);
+            return endsWithCluster(clusterStem);
+        };
+        const preferIntransitiveBisyllableUwa = (
+            isIntransitive
+            && sourceSyllableCount === 2
+            && !blockUwaTypeTwo
+            && allowedSuffixes.includes("uwa")
+            && typeTwoOptions.some((option) => option.suffix === "uwa")
+        );
+        const preferTransitiveCodaSUwaBase = hasTransitiveCodaS
+            && typeTwoOptions.some((option) => option.suffix === "uwa");
+        const preferTransitiveWiUBase = isTransitive
+            && info.endsWithWi
+            && typeTwoOptions.some((option) => option.suffix === "u");
 
         if (isIntransitive && info.endsWithU && hasNonactiveSuffix("wa")) {
             const uRules = rules.intransitiveEndsWithU?.nonactiveWa?.typeTwo || {};
@@ -2710,6 +2868,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
 
         typeTwoOptions.forEach((option) => {
             if (!allowedSuffixes.includes(option.suffix)) {
+                return;
+            }
+            if (
+                isIntransitiveMonosyllable
+                && shortStemDeleteSuffixes.has(option.suffix)
+                && !(allowIntransitiveMonosyllableUwaTypeTwo && option.suffix === "uwa")
+            ) {
+                // For short stems, only paths that remove base material (u/uwa) are blocked.
                 return;
             }
             if (isRootPlusYa && option.suffix === "lu" && option.stem === `${ruleBase}lu`) {
@@ -2740,6 +2906,20 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (isIntransitive && option.suffix === "wa" && info.lastOnset === "k" && hasNonactiveSuffix("uwa")) {
                 // For intransitives with last onset k (and an available -uwa nonactive),
                 // only accept the -uwa-based type-two causative (drop -uwa + tia), not the -wa-based one.
+                return;
+            }
+            if (isIntransitive && option.suffix === "lu" && info.lastOnset === "s" && hasNonactiveSuffix("uwa")) {
+                // For intransitives with final onset s, prefer only the -uwa-based type-two causative.
+                return;
+            }
+            if (preferTransitiveCodaSUwaBase && ["lu", "u"].includes(option.suffix)) {
+                // For transitive stems ending in -si (s-coda class), prefer only the -uwa-based type-two causative.
+                return;
+            }
+            if (blockExpandedTiCausatives && option.suffix === "lu") {
+                return;
+            }
+            if (blockExpandedTiCausatives && option.suffix === "uwa" && !allowTiUwaChtia) {
                 return;
             }
             if (isIntransitive && info.endsWithTi && option.suffix === "wa") {
@@ -2788,36 +2968,60 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             if (isIntransitive && option.suffix === "lu" && info.endsWithTi) {
                 suffix = "ia";
             }
-            if (["u", "uwa"].includes(option.suffix) && suffix === typeTwoSuffix) {
-                const clusterStem = getClusterBaseStem(baseStem);
-                if (endsWithCluster(clusterStem)) {
-                    suffix = `i${suffix}`;
-                }
+            if (shouldUseSupportiveITypeTwo(option.suffix, baseStem, suffix)) {
+                suffix = `i${suffix}`;
             }
             if (option.suffix === "uwa" && suffix.endsWith(typeTwoSuffix) && info.lastOnset === "w") {
                 suffix = `w${suffix}`;
             }
         if (option.suffix === "lu" && isRootPlusYa && rootPlusYaBase) {
             const rootStem = `${rootPlusYaBase}l`;
-            push(`${rootStem}ia`, { type: "type-two", rule: "root-plus-ya-lia" });
+            push(`${rootStem}ia`, {
+                type: "type-two",
+                rule: "root-plus-ya-lia",
+                skipSourcePrefixIfPresent: true,
+            });
         }
             if (option.suffix === "lu" && rootPlusYaBase && (rootPlusYaBase.endsWith("ti") || rootPlusYaBase.endsWith("wi"))) {
                 const rootStem = `${rootPlusYaBase}l`;
-                push(`${rootStem}ia`, { type: "type-two", rule: "root-plus-ya-tiwi-lia" });
+                push(`${rootStem}ia`, {
+                    type: "type-two",
+                    rule: "root-plus-ya-tiwi-lia",
+                    skipSourcePrefixIfPresent: true,
+                });
             }
             if (baseStem) {
                 const adjusted = adjustTypeTwoStem(baseStem, suffix);
                 const preferUwaSh = option.suffix === "uwa"
                     && info.lastOnset === "s"
                     && option.stem.includes("sh");
+                const preferUwaFromTransitiveCodaS = option.suffix === "uwa" && preferTransitiveCodaSUwaBase;
+                const preferIntransitiveBisyllableUwaBase = preferIntransitiveBisyllableUwa
+                    && option.suffix === "uwa";
+                const preferIntransitiveMonosyllableUwa = allowIntransitiveMonosyllableUwaTypeTwo
+                    && option.suffix === "uwa";
+                const preferTransitiveWiU = option.suffix === "u" && preferTransitiveWiUBase;
+                const preferVowelMonosyllableLu = isIntransitive
+                    && info.isVowelMonosyllable
+                    && option.suffix === "lu";
+                const skipSourcePrefixIfPresent = Boolean(
+                    isRootPlusYa
+                    && rootPlusYaBase
+                    && adjusted.startsWith(rootPlusYaBase)
+                );
                 push(`${adjusted}${suffix}`, {
                     type: "type-two",
                     rule: `nonactive-${option.suffix}`,
-                    preferred: preferUwaSh,
+                    preferred: preferUwaSh
+                        || preferUwaFromTransitiveCodaS
+                        || preferIntransitiveBisyllableUwaBase
+                        || preferIntransitiveMonosyllableUwa
+                        || preferTransitiveWiU
+                        || preferVowelMonosyllableLu,
+                    skipSourcePrefixIfPresent,
                 });
             }
         });
-
         if (isIntransitive && info.endsWithU && hasNonactiveSuffix("lu")) {
             const luOption = nonactiveOptions.find((option) => option.suffix === "lu");
             if (luOption && luOption.stem.endsWith("lu")) {
@@ -2875,6 +3079,7 @@ function applyCausativeDerivation({
     let allowTypeTwoIntransitiveNiUwa = false;
     let allowTypeTwoIntransitiveU = false;
     let allowTypeTwoIntransitiveUwa = false;
+    let allowTypeTwoIntransitiveLu = false;
     if (ruleBaseForGate) {
         const gateBase = getNonReduplicatedRoot(ruleBaseForGate) || ruleBaseForGate;
         const typeTwoGate = DERIVATIONAL_RULES?.causative?.typeTwo?.allowTypeTwoForIntransitives || {};
@@ -2938,19 +3143,23 @@ function applyCausativeDerivation({
             }
         }
         if (!parsedVerb.isMarkedTransitive) {
+            const nonactiveOptions = getNonactiveDerivationOptions(
+                gateBase,
+                gateBase,
+                {
+                    isTransitive: false,
+                    ruleBase: gateBase,
+                    rootPlusYaBase: parsedVerb.rootPlusYaBase,
+                }
+            );
+            const gateSyllableCount = gateInfo.nonRedupSyllableCount || gateInfo.syllableCount || 0;
+            if (gateSyllableCount <= 1) {
+                allowTypeTwoIntransitiveLu = nonactiveOptions.some((option) => option.suffix === "lu");
+            }
             const allowSuffixes = Array.isArray(typeTwoGate.allowWhenHasNonactiveSuffixes)
                 ? typeTwoGate.allowWhenHasNonactiveSuffixes.filter(Boolean)
                 : [];
             if (allowSuffixes.length) {
-                const nonactiveOptions = getNonactiveDerivationOptions(
-                    gateBase,
-                    gateBase,
-                    {
-                        isTransitive: false,
-                        ruleBase: gateBase,
-                        rootPlusYaBase: parsedVerb.rootPlusYaBase,
-                    }
-                );
                 allowTypeTwoIntransitiveUwa = nonactiveOptions.some((option) => allowSuffixes.includes(option.suffix));
             }
         }
@@ -3003,7 +3212,8 @@ function applyCausativeDerivation({
             || allowTypeTwoIntransitiveA
             || allowTypeTwoIntransitiveNiUwa
             || allowTypeTwoIntransitiveU
-            || allowTypeTwoIntransitiveUwa,
+            || allowTypeTwoIntransitiveUwa
+            || allowTypeTwoIntransitiveLu,
         hasLeadingDash: parsedVerb.hasLeadingDash === true,
         parsedVerb,
     });
@@ -3174,7 +3384,7 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
     const matchesUaLia = matchesDerivationRuleBaseList(uaLia, ruleBase, fullRuleBase);
     if (
         info.isClassC
-        && (ruleBase.endsWith("ia") || ruleBase.endsWith("ua"))
+        && ruleBase.endsWith("ua")
     ) {
         const syllables = splitVerbSyllables(ruleBase);
         let lastCoda = "";
@@ -3277,43 +3487,24 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         rootPlusYaBase,
     });
     let luOptions = nonactiveOptions.filter((option) => option.suffix === "lu" && option.stem);
+    const uwaOptions = nonactiveOptions.filter((option) => option.suffix === "uwa" && option.stem);
     if (isRootPlusYa) {
         const retainedYaStem = `${ruleBase}lu`;
         luOptions = luOptions.filter((option) => option.stem !== retainedYaStem);
     }
-    if (isIntransitive && info.endsWithU) {
-        const uRules = DERIVATIONAL_RULES?.causative?.intransitiveEndsWithU || {};
-        const waRules = uRules?.nonactiveWa?.typeTwo || {};
-        const additionBases = Array.isArray(waRules?.addition?.verbs)
-            ? waRules.addition.verbs
-            : extractExampleBases(waRules?.addition?.examples);
-        const replacementBases = Array.isArray(waRules?.replacement?.verbs)
-            ? waRules.replacement.verbs
-            : extractExampleBases(waRules?.replacement?.examples);
-        const matchBase = (baseList) => matchesDerivationRuleBaseList(baseList, ruleBase, fullRuleBase);
-        const hasNonactiveWa = nonactiveOptions.some((option) => option.suffix === "wa");
-        if (hasNonactiveWa) {
-            const useAddition = additionBases.length ? matchBase(additionBases) : true;
-            const useReplacement = replacementBases.length ? matchBase(replacementBases) : true;
-            if (useAddition) {
-                push(`${ruleBase}wia`, { type: "type-two", rule: "u-wa-wia" });
+    const sourceSyllableCount = info.nonRedupSyllableCount || info.syllableCount || 0;
+    const allowIntransitiveShortUwaApplicative = isIntransitive
+        && sourceSyllableCount <= 2;
+    if (allowIntransitiveShortUwaApplicative && uwaOptions.length) {
+        uwaOptions.forEach((option) => {
+            let baseStem = option.stem;
+            if (baseStem.endsWith("uwa")) {
+                baseStem = baseStem.slice(0, -3);
             }
-            if (useReplacement) {
-                push(`${ruleBase.slice(0, -1)}awia`, { type: "type-two", rule: "u-wa-wia-replace" });
+            if (baseStem) {
+                push(`${baseStem}ilia`, { type: "type-two", rule: "nonactive-uwa-ilia", preferred: true });
             }
-        }
-        if (luOptions.length) {
-            luOptions.forEach((option) => {
-                let baseStem = option.stem;
-                if (baseStem.endsWith("lu")) {
-                    baseStem = baseStem.slice(0, -1);
-                }
-                if (baseStem) {
-                    push(`${baseStem}tia`, { type: "type-two", rule: "u-lu-tia" });
-                }
-            });
-        }
-        return results;
+        });
     }
     if (!luOptions.length && isIntransitive && info.endsWithNucleusI) {
         luOptions = [{ suffix: "lu", stem: `${ruleBase}lu` }];
@@ -4824,6 +5015,7 @@ function getNonactiveBaseInfo(ruleBase) {
     const prev2 = letters[letterCount - 3] || "";
     const prevVowel = getPreviousVowel(letters, letterCount - 3);
     const endsWithA = last === "a";
+    const endsWithE = last === "e";
     const endsWithI = last === "i";
     const endsWithU = last === "u";
     const endsWithYa = ruleBase.endsWith("ya");
@@ -4870,6 +5062,7 @@ function getNonactiveBaseInfo(ruleBase) {
         prev2,
         prevVowel,
         endsWithA,
+        endsWithE,
         endsWithI,
         endsWithU,
         endsWithYa,
@@ -5029,7 +5222,13 @@ function buildDerivedStemSelection({
     fallbackStem = "",
 }) {
     const stemEntries = (Array.isArray(options) ? options : []).map((option) => {
-        const baseStem = prefix ? `${prefix}${option.stem}` : option.stem;
+        const stemValue = option?.stem || "";
+        const skipSourcePrefix = Boolean(
+            prefix
+            && option?.skipSourcePrefixIfPresent
+            && stemValue.startsWith(prefix)
+        );
+        const baseStem = prefix && !skipSourcePrefix ? `${prefix}${stemValue}` : stemValue;
         const surfaceStem = applyEmbeddedPrefixToStem(baseStem, embeddedPrefix, directionalPrefix);
         return {
             baseStem,
@@ -5984,6 +6183,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         last,
         prev,
         endsWithA,
+        endsWithE,
         endsWithU,
         endsWithYa,
         endsWithTa,
@@ -6003,6 +6203,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         endsWithNucleusI,
         endsWithNucleusA,
         endsWithNucleusU,
+        isVowelMonosyllable,
         syllableCount,
     } = info;
     const isTransitive = options.isTransitive === true;
@@ -6072,8 +6273,10 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     const allowLuVariantTransitiveA = isTransitive && endsWithA;
     const allowLuVariantIntransA = !isTransitive && endsWithA;
     const allowLuVariantIntransU = !isTransitive && endsWithU;
-    const allowLuVariantIntransI = !isTransitive && lastOnset === "t" && endsWithNucleusI;
-    const luCandidate = (endsWithA || endsWithU || allowLuVariantIntransI)
+    const allowLuVariantIntransI = !isTransitive
+        && endsWithNucleusI
+        && (lastOnset === "t" || isVowelMonosyllable);
+    const luCandidate = (endsWithA || endsWithE || endsWithU || allowLuVariantIntransI)
         && !(endsWithA && lastOnset === "s" && penultimateHasCoda)
         && (!uCandidate
             || allowLuVariantTzV
@@ -9126,6 +9329,45 @@ function getExactBaseVerbFromCleaned(cleaned) {
     return lastSegment.replace(markerRe, "");
 }
 
+const SLASH_MATRIX_FUSED_RULEBASES = new Set(["ti"]);
+
+function getLexicalBoundPrefixes(boundPrefixes = []) {
+    return (Array.isArray(boundPrefixes) ? boundPrefixes : [])
+        .map((prefix) => getBracketDirectionalPrefixToken(String(prefix || "")) || String(prefix || ""))
+        .map((prefix) => normalizeRuleBase(prefix))
+        .filter((prefix) => (
+            prefix
+            && !isDirectionalPrefixToken(prefix)
+            && !SPECIFIC_VALENCE_PREFIX_SET.has(prefix)
+            && !NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix)
+            && !OBJECT_MARKERS.has(prefix)
+            && !FUSION_PREFIXES.has(prefix)
+            && prefix !== "k"
+        ));
+}
+
+function getSlashMatrixCompositeRuleBase({
+    hasSlashMarker = false,
+    hasBoundMarker = false,
+    hasImpersonalTaPrefix = false,
+    boundPrefixes = [],
+    analysisVerb = "",
+    sourceVerb = "",
+} = {}) {
+    if (!hasSlashMarker || !hasBoundMarker || hasImpersonalTaPrefix) {
+        return "";
+    }
+    const matrixBase = normalizeRuleBase(analysisVerb || sourceVerb || "");
+    if (!SLASH_MATRIX_FUSED_RULEBASES.has(matrixBase)) {
+        return "";
+    }
+    const lexicalBoundPrefixes = getLexicalBoundPrefixes(boundPrefixes);
+    if (!lexicalBoundPrefixes.length) {
+        return "";
+    }
+    return `${lexicalBoundPrefixes.join("")}${matrixBase}`;
+}
+
 function getValenceCategoryFromToken(token) {
     if (!token) {
         return "specific";
@@ -9876,11 +10118,28 @@ function parseStageRootPlusYa(state) {
     }
     const sourceVerb = state.exactBaseVerb || getDerivationRuleBase(analysisVerb, state);
     const rootPlusYaSource = state.hasImpersonalTaPrefix ? (state.verb || sourceVerb) : sourceVerb;
-    const rootPlusYaBase = getRootPlusYaBase(rootPlusYaSource, {
+    const rootPlusYaOptions = {
         isTransitive: state.isMarkedTransitive === true,
         isYawi: state.isYawi === true,
         isWeya: state.isWeya === true,
-    });
+    };
+    let rootPlusYaBase = getRootPlusYaBase(rootPlusYaSource, rootPlusYaOptions);
+    // Slash matrix YA inputs (e.g., ume/ya) keep analysisVerb as "ya";
+    // recover incorporated matrix material so YA-root paths match exact inputs.
+    if (
+        !rootPlusYaBase
+        && state.hasSlashMarker
+        && !state.hasImpersonalTaPrefix
+        && analysisVerb === "ya"
+    ) {
+        const lexicalBoundPrefixes = (Array.isArray(state.boundPrefixes) ? state.boundPrefixes : [])
+            .map((prefix) => normalizeRuleBase(prefix || ""))
+            .filter((prefix) => prefix && !isDirectionalPrefixToken(prefix));
+        if (lexicalBoundPrefixes.length) {
+            const slashComposite = `${lexicalBoundPrefixes.join("")}${analysisVerb}`;
+            rootPlusYaBase = getRootPlusYaBase(slashComposite, rootPlusYaOptions);
+        }
+    }
     const pronounceableBase = rootPlusYaBase
         && areSyllablesPronounceable(splitVerbSyllables(rootPlusYaBase))
         ? rootPlusYaBase
@@ -9894,8 +10153,16 @@ function buildCanonicalVerbState(state) {
     const verb = state.verb || "";
     const analysisVerb = state.analysisVerb || verb;
     const rawAnalysisVerb = state.rawAnalysisVerb || analysisVerb;
-    const ruleBase = getDerivationRuleBase(analysisVerb || verb, state);
-    const fullRuleBase = normalizeRuleBase(rawAnalysisVerb || analysisVerb || verb);
+    const slashCompositeRuleBase = getSlashMatrixCompositeRuleBase({
+        hasSlashMarker: state.hasSlashMarker === true,
+        hasBoundMarker: state.hasBoundMarker === true,
+        hasImpersonalTaPrefix: state.hasImpersonalTaPrefix === true,
+        boundPrefixes: state.boundPrefixes,
+        analysisVerb,
+        sourceVerb: verb,
+    });
+    const ruleBase = slashCompositeRuleBase || getDerivationRuleBase(analysisVerb || verb, state);
+    const fullRuleBase = slashCompositeRuleBase || normalizeRuleBase(rawAnalysisVerb || analysisVerb || verb);
     return {
         verb,
         analysisVerb,
@@ -10002,12 +10269,12 @@ function parseVerbInput(value) {
 }
 
 // === Suppletive Stem Paths ===
-let SUPPLETIVE_YE_FORMS = new Set();
-let SUPPLETIVE_YE_IMPERFECTIVE = "";
-let SUPPLETIVE_YE_CLASS_A = "";
-let SUPPLETIVE_YE_CLASS_D = "";
-let SUPPLETIVE_YE_CLASS_EXCLUSIONS = {};
-let SUPPLETIVE_YE_NONACTIVE = "";
+let SUPPLETIVE_KATI_FORMS = new Set();
+let SUPPLETIVE_KATI_IMPERFECTIVE = "";
+let SUPPLETIVE_KATI_CLASS_A = "";
+let SUPPLETIVE_KATI_CLASS_D = "";
+let SUPPLETIVE_KATI_CLASS_EXCLUSIONS = {};
+let SUPPLETIVE_KATI_NONACTIVE = "";
 let SUPPLETIVE_YAWI_FORMS = new Set();
 let SUPPLETIVE_YAWI_CANONICAL = "";
 let SUPPLETIVE_YAWI_IMPERFECTIVE = "";
@@ -10024,7 +10291,7 @@ let SUPPLETIVE_WITZI_IMPERATIVE = "";
 let SUPPLETIVE_WITZI_NONACTIVE = "";
 let SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set();
 let SUPPLETIVE_STEM_PATHS = [];
-const INTRANSITIVE_ONLY_SUPPLETIVE_IDS = new Set(["yawi", "weya", "ye", "witzi"]);
+const INTRANSITIVE_ONLY_SUPPLETIVE_IDS = new Set(["yawi", "weya", "kati", "witzi"]);
 
 function isIntransitiveOnlySuppletiveId(id = "") {
     return INTRANSITIVE_ONLY_SUPPLETIVE_IDS.has(String(id || "").toLowerCase());
@@ -10035,8 +10302,10 @@ function isSuppletiveIntransitiveOnlyContext(parsedVerb, options = {}) {
         return false;
     }
     const hasObjectSelection = options.hasObjectSelection === true;
-    const baseObjectSlots = getBaseObjectSlots(parsedVerb);
-    return baseObjectSlots === 0 && !hasObjectSelection;
+    // Evaluate intransitive-only suppletives from the source/direct valency,
+    // not from derived valency (causative/applicative adds slots).
+    const sourceObjectSlots = getDirectActiveObjectSlots(parsedVerb);
+    return sourceObjectSlots === 0 && !hasObjectSelection;
 }
 
 function dropFinalVowel(stem) {
@@ -10082,23 +10351,23 @@ function getSuppletiveWeyaCanonical() {
     return rootBase ? `${rootBase}ya` : "weyya";
 }
 
-function buildSuppletiveYeStemSet() {
+function buildSuppletiveKatiStemSet() {
     const variantsByClass = new Map();
-    variantsByClass.set("A", [{ base: dropFinalVowel(SUPPLETIVE_YE_CLASS_A), suffix: "ki" }]);
+    variantsByClass.set("A", [{ base: dropFinalVowel(SUPPLETIVE_KATI_CLASS_A), suffix: "ki" }]);
     const compoundPerfectTenses = ["perfecto", "pluscuamperfecto", "condicional-perfecto"];
     const tenseVariantsByClass = compoundPerfectTenses.reduce((acc, tenseKey) => {
         const perTenseVariants = new Map();
-        perTenseVariants.set("A", [{ base: SUPPLETIVE_YE_IMPERFECTIVE, suffix: "" }]);
+        perTenseVariants.set("A", [{ base: SUPPLETIVE_KATI_IMPERFECTIVE, suffix: "" }]);
         acc[tenseKey] = perTenseVariants;
         return acc;
     }, {});
     return {
-        imperfective: { verb: SUPPLETIVE_YE_IMPERFECTIVE, analysisVerb: SUPPLETIVE_YE_IMPERFECTIVE },
+        imperfective: { verb: SUPPLETIVE_KATI_IMPERFECTIVE, analysisVerb: SUPPLETIVE_KATI_IMPERFECTIVE },
         variantsByClass,
         tenseVariantsByClass,
         pretPluralSuffix: "et",
         pretPluralClasses: new Set(["A"]),
-        classExclusionsByTense: SUPPLETIVE_YE_CLASS_EXCLUSIONS,
+        classExclusionsByTense: SUPPLETIVE_KATI_CLASS_EXCLUSIONS,
     };
 }
 
@@ -11517,6 +11786,7 @@ function syncComposerEmbedUiFromState() {
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         syncComposerEmbedSlotUi(slotKey, slots[slotKey] || {});
     });
+    syncComposerSlotChipVisibility();
 }
 
 function setComposerEmbedPreviewState(slotKey, isPreview) {
@@ -11525,6 +11795,7 @@ function setComposerEmbedPreviewState(slotKey, isPreview) {
     }
     COMPOSER_EMBED_PREVIEW_STATE[slotKey] = Boolean(isPreview);
     syncComposerEmbedSlotUi(slotKey);
+    syncComposerSlotChipVisibility();
 }
 
 function toggleComposerEmbedOpen(slotKey) {
@@ -11548,6 +11819,8 @@ function toggleComposerEmbedOpen(slotKey) {
         applyComposerStateToVerbInput({ triggerGenerate: true });
     }
     syncComposerEmbedSlotUi(slotKey, refs);
+    syncComposerSlotChipVisibility();
+    scheduleComposerSlotChipVisibilitySync();
     if (nextOpen && refs.embedInput && typeof refs.embedInput.focus === "function" && !refs.embedInput.disabled) {
         refs.embedInput.focus();
         if (typeof refs.embedInput.setSelectionRange === "function") {
@@ -11647,6 +11920,48 @@ function syncComposerChipGroup(container, selectEl, source = "other") {
     });
 }
 
+function isComposerEmbedTextboxVisibleForSlot(slotKey, embedInput = null) {
+    const stateVisible = Boolean(
+        COMPOSER_EMBED_OPEN_STATE[slotKey]
+        || COMPOSER_EMBED_PREVIEW_STATE[slotKey]
+    );
+    if (!embedInput) {
+        return stateVisible;
+    }
+    const ariaHidden = embedInput.getAttribute("aria-hidden");
+    if (ariaHidden === "true") {
+        return false;
+    }
+    if (ariaHidden === "false") {
+        return true;
+    }
+    return stateVisible;
+}
+
+function scheduleComposerSlotChipVisibilitySync() {
+    if (typeof window === "undefined" || typeof window.requestAnimationFrame !== "function") {
+        return;
+    }
+    window.requestAnimationFrame(() => {
+        syncComposerSlotChipVisibility();
+    });
+}
+
+function syncComposerSlotChipVisibility() {
+    const { slots, matrixStemChipsBySlot } = getVerbComposerElements();
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const embedInput = slots?.[slotKey]?.embedInput || null;
+        const isEmbedTextboxVisible = isComposerEmbedTextboxVisibleForSlot(slotKey, embedInput);
+        const matrixContainer = matrixStemChipsBySlot?.[slotKey] || null;
+        if (!matrixContainer) {
+            return;
+        }
+        matrixContainer.hidden = !isEmbedTextboxVisible;
+        matrixContainer.classList.toggle("is-hidden-by-slot-toggle", !isEmbedTextboxVisible);
+        matrixContainer.setAttribute("aria-hidden", String(!isEmbedTextboxVisible));
+    });
+}
+
 function syncComposerTransitivitySlotButtons() {
     const { transitivitySlotButtons, transitivitySelect } = getVerbComposerElements();
     if (transitivitySelect) {
@@ -11722,6 +12037,20 @@ function transposeComposerSlotTextboxes(fromTransitivity, toTransitivity) {
     }
 }
 
+function carryComposerEmbedVisibilityAcrossTransitivity(fromTransitivity, toTransitivity) {
+    const sourceSlot = getComposerSlotKeyForTransitivity(fromTransitivity);
+    const targetSlot = getComposerSlotKeyForTransitivity(toTransitivity);
+    if (!sourceSlot || !targetSlot || sourceSlot === targetSlot) {
+        return;
+    }
+    const sourceEmbedVisible = Boolean(
+        COMPOSER_EMBED_OPEN_STATE[sourceSlot]
+        || COMPOSER_EMBED_PREVIEW_STATE[sourceSlot]
+    );
+    COMPOSER_EMBED_OPEN_STATE[targetSlot] = sourceEmbedVisible;
+    COMPOSER_EMBED_PREVIEW_STATE[targetSlot] = false;
+}
+
 function syncComposerChipGroupsFromState() {
     const {
         valenceSelectIntransitive,
@@ -11738,6 +12067,7 @@ function syncComposerChipGroupsFromState() {
     syncComposerChipGroup(valenceChips, valenceSelect, "other");
     syncComposerChipGroup(valenceChipsSecondary, valenceSelectSecondary, "other");
     syncComposerChipGroup(directionalChips, directionalSelect, "other");
+    syncComposerSlotChipVisibility();
 }
 
 function getComposerMatrixRootTokensForSlot(slotKey = "") {
@@ -13385,6 +13715,7 @@ function bindComposerStemTabNavigation(pairs = []) {
             return false;
         }
         transposeComposerSlotTextboxes(current, next);
+        carryComposerEmbedVisibilityAcrossTransitivity(current, next);
         if (transitivitySelect) {
             transitivitySelect.value = next;
         }
@@ -13857,6 +14188,7 @@ function runScreenCalculatorCycleTransitivity() {
     const currentIndex = COMPOSER_TRANSITIVITY_ORDER.indexOf(current);
     const next = COMPOSER_TRANSITIVITY_ORDER[(currentIndex + 1) % COMPOSER_TRANSITIVITY_ORDER.length];
     transposeComposerSlotTextboxes(current, next);
+    carryComposerEmbedVisibilityAcrossTransitivity(current, next);
     if (transitivitySelect) {
         transitivitySelect.value = next;
     }
@@ -14004,6 +14336,38 @@ function handleComposerDoubleEscapeShortcut(event) {
     return true;
 }
 
+function handleComposerDoubleSpaceShortcut(event) {
+    if (event?.key !== " " || event?.repeat) {
+        return false;
+    }
+    const modalOpen = document.body?.classList?.contains("is-modal-open");
+    if (modalOpen) {
+        LAST_COMPOSER_SPACE_TS = 0;
+        return false;
+    }
+    const now = Date.now();
+    const withinWindow = LAST_COMPOSER_SPACE_TS > 0
+        && (now - LAST_COMPOSER_SPACE_TS) <= COMPOSER_SPACE_DOUBLE_READY_WINDOW_MS;
+    LAST_COMPOSER_SPACE_TS = now;
+    if (!withinWindow) {
+        return false;
+    }
+    LAST_COMPOSER_SPACE_TS = 0;
+    if (!isVerbInputModeComposer()) {
+        setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+    }
+    const preferredInput = getComposerPreferredEntryInput();
+    if (preferredInput) {
+        preferredInput.focus();
+        if (typeof preferredInput.setSelectionRange === "function") {
+            const caret = String(preferredInput.value || "").length;
+            preferredInput.setSelectionRange(caret, caret);
+        }
+    }
+    syncVerbScreenCalculatorState();
+    return true;
+}
+
 function initVerbComposer() {
     const {
         slots,
@@ -14059,6 +14423,7 @@ function initVerbComposer() {
                 }
                 const previousToken = transitivitySelect?.value || VERB_COMPOSER_STATE.transitivity;
                 transposeComposerSlotTextboxes(previousToken, token);
+                carryComposerEmbedVisibilityAcrossTransitivity(previousToken, token);
                 if (transitivitySelect) {
                     transitivitySelect.value = token;
                 }
@@ -15540,6 +15905,8 @@ function applyUiDensityMode(mode = "", { persist = true } = {}) {
     if (nextMode === UI_DENSITY_MODE.simple) {
         forceSimpleModeGrammarDefaults();
     }
+    syncComposerSlotChipVisibility();
+    scheduleComposerSlotChipVisibilitySync();
     if (!persist) {
         return;
     }
@@ -19370,11 +19737,20 @@ function resolveDerivedNonactiveSelectionEntry({
         sourceVerb,
         sourceAnalysisVerb
     );
-    const matchRuleBase = normalizeRuleBase(matchSource.baseVerb || "");
+    let matchBaseVerb = matchSource.baseVerb || "";
+    if (
+        sourceMeta?.hasBoundMarker
+        && matchSource.prefix
+        && matchBaseVerb
+        && matchBaseVerb.startsWith(matchSource.prefix)
+    ) {
+        matchBaseVerb = matchBaseVerb.slice(matchSource.prefix.length);
+    }
+    const matchRuleBase = normalizeRuleBase(matchBaseVerb || "");
     const matchIsTransitive = parsedMatch
         ? isNonactiveTransitiveVerb(objectPrefix, parsedMatch)
         : nonactiveIsTransitive;
-    const matchSelection = resolveNonactiveStemSelection(matchSource.baseVerb, matchSource.baseVerb, {
+    const matchSelection = resolveNonactiveStemSelection(matchBaseVerb, matchBaseVerb, {
         isTransitive: matchIsTransitive,
         isYawi: parsedMatch ? parsedMatch.isYawi : isYawi,
         forceAll: forceAllNonactiveOptions,
@@ -27995,12 +28371,17 @@ document.addEventListener("keydown", (event) => {
         }
     }
     if (event.key === " ") {
+        const handledComposerReady = handleComposerDoubleSpaceShortcut(event);
         LAST_COMPOSER_ESCAPE_TS = 0;
-        if (verbEl) {
+        if (!handledComposerReady && verbEl) {
             verbEl.focus();
         }
         event.preventDefault();
+        if (handledComposerReady) {
+            return;
+        }
     } else if (event.key === "Escape") {
+        LAST_COMPOSER_SPACE_TS = 0;
         const handledComposerClear = handleComposerDoubleEscapeShortcut(event);
         if (verbEl) {
             verbEl.blur();
@@ -28011,12 +28392,14 @@ document.addEventListener("keydown", (event) => {
         }
     } else if (event.key === "Enter") {
         LAST_COMPOSER_ESCAPE_TS = 0;
+        LAST_COMPOSER_SPACE_TS = 0;
         cancelDeferredToggleAvailabilityPass();
         cancelScheduledVerbInputRefresh();
         generateWord();
         event.preventDefault();
     } else {
         LAST_COMPOSER_ESCAPE_TS = 0;
+        LAST_COMPOSER_SPACE_TS = 0;
     }
 });
 
