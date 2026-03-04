@@ -2506,46 +2506,70 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (!isIntransitive || !normalized) {
             return null;
         }
+        const withDecisionCell = (entry = {}) => {
+            const stockFamily = String(entry?.stockFamily || "wi");
+            const canonicalSourceClass = String(entry?.sourceClass || "default").replace(/^wa_mirror_/, "");
+            const typeOneTarget = entry?.typeOneTarget || null;
+            const decisionFeatures = {
+                stockFamily,
+                sourceClass: canonicalSourceClass || "default",
+                typeOneTarget,
+            };
+            const decisionKey = [
+                decisionFeatures.stockFamily || "wi",
+                decisionFeatures.sourceClass || "default",
+                decisionFeatures.typeOneTarget || "none",
+            ].join("|");
+            return {
+                ...entry,
+                stockFamily,
+                decisionFeatures,
+                decisionKey,
+            };
+        };
         const mirroredWiBase = mapWaSurfaceToWiBase(normalized);
         if (mirroredWiBase) {
             const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
             if (mirroredWiPolicy) {
-                return {
+                return withDecisionCell({
                     ...mirroredWiPolicy,
                     sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
                     chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
-                };
+                    // Keep mirror routes in the same compressed decision cell as their wi-base.
+                    decisionKey: mirroredWiPolicy.decisionKey || "",
+                    decisionFeatures: mirroredWiPolicy.decisionFeatures || null,
+                });
             }
         }
         if (normalized.endsWith("wa")) {
-            return {
+            return withDecisionCell({
                 sourceClass: "final_wa",
                 stockFamily: "wa",
                 typeOneTarget: "wa",
                 typeTwoTarget: null,
                 chain: "wa > wa",
-            };
+            });
         }
         if (!normalized.endsWith("wi")) {
             return null;
         }
         if (normalized.endsWith("ewi")) {
-            return {
+            return withDecisionCell({
                 sourceClass: "final_ewi",
                 stockFamily: "wi",
                 typeOneTarget: "wa",
                 typeTwoTarget: "witia",
                 chain: "ewi > ewa",
-            };
+            });
         }
         if (normalized === "kwetawi") {
-            return {
+            return withDecisionCell({
                 sourceClass: "exact_kwetawi",
                 stockFamily: "awi",
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
                 chain: "kwetawi > kwetua",
-            };
+            });
         }
         const patternBase = getNonReduplicatedRoot(normalized) || normalized;
         const wiFeatures = getWiPolicyFeatures(normalized, patternBase);
@@ -2574,6 +2598,8 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 : (isUwiClass ? "uwi" : "wi"));
         const withWiFeatures = (entry) => {
             const stockFamily = entry?.stockFamily || wiStockFamily;
+            const rawSourceClass = String(entry?.sourceClass || "");
+            const canonicalSourceClass = rawSourceClass.replace(/^wa_mirror_/, "");
             const features = {
                 stockFamily,
                 prefixSubcell: wiBoundarySubcell.label,
@@ -2596,12 +2622,12 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 features.wiRootFinal || "_",
                 features.wiRootLastVowel || "_",
             ].join("|");
-            return {
+            return withDecisionCell({
                 ...entry,
                 stockFamily,
                 features,
                 desuperposeKey,
-            };
+            });
         };
         // Keep digraph safeguard for bare ...wi stems (e.g. ...kwi), but let ...awi/...iwi
         // continue into wi-root vowel/class logic (e.g. tzikawi > tzikua, tzuliwi > tzulua).
@@ -2893,11 +2919,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             ...causativeTrace,
             wiWaPolicy: {
                 sourceClass: wiWaPolicy.sourceClass,
+                stockFamily: wiWaPolicy.stockFamily || "",
                 chain: wiWaPolicy.chain,
                 typeOneTarget: wiWaPolicy.typeOneTarget || null,
                 typeTwoTarget: wiWaPolicy.typeTwoTarget || null,
                 features: wiWaPolicy.features || null,
                 desuperposeKey: wiWaPolicy.desuperposeKey || "",
+                decisionFeatures: wiWaPolicy.decisionFeatures || null,
+                decisionKey: wiWaPolicy.decisionKey || "",
             },
         };
     }
@@ -3299,6 +3328,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 wiPolicy: wiWaPolicy.chain,
                 wiPolicyFeatures: wiWaPolicy.features || null,
                 wiPolicyDesuperposeKey: wiWaPolicy.desuperposeKey || "",
+                wiPolicyDecisionKey: wiWaPolicy.decisionKey || "",
             });
         }
     }

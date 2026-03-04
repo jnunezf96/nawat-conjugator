@@ -1,0 +1,668 @@
+{
+  "generatedAt": "2026-03-04T23:05:26.229Z",
+  "pipeline": "wa-family intransitive > causative (type-one)",
+  "scope": {
+    "forms": "...awa/...iwa/...ewa/...uwa",
+    "candidateRows": 676,
+    "maxSyllables": 3
+  },
+  "distributions": {
+    "endings": {
+      "awa": 169,
+      "ewa": 169,
+      "iwa": 169,
+      "uwa": 169
+    },
+    "stockFamilies": {
+      "awi": 169,
+      "wi": 182,
+      "iwi": 156,
+      "uwi": 169
+    },
+    "sourceClasses": {
+      "wa_mirror_awi_subcell_nonvj_default": 140,
+      "wa_mirror_final_ewi": 169,
+      "wa_mirror_vowel_ae": 117,
+      "wa_mirror_uwi_default": 155,
+      "wa_mirror_iwi_subcell_nonvj_final_t": 13,
+      "wa_mirror_uwi_final_m": 13,
+      "wa_mirror_awi_final_n": 12,
+      "wa_mirror_default": 13,
+      "wa_mirror_iwi_subcell_nonvj_final_y": 13,
+      "wa_mirror_awi_subcell_nonvj_tz_onset": 12,
+      "wa_mirror_final_tz_iwi": 12,
+      "wa_mirror_awi_subcell_nonvj_obstruent_mirror": 3,
+      "wa_mirror_final_tz_iwi_p-onset": 1,
+      "wa_mirror_uwi_exact_tap": 1,
+      "wa_mirror_awi_final_tak": 1,
+      "wa_mirror_awi_initial_y_final_k": 1
+    },
+    "coarseOutcomes": {
+      "replacive": 502,
+      "none": 174
+    },
+    "fineOutcomes": {
+      "wa": 502,
+      "ua": 161,
+      "none": 13
+    }
+  },
+  "desuperpose": {
+    "coarse": {
+      "keyQuality": {
+        "uniqueKeys": 496,
+        "mixedKeys": 0,
+        "mixedKeyRate": 0,
+        "mixedExamples": []
+      },
+      "pairwise": {
+        "totalPairs": 228150,
+        "trueUnity": 14274,
+        "falseUnity": 0,
+        "trueSeparation": 87348,
+        "falseSeparation": 126528,
+        "trueUnityRate": 0.0626,
+        "falseUnityRate": 0,
+        "trueSeparationRate": 0.3829,
+        "falseSeparationRate": 0.5546,
+        "falseUnityExamples": []
+      }
+    },
+    "fine": {
+      "keyQuality": {
+        "uniqueKeys": 496,
+        "mixedKeys": 0,
+        "mixedKeyRate": 0,
+        "mixedExamples": []
+      },
+      "pairwise": {
+        "totalPairs": 228150,
+        "trueUnity": 14274,
+        "falseUnity": 0,
+        "trueSeparation": 89441,
+        "falseSeparation": 124435,
+        "trueUnityRate": 0.0626,
+        "falseUnityRate": 0,
+        "trueSeparationRate": 0.392,
+        "falseSeparationRate": 0.5454,
+        "falseUnityExamples": []
+      }
+    }
+  },
+  "decision": {
+    "coarse": {
+      "keyQuality": {
+        "uniqueKeys": 16,
+        "mixedKeys": 0,
+        "mixedKeyRate": 0,
+        "mixedExamples": []
+      },
+      "pairwise": {
+        "totalPairs": 228150,
+        "trueUnity": 43160,
+        "falseUnity": 0,
+        "trueSeparation": 87348,
+        "falseSeparation": 97642,
+        "trueUnityRate": 0.1892,
+        "falseUnityRate": 0,
+        "trueSeparationRate": 0.3829,
+        "falseSeparationRate": 0.428,
+        "falseUnityExamples": []
+      }
+    },
+    "fine": {
+      "keyQuality": {
+        "uniqueKeys": 16,
+        "mixedKeys": 0,
+        "mixedKeyRate": 0,
+        "mixedExamples": []
+      },
+      "pairwise": {
+        "totalPairs": 228150,
+        "trueUnity": 43160,
+        "falseUnity": 0,
+        "trueSeparation": 89441,
+        "falseSeparation": 95549,
+        "trueUnityRate": 0.1892,
+        "falseUnityRate": 0,
+        "trueSeparationRate": 0.392,
+        "falseSeparationRate": 0.4188,
+        "falseUnityExamples": []
+      }
+    }
+  },
+  "minimizer": {
+    "fineByFamily": {
+      "featurePool": [
+        "wiPolicySourceClassCanonical",
+        "wiPolicyTypeOneTarget",
+        "wiPolicyPrefixSubcell",
+        "wiPolicyPrefixCoda",
+        "wiPolicyFirstOnset",
+        "wiPolicyIsVjBoundarySubcell",
+        "wiPolicyRootLength",
+        "wiPolicyRootPreFinal",
+        "wiPolicyRootFinal",
+        "wiPolicyRootLastVowel"
+      ],
+      "families": {
+        "awi": {
+          "rows": 169,
+          "baselineDesuperpose": {
+            "totalPairs": 14196,
+            "trueUnity": 0,
+            "falseUnity": 0,
+            "trueSeparation": 4060,
+            "falseSeparation": 10136,
+            "trueUnityRate": 0,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.286,
+            "falseSeparationRate": 0.714,
+            "falseUnityExamples": []
+          },
+          "baselineDecision": {
+            "totalPairs": 14196,
+            "trueUnity": 9865,
+            "falseUnity": 0,
+            "trueSeparation": 4060,
+            "falseSeparation": 271,
+            "trueUnityRate": 0.6949,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.286,
+            "falseSeparationRate": 0.0191,
+            "falseUnityExamples": []
+          },
+          "bestZeroFalseUnity": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "bestFallback": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "topZeroFalseUnity": [
+            {
+              "features": [
+                "wiPolicyTypeOneTarget"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 4,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 4,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 4,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 4,
+              "uniqueKeys": 4,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            }
+          ]
+        },
+        "wi": {
+          "rows": 182,
+          "baselineDesuperpose": {
+            "totalPairs": 16471,
+            "trueUnity": 14274,
+            "falseUnity": 0,
+            "trueSeparation": 2197,
+            "falseSeparation": 0,
+            "trueUnityRate": 0.8666,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.1334,
+            "falseSeparationRate": 0,
+            "falseUnityExamples": []
+          },
+          "baselineDecision": {
+            "totalPairs": 16471,
+            "trueUnity": 14274,
+            "falseUnity": 0,
+            "trueSeparation": 2197,
+            "falseSeparation": 0,
+            "trueUnityRate": 0.8666,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.1334,
+            "falseSeparationRate": 0,
+            "falseUnityExamples": []
+          },
+          "bestZeroFalseUnity": {
+            "features": [
+              "wiPolicySourceClassCanonical"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "bestFallback": {
+            "features": [
+              "wiPolicySourceClassCanonical"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "topZeroFalseUnity": [
+            {
+              "features": [
+                "wiPolicySourceClassCanonical"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyPrefixSubcell"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyFirstOnset"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicySourceClassCanonical",
+                "wiPolicyTypeOneTarget"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicySourceClassCanonical",
+                "wiPolicyPrefixSubcell"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixSubcell"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicySourceClassCanonical",
+                "wiPolicyPrefixCoda"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            }
+          ]
+        },
+        "iwi": {
+          "rows": 156,
+          "baselineDesuperpose": {
+            "totalPairs": 12090,
+            "trueUnity": 0,
+            "falseUnity": 0,
+            "trueSeparation": 4484,
+            "falseSeparation": 7606,
+            "trueUnityRate": 0,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.3709,
+            "falseSeparationRate": 0.6291,
+            "falseUnityExamples": []
+          },
+          "baselineDecision": {
+            "totalPairs": 12090,
+            "trueUnity": 7008,
+            "falseUnity": 0,
+            "trueSeparation": 4484,
+            "falseSeparation": 598,
+            "trueUnityRate": 0.5797,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.3709,
+            "falseSeparationRate": 0.0495,
+            "falseUnityExamples": []
+          },
+          "bestZeroFalseUnity": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "bestFallback": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "topZeroFalseUnity": [
+            {
+              "features": [
+                "wiPolicyTypeOneTarget"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 4,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            }
+          ]
+        },
+        "uwi": {
+          "rows": 169,
+          "baselineDesuperpose": {
+            "totalPairs": 14196,
+            "trueUnity": 0,
+            "falseUnity": 0,
+            "trueSeparation": 2170,
+            "falseSeparation": 12026,
+            "trueUnityRate": 0,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.1529,
+            "falseSeparationRate": 0.8471,
+            "falseUnityExamples": []
+          },
+          "baselineDecision": {
+            "totalPairs": 14196,
+            "trueUnity": 12013,
+            "falseUnity": 0,
+            "trueSeparation": 2170,
+            "falseSeparation": 13,
+            "trueUnityRate": 0.8462,
+            "falseUnityRate": 0,
+            "trueSeparationRate": 0.1529,
+            "falseSeparationRate": 0.0009,
+            "falseUnityExamples": []
+          },
+          "bestZeroFalseUnity": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "bestFallback": {
+            "features": [
+              "wiPolicyTypeOneTarget"
+            ],
+            "featureCount": 1,
+            "uniqueKeys": 2,
+            "falseUnity": 0,
+            "falseUnityRate": 0
+          },
+          "topZeroFalseUnity": [
+            {
+              "features": [
+                "wiPolicyTypeOneTarget"
+              ],
+              "featureCount": 1,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 2,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 3,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            },
+            {
+              "features": [
+                "wiPolicyTypeOneTarget",
+                "wiPolicyPrefixCoda",
+                "wiPolicyIsVjBoundarySubcell",
+                "wiPolicyRootLastVowel"
+              ],
+              "featureCount": 4,
+              "uniqueKeys": 2,
+              "falseUnity": 0,
+              "falseUnityRate": 0
+            }
+          ]
+        }
+      }
+    }
+  }
+}

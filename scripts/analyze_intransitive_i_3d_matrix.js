@@ -295,9 +295,12 @@ function classifyIntransitiveICausative(context, base) {
     wiPolicy: wiPolicy
       ? {
         sourceClass: wiPolicy.sourceClass || "",
+        sourceClassCanonical: String(wiPolicy.sourceClass || "").replace(/^wa_mirror_/, ""),
         stockFamily: wiPolicy.features?.stockFamily || wiPolicy.stockFamily || "",
         desuperposeKey: wiPolicy.desuperposeKey || "",
+        decisionKey: wiPolicy.decisionKey || "",
         typeOneTarget: wiPolicy.typeOneTarget || null,
+        features: wiPolicy.features || null,
       }
       : null,
   };
@@ -442,9 +445,19 @@ function buildMatrixAndAgents(candidates, baselineByForm, matrixOnlyByForm) {
       confidence: baseline.winner?.confidence || null,
       typeOneOutcome: baseline.typeOneOutcome || "none",
       wiPolicySourceClass: baseline.wiPolicy?.sourceClass || "",
+      wiPolicySourceClassCanonical: baseline.wiPolicy?.sourceClassCanonical || "",
       wiPolicyStockFamily: baseline.wiPolicy?.stockFamily || "",
       wiPolicyDesuperposeKey: baseline.wiPolicy?.desuperposeKey || "",
+      wiPolicyDecisionKey: baseline.wiPolicy?.decisionKey || "",
       wiPolicyTypeOneTarget: baseline.wiPolicy?.typeOneTarget || null,
+      wiPolicyPrefixSubcell: baseline.wiPolicy?.features?.prefixSubcell || "",
+      wiPolicyPrefixCoda: baseline.wiPolicy?.features?.prefixCoda || "",
+      wiPolicyFirstOnset: baseline.wiPolicy?.features?.firstOnset || "",
+      wiPolicyIsVjBoundarySubcell: baseline.wiPolicy?.features?.isVjBoundarySubcell === true,
+      wiPolicyRootLength: Number(baseline.wiPolicy?.features?.wiRootLength || 0),
+      wiPolicyRootPreFinal: baseline.wiPolicy?.features?.wiRootPreFinal || "",
+      wiPolicyRootFinal: baseline.wiPolicy?.features?.wiRootFinal || "",
+      wiPolicyRootLastVowel: baseline.wiPolicy?.features?.wiRootLastVowel || "",
     });
 
     const cell = ensureCell(matrix3d, candidate.firstManner, candidate.penultShape, candidate.finalManner);
@@ -965,6 +978,161 @@ function countBy(rows, selector) {
   return counts;
 }
 
+function pairsFromCount(count) {
+  const n = Number(count) || 0;
+  return n > 1 ? (n * (n - 1)) / 2 : 0;
+}
+
+function summarizeKeyGrouping(rows, getKey, getOutcome) {
+  const grouped = new Map();
+  rows.forEach((row) => {
+    const key = String(getKey(row) || "");
+    if (!grouped.has(key)) {
+      grouped.set(key, { total: 0, outcomes: {} });
+    }
+    const bucket = grouped.get(key);
+    const outcome = String(getOutcome(row) || "none");
+    bucket.total += 1;
+    bucket.outcomes[outcome] = (bucket.outcomes[outcome] || 0) + 1;
+  });
+
+  let falseUnityPairs = 0;
+  let trueUnityPairs = 0;
+  let mixedKeys = 0;
+  grouped.forEach((bucket) => {
+    const counts = Object.values(bucket.outcomes);
+    if (counts.filter((count) => count > 0).length > 1) {
+      mixedKeys += 1;
+    }
+    const totalPairs = pairsFromCount(bucket.total);
+    const sameOutcomePairs = counts.reduce((sum, count) => sum + pairsFromCount(count), 0);
+    trueUnityPairs += sameOutcomePairs;
+    falseUnityPairs += (totalPairs - sameOutcomePairs);
+  });
+
+  const totalPairs = pairsFromCount(rows.length);
+  return {
+    rowCount: rows.length,
+    uniqueKeys: grouped.size,
+    mixedKeys,
+    mixedKeyRate: roundNumber(mixedKeys / Math.max(1, grouped.size), 4),
+    falseUnityPairs,
+    trueUnityPairs,
+    falseUnityRate: totalPairs ? roundNumber(falseUnityPairs / totalPairs, 4) : 0,
+  };
+}
+
+function buildFeatureSubsetKey(row, featureNames) {
+  if (!Array.isArray(featureNames) || featureNames.length === 0) {
+    return "*";
+  }
+  return featureNames.map((featureName) => {
+    const value = row[featureName];
+    if (typeof value === "boolean") {
+      return value ? "1" : "0";
+    }
+    if (value === "" || value === null || value === undefined) {
+      return "_";
+    }
+    return String(value);
+  }).join("|");
+}
+
+function runFamilyFeatureMinimizer(rows, getOutcome) {
+  const featurePool = [
+    "wiPolicySourceClassCanonical",
+    "wiPolicyTypeOneTarget",
+    "wiPolicyPrefixSubcell",
+    "wiPolicyPrefixCoda",
+    "wiPolicyFirstOnset",
+    "wiPolicyIsVjBoundarySubcell",
+    "wiPolicyRootLength",
+    "wiPolicyRootPreFinal",
+    "wiPolicyRootFinal",
+    "wiPolicyRootLastVowel",
+  ];
+  const families = {};
+  const familyRowsMap = new Map();
+  rows.forEach((row) => {
+    const family = row.wiPolicyStockFamily || "unknown";
+    if (!familyRowsMap.has(family)) {
+      familyRowsMap.set(family, []);
+    }
+    familyRowsMap.get(family).push(row);
+  });
+
+  familyRowsMap.forEach((familyRows, family) => {
+    const subsetResults = [];
+    const maxMask = 1 << featurePool.length;
+    for (let mask = 1; mask < maxMask; mask += 1) {
+      const features = [];
+      for (let i = 0; i < featurePool.length; i += 1) {
+        if ((mask & (1 << i)) !== 0) {
+          features.push(featurePool[i]);
+        }
+      }
+      const summary = summarizeKeyGrouping(
+        familyRows,
+        (row) => buildFeatureSubsetKey(row, features),
+        getOutcome
+      );
+      subsetResults.push({
+        features,
+        featureCount: features.length,
+        ...summary,
+      });
+    }
+
+    const zeroFalseUnity = subsetResults
+      .filter((entry) => entry.falseUnityPairs === 0)
+      .sort((a, b) => {
+        if (a.uniqueKeys !== b.uniqueKeys) {
+          return a.uniqueKeys - b.uniqueKeys;
+        }
+        if (a.featureCount !== b.featureCount) {
+          return a.featureCount - b.featureCount;
+        }
+        return a.mixedKeys - b.mixedKeys;
+      });
+    const fallbackBest = subsetResults
+      .slice()
+      .sort((a, b) => {
+        if (a.falseUnityPairs !== b.falseUnityPairs) {
+          return a.falseUnityPairs - b.falseUnityPairs;
+        }
+        if (a.uniqueKeys !== b.uniqueKeys) {
+          return a.uniqueKeys - b.uniqueKeys;
+        }
+        return a.featureCount - b.featureCount;
+      });
+
+    const baselineDesuperpose = summarizeKeyGrouping(
+      familyRows,
+      (row) => row.wiPolicyDesuperposeKey || "",
+      getOutcome
+    );
+    const baselineDecision = summarizeKeyGrouping(
+      familyRows,
+      (row) => row.wiPolicyDecisionKey || row.wiPolicyDesuperposeKey || "",
+      getOutcome
+    );
+
+    families[family] = {
+      rows: familyRows.length,
+      baselineDesuperpose,
+      baselineDecision,
+      bestZeroFalseUnity: zeroFalseUnity[0] || null,
+      bestFallback: fallbackBest[0] || null,
+      topZeroFalseUnity: zeroFalseUnity.slice(0, 8),
+    };
+  });
+
+  return {
+    featurePool,
+    families,
+  };
+}
+
 function runWiPolicySuperpositionAudit(rows) {
   const scopedRows = rows.filter((row) => (
     (row.form.endsWith("awi") || row.form.endsWith("iwi"))
@@ -973,12 +1141,14 @@ function runWiPolicySuperpositionAudit(rows) {
   const coarseOutcome = (row) => row.label || "none";
   const fineOutcome = (row) => row.typeOneOutcome || "none";
   const keySelector = (row) => row.wiPolicyDesuperposeKey || "";
+  const decisionKeySelector = (row) => row.wiPolicyDecisionKey || row.wiPolicyDesuperposeKey || "";
 
   return {
     scope: {
       rowCount: scopedRows.length,
       forms: "...awi/...iwi",
       keyField: "wiPolicyDesuperposeKey",
+      decisionKeyField: "wiPolicyDecisionKey",
     },
     families: countBy(scopedRows, (row) => row.wiPolicyStockFamily || "unknown"),
     coarse: {
@@ -990,6 +1160,22 @@ function runWiPolicySuperpositionAudit(rows) {
       outcomes: countBy(scopedRows, fineOutcome),
       keyQuality: buildKeyPurityMetrics(scopedRows, keySelector, fineOutcome),
       pairwise: buildPairwiseUnityMetrics(scopedRows, keySelector, fineOutcome),
+    },
+    decision: {
+      coarse: {
+        outcomes: countBy(scopedRows, coarseOutcome),
+        keyQuality: buildKeyPurityMetrics(scopedRows, decisionKeySelector, coarseOutcome),
+        pairwise: buildPairwiseUnityMetrics(scopedRows, decisionKeySelector, coarseOutcome),
+      },
+      fine: {
+        outcomes: countBy(scopedRows, fineOutcome),
+        keyQuality: buildKeyPurityMetrics(scopedRows, decisionKeySelector, fineOutcome),
+        pairwise: buildPairwiseUnityMetrics(scopedRows, decisionKeySelector, fineOutcome),
+      },
+    },
+    minimizer: {
+      coarseByFamily: runFamilyFeatureMinimizer(scopedRows, coarseOutcome),
+      fineByFamily: runFamilyFeatureMinimizer(scopedRows, fineOutcome),
     },
   };
 }
@@ -1109,6 +1295,10 @@ function run() {
       coarseFalseSeparation: report.superpositionAudit.coarse.pairwise.falseSeparation,
       fineFalseUnity: report.superpositionAudit.fine.pairwise.falseUnity,
       fineFalseSeparation: report.superpositionAudit.fine.pairwise.falseSeparation,
+      decisionCoarseFalseUnity: report.superpositionAudit.decision.coarse.pairwise.falseUnity,
+      decisionCoarseFalseSeparation: report.superpositionAudit.decision.coarse.pairwise.falseSeparation,
+      decisionFineFalseUnity: report.superpositionAudit.decision.fine.pairwise.falseUnity,
+      decisionFineFalseSeparation: report.superpositionAudit.decision.fine.pairwise.falseSeparation,
     },
     sampleUnpatternedUnionSize: report.totals.unpatternedSampleUnionSize,
   };
