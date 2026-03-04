@@ -2442,15 +2442,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         const patternLetters = splitVerbLetters(patternBase);
         const firstOnset = patternLetters.find((letter) => isVerbLetterConsonant(letter)) || "";
         const hasDigraphInPattern = patternLetters.some((letter) => DIGRAPH_SET.has(letter));
-        const isAwiIwiPatternBase = patternBase.endsWith("awi") || patternBase.endsWith("iwi");
+        // Treat ...uwi alongside ...awi/...iwi for stock-family routing.
+        const isAwiIwiPatternBase = patternBase.endsWith("awi")
+            || patternBase.endsWith("iwi")
+            || patternBase.endsWith("uwi");
         const wiClassBase = patternBase.endsWith("wi") ? patternBase : normalizedBase;
         const isAwiClass = wiClassBase.endsWith("awi");
         const isIwiClass = wiClassBase.endsWith("iwi");
+        const isUwiClass = wiClassBase.endsWith("uwi");
         const isVjC = matchesWiStockPattern("VjC-a-wi", patternLetters)
             || matchesWiStockPattern("VjC-i-wi", patternLetters);
         const boundary = getWiBoundarySubcell(wiClassBase);
         const isVjBoundarySubcell = isVjC && boundary.hasBoundaryJ;
-        const wiRoot = (isAwiClass || isIwiClass)
+        const wiRoot = (isAwiClass || isIwiClass || isUwiClass)
             ? wiClassBase.slice(0, -3)
             : wiClassBase.slice(0, -2);
         const wiRootLetters = splitVerbLetters(wiRoot);
@@ -2468,6 +2472,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             wiClassBase,
             isAwiClass,
             isIwiClass,
+            isUwiClass,
             isVjC,
             boundary,
             isVjBoundarySubcell,
@@ -2481,10 +2486,36 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             wiRootLastVowel,
         };
     };
+    const mapWaSurfaceToWiBase = (waStem = "") => {
+        const normalizedWaStem = normalizeDerivationStemValue(waStem);
+        if (!normalizedWaStem.endsWith("wa")) {
+            return "";
+        }
+        if (
+            normalizedWaStem.endsWith("awa")
+            || normalizedWaStem.endsWith("iwa")
+            || normalizedWaStem.endsWith("ewa")
+            || normalizedWaStem.endsWith("uwa")
+        ) {
+            return `${normalizedWaStem.slice(0, -1)}i`;
+        }
+        return "";
+    };
     const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
         const normalized = normalizeDerivationStemValue(baseStem);
         if (!isIntransitive || !normalized) {
             return null;
+        }
+        const mirroredWiBase = mapWaSurfaceToWiBase(normalized);
+        if (mirroredWiBase) {
+            const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
+            if (mirroredWiPolicy) {
+                return {
+                    ...mirroredWiPolicy,
+                    sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
+                    chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
+                };
+            }
         }
         if (normalized.endsWith("wa")) {
             return {
@@ -2499,17 +2530,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return null;
         }
         if (normalized.endsWith("ewi")) {
-            const ewiLetters = splitVerbLetters(normalized);
-            const ewiFirstOnset = ewiLetters.find((letter) => isVerbLetterConsonant(letter)) || "";
-            if (ewiFirstOnset === "s") {
-                return {
-                    sourceClass: "final_ewi_s-onset",
-                    stockFamily: "wi",
-                    typeOneTarget: null,
-                    typeTwoTarget: "witia",
-                    chain: "ewi/s-onset > additive-i",
-                };
-            }
             return {
                 sourceClass: "final_ewi",
                 stockFamily: "wi",
@@ -2527,24 +2547,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "kwetawi > kwetua",
             };
         }
-        if (normalized === "tapuwi") {
-            return {
-                sourceClass: "exact_tapuwi",
-                stockFamily: "awi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "tapuwi > tapua",
-            };
-        }
-        if (normalized.endsWith("uwi")) {
-            return {
-                sourceClass: "final_uwi",
-                stockFamily: "wi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "uwi > uwa",
-            };
-        }
         const patternBase = getNonReduplicatedRoot(normalized) || normalized;
         const wiFeatures = getWiPolicyFeatures(normalized, patternBase);
         const {
@@ -2554,6 +2556,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             isAwiIwiPatternBase,
             isAwiClass,
             isIwiClass,
+            isUwiClass,
             isVjC,
             boundary: wiBoundarySubcell,
             isVjBoundarySubcell,
@@ -2564,8 +2567,15 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             wiRootHasCodaBeforeFinal,
             wiRootLastVowel,
         } = wiFeatures;
+        const wiStockFamily = isAwiClass
+            ? "awi"
+            : (isIwiClass
+                ? "iwi"
+                : (isUwiClass ? "uwi" : "wi"));
         const withWiFeatures = (entry) => {
+            const stockFamily = entry?.stockFamily || wiStockFamily;
             const features = {
+                stockFamily,
                 prefixSubcell: wiBoundarySubcell.label,
                 prefixCoda: wiBoundarySubcell.boundaryCoda || "",
                 firstOnset: wiFirstOnset,
@@ -2576,6 +2586,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 wiRootLastVowel,
             };
             const desuperposeKey = [
+                features.stockFamily,
                 features.prefixSubcell,
                 features.prefixCoda || "_",
                 features.firstOnset || "_",
@@ -2587,6 +2598,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             ].join("|");
             return {
                 ...entry,
+                stockFamily,
                 features,
                 desuperposeKey,
             };
@@ -2602,7 +2614,8 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "digraph > witia",
             });
         }
-        if (isAwiClass) {
+        // Family-first routing: resolve stock family (awi/uwi/iwi/wi), then apply subcell rules.
+        if (wiStockFamily === "awi") {
             if (wiRootFinal === "n" && (wiRootLetters.length > 3 || wiFirstOnset !== "p")) {
                 return withWiFeatures({
                     sourceClass: "awi_final_n",
@@ -2690,7 +2703,34 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "awi > awa",
             });
         }
-        if (isIwiClass && isVjBoundarySubcell) {
+        if (wiStockFamily === "uwi") {
+            if (normalized === "tapuwi") {
+                return withWiFeatures({
+                    sourceClass: "uwi_exact_tap",
+                    stockFamily: "uwi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "tapuwi > tapua",
+                });
+            }
+            if (wiRootFinal === "m") {
+                return withWiFeatures({
+                    sourceClass: "uwi_final_m",
+                    stockFamily: "uwi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "m + uwi > mua",
+                });
+            }
+            return withWiFeatures({
+                sourceClass: "uwi_default",
+                stockFamily: "uwi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "uwi > uwa",
+            });
+        }
+        if (wiStockFamily === "iwi" && isVjBoundarySubcell) {
             if (wiRootFinal === "s") {
                 return withWiFeatures({
                     sourceClass: "iwi_subcell_vj_final_s",
@@ -2717,7 +2757,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "VjC + iwi > ua",
             });
         }
-        if (wiRootFinal === "t" && isIwiClass) {
+        if (wiStockFamily === "iwi" && wiRootFinal === "t") {
             return withWiFeatures({
                 sourceClass: "iwi_subcell_nonvj_final_t",
                 stockFamily: "iwi",
@@ -2726,7 +2766,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "t > iwi > iwa",
             });
         }
-        if (wiRootFinal === "l" && isIwiClass) {
+        if (wiStockFamily === "iwi" && wiRootFinal === "l") {
             return withWiFeatures({
                 sourceClass: "final_l",
                 stockFamily: "iwi",
@@ -2735,7 +2775,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "l > iwi > ua",
             });
         }
-        if (wiRootFinal === "y" && isIwiClass) {
+        if (wiStockFamily === "iwi" && wiRootFinal === "y") {
             return withWiFeatures({
                 sourceClass: "iwi_subcell_nonvj_final_y",
                 stockFamily: "iwi",
@@ -2744,7 +2784,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "y > iwi > iwa",
             });
         }
-        if (wiRootFinal === "tz" && isIwiClass) {
+        if (wiStockFamily === "iwi" && wiRootFinal === "tz") {
             if (wiFirstOnset === "p") {
                 return withWiFeatures({
                     sourceClass: "final_tz_iwi_p-onset",
@@ -2762,7 +2802,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "tz > iwi > iwa",
             });
         }
-        if (isVjC) {
+        if (wiStockFamily === "iwi" && isVjC) {
             return withWiFeatures({
                 sourceClass: "vjc",
                 stockFamily: "iwi",
@@ -2771,7 +2811,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "VjC > ua",
             });
         }
-        if (wiRootFinal === "t") {
+        if (wiStockFamily === "awi" && wiRootFinal === "t") {
             return withWiFeatures({
                 sourceClass: "final_t",
                 stockFamily: "awi",
@@ -2780,7 +2820,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "t > awi > awa",
             });
         }
-        if (wiRootFinal === "y") {
+        if (wiStockFamily === "awi" && wiRootFinal === "y") {
             return withWiFeatures({
                 sourceClass: "final_y",
                 stockFamily: "awi",
@@ -2789,7 +2829,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "y > awi > awa",
             });
         }
-        if (wiRootLastVowel === "i" || wiRootLastVowel === "u") {
+        if (wiStockFamily === "awi" && (wiRootLastVowel === "i" || wiRootLastVowel === "u")) {
             return withWiFeatures({
                 sourceClass: "vowel_iu",
                 stockFamily: "awi",
@@ -2798,7 +2838,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "i/u > awi > ua",
             });
         }
-        if (wiRootLastVowel === "a" || wiRootLastVowel === "e") {
+        if (wiStockFamily === "iwi" && (wiRootLastVowel === "a" || wiRootLastVowel === "e")) {
             return withWiFeatures({
                 sourceClass: "vowel_ae",
                 stockFamily: "iwi",
@@ -2829,6 +2869,14 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return "";
         }
         if (typeOneTarget === "ua") {
+            if (
+                baseStem.endsWith("awa")
+                || baseStem.endsWith("iwa")
+                || baseStem.endsWith("ewa")
+                || baseStem.endsWith("uwa")
+            ) {
+                return `${baseStem.slice(0, -3)}ua`;
+            }
             if (baseStem.endsWith("awi") || baseStem.endsWith("iwi") || baseStem.endsWith("uwi")) {
                 return `${baseStem.slice(0, -3)}ua`;
             }

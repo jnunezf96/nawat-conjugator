@@ -39,8 +39,8 @@
           ]
         },
         "regressionSet": {
-          "additive": ["ilpi", "aki", "pajti", "shini", "seti", "pani", "sewi", "tami"],
-          "replacive": ["mani", "sawi", "kwepi", "tzakwi", "tumi", "ishtawi", "temi", "puwi", "kawi", "kajkawi", "pati", "siyawi"],
+          "additive": ["ilpi", "aki", "pajti", "shini", "seti", "pani", "tami"],
+          "replacive": ["mani", "sawi", "sewi", "kwepi", "tzakwi", "tumi", "ishtawi", "temi", "puwi", "kawi", "kajkawi", "pati", "siyawi"],
           "none": ["nemi", "naki", "yuli", "mati", "nesi", "tesi", "kali", "ajwi", "wetzi", "tzajtzi", "tanawi"]
         }
       },

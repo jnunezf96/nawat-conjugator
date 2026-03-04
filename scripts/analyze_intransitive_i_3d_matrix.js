@@ -254,6 +254,7 @@ function classifyIntransitiveICausative(context, base) {
   const typeOne = options.filter((entry) => entry && entry.type === "type-one");
   const trace = options.causativeTrace || typeOne[0]?.causativeTrace || null;
   const winner = trace?.intransitiveI?.winner || null;
+  const wiPolicy = trace?.wiWaPolicy || null;
 
   let label = winner?.label || "none";
   if (!winner) {
@@ -271,13 +272,34 @@ function classifyIntransitiveICausative(context, base) {
       label = "none";
     }
   }
+  const typeOneStems = typeOne.map((entry) => entry.stem);
+  const primaryTypeOneStem = typeOneStems[0] || "";
+  let typeOneOutcome = "none";
+  if (primaryTypeOneStem) {
+    if (primaryTypeOneStem.endsWith("ua")) {
+      typeOneOutcome = "ua";
+    } else if (primaryTypeOneStem.endsWith("wa")) {
+      typeOneOutcome = "wa";
+    } else {
+      typeOneOutcome = "other";
+    }
+  }
 
   return {
     base,
     label,
     source: winner?.source || "no-trace",
     winner,
-    typeOneStems: typeOne.map((entry) => entry.stem),
+    typeOneStems,
+    typeOneOutcome,
+    wiPolicy: wiPolicy
+      ? {
+        sourceClass: wiPolicy.sourceClass || "",
+        stockFamily: wiPolicy.features?.stockFamily || wiPolicy.stockFamily || "",
+        desuperposeKey: wiPolicy.desuperposeKey || "",
+        typeOneTarget: wiPolicy.typeOneTarget || null,
+      }
+      : null,
   };
 }
 
@@ -418,6 +440,11 @@ function buildMatrixAndAgents(candidates, baselineByForm, matrixOnlyByForm) {
       source: baseline.source,
       winner: baseline.winner || null,
       confidence: baseline.winner?.confidence || null,
+      typeOneOutcome: baseline.typeOneOutcome || "none",
+      wiPolicySourceClass: baseline.wiPolicy?.sourceClass || "",
+      wiPolicyStockFamily: baseline.wiPolicy?.stockFamily || "",
+      wiPolicyDesuperposeKey: baseline.wiPolicy?.desuperposeKey || "",
+      wiPolicyTypeOneTarget: baseline.wiPolicy?.typeOneTarget || null,
     });
 
     const cell = ensureCell(matrix3d, candidate.firstManner, candidate.penultShape, candidate.finalManner);
@@ -810,6 +837,163 @@ function runPatternAgents(rows) {
   };
 }
 
+function buildPairwiseUnityMetrics(rows, getKey, getOutcome) {
+  let trueUnity = 0;
+  let falseUnity = 0;
+  let trueSeparation = 0;
+  let falseSeparation = 0;
+  const falseUnityExamples = [];
+  const falseSeparationExamples = [];
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const rowA = rows[i];
+    const keyA = getKey(rowA);
+    const outcomeA = getOutcome(rowA);
+    for (let j = i + 1; j < rows.length; j += 1) {
+      const rowB = rows[j];
+      const keyB = getKey(rowB);
+      const outcomeB = getOutcome(rowB);
+      const sameKey = keyA === keyB;
+      const sameOutcome = outcomeA === outcomeB;
+      if (sameKey && sameOutcome) {
+        trueUnity += 1;
+      } else if (sameKey && !sameOutcome) {
+        falseUnity += 1;
+        if (falseUnityExamples.length < 12) {
+          falseUnityExamples.push({
+            key: keyA,
+            a: { form: rowA.form, outcome: outcomeA, sourceClass: rowA.wiPolicySourceClass || "" },
+            b: { form: rowB.form, outcome: outcomeB, sourceClass: rowB.wiPolicySourceClass || "" },
+          });
+        }
+      } else if (!sameKey && sameOutcome) {
+        falseSeparation += 1;
+        if (falseSeparationExamples.length < 12) {
+          falseSeparationExamples.push({
+            outcome: outcomeA,
+            a: { form: rowA.form, key: keyA },
+            b: { form: rowB.form, key: keyB },
+          });
+        }
+      } else {
+        trueSeparation += 1;
+      }
+    }
+  }
+
+  const totalPairs = Math.max(0, (rows.length * (rows.length - 1)) / 2);
+  const safeRate = (value) => (totalPairs ? roundNumber(value / totalPairs, 4) : 0);
+  return {
+    totalPairs,
+    trueUnity,
+    falseUnity,
+    trueSeparation,
+    falseSeparation,
+    trueUnityRate: safeRate(trueUnity),
+    falseUnityRate: safeRate(falseUnity),
+    trueSeparationRate: safeRate(trueSeparation),
+    falseSeparationRate: safeRate(falseSeparation),
+    falseUnityExamples,
+    falseSeparationExamples,
+  };
+}
+
+function buildKeyPurityMetrics(rows, getKey, getOutcome) {
+  const byKey = new Map();
+  rows.forEach((row) => {
+    const key = String(getKey(row) || "");
+    const outcome = String(getOutcome(row) || "unknown");
+    if (!byKey.has(key)) {
+      byKey.set(key, {
+        total: 0,
+        outcomeCounts: {},
+        samples: [],
+      });
+    }
+    const bucket = byKey.get(key);
+    bucket.total += 1;
+    bucket.outcomeCounts[outcome] = (bucket.outcomeCounts[outcome] || 0) + 1;
+    if (bucket.samples.length < 8) {
+      bucket.samples.push({
+        form: row.form,
+        outcome,
+        sourceClass: row.wiPolicySourceClass || "",
+      });
+    }
+  });
+
+  const entries = [...byKey.entries()].map(([key, bucket]) => {
+    const sortedOutcomes = Object.entries(bucket.outcomeCounts)
+      .sort((a, b) => b[1] - a[1]);
+    const mixed = sortedOutcomes.length > 1;
+    const topCount = sortedOutcomes[0]?.[1] || 0;
+    const purity = bucket.total ? topCount / bucket.total : 0;
+    return {
+      key,
+      total: bucket.total,
+      outcomeCounts: bucket.outcomeCounts,
+      mixed,
+      purity: roundNumber(purity, 4),
+      samples: bucket.samples,
+    };
+  });
+
+  const mixedEntries = entries.filter((entry) => entry.mixed);
+  const pureEntries = entries.filter((entry) => !entry.mixed);
+  mixedEntries.sort((a, b) => {
+    if (a.purity !== b.purity) {
+      return a.purity - b.purity;
+    }
+    return b.total - a.total;
+  });
+
+  return {
+    uniqueKeys: entries.length,
+    pureKeys: pureEntries.length,
+    mixedKeys: mixedEntries.length,
+    mixedKeyRate: roundNumber(mixedEntries.length / Math.max(1, entries.length), 4),
+    mixedKeyExamples: mixedEntries.slice(0, 20),
+  };
+}
+
+function countBy(rows, selector) {
+  const counts = {};
+  rows.forEach((row) => {
+    const value = String(selector(row) || "");
+    counts[value] = (counts[value] || 0) + 1;
+  });
+  return counts;
+}
+
+function runWiPolicySuperpositionAudit(rows) {
+  const scopedRows = rows.filter((row) => (
+    (row.form.endsWith("awi") || row.form.endsWith("iwi"))
+    && row.wiPolicyDesuperposeKey
+  ));
+  const coarseOutcome = (row) => row.label || "none";
+  const fineOutcome = (row) => row.typeOneOutcome || "none";
+  const keySelector = (row) => row.wiPolicyDesuperposeKey || "";
+
+  return {
+    scope: {
+      rowCount: scopedRows.length,
+      forms: "...awi/...iwi",
+      keyField: "wiPolicyDesuperposeKey",
+    },
+    families: countBy(scopedRows, (row) => row.wiPolicyStockFamily || "unknown"),
+    coarse: {
+      outcomes: countBy(scopedRows, coarseOutcome),
+      keyQuality: buildKeyPurityMetrics(scopedRows, keySelector, coarseOutcome),
+      pairwise: buildPairwiseUnityMetrics(scopedRows, keySelector, coarseOutcome),
+    },
+    fine: {
+      outcomes: countBy(scopedRows, fineOutcome),
+      keyQuality: buildKeyPurityMetrics(scopedRows, keySelector, fineOutcome),
+      pairwise: buildPairwiseUnityMetrics(scopedRows, keySelector, fineOutcome),
+    },
+  };
+}
+
 function run() {
   const context = createContext();
   const derivRules = JSON.parse(fs.readFileSync(DERIV_RULES_PATH, "utf8"));
@@ -840,6 +1024,7 @@ function run() {
 
   const summary = buildMatrixAndAgents(candidates, baselineByForm, matrixOnlyByForm);
   const patternAgents = runPatternAgents(summary.rows);
+  const superpositionAudit = runWiPolicySuperpositionAudit(summary.rows);
   const unpatternedUnion = new Set();
 
   summary.agents.fallbackScout.samples.forEach((sample) => unpatternedUnion.add(sample.form));
@@ -889,6 +1074,7 @@ function run() {
     },
     agents: summary.agents,
     patternAgents,
+    superpositionAudit,
     matrix3d: summary.matrix3d,
   };
 
@@ -916,6 +1102,13 @@ function run() {
       singleFeatureAmbiguousHotspots: report.patternAgents.singleFeatureScout.ambiguousHotspotCount,
       pairRules: report.patternAgents.pairRuleScout.ruleCount,
       boundaryTransitions: report.patternAgents.boundaryScout.transitionCount,
+    },
+    superpositionAudit: {
+      scopedRows: report.superpositionAudit.scope.rowCount,
+      coarseFalseUnity: report.superpositionAudit.coarse.pairwise.falseUnity,
+      coarseFalseSeparation: report.superpositionAudit.coarse.pairwise.falseSeparation,
+      fineFalseUnity: report.superpositionAudit.fine.pairwise.falseUnity,
+      fineFalseSeparation: report.superpositionAudit.fine.pairwise.falseSeparation,
     },
     sampleUnpatternedUnionSize: report.totals.unpatternedSampleUnionSize,
   };
