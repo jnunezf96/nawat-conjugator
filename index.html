@@ -47,6 +47,29 @@
               <span class="ui-scale-value" id="ui-scale-value">0</span>
             </div>
           </div>
+          <div class="ui-density-control" role="group" aria-label="Nivel de interfaz">
+            <span class="ui-density-label">Vista</span>
+            <div class="ui-density-buttons">
+              <button
+                type="button"
+                class="ui-density-button"
+                id="ui-density-simple"
+                data-ui-density="simple"
+                aria-pressed="true"
+              >
+                Simple
+              </button>
+              <button
+                type="button"
+                class="ui-density-button"
+                id="ui-density-advanced"
+                data-ui-density="advanced"
+                aria-pressed="false"
+              >
+                Avanzado
+              </button>
+            </div>
+          </div>
           <!-- Language toggle button -->
           <label class="switch">
             <input type="checkbox" id="language" onchange="changeLanguage()" />
@@ -306,32 +329,55 @@
                               id="composer-slot-a"
                               data-slot-transitivity="intransitive"
                             >
-                              <div class="verb-composer__top-row">
-                                <div class="verb-composer__stem-field">
+                              <div class="verb-composer__top-row" data-composer-top-row="a">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__embed-field"
+                                  data-composer-embed-field="a"
+                                >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
-                                  <input
-                                    type="text"
-                                    id="composer-embed"
-                                    class="verb-composer__input"
-                                    placeholder="prefijo del verbo"
-                                    aria-label="Raíz incorporada Slot A"
-                                    autocomplete="off"
-                                    autocapitalize="none"
-                                    spellcheck="false"
-                                  />
+                                  <div class="verb-composer__embed-input-row">
+                                    <button
+                                      type="button"
+                                      class="verb-composer__prefix-toggle"
+                                      data-composer-prefix-toggle="a"
+                                      aria-label="Mostrar Raíz incorporada Slot A"
+                                      aria-controls="composer-embed"
+                                      aria-expanded="false"
+                                    >
+                                      +
+                                    </button>
+                                    <input
+                                      type="text"
+                                      id="composer-embed"
+                                      class="verb-composer__input"
+                                      placeholder="prefijo"
+                                      aria-label="Raíz incorporada Slot A"
+                                      autocomplete="off"
+                                      autocapitalize="none"
+                                      spellcheck="false"
+                                    />
+                                  </div>
                                 </div>
-                                <div class="verb-composer__stem-field">
-                                  <span class="verb-composer__sub-label">Raíz matriz</span>
+                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                  <div class="verb-composer__matrix-head">
+                                    <span class="verb-composer__sub-label">Raíz matriz</span>
+                                  </div>
                                   <input
                                     type="text"
                                     id="composer-stem-a"
                                     class="verb-composer__input"
-                                    placeholder="el verbo"
+                                    placeholder="verbo"
                                     aria-label="Raíz matriz Slot A"
                                     autocomplete="off"
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div
+                                    class="verb-composer__chips verb-composer__matrix-chips"
+                                    id="composer-stem-a-chips"
+                                    role="group"
+                                    aria-label="Raíz matriz sugerida Slot A"
+                                  ></div>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -377,32 +423,55 @@
                               id="composer-slot-b"
                               data-slot-transitivity="transitive"
                             >
-                              <div class="verb-composer__top-row">
-                                <div class="verb-composer__stem-field">
+                              <div class="verb-composer__top-row" data-composer-top-row="b">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__embed-field"
+                                  data-composer-embed-field="b"
+                                >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
-                                  <input
-                                    type="text"
-                                    id="composer-valence-embed-1"
-                                    class="verb-composer__input verb-composer__valence-embed-input"
-                                    placeholder="prefijo del verbo"
-                                    aria-label="Raíz incorporada Slot B"
-                                    autocomplete="off"
-                                    autocapitalize="none"
-                                    spellcheck="false"
-                                  />
+                                  <div class="verb-composer__embed-input-row">
+                                    <button
+                                      type="button"
+                                      class="verb-composer__prefix-toggle"
+                                      data-composer-prefix-toggle="b"
+                                      aria-label="Mostrar Raíz incorporada Slot B"
+                                      aria-controls="composer-valence-embed-1"
+                                      aria-expanded="false"
+                                    >
+                                      +
+                                    </button>
+                                    <input
+                                      type="text"
+                                      id="composer-valence-embed-1"
+                                      class="verb-composer__input verb-composer__valence-embed-input"
+                                      placeholder="prefijo"
+                                      aria-label="Raíz incorporada Slot B"
+                                      autocomplete="off"
+                                      autocapitalize="none"
+                                      spellcheck="false"
+                                    />
+                                  </div>
                                 </div>
-                                <div class="verb-composer__stem-field">
-                                  <span class="verb-composer__sub-label">Raíz matriz</span>
+                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                  <div class="verb-composer__matrix-head">
+                                    <span class="verb-composer__sub-label">Raíz matriz</span>
+                                  </div>
                                   <input
                                     type="text"
                                     id="composer-stem-b"
                                     class="verb-composer__input"
-                                    placeholder="el verbo"
+                                    placeholder="verbo"
                                     aria-label="Raíz matriz Slot B"
                                     autocomplete="off"
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div
+                                    class="verb-composer__chips verb-composer__matrix-chips"
+                                    id="composer-stem-b-chips"
+                                    role="group"
+                                    aria-label="Raíz matriz sugerida Slot B"
+                                  ></div>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -450,32 +519,55 @@
                               id="composer-slot-c"
                               data-slot-transitivity="bitransitive"
                             >
-                              <div class="verb-composer__top-row">
-                                <div class="verb-composer__stem-field">
+                              <div class="verb-composer__top-row" data-composer-top-row="c">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__embed-field"
+                                  data-composer-embed-field="c"
+                                >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
-                                  <input
-                                    type="text"
-                                    id="composer-valence-embed-2"
-                                    class="verb-composer__input verb-composer__valence-embed-input"
-                                    placeholder="prefijo del verbo"
-                                    aria-label="Raíz incorporada Slot C"
-                                    autocomplete="off"
-                                    autocapitalize="none"
-                                    spellcheck="false"
-                                  />
+                                  <div class="verb-composer__embed-input-row">
+                                    <button
+                                      type="button"
+                                      class="verb-composer__prefix-toggle"
+                                      data-composer-prefix-toggle="c"
+                                      aria-label="Mostrar Raíz incorporada Slot C"
+                                      aria-controls="composer-valence-embed-2"
+                                      aria-expanded="false"
+                                    >
+                                      +
+                                    </button>
+                                    <input
+                                      type="text"
+                                      id="composer-valence-embed-2"
+                                      class="verb-composer__input verb-composer__valence-embed-input"
+                                      placeholder="prefijo"
+                                      aria-label="Raíz incorporada Slot C"
+                                      autocomplete="off"
+                                      autocapitalize="none"
+                                      spellcheck="false"
+                                    />
+                                  </div>
                                 </div>
-                                <div class="verb-composer__stem-field">
-                                  <span class="verb-composer__sub-label">Raíz matriz</span>
+                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                  <div class="verb-composer__matrix-head">
+                                    <span class="verb-composer__sub-label">Raíz matriz</span>
+                                  </div>
                                   <input
                                     type="text"
                                     id="composer-stem-c"
                                     class="verb-composer__input"
-                                    placeholder="el verbo"
+                                    placeholder="verbo"
                                     aria-label="Raíz matriz Slot C"
                                     autocomplete="off"
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div
+                                    class="verb-composer__chips verb-composer__matrix-chips"
+                                    id="composer-stem-c-chips"
+                                    role="group"
+                                    aria-label="Raíz matriz sugerida Slot C"
+                                  ></div>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -790,15 +882,15 @@
             >
               <span aria-hidden="true">▶</span>
             </button>
-          </div>
-          <div class="tense-tools">
             <button type="button" class="view-export-button" id="view-export-csv">
               CSV vista
             </button>
           </div>
-          <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
-          <div class="calc-status" id="calc-status" aria-live="polite"></div>
-          <div class="tense-description" id="tense-description" aria-live="polite"></div>
+          <div class="output-meta-strip">
+            <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
+            <div class="calc-status" id="calc-status" aria-live="polite"></div>
+            <div class="tense-description" id="tense-description" aria-live="polite"></div>
+          </div>
           <div id="all-tense-conjugations"></div>
         </div>
       </div>

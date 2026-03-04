@@ -119,6 +119,72 @@ const PRET_UNIVERSAL_CLASS_GATE_RULES = Object.freeze([
     },
 ]);
 
+const PRET_DENOMINAL_MATRIX_STEM_SET = Object.freeze([
+    "ti",
+    "wi",
+    "ya",
+    "a",
+    "wa",
+    "tiya",
+    "wiya",
+]);
+
+function normalizePretDenominalStem(value) {
+    if (!value) {
+        return "";
+    }
+    return String(value)
+        .toLowerCase()
+        .replace(/[|~#()\\/?-]/g, "");
+}
+
+function getPretDenominalSourceContext({
+    verb = "",
+    matrixStem = "",
+    hasSlashMarker = false,
+    hasBoundMarker = false,
+    hasImpersonalTaPrefix = false,
+} = {}) {
+    const defaults = {
+        isDenominalMatrixInput: false,
+        denominalMatrixStem: "",
+        denominalSourceStem: "",
+        denominalSourceEndsWithVowel: false,
+        denominalSourceEndsWithConsonant: false,
+        isDenominalTiMatrix: false,
+        isDenominalWiMatrix: false,
+    };
+    if (!hasSlashMarker || !hasBoundMarker || hasImpersonalTaPrefix) {
+        return defaults;
+    }
+    const normalizedMatrix = normalizePretDenominalStem(matrixStem);
+    if (!normalizedMatrix || !PRET_DENOMINAL_MATRIX_STEM_SET.includes(normalizedMatrix)) {
+        return defaults;
+    }
+    const normalizedVerb = normalizePretDenominalStem(verb);
+    if (
+        !normalizedVerb
+        || normalizedVerb.length <= normalizedMatrix.length
+        || !normalizedVerb.endsWith(normalizedMatrix)
+    ) {
+        return defaults;
+    }
+    const sourceStem = normalizedVerb.slice(0, -normalizedMatrix.length);
+    const letters = splitVerbLetters(sourceStem);
+    const lastLetter = letters[letters.length - 1] || "";
+    const sourceEndsWithVowel = Boolean(lastLetter && isVerbLetterVowel(lastLetter));
+    const sourceEndsWithConsonant = Boolean(lastLetter && isVerbLetterConsonant(lastLetter));
+    return {
+        isDenominalMatrixInput: true,
+        denominalMatrixStem: normalizedMatrix,
+        denominalSourceStem: sourceStem,
+        denominalSourceEndsWithVowel: sourceEndsWithVowel,
+        denominalSourceEndsWithConsonant: sourceEndsWithConsonant,
+        isDenominalTiMatrix: normalizedMatrix === "ti",
+        isDenominalWiMatrix: normalizedMatrix === "wi",
+    };
+}
+
 function getPretUniversalClassOrder() {
     return PRET_UNIVERSAL_CLASS_ORDER.slice();
 }
@@ -183,6 +249,13 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const exactBaseVerb = derivationType === DERIVATION_TYPE.direct
         ? options.exactBaseVerb
         : "";
+    const denominalSource = getPretDenominalSourceContext({
+        verb,
+        matrixStem: exactBaseVerb,
+        hasSlashMarker,
+        hasBoundMarker,
+        hasImpersonalTaPrefix,
+    });
     const sourceVerb = exactBaseVerb || getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
         hasSlashMarker,
@@ -222,9 +295,15 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const parsedRootPlusYaPronounceable = typeof options.rootPlusYaBasePronounceable === "string"
         ? options.rootPlusYaBasePronounceable
         : "";
+    const denominalRootPlusYaBase = (
+        !isTransitive
+        && denominalSource.isDenominalMatrixInput
+        && denominalSource.denominalMatrixStem === "ya"
+        && denominalSource.denominalSourceStem
+    ) ? denominalSource.denominalSourceStem : "";
     const computedRootPlusYaBase = !isTransitive && parsedRootPlusYaBase
         ? parsedRootPlusYaBase
-        : getRootPlusYaBase(rootPlusYaSource, { isTransitive, isYawi, isWeya });
+        : (denominalRootPlusYaBase || getRootPlusYaBase(rootPlusYaSource, { isTransitive, isYawi, isWeya }));
     const rootPlusYaBase = isTransitive ? null : computedRootPlusYaBase;
     const rootPlusYaBasePronounceable = rootPlusYaBase
         ? (parsedRootPlusYaPronounceable || (isSyllableSequencePronounceable(rootPlusYaBase) ? rootPlusYaBase : ""))
@@ -1321,6 +1400,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         endsInOpenSyllableNonU,
         endsWithIaUa,
         isItaVerb,
+        ...denominalSource,
         isYawi,
         isWeya,
         hasSlashMarker,
@@ -1357,6 +1437,50 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
         tier: "path",
         when: (context) => context.isCausativeTypeTwo,
         classes: ["C"],
+    },
+    {
+        id: "denominal_ti_source_consonant",
+        label: "denominal TI with consonant source",
+        tier: "path",
+        when: (context) => (
+            context.isDenominalMatrixInput
+            && context.isDenominalTiMatrix
+            && context.denominalSourceEndsWithConsonant
+        ),
+        classes: ["B"],
+    },
+    {
+        id: "denominal_ti_source_vowel",
+        label: "denominal TI with vowel source",
+        tier: "path",
+        when: (context) => (
+            context.isDenominalMatrixInput
+            && context.isDenominalTiMatrix
+            && context.denominalSourceEndsWithVowel
+        ),
+        classes: ["A", "B"],
+    },
+    {
+        id: "denominal_wi_source_consonant",
+        label: "denominal WI with consonant source",
+        tier: "path",
+        when: (context) => (
+            context.isDenominalMatrixInput
+            && context.isDenominalWiMatrix
+            && context.denominalSourceEndsWithConsonant
+        ),
+        classes: ["B"],
+    },
+    {
+        id: "denominal_wi_source_vowel",
+        label: "denominal WI with vowel source",
+        tier: "path",
+        when: (context) => (
+            context.isDenominalMatrixInput
+            && context.isDenominalWiMatrix
+            && context.denominalSourceEndsWithVowel
+        ),
+        classes: ["A", "B"],
     },
     {
         id: "monosyllable_transitive_v_e",

@@ -626,6 +626,67 @@ p {
   gap: 16px;
 }
 
+.ui-density-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ui-density-label {
+  font-size: var(--font-size-label);
+  color: var(--ink-soft);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ui-density-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 170px;
+}
+
+.ui-density-button {
+  min-height: 28px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-btn-border);
+  background: var(--glass-btn-bg);
+  color: var(--ink-soft);
+  font-size: calc(var(--font-size-label) - 0.02rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.ui-density-button:hover:not(:disabled) {
+  border-color: var(--glass-btn-border-hover);
+  color: var(--ink);
+}
+
+.ui-density-button:focus-visible {
+  outline: 2px solid rgba(44, 139, 126, 0.45);
+  outline-offset: 1px;
+}
+
+.ui-density-button.is-active {
+  background: var(--glass-btn-bg-active);
+  border-color: var(--glass-btn-border-active);
+  color: var(--ink);
+}
+
+.ui-density-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .ui-scale-control {
   display: flex;
   flex-direction: column;
@@ -720,6 +781,14 @@ p {
 
 .panel-block-text {
   letter-spacing: 0.18em;
+}
+
+#container-tense-grid .panel-block-title {
+  justify-content: flex-start;
+}
+
+#container-tense-grid .panel-block-title .view-export-button {
+  margin-left: auto;
 }
 
 .panel-pane-nav-btn {
@@ -909,7 +978,10 @@ p {
   width: 100%;
 }
 
-.calc-operator-grid--mode,
+.calc-operator-grid--mode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .calc-operator-grid--voice {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -988,6 +1060,29 @@ p {
   color: #6f3b18;
 }
 
+.output-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+
+.output-meta-strip .calc-summary,
+.output-meta-strip .calc-status,
+.output-meta-strip .tense-description {
+  margin-top: 0;
+  min-height: 0;
+}
+
+.output-meta-strip .calc-summary,
+.output-meta-strip .calc-status {
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: calc(0.58rem + var(--font-size-adjust));
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+}
+
 .tense-tools {
   display: flex;
   justify-content: flex-end;
@@ -1032,6 +1127,35 @@ p {
   font-size: calc(0.9rem + var(--font-size-adjust));
   color: var(--ink);
   font-weight: 500;
+}
+
+.output-meta-strip .tense-description {
+  padding: 8px 10px;
+  border-radius: 12px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.output-meta-strip .tense-description__item {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.output-meta-strip .tense-description__label {
+  font-size: calc(0.55rem + var(--font-size-adjust));
+  letter-spacing: 0.1em;
+  opacity: 0.65;
+  white-space: normal;
+  line-height: 1.15;
+}
+
+.output-meta-strip .tense-description__text {
+  font-size: calc(0.64rem + var(--font-size-adjust));
+  line-height: 1.25;
+  font-weight: 600;
+  white-space: normal;
 }
 
 .tense-tabs-panel {
@@ -1332,6 +1456,37 @@ input.verb-input:focus-visible {
   display: grid;
   gap: 8px;
   margin-top: 8px;
+}
+
+body.is-ui-simple .verb-block__keys,
+body.is-ui-simple #composer-directional-field,
+body.is-ui-simple .verb-composer__checkbox,
+body.is-ui-simple .calc-operator--mode,
+body.is-ui-simple .calc-operator--voice,
+body.is-ui-simple .calc-operator--derivation,
+body.is-ui-simple .derivation-antiderivative,
+body.is-ui-simple #nonactive-tabs,
+body.is-ui-simple .legend-help,
+body.is-ui-simple #tutorial-trigger {
+  display: none !important;
+}
+
+body.is-ui-simple .verb-composer__bottom-row > .verb-composer__directional-host,
+body.is-ui-simple .verb-composer__bottom-row > .verb-composer__stem-field {
+  display: none !important;
+}
+
+body.is-ui-simple .verb-composer .verb-composer__chips,
+body.is-ui-simple .verb-composer .verb-composer__valence-main {
+  display: none !important;
+}
+
+body.is-ui-simple .verb-composer__bottom-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.is-ui-simple .calc-operators {
+  display: none !important;
 }
 
 .verb-block__screen {
@@ -1663,8 +1818,102 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
 .verb-composer__top-row {
   order: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 8px;
+  align-items: start;
+}
+
+.verb-composer__top-row.is-embed-preview,
+.verb-composer__top-row.is-embed-open {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.verb-composer__matrix-field {
+  grid-column: 2;
+}
+
+.verb-composer__matrix-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verb-composer__top-row:not(.is-embed-preview):not(.is-embed-open) .verb-composer__matrix-head {
+  margin-left: -46px;
+}
+
+.verb-composer__prefix-toggle {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(29, 26, 21, 0.32);
+  background: rgba(255, 255, 255, 0.95);
+  color: rgba(29, 26, 21, 0.9);
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.verb-composer__prefix-toggle:hover,
+.verb-composer__prefix-toggle:focus-visible {
+  border-color: rgba(216, 106, 58, 0.82);
+  color: rgba(29, 26, 21, 1);
+  background: rgba(255, 247, 236, 0.98);
+  outline: none;
+}
+
+.verb-composer__prefix-toggle.is-active {
+  border-color: rgba(216, 106, 58, 0.92);
+  background: rgba(255, 239, 220, 0.98);
+}
+
+.verb-composer__embed-field {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.verb-composer__embed-input-row {
+  display: grid;
+  grid-template-columns: auto;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-top: 24px;
+}
+
+.verb-composer__embed-field > .verb-composer__sub-label,
+.verb-composer__embed-input-row .verb-composer__input {
+  display: none;
+}
+
+.verb-composer__top-row.is-embed-preview .verb-composer__embed-field > .verb-composer__sub-label,
+.verb-composer__top-row.is-embed-open .verb-composer__embed-field > .verb-composer__sub-label,
+.verb-composer__top-row.is-embed-preview .verb-composer__embed-input-row .verb-composer__input,
+.verb-composer__top-row.is-embed-open .verb-composer__embed-input-row .verb-composer__input {
+  display: block;
+}
+
+.verb-composer__top-row.is-embed-preview .verb-composer__embed-input-row,
+.verb-composer__top-row.is-embed-open .verb-composer__embed-input-row {
+  grid-template-columns: auto minmax(0, 1fr);
+  width: 100%;
+  margin-top: 0;
+}
+
+.verb-composer__matrix-field .verb-composer__input,
+.verb-composer__embed-input-row .verb-composer__input {
+  min-width: 0;
+}
+
+.verb-composer__embed-field .verb-composer__input:disabled {
+  opacity: 0.7;
 }
 
 .verb-composer__bottom-row {
@@ -1911,6 +2160,15 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   gap: 8px;
 }
 
+.verb-composer__chips.is-hidden-by-slot-toggle {
+  display: none !important;
+}
+
+.verb-composer__matrix-chips {
+  margin-top: 2px;
+  gap: 6px;
+}
+
 .verb-chip {
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -1923,6 +2181,13 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   border-radius: 10px;
   min-height: 34px;
   padding: 3px 10px;
+}
+
+.verb-composer .verb-composer__matrix-chips .verb-chip {
+  min-height: 30px;
+  padding: 2px 8px;
+  text-transform: none;
+  letter-spacing: 0.03em;
 }
 
 .verb-composer__checkbox {
@@ -2528,7 +2793,17 @@ input[type="submit"]:hover {
 
   .hero-controls {
     width: 100%;
+    flex-wrap: wrap;
     justify-content: space-between;
+  }
+
+  .ui-density-control {
+    flex: 1 1 180px;
+  }
+
+  .ui-density-buttons {
+    min-width: 0;
+    width: 100%;
   }
 
   .ui-scale-control input[type="range"] {
@@ -2583,6 +2858,14 @@ input[type="submit"]:hover {
   .verb-composer__bottom-row,
   .verb-composer__stem-pair {
     grid-template-columns: 1fr;
+  }
+
+  .verb-composer__matrix-field {
+    grid-column: 1 / -1;
+  }
+
+  .verb-composer__top-row:not(.is-embed-preview):not(.is-embed-open) .verb-composer__matrix-head {
+    margin-left: 0;
   }
 
   .verb-composer__valence-embed-input {

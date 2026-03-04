@@ -7,10 +7,10 @@
       "nonactive": [{ "suffix": "luwa", "stem": "wiluwa" }]
     },
     {
-      "id": "ye",
-      "match": { "type": "verbInSet", "formsKey": "suppletiveYeForms" },
-      "active": { "type": "suppletiveYe" },
-      "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveYeNonactive" }]
+      "id": "kati",
+      "match": { "type": "verbInSet", "formsKey": "suppletiveKatiForms" },
+      "active": { "type": "suppletiveKati" },
+      "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveKatiNonactive" }]
     },
     {
       "id": "witzi",

@@ -1,7 +1,9 @@
 {
   "tenseMode": {
     "verbo": { "value": "verbo", "labelNa": "muchiwalis" },
-    "sustantivo": { "value": "sustantivo", "labelNa": "Tukaytil" }
+    "sustantivo": { "value": "sustantivo", "labelNa": "Tukaytil" },
+    "adjetivo": { "value": "adjetivo", "labelNa": "adjetivo" },
+    "adverbio": { "value": "adverbio", "labelNa": "adverbio" }
   },
   "voiceMode": {
     "active": { "value": "active", "labelNa": "muchiwki" },

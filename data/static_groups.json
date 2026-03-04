@@ -54,6 +54,35 @@
         }
       ],
       "right": []
+    },
+    "adjetivo": {
+      "left": [
+        {
+          "heading": { "labelEs": "Adjetivación", "labelNa": "Adjetivación" },
+          "tenses": [
+            "potencial",
+            "potencial-habitual",
+            "potencial-activo",
+            "perfecto-compuesto-activo",
+            "tronco-preterito-activo",
+            "tronco-perfecto-compuesto-activo",
+            "tronco-preterito-activo-2",
+            "tronco-perfecto-compuesto-activo-2"
+          ]
+        }
+      ],
+      "right": []
+    },
+    "adverbio": {
+      "left": [
+        {
+          "heading": { "labelEs": "Adverbialización", "labelNa": "Adverbialización" },
+          "tenses": [
+            "pasado-remoto-adverbio-activo"
+          ]
+        }
+      ],
+      "right": []
     }
   }
 }

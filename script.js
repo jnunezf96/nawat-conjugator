@@ -2281,6 +2281,12 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     const matchNeutralBase = (base) => Boolean(base && (neutralVerbs.includes(base) || matchesNeutralSuffix(base)));
     const results = [];
     const seen = new Set();
+    let causativeTrace = {
+        ruleBase,
+        fullRuleBase,
+        isTransitive,
+        isIntransitive,
+    };
     const push = (stem, meta = {}) => {
         if (!stem) {
             return;
@@ -2290,7 +2296,11 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return;
         }
         seen.add(key);
-        results.push({ stem, ...meta });
+        results.push({
+            stem,
+            ...meta,
+            causativeTrace,
+        });
     };
     if (isIntransitive && !hasLeadingDash) {
         const matchBase = matchNeutralBase(fullRuleBase) ? fullRuleBase : (matchNeutralBase(ruleBase) ? ruleBase : "");
@@ -2380,6 +2390,97 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return "";
     };
+    const getWiBoundarySubcell = (wiBase = "") => {
+        const letters = splitVerbLetters(wiBase);
+        const suffixLength = wiBase.endsWith("awi") || wiBase.endsWith("iwi")
+            ? 3
+            : (wiBase.endsWith("wi") ? 2 : 0);
+        if (!suffixLength || letters.length <= suffixLength) {
+            return {
+                label: "none",
+                boundaryCoda: "",
+                hasBoundaryJ: false,
+                hasBoundaryL: false,
+                leftLength: 0,
+            };
+        }
+        const loneIndex = letters.length - suffixLength - 1;
+        if (loneIndex < 0) {
+            return {
+                label: "none",
+                boundaryCoda: "",
+                hasBoundaryJ: false,
+                hasBoundaryL: false,
+                leftLength: 0,
+            };
+        }
+        const leftLetters = letters.slice(0, loneIndex);
+        const c = leftLetters[leftLetters.length - 1] || "";
+        const b = leftLetters[leftLetters.length - 2] || "";
+        const a = leftLetters[leftLetters.length - 3] || "";
+        let label = "complex";
+        if (!leftLetters.length) {
+            label = "none";
+        } else if (isVerbLetterVowel(c)) {
+            label = isVerbLetterConsonant(b) ? "CV" : "V";
+        } else if ((c === "j" || c === "l") && isVerbLetterVowel(b)) {
+            label = isVerbLetterConsonant(a) ? `CV${c}` : `V${c}`;
+        } else if (isVerbLetterConsonant(c)) {
+            label = "C";
+        }
+        return {
+            label,
+            boundaryCoda: (c === "j" || c === "l") ? c : "",
+            hasBoundaryJ: c === "j",
+            hasBoundaryL: c === "l",
+            leftLength: leftLetters.length,
+        };
+    };
+    const getWiPolicyFeatures = (normalizedStem = "", patternBaseStem = "") => {
+        const normalizedBase = normalizeDerivationStemValue(normalizedStem);
+        const patternBase = normalizeDerivationStemValue(patternBaseStem) || normalizedBase;
+        const patternLetters = splitVerbLetters(patternBase);
+        const firstOnset = patternLetters.find((letter) => isVerbLetterConsonant(letter)) || "";
+        const hasDigraphInPattern = patternLetters.some((letter) => DIGRAPH_SET.has(letter));
+        const isAwiIwiPatternBase = patternBase.endsWith("awi") || patternBase.endsWith("iwi");
+        const wiClassBase = patternBase.endsWith("wi") ? patternBase : normalizedBase;
+        const isAwiClass = wiClassBase.endsWith("awi");
+        const isIwiClass = wiClassBase.endsWith("iwi");
+        const isVjC = matchesWiStockPattern("VjC-a-wi", patternLetters)
+            || matchesWiStockPattern("VjC-i-wi", patternLetters);
+        const boundary = getWiBoundarySubcell(wiClassBase);
+        const isVjBoundarySubcell = isVjC && boundary.hasBoundaryJ;
+        const wiRoot = (isAwiClass || isIwiClass)
+            ? wiClassBase.slice(0, -3)
+            : wiClassBase.slice(0, -2);
+        const wiRootLetters = splitVerbLetters(wiRoot);
+        const wiRootFinal = wiRootLetters[wiRootLetters.length - 1] || "";
+        const wiRootPreFinal = wiRootLetters[wiRootLetters.length - 2] || "";
+        const wiRootThirdFromEnd = wiRootLetters[wiRootLetters.length - 3] || "";
+        const wiRootHasCodaBeforeFinal = isVerbLetterConsonant(wiRootPreFinal);
+        const wiRootLastVowel = getStemLastVowel(wiRoot);
+        return {
+            patternBase,
+            patternLetters,
+            firstOnset,
+            hasDigraphInPattern,
+            isAwiIwiPatternBase,
+            wiClassBase,
+            isAwiClass,
+            isIwiClass,
+            isVjC,
+            boundary,
+            isVjBoundarySubcell,
+            wiRoot,
+            wiRootLetters,
+            wiRootLength: wiRootLetters.length,
+            wiRootFinal,
+            wiRootPreFinal,
+            wiRootThirdFromEnd,
+            wiRootHasCodaBeforeFinal,
+            wiRootLastVowel,
+        };
+    };
     const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
         const normalized = normalizeDerivationStemValue(baseStem);
         if (!isIntransitive || !normalized) {
@@ -2397,10 +2498,21 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (!normalized.endsWith("wi")) {
             return null;
         }
-        if (normalized === "ewi") {
+        if (normalized.endsWith("ewi")) {
+            const ewiLetters = splitVerbLetters(normalized);
+            const ewiFirstOnset = ewiLetters.find((letter) => isVerbLetterConsonant(letter)) || "";
+            if (ewiFirstOnset === "s") {
+                return {
+                    sourceClass: "final_ewi_s-onset",
+                    stockFamily: "wi",
+                    typeOneTarget: null,
+                    typeTwoTarget: "witia",
+                    chain: "ewi/s-onset > additive-i",
+                };
+            }
             return {
-                sourceClass: "exact_ewi",
-                stockFamily: "awi",
+                sourceClass: "final_ewi",
+                stockFamily: "wi",
                 typeOneTarget: "wa",
                 typeTwoTarget: "witia",
                 chain: "ewi > ewa",
@@ -2415,96 +2527,293 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "kwetawi > kwetua",
             };
         }
-        if (normalized.endsWith("uwi")) {
+        if (normalized === "tapuwi") {
             return {
-                sourceClass: "final_uwi",
+                sourceClass: "exact_tapuwi",
                 stockFamily: "awi",
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
-                chain: "uwi > ua",
+                chain: "tapuwi > tapua",
+            };
+        }
+        if (normalized.endsWith("uwi")) {
+            return {
+                sourceClass: "final_uwi",
+                stockFamily: "wi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "uwi > uwa",
             };
         }
         const patternBase = getNonReduplicatedRoot(normalized) || normalized;
-        const patternLetters = splitVerbLetters(patternBase);
-        const hasDigraphInPattern = patternLetters.some((letter) => DIGRAPH_SET.has(letter));
-        if (hasDigraphInPattern) {
+        const wiFeatures = getWiPolicyFeatures(normalized, patternBase);
+        const {
+            patternLetters,
+            firstOnset: wiFirstOnset,
+            hasDigraphInPattern,
+            isAwiIwiPatternBase,
+            isAwiClass,
+            isIwiClass,
+            isVjC,
+            boundary: wiBoundarySubcell,
+            isVjBoundarySubcell,
+            wiRootLetters,
+            wiRootFinal,
+            wiRootPreFinal,
+            wiRootThirdFromEnd,
+            wiRootHasCodaBeforeFinal,
+            wiRootLastVowel,
+        } = wiFeatures;
+        const withWiFeatures = (entry) => {
+            const features = {
+                prefixSubcell: wiBoundarySubcell.label,
+                prefixCoda: wiBoundarySubcell.boundaryCoda || "",
+                firstOnset: wiFirstOnset,
+                isVjBoundarySubcell,
+                wiRootLength: wiFeatures.wiRootLength,
+                wiRootPreFinal,
+                wiRootFinal,
+                wiRootLastVowel,
+            };
+            const desuperposeKey = [
+                features.prefixSubcell,
+                features.prefixCoda || "_",
+                features.firstOnset || "_",
+                features.isVjBoundarySubcell ? "vj" : "nonvj",
+                String(features.wiRootLength || 0),
+                features.wiRootPreFinal || "_",
+                features.wiRootFinal || "_",
+                features.wiRootLastVowel || "_",
+            ].join("|");
             return {
+                ...entry,
+                features,
+                desuperposeKey,
+            };
+        };
+        // Keep digraph safeguard for bare ...wi stems (e.g. ...kwi), but let ...awi/...iwi
+        // continue into wi-root vowel/class logic (e.g. tzikawi > tzikua, tzuliwi > tzulua).
+        if (hasDigraphInPattern && !isAwiIwiPatternBase) {
+            return withWiFeatures({
                 sourceClass: "digraph_wi",
                 stockFamily: "wi",
                 typeOneTarget: null,
                 typeTwoTarget: "witia",
                 chain: "digraph > witia",
-            };
+            });
         }
-        const isVjC = matchesWiStockPattern("VjC-a-wi", patternLetters)
-            || matchesWiStockPattern("VjC-i-wi", patternLetters);
-        if (isVjC) {
-            return {
-                sourceClass: "vjc",
-                stockFamily: "awi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "VjC > ua",
-            };
-        }
-        const wiRoot = (normalized.endsWith("awi") || normalized.endsWith("iwi"))
-            ? normalized.slice(0, -3)
-            : normalized.slice(0, -2);
-        const wiRootLetters = splitVerbLetters(wiRoot);
-        const wiRootFinal = wiRootLetters[wiRootLetters.length - 1] || "";
-        if (wiRootFinal === "t") {
-            return {
-                sourceClass: "final_t",
+        if (isAwiClass) {
+            if (wiRootFinal === "n" && (wiRootLetters.length > 3 || wiFirstOnset !== "p")) {
+                return withWiFeatures({
+                    sourceClass: "awi_final_n",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "n + awi > nua",
+                });
+            }
+            if (wiRootFinal === "k" && wiFirstOnset === "y") {
+                return withWiFeatures({
+                    sourceClass: "awi_initial_y_final_k",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "y...k + awi > kua",
+                });
+            }
+            if (wiRootFinal === "k" && wiRootPreFinal === "a" && wiRootThirdFromEnd === "t") {
+                return withWiFeatures({
+                    sourceClass: "awi_final_tak",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "tak + awi > takua",
+                });
+            }
+            // Subcell split: VjC-awi and non-VjC-awi routes are explicit.
+            if (isVjBoundarySubcell) {
+                if (wiRootFinal === "t") {
+                    return withWiFeatures({
+                        sourceClass: "awi_subcell_vj_final_t",
+                        stockFamily: "awi",
+                        typeOneTarget: "ua",
+                        typeTwoTarget: "witia",
+                        chain: "VjT + awi > ua",
+                    });
+                }
+                if (
+                    (wiFirstOnset === "sh" && wiRootFinal === "k")
+                    || (["p", "t"].includes(wiFirstOnset) && wiRootFinal === "sh")
+                ) {
+                    return withWiFeatures({
+                        sourceClass: "awi_subcell_vj_obstruent_mirror",
+                        stockFamily: "awi",
+                        typeOneTarget: "ua",
+                        typeTwoTarget: "witia",
+                        chain: "VjC awi mirrored obstruent pair > ua",
+                    });
+                }
+                return withWiFeatures({
+                    sourceClass: "awi_subcell_vj_default",
+                    stockFamily: "awi",
+                    typeOneTarget: "wa",
+                    typeTwoTarget: "witia",
+                    chain: "VjC + awi > awa",
+                });
+            }
+            if (
+                (wiFirstOnset === "sh" && wiRootFinal === "k")
+                || (["p", "t"].includes(wiFirstOnset) && wiRootFinal === "sh")
+            ) {
+                return withWiFeatures({
+                    sourceClass: "awi_subcell_nonvj_obstruent_mirror",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "awi mirrored obstruent pair > ua",
+                });
+            }
+            if (wiFirstOnset === "tz" && !wiRootHasCodaBeforeFinal) {
+                return withWiFeatures({
+                    sourceClass: "awi_subcell_nonvj_tz_onset",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "awi + tz-onset > ua",
+                });
+            }
+            return withWiFeatures({
+                sourceClass: "awi_subcell_nonvj_default",
                 stockFamily: "awi",
                 typeOneTarget: "wa",
                 typeTwoTarget: "witia",
-                chain: "t > awi > awa",
-            };
+                chain: "awi > awa",
+            });
         }
-        if (wiRootFinal === "l") {
-            return {
+        if (isIwiClass && isVjBoundarySubcell) {
+            if (wiRootFinal === "s") {
+                return withWiFeatures({
+                    sourceClass: "iwi_subcell_vj_final_s",
+                    stockFamily: "iwi",
+                    typeOneTarget: "wa",
+                    typeTwoTarget: "witia",
+                    chain: "VjS + iwi > iwa",
+                });
+            }
+            if (wiRootFinal === "tz" && wiFirstOnset === "p") {
+                return withWiFeatures({
+                    sourceClass: "iwi_subcell_vj_final_tz_p-onset",
+                    stockFamily: "iwi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "Vj + p-onset + tz+iwi > ua",
+                });
+            }
+            return withWiFeatures({
+                sourceClass: "iwi_subcell_vj_default",
+                stockFamily: "iwi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "VjC + iwi > ua",
+            });
+        }
+        if (wiRootFinal === "t" && isIwiClass) {
+            return withWiFeatures({
+                sourceClass: "iwi_subcell_nonvj_final_t",
+                stockFamily: "iwi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "t > iwi > iwa",
+            });
+        }
+        if (wiRootFinal === "l" && isIwiClass) {
+            return withWiFeatures({
                 sourceClass: "final_l",
                 stockFamily: "iwi",
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
                 chain: "l > iwi > ua",
-            };
+            });
+        }
+        if (wiRootFinal === "y" && isIwiClass) {
+            return withWiFeatures({
+                sourceClass: "iwi_subcell_nonvj_final_y",
+                stockFamily: "iwi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "y > iwi > iwa",
+            });
+        }
+        if (wiRootFinal === "tz" && isIwiClass) {
+            if (wiFirstOnset === "p") {
+                return withWiFeatures({
+                    sourceClass: "final_tz_iwi_p-onset",
+                    stockFamily: "iwi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "p-onset + tz+iwi > ua",
+                });
+            }
+            return withWiFeatures({
+                sourceClass: "final_tz_iwi",
+                stockFamily: "iwi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "tz > iwi > iwa",
+            });
+        }
+        if (isVjC) {
+            return withWiFeatures({
+                sourceClass: "vjc",
+                stockFamily: "iwi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "VjC > ua",
+            });
+        }
+        if (wiRootFinal === "t") {
+            return withWiFeatures({
+                sourceClass: "final_t",
+                stockFamily: "awi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "t > awi > awa",
+            });
         }
         if (wiRootFinal === "y") {
-            return {
+            return withWiFeatures({
                 sourceClass: "final_y",
                 stockFamily: "awi",
                 typeOneTarget: "wa",
                 typeTwoTarget: "witia",
                 chain: "y > awi > awa",
-            };
+            });
         }
-        const wiRootLastVowel = getStemLastVowel(wiRoot);
         if (wiRootLastVowel === "i" || wiRootLastVowel === "u") {
-            return {
+            return withWiFeatures({
                 sourceClass: "vowel_iu",
                 stockFamily: "awi",
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
                 chain: "i/u > awi > ua",
-            };
+            });
         }
         if (wiRootLastVowel === "a" || wiRootLastVowel === "e") {
-            return {
+            return withWiFeatures({
                 sourceClass: "vowel_ae",
                 stockFamily: "iwi",
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
                 chain: "a/e > iwi > ua",
-            };
+            });
         }
-        return {
+        return withWiFeatures({
             sourceClass: "default",
             stockFamily: "wi",
             typeOneTarget: null,
             typeTwoTarget: "witia",
             chain: "wi > witia",
-        };
+        });
     };
     const buildIntransitiveWiWaTypeOneStem = (baseStem = "", typeOneTarget = null) => {
         if (!baseStem || !typeOneTarget) {
@@ -2531,6 +2840,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         return "";
     };
     const wiWaPolicy = resolveIntransitiveWiWaPolicy(ruleBase);
+    if (wiWaPolicy) {
+        causativeTrace = {
+            ...causativeTrace,
+            wiWaPolicy: {
+                sourceClass: wiWaPolicy.sourceClass,
+                chain: wiWaPolicy.chain,
+                typeOneTarget: wiWaPolicy.typeOneTarget || null,
+                typeTwoTarget: wiWaPolicy.typeTwoTarget || null,
+                features: wiWaPolicy.features || null,
+                desuperposeKey: wiWaPolicy.desuperposeKey || "",
+            },
+        };
+    }
     const hasIntransitiveWiWaPolicy = Boolean(wiWaPolicy);
     const adjustTypeTwoStem = (stem, suffix) => {
         if (!stem || !suffix) {
@@ -2541,90 +2863,408 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return stem;
     };
-    const replacementOnly = Array.isArray(rules?.intransitiveEndsWithI?.replacementOnly)
-        ? rules.intransitiveEndsWithI.replacementOnly
-        : [];
-    const blockTypeOneList = Array.isArray(rules?.intransitiveEndsWithI?.blockTypeOne)
-        ? rules.intransitiveEndsWithI.blockTypeOne
-        : [];
-    const blockTypeOneMatch = matchesDerivationRuleBaseList(
-        blockTypeOneList,
-        ruleBase,
-        fullRuleBase
-    );
-    const replacementOnlyMatch = matchesDerivationRuleBaseList(
-        replacementOnly,
-        ruleBase,
-        fullRuleBase
-    );
-    const allowReplacementOnlyReplaceFinalI = replacementOnlyMatch
-        && info.endsWithI
-        && ruleBase.endsWith("i");
-    if (replacementOnlyMatch) {
-        isIntransitive = true;
-    }
-    if (allowReplacementOnlyReplaceFinalI) {
-        push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "replacement-only-final-i" });
-    }
-    const additionRules = rules?.intransitiveEndsWithI?.addition || {};
-    const allowVerbs = Array.isArray(additionRules.allowVerbs)
-        ? additionRules.allowVerbs
-        : [];
-    const allowSuffixes = Array.isArray(additionRules.allowSuffixes)
-        ? additionRules.allowSuffixes
-        : [];
-    const matchesAddition = matchesDerivationRuleBaseList(
-        allowVerbs,
-        ruleBase,
-        fullRuleBase
+    const isIntransitiveEndsWithI = isIntransitive && info.endsWithI && ruleBase.endsWith("i");
+    const getSegmentFeatures = (segment = "") => {
+        const key = String(segment || "");
+        const map = {
+            p: { place: "labial", manner: "stop", sonority: 1, placeIndex: 0 },
+            m: { place: "labial", manner: "nasal", sonority: 3, placeIndex: 0 },
+            w: { place: "labial", manner: "glide", sonority: 5, placeIndex: 0 },
+            t: { place: "coronal", manner: "stop", sonority: 1, placeIndex: 1 },
+            s: { place: "coronal", manner: "fricative", sonority: 2, placeIndex: 1 },
+            n: { place: "coronal", manner: "nasal", sonority: 3, placeIndex: 1 },
+            l: { place: "coronal", manner: "lateral", sonority: 4, placeIndex: 1 },
+            tz: { place: "coronal", manner: "affricate", sonority: 1, placeIndex: 1 },
+            sh: { place: "coronal", manner: "fricative", sonority: 2, placeIndex: 1 },
+            ch: { place: "coronal", manner: "affricate", sonority: 1, placeIndex: 1 },
+            y: { place: "palatal", manner: "glide", sonority: 5, placeIndex: 2 },
+            j: { place: "palatal", manner: "glide", sonority: 5, placeIndex: 2 },
+            k: { place: "dorsal", manner: "stop", sonority: 1, placeIndex: 3 },
+            kw: { place: "dorsal", manner: "stop", sonority: 1, placeIndex: 3 },
+        };
+        return map[key] || {
+            place: "other",
+            manner: "other",
+            sonority: 3,
+            placeIndex: -1,
+        };
+    };
+    const getIntransitiveIConsonantProfile = () => {
+        const letters = splitVerbLetters(ruleBase);
+        const firstOnset = letters.find((letter) => isVerbLetterConsonant(letter)) || "";
+        const finalConsonant = info.lastOnset || (isVerbLetterConsonant(info.prev) ? info.prev : "");
+        const firstFeatures = getSegmentFeatures(firstOnset);
+        const finalFeatures = getSegmentFeatures(finalConsonant);
+        return {
+            firstOnset,
+            finalConsonant,
+            firstFeatures,
+            finalFeatures,
+            mannerPair: `${finalFeatures.manner}:${firstFeatures.manner}`,
+            placePair: `${finalFeatures.place}:${firstFeatures.place}`,
+        };
+    };
+    const classifyIntransitiveICausativeLexical = () => {
+        // Intentionally list-free for intransitive ...i causative classification.
+        // Hard phonological block: -tzi stems do not form type-one causative.
+        if (isIntransitiveEndsWithI && info.endsWithTzi) {
+            return {
+                label: "none",
+                source: "phonological-tzi-block",
+            };
+        }
+        if (
+            isIntransitiveEndsWithI
+            && wiWaPolicy?.sourceClass === "final_n_t-onset_awi_additive"
+        ) {
+            return {
+                label: "additive",
+                source: "phonological-awi-final-n-initial-t-additive",
+            };
+        }
+        if (isIntransitiveEndsWithI) {
+            const { firstFeatures, finalConsonant } = getIntransitiveIConsonantProfile();
+            // Strong final-onset routing from matrix-pattern mining.
+            if (["s", "sh", "l"].includes(finalConsonant)) {
+                return {
+                    label: "none",
+                    source: "phonological-final-fricative-lateral-block",
+                };
+            }
+            if (["y", "j"].includes(finalConsonant)) {
+                return {
+                    label: "replacive",
+                    source: "phonological-final-glide-replacive",
+                };
+            }
+            // Nasal final + fricative initial onset robustly predicts additive.
+            if (["m", "n"].includes(finalConsonant) && firstFeatures.manner === "fricative") {
+                return {
+                    label: "additive",
+                    source: "phonological-nasal-fricative-additive",
+                };
+            }
+        }
+        return null;
+    };
+    const intransitiveIPairBias = (
+        rules?.intransitiveEndsWithI?.pairBias
+        && typeof rules.intransitiveEndsWithI.pairBias === "object"
     )
-        || allowSuffixes.some((suffix) => suffix && ruleBase.endsWith(suffix))
-        || (fullRuleBase && allowSuffixes.some((suffix) => suffix && fullRuleBase.endsWith(suffix)));
-    if (hasIntransitiveWiWaPolicy && wiWaPolicy.typeOneTarget) {
+        ? rules.intransitiveEndsWithI.pairBias
+        : {};
+    const matchPairBiasCondition = (actual, expected) => {
+        if (Array.isArray(expected)) {
+            return expected.includes(actual);
+        }
+        if (expected && typeof expected === "object") {
+            if (Array.isArray(expected.in) && !expected.in.includes(actual)) {
+                return false;
+            }
+            if (Object.prototype.hasOwnProperty.call(expected, "eq") && actual !== expected.eq) {
+                return false;
+            }
+            if (Object.prototype.hasOwnProperty.call(expected, "not")) {
+                const notValue = expected.not;
+                if (Array.isArray(notValue)) {
+                    if (notValue.includes(actual)) {
+                        return false;
+                    }
+                } else if (actual === notValue) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return actual === expected;
+    };
+    const matchPairBiasRule = (when, context) => {
+        if (!when || typeof when !== "object") {
+            return false;
+        }
+        return Object.entries(when).every(([key, expected]) => (
+            matchPairBiasCondition(context[key], expected)
+        ));
+    };
+    const classifyIntransitiveICausativeByPairBias = () => {
+        if (!isIntransitiveEndsWithI || intransitiveIPairBias.enabled === false) {
+            return null;
+        }
+        const {
+            firstOnset,
+            finalConsonant,
+            firstFeatures,
+            finalFeatures,
+            mannerPair,
+            placePair,
+        } = getIntransitiveIConsonantProfile();
+        if (!firstOnset || !finalConsonant) {
+            return null;
+        }
+        const scoreRules = Array.isArray(intransitiveIPairBias.rules)
+            ? intransitiveIPairBias.rules
+            : [];
+        if (!scoreRules.length) {
+            return null;
+        }
+        const context = {
+            endsWithWi: info.endsWithWi === true,
+            endsWithTi: info.endsWithTi === true,
+            endsWithConsonantCluster: info.endsWithConsonantCluster === true,
+            penultimateNucleus: info.penultimateNucleus || "",
+            penultimateHasCoda: info.penultimateHasCoda === true,
+            firstOnset,
+            finalConsonant,
+            firstManner: firstFeatures.manner,
+            finalManner: finalFeatures.manner,
+            firstPlace: firstFeatures.place,
+            finalPlace: finalFeatures.place,
+            mannerPair,
+            placePair,
+        };
+        const scores = {
+            additive: 0,
+            replacive: 0,
+            none: 0,
+        };
+        scoreRules.forEach((rule) => {
+            if (!rule || typeof rule !== "object") {
+                return;
+            }
+            const target = String(rule.to || "");
+            if (!Object.prototype.hasOwnProperty.call(scores, target)) {
+                return;
+            }
+            const weight = Number(rule.weight);
+            if (!Number.isFinite(weight) || weight === 0) {
+                return;
+            }
+            if (!matchPairBiasRule(rule.when, context)) {
+                return;
+            }
+            scores[target] += weight;
+        });
+        const ranked = [
+            { label: "additive", score: scores.additive },
+            { label: "replacive", score: scores.replacive },
+            { label: "none", score: scores.none },
+        ].sort((a, b) => b.score - a.score);
+        const top = ranked[0] || { label: "replacive", score: 0 };
+        const second = ranked[1] || { label: "none", score: 0 };
+        const margin = top.score - second.score;
+        const minTopScore = Number.isFinite(intransitiveIPairBias.minTopScore)
+            ? Number(intransitiveIPairBias.minTopScore)
+            : 2.5;
+        const minMargin = Number.isFinite(intransitiveIPairBias.minMargin)
+            ? Number(intransitiveIPairBias.minMargin)
+            : 0.7;
+        if (top.score < minTopScore || margin < minMargin) {
+            return null;
+        }
+        return {
+            label: top.label,
+            source: "pair-bias-config",
+            pair: {
+                manner: mannerPair,
+                place: placePair,
+            },
+            scores,
+            confidence: {
+                topScore: top.score,
+                margin,
+                minTopScore,
+                minMargin,
+            },
+        };
+    };
+    const classifyIntransitiveICausativeByMatrix = () => {
+        if (!isIntransitiveEndsWithI) {
+            return null;
+        }
+        const { firstOnset, finalConsonant, firstFeatures } = getIntransitiveIConsonantProfile();
+        const penultimateNucleus = info.penultimateNucleus || "";
+        const penultimateHasCoda = info.penultimateHasCoda === true;
+
+        // Shape-first routing for -wi allomorphy.
+        if (info.endsWithWi) {
+            if (info.endsWithConsonantCluster && firstFeatures.manner === "glide") {
+                return { label: "none", source: "matrix-wi-glide-cluster" };
+            }
+            if (penultimateNucleus === "e" && firstOnset === "s") {
+                return { label: "additive", source: "matrix-wi-sewi" };
+            }
+            return { label: "replacive", source: "matrix-wi-default" };
+        }
+
+        // Dedicated -ti split: additive only in the strong additive environments.
+        if (info.endsWithTi) {
+            if (penultimateHasCoda || penultimateNucleus === "e") {
+                return { label: "additive", source: "matrix-ti-additive-env" };
+            }
+            if (firstOnset === "p") {
+                return { label: "replacive", source: "matrix-ti-p-onset" };
+            }
+            return { label: "none", source: "matrix-ti-nonadditive" };
+        }
+
+        // Final onset / coda class routing for other ...Ci stems.
+        if (finalConsonant === "n") {
+            if (["p", "sh"].includes(firstOnset)) {
+                return { label: "additive", source: "matrix-n-to-additive" };
+            }
+            if (firstOnset === "m") {
+                return { label: "replacive", source: "matrix-n-to-replacive" };
+            }
+            return { label: "none", source: "matrix-n-to-none" };
+        }
+        if (finalConsonant === "m") {
+            if (firstOnset === "n") {
+                return { label: "none", source: "matrix-mn-block" };
+            }
+            if (firstOnset === "t" && penultimateNucleus === "a") {
+                return { label: "additive", source: "matrix-tami-ami" };
+            }
+            return { label: "replacive", source: "matrix-m-default" };
+        }
+        if (["s", "l"].includes(finalConsonant)) {
+            return { label: "none", source: "matrix-fricative-lateral" };
+        }
+        if (finalConsonant === "k") {
+            if (!penultimateHasCoda && firstOnset !== "n") {
+                return { label: "additive", source: "matrix-k-open-penult" };
+            }
+            return { label: "none", source: "matrix-k-blocked" };
+        }
+        if (["p", "w", "kw", "tz", "ch"].includes(finalConsonant)) {
+            return { label: "replacive", source: "matrix-replacive-final-class" };
+        }
+        if (penultimateHasCoda && ["t", "tz", "ch", "k", "p"].includes(finalConsonant)) {
+            return { label: "additive", source: "matrix-coda-stop-affricate" };
+        }
+        return null;
+    };
+    const classifyIntransitiveICausativeByScoreFallback = () => {
+        if (!isIntransitiveEndsWithI) {
+            return { label: "unknown", source: "not-i" };
+        }
+        const I = (condition) => (condition ? 1 : 0);
+        const { firstOnset, finalConsonant, firstFeatures, finalFeatures } = getIntransitiveIConsonantProfile();
+        const placeDistance = (
+            finalFeatures.placeIndex >= 0
+            && firstFeatures.placeIndex >= 0
+        )
+            ? Math.abs(finalFeatures.placeIndex - firstFeatures.placeIndex)
+            : 0;
+        const sonoritySlope = finalFeatures.sonority - firstFeatures.sonority;
+        const tiAdditiveEnvironment = info.endsWithTi
+            && (info.penultimateHasCoda || info.penultimateNucleus === "e");
+        const tiNonAdditiveEnvironment = info.endsWithTi && !tiAdditiveEnvironment;
+        const additiveScore = (
+            8.0 * I(info.endsWithWi && info.penultimateNucleus === "e" && firstOnset === "s")
+            + 2.2 * I(finalFeatures.place === "dorsal" && !info.penultimateHasCoda && firstOnset !== "n")
+            + 2.6 * I(tiAdditiveEnvironment)
+            + 2.1 * I(finalConsonant === "n" && ["p", "sh"].includes(firstOnset))
+            + 1.2 * I(finalConsonant === "m" && firstOnset === "t" && info.penultimateNucleus === "a")
+            + 2.0 * I(info.penultimateHasCoda && ["stop", "affricate"].includes(finalFeatures.manner))
+            + 0.7 * I(sonoritySlope <= -1)
+            + 0.4 * I(placeDistance >= 2)
+        );
+        const replaciveScore = (
+            5.0 * I(info.endsWithWi)
+            + 2.2 * I(tiNonAdditiveEnvironment && firstOnset === "p")
+            + 1.9 * I(finalConsonant === "n" && firstOnset === "m")
+            + 1.8 * I(finalConsonant === "m" && firstOnset !== "n" && !(firstOnset === "t" && info.penultimateNucleus === "a"))
+            + 1.0 * I(["p", "w", "kw", "tz", "ch"].includes(finalConsonant))
+            + 0.6 * I(sonoritySlope >= 0)
+            + 0.2
+        );
+        const noneScore = (
+            3.5 * I(["fricative", "lateral"].includes(finalFeatures.manner))
+            + 2.2 * I(finalFeatures.place === "dorsal" && (info.penultimateHasCoda || firstOnset === "n"))
+            + 2.4 * I(tiNonAdditiveEnvironment && firstOnset !== "p")
+            + 1.9 * I(finalConsonant === "n" && !["p", "sh", "m"].includes(firstOnset))
+            + 3.0 * I(finalConsonant === "m" && firstOnset === "n")
+            + 2.0 * I(finalConsonant === "l" && ["y", "k"].includes(firstOnset))
+            + 0.5 * I(placeDistance === 0 && finalConsonant === "l")
+        );
+        const ranked = [
+            { label: "additive", score: additiveScore },
+            { label: "replacive", score: replaciveScore },
+            { label: "none", score: noneScore },
+        ].sort((a, b) => b.score - a.score);
+        return {
+            label: ranked[0]?.label || "replacive",
+            source: "sonority-place-formula-fallback",
+            scores: {
+                additive: additiveScore,
+                replacive: replaciveScore,
+                none: noneScore,
+            },
+        };
+    };
+    const intransitiveITrace = isIntransitiveEndsWithI
+        ? {
+            layers: [],
+            winner: null,
+        }
+        : null;
+    const collectIntransitiveILayer = (layer, decision) => {
+        if (!intransitiveITrace) {
+            return;
+        }
+        intransitiveITrace.layers.push({
+            layer,
+            decision: decision ? { ...decision } : null,
+        });
+    };
+    const lexicalDecision = classifyIntransitiveICausativeLexical();
+    collectIntransitiveILayer("lexical", lexicalDecision);
+    const pairDecision = lexicalDecision ? null : classifyIntransitiveICausativeByPairBias();
+    collectIntransitiveILayer("pair-bias", pairDecision);
+    const matrixDecision = (lexicalDecision || pairDecision) ? null : classifyIntransitiveICausativeByMatrix();
+    collectIntransitiveILayer("matrix", matrixDecision);
+    const fallbackDecision = (lexicalDecision || pairDecision || matrixDecision)
+        ? null
+        : classifyIntransitiveICausativeByScoreFallback();
+    collectIntransitiveILayer("fallback", fallbackDecision);
+    const intransitiveICausativeClass = lexicalDecision
+        || pairDecision
+        || matrixDecision
+        || fallbackDecision;
+    if (intransitiveITrace) {
+        intransitiveITrace.winner = intransitiveICausativeClass ? { ...intransitiveICausativeClass } : null;
+        causativeTrace = {
+            ...causativeTrace,
+            intransitiveI: intransitiveITrace,
+        };
+    }
+    const blockTypeOneCausativeForI = intransitiveICausativeClass.label === "none";
+    const allowWiTypeOnePolicy = isIntransitive
+        && hasIntransitiveWiWaPolicy
+        && wiWaPolicy.typeOneTarget;
+    if (allowWiTypeOnePolicy && !blockTypeOneCausativeForI) {
         const policyStem = buildIntransitiveWiWaTypeOneStem(ruleBase, wiWaPolicy.typeOneTarget);
         if (policyStem) {
             push(policyStem, {
                 type: "type-one",
                 rule: `wi-policy-${wiWaPolicy.sourceClass}`,
                 wiPolicy: wiWaPolicy.chain,
+                wiPolicyFeatures: wiWaPolicy.features || null,
+                wiPolicyDesuperposeKey: wiWaPolicy.desuperposeKey || "",
             });
         }
     }
 
-    if (
-        isIntransitive
-        && info.endsWithI
-        && !blockTypeOneMatch
-        && !(hasIntransitiveWiWaPolicy && info.endsWithWi)
-    ) {
+    if (isIntransitiveEndsWithI && !allowWiTypeOnePolicy && !blockTypeOneCausativeForI) {
         const dropped = ruleBase.slice(0, -1);
-        const replaceFinalRules = Array.isArray(rules?.intransitiveEndsWithI?.replaceFinalConsonant)
-            ? rules.intransitiveEndsWithI.replaceFinalConsonant
-            : [];
-        const replaceFinalBases = replaceFinalRules.flatMap((entry) => (
-            Array.isArray(entry?.verbs) ? entry.verbs : extractExampleBases(entry?.examples)
-        ));
-        const matchesReplaceFinal = matchesDerivationRuleBaseList(
-            replaceFinalBases,
-            ruleBase,
-            fullRuleBase
-        );
-        replaceFinalRules.forEach((entry) => {
-            if (!entry || entry.from !== "k" || entry.to !== "tz") {
-                return;
-            }
-            if (replacementOnlyMatch || !matchesReplaceFinal) {
-                return;
-            }
-            if (dropped.endsWith(entry.from)) {
-                push(`${dropped.slice(0, -1)}${entry.to}a`, { type: "type-one", rule: "replace-final-consonant" });
-            }
-        });
-        const allowAddition = (allowVerbs.length || allowSuffixes.length)
-            ? matchesAddition
-            : (ruleBase.endsWith("ki") || info.endsWithConsonantCluster);
-        if (allowAddition && !blockExpandedTiCausatives) {
-            push(`${ruleBase}a`, { type: "type-one", rule: "addition" });
+        const { firstOnset } = getIntransitiveIConsonantProfile();
+        if (dropped.endsWith("k") && firstOnset === "w") {
+            push(`${dropped.slice(0, -1)}tza`, { type: "type-one", rule: "replace-final-consonant-logic" });
+        }
+        if (intransitiveICausativeClass.label === "additive") {
+            push(`${ruleBase}a`, { type: "type-one", rule: "addition-phonological-i" });
+        } else {
+            push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "replace-final-i-phonological" });
         }
     }
     const intransitiveEndsWithA = rules?.intransitiveEndsWithA || {};
@@ -2657,7 +3297,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
     }
 
-    if (isIntransitive && !replacementOnlyMatch) {
+    if (isIntransitive && !isIntransitiveEndsWithI) {
         const destockal = rules.destockal || {};
         const addWithOrder = (order, actions) => {
             (order || []).forEach((action) => {
@@ -3031,6 +3671,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
     }
 
+    results.causativeTrace = causativeTrace;
     return results;
 }
 
@@ -3855,6 +4496,7 @@ function buildForwardDerivationRows({
                 rule: option?.rule || "",
                 patternType: option?.type || "",
                 preferred: option?.preferred === true,
+                causativeTrace: option?.causativeTrace || null,
             });
         });
     });
@@ -28205,6 +28847,101 @@ function getBasicDataParityBaseline() {
     };
 }
 
+function classifyIntransitiveICausativeForRegression(baseVerb) {
+    const base = normalizeRuleBase(baseVerb || "");
+    if (!base || !base.endsWith("i")) {
+        return {
+            base,
+            label: "none",
+            typeOneStems: [],
+            rules: [],
+            causativeTrace: null,
+        };
+    }
+    const options = getCausativeDerivationOptions(base, base, {
+        isTransitive: false,
+        canonicalRuleBase: base,
+        canonicalFullRuleBase: base,
+        allowTypeTwo: false,
+    }) || [];
+    const typeOne = options.filter((entry) => entry && entry.type === "type-one");
+    const additiveStem = `${base}a`;
+    const replaciveStem = `${base.slice(0, -1)}a`;
+    const hasAdditive = typeOne.some((entry) => entry.stem === additiveStem);
+    const hasReplacive = typeOne.some((entry) => entry.stem === replaciveStem);
+    let label = "none";
+    if (hasAdditive && !hasReplacive) {
+        label = "additive";
+    } else if (hasReplacive && !hasAdditive) {
+        label = "replacive";
+    } else if (hasAdditive && hasReplacive) {
+        label = "additive";
+    }
+    const causativeTrace = (typeOne[0] && typeOne[0].causativeTrace)
+        || options.causativeTrace
+        || null;
+    return {
+        base,
+        label,
+        typeOneStems: typeOne.map((entry) => entry.stem),
+        rules: typeOne.map((entry) => entry.rule || ""),
+        causativeTrace,
+    };
+}
+
+function runIntransitiveICausativeRegressionTests(options = {}) {
+    const regressionSet = (
+        DERIVATIONAL_RULES?.causative?.intransitiveEndsWithI?.regressionSet
+        && typeof DERIVATIONAL_RULES.causative.intransitiveEndsWithI.regressionSet === "object"
+    )
+        ? DERIVATIONAL_RULES.causative.intransitiveEndsWithI.regressionSet
+        : {};
+    const categories = ["additive", "replacive", "none"];
+    const failures = [];
+    const rows = [];
+    categories.forEach((expected) => {
+        const verbs = Array.isArray(regressionSet[expected]) ? regressionSet[expected] : [];
+        verbs.forEach((verb) => {
+            const result = classifyIntransitiveICausativeForRegression(verb);
+            const pass = result.label === expected;
+            rows.push({
+                verb,
+                expected,
+                actual: result.label,
+                pass,
+                typeOneStems: result.typeOneStems,
+                rules: result.rules,
+                causativeTrace: result.causativeTrace,
+            });
+            if (!pass) {
+                failures.push({
+                    verb,
+                    expected,
+                    actual: result.label,
+                    typeOneStems: result.typeOneStems,
+                    rules: result.rules,
+                });
+            }
+        });
+    });
+    const summary = {
+        total: rows.length,
+        passed: rows.length - failures.length,
+        failed: failures.length,
+        failures,
+        rows,
+    };
+    if (failures.length) {
+        console.error("Intransitive -i causative regression tests failed:", summary);
+        if (options.throwOnFailure === true) {
+            throw new Error(`Intransitive -i causative regression failed (${failures.length} mismatch(es))`);
+        }
+    } else {
+        console.log("Intransitive -i causative regression tests passed:", summary);
+    }
+    return summary;
+}
+
 function runPretUniversalOverrideTests() {
     const failures = [];
     const originalEntries = PRET_UNIVERSAL_VERB_OVERRIDES.slice();
@@ -28314,6 +29051,7 @@ if (typeof window !== "undefined") {
     window.runBasicDataParityAgainstBaseline = runBasicDataParityAgainstBaseline;
     window.runBasicDataParityAgainstBaselineQuick = runBasicDataParityAgainstBaselineQuick;
     window.getBasicDataParityBaseline = getBasicDataParityBaseline;
+    window.runIntransitiveICausativeRegressionTests = runIntransitiveICausativeRegressionTests;
     window.runPretUniversalOverrideTests = runPretUniversalOverrideTests;
     window.traceDerivationalFunction = traceDerivationalFunction;
     window.findDerivationalAntiderivatives = findDerivationalAntiderivatives;

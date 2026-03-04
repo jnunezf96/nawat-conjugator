@@ -42,10 +42,45 @@ function buildPretUniversalClassD(context) {
     return [{ base, suffix: "" }];
 }
 
+function getRootPlusYaSurfaceVerb(context) {
+    const normalizeYaCandidate = (value) => {
+        const normalized = String(value || "");
+        if (!normalized) {
+            return "";
+        }
+        return normalized.endsWith("ya") ? normalized : `${normalized}ya`;
+    };
+    const candidates = [
+        normalizeYaCandidate(context?.verb),
+        normalizeYaCandidate(context?.analysisVerb),
+        normalizeYaCandidate(context?.exactBaseVerb),
+        normalizeYaCandidate(context?.rootPlusYaBase),
+    ].filter(Boolean);
+    if (!candidates.length) {
+        return "";
+    }
+    return candidates.reduce((best, current) => (
+        current.length > best.length ? current : best
+    ));
+}
+
+function isSlashDenominalRootPlusYaMatrix(context) {
+    return Boolean(
+        context
+        && !context.isTransitive
+        && context.hasSlashMarker
+        && context.isDenominalMatrixInput
+        && (context.denominalMatrixStem === "tiya" || context.denominalMatrixStem === "wiya")
+    );
+}
+
 function buildPretUniversalClassA(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
     if (!context.isTransitive && context.fromRootPlusYa) {
+        if (isSlashDenominalRootPlusYaMatrix(context)) {
+            return null;
+        }
         if (context.isWeya && context.rootPlusYaBase) {
             const base = context.rootPlusYaBase;
             if (!isAllowedStem(base)) {
@@ -53,13 +88,7 @@ function buildPretUniversalClassA(context) {
             }
             return [{ base, suffix: "ki" }];
         }
-        const rootPlusYaVerb = (
-            context.isDenominalMatrixInput
-            && context.denominalMatrixStem === "ya"
-            && context.rootPlusYaBase
-        )
-            ? `${context.rootPlusYaBase}ya`
-            : context.verb;
+        const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
         const stems = getPerfectiveAlternationStems(rootPlusYaVerb, {
             isTransitive: context.isTransitive,
             isRootPlusYa: true,
@@ -409,10 +438,21 @@ function buildPretUniversalClassB(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
     if (!context.isTransitive && context.fromRootPlusYa) {
+        if (isSlashDenominalRootPlusYaMatrix(context)) {
+            const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context) || context.verb || "";
+            const deletedYaBase = rootPlusYaVerb.endsWith("ya")
+                ? rootPlusYaVerb.slice(0, -2)
+                : (context.rootPlusYaBase || rootPlusYaVerb);
+            if (!deletedYaBase || !isAllowedStem(deletedYaBase)) {
+                return null;
+            }
+            return [{ base: deletedYaBase, suffix: "k" }];
+        }
         if (context.isWeya) {
             return [{ base: context.verb, suffix: "k" }];
         }
-        const variants = [{ base: context.verb, suffix: "k" }];
+        const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
+        const variants = [{ base: rootPlusYaVerb || context.verb, suffix: "k" }];
         const rootPlusYaBase = context.rootPlusYaBase;
         const addRootPlusYaVariant = (candidateBase) => {
             if (!candidateBase || !isAllowedStem(candidateBase)) {
@@ -442,8 +482,8 @@ function buildPretUniversalClassB(context) {
         if (!isShortRootPlusYaBase && rootPlusYaBase) {
             addRootPlusYaVariant(rootPlusYaBase);
         }
-        const slashEmbeddedYaBase = context.hasSlashMarker && context.verb.endsWith("ya")
-            ? context.verb.slice(0, -2)
+        const slashEmbeddedYaBase = context.hasSlashMarker && rootPlusYaVerb.endsWith("ya")
+            ? rootPlusYaVerb.slice(0, -2)
             : "";
         if (slashEmbeddedYaBase) {
             addRootPlusYaVariant(slashEmbeddedYaBase);
@@ -1143,6 +1183,14 @@ function resolvePretClassPolicy({
         && !context.fromRootPlusYa
     );
     if (isWiPattern) {
+        if (context.isMonosyllable) {
+            return {
+                isPreterit,
+                shouldMaskClassBSelection: false,
+                shouldSkipClassA: true,
+                shouldSkipClassB: false,
+            };
+        }
         const isReduplicated = context.isReduplicated;
         const isPreteritSingular = isPreterit && subjectSuffix !== "t";
         const isPreteritPlural = isPreterit && subjectSuffix === "t";
@@ -1277,6 +1325,7 @@ function buildClassBasedResult({
     forceTransitive = false,
     indirectObjectMarker = "",
     hasDoubleDash = false,
+    forceClassBSelection = false,
 }) {
     const analysisTarget = getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
@@ -1329,7 +1378,7 @@ function buildClassBasedResult({
             : ["A", "B", "C", "D"]);
     const hasClassA = variantsByClass.has("A");
     const hasClassB = variantsByClass.has("B");
-    const {
+    let {
         isPreterit,
         shouldMaskClassBSelection,
         shouldSkipClassA,
@@ -1345,6 +1394,11 @@ function buildClassBasedResult({
         allowAllClasses,
         subjectSuffix,
     });
+    if (forceClassBSelection && classFilter === "B") {
+        shouldMaskClassBSelection = false;
+        shouldSkipClassA = true;
+        shouldSkipClassB = false;
+    }
     const usePretPluralOverride = isPreterit && subjectSuffix === "t" && suppletiveStemSet;
     const pretPluralSuffix = usePretPluralOverride ? suppletiveStemSet.pretPluralSuffix : null;
     const pretPluralClasses = usePretPluralOverride ? suppletiveStemSet.pretPluralClasses : null;

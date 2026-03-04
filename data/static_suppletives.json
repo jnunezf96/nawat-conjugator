@@ -1,15 +1,15 @@
 {
-  "suppletiveYeForms": ["ye", "ka", "kati"],
-  "suppletiveYeImperfective": "ye",
-  "suppletiveYeClassA": "kati",
-  "suppletiveYeClassD": "ka",
-  "suppletiveYeClassExclusions": {
+  "suppletiveKatiForms": ["kati"],
+  "suppletiveKatiImperfective": "ye",
+  "suppletiveKatiClassA": "kati",
+  "suppletiveKatiClassD": "ka",
+  "suppletiveKatiClassExclusions": {
     "pasado-remoto": ["D"],
     "perfecto": ["D"],
     "pluscuamperfecto": ["D"],
     "condicional-perfecto": ["D"]
   },
-  "suppletiveYeNonactive": "yeluwa",
+  "suppletiveKatiNonactive": "yeluwa",
   "suppletiveYawi": {
     "forms": ["yawi"],
     "canonical": "yawi",
@@ -26,7 +26,7 @@
     }
   },
   "suppletiveWitzi": {
-    "forms": ["witzi", "wi"],
+    "forms": ["witzi", "witz"],
     "imperfective": "witzi",
     "activeTenses": ["preterito", "pasado-remoto", "imperativo"],
     "tenses": {
