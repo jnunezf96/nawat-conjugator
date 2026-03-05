@@ -107,6 +107,7 @@ context.globalThis = context;
 windowObject.window = windowObject;
 
 const scriptPath = path.join(ROOT, "script.js");
+const constantsPath = path.join(ROOT, "data", "static_constants.json");
 const phonologyPath = path.join(ROOT, "data", "static_phonology.json");
 const derivRulesPath = path.join(ROOT, "data", "static_derivational_rules.json");
 const redupPath = path.join(ROOT, "data", "static_redup.json");
@@ -115,10 +116,14 @@ try {
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(scriptPath, "utf8"), context, { filename: scriptPath });
 
+  const constants = JSON.parse(fs.readFileSync(constantsPath, "utf8"));
   const phonology = JSON.parse(fs.readFileSync(phonologyPath, "utf8"));
   const derivRules = JSON.parse(fs.readFileSync(derivRulesPath, "utf8"));
   const redup = JSON.parse(fs.readFileSync(redupPath, "utf8"));
 
+  if (typeof context.applyStaticConstants === "function") {
+    context.applyStaticConstants(constants);
+  }
   if (typeof context.applyStaticPhonology === "function") {
     context.applyStaticPhonology(phonology);
   }

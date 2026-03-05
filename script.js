@@ -2253,13 +2253,42 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     const source = verb || analysisVerb;
     const allowTypeTwo = options.allowTypeTwo !== false;
     const hasLeadingDash = options.hasLeadingDash === true;
-    const ruleBase = getCanonicalRuleBaseFromOptions(source, options);
-    const fullRuleBase = options.canonicalFullRuleBase
+    const rawRuleBase = getCanonicalRuleBaseFromOptions(source, options);
+    const ruleBase = normalizeRuleBase(rawRuleBase);
+    const rawFullRuleBase = options.canonicalFullRuleBase
         || (options.parsedVerb && options.parsedVerb.canonicalFullRuleBase)
         || (options.parsedVerb && options.parsedVerb.canonical && options.parsedVerb.canonical.fullRuleBase)
         || (options.verbMeta && options.verbMeta.canonicalFullRuleBase)
         || (options.verbMeta && options.verbMeta.canonical && options.verbMeta.canonical.fullRuleBase)
-        || normalizeRuleBase(options.fullRuleBase || "");
+        || (options.fullRuleBase || "");
+    const fullRuleBase = normalizeRuleBase(rawFullRuleBase);
+    const getWiWaPolicyRuleBaseInput = () => {
+        const directInput = rawRuleBase || ruleBase;
+        const parsed = options?.parsedVerb;
+        if (!parsed || parsed.hasSlashMarker !== true) {
+            return directInput;
+        }
+        const matrixRoot = normalizeDerivationStemValue(
+            parsed.analysisVerb
+            || parsed.canonicalRuleBase
+            || parsed?.canonical?.ruleBase
+            || directInput
+        );
+        if (!matrixRoot || (!matrixRoot.endsWith("wi") && !matrixRoot.endsWith("wa"))) {
+            return directInput;
+        }
+        const lexicalBoundPrefixes = getLexicalBoundPrefixes(
+            Array.isArray(parsed.boundPrefixes) ? parsed.boundPrefixes : []
+        );
+        if (!lexicalBoundPrefixes.length) {
+            return directInput;
+        }
+        const embedRoot = normalizeDerivationStemValue(lexicalBoundPrefixes.join(""));
+        if (!embedRoot) {
+            return directInput;
+        }
+        return `${embedRoot}/${matrixRoot}`;
+    };
     if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
         return [];
     }
@@ -2501,65 +2530,74 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return "";
     };
-    const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
-        const normalized = normalizeDerivationStemValue(baseStem);
-        if (!isIntransitive || !normalized) {
+    const parseWiWaCanonicalPair = (baseStem = "") => {
+        const rawInput = String(baseStem || "").toLowerCase().trim();
+        if (!rawInput) {
             return null;
         }
-        const withDecisionCell = (entry = {}) => {
-            const stockFamily = String(entry?.stockFamily || "wi");
-            const canonicalSourceClass = String(entry?.sourceClass || "default").replace(/^wa_mirror_/, "");
-            const typeOneTarget = entry?.typeOneTarget || null;
-            const decisionFeatures = {
-                stockFamily,
-                sourceClass: canonicalSourceClass || "default",
-                typeOneTarget,
-            };
-            const decisionKey = [
-                decisionFeatures.stockFamily || "wi",
-                decisionFeatures.sourceClass || "default",
-                decisionFeatures.typeOneTarget || "none",
-            ].join("|");
-            return {
-                ...entry,
-                stockFamily,
-                decisionFeatures,
-                decisionKey,
-            };
-        };
-        const mirroredWiBase = mapWaSurfaceToWiBase(normalized);
-        if (mirroredWiBase) {
-            const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
-            if (mirroredWiPolicy) {
-                const mirroredSourceClass = String(mirroredWiPolicy.sourceClass || "");
-                const mirroredStockFamily = String(mirroredWiPolicy.stockFamily || "");
-                const isAwiIwiNonVjDefaultMirror = (
-                    (mirroredStockFamily === "awi" || mirroredStockFamily === "iwi")
-                    && mirroredSourceClass.endsWith("nonvj_default")
-                );
-                return withDecisionCell({
-                    ...mirroredWiPolicy,
-                    sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
-                    chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
-                    typeOneTarget: isAwiIwiNonVjDefaultMirror
-                        ? "wa"
-                        : (mirroredWiPolicy.typeOneTarget || null),
-                    // Keep mirror routes in the same compressed decision cell as their wi-base.
-                    decisionKey: mirroredWiPolicy.decisionKey || "",
-                    decisionFeatures: mirroredWiPolicy.decisionFeatures || null,
-                });
+        const hasSplitMarker = rawInput.includes("/");
+        if (hasSplitMarker) {
+            const splitParts = rawInput
+                .split("/")
+                .map((part) => normalizeDerivationStemValue(part))
+                .filter(Boolean);
+            if (splitParts.length >= 2) {
+                const matrixRoot = splitParts[splitParts.length - 1] || "";
+                const embedRoot = splitParts.slice(0, -1).join("");
+                const canonicalBase = normalizeDerivationStemValue(`${embedRoot}${matrixRoot}`);
+                if (!canonicalBase) {
+                    return null;
+                }
+                return {
+                    adapterSource: "split",
+                    embedRoot,
+                    matrixRoot,
+                    canonicalBase,
+                };
             }
         }
-        if (normalized.endsWith("wa")) {
-            return withDecisionCell({
-                sourceClass: "final_wa",
-                stockFamily: "wa",
-                typeOneTarget: "wa",
-                typeTwoTarget: null,
-                chain: "wa > wa",
-            });
+        const normalizedInput = normalizeDerivationStemValue(rawInput);
+        if (!normalizedInput) {
+            return null;
         }
-        if (!normalized.endsWith("wi")) {
+        return {
+            adapterSource: "fused",
+            embedRoot: "",
+            matrixRoot: "",
+            canonicalBase: normalizedInput,
+        };
+    };
+    const buildWiWaPolicyAdapterContext = (baseStem = "") => {
+        const pair = parseWiWaCanonicalPair(baseStem);
+        if (!pair || !pair.canonicalBase) {
+            return null;
+        }
+        const canonicalBase = normalizeDerivationStemValue(pair.canonicalBase);
+        if (!canonicalBase) {
+            return null;
+        }
+        const patternBase = getNonReduplicatedRoot(canonicalBase) || canonicalBase;
+        const wiFeatures = getWiPolicyFeatures(canonicalBase, patternBase);
+        return {
+            ...pair,
+            canonicalBase,
+            patternBase,
+            wiFeatures: {
+                ...wiFeatures,
+                adapterSource: pair.adapterSource,
+                pair: {
+                    embedRoot: pair.embedRoot,
+                    matrixRoot: pair.matrixRoot,
+                },
+            },
+        };
+    };
+    const resolveWiWaPolicyFromFeatures = ({
+        normalized = "",
+        wiFeatures = null,
+        withDecisionCell = null,
+    } = {}) => {
+        if (!normalized || !wiFeatures || typeof withDecisionCell !== "function") {
             return null;
         }
         if (normalized.endsWith("ewi")) {
@@ -2580,8 +2618,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: "kwetawi > kwetua",
             });
         }
-        const patternBase = getNonReduplicatedRoot(normalized) || normalized;
-        const wiFeatures = getWiPolicyFeatures(normalized, patternBase);
         const {
             patternLetters,
             firstOnset: wiFirstOnset,
@@ -2907,6 +2943,78 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             chain: "wi > witia",
         });
     };
+    const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
+        const rawInput = String(baseStem || "");
+        if (!isIntransitive || !rawInput.trim()) {
+            return null;
+        }
+        const adapterContext = buildWiWaPolicyAdapterContext(rawInput);
+        if (!adapterContext || !adapterContext.canonicalBase) {
+            return null;
+        }
+        const normalized = adapterContext.canonicalBase;
+        const withDecisionCell = (entry = {}) => {
+            const stockFamily = String(entry?.stockFamily || "wi");
+            const canonicalSourceClass = String(entry?.sourceClass || "default").replace(/^wa_mirror_/, "");
+            const typeOneTarget = entry?.typeOneTarget || null;
+            const decisionFeatures = {
+                stockFamily,
+                sourceClass: canonicalSourceClass || "default",
+                typeOneTarget,
+            };
+            const decisionKey = [
+                decisionFeatures.stockFamily || "wi",
+                decisionFeatures.sourceClass || "default",
+                decisionFeatures.typeOneTarget || "none",
+            ].join("|");
+            return {
+                ...entry,
+                stockFamily,
+                decisionFeatures,
+                decisionKey,
+            };
+        };
+        const mirroredWiBase = mapWaSurfaceToWiBase(normalized);
+        if (mirroredWiBase) {
+            const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
+            if (mirroredWiPolicy) {
+                const mirroredSourceClass = String(mirroredWiPolicy.sourceClass || "");
+                const mirroredStockFamily = String(mirroredWiPolicy.stockFamily || "");
+                const isAwiIwiNonVjDefaultMirror = (
+                    (mirroredStockFamily === "awi" || mirroredStockFamily === "iwi")
+                    && mirroredSourceClass.endsWith("nonvj_default")
+                );
+                return withDecisionCell({
+                    ...mirroredWiPolicy,
+                    sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
+                    chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
+                    typeOneTarget: isAwiIwiNonVjDefaultMirror
+                        ? "wa"
+                        : (mirroredWiPolicy.typeOneTarget || null),
+                    // Keep mirror routes in the same compressed decision cell as their wi-base.
+                    decisionKey: mirroredWiPolicy.decisionKey || "",
+                    decisionFeatures: mirroredWiPolicy.decisionFeatures || null,
+                });
+            }
+        }
+        if (normalized.endsWith("wa")) {
+            return withDecisionCell({
+                sourceClass: "final_wa",
+                stockFamily: "wa",
+                typeOneTarget: "wa",
+                typeTwoTarget: null,
+                chain: "wa > wa",
+            });
+        }
+        if (!normalized.endsWith("wi")) {
+            return null;
+        }
+        return resolveWiWaPolicyFromFeatures({
+            normalized,
+            wiFeatures: adapterContext.wiFeatures,
+            withDecisionCell,
+        });
+    };
     const buildIntransitiveWiWaTypeOneStem = (baseStem = "", typeOneTarget = null) => {
         if (!baseStem || !typeOneTarget) {
             return "";
@@ -2939,7 +3047,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
         return "";
     };
-    const wiWaPolicy = resolveIntransitiveWiWaPolicy(ruleBase);
+    const wiWaPolicy = resolveIntransitiveWiWaPolicy(getWiWaPolicyRuleBaseInput());
     if (wiWaPolicy) {
         causativeTrace = {
             ...causativeTrace,
