@@ -2531,10 +2531,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (mirroredWiBase) {
             const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
             if (mirroredWiPolicy) {
+                const mirroredSourceClass = String(mirroredWiPolicy.sourceClass || "");
+                const mirroredStockFamily = String(mirroredWiPolicy.stockFamily || "");
+                const isAwiIwiNonVjDefaultMirror = (
+                    (mirroredStockFamily === "awi" || mirroredStockFamily === "iwi")
+                    && mirroredSourceClass.endsWith("nonvj_default")
+                );
                 return withDecisionCell({
                     ...mirroredWiPolicy,
                     sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
                     chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
+                    typeOneTarget: isAwiIwiNonVjDefaultMirror
+                        ? "wa"
+                        : (mirroredWiPolicy.typeOneTarget || null),
                     // Keep mirror routes in the same compressed decision cell as their wi-base.
                     decisionKey: mirroredWiPolicy.decisionKey || "",
                     decisionFeatures: mirroredWiPolicy.decisionFeatures || null,
@@ -2591,11 +2600,19 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             wiRootHasCodaBeforeFinal,
             wiRootLastVowel,
         } = wiFeatures;
-        const wiStockFamily = isAwiClass
+        // Class family should follow the surface ending first; patternBase can be
+        // reduced for scoring/reduplication and may hide the stock suffix class.
+        const wiStockFamily = normalized.endsWith("awi")
             ? "awi"
-            : (isIwiClass
+            : (normalized.endsWith("iwi")
                 ? "iwi"
-                : (isUwiClass ? "uwi" : "wi"));
+                : (normalized.endsWith("uwi")
+                    ? "uwi"
+                    : (isAwiClass
+                        ? "awi"
+                        : (isIwiClass
+                            ? "iwi"
+                            : (isUwiClass ? "uwi" : "wi")))));
         const withWiFeatures = (entry) => {
             const stockFamily = entry?.stockFamily || wiStockFamily;
             const rawSourceClass = String(entry?.sourceClass || "");
@@ -2871,6 +2888,15 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
                 chain: "a/e > iwi > ua",
+            });
+        }
+        if (wiStockFamily === "iwi") {
+            return withWiFeatures({
+                sourceClass: "iwi_subcell_nonvj_default",
+                stockFamily: "iwi",
+                typeOneTarget: "wa",
+                typeTwoTarget: "witia",
+                chain: "iwi > iwa",
             });
         }
         return withWiFeatures({
