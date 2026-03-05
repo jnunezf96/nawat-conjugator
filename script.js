@@ -2085,6 +2085,7 @@ function getNonactiveDerivationSource(verbMeta, verb, analysisVerb) {
             hasBoundMarker: true,
             hasImpersonalTaPrefix: verbMeta.hasImpersonalTaPrefix === true,
             boundPrefixes: verbMeta.boundPrefixes,
+            boundExplicitFlags: verbMeta.boundExplicitFlags,
             analysisVerb: analysisVerb || verb || "",
             sourceVerb: verb || analysisVerb || "",
         });
@@ -2278,7 +2279,8 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return directInput;
         }
         const lexicalBoundPrefixes = getLexicalBoundPrefixes(
-            Array.isArray(parsed.boundPrefixes) ? parsed.boundPrefixes : []
+            Array.isArray(parsed.boundPrefixes) ? parsed.boundPrefixes : [],
+            Array.isArray(parsed.boundExplicitFlags) ? parsed.boundExplicitFlags : []
         );
         if (!lexicalBoundPrefixes.length) {
             return directInput;
@@ -2772,6 +2774,15 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                     typeOneTarget: "ua",
                     typeTwoTarget: "witia",
                     chain: "awi + tz-onset > ua",
+                });
+            }
+            if (wiRootLastVowel === "i" || wiRootLastVowel === "u") {
+                return withWiFeatures({
+                    sourceClass: "vowel_iu",
+                    stockFamily: "awi",
+                    typeOneTarget: "ua",
+                    typeTwoTarget: "witia",
+                    chain: "i/u > awi > ua",
                 });
             }
             return withWiFeatures({
@@ -4353,6 +4364,14 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
             let baseStem = option.stem;
             if (baseStem.endsWith("uwa")) {
                 baseStem = baseStem.slice(0, -3);
+                // If nonactive -uwa was built by deleting final -wi (e.g. awi -> auwa),
+                // restore the dropped w before adding -ilia.
+                if (ruleBase.endsWith("wi")) {
+                    const wiBase = ruleBase.slice(0, -2);
+                    if (baseStem === wiBase) {
+                        baseStem = `${baseStem}w`;
+                    }
+                }
             }
             if (baseStem) {
                 push(`${baseStem}ilia`, { type: "type-two", rule: "nonactive-uwa-ilia", preferred: true });
@@ -4674,6 +4693,9 @@ function buildForwardDerivationRows({
     if (!normalizedDirect) {
         return rows;
     }
+    const sourcePrefix = parsedVerb?.hasBoundMarker
+        ? (getNonactiveDerivationSource(parsedVerb, normalizedDirect, normalizedDirect).prefix || "")
+        : "";
     const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase
         || parsedVerb?.canonical?.fullRuleBase
         || "";
@@ -4700,8 +4722,16 @@ function buildForwardDerivationRows({
             if (!stem) {
                 return;
             }
+            const skipSourcePrefix = Boolean(
+                sourcePrefix
+                && option?.skipSourcePrefixIfPresent
+                && stem.startsWith(sourcePrefix)
+            );
+            const surfacedStem = sourcePrefix && !skipSourcePrefix
+                ? `${sourcePrefix}${stem}`
+                : stem;
             rows.push({
-                stem,
+                stem: surfacedStem,
                 derivationType,
                 transitivity: isTransitive ? "transitive" : "intransitive",
                 isTransitive,
@@ -4729,6 +4759,12 @@ function traceDerivationalFunction(rawInput, options = {}) {
         || parsedVerb?.verb
         || "",
     );
+    const sourcePrefix = parsedVerb?.hasBoundMarker
+        ? (getNonactiveDerivationSource(parsedVerb, canonicalDirect, canonicalDirect).prefix || "")
+        : "";
+    const directStem = sourcePrefix && canonicalDirect && !canonicalDirect.startsWith(sourcePrefix)
+        ? `${sourcePrefix}${canonicalDirect}`
+        : canonicalDirect;
     const inferredIsTransitive = getBaseObjectSlots(parsedVerb) > 0;
     const primaryIsTransitive = options.isTransitive === true
         ? true
@@ -4739,7 +4775,7 @@ function traceDerivationalFunction(rawInput, options = {}) {
         : [primaryIsTransitive];
     const direct = canonicalDirect
         ? [{
-            stem: canonicalDirect,
+            stem: directStem,
             derivationType: DERIVATION_TYPE.direct,
             transitivity: primaryIsTransitive ? "transitive" : "intransitive",
             isTransitive: primaryIsTransitive,
@@ -10021,10 +10057,90 @@ function setSelectedPretUniversalTab(value) {
 }
 
 // === Verb Parsing ===
+const DEFAULT_NONSPECIFIC_VALENCE_AFFIXES = Object.freeze([
+    "ta",
+    "te",
+    "mu",
+    "taj",
+    "tajta",
+    "tej",
+    "tejte",
+    "t",
+    "mujmu",
+]);
+const DEFAULT_NONSPECIFIC_VALENCE_AFFIX_SET = new Set(DEFAULT_NONSPECIFIC_VALENCE_AFFIXES);
+const EXPLICIT_VALENCE_SHORTHAND_MAP = Object.freeze({
+    m: "mu",
+    mu: "mu",
+});
+
+function getNonspecificValenceAffixSetForMatching() {
+    return NONSPECIFIC_VALENCE_AFFIX_SET.size
+        ? NONSPECIFIC_VALENCE_AFFIX_SET
+        : DEFAULT_NONSPECIFIC_VALENCE_AFFIX_SET;
+}
+
+function normalizeExplicitValenceToken(value = "") {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+    if (!normalized) {
+        return "";
+    }
+    const mapped = EXPLICIT_VALENCE_SHORTHAND_MAP[normalized] || normalized;
+    return getNonspecificValenceAffixSetForMatching().has(mapped) ? mapped : "";
+}
+
+function isNonspecificValenceAffixToken(value = "") {
+    const token = String(value || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+    return Boolean(token) && getNonspecificValenceAffixSetForMatching().has(token);
+}
+
+function getExplicitValenceTokenFromSegment(segment = "") {
+    const normalized = String(segment || "").trim().toLowerCase();
+    const match = normalized.match(/^\(([^)]+)\)(?=[/-]|$)/);
+    if (!match) {
+        return "";
+    }
+    return normalizeExplicitValenceToken(match[1] || "");
+}
+
+function splitCompoundPartsWithExplicitFlags(segment = "") {
+    const rawParts = String(segment || "")
+        .split(/[|~#\\/?-]/)
+        .map((part) => String(part || "").trim())
+        .filter(Boolean);
+    const parts = [];
+    const explicitFlags = [];
+    rawParts.forEach((rawPart) => {
+        const explicitToken = getExplicitValenceTokenFromSegment(rawPart);
+        const normalizedPart = explicitToken || rawPart.replace(/[()]/g, "");
+        if (!normalizedPart) {
+            return;
+        }
+        parts.push(normalizedPart);
+        explicitFlags.push(Boolean(explicitToken));
+    });
+    return { parts, explicitFlags };
+}
+
+function isFusionPrefixTokenForParsing(token = "", explicitFlag = false) {
+    if (!FUSION_PREFIXES.has(token)) {
+        return false;
+    }
+    return !isNonspecificValenceAffixToken(token) || explicitFlag === true;
+}
+
+function isObjectMarkerTokenForParsing(token = "", explicitFlag = false) {
+    if (!OBJECT_MARKERS.has(token)) {
+        return false;
+    }
+    return !isNonspecificValenceAffixToken(token) || explicitFlag === true;
+}
+
 function splitVerbSegments(core, hasLeadingDash) {
     let objectSegment = "";
     let verbSegment = core;
     let boundPrefixes = [];
+    let boundExplicitFlags = [];
     let hasBoundMarker = false;
     if (!hasLeadingDash && core.includes("-")) {
         const lastDashIndex = core.lastIndexOf("-");
@@ -10033,7 +10149,9 @@ function splitVerbSegments(core, hasLeadingDash) {
             const rightSegment = core.slice(lastDashIndex + 1);
             if (leftSegment.includes("/") && rightSegment) {
                 hasBoundMarker = true;
-                boundPrefixes = leftSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+                const split = splitCompoundPartsWithExplicitFlags(leftSegment);
+                boundPrefixes = split.parts;
+                boundExplicitFlags = split.explicitFlags;
                 verbSegment = rightSegment;
             }
         }
@@ -10041,8 +10159,13 @@ function splitVerbSegments(core, hasLeadingDash) {
     if (hasLeadingDash) {
         const dashSegments = core.split("-");
         if (dashSegments.length > 1) {
-            const firstToken = dashSegments[0];
-            const hasObjectToken = OBJECT_MARKERS.has(firstToken) || FUSION_PREFIXES.has(firstToken);
+            const firstRaw = String(dashSegments[0] || "").trim();
+            const explicitFirstToken = getExplicitValenceTokenFromSegment(firstRaw);
+            const firstToken = explicitFirstToken || firstRaw.replace(/[()]/g, "");
+            const hasObjectToken = (
+                OBJECT_MARKERS.has(firstToken)
+                || FUSION_PREFIXES.has(firstToken)
+            ) && (!isNonspecificValenceAffixToken(firstToken) || explicitFirstToken === firstToken);
             let verbStartIndex = dashSegments.length - 1;
             if (hasObjectToken) {
                 verbStartIndex = 1;
@@ -10061,10 +10184,16 @@ function splitVerbSegments(core, hasLeadingDash) {
             verbSegment = dashSegments.slice(verbStartIndex).join("-");
         }
     }
-    return { objectSegment, verbSegment, boundPrefixes, hasBoundMarker };
+    return {
+        objectSegment,
+        verbSegment,
+        boundPrefixes,
+        boundExplicitFlags,
+        hasBoundMarker,
+    };
 }
 
-function getBoundDirectionalPrefix(boundPrefixes, hasBoundMarker) {
+function getBoundDirectionalPrefix(boundPrefixes, hasBoundMarker, boundExplicitFlags = []) {
     let boundDirectionalPrefix = "";
     const firstBoundRaw = String(boundPrefixes[0] || "");
     const firstBoundDirectional = getBracketDirectionalPrefixToken(firstBoundRaw);
@@ -10072,16 +10201,19 @@ function getBoundDirectionalPrefix(boundPrefixes, hasBoundMarker) {
         hasBoundMarker
         && boundPrefixes.length > 1
         && firstBoundDirectional
-        && FUSION_PREFIXES.has(boundPrefixes[1])
+        && isFusionPrefixTokenForParsing(boundPrefixes[1], boundExplicitFlags[1] === true)
     ) {
         boundDirectionalPrefix = firstBoundDirectional;
         boundPrefixes.shift();
+        boundExplicitFlags.shift();
     }
     return boundDirectionalPrefix;
 }
 
 function getObjectParts(objectSegment, hasLeadingDash) {
-    const objectParts = objectSegment.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
+    const split = splitCompoundPartsWithExplicitFlags(objectSegment);
+    const objectParts = split.parts;
+    const objectExplicitFlags = split.explicitFlags;
     let objectDirectionalPrefix = "";
     const firstObjectRaw = String(objectParts[0] || "");
     const firstObjectDirectional = getBracketDirectionalPrefixToken(firstObjectRaw);
@@ -10089,28 +10221,41 @@ function getObjectParts(objectSegment, hasLeadingDash) {
         hasLeadingDash
         && objectParts.length > 1
         && firstObjectDirectional
-        && FUSION_PREFIXES.has(objectParts[1])
+        && isFusionPrefixTokenForParsing(objectParts[1], objectExplicitFlags[1] === true)
     ) {
         objectDirectionalPrefix = firstObjectDirectional;
         objectParts.shift();
+        objectExplicitFlags.shift();
     }
     const objectToken = objectParts.length ? objectParts[objectParts.length - 1] : "";
+    const objectTokenExplicit = objectParts.length
+        ? objectExplicitFlags[objectParts.length - 1] === true
+        : false;
     const objectBoundPrefixes = objectParts.length > 1 ? objectParts.slice(0, -1) : [];
-    return { objectParts, objectToken, objectDirectionalPrefix, objectBoundPrefixes };
+    const objectBoundExplicitFlags = objectParts.length > 1 ? objectExplicitFlags.slice(0, -1) : [];
+    return {
+        objectParts,
+        objectToken,
+        objectTokenExplicit,
+        objectExplicitFlags,
+        objectDirectionalPrefix,
+        objectBoundPrefixes,
+        objectBoundExplicitFlags,
+    };
 }
 
 function getVerbParts(verbSegment, objectDirectionalPrefix) {
-    const verbParts = verbSegment
-        .split(COMPOUND_MARKER_SPLIT_RE)
-        .filter(Boolean)
-        .map((part) => {
-            const bracketDirectional = getBracketDirectionalPrefixToken(part);
-            return bracketDirectional || part;
-        });
+    const split = splitCompoundPartsWithExplicitFlags(verbSegment);
+    const verbParts = split.parts.map((part) => {
+        const bracketDirectional = getBracketDirectionalPrefixToken(part);
+        return bracketDirectional || part;
+    });
+    const verbExplicitFlags = split.explicitFlags;
     if (objectDirectionalPrefix && verbParts[0] !== objectDirectionalPrefix) {
         verbParts.unshift(objectDirectionalPrefix);
+        verbExplicitFlags.unshift(false);
     }
-    return verbParts;
+    return { verbParts, verbExplicitFlags };
 }
 
 function getDirectionalPrefixFromSlash(core, objectDirectionalPrefix, boundDirectionalPrefix) {
@@ -10129,19 +10274,20 @@ function getDirectionalPrefixFromSlash(core, objectDirectionalPrefix, boundDirec
     return "";
 }
 
-function extractDirectionalFusionPrefix(verbParts, directionalPrefixFromSlash) {
+function extractDirectionalFusionPrefix(verbParts, verbExplicitFlags, directionalPrefixFromSlash) {
     if (
         directionalPrefixFromSlash
         && verbParts.length > 1
         && verbParts[0] === directionalPrefixFromSlash
-        && FUSION_PREFIXES.has(verbParts[1])
+        && isFusionPrefixTokenForParsing(verbParts[1], verbExplicitFlags[1] === true)
     ) {
         return {
             directionalFusionPrefix: verbParts[1],
             verbParts: [verbParts[0], ...verbParts.slice(2)],
+            verbExplicitFlags: [verbExplicitFlags[0], ...verbExplicitFlags.slice(2)],
         };
     }
-    return { directionalFusionPrefix: "", verbParts };
+    return { directionalFusionPrefix: "", verbParts, verbExplicitFlags };
 }
 
 function getFusionDirectionalPrefix({
@@ -10184,20 +10330,50 @@ function getExactBaseVerbFromCleaned(cleaned) {
 }
 
 const SLASH_MATRIX_FUSED_RULEBASES = new Set(["ti"]);
+const SLASH_MATRIX_FUSED_SUFFIXES = Object.freeze([
+    "awi",
+    "iwi",
+    "uwi",
+    "ewi",
+    "awa",
+    "iwa",
+    "uwa",
+    "ewa",
+    "wi",
+    "wa",
+]);
 
-function getLexicalBoundPrefixes(boundPrefixes = []) {
+function shouldFuseSlashMatrixRuleBase(matrixBase = "") {
+    if (!matrixBase) {
+        return false;
+    }
+    if (SLASH_MATRIX_FUSED_RULEBASES.has(matrixBase)) {
+        return true;
+    }
+    return SLASH_MATRIX_FUSED_SUFFIXES.some((suffix) => matrixBase.endsWith(suffix));
+}
+
+function getLexicalBoundPrefixes(boundPrefixes = [], boundExplicitFlags = []) {
+    const explicitFlags = Array.isArray(boundExplicitFlags) ? boundExplicitFlags : [];
     return (Array.isArray(boundPrefixes) ? boundPrefixes : [])
         .map((prefix) => getBracketDirectionalPrefixToken(String(prefix || "")) || String(prefix || ""))
         .map((prefix) => normalizeRuleBase(prefix))
-        .filter((prefix) => (
-            prefix
-            && !isDirectionalPrefixToken(prefix)
-            && !SPECIFIC_VALENCE_PREFIX_SET.has(prefix)
-            && !NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix)
-            && !OBJECT_MARKERS.has(prefix)
-            && !FUSION_PREFIXES.has(prefix)
-            && prefix !== "k"
-        ));
+        .filter((prefix, index) => {
+            if (!prefix) {
+                return false;
+            }
+            if (isDirectionalPrefixToken(prefix)) {
+                return false;
+            }
+            if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
+                return false;
+            }
+            const explicitFlag = explicitFlags[index] === true;
+            if (explicitFlag && isNonspecificValenceAffixToken(prefix)) {
+                return false;
+            }
+            return true;
+        });
 }
 
 function getSlashMatrixCompositeRuleBase({
@@ -10205,6 +10381,7 @@ function getSlashMatrixCompositeRuleBase({
     hasBoundMarker = false,
     hasImpersonalTaPrefix = false,
     boundPrefixes = [],
+    boundExplicitFlags = [],
     analysisVerb = "",
     sourceVerb = "",
 } = {}) {
@@ -10212,10 +10389,10 @@ function getSlashMatrixCompositeRuleBase({
         return "";
     }
     const matrixBase = normalizeRuleBase(analysisVerb || sourceVerb || "");
-    if (!SLASH_MATRIX_FUSED_RULEBASES.has(matrixBase)) {
+    if (!shouldFuseSlashMatrixRuleBase(matrixBase)) {
         return "";
     }
-    const lexicalBoundPrefixes = getLexicalBoundPrefixes(boundPrefixes);
+    const lexicalBoundPrefixes = getLexicalBoundPrefixes(boundPrefixes, boundExplicitFlags);
     if (!lexicalBoundPrefixes.length) {
         return "";
     }
@@ -10226,13 +10403,17 @@ function getValenceCategoryFromToken(token) {
     if (!token) {
         return "specific";
     }
+    const explicitValenceToken = getExplicitValenceTokenFromSegment(token);
+    if (explicitValenceToken && isNonspecificValenceAffixToken(explicitValenceToken)) {
+        return "nonspecific";
+    }
     const parts = token.split(COMPOUND_MARKER_SPLIT_RE).filter(Boolean);
     const suffix = parts.length ? parts[parts.length - 1] : "";
     if (!suffix) {
         return "specific";
     }
-    if (NONSPECIFIC_VALENCE_AFFIX_SET.has(suffix)) {
-        return "nonspecific";
+    if (isNonspecificValenceAffixToken(suffix)) {
+        return "embedded";
     }
     if (SPECIFIC_VALENCE_PREFIX_SET.has(suffix) || suffix === "k") {
         return "specific";
@@ -10384,16 +10565,24 @@ function buildParseState(rawInput) {
         objectSegment: "",
         verbSegment: "",
         boundPrefixes: [],
+        boundExplicitFlags: [],
         hasBoundMarker: false,
         boundDirectionalPrefix: "",
         objectParts: [],
+        objectExplicitFlags: [],
         objectToken: "",
+        objectTokenExplicit: false,
+        objectExplicitValenceToken: "",
         objectDirectionalPrefix: "",
         objectBoundPrefixes: [],
+        objectBoundExplicitFlags: [],
         hasCompoundMarker: false,
         hasSlashMarker: false,
         hasSuffixSeparator: false,
         verbParts: [],
+        verbExplicitFlags: [],
+        verbExplicitValenceIndex: -1,
+        verbExplicitValenceToken: "",
         hasImpersonalTaPrefix: false,
         directionalPrefixFromSlash: "",
         directionalFusionPrefix: "",
@@ -10668,24 +10857,41 @@ function parseStageSegments(state) {
     state.objectSegment = segmentInfo.objectSegment;
     state.verbSegment = segmentInfo.verbSegment;
     state.boundPrefixes = segmentInfo.boundPrefixes;
+    state.boundExplicitFlags = segmentInfo.boundExplicitFlags;
     state.hasBoundMarker = segmentInfo.hasBoundMarker;
-    state.boundDirectionalPrefix = getBoundDirectionalPrefix(state.boundPrefixes, state.hasBoundMarker);
+    state.boundDirectionalPrefix = getBoundDirectionalPrefix(
+        state.boundPrefixes,
+        state.hasBoundMarker,
+        state.boundExplicitFlags
+    );
     const objectInfo = getObjectParts(state.objectSegment, state.hasLeadingDash);
     state.objectParts = objectInfo.objectParts;
     state.objectToken = objectInfo.objectToken;
+    state.objectTokenExplicit = objectInfo.objectTokenExplicit;
+    state.objectExplicitFlags = objectInfo.objectExplicitFlags;
+    state.objectExplicitValenceToken = state.objectTokenExplicit ? state.objectToken : "";
     state.objectDirectionalPrefix = objectInfo.objectDirectionalPrefix;
     state.objectBoundPrefixes = objectInfo.objectBoundPrefixes;
+    state.objectBoundExplicitFlags = objectInfo.objectBoundExplicitFlags;
     const markerSplitRe = COMPOUND_MARKER_SPLIT_RE || /[|~#()\\/?-]/;
     state.hasCompoundMarker = markerSplitRe.test(state.verbSegment);
     state.hasSlashMarker = state.verbSegment.includes("/");
     state.hasSuffixSeparator = state.verbSegment.includes("-");
-    state.verbParts = getVerbParts(state.verbSegment, state.objectDirectionalPrefix);
-    // Regex strictness: impersonal is only bare "ta/" with no dash markers.
+    const verbInfo = getVerbParts(state.verbSegment, state.objectDirectionalPrefix);
+    state.verbParts = verbInfo.verbParts;
+    state.verbExplicitFlags = verbInfo.verbExplicitFlags;
+    const explicitVerbIndex = state.verbExplicitFlags.findIndex((flag) => flag === true);
+    state.verbExplicitValenceIndex = explicitVerbIndex;
+    state.verbExplicitValenceToken = explicitVerbIndex > -1
+        ? (state.verbParts[explicitVerbIndex] || "")
+        : "";
+    // Impersonal ta is explicit only: "(ta)/..."
     const hasAnyDashMarker = state.dashCount > 0;
     state.hasImpersonalTaPrefix = state.hasSlashMarker
         && !hasAnyDashMarker
         && state.verbParts.length > 1
-        && state.verbParts[0] === "ta";
+        && state.verbParts[0] === "ta"
+        && state.verbExplicitFlags[0] === true;
 }
 
 function parseStageDirectionalFusion(state) {
@@ -10695,6 +10901,7 @@ function parseStageDirectionalFusion(state) {
     const hasLeadingDash = state.hasLeadingDash;
     const hasImpersonalTaPrefix = state.hasImpersonalTaPrefix;
     let verbParts = Array.isArray(state.verbParts) ? [...state.verbParts] : [];
+    let verbExplicitFlags = Array.isArray(state.verbExplicitFlags) ? [...state.verbExplicitFlags] : [];
     let directionalPrefixFromSlash = getDirectionalPrefixFromSlash(
         core,
         objectDirectionalPrefix,
@@ -10713,14 +10920,18 @@ function parseStageDirectionalFusion(state) {
     state.directionalPrefixFromSlash = directionalPrefixFromSlash;
     const directionalFusionExtraction = extractDirectionalFusionPrefix(
         verbParts,
+        verbExplicitFlags,
         directionalPrefixFromSlash
     );
     let directionalFusionPrefix = directionalFusionExtraction.directionalFusionPrefix;
     verbParts = directionalFusionExtraction.verbParts;
+    verbExplicitFlags = directionalFusionExtraction.verbExplicitFlags;
     state.directionalFusionPrefix = directionalFusionPrefix;
     state.verbParts = verbParts;
+    state.verbExplicitFlags = verbExplicitFlags;
     if (state.hasSlashMarker && verbParts.length > 1) {
         const slashPrefix = verbParts[0];
+        const slashPrefixExplicit = verbExplicitFlags[0] === true;
         const isDirectionalSlash = Boolean(directionalPrefixFromSlash)
             && slashPrefix === directionalPrefixFromSlash;
         const isImpersonalSlash = slashPrefix === "ta" && state.hasImpersonalTaPrefix;
@@ -10728,11 +10939,15 @@ function parseStageDirectionalFusion(state) {
             state.hasBoundMarker = true;
             if (!state.boundPrefixes.includes(slashPrefix)) {
                 state.boundPrefixes.unshift(slashPrefix);
+                state.boundExplicitFlags.unshift(slashPrefixExplicit);
             }
         }
     }
     const objectToken = state.objectToken || "";
-    const objectFusionPrefix = FUSION_PREFIXES.has(objectToken)
+    const objectFusionPrefix = isFusionPrefixTokenForParsing(
+        objectToken,
+        state.objectTokenExplicit === true
+    )
         && verbParts.length > 0;
     const shouldUseVerbFusion = !hasLeadingDash || objectFusionPrefix;
     const verbFusionPrefixes = [];
@@ -10741,30 +10956,45 @@ function parseStageDirectionalFusion(state) {
             if (hasImpersonalTaPrefix) {
                 break;
             }
-            if (FUSION_PREFIXES.has(verbParts[i])) {
+            if (isFusionPrefixTokenForParsing(verbParts[i], verbExplicitFlags[i] === true)) {
                 verbFusionPrefixes.push(verbParts[i]);
             } else {
                 break;
             }
         }
     }
-    let indirectObjectMarker = OBJECT_MARKERS.has(objectToken)
+    const objectTokenActsAsMarker = isObjectMarkerTokenForParsing(
+        objectToken,
+        state.objectTokenExplicit === true
+    );
+    let indirectObjectMarker = objectTokenActsAsMarker
         && !objectFusionPrefix
         ? objectToken
         : "";
-    let directObjectToken = objectToken && !indirectObjectMarker ? objectToken : "";
+    let directObjectToken = objectTokenActsAsMarker
+        && objectToken
+        && !indirectObjectMarker
+        ? objectToken
+        : "";
     let parts = verbParts.slice(verbFusionPrefixes.length);
-    if (!hasImpersonalTaPrefix && parts.length > 1 && OBJECT_MARKERS.has(parts[0])) {
+    let partExplicitFlags = verbExplicitFlags.slice(verbFusionPrefixes.length);
+    if (
+        !hasImpersonalTaPrefix
+        && parts.length > 1
+        && isObjectMarkerTokenForParsing(parts[0], partExplicitFlags[0] === true)
+    ) {
         if (!indirectObjectMarker) {
             indirectObjectMarker = parts[0];
         }
         parts = parts.slice(1);
+        partExplicitFlags = partExplicitFlags.slice(1);
     }
     const knownSuffixes = getKnownTenseSuffixes();
     if (state.hasSuffixSeparator && parts.length > 1) {
         const suffixToken = parts[parts.length - 1];
         if (knownSuffixes.has(suffixToken)) {
             parts = parts.slice(0, -1);
+            partExplicitFlags = partExplicitFlags.slice(0, -1);
         }
     }
     const fusionPrefixes = [];
@@ -10782,15 +11012,15 @@ function parseStageDirectionalFusion(state) {
         fusionPrefixes.push(...verbFusionPrefixes);
     }
     if (state.hasBoundMarker && state.boundPrefixes.length) {
-        const isValenceLikePrefix = (prefix) => (
+        const isValenceLikePrefix = (prefix, explicitFlag) => (
             SPECIFIC_VALENCE_PREFIX_SET.has(prefix)
-            || NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix)
-            || OBJECT_MARKERS.has(prefix)
-            || FUSION_PREFIXES.has(prefix)
+            || isObjectMarkerTokenForParsing(prefix, explicitFlag)
+            || isFusionPrefixTokenForParsing(prefix, explicitFlag)
             || prefix === "k"
         );
         const fusionSet = new Set(fusionPrefixes);
         state.boundPrefixes.forEach((prefix, index) => {
+            const explicitFlag = state.boundExplicitFlags[index] === true;
             if (!prefix) {
                 return;
             }
@@ -10799,7 +11029,7 @@ function parseStageDirectionalFusion(state) {
                 return;
             }
             // Avoid duplicate valence/fusion prefixes that were already captured from dashed slots.
-            if (isValenceLikePrefix(prefix) && fusionSet.has(prefix)) {
+            if (isValenceLikePrefix(prefix, explicitFlag) && fusionSet.has(prefix)) {
                 return;
             }
             fusionPrefixes.push(prefix);
@@ -10986,9 +11216,10 @@ function parseStageRootPlusYa(state) {
         && !state.hasImpersonalTaPrefix
         && analysisVerb === "ya"
     ) {
-        const lexicalBoundPrefixes = (Array.isArray(state.boundPrefixes) ? state.boundPrefixes : [])
-            .map((prefix) => normalizeRuleBase(prefix || ""))
-            .filter((prefix) => prefix && !isDirectionalPrefixToken(prefix));
+        const lexicalBoundPrefixes = getLexicalBoundPrefixes(
+            state.boundPrefixes,
+            state.boundExplicitFlags
+        );
         if (lexicalBoundPrefixes.length) {
             const slashComposite = `${lexicalBoundPrefixes.join("")}${analysisVerb}`;
             rootPlusYaBase = getRootPlusYaBase(slashComposite, rootPlusYaOptions);
@@ -11012,6 +11243,7 @@ function buildCanonicalVerbState(state) {
         hasBoundMarker: state.hasBoundMarker === true,
         hasImpersonalTaPrefix: state.hasImpersonalTaPrefix === true,
         boundPrefixes: state.boundPrefixes,
+        boundExplicitFlags: state.boundExplicitFlags,
         analysisVerb,
         sourceVerb: verb,
     });
@@ -11032,6 +11264,7 @@ function buildCanonicalVerbState(state) {
         directObjectToken: state.directObjectToken,
         indirectObjectMarker: state.indirectObjectMarker,
         boundPrefixes: state.boundPrefixes,
+        boundExplicitFlags: state.boundExplicitFlags,
         fusionPrefixes: state.fusionPrefixes,
         directionalPrefix: state.directionalPrefix,
         directionalRuleModeProvisional: state.directionalRuleModeProvisional,
@@ -11113,6 +11346,7 @@ function parseVerbInput(value) {
         totalValenceSlotCount: state.totalValenceSlotCount,
         fusionPrefixes: state.fusionPrefixes,
         boundPrefixes: state.boundPrefixes,
+        boundExplicitFlags: state.boundExplicitFlags,
         objectSegment: state.objectSegment,
         verbSegment: state.verbSegment,
         objectToken: state.objectToken,
@@ -13638,6 +13872,10 @@ function buildRegexFromComposerState(state) {
         : (transitivity === COMPOSER_TRANSITIVITY.transitive ? slotBEmbed : slotAEmbed);
     const directionalPrefix = state.directionalPrefix || "";
     const directionalRegexPrefix = directionalPrefix ? `[${directionalPrefix}]` : "";
+    const formatValenceToken = (token = "") => {
+        const normalized = normalizeComposerValenceToken(token);
+        return normalized ? `(${normalized})` : "";
+    };
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive && valenceIntransitive === "ta") {
         if (!matrixStem) {
             return "";
@@ -13652,7 +13890,7 @@ function buildRegexFromComposerState(state) {
         const taRightSegment = taRightEmbed
             ? `${taRightEmbed}/${supportiveMatrixStem}`
             : supportiveMatrixStem;
-        const core = `${taLeftSegment}ta/${taRightSegment}`;
+        const core = `${taLeftSegment}${formatValenceToken("ta")}/${taRightSegment}`;
         return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
     if (!matrixStem) {
@@ -13676,7 +13914,7 @@ function buildRegexFromComposerState(state) {
     const appendOptionalSlot = (value = "", leftEmbed = "") => {
         if (value) {
             const leftSegment = leftEmbed ? `${leftEmbed}/` : "";
-            return `${leftSegment}${value}-`;
+            return `${leftSegment}${formatValenceToken(value)}-`;
         }
         const embedTokens = getComposerEmbedTokens(leftEmbed);
         if (embedTokens.length) {
@@ -13717,7 +13955,7 @@ function buildRegexFromComposerState(state) {
     const appendValenceSlot = (valenceToken, valenceEmbedToken = "") => {
         if (valenceToken) {
             const leftSegment = valenceEmbedToken ? `${valenceEmbedToken}/` : "";
-            slotSegments.push(`${leftSegment}${valenceToken}-`);
+            slotSegments.push(`${leftSegment}${formatValenceToken(valenceToken)}-`);
             return;
         }
         const directObjectEmbeds = getComposerEmbedTokens(valenceEmbedToken);
@@ -13791,9 +14029,9 @@ function resolveComposerValenceSequenceFromParsed(parsed, baseValue) {
         return sequence;
     }
     const base = String(baseValue || "");
-    const matches = base.matchAll(/(?:^|[-/])(ta|te|mu)(?=-|\/)/g);
+    const matches = base.matchAll(/(?:^|[-/])\(([^)]+)\)(?=-|\/)/g);
     for (const match of matches) {
-        addToken(match[1]);
+        addToken(normalizeExplicitValenceToken(match[1]));
     }
     return sequence;
 }
