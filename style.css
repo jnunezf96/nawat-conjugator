@@ -898,7 +898,8 @@ p {
   grid-template-columns: 1fr;
   grid-template-areas:
     "mode"
-    "derivation";
+    "derivation"
+    "voice";
   gap: 6px;
   margin-top: 0;
   position: relative;
@@ -950,8 +951,7 @@ p {
 }
 
 .calc-voice-operator {
-  margin-top: -2px;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
 @media (max-width: 640px) {
@@ -959,7 +959,8 @@ p {
     grid-template-columns: 1fr;
     grid-template-areas:
       "mode"
-      "derivation";
+      "derivation"
+      "voice";
   }
 
   .calc-operator-grid--mode {

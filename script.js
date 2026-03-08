@@ -21156,6 +21156,7 @@ function getBlockedNounDerivationTypes(tenseValue = "") {
 let DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
 let DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
 let DERIVATION_ANTIDERIVATIVE_STAGE = "off";
+const SHOW_DERIVATION_ANTIDERIVATIVE = false;
 
 function getNextAntiderivativeStage(stage = "off") {
     if (stage === "off") {
@@ -21197,6 +21198,14 @@ function getUniqueAntiderivativeDirectStems(result) {
 function renderDerivationAntiderivativePanel(verbMeta = null) {
     const panel = document.getElementById("derivation-antiderivative");
     if (!panel) {
+        return;
+    }
+    if (!SHOW_DERIVATION_ANTIDERIVATIVE) {
+        panel.classList.add("is-hidden");
+        panel.innerHTML = "";
+        DERIVATION_ANTIDERIVATIVE_COMPUTED_KEY = "";
+        DERIVATION_ANTIDERIVATIVE_PENDING_KEY = "";
+        DERIVATION_ANTIDERIVATIVE_STAGE = "off";
         return;
     }
     const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;

@@ -855,44 +855,44 @@
                       <option value="applicative">Aplicativo</option>
                     </select>
                   </div>
+                  <div
+                    class="calc-operator calc-operator--voice calc-voice-operator"
+                    id="calc-voice-operator"
+                    role="group"
+                    aria-label="Voz"
+                  >
+                    <div class="calc-operator__label">Voz</div>
+                    <div
+                      class="calc-operator-grid calc-operator-grid--voice"
+                      role="tablist"
+                      aria-label="Voz"
+                    >
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-combined-mode="active"
+                        id="calc-voice-active"
+                        data-ui-label-key="tense-tabs-mode-active"
+                      >
+                        Activo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-combined-mode="nonactive"
+                        id="calc-voice-nonactive"
+                        data-ui-label-key="tense-tabs-mode-nonactive"
+                      >
+                        No activo
+                      </button>
+                    </div>
+                  </div>
                 </div>
             <div
               class="derivation-antiderivative calc-operator-hint"
               id="derivation-antiderivative"
               aria-live="polite"
             ></div>
-            <div
-              class="calc-operator calc-operator--voice calc-voice-operator"
-              id="calc-voice-operator"
-              role="group"
-              aria-label="Voz"
-            >
-              <div class="calc-operator__label">Voz</div>
-              <div
-                class="calc-operator-grid calc-operator-grid--voice"
-                role="tablist"
-                aria-label="Voz"
-              >
-                <button
-                  type="button"
-                  class="calc-operator-chip"
-                  data-combined-mode="active"
-                  id="calc-voice-active"
-                  data-ui-label-key="tense-tabs-mode-active"
-                >
-                  Activo
-                </button>
-                <button
-                  type="button"
-                  class="calc-operator-chip"
-                  data-combined-mode="nonactive"
-                  id="calc-voice-nonactive"
-                  data-ui-label-key="tense-tabs-mode-nonactive"
-                >
-                  No activo
-                </button>
-              </div>
-            </div>
             <div
               class="nonactive-tabs is-hidden"
               id="nonactive-tabs"
