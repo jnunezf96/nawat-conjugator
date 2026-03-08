@@ -122,7 +122,7 @@
             aria-labelledby="panel-stack-tab-inputs"
             autocomplete="off"
           >
-            <div class="form-container panel" id="container-inputs">
+            <div class="form-container panel" id="container-inputs" data-serial-ready="true">
               <div class="panel-block-title">
                 <button
                   type="button"
@@ -160,6 +160,7 @@
                           id="verb"
                           name="verb"
                           class="verb-input"
+                          inputmode="text"
                           aria-label="Verbo"
                           placeholder="Escriba verbo aquí"
                           autocomplete="off"
@@ -358,7 +359,10 @@
                                     />
                                   </div>
                                 </div>
-                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__matrix-field"
+                                  data-composer-matrix-field="a"
+                                >
                                   <div class="verb-composer__matrix-head">
                                     <span class="verb-composer__sub-label">Raíz matriz</span>
                                   </div>
@@ -372,6 +376,16 @@
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div class="verb-composer__serial-rail" data-composer-serial-rail="a" aria-hidden="true">
+                                    <span class="verb-composer__serial-label">Serial</span>
+                                    <span class="verb-composer__serial-mask" data-composer-serial-mask="a">_</span>
+                                  </div>
+                                  <div
+                                    class="verb-composer__chips verb-composer__serial-type-chips"
+                                    data-composer-serial-type-chips="a"
+                                    role="group"
+                                    aria-label="Tipo serial Slot A"
+                                  ></div>
                                   <div
                                     class="verb-composer__chips verb-composer__matrix-chips"
                                     id="composer-stem-a-chips"
@@ -452,7 +466,10 @@
                                     />
                                   </div>
                                 </div>
-                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__matrix-field"
+                                  data-composer-matrix-field="b"
+                                >
                                   <div class="verb-composer__matrix-head">
                                     <span class="verb-composer__sub-label">Raíz matriz</span>
                                   </div>
@@ -466,6 +483,16 @@
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div class="verb-composer__serial-rail" data-composer-serial-rail="b" aria-hidden="true">
+                                    <span class="verb-composer__serial-label">Serial</span>
+                                    <span class="verb-composer__serial-mask" data-composer-serial-mask="b">_</span>
+                                  </div>
+                                  <div
+                                    class="verb-composer__chips verb-composer__serial-type-chips"
+                                    data-composer-serial-type-chips="b"
+                                    role="group"
+                                    aria-label="Tipo serial Slot B"
+                                  ></div>
                                   <div
                                     class="verb-composer__chips verb-composer__matrix-chips"
                                     id="composer-stem-b-chips"
@@ -548,7 +575,10 @@
                                     />
                                   </div>
                                 </div>
-                                <div class="verb-composer__stem-field verb-composer__matrix-field">
+                                <div
+                                  class="verb-composer__stem-field verb-composer__matrix-field"
+                                  data-composer-matrix-field="c"
+                                >
                                   <div class="verb-composer__matrix-head">
                                     <span class="verb-composer__sub-label">Raíz matriz</span>
                                   </div>
@@ -562,6 +592,16 @@
                                     autocapitalize="none"
                                     spellcheck="false"
                                   />
+                                  <div class="verb-composer__serial-rail" data-composer-serial-rail="c" aria-hidden="true">
+                                    <span class="verb-composer__serial-label">Serial</span>
+                                    <span class="verb-composer__serial-mask" data-composer-serial-mask="c">_</span>
+                                  </div>
+                                  <div
+                                    class="verb-composer__chips verb-composer__serial-type-chips"
+                                    data-composer-serial-type-chips="c"
+                                    role="group"
+                                    aria-label="Tipo serial Slot C"
+                                  ></div>
                                   <div
                                     class="verb-composer__chips verb-composer__matrix-chips"
                                     id="composer-stem-c-chips"
@@ -685,9 +725,14 @@
                     <!-- Keyboard Legend Container -->
                     <div class="keyboard-legend-container" id="keyboard-legend">
                       <p><strong>Atajos:</strong></p>
-                      <p>Space/Esc: enfocar / salir del verbo</p>
+                      <p>Tab: alternar entre verbo y caja activa</p>
+                      <p>← / →: transitividad ±</p>
+                      <p>Space: foco en raíz matriz (Selecciones) / #verb (Regex)</p>
+                      <p>⌥/Alt + V/S/J/B: verbo/sustantivo/adjetivo/adverbio</p>
+                      <p>⌥/Alt + R: cambiar a Regex</p>
+                      <p>Esc: cerrar/cancelar</p>
                       <p>Esc x2: limpiar cajas (selecciones)</p>
-                      <p>Enter: generar</p>
+                      <p>Enter: generar (o activar control enfocado)</p>
                       <p>Escribe para ver sugerencias</p>
                       <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
                       <!-- Agregar más elementos de leyenda según sea necesario -->
@@ -776,33 +821,6 @@
                       </button>
                     </div>
                   </div>
-                  <div class="calc-operator calc-operator--voice" role="group" aria-label="Voz">
-                    <div class="calc-operator__label">Voz</div>
-                    <div
-                      class="calc-operator-grid calc-operator-grid--voice"
-                      role="tablist"
-                      aria-label="Voz"
-                    >
-                      <button
-                        type="button"
-                        class="calc-operator-chip"
-                        data-combined-mode="active"
-                        id="calc-voice-active"
-                        data-ui-label-key="tense-tabs-mode-active"
-                      >
-                        Activo
-                      </button>
-                      <button
-                        type="button"
-                        class="calc-operator-chip"
-                        data-combined-mode="nonactive"
-                        id="calc-voice-nonactive"
-                        data-ui-label-key="tense-tabs-mode-nonactive"
-                      >
-                        No activo
-                      </button>
-                    </div>
-                  </div>
                   <div class="calc-operator calc-operator--derivation" role="group" aria-label="Derivación">
                     <div class="calc-operator__label" id="derivation-type-label">Derivación</div>
                     <div class="calc-operator-grid calc-operator-grid--derivation" role="group" aria-label="Derivación">
@@ -843,6 +861,38 @@
               id="derivation-antiderivative"
               aria-live="polite"
             ></div>
+            <div
+              class="calc-operator calc-operator--voice calc-voice-operator"
+              id="calc-voice-operator"
+              role="group"
+              aria-label="Voz"
+            >
+              <div class="calc-operator__label">Voz</div>
+              <div
+                class="calc-operator-grid calc-operator-grid--voice"
+                role="tablist"
+                aria-label="Voz"
+              >
+                <button
+                  type="button"
+                  class="calc-operator-chip"
+                  data-combined-mode="active"
+                  id="calc-voice-active"
+                  data-ui-label-key="tense-tabs-mode-active"
+                >
+                  Activo
+                </button>
+                <button
+                  type="button"
+                  class="calc-operator-chip"
+                  data-combined-mode="nonactive"
+                  id="calc-voice-nonactive"
+                  data-ui-label-key="tense-tabs-mode-nonactive"
+                >
+                  No activo
+                </button>
+              </div>
+            </div>
             <div
               class="nonactive-tabs is-hidden"
               id="nonactive-tabs"

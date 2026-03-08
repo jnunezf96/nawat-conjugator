@@ -7984,6 +7984,13 @@ function getNounObjectComboLabel(prefix, isNawat) {
     return getObjectComboLabel(prefix, isNawat);
 }
 
+function getNounZeroObjectComboLabel(isNawat = false, options = {}) {
+    if (options.isImpersonalDummy) {
+        return getVerbBlockLabel("impersonal", isNawat, "impersonal");
+    }
+    return getNounObjectComboLabel("", isNawat);
+}
+
 function getPossessorLabel(prefix, isNawat = false) {
     const entry = POSSESSOR_LABELS[prefix];
     if (!entry) {
@@ -20942,6 +20949,7 @@ function updateTenseModeTabs() {
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
     });
+    updateVoiceOperatorVisibility();
     updateDerivationTypeControl();
     updateCombinedModeTabs();
 }
@@ -20969,24 +20977,39 @@ function initTenseModeTabs() {
     updateTenseModeTabs();
 }
 
+function updateVoiceOperatorVisibility() {
+    const voiceOperator = document.getElementById("calc-voice-operator");
+    if (!voiceOperator) {
+        return;
+    }
+    const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
+    voiceOperator.hidden = !isVerbMode;
+    voiceOperator.setAttribute("aria-hidden", String(!isVerbMode));
+    voiceOperator.classList.toggle("is-disabled", !isVerbMode);
+}
+
 function updateCombinedModeTabs() {
     const buttons = document.querySelectorAll("[data-combined-mode]");
     if (!buttons.length) {
         return;
     }
+    const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
     const isAdverbioMode = getActiveTenseMode() === TENSE_MODE.adverbio;
+    if (!isVerbMode && getCombinedMode() !== COMBINED_MODE.active) {
+        setCombinedMode(COMBINED_MODE.active);
+    }
     if (isAdverbioMode && getCombinedMode() !== COMBINED_MODE.active) {
         setCombinedMode(COMBINED_MODE.active);
     }
     const mode = getCombinedMode();
     const container = document.querySelector(".calc-operator-grid--voice");
     if (container) {
-        container.classList.remove("is-disabled");
-        container.setAttribute("aria-disabled", "false");
+        container.classList.toggle("is-disabled", !isVerbMode);
+        container.setAttribute("aria-disabled", String(!isVerbMode));
     }
     buttons.forEach((button) => {
         const combinedMode = button.getAttribute("data-combined-mode") || "";
-        const isDisabled = isAdverbioMode && combinedMode === COMBINED_MODE.nonactive;
+        const isDisabled = !isVerbMode || (isAdverbioMode && combinedMode === COMBINED_MODE.nonactive);
         const isActive = button.getAttribute("data-combined-mode") === mode;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
@@ -21002,6 +21025,9 @@ function initCombinedModeTabs() {
     }
     buttons.forEach((button) => {
         button.addEventListener("click", () => {
+            if (getActiveTenseMode() !== TENSE_MODE.verbo) {
+                return;
+            }
             const mode = button.getAttribute("data-combined-mode");
             if (!mode) {
                 return;
@@ -21383,12 +21409,13 @@ function updateCalcSummary() {
     const voiceButton = document.querySelector(`[data-combined-mode="${voice}"]`);
     const voiceLabel = voiceButton?.textContent?.trim()
         || (voice === COMBINED_MODE.nonactive ? "No activo" : "Activo");
+    const includeVoiceInSummary = mode === TENSE_MODE.verbo;
     const derivationLabel = mode === TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
     const transitivityLabel = getCalcTransitivityLabel();
     const tenseLabel = getCalcTenseLabel();
     const parts = isSimpleView
         ? [transitivityLabel, tenseLabel].filter(Boolean)
-        : [modeLabel, voiceLabel, derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
+        : [modeLabel, includeVoiceInSummary ? voiceLabel : "", derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
     summaryEl.textContent = parts.length
         ? parts.join(" · ")
         : (isSimpleView ? "Selecciona transitividad y tiempo" : "Selecciona derivación y tiempo");
@@ -26234,6 +26261,15 @@ function renderLocativoTemporalConjugations({
             });
         }
         const buildNonactivePrimaryOptions = () => {
+            const isIntransitiveNonactiveLocativo = slotBundle.availableObjectSlots <= 0;
+            if (isIntransitiveNonactiveLocativo) {
+                return [{
+                    id: "impersonal",
+                    label: impersonalLabel,
+                    value: "",
+                    type: "impersonal",
+                }];
+            }
             const options = [{ id: OBJECT_TOGGLE_ALL, label: allToggleLabel, type: "all", value: "" }];
             possessorValues.forEach((value) => {
                 options.push({
@@ -26731,9 +26767,12 @@ function renderLocativoTemporalConjugations({
                     const personSub = document.createElement("div");
                     personSub.className = "person-sub";
                     const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
+                    const isDummyImpersonalRow = isNonactive
+                        && !possessorPrefix
+                        && objectMarkers.length === 0;
                     const objectLabel = objectMarkers.length
                         ? objectMarkers.map((prefix) => getNounObjectComboLabel(prefix, isNawat)).join(" + ")
-                        : getNounObjectComboLabel("", isNawat);
+                        : getNounZeroObjectComboLabel(isNawat, { isImpersonalDummy: isDummyImpersonalRow });
                     label.appendChild(personLabel);
                     label.appendChild(personSub);
 
@@ -27699,9 +27738,17 @@ function renderNounConjugations({
                         : "";
                     const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
                     const suppressZeroObjectLabel = isPotencialProfileTense(resolvedTense);
+                    const isDummyImpersonalRow = combinedMode === COMBINED_MODE.nonactive
+                        && isSubjectlessTense
+                        && !selection.subjectPrefix
+                        && !selection.subjectSuffix
+                        && !possessorPrefix
+                        && objectMarkers.length === 0;
                     const objectLabel = objectMarkers.length
                         ? objectMarkers.map((prefix) => getNounObjectComboLabel(prefix, isNawat)).join(" + ")
-                        : (suppressZeroObjectLabel ? "" : getNounObjectComboLabel("", isNawat));
+                        : (suppressZeroObjectLabel
+                            ? ""
+                            : getNounZeroObjectComboLabel(isNawat, { isImpersonalDummy: isDummyImpersonalRow }));
                     let possessorLabel = getPossessorLabel(possessorPrefix, isNawat);
                     label.appendChild(personLabel);
                     label.appendChild(personSub);
@@ -30621,6 +30668,36 @@ function runNounForwardDerivationRegressionTests() {
         });
     });
 
+    runCase("locativo_nonactive_intransitive_impersonal_only", () => {
+        const verbMeta = parseVerbInput("mati");
+        const impersonal = getLocativoTemporalResult({
+            rawVerb: "mati",
+            verbMeta,
+            objectPrefix: "",
+            possessivePrefix: "",
+            combinedMode: "nonactive",
+        });
+        const invalidObject = getLocativoTemporalResult({
+            rawVerb: "mati",
+            verbMeta,
+            objectPrefix: "ta",
+            possessivePrefix: "",
+            combinedMode: "nonactive",
+        });
+        if (impersonal.error || !splitForms(impersonal.result).length) {
+            recordFailure(
+                "locativo_nonactive_intransitive_impersonal_only",
+                `expected impersonal output, got ${impersonal.result || "∅"}`
+            );
+        }
+        if (!invalidObject.error) {
+            recordFailure(
+                "locativo_nonactive_intransitive_impersonal_only",
+                "intransitive nonactive locativo should reject object toggles"
+            );
+        }
+    });
+
     runCase("derivation_control_keeps_blocked_active_type", () => {
         const directType = DERIVATION_TYPE.direct || "direct";
         const causativeType = DERIVATION_TYPE.causative || "causative";
@@ -31624,13 +31701,14 @@ document.addEventListener("keydown", (event) => {
             }
             return false;
         };
+        const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
         const handled = (
             (isAltLetter("v") && clickTarget("[data-tense-mode=\"verbo\"]"))
             || (isAltLetter("s") && clickTarget("[data-tense-mode=\"sustantivo\"]"))
             || (isAltLetter("j") && clickTarget("[data-tense-mode=\"adjetivo\"]"))
             || (isAltLetter("b") && clickTarget("[data-tense-mode=\"adverbio\"]"))
-            || (isAltLetter("a") && clickTarget("[data-combined-mode=\"active\"]"))
-            || (isAltLetter("n") && clickTarget("[data-combined-mode=\"nonactive\"]"))
+            || (isVerbMode && isAltLetter("a") && clickTarget("[data-combined-mode=\"active\"]"))
+            || (isVerbMode && isAltLetter("n") && clickTarget("[data-combined-mode=\"nonactive\"]"))
             || (isAltLetter("d") && clickTarget("[data-derivation-type=\"direct\"]"))
             || (isAltLetter("c") && clickTarget("[data-derivation-type=\"causative\"]"))
             || (isAltLetter("p") && clickTarget("[data-derivation-type=\"applicative\"]"))

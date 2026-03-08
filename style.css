@@ -895,10 +895,10 @@ p {
 
 .calc-operators {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   grid-template-areas:
-    "mode voice"
-    "derivation derivation";
+    "mode"
+    "derivation";
   gap: 6px;
   margin-top: 0;
   position: relative;
@@ -949,13 +949,21 @@ p {
   grid-area: voice;
 }
 
+.calc-voice-operator {
+  margin-top: -2px;
+  margin-bottom: 12px;
+}
+
 @media (max-width: 640px) {
   .calc-operators {
     grid-template-columns: 1fr;
     grid-template-areas:
       "mode"
-      "voice"
       "derivation";
+  }
+
+  .calc-operator-grid--mode {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -979,7 +987,7 @@ p {
 }
 
 .calc-operator-grid--mode {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .calc-operator-grid--voice {
@@ -1836,6 +1844,58 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.verb-composer__serial-rail {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 16px;
+  margin-top: 4px;
+  color: rgba(29, 26, 21, 0.56);
+}
+
+.verb-composer__serial-label {
+  font-size: calc(var(--font-size-label) - 0.12rem);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.verb-composer__serial-mask {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: 1px dashed rgba(29, 26, 21, 0.22);
+  background: rgba(255, 255, 255, 0.68);
+  color: rgba(29, 26, 21, 0.72);
+  font-size: calc(var(--font-size-label) - 0.04rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.verb-composer__matrix-field.is-serial-polymorphemic .verb-composer__serial-mask {
+  border-color: rgba(216, 106, 58, 0.54);
+  background: rgba(255, 244, 230, 0.94);
+  color: rgba(29, 26, 21, 0.92);
+}
+
+.verb-composer__matrix-field.is-serial-polymorphemic .verb-composer__serial-label {
+  color: rgba(216, 106, 58, 0.88);
+}
+
+.verb-composer__serial-type-chips {
+  margin-top: 2px;
+  gap: 5px;
+}
+
+.verb-composer__serial-type-chips .verb-chip {
+  min-height: 26px;
+  padding: 2px 7px;
+  font-size: calc(var(--font-size-label) - 0.08rem);
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .verb-composer__top-row:not(.is-embed-preview):not(.is-embed-open) .verb-composer__matrix-head {
