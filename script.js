@@ -101,6 +101,96 @@ const COMPOSER_TRANSITIVITY_ORDER = [
     COMPOSER_TRANSITIVITY.transitive,
     COMPOSER_TRANSITIVITY.bitransitive,
 ];
+const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
+    {
+        id: "mode-verb",
+        key: "v",
+        label: "⌥/Alt + V",
+        selector: "[data-tense-mode=\"verbo\"]",
+        fallbackDescription: "verbo",
+    },
+    {
+        id: "mode-noun",
+        key: "s",
+        label: "⌥/Alt + S",
+        selector: "[data-tense-mode=\"sustantivo\"]",
+        fallbackDescription: "sustantivo",
+    },
+    {
+        id: "mode-adjective",
+        key: "j",
+        label: "⌥/Alt + J",
+        selector: "[data-tense-mode=\"adjetivo\"]",
+        fallbackDescription: "adjetivo",
+    },
+    {
+        id: "mode-adverb",
+        key: "b",
+        label: "⌥/Alt + B",
+        selector: "[data-tense-mode=\"adverbio\"]",
+        fallbackDescription: "adverbio",
+    },
+    {
+        id: "voice-active",
+        key: "a",
+        label: "⌥/Alt + A",
+        selector: "[data-combined-mode=\"active\"]",
+        fallbackDescription: "voz activa",
+        requireVerbMode: true,
+    },
+    {
+        id: "voice-nonactive",
+        key: "n",
+        label: "⌥/Alt + N",
+        selector: "[data-combined-mode=\"nonactive\"]",
+        fallbackDescription: "voz no activa",
+        requireVerbMode: true,
+    },
+    {
+        id: "derivation-direct",
+        key: "d",
+        label: "⌥/Alt + D",
+        selector: "[data-derivation-type=\"direct\"]",
+        fallbackDescription: "directo",
+    },
+    {
+        id: "derivation-causative",
+        key: "c",
+        label: "⌥/Alt + C",
+        selector: "[data-derivation-type=\"causative\"]",
+        fallbackDescription: "causativo",
+    },
+    {
+        id: "derivation-applicative",
+        key: "p",
+        label: "⌥/Alt + P",
+        selector: "[data-derivation-type=\"applicative\"]",
+        fallbackDescription: "aplicativo",
+    },
+    {
+        id: "regex-mode",
+        key: "r",
+        label: "⌥/Alt + R",
+        action: "set-regex-mode",
+        fallbackDescription: "cambiar a Regex",
+    },
+    {
+        id: "input-mode-toggle",
+        key: "m",
+        label: "⌥/Alt + M",
+        action: "toggle-input-mode",
+        fallbackDescription: "cambiar modo entrada",
+    },
+]);
+const KEYBOARD_LEGEND_BASE_ENTRIES = Object.freeze([
+    { label: "Tab", description: "alternar entre verbo y caja activa" },
+    { label: "⌥/Alt + ← / →", description: "transitividad ±" },
+    { label: "Space", description: "foco en raíz matriz (Selecciones) / #verb (Regex)" },
+    { label: "Esc", description: "cerrar/cancelar" },
+    { label: "Esc x2", description: "limpiar cajas (selecciones)" },
+    { label: "Enter", description: "activar control enfocado" },
+    { label: "Tip", description: "escribe para ver sugerencias o haz clic en un verbo de la lista" },
+]);
 const COMPOSER_MATRIX_ROOT_TOKENS = Object.freeze({
     [COMPOSER_TRANSITIVITY.intransitive]: Object.freeze(["ni", "na", "wi", "wa", "ti", "ya", "ua"]),
     [COMPOSER_TRANSITIVITY.transitive]: Object.freeze(["nia", "na", "wia", "wa", "tia", "ia", "ua"]),
@@ -1359,6 +1449,8 @@ const VERB_DISAMBIGUATION_STATE = {
 const VERB_DISAMBIGUATION_LIMIT = 3;
 const VERB_DISAMBIGUATION_LONG_SYLLABLES = 4;
 const VERB_DISAMBIGUATION_LONG_LETTERS = 9;
+let NONACTIVE_TABS_DOM_SIGNATURE = "";
+let TENSE_TABS_DOM_SIGNATURE = "";
 let VERB_SUGGESTIONS = [];
 let VERB_SUGGESTION_BASE_SET = new Set();
 let VERB_SUGGESTION_BASE_INFO = new Map();
@@ -16921,6 +17013,118 @@ function restoreTenseTabsFocusState(container, focusState) {
     target.focus({ preventScroll: true });
 }
 
+function serializeTenseGroupRows(groups = [], visibleTenseSet = new Set()) {
+    return groups
+        .map((group) => {
+            const tenses = (group?.tenses || []).filter((tenseValue) => visibleTenseSet.has(tenseValue));
+            if (!tenses.length) {
+                return "";
+            }
+            return `${group?.heading || ""}:${tenses.join(",")}`;
+        })
+        .filter(Boolean)
+        .join("|");
+}
+
+function buildTenseTabsDomSignature({
+    isNawat = false,
+    tenseMode = "",
+    isNonactiveMode = false,
+    isNominalMode = false,
+    shouldShowUniversalTabs = false,
+    activeColumnTenses = [],
+    nounNonactiveTenses = [],
+    modeGroups = null,
+    visibleTenseSet = new Set(),
+    universalOrder = [],
+}) {
+    const nominalSignature = isNominalMode
+        ? `a:${activeColumnTenses.join(",")}|n:${nounNonactiveTenses.join(",")}`
+        : "";
+    const groupedSignature = !isNominalMode && modeGroups
+        ? `l:${serializeTenseGroupRows(modeGroups.left, visibleTenseSet)}|r:${serializeTenseGroupRows(modeGroups.right, visibleTenseSet)}`
+        : "";
+    const universalSignature = shouldShowUniversalTabs ? universalOrder.join(",") : "";
+    return [
+        isNawat ? "na" : "es",
+        tenseMode || "",
+        isNonactiveMode ? "nonactive" : "active",
+        isNominalMode ? "nominal" : "verb",
+        nominalSignature,
+        groupedSignature,
+        shouldShowUniversalTabs ? "universal:on" : "universal:off",
+        universalSignature,
+    ].join("::");
+}
+
+function updateExistingTenseTabsDom({
+    container,
+    endsWithConsonant = false,
+    resolveTenseHasOutput,
+    shouldShowUniversalTabs = false,
+    availability = [],
+    activeGroup = "",
+    selectedTense = "",
+    selectedUniversal = "",
+    isClassTenseSelected = false,
+}) {
+    const mainWrap = container?.querySelector(".tense-tabs-main");
+    if (!mainWrap || typeof resolveTenseHasOutput !== "function") {
+        return false;
+    }
+    const mainButtons = Array.from(
+        mainWrap.querySelectorAll(".tense-tab[data-tense-group=\"main\"][data-tense-value]")
+    );
+    if (!mainButtons.length) {
+        return false;
+    }
+    mainButtons.forEach((button) => {
+        const tenseValue = button.dataset.tenseValue || "";
+        const hasOutput = resolveTenseHasOutput(tenseValue);
+        const isActive = activeGroup === CONJUGATION_GROUPS.tense && tenseValue === selectedTense;
+        button.classList.toggle("is-active", isActive);
+        button.classList.toggle("is-empty", hasOutput === false);
+        button.disabled = endsWithConsonant || hasOutput === false;
+    });
+    const universalWrap = container.querySelector(".tense-tabs-universal");
+    if (!shouldShowUniversalTabs) {
+        return !universalWrap;
+    }
+    if (!universalWrap) {
+        return false;
+    }
+    const universalButtons = Array.from(
+        universalWrap.querySelectorAll(".tense-tab[data-tense-group=\"universal\"][data-tense-value]")
+    );
+    if (universalButtons.length !== availability.length) {
+        return false;
+    }
+    const availabilityByTense = new Map(availability.map((entry) => [entry.tenseValue, Boolean(entry.available)]));
+    const hasEveryUniversalButton = universalButtons.every((button) =>
+        availabilityByTense.has(button.dataset.tenseValue || "")
+    );
+    if (!hasEveryUniversalButton) {
+        return false;
+    }
+    universalButtons.forEach((button) => {
+        const tenseValue = button.dataset.tenseValue || "";
+        const available = availabilityByTense.get(tenseValue) === true;
+        const hasOutput = resolveTenseHasOutput(tenseValue);
+        const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
+        const isUniversalActive = activeGroup === CONJUGATION_GROUPS.universal
+            && tenseValue === selectedUniversal
+            && available;
+        const isClassActive = activeGroup === CONJUGATION_GROUPS.tense
+            && isClassTenseSelected
+            && classKey
+            && CLASS_FILTER_STATE.activeClass === classKey;
+        button.classList.toggle("is-active", isUniversalActive || isClassActive);
+        button.classList.toggle("is-empty", hasOutput === false);
+        button.disabled = endsWithConsonant || !available || hasOutput === false;
+    });
+    return true;
+}
+
 function getScreenCalculatorAnsFallbackFromForm(rawFormOverride = null) {
     const rawForm = rawFormOverride == null
         ? String(VERB_SCREEN_ANS_STATE.form || "")
@@ -19153,6 +19357,123 @@ function initTutorialPanel() {
     });
 }
 
+function matchesAltShortcutKey(event, key = "") {
+    const normalizedKey = String(key || "").toLowerCase();
+    if (!normalizedKey) {
+        return false;
+    }
+    const eventKey = String(event?.key || "").toLowerCase();
+    const eventCode = String(event?.code || "");
+    return eventKey === normalizedKey || eventCode === `Key${normalizedKey.toUpperCase()}`;
+}
+
+function resolveAltShortcutLegendDescription(definition = {}) {
+    if (!definition) {
+        return "";
+    }
+    if (definition.selector) {
+        const target = document.querySelector(definition.selector);
+        const text = String(target?.textContent || "").trim();
+        if (text) {
+            return text.toLowerCase();
+        }
+    }
+    return String(definition.fallbackDescription || "").trim();
+}
+
+function buildKeyboardLegendEntries() {
+    const baseEntries = KEYBOARD_LEGEND_BASE_ENTRIES.map((entry) => ({ ...entry }));
+    const altEntries = [];
+    ALT_SHORTCUT_DEFINITIONS.forEach((definition) => {
+        const description = resolveAltShortcutLegendDescription(definition);
+        if (!definition.label || !description) {
+            return;
+        }
+        altEntries.push({
+            label: definition.label,
+            description,
+        });
+    });
+    return [
+        ...baseEntries.slice(0, 3),
+        ...altEntries,
+        ...baseEntries.slice(3),
+    ];
+}
+
+function renderKeyboardLegendEntries() {
+    const list = document.getElementById("keyboard-legend-list");
+    if (!list) {
+        return;
+    }
+    list.innerHTML = "";
+    const entries = buildKeyboardLegendEntries();
+    entries.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = "keyboard-legend-item";
+        const key = document.createElement("span");
+        key.className = "keyboard-legend-item__key";
+        key.textContent = `${entry.label}:`;
+        const text = document.createElement("span");
+        text.className = "keyboard-legend-item__text";
+        text.textContent = entry.description;
+        row.appendChild(key);
+        row.appendChild(text);
+        list.appendChild(row);
+    });
+}
+
+function initKeyboardLegendPopover() {
+    const trigger = document.getElementById("keyboard-legend-trigger");
+    const panel = document.getElementById("keyboard-legend");
+    const closeButton = document.getElementById("keyboard-legend-close");
+    if (!trigger || !panel) {
+        return;
+    }
+    let isOpen = false;
+    const setOpen = (nextOpen, { focusTrigger = false } = {}) => {
+        isOpen = Boolean(nextOpen);
+        panel.hidden = !isOpen;
+        panel.classList.toggle("is-open", isOpen);
+        trigger.setAttribute("aria-expanded", String(isOpen));
+        if (focusTrigger && typeof trigger.focus === "function") {
+            trigger.focus({ preventScroll: true });
+        }
+    };
+    const closePopover = ({ focusTrigger = false } = {}) => setOpen(false, { focusTrigger });
+    const togglePopover = () => setOpen(!isOpen);
+    trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        togglePopover();
+    });
+    if (closeButton) {
+        closeButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            closePopover({ focusTrigger: true });
+        });
+    }
+    document.addEventListener("click", (event) => {
+        if (!isOpen) {
+            return;
+        }
+        const target = event.target;
+        if (panel.contains(target) || trigger.contains(target)) {
+            return;
+        }
+        closePopover();
+    });
+    document.addEventListener("keydown", (event) => {
+        if (!isOpen || event.key !== "Escape") {
+            return;
+        }
+        closePopover({ focusTrigger: true });
+        event.preventDefault();
+        event.stopPropagation();
+    }, true);
+    renderKeyboardLegendEntries();
+    setOpen(false);
+}
+
 function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithConsonant }) {
     const container = document.getElementById("nonactive-tabs");
     if (!container) {
@@ -19177,23 +19498,18 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
     container.classList.toggle("is-disabled", !shouldShowNonactiveTabs);
     container.setAttribute("aria-hidden", String(!shouldShowNonactiveTabs));
     container.setAttribute("aria-disabled", String(!shouldShowNonactiveTabs));
-    container.innerHTML = "";
     if (!shouldShowNonactiveTabs) {
+        if (container.childElementCount) {
+            container.innerHTML = "";
+        }
+        NONACTIVE_TABS_DOM_SIGNATURE = "";
         return;
     }
-
-    const heading = document.createElement("div");
-    heading.className = "nonactive-tabs-heading";
-    heading.textContent = getLocalizedLabel(
+    const nonactiveHeadingLabel = getLocalizedLabel(
         UI_LABELS["tense-tabs-mode-nonactive"],
         isNawat,
         "no activo"
     );
-    container.appendChild(heading);
-
-    const grid = document.createElement("div");
-    grid.className = "nonactive-tabs-grid";
-    container.appendChild(grid);
 
     const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
     const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
@@ -19214,7 +19530,61 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
         selected = null;
         setSelectedNonactiveSuffix(null);
     }
+    const signature = `${isNawat ? "na" : "es"}|${NONACTIVE_SUFFIX_ORDER.join(",")}`;
+    const existingGrid = container.querySelector(".nonactive-tabs-grid");
+    const existingButtons = new Map(
+        Array.from(container.querySelectorAll(".nonactive-tab[data-nonactive-suffix]"))
+            .map((button) => [button.dataset.nonactiveSuffix || "", button])
+    );
+    const canReuseDom = (
+        signature === NONACTIVE_TABS_DOM_SIGNATURE
+        && existingGrid
+        && NONACTIVE_SUFFIX_ORDER.every((suffix) => existingButtons.has(suffix))
+    );
+    const applyButtonState = (button, suffix) => {
+        if (!button) {
+            return;
+        }
+        const isAvailable = optionMap.has(suffix);
+        button.disabled = endsWithConsonant || !hasVerb || !isAvailable;
+        button.classList.toggle("is-active", isAvailable && suffix === selected);
+    };
+    if (canReuseDom) {
+        const heading = container.querySelector(".nonactive-tabs-heading");
+        if (heading) {
+            heading.textContent = nonactiveHeadingLabel;
+        }
+        NONACTIVE_SUFFIX_ORDER.forEach((suffix) => {
+            const button = existingButtons.get(suffix);
+            if (!button) {
+                return;
+            }
+            const label = button.querySelector(".tense-tab-label");
+            if (label) {
+                label.textContent = getLocalizedLabel(NONACTIVE_SUFFIX_LABELS[suffix], isNawat, suffix);
+            }
+            applyButtonState(button, suffix);
+        });
+        if (previousFocusSuffix) {
+            const previousButton = existingGrid.querySelector(
+                `[data-nonactive-suffix="${escapeAttributeSelectorValue(previousFocusSuffix)}"]`
+            );
+            if (previousButton && !previousButton.disabled && typeof previousButton.focus === "function") {
+                previousButton.focus({ preventScroll: true });
+            }
+        }
+        return;
+    }
 
+    container.innerHTML = "";
+    const heading = document.createElement("div");
+    heading.className = "nonactive-tabs-heading";
+    heading.textContent = nonactiveHeadingLabel;
+    container.appendChild(heading);
+
+    const grid = document.createElement("div");
+    grid.className = "nonactive-tabs-grid";
+    container.appendChild(grid);
     NONACTIVE_SUFFIX_ORDER.forEach((suffix) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -19224,9 +19594,7 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
         label.className = "tense-tab-label";
         label.textContent = getLocalizedLabel(NONACTIVE_SUFFIX_LABELS[suffix], isNawat, suffix);
         button.appendChild(label);
-        const isAvailable = optionMap.has(suffix);
-        button.disabled = endsWithConsonant || !hasVerb || !isAvailable;
-        button.classList.toggle("is-active", isAvailable && suffix === selected);
+        applyButtonState(button, suffix);
         button.addEventListener("click", () => {
             const current = getSelectedNonactiveSuffix();
             setSelectedNonactiveSuffix(current === suffix ? null : suffix);
@@ -19239,6 +19607,7 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
         });
         grid.appendChild(button);
     });
+    NONACTIVE_TABS_DOM_SIGNATURE = signature;
     if (previousFocusSuffix) {
         const previousButton = grid.querySelector(
             `[data-nonactive-suffix="${escapeAttributeSelectorValue(previousFocusSuffix)}"]`
@@ -19462,7 +19831,6 @@ function renderTenseTabs() {
     const isNonactiveMode =
         getActiveTenseMode() === TENSE_MODE.verbo && getCombinedMode() === COMBINED_MODE.nonactive;
     document.body.classList.toggle("is-nonactive-mode", isNonactiveMode);
-    container.innerHTML = "";
     updateTenseModeTabs();
     if (isNonactiveMode && getActiveConjugationGroup() === CONJUGATION_GROUPS.universal) {
         setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
@@ -19494,6 +19862,17 @@ function renderTenseTabs() {
     const nounVisibleTenses = isNominalMode
         ? Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses]))
         : [];
+    const dualSourceNominalTenses = new Set(["patientivo"]);
+    const nonactiveNominalSet = new Set(nounNonactiveTenses);
+    const activeColumnTenses = isNominalMode
+        ? nounActiveTenses.filter((tenseValue) => (
+            !nonactiveNominalSet.has(tenseValue)
+            || dualSourceNominalTenses.has(tenseValue)
+        ))
+        : [];
+    const modeGroups = isNominalMode
+        ? null
+        : (TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo);
     const visibleTenses = isNominalMode
         ? nounVisibleTenses
         : allowedTenses;
@@ -19806,8 +20185,9 @@ function renderTenseTabs() {
         return hasOutput;
     };
     const rerenderActiveConjugations = (tenseOverride) => {
+        const currentVerb = getVerbInputMeta().displayVerb;
         const payload = {
-            verb: displayVerb,
+            verb: currentVerb,
             objectPrefix: getCurrentObjectPrefix(),
         };
         if (tenseOverride !== undefined) {
@@ -19815,6 +20195,37 @@ function renderTenseTabs() {
         }
         renderActiveConjugations(payload);
     };
+    const selectedUniversal = getSelectedPretUniversalTab();
+    const tenseTabsSignature = buildTenseTabsDomSignature({
+        isNawat,
+        tenseMode,
+        isNonactiveMode,
+        isNominalMode,
+        shouldShowUniversalTabs,
+        activeColumnTenses,
+        nounNonactiveTenses,
+        modeGroups,
+        visibleTenseSet,
+        universalOrder: PRETERITO_UNIVERSAL_ORDER,
+    });
+    if (TENSE_TABS_DOM_SIGNATURE === tenseTabsSignature) {
+        const updated = updateExistingTenseTabsDom({
+            container,
+            endsWithConsonant,
+            resolveTenseHasOutput,
+            shouldShowUniversalTabs,
+            availability,
+            activeGroup,
+            selectedTense,
+            selectedUniversal,
+            isClassTenseSelected,
+        });
+        if (updated) {
+            restoreTenseTabsFocusState(container, focusState);
+            return;
+        }
+    }
+    container.innerHTML = "";
     const buildTenseButton = (tenseValue) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -19834,7 +20245,8 @@ function renderTenseTabs() {
         button.appendChild(label);
         button.disabled = endsWithConsonant || hasOutput === false;
         button.addEventListener("click", () => {
-            const wasActive = activeGroup === CONJUGATION_GROUPS.tense && tenseValue === selectedTense;
+            const wasActive = getActiveConjugationGroup() === CONJUGATION_GROUPS.tense
+                && tenseValue === getSelectedTenseTab();
             setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
             setSelectedTenseTab(tenseValue);
             if (PRETERITO_CLASS_TENSES.has(tenseValue) && wasActive && CLASS_FILTER_STATE.activeClass) {
@@ -19903,12 +20315,6 @@ function renderTenseTabs() {
         columnEl.appendChild(groupEl);
     };
     if (isNominalMode) {
-        const dualSourceNominalTenses = new Set(["patientivo"]);
-        const nonactiveSet = new Set(nounNonactiveTenses);
-        const activeColumnTenses = nounActiveTenses.filter((tenseValue) => (
-            !nonactiveSet.has(tenseValue)
-            || dualSourceNominalTenses.has(tenseValue)
-        ));
         appendVoiceTenseGroup(
             leftColumn,
             getLocalizedLabel(UI_LABELS["tense-tabs-mode-active"], isNawat, "activo"),
@@ -19923,7 +20329,6 @@ function renderTenseTabs() {
         );
         mainWrap.classList.add("tense-tabs-main--voice-columns");
     } else {
-        const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
         appendTenseGroups(modeGroups.left, leftColumn, "left");
         appendTenseGroups(modeGroups.right, rightColumn, "right");
     }
@@ -19934,7 +20339,7 @@ function renderTenseTabs() {
     if (shouldShowUniversalTabs) {
         const universalWrap = document.createElement("div");
         universalWrap.className = "tense-tabs-universal";
-        const activeUniversal = getSelectedPretUniversalTab();
+        const activeUniversal = selectedUniversal;
         availability.forEach(({ tenseValue, available }) => {
             const button = document.createElement("button");
             button.type = "button";
@@ -19963,20 +20368,24 @@ function renderTenseTabs() {
                 : tenseValue;
             button.disabled = endsWithConsonant || !available || hasOutput === false;
             button.addEventListener("click", () => {
-                if (activeGroup === CONJUGATION_GROUPS.universal && tenseValue === activeUniversal) {
+                const currentActiveGroup = getActiveConjugationGroup();
+                const currentSelectedUniversal = getSelectedPretUniversalTab();
+                const currentSelectedTense = getSelectedTenseTab();
+                const classSelectionActive = PRETERITO_CLASS_TENSES.has(currentSelectedTense);
+                if (currentActiveGroup === CONJUGATION_GROUPS.universal && tenseValue === currentSelectedUniversal) {
                     setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
                     preserveOutputPanelViewportPosition(() => {
                         renderTenseTabs();
-                        rerenderActiveConjugations(selectedTense);
+                        rerenderActiveConjugations(currentSelectedTense);
                     });
                     return;
                 }
-                if (activeGroup === CONJUGATION_GROUPS.tense && isClassTenseSelected && classKey) {
+                if (currentActiveGroup === CONJUGATION_GROUPS.tense && classSelectionActive && classKey) {
                     CLASS_FILTER_STATE.activeClass =
                         CLASS_FILTER_STATE.activeClass === classKey ? null : classKey;
                     preserveOutputPanelViewportPosition(() => {
                         renderTenseTabs();
-                        rerenderActiveConjugations(selectedTense);
+                        rerenderActiveConjugations(currentSelectedTense);
                     });
                     return;
                 }
@@ -19992,6 +20401,7 @@ function renderTenseTabs() {
         container.appendChild(universalWrap);
     }
     container.appendChild(mainWrap);
+    TENSE_TABS_DOM_SIGNATURE = tenseTabsSignature;
     restoreTenseTabsFocusState(container, focusState);
 }
 
@@ -21824,8 +22234,9 @@ function changeLanguage() {
         }
       });
     }
-  
+
 	    updateVerbInputPlaceholder();
+        renderKeyboardLegendEntries();
 	    renderTenseTabs();
     renderAllOutputs({
         verb: getVerbInputMeta().displayVerb,
@@ -32151,7 +32562,30 @@ function runPretUniversalOverrideTests() {
     return summary;
 }
 
-if (typeof window !== "undefined") {
+function shouldExposeDeveloperHooks() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+    try {
+        const search = String(window.location?.search || "");
+        const params = new URLSearchParams(search);
+        if (params.get("dev-hooks") === "1" || params.get("devhooks") === "1") {
+            return true;
+        }
+        if (params.get("dev") === "1" && params.get("tests") === "1") {
+            return true;
+        }
+    } catch (_error) {
+        // Ignore URL parsing failures in non-browser runtimes.
+    }
+    try {
+        return window.localStorage?.getItem("nawat_dev_hooks") === "1";
+    } catch (_error) {
+        return false;
+    }
+}
+
+if (typeof window !== "undefined" && shouldExposeDeveloperHooks()) {
     window.runExactRedupTests = runExactRedupTests;
     window.runParsePipelineTests = runParsePipelineTests;
     window.runGenerateWordOptionNormalizationTests = runGenerateWordOptionNormalizationTests;
@@ -32197,11 +32631,6 @@ document.addEventListener("keydown", (event) => {
                 return;
             }
         }
-        const key = String(event.key || "").toLowerCase();
-        const code = String(event.code || "");
-        const isAltLetter = (letter) => (
-            key === letter || code === `Key${letter.toUpperCase()}`
-        );
         const setRegexModeShortcut = () => {
             setVerbInputMode(VERB_INPUT_MODE.regex, { syncFromInput: true });
             const regexInput = document.getElementById("verb");
@@ -32220,19 +32649,25 @@ document.addEventListener("keydown", (event) => {
             return false;
         };
         const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
-        const handled = (
-            (isAltLetter("v") && clickTarget("[data-tense-mode=\"verbo\"]"))
-            || (isAltLetter("s") && clickTarget("[data-tense-mode=\"sustantivo\"]"))
-            || (isAltLetter("j") && clickTarget("[data-tense-mode=\"adjetivo\"]"))
-            || (isAltLetter("b") && clickTarget("[data-tense-mode=\"adverbio\"]"))
-            || (isVerbMode && isAltLetter("a") && clickTarget("[data-combined-mode=\"active\"]"))
-            || (isVerbMode && isAltLetter("n") && clickTarget("[data-combined-mode=\"nonactive\"]"))
-            || (isAltLetter("d") && clickTarget("[data-derivation-type=\"direct\"]"))
-            || (isAltLetter("c") && clickTarget("[data-derivation-type=\"causative\"]"))
-            || (isAltLetter("p") && clickTarget("[data-derivation-type=\"applicative\"]"))
-            || (isAltLetter("r") && setRegexModeShortcut())
-            || (isAltLetter("m") && (runScreenCalculatorModeToggle(), true))
-        );
+        const handled = ALT_SHORTCUT_DEFINITIONS.some((definition) => {
+            if (!matchesAltShortcutKey(event, definition.key)) {
+                return false;
+            }
+            if (definition.requireVerbMode && !isVerbMode) {
+                return false;
+            }
+            if (definition.action === "set-regex-mode") {
+                return setRegexModeShortcut();
+            }
+            if (definition.action === "toggle-input-mode") {
+                runScreenCalculatorModeToggle();
+                return true;
+            }
+            if (definition.selector) {
+                return clickTarget(definition.selector);
+            }
+            return false;
+        });
         if (handled) {
             event.preventDefault();
             return;
@@ -32319,6 +32754,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initUiScaleControl();
     initUiDensityControl();
     initTutorialPanel();
+    initKeyboardLegendPopover();
     initLeftPanelStackTabs();
     initPanelEdgeNavigation();
     initTenseModeTabs();

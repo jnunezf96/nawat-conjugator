@@ -3467,7 +3467,7 @@ input[type="submit"]:hover {
 }
 
 .keyboard-legend-container {
-  display: none;
+  display: block;
   border: 1px solid var(--border);
   padding: 12px;
   position: absolute;
@@ -3485,12 +3485,61 @@ input[type="submit"]:hover {
   color: var(--ink-soft);
   box-shadow: var(--shadow-soft);
   font-size: calc(0.95rem + var(--font-size-adjust));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
 }
 
-.legend-help:hover .keyboard-legend-container,
-.legend-help:focus-within .keyboard-legend-container,
-.keyboard-legend-container:hover {
-  display: block;
+.keyboard-legend-container.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.keyboard-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.keyboard-legend-list {
+  display: grid;
+  gap: 4px;
+}
+
+.keyboard-legend-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.keyboard-legend-item__key {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.keyboard-legend-item__text {
+  color: var(--ink-soft);
+}
+
+.keyboard-legend-close {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.keyboard-legend-close:focus-visible {
+  outline: 2px solid var(--edge);
+  outline-offset: 2px;
 }
 
 .legend-button {

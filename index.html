@@ -725,22 +725,36 @@
               <div class="verb-block__utilities">
                 <div class="legend-wrapper">
                   <div class="legend-help">
-                    <!-- "?" Button to show the keyboard legend -->
-                    <button type="button" class="legend-button" aria-label="Mostrar atajos de teclado">?</button>
-                    <!-- Keyboard Legend Container -->
-                    <div class="keyboard-legend-container" id="keyboard-legend">
-                      <p><strong>Atajos:</strong></p>
-                      <p>Tab: alternar entre verbo y caja activa</p>
-                      <p>⌥/Alt + ← / →: transitividad ±</p>
-                      <p>Space: foco en raíz matriz (Selecciones) / #verb (Regex)</p>
-                      <p>⌥/Alt + V/S/J/B: verbo/sustantivo/adjetivo/adverbio</p>
-                      <p>⌥/Alt + R: cambiar a Regex</p>
-                      <p>Esc: cerrar/cancelar</p>
-                      <p>Esc x2: limpiar cajas (selecciones)</p>
-                      <p>Enter: generar (o activar control enfocado)</p>
-                      <p>Escribe para ver sugerencias</p>
-                      <p>Tip: haz clic en un verbo de la lista para cargarlo</p>
-                      <!-- Agregar más elementos de leyenda según sea necesario -->
+                    <button
+                      type="button"
+                      class="legend-button"
+                      id="keyboard-legend-trigger"
+                      aria-label="Mostrar atajos de teclado"
+                      aria-expanded="false"
+                      aria-controls="keyboard-legend"
+                    >
+                      ?
+                    </button>
+                    <div
+                      class="keyboard-legend-container"
+                      id="keyboard-legend"
+                      role="dialog"
+                      aria-modal="false"
+                      aria-label="Atajos de teclado"
+                      hidden
+                    >
+                      <div class="keyboard-legend-header">
+                        <strong>Atajos</strong>
+                        <button
+                          type="button"
+                          class="keyboard-legend-close"
+                          id="keyboard-legend-close"
+                          aria-label="Cerrar atajos"
+                        >
+                          x
+                        </button>
+                      </div>
+                      <div class="keyboard-legend-list" id="keyboard-legend-list"></div>
                     </div>
                   </div>
                   <button type="button" class="tutorial-trigger" id="tutorial-trigger">
