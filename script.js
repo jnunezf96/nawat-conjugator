@@ -138,7 +138,8 @@ const COMPOSER_SERIAL_TYPE_OPTIONS = Object.freeze([
     { value: "auto", label: "auto", slotCount: 0, family: "" },
     { value: "mono", label: "mono", slotCount: 1, family: "monomorphemic" },
     { value: "ti-have", label: "ti: tener", slotCount: 2, family: "ti" },
-    { value: "ti-become", label: "ti: hacerse", slotCount: 2, family: "ti" },
+    { value: "ti-become", label: "ti: ser", slotCount: 2, family: "ti" },
+    { value: "ta", label: "ta", slotCount: 2, family: "ta" },
     { value: "ya", label: "ya", slotCount: 2, family: "ya" },
     { value: "ua", label: "ua", slotCount: 3, family: "ua" },
     { value: "awi", label: "awi", slotCount: 3, family: "awi" },
@@ -1940,7 +1941,9 @@ function isHierarchyOrderViolation(subjectPrefix, subjectSuffix, objectPrefix) {
     if (!subject || !object) {
         return false;
     }
-    return subject.person === 3 && (object.person === 1 || object.person === 2);
+    // 3rd-person subjects can combine with 1st/2nd-person objects.
+    // Keep cross-number collision blocking in isSamePersonAcrossNumber().
+    return false;
 }
 
 function isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix) {
@@ -6160,7 +6163,13 @@ function buildNonactiveUStem(stem, lastOnset, lastNucleus, options = {}) {
     }
     const blockOnsetReplacement = options.blockOnsetReplacement === true;
     const onsetIndex = lastIndex - 1;
-    if (lastOnset === "t" && lastNucleus === "i") {
+    if (
+        lastOnset === "t"
+        && (
+            lastNucleus === "i"
+            || (lastNucleus === "a" && options.allowFinalTaReplacement === true)
+        )
+    ) {
         if (!options.blockCh && !blockOnsetReplacement) {
             letters[onsetIndex] = "ch";
         }
@@ -7586,6 +7595,11 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         allowUFromTz,
         allowUFromTTa,
     } = getNonactiveCandidateParts(info);
+    const allowUFromPlainTa = isTransitive
+        && lastOnset === "t"
+        && endsWithNucleusA
+        && !allowUFromTTa
+        && !penultimateHasCoda;
     const allowMonosyllableUWalu = isMonosyllable && endsWithNucleusU;
     const allowIntransitiveTiWalu = !isTransitive && endsWithTi;
     const allowINucleusWaluByShape = !endsWithTi && (isMonosyllable || penultimateHasCoda);
@@ -7598,7 +7612,15 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     ) || allowMonosyllableUWalu;
     const uCandidate = isTransitive
         && !isMonosyllable
-        && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTz || allowUFromTTa)
+        && (
+            allowUFromKNS
+            || allowUFromM
+            || allowUFromKwI
+            || allowUFromT
+            || allowUFromTz
+            || allowUFromTTa
+            || allowUFromPlainTa
+        )
         && !blockUForWaWi;
     const uwaCandidate = !isTransitive
         && (
@@ -7685,6 +7707,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         return buildNonactiveUStem(source, lastOnset, lastNucleus, {
             blockCh: blockChForTi,
             blockOnsetReplacement: blockReplaciveOnsetForShort,
+            allowFinalTaReplacement: allowUFromPlainTa,
         });
     };
     const buildWa = () => `${source}wa`;
@@ -13797,7 +13820,19 @@ function transposeComposerSlotTextboxes(fromTransitivity, toTransitivity) {
         target.embedInput.value = source.embedInput.value;
     }
     if (source.stemInput && target.stemInput) {
-        target.stemInput.value = source.stemInput.value;
+        const sourceStemRawValue = source.stemInput.value || "";
+        const sourceSelectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[sourceSlot] || "auto";
+        const sourceEditableRoot = extractComposerSerialEditableRoot(
+            sourceStemRawValue,
+            sourceSelectedType
+        );
+        const shouldCarryEditableRoot = Boolean(
+            sourceEditableRoot
+            && isComposerFixedSerialType(sourceSelectedType)
+        );
+        target.stemInput.value = shouldCarryEditableRoot
+            ? sourceEditableRoot
+            : getComposerCanonicalStemFromInputValue(sourceStemRawValue, sourceSlot);
     }
     if (source.objectInput && target.objectInput) {
         target.objectInput.value = source.objectInput.value;
@@ -14165,37 +14200,44 @@ function getComposerSerialInputTemplate(selectedType = "auto", slotCount = 1) {
     }
     if (type === "ti-have" || type === "ti-become") {
         return {
-            pattern: "[a-z_]+-ti",
-            placeholder: "_-ti",
-            title: "Mascara serial: raiz-ti.",
+            pattern: "[a-z_]+ti",
+            placeholder: "_ti",
+            title: "Mascara serial: raizti.",
+        };
+    }
+    if (type === "ta") {
+        return {
+            pattern: "[a-z_]+ta",
+            placeholder: "_ta",
+            title: "Mascara serial: raizta.",
         };
     }
     if (type === "ya") {
         return {
-            pattern: "[a-z_]+-ya",
-            placeholder: "_-ya",
-            title: "Mascara serial: raiz-ya.",
+            pattern: "[a-z_]+ya",
+            placeholder: "_ya",
+            title: "Mascara serial: raizya.",
         };
     }
     if (type === "ua") {
         return {
-            pattern: "[a-z_]+-u-a",
-            placeholder: "_-u-a",
-            title: "Mascara serial: raiz-u-a.",
+            pattern: "[a-z_]+ua",
+            placeholder: "_ua",
+            title: "Mascara serial: raizua.",
         };
     }
     if (type === "awi") {
         return {
-            pattern: "[a-z_]+-a-wi",
-            placeholder: "_-a-wi",
-            title: "Mascara serial: raiz-a-wi.",
+            pattern: "[a-z_]+awi",
+            placeholder: "_awi",
+            title: "Mascara serial: raizawi.",
         };
     }
     if (type === "iwi") {
         return {
-            pattern: "[a-z_]+-i-wi",
-            placeholder: "_-i-wi",
-            title: "Mascara serial: raiz-i-wi.",
+            pattern: "[a-z_]+iwi",
+            placeholder: "_iwi",
+            title: "Mascara serial: raiziwi.",
         };
     }
     const count = Math.max(1, Number(slotCount || 1));
@@ -14208,15 +14250,15 @@ function getComposerSerialInputTemplate(selectedType = "auto", slotCount = 1) {
     }
     if (count === 2) {
         return {
-            pattern: "[a-z_]+-[a-z_]+",
-            placeholder: "_-_",
-            title: "Mascara serial general: segmento-segmento.",
+            pattern: "[a-z_]+",
+            placeholder: "__",
+            title: "Mascara serial general: segmentos continuos.",
         };
     }
     return {
-        pattern: "[a-z_]+-[a-z_]+-[a-z_]+",
-        placeholder: "_-_-_",
-        title: "Mascara serial general: segmento-segmento-segmento.",
+        pattern: "[a-z_]+",
+        placeholder: "___",
+        title: "Mascara serial general: segmentos continuos.",
     };
 }
 
@@ -14250,11 +14292,9 @@ function getComposerSerialDisplaySpec({
     if (spec.slotCount > 1) {
         COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[safeSlotKey] = spec.slotCount;
     }
-    const fallbackSlotCount = Math.max(
-        1,
-        Number(COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[safeSlotKey] || COMPOSER_SERIAL_DEFAULT_SLOT_COUNT)
-    );
-    const resolvedSlotCount = spec.slotCount > 1 ? spec.slotCount : fallbackSlotCount;
+    // Auto mode should not force pre-existing serial dashes.
+    // Only surface multi-slot masks when a serial stem is actually present/inferred.
+    const resolvedSlotCount = spec.slotCount > 1 ? spec.slotCount : 1;
     return {
         slotCount: resolvedSlotCount,
         mask: buildComposerSerialMask(resolvedSlotCount),
@@ -14325,7 +14365,88 @@ function getComposerSlotKeyByStemInput(stemInput = null) {
     return COMPOSER_SLOT_KEYS.find((slotKey) => getComposerSlotConfig(slotKey)?.ids?.stem === inputId) || "";
 }
 
-function sanitizeComposerSerialSegmentsFromRaw(rawValue = "", slotCount = 1) {
+function getComposerSerialEditableSegmentIndexes(selectedType = "auto", slotCount = 1) {
+    const count = Math.max(1, Number(slotCount || 1));
+    if (count <= 1) {
+        return [0];
+    }
+    const fixed = getComposerSerialFixedSegments(selectedType, count);
+    const editable = [];
+    for (let index = 0; index < count; index += 1) {
+        if (!fixed[index]) {
+            editable.push(index);
+        }
+    }
+    return editable.length ? editable : [0];
+}
+
+function resolveComposerSerialEditableSegmentIndex(selectedType = "auto", slotCount = 1, desiredIndex = 0) {
+    const count = Math.max(1, Number(slotCount || 1));
+    const boundedDesiredIndex = Math.max(0, Math.min(Number(desiredIndex || 0), count - 1));
+    const editable = getComposerSerialEditableSegmentIndexes(selectedType, count);
+    if (editable.includes(boundedDesiredIndex)) {
+        return boundedDesiredIndex;
+    }
+    let fallback = editable[0];
+    for (let index = 0; index < editable.length; index += 1) {
+        const editableIndex = editable[index];
+        if (editableIndex <= boundedDesiredIndex) {
+            fallback = editableIndex;
+            continue;
+        }
+        break;
+    }
+    return fallback;
+}
+
+function buildComposerSegmentsFromFixedSelectedType(
+    stemValue = "",
+    selectedType = "auto",
+    slotCount = 1,
+    options = {}
+) {
+    const stem = normalizeComposerStem(stemValue);
+    const count = Math.max(1, Number(slotCount || 1));
+    if (!stem || count <= 1) {
+        return null;
+    }
+    const fixed = getComposerSerialFixedSegments(selectedType, count);
+    const editable = getComposerSerialEditableSegmentIndexes(selectedType, count);
+    // Supported fixed serial families are root + fixed suffix chunks.
+    if (editable.length !== 1 || editable[0] !== 0 || fixed[0]) {
+        return null;
+    }
+    let suffix = "";
+    for (let index = 1; index < count; index += 1) {
+        const fixedToken = fixed[index] || "";
+        if (!fixedToken) {
+            return null;
+        }
+        suffix += fixedToken;
+    }
+    if (!suffix) {
+        return null;
+    }
+    const previousEditableRoot = normalizeComposerStem(options.previousEditableRoot || "");
+    let editableRoot = stem;
+    if (stem.endsWith(suffix) && stem.length >= suffix.length) {
+        editableRoot = stem.slice(0, -suffix.length);
+    } else if (previousEditableRoot && stem.startsWith(previousEditableRoot)) {
+        const typedSuffixFragment = stem.slice(previousEditableRoot.length);
+        if (suffix.startsWith(typedSuffixFragment)) {
+            // Preserve the previous root when the user edits inside the locked suffix.
+            editableRoot = previousEditableRoot;
+        }
+    }
+    const segments = Array.from({ length: count }, () => "");
+    segments[0] = editableRoot;
+    for (let index = 1; index < count; index += 1) {
+        segments[index] = fixed[index] || "";
+    }
+    return segments;
+}
+
+function sanitizeComposerSerialSegmentsFromRaw(rawValue = "", slotCount = 1, selectedType = "auto") {
     const count = Math.max(1, Number(slotCount || 1));
     if (count <= 1) {
         return [normalizeComposerStem(rawValue)];
@@ -14334,16 +14455,38 @@ function sanitizeComposerSerialSegmentsFromRaw(rawValue = "", slotCount = 1) {
     const segments = rawSegments
         .slice(0, count)
         .map((segment) => String(segment || "").replace(/[^a-z]/g, ""));
-    const overflow = rawSegments
-        .slice(count)
-        .join("")
-        .replace(/[^a-z]/g, "");
     while (segments.length < count) {
         segments.push("");
     }
-    if (overflow) {
-        segments[count - 1] = `${segments[count - 1] || ""}${overflow}`;
+    const appendToEditableSegment = (value = "", desiredIndex = count - 1) => {
+        const extra = String(value || "").replace(/[^a-z]/g, "");
+        if (!extra) {
+            return;
+        }
+        const targetIndex = resolveComposerSerialEditableSegmentIndex(selectedType, count, desiredIndex);
+        segments[targetIndex] = `${segments[targetIndex] || ""}${extra}`;
+    };
+    const fixedSegments = getComposerSerialFixedSegments(selectedType, count);
+    for (let index = 0; index < count; index += 1) {
+        const fixedToken = fixedSegments[index] || "";
+        if (!fixedToken) {
+            continue;
+        }
+        const segment = segments[index] || "";
+        if (!segment || segment === fixedToken) {
+            continue;
+        }
+        let extra = "";
+        if (segment.startsWith(fixedToken)) {
+            extra = segment.slice(fixedToken.length);
+        } else {
+            extra = segment;
+        }
+        segments[index] = fixedToken;
+        appendToEditableSegment(extra, index);
     }
+    const overflow = rawSegments.slice(count).join("").replace(/[^a-z]/g, "");
+    appendToEditableSegment(overflow, count - 1);
     return segments;
 }
 
@@ -14371,6 +14514,18 @@ function buildComposerLockedSerialSegmentsFromStem(normalizedStem = "", slotCoun
             return normalized;
         }
     }
+    const selectedType = String(options.selectedType || "auto").toLowerCase();
+    const selectedTypeSegments = buildComposerSegmentsFromFixedSelectedType(
+        stem,
+        selectedType,
+        count,
+        {
+            previousEditableRoot: options.previousEditableRoot || "",
+        }
+    );
+    if (selectedTypeSegments) {
+        return selectedTypeSegments;
+    }
     const fallback = [stem];
     while (fallback.length < count) {
         fallback.push("");
@@ -14384,6 +14539,10 @@ function getComposerSerialFixedSegments(selectedType = "auto", slotCount = 1) {
     const fixed = Array.from({ length: count }, () => "");
     if ((type === "ti-have" || type === "ti-become") && count >= 2) {
         fixed[count - 1] = "ti";
+        return fixed;
+    }
+    if (type === "ta" && count >= 2) {
+        fixed[count - 1] = "ta";
         return fixed;
     }
     if (type === "ya" && count >= 2) {
@@ -14422,6 +14581,44 @@ function applyComposerSerialFixedSegments(segments = [], selectedType = "auto", 
     return normalized;
 }
 
+function getComposerCanonicalStemFromSerialSegments(segments = [], selectedType = "auto", slotCount = 1) {
+    const count = Math.max(1, Number(slotCount || 1));
+    const normalizedSegments = Array.from({ length: count }, (_unused, index) => (
+        normalizeComposerStem(Array.isArray(segments) ? (segments[index] || "") : "")
+    ));
+    const editableIndexes = getComposerSerialEditableSegmentIndexes(selectedType, count);
+    const hasEditableContent = editableIndexes.some((index) => Boolean(normalizedSegments[index]));
+    if (!hasEditableContent) {
+        return "";
+    }
+    const locked = applyComposerSerialFixedSegments(normalizedSegments, selectedType, count);
+    return normalizeComposerStem(locked.join(""));
+}
+
+function getComposerCanonicalStemFromInputValue(rawValue = "", slotKey = "a") {
+    const safeSlotKey = COMPOSER_SLOT_KEYS.includes(slotKey) ? slotKey : "a";
+    const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[safeSlotKey] || "auto";
+    const normalizedStem = normalizeComposerStem(rawValue);
+    const inferredSpec = getComposerSerialSpecFromStem(normalizedStem);
+    const displaySpec = getComposerSerialDisplaySpec({
+        slotKey: safeSlotKey,
+        normalizedStem,
+        inferredSpec,
+    });
+    const slotCount = Math.max(1, Number(displaySpec.slotCount || 1));
+    const segments = String(rawValue || "").includes("-")
+        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount, displaySpec.selectedType)
+        : buildComposerLockedSerialSegmentsFromStem(normalizedStem, slotCount, {
+            preferSplitFromStem: true,
+            selectedType: displaySpec.selectedType,
+        });
+    return getComposerCanonicalStemFromSerialSegments(
+        segments,
+        displaySpec.selectedType,
+        slotCount
+    );
+}
+
 function getComposerTiCausativeClassFromSerialType(selectedType = "") {
     const type = String(selectedType || "").toLowerCase();
     if (type === "ti-have") {
@@ -14433,6 +14630,44 @@ function getComposerTiCausativeClassFromSerialType(selectedType = "") {
     return "";
 }
 
+function isComposerFixedSerialType(selectedType = "") {
+    const type = String(selectedType || "").toLowerCase();
+    return [
+        "ti-have",
+        "ti-become",
+        "ta",
+        "ya",
+        "ua",
+        "awi",
+        "iwi",
+    ].includes(type);
+}
+
+function extractComposerSerialEditableRoot(stemValue = "", selectedType = "auto") {
+    const type = String(selectedType || "auto").toLowerCase();
+    if (!isComposerFixedSerialType(type)) {
+        return normalizeComposerStem(stemValue);
+    }
+    const option = getComposerSerialTypeOptionByValue(type);
+    const slotCount = Math.max(1, Number(option?.slotCount || 1));
+    const rawValue = String(stemValue || "");
+    const normalizedStem = normalizeComposerStem(rawValue);
+    if (!normalizedStem) {
+        return "";
+    }
+    const segments = rawValue.includes("-")
+        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount, type)
+        : buildComposerLockedSerialSegmentsFromStem(normalizedStem, slotCount, {
+            preferSplitFromStem: true,
+            selectedType: type,
+        });
+    const editableIndexes = getComposerSerialEditableSegmentIndexes(type, slotCount);
+    const editableRoot = editableIndexes
+        .map((index) => normalizeComposerStem(segments[index] || ""))
+        .join("");
+    return normalizeComposerStem(editableRoot);
+}
+
 function getComposerActiveTiCausativeClass() {
     if (!isVerbInputModeComposer()) {
         return "";
@@ -14442,20 +14677,221 @@ function getComposerActiveTiCausativeClass() {
     return getComposerTiCausativeClassFromSerialType(selectedType);
 }
 
-function formatComposerSerialSegmentsForTextbox(segments = [], slotCount = 1) {
+function getComposerMaskedSerialSegments(segments = [], slotCount = 1) {
     const count = Math.max(1, Number(slotCount || 1));
-    if (count <= 1) {
-        const mono = normalizeComposerStem(segments[0] || "");
-        return mono || "_";
-    }
     const normalizedSegments = Array.from({ length: count }, (_unused, index) => (
         normalizeComposerStem(Array.isArray(segments) ? (segments[index] || "") : "")
     ));
-    const maskedSegments = normalizedSegments.map((segment) => segment || "_");
-    return maskedSegments.join("-");
+    return normalizedSegments.map((segment) => segment || "_");
 }
 
-function mapComposerCaretToLockedMask(rawValue = "", formattedValue = "", caretStart = 0, slotCount = 1) {
+function formatComposerSerialSegmentsForTextbox(segments = [], slotCount = 1) {
+    const count = Math.max(1, Number(slotCount || 1));
+    return getComposerMaskedSerialSegments(segments, count).join("");
+}
+
+function formatComposerSerialSegmentsForRail(segments = [], slotCount = 1) {
+    const count = Math.max(1, Number(slotCount || 1));
+    return getComposerMaskedSerialSegments(segments, count).join("-");
+}
+
+function isComposerSerialPlaceholderSegment(segment = "") {
+    return /^_+$/.test(String(segment || ""));
+}
+
+function getComposerSerialMaskContextFromRaw(rawValue = "", slotKey = "a") {
+    const safeSlotKey = COMPOSER_SLOT_KEYS.includes(slotKey) ? slotKey : "a";
+    const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[safeSlotKey] || "auto";
+    const normalizedStem = normalizeComposerStem(rawValue);
+    const inferredSpec = getComposerSerialSpecFromStem(normalizedStem);
+    const displaySpec = getComposerSerialDisplaySpec({
+        slotKey: safeSlotKey,
+        normalizedStem,
+        inferredSpec,
+    });
+    const slotCount = Math.max(1, Number(displaySpec.slotCount || 1));
+    const segments = String(rawValue || "").includes("-")
+        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount, displaySpec.selectedType)
+        : buildComposerLockedSerialSegmentsFromStem(normalizedStem, slotCount, {
+            preferSplitFromStem: true,
+            selectedType: displaySpec.selectedType,
+        });
+    const lockedSegments = applyComposerSerialFixedSegments(
+        segments,
+        displaySpec.selectedType,
+        slotCount
+    );
+    const maskedSegments = getComposerMaskedSerialSegments(lockedSegments, slotCount);
+    const editableIndexes = new Set(
+        getComposerSerialEditableSegmentIndexes(displaySpec.selectedType, slotCount)
+    );
+    const segmentRanges = [];
+    let cursor = 0;
+    for (let index = 0; index < slotCount; index += 1) {
+        const segmentText = String(maskedSegments[index] || "");
+        const start = cursor;
+        const end = start + segmentText.length;
+        segmentRanges.push({
+            index,
+            start,
+            end,
+            isEditable: editableIndexes.has(index),
+        });
+        cursor = end;
+    }
+    return {
+        slotCount,
+        selectedType: displaySpec.selectedType,
+        isFixedType: isComposerFixedSerialType(selectedType),
+        formattedValue: maskedSegments.join(""),
+        segmentRanges,
+    };
+}
+
+function isComposerPositionInEditableRange(segmentRanges = [], position = 0) {
+    const pos = Number(position);
+    return (Array.isArray(segmentRanges) ? segmentRanges : []).some((range) => (
+        range.isEditable
+        && pos >= range.start
+        && pos < range.end
+    ));
+}
+
+function hasComposerSelectionLockedOverlap(segmentRanges = [], start = 0, end = 0) {
+    const from = Math.max(0, Number(start || 0));
+    const to = Math.max(from, Number(end || 0));
+    return (Array.isArray(segmentRanges) ? segmentRanges : []).some((range) => (
+        !range.isEditable
+        && from < range.end
+        && to > range.start
+    ));
+}
+
+function getComposerPreferredEditableBoundary(segmentRanges = [], options = {}) {
+    const preferEnd = options.preferEnd !== false;
+    const editableRanges = (Array.isArray(segmentRanges) ? segmentRanges : [])
+        .filter((range) => range.isEditable);
+    if (!editableRanges.length) {
+        return 0;
+    }
+    const target = preferEnd
+        ? editableRanges[editableRanges.length - 1]
+        : editableRanges[0];
+    return preferEnd ? target.end : target.start;
+}
+
+function findComposerNearestEditablePosition(segmentRanges = [], fromPosition = 0, direction = "backward") {
+    const maxEnd = (Array.isArray(segmentRanges) ? segmentRanges : []).reduce(
+        (max, range) => Math.max(max, Number(range.end || 0)),
+        0
+    );
+    if (!maxEnd) {
+        return -1;
+    }
+    const bounded = Math.max(0, Math.min(Number(fromPosition || 0), maxEnd - 1));
+    if (direction === "forward") {
+        for (let pos = bounded; pos < maxEnd; pos += 1) {
+            if (isComposerPositionInEditableRange(segmentRanges, pos)) {
+                return pos;
+            }
+        }
+        return -1;
+    }
+    for (let pos = bounded; pos >= 0; pos -= 1) {
+        if (isComposerPositionInEditableRange(segmentRanges, pos)) {
+            return pos;
+        }
+    }
+    return -1;
+}
+
+function enforceComposerLockedSuffixDeletion(event, stemInput, slotKey = "a") {
+    if (!event || !stemInput) {
+        return false;
+    }
+    const key = String(event.key || "");
+    if (key !== "Backspace" && key !== "Delete") {
+        return false;
+    }
+    const context = getComposerSerialMaskContextFromRaw(stemInput.value || "", slotKey);
+    if (!context.isFixedType) {
+        return false;
+    }
+    const valueLength = String(stemInput.value || "").length;
+    const selectionStart = typeof stemInput.selectionStart === "number"
+        ? stemInput.selectionStart
+        : valueLength;
+    const selectionEnd = typeof stemInput.selectionEnd === "number"
+        ? stemInput.selectionEnd
+        : selectionStart;
+    const start = Math.max(0, Math.min(selectionStart, valueLength));
+    const end = Math.max(start, Math.min(selectionEnd, valueLength));
+    const hasSelection = end > start;
+
+    if (hasSelection) {
+        if (!hasComposerSelectionLockedOverlap(context.segmentRanges, start, end)) {
+            return false;
+        }
+        event.preventDefault();
+        const chars = Array.from(String(stemInput.value || ""));
+        for (let index = end - 1; index >= start; index -= 1) {
+            if (isComposerPositionInEditableRange(context.segmentRanges, index)) {
+                chars.splice(index, 1);
+            }
+        }
+        stemInput.value = chars.join("");
+        applyComposerSerialFormattingToStemInput(stemInput, {
+            preserveCaret: true,
+            slotKey,
+            preferSplitFromStem: true,
+        });
+        if (typeof stemInput.setSelectionRange === "function") {
+            const fallbackCaret = getComposerPreferredEditableBoundary(context.segmentRanges, { preferEnd: true });
+            const caret = Math.max(0, Math.min(start, String(stemInput.value || "").length, fallbackCaret));
+            stemInput.setSelectionRange(caret, caret);
+        }
+        onVerbComposerControlChange("matrix-stem");
+        return true;
+    }
+
+    const targetPosition = key === "Backspace"
+        ? findComposerNearestEditablePosition(context.segmentRanges, start - 1, "backward")
+        : findComposerNearestEditablePosition(context.segmentRanges, start, "forward");
+    const deletePosition = key === "Backspace" ? start - 1 : start;
+    const isDeletingLockedPosition = deletePosition >= 0
+        && !isComposerPositionInEditableRange(context.segmentRanges, deletePosition);
+    if (!isDeletingLockedPosition) {
+        return false;
+    }
+    event.preventDefault();
+    const chars = Array.from(String(stemInput.value || ""));
+    if (targetPosition >= 0 && targetPosition < chars.length) {
+        chars.splice(targetPosition, 1);
+    }
+    stemInput.value = chars.join("");
+    applyComposerSerialFormattingToStemInput(stemInput, {
+        preserveCaret: true,
+        slotKey,
+        preferSplitFromStem: true,
+    });
+    if (typeof stemInput.setSelectionRange === "function") {
+        const preferredBoundary = getComposerPreferredEditableBoundary(context.segmentRanges, { preferEnd: true });
+        const caretTarget = targetPosition >= 0 ? targetPosition : preferredBoundary;
+        const caret = Math.max(0, Math.min(caretTarget, String(stemInput.value || "").length));
+        stemInput.setSelectionRange(caret, caret);
+    }
+    onVerbComposerControlChange("matrix-stem");
+    return true;
+}
+
+function mapComposerCaretToLockedMask(
+    rawValue = "",
+    formattedValue = "",
+    caretStart = 0,
+    slotCount = 1,
+    selectedType = "auto",
+    lockedSegments = []
+) {
     const count = Math.max(1, Number(slotCount || 1));
     const formatted = String(formattedValue || "");
     if (!formatted) {
@@ -14464,21 +14900,35 @@ function mapComposerCaretToLockedMask(rawValue = "", formattedValue = "", caretS
     if (count <= 1) {
         return Math.max(0, Math.min(Number(caretStart || 0), formatted.length));
     }
+    const maskedSegments = getComposerMaskedSerialSegments(lockedSegments, count);
+    const editableIndexes = getComposerSerialEditableSegmentIndexes(selectedType, count);
+    const editableSet = new Set(editableIndexes);
+    const totalEditableLength = editableIndexes.reduce(
+        (sum, index) => sum + String(maskedSegments[index] || "").length,
+        0
+    );
     const raw = String(rawValue || "");
     const boundedRawCaret = Math.max(0, Math.min(Number(caretStart || 0), raw.length));
     const prefix = raw.slice(0, boundedRawCaret);
-    const prefixSegments = prefix.split("-");
-    const segmentIndex = Math.max(0, Math.min(prefixSegments.length - 1, count - 1));
-    const segmentOffset = String(prefixSegments[segmentIndex] || "").replace(/[^a-z_]/gi, "").length;
-    const formattedSegments = formatted.split("-");
+    let remainingEditableOffset = Math.max(
+        0,
+        Math.min(prefix.replace(/[^a-z_]/gi, "").length, totalEditableLength)
+    );
     let caret = 0;
-    for (let index = 0; index < segmentIndex; index += 1) {
-        const segment = formattedSegments[index] || "";
-        caret += segment.length + 1;
+    for (let index = 0; index < count; index += 1) {
+        const segment = String(maskedSegments[index] || "");
+        const segmentLength = segment.length;
+        if (!editableSet.has(index)) {
+            caret += segmentLength;
+            continue;
+        }
+        if (remainingEditableOffset <= segmentLength) {
+            caret += remainingEditableOffset;
+            return Math.max(0, Math.min(caret, formatted.length));
+        }
+        remainingEditableOffset -= segmentLength;
+        caret += segmentLength;
     }
-    const activeSegment = formattedSegments[segmentIndex] || "";
-    const boundedOffset = Math.max(0, Math.min(segmentOffset, activeSegment.length));
-    caret += boundedOffset;
     return Math.max(0, Math.min(caret, formatted.length));
 }
 
@@ -14493,6 +14943,7 @@ function formatComposerStemForInputDisplay(stemValue = "", options = {}) {
     });
     const segments = buildComposerLockedSerialSegmentsFromStem(normalizedStem, displaySpec.slotCount, {
         preferSplitFromStem: options.preferSplitFromStem !== false,
+        selectedType: displaySpec.selectedType,
     });
     const lockedSegments = applyComposerSerialFixedSegments(
         segments,
@@ -14509,6 +14960,7 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
     const slotKey = COMPOSER_SLOT_KEYS.includes(options.slotKey)
         ? options.slotKey
         : (getComposerSlotKeyByStemInput(stemInput) || "a");
+    const stateKeys = getComposerSlotStateKeys(slotKey);
     const preserveCaret = options.preserveCaret !== false;
     const rawValue = String(stemInput.value || "");
     const caretStart = typeof stemInput.selectionStart === "number"
@@ -14521,11 +14973,18 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
         normalizedStem,
         inferredSpec,
     });
+    const previousStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+    const previousEditableRoot = extractComposerSerialEditableRoot(
+        previousStem,
+        displaySpec.selectedType
+    );
     const slotCount = Math.max(1, Number(displaySpec.slotCount || 1));
     const segments = rawValue.includes("-")
-        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount)
+        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount, displaySpec.selectedType)
         : buildComposerLockedSerialSegmentsFromStem(normalizedStem, slotCount, {
-            preferSplitFromStem: options.preferSplitFromStem === true,
+            preferSplitFromStem: options.preferSplitFromStem !== false,
+            selectedType: displaySpec.selectedType,
+            previousEditableRoot,
         });
     const lockedSegments = applyComposerSerialFixedSegments(
         segments,
@@ -14540,11 +14999,22 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
             && document.activeElement === stemInput
             && typeof stemInput.setSelectionRange === "function"
         ) {
-            const caret = mapComposerCaretToLockedMask(rawValue, formattedStem, caretStart, slotCount);
+            const caret = mapComposerCaretToLockedMask(
+                rawValue,
+                formattedStem,
+                caretStart,
+                slotCount,
+                displaySpec.selectedType,
+                lockedSegments
+            );
             stemInput.setSelectionRange(caret, caret);
         }
     }
-    return normalizeComposerStem(lockedSegments.join(""));
+    return getComposerCanonicalStemFromSerialSegments(
+        lockedSegments,
+        displaySpec.selectedType,
+        slotCount
+    );
 }
 
 function syncComposerMatrixSerialUi() {
@@ -14579,6 +15049,14 @@ function syncComposerMatrixSerialUi() {
             ),
             serialSpec.slotCount
         );
+        const templateMaskForRail = formatComposerSerialSegmentsForRail(
+            applyComposerSerialFixedSegments(
+                Array.from({ length: serialSpec.slotCount }, () => ""),
+                selectedType,
+                serialSpec.slotCount
+            ),
+            serialSpec.slotCount
+        );
         if (slotRefs.stemInput) {
             const serialInputTemplate = getComposerSerialInputTemplate(selectedType, serialSpec.slotCount);
             slotRefs.stemInput.dataset.serialSlots = String(serialSpec.slotCount);
@@ -14589,7 +15067,7 @@ function syncComposerMatrixSerialUi() {
             slotRefs.stemInput.placeholder = serialInputTemplate.placeholder;
         }
         if (serialMask) {
-            serialMask.textContent = templateMask;
+            serialMask.textContent = templateMaskForRail || templateMask;
             serialMask.dataset.serialSlots = String(serialSpec.slotCount);
             serialMask.dataset.serialFamily = serialSpec.family;
             serialMask.dataset.serialType = selectedType;
@@ -14650,16 +15128,28 @@ function syncComposerSerialTypeChips() {
                     if (button.disabled) {
                         return;
                     }
+                    const latestStemInput = getVerbComposerElements().slots[slotKey]?.stemInput || null;
+                    const previousType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
+                    if (
+                        latestStemInput
+                        && previousType !== option.value
+                        && isComposerFixedSerialType(previousType)
+                    ) {
+                        // When hopping between serial families, keep only the editable root segment.
+                        latestStemInput.value = extractComposerSerialEditableRoot(
+                            latestStemInput.value || "",
+                            previousType
+                        );
+                    }
                     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = option.value;
                     if (option.slotCount > 0) {
                         COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[slotKey] = option.slotCount;
                     }
                     syncComposerMatrixSerialUi();
                     syncComposerSerialTypeChips();
-                    const latestStemInput = getVerbComposerElements().slots[slotKey]?.stemInput || null;
                     onVerbComposerControlChange("matrix-stem");
-                    if (latestStemInput && typeof latestStemInput.focus === "function") {
-                        latestStemInput.focus();
+                    if (latestStemInput) {
+                        focusTextInputAtEnd(latestStemInput);
                     }
                 });
                 chipsContainer.appendChild(button);
@@ -14740,7 +15230,7 @@ function syncComposerMatrixStemChips() {
                         stemInput.value = isTokenActive ? "" : selectedStem;
                     }
                     onVerbComposerControlChange("matrix-stem");
-                    stemInput.focus();
+                    focusTextInputAtEnd(stemInput);
                 });
                 chipsContainer.appendChild(button);
             });
@@ -15862,7 +16352,10 @@ function collectComposerStateFromControls() {
         const stateKeys = getComposerSlotStateKeys(slotKey);
         const slotRefs = slots[slotKey] || {};
         VERB_COMPOSER_STATE[stateKeys.embed] = normalizeComposerEmbedValue(slotRefs.embedInput?.value || "");
-        VERB_COMPOSER_STATE[stateKeys.stem] = normalizeComposerStem(slotRefs.stemInput?.value || "");
+        VERB_COMPOSER_STATE[stateKeys.stem] = getComposerCanonicalStemFromInputValue(
+            slotRefs.stemInput?.value || "",
+            slotKey
+        );
         VERB_COMPOSER_STATE[stateKeys.objectEmbed] = normalizeComposerEmbedValue(slotRefs.objectInput?.value || "");
     });
     VERB_COMPOSER_STATE.directionalPrefix = directionalSelect?.value || "";
@@ -16180,13 +16673,65 @@ function getComposerPreferredEntryInput() {
     return matrixStemInput || embedStemInput || null;
 }
 
+function getComposerStemInputPreferredCaret(inputEl) {
+    if (!isEditableTextInput(inputEl)) {
+        return null;
+    }
+    const slotKey = getComposerSlotKeyByStemInput(inputEl);
+    if (!slotKey) {
+        return null;
+    }
+    const rawValue = String(inputEl.value || "");
+    const normalizedStem = normalizeComposerStem(rawValue);
+    const inferredSpec = getComposerSerialSpecFromStem(normalizedStem);
+    const displaySpec = getComposerSerialDisplaySpec({
+        slotKey,
+        normalizedStem,
+        inferredSpec,
+    });
+    const slotCount = Math.max(1, Number(displaySpec.slotCount || 1));
+    if (slotCount <= 1) {
+        return rawValue.length;
+    }
+    const segments = rawValue.includes("-")
+        ? sanitizeComposerSerialSegmentsFromRaw(rawValue, slotCount, displaySpec.selectedType)
+        : buildComposerLockedSerialSegmentsFromStem(normalizedStem, slotCount, {
+            preferSplitFromStem: true,
+            selectedType: displaySpec.selectedType,
+        });
+    const lockedSegments = applyComposerSerialFixedSegments(
+        segments,
+        displaySpec.selectedType,
+        slotCount
+    );
+    const maskedSegments = getComposerMaskedSerialSegments(lockedSegments, slotCount);
+    const targetSegmentIndex = resolveComposerSerialEditableSegmentIndex(
+        displaySpec.selectedType,
+        slotCount,
+        slotCount - 1
+    );
+    let caret = 0;
+    for (let index = 0; index < targetSegmentIndex; index += 1) {
+        const segment = maskedSegments[index] || "";
+        caret += segment.length;
+    }
+    const activeSegment = maskedSegments[targetSegmentIndex] || "";
+    if (!isComposerSerialPlaceholderSegment(activeSegment)) {
+        caret += activeSegment.length;
+    }
+    return Math.max(0, Math.min(caret, rawValue.length));
+}
+
 function focusTextInputAtEnd(inputEl) {
     if (!isEditableTextInput(inputEl) || typeof inputEl.focus !== "function") {
         return false;
     }
     inputEl.focus();
     if (typeof inputEl.setSelectionRange === "function") {
-        const caret = String(inputEl.value || "").length;
+        const preferredCaret = getComposerStemInputPreferredCaret(inputEl);
+        const caret = Number.isFinite(preferredCaret)
+            ? Number(preferredCaret)
+            : String(inputEl.value || "").length;
         inputEl.setSelectionRange(caret, caret);
     }
     return true;
@@ -16831,6 +17376,9 @@ function initVerbComposer() {
     populateComposerDirectionalOptions();
     bindComposerStemTabNavigation(slotNavigationPairs);
     slotStemInputs.forEach(({ slotKey, stemInput }) => {
+        stemInput.addEventListener("keydown", (event) => {
+            enforceComposerLockedSuffixDeletion(event, stemInput, slotKey);
+        });
         stemInput.addEventListener("input", () => {
             applyComposerSerialFormattingToStemInput(stemInput, {
                 preserveCaret: true,
@@ -28690,32 +29238,21 @@ function runConstraintMutationAndCoverageTests() {
         };
     });
 
-    // A) hierarchy_order_mask_enforced
-    runCase("hierarchy_order_mask_enforced", () => {
-        const invalidCases = [
+    // A) hierarchy_order_allows_third_subject_participant_objects
+    runCase("hierarchy_order_allows_third_subject_participant_objects", () => {
+        const allowedCases = [
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "nech" },
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "metz" },
             { subjectPrefix: "", subjectSuffix: "t", objectPrefix: "tech" },
-        ];
-        const validCases = [
             { subjectPrefix: "ni", subjectSuffix: "", objectPrefix: "ki" },
             { subjectPrefix: "ti", subjectSuffix: "", objectPrefix: "ki" },
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "ki" },
         ];
-        const invalidResults = computeHierarchyProbe(invalidCases);
-        invalidResults.forEach((result) => {
-            if (!result.hierarchy || !result.mask) {
-                recordFailure(
-                    "hierarchy_order_mask_enforced",
-                    `expected mask for ${result.entry.subjectPrefix}|${result.entry.objectPrefix}|${result.entry.subjectSuffix}`
-                );
-            }
-        });
-        const validResults = computeHierarchyProbe(validCases);
-        validResults.forEach((result) => {
+        const allowedResults = computeHierarchyProbe(allowedCases);
+        allowedResults.forEach((result) => {
             if (result.hierarchy || result.mask) {
                 recordFailure(
-                    "hierarchy_order_mask_enforced",
+                    "hierarchy_order_allows_third_subject_participant_objects",
                     `expected pass for ${result.entry.subjectPrefix}|${result.entry.objectPrefix}|${result.entry.subjectSuffix}`
                 );
             }
@@ -29758,40 +30295,17 @@ function runConstraintCoreUnificationTests() {
         );
     }
 
-    // constraint_core_hierarchy_order_cases
+    // constraint_core_allows_third_subject_participant_objects
     try {
-        const invalidCases = [
+        const allowedCases = [
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "nech" },
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "metz" },
             { subjectPrefix: "", subjectSuffix: "t", objectPrefix: "tech" },
-        ];
-        const validCases = [
             { subjectPrefix: "ni", subjectSuffix: "", objectPrefix: "ki" },
             { subjectPrefix: "ti", subjectSuffix: "", objectPrefix: "ki" },
             { subjectPrefix: "", subjectSuffix: "", objectPrefix: "ki" },
         ];
-        invalidCases.forEach((entry) => {
-            const violations = computeConstraintViolationsCore({
-                subjectPrefix: entry.subjectPrefix,
-                subjectSuffix: entry.subjectSuffix,
-                controllerPrefix: entry.objectPrefix,
-                shouldApplyPersonAgreement: true,
-            });
-            const maskState = getConjugationMaskState({
-                subjectPrefix: entry.subjectPrefix,
-                subjectSuffix: entry.subjectSuffix,
-                objectPrefix: entry.objectPrefix,
-                comboObjectPrefix: entry.objectPrefix,
-                enforceInvalidCombo: false,
-            });
-            if (!violations.hierarchyOrderViolation || !maskState.shouldMask) {
-                recordFailure(
-                    "constraint_core_hierarchy_order_cases",
-                    `expected mask for ${entry.subjectPrefix}|${entry.objectPrefix}|${entry.subjectSuffix}`
-                );
-            }
-        });
-        validCases.forEach((entry) => {
+        allowedCases.forEach((entry) => {
             const violations = computeConstraintViolationsCore({
                 subjectPrefix: entry.subjectPrefix,
                 subjectSuffix: entry.subjectSuffix,
@@ -29807,14 +30321,14 @@ function runConstraintCoreUnificationTests() {
             });
             if (violations.hierarchyOrderViolation || maskState.shouldMask) {
                 recordFailure(
-                    "constraint_core_hierarchy_order_cases",
+                    "constraint_core_allows_third_subject_participant_objects",
                     `expected pass for ${entry.subjectPrefix}|${entry.objectPrefix}|${entry.subjectSuffix}`
                 );
             }
         });
     } catch (error) {
         recordFailure(
-            "constraint_core_hierarchy_order_cases",
+            "constraint_core_allows_third_subject_participant_objects",
             error instanceof Error ? error.message : String(error)
         );
     }
