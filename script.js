@@ -19362,10 +19362,17 @@ function renderTenseTabs() {
     const tenseMode = getActiveTenseMode();
     const allowedTensesRaw = getTenseOrderForMode(tenseMode);
     const allowedTenses = filterTenseOrderForUiDensity(allowedTensesRaw, tenseMode);
-    const nounVisibleTenses = isNominalTenseMode(tenseMode)
-        ? getNounTenseOrderForCombinedMode(getCombinedMode(), tenseMode)
+    const isNominalMode = isNominalTenseMode(tenseMode);
+    const nounActiveTenses = isNominalMode
+        ? getNounTenseOrderForCombinedMode(COMBINED_MODE.active, tenseMode)
         : [];
-    const visibleTenses = isNominalTenseMode(tenseMode)
+    const nounNonactiveTenses = isNominalMode
+        ? getNounTenseOrderForCombinedMode(COMBINED_MODE.nonactive, tenseMode)
+        : [];
+    const nounVisibleTenses = isNominalMode
+        ? Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses]))
+        : [];
+    const visibleTenses = isNominalMode
         ? nounVisibleTenses
         : allowedTenses;
     const visibleTenseSet = new Set(visibleTenses);
@@ -19743,10 +19750,45 @@ function renderTenseTabs() {
             columnEl.appendChild(groupEl);
         });
     };
-
-    const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
-    appendTenseGroups(modeGroups.left, leftColumn);
-    appendTenseGroups(modeGroups.right, rightColumn);
+    const appendVoiceTenseGroup = (columnEl, headingText, tenses = []) => {
+        const groupEl = document.createElement("div");
+        groupEl.className = "tense-tabs-group tense-tabs-group--voice";
+        const heading = document.createElement("div");
+        heading.className = "tense-tabs-heading";
+        heading.textContent = headingText;
+        groupEl.appendChild(heading);
+        if (!tenses.length) {
+            const empty = document.createElement("div");
+            empty.className = "tense-tabs-empty";
+            empty.textContent = "—";
+            groupEl.appendChild(empty);
+            columnEl.appendChild(groupEl);
+            return;
+        }
+        tenses.forEach((tenseValue) => {
+            groupEl.appendChild(buildTenseButton(tenseValue));
+        });
+        columnEl.appendChild(groupEl);
+    };
+    if (isNominalMode) {
+        const nonactiveSet = new Set(nounNonactiveTenses);
+        const activeOnlyTenses = nounActiveTenses.filter((tenseValue) => !nonactiveSet.has(tenseValue));
+        appendVoiceTenseGroup(
+            leftColumn,
+            getLocalizedLabel(UI_LABELS["tense-tabs-mode-active"], isNawat, "activo"),
+            activeOnlyTenses
+        );
+        appendVoiceTenseGroup(
+            rightColumn,
+            getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo"),
+            nounNonactiveTenses
+        );
+        mainWrap.classList.add("tense-tabs-main--voice-columns");
+    } else {
+        const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
+        appendTenseGroups(modeGroups.left, leftColumn);
+        appendTenseGroups(modeGroups.right, rightColumn);
+    }
 
     mainWrap.appendChild(leftColumn);
     mainWrap.appendChild(rightColumn);
@@ -26908,15 +26950,27 @@ function buildNounTabRenderContext({
     }
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
+    const tenseMode = getActiveTenseMode();
     const combinedMode = getCombinedMode();
-    const allowedNounTenses = getNounTenseOrderForCombinedMode(combinedMode);
+    const showDualVoiceColumns = isNominalTenseMode(tenseMode);
+    const modeFilter = showDualVoiceColumns ? null : combinedMode;
+    const allowedNounTenses = showDualVoiceColumns
+        ? getTenseOrderForMode(tenseMode)
+        : getNounTenseOrderForCombinedMode(combinedMode, tenseMode);
     const selectedTense = tenseValue || getSelectedTenseTab();
     const fallbackTense = allowedNounTenses[0] || "sustantivo-verbal";
     const resolvedTense = allowedNounTenses.includes(selectedTense)
         ? selectedTense
         : fallbackTense;
     if (resolvedTense === "locativo-temporal") {
-        return { container, isNawat, resolvedTense, isLocativoTemporal: true, combinedMode };
+        return {
+            container,
+            isNawat,
+            resolvedTense,
+            isLocativoTemporal: true,
+            combinedMode,
+            modeFilter,
+        };
     }
     const isInstrumentivo = resolvedTense === "instrumentivo";
     const isCalificativoInstrumentivo = resolvedTense === "calificativo-instrumentivo";
@@ -26962,9 +27016,13 @@ function buildNounTabRenderContext({
         ? [""]
         : (isPossessionSplit
         ? (
-            combinedMode === COMBINED_MODE.nonactive
+            showDualVoiceColumns
+                ? possessorValues
+                : (
+                    combinedMode === COMBINED_MODE.nonactive
                 ? [""]
                 : possessorValues
+                )
         )
         : possessorValues);
     let activePossessor = POSSESSOR_TOGGLE_STATE.get(possessorKey);
@@ -27003,6 +27061,7 @@ function buildNounTabRenderContext({
         container,
         isNawat,
         combinedMode,
+        modeFilter,
         resolvedTense,
         isPossessionSplit,
         isInstrumentivo,
@@ -27048,7 +27107,7 @@ function renderNounConjugations({
         renderLocativoTemporalConjugations({
             verb,
             containerId,
-            modeFilter: context.combinedMode,
+            modeFilter: context.modeFilter,
         });
         return;
     }
@@ -27056,6 +27115,7 @@ function renderNounConjugations({
         container,
         isNawat,
         combinedMode,
+        modeFilter,
         resolvedTense,
         isPossessionSplit,
         isInstrumentivo,
@@ -27155,7 +27215,7 @@ function renderNounConjugations({
             },
         ];
     const visibleBlockConfigs = blockConfigs.filter((entry) =>
-        !entry.mode || entry.mode === combinedMode
+        modeFilter == null || !entry.mode || entry.mode === modeFilter
     );
     let toggleButtons = new Map();
     let possessorButtons = new Map();

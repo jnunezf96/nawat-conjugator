@@ -3133,6 +3133,13 @@ input[type="submit"]:hover {
   padding-left: 4px;
 }
 
+.tense-tabs-empty {
+  font-size: calc(var(--font-size-label) - 0.08rem);
+  color: var(--ink-soft);
+  opacity: 0.6;
+  padding: 2px 4px 0;
+}
+
 .tense-tab-break {
   grid-column: 1 / -1;
   height: 1px;
