@@ -72,7 +72,12 @@
           </div>
           <!-- Language toggle button -->
           <label class="switch">
-            <input type="checkbox" id="language" onchange="changeLanguage()" />
+            <input
+              type="checkbox"
+              id="language"
+              onchange="changeLanguage()"
+              aria-label="Cambiar idioma"
+            />
             <span class="slider round"></span>
           </label>
         </div>
@@ -721,12 +726,12 @@
                 <div class="legend-wrapper">
                   <div class="legend-help">
                     <!-- "?" Button to show the keyboard legend -->
-                    <button class="legend-button">?</button>
+                    <button type="button" class="legend-button" aria-label="Mostrar atajos de teclado">?</button>
                     <!-- Keyboard Legend Container -->
                     <div class="keyboard-legend-container" id="keyboard-legend">
                       <p><strong>Atajos:</strong></p>
                       <p>Tab: alternar entre verbo y caja activa</p>
-                      <p>← / →: transitividad ±</p>
+                      <p>⌥/Alt + ← / →: transitividad ±</p>
                       <p>Space: foco en raíz matriz (Selecciones) / #verb (Regex)</p>
                       <p>⌥/Alt + V/S/J/B: verbo/sustantivo/adjetivo/adverbio</p>
                       <p>⌥/Alt + R: cambiar a Regex</p>
@@ -823,37 +828,52 @@
                   </div>
                   <div class="calc-operator calc-operator--derivation" role="group" aria-label="Derivación">
                     <div class="calc-operator__label" id="derivation-type-label">Derivación</div>
-                    <div class="calc-operator-grid calc-operator-grid--derivation" role="group" aria-label="Derivación">
-                      <button
-                        type="button"
-                        class="calc-operator-chip"
-                        data-derivation-type="direct"
-                        aria-pressed="true"
+                    <div class="calc-operator-source calc-operator-source--active">
+                      <div
+                        class="calc-operator-source__label"
+                        id="derivation-source-active-label"
+                        data-ui-label-key="tense-tabs-mode-active"
                       >
-                        Directo
-                      </button>
-                      <button
-                        type="button"
-                        class="calc-operator-chip"
-                        data-derivation-type="causative"
-                        aria-pressed="false"
-                      >
-                        Causativo
-                      </button>
-                      <button
-                        type="button"
-                        class="calc-operator-chip"
-                        data-derivation-type="applicative"
-                        aria-pressed="false"
-                      >
-                        Aplicativo
-                      </button>
+                        Activo
+                      </div>
+                      <div class="calc-operator-grid calc-operator-grid--derivation" role="group" aria-label="Derivación activa">
+                        <button
+                          type="button"
+                          class="calc-operator-chip"
+                          data-derivation-type="direct"
+                          aria-pressed="true"
+                        >
+                          Directo
+                        </button>
+                        <button
+                          type="button"
+                          class="calc-operator-chip"
+                          data-derivation-type="causative"
+                          aria-pressed="false"
+                        >
+                          Causativo
+                        </button>
+                        <button
+                          type="button"
+                          class="calc-operator-chip"
+                          data-derivation-type="applicative"
+                          aria-pressed="false"
+                        >
+                          Aplicativo
+                        </button>
+                      </div>
                     </div>
                     <select id="derivation-type" class="is-hidden-control" aria-label="Derivación">
                       <option value="direct">Directo</option>
                       <option value="causative">Causativo</option>
                       <option value="applicative">Aplicativo</option>
                     </select>
+                    <div
+                      class="nonactive-tabs is-hidden calc-operator-source calc-operator-source--nonactive"
+                      id="nonactive-tabs"
+                      role="tablist"
+                      aria-label="Derivación no activa"
+                    ></div>
                   </div>
                   <div
                     class="calc-operator calc-operator--voice calc-voice-operator"
@@ -892,12 +912,6 @@
               class="derivation-antiderivative calc-operator-hint"
               id="derivation-antiderivative"
               aria-live="polite"
-            ></div>
-            <div
-              class="nonactive-tabs is-hidden"
-              id="nonactive-tabs"
-              role="tablist"
-              aria-label="Derivación no activa"
             ></div>
             <div id="tense-tabs" class="tense-tabs"></div>
           </div>
