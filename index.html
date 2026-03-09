@@ -17,19 +17,16 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
-    <script src="pret_universal_context.js"></script>
-    <script src="pret_universal_engine.js"></script>
-    <script src="script.js"></script>
+    <script src="pret_universal_context.js" defer></script>
+    <script src="pret_universal_engine.js" defer></script>
+    <script src="script.js" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
     <main class="app-shell">
-      <div class="form-container-word hero-panel" id="container-header">
-        <div class="hero-copy">
-          <h1 id="word-heading">Conjugador de verbos en náhuat de El Salvador</h1>
-          <p class="hero-subheading">
-            Calcula conjugaciones, derivaciones y sustantivos verbales desde una sola entrada.
-          </p>
+      <div class="form-container-word hero-panel hero-panel--entrada" id="container-header">
+        <div class="hero-copy hero-copy--entrada">
+          <h1 id="word-heading">Conjugador de verbos náhuat</h1>
         </div>
         <div class="hero-controls">
           <div class="ui-scale-control">
@@ -48,13 +45,14 @@
             </div>
           </div>
           <div class="ui-density-control" role="group" aria-label="Nivel de interfaz">
-            <span class="ui-density-label">Vista</span>
+            <span class="ui-density-label" id="ui-density-label" data-ui-label-key="ui-density-label">Vista</span>
             <div class="ui-density-buttons">
               <button
                 type="button"
                 class="ui-density-button"
                 id="ui-density-simple"
                 data-ui-density="simple"
+                data-ui-label-key="ui-density-simple"
                 aria-pressed="true"
               >
                 Simple
@@ -64,6 +62,7 @@
                 class="ui-density-button"
                 id="ui-density-advanced"
                 data-ui-density="advanced"
+                data-ui-label-key="ui-density-advanced"
                 aria-pressed="false"
               >
                 Avanzado
@@ -75,7 +74,6 @@
             <input
               type="checkbox"
               id="language"
-              onchange="changeLanguage()"
               aria-label="Cambiar idioma"
             />
             <span class="slider round"></span>
@@ -119,6 +117,7 @@
               Salida
             </button>
           </div>
+          <div class="panel-main-column">
           <form
             class="panel-stack-pane is-active"
             id="panel-stack-pane-inputs"
@@ -189,25 +188,91 @@
                   </div>
                   <div class="verb-block__separator" aria-hidden="true"></div>
                   <div class="verb-block__controls">
-                    <div class="calc-input-mode" role="group" aria-label="Modo de entrada">
-                      <button
-                        type="button"
-                        class="calc-input-mode__button"
-                        data-input-mode="composer"
-                        aria-pressed="true"
+                    <div class="verb-block__top-controls">
+                      <div
+                        class="calc-input-mode"
+                        role="group"
+                        aria-label="Modo de entrada"
                       >
-                        Selecciones
-                      </button>
-                      <button
-                        type="button"
-                        class="calc-input-mode__button"
-                        data-input-mode="regex"
-                        aria-pressed="false"
-                      >
-                        Regex
-                      </button>
+                        <button
+                          type="button"
+                          class="calc-input-mode__button"
+                          data-input-mode="composer"
+                          aria-pressed="true"
+                        >
+                          Selecciones
+                        </button>
+                        <button
+                          type="button"
+                          class="calc-input-mode__button"
+                          data-input-mode="regex"
+                          aria-pressed="false"
+                        >
+                          Regex
+                        </button>
+                      </div>
+                      <div class="verb-block__utility-actions">
+                        <div class="legend-help">
+                          <button
+                            type="button"
+                            class="legend-button legend-button--spotlight"
+                            id="keyboard-legend-trigger"
+                            aria-label="Mostrar atajos de teclado"
+                            aria-expanded="false"
+                            aria-controls="keyboard-legend"
+                          >
+                            ?
+                          </button>
+                          <div
+                            class="keyboard-legend-container"
+                            id="keyboard-legend"
+                            role="dialog"
+                            aria-modal="false"
+                            aria-label="Atajos de teclado"
+                            hidden
+                          >
+                            <div class="keyboard-legend-header">
+                              <strong>Atajos</strong>
+                              <button
+                                type="button"
+                                class="keyboard-legend-close"
+                                id="keyboard-legend-close"
+                                aria-label="Cerrar atajos"
+                              >
+                                x
+                              </button>
+                            </div>
+                            <div class="keyboard-legend-list" id="keyboard-legend-list"></div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          class="tutorial-trigger tutorial-trigger--guide"
+                          id="tutorial-trigger"
+                          hidden
+                          aria-hidden="true"
+                        >
+                          Guía regex
+                        </button>
+                        <button
+                          type="button"
+                          class="tutorial-trigger tutorial-trigger--tools"
+                          id="verb-tools-toggle"
+                          aria-expanded="false"
+                          aria-controls="verb-tools-panel"
+                        >
+                          Herramientas
+                        </button>
+                      </div>
                     </div>
-                    <div class="verb-block__keys">
+                    <div
+                      class="verb-block__tools-panel"
+                      id="verb-tools-panel"
+                      role="region"
+                      aria-label="Herramientas de entrada"
+                      aria-hidden="true"
+                      hidden
+                    >
                       <div
                         class="verb-screen-keys"
                         id="verb-screen-keys"
@@ -232,24 +297,6 @@
                             title="MODO · cambiar entre Selecciones y Regex"
                           >
                             MODO
-                          </button>
-                          <button
-                            type="button"
-                            class="verb-screen-key verb-screen-key--utility"
-                            id="verb-key-transitivity"
-                            aria-label="Cambiar transitividad"
-                            title="TR · cambiar transitividad"
-                          >
-                            TR
-                          </button>
-                          <button
-                            type="button"
-                            class="verb-screen-key verb-screen-key--utility"
-                            id="verb-key-supportive-i"
-                            aria-label="Alternar i de apoyo opcional"
-                            title="i · alternar i de apoyo opcional"
-                          >
-                            i
                           </button>
                         </div>
                         <div class="verb-screen-keys__ops">
@@ -295,10 +342,24 @@
                     <div class="verb-block__composer">
                       <div class="verb-composer" id="verb-composer">
                         <div class="verb-composer__grid">
-                          <div class="verb-composer__slots">
+                          <div
+                            class="verb-composer__slots"
+                            role="group"
+                            aria-label="Campos del compositor verbal"
+                          >
                             <span class="verb-composer__sub-label">Ingrese aquí:</span>
                             <div class="verb-composer__slot-tabs" role="tablist" aria-label="Slots de transitividad">
                               <span class="verb-composer__sub-label verb-composer__slot-tabs-label">Transitividad</span>
+                              <button
+                                type="button"
+                                class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                data-composer-transitivity="bitransitive"
+                                role="tab"
+                                aria-selected="false"
+                                aria-controls="composer-slot-c"
+                              >
+                                Bitransitivo
+                              </button>
                               <button
                                 type="button"
                                 class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -319,21 +380,13 @@
                               >
                                 Transitivo
                               </button>
-                              <button
-                                type="button"
-                                class="verb-composer__slot-transitivity verb-composer__slot-tab"
-                                data-composer-transitivity="bitransitive"
-                                role="tab"
-                                aria-selected="false"
-                                aria-controls="composer-slot-c"
-                              >
-                                Bitransitivo
-                              </button>
                             </div>
                             <div
                               class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                               id="composer-slot-a"
                               data-slot-transitivity="intransitive"
+                              role="group"
+                              aria-label="Grupo intransitivo"
                             >
                               <div class="verb-composer__top-row" data-composer-top-row="a">
                                 <div
@@ -342,16 +395,6 @@
                                 >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
                                   <div class="verb-composer__embed-input-row">
-                                    <button
-                                      type="button"
-                                      class="verb-composer__prefix-toggle"
-                                      data-composer-prefix-toggle="a"
-                                      aria-label="Mostrar Raíz incorporada Slot A"
-                                      aria-controls="composer-embed"
-                                      aria-expanded="false"
-                                    >
-                                      +
-                                    </button>
                                     <input
                                       type="text"
                                       id="composer-embed"
@@ -375,6 +418,7 @@
                                     type="text"
                                     id="composer-stem-a"
                                     class="verb-composer__input"
+                                    list="composer-stem-a-affix"
                                     placeholder="verbo"
                                     aria-label="Raíz matriz Slot A"
                                     autocomplete="off"
@@ -391,12 +435,10 @@
                                     role="group"
                                     aria-label="Tipo serial Slot A"
                                   ></div>
-                                  <div
-                                    class="verb-composer__chips verb-composer__matrix-chips"
-                                    id="composer-stem-a-chips"
-                                    role="group"
-                                    aria-label="Raíz matriz sugerida Slot A"
-                                  ></div>
+                                  <datalist
+                                    id="composer-stem-a-affix"
+                                    class="verb-composer__matrix-affix-list"
+                                  ></datalist>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -441,6 +483,8 @@
                               class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                               id="composer-slot-b"
                               data-slot-transitivity="transitive"
+                              role="group"
+                              aria-label="Grupo transitivo"
                             >
                               <div class="verb-composer__top-row" data-composer-top-row="b">
                                 <div
@@ -449,16 +493,6 @@
                                 >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
                                   <div class="verb-composer__embed-input-row">
-                                    <button
-                                      type="button"
-                                      class="verb-composer__prefix-toggle"
-                                      data-composer-prefix-toggle="b"
-                                      aria-label="Mostrar Raíz incorporada Slot B"
-                                      aria-controls="composer-valence-embed-1"
-                                      aria-expanded="false"
-                                    >
-                                      +
-                                    </button>
                                     <input
                                       type="text"
                                       id="composer-valence-embed-1"
@@ -482,6 +516,7 @@
                                     type="text"
                                     id="composer-stem-b"
                                     class="verb-composer__input"
+                                    list="composer-stem-b-affix"
                                     placeholder="verbo"
                                     aria-label="Raíz matriz Slot B"
                                     autocomplete="off"
@@ -498,12 +533,10 @@
                                     role="group"
                                     aria-label="Tipo serial Slot B"
                                   ></div>
-                                  <div
-                                    class="verb-composer__chips verb-composer__matrix-chips"
-                                    id="composer-stem-b-chips"
-                                    role="group"
-                                    aria-label="Raíz matriz sugerida Slot B"
-                                  ></div>
+                                  <datalist
+                                    id="composer-stem-b-affix"
+                                    class="verb-composer__matrix-affix-list"
+                                  ></datalist>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -550,6 +583,8 @@
                               class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                               id="composer-slot-c"
                               data-slot-transitivity="bitransitive"
+                              role="group"
+                              aria-label="Grupo bitransitivo"
                             >
                               <div class="verb-composer__top-row" data-composer-top-row="c">
                                 <div
@@ -558,16 +593,6 @@
                                 >
                                   <span class="verb-composer__sub-label">Raíz incorporada</span>
                                   <div class="verb-composer__embed-input-row">
-                                    <button
-                                      type="button"
-                                      class="verb-composer__prefix-toggle"
-                                      data-composer-prefix-toggle="c"
-                                      aria-label="Mostrar Raíz incorporada Slot C"
-                                      aria-controls="composer-valence-embed-2"
-                                      aria-expanded="false"
-                                    >
-                                      +
-                                    </button>
                                     <input
                                       type="text"
                                       id="composer-valence-embed-2"
@@ -591,6 +616,7 @@
                                     type="text"
                                     id="composer-stem-c"
                                     class="verb-composer__input"
+                                    list="composer-stem-c-affix"
                                     placeholder="verbo"
                                     aria-label="Raíz matriz Slot C"
                                     autocomplete="off"
@@ -607,12 +633,10 @@
                                     role="group"
                                     aria-label="Tipo serial Slot C"
                                   ></div>
-                                  <div
-                                    class="verb-composer__chips verb-composer__matrix-chips"
-                                    id="composer-stem-c-chips"
-                                    role="group"
-                                    aria-label="Raíz matriz sugerida Slot C"
-                                  ></div>
+                                  <datalist
+                                    id="composer-stem-c-affix"
+                                    class="verb-composer__matrix-affix-list"
+                                  ></datalist>
                                 </div>
                               </div>
                               <div class="verb-composer__bottom-row">
@@ -670,7 +694,12 @@
                             <option value="transitive">Transitivo</option>
                             <option value="bitransitive">Bitransitivo</option>
                           </select>
-                          <div class="verb-composer__field verb-composer__bottom-field" id="composer-directional-field">
+                          <div
+                            class="verb-composer__field verb-composer__bottom-field"
+                            id="composer-directional-field"
+                            role="group"
+                            aria-label="Grupo direccional"
+                          >
                             <span class="verb-composer__sub-label">Direccional</span>
                             <div
                               class="verb-composer__chips"
@@ -722,51 +751,60 @@
               </div>
               <input type="hidden" id="subject-prefix" name="subject-prefix" value="" />
               <input type="hidden" id="subject-suffix" name="subject-suffix" value="" />
-              <div class="verb-block__utilities">
-                <div class="legend-wrapper">
-                  <div class="legend-help">
-                    <button
-                      type="button"
-                      class="legend-button"
-                      id="keyboard-legend-trigger"
-                      aria-label="Mostrar atajos de teclado"
-                      aria-expanded="false"
-                      aria-controls="keyboard-legend"
-                    >
-                      ?
-                    </button>
-                    <div
-                      class="keyboard-legend-container"
-                      id="keyboard-legend"
-                      role="dialog"
-                      aria-modal="false"
-                      aria-label="Atajos de teclado"
-                      hidden
-                    >
-                      <div class="keyboard-legend-header">
-                        <strong>Atajos</strong>
-                        <button
-                          type="button"
-                          class="keyboard-legend-close"
-                          id="keyboard-legend-close"
-                          aria-label="Cerrar atajos"
-                        >
-                          x
-                        </button>
-                      </div>
-                      <div class="keyboard-legend-list" id="keyboard-legend-list"></div>
-                    </div>
-                  </div>
-                  <button type="button" class="tutorial-trigger" id="tutorial-trigger">
-                    Guía regex
-                  </button>
-                  <button type="button" class="tutorial-trigger" id="composer-clear-textboxes">
-                    Limpiar cajas
-                  </button>
-                </div>
-              </div>
             </div>
           </form>
+          <div
+            class="panel container-tense-grid panel-stack-pane"
+            id="container-tense-grid"
+            data-panel-stack-pane="output"
+            role="tabpanel"
+            aria-labelledby="panel-stack-tab-output"
+          >
+            <div class="panel-block-title">
+              <button
+                type="button"
+                class="panel-pane-nav-btn panel-pane-nav-btn--prev"
+                data-pane-nav-from="output"
+                data-pane-nav-direction="prev"
+                aria-label="Ir al panel anterior"
+                title="Panel anterior"
+              >
+                <span aria-hidden="true">◀</span>
+              </button>
+              <span class="panel-block-step">3</span>
+              <span class="panel-block-text">SALIDA</span>
+              <button
+                type="button"
+                class="panel-pane-nav-btn panel-pane-nav-btn--next"
+                data-pane-nav-from="output"
+                data-pane-nav-direction="next"
+                aria-label="Ir al siguiente panel"
+                title="Panel siguiente"
+              >
+                <span aria-hidden="true">▶</span>
+              </button>
+              <button type="button" class="view-export-button" id="view-export-csv">
+                CSV vista
+              </button>
+            </div>
+            <div class="output-meta-strip">
+              <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
+              <div class="calc-status" id="calc-status" aria-live="polite"></div>
+              <div class="tense-description" id="tense-description" aria-live="polite"></div>
+              <div class="calc-provenance is-empty" id="calc-provenance" aria-live="polite" hidden></div>
+            </div>
+            <div class="output-result-controls" id="output-result-controls">
+              <div id="output-universal-tabs" aria-live="polite"></div>
+              <div
+                class="nonactive-tabs is-hidden"
+                id="nonactive-tabs"
+                role="tablist"
+                aria-label="Derivación no activa"
+              ></div>
+            </div>
+            <div id="all-tense-conjugations"></div>
+          </div>
+          </div>
           <div
             class="panel tense-tabs-panel panel-stack-pane"
             id="panel-stack-pane-tense"
@@ -775,6 +813,20 @@
             aria-labelledby="panel-stack-tab-tense"
           >
             <div class="panel-block-title">
+              <button
+                type="button"
+                class="panel-derivation-sidebar-toggle"
+                id="derivation-pane-toggle"
+                aria-expanded="true"
+                aria-label="Colapsar Derivada"
+                title="Colapsar Derivada"
+              >
+                <span class="panel-derivation-sidebar-toggle__bars" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </button>
               <button
                 type="button"
                 class="panel-pane-nav-btn panel-pane-nav-btn--prev"
@@ -787,6 +839,7 @@
               </button>
               <span class="panel-block-step">2</span>
               <span class="panel-block-text">DERIVADA</span>
+              <span class="panel-sidebar-monogram" aria-hidden="true">D</span>
               <button
                 type="button"
                 class="panel-pane-nav-btn panel-pane-nav-btn--next"
@@ -882,12 +935,6 @@
                       <option value="causative">Causativo</option>
                       <option value="applicative">Aplicativo</option>
                     </select>
-                    <div
-                      class="nonactive-tabs is-hidden calc-operator-source calc-operator-source--nonactive"
-                      id="nonactive-tabs"
-                      role="tablist"
-                      aria-label="Derivación no activa"
-                    ></div>
                   </div>
                   <div
                     class="calc-operator calc-operator--voice calc-voice-operator"
@@ -929,47 +976,6 @@
             ></div>
             <div id="tense-tabs" class="tense-tabs"></div>
           </div>
-        </div>
-        <div
-          class="panel container-tense-grid panel-stack-pane"
-          id="container-tense-grid"
-          data-panel-stack-pane="output"
-          role="tabpanel"
-          aria-labelledby="panel-stack-tab-output"
-        >
-          <div class="panel-block-title">
-            <button
-              type="button"
-              class="panel-pane-nav-btn panel-pane-nav-btn--prev"
-              data-pane-nav-from="output"
-              data-pane-nav-direction="prev"
-              aria-label="Ir al panel anterior"
-              title="Panel anterior"
-            >
-              <span aria-hidden="true">◀</span>
-            </button>
-            <span class="panel-block-step">3</span>
-            <span class="panel-block-text">SALIDA</span>
-            <button
-              type="button"
-              class="panel-pane-nav-btn panel-pane-nav-btn--next"
-              data-pane-nav-from="output"
-              data-pane-nav-direction="next"
-              aria-label="Ir al siguiente panel"
-              title="Panel siguiente"
-            >
-              <span aria-hidden="true">▶</span>
-            </button>
-            <button type="button" class="view-export-button" id="view-export-csv">
-              CSV vista
-            </button>
-          </div>
-          <div class="output-meta-strip">
-            <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
-            <div class="calc-status" id="calc-status" aria-live="polite"></div>
-            <div class="tense-description" id="tense-description" aria-live="polite"></div>
-          </div>
-          <div id="all-tense-conjugations"></div>
         </div>
       </div>
       <footer>

@@ -181,6 +181,22 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         action: "toggle-input-mode",
         fallbackDescription: "cambiar modo entrada",
     },
+    {
+        id: "keyboard-legend",
+        key: "k",
+        label: "⌥/Alt + K",
+        selector: "#keyboard-legend-trigger",
+        legendDescription: "mostrar atajos",
+        fallbackDescription: "mostrar atajos",
+    },
+    {
+        id: "tools-toggle",
+        key: "h",
+        label: "⌥/Alt + H",
+        selector: "#verb-tools-toggle",
+        legendDescription: "mostrar/ocultar herramientas",
+        fallbackDescription: "mostrar/ocultar herramientas",
+    },
 ]);
 const KEYBOARD_LEGEND_BASE_ENTRIES = Object.freeze([
     { label: "Tab", description: "alternar entre verbo y caja activa" },
@@ -191,11 +207,21 @@ const KEYBOARD_LEGEND_BASE_ENTRIES = Object.freeze([
     { label: "Enter", description: "activar control enfocado" },
     { label: "Tip", description: "escribe para ver sugerencias o haz clic en un verbo de la lista" },
 ]);
+const ESCAPE_OVERLAY_HANDLERS = [];
+let ESCAPE_OVERLAY_HANDLER_SEQUENCE = 0;
 const COMPOSER_MATRIX_ROOT_TOKENS = Object.freeze({
     [COMPOSER_TRANSITIVITY.intransitive]: Object.freeze(["ni", "na", "wi", "wa", "ti", "ya", "ua"]),
     [COMPOSER_TRANSITIVITY.transitive]: Object.freeze(["nia", "na", "wia", "wa", "tia", "ia", "ua"]),
     [COMPOSER_TRANSITIVITY.bitransitive]: Object.freeze(["nia", "na", "wia", "wa", "tia", "ia", "ua"]),
 });
+const COMPOSER_MATRIX_ROOT_TOKENS_ALL = Object.freeze(
+    Array.from(new Set(
+        Object.values(COMPOSER_MATRIX_ROOT_TOKENS)
+            .flat()
+            .map((token) => normalizeComposerStem(token))
+            .filter(Boolean)
+    ))
+);
 const COMPOSER_MATRIX_ROOT_YA_BASES = new Set(["ti", "wi"]);
 const COMPOSER_MATRIX_ROOT_NI_CYCLE_BASES = new Set(["ni", "na", "nia"]);
 const COMPOSER_MATRIX_ROOT_NI_SHORT_VOWELS = Object.freeze(["a", "i"]);
@@ -239,6 +265,22 @@ const COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT = {
     b: "auto",
     c: "auto",
 };
+
+function dispatchAppEvent(name = "", detail = {}) {
+    if (!name || typeof document === "undefined" || typeof document.dispatchEvent !== "function") {
+        return;
+    }
+    const payload = detail && typeof detail === "object" ? detail : {};
+    if (typeof CustomEvent === "function") {
+        document.dispatchEvent(new CustomEvent(name, { detail: payload }));
+        return;
+    }
+    if (typeof document.createEvent === "function") {
+        const fallbackEvent = document.createEvent("CustomEvent");
+        fallbackEvent.initCustomEvent(name, false, false, payload);
+        document.dispatchEvent(fallbackEvent);
+    }
+}
 const COMPOSER_SLOT_CONFIG = {
     a: {
         transitivity: COMPOSER_TRANSITIVITY.intransitive,
@@ -328,6 +370,8 @@ const VERB_SCREEN_ANS_STATE = {
     stem: "",
     regexBase: "",
     form: "",
+    provenance: null,
+    tense: "",
 };
 let DERIVATIONAL_RULES = {};
 let DERIVATIONAL_RULES_DOCS = {};
@@ -1456,6 +1500,7 @@ let VERB_SUGGESTION_BASE_SET = new Set();
 let VERB_SUGGESTION_BASE_INFO = new Map();
 let VERB_DISAMBIGUATION_BASE_INFO = new Map();
 let BASIC_DATA_CANONICAL_MAP = new Map();
+let UI_DENSITY_GRAMMAR_SNAPSHOT = null;
 const OBJECT_TOGGLE_STATE = new Map();
 const POSSESSOR_TOGGLE_STATE = new Map();
 const SUBJECT_TOGGLE_STATE = new Map();
@@ -13586,15 +13631,15 @@ function getVerbComposerElements() {
         slotAEmbedInput,
         slotAStemInput,
         slotAValenceLeftEmbedInput,
-        slotAStemChips: document.getElementById("composer-stem-a-chips"),
+        slotAStemAffixSelect: document.getElementById("composer-stem-a-affix"),
         slotBEmbedInput,
         slotBStemInput,
         slotBValenceLeftEmbedInput,
-        slotBStemChips: document.getElementById("composer-stem-b-chips"),
+        slotBStemAffixSelect: document.getElementById("composer-stem-b-affix"),
         slotCEmbedInput,
         slotCStemInput,
         slotCValenceLeftEmbedInput,
-        slotCStemChips: document.getElementById("composer-stem-c-chips"),
+        slotCStemAffixSelect: document.getElementById("composer-stem-c-affix"),
         activeSlot,
         matrixStemInput,
         stemInput: matrixStemInput,
@@ -13613,10 +13658,10 @@ function getVerbComposerElements() {
         directionalHosts: document.querySelectorAll("[data-composer-directional-host]"),
         directionalSelect: document.getElementById("composer-directional"),
         directionalChips: document.getElementById("composer-directional-chips"),
-        matrixStemChipsBySlot: {
-            a: document.getElementById("composer-stem-a-chips"),
-            b: document.getElementById("composer-stem-b-chips"),
-            c: document.getElementById("composer-stem-c-chips"),
+        matrixStemAffixSelectBySlot: {
+            a: document.getElementById("composer-stem-a-affix"),
+            b: document.getElementById("composer-stem-b-affix"),
+            c: document.getElementById("composer-stem-c-affix"),
         },
         embedStemInput,
         embedInput: embedStemInput,
@@ -13645,9 +13690,9 @@ function syncComposerEmbedSlotUi(slotKey, slotRefs = null) {
     const embedInput = refs.embedInput || null;
     const embedValue = getComposerEmbedValueForSlot(slotKey, refs);
     const isFilled = Boolean(embedValue);
-    const isOpen = Boolean(COMPOSER_EMBED_OPEN_STATE[slotKey]);
-    const isPreview = Boolean(COMPOSER_EMBED_PREVIEW_STATE[slotKey]) && !isOpen;
-    const isVisible = isOpen || isPreview;
+    const isOpen = true;
+    const isPreview = false;
+    const isVisible = true;
     if (topRow) {
         topRow.classList.toggle("is-embed-open", isOpen);
         topRow.classList.toggle("is-embed-preview", isPreview);
@@ -13657,21 +13702,24 @@ function syncComposerEmbedSlotUi(slotKey, slotRefs = null) {
         embedField.setAttribute("aria-hidden", "false");
     }
     if (embedInput) {
-        embedInput.disabled = !isOpen;
-        embedInput.tabIndex = isOpen ? 0 : -1;
+        embedInput.disabled = false;
+        embedInput.tabIndex = 0;
         embedInput.setAttribute("aria-hidden", String(!isVisible));
     }
     if (toggleButton) {
-        toggleButton.classList.toggle("is-active", isOpen);
-        toggleButton.setAttribute("aria-expanded", String(isOpen));
-        toggleButton.setAttribute("aria-pressed", String(isOpen));
-        toggleButton.textContent = isOpen ? "-" : "+";
+        toggleButton.hidden = true;
+        toggleButton.disabled = true;
+        toggleButton.setAttribute("aria-hidden", "true");
+        toggleButton.setAttribute("aria-expanded", "true");
+        toggleButton.setAttribute("aria-pressed", "true");
     }
 }
 
 function syncComposerEmbedUiFromState() {
     const { slots } = getVerbComposerElements();
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        COMPOSER_EMBED_OPEN_STATE[slotKey] = true;
+        COMPOSER_EMBED_PREVIEW_STATE[slotKey] = false;
         syncComposerEmbedSlotUi(slotKey, slots[slotKey] || {});
     });
     syncComposerSlotChipVisibility();
@@ -13836,12 +13884,15 @@ function scheduleComposerSlotChipVisibilitySync() {
 }
 
 function syncComposerSlotChipVisibility() {
-    const { slots, matrixStemChipsBySlot } = getVerbComposerElements();
+    const { slots, matrixStemAffixSelectBySlot } = getVerbComposerElements();
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const embedInput = slots?.[slotKey]?.embedInput || null;
         const isEmbedTextboxVisible = isComposerEmbedTextboxVisibleForSlot(slotKey, embedInput);
-        const matrixContainer = matrixStemChipsBySlot?.[slotKey] || null;
+        const matrixContainer = matrixStemAffixSelectBySlot?.[slotKey] || null;
         if (!matrixContainer) {
+            return;
+        }
+        if (String(matrixContainer.tagName || "").toUpperCase() === "DATALIST") {
             return;
         }
         matrixContainer.hidden = !isEmbedTextboxVisible;
@@ -14903,6 +14954,40 @@ function findComposerNearestEditablePosition(segmentRanges = [], fromPosition = 
     return -1;
 }
 
+function isComposerTemplateOnlyMaskValue(context = null, rawValue = "") {
+    if (!context || !context.isFixedType) {
+        return false;
+    }
+    const value = String(rawValue || "");
+    const editableRanges = (Array.isArray(context.segmentRanges) ? context.segmentRanges : [])
+        .filter((range) => range.isEditable);
+    if (!editableRanges.length) {
+        return false;
+    }
+    return editableRanges.every((range) => !/[a-z]/i.test(value.slice(range.start, range.end)));
+}
+
+function prepareComposerTemplateMaskOverwrite(event, stemInput, slotKey = "a") {
+    if (!event || !stemInput) {
+        return false;
+    }
+    const key = String(event.key || "");
+    const isPrintable = key.length === 1 && !event.ctrlKey && !event.metaKey;
+    if (!isPrintable) {
+        return false;
+    }
+    const value = String(stemInput.value || "");
+    if (!value || typeof stemInput.setSelectionRange !== "function") {
+        return false;
+    }
+    const context = getComposerSerialMaskContextFromRaw(value, slotKey);
+    if (!isComposerTemplateOnlyMaskValue(context, value)) {
+        return false;
+    }
+    stemInput.setSelectionRange(0, value.length);
+    return false;
+}
+
 function enforceComposerLockedSuffixDeletion(event, stemInput, slotKey = "a") {
     if (!event || !stemInput) {
         return false;
@@ -14960,6 +15045,13 @@ function enforceComposerLockedSuffixDeletion(event, stemInput, slotKey = "a") {
         && !isComposerPositionInEditableRange(context.segmentRanges, deletePosition);
     if (!isDeletingLockedPosition) {
         return false;
+    }
+    if (isComposerTemplateOnlyMaskValue(context, stemInput.value || "")) {
+        event.preventDefault();
+        if (typeof stemInput.setSelectionRange === "function") {
+            stemInput.setSelectionRange(0, valueLength);
+        }
+        return true;
     }
     event.preventDefault();
     const chars = Array.from(String(stemInput.value || ""));
@@ -15090,21 +15182,28 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
         slotCount
     );
     const formattedStem = formatComposerSerialSegmentsForTextbox(lockedSegments, slotCount);
-    if (stemInput.value !== formattedStem) {
-        stemInput.value = formattedStem;
+    const dropdownTemplateSuffix = normalizeComposerStem(
+        stemInput.dataset.dropdownTemplateSuffix || ""
+    );
+    const forcedTemplate = dropdownTemplateSuffix ? `_${dropdownTemplateSuffix}` : "";
+    const displayStem = forcedTemplate || formattedStem;
+    if (stemInput.value !== displayStem) {
+        stemInput.value = displayStem;
         if (
             preserveCaret
             && document.activeElement === stemInput
             && typeof stemInput.setSelectionRange === "function"
         ) {
-            const caret = mapComposerCaretToLockedMask(
-                rawValue,
-                formattedStem,
-                caretStart,
-                slotCount,
-                displaySpec.selectedType,
-                lockedSegments
-            );
+            const caret = forcedTemplate
+                ? displayStem.length
+                : mapComposerCaretToLockedMask(
+                    rawValue,
+                    displayStem,
+                    caretStart,
+                    slotCount,
+                    displaySpec.selectedType,
+                    lockedSegments
+                );
             stemInput.setSelectionRange(caret, caret);
         }
     }
@@ -15200,6 +15299,90 @@ function syncComposerMatrixSerialUi() {
     containerInputs.dataset.serialActiveType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] || "auto";
 }
 
+function getComposerTemplateSuffixFromSerialType(selectedType = "") {
+    const type = String(selectedType || "").toLowerCase();
+    if (type === "ti-have" || type === "ti-become") {
+        return "ti";
+    }
+    if (type === "ta") {
+        return "ta";
+    }
+    if (type === "ya") {
+        return "ya";
+    }
+    if (type === "ua") {
+        return "ua";
+    }
+    if (type === "awi") {
+        return "awi";
+    }
+    if (type === "iwi") {
+        return "iwi";
+    }
+    return "";
+}
+
+function getComposerMatrixComboboxValueForSerialType(selectedType = "") {
+    const type = String(selectedType || "").toLowerCase();
+    if (type === "ti-have") {
+        return "_ti1";
+    }
+    if (type === "ti-become") {
+        return "_ti2";
+    }
+    const templateSuffix = getComposerTemplateSuffixFromSerialType(type);
+    return templateSuffix ? `_${templateSuffix}` : "_";
+}
+
+function applyComposerSerialTypeSelection({
+    slotKey = "",
+    selectedType = "",
+    stemInput = null,
+    matrixTokens = [],
+} = {}) {
+    const serialOption = getComposerSerialTypeOptionByValue(selectedType);
+    if (!serialOption || !COMPOSER_SLOT_KEYS.includes(slotKey)) {
+        return;
+    }
+    const latestStemInput = stemInput || getVerbComposerElements().slots[slotKey]?.stemInput || null;
+    const previousType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
+    if (
+        latestStemInput
+        && previousType !== selectedType
+        && isComposerFixedSerialType(previousType)
+    ) {
+        // Preserve editable root when moving from one locked serial family to another.
+        latestStemInput.value = extractComposerSerialEditableRoot(
+            latestStemInput.value || "",
+            previousType
+        );
+    }
+    COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = selectedType;
+    if (serialOption.slotCount > 0) {
+        COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[slotKey] = serialOption.slotCount;
+    }
+    if (latestStemInput) {
+        const templateSuffix = getComposerTemplateSuffixFromSerialType(selectedType);
+        if (templateSuffix) {
+            latestStemInput.dataset.dropdownTemplateSuffix = templateSuffix;
+        } else {
+            delete latestStemInput.dataset.dropdownTemplateSuffix;
+        }
+        latestStemInput.value = "";
+        applyComposerSerialFormattingToStemInput(latestStemInput, {
+            preserveCaret: true,
+            slotKey,
+            preferSplitFromStem: true,
+        });
+    }
+    syncComposerMatrixSerialUi();
+    syncComposerSerialTypeChips();
+    onVerbComposerControlChange("matrix-stem");
+    if (latestStemInput) {
+        focusTextInputAtEnd(latestStemInput);
+    }
+}
+
 function syncComposerSerialTypeChips() {
     const { slots } = getVerbComposerElements();
     const isComposer = isVerbInputModeComposer();
@@ -15210,50 +15393,38 @@ function syncComposerSerialTypeChips() {
         if (!chipsContainer) {
             return;
         }
+        const renderChipButtons = false;
         const optionSignature = COMPOSER_SERIAL_TYPE_OPTIONS
             .map((option) => `${option.value}:${option.label}`)
             .join("|");
         if ((chipsContainer.dataset.optionSignature || "") !== optionSignature) {
             chipsContainer.innerHTML = "";
-            COMPOSER_SERIAL_TYPE_OPTIONS.forEach((option) => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "verb-chip";
-                button.dataset.serialType = option.value;
-                button.dataset.serialSlot = slotKey;
-                button.textContent = option.label;
-                button.addEventListener("click", () => {
-                    if (button.disabled) {
-                        return;
-                    }
-                    const latestStemInput = getVerbComposerElements().slots[slotKey]?.stemInput || null;
-                    const previousType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
-                    if (
-                        latestStemInput
-                        && previousType !== option.value
-                        && isComposerFixedSerialType(previousType)
-                    ) {
-                        // When hopping between serial families, keep only the editable root segment.
-                        latestStemInput.value = extractComposerSerialEditableRoot(
-                            latestStemInput.value || "",
-                            previousType
-                        );
-                    }
-                    COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = option.value;
-                    if (option.slotCount > 0) {
-                        COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[slotKey] = option.slotCount;
-                    }
-                    syncComposerMatrixSerialUi();
-                    syncComposerSerialTypeChips();
-                    onVerbComposerControlChange("matrix-stem");
-                    if (latestStemInput) {
-                        focusTextInputAtEnd(latestStemInput);
-                    }
+            if (renderChipButtons) {
+                COMPOSER_SERIAL_TYPE_OPTIONS.forEach((option) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "verb-chip";
+                    button.dataset.serialType = option.value;
+                    button.dataset.serialSlot = slotKey;
+                    button.textContent = option.label;
+                    button.addEventListener("click", () => {
+                        if (button.disabled) {
+                            return;
+                        }
+                        applyComposerSerialTypeSelection({
+                            slotKey,
+                            selectedType: option.value,
+                            stemInput: getVerbComposerElements().slots[slotKey]?.stemInput || null,
+                            matrixTokens: getComposerMatrixRootTokensForSlot(slotKey),
+                        });
+                    });
+                    chipsContainer.appendChild(button);
                 });
-                chipsContainer.appendChild(button);
-            });
+            }
             chipsContainer.dataset.optionSignature = optionSignature;
         }
+        chipsContainer.hidden = true;
+        chipsContainer.setAttribute("aria-hidden", "true");
         const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
         const buttons = Array.from(chipsContainer.querySelectorAll(".verb-chip"));
         const isDisabled = !isComposer || slotKey !== activeSlot;
@@ -15268,88 +15439,135 @@ function syncComposerSerialTypeChips() {
     });
 }
 
-function syncComposerMatrixStemChips() {
-    const { slots, matrixStemChipsBySlot } = getVerbComposerElements();
-    const isComposer = isVerbInputModeComposer();
-    const activeSlot = getComposerActiveSlotFromState();
+function getComposerMatrixComboboxOptionMatch(slotKey = "", rawValue = "") {
+    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
+        return null;
+    }
+    const typedValue = String(rawValue || "").trim().toLowerCase();
+    if (!typedValue) {
+        return null;
+    }
+    const { matrixStemAffixSelectBySlot } = getVerbComposerElements();
+    const optionList = matrixStemAffixSelectBySlot?.[slotKey] || null;
+    if (!optionList || !optionList.options) {
+        return null;
+    }
+    const option = Array.from(optionList.options).find((candidate) => (
+        String(candidate.value || "").trim().toLowerCase() === typedValue
+    ));
+    if (!option) {
+        return null;
+    }
+    const templateSuffix = normalizeComposerStem(
+        option.dataset.templateSuffix
+        || String(option.value || "").replace(/^_+/, "")
+    );
+    const serialType = String(option.dataset.serialType || "").trim().toLowerCase();
+    return {
+        value: String(option.value || ""),
+        templateSuffix,
+        serialType,
+    };
+}
+
+function handleComposerMatrixComboboxSelection(slotKey = "", stemInput = null) {
+    if (!stemInput || !COMPOSER_SLOT_CONFIG[slotKey]) {
+        return false;
+    }
+    const match = getComposerMatrixComboboxOptionMatch(slotKey, stemInput.value || "");
+    if (!match) {
+        return false;
+    }
+    if (match.serialType && match.serialType !== "auto") {
+        applyComposerSerialTypeSelection({
+            slotKey,
+            selectedType: match.serialType,
+            stemInput,
+            matrixTokens: getComposerMatrixRootTokensForSlot(slotKey),
+        });
+        return true;
+    }
+    COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+    if (match.templateSuffix) {
+        stemInput.dataset.dropdownTemplateSuffix = match.templateSuffix;
+    } else {
+        delete stemInput.dataset.dropdownTemplateSuffix;
+    }
+    applyComposerSerialFormattingToStemInput(stemInput, {
+        preserveCaret: true,
+        slotKey,
+        preferSplitFromStem: true,
+    });
+    onVerbComposerControlChange("matrix-stem");
+    focusTextInputAtEnd(stemInput);
+    return true;
+}
+
+function syncComposerMatrixStemAffixSelects() {
+    const { matrixStemAffixSelectBySlot } = getVerbComposerElements();
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
-        const stemInput = slots[slotKey]?.stemInput || null;
-        const embedInput = slots[slotKey]?.embedInput || null;
-        const chipsContainer = matrixStemChipsBySlot?.[slotKey] || null;
-        if (!stemInput || !chipsContainer) {
+        const optionList = matrixStemAffixSelectBySlot?.[slotKey] || null;
+        if (!optionList) {
             return;
         }
-        const slotConfig = getComposerSlotConfig(slotKey);
-        const tokens = getComposerMatrixRootTokensForSlot(slotKey);
-        const optionSignature = tokens.join("|");
-        if ((chipsContainer.dataset.optionSignature || "") !== optionSignature) {
-            chipsContainer.innerHTML = "";
-            tokens.forEach((token) => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "verb-chip";
-                button.dataset.matrixRoot = token;
-                button.dataset.matrixSlot = slotKey;
-                button.textContent = token;
-                button.addEventListener("click", () => {
-                    if (button.disabled) {
-                        return;
-                    }
-                    const currentStem = stemInput.value || "";
-                    const normalizedCurrentStem = normalizeComposerStem(currentStem);
-                    const embedStem = getComposerMatrixEmbedStem(embedInput?.value || "");
-                    const transitivity = slotConfig?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
-                    const isTokenActive = isComposerMatrixTokenActiveForStem({
-                        token,
-                        stem: currentStem,
-                        transitivity,
-                    });
-                    const tokenCycleForms = getComposerMatrixTokenCycleForms({
-                        token,
-                        embedStem,
-                        transitivity,
-                    });
-                    const selectedStem = resolveComposerMatrixRootTokenSelection({
-                        token,
-                        currentStem,
-                        embedStem,
-                        transitivity,
-                    });
-                    if (isTokenActive && tokenCycleForms.length > 0) {
-                        const currentIndex = tokenCycleForms.indexOf(normalizedCurrentStem);
-                        if (currentIndex >= 0 && currentIndex < tokenCycleForms.length - 1) {
-                            stemInput.value = tokenCycleForms[currentIndex + 1];
-                        } else if (currentIndex === tokenCycleForms.length - 1) {
-                            stemInput.value = "";
-                        } else {
-                            stemInput.value = tokenCycleForms[0] || "";
-                        }
-                    } else {
-                        stemInput.value = isTokenActive ? "" : selectedStem;
-                    }
-                    onVerbComposerControlChange("matrix-stem");
-                    focusTextInputAtEnd(stemInput);
-                });
-                chipsContainer.appendChild(button);
+        const tokens = COMPOSER_MATRIX_ROOT_TOKENS_ALL;
+        const entries = [];
+        const seenValues = new Set();
+        const addEntry = ({
+            value = "",
+            templateSuffix = "",
+            serialType = "auto",
+            label = "",
+        } = {}) => {
+            const normalizedValue = String(value || "").trim().toLowerCase();
+            if (!normalizedValue || seenValues.has(normalizedValue)) {
+                return;
+            }
+            seenValues.add(normalizedValue);
+            entries.push({
+                value: normalizedValue,
+                templateSuffix: normalizeComposerStem(templateSuffix || normalizedValue.replace(/^_+/, "")),
+                serialType: String(serialType || "auto").trim().toLowerCase(),
+                label: String(label || normalizedValue),
             });
-            chipsContainer.dataset.optionSignature = optionSignature;
-        }
-        const normalizedStem = normalizeComposerStem(stemInput.value || "");
-        const slotIsActive = slotKey === activeSlot;
-        const isDisabled = !isComposer || !slotIsActive;
-        const buttons = Array.from(chipsContainer.querySelectorAll(".verb-chip"));
-        buttons.forEach((button) => {
-            const token = button.dataset.matrixRoot || "";
-            const isActive = isComposerMatrixTokenActiveForStem({
-                token,
-                stem: normalizedStem,
-                transitivity: slotConfig?.transitivity || COMPOSER_TRANSITIVITY.intransitive,
+        };
+        COMPOSER_SERIAL_TYPE_OPTIONS.forEach((serialOption) => {
+            const templateSuffix = getComposerTemplateSuffixFromSerialType(serialOption.value);
+            const templateValue = getComposerMatrixComboboxValueForSerialType(serialOption.value);
+            addEntry({
+                value: templateValue,
+                templateSuffix,
+                serialType: serialOption.value,
+                label: templateValue,
             });
-            button.disabled = isDisabled;
-            button.setAttribute("aria-disabled", String(isDisabled));
-            button.classList.toggle("is-active", isActive);
-            button.setAttribute("aria-pressed", String(isActive));
         });
+        tokens.forEach((token) => {
+            const normalizedToken = normalizeComposerStem(token);
+            if (!normalizedToken) {
+                return;
+            }
+            addEntry({
+                value: `_${normalizedToken}`,
+                templateSuffix: normalizedToken,
+                serialType: "auto",
+                label: `_${normalizedToken}`,
+            });
+        });
+        const optionSignature = entries
+            .map((entry) => `${entry.value}:${entry.serialType}`)
+            .join("|");
+        if ((optionList.dataset.optionSignature || "") !== optionSignature) {
+            optionList.innerHTML = "";
+            entries.forEach((entry) => {
+                const option = document.createElement("option");
+                option.value = entry.value;
+                option.label = entry.label;
+                option.dataset.templateSuffix = entry.templateSuffix;
+                option.dataset.serialType = entry.serialType;
+                optionList.appendChild(option);
+            });
+            optionList.dataset.optionSignature = optionSignature;
+        }
     });
 }
 
@@ -15562,19 +15780,29 @@ function syncComposerSupportiveIAvailability() {
     }
 }
 
+function getUiCopyLabel(labelKey = "", fallback = "") {
+    return getLocalizedLabel(UI_LABELS[labelKey], getIsNawat(), fallback);
+}
+
 function updateVerbComposerHint() {
     const { hint } = getVerbComposerElements();
     if (!hint) {
         return;
     }
     if (!isVerbInputModeComposer()) {
-        hint.textContent = "Regex Dev: escribe el patrón directamente en la pantalla.";
+        hint.textContent = getUiCopyLabel(
+            "composer-hint-regex-dev",
+            "Regex: escribe el patrón directamente en la pantalla."
+        );
         return;
     }
     const stem = VERB_COMPOSER_STATE.stem;
     const syllableCount = getComposerStemSyllableCount(stem);
     if (!stem) {
-        hint.textContent = "Define raíz matriz y raíz incorporada para construir el regex.";
+        hint.textContent = getUiCopyLabel(
+            "composer-hint-define-roots",
+            "Define raíz matriz y raíz incorporada para construir la forma."
+        );
         return;
     }
     const directionalPrefix = String(VERB_COMPOSER_STATE.directionalPrefix || "").trim();
@@ -15668,10 +15896,8 @@ function getComposerSlotEmbedForRegex(slotKey = "", embedValue = "") {
     if (!normalizedEmbed) {
         return "";
     }
-    if (!COMPOSER_SLOT_CONFIG[slotKey]) {
-        return normalizedEmbed;
-    }
-    return COMPOSER_EMBED_OPEN_STATE[slotKey] ? normalizedEmbed : "";
+    void slotKey;
+    return normalizedEmbed;
 }
 
 function buildRegexFromComposerState(state) {
@@ -16333,7 +16559,7 @@ function renderVerbComposerFromState() {
     syncComposerSupportiveIAvailability();
     syncComposerValenceAvailability();
     syncComposerChipGroupsFromState();
-    syncComposerMatrixStemChips();
+    syncComposerMatrixStemAffixSelects();
     syncComposerMatrixSerialUi();
     syncComposerSerialTypeChips();
     updateVerbComposerHint();
@@ -16669,6 +16895,7 @@ function setVerbInputMode(mode, options = {}) {
     } else {
         clearVerbDisambiguation();
     }
+    dispatchAppEvent("app:verb-input-mode-changed", { mode: nextMode });
 }
 
 function bindComposerStemTabNavigation(pairs = []) {
@@ -17026,6 +17253,41 @@ function serializeTenseGroupRows(groups = [], visibleTenseSet = new Set()) {
         .join("|");
 }
 
+function getVerbSemanticTenseGroupKey(tenseValue = "") {
+    const tense = String(tenseValue || "").trim().toLowerCase();
+    if (!tense) {
+        return "past";
+    }
+    if (tense === "imperativo") {
+        return "imperative";
+    }
+    if (tense.startsWith("presente")) {
+        return "present";
+    }
+    if (tense === "futuro" || tense === "condicional") {
+        return "future";
+    }
+    return "past";
+}
+
+function getVerbSemanticTenseGroups(visibleTenses = []) {
+    const groups = [
+        { key: "imperative", heading: { labelEs: "imperativo", labelNa: "imperativo" }, tenses: [] },
+        { key: "present", heading: { labelEs: "presente", labelNa: "presente" }, tenses: [] },
+        { key: "past", heading: { labelEs: "pasado", labelNa: "pasado" }, tenses: [] },
+        { key: "future", heading: { labelEs: "futuro", labelNa: "futuro" }, tenses: [] },
+    ];
+    const byKey = new Map(groups.map((group) => [group.key, group]));
+    (Array.isArray(visibleTenses) ? visibleTenses : []).forEach((tenseValue) => {
+        const key = getVerbSemanticTenseGroupKey(tenseValue);
+        const target = byKey.get(key) || byKey.get("past");
+        if (target) {
+            target.tenses.push(tenseValue);
+        }
+    });
+    return groups;
+}
+
 function buildTenseTabsDomSignature({
     isNawat = false,
     tenseMode = "",
@@ -17034,12 +17296,18 @@ function buildTenseTabsDomSignature({
     shouldShowUniversalTabs = false,
     activeColumnTenses = [],
     nounNonactiveTenses = [],
+    verbSemanticGroups = [],
     modeGroups = null,
     visibleTenseSet = new Set(),
     universalOrder = [],
 }) {
     const nominalSignature = isNominalMode
         ? `a:${activeColumnTenses.join(",")}|n:${nounNonactiveTenses.join(",")}`
+        : "";
+    const semanticSignature = !isNominalMode
+        ? (Array.isArray(verbSemanticGroups)
+            ? verbSemanticGroups.map((group) => `${group.key || ""}:${(group.tenses || []).join(",")}`).join("|")
+            : "")
         : "";
     const groupedSignature = !isNominalMode && modeGroups
         ? `l:${serializeTenseGroupRows(modeGroups.left, visibleTenseSet)}|r:${serializeTenseGroupRows(modeGroups.right, visibleTenseSet)}`
@@ -17051,6 +17319,7 @@ function buildTenseTabsDomSignature({
         isNonactiveMode ? "nonactive" : "active",
         isNominalMode ? "nominal" : "verb",
         nominalSignature,
+        semanticSignature,
         groupedSignature,
         shouldShowUniversalTabs ? "universal:on" : "universal:off",
         universalSignature,
@@ -17059,6 +17328,7 @@ function buildTenseTabsDomSignature({
 
 function updateExistingTenseTabsDom({
     container,
+    universalContainer = null,
     endsWithConsonant = false,
     resolveTenseHasOutput,
     shouldShowUniversalTabs = false,
@@ -17086,7 +17356,8 @@ function updateExistingTenseTabsDom({
         button.classList.toggle("is-empty", hasOutput === false);
         button.disabled = endsWithConsonant || hasOutput === false;
     });
-    const universalWrap = container.querySelector(".tense-tabs-universal");
+    const universalRoot = universalContainer || container;
+    const universalWrap = universalRoot?.querySelector(".tense-tabs-universal");
     if (!shouldShowUniversalTabs) {
         return !universalWrap;
     }
@@ -17139,7 +17410,12 @@ function getScreenCalculatorAnsFallbackFromForm(rawFormOverride = null) {
     return normalizeComposerStem(firstForm.replace(/\s+/g, ""));
 }
 
-function rememberScreenCalculatorAnsState({ generatedText = "", parsedVerb = null, stemProvenance = null } = {}) {
+function rememberScreenCalculatorAnsState({
+    generatedText = "",
+    parsedVerb = null,
+    stemProvenance = null,
+    tense = "",
+} = {}) {
     const normalizedForm = String(generatedText || "").trim();
     if (!normalizedForm || normalizedForm === "—") {
         return;
@@ -17163,6 +17439,8 @@ function rememberScreenCalculatorAnsState({ generatedText = "", parsedVerb = nul
     VERB_SCREEN_ANS_STATE.form = normalizedForm;
     VERB_SCREEN_ANS_STATE.regexBase = regexBase;
     VERB_SCREEN_ANS_STATE.stem = resolvedStem;
+    VERB_SCREEN_ANS_STATE.provenance = stemProvenance || null;
+    VERB_SCREEN_ANS_STATE.tense = String(tense || "");
     syncVerbScreenCalculatorState();
 }
 
@@ -17249,8 +17527,8 @@ function syncVerbScreenCalculatorState() {
         modeButton.classList.toggle("is-active", isComposer);
         modeButton.setAttribute("aria-pressed", String(isComposer));
         modeButton.title = isComposer
-            ? "Modo actual: Selecciones (cambiar a Regex Dev)"
-            : "Modo actual: Regex Dev (cambiar a Selecciones)";
+            ? "Modo actual: Selecciones (cambiar a Regex)"
+            : "Modo actual: Regex (cambiar a Selecciones)";
     }
     const currentTransitivity = VERB_COMPOSER_STATE.transitivity;
     const transitivityLabelMap = {
@@ -17309,13 +17587,13 @@ function syncVerbScreenCalculatorState() {
             supportiveIButton.classList.toggle("is-active", !regexUnavailable && regexHasMarker);
             supportiveIButton.setAttribute("aria-pressed", String(!regexUnavailable && regexHasMarker));
             supportiveIButton.title = regexUnavailable
-                ? "Regex Dev: disponible si el tronco inicia con i o ya contiene (i)"
-                : (regexHasMarker ? "Regex Dev: quitar (i) opcional" : "Regex Dev: agregar (i) opcional");
+                ? "Regex: disponible si el tronco inicia con i o ya contiene (i)"
+                : (regexHasMarker ? "Regex: quitar (i) opcional" : "Regex: agregar (i) opcional");
             supportiveIButton.setAttribute(
                 "aria-label",
                 regexUnavailable
-                    ? "i de apoyo opcional en Regex Dev disponible si el tronco inicia con i o ya contiene (i)"
-                    : (regexHasMarker ? "Regex Dev quitar i de apoyo opcional" : "Regex Dev agregar i de apoyo opcional")
+                    ? "i de apoyo opcional en Regex disponible si el tronco inicia con i o ya contiene (i)"
+                    : (regexHasMarker ? "Regex quitar i de apoyo opcional" : "Regex agregar i de apoyo opcional")
             );
         }
     }
@@ -17550,27 +17828,83 @@ function initVerbScreenCalculator() {
         delButton,
         equalsButton,
     } = getVerbScreenCalculatorButtons();
-    if (
-        !ansButton
-        || !modeButton
-        || !transitivityButton
-        || !supportiveIButton
-        || !acButton
-        || !ceButton
-        || !delButton
-        || !equalsButton
-    ) {
+    if (!ansButton && !modeButton && !acButton && !ceButton && !delButton && !equalsButton) {
         return;
     }
-    ansButton.addEventListener("click", () => runScreenCalculatorANS());
-    modeButton.addEventListener("click", () => runScreenCalculatorModeToggle());
-    transitivityButton.addEventListener("click", () => runScreenCalculatorCycleTransitivity());
-    supportiveIButton.addEventListener("click", () => runScreenCalculatorToggleSupportiveI());
-    acButton.addEventListener("click", () => runScreenCalculatorAC());
-    ceButton.addEventListener("click", () => runScreenCalculatorCE());
-    delButton.addEventListener("click", () => runScreenCalculatorDEL());
-    equalsButton.addEventListener("click", () => runScreenCalculatorCopy());
+    ansButton?.addEventListener("click", () => runScreenCalculatorANS());
+    modeButton?.addEventListener("click", () => runScreenCalculatorModeToggle());
+    transitivityButton?.addEventListener("click", () => runScreenCalculatorCycleTransitivity());
+    supportiveIButton?.addEventListener("click", () => runScreenCalculatorToggleSupportiveI());
+    acButton?.addEventListener("click", () => runScreenCalculatorAC());
+    ceButton?.addEventListener("click", () => runScreenCalculatorCE());
+    delButton?.addEventListener("click", () => runScreenCalculatorDEL());
+    equalsButton?.addEventListener("click", () => runScreenCalculatorCopy());
     syncVerbScreenCalculatorState();
+}
+
+function initVerbToolsPanelToggle() {
+    const toggleButton = document.getElementById("verb-tools-toggle");
+    const panel = document.getElementById("verb-tools-panel");
+    if (!toggleButton || !panel) {
+        return;
+    }
+    let isOpen = !panel.hidden;
+    const setOpen = (nextOpen, { focusToggle = false } = {}) => {
+        isOpen = Boolean(nextOpen);
+        panel.hidden = !isOpen;
+        panel.classList.toggle("is-open", isOpen);
+        panel.setAttribute("aria-hidden", String(!isOpen));
+        toggleButton.setAttribute("aria-expanded", String(isOpen));
+        toggleButton.classList.toggle("is-active", isOpen);
+        toggleButton.title = isOpen ? "Ocultar herramientas" : "Mostrar herramientas";
+        if (focusToggle && typeof toggleButton.focus === "function") {
+            toggleButton.focus({ preventScroll: true });
+        }
+    };
+    toggleButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        setOpen(!isOpen);
+    });
+    document.addEventListener("click", (event) => {
+        if (!isOpen) {
+            return;
+        }
+        const target = event.target;
+        if (panel.contains(target) || toggleButton.contains(target)) {
+            return;
+        }
+        setOpen(false);
+    });
+    document.addEventListener("app:panel-stack-changed", (event) => {
+        const detail = event?.detail || {};
+        const mode = detail.mode || "inputs";
+        const showAllPanes = Boolean(detail.showAllPanes);
+        if (!showAllPanes && mode !== "inputs") {
+            setOpen(false);
+        }
+    });
+    document.addEventListener("app:verb-input-mode-changed", (event) => {
+        const mode = event?.detail?.mode || VERB_INPUT_MODE.composer;
+        if (mode === VERB_INPUT_MODE.regex) {
+            setOpen(false);
+        }
+    });
+    document.addEventListener("app:ui-density-changed", (event) => {
+        const mode = event?.detail?.mode || UI_DENSITY_MODE.simple;
+        if (mode === UI_DENSITY_MODE.simple) {
+            setOpen(false);
+        }
+    });
+    registerEscapeOverlayHandler({
+        id: "verb-tools-panel",
+        priority: 22,
+        isOpen: () => isOpen,
+        onEscape: () => {
+            setOpen(false, { focusToggle: true });
+            return true;
+        },
+    });
+    setOpen(false);
 }
 
 function initCalcInputModeButtons() {
@@ -17649,6 +17983,26 @@ function handleComposerDoubleSpaceShortcut(event) {
     return true;
 }
 
+function syncVerbComposerFieldGroupRoles() {
+    const fields = Array.from(document.querySelectorAll(".verb-composer__field"));
+    if (!fields.length) {
+        return;
+    }
+    fields.forEach((field, index) => {
+        field.setAttribute("role", "group");
+        const existingLabel = String(field.getAttribute("aria-label") || "").trim();
+        if (existingLabel) {
+            return;
+        }
+        const inlineLabel = String(field.querySelector(".verb-composer__sub-label")?.textContent || "").trim();
+        if (inlineLabel) {
+            field.setAttribute("aria-label", `Grupo ${inlineLabel}`);
+            return;
+        }
+        field.setAttribute("aria-label", `Grupo ${index + 1}`);
+    });
+}
+
 function initVerbComposer() {
     const {
         slots,
@@ -17679,12 +18033,18 @@ function initVerbComposer() {
         ])
         .filter(Boolean);
     populateComposerDirectionalOptions();
+    syncVerbComposerFieldGroupRoles();
     bindComposerStemTabNavigation(slotNavigationPairs);
     slotStemInputs.forEach(({ slotKey, stemInput }) => {
         stemInput.addEventListener("keydown", (event) => {
+            prepareComposerTemplateMaskOverwrite(event, stemInput, slotKey);
             enforceComposerLockedSuffixDeletion(event, stemInput, slotKey);
         });
         stemInput.addEventListener("input", () => {
+            if (handleComposerMatrixComboboxSelection(slotKey, stemInput)) {
+                return;
+            }
+            delete stemInput.dataset.dropdownTemplateSuffix;
             applyComposerSerialFormattingToStemInput(stemInput, {
                 preserveCaret: true,
                 slotKey,
@@ -17692,6 +18052,7 @@ function initVerbComposer() {
             onVerbComposerControlChange("matrix-stem");
         });
         stemInput.addEventListener("change", () => {
+            delete stemInput.dataset.dropdownTemplateSuffix;
             applyComposerSerialFormattingToStemInput(stemInput, {
                 preserveCaret: false,
                 slotKey,
@@ -19049,6 +19410,25 @@ function initViewExport() {
 }
 
 // === UI Panels & Tabs ===
+function getVerbMirrorDisplayValue(rawValue = "") {
+    if (!isVerbInputModeComposer()) {
+        return String(rawValue || "");
+    }
+    const regexValue = String(rawValue || "");
+    const sanitizedSelectionValue = regexValue
+        .replace(/\(i\)/gi, "i")
+        .replace(/[/?()[\]-]/g, "")
+        .replace(/\s+/g, "");
+    if (sanitizedSelectionValue) {
+        return sanitizedSelectionValue;
+    }
+    const preferredInputValue = String(getComposerPreferredEntryInput()?.value || "").trim();
+    if (preferredInputValue) {
+        return preferredInputValue;
+    }
+    return String(VERB_COMPOSER_STATE.stem || "");
+}
+
 function renderVerbMirror() {
     const verbInput = document.getElementById("verb");
     const mirror = getVerbMirror();
@@ -19056,7 +19436,7 @@ function renderVerbMirror() {
     if (!verbInput || !mirror || !mirrorContent) {
         return;
     }
-    const rawValue = verbInput.value;
+    const rawValue = getVerbMirrorDisplayValue(verbInput.value);
     const placeholder = verbInput.placeholder || "";
     mirrorContent.innerHTML = "";
     if (!rawValue) {
@@ -19188,6 +19568,57 @@ function getUiDensityButtons() {
     return Array.from(document.querySelectorAll("[data-ui-density]"));
 }
 
+function captureUiDensityGrammarSnapshot() {
+    return {
+        tenseMode: getActiveTenseMode(),
+        combinedMode: getCombinedMode(),
+        derivationType: getActiveDerivationType(),
+        nonactiveSuffix: getSelectedNonactiveSuffix(),
+        tenseTab: getSelectedTenseTab(),
+        pretUniversalTab: getSelectedPretUniversalTab(),
+    };
+}
+
+function restoreUiDensityGrammarSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") {
+        return false;
+    }
+    if (Object.values(TENSE_MODE).includes(snapshot.tenseMode)) {
+        setActiveTenseMode(snapshot.tenseMode);
+    }
+    if (Object.values(COMBINED_MODE).includes(snapshot.combinedMode)) {
+        setCombinedMode(snapshot.combinedMode);
+    }
+    if (Object.values(DERIVATION_TYPE).includes(snapshot.derivationType)) {
+        setActiveDerivationType(snapshot.derivationType);
+        const select = document.getElementById("derivation-type");
+        if (select) {
+            select.value = snapshot.derivationType;
+        }
+    }
+    if (snapshot.nonactiveSuffix === null) {
+        setSelectedNonactiveSuffix(null);
+    } else if (typeof snapshot.nonactiveSuffix === "string") {
+        setSelectedNonactiveSuffix(snapshot.nonactiveSuffix);
+    }
+    if (typeof snapshot.tenseTab === "string") {
+        setSelectedTenseTab(snapshot.tenseTab);
+    }
+    if (typeof snapshot.pretUniversalTab === "string") {
+        setSelectedPretUniversalTab(snapshot.pretUniversalTab);
+    }
+    updateTenseModeTabs();
+    updateDerivationTypeControl();
+    renderTenseTabs();
+    const verbMeta = getVerbInputMeta();
+    renderAllOutputs({
+        verb: verbMeta.displayVerb,
+        objectPrefix: getCurrentObjectPrefix(),
+        tense: getSelectedTenseTab() || TENSE_ORDER[0] || "presente",
+    });
+    return true;
+}
+
 function forceDirectDerivationForSimpleMode() {
     if (getActiveDerivationType() === DERIVATION_TYPE.direct) {
         return;
@@ -19227,6 +19658,9 @@ function forceSimpleModeGrammarDefaults() {
 
 function applyUiDensityMode(mode = "", { persist = true } = {}) {
     const nextMode = normalizeUiDensityMode(mode);
+    const previousMode = getActiveUiDensityMode();
+    const enteringSimple = previousMode !== UI_DENSITY_MODE.simple && nextMode === UI_DENSITY_MODE.simple;
+    const leavingSimple = previousMode === UI_DENSITY_MODE.simple && nextMode === UI_DENSITY_MODE.advanced;
     const body = document.body;
     if (body) {
         body.classList.toggle("is-ui-simple", nextMode === UI_DENSITY_MODE.simple);
@@ -19239,11 +19673,19 @@ function applyUiDensityMode(mode = "", { persist = true } = {}) {
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
     });
-    if (nextMode === UI_DENSITY_MODE.simple) {
+    if (enteringSimple) {
+        UI_DENSITY_GRAMMAR_SNAPSHOT = captureUiDensityGrammarSnapshot();
         forceSimpleModeGrammarDefaults();
+    } else if (leavingSimple && UI_DENSITY_GRAMMAR_SNAPSHOT) {
+        restoreUiDensityGrammarSnapshot(UI_DENSITY_GRAMMAR_SNAPSHOT);
+        UI_DENSITY_GRAMMAR_SNAPSHOT = null;
     }
     syncComposerSlotChipVisibility();
     scheduleComposerSlotChipVisibilitySync();
+    dispatchAppEvent("app:ui-density-changed", {
+        mode: nextMode,
+        previousMode,
+    });
     if (!persist) {
         return;
     }
@@ -19316,6 +19758,54 @@ function initZoomFontLock() {
     }
 }
 
+function registerEscapeOverlayHandler({
+    id = "",
+    priority = 0,
+    isOpen = null,
+    onEscape = null,
+} = {}) {
+    const overlayId = String(id || "");
+    if (!overlayId || typeof isOpen !== "function" || typeof onEscape !== "function") {
+        return;
+    }
+    const nextHandler = {
+        id: overlayId,
+        priority: Number.isFinite(priority) ? priority : 0,
+        sequence: ++ESCAPE_OVERLAY_HANDLER_SEQUENCE,
+        isOpen,
+        onEscape,
+    };
+    const existingIndex = ESCAPE_OVERLAY_HANDLERS.findIndex((entry) => entry.id === overlayId);
+    if (existingIndex >= 0) {
+        ESCAPE_OVERLAY_HANDLERS[existingIndex] = nextHandler;
+        return;
+    }
+    ESCAPE_OVERLAY_HANDLERS.push(nextHandler);
+}
+
+function closeEscapeManagedOverlay(event = null) {
+    const handlers = ESCAPE_OVERLAY_HANDLERS
+        .filter((entry) => entry && typeof entry.isOpen === "function" && entry.isOpen())
+        .sort((left, right) => {
+            const priorityDelta = (right.priority || 0) - (left.priority || 0);
+            if (priorityDelta !== 0) {
+                return priorityDelta;
+            }
+            return (right.sequence || 0) - (left.sequence || 0);
+        });
+    for (let index = 0; index < handlers.length; index += 1) {
+        const handler = handlers[index];
+        if (!handler || typeof handler.onEscape !== "function") {
+            continue;
+        }
+        if (handler.onEscape(event) === false) {
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
 function initTutorialPanel() {
     const trigger = document.getElementById("tutorial-trigger");
     const modal = document.getElementById("tutorial-modal");
@@ -19350,10 +19840,14 @@ function initTutorialPanel() {
             closeModal();
         });
     });
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && modal.classList.contains("is-open")) {
+    registerEscapeOverlayHandler({
+        id: "tutorial-modal",
+        priority: 20,
+        isOpen: () => modal.classList.contains("is-open"),
+        onEscape: () => {
             closeModal();
-        }
+            return true;
+        },
     });
 }
 
@@ -19370,6 +19864,10 @@ function matchesAltShortcutKey(event, key = "") {
 function resolveAltShortcutLegendDescription(definition = {}) {
     if (!definition) {
         return "";
+    }
+    const directDescription = String(definition.legendDescription || "").trim();
+    if (directDescription) {
+        return directDescription;
     }
     if (definition.selector) {
         const target = document.querySelector(definition.selector);
@@ -19462,14 +19960,15 @@ function initKeyboardLegendPopover() {
         }
         closePopover();
     });
-    document.addEventListener("keydown", (event) => {
-        if (!isOpen || event.key !== "Escape") {
-            return;
-        }
-        closePopover({ focusTrigger: true });
-        event.preventDefault();
-        event.stopPropagation();
-    }, true);
+    registerEscapeOverlayHandler({
+        id: "keyboard-legend",
+        priority: 30,
+        isOpen: () => isOpen,
+        onEscape: () => {
+            closePopover({ focusTrigger: true });
+            return true;
+        },
+    });
     renderKeyboardLegendEntries();
     setOpen(false);
 }
@@ -19825,16 +20324,16 @@ function renderTenseTabs() {
     if (!container) {
         return;
     }
-    const focusState = captureTenseTabsFocusState(container);
+    const voiceOperator = document.getElementById("calc-voice-operator");
+    const universalContainer = document.getElementById("output-universal-tabs");
+    const focusState = captureTenseTabsFocusState(container)
+        || captureTenseTabsFocusState(universalContainer);
     const languageSwitch = document.getElementById("language");
     const isNawat = languageSwitch && languageSwitch.checked;
     const isNonactiveMode =
         getActiveTenseMode() === TENSE_MODE.verbo && getCombinedMode() === COMBINED_MODE.nonactive;
     document.body.classList.toggle("is-nonactive-mode", isNonactiveMode);
     updateTenseModeTabs();
-    if (isNonactiveMode && getActiveConjugationGroup() === CONJUGATION_GROUPS.universal) {
-        setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
-    }
     const verbMeta = getVerbInputMeta();
     const verb = verbMeta.verb;
     const analysisVerb = verbMeta.analysisVerb || verb;
@@ -19870,18 +20369,21 @@ function renderTenseTabs() {
             || dualSourceNominalTenses.has(tenseValue)
         ))
         : [];
-    const modeGroups = isNominalMode
-        ? null
-        : (TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo);
     const visibleTenses = isNominalMode
         ? nounVisibleTenses
         : allowedTenses;
+    const verbSemanticGroups = (!isNominalMode && tenseMode === TENSE_MODE.verbo)
+        ? getVerbSemanticTenseGroups(visibleTenses)
+        : [];
+    const modeGroups = isNominalMode
+        ? null
+        : (TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo);
     const visibleTenseSet = new Set(visibleTenses);
     const selectedTenseValue = getSelectedTenseTab();
     if (!visibleTenseSet.has(selectedTenseValue)) {
         setSelectedTenseTab(visibleTenses[0] || allowedTenses[0] || TENSE_ORDER[0]);
     }
-    const shouldShowUniversalTabs = tenseMode === TENSE_MODE.verbo && !isNonactiveMode;
+    const shouldShowUniversalTabs = tenseMode === TENSE_MODE.verbo;
     const shouldComputeUniversalAvailability = shouldShowUniversalTabs && VERB_RENDER_CONTEXT !== "typing";
     let availability = shouldShowUniversalTabs ? PRETERITO_UNIVERSAL_AVAILABILITY_CACHE : [];
     if (shouldShowUniversalTabs) {
@@ -20204,6 +20706,7 @@ function renderTenseTabs() {
         shouldShowUniversalTabs,
         activeColumnTenses,
         nounNonactiveTenses,
+        verbSemanticGroups,
         modeGroups,
         visibleTenseSet,
         universalOrder: PRETERITO_UNIVERSAL_ORDER,
@@ -20211,6 +20714,7 @@ function renderTenseTabs() {
     if (TENSE_TABS_DOM_SIGNATURE === tenseTabsSignature) {
         const updated = updateExistingTenseTabsDom({
             container,
+            universalContainer,
             endsWithConsonant,
             resolveTenseHasOutput,
             shouldShowUniversalTabs,
@@ -20221,11 +20725,23 @@ function renderTenseTabs() {
             isClassTenseSelected,
         });
         if (updated) {
+            const existingMainWrap = container.querySelector(".tense-tabs-main");
+            if (voiceOperator && existingMainWrap && voiceOperator.parentElement !== existingMainWrap) {
+                voiceOperator.classList.add("tense-tabs-voice-operator");
+                existingMainWrap.prepend(voiceOperator);
+            }
+            if (existingMainWrap) {
+                existingMainWrap.classList.toggle("tense-tabs-main--with-voice", Boolean(voiceOperator));
+            }
             restoreTenseTabsFocusState(container, focusState);
+            restoreTenseTabsFocusState(universalContainer, focusState);
             return;
         }
     }
     container.innerHTML = "";
+    if (universalContainer) {
+        universalContainer.innerHTML = "";
+    }
     const buildTenseButton = (tenseValue) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -20261,11 +20777,11 @@ function renderTenseTabs() {
     };
     const mainWrap = document.createElement("div");
     mainWrap.className = "tense-tabs-main";
-    const leftColumn = document.createElement("div");
-    leftColumn.className = "tense-tabs-column";
-    const rightColumn = document.createElement("div");
-    rightColumn.className = "tense-tabs-column";
-
+    if (voiceOperator) {
+        voiceOperator.classList.add("tense-tabs-voice-operator");
+        mainWrap.appendChild(voiceOperator);
+    }
+    mainWrap.classList.toggle("tense-tabs-main--with-voice", Boolean(voiceOperator));
     const appendTenseGroups = (groups, columnEl, columnKey = "") => {
         groups.forEach((group) => {
             const groupTenses = group.tenses.filter((tenseValue) => visibleTenseSet.has(tenseValue));
@@ -20290,9 +20806,15 @@ function renderTenseTabs() {
             columnEl.appendChild(groupEl);
         });
     };
-    const appendVoiceTenseGroup = (columnEl, headingText, tenses = [], columnKey = "") => {
+    const appendStandaloneTenseGroup = (
+        columnEl,
+        headingText,
+        tenses = [],
+        columnKey = "",
+        groupClass = ""
+    ) => {
         const groupEl = document.createElement("div");
-        groupEl.className = "tense-tabs-group tense-tabs-group--voice";
+        groupEl.className = `tense-tabs-group${groupClass ? ` ${groupClass}` : ""}`;
         const heading = document.createElement("div");
         heading.className = "tense-tabs-heading";
         heading.textContent = headingText;
@@ -20314,27 +20836,55 @@ function renderTenseTabs() {
         });
         columnEl.appendChild(groupEl);
     };
+    const columns = [];
     if (isNominalMode) {
-        appendVoiceTenseGroup(
+        const leftColumn = document.createElement("div");
+        leftColumn.className = "tense-tabs-column";
+        const rightColumn = document.createElement("div");
+        rightColumn.className = "tense-tabs-column";
+        appendStandaloneTenseGroup(
             leftColumn,
             getLocalizedLabel(UI_LABELS["tense-tabs-mode-active"], isNawat, "activo"),
             activeColumnTenses,
-            "active"
+            "active",
+            "tense-tabs-group--voice"
         );
-        appendVoiceTenseGroup(
+        appendStandaloneTenseGroup(
             rightColumn,
             getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo"),
             nounNonactiveTenses,
-            "nonactive"
+            "nonactive",
+            "tense-tabs-group--voice"
         );
         mainWrap.classList.add("tense-tabs-main--voice-columns");
+        columns.push(leftColumn, rightColumn);
+    } else if (verbSemanticGroups.length) {
+        const semanticColumn = document.createElement("div");
+        semanticColumn.className = "tense-tabs-column";
+        semanticColumn.dataset.tenseColumnKey = "semantic";
+        verbSemanticGroups.forEach((group) => {
+            appendStandaloneTenseGroup(
+                semanticColumn,
+                getLocalizedLabel(group.heading, isNawat, group.key),
+                group.tenses,
+                group.key,
+                "tense-tabs-group--semantic"
+            );
+        });
+        mainWrap.classList.add("tense-tabs-main--semantic-single");
+        columns.push(semanticColumn);
     } else {
+        const leftColumn = document.createElement("div");
+        leftColumn.className = "tense-tabs-column";
+        const rightColumn = document.createElement("div");
+        rightColumn.className = "tense-tabs-column";
         appendTenseGroups(modeGroups.left, leftColumn, "left");
         appendTenseGroups(modeGroups.right, rightColumn, "right");
+        columns.push(leftColumn, rightColumn);
     }
-
-    mainWrap.appendChild(leftColumn);
-    mainWrap.appendChild(rightColumn);
+    columns.forEach((columnEl) => {
+        mainWrap.appendChild(columnEl);
+    });
 
     if (shouldShowUniversalTabs) {
         const universalWrap = document.createElement("div");
@@ -20398,11 +20948,12 @@ function renderTenseTabs() {
             });
             universalWrap.appendChild(button);
         });
-        container.appendChild(universalWrap);
+        (universalContainer || container).appendChild(universalWrap);
     }
     container.appendChild(mainWrap);
     TENSE_TABS_DOM_SIGNATURE = tenseTabsSignature;
     restoreTenseTabsFocusState(container, focusState);
+    restoreTenseTabsFocusState(universalContainer, focusState);
 }
 
 function mapDerivationStemsToAvailabilityTargets({
@@ -21515,6 +22066,8 @@ function preserveOutputPanelViewportPosition(callback) {
 }
 
 const PANEL_STACK_ORDER = ["inputs", "tense", "output"];
+const DERIVATION_PANE_COLLAPSE_STORAGE_KEY = "derivation-pane-collapse-v1";
+let DERIVATION_PANE_COLLAPSED = false;
 
 function normalizePanelStackMode(mode) {
     if (mode === "tense") {
@@ -21524,6 +22077,66 @@ function normalizePanelStackMode(mode) {
         return "output";
     }
     return "inputs";
+}
+
+function loadDerivationPaneCollapsedState() {
+    if (typeof window === "undefined" || !window.localStorage) {
+        return false;
+    }
+    try {
+        return window.localStorage.getItem(DERIVATION_PANE_COLLAPSE_STORAGE_KEY) === "1";
+    } catch (_error) {
+        return false;
+    }
+}
+
+function saveDerivationPaneCollapsedState() {
+    if (typeof window === "undefined" || !window.localStorage) {
+        return;
+    }
+    try {
+        window.localStorage.setItem(
+            DERIVATION_PANE_COLLAPSE_STORAGE_KEY,
+            DERIVATION_PANE_COLLAPSED ? "1" : "0"
+        );
+    } catch (_error) {
+        // Ignore storage failures silently (private mode, quota, etc.).
+    }
+}
+
+function syncDerivationPaneSidebarLayout() {
+    const pane = document.getElementById("panel-stack-pane-tense");
+    const grid = document.querySelector(".panel-grid");
+    const toggleButton = document.getElementById("derivation-pane-toggle");
+    if (!pane || !grid || !toggleButton) {
+        return;
+    }
+    const isDesktop = isThreeColumnPanelLayout();
+    const isCollapsed = Boolean(isDesktop && DERIVATION_PANE_COLLAPSED);
+    pane.classList.toggle("is-collapsed", isCollapsed);
+    pane.setAttribute("data-pane-collapsed", String(isCollapsed));
+    grid.classList.toggle("is-derivation-pane-collapsed", isCollapsed);
+    toggleButton.hidden = !isDesktop;
+    toggleButton.setAttribute("aria-hidden", String(!isDesktop));
+    toggleButton.classList.toggle("is-collapsed", isCollapsed);
+    if (!isDesktop) {
+        toggleButton.setAttribute("aria-expanded", "true");
+        toggleButton.setAttribute("aria-label", "Colapsar Derivada");
+        toggleButton.title = "Colapsar Derivada";
+        return;
+    }
+    toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    const actionLabel = isCollapsed ? "Expandir Derivada" : "Colapsar Derivada";
+    toggleButton.setAttribute("aria-label", actionLabel);
+    toggleButton.title = actionLabel;
+}
+
+function setDerivationPaneCollapsed(isCollapsed = false, { persist = true } = {}) {
+    DERIVATION_PANE_COLLAPSED = Boolean(isCollapsed);
+    if (persist) {
+        saveDerivationPaneCollapsedState();
+    }
+    syncDerivationPaneSidebarLayout();
 }
 
 function getAdjacentPanelStackMode(mode, direction = 1) {
@@ -21559,6 +22172,11 @@ function setLeftPanelStackMode(mode) {
         pane.hidden = !isActive;
         pane.classList.toggle("is-active", isActive);
         pane.setAttribute("aria-hidden", String(!isActive));
+    });
+    syncDerivationPaneSidebarLayout();
+    dispatchAppEvent("app:panel-stack-changed", {
+        mode: normalizedMode,
+        showAllPanes,
     });
 }
 
@@ -21644,13 +22262,38 @@ function initLeftPanelStackTabs() {
     window.addEventListener("resize", syncOnResize, { passive: true });
 }
 
+function initDerivationPaneSidebarToggle() {
+    DERIVATION_PANE_COLLAPSED = loadDerivationPaneCollapsedState();
+    const toggleButton = document.getElementById("derivation-pane-toggle");
+    if (!toggleButton) {
+        return;
+    }
+    toggleButton.addEventListener("click", () => {
+        setDerivationPaneCollapsed(!DERIVATION_PANE_COLLAPSED, { persist: true });
+    });
+    syncDerivationPaneSidebarLayout();
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+        window.addEventListener("resize", () => {
+            syncDerivationPaneSidebarLayout();
+        }, { passive: true });
+    }
+}
+
 function updateTenseModeTabs() {
     const buttons = document.querySelectorAll("[data-tense-mode]");
     if (!buttons.length) {
         return;
     }
     const mode = getActiveTenseMode();
-    document.body.classList.toggle("is-sustantivo-mode", isNominalTenseMode(mode));
+    const isVerbMode = mode === TENSE_MODE.verbo;
+    const isNominalMode = isNominalTenseMode(mode);
+    document.body.classList.toggle("is-sustantivo-mode", isNominalMode);
+    document.body.classList.toggle("is-verb-mode", isVerbMode);
+    document.body.classList.toggle("is-nonverb-mode", !isVerbMode);
+    const operators = document.querySelector(".calc-operators");
+    if (operators) {
+        operators.dataset.tenseMode = mode || "";
+    }
     buttons.forEach((button) => {
         const isActive = button.getAttribute("data-tense-mode") === mode;
         button.classList.toggle("is-active", isActive);
@@ -21690,10 +22333,11 @@ function updateVoiceOperatorVisibility() {
         return;
     }
     const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
-    voiceOperator.hidden = !isVerbMode;
-    voiceOperator.classList.toggle("is-hidden", !isVerbMode);
-    voiceOperator.setAttribute("aria-hidden", String(!isVerbMode));
+    voiceOperator.hidden = false;
+    voiceOperator.classList.remove("is-hidden");
+    voiceOperator.setAttribute("aria-hidden", "false");
     voiceOperator.classList.toggle("is-disabled", !isVerbMode);
+    voiceOperator.setAttribute("aria-disabled", String(!isVerbMode));
 }
 
 function updateCombinedModeTabs() {
@@ -22126,16 +22770,30 @@ function updateCalcSummary() {
     const voiceButton = document.querySelector(`[data-combined-mode="${voice}"]`);
     const voiceLabel = voiceButton?.textContent?.trim()
         || (voice === COMBINED_MODE.nonactive ? "No activo" : "Activo");
-    const includeVoiceInSummary = mode === TENSE_MODE.verbo;
+    const includeVoiceInSummary = mode === TENSE_MODE.verbo && voice === COMBINED_MODE.nonactive;
     const derivationLabel = mode === TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
     const transitivityLabel = getCalcTransitivityLabel();
     const tenseLabel = getCalcTenseLabel();
-    const parts = isSimpleView
-        ? [transitivityLabel, tenseLabel].filter(Boolean)
-        : [modeLabel, includeVoiceInSummary ? voiceLabel : "", derivationLabel, transitivityLabel, tenseLabel].filter(Boolean);
-    summaryEl.textContent = parts.length
-        ? parts.join(" · ")
-        : (isSimpleView ? "Selecciona transitividad y tiempo" : "Selecciona derivación y tiempo");
+    const parts = (() => {
+        if (isSimpleView) {
+            return mode === TENSE_MODE.verbo
+                ? [tenseLabel, transitivityLabel].filter(Boolean)
+                : [modeLabel, tenseLabel].filter(Boolean);
+        }
+        if (mode === TENSE_MODE.verbo) {
+            return [tenseLabel, derivationLabel, transitivityLabel, includeVoiceInSummary ? voiceLabel : ""]
+                .filter(Boolean);
+        }
+        return [modeLabel, tenseLabel].filter(Boolean);
+    })();
+    const fallback = mode === TENSE_MODE.verbo
+        ? (isSimpleView ? "Selecciona tiempo" : "Selecciona tiempo y derivación")
+        : "Selecciona tiempo";
+    const fullSummary = [modeLabel, voiceLabel, derivationLabel, transitivityLabel, tenseLabel]
+        .filter(Boolean)
+        .join(" · ");
+    summaryEl.title = fullSummary;
+    summaryEl.textContent = parts.length ? parts.join(" · ") : fallback;
 }
 
 function updateCalcStatus() {
@@ -22150,21 +22808,28 @@ function updateCalcStatus() {
     const hasRows = Boolean(document.querySelector("#all-tense-conjugations .conjugation-row"));
     statusEl.classList.toggle("is-error", hasError);
     if (!hasVerb) {
-        statusEl.textContent = "Ingresa un verbo para generar.";
+        statusEl.textContent = getUiCopyLabel("calc-status-enter-verb", "Ingresa un verbo para generar.");
         statusEl.classList.remove("is-error");
         return;
     }
     if (!hasRows) {
-        statusEl.textContent = "Sin resultados para esta combinación.";
+        statusEl.textContent = getUiCopyLabel("calc-status-no-results", "Sin resultados para esta combinación.");
         statusEl.classList.add("is-error");
         return;
     }
     if (hasError) {
-        statusEl.textContent = "Revisa la combinación: hay formas incompatibles.";
+        statusEl.textContent = getUiCopyLabel(
+            "calc-status-incompatible",
+            "Revisa la combinación: hay formas incompatibles."
+        );
         return;
     }
-    const modeLabel = isVerbInputModeComposer() ? "Selecciones" : "Regex";
-    statusEl.textContent = `Modo ${modeLabel} · salida actualizada.`;
+    const modeLabel = isVerbInputModeComposer()
+        ? getUiCopyLabel("input-mode-composer", "Selecciones")
+        : getUiCopyLabel("input-mode-regex", "Regex");
+    const modePrefix = getUiCopyLabel("calc-status-mode-prefix", "Modo");
+    const outputUpdated = getUiCopyLabel("calc-status-output-updated", "salida actualizada.");
+    statusEl.textContent = `${modePrefix} ${modeLabel} · ${outputUpdated}`;
 }
 
 function updateCalcSummaryAndStatus() {
@@ -22173,13 +22838,21 @@ function updateCalcSummaryAndStatus() {
 }
 
 // === Localization ===
+function initLanguageSwitch() {
+    const languageSwitch = document.getElementById("language");
+    if (!languageSwitch || languageSwitch.dataset.changeBound === "1") {
+        return;
+    }
+    languageSwitch.addEventListener("change", changeLanguage);
+    languageSwitch.dataset.changeBound = "1";
+}
+
 // Generate translated label
 function changeLanguage() {
     var languageSwitch = document.getElementById("language");
     var selectedLanguage = languageSwitch.checked ? "nawat" : "original";
   
-    var labelElementIds = [
-        "word-heading",
+    var baseLabelElementIds = [
         "tutorial-title",
         "tutorial-trigger",
         "copyright-label",
@@ -22194,14 +22867,26 @@ function changeLanguage() {
         "calc-voice-nonactive",
         "derivation-type-label",
         "derivation-source-active-label",
+        "ui-density-label",
+        "ui-density-simple",
+        "ui-density-advanced",
     ];
+    var keyedLabelElementIds = Array.from(
+        document.querySelectorAll("[data-ui-label-key][id]")
+    ).map((element) => element.id);
+    var labelElementIds = Array.from(new Set([
+        ...baseLabelElementIds,
+        ...keyedLabelElementIds,
+    ]));
 
     var translations = {
-        "word-heading": "Sentapuwaluni ipal muchiwalis tik Nawat ipal El Salvador",
         "tutorial-title": "Shitajkwilu iwan majmachiyut",
         "tutorial-trigger": "Machiyut",
         "copyright-label": "Copyright © 2026 Jaime Núñez",
         "derivation-type-label": "Tapiwilis",
+        "ui-density-label": "Vista",
+        "ui-density-simple": "Simple",
+        "ui-density-advanced": "Avanzado",
     };
   
     if (selectedLanguage === "nawat") {
@@ -25249,6 +25934,7 @@ function generateWord(options = {}) {
             generatedText,
             parsedVerb,
             stemProvenance,
+            tense,
         });
         renderAllOutputs({
             verb: renderVerb,
@@ -25340,9 +26026,235 @@ function updateTensePanelDescription() {
     });
 }
 
+function getExplainabilitySelectedTense(tenseOverride = null) {
+    if (tenseOverride) {
+        return String(tenseOverride || "");
+    }
+    if (getActiveConjugationGroup() === CONJUGATION_GROUPS.universal) {
+        return String(getSelectedPretUniversalTab() || "");
+    }
+    return String(getSelectedTenseTab() || "");
+}
+
+function resolveOutputPanelProvenance({
+    verb = "",
+    objectPrefix = "",
+    tenseOverride = null,
+}) {
+    if (getActiveTenseMode() !== TENSE_MODE.verbo) {
+        return null;
+    }
+    const resolvedVerb = String(verb || "");
+    if (!resolvedVerb) {
+        return null;
+    }
+    const resolvedTense = getExplainabilitySelectedTense(tenseOverride);
+    if (!resolvedTense) {
+        return null;
+    }
+    const resolvedObjectPrefix = typeof objectPrefix === "string"
+        ? objectPrefix
+        : getCurrentObjectPrefix();
+    const silentResult = getCachedSilentGenerateWord({
+        silent: true,
+        skipValidation: true,
+        allowPassiveObject: getCombinedMode() === COMBINED_MODE.nonactive,
+        override: {
+            verb: resolvedVerb,
+            objectPrefix: resolvedObjectPrefix,
+            tense: resolvedTense,
+            tenseMode: getActiveTenseMode(),
+            derivationMode: getActiveDerivationMode(),
+            derivationType: getActiveDerivationType(),
+            voiceMode: getActiveVoiceMode(),
+        },
+    });
+    if (silentResult && !silentResult.error && silentResult.stemProvenance) {
+        return silentResult.stemProvenance;
+    }
+    if (VERB_SCREEN_ANS_STATE.tense === resolvedTense && VERB_SCREEN_ANS_STATE.provenance) {
+        return VERB_SCREEN_ANS_STATE.provenance;
+    }
+    return null;
+}
+
+function resolvePretExplainabilitySummary(provenance = null, verbMeta = null) {
+    if (!provenance || typeof buildPretUniversalRuleSummary !== "function") {
+        return null;
+    }
+    const tenseValue = String(provenance.tense || "");
+    const shouldSummarize = PRETERITO_UNIVERSAL_ORDER.includes(tenseValue)
+        || PRETERITO_CLASS_TENSES.has(tenseValue);
+    if (!shouldSummarize) {
+        return null;
+    }
+    const sourceVerb = String(provenance.verb || verbMeta?.displayVerb || "");
+    if (!sourceVerb) {
+        return null;
+    }
+    const markerOptions = buildPretMarkerOptionsFromFlags({
+        analysisVerb: verbMeta?.analysisVerb || provenance.analysisTarget || sourceVerb,
+        hasSlashMarker: verbMeta?.hasSlashMarker,
+        hasSuffixSeparator: verbMeta?.hasSuffixSeparator,
+        hasLeadingDash: verbMeta?.hasLeadingDash,
+        hasBoundMarker: verbMeta?.hasBoundMarker,
+        hasCompoundMarker: verbMeta?.hasCompoundMarker,
+    });
+    const analysisTarget = String(
+        provenance.analysisTarget
+        || getDerivationRuleBase(verbMeta?.analysisVerb || sourceVerb, markerOptions)
+        || sourceVerb
+    );
+    const contextOptions = buildPretContextOptionsFromMeta(verbMeta, {
+        derivationType: verbMeta?.derivationType || getActiveDerivationType(),
+    });
+    const context = buildPretUniversalContext(
+        sourceVerb,
+        analysisTarget,
+        provenance.isTransitive === true,
+        contextOptions
+    );
+    return context ? buildPretUniversalRuleSummary(context) : null;
+}
+
+function getPretBlockedReasonLabel(reason = "", isNawat = false) {
+    const normalized = String(reason || "").trim();
+    if (!normalized) {
+        return "";
+    }
+    const labelsEs = {
+        "class-b-fallback-to-a-kwv": "clase B redirigida a clase A (kwv)",
+        "class-b-fallback-to-a": "clase B redirigida a clase A",
+        "suppletive-plural-class-blocked": "plural supletivo bloqueado para esta clase",
+        "no-variants": "sin variantes para esta combinacion",
+    };
+    const labelsNa = {
+        "class-b-fallback-to-a-kwv": "clase B tiknektili ka clase A (kwv)",
+        "class-b-fallback-to-a": "clase B tiknektili ka clase A",
+        "suppletive-plural-class-blocked": "plural supletivo tsajkuili ipan in clase",
+        "no-variants": "ajak variantes ipan in nejnemi",
+    };
+    const labels = isNawat ? labelsNa : labelsEs;
+    return labels[normalized] || normalized.replace(/-/g, " ");
+}
+
+function renderOutputProvenancePanel({ verb = "", objectPrefix = "", tenseOverride = null } = {}) {
+    const panel = document.getElementById("calc-provenance");
+    if (!panel) {
+        return;
+    }
+    const hidePanel = () => {
+        panel.innerHTML = "";
+        panel.hidden = true;
+        panel.classList.add("is-empty");
+    };
+    const resolvedVerb = String(verb || "");
+    if (getActiveTenseMode() !== TENSE_MODE.verbo || !resolvedVerb) {
+        hidePanel();
+        return;
+    }
+    const provenance = resolveOutputPanelProvenance({
+        verb: resolvedVerb,
+        objectPrefix,
+        tenseOverride,
+    });
+    if (!provenance) {
+        hidePanel();
+        return;
+    }
+    const isNawat = Boolean(document.getElementById("language")?.checked);
+    const verbMeta = getVerbInputMeta();
+    const summary = resolvePretExplainabilitySummary(provenance, verbMeta);
+    const entries = [];
+    if (summary?.ruleLabel) {
+        entries.push({
+            label: isNawat ? "regla" : "regla",
+            text: summary.ruleLabel,
+        });
+    }
+    if (summary?.exactLabel) {
+        entries.push({
+            label: isNawat ? "patron" : "patron",
+            text: summary.exactLabel,
+        });
+    }
+    const classLabel = String(
+        provenance.classKey
+        || summary?.resolvedClassList
+        || summary?.classList
+        || ""
+    ).trim();
+    if (classLabel) {
+        entries.push({
+            label: isNawat ? "clase" : "clase",
+            text: classLabel,
+        });
+    }
+    if (provenance.stemPath) {
+        entries.push({
+            label: isNawat ? "ruta" : "ruta",
+            text: String(provenance.stemPath),
+        });
+    }
+    if (provenance.fromRootPlusYa) {
+        entries.push({
+            label: isNawat ? "origen" : "origen",
+            text: "root+ya",
+        });
+    }
+    if (provenance.usesSuppletiveSet) {
+        entries.push({
+            label: isNawat ? "fuente" : "fuente",
+            text: "supletivo",
+        });
+    }
+    if (provenance.blockedReason) {
+        entries.push({
+            label: isNawat ? "ajuste" : "ajuste",
+            text: getPretBlockedReasonLabel(provenance.blockedReason, isNawat),
+        });
+    }
+    const variants = Array.isArray(provenance.variants)
+        ? provenance.variants
+            .map((variant) => `${variant?.base || ""}${variant?.suffix || ""}`)
+            .filter(Boolean)
+        : [];
+    if (variants.length) {
+        entries.push({
+            label: isNawat ? "bases" : "bases",
+            text: variants.slice(0, 3).join(" / "),
+        });
+    }
+    if (!entries.length) {
+        hidePanel();
+        return;
+    }
+    panel.innerHTML = "";
+    panel.hidden = false;
+    panel.classList.remove("is-empty");
+    const title = document.createElement("div");
+    title.className = "calc-provenance__title";
+    title.textContent = isNawat ? "ken muchij in forma" : "por que esta forma";
+    panel.appendChild(title);
+    entries.forEach((entry) => {
+        const item = document.createElement("div");
+        item.className = "calc-provenance__item";
+        const label = document.createElement("div");
+        label.className = "calc-provenance__label";
+        label.textContent = entry.label;
+        const text = document.createElement("div");
+        text.className = "calc-provenance__text";
+        text.textContent = entry.text;
+        item.appendChild(label);
+        item.appendChild(text);
+        panel.appendChild(item);
+    });
+}
+
 function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
-    updateTensePanelDescription();
     const tenseOverride = onlyTense || tense || null;
+    updateTensePanelDescription();
+    renderOutputProvenancePanel({ verb, objectPrefix, tenseOverride });
     if (isNominalTenseMode(getActiveTenseMode())) {
         renderNounConjugations({
             verb,
@@ -32572,7 +33484,7 @@ function shouldExposeDeveloperHooks() {
         if (params.get("dev-hooks") === "1" || params.get("devhooks") === "1") {
             return true;
         }
-        if (params.get("dev") === "1" && params.get("tests") === "1") {
+        if (params.get("dev") === "1") {
             return true;
         }
     } catch (_error) {
@@ -32585,31 +33497,61 @@ function shouldExposeDeveloperHooks() {
     }
 }
 
-if (typeof window !== "undefined" && shouldExposeDeveloperHooks()) {
-    window.runExactRedupTests = runExactRedupTests;
-    window.runParsePipelineTests = runParsePipelineTests;
-    window.runGenerateWordOptionNormalizationTests = runGenerateWordOptionNormalizationTests;
-    window.runRenderOnlyTenseDeprecationTests = runRenderOnlyTenseDeprecationTests;
-    window.runInternalGenerateWordOptionCallerTests = runInternalGenerateWordOptionCallerTests;
-    window.runDirectionalRuleModeContractTests = runDirectionalRuleModeContractTests;
-    window.runApiDriftCleanupTests = runApiDriftCleanupTests;
-    window.runInputPathAndAvailabilityMemoTests = runInputPathAndAvailabilityMemoTests;
-    window.runConstraintMutationAndCoverageTests = runConstraintMutationAndCoverageTests;
-    window.runPreloadBootstrapSafetyTests = runPreloadBootstrapSafetyTests;
-    window.runGrammarDiagnosticsTransportTests = runGrammarDiagnosticsTransportTests;
-    window.runConstraintCoreUnificationTests = runConstraintCoreUnificationTests;
-    window.runNounForwardDerivationRegressionTests = runNounForwardDerivationRegressionTests;
-    window.runBasicDataBeforeAfterParity = runBasicDataBeforeAfterParity;
-    window.runBasicDataBeforeAfterParityQuick = runBasicDataBeforeAfterParityQuick;
-    window.captureBasicDataParityBaseline = captureBasicDataParityBaseline;
-    window.runBasicDataParityAgainstBaseline = runBasicDataParityAgainstBaseline;
-    window.runBasicDataParityAgainstBaselineQuick = runBasicDataParityAgainstBaselineQuick;
-    window.getBasicDataParityBaseline = getBasicDataParityBaseline;
-    window.runIntransitiveICausativeRegressionTests = runIntransitiveICausativeRegressionTests;
-    window.runPretUniversalOverrideTests = runPretUniversalOverrideTests;
-    window.traceDerivationalFunction = traceDerivationalFunction;
-    window.findDerivationalAntiderivatives = findDerivationalAntiderivatives;
-    window.traceDerivationCalculus = traceDerivationCalculus;
+function getDeveloperHookMap() {
+    return {
+        runExactRedupTests,
+        runParsePipelineTests,
+        runGenerateWordOptionNormalizationTests,
+        runRenderOnlyTenseDeprecationTests,
+        runInternalGenerateWordOptionCallerTests,
+        runDirectionalRuleModeContractTests,
+        runApiDriftCleanupTests,
+        runInputPathAndAvailabilityMemoTests,
+        runConstraintMutationAndCoverageTests,
+        runPreloadBootstrapSafetyTests,
+        runGrammarDiagnosticsTransportTests,
+        runConstraintCoreUnificationTests,
+        runNounForwardDerivationRegressionTests,
+        runBasicDataBeforeAfterParity,
+        runBasicDataBeforeAfterParityQuick,
+        captureBasicDataParityBaseline,
+        runBasicDataParityAgainstBaseline,
+        runBasicDataParityAgainstBaselineQuick,
+        getBasicDataParityBaseline,
+        runIntransitiveICausativeRegressionTests,
+        runPretUniversalOverrideTests,
+        traceDerivationalFunction,
+        findDerivationalAntiderivatives,
+        traceDerivationCalculus,
+    };
+}
+
+let DEV_HOOKS_MODULE_LOADING_STATE = "idle";
+async function installDeveloperHooksIfEnabled() {
+    if (typeof window === "undefined") {
+        return false;
+    }
+    if (DEV_HOOKS_MODULE_LOADING_STATE !== "idle") {
+        return DEV_HOOKS_MODULE_LOADING_STATE === "loaded";
+    }
+    if (!shouldExposeDeveloperHooks()) {
+        return false;
+    }
+    DEV_HOOKS_MODULE_LOADING_STATE = "loading";
+    try {
+        const hooksModule = await import("./scripts/dev_hooks.mjs");
+        if (hooksModule && typeof hooksModule.installDeveloperHooks === "function") {
+            hooksModule.installDeveloperHooks(getDeveloperHookMap(), { windowObject: window });
+            DEV_HOOKS_MODULE_LOADING_STATE = "loaded";
+            return true;
+        }
+        DEV_HOOKS_MODULE_LOADING_STATE = "failed";
+        return false;
+    } catch (error) {
+        DEV_HOOKS_MODULE_LOADING_STATE = "failed";
+        console.warn("Developer hooks module not loaded.", error);
+        return false;
+    }
 }
 
 // === Event Wiring ===
@@ -32618,6 +33560,14 @@ document.addEventListener("keydown", (event) => {
     const verbEl = document.getElementById("verb");
     if (handleVerbTextboxTabShortcut(event)) {
         return;
+    }
+    if (!event.altKey && !event.ctrlKey && !event.metaKey && event.key === "Escape") {
+        LAST_COMPOSER_ESCAPE_TS = 0;
+        LAST_COMPOSER_SPACE_TS = 0;
+        if (closeEscapeManagedOverlay(event)) {
+            event.preventDefault();
+            return;
+        }
     }
     if (event.altKey && !event.ctrlKey && !event.metaKey) {
         const altNavKey = event.key;
@@ -32642,18 +33592,34 @@ document.addEventListener("keydown", (event) => {
         };
         const clickTarget = (selector) => {
             const button = document.querySelector(selector);
-            if (button) {
-                button.click();
-                return true;
+            if (!button || typeof button.click !== "function") {
+                return false;
             }
-            return false;
+            if (button.disabled) {
+                return false;
+            }
+            if (button.hasAttribute("hidden") || button.closest("[hidden]")) {
+                return false;
+            }
+            if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+                const style = window.getComputedStyle(button);
+                if (style.display === "none" || style.visibility === "hidden") {
+                    return false;
+                }
+            }
+            button.click();
+            return true;
         };
         const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
+        const isComposerMode = isVerbInputModeComposer();
         const handled = ALT_SHORTCUT_DEFINITIONS.some((definition) => {
             if (!matchesAltShortcutKey(event, definition.key)) {
                 return false;
             }
             if (definition.requireVerbMode && !isVerbMode) {
+                return false;
+            }
+            if (definition.requireComposerMode && !isComposerMode) {
                 return false;
             }
             if (definition.action === "set-regex-mode") {
@@ -32749,13 +33715,16 @@ async function loadStaticBootstrapData() {
 // Auto-generate on load and while typing
 document.addEventListener("DOMContentLoaded", async () => {
     await loadStaticBootstrapData();
+    installDeveloperHooksIfEnabled();
     setBrowserClasses();
     initZoomFontLock();
     initUiScaleControl();
     initUiDensityControl();
+    initLanguageSwitch();
     initTutorialPanel();
     initKeyboardLegendPopover();
     initLeftPanelStackTabs();
+    initDerivationPaneSidebarToggle();
     initPanelEdgeNavigation();
     initTenseModeTabs();
     initCombinedModeTabs();
@@ -32763,6 +33732,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initViewExport();
     initVerbComposer();
     initVerbScreenCalculator();
+    initVerbToolsPanelToggle();
     initCalcInputModeButtons();
     enforceNoAutofillOnTextboxes(document);
     const verbEl = document.getElementById("verb");
