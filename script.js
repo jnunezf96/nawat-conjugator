@@ -2215,6 +2215,23 @@ function isCVWithOnset(syllable, onset) {
     return syllable && syllable.form === "CV" && syllable.onset === onset;
 }
 
+function endsWithOpenSyllableSuffix(verb, onset, nucleus, options = {}) {
+    const syllables = splitVerbSyllables(verb);
+    const minSyllables = options.allowSingleSyllable === true ? 1 : 2;
+    if (syllables.length < minSyllables) {
+        return false;
+    }
+    const last = syllables[syllables.length - 1];
+    if (!last || last.form !== "CV" || last.onset !== onset || last.nucleus !== nucleus) {
+        return false;
+    }
+    if (options.allowSingleSyllable === true && syllables.length === 1) {
+        return true;
+    }
+    const prev = syllables[syllables.length - 2];
+    return Boolean(prev && isOpenSyllable(prev));
+}
+
 function getTrailingVowelCountFromSyllables(syllables) {
     if (!syllables || syllables.length === 0) {
         return 0;
@@ -2354,7 +2371,7 @@ function shouldCoalesceFinalI(base) {
 }
 
 function getRootPlusYaBase(verb, options = {}) {
-    if (!verb || !verb.endsWith("ya")) {
+    if (!verb || !endsWithOpenSyllableSuffix(verb, "y", "a")) {
         return null;
     }
     if (options.isTransitive) {
@@ -2391,6 +2408,24 @@ function getRootPlusYaBase(verb, options = {}) {
         return null;
     }
     return base;
+}
+
+function shouldDropYaInRootPlusYaNonactive(source, options = {}) {
+    if (!source || !source.endsWith("ya")) {
+        return false;
+    }
+    const rootPlusYaBase = typeof options.rootPlusYaBase === "string"
+        ? options.rootPlusYaBase
+        : "";
+    const rootBase = rootPlusYaBase || getRootPlusYaBase(source, options) || "";
+    if (!rootBase) {
+        return false;
+    }
+    const rootNonRedup = getNonReduplicatedRoot(rootBase) || rootBase;
+    if (getTotalVowelCount(rootNonRedup) <= 1) {
+        return false;
+    }
+    return isSyllableSequencePronounceable(rootBase);
 }
 
 function deletionCreatesConsonantCluster(verb) {
@@ -3070,6 +3105,9 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     };
     const push = (stem, meta = {}) => {
         if (!stem) {
+            return;
+        }
+        if (!isSyllableSequencePronounceable(stem)) {
             return;
         }
         const key = stem;
@@ -5091,6 +5129,9 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
     const seen = new Set();
     const push = (stem, meta = {}) => {
         if (!stem) {
+            return;
+        }
+        if (!isSyllableSequencePronounceable(stem)) {
             return;
         }
         const key = stem;
@@ -7567,28 +7608,6 @@ function buildPatientivoDerivations({
         ruleBase: nonactiveSourceBase,
         rootPlusYaBase,
     });
-    if (!isTransitive && base.endsWith("ya") && base.length > 2) {
-        const rootBase = rootPlusYaBase || base.slice(0, -2);
-        const rootNonRedup = rootBase ? getNonReduplicatedRoot(rootBase) : "";
-        const rootVowelCount = rootBase
-            ? getTotalVowelCount(rootNonRedup || rootBase)
-            : 0;
-        if (rootVowelCount === 1) {
-            const stripNonactiveSuffix = (stem, suffix) => {
-                if (!stem || !suffix) {
-                    return "";
-                }
-                return stem.endsWith(suffix) ? stem.slice(0, -suffix.length) : "";
-            };
-            const filtered = options.filter((option) => {
-                const baseStem = stripNonactiveSuffix(option.stem, option.suffix);
-                return baseStem && baseStem.endsWith("ya");
-            });
-            if (filtered.length) {
-                options = filtered;
-            }
-        }
-    }
     const selectedNonactiveSuffix = shouldForceAllNonactiveOptions() ? null : getSelectedNonactiveSuffix();
     if (selectedNonactiveSuffix && options.some((option) => option.suffix === selectedNonactiveSuffix)) {
         options = options.filter((option) => option.suffix === selectedNonactiveSuffix);
@@ -7908,6 +7927,11 @@ function buildPatientivoTroncoDerivations({
         return [];
     }
     const gateBase = getNonReduplicatedRoot(base) || base;
+    const endsWithPlainWi = endsWithOpenSyllableSuffix(base, "w", "i");
+    const endsWithPlainWa = endsWithOpenSyllableSuffix(base, "w", "a");
+    const gateEndsWithPlainWi = endsWithOpenSyllableSuffix(gateBase, "w", "i");
+    const gateEndsWithPlainWa = endsWithOpenSyllableSuffix(gateBase, "w", "a");
+    const endsWithProductiveKa = endsWithOpenSyllableSuffix(base, "k", "a");
     const isLuaEnding = base.endsWith("lua");
     const syllables = getSyllables(base, { analysis: true, assumeFinalV: true });
     if (syllables.length === 1) {
@@ -8075,6 +8099,9 @@ function buildPatientivoTroncoDerivations({
             return;
         }
         const nounStem = prefix ? `${prefix}${normalized}` : normalized;
+        if (!isSyllableSequencePronounceable(`${nounStem}${suffix}`)) {
+            return;
+        }
         const key = `${nounStem}|${suffix}`;
         if (seen.has(key)) {
             return;
@@ -8089,12 +8116,24 @@ function buildPatientivoTroncoDerivations({
         }
         const suffix = getTClassSuffixForStem(normalized);
         const nounStem = prefix ? `${prefix}${normalized}` : normalized;
+        if (!isSyllableSequencePronounceable(`${nounStem}${suffix}`)) {
+            return;
+        }
         const key = `${nounStem}|${suffix}`;
         if (seen.has(key)) {
             return;
         }
         seen.add(key);
         results.push({ verb: nounStem, subjectSuffix: suffix });
+    };
+    const hasFinalConsonantCluster = (stem = "") => {
+        const letters = splitVerbLetters(stem);
+        if (letters.length < 2) {
+            return false;
+        }
+        const last = letters[letters.length - 1] || "";
+        const prev = letters[letters.length - 2] || "";
+        return isVerbLetterConsonant(last) && isVerbLetterConsonant(prev);
     };
     if (isTransitive) {
         if (!isLuaEnding) {
@@ -8124,7 +8163,12 @@ function buildPatientivoTroncoDerivations({
     ) {
         const coreDropAwi = base.slice(0, -3);
         if (coreDropAwi) {
-            addRawResult(coreDropAwi, "");
+            if (hasFinalConsonantCluster(coreDropAwi)) {
+                addResult(`${coreDropAwi}a`);
+            } else {
+                addRawResult(coreDropAwi, "");
+                addResult(coreDropAwi);
+            }
         } else if (allowMonosyllableIwiAwi) {
             const nounStem = prefix || "";
             const key = `${nounStem}|`;
@@ -8134,9 +8178,9 @@ function buildPatientivoTroncoDerivations({
             }
         }
     }
-    if (!isIwiAwi && (base.endsWith("wi") || base.endsWith("wa"))) {
-        const wiWaSuffix = base.endsWith("wi") ? "wi" : "wa";
-        const gateWiWaSuffix = gateBase.endsWith("wi") ? "wi" : (gateBase.endsWith("wa") ? "wa" : "");
+    if (!isIwiAwi && (endsWithPlainWi || endsWithPlainWa)) {
+        const wiWaSuffix = endsWithPlainWi ? "wi" : "wa";
+        const gateWiWaSuffix = gateEndsWithPlainWi ? "wi" : (gateEndsWithPlainWa ? "wa" : "");
         const allowMonosyllableWiWa = gateBase === "ewa" || gateBase === "ewi" || gateBase === "awa";
         const allowReduplicatedCore = gateBase !== base
             && hasMultisyllableCoreBeforeSuffix(wiWaSuffix, base);
@@ -8151,7 +8195,7 @@ function buildPatientivoTroncoDerivations({
             return results;
         }
         const core = base.slice(0, -2);
-        if (base.endsWith("wi")) {
+        if (endsWithPlainWi) {
             const coreLetters = splitVerbLetters(core);
             const lastCore = coreLetters[coreLetters.length - 1] || "";
             const coreNoV = isVerbLetterVowel(lastCore) ? core.slice(0, -1) : core;
@@ -8168,7 +8212,7 @@ function buildPatientivoTroncoDerivations({
         addResult(core);
     }
     if (
-        base.endsWith("ka")
+        endsWithProductiveKa
         && hasMultisyllableCoreBeforeSuffix("ka")
         && (startsWithInitialRedup || startsWithVj)
     ) {
@@ -8363,6 +8407,9 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         if (!stem) {
             return;
         }
+        if (!isSyllableSequencePronounceable(stem)) {
+            return;
+        }
         const key = `${suffix}|${stem}`;
         if (seen.has(key)) {
             return;
@@ -8375,7 +8422,14 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     };
 
     const buildLu = () => {
-        const dropYa = endsWithYa && !isTransitive && Boolean(options.rootPlusYaBase);
+        const dropYa = endsWithYa
+            && !isTransitive
+            && shouldDropYaInRootPlusYaNonactive(source, {
+                isTransitive,
+                isYawi: options.isYawi === true,
+                isWeya: options.isWeya === true,
+                rootPlusYaBase: options.rootPlusYaBase,
+            });
         const base = (isTransitive && endsWithTV)
             ? `${source.slice(0, -1)}i`
             : (dropYa ? source.slice(0, -2) : source);

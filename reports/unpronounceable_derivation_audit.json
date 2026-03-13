@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-03-13T07:29:37.432Z",
+  "reportPath": "/Users/jaimenunez/Desktop/Nawat_Conjugator/reports/unpronounceable_derivation_audit.json",
+  "scope": {
+    "sourceFiles": [
+      "data/basic-data.csv",
+      "data/data.csv"
+    ],
+    "lexiconRows": 2612,
+    "auditedFamilies": [
+      "nonactive",
+      "causative",
+      "applicative",
+      "patientivo_nonactive",
+      "patientivo_perfectivo",
+      "patientivo_imperfectivo",
+      "patientivo_tronco"
+    ],
+    "findingCategories": [
+      "unpronounceable_surface",
+      "short_root_plus_ya_nonactive_lu",
+      "awi_iwi_tronco_cluster"
+    ]
+  },
+  "totals": {
+    "findings": 0,
+    "errors": 0,
+    "byCategory": {},
+    "byFamily": {}
+  },
+  "findings": [],
+  "errors": []
+}
