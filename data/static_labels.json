@@ -5,7 +5,34 @@
     "tense-tabs-mode-adjective": { "labelEs": "adjetivo", "labelNa": "adjetivo" },
     "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "adverbio" },
     "tense-tabs-mode-active": { "labelEs": "activo", "labelNa": "muchiwa" },
-    "tense-tabs-mode-nonactive": { "labelEs": "no activo", "labelNa": "muselia" }
+    "tense-tabs-mode-nonactive": { "labelEs": "no activo", "labelNa": "muselia" },
+    "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachalistli" },
+    "ui-density-simple": { "labelEs": "Simple", "labelNa": "Simple" },
+    "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Yekchiwal" },
+    "input-mode-composer": { "labelEs": "Selecciones", "labelNa": "Taketzalis" },
+    "input-mode-regex": { "labelEs": "Regex", "labelNa": "Regex" },
+    "composer-hint-regex-dev": {
+      "labelEs": "Regex Dev: escribe el patrón directamente en la pantalla.",
+      "labelNa": "Regex Dev: xikijkwilu ne patrun tik pantalla."
+    },
+    "composer-hint-define-roots": {
+      "labelEs": "Define raíz matriz y raíz incorporada para construir el regex.",
+      "labelNa": "Xiknexti raiz matriz wan raiz incorporada para tiktalia regex."
+    },
+    "calc-status-enter-verb": {
+      "labelEs": "Ingresa un verbo para generar.",
+      "labelNa": "Xikijkwilu se muchiwalis para tikchiwa."
+    },
+    "calc-status-no-results": {
+      "labelEs": "Sin resultados para esta combinación.",
+      "labelNa": "Te onka resultado para ni tajkuilujtik."
+    },
+    "calc-status-incompatible": {
+      "labelEs": "Revisa la combinación: hay formas incompatibles.",
+      "labelNa": "Xikita ni tajkuilujtik: onka formas te mutajtanah."
+    },
+    "calc-status-mode-prefix": { "labelEs": "Modo", "labelNa": "Modo" },
+    "calc-status-output-updated": { "labelEs": "salida actualizada.", "labelNa": "kisa yankuik." }
   },
   "numberLabels": {
     "singular": { "es": "singular", "na": "isel" },
@@ -49,7 +76,8 @@
     "patientivo-pasivo": { "labelEs": "patientivo · pasivo/impersonal", "labelNa": "tachiwal · taselilis/tamuchiwalis" },
     "patientivo-perfectivo": { "labelEs": "patientivo · perfectivo", "labelNa": "tachiwal · muchiwki" },
     "patientivo-imperfectivo": { "labelEs": "patientivo · imperfectivo", "labelNa": "tachiwal · muchiwa" },
-    "patientivo-tronco": { "labelEs": "patientivo · tronco verbal", "labelNa": "tachiwal · muchiwalis takutunti" }
+    "patientivo-tronco": { "labelEs": "patientivo · tronco verbal", "labelNa": "tachiwal · muchiwalis takutunti" },
+    "patientivo-tronco-noun": { "labelEs": "patientivo · sustantivo de tronco verbal", "labelNa": "tachiwal · muchiwalis takutunti" }
   },
   "nonactiveGenericLabels": {
     "default": { "labelEs": "impersonal", "labelNa": "tamuchiwalis" },
@@ -114,12 +142,12 @@
     "sustantivo-verbal": { "labelEs": "sustantivo verbal", "labelNa": "muchiwalis" },
     "potencial": { "labelEs": "potencial", "labelNa": "potencial" },
     "potencial-habitual": { "labelEs": "potencial habitual", "labelNa": "ipan muchiwani" },
-    "potencial-activo": { "labelEs": "pretérito perfecto simple", "labelNa": "ipan muchiwki" },
-    "perfecto-compuesto-activo": { "labelEs": "pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
-    "tronco-preterito-activo": { "labelEs": "pretérito de tronco verbal", "labelNa": "ipan muchiwki takutunti" },
-    "tronco-perfecto-compuesto-activo": { "labelEs": "perfecto de tronco verbal", "labelNa": "ipan muchiwtuk takutunti" },
-    "tronco-preterito-activo-2": { "labelEs": "pretérito de tronco verbal 2", "labelNa": "ipan muchiwki takutunti ome" },
-    "tronco-perfecto-compuesto-activo-2": { "labelEs": "perfecto de tronco verbal 2", "labelNa": "ipan muchiwtuk takutunti ome" },
+    "adjetivo-preterito": { "labelEs": "pretérito", "labelNa": "ipan muchiwki" },
+    "adjetivo-perfecto": { "labelEs": "perfecto", "labelNa": "ipan muchiwtuk" },
+    "adjetivo-preterito-tik": { "labelEs": "pretérito -tik", "labelNa": "ipan muchiwki -tik" },
+    "adjetivo-perfecto-tik": { "labelEs": "perfecto -tik", "labelNa": "ipan muchiwtuk -tik" },
+    "adjetivo-preterito-naj": { "labelEs": "pretérito -naj", "labelNa": "ipan muchiwki -naj" },
+    "adjetivo-perfecto-naj": { "labelEs": "perfecto -naj", "labelNa": "ipan muchiwtuk -naj" },
     "pasado-remoto-adverbio-activo": { "labelEs": "pretérito agentivo", "labelNa": "ipan muchiwka" },
     "agentivo": { "labelEs": "agentivo", "labelNa": "tachiwani" },
     "patientivo": { "labelEs": "patientivo", "labelNa": "tachiwal" },
@@ -151,14 +179,14 @@
     "futuro": { "labelEs": "evento proyectado o esperado", "labelNa": "keman ipan muchiwas" },
     "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
     "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo (sustantivo derivado del verbo con -lis)", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
-    "potencial": { "labelEs": "sustantivo no activo con selección potencial (incluye Ø para transitivos)", "labelNa": "potencial" },
-    "potencial-habitual": { "labelEs": "adjetivo no activo como conjugación verbal en presente habitual", "labelNa": "ipan muchiwani" },
-    "potencial-activo": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto simple", "labelNa": "ipan muchiwki" },
-    "perfecto-compuesto-activo": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
-    "tronco-preterito-activo": { "labelEs": "adjetivo activo derivado del patientivo de tronco verbal (+k), verbalizado con -tiya en pretérito perfecto simple", "labelNa": "ipan muchiwki takutunti" },
-    "tronco-perfecto-compuesto-activo": { "labelEs": "adjetivo activo derivado del patientivo de tronco verbal (+k), verbalizado con -tiya en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk takutunti" },
-    "tronco-preterito-activo-2": { "labelEs": "adjetivo activo con raíz matriz transitiva -na; usa el objeto incorporado como patientivo de tronco verbal en pretérito perfecto simple", "labelNa": "ipan muchiwki takutunti ome" },
-    "tronco-perfecto-compuesto-activo-2": { "labelEs": "adjetivo activo con raíz matriz transitiva -na; usa el objeto incorporado como patientivo de tronco verbal en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk takutunti ome" },
+    "potencial": { "labelEs": "adjetivo activo como conjugación verbal en futuro imperfectivo", "labelNa": "potencial" },
+    "potencial-habitual": { "labelEs": "adjetivo activo como conjugación verbal en presente habitual", "labelNa": "ipan muchiwani" },
+    "adjetivo-preterito": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto simple", "labelNa": "ipan muchiwki" },
+    "adjetivo-perfecto": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
+    "adjetivo-preterito-tik": { "labelEs": "adjetivo activo en pretérito con sufijo -tik", "labelNa": "ipan muchiwki -tik" },
+    "adjetivo-perfecto-tik": { "labelEs": "adjetivo activo en perfecto con sufijo -tik", "labelNa": "ipan muchiwtuk -tik" },
+    "adjetivo-preterito-naj": { "labelEs": "adjetivo activo en pretérito con sufijo -naj; usa base de tronco verbal, salvo finales en -ya/-tiya que usan la base de pretérito (excepto -wiya)", "labelNa": "ipan muchiwki -naj" },
+    "adjetivo-perfecto-naj": { "labelEs": "adjetivo activo en perfecto con sufijo -naj; usa base de tronco verbal, salvo finales en -ya/-tiya que usan la base de pretérito (excepto -wiya)", "labelNa": "ipan muchiwtuk -naj" },
     "pasado-remoto-adverbio-activo": { "labelEs": "adverbio de manera en que alguien hace algo derivado del pretérito agentivo", "labelNa": "ipan muchiwka" },
     "agentivo": { "labelEs": "persona o entidad que realiza la acción (sustantivo derivado del presente habitual -ni)", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
     "patientivo": { "labelEs": "persona o entidad que existe cuando ocurre un evento (sustantivo derivado de base no activa/perfectiva/imperfectiva/tronco verbal)", "labelNa": "kajkajsan wan tajtaysan nemi kwak muchiwa tajtaya" },

@@ -565,6 +565,44 @@ let TENSE_MODE = {};
 let TENSE_ORDER = [];
 let TENSE_LABELS = {};
 let UI_LABELS = {};
+const ADJECTIVE_ACTIVE_TENSE_IDS = Object.freeze({
+    preterito: "adjetivo-preterito",
+    perfecto: "adjetivo-perfecto",
+    preteritoTik: "adjetivo-preterito-tik",
+    perfectoTik: "adjetivo-perfecto-tik",
+    preteritoNaj: "adjetivo-preterito-naj",
+    perfectoNaj: "adjetivo-perfecto-naj",
+});
+const ACTIVE_ADJECTIVE_TENSE_ORDER = Object.freeze([
+    ADJECTIVE_ACTIVE_TENSE_IDS.preterito,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfecto,
+    ADJECTIVE_ACTIVE_TENSE_IDS.preteritoTik,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoTik,
+    ADJECTIVE_ACTIVE_TENSE_IDS.preteritoNaj,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj,
+]);
+const ACTIVE_ADJECTIVE_TENSE_SET = new Set(ACTIVE_ADJECTIVE_TENSE_ORDER);
+const ACTIVE_ADJECTIVE_TAB_TENSE_ORDER = Object.freeze([
+    "potencial",
+    "potencial-habitual",
+    ...ACTIVE_ADJECTIVE_TENSE_ORDER,
+]);
+const ACTIVE_ADJECTIVE_TAB_TENSE_SET = new Set(ACTIVE_ADJECTIVE_TAB_TENSE_ORDER);
+const TRONCO_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
+    ADJECTIVE_ACTIVE_TENSE_IDS.preteritoTik,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoTik,
+    ADJECTIVE_ACTIVE_TENSE_IDS.preteritoNaj,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj,
+]);
+const TRONCO_NAJ_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
+    ADJECTIVE_ACTIVE_TENSE_IDS.preteritoNaj,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj,
+]);
+const PERFECT_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfecto,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoTik,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj,
+]);
 const STATIC_LABELS_PATH = "data/static_labels.json";
 const STATIC_OPTIONS_PATH = "data/static_options.json";
 const STATIC_GROUPS_PATH = "data/static_groups.json";
@@ -2370,41 +2408,171 @@ function shouldCoalesceFinalI(base) {
     return isVerbLetterVowel(letters[letters.length - 2]);
 }
 
-function getRootPlusYaBase(verb, options = {}) {
+function getSimpleFinalYaHost(verb, options = {}) {
     if (!verb || !endsWithOpenSyllableSuffix(verb, "y", "a")) {
-        return null;
+        return "";
     }
     if (options.isTransitive) {
-        return null;
+        return "";
     }
     if (options.isYawi) {
-        return null;
-    }
-    if (options.isWeya) {
-        const base = getSuppletiveWeyaRootPlusYaBase();
-        if (!base) {
-            return null;
-        }
-        if (options.requirePronounceable && !isSyllableSequencePronounceable(base)) {
-            return null;
-        }
-        return base;
+        return "";
     }
     const nonRedupRoot = getNonReduplicatedRoot(verb);
     if (nonRedupRoot !== verb && nonRedupRoot === "ya") {
         const maxRedupLength = getVerbLetterCount("yajya");
         if (getVerbLetterCount(verb) <= maxRedupLength) {
-            return null;
+            return "";
         }
     }
     if (getVerbLetterCount(verb) <= 2) {
+        return "";
+    }
+    return verb.slice(0, -2) || "";
+}
+
+function getBareRootFromYaStem(stem = "") {
+    if (!stem) {
+        return "";
+    }
+    if (stem === "weya") {
+        return getSuppletiveWeyaRootPlusYaBase() || stem.slice(0, -2);
+    }
+    let current = stem;
+    let guard = 0;
+    while (current.endsWith("ya") && getVerbLetterCount(current) > 2 && guard < 8) {
+        current = current.slice(0, -2);
+        guard += 1;
+    }
+    return current || "";
+}
+
+function analyzeYaHostFromRight(stem = "") {
+    if (!stem || !stem.endsWith("ya") || getVerbLetterCount(stem) <= 2) {
+        return {
+            finalYaHostKind: "",
+            bareRootPlusYaBase: "",
+            bareRootPlusYaBasePronounceable: "",
+        };
+    }
+    const bareRootPlusYaBase = getBareRootFromYaStem(stem);
+    const bareRootPlusYaBasePronounceable = bareRootPlusYaBase
+        && isSyllableSequencePronounceable(bareRootPlusYaBase)
+        ? bareRootPlusYaBase
+        : "";
+    return {
+        finalYaHostKind: "bare-root-ending-in-ya",
+        bareRootPlusYaBase,
+        bareRootPlusYaBasePronounceable,
+    };
+}
+
+function analyzeFinalYaStructure(verb, options = {}) {
+    const finalYaHost = getSimpleFinalYaHost(verb, options);
+    if (!finalYaHost) {
+        return {
+            hasFinalYaSuffix: false,
+            finalYaHost: "",
+            finalYaHostKind: "",
+            bareRootPlusYaBase: "",
+            bareRootPlusYaBasePronounceable: "",
+            isRootPlusYa: false,
+        };
+    }
+    if (options.isWeya) {
+        const bareRoot = getSuppletiveWeyaRootPlusYaBase() || "";
+        const pronounceableBareRoot = bareRoot && isSyllableSequencePronounceable(bareRoot)
+            ? bareRoot
+            : "";
+        if (options.requirePronounceable && !pronounceableBareRoot) {
+            return {
+                hasFinalYaSuffix: false,
+                finalYaHost: "",
+                finalYaHostKind: "",
+                bareRootPlusYaBase: "",
+                bareRootPlusYaBasePronounceable: "",
+                isRootPlusYa: false,
+            };
+        }
+        return {
+            hasFinalYaSuffix: true,
+            finalYaHost,
+            finalYaHostKind: bareRoot ? "suppletive-bare-root" : "",
+            bareRootPlusYaBase: bareRoot,
+            bareRootPlusYaBasePronounceable: pronounceableBareRoot,
+            isRootPlusYa: Boolean(bareRoot),
+        };
+    }
+    let finalYaHostKind = "bare-root";
+    let bareRootPlusYaBase = finalYaHost;
+    let isRootPlusYa = true;
+    if (finalYaHost.endsWith("ya") && getVerbLetterCount(finalYaHost) > 2) {
+        const hostAnalysis = analyzeYaHostFromRight(finalYaHost);
+        finalYaHostKind = hostAnalysis.finalYaHostKind || "bare-root-ending-in-ya";
+        bareRootPlusYaBase = hostAnalysis.bareRootPlusYaBase || getBareRootFromYaStem(finalYaHost);
+        isRootPlusYa = false;
+    }
+    const pronounceableBareRoot = bareRootPlusYaBase && isSyllableSequencePronounceable(bareRootPlusYaBase)
+        ? bareRootPlusYaBase
+        : "";
+    if (options.requirePronounceable && isRootPlusYa && !pronounceableBareRoot) {
+        return {
+            hasFinalYaSuffix: false,
+            finalYaHost: "",
+            finalYaHostKind: "",
+            bareRootPlusYaBase: "",
+            bareRootPlusYaBasePronounceable: "",
+            isRootPlusYa: false,
+        };
+    }
+    return {
+        hasFinalYaSuffix: true,
+        finalYaHost,
+        finalYaHostKind,
+        bareRootPlusYaBase,
+        bareRootPlusYaBasePronounceable: pronounceableBareRoot,
+        isRootPlusYa,
+    };
+}
+
+function resolveFinalYaImmediateHostBase(verb, options = {}) {
+    const finalYaAnalysis = analyzeFinalYaStructure(verb, options);
+    if (!finalYaAnalysis.hasFinalYaSuffix) {
+        return "";
+    }
+    if (finalYaAnalysis.isRootPlusYa) {
+        if (options.requirePronounceable) {
+            return finalYaAnalysis.bareRootPlusYaBasePronounceable || "";
+        }
+        return finalYaAnalysis.bareRootPlusYaBase || "";
+    }
+    const host = finalYaAnalysis.finalYaHost || "";
+    if (!host) {
+        return "";
+    }
+    if (options.requirePronounceable && !isSyllableSequencePronounceable(host)) {
+        return "";
+    }
+    return host;
+}
+
+function resolveFinalYaPerfectiveAlternateBase(verb, options = {}) {
+    return resolveFinalYaImmediateHostBase(verb, {
+        ...options,
+        requirePronounceable: options.requirePronounceable !== false,
+    });
+}
+
+function getRootPlusYaBase(verb, options = {}) {
+    const finalYaAnalysis = analyzeFinalYaStructure(verb, options);
+    if (!finalYaAnalysis.isRootPlusYa) {
         return null;
     }
-    const base = verb.slice(0, -2);
+    const base = finalYaAnalysis.bareRootPlusYaBase;
     if (!base) {
         return null;
     }
-    if (options.requirePronounceable && !isSyllableSequencePronounceable(base)) {
+    if (options.requirePronounceable && !finalYaAnalysis.bareRootPlusYaBasePronounceable) {
         return null;
     }
     return base;
@@ -2417,7 +2585,12 @@ function shouldDropYaInRootPlusYaNonactive(source, options = {}) {
     const rootPlusYaBase = typeof options.rootPlusYaBase === "string"
         ? options.rootPlusYaBase
         : "";
-    const rootBase = rootPlusYaBase || getRootPlusYaBase(source, options) || "";
+    const rootBase = rootPlusYaBase || resolveFinalYaPerfectiveAlternateBase(source, {
+        isTransitive: options.isTransitive === true,
+        isYawi: options.isYawi === true,
+        isWeya: options.isWeya === true,
+        requirePronounceable: true,
+    }) || "";
     if (!rootBase) {
         return false;
     }
@@ -7824,6 +7997,22 @@ function getTClassSuffixForStem(stem) {
     return isVerbLetterVowel(last) ? "t" : "ti";
 }
 
+function allowsPatientivoSFamily(sourceBase = "") {
+    const normalized = normalizeRuleBase(sourceBase || "");
+    if (!normalized) {
+        return false;
+    }
+    return normalized === "waki" || endsWithOpenSyllableSuffix(normalized, "w", "a");
+}
+
+function isPreferredPatientivoWrapperStem(stem, { allowSFamily = false } = {}) {
+    const normalized = normalizeRuleBase(stem || "");
+    if (!normalized) {
+        return false;
+    }
+    return normalized.endsWith("k") || (allowSFamily && normalized.endsWith("s"));
+}
+
 function buildPatientivoImperfectivoDerivations({
     verb,
     analysisVerb,
@@ -7931,7 +8120,11 @@ function buildPatientivoTroncoDerivations({
     const endsWithPlainWa = endsWithOpenSyllableSuffix(base, "w", "a");
     const gateEndsWithPlainWi = endsWithOpenSyllableSuffix(gateBase, "w", "i");
     const gateEndsWithPlainWa = endsWithOpenSyllableSuffix(gateBase, "w", "a");
+    const endsWithProductiveNi = endsWithOpenSyllableSuffix(base, "n", "i");
+    const endsWithProductiveNa = endsWithOpenSyllableSuffix(base, "n", "a");
+    const endsWithProductiveKi = endsWithOpenSyllableSuffix(base, "k", "i");
     const endsWithProductiveKa = endsWithOpenSyllableSuffix(base, "k", "a");
+    const endsWithProductiveYa = endsWithOpenSyllableSuffix(base, "y", "a");
     const isLuaEnding = base.endsWith("lua");
     const syllables = getSyllables(base, { analysis: true, assumeFinalV: true });
     if (syllables.length === 1) {
@@ -7967,13 +8160,31 @@ function buildPatientivoTroncoDerivations({
         return isStandardRedup || isLRedup;
     })();
     const startsWithVj = syllables[0]?.form === "Vj";
-    const hasMultisyllableCoreBeforeSuffix = (suffix, sourceBase = base) => {
+    const isCvkiShape = (
+        syllables.length === 2
+        && syllables[0]?.form === "CV"
+        && syllables[1]?.form === "CV"
+        && syllables[1]?.onset === "k"
+        && syllables[1]?.nucleus === "i"
+    );
+    const getCoreBeforeSuffixSyllables = (suffix, sourceBase = base) => {
         if (!suffix || !sourceBase.endsWith(suffix) || sourceBase.length <= suffix.length) {
-            return false;
+            return [];
         }
         const core = sourceBase.slice(0, -suffix.length);
-        const coreSyllables = getSyllables(core, { analysis: true, assumeFinalV: true });
+        return getSyllables(core, { analysis: true, assumeFinalV: true });
+    };
+    const hasMultisyllableCoreBeforeSuffix = (suffix, sourceBase = base) => {
+        const coreSyllables = getCoreBeforeSuffixSyllables(suffix, sourceBase);
         return coreSyllables.length > 1;
+    };
+    const hasShortOpenCoreBeforeSuffix = (suffix, sourceBase = base) => {
+        const coreSyllables = getCoreBeforeSuffixSyllables(suffix, sourceBase);
+        if (coreSyllables.length !== 1) {
+            return false;
+        }
+        const [coreSyllable] = coreSyllables;
+        return isOpenSyllable(coreSyllable) && Boolean(coreSyllable?.onset);
     };
     const endsWithVCCVwa = (() => {
         if (syllables.length < 3) {
@@ -8150,26 +8361,55 @@ function buildPatientivoTroncoDerivations({
             addResult(extendedStem);
         });
     };
-    const isIwiAwi = base.endsWith("iwi") || base.endsWith("awi");
-    const gateIsIwiAwi = gateBase.endsWith("iwi") || gateBase.endsWith("awi");
-    const allowMonosyllableIwiAwi = gateBase === "iwi" || gateBase === "awi";
+    const iwiAwiUaSuffix = base.endsWith("iwi")
+        ? "iwi"
+        : (base.endsWith("awi")
+            ? "awi"
+            : (base.endsWith("ua") ? "ua" : ""));
+    const gateIwiAwiUaSuffix = gateBase.endsWith("iwi")
+        ? "iwi"
+        : (gateBase.endsWith("awi")
+            ? "awi"
+            : (gateBase.endsWith("ua") ? "ua" : ""));
+    const isIwiAwiUa = Boolean(iwiAwiUaSuffix);
+    const gateIsIwiAwiUa = Boolean(gateIwiAwiUaSuffix);
+    const allowMonosyllableIwiAwiUa = gateBase === "iwi" || gateBase === "awi";
+    const allowShortIwiCore = (() => {
+        if (iwiAwiUaSuffix !== "iwi" || gateIwiAwiUaSuffix !== "iwi") {
+            return false;
+        }
+        const core = base.slice(0, -3);
+        const gateCoreSyllables = getCoreBeforeSuffixSyllables("iwi", gateBase);
+        return gateCoreSyllables.length === 1 && isSyllableSequencePronounceable(core);
+    })();
+    const useShortWiSuperposition = gateEndsWithPlainWi
+        && hasShortOpenCoreBeforeSuffix("wi", gateBase);
+    if (useShortWiSuperposition) {
+        const shortWiCore = base.slice(0, -2);
+        if (shortWiCore) {
+            addWithConsonants(shortWiCore, ["k"]);
+        }
+        return results;
+    }
     if (
-        isIwiAwi
-        && gateIsIwiAwi
+        isIwiAwiUa
+        && gateIsIwiAwiUa
+        && gateIwiAwiUaSuffix === iwiAwiUaSuffix
         && (
-            hasMultisyllableCoreBeforeSuffix("wi", gateBase)
-            || allowMonosyllableIwiAwi
+            hasMultisyllableCoreBeforeSuffix(iwiAwiUaSuffix, gateBase)
+            || allowShortIwiCore
+            || allowMonosyllableIwiAwiUa
         )
     ) {
-        const coreDropAwi = base.slice(0, -3);
-        if (coreDropAwi) {
-            if (hasFinalConsonantCluster(coreDropAwi)) {
-                addResult(`${coreDropAwi}a`);
+        const familyCore = base.slice(0, -iwiAwiUaSuffix.length);
+        if (familyCore) {
+            if (hasFinalConsonantCluster(familyCore)) {
+                addResult(`${familyCore}a`);
             } else {
-                addRawResult(coreDropAwi, "");
-                addResult(coreDropAwi);
+                addRawResult(familyCore, "");
+                addResult(familyCore);
             }
-        } else if (allowMonosyllableIwiAwi) {
+        } else if (allowMonosyllableIwiAwiUa) {
             const nounStem = prefix || "";
             const key = `${nounStem}|`;
             if (!seen.has(key)) {
@@ -8178,7 +8418,7 @@ function buildPatientivoTroncoDerivations({
             }
         }
     }
-    if (!isIwiAwi && (endsWithPlainWi || endsWithPlainWa)) {
+    if (!isIwiAwiUa && (endsWithPlainWi || endsWithPlainWa)) {
         const wiWaSuffix = endsWithPlainWi ? "wi" : "wa";
         const gateWiWaSuffix = gateEndsWithPlainWi ? "wi" : (gateEndsWithPlainWa ? "wa" : "");
         const allowMonosyllableWiWa = gateBase === "ewa" || gateBase === "ewi" || gateBase === "awa";
@@ -8202,14 +8442,24 @@ function buildPatientivoTroncoDerivations({
             addWithConsonants(core, ["k", "ch"]);
             addResult(coreNoV);
         } else {
-            addWithConsonants(core, ["k", "ch"]);
+            addWithConsonants(core, ["k", "ch", "s"]);
             addResult(core);
         }
     }
-    if (base.endsWith("ni")) {
+    if (endsWithProductiveNi || endsWithProductiveNa) {
         const core = base.slice(0, -2);
         addWithConsonants(core, ["k", "sh", "s", "ch"]);
         addResult(core);
+    }
+    if (endsWithProductiveKi && isCvkiShape) {
+        const core = base.slice(0, -1);
+        addRawResult(core, "");
+        addResult(core);
+        if (base === "waki" || gateBase === "waki") {
+            const sCore = `${base.slice(0, -2)}s`;
+            addRawResult(sCore, "");
+            addResult(sCore);
+        }
     }
     if (
         endsWithProductiveKa
@@ -8218,6 +8468,21 @@ function buildPatientivoTroncoDerivations({
     ) {
         const core = base.slice(0, -2);
         addWithConsonants(core, ["k", "ch", "j"]);
+    }
+    if (endsWithProductiveYa) {
+        if (base.endsWith("tiya") && gateBase.endsWith("tiya")) {
+            const tiyaCore = base.slice(0, -4);
+            if (tiyaCore) {
+                addRawResult(tiyaCore, "");
+                addResult(tiyaCore);
+            }
+        } else {
+            const lStem = `${base.slice(0, -2)}l`;
+            if (lStem) {
+                addRawResult(lStem, "");
+                addResult(lStem);
+            }
+        }
     }
     return results;
 }
@@ -10057,6 +10322,21 @@ function buildClassBasedResultWithProvenance({
     forceClassBSelection = false,
     forceClassBOnly = false,
 }) {
+    const isTransitive = forceTransitive || objectPrefix !== "";
+    const resolvedFinalYaProxyBase = (
+        !rootPlusYaBasePronounceable
+        && PRETERITO_CLASS_TENSES.has(tense)
+        && !isTransitive
+    )
+        ? resolveFinalYaPerfectiveAlternateBase(analysisVerb || verb, {
+            isTransitive,
+            isYawi,
+            isWeya,
+            requirePronounceable: true,
+        })
+        : "";
+    const effectiveRootPlusYaBasePronounceable = rootPlusYaBasePronounceable || resolvedFinalYaProxyBase;
+    const effectiveRootPlusYaBase = rootPlusYaBase || effectiveRootPlusYaBasePronounceable;
     const result = buildClassBasedResult({
         verb,
         subjectPrefix,
@@ -10077,8 +10357,8 @@ function buildClassBasedResultWithProvenance({
         hasImpersonalTaPrefix,
         hasOptionalSupportiveI,
         hasNonspecificValence,
-        rootPlusYaBase,
-        rootPlusYaBasePronounceable,
+        rootPlusYaBase: effectiveRootPlusYaBase,
+        rootPlusYaBasePronounceable: effectiveRootPlusYaBasePronounceable,
         derivationType,
         directionalInputPrefix,
         directionalOutputPrefix,
@@ -10094,7 +10374,6 @@ function buildClassBasedResultWithProvenance({
     if (!result || result === "—") {
         return { result, provenance: null };
     }
-    const isTransitive = forceTransitive || objectPrefix !== "";
     const isBitransitive = Boolean(baseObjectPrefix && (indirectObjectMarker || hasNonspecificValence));
     const classKey = forceClassBOnly ? "B" : (classFilter || null);
     if (!classKey) {
@@ -10131,8 +10410,8 @@ function buildClassBasedResultWithProvenance({
             hasNonspecificValence,
             isBitransitive,
             exactBaseVerb,
-            rootPlusYaBase,
-            rootPlusYaBasePronounceable,
+            rootPlusYaBase: effectiveRootPlusYaBase,
+            rootPlusYaBasePronounceable: effectiveRootPlusYaBasePronounceable,
             derivationType,
             forceClassBOnly,
         });
@@ -11957,6 +12236,11 @@ function buildParseState(rawInput) {
         verb: "",
         analysisVerb: "",
         rawAnalysisVerb: "",
+        hasFinalYaSuffix: false,
+        finalYaHost: "",
+        finalYaHostKind: "",
+        bareRootPlusYaBase: "",
+        bareRootPlusYaBasePronounceable: "",
         rootPlusYaBase: "",
         rootPlusYaBasePronounceable: "",
         isRootPlusYa: false,
@@ -12596,6 +12880,11 @@ function parseStageSuppletives(state) {
 function parseStageRootPlusYa(state) {
     const analysisVerb = state.analysisVerb || state.verb || "";
     if (!analysisVerb) {
+        state.hasFinalYaSuffix = false;
+        state.finalYaHost = "";
+        state.finalYaHostKind = "";
+        state.bareRootPlusYaBase = "";
+        state.bareRootPlusYaBasePronounceable = "";
         state.rootPlusYaBase = "";
         state.rootPlusYaBasePronounceable = "";
         state.isRootPlusYa = false;
@@ -12608,11 +12897,11 @@ function parseStageRootPlusYa(state) {
         isYawi: state.isYawi === true,
         isWeya: state.isWeya === true,
     };
-    let rootPlusYaBase = getRootPlusYaBase(rootPlusYaSource, rootPlusYaOptions);
+    let finalYaAnalysis = analyzeFinalYaStructure(rootPlusYaSource, rootPlusYaOptions);
     // Slash matrix YA inputs (e.g., ume/ya) keep analysisVerb as "ya";
     // recover incorporated matrix material so YA-root paths match exact inputs.
     if (
-        !rootPlusYaBase
+        !finalYaAnalysis.hasFinalYaSuffix
         && state.hasSlashMarker
         && !state.hasImpersonalTaPrefix
         && analysisVerb === "ya"
@@ -12623,16 +12912,23 @@ function parseStageRootPlusYa(state) {
         );
         if (lexicalBoundPrefixes.length) {
             const slashComposite = `${lexicalBoundPrefixes.join("")}${analysisVerb}`;
-            rootPlusYaBase = getRootPlusYaBase(slashComposite, rootPlusYaOptions);
+            finalYaAnalysis = analyzeFinalYaStructure(slashComposite, rootPlusYaOptions);
         }
     }
-    const pronounceableBase = rootPlusYaBase
-        && areSyllablesPronounceable(splitVerbSyllables(rootPlusYaBase))
-        ? rootPlusYaBase
+    const rootPlusYaBase = finalYaAnalysis.isRootPlusYa
+        ? finalYaAnalysis.bareRootPlusYaBase
         : "";
+    const pronounceableBase = finalYaAnalysis.isRootPlusYa
+        ? (finalYaAnalysis.bareRootPlusYaBasePronounceable || "")
+        : "";
+    state.hasFinalYaSuffix = finalYaAnalysis.hasFinalYaSuffix === true;
+    state.finalYaHost = finalYaAnalysis.finalYaHost || "";
+    state.finalYaHostKind = finalYaAnalysis.finalYaHostKind || "";
+    state.bareRootPlusYaBase = finalYaAnalysis.bareRootPlusYaBase || "";
+    state.bareRootPlusYaBasePronounceable = finalYaAnalysis.bareRootPlusYaBasePronounceable || "";
     state.rootPlusYaBase = rootPlusYaBase || "";
     state.rootPlusYaBasePronounceable = pronounceableBase;
-    state.isRootPlusYa = Boolean(rootPlusYaBase);
+    state.isRootPlusYa = finalYaAnalysis.isRootPlusYa === true;
 }
 
 function buildCanonicalVerbState(state) {
@@ -12682,6 +12978,11 @@ function buildCanonicalVerbState(state) {
         valenceSlotCount: state.valenceSlotCount,
         embeddedValenceCount: state.embeddedValenceCount,
         totalValenceSlotCount: state.totalValenceSlotCount,
+        hasFinalYaSuffix: state.hasFinalYaSuffix,
+        finalYaHost: state.finalYaHost,
+        finalYaHostKind: state.finalYaHostKind,
+        bareRootPlusYaBase: state.bareRootPlusYaBase,
+        bareRootPlusYaBasePronounceable: state.bareRootPlusYaBasePronounceable,
         rootPlusYaBase: state.rootPlusYaBase,
         rootPlusYaBasePronounceable: state.rootPlusYaBasePronounceable,
         isRootPlusYa: state.isRootPlusYa,
@@ -12730,6 +13031,11 @@ function parseVerbInput(value) {
         isTaFusion: state.isTaFusion,
         isYawi: state.isYawi,
         isWeya: state.isWeya,
+        hasFinalYaSuffix: state.hasFinalYaSuffix,
+        finalYaHost: state.finalYaHost,
+        finalYaHostKind: state.finalYaHostKind,
+        bareRootPlusYaBase: state.bareRootPlusYaBase,
+        bareRootPlusYaBasePronounceable: state.bareRootPlusYaBasePronounceable,
         rootPlusYaBase: state.rootPlusYaBase,
         rootPlusYaBasePronounceable: state.rootPlusYaBasePronounceable,
         isRootPlusYa: state.isRootPlusYa,
@@ -12946,12 +13252,7 @@ function isPerfectiveTense(tense) {
         PRETERITO_CLASS_TENSES.has(tense)
         || PRETERITO_UNIVERSAL_ORDER.includes(tense)
         || tense === "preterito"
-        || tense === "potencial-activo"
-        || tense === "perfecto-compuesto-activo"
-        || tense === "tronco-preterito-activo"
-        || tense === "tronco-perfecto-compuesto-activo"
-        || tense === "tronco-preterito-activo-2"
-        || tense === "tronco-perfecto-compuesto-activo-2"
+        || isPotencialActiveTense(tense)
         || tense === "pasado-remoto-adverbio-activo"
     );
 }
@@ -13623,7 +13924,7 @@ function getNounDerivationTypeFromMeta(verbMeta) {
 function getNounObjectSlotSummary(verbMeta, tenseValue = "", options = {}) {
     const derivationType = getNounDerivationTypeFromMeta(verbMeta);
     const derivationValencyDelta = getDerivationValencyDelta(derivationType);
-    if (isPotencialTroncoActiveObjectTense(tenseValue)) {
+    if (isPotencialTroncoNajActiveTense(tenseValue)) {
         return {
             derivationType,
             derivationValencyDelta,
@@ -14057,6 +14358,7 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
         patientivoOwnership: new Map(PATIENTIVO_OWNERSHIP_STATE),
     };
     const applyTarget = (target) => {
+        const resolvedTargetTense = target.tenseValue || "";
         const combinedPlan = target.mode === TENSE_MODE.verbo
             ? getSearchCombinedModePlan()
             : [getCombinedMode()];
@@ -14066,22 +14368,22 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
             if (isNominalTenseMode(target.mode)) {
                 setActiveTenseMode(target.mode);
                 setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
-                setSelectedTenseTab(target.tenseValue);
+                setSelectedTenseTab(resolvedTargetTense);
             } else {
                 setActiveTenseMode(TENSE_MODE.verbo);
                 setActiveConjugationGroup(target.group);
                 if (target.group === CONJUGATION_GROUPS.universal) {
-                    setSelectedPretUniversalTab(target.tenseValue);
+                    setSelectedPretUniversalTab(resolvedTargetTense);
                 } else {
-                    setSelectedTenseTab(target.tenseValue);
+                    setSelectedTenseTab(resolvedTargetTense);
                 }
             }
             if (isNominalTenseMode(target.mode)) {
                 const nounPlans = buildNounSearchPlans({
-                    tenseValue: target.tenseValue,
+                    tenseValue: resolvedTargetTense,
                     verbMeta: parsedVerb,
                 });
-                const possessorPlan = getSearchPossessorPlan(target.tenseValue);
+                const possessorPlan = getSearchPossessorPlan(resolvedTargetTense);
                 const nounObjectPlans = Array.isArray(nounPlans.objectSlotPlans) && nounPlans.objectSlotPlans.length
                     ? nounPlans.objectSlotPlans
                     : [{
@@ -14109,7 +14411,7 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                     return false;
                 };
                 for (const possessor of possessorPlan) {
-                    POSSESSOR_TOGGLE_STATE.set(getNounPossessorKey(target.tenseValue), possessor);
+                    POSSESSOR_TOGGLE_STATE.set(getNounPossessorKey(resolvedTargetTense), possessor);
                     for (const subjectId of nounPlans.subjectPlan) {
                         SUBJECT_TOGGLE_STATE.set(nounPlans.subjectKey, subjectId);
                         if (iterateNounObjectSelections(0, {}, (selectionBySlot) => {
@@ -14121,8 +14423,8 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                             renderActiveConjugations({
                                 verb: displayVerb,
                                 objectPrefix: primaryObjectPrefix,
-                                onlyTense: target.tenseValue,
-                                tense: target.tenseValue,
+                                onlyTense: resolvedTargetTense,
+                                tense: resolvedTargetTense,
                             });
                             if (scrollToMatchingConjugationRow(queryInfo.term, { matchMode: queryInfo.mode })) {
                                 renderTenseTabs();
@@ -14138,7 +14440,7 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
             }
             const isNonactive = combinedMode === COMBINED_MODE.nonactive;
             const verbPlans = buildVerbSearchPlans({
-                tenseValue: target.tenseValue,
+                tenseValue: resolvedTargetTense,
                 group: target.group,
                 isNonactive,
                 verbMeta: parsedVerb,
@@ -14164,8 +14466,8 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
                             renderActiveConjugations({
                                 verb: displayVerb,
                                 objectPrefix,
-                                onlyTense: target.tenseValue,
-                                tense: target.tenseValue,
+                                onlyTense: resolvedTargetTense,
+                                tense: resolvedTargetTense,
                             });
                             if (scrollToMatchingConjugationRow(queryInfo.term, { matchMode: queryInfo.mode })) {
                                 renderTenseTabs();
@@ -14201,7 +14503,9 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
         renderActiveConjugations({
             verb: displayVerb,
             objectPrefix,
-            tense: savedState.group === CONJUGATION_GROUPS.universal ? savedState.pret : savedState.tense,
+            tense: savedState.group === CONJUGATION_GROUPS.universal
+                ? savedState.pret
+                : savedState.tense,
         });
     };
     const plan = buildSearchPlanAcrossModes();
@@ -19282,7 +19586,7 @@ function buildTenseTabsDomSignature({
     universalOrder = [],
 }) {
     const nominalSignature = isNominalMode
-        ? `a:${activeColumnTenses.join(",")}|n:${nounNonactiveTenses.join(",")}`
+        ? `grouped:l:${serializeTenseGroupRows(modeGroups?.left || [], visibleTenseSet)}|r:${serializeTenseGroupRows(modeGroups?.right || [], visibleTenseSet)}`
         : "";
     const semanticSignature = !isNominalMode
         ? (Array.isArray(verbSemanticGroups)
@@ -19314,6 +19618,7 @@ function updateExistingTenseTabsDom({
     universalContainer = null,
     endsWithConsonant = false,
     resolveTenseHasOutput,
+    isNominalMode = false,
     shouldShowUniversalTabs = false,
     availability = [],
     activeGroup = "",
@@ -19348,7 +19653,17 @@ function updateExistingTenseTabsDom({
         const resolvedCombinedMode = buttonCombinedMode === COMBINED_MODE.nonactive
             ? COMBINED_MODE.nonactive
             : COMBINED_MODE.active;
-        const hasOutput = resolveTenseHasOutput(tenseValue, resolvedCombinedMode);
+        const hasOutput = (() => {
+            if (!buttonCombinedMode && isNominalMode) {
+                const activeOutput = resolveTenseHasOutput(tenseValue, COMBINED_MODE.active);
+                const nonactiveOutput = resolveTenseHasOutput(tenseValue, COMBINED_MODE.nonactive);
+                if (activeOutput === null && nonactiveOutput === null) {
+                    return null;
+                }
+                return activeOutput === true || nonactiveOutput === true;
+            }
+            return resolveTenseHasOutput(tenseValue, resolvedCombinedMode);
+        })();
         const isActive = activeGroup === CONJUGATION_GROUPS.tense
             && tenseValue === selectedTense
             && (!buttonCombinedMode || buttonCombinedMode === currentCombinedMode);
@@ -22515,9 +22830,7 @@ function renderTenseTabs() {
     const verbSemanticGroups = (!isNominalMode && tenseMode === TENSE_MODE.verbo)
         ? getVerbSemanticTenseGroups(visibleTenses)
         : [];
-    const modeGroups = isNominalMode
-        ? null
-        : (TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo);
+    const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
     const visibleTenseSet = new Set(visibleTenses);
     const selectedTenseValue = getSelectedTenseTab();
     if (!visibleTenseSet.has(selectedTenseValue)) {
@@ -22910,6 +23223,7 @@ function renderTenseTabs() {
             container,
             endsWithConsonant,
             resolveTenseHasOutput,
+            isNominalMode,
             shouldShowUniversalTabs,
             availability,
             activeGroup,
@@ -22953,7 +23267,7 @@ function renderTenseTabs() {
         }
         button.setAttribute("aria-selected", String(isActive));
         const hasOutput = (() => {
-            if (tenseMode === TENSE_MODE.verbo && !resolvedCombinedMode) {
+            if ((tenseMode === TENSE_MODE.verbo || isNominalMode) && !resolvedCombinedMode) {
                 const activeOutput = unifiedAvailabilityMatrix instanceof Map
                     ? (
                         unifiedAvailabilityMatrix.get(COMBINED_MODE.active)?.get(tenseValue)
@@ -23038,72 +23352,20 @@ function renderTenseTabs() {
             columnEl.appendChild(groupEl);
         });
     };
-    const appendStandaloneTenseGroup = (
-        columnEl,
-        headingText,
-        tenses = [],
-        columnKey = "",
-        groupClass = "",
-        options = {}
-    ) => {
-        const combinedMode = options.combinedMode || "";
-        const groupEl = document.createElement("div");
-        groupEl.className = `tense-tabs-group${groupClass ? ` ${groupClass}` : ""}`;
-        const heading = document.createElement("div");
-        heading.className = "tense-tabs-heading";
-        heading.textContent = headingText;
-        groupEl.appendChild(heading);
-        if (!tenses.length) {
-            const empty = document.createElement("div");
-            empty.className = "tense-tabs-empty";
-            empty.textContent = "—";
-            groupEl.appendChild(empty);
-            columnEl.appendChild(groupEl);
-            return;
-        }
-        tenses.forEach((tenseValue) => {
-            const button = buildTenseButton(tenseValue, { columnKey, combinedMode });
-            groupEl.appendChild(button);
-        });
-        columnEl.appendChild(groupEl);
-    };
     const columns = [];
     if (isNominalMode) {
-        const leftColumn = document.createElement("div");
-        leftColumn.className = "tense-tabs-column";
-        const rightColumn = document.createElement("div");
-        rightColumn.className = "tense-tabs-column";
-        appendStandaloneTenseGroup(
-            leftColumn,
-            getLocalizedLabel(UI_LABELS["tense-tabs-mode-active"], isNawat, "activo"),
-            activeColumnTenses,
-            "active",
-            "tense-tabs-group--voice"
-        );
-        appendStandaloneTenseGroup(
-            rightColumn,
-            getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo"),
-            nounNonactiveTenses,
-            "nonactive",
-            "tense-tabs-group--voice"
-        );
-        mainWrap.classList.add("tense-tabs-main--voice-columns");
-        columns.push(leftColumn, rightColumn);
+        const nominalColumn = document.createElement("div");
+        nominalColumn.className = "tense-tabs-column";
+        appendTenseGroups(modeGroups.left || [], nominalColumn, "left");
+        appendTenseGroups(modeGroups.right || [], nominalColumn, "right");
+        columns.push(nominalColumn);
+        mainWrap.classList.add("tense-tabs-main--semantic-single");
     } else if (verbSemanticGroups.length) {
         const verbColumn = document.createElement("div");
-        verbColumn.className = "tense-tabs-column tense-tabs-column--verb-voice";
-        verbColumn.dataset.tenseColumnKey = "verb";
-        verbSemanticGroups.forEach((group) => {
-            appendStandaloneTenseGroup(
-                verbColumn,
-                getLocalizedLabel(group.heading, isNawat, group.key),
-                group.tenses,
-                `verb-${group.key}`,
-                "tense-tabs-group--semantic"
-            );
-        });
-        mainWrap.classList.add("tense-tabs-main--semantic-single");
+        verbColumn.className = "tense-tabs-column";
+        appendTenseGroups(verbSemanticGroups, verbColumn, "verb");
         columns.push(verbColumn);
+        mainWrap.classList.add("tense-tabs-main--semantic-single");
     } else {
         const leftColumn = document.createElement("div");
         leftColumn.className = "tense-tabs-column";
@@ -23807,12 +24069,7 @@ function getZeroObjectDisplayValue(value) {
 function isPotencialProfileTense(tenseValue = "") {
     return tenseValue === "potencial"
         || tenseValue === "potencial-habitual"
-        || tenseValue === "potencial-activo"
-        || tenseValue === "perfecto-compuesto-activo"
-        || tenseValue === "tronco-preterito-activo"
-        || tenseValue === "tronco-perfecto-compuesto-activo"
-        || tenseValue === "tronco-preterito-activo-2"
-        || tenseValue === "tronco-perfecto-compuesto-activo-2"
+        || ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue)
         || tenseValue === "pasado-remoto-adverbio-activo";
 }
 
@@ -23839,13 +24096,12 @@ function allowsCollapsedDerivedNounSlot({
 }
 
 function isPotencialActiveTense(tenseValue = "") {
-    return tenseValue === "potencial-activo"
-        || tenseValue === "perfecto-compuesto-activo"
-        || tenseValue === "tronco-preterito-activo"
-        || tenseValue === "tronco-perfecto-compuesto-activo"
-        || tenseValue === "tronco-preterito-activo-2"
-        || tenseValue === "tronco-perfecto-compuesto-activo-2"
+    return ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue)
         || tenseValue === "pasado-remoto-adverbio-activo";
+}
+
+function isActiveAdjectiveTabTense(tenseValue = "") {
+    return ACTIVE_ADJECTIVE_TAB_TENSE_SET.has(tenseValue);
 }
 
 function getNominalSourceModeForTense(tenseValue = "", {
@@ -23869,7 +24125,7 @@ function getNominalSourceModeForTense(tenseValue = "", {
         return COMBINED_MODE.active;
     }
     if (isPotencialHabitualTense(tenseValue)) {
-        return COMBINED_MODE.nonactive;
+        return COMBINED_MODE.active;
     }
     return COMBINED_MODE.active;
 }
@@ -23899,6 +24155,20 @@ function getNominalSourceTenseLabel(tenseValue = "", {
 } = {}) {
     if (tenseValue === "patientivo") {
         return getPatientivoSourceTenseLabel(patientivoSource, isNawat);
+    }
+    if (isPotencialTroncoNajActiveTense(tenseValue)) {
+        const sourceLabelFull = getVerbBlockLabel(
+            "patientivo-tronco-noun",
+            isNawat,
+            "patientivo · sustantivo de tronco verbal"
+        );
+        const separatorIndex = sourceLabelFull.indexOf("·");
+        return separatorIndex === -1
+            ? sourceLabelFull.trim()
+            : sourceLabelFull.slice(separatorIndex + 1).trim();
+    }
+    if (isPotencialTroncoActiveTense(tenseValue)) {
+        return getPatientivoSourceTenseLabel("tronco-verbal", isNawat);
     }
     let sourceTense = "";
     if (tenseValue === "agentivo" || tenseValue === "potencial-habitual") {
@@ -23962,15 +24232,11 @@ function buildNominalSourceTaggedLabel(baseLabel = "", sourceMode = "", isNawat 
 }
 
 function isPotencialTroncoActiveTense(tenseValue = "") {
-    return tenseValue === "tronco-preterito-activo"
-        || tenseValue === "tronco-perfecto-compuesto-activo"
-        || tenseValue === "tronco-preterito-activo-2"
-        || tenseValue === "tronco-perfecto-compuesto-activo-2";
+    return TRONCO_ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue);
 }
 
-function isPotencialTroncoActiveObjectTense(tenseValue = "") {
-    return tenseValue === "tronco-preterito-activo-2"
-        || tenseValue === "tronco-perfecto-compuesto-activo-2";
+function isPotencialTroncoNajActiveTense(tenseValue = "") {
+    return TRONCO_NAJ_ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue);
 }
 
 function isSubjectlessNominalTense(tenseValue = "") {
@@ -23978,13 +24244,7 @@ function isSubjectlessNominalTense(tenseValue = "") {
 }
 
 function getPotencialActiveSourceTense(tenseValue = "") {
-    if (tenseValue === "perfecto-compuesto-activo") {
-        return "perfecto";
-    }
-    if (tenseValue === "tronco-perfecto-compuesto-activo") {
-        return "perfecto";
-    }
-    if (tenseValue === "tronco-perfecto-compuesto-activo-2") {
+    if (PERFECT_ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue)) {
         return "perfecto";
     }
     if (tenseValue === "pasado-remoto-adverbio-activo") {
@@ -23995,18 +24255,18 @@ function getPotencialActiveSourceTense(tenseValue = "") {
 
 function getActiveAdjectiveProfileType(tenseValue = "") {
     switch (tenseValue) {
-        case "potencial-activo":
+        case ADJECTIVE_ACTIVE_TENSE_IDS.preterito:
             return "adjetivo-activo-preterito-simple";
-        case "perfecto-compuesto-activo":
+        case ADJECTIVE_ACTIVE_TENSE_IDS.perfecto:
             return "adjetivo-activo-preterito-compuesto";
-        case "tronco-preterito-activo":
+        case ADJECTIVE_ACTIVE_TENSE_IDS.preteritoTik:
             return "adjetivo-tronco-preterito-simple";
-        case "tronco-perfecto-compuesto-activo":
+        case ADJECTIVE_ACTIVE_TENSE_IDS.perfectoTik:
             return "adjetivo-tronco-preterito-compuesto";
-        case "tronco-preterito-activo-2":
-            return "adjetivo-tronco2-preterito-simple";
-        case "tronco-perfecto-compuesto-activo-2":
-            return "adjetivo-tronco2-preterito-compuesto";
+        case ADJECTIVE_ACTIVE_TENSE_IDS.preteritoNaj:
+            return "adjetivo-tronco-naj-preterito-simple";
+        case ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj:
+            return "adjetivo-tronco-naj-preterito-compuesto";
         default:
             return "";
     }
@@ -24024,7 +24284,7 @@ function resolveActiveAdjectiveClassPolicy({
     const defaultPolicy = {
         classFilter: null,
         forceClassBSelection: false,
-        filterDeletedYaOnly: false,
+        preferredFinalYaSurfaceMode: "",
     };
     if (!isAdjectiveMode) {
         return defaultPolicy;
@@ -24033,13 +24293,13 @@ function resolveActiveAdjectiveClassPolicy({
     if (!profileType) {
         return defaultPolicy;
     }
-    const isTroncoObjectProfile = (
-        profileType === "adjetivo-tronco2-preterito-simple"
-        || profileType === "adjetivo-tronco2-preterito-compuesto"
+    const isTroncoNajProfile = (
+        profileType === "adjetivo-tronco-naj-preterito-simple"
+        || profileType === "adjetivo-tronco-naj-preterito-compuesto"
     );
-    if (isTroncoObjectProfile) {
-        // tronco ...2 uses an object-incorporated preterit stem + matrix -na path
-        // and must not inherit matrix-/ya adjective forcing.
+    if (isTroncoNajProfile) {
+        // -naj adjectives use a dedicated precomputed wrapper path and must not
+        // inherit matrix-/ya adjective forcing from direct active adjectives.
         return defaultPolicy;
     }
     const normalizedInputMatrix = normalizeRuleBase(inputMatrix);
@@ -24050,30 +24310,89 @@ function resolveActiveAdjectiveClassPolicy({
         && normalizedInputMatrix === "ya"
     );
     if (isSlashYaInput) {
-        if (sourceTense === "preterito") {
-            return {
-                classFilter: "B",
-                forceClassBSelection: true,
-                filterDeletedYaOnly: true,
-            };
-        }
-        if (sourceTense === "perfecto") {
-            return {
-                classFilter: "A",
-                forceClassBSelection: false,
-                filterDeletedYaOnly: false,
-            };
-        }
-        return defaultPolicy;
+        const preferredFinalYaSurfaceMode = sourceTense === "preterito"
+            ? "deleted-pret"
+            : "";
+        return {
+            classFilter: sourceTense === "perfecto" ? "A" : "B",
+            forceClassBSelection: sourceTense === "perfecto" ? false : true,
+            preferredFinalYaSurfaceMode,
+        };
     }
-    if (normalizedCandidateMatrix.endsWith("ya")) {
+    if (normalizedCandidateMatrix.endsWith("tiya")) {
+        const preferredFinalYaSurfaceMode = sourceTense === "perfecto"
+            ? "deleted-perfect"
+            : "deleted-pret";
         return {
             classFilter: "B",
             forceClassBSelection: true,
-            filterDeletedYaOnly: false,
+            preferredFinalYaSurfaceMode,
+        };
+    }
+    if (normalizedCandidateMatrix.endsWith("ya")) {
+        const preferredFinalYaSurfaceMode = sourceTense === "preterito"
+            ? "deleted-pret"
+            : "";
+        return {
+            classFilter: sourceTense === "perfecto" ? "A" : "B",
+            forceClassBSelection: sourceTense === "perfecto" ? false : true,
+            preferredFinalYaSurfaceMode,
         };
     }
     return defaultPolicy;
+}
+
+function selectPreferredActiveAdjectiveForms(forms = [], {
+    sourceVerb = "",
+    sourceTense = "",
+    selectionMode = "",
+    isYawi = false,
+    isWeya = false,
+} = {}) {
+    const list = Array.isArray(forms)
+        ? forms.map((entry) => String(entry || "").trim()).filter(Boolean)
+        : [];
+    if (!selectionMode || !list.length) {
+        return list;
+    }
+    const normalizedSource = normalizeRuleBase(sourceVerb);
+    const deletedFinalYaBase = normalizedSource.endsWith("ya")
+        ? (
+            resolveFinalYaImmediateHostBase(normalizedSource, {
+                isTransitive: false,
+                isYawi,
+                isWeya,
+                requirePronounceable: false,
+            })
+            || normalizedSource.slice(0, -2)
+        )
+        : "";
+    let preferredTargets = [];
+    if (selectionMode === "deleted-pret" && deletedFinalYaBase) {
+        preferredTargets = [`${deletedFinalYaBase}k`];
+    } else if (selectionMode === "deleted-perfect" && deletedFinalYaBase) {
+        preferredTargets = [deletedFinalYaBase];
+    }
+    let filtered = preferredTargets.length
+        ? list.filter((formValue) => preferredTargets.includes(normalizeRuleBase(formValue)))
+        : [];
+    if (!filtered.length && selectionMode === "deleted-pret") {
+        filtered = list.filter((formValue) => {
+            const normalized = normalizeRuleBase(formValue);
+            return normalized.endsWith("k") && !normalized.endsWith("yak");
+        });
+    }
+    if (!filtered.length && selectionMode === "deleted-perfect" && deletedFinalYaBase) {
+        filtered = list.filter((formValue) => {
+            const normalized = normalizeRuleBase(formValue);
+            return normalized.startsWith(deletedFinalYaBase)
+                && !normalized.startsWith(normalizedSource);
+        });
+    }
+    if (!filtered.length) {
+        return list;
+    }
+    return filtered;
 }
 
 // === Mode State Accessors ===
@@ -24258,16 +24577,7 @@ function getTenseOrderForMode(mode) {
         ];
     }
     if (mode === TENSE_MODE.adjetivo) {
-        return [
-            "potencial",
-            "potencial-habitual",
-            "potencial-activo",
-            "perfecto-compuesto-activo",
-            "tronco-preterito-activo",
-            "tronco-perfecto-compuesto-activo",
-            "tronco-preterito-activo-2",
-            "tronco-perfecto-compuesto-activo-2",
-        ];
+        return ACTIVE_ADJECTIVE_TAB_TENSE_ORDER;
     }
     if (mode === TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
@@ -24276,12 +24586,7 @@ function getTenseOrderForMode(mode) {
         tense !== "sustantivo-verbal"
         && tense !== "potencial"
         && tense !== "potencial-habitual"
-        && tense !== "potencial-activo"
-        && tense !== "perfecto-compuesto-activo"
-        && tense !== "tronco-preterito-activo"
-        && tense !== "tronco-perfecto-compuesto-activo"
-        && tense !== "tronco-preterito-activo-2"
-        && tense !== "tronco-perfecto-compuesto-activo-2"
+        && !ACTIVE_ADJECTIVE_TENSE_SET.has(tense)
         && tense !== "pasado-remoto-adverbio-activo"
         && tense !== "agentivo"
         && tense !== "patientivo"
@@ -24300,7 +24605,7 @@ function isNounTenseVisibleForCombinedMode(tenseValue, combinedMode = getCombine
         return false;
     }
     if (isPotencialProfileTense(tenseValue)) {
-        return isPotencialActiveTense(tenseValue)
+        return isActiveAdjectiveTabTense(tenseValue)
             ? combinedMode === COMBINED_MODE.active
             : combinedMode === COMBINED_MODE.nonactive;
     }
@@ -24360,6 +24665,8 @@ function preserveOutputPanelViewportPosition(callback) {
 }
 
 const PANEL_STACK_ORDER = ["inputs", "tense", "output"];
+const PANEL_STACK_REVEAL_CLASS = "is-pane-entering";
+const PANEL_STACK_REVEAL_DURATION_MS = 180;
 
 function normalizePanelStackMode(mode) {
     if (mode === "tense") {
@@ -24387,7 +24694,25 @@ function setLeftPanelStackMode(mode) {
     const buttons = Array.from(document.querySelectorAll("[data-panel-stack-tab]"));
     const panes = Array.from(document.querySelectorAll("[data-panel-stack-pane]"));
     const stackRoot = document.querySelector(".panel-stack");
+    const previousMode = stackRoot?.getAttribute("data-active-pane") || "";
     const showAllPanes = isThreeColumnPanelLayout();
+    const shouldAnimateReveal = !showAllPanes && previousMode !== normalizedMode;
+    const triggerPaneReveal = (pane) => {
+        if (!pane || !shouldAnimateReveal) {
+            return;
+        }
+        if (pane.__panelStackRevealTimer) {
+            clearTimeout(pane.__panelStackRevealTimer);
+        }
+        pane.classList.remove(PANEL_STACK_REVEAL_CLASS);
+        requestAnimationFrame(() => {
+            pane.classList.add(PANEL_STACK_REVEAL_CLASS);
+            pane.__panelStackRevealTimer = setTimeout(() => {
+                pane.classList.remove(PANEL_STACK_REVEAL_CLASS);
+                pane.__panelStackRevealTimer = null;
+            }, PANEL_STACK_REVEAL_DURATION_MS);
+        });
+    };
     if (stackRoot) {
         stackRoot.setAttribute("data-active-pane", normalizedMode);
     }
@@ -24401,9 +24726,19 @@ function setLeftPanelStackMode(mode) {
         const isActive = showAllPanes
             ? true
             : pane.getAttribute("data-panel-stack-pane") === normalizedMode;
+        if (!isActive && pane.__panelStackRevealTimer) {
+            clearTimeout(pane.__panelStackRevealTimer);
+            pane.__panelStackRevealTimer = null;
+        }
+        if (!isActive) {
+            pane.classList.remove(PANEL_STACK_REVEAL_CLASS);
+        }
         pane.hidden = !isActive;
         pane.classList.toggle("is-active", isActive);
         pane.setAttribute("aria-hidden", String(!isActive));
+        if (isActive) {
+            triggerPaneReveal(pane);
+        }
     });
     dispatchAppEvent("app:panel-stack-changed", {
         mode: normalizedMode,
@@ -25292,6 +25627,7 @@ function applyMorphologyRules({
     const directionalInputPrefix = directionalPrefix || "";
     let directionalOutputPrefix = directionalInputPrefix;
     const alternateForms = [];
+    let suppressPreferredPerfectAlternates = false;
     let suppressSustantivoIEndingSVariant = false;
     let patientivoBlankPossessiveW = false;
     const isIntransitiveVerb =
@@ -25457,15 +25793,29 @@ function applyMorphologyRules({
         const isIntransitive = isIntransitiveVerb;
         let nounBase = verb;
         const sourceEndsWithYa = nounSource.endsWith("ya");
-        const droppedSourceYaBase = sourceEndsWithYa && nounBase.length > 2
-            ? nounBase.slice(0, -2)
+        const resolvedFinalYaHostBase = sourceEndsWithYa && isIntransitive
+            ? resolveFinalYaImmediateHostBase(nounSource, {
+                isTransitive: false,
+                isYawi,
+                isWeya,
+                requirePronounceable: false,
+            })
+            : "";
+        const droppedSourceYaBase = resolvedFinalYaHostBase || (
+            sourceEndsWithYa && nounBase.length > 2
+                ? nounBase.slice(0, -2)
+                : ""
+        );
+        const droppedSourceYaBasePronounceable = droppedSourceYaBase && isSyllableSequencePronounceable(droppedSourceYaBase)
+            ? droppedSourceYaBase
             : "";
         const droppedYaLooksLikeRootPlusYa = Boolean(
-            droppedSourceYaBase
+            droppedSourceYaBasePronounceable
             && (
-                droppedSourceYaBase.endsWith("i")
-                || droppedSourceYaBase.endsWith("u")
-                || endsWithAny(droppedSourceYaBase, IA_UA_SUFFIXES)
+                droppedSourceYaBasePronounceable.endsWith("i")
+                || droppedSourceYaBasePronounceable.endsWith("u")
+                || droppedSourceYaBasePronounceable.endsWith("ya")
+                || endsWithAny(droppedSourceYaBasePronounceable, IA_UA_SUFFIXES)
                 || Boolean(rootPlusYaBase)
             )
         );
@@ -25526,9 +25876,21 @@ function applyMorphologyRules({
             nounAlternates.add(resolvedBase);
             alternateForms.push({ verb: resolvedBase, subjectSuffix });
         };
+        if (shouldPreferDroppedYaAsPrimary && nounSource !== nounBase) {
+            addNounAlternate(nounSource);
+        }
         const hasYaEnding = isIntransitive && nounBase.endsWith("ya") && nounBase.length > 2;
         const rootPlusYaBaseResolved = hasYaEnding
-            ? (rootPlusYaBase || nounBase.slice(0, -2))
+            ? (
+                rootPlusYaBase
+                || resolveFinalYaImmediateHostBase(nounBase, {
+                    isTransitive: false,
+                    isYawi,
+                    isWeya,
+                    requirePronounceable: false,
+                })
+                || nounBase.slice(0, -2)
+            )
             : "";
         const rootPlusYaNonRedup = rootPlusYaBaseResolved
             ? getNonReduplicatedRoot(rootPlusYaBaseResolved)
@@ -25786,16 +26148,22 @@ function applyMorphologyRules({
         exactAnalysisVerb === "ya"
         && (hasSlashMarker || hasSuffixSeparator || hasLeadingDash)
     ) || isSlashDenominalMatrixInput || isPotencialActiveBoundInput;
-    const rootPlusYaBaseResolved = isPerfectiveTense(tense) && !disallowRootPlusYa
-        ? (rootPlusYaBasePronounceable || getRootPlusYaBase(verb, {
-            isTransitive,
-            isYawi,
-            isWeya,
-            requirePronounceable: true,
-        }))
-        : null;
-    if (rootPlusYaBaseResolved) {
-        alternateForms.push({ verb: rootPlusYaBaseResolved, subjectSuffix });
+    const finalYaPerfectiveAlternateBase = isPerfectiveTense(tense) && !disallowRootPlusYa
+        ? (
+            rootPlusYaBasePronounceable
+            || resolveFinalYaPerfectiveAlternateBase(verb, {
+                isTransitive,
+                isYawi,
+                isWeya,
+                requirePronounceable: true,
+            })
+        )
+        : "";
+    if (finalYaPerfectiveAlternateBase) {
+        alternateForms.push({ verb: finalYaPerfectiveAlternateBase, subjectSuffix });
+    }
+    if (suppressPreferredPerfectAlternates) {
+        alternateForms.length = 0;
     }
     if (objectPrefix.endsWith("k") && verb.startsWith("k")) {
         if (verb.startsWith("kw")) {
@@ -25861,7 +26229,7 @@ function applyMorphologyRules({
     if (isPotencialActiveProfile) {
         const activeWrapperSourceTense = getPotencialActiveSourceTense(tense);
         const isTroncoActiveWrapper = isPotencialTroncoActiveTense(tense);
-        const isTroncoActiveObjectWrapper = isPotencialTroncoActiveObjectTense(tense);
+        const isTroncoNajActiveWrapper = isPotencialTroncoNajActiveTense(tense);
         const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
         const inputMatrixRoot = normalizeRuleBase(exactAnalysisVerb);
         const wrapperObjectPrefix = baseObjectPrefix || "";
@@ -25870,19 +26238,20 @@ function applyMorphologyRules({
             markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
             subjectPrefix: baseSubjectPrefix,
         });
-        const sourceSubjectSuffix = (() => {
-            let resolved = applyTenseSuffixRules(activeWrapperSourceTense, baseSubjectSuffix);
+        const resolveWrapperSourceSubjectSuffix = (sourceTenseValue = "") => {
+            let resolved = applyTenseSuffixRules(sourceTenseValue, baseSubjectSuffix);
             if (
                 suppletiveTenseSuffixes
-                && Object.prototype.hasOwnProperty.call(suppletiveTenseSuffixes, activeWrapperSourceTense)
+                && Object.prototype.hasOwnProperty.call(suppletiveTenseSuffixes, sourceTenseValue)
             ) {
-                const overrideMap = suppletiveTenseSuffixes[activeWrapperSourceTense];
+                const overrideMap = suppletiveTenseSuffixes[sourceTenseValue];
                 if (overrideMap && Object.prototype.hasOwnProperty.call(overrideMap, baseSubjectSuffix)) {
                     resolved = overrideMap[baseSubjectSuffix];
                 }
             }
             return resolved;
-        })();
+        };
+        const sourceSubjectSuffix = resolveWrapperSourceSubjectSuffix(activeWrapperSourceTense);
         const splitWrapperForms = (value = "") => String(value || "")
             .split(" / ")
             .map((entry) => entry.trim())
@@ -25906,7 +26275,7 @@ function applyMorphologyRules({
         });
         const wrapperStemCandidates = [];
         const seenWrapperStemCandidates = new Set();
-        const addWrapperStemCandidate = (candidateVerb = "", candidateAnalysis = "") => {
+        const addWrapperStemCandidate = (candidateVerb = "", candidateAnalysis = "", meta = {}) => {
             const stemVerb = String(candidateVerb || "").trim();
             if (!stemVerb) {
                 return;
@@ -25920,10 +26289,22 @@ function applyMorphologyRules({
                 return;
             }
             seenWrapperStemCandidates.add(key);
+            const rootPlusYaProxyBase = String(meta?.rootPlusYaProxyBase || "").trim();
             wrapperStemCandidates.push({
                 verb: stemVerb,
                 analysisVerb: resolvedAnalysis || stemVerb,
+                rootPlusYaProxyBase,
             });
+        };
+        const precomputedWrapperForms = [];
+        const seenPrecomputedWrapperForms = new Set();
+        const addPrecomputedWrapperForm = (formValue = "") => {
+            const form = String(formValue || "").trim();
+            if (!form || form === "—" || seenPrecomputedWrapperForms.has(form)) {
+                return;
+            }
+            seenPrecomputedWrapperForms.add(form);
+            precomputedWrapperForms.push(form);
         };
         const MATRIX_NA_STEM = "na";
         const PRETERIT_OBJECT_MATRIX_STEMS = new Set(["ti", "tiya", "ya"]);
@@ -26055,8 +26436,134 @@ function applyMorphologyRules({
             }
             return classForms;
         };
+        const buildObjectWrapperPretSimpleForms = ({
+            sourceVerb = "",
+            sourceAnalysis = "",
+        } = {}) => {
+            const adjectiveClassPolicy = resolveActiveAdjectiveClassPolicy({
+                tenseValue: ADJECTIVE_ACTIVE_TENSE_IDS.preterito,
+                sourceTense: "preterito",
+                isAdjectiveMode: true,
+                hasSlashMarker,
+                hasBoundMarker,
+                inputMatrix: inputMatrixRoot,
+                candidateMatrix: exactAnalysisVerb,
+            });
+            const classOutput = buildClassBasedResultWithProvenance({
+                verb: sourceVerb,
+                subjectPrefix: "",
+                objectPrefix: "",
+                subjectSuffix: "",
+                tense: "preterito",
+                analysisVerb: sourceAnalysis || sourceVerb,
+                exactBaseVerb: exactAnalysisVerb,
+                classFilter: adjectiveClassPolicy.classFilter,
+                allowAllClasses: false,
+                isYawi,
+                isWeya,
+                hasSlashMarker,
+                hasSuffixSeparator,
+                hasLeadingDash,
+                hasBoundMarker,
+                hasCompoundMarker,
+                hasImpersonalTaPrefix,
+                hasOptionalSupportiveI,
+                hasNonspecificValence,
+                rootPlusYaBase,
+                rootPlusYaBasePronounceable,
+                derivationType,
+                directionalInputPrefix,
+                directionalOutputPrefix,
+                baseSubjectPrefix,
+                baseObjectPrefix: "",
+                suppletiveStemSet,
+                forceTransitive: false,
+                indirectObjectMarker: "",
+                hasDoubleDash,
+                forceClassBSelection: adjectiveClassPolicy.forceClassBSelection,
+            });
+            return selectPreferredActiveAdjectiveForms(
+                splitWrapperForms(classOutput?.result),
+                {
+                    sourceVerb: sourceAnalysis || sourceVerb,
+                    sourceTense: "preterito",
+                    selectionMode: adjectiveClassPolicy.preferredFinalYaSurfaceMode,
+                    isYawi,
+                    isWeya,
+                }
+            );
+        };
+        const buildTroncoNajBaseForms = ({
+            sourceVerb = "",
+            sourceAnalysis = "",
+        } = {}) => {
+            const troncoIsTransitive = forceTransitiveBase && !hasImpersonalTaPrefix;
+            const troncoDerivations = buildPatientivoTroncoDerivations({
+                verb: sourceVerb,
+                analysisVerb: sourceAnalysis || sourceVerb,
+                rawAnalysisVerb: sourceAnalysis || sourceVerb,
+                isTransitive: troncoIsTransitive,
+                directionalPrefix: directionalInputPrefix,
+                boundPrefix,
+                boundPrefixes,
+                boundExplicitFlags,
+                directionalPrefixFromSlash,
+                sourceSplitPrefix: resolvedSourceSplitPrefix,
+                sourceCompositeBase: resolvedSourceCompositeBase,
+                hasImpersonalTaPrefix,
+                hasOptionalSupportiveI,
+                hasSlashMarker,
+                hasSuffixSeparator,
+                hasLeadingDash,
+                hasBoundMarker,
+                hasCompoundMarker,
+            });
+            const troncoNounDerivations = troncoDerivations
+                .map((entry) => {
+                    const troncoStem = String(entry?.verb || "").trim();
+                    const troncoSuffix = String(entry?.subjectSuffix || "");
+                    if (!troncoStem) {
+                        return null;
+                    }
+                    return {
+                        stem: troncoStem,
+                        suffix: troncoSuffix,
+                        nounForm: `${troncoStem}${troncoSuffix}`,
+                    };
+                })
+                .filter(Boolean);
+            const forms = [];
+            const seenForms = new Set();
+            const addForm = (value = "") => {
+                const form = String(value || "").trim();
+                if (!form || seenForms.has(form)) {
+                    return;
+                }
+                seenForms.add(form);
+                forms.push(form);
+            };
+            const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
+                const troncoStem = String(entry?.stem || "").trim();
+                const troncoSuffix = String(entry?.suffix || "");
+                return Boolean(troncoStem) && troncoSuffix === "";
+            });
+            troncoBaseDerivations.forEach((entry) => {
+                const troncoStem = String(entry?.stem || "").trim();
+                if (!troncoStem) {
+                    return;
+                }
+                addForm(troncoStem);
+            });
+            return forms;
+        };
+        const shouldMirrorNajFinalYaPretSimple = (value = "") => {
+            const base = normalizeRuleBase(value);
+            return Boolean(base)
+                && endsWithOpenSyllableSuffix(base, "y", "a")
+                && !base.endsWith("wiya");
+        };
         if (isTroncoActiveWrapper) {
-            if (isTroncoActiveObjectWrapper) {
+            if (isTroncoNajActiveWrapper) {
                 const matrixStem = normalizeIncorporatedStemToken(exactAnalysisVerb || analysisVerb || "");
                 if (hasImpersonalTaPrefix) {
                     return { error: true };
@@ -26076,7 +26583,6 @@ function applyMorphologyRules({
                         || (directionalInputPrefix
                             ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
                             : sourceVerb);
-                    const incorporatedStems = [];
                     if (hasExplicitMatrixNa) {
                         const incorporatedStem = resolveTroncoObjectWrapperStem({
                             sourceVerb,
@@ -26085,7 +26591,7 @@ function applyMorphologyRules({
                             allowedMatrixStems: new Set([MATRIX_NA_STEM]),
                         });
                         if (incorporatedStem) {
-                            incorporatedStems.push(incorporatedStem);
+                            addWrapperStemCandidate(`${incorporatedStem}${MATRIX_NA_STEM}`, MATRIX_NA_STEM);
                         }
                     } else if (isPreteritObjectMatrix) {
                         const incorporatedStem = resolveTroncoObjectWrapperStem({
@@ -26098,48 +26604,17 @@ function applyMorphologyRules({
                             buildPreteritObjectIncorporatedStems({
                                 matrixStem,
                                 incorporatedStem,
-                            }).forEach((stem) => incorporatedStems.push(stem));
+                            }).forEach((stem) => addPrecomputedWrapperForm(`${stem}${MATRIX_NA_STEM}j${sourceSubjectSuffix}`));
                         }
                     } else {
-                        const troncoDerivations = buildPatientivoTroncoDerivations({
-                            verb: sourceVerb,
-                            analysisVerb: sourceAnalysis || sourceVerb,
-                            rawAnalysisVerb: sourceAnalysis || sourceVerb,
-                            isTransitive: forceTransitiveBase && !hasImpersonalTaPrefix,
-                            directionalPrefix: directionalInputPrefix,
-                            boundPrefix,
-                            boundPrefixes,
-                            boundExplicitFlags,
-                            directionalPrefixFromSlash,
-                            sourceSplitPrefix: resolvedSourceSplitPrefix,
-                            sourceCompositeBase: resolvedSourceCompositeBase,
-                            hasImpersonalTaPrefix,
-                            hasOptionalSupportiveI,
-                            hasSlashMarker,
-                            hasSuffixSeparator,
-                            hasLeadingDash,
-                            hasBoundMarker,
-                            hasCompoundMarker,
-                        });
-                        const troncoCandidates = troncoDerivations
-                            .map((entry) => ({
-                                stem: String(entry?.verb || "").trim(),
-                                suffix: String(entry?.subjectSuffix || ""),
-                            }))
-                            .filter((entry) => Boolean(entry.stem));
-                        const kFamily = troncoCandidates.filter((entry) => entry.stem.endsWith("k"));
-                        if (kFamily.length) {
-                            kFamily.forEach((entry) => incorporatedStems.push(entry.stem));
-                        } else {
-                            troncoCandidates
-                                .filter((entry) => entry.suffix === "")
-                                .forEach((entry) => incorporatedStems.push(entry.stem));
-                        }
+                        const pretSimpleNajSourceBuilder = shouldMirrorNajFinalYaPretSimple(sourceAnalysis || sourceVerb)
+                            ? buildObjectWrapperPretSimpleForms
+                            : buildTroncoNajBaseForms;
+                        pretSimpleNajSourceBuilder({
+                            sourceVerb,
+                            sourceAnalysis,
+                        }).forEach((stem) => addPrecomputedWrapperForm(`${stem}${MATRIX_NA_STEM}j${sourceSubjectSuffix}`));
                     }
-                    incorporatedStems.forEach((incorporatedStem) => {
-                        const matrixWrapperStem = `${incorporatedStem}${MATRIX_NA_STEM}`;
-                        addWrapperStemCandidate(matrixWrapperStem, MATRIX_NA_STEM);
-                    });
                 });
             } else {
                 const troncoIsTransitive = forceTransitiveBase && !hasImpersonalTaPrefix;
@@ -26186,42 +26661,47 @@ function applyMorphologyRules({
                             };
                         })
                         .filter(Boolean);
-                    const troncoKFamily = troncoNounDerivations.filter((entry) => entry.stem.endsWith("k"));
-                    const hasKTroncoNoun = troncoKFamily.length > 0;
-                    if (hasKTroncoNoun) {
-                        const preferredKFamily = troncoKFamily.filter((entry) => entry.suffix !== "");
-                        const selectedKFamily = preferredKFamily.length ? preferredKFamily : troncoKFamily;
-                        selectedKFamily.forEach((entry) => {
-                            const patientivoNoun = String(entry.nounForm || "");
-                            if (!patientivoNoun) {
-                                return;
-                            }
-                            // Built from patientivo noun (+k family). The tiya step is represented
-                            // in perfectives with final -ya deletion: ...tiya -> ...ti + k/tuk.
-                            addWrapperStemCandidate(patientivoNoun);
-                        });
-                        return;
-                    }
                     const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
                         const troncoStem = String(entry?.stem || "").trim();
                         const troncoSuffix = String(entry?.suffix || "");
                         return Boolean(troncoStem) && troncoSuffix === "";
                     });
-                    troncoBaseDerivations.forEach((entry) => {
-                        const patientivoNoun = String(entry?.nounForm || "").trim();
+                    if (troncoBaseDerivations.length) {
+                        const troncoWrapperSuffix = activeWrapperSourceTense === "perfecto" ? "tuk" : "k";
+                        troncoBaseDerivations.forEach((entry) => {
+                            const troncoStem = String(entry?.stem || "").trim();
+                            if (!troncoStem) {
+                                return;
+                            }
+                            addPrecomputedWrapperForm(`${troncoStem}ti${troncoWrapperSuffix}`);
+                        });
+                        return;
+                    }
+                    const troncoTiDerivations = troncoNounDerivations.filter((entry) => {
                         const troncoStem = String(entry?.stem || "").trim();
-                        if (!troncoStem) {
+                        const troncoSuffix = String(entry?.suffix || "");
+                        return Boolean(troncoStem) && troncoSuffix === "ti";
+                    });
+                    troncoTiDerivations.forEach((entry) => {
+                        const troncoNoun = String(entry?.nounForm || "").trim();
+                        if (!troncoNoun) {
                             return;
                         }
-                        // If no +k patientivo noun exists (e.g. iwi/awi path), use the
-                        // tiya-derived path but surface the deleted-ya base (...ti).
-                        addWrapperStemCandidate(`${patientivoNoun || troncoStem}ti`);
+                        addPrecomputedWrapperForm(`${troncoNoun}${sourceSubjectSuffix}`);
                     });
                 });
             }
         } else {
             baseStemCandidates.forEach((candidate) => {
-                addWrapperStemCandidate(candidate?.verb, candidate?.analysisVerb);
+                const sourceVerb = String(candidate?.verb || "").trim();
+                if (!sourceVerb) {
+                    return;
+                }
+                const sourceAnalysis = String(candidate?.analysisVerb || "")
+                    || (directionalInputPrefix
+                        ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
+                        : sourceVerb);
+                addWrapperStemCandidate(sourceVerb, sourceAnalysis);
             });
         }
         const wrapperForms = [];
@@ -26234,6 +26714,7 @@ function applyMorphologyRules({
             seenWrapperForms.add(form);
             wrapperForms.push(form);
         };
+        precomputedWrapperForms.forEach((formValue) => addWrapperForm(formValue));
         wrapperStemCandidates.forEach((candidate) => {
             const sourceVerb = String(candidate?.verb || "");
             if (!sourceVerb) {
@@ -26243,7 +26724,15 @@ function applyMorphologyRules({
                 || (directionalInputPrefix
                     ? stripDirectionalPrefixFromStem(sourceVerb, directionalInputPrefix)
                     : sourceVerb);
-            const candidateExactBaseVerb = isTroncoActiveObjectWrapper
+            const candidateRootPlusYaProxyBase = String(candidate?.rootPlusYaProxyBase || "").trim();
+            const candidateRootPlusYaProxyBasePronounceable = (
+                candidateRootPlusYaProxyBase
+                && isSyllableSequencePronounceable(candidateRootPlusYaProxyBase)
+            )
+                ? candidateRootPlusYaProxyBase
+                : "";
+            const shouldCarryRootPlusYaIntoWrapper = !isTroncoActiveWrapper;
+            const candidateExactBaseVerb = isTroncoNajActiveWrapper
                 ? (sourceAnalysis || "")
                 : exactAnalysisVerb;
             const candidateMatrix = normalizeRuleBase(candidateExactBaseVerb);
@@ -26276,36 +26765,33 @@ function applyMorphologyRules({
                 hasImpersonalTaPrefix,
                 hasOptionalSupportiveI,
                 hasNonspecificValence,
-                rootPlusYaBase,
-                rootPlusYaBasePronounceable,
+                rootPlusYaBase: candidateRootPlusYaProxyBase
+                    || (shouldCarryRootPlusYaIntoWrapper ? rootPlusYaBase : ""),
+                rootPlusYaBasePronounceable: candidateRootPlusYaProxyBasePronounceable
+                    || (shouldCarryRootPlusYaIntoWrapper ? rootPlusYaBasePronounceable : ""),
                 derivationType,
                 directionalInputPrefix,
                 directionalOutputPrefix,
                 baseSubjectPrefix,
                 baseObjectPrefix: wrapperObjectPrefix,
                 suppletiveStemSet,
-                forceTransitive: isTroncoActiveObjectWrapper ? true : forceTransitiveBase,
+                forceTransitive: isTroncoNajActiveWrapper ? true : forceTransitiveBase,
                 indirectObjectMarker: wrapperIndirectObjectMarker,
                 hasDoubleDash,
                 forceClassBSelection: adjectiveClassPolicy.forceClassBSelection,
             });
-            let candidateForms = splitWrapperForms(classOutput?.result);
-            if (adjectiveClassPolicy.filterDeletedYaOnly) {
-                const normalizedSource = normalizeRuleBase(sourceVerb);
-                const deletedYaTarget = normalizedSource.endsWith("ya")
-                    ? `${normalizedSource.slice(0, -2)}k`
-                    : "";
-                const retainedYaTarget = normalizedSource.endsWith("ya")
-                    ? `${normalizedSource}k`
-                    : "";
-                candidateForms = candidateForms.filter((formValue) => {
-                    const normalized = normalizeRuleBase(formValue);
-                    if (deletedYaTarget) {
-                        return normalized.includes(deletedYaTarget)
-                            && (!retainedYaTarget || !normalized.includes(retainedYaTarget));
-                    }
-                    return normalized.endsWith("k");
-                });
+            let candidateForms = selectPreferredActiveAdjectiveForms(
+                splitWrapperForms(classOutput?.result),
+                {
+                    sourceVerb: sourceAnalysis || sourceVerb,
+                    sourceTense: activeWrapperSourceTense,
+                    selectionMode: adjectiveClassPolicy.preferredFinalYaSurfaceMode,
+                    isYawi,
+                    isWeya,
+                }
+            );
+            if (adjectiveClassPolicy.preferredFinalYaSurfaceMode === "deleted-perfect" && candidateForms.length) {
+                suppressPreferredPerfectAlternates = true;
             }
             candidateForms.forEach((formValue) => addWrapperForm(formValue));
         });
@@ -26318,6 +26804,9 @@ function applyMorphologyRules({
         alternateWrapperForms.forEach((formValue) => {
             alternateForms.push({ verb: formValue, subjectSuffix: "" });
         });
+        if (suppressPreferredPerfectAlternates) {
+            alternateForms.length = 0;
+        }
         subjectPrefix = "";
         objectPrefix = "";
     }
@@ -27207,17 +27696,17 @@ function generateWord(options = {}) {
             return null;
         }
     }
-    let tense = override?.tense;
+    let tense = override?.tense || "";
     if (!tense) {
         tense = getActiveConjugationGroup() === CONJUGATION_GROUPS.universal
             ? getSelectedPretUniversalTab()
             : getSelectedTenseTab();
     }
-    const isTroncoActiveObjectWrapperTense = isPotencialTroncoActiveObjectTense(tense);
+    const isTroncoNajActiveWrapperTense = isPotencialTroncoNajActiveTense(tense);
     if (isPotencialProfileTense(tense)) {
         possessivePrefix = "";
     }
-    if (isTroncoActiveObjectWrapperTense) {
+    if (isTroncoNajActiveWrapperTense) {
         objectPrefix = "";
     }
     let baseObjectPrefix = objectPrefix;
@@ -27417,7 +27906,7 @@ function generateWord(options = {}) {
         indirectObjectMarker,
         derivationType: resolvedDerivationType,
     }));
-    if (isTroncoActiveObjectWrapperTense) {
+    if (isTroncoNajActiveWrapperTense) {
         objectPrefix = "";
         indirectObjectMarker = "";
         thirdObjectMarker = "";
@@ -27870,13 +28359,13 @@ function generateWord(options = {}) {
                         return "Instrumentivo transitivo solo con ta/te/mu o Ø.";
                     case "potencial":
                         return "Potencial transitivo solo con Ø.";
-                    case "potencial-activo":
-                    case "perfecto-compuesto-activo":
-                    case "tronco-preterito-activo":
-                    case "tronco-perfecto-compuesto-activo":
+                    case "adjetivo-preterito":
+                    case "adjetivo-perfecto":
+                    case "adjetivo-preterito-tik":
+                    case "adjetivo-perfecto-tik":
                         return "Adjetivo activo transitivo solo con ta/te/mu.";
-                    case "tronco-preterito-activo-2":
-                    case "tronco-perfecto-compuesto-activo-2":
+                    case "adjetivo-preterito-naj":
+                    case "adjetivo-perfecto-naj":
                         return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo transitivo solo con ta/te/mu.";
@@ -27898,13 +28387,13 @@ function generateWord(options = {}) {
                         return "Instrumentivo intransitivo va sin prefijo.";
                     case "potencial":
                         return "Potencial intransitivo va sin prefijo.";
-                    case "potencial-activo":
-                    case "perfecto-compuesto-activo":
-                    case "tronco-preterito-activo":
-                    case "tronco-perfecto-compuesto-activo":
+                    case "adjetivo-preterito":
+                    case "adjetivo-perfecto":
+                    case "adjetivo-preterito-tik":
+                    case "adjetivo-perfecto-tik":
                         return "Adjetivo activo intransitivo va sin prefijo.";
-                    case "tronco-preterito-activo-2":
-                    case "tronco-perfecto-compuesto-activo-2":
+                    case "adjetivo-preterito-naj":
+                    case "adjetivo-perfecto-naj":
                         return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo intransitivo va sin prefijo.";
@@ -27949,13 +28438,13 @@ function generateWord(options = {}) {
                             return "Instrumentivo intransitivo va sin prefijo.";
                         case "potencial":
                             return "Potencial intransitivo va sin prefijo.";
-                        case "potencial-activo":
-                        case "perfecto-compuesto-activo":
-                        case "tronco-preterito-activo":
-                        case "tronco-perfecto-compuesto-activo":
+                        case "adjetivo-preterito":
+                        case "adjetivo-perfecto":
+                        case "adjetivo-preterito-tik":
+                        case "adjetivo-perfecto-tik":
                             return "Adjetivo activo intransitivo va sin prefijo.";
-                        case "tronco-preterito-activo-2":
-                        case "tronco-perfecto-compuesto-activo-2":
+                        case "adjetivo-preterito-naj":
+                        case "adjetivo-perfecto-naj":
                             return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
                         case "potencial-habitual":
                             return "Adjetivo no activo intransitivo va sin prefijo.";
@@ -28553,7 +29042,7 @@ function renderOutputProvenancePanel({ verb = "", objectPrefix = "", tenseOverri
 }
 
 function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
-    const tenseOverride = onlyTense || tense || null;
+    const tenseOverride = onlyTense || tense || "";
     updateTensePanelDescription();
     renderOutputProvenancePanel({ verb, objectPrefix, tenseOverride });
     if (isNominalTenseMode(getActiveTenseMode())) {
@@ -28561,7 +29050,7 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
         renderNounConjugations({
             verb,
             containerId: "all-tense-conjugations",
-            tenseValue: tenseOverride,
+            tenseValue: tenseOverride || null,
         });
         updateCalcSummaryAndStatus();
         return;
@@ -28571,12 +29060,12 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
             verb,
             objectPrefix,
             containerId: "all-tense-conjugations",
-            tenseValue: tenseOverride,
+            tenseValue: tenseOverride || null,
         });
         updateCalcSummaryAndStatus();
         return;
     }
-    renderAllTenseConjugations({ verb, onlyTense: tenseOverride });
+    renderAllTenseConjugations({ verb, onlyTense: tenseOverride || null });
     updateCalcSummaryAndStatus();
 }
 
@@ -31325,7 +31814,7 @@ function renderNounConjugations({
             return null;
         }
         if (isPotencialProfileTense(resolvedTense)) {
-            return isPotencialActiveTense(resolvedTense)
+            return isActiveAdjectiveTabTense(resolvedTense)
                 ? COMBINED_MODE.active
                 : COMBINED_MODE.nonactive;
         }
