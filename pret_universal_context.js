@@ -232,10 +232,65 @@ function inferPretUniversalRuleTier(ruleLabel = "") {
     return PRET_UNIVERSAL_DEFAULT_RULE_TIER;
 }
 
+const PRET_UNIVERSAL_CONTEXT_CACHE_LIMIT = 1200;
+const PRET_UNIVERSAL_CONTEXT_CACHE = new Map();
+
+function encodePretContextCacheValue(value) {
+    if (value === true) {
+        return "1";
+    }
+    if (value === false || value == null) {
+        return "0";
+    }
+    const raw = String(value || "");
+    return `${raw.length}:${raw}`;
+}
+
+function buildPretUniversalContextCacheKey(verb, analysisVerb, isTransitive, options = {}) {
+    const parts = [
+        encodePretContextCacheValue(verb),
+        encodePretContextCacheValue(analysisVerb),
+        encodePretContextCacheValue(isTransitive === true),
+        encodePretContextCacheValue(options.isYawi === true),
+        encodePretContextCacheValue(options.isWeya === true),
+        encodePretContextCacheValue(options.isBitransitive === true),
+        encodePretContextCacheValue(options.hasSlashMarker === true),
+        encodePretContextCacheValue(options.hasSuffixSeparator === true),
+        encodePretContextCacheValue(options.hasLeadingDash === true),
+        encodePretContextCacheValue(options.hasBoundMarker === true),
+        encodePretContextCacheValue(options.hasCompoundMarker === true),
+        encodePretContextCacheValue(options.boundPrefix || ""),
+        encodePretContextCacheValue(options.hasImpersonalTaPrefix === true),
+        encodePretContextCacheValue(options.hasOptionalSupportiveI === true),
+        encodePretContextCacheValue(options.hasNonspecificValence === true),
+        encodePretContextCacheValue(options.exactBaseVerb || ""),
+        encodePretContextCacheValue(options.rootPlusYaBase || ""),
+        encodePretContextCacheValue(options.rootPlusYaBasePronounceable || ""),
+        encodePretContextCacheValue(options.derivationType || ""),
+        encodePretContextCacheValue(options.forceClassBOnly === true),
+    ];
+    return parts.join("|");
+}
+
+function clonePretUniversalContext(context) {
+    if (!context || typeof context !== "object") {
+        return context;
+    }
+    const clone = { ...context };
+    if (context.verbOverride && typeof context.verbOverride === "object") {
+        clone.verbOverride = { ...context.verbOverride };
+        if (Array.isArray(context.verbOverride.classes)) {
+            clone.verbOverride.classes = context.verbOverride.classes.slice();
+        }
+    }
+    return clone;
+}
+
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
     const isYawi = options.isYawi === true;
     const isWeya = options.isWeya === true;
     const isBitransitive = options.isBitransitive === true;
+    const forceClassBOnly = options.forceClassBOnly === true;
     const hasSlashMarker = options.hasSlashMarker === true;
     const hasSuffixSeparator = options.hasSuffixSeparator === true;
     const hasLeadingDash = options.hasLeadingDash === true;
@@ -249,6 +304,14 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const exactBaseVerb = derivationType === DERIVATION_TYPE.direct
         ? options.exactBaseVerb
         : "";
+    const contextCacheKey = buildPretUniversalContextCacheKey(verb, analysisVerb, isTransitive, {
+        ...options,
+        exactBaseVerb,
+    });
+    const cachedContext = PRET_UNIVERSAL_CONTEXT_CACHE.get(contextCacheKey);
+    if (cachedContext) {
+        return clonePretUniversalContext(cachedContext);
+    }
     const denominalSource = getPretDenominalSourceContext({
         verb,
         matrixStem: exactBaseVerb,
@@ -320,7 +383,22 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         && /(t|w|l)ia$/.test(analysisRoot);
     const redupRoot = isRootPlusYa ? getNonReduplicatedRoot(rootPlusYaBase) : analysisRoot;
     const isReduplicatedRootPlusYa = isRootPlusYa && redupRoot !== rootPlusYaBase;
-    const verbOverride = getPretUniversalVerbOverride(analysisRoot, isTransitive);
+    const lexicalVerbOverride = getPretUniversalVerbOverride(analysisRoot, isTransitive);
+    const verbOverride = (() => {
+        if (!lexicalVerbOverride && !forceClassBOnly) {
+            return null;
+        }
+        const next = lexicalVerbOverride && typeof lexicalVerbOverride === "object"
+            ? { ...lexicalVerbOverride }
+            : {};
+        if (Array.isArray(lexicalVerbOverride?.classes)) {
+            next.classes = lexicalVerbOverride.classes.slice();
+        }
+        if (forceClassBOnly) {
+            next.classes = ["B"];
+        }
+        return next;
+    })();
     let allowUnpronounceable = verbOverride?.allowUnpronounceable === true;
     let allowUnpronounceableStems = verbOverride?.allowUnpronounceableStems === true;
     if (isCausativeTypeTwo) {
@@ -1229,10 +1307,11 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const deletionCreatesCluster = !isTransitive
         && !isRootPlusYa
         && deletionCreatesConsonantCluster(resolvedVerb);
-    return {
+    const context = {
         verb: resolvedVerb,
         analysisVerb: analysisRoot,
         verbOverride,
+        forceClassBOnly,
         allowUnpronounceable,
         allowUnpronounceableStems,
         classAKiOnly,
@@ -1409,6 +1488,14 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         allowIntransitiveKV: resolvedForceClassAForKWV,
         forceClassAForKWV: resolvedForceClassAForKWV,
     };
+    PRET_UNIVERSAL_CONTEXT_CACHE.set(contextCacheKey, clonePretUniversalContext(context));
+    if (PRET_UNIVERSAL_CONTEXT_CACHE.size > PRET_UNIVERSAL_CONTEXT_CACHE_LIMIT) {
+        const firstKey = PRET_UNIVERSAL_CONTEXT_CACHE.keys().next().value;
+        if (firstKey !== undefined) {
+            PRET_UNIVERSAL_CONTEXT_CACHE.delete(firstKey);
+        }
+    }
+    return context;
 }
 
 function getRootPlusYaClassCandidates(context) {

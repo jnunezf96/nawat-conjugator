@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const fs = require("fs");
-const vm = require("vm");
 const path = require("path");
+const { createVmContext } = require("./lib/vm_harness");
 
 const ROOT = path.resolve(__dirname, "..");
 const SCRIPT_PATH = path.join(ROOT, "script.js");
@@ -47,109 +47,8 @@ const STRUCTURAL_FEATURES = [
   "finalOnset",
 ];
 
-const noop = () => {};
-const fakeClassList = {
-  add: noop,
-  remove: noop,
-  toggle: noop,
-  contains: () => false,
-};
-
-const fakeElement = new Proxy(
-  {
-    value: "",
-    checked: false,
-    style: {},
-    dataset: {},
-    classList: fakeClassList,
-    addEventListener: noop,
-    removeEventListener: noop,
-    appendChild: noop,
-    removeChild: noop,
-    setAttribute: noop,
-    getAttribute: () => null,
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    closest: () => null,
-    focus: noop,
-    blur: noop,
-    click: noop,
-    textContent: "",
-    innerHTML: "",
-  },
-  {
-    get(target, prop) {
-      if (prop in target) {
-        return target[prop];
-      }
-      return noop;
-    },
-  }
-);
-
 function createContext() {
-  const document = {
-    body: fakeElement,
-    documentElement: fakeElement,
-    addEventListener: noop,
-    removeEventListener: noop,
-    getElementById: () => fakeElement,
-    querySelector: () => fakeElement,
-    querySelectorAll: () => [],
-    createElement: () => fakeElement,
-  };
-
-  const windowObject = {
-    document,
-    addEventListener: noop,
-    removeEventListener: noop,
-    matchMedia: () => ({
-      matches: false,
-      addEventListener: noop,
-      removeEventListener: noop,
-    }),
-    requestAnimationFrame: (callback) => setTimeout(callback, 0),
-    cancelAnimationFrame: noop,
-    setTimeout,
-    clearTimeout,
-    setInterval,
-    clearInterval,
-    localStorage: {
-      getItem: () => null,
-      setItem: noop,
-      removeItem: noop,
-    },
-    visualViewport: {
-      scale: 1,
-      addEventListener: noop,
-      removeEventListener: noop,
-    },
-    devicePixelRatio: 1,
-    scrollBy: noop,
-  };
-
-  const context = {
-    console,
-    window: windowObject,
-    document,
-    localStorage: windowObject.localStorage,
-    navigator: { userAgent: "node" },
-    URL: {
-      createObjectURL: () => "",
-      revokeObjectURL: noop,
-    },
-    Blob: function Blob() {},
-    setTimeout,
-    clearTimeout,
-    setInterval,
-    clearInterval,
-    fetch: undefined,
-  };
-  context.globalThis = context;
-  windowObject.window = windowObject;
-  vm.createContext(context);
-  vm.runInContext(fs.readFileSync(SCRIPT_PATH, "utf8"), context, { filename: SCRIPT_PATH });
-  return context;
+  return createVmContext({ rootDir: ROOT, scriptPath: SCRIPT_PATH }).context;
 }
 
 function deepClone(value) {

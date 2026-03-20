@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-04T23:05:43.154Z",
+  "generatedAt": "2026-03-11T21:22:28.064Z",
   "pipeline": "intransitive-i > causative (type-one)",
   "matrixDefinition": {
     "axes": {
@@ -8826,8 +8826,7 @@
     },
     "families": {
       "awi": 169,
-      "iwi": 156,
-      "wi": 13
+      "iwi": 169
     },
     "coarse": {
       "outcomes": {
@@ -9118,7 +9117,7 @@
             },
             "b": {
               "form": "awiwi",
-              "key": "wi|none|_|w|nonvj|0|_|_|_"
+              "key": "iwi|none|_|w|nonvj|0|_|_|_"
             }
           },
           {
@@ -9152,22 +9151,22 @@
           "replacive": 338
         },
         "keyQuality": {
-          "uniqueKeys": 12,
-          "pureKeys": 12,
+          "uniqueKeys": 14,
+          "pureKeys": 14,
           "mixedKeys": 0,
           "mixedKeyRate": 0,
           "mixedKeyExamples": []
         },
         "pairwise": {
           "totalPairs": 56953,
-          "trueUnity": 16951,
+          "trueUnity": 14023,
           "falseUnity": 0,
           "trueSeparation": 0,
-          "falseSeparation": 40002,
-          "trueUnityRate": 0.2976,
+          "falseSeparation": 42930,
+          "trueUnityRate": 0.2462,
           "falseUnityRate": 0,
           "trueSeparationRate": 0,
-          "falseSeparationRate": 0.7024,
+          "falseSeparationRate": 0.7538,
           "falseUnityExamples": [],
           "falseSeparationExamples": [
             {
@@ -9190,6 +9189,17 @@
               "b": {
                 "form": "apiwi",
                 "key": "iwi|vowel_ae|ua"
+              }
+            },
+            {
+              "outcome": "replacive",
+              "a": {
+                "form": "aawi",
+                "key": "awi|awi_subcell_nonvj_default|wa"
+              },
+              "b": {
+                "form": "atawi",
+                "key": "awi|final_t|wa"
               }
             },
             {
@@ -9288,18 +9298,7 @@
               },
               "b": {
                 "form": "awiwi",
-                "key": "wi|default|none"
-              }
-            },
-            {
-              "outcome": "replacive",
-              "a": {
-                "form": "aawi",
-                "key": "awi|awi_subcell_nonvj_default|wa"
-              },
-              "b": {
-                "form": "ayiwi",
-                "key": "iwi|iwi_subcell_nonvj_final_y|wa"
+                "key": "iwi|iwi_subcell_nonvj_default|wa"
               }
             }
           ]
@@ -9311,24 +9310,35 @@
           "ua": 147
         },
         "keyQuality": {
-          "uniqueKeys": 12,
-          "pureKeys": 12,
+          "uniqueKeys": 14,
+          "pureKeys": 14,
           "mixedKeys": 0,
           "mixedKeyRate": 0,
           "mixedKeyExamples": []
         },
         "pairwise": {
           "totalPairs": 56953,
-          "trueUnity": 16951,
+          "trueUnity": 14023,
           "falseUnity": 0,
           "trueSeparation": 28077,
-          "falseSeparation": 11925,
-          "trueUnityRate": 0.2976,
+          "falseSeparation": 14853,
+          "trueUnityRate": 0.2462,
           "falseUnityRate": 0,
           "trueSeparationRate": 0.493,
-          "falseSeparationRate": 0.2094,
+          "falseSeparationRate": 0.2608,
           "falseUnityExamples": [],
           "falseSeparationExamples": [
+            {
+              "outcome": "wa",
+              "a": {
+                "form": "aawi",
+                "key": "awi|awi_subcell_nonvj_default|wa"
+              },
+              "b": {
+                "form": "atawi",
+                "key": "awi|final_t|wa"
+              }
+            },
             {
               "outcome": "wa",
               "a": {
@@ -9348,7 +9358,18 @@
               },
               "b": {
                 "form": "awiwi",
-                "key": "wi|default|none"
+                "key": "iwi|iwi_subcell_nonvj_default|wa"
+              }
+            },
+            {
+              "outcome": "wa",
+              "a": {
+                "form": "aawi",
+                "key": "awi|awi_subcell_nonvj_default|wa"
+              },
+              "b": {
+                "form": "ayawi",
+                "key": "awi|final_y|wa"
               }
             },
             {
@@ -9380,6 +9401,17 @@
                 "key": "awi|awi_subcell_nonvj_default|wa"
               },
               "b": {
+                "form": "patawi",
+                "key": "awi|final_t|wa"
+              }
+            },
+            {
+              "outcome": "wa",
+              "a": {
+                "form": "aawi",
+                "key": "awi|awi_subcell_nonvj_default|wa"
+              },
+              "b": {
                 "form": "patiwi",
                 "key": "iwi|iwi_subcell_nonvj_final_t|wa"
               }
@@ -9392,7 +9424,18 @@
               },
               "b": {
                 "form": "pawiwi",
-                "key": "wi|default|none"
+                "key": "iwi|iwi_subcell_nonvj_default|wa"
+              }
+            },
+            {
+              "outcome": "wa",
+              "a": {
+                "form": "aawi",
+                "key": "awi|awi_subcell_nonvj_default|wa"
+              },
+              "b": {
+                "form": "payawi",
+                "key": "awi|final_y|wa"
               }
             },
             {
@@ -9413,52 +9456,8 @@
                 "key": "awi|awi_subcell_nonvj_default|wa"
               },
               "b": {
-                "form": "tatiwi",
-                "key": "iwi|iwi_subcell_nonvj_final_t|wa"
-              }
-            },
-            {
-              "outcome": "wa",
-              "a": {
-                "form": "aawi",
-                "key": "awi|awi_subcell_nonvj_default|wa"
-              },
-              "b": {
-                "form": "tawiwi",
-                "key": "wi|default|none"
-              }
-            },
-            {
-              "outcome": "wa",
-              "a": {
-                "form": "aawi",
-                "key": "awi|awi_subcell_nonvj_default|wa"
-              },
-              "b": {
-                "form": "tayiwi",
-                "key": "iwi|iwi_subcell_nonvj_final_y|wa"
-              }
-            },
-            {
-              "outcome": "wa",
-              "a": {
-                "form": "aawi",
-                "key": "awi|awi_subcell_nonvj_default|wa"
-              },
-              "b": {
-                "form": "tatziwi",
-                "key": "iwi|final_tz_iwi|wa"
-              }
-            },
-            {
-              "outcome": "wa",
-              "a": {
-                "form": "aawi",
-                "key": "awi|awi_subcell_nonvj_default|wa"
-              },
-              "b": {
-                "form": "katiwi",
-                "key": "iwi|iwi_subcell_nonvj_final_t|wa"
+                "form": "tatawi",
+                "key": "awi|final_t|wa"
               }
             }
           ]
@@ -9493,11 +9492,11 @@
             },
             "baselineDecision": {
               "rowCount": 169,
-              "uniqueKeys": 6,
+              "uniqueKeys": 8,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 9865,
+              "trueUnityPairs": 6937,
               "falseUnityRate": 0
             },
             "bestZeroFalseUnity": {
@@ -9638,23 +9637,23 @@
             ]
           },
           "iwi": {
-            "rows": 156,
+            "rows": 169,
             "baselineDesuperpose": {
-              "rowCount": 156,
-              "uniqueKeys": 156,
+              "rowCount": 169,
+              "uniqueKeys": 157,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 0,
+              "trueUnityPairs": 78,
               "falseUnityRate": 0
             },
             "baselineDecision": {
-              "rowCount": 156,
-              "uniqueKeys": 5,
+              "rowCount": 169,
+              "uniqueKeys": 6,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 7008,
+              "trueUnityPairs": 7086,
               "falseUnityRate": 0
             },
             "bestZeroFalseUnity": {
@@ -9662,12 +9661,12 @@
                 "wiPolicyPrefixCoda"
               ],
               "featureCount": 1,
-              "rowCount": 156,
+              "rowCount": 169,
               "uniqueKeys": 1,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 12090,
+              "trueUnityPairs": 14196,
               "falseUnityRate": 0
             },
             "bestFallback": {
@@ -9675,12 +9674,12 @@
                 "wiPolicyPrefixCoda"
               ],
               "featureCount": 1,
-              "rowCount": 156,
+              "rowCount": 169,
               "uniqueKeys": 1,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 12090,
+              "trueUnityPairs": 14196,
               "falseUnityRate": 0
             },
             "topZeroFalseUnity": [
@@ -9689,12 +9688,12 @@
                   "wiPolicyPrefixCoda"
                 ],
                 "featureCount": 1,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 1,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
+                "trueUnityPairs": 14196,
                 "falseUnityRate": 0
               },
               {
@@ -9702,25 +9701,12 @@
                   "wiPolicyIsVjBoundarySubcell"
                 ],
                 "featureCount": 1,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 1,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyRootLastVowel"
-                ],
-                "featureCount": 1,
-                "rowCount": 156,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
+                "trueUnityPairs": 14196,
                 "falseUnityRate": 0
               },
               {
@@ -9729,55 +9715,12 @@
                   "wiPolicyIsVjBoundarySubcell"
                 ],
                 "featureCount": 2,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 1,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyPrefixCoda",
-                  "wiPolicyRootLastVowel"
-                ],
-                "featureCount": 2,
-                "rowCount": 156,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyIsVjBoundarySubcell",
-                  "wiPolicyRootLastVowel"
-                ],
-                "featureCount": 2,
-                "rowCount": 156,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyPrefixCoda",
-                  "wiPolicyIsVjBoundarySubcell",
-                  "wiPolicyRootLastVowel"
-                ],
-                "featureCount": 3,
-                "rowCount": 156,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 12090,
+                "trueUnityPairs": 14196,
                 "falseUnityRate": 0
               },
               {
@@ -9785,165 +9728,67 @@
                   "wiPolicyTypeOneTarget"
                 ],
                 "featureCount": 1,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
-                "falseUnityRate": 0
-              }
-            ]
-          },
-          "wi": {
-            "rows": 13,
-            "baselineDesuperpose": {
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "baselineDecision": {
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "bestZeroFalseUnity": {
-              "features": [
-                "wiPolicySourceClassCanonical"
-              ],
-              "featureCount": 1,
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "bestFallback": {
-              "features": [
-                "wiPolicySourceClassCanonical"
-              ],
-              "featureCount": 1,
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "topZeroFalseUnity": [
-              {
-                "features": [
-                  "wiPolicySourceClassCanonical"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
                 "features": [
-                  "wiPolicyTypeOneTarget"
+                  "wiPolicyRootLastVowel"
                 ],
                 "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
+                "rowCount": 169,
+                "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 12168,
                 "falseUnityRate": 0
               },
               {
                 "features": [
-                  "wiPolicyPrefixSubcell"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
+                  "wiPolicyTypeOneTarget",
                   "wiPolicyPrefixCoda"
                 ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
+                "featureCount": 2,
+                "rowCount": 169,
+                "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
                 "features": [
-                  "wiPolicyFirstOnset"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
+                  "wiPolicyTypeOneTarget",
                   "wiPolicyIsVjBoundarySubcell"
                 ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
+                "featureCount": 2,
+                "rowCount": 169,
+                "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
                 "features": [
-                  "wiPolicyRootLength"
+                  "wiPolicyPrefixCoda",
+                  "wiPolicyRootLastVowel"
                 ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
+                "featureCount": 2,
+                "rowCount": 169,
+                "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyRootPreFinal"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 12168,
                 "falseUnityRate": 0
               }
             ]
@@ -9977,11 +9822,11 @@
             },
             "baselineDecision": {
               "rowCount": 169,
-              "uniqueKeys": 6,
+              "uniqueKeys": 8,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 9865,
+              "trueUnityPairs": 6937,
               "falseUnityRate": 0
             },
             "bestZeroFalseUnity": {
@@ -10130,23 +9975,23 @@
             ]
           },
           "iwi": {
-            "rows": 156,
+            "rows": 169,
             "baselineDesuperpose": {
-              "rowCount": 156,
-              "uniqueKeys": 156,
+              "rowCount": 169,
+              "uniqueKeys": 157,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 0,
+              "trueUnityPairs": 78,
               "falseUnityRate": 0
             },
             "baselineDecision": {
-              "rowCount": 156,
-              "uniqueKeys": 5,
+              "rowCount": 169,
+              "uniqueKeys": 6,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 7008,
+              "trueUnityPairs": 7086,
               "falseUnityRate": 0
             },
             "bestZeroFalseUnity": {
@@ -10154,12 +9999,12 @@
                 "wiPolicyTypeOneTarget"
               ],
               "featureCount": 1,
-              "rowCount": 156,
+              "rowCount": 169,
               "uniqueKeys": 2,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 7606,
+              "trueUnityPairs": 8178,
               "falseUnityRate": 0
             },
             "bestFallback": {
@@ -10167,12 +10012,12 @@
                 "wiPolicyTypeOneTarget"
               ],
               "featureCount": 1,
-              "rowCount": 156,
+              "rowCount": 169,
               "uniqueKeys": 2,
               "mixedKeys": 0,
               "mixedKeyRate": 0,
               "falseUnityPairs": 0,
-              "trueUnityPairs": 7606,
+              "trueUnityPairs": 8178,
               "falseUnityRate": 0
             },
             "topZeroFalseUnity": [
@@ -10181,12 +10026,12 @@
                   "wiPolicyTypeOneTarget"
                 ],
                 "featureCount": 1,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
@@ -10195,12 +10040,12 @@
                   "wiPolicyPrefixCoda"
                 ],
                 "featureCount": 2,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
@@ -10209,26 +10054,12 @@
                   "wiPolicyIsVjBoundarySubcell"
                 ],
                 "featureCount": 2,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyTypeOneTarget",
-                  "wiPolicyRootLastVowel"
-                ],
-                "featureCount": 2,
-                "rowCount": 156,
-                "uniqueKeys": 2,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 8178,
                 "falseUnityRate": 0
               },
               {
@@ -10238,12 +10069,26 @@
                   "wiPolicyIsVjBoundarySubcell"
                 ],
                 "featureCount": 3,
-                "rowCount": 156,
+                "rowCount": 169,
                 "uniqueKeys": 2,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 8178,
+                "falseUnityRate": 0
+              },
+              {
+                "features": [
+                  "wiPolicyTypeOneTarget",
+                  "wiPolicyRootLastVowel"
+                ],
+                "featureCount": 2,
+                "rowCount": 169,
+                "uniqueKeys": 3,
+                "mixedKeys": 0,
+                "mixedKeyRate": 0,
+                "falseUnityPairs": 0,
+                "trueUnityPairs": 7684,
                 "falseUnityRate": 0
               },
               {
@@ -10253,12 +10098,12 @@
                   "wiPolicyRootLastVowel"
                 ],
                 "featureCount": 3,
-                "rowCount": 156,
-                "uniqueKeys": 2,
+                "rowCount": 169,
+                "uniqueKeys": 3,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 7684,
                 "falseUnityRate": 0
               },
               {
@@ -10268,12 +10113,12 @@
                   "wiPolicyRootLastVowel"
                 ],
                 "featureCount": 3,
-                "rowCount": 156,
-                "uniqueKeys": 2,
+                "rowCount": 169,
+                "uniqueKeys": 3,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
+                "trueUnityPairs": 7684,
                 "falseUnityRate": 0
               },
               {
@@ -10284,165 +10129,12 @@
                   "wiPolicyRootLastVowel"
                 ],
                 "featureCount": 4,
-                "rowCount": 156,
-                "uniqueKeys": 2,
+                "rowCount": 169,
+                "uniqueKeys": 3,
                 "mixedKeys": 0,
                 "mixedKeyRate": 0,
                 "falseUnityPairs": 0,
-                "trueUnityPairs": 7606,
-                "falseUnityRate": 0
-              }
-            ]
-          },
-          "wi": {
-            "rows": 13,
-            "baselineDesuperpose": {
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "baselineDecision": {
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "bestZeroFalseUnity": {
-              "features": [
-                "wiPolicySourceClassCanonical"
-              ],
-              "featureCount": 1,
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "bestFallback": {
-              "features": [
-                "wiPolicySourceClassCanonical"
-              ],
-              "featureCount": 1,
-              "rowCount": 13,
-              "uniqueKeys": 1,
-              "mixedKeys": 0,
-              "mixedKeyRate": 0,
-              "falseUnityPairs": 0,
-              "trueUnityPairs": 78,
-              "falseUnityRate": 0
-            },
-            "topZeroFalseUnity": [
-              {
-                "features": [
-                  "wiPolicySourceClassCanonical"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyTypeOneTarget"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyPrefixSubcell"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyPrefixCoda"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyFirstOnset"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyIsVjBoundarySubcell"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyRootLength"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
-                "falseUnityRate": 0
-              },
-              {
-                "features": [
-                  "wiPolicyRootPreFinal"
-                ],
-                "featureCount": 1,
-                "rowCount": 13,
-                "uniqueKeys": 1,
-                "mixedKeys": 0,
-                "mixedKeyRate": 0,
-                "falseUnityPairs": 0,
-                "trueUnityPairs": 78,
+                "trueUnityPairs": 7684,
                 "falseUnityRate": 0
               }
             ]

@@ -701,6 +701,62 @@ function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", optio
     };
 }
 
+function adjustPretComposedObjectPrefixContact({
+    objectPrefix = "",
+    base = "",
+    baseSubjectPrefix = "",
+    allowZeroBitransitiveDrop = false,
+    dropYAfterWal = false,
+}) {
+    let adjustedObjectPrefix = objectPrefix;
+    let adjustedBase = base;
+    if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
+        if (adjustedBase.startsWith("kw")) {
+            adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
+        } else {
+            adjustedBase = adjustedBase.slice(1);
+        }
+    }
+    return adjustPretPrefixBaseContact(
+        adjustedObjectPrefix,
+        adjustedBase,
+        baseSubjectPrefix,
+        { allowZeroBitransitiveDrop, dropYAfterWal }
+    );
+}
+
+function resolvePretObjectPrefixContact({
+    objectPrefix = "",
+    base = "",
+    baseSubjectPrefix = "",
+    indirectObjectMarker = "",
+    hasDoubleDash = false,
+    suppressBareKBeforeK = false,
+    dropYAfterWal = false,
+}) {
+    const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
+        hasDoubleDash,
+        indirectObjectMarker,
+    });
+    let adjustedObjectPrefix = objectPrefix;
+    if (suppressBareKBeforeK && adjustedObjectPrefix === "k" && base.startsWith("k") && !indirectObjectMarker) {
+        adjustedObjectPrefix = "";
+    }
+    adjustedObjectPrefix = composePretUniversalObjectPrefix({
+        objectPrefix: adjustedObjectPrefix,
+        baseSubjectPrefix,
+        indirectObjectMarker,
+        hasDoubleDash,
+    });
+    return adjustPretComposedObjectPrefixContact({
+        objectPrefix: adjustedObjectPrefix,
+        base,
+        baseSubjectPrefix,
+        allowZeroBitransitiveDrop,
+        dropYAfterWal,
+    });
+}
+
 function getPretUniversalPrefixForBase(
     base,
     subjectPrefix,
@@ -718,34 +774,15 @@ function getPretUniversalPrefixForBase(
     const baseCore = split.base;
     const dropYAfterWal = Boolean(isYawi && split.directional);
     if (!split.directional) {
-        const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
-            hasDoubleDash,
-            indirectObjectMarker,
-        });
-        let adjustedObjectPrefix = objectPrefix;
-        if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
-            adjustedObjectPrefix = "";
-        }
-        adjustedObjectPrefix = composePretUniversalObjectPrefix({
-            objectPrefix: adjustedObjectPrefix,
+        const contactAdjusted = resolvePretObjectPrefixContact({
+            objectPrefix,
+            base: baseCore,
             baseSubjectPrefix,
             indirectObjectMarker,
             hasDoubleDash,
+            suppressBareKBeforeK: true,
+            dropYAfterWal: false,
         });
-        let adjustedBase = baseCore;
-        if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
-            if (adjustedBase.startsWith("kw")) {
-                adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
-            } else {
-                adjustedBase = adjustedBase.slice(1);
-            }
-        }
-        const contactAdjusted = adjustPretPrefixBaseContact(
-            adjustedObjectPrefix,
-            adjustedBase,
-            baseSubjectPrefix,
-            { allowZeroBitransitiveDrop, dropYAfterWal: false }
-        );
         return {
             prefix: subjectPrefix + contactAdjusted.prefix,
             base: contactAdjusted.base,
@@ -799,45 +836,27 @@ function getPretUniversalPrefixForBase(
         } else {
             adjustedObjectPrefix = `${outputDirectional}${adjustedObjectPrefix}`;
         }
-        const contactAdjusted = adjustPretPrefixBaseContact(
-            adjustedObjectPrefix,
-            adjustedBase,
+        const contactAdjusted = adjustPretComposedObjectPrefixContact({
+            objectPrefix: adjustedObjectPrefix,
+            base: adjustedBase,
             baseSubjectPrefix,
-            { allowZeroBitransitiveDrop, dropYAfterWal }
-        );
+            allowZeroBitransitiveDrop,
+            dropYAfterWal,
+        });
         return {
             prefix: subjectHead + contactAdjusted.prefix,
             base: contactAdjusted.base,
         };
     }
-    let adjustedObjectPrefix = objectPrefix;
-    const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
-        hasDoubleDash,
-        indirectObjectMarker,
-    });
-    if (adjustedObjectPrefix === "k" && baseCore.startsWith("k") && !indirectObjectMarker) {
-        adjustedObjectPrefix = "";
-    }
-    adjustedObjectPrefix = composePretUniversalObjectPrefix({
-        objectPrefix: adjustedObjectPrefix,
+    const contactAdjusted = resolvePretObjectPrefixContact({
+        objectPrefix,
+        base: baseCore,
         baseSubjectPrefix,
         indirectObjectMarker,
         hasDoubleDash,
+        suppressBareKBeforeK: true,
+        dropYAfterWal,
     });
-    let adjustedBase = baseCore;
-    if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
-        if (adjustedBase.startsWith("kw")) {
-            adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
-        } else {
-            adjustedBase = adjustedBase.slice(1);
-        }
-    }
-    const contactAdjusted = adjustPretPrefixBaseContact(
-        adjustedObjectPrefix,
-        adjustedBase,
-        baseSubjectPrefix,
-        { allowZeroBitransitiveDrop, dropYAfterWal }
-    );
     return {
         prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
         base: contactAdjusted.base,
@@ -1091,6 +1110,63 @@ function getKVClassPolicy({
     };
 }
 
+function makePretClassPolicyState(policy = {}) {
+    return {
+        shouldMaskClassBSelection: Boolean(policy.shouldMaskClassBSelection),
+        shouldSkipClassA: Boolean(policy.shouldSkipClassA),
+        shouldSkipClassB: Boolean(policy.shouldSkipClassB),
+    };
+}
+
+function buildPretClassPolicyResult(isPreterit, state = {}) {
+    return {
+        isPreterit,
+        shouldMaskClassBSelection: Boolean(state.shouldMaskClassBSelection),
+        shouldSkipClassA: Boolean(state.shouldSkipClassA),
+        shouldSkipClassB: Boolean(state.shouldSkipClassB),
+    };
+}
+
+function buildForcedClassBPolicyResult(isPreterit) {
+    return {
+        isPreterit,
+        shouldMaskClassBSelection: false,
+        shouldSkipClassA: true,
+        shouldSkipClassB: false,
+    };
+}
+
+function applyPretClassPolicyRulePipeline({
+    state,
+    ruleContext,
+    rules = [],
+    isPreterit = false,
+}) {
+    let nextState = makePretClassPolicyState(state);
+    for (const rule of rules) {
+        if (!rule || typeof rule.when !== "function" || typeof rule.run !== "function") {
+            continue;
+        }
+        if (!rule.when(ruleContext, nextState)) {
+            continue;
+        }
+        const outcome = rule.run(ruleContext, nextState) || {};
+        if (outcome.state) {
+            nextState = makePretClassPolicyState(outcome.state);
+        }
+        if (outcome.terminal) {
+            return {
+                terminated: true,
+                policy: outcome.policy || buildPretClassPolicyResult(isPreterit, nextState),
+            };
+        }
+    }
+    return {
+        terminated: false,
+        policy: buildPretClassPolicyResult(isPreterit, nextState),
+    };
+}
+
 function resolvePretClassPolicy({
     context,
     tense,
@@ -1106,11 +1182,7 @@ function resolvePretClassPolicy({
     const forceClassBOnly = Array.isArray(context?.verbOverride?.classes)
         && context.verbOverride.classes.length === 1
         && context.verbOverride.classes[0] === "B";
-    let {
-        shouldMaskClassBSelection,
-        shouldSkipClassA,
-        shouldSkipClassB,
-    } = getKVClassPolicy({
+    const state = makePretClassPolicyState(getKVClassPolicy({
         context,
         isTransitive,
         isPreterit,
@@ -1119,179 +1191,222 @@ function resolvePretClassPolicy({
         hasClassA,
         hasClassB,
         allowAllClasses,
-    });
-    if (forceClassBOnly) {
-        return {
-            isPreterit,
-            shouldMaskClassBSelection: false,
-            shouldSkipClassA: true,
-            shouldSkipClassB: false,
-        };
-    }
-    const isDeletionClusterIntransitive = !!(
-        context
-        && !context.isTransitive
-        && context.deletionCreatesCluster
-    );
-    if (isDeletionClusterIntransitive) {
-        return {
-            isPreterit,
-            shouldMaskClassBSelection: false,
-            shouldSkipClassA: true,
-            shouldSkipClassB: false,
-        };
-    }
-    const isRootPlusYaIntransitive = Boolean(
-        context
-        && !context.isTransitive
-        && context.fromRootPlusYa
-    );
-    if (isRootPlusYaIntransitive) {
-        return {
-            isPreterit,
-            shouldMaskClassBSelection,
-            shouldSkipClassA,
-            shouldSkipClassB,
-        };
-    }
-    const isDenominalWiFromVowelSource = Boolean(
-        context
-        && context.isDenominalMatrixInput
-        && context.isDenominalWiMatrix
-        && context.denominalSourceEndsWithVowel
-    );
-    if (isDenominalWiFromVowelSource) {
-        if (isPreterit) {
-            return {
-                isPreterit,
-                shouldMaskClassBSelection: false,
-                shouldSkipClassA: false,
-                shouldSkipClassB: false,
-            };
-        }
-        return {
-            isPreterit,
-            shouldMaskClassBSelection: classFilter === "B",
-            shouldSkipClassA: false,
-            shouldSkipClassB: true,
-        };
-    }
-    const isWiPattern = !!(
-        context
-        && context.isExactWiPattern
-        && !context.isTransitive
-        && !context.fromRootPlusYa
-    );
-    if (isWiPattern) {
-        if (context.isMonosyllable) {
-            return {
-                isPreterit,
-                shouldMaskClassBSelection: false,
-                shouldSkipClassA: true,
-                shouldSkipClassB: false,
-            };
-        }
-        const isReduplicated = context.isReduplicated;
-        const isPreteritSingular = isPreterit && subjectSuffix !== "t";
-        const isPreteritPlural = isPreterit && subjectSuffix === "t";
-        if (isReduplicated) {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        } else if (isPreteritSingular) {
-            shouldSkipClassA = hasClassB;
-        } else if (isPreteritPlural) {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        } else {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        }
-    }
-    const isCVliPattern = !!(
-        context
-        && !context.isTransitive
-        && (context.isExactCVlV || context.isExactVlV || context.endsWithLV)
-        && context.lastNucleus === "i"
-    );
-    if (isCVliPattern) {
-        const penult = context.penultimateNucleus;
-        const isPreteritSingular = isPreterit && subjectSuffix !== "t";
-        if (penult === "e") {
-            shouldSkipClassA = true;
-            shouldSkipClassB = false;
-            shouldMaskClassBSelection = false;
-        } else if (penult === "u") {
-            if (isPreteritSingular) {
-                shouldSkipClassA = true;
-                shouldSkipClassB = false;
-                shouldMaskClassBSelection = false;
-            } else {
-                shouldSkipClassB = true;
-                shouldMaskClassBSelection = shouldMaskClassBSelection || classFilter === "B";
-            }
-        }
-    }
-    const isCVpVPattern = !!(
-        context
-        && context.isExactCVpV
-        && !context.isTransitive
-    );
-    if (isCVpVPattern) {
-        const isPreteritSingular = isPreterit && subjectSuffix !== "t";
-        if (isPreteritSingular) {
-            shouldSkipClassA = hasClassB;
-        } else {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        }
-    }
-    const isIntransitivePiPattern = !!(
-        context
-        && !context.isTransitive
-        && context.endsWithPI
-        && !context.isMonosyllable
-    );
-    if (isIntransitivePiPattern) {
-        const isPreteritSingular = isPreterit && subjectSuffix !== "t";
-        if (isPreteritSingular) {
-            shouldSkipClassA = hasClassB;
-        } else {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        }
-    }
-    const isCVVniPattern = !!(
-        context
-        && context.isExactCVVni
-        && !context.isTransitive
-    );
-    if (isCVVniPattern) {
-        const isPreteritSingular = isPreterit && subjectSuffix !== "t";
-        if (isPreteritSingular) {
-            shouldSkipClassA = hasClassB;
-        } else {
-            shouldSkipClassB = true;
-            if (classFilter === "B") {
-                shouldMaskClassBSelection = true;
-            }
-        }
-    }
-    return {
+    }));
+    const ruleContext = {
+        context,
+        classFilter,
+        hasClassA,
+        hasClassB,
+        subjectSuffix,
         isPreterit,
-        shouldMaskClassBSelection,
-        shouldSkipClassA,
-        shouldSkipClassB,
+        forceClassBOnly,
+        isDeletionClusterIntransitive: Boolean(
+            context
+            && !context.isTransitive
+            && context.deletionCreatesCluster
+        ),
+        isRootPlusYaIntransitive: Boolean(
+            context
+            && !context.isTransitive
+            && context.fromRootPlusYa
+        ),
+        isDenominalWiFromVowelSource: Boolean(
+            context
+            && context.isDenominalMatrixInput
+            && context.isDenominalWiMatrix
+            && context.denominalSourceEndsWithVowel
+        ),
+        isWiPattern: Boolean(
+            context
+            && context.isExactWiPattern
+            && !context.isTransitive
+            && !context.fromRootPlusYa
+        ),
+        isCVliPattern: Boolean(
+            context
+            && !context.isTransitive
+            && (context.isExactCVlV || context.isExactVlV || context.endsWithLV)
+            && context.lastNucleus === "i"
+        ),
+        isCVpVPattern: Boolean(
+            context
+            && context.isExactCVpV
+            && !context.isTransitive
+        ),
+        isIntransitivePiPattern: Boolean(
+            context
+            && !context.isTransitive
+            && context.endsWithPI
+            && !context.isMonosyllable
+        ),
+        isCVVniPattern: Boolean(
+            context
+            && context.isExactCVVni
+            && !context.isTransitive
+        ),
     };
+    const rules = [
+        {
+            name: "force-class-b-only",
+            when: (ctx) => ctx.forceClassBOnly,
+            run: () => ({
+                terminal: true,
+                policy: buildForcedClassBPolicyResult(isPreterit),
+            }),
+        },
+        {
+            name: "deletion-cluster-intransitive",
+            when: (ctx) => ctx.isDeletionClusterIntransitive,
+            run: () => ({
+                terminal: true,
+                policy: buildForcedClassBPolicyResult(isPreterit),
+            }),
+        },
+        {
+            name: "root-plus-ya-intransitive",
+            when: (ctx) => ctx.isRootPlusYaIntransitive,
+            run: (ctx, currentState) => ({
+                terminal: true,
+                policy: buildPretClassPolicyResult(isPreterit, currentState),
+            }),
+        },
+        {
+            name: "denominal-wi-vowel-source",
+            when: (ctx) => ctx.isDenominalWiFromVowelSource,
+            run: (ctx) => ({
+                terminal: true,
+                policy: ctx.isPreterit
+                    ? {
+                        isPreterit: ctx.isPreterit,
+                        shouldMaskClassBSelection: false,
+                        shouldSkipClassA: false,
+                        shouldSkipClassB: false,
+                    }
+                    : {
+                        isPreterit: ctx.isPreterit,
+                        shouldMaskClassBSelection: ctx.classFilter === "B",
+                        shouldSkipClassA: false,
+                        shouldSkipClassB: true,
+                    },
+            }),
+        },
+        {
+            name: "wi-pattern",
+            when: (ctx) => ctx.isWiPattern,
+            run: (ctx, currentState) => {
+                if (ctx.context.isMonosyllable) {
+                    return {
+                        terminal: true,
+                        policy: buildForcedClassBPolicyResult(ctx.isPreterit),
+                    };
+                }
+                const next = makePretClassPolicyState(currentState);
+                const isReduplicated = ctx.context.isReduplicated;
+                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
+                const isPreteritPlural = ctx.isPreterit && ctx.subjectSuffix === "t";
+                if (isReduplicated) {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                } else if (isPreteritSingular) {
+                    next.shouldSkipClassA = ctx.hasClassB;
+                } else if (isPreteritPlural) {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                } else {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                }
+                return { state: next };
+            },
+        },
+        {
+            name: "cvli-pattern",
+            when: (ctx) => ctx.isCVliPattern,
+            run: (ctx, currentState) => {
+                const next = makePretClassPolicyState(currentState);
+                const penult = ctx.context.penultimateNucleus;
+                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
+                if (penult === "e") {
+                    next.shouldSkipClassA = true;
+                    next.shouldSkipClassB = false;
+                    next.shouldMaskClassBSelection = false;
+                } else if (penult === "u") {
+                    if (isPreteritSingular) {
+                        next.shouldSkipClassA = true;
+                        next.shouldSkipClassB = false;
+                        next.shouldMaskClassBSelection = false;
+                    } else {
+                        next.shouldSkipClassB = true;
+                        next.shouldMaskClassBSelection = next.shouldMaskClassBSelection || ctx.classFilter === "B";
+                    }
+                }
+                return { state: next };
+            },
+        },
+        {
+            name: "cvpv-pattern",
+            when: (ctx) => ctx.isCVpVPattern,
+            run: (ctx, currentState) => {
+                const next = makePretClassPolicyState(currentState);
+                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
+                if (isPreteritSingular) {
+                    next.shouldSkipClassA = ctx.hasClassB;
+                } else {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                }
+                return { state: next };
+            },
+        },
+        {
+            name: "intransitive-pi-pattern",
+            when: (ctx) => ctx.isIntransitivePiPattern,
+            run: (ctx, currentState) => {
+                const next = makePretClassPolicyState(currentState);
+                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
+                if (isPreteritSingular) {
+                    next.shouldSkipClassA = ctx.hasClassB;
+                } else {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                }
+                return { state: next };
+            },
+        },
+        {
+            name: "cvvni-pattern",
+            when: (ctx) => ctx.isCVVniPattern,
+            run: (ctx, currentState) => {
+                const next = makePretClassPolicyState(currentState);
+                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
+                if (isPreteritSingular) {
+                    next.shouldSkipClassA = ctx.hasClassB;
+                } else {
+                    next.shouldSkipClassB = true;
+                    if (ctx.classFilter === "B") {
+                        next.shouldMaskClassBSelection = true;
+                    }
+                }
+                return { state: next };
+            },
+        },
+    ];
+    return applyPretClassPolicyRulePipeline({
+        state,
+        ruleContext,
+        rules,
+        isPreterit,
+    }).policy;
 }
 
 function buildClassBasedResult({
@@ -1326,7 +1441,10 @@ function buildClassBasedResult({
     indirectObjectMarker = "",
     hasDoubleDash = false,
     forceClassBSelection = false,
+    forceClassBOnly = false,
 }) {
+    const resolvedClassFilter = forceClassBOnly ? "B" : classFilter;
+    const resolvedForceClassBSelection = forceClassBOnly || forceClassBSelection;
     const analysisTarget = getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
         hasSlashMarker,
@@ -1358,6 +1476,7 @@ function buildClassBasedResult({
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
             derivationType,
+            forceClassBOnly,
         });
         if (
             !isTransitive
@@ -1371,8 +1490,8 @@ function buildClassBasedResult({
     if (!variantsByClass.size) {
         return null;
     }
-    const classOrder = classFilter
-        ? [classFilter]
+    const classOrder = resolvedClassFilter
+        ? [resolvedClassFilter]
         : (typeof getPretUniversalClassOrder === "function"
             ? getPretUniversalClassOrder()
             : ["A", "B", "C", "D"]);
@@ -1387,14 +1506,14 @@ function buildClassBasedResult({
         context,
         tense,
         isTransitive,
-        classFilter,
+        classFilter: resolvedClassFilter,
         baseObjectPrefix,
         hasClassA,
         hasClassB,
         allowAllClasses,
         subjectSuffix,
     });
-    if (forceClassBSelection && classFilter === "B") {
+    if (resolvedForceClassBSelection && resolvedClassFilter === "B") {
         shouldMaskClassBSelection = false;
         shouldSkipClassA = true;
         shouldSkipClassB = false;
@@ -1559,6 +1678,7 @@ function buildPretUniversalResultWithProvenance({
     forceTransitive = false,
     indirectObjectMarker = "",
     hasDoubleDash = false,
+    forceClassBOnly = false,
 }) {
     const analysisTarget = getDerivationRuleBase(analysisVerb || verb, {
         analysisVerb,
@@ -1570,7 +1690,7 @@ function buildPretUniversalResultWithProvenance({
     });
     const isTransitive = forceTransitive || objectPrefix !== "";
     const isBitransitive = Boolean(baseObjectPrefix && (indirectObjectMarker || hasNonspecificValence));
-    const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
+    const classKey = forceClassBOnly ? "B" : PRET_UNIVERSAL_CLASS_BY_TENSE[tense];
     let context = null;
     let variants = null;
     let pluralSuffix = null;
@@ -1592,6 +1712,7 @@ function buildPretUniversalResultWithProvenance({
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
             derivationType,
+            forceClassBOnly,
         });
         const candidates = getPretUniversalClassCandidates(context);
         const classAVariants = normalizePretYawiPreteriteVariants(
@@ -1698,6 +1819,7 @@ function buildPretUniversalResultWithProvenance({
                 rootPlusYaBase,
                 rootPlusYaBasePronounceable,
                 derivationType,
+                forceClassBOnly,
             });
             return {
                 result: null,
@@ -1741,6 +1863,7 @@ function buildPretUniversalResultWithProvenance({
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
             derivationType,
+            forceClassBOnly,
         }),
             tense,
             isYawi
@@ -1763,6 +1886,7 @@ function buildPretUniversalResultWithProvenance({
             rootPlusYaBase,
             rootPlusYaBasePronounceable,
             derivationType,
+            forceClassBOnly,
         });
     }
     if (!variants || variants.length === 0) {
