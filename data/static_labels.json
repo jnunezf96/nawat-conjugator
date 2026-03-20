@@ -16,8 +16,8 @@
       "labelNa": "Regex Dev: xikijkwilu ne patrun tik pantalla."
     },
     "composer-hint-define-roots": {
-      "labelEs": "Define raíz matriz y raíz incorporada para construir el regex.",
-      "labelNa": "Xiknexti raiz matriz wan raiz incorporada para tiktalia regex."
+      "labelEs": "Define raíz matriz y raíz incorporada para construir la forma.",
+      "labelNa": "Xiknexti raiz matriz wan raiz incorporada para tiktalia ne forma."
     },
     "calc-status-enter-verb": {
       "labelEs": "Ingresa un verbo para generar.",
@@ -148,6 +148,8 @@
     "adjetivo-perfecto-tik": { "labelEs": "perfecto -tik", "labelNa": "ipan muchiwtuk -tik" },
     "adjetivo-preterito-naj": { "labelEs": "pretérito -naj", "labelNa": "ipan muchiwki -naj" },
     "adjetivo-perfecto-naj": { "labelEs": "perfecto -naj", "labelNa": "ipan muchiwtuk -naj" },
+    "adjetivo-patientivo-no-activo": { "labelEs": "no activo -ti", "labelNa": "te muselia -ti" },
+    "adjetivo-patientivo-perfectivo": { "labelEs": "perfectivo -ti", "labelNa": "ipan muchiwki -ti" },
     "pasado-remoto-adverbio-activo": { "labelEs": "pretérito agentivo", "labelNa": "ipan muchiwka" },
     "agentivo": { "labelEs": "agentivo", "labelNa": "tachiwani" },
     "patientivo": { "labelEs": "patientivo", "labelNa": "tachiwal" },
@@ -180,13 +182,15 @@
     "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
     "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo (sustantivo derivado del verbo con -lis)", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
     "potencial": { "labelEs": "adjetivo activo como conjugación verbal en futuro imperfectivo", "labelNa": "potencial" },
-    "potencial-habitual": { "labelEs": "adjetivo activo como conjugación verbal en presente habitual", "labelNa": "ipan muchiwani" },
+    "potencial-habitual": { "labelEs": "adjetivo no activo como conjugación verbal en presente habitual", "labelNa": "ipan muchiwani" },
     "adjetivo-preterito": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto simple", "labelNa": "ipan muchiwki" },
     "adjetivo-perfecto": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
     "adjetivo-preterito-tik": { "labelEs": "adjetivo activo en pretérito con sufijo -tik", "labelNa": "ipan muchiwki -tik" },
     "adjetivo-perfecto-tik": { "labelEs": "adjetivo activo en perfecto con sufijo -tik", "labelNa": "ipan muchiwtuk -tik" },
     "adjetivo-preterito-naj": { "labelEs": "adjetivo activo en pretérito con sufijo -naj; usa base de tronco verbal, salvo finales en -ya/-tiya que usan la base de pretérito (excepto -wiya)", "labelNa": "ipan muchiwki -naj" },
     "adjetivo-perfecto-naj": { "labelEs": "adjetivo activo en perfecto con sufijo -naj; usa base de tronco verbal, salvo finales en -ya/-tiya que usan la base de pretérito (excepto -wiya)", "labelNa": "ipan muchiwtuk -naj" },
+    "adjetivo-patientivo-no-activo": { "labelEs": "adjetivo derivado del patientivo no activo con sufijo -ti", "labelNa": "te muselia -ti" },
+    "adjetivo-patientivo-perfectivo": { "labelEs": "adjetivo derivado del patientivo perfectivo con sufijo -ti", "labelNa": "ipan muchiwki -ti" },
     "pasado-remoto-adverbio-activo": { "labelEs": "adverbio de manera en que alguien hace algo derivado del pretérito agentivo", "labelNa": "ipan muchiwka" },
     "agentivo": { "labelEs": "persona o entidad que realiza la acción (sustantivo derivado del presente habitual -ni)", "labelNa": "kajkajsan wan tajtaysan ne kichiwa tajtaya" },
     "patientivo": { "labelEs": "persona o entidad que existe cuando ocurre un evento (sustantivo derivado de base no activa/perfectiva/imperfectiva/tronco verbal)", "labelNa": "kajkajsan wan tajtaysan nemi kwak muchiwa tajtaya" },

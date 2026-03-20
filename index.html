@@ -206,16 +206,7 @@
                       data-input-mode="regex"
                       aria-pressed="false"
                     >
-                      <span class="button-icon" aria-hidden="true">
-                        <svg viewBox="0 0 16 16" focusable="false">
-                          <path d="M3.5 4.5h3"></path>
-                          <path d="M3.5 11.5h3"></path>
-                          <path d="M12.5 4.5h-3"></path>
-                          <path d="M12.5 11.5h-3"></path>
-                          <circle cx="8" cy="8" r="1.25"></circle>
-                          <path d="M10.75 5.25 5.25 10.75"></path>
-                        </svg>
-                      </span>
+                      <span class="button-icon button-icon--regex" aria-hidden="true">(.*)</span>
                       <span class="button-label">Regex</span>
                     </button>
                   </div>
@@ -327,8 +318,66 @@
                 </div>
                 <div class="verb-block__separator" aria-hidden="true"></div>
                 <div class="verb-block__controls">
-                  <div class="verb-block__composer">
+                      <div class="verb-block__composer">
                       <div class="verb-composer" id="verb-composer">
+                        <div class="verb-entry-board-rail">
+                          <div
+                            class="verb-entry-board-tabs"
+                            role="tablist"
+                            aria-label="Tableros internos de Selecciones"
+                          >
+                            <button
+                              type="button"
+                              class="verb-entry-board-tabs__button"
+                              id="verb-entry-board-tab-general"
+                              data-composer-entry-board="general"
+                              role="tab"
+                              aria-selected="true"
+                              aria-controls="verb-entry-board-panel-general"
+                            >
+                              Verbo puro
+                            </button>
+                            <button
+                              type="button"
+                              class="verb-entry-board-tabs__button"
+                              id="verb-entry-board-tab-noun-to-verb"
+                              data-composer-entry-board="noun-to-verb"
+                              role="tab"
+                              aria-selected="false"
+                              aria-controls="verb-entry-board-panel-noun-to-verb"
+                            >
+                              Sustantivo→verbo
+                            </button>
+                          </div>
+                          <div
+                            class="verb-entry-board-callout"
+                            id="verb-entry-board-panel-general"
+                            data-composer-entry-board-panel="general"
+                            role="tabpanel"
+                            aria-labelledby="verb-entry-board-tab-general"
+                            aria-live="polite"
+                          >
+                            <strong class="verb-entry-board-callout__title">Verbo puro</strong>
+                            <span class="verb-entry-board-callout__body">
+                              Escribe un verbo ya verbal y combínalo con sus selecciones verbales normales.
+                            </span>
+                          </div>
+                          <div
+                            class="verb-entry-board-callout"
+                            id="verb-entry-board-panel-noun-to-verb"
+                            data-composer-entry-board-panel="noun-to-verb"
+                            role="tabpanel"
+                            aria-labelledby="verb-entry-board-tab-noun-to-verb"
+                            aria-live="polite"
+                            hidden
+                            aria-hidden="true"
+                          >
+                            <strong class="verb-entry-board-callout__title">Sustantivo→verbo</strong>
+                            <span class="verb-entry-board-callout__body">
+                              Escribe un sustantivo y usa S→V para verbalizarlo sin mezclar el sufijo en la raíz matriz.
+                            </span>
+                          </div>
+                        </div>
                         <div class="verb-composer__grid">
                           <div
                             class="verb-composer__slots"
@@ -424,6 +473,42 @@
                                         autocapitalize="none"
                                         spellcheck="false"
                                       />
+                                      <div
+                                        class="verb-composer__matrix-affix-picker"
+                                        data-composer-matrix-affix-picker="a"
+                                      >
+                                        <button
+                                          type="button"
+                                          class="verb-chip verb-composer__matrix-affix-trigger"
+                                          id="composer-stem-a-affix-trigger"
+                                          aria-haspopup="menu"
+                                          aria-expanded="false"
+                                          aria-controls="composer-stem-a-affix-popover"
+                                          aria-label="Abrir opciones derivativas Slot A"
+                                        >
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span
+                                            class="verb-composer__matrix-affix-trigger-value"
+                                            id="composer-stem-a-affix-trigger-value"
+                                            hidden
+                                            aria-hidden="true"
+                                          ></span>
+                                          <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
+                                        </button>
+                                        <div
+                                          class="verb-composer__matrix-affix-popover"
+                                          id="composer-stem-a-affix-popover"
+                                          role="menu"
+                                          aria-label="Opciones derivativas Slot A"
+                                          hidden
+                                          aria-hidden="true"
+                                        >
+                                          <div
+                                            class="verb-composer__matrix-affix-popover-groups"
+                                            data-composer-matrix-affix-chip-groups="a"
+                                          ></div>
+                                        </div>
+                                      </div>
                                     </div>
                                     <select
                                       id="composer-stem-a-affix"
@@ -432,42 +517,6 @@
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
-                                    <div
-                                      class="verb-composer__matrix-affix-picker"
-                                      data-composer-matrix-affix-picker="a"
-                                    >
-                                      <button
-                                        type="button"
-                                        class="verb-chip verb-composer__matrix-affix-trigger"
-                                        id="composer-stem-a-affix-trigger"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-controls="composer-stem-a-affix-popover"
-                                        aria-label="Abrir opciones derivativas Slot A"
-                                      >
-                                        <span class="verb-composer__matrix-affix-trigger-prefix">N→V</span>
-                                        <span
-                                          class="verb-composer__matrix-affix-trigger-value"
-                                          id="composer-stem-a-affix-trigger-value"
-                                          hidden
-                                          aria-hidden="true"
-                                        ></span>
-                                        <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
-                                      </button>
-                                      <div
-                                        class="verb-composer__matrix-affix-popover"
-                                        id="composer-stem-a-affix-popover"
-                                        role="menu"
-                                        aria-label="Opciones derivativas Slot A"
-                                        hidden
-                                        aria-hidden="true"
-                                      >
-                                        <div
-                                          class="verb-composer__matrix-affix-popover-groups"
-                                          data-composer-matrix-affix-chip-groups="a"
-                                        ></div>
-                                      </div>
-                                    </div>
                                     <div
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="a"
@@ -560,6 +609,42 @@
                                         autocapitalize="none"
                                         spellcheck="false"
                                       />
+                                      <div
+                                        class="verb-composer__matrix-affix-picker"
+                                        data-composer-matrix-affix-picker="b"
+                                      >
+                                        <button
+                                          type="button"
+                                          class="verb-chip verb-composer__matrix-affix-trigger"
+                                          id="composer-stem-b-affix-trigger"
+                                          aria-haspopup="menu"
+                                          aria-expanded="false"
+                                          aria-controls="composer-stem-b-affix-popover"
+                                          aria-label="Abrir opciones derivativas Slot B"
+                                        >
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span
+                                            class="verb-composer__matrix-affix-trigger-value"
+                                            id="composer-stem-b-affix-trigger-value"
+                                            hidden
+                                            aria-hidden="true"
+                                          ></span>
+                                          <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
+                                        </button>
+                                        <div
+                                          class="verb-composer__matrix-affix-popover"
+                                          id="composer-stem-b-affix-popover"
+                                          role="menu"
+                                          aria-label="Opciones derivativas Slot B"
+                                          hidden
+                                          aria-hidden="true"
+                                        >
+                                          <div
+                                            class="verb-composer__matrix-affix-popover-groups"
+                                            data-composer-matrix-affix-chip-groups="b"
+                                          ></div>
+                                        </div>
+                                      </div>
                                     </div>
                                     <select
                                       id="composer-stem-b-affix"
@@ -568,42 +653,6 @@
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
-                                    <div
-                                      class="verb-composer__matrix-affix-picker"
-                                      data-composer-matrix-affix-picker="b"
-                                    >
-                                      <button
-                                        type="button"
-                                        class="verb-chip verb-composer__matrix-affix-trigger"
-                                        id="composer-stem-b-affix-trigger"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-controls="composer-stem-b-affix-popover"
-                                        aria-label="Abrir opciones derivativas Slot B"
-                                      >
-                                        <span class="verb-composer__matrix-affix-trigger-prefix">N→V</span>
-                                        <span
-                                          class="verb-composer__matrix-affix-trigger-value"
-                                          id="composer-stem-b-affix-trigger-value"
-                                          hidden
-                                          aria-hidden="true"
-                                        ></span>
-                                        <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
-                                      </button>
-                                      <div
-                                        class="verb-composer__matrix-affix-popover"
-                                        id="composer-stem-b-affix-popover"
-                                        role="menu"
-                                        aria-label="Opciones derivativas Slot B"
-                                        hidden
-                                        aria-hidden="true"
-                                      >
-                                        <div
-                                          class="verb-composer__matrix-affix-popover-groups"
-                                          data-composer-matrix-affix-chip-groups="b"
-                                        ></div>
-                                      </div>
-                                    </div>
                                     <div
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="b"
@@ -698,6 +747,42 @@
                                         autocapitalize="none"
                                         spellcheck="false"
                                       />
+                                      <div
+                                        class="verb-composer__matrix-affix-picker"
+                                        data-composer-matrix-affix-picker="c"
+                                      >
+                                        <button
+                                          type="button"
+                                          class="verb-chip verb-composer__matrix-affix-trigger"
+                                          id="composer-stem-c-affix-trigger"
+                                          aria-haspopup="menu"
+                                          aria-expanded="false"
+                                          aria-controls="composer-stem-c-affix-popover"
+                                          aria-label="Abrir opciones derivativas Slot C"
+                                        >
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span
+                                            class="verb-composer__matrix-affix-trigger-value"
+                                            id="composer-stem-c-affix-trigger-value"
+                                            hidden
+                                            aria-hidden="true"
+                                          ></span>
+                                          <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
+                                        </button>
+                                        <div
+                                          class="verb-composer__matrix-affix-popover"
+                                          id="composer-stem-c-affix-popover"
+                                          role="menu"
+                                          aria-label="Opciones derivativas Slot C"
+                                          hidden
+                                          aria-hidden="true"
+                                        >
+                                          <div
+                                            class="verb-composer__matrix-affix-popover-groups"
+                                            data-composer-matrix-affix-chip-groups="c"
+                                          ></div>
+                                        </div>
+                                      </div>
                                     </div>
                                     <select
                                       id="composer-stem-c-affix"
@@ -706,42 +791,6 @@
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
-                                    <div
-                                      class="verb-composer__matrix-affix-picker"
-                                      data-composer-matrix-affix-picker="c"
-                                    >
-                                      <button
-                                        type="button"
-                                        class="verb-chip verb-composer__matrix-affix-trigger"
-                                        id="composer-stem-c-affix-trigger"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-controls="composer-stem-c-affix-popover"
-                                        aria-label="Abrir opciones derivativas Slot C"
-                                      >
-                                        <span class="verb-composer__matrix-affix-trigger-prefix">N→V</span>
-                                        <span
-                                          class="verb-composer__matrix-affix-trigger-value"
-                                          id="composer-stem-c-affix-trigger-value"
-                                          hidden
-                                          aria-hidden="true"
-                                        ></span>
-                                        <span class="verb-composer__matrix-affix-trigger-caret" aria-hidden="true">▾</span>
-                                      </button>
-                                      <div
-                                        class="verb-composer__matrix-affix-popover"
-                                        id="composer-stem-c-affix-popover"
-                                        role="menu"
-                                        aria-label="Opciones derivativas Slot C"
-                                        hidden
-                                        aria-hidden="true"
-                                      >
-                                        <div
-                                          class="verb-composer__matrix-affix-popover-groups"
-                                          data-composer-matrix-affix-chip-groups="c"
-                                        ></div>
-                                      </div>
-                                    </div>
                                     <div
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="c"
@@ -998,9 +1047,8 @@
             </div>
             <div class="output-meta-strip">
               <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
-              <div class="calc-status" id="calc-status" aria-live="polite"></div>
               <div class="tense-description" id="tense-description" aria-live="polite"></div>
-              <div class="calc-provenance is-empty" id="calc-provenance" aria-live="polite" hidden></div>
+              <div class="calc-guidance is-empty" id="calc-guidance" aria-live="polite" hidden></div>
             </div>
             <div class="output-result-controls" id="output-result-controls">
               <div
@@ -1143,11 +1191,6 @@
                         </button>
                       </div>
                     </div>
-                    <select id="derivation-type" class="is-hidden-control" aria-label="Derivación">
-                      <option value="direct">Directo</option>
-                      <option value="causative">Causativo</option>
-                      <option value="applicative">Aplicativo</option>
-                    </select>
                   </div>
                 </div>
             <div
@@ -1157,6 +1200,18 @@
             ></div>
             <div id="tense-tabs" class="tense-tabs"></div>
           </div>
+          <select
+            id="derivation-type"
+            class="is-hidden-control"
+            aria-label="Derivación"
+            aria-hidden="true"
+            tabindex="-1"
+            hidden
+          >
+            <option value="direct">Directo</option>
+            <option value="causative">Causativo</option>
+            <option value="applicative">Aplicativo</option>
+          </select>
         </div>
       </div>
       <footer>

@@ -127,6 +127,10 @@ const COMPOSER_TRANSITIVITY = {
     transitive: "transitive",
     bitransitive: "bitransitive",
 };
+const COMPOSER_ENTRY_BOARD = {
+    general: "general",
+    nounToVerb: "noun-to-verb",
+};
 const COMPOSER_SYLLABLE_MODE = {
     monosyllable: "monosyllable",
     multisyllable: "multisyllable",
@@ -173,6 +177,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "v",
         label: "⌥/Alt + V",
         selector: "[data-tense-mode=\"verbo\"]",
+        legendDescription: "verbo",
         fallbackDescription: "verbo",
     },
     {
@@ -180,6 +185,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "s",
         label: "⌥/Alt + S",
         selector: "[data-tense-mode=\"sustantivo\"]",
+        legendDescription: "sustantivo",
         fallbackDescription: "sustantivo",
     },
     {
@@ -187,6 +193,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "j",
         label: "⌥/Alt + J",
         selector: "[data-tense-mode=\"adjetivo\"]",
+        legendDescription: "adjetivo",
         fallbackDescription: "adjetivo",
     },
     {
@@ -194,6 +201,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "b",
         label: "⌥/Alt + B",
         selector: "[data-tense-mode=\"adverbio\"]",
+        legendDescription: "adverbio",
         fallbackDescription: "adverbio",
     },
     {
@@ -217,6 +225,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "d",
         label: "⌥/Alt + D",
         selector: "[data-derivation-type=\"direct\"]",
+        legendDescription: "directo",
         fallbackDescription: "directo",
     },
     {
@@ -224,6 +233,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "c",
         label: "⌥/Alt + C",
         selector: "[data-derivation-type=\"causative\"]",
+        legendDescription: "causativo",
         fallbackDescription: "causativo",
     },
     {
@@ -231,6 +241,7 @@ const ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         key: "p",
         label: "⌥/Alt + P",
         selector: "[data-derivation-type=\"applicative\"]",
+        legendDescription: "aplicativo",
         fallbackDescription: "aplicativo",
     },
     {
@@ -261,7 +272,10 @@ const KEYBOARD_LEGEND_BASE_ENTRIES = Object.freeze([
     { label: "⌥/Alt + ← / →", description: "transitividad ±" },
     { label: "Space", description: "foco en raíz matriz (Selecciones) / #verb (Regex)" },
     { label: "Esc", description: "cerrar/cancelar" },
-    { label: "Esc x2", description: "limpiar cajas (selecciones)" },
+    { label: "Esc x2", description: "limpiar cajas del compositor" },
+    { label: "Delete / Backspace", description: "DEL · borrar una unidad" },
+    { label: "Shift + Delete / Backspace", description: "CE · limpiar una caja de texto" },
+    { label: "⌥/Alt + Delete / Backspace", description: "AC · resetear cajas y selecciones" },
     { label: "Enter", description: "activar control enfocado" },
     { label: "Tip", description: "escribe para ver sugerencias o haz clic en un verbo de la lista" },
 ]);
@@ -308,6 +322,32 @@ const COMPOSER_SERIAL_SLOT_PREF_BY_SLOT = {
     b: COMPOSER_SERIAL_DEFAULT_SLOT_COUNT,
     c: COMPOSER_SERIAL_DEFAULT_SLOT_COUNT,
 };
+const COMPOSER_TEMPLATE_SURFACE_BY_SLOT = {
+    a: "",
+    b: "",
+    c: "",
+};
+const COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT = {
+    a: "",
+    b: "",
+    c: "",
+};
+const COMPOSER_ENTRY_BOARD_SLOT_A_STATE = {
+    [COMPOSER_ENTRY_BOARD.general]: {
+        slots: {
+            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+        },
+    },
+    [COMPOSER_ENTRY_BOARD.nounToVerb]: {
+        slots: {
+            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+        },
+    },
+};
 const COMPOSER_SERIAL_TYPE_OPTIONS = Object.freeze([
     { value: "mono", label: "mono", slotCount: 1, family: "monomorphemic" },
     { value: "ti-have", label: "ti: tener", slotCount: 2, family: "ti" },
@@ -319,15 +359,15 @@ const COMPOSER_SERIAL_TYPE_OPTIONS = Object.freeze([
     { value: "iwi", label: "iwi", slotCount: 3, family: "iwi" },
 ]);
 const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_GROUPS = Object.freeze([
-    { key: "noun-to-verb", label: "Sustantivo→verbo", triggerPrefix: "N→V" },
+    { key: "noun-to-verb", label: "Sustantivo→verbo", triggerPrefix: "S→V" },
     { key: "series", label: "Serie", triggerPrefix: "Serie" },
 ]);
 const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
     {
-        key: "serial:ti-become",
-        kind: "serial",
+        key: "token:ti-become",
+        kind: "token",
         value: "_ti2",
-        serialType: "ti-become",
+        templateSuffix: "ti",
         groupKey: "noun-to-verb",
         label: "-TI (SER)",
         shortLabel: "-ti (ser)",
@@ -344,34 +384,54 @@ const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
         meta: "VOLVERSE/HACERSE COMO",
     },
     {
-        key: "serial:ti-have",
-        kind: "serial",
+        key: "token:ti-have",
+        kind: "token",
         value: "_ti1",
-        serialType: "ti-have",
+        templateSuffix: "ti",
         groupKey: "noun-to-verb",
         label: "-TI (TENER)",
         shortLabel: "-ti (tener)",
         meta: "TENER",
     },
     {
-        key: "serial:ya",
-        kind: "serial",
+        key: "token:wi",
+        kind: "token",
+        value: "_wi",
+        templateSuffix: "wi",
+        groupKey: "noun-to-verb",
+        label: "-WI",
+        shortLabel: "-wi",
+        meta: "VOLVERSE/HACERSE",
+    },
+    {
+        key: "token:ya",
+        kind: "token",
         value: "_ya",
-        serialType: "ya",
+        templateSuffix: "ya",
         groupKey: "noun-to-verb",
         label: "-YA",
         shortLabel: "-ya",
         meta: "VOLVERSE/HACERSE COMO",
     },
     {
-        key: "serial:ua",
-        kind: "serial",
+        key: "token:ua",
+        kind: "token",
         value: "_ua",
-        serialType: "ua",
+        templateSuffix: "ua",
         groupKey: "noun-to-verb",
         label: "-UA",
         shortLabel: "-ua",
         meta: "HACER USO DE",
+    },
+    {
+        key: "token:ewi",
+        kind: "token",
+        value: "_ewi",
+        templateSuffix: "ewi",
+        groupKey: "series",
+        label: "-EWI",
+        shortLabel: "-ewi",
+        meta: "FAMILIA EXPLICITA",
     },
     {
         key: "serial:iwi",
@@ -392,6 +452,26 @@ const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
         label: "-AWI",
         shortLabel: "-awi",
         meta: "VOLVERSE/HACERSE",
+    },
+    {
+        key: "token:uwi",
+        kind: "token",
+        value: "_uwi",
+        templateSuffix: "uwi",
+        groupKey: "series",
+        label: "-UWI",
+        shortLabel: "-uwi",
+        meta: "FAMILIA EXPLICITA",
+    },
+    {
+        key: "token:wi-auto",
+        kind: "token",
+        value: "_wi-auto",
+        templateSuffix: "wiauto",
+        groupKey: "series",
+        label: "-$WI",
+        shortLabel: "-$wi",
+        meta: "A/E>IWI, I/U>AWI",
     },
     {
         key: "token:wiya",
@@ -476,6 +556,9 @@ const COMPOSER_SLOT_KEY_BY_TRANSITIVITY = COMPOSER_SLOT_KEYS.reduce((acc, slotKe
 }, {});
 const VERB_COMPOSER_STATE = {
     mode: VERB_INPUT_MODE.composer,
+    entryBoard: COMPOSER_ENTRY_BOARD.general,
+    lastGeneralTransitivity: "",
+    lastNounToVerbTransitivity: COMPOSER_TRANSITIVITY.intransitive,
     transitivity: COMPOSER_TRANSITIVITY.intransitive,
     valenceIntransitive: "",
     valenceIntransitiveEmbed: "",
@@ -551,6 +634,20 @@ let NUMBER_LABELS = {
     singular: { es: "singular", na: "isel" },
     plural: { es: "plural", na: "imiaka" },
 };
+const ADJECTIVE_DISTRIBUTIVE_PLURAL_SUB_LABELS = Object.freeze({
+    first: {
+        labelEs: "cada uno de nosotros",
+        labelNa: "cada uno de nosotros",
+    },
+    second: {
+        labelEs: "cada uno de ustedes",
+        labelNa: "cada uno de ustedes",
+    },
+    thirdHuman: {
+        labelEs: "cada uno de ellos/ellas",
+        labelNa: "cada uno de ellos/ellas",
+    },
+});
 let VOICE_MODE = {};
 let PASSIVE_IMPERSONAL_SUBJECT_MAP = {};
 let PASSIVE_IMPERSONAL_DIRECT_OBJECTS = new Set();
@@ -573,6 +670,19 @@ const ADJECTIVE_ACTIVE_TENSE_IDS = Object.freeze({
     preteritoNaj: "adjetivo-preterito-naj",
     perfectoNaj: "adjetivo-perfecto-naj",
 });
+const PATIENTIVO_ADJECTIVE_TENSE_IDS = Object.freeze({
+    nonactive: "adjetivo-patientivo-no-activo",
+    perfectivo: "adjetivo-patientivo-perfectivo",
+});
+const PATIENTIVO_ADJECTIVE_TENSE_ORDER = Object.freeze([
+    PATIENTIVO_ADJECTIVE_TENSE_IDS.nonactive,
+    PATIENTIVO_ADJECTIVE_TENSE_IDS.perfectivo,
+]);
+const PATIENTIVO_ADJECTIVE_TENSE_SET = new Set(PATIENTIVO_ADJECTIVE_TENSE_ORDER);
+const PATIENTIVO_ADJECTIVE_SOURCE_BY_TENSE = Object.freeze({
+    [PATIENTIVO_ADJECTIVE_TENSE_IDS.nonactive]: "nonactive",
+    [PATIENTIVO_ADJECTIVE_TENSE_IDS.perfectivo]: "perfectivo",
+});
 const ACTIVE_ADJECTIVE_TENSE_ORDER = Object.freeze([
     ADJECTIVE_ACTIVE_TENSE_IDS.preterito,
     ADJECTIVE_ACTIVE_TENSE_IDS.perfecto,
@@ -584,10 +694,18 @@ const ACTIVE_ADJECTIVE_TENSE_ORDER = Object.freeze([
 const ACTIVE_ADJECTIVE_TENSE_SET = new Set(ACTIVE_ADJECTIVE_TENSE_ORDER);
 const ACTIVE_ADJECTIVE_TAB_TENSE_ORDER = Object.freeze([
     "potencial",
-    "potencial-habitual",
     ...ACTIVE_ADJECTIVE_TENSE_ORDER,
+    ...PATIENTIVO_ADJECTIVE_TENSE_ORDER,
 ]);
 const ACTIVE_ADJECTIVE_TAB_TENSE_SET = new Set(ACTIVE_ADJECTIVE_TAB_TENSE_ORDER);
+const NONACTIVE_ADJECTIVE_TAB_TENSE_ORDER = Object.freeze([
+    "potencial-habitual",
+]);
+const NONACTIVE_ADJECTIVE_TAB_TENSE_SET = new Set(NONACTIVE_ADJECTIVE_TAB_TENSE_ORDER);
+const ADJECTIVE_TAB_TENSE_ORDER = Object.freeze([
+    ...ACTIVE_ADJECTIVE_TAB_TENSE_ORDER,
+    ...NONACTIVE_ADJECTIVE_TAB_TENSE_ORDER,
+]);
 const TRONCO_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
     ADJECTIVE_ACTIVE_TENSE_IDS.preteritoTik,
     ADJECTIVE_ACTIVE_TENSE_IDS.perfectoTik,
@@ -597,6 +715,10 @@ const TRONCO_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
 const TRONCO_NAJ_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
     ADJECTIVE_ACTIVE_TENSE_IDS.preteritoNaj,
     ADJECTIVE_ACTIVE_TENSE_IDS.perfectoNaj,
+]);
+const INTRANSITIVE_ONLY_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
+    ADJECTIVE_ACTIVE_TENSE_IDS.preterito,
+    ADJECTIVE_ACTIVE_TENSE_IDS.perfecto,
 ]);
 const PERFECT_ACTIVE_ADJECTIVE_TENSE_SET = new Set([
     ADJECTIVE_ACTIVE_TENSE_IDS.perfecto,
@@ -1688,10 +1810,17 @@ const OBJECT_TOGGLE_STATE = new Map();
 const POSSESSOR_TOGGLE_STATE = new Map();
 const SUBJECT_TOGGLE_STATE = new Map();
 const PATIENTIVO_OWNERSHIP_STATE = new Map();
+const PATIENTIVO_NOMINAL_SUFFIX_STATE = new Map();
 const PATIENTIVO_OWNERSHIP_OPTIONS = [
     { id: "w", label: "w/wan", title: "adventicio" },
     { id: "yu", label: "yu/yuwan", title: "organico" },
     { id: "zero", label: "Ø/wan", title: "cero" },
+];
+const PATIENTIVO_NOMINAL_SUFFIX_OPTIONS = [
+    { id: "zero", label: "-Ø", title: "-Ø" },
+    { id: "t", label: "-t", title: "-t" },
+    { id: "ti", label: "-ti", title: "-ti" },
+    { id: "in", label: "-in", title: "-in" },
 ];
 const DEFAULT_PATIENTIVO_OWNERSHIP = "w";
 const VOICE_MODE_STATE = {
@@ -1748,6 +1877,7 @@ const TOGGLE_LOCK_VALUE_STATE = {
     subject: new Map(),
     possessor: new Map(),
     patientivoOwnership: new Map(),
+    patientivoNominalSuffix: new Map(),
 };
 
 function isToggleLockEnabled() {
@@ -1766,6 +1896,9 @@ function getToggleLockValueStoreByMap(map) {
     }
     if (map === PATIENTIVO_OWNERSHIP_STATE) {
         return TOGGLE_LOCK_VALUE_STATE.patientivoOwnership;
+    }
+    if (map === PATIENTIVO_NOMINAL_SUFFIX_STATE) {
+        return TOGGLE_LOCK_VALUE_STATE.patientivoNominalSuffix;
     }
     return null;
 }
@@ -1838,6 +1971,7 @@ function clearToggleLockValueState() {
     TOGGLE_LOCK_VALUE_STATE.subject.clear();
     TOGGLE_LOCK_VALUE_STATE.possessor.clear();
     TOGGLE_LOCK_VALUE_STATE.patientivoOwnership.clear();
+    TOGGLE_LOCK_VALUE_STATE.patientivoNominalSuffix.clear();
 }
 
 function seedToggleLockValueStateFromCurrentMaps() {
@@ -1858,6 +1992,7 @@ function seedToggleLockValueStateFromCurrentMaps() {
     seedMap(SUBJECT_TOGGLE_STATE, TOGGLE_LOCK_VALUE_STATE.subject);
     seedMap(POSSESSOR_TOGGLE_STATE, TOGGLE_LOCK_VALUE_STATE.possessor);
     seedMap(PATIENTIVO_OWNERSHIP_STATE, TOGGLE_LOCK_VALUE_STATE.patientivoOwnership);
+    seedMap(PATIENTIVO_NOMINAL_SUFFIX_STATE, TOGGLE_LOCK_VALUE_STATE.patientivoNominalSuffix);
 }
 
 function clearAllToggleStateMaps({ resetNonactiveSuffix = false } = {}) {
@@ -1865,6 +2000,7 @@ function clearAllToggleStateMaps({ resetNonactiveSuffix = false } = {}) {
     OBJECT_TOGGLE_STATE.clear();
     POSSESSOR_TOGGLE_STATE.clear();
     PATIENTIVO_OWNERSHIP_STATE.clear();
+    PATIENTIVO_NOMINAL_SUFFIX_STATE.clear();
     DEFAULT_TOGGLE_APPLIED.clear();
     if (resetNonactiveSuffix) {
         setSelectedNonactiveSuffix(null);
@@ -2594,8 +2730,9 @@ function shouldDropYaInRootPlusYaNonactive(source, options = {}) {
     if (!rootBase) {
         return false;
     }
-    const rootNonRedup = getNonReduplicatedRoot(rootBase) || rootBase;
-    if (getTotalVowelCount(rootNonRedup) <= 1) {
+    const rootSyllables = splitVerbSyllables(rootBase);
+    const finalSyllable = rootSyllables[rootSyllables.length - 1];
+    if (!isOpenSyllable(finalSyllable)) {
         return false;
     }
     return isSyllableSequencePronounceable(rootBase);
@@ -3294,6 +3431,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             causativeTrace,
         });
     };
+    const pushWithRoute = (stem, sourceBase = "", sourceSuffix = "", meta = {}) => {
+        const routeText = buildSurfaceRouteText(sourceBase, sourceSuffix, stem);
+        push(stem, {
+            ...meta,
+            guidanceRoute: routeText ? { text: routeText } : null,
+        });
+    };
     if (isIntransitive && !hasLeadingDash) {
         const matchBase = matchNeutralBase(fullRuleBase) ? fullRuleBase : (matchNeutralBase(ruleBase) ? ruleBase : "");
         if (matchBase) {
@@ -3352,682 +3496,30 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             ? examples.map((entry) => String(entry || "").split("->")[0].trim()).filter(Boolean)
             : []
     );
-    const matchesWiStockPattern = (pattern, letters) => {
-        if (!letters || letters.length < 6) {
-            return false;
-        }
-        const tail = letters.length === 6 ? letters : letters.slice(-6);
-        switch (pattern) {
-        case "CVC-i-wi":
-            return isVerbLetterConsonant(tail[0])
-                && isVerbLetterVowel(tail[1])
-                && isVerbLetterConsonant(tail[2])
-                && tail[3] === "i"
-                && tail[4] === "w"
-                && tail[5] === "i";
-        case "CVC-a-wi":
-            return isVerbLetterConsonant(tail[0])
-                && isVerbLetterVowel(tail[1])
-                && isVerbLetterConsonant(tail[2])
-                && tail[3] === "a"
-                && tail[4] === "w"
-                && tail[5] === "i";
-        case "VjC-a-wi":
-            return isVerbLetterVowel(tail[0])
-                && tail[1] === "j"
-                && isVerbLetterConsonant(tail[2])
-                && tail[3] === "a"
-                && tail[4] === "w"
-                && tail[5] === "i";
-        case "VjC-i-wi":
-            return isVerbLetterVowel(tail[0])
-                && tail[1] === "j"
-                && isVerbLetterConsonant(tail[2])
-                && tail[3] === "i"
-                && tail[4] === "w"
-                && tail[5] === "i";
-        case "CVl-i-wi":
-            return isVerbLetterConsonant(tail[0])
-                && isVerbLetterVowel(tail[1])
-                && tail[2] === "l"
-                && tail[3] === "i"
-                && tail[4] === "w"
-                && tail[5] === "i";
-        default:
-            return false;
-        }
-    };
-    const getStemLastVowel = (stemValue = "") => {
-        const letters = splitVerbLetters(stemValue);
-        for (let i = letters.length - 1; i >= 0; i -= 1) {
-            if (isVerbLetterVowel(letters[i])) {
-                return letters[i];
-            }
-        }
-        return "";
-    };
-    const getWiBoundarySubcell = (wiBase = "") => {
-        const letters = splitVerbLetters(wiBase);
-        const suffixLength = wiBase.endsWith("awi") || wiBase.endsWith("iwi")
-            ? 3
-            : (wiBase.endsWith("wi") ? 2 : 0);
-        if (!suffixLength || letters.length <= suffixLength) {
-            return {
-                label: "none",
-                boundaryCoda: "",
-                hasBoundaryJ: false,
-                hasBoundaryL: false,
-                leftLength: 0,
-            };
-        }
-        const loneIndex = letters.length - suffixLength - 1;
-        if (loneIndex < 0) {
-            return {
-                label: "none",
-                boundaryCoda: "",
-                hasBoundaryJ: false,
-                hasBoundaryL: false,
-                leftLength: 0,
-            };
-        }
-        const leftLetters = letters.slice(0, loneIndex);
-        const c = leftLetters[leftLetters.length - 1] || "";
-        const b = leftLetters[leftLetters.length - 2] || "";
-        const a = leftLetters[leftLetters.length - 3] || "";
-        let label = "complex";
-        if (!leftLetters.length) {
-            label = "none";
-        } else if (isVerbLetterVowel(c)) {
-            label = isVerbLetterConsonant(b) ? "CV" : "V";
-        } else if ((c === "j" || c === "l") && isVerbLetterVowel(b)) {
-            label = isVerbLetterConsonant(a) ? `CV${c}` : `V${c}`;
-        } else if (isVerbLetterConsonant(c)) {
-            label = "C";
-        }
-        return {
-            label,
-            boundaryCoda: (c === "j" || c === "l") ? c : "",
-            hasBoundaryJ: c === "j",
-            hasBoundaryL: c === "l",
-            leftLength: leftLetters.length,
-        };
-    };
-    const getWiPolicyFeatures = (normalizedStem = "", patternBaseStem = "") => {
-        const normalizedBase = normalizeDerivationStemValue(normalizedStem);
-        const patternBase = normalizeDerivationStemValue(patternBaseStem) || normalizedBase;
-        const patternLetters = splitVerbLetters(patternBase);
-        const firstOnset = patternLetters.find((letter) => isVerbLetterConsonant(letter)) || "";
-        const hasDigraphInPattern = patternLetters.some((letter) => DIGRAPH_SET.has(letter));
-        // Treat ...uwi alongside ...awi/...iwi for stock-family routing.
-        const isAwiIwiPatternBase = patternBase.endsWith("awi")
-            || patternBase.endsWith("iwi")
-            || patternBase.endsWith("uwi");
-        const wiClassBase = patternBase.endsWith("wi") ? patternBase : normalizedBase;
-        const isAwiClass = wiClassBase.endsWith("awi");
-        const isIwiClass = wiClassBase.endsWith("iwi");
-        const isUwiClass = wiClassBase.endsWith("uwi");
-        const isVjC = matchesWiStockPattern("VjC-a-wi", patternLetters)
-            || matchesWiStockPattern("VjC-i-wi", patternLetters);
-        const boundary = getWiBoundarySubcell(wiClassBase);
-        // Boundary routing is driven by j-coda contact with the wi stock suffix,
-        // regardless of earlier syllable composition.
-        const isJCBoundarySubcell = boundary.hasBoundaryJ;
-        // Legacy alias retained for trace consumers.
-        const isVjBoundarySubcell = isJCBoundarySubcell;
-        const wiRoot = (isAwiClass || isIwiClass || isUwiClass)
-            ? wiClassBase.slice(0, -3)
-            : wiClassBase.slice(0, -2);
-        const wiRootLetters = splitVerbLetters(wiRoot);
-        const wiRootFinal = wiRootLetters[wiRootLetters.length - 1] || "";
-        const wiRootPreFinal = wiRootLetters[wiRootLetters.length - 2] || "";
-        const wiRootThirdFromEnd = wiRootLetters[wiRootLetters.length - 3] || "";
-        const wiRootHasCodaBeforeFinal = isVerbLetterConsonant(wiRootPreFinal);
-        const wiRootLastVowel = getStemLastVowel(wiRoot);
-        return {
-            patternBase,
-            patternLetters,
-            firstOnset,
-            hasDigraphInPattern,
-            isAwiIwiPatternBase,
-            wiClassBase,
-            isAwiClass,
-            isIwiClass,
-            isUwiClass,
-            isVjC,
-            boundary,
-            isJCBoundarySubcell,
-            isVjBoundarySubcell,
-            wiRoot,
-            wiRootLetters,
-            wiRootLength: wiRootLetters.length,
-            wiRootFinal,
-            wiRootPreFinal,
-            wiRootThirdFromEnd,
-            wiRootHasCodaBeforeFinal,
-            wiRootLastVowel,
-        };
-    };
-    const mapWaSurfaceToWiBase = (waStem = "") => {
-        const normalizedWaStem = normalizeDerivationStemValue(waStem);
-        if (!normalizedWaStem.endsWith("wa")) {
-            return "";
-        }
-        if (
-            normalizedWaStem.endsWith("awa")
-            || normalizedWaStem.endsWith("iwa")
-            || normalizedWaStem.endsWith("ewa")
-            || normalizedWaStem.endsWith("uwa")
-        ) {
-            return `${normalizedWaStem.slice(0, -1)}i`;
-        }
-        return "";
-    };
-    const parseWiWaCanonicalPair = (baseStem = "") => {
-        const rawInput = String(baseStem || "").toLowerCase().trim();
-        if (!rawInput) {
-            return null;
-        }
-        const hasSplitMarker = rawInput.includes("/");
-        if (hasSplitMarker) {
-            const splitParts = rawInput
-                .split("/")
-                .map((part) => normalizeDerivationStemValue(part))
-                .filter(Boolean);
-            if (splitParts.length >= 2) {
-                const matrixRoot = splitParts[splitParts.length - 1] || "";
-                const embedRoot = splitParts.slice(0, -1).join("");
-                const canonicalBase = normalizeDerivationStemValue(`${embedRoot}${matrixRoot}`);
-                if (!canonicalBase) {
-                    return null;
-                }
-                return {
-                    adapterSource: "split",
-                    embedRoot,
-                    matrixRoot,
-                    canonicalBase,
-                };
-            }
-        }
-        const normalizedInput = normalizeDerivationStemValue(rawInput);
-        if (!normalizedInput) {
-            return null;
-        }
-        return {
-            adapterSource: "fused",
-            embedRoot: "",
-            matrixRoot: "",
-            canonicalBase: normalizedInput,
-        };
-    };
-    const buildWiWaPolicyAdapterContext = (baseStem = "") => {
-        const pair = parseWiWaCanonicalPair(baseStem);
-        if (!pair || !pair.canonicalBase) {
-            return null;
-        }
-        const canonicalBase = normalizeDerivationStemValue(pair.canonicalBase);
-        if (!canonicalBase) {
-            return null;
-        }
-        const patternBase = getNonReduplicatedRoot(canonicalBase) || canonicalBase;
-        const wiFeatures = getWiPolicyFeatures(canonicalBase, patternBase);
-        return {
-            ...pair,
-            canonicalBase,
-            patternBase,
-            wiFeatures: {
-                ...wiFeatures,
-                adapterSource: pair.adapterSource,
-                pair: {
-                    embedRoot: pair.embedRoot,
-                    matrixRoot: pair.matrixRoot,
-                },
-            },
-        };
-    };
-    const resolveWiWaPolicyFromFeatures = ({
-        normalized = "",
-        wiFeatures = null,
-        withDecisionCell = null,
-    } = {}) => {
-        if (!normalized || !wiFeatures || typeof withDecisionCell !== "function") {
-            return null;
-        }
-        if (normalized.endsWith("ewi")) {
-            return withDecisionCell({
-                sourceClass: "final_ewi",
-                stockFamily: "wi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "ewi > ewa",
-            });
-        }
-        if (normalized === "kwetawi") {
-            return withDecisionCell({
-                sourceClass: "exact_kwetawi",
-                stockFamily: "awi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "kwetawi > kwetua",
-            });
-        }
-        if (normalized === "siawi") {
-            return withDecisionCell({
-                sourceClass: "exact_siawi",
-                stockFamily: "awi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "siawi > siawa",
-            });
-        }
-        const {
-            patternLetters,
-            firstOnset: wiFirstOnset,
-            hasDigraphInPattern,
-            isAwiIwiPatternBase,
-            isAwiClass,
-            isIwiClass,
-            isUwiClass,
-            isVjC,
-            boundary: wiBoundarySubcell,
-            isJCBoundarySubcell,
-            isVjBoundarySubcell,
-            wiRootLetters,
-            wiRootFinal,
-            wiRootPreFinal,
-            wiRootThirdFromEnd,
-            wiRootHasCodaBeforeFinal,
-            wiRootLastVowel,
-        } = wiFeatures;
-        // Class family should follow the surface ending first; patternBase can be
-        // reduced for scoring/reduplication and may hide the stock suffix class.
-        const wiStockFamily = normalized.endsWith("awi")
-            ? "awi"
-            : (normalized.endsWith("iwi")
-                ? "iwi"
-                : (normalized.endsWith("uwi")
-                    ? "uwi"
-                    : (isAwiClass
-                        ? "awi"
-                        : (isIwiClass
-                            ? "iwi"
-                            : (isUwiClass ? "uwi" : "wi")))));
-        const withWiFeatures = (entry) => {
-            const stockFamily = entry?.stockFamily || wiStockFamily;
-            const rawSourceClass = String(entry?.sourceClass || "");
-            const canonicalSourceClass = rawSourceClass.replace(/^wa_mirror_/, "");
-            const features = {
-                stockFamily,
-                prefixSubcell: wiBoundarySubcell.label,
-                prefixCoda: wiBoundarySubcell.boundaryCoda || "",
-                firstOnset: wiFirstOnset,
-                isJCBoundarySubcell,
-                isVjBoundarySubcell,
-                wiRootLength: wiFeatures.wiRootLength,
-                wiRootPreFinal,
-                wiRootFinal,
-                wiRootLastVowel,
-            };
-            const desuperposeKey = [
-                features.stockFamily,
-                features.prefixSubcell,
-                features.prefixCoda || "_",
-                features.firstOnset || "_",
-                features.isJCBoundarySubcell ? "jc" : "nonjc",
-                String(features.wiRootLength || 0),
-                features.wiRootPreFinal || "_",
-                features.wiRootFinal || "_",
-                features.wiRootLastVowel || "_",
-            ].join("|");
-            return withDecisionCell({
-                ...entry,
-                stockFamily,
-                features,
-                desuperposeKey,
-            });
-        };
-        // Keep digraph safeguard for bare ...wi stems (e.g. ...kwi), but let ...awi/...iwi
-        // continue into wi-root vowel/class logic (e.g. tzikawi > tzikua, tzuliwi > tzulua).
-        if (hasDigraphInPattern && !isAwiIwiPatternBase) {
-            return withWiFeatures({
-                sourceClass: "digraph_wi",
-                stockFamily: "wi",
-                typeOneTarget: null,
-                typeTwoTarget: "witia",
-                chain: "digraph > witia",
-            });
-        }
-        // Family-first routing: resolve stock family (awi/uwi/iwi/wi), then apply subcell rules.
-        if (wiStockFamily === "awi") {
-            if (wiRootFinal === "n" && (wiRootLetters.length > 3 || wiFirstOnset !== "p")) {
-                return withWiFeatures({
-                    sourceClass: "awi_final_n",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "n + awi > nua",
-                });
-            }
-            if (wiRootFinal === "k" && wiFirstOnset === "y") {
-                return withWiFeatures({
-                    sourceClass: "awi_initial_y_final_k",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "y...k + awi > kua",
-                });
-            }
-            if (wiRootFinal === "k" && wiRootPreFinal === "a" && wiRootThirdFromEnd === "t") {
-                return withWiFeatures({
-                    sourceClass: "awi_final_tak",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "tak + awi > takua",
-                });
-            }
-            // Boundary split: jC-awi and non-jC-awi routes are explicit.
-            if (isJCBoundarySubcell) {
-                if (wiRootFinal === "t") {
-                    return withWiFeatures({
-                        sourceClass: "awi_subcell_vj_final_t",
-                        stockFamily: "awi",
-                        typeOneTarget: "ua",
-                        typeTwoTarget: "witia",
-                        chain: "jC(T) + awi > ua",
-                    });
-                }
-                if (
-                    (wiFirstOnset === "sh" && wiRootFinal === "k")
-                    || (["p", "t"].includes(wiFirstOnset) && wiRootFinal === "sh")
-                ) {
-                    return withWiFeatures({
-                        sourceClass: "awi_subcell_vj_obstruent_mirror",
-                        stockFamily: "awi",
-                        typeOneTarget: "ua",
-                        typeTwoTarget: "witia",
-                        chain: "jC awi mirrored obstruent pair > ua",
-                    });
-                }
-                return withWiFeatures({
-                    sourceClass: "awi_subcell_vj_default",
-                    stockFamily: "awi",
-                    typeOneTarget: "wa",
-                    typeTwoTarget: "witia",
-                    chain: "jC + awi > awa",
-                });
-            }
-            if (
-                (wiFirstOnset === "sh" && wiRootFinal === "k")
-                || (["p", "t"].includes(wiFirstOnset) && wiRootFinal === "sh")
-            ) {
-                return withWiFeatures({
-                    sourceClass: "awi_subcell_nonvj_obstruent_mirror",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "awi mirrored obstruent pair > ua",
-                });
-            }
-            if (wiFirstOnset === "tz" && !wiRootHasCodaBeforeFinal) {
-                return withWiFeatures({
-                    sourceClass: "awi_subcell_nonvj_tz_onset",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "awi + tz-onset > ua",
-                });
-            }
-            if (wiRootFinal === "t") {
-                return withWiFeatures({
-                    sourceClass: "final_t",
-                    stockFamily: "awi",
-                    typeOneTarget: "wa",
-                    typeTwoTarget: "witia",
-                    chain: "t > awi > awa",
-                });
-            }
-            if (wiRootFinal === "y") {
-                return withWiFeatures({
-                    sourceClass: "final_y",
-                    stockFamily: "awi",
-                    typeOneTarget: "wa",
-                    typeTwoTarget: "witia",
-                    chain: "y > awi > awa",
-                });
-            }
-            if (wiRootLastVowel === "i" || wiRootLastVowel === "u") {
-                return withWiFeatures({
-                    sourceClass: "vowel_iu",
-                    stockFamily: "awi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "i/u > awi > ua",
-                });
-            }
-            return withWiFeatures({
-                sourceClass: "awi_subcell_nonvj_default",
-                stockFamily: "awi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "awi > awa",
-            });
-        }
-        if (wiStockFamily === "uwi") {
-            if (normalized === "tapuwi") {
-                return withWiFeatures({
-                    sourceClass: "uwi_exact_tap",
-                    stockFamily: "uwi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "tapuwi > tapua",
-                });
-            }
-            if (wiRootFinal === "m") {
-                return withWiFeatures({
-                    sourceClass: "uwi_final_m",
-                    stockFamily: "uwi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "m + uwi > mua",
-                });
-            }
-            return withWiFeatures({
-                sourceClass: "uwi_default",
-                stockFamily: "uwi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "uwi > uwa",
-            });
-        }
-        if (wiStockFamily === "iwi" && isJCBoundarySubcell) {
-            if (wiRootFinal === "s") {
-                return withWiFeatures({
-                    sourceClass: "iwi_subcell_vj_final_s",
-                    stockFamily: "iwi",
-                    typeOneTarget: "wa",
-                    typeTwoTarget: "witia",
-                    chain: "jC(S) + iwi > iwa",
-                });
-            }
-            if (wiRootFinal === "tz" && wiFirstOnset === "p") {
-                return withWiFeatures({
-                    sourceClass: "iwi_subcell_vj_final_tz_p-onset",
-                    stockFamily: "iwi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "jC + p-onset + tz+iwi > ua",
-                });
-            }
-            return withWiFeatures({
-                sourceClass: "iwi_subcell_vj_default",
-                stockFamily: "iwi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "jC + iwi > ua",
-            });
-        }
-        if (wiStockFamily === "iwi" && wiRootFinal === "t") {
-            return withWiFeatures({
-                sourceClass: "iwi_subcell_nonvj_final_t",
-                stockFamily: "iwi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "t > iwi > iwa",
-            });
-        }
-        if (wiStockFamily === "iwi" && wiRootFinal === "l") {
-            return withWiFeatures({
-                sourceClass: "final_l",
-                stockFamily: "iwi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "l > iwi > ua",
-            });
-        }
-        if (wiStockFamily === "iwi" && wiRootFinal === "y") {
-            return withWiFeatures({
-                sourceClass: "iwi_subcell_nonvj_final_y",
-                stockFamily: "iwi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "y > iwi > iwa",
-            });
-        }
-        if (wiStockFamily === "iwi" && wiRootFinal === "tz") {
-            if (wiFirstOnset === "p") {
-                return withWiFeatures({
-                    sourceClass: "final_tz_iwi_p-onset",
-                    stockFamily: "iwi",
-                    typeOneTarget: "ua",
-                    typeTwoTarget: "witia",
-                    chain: "p-onset + tz+iwi > ua",
-                });
-            }
-            return withWiFeatures({
-                sourceClass: "final_tz_iwi",
-                stockFamily: "iwi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "tz > iwi > iwa",
-            });
-        }
-        if (wiStockFamily === "awi" && wiRootFinal === "t") {
-            return withWiFeatures({
-                sourceClass: "final_t",
-                stockFamily: "awi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "t > awi > awa",
-            });
-        }
-        if (wiStockFamily === "awi" && wiRootFinal === "y") {
-            return withWiFeatures({
-                sourceClass: "final_y",
-                stockFamily: "awi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "y > awi > awa",
-            });
-        }
-        if (wiStockFamily === "awi" && (wiRootLastVowel === "i" || wiRootLastVowel === "u")) {
-            return withWiFeatures({
-                sourceClass: "vowel_iu",
-                stockFamily: "awi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "i/u > awi > ua",
-            });
-        }
-        if (wiStockFamily === "iwi" && (wiRootLastVowel === "a" || wiRootLastVowel === "e")) {
-            return withWiFeatures({
-                sourceClass: "vowel_ae",
-                stockFamily: "iwi",
-                typeOneTarget: "ua",
-                typeTwoTarget: "witia",
-                chain: "a/e > iwi > ua",
-            });
-        }
-        if (wiStockFamily === "iwi") {
-            return withWiFeatures({
-                sourceClass: "iwi_subcell_nonvj_default",
-                stockFamily: "iwi",
-                typeOneTarget: "wa",
-                typeTwoTarget: "witia",
-                chain: "iwi > iwa",
-            });
-        }
-        return withWiFeatures({
-            sourceClass: "default",
-            stockFamily: "wi",
-            typeOneTarget: null,
-            typeTwoTarget: "witia",
-            chain: "wi > witia",
-        });
-    };
     const resolveIntransitiveWiWaPolicy = (baseStem = "") => {
-        const rawInput = String(baseStem || "");
-        if (!isIntransitive || !rawInput.trim()) {
+        const normalized = normalizeDerivationStemValue(baseStem);
+        if (!isIntransitive || !normalized) {
             return null;
-        }
-        const adapterContext = buildWiWaPolicyAdapterContext(rawInput);
-        if (!adapterContext || !adapterContext.canonicalBase) {
-            return null;
-        }
-        const normalized = adapterContext.canonicalBase;
-        const withDecisionCell = (entry = {}) => {
-            const stockFamily = String(entry?.stockFamily || "wi");
-            const canonicalSourceClass = String(entry?.sourceClass || "default").replace(/^wa_mirror_/, "");
-            const typeOneTarget = entry?.typeOneTarget || null;
-            const decisionFeatures = {
-                stockFamily,
-                sourceClass: canonicalSourceClass || "default",
-                typeOneTarget,
-            };
-            const decisionKey = [
-                decisionFeatures.stockFamily || "wi",
-                decisionFeatures.sourceClass || "default",
-                decisionFeatures.typeOneTarget || "none",
-            ].join("|");
-            return {
-                ...entry,
-                stockFamily,
-                decisionFeatures,
-                decisionKey,
-            };
-        };
-        const mirroredWiBase = mapWaSurfaceToWiBase(normalized);
-        if (mirroredWiBase) {
-            const mirroredWiPolicy = resolveIntransitiveWiWaPolicy(mirroredWiBase);
-            if (mirroredWiPolicy) {
-                return withDecisionCell({
-                    ...mirroredWiPolicy,
-                    sourceClass: `wa_mirror_${mirroredWiPolicy.sourceClass}`,
-                    chain: `${normalized} mirrors ${mirroredWiBase}; ${mirroredWiPolicy.chain}`,
-                    // Mirror policy is now strict: wa-surface forms stay on wa outputs.
-                    typeOneTarget: "wa",
-                    // Keep mirror routes in the same compressed decision cell as their wi-base.
-                    decisionKey: mirroredWiPolicy.decisionKey || "",
-                    decisionFeatures: mirroredWiPolicy.decisionFeatures || null,
-                });
-            }
         }
         if (normalized.endsWith("wa")) {
-            return withDecisionCell({
+            return {
                 sourceClass: "final_wa",
                 stockFamily: "wa",
                 typeOneTarget: "wa",
                 typeTwoTarget: null,
-                chain: "wa > wa",
-            });
+                chain: "final wa -> wa",
+            };
         }
-        if (!normalized.endsWith("wi")) {
-            return null;
+        if (normalized.endsWith("wi")) {
+            return {
+                sourceClass: "final_wi",
+                stockFamily: "wi",
+                typeOneTarget: "ua",
+                typeTwoTarget: "witia",
+                chain: "final wi -> ua",
+            };
         }
-        return resolveWiWaPolicyFromFeatures({
-            normalized,
-            wiFeatures: adapterContext.wiFeatures,
-            withDecisionCell,
-        });
+        return null;
     };
     const buildIntransitiveWiWaTypeOneStem = (baseStem = "", typeOneTarget = null) => {
         if (!baseStem || !typeOneTarget) {
@@ -4071,10 +3563,6 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 chain: wiWaPolicy.chain,
                 typeOneTarget: wiWaPolicy.typeOneTarget || null,
                 typeTwoTarget: wiWaPolicy.typeTwoTarget || null,
-                features: wiWaPolicy.features || null,
-                desuperposeKey: wiWaPolicy.desuperposeKey || "",
-                decisionFeatures: wiWaPolicy.decisionFeatures || null,
-                decisionKey: wiWaPolicy.decisionKey || "",
             },
         };
     }
@@ -4471,119 +3959,29 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         && wiWaPolicy.typeOneTarget;
     const isDirectIntransitiveSource = isIntransitive
         && !hasLeadingDash;
-    const resolveDirectWiWaFamily = (base = "") => {
-        if (!isDirectIntransitiveSource || !base) {
-            return "";
-        }
-        const orderedFamilies = ["awi", "iwi", "uwi", "ewi", "awa", "ewa", "iwa", "uwa"];
-        for (let index = 0; index < orderedFamilies.length; index += 1) {
-            const family = orderedFamilies[index];
-            if (base.endsWith(family)) {
-                return family;
-            }
-        }
-        return "";
-    };
-    const directWiWaFamily = resolveDirectWiWaFamily(ruleBase);
-    const isDirectAwiIwiUwi = ["awi", "iwi", "uwi"].includes(directWiWaFamily);
-    const isDirectVwaOnlyFamily = ["ewi", "awa", "ewa", "iwa", "uwa"].includes(directWiWaFamily);
-    const directWiWaFirstOrderBySourceClass = {
-        final_ewi: "wa",
-        exact_kwetawi: "ua",
-        exact_siawi: "wa",
-        awi_final_n: "ua",
-        awi_initial_y_final_k: "ua",
-        awi_final_tak: "ua",
-        awi_subcell_vj_final_t: "ua",
-        awi_subcell_vj_obstruent_mirror: "ua",
-        awi_subcell_vj_default: "wa",
-        awi_subcell_nonvj_obstruent_mirror: "ua",
-        awi_subcell_nonvj_tz_onset: "ua",
-        awi_subcell_nonvj_default: "wa",
-        uwi_exact_tap: "ua",
-        uwi_final_m: "ua",
-        uwi_default: "wa",
-        iwi_subcell_vj_final_s: "wa",
-        "iwi_subcell_vj_final_tz_p-onset": "ua",
-        iwi_subcell_vj_default: "wa",
-        iwi_subcell_nonvj_final_t: "wa",
-        final_l: "ua",
-        iwi_subcell_nonvj_final_y: "wa",
-        "final_tz_iwi_p-onset": "ua",
-        final_tz_iwi: "ua",
-        final_t: "wa",
-        final_y: "wa",
-        vowel_iu: "ua",
-        vowel_ae: "ua",
-        iwi_subcell_nonvj_default: "wa",
-        default: "wa",
-        final_wa: "wa",
-    };
-    const normalizeTypeOneTarget = (target = "") => (target === "ua" ? "ua" : "wa");
-    const getCanonicalWiWaSourceClass = (sourceClass = "") => (
-        String(sourceClass || "").replace(/^wa_mirror_/, "")
-    );
-    const resolveDirectWiWaFirstOrderTarget = () => {
-        const canonicalSourceClass = getCanonicalWiWaSourceClass(wiWaPolicy?.sourceClass || "");
-        const sourceClassTarget = directWiWaFirstOrderBySourceClass[canonicalSourceClass];
-        if (sourceClassTarget) {
-            return sourceClassTarget;
-        }
-        return normalizeTypeOneTarget(wiWaPolicy?.typeOneTarget || "");
-    };
-    const resolveDirectWiWaTypeOneOrder = () => {
-        if (!isDirectIntransitiveSource || !directWiWaFamily) {
-            return [];
-        }
-        if (isDirectVwaOnlyFamily) {
-            return ["wa"];
-        }
-        const firstTarget = resolveDirectWiWaFirstOrderTarget();
-        if (isDirectAwiIwiUwi) {
-            return firstTarget === "ua" ? ["ua", "wa"] : ["wa", "ua"];
-        }
-        return [firstTarget];
-    };
-    const directWiWaTypeOneOrder = resolveDirectWiWaTypeOneOrder();
+    const isDirectIntransitiveWiWaSource = isDirectIntransitiveSource
+        && (ruleBase.endsWith("wi") || ruleBase.endsWith("wa"));
     if (allowExactTiToTaCausative) {
-        push(`${ruleBase.slice(0, -2)}ta`, {
+        pushWithRoute(`${ruleBase.slice(0, -2)}ta`, ruleBase.slice(0, -2), "ti", {
             type: "type-one",
             rule: "replace-final-ti-phonological",
         });
     }
-    if (allowWiTypeOnePolicy && (!blockTypeOneCausativeForI || isDirectAwiIwiUwi)) {
-        const pushWiPolicyTypeOneTarget = (typeOneTarget, ruleSuffix = "") => {
+    if (allowWiTypeOnePolicy && (!blockTypeOneCausativeForI || isDirectIntransitiveWiWaSource)) {
+        const pushWiPolicyTypeOneTarget = (typeOneTarget) => {
             const policyStem = buildIntransitiveWiWaTypeOneStem(ruleBase, typeOneTarget);
             if (!policyStem) {
                 return;
             }
-            push(policyStem, {
+            const sourceSuffix = ruleBase.endsWith("wi") ? "wi" : (ruleBase.endsWith("wa") ? "wa" : "");
+            const sourceBase = sourceSuffix ? ruleBase.slice(0, -sourceSuffix.length) : "";
+            pushWithRoute(policyStem, sourceBase, sourceSuffix, {
                 type: "type-one",
-                rule: `wi-policy-${wiWaPolicy.sourceClass}${ruleSuffix}`,
+                rule: `wi-policy-${wiWaPolicy.sourceClass}`,
                 wiPolicy: wiWaPolicy.chain,
-                wiPolicyFeatures: wiWaPolicy.features || null,
-                wiPolicyDesuperposeKey: wiWaPolicy.desuperposeKey || "",
-                wiPolicyDecisionKey: wiWaPolicy.decisionKey || "",
             });
         };
-        const orderedTypeOneTargets = [];
-        const seenTypeOneTargets = new Set();
-        const addOrderedTypeOneTarget = (typeOneTarget) => {
-            if (!typeOneTarget || seenTypeOneTargets.has(typeOneTarget)) {
-                return;
-            }
-            seenTypeOneTargets.add(typeOneTarget);
-            orderedTypeOneTargets.push(typeOneTarget);
-        };
-        if (directWiWaTypeOneOrder.length) {
-            directWiWaTypeOneOrder.forEach((target) => addOrderedTypeOneTarget(target));
-        } else {
-            addOrderedTypeOneTarget(wiWaPolicy.typeOneTarget);
-        }
-        orderedTypeOneTargets.forEach((target, index) => {
-            const ruleSuffix = index === 0 ? "" : `-dual-${index + 1}`;
-            pushWiPolicyTypeOneTarget(target, ruleSuffix);
-        });
+        pushWiPolicyTypeOneTarget(wiWaPolicy.typeOneTarget);
     }
 
     if (
@@ -4596,12 +3994,21 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         const dropped = ruleBase.slice(0, -1);
         const { firstOnset } = getIntransitiveIConsonantProfile();
         if (dropped.endsWith("k") && firstOnset === "w") {
-            push(`${dropped.slice(0, -1)}tza`, { type: "type-one", rule: "replace-final-consonant-logic" });
+            pushWithRoute(`${dropped.slice(0, -1)}tza`, ruleBase.slice(0, -2), "ki", {
+                type: "type-one",
+                rule: "replace-final-consonant-logic",
+            });
         }
         if (intransitiveICausativeClass.label === "additive") {
-            push(`${ruleBase}a`, { type: "type-one", rule: "addition-phonological-i" });
+            pushWithRoute(`${ruleBase}a`, ruleBase.slice(0, -1), "i", {
+                type: "type-one",
+                rule: "addition-phonological-i",
+            });
         } else {
-            push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "replace-final-i-phonological" });
+            pushWithRoute(`${ruleBase.slice(0, -1)}a`, ruleBase.slice(0, -1), "i", {
+                type: "type-one",
+                rule: "replace-final-i-phonological",
+            });
         }
     }
     const intransitiveEndsWithA = rules?.intransitiveEndsWithA || {};
@@ -4627,22 +4034,31 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 || allowSuffixes.some((suffix) => suffix && ruleBase.endsWith(suffix))
                 || (fullRuleBase && allowSuffixes.some((suffix) => suffix && fullRuleBase.endsWith(suffix)));
             if (matchesRootPlusYa || (allowVerbs.length === 0 && allowSuffixes.length === 0)) {
-                push(`${rootPlusYaBase}a`, { type: "type-one", rule: "root-plus-ya" });
+                pushWithRoute(`${rootPlusYaBase}a`, rootPlusYaBase, "ya", {
+                    type: "type-one",
+                    rule: "root-plus-ya",
+                });
             }
         } else if (allowReplaceFinalA) {
-            push(`${ruleBase.slice(0, -1)}a`, { type: "type-one", rule: "replace-final-a" });
+            pushWithRoute(`${ruleBase.slice(0, -1)}a`, ruleBase.slice(0, -1), "a", {
+                type: "type-one",
+                rule: "replace-final-a",
+            });
         }
     }
 
     if (isIntransitive && !isIntransitiveEndsWithI) {
         const destockal = rules.destockal || {};
-        const addWithOrder = (order, actions) => {
+        const addWithOrder = (order, actions, routeBase = "", routeSuffix = "") => {
             (order || []).forEach((action) => {
                 const builder = actions[action];
                 if (typeof builder === "function") {
                     const stem = builder();
                     if (stem) {
-                        push(stem, { type: "type-one", rule: `destockal-${action}` });
+                        pushWithRoute(stem, routeBase, routeSuffix, {
+                            type: "type-one",
+                            rule: `destockal-${action}`,
+                        });
                     }
                 }
             });
@@ -4654,7 +4070,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             addWithOrder(order, {
                 addSuffix: () => `${ruleBase}a`,
                 replaceFinalI: () => (ruleBase.endsWith("i") ? `${ruleBase.slice(0, -1)}a` : ""),
-            });
+            }, ruleBase.slice(0, -2), "ni");
         }
     }
 
@@ -4678,10 +4094,16 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         );
         const typeTwoSuffix = typeof typeTwo.suffix === "string" ? typeTwo.suffix : "tia";
         if (forceTiHaveTypeTwo && isIntransitive && info.endsWithTi) {
-            push(`${ruleBase}a`, { type: "type-two", rule: "ti-class-have-direct" });
+            pushWithRoute(`${ruleBase}a`, ruleBase.slice(0, -2), "ti", {
+                type: "type-two",
+                rule: "ti-class-have-direct",
+            });
         }
         if (wiWaPolicy?.typeTwoTarget === "witia" && ruleBase.endsWith("wi")) {
-            push(`${ruleBase}tia`, { type: "type-two", rule: "wi-direct-tia" });
+            pushWithRoute(`${ruleBase}tia`, ruleBase.slice(0, -2), "wi", {
+                type: "type-two",
+                rule: "wi-direct-tia",
+            });
         }
         const nonactiveOptions = getNonactiveDerivationOptions(ruleBase, ruleBase, {
             isTransitive,
@@ -4839,10 +4261,16 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             const useAddition = additionBases.length ? matchBase(additionBases) : true;
             const useReplacement = replacementBases.length ? matchBase(replacementBases) : true;
             if (useAddition) {
-                push(`${ruleBase}wia`, { type: "type-two", rule: "u-wa-wia" });
+                pushWithRoute(`${ruleBase}wia`, ruleBase, "wa", {
+                    type: "type-two",
+                    rule: "u-wa-wia",
+                });
             }
             if (useReplacement) {
-                push(`${ruleBase.slice(0, -1)}awia`, { type: "type-two", rule: "u-wa-wia-replace" });
+                pushWithRoute(`${ruleBase.slice(0, -1)}awia`, ruleBase.slice(0, -1), "u", {
+                    type: "type-two",
+                    rule: "u-wa-wia-replace",
+                });
             }
         }
 
@@ -4973,7 +4401,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             }
         if (option.suffix === "lu" && isRootPlusYa && rootPlusYaBase) {
             const rootStem = `${rootPlusYaBase}l`;
-            push(`${rootStem}ia`, {
+            pushWithRoute(`${rootStem}ia`, rootPlusYaBase, "ya", {
                 type: "type-two",
                 rule: "root-plus-ya-lia",
                 skipSourcePrefixIfPresent: true,
@@ -4981,7 +4409,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         }
             if (option.suffix === "lu" && rootPlusYaBase && (rootPlusYaBase.endsWith("ti") || rootPlusYaBase.endsWith("wi"))) {
                 const rootStem = `${rootPlusYaBase}l`;
-                push(`${rootStem}ia`, {
+                pushWithRoute(`${rootStem}ia`, rootPlusYaBase, "ya", {
                     type: "type-two",
                     rule: "root-plus-ya-tiwi-lia",
                     skipSourcePrefixIfPresent: true,
@@ -5018,7 +4446,10 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                     && rootPlusYaBase
                     && adjusted.startsWith(rootPlusYaBase)
                 );
-                push(`${adjusted}${suffix}`, {
+                const sourceBase = option.stem.endsWith(option.suffix)
+                    ? option.stem.slice(0, -option.suffix.length)
+                    : "";
+                pushWithRoute(`${adjusted}${suffix}`, sourceBase, option.suffix, {
                     type: "type-two",
                     rule: `nonactive-${option.suffix}`,
                     preferred: preferUwaSh
@@ -5035,7 +4466,10 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             const luOption = nonactiveOptions.find((option) => option.suffix === "lu");
             if (luOption && luOption.stem.endsWith("lu")) {
                 const baseStem = luOption.stem.slice(0, -1);
-                push(`${baseStem}${typeTwoSuffix}`, { type: "type-two", rule: "u-lu-tia" });
+                pushWithRoute(`${baseStem}${typeTwoSuffix}`, luOption.stem.slice(0, -2), "lu", {
+                    type: "type-two",
+                    rule: "u-lu-tia",
+                });
             }
         }
     }
@@ -5079,6 +4513,14 @@ function applyCausativeDerivation({
             causativeAllStems: [selectedStem],
             noCausativeStem: false,
             suppletiveStemSet: null,
+            selectedForwardMeta: {
+                surfaceStem: selectedStem,
+                baseStem: baseSelectedStem,
+                rule: "suppletive-yawi-causative",
+                patternType: "suppletive",
+                causativeTrace: null,
+                preferred: true,
+            },
         };
     }
     const canonicalRuleBase = parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || "";
@@ -5274,6 +4716,7 @@ function applyCausativeDerivation({
         causativeAllStems: selectedCausative.allStems,
         noCausativeStem: false,
         suppletiveStemSet,
+        selectedForwardMeta: selectedCausative.selectedMeta || null,
     };
 }
 
@@ -5921,6 +5364,7 @@ function buildForwardDerivationRows({
                 patternType: option?.type || "",
                 preferred: option?.preferred === true,
                 causativeTrace: option?.causativeTrace || null,
+                guidanceRoute: option?.guidanceRoute || null,
             });
         });
     });
@@ -7311,6 +6755,7 @@ function selectDerivedStemEntry(stemEntries, fallbackStem = "", directionalPrefi
     return {
         selectedStem,
         analysisStem,
+        selectedMeta: selectedEntry || null,
     };
 }
 
@@ -7341,6 +6786,10 @@ function buildDerivedStemSelection({
             baseStem,
             surfaceStem,
             preferred: option.preferred === true,
+            rule: String(option?.rule || ""),
+            patternType: String(option?.type || ""),
+            causativeTrace: option?.causativeTrace || null,
+            guidanceRoute: option?.guidanceRoute || null,
         };
     });
     const allStems = stemEntries.map((entry) => entry.surfaceStem);
@@ -7349,6 +6798,7 @@ function buildDerivedStemSelection({
         allStems,
         selectedStem: selected.selectedStem,
         analysisStem: selected.analysisStem,
+        selectedMeta: selected.selectedMeta || null,
     };
 }
 
@@ -7415,15 +6865,13 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
     const baseInfo = options.baseInfo || null;
     const buildUVariants = (base) => {
         const isTransitive = options.isTransitive === true;
-        const blankPossessiveW = (suffix === "u" && isTransitive)
-            || (suffix === "uwa" && !isTransitive);
         const recoversDeletedW = suffix === "uwa" && baseInfo && baseInfo.lastOnset === "w";
         const withRecoveredW = (value) => (
             recoversDeletedW && value && !value.endsWith("w") ? `${value}w` : value
         );
         if (!isTransitive && recoversDeletedW) {
             const wBase = withRecoveredW(base);
-            return [{ stem: `${wBase}i`, suffix: "t", blankPossessiveW }];
+            return [{ stem: `${wBase}i`, suffix: "t" }];
         }
         let tiBase = withRecoveredW(base);
         if (tiBase.endsWith("m")) {
@@ -7432,7 +6880,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         const tBase = withRecoveredW(base);
         return [
             { stem: tiBase, suffix: "ti" },
-            { stem: `${tBase}i`, suffix: "t", blankPossessiveW },
+            { stem: `${tBase}i`, suffix: "t" },
         ];
     };
     switch (suffix) {
@@ -7607,6 +7055,125 @@ function isStrictPatientivoDerivationSource(source = "") {
     return STRICT_PATIENTIVO_DERIVATION_SOURCES.has(source);
 }
 
+function expandPatientivoNominalMarkerOptions(derivations = [], source = "") {
+    if (!Array.isArray(derivations) || !derivations.length) {
+        return [];
+    }
+    const expanded = [];
+    const seen = new Set();
+    const resolvedSource = String(source || "");
+    const resolveAllowedSuffixes = (entry, {
+        verb = "",
+        baseSuffix = "",
+        tClassSuffix = "",
+        endsWithConsonant = false,
+    } = {}) => {
+        if (resolvedSource === "perfectivo") {
+            return ["ti"];
+        }
+        if (resolvedSource === "imperfectivo") {
+            return ["t"];
+        }
+        const nonactiveSourceSuffix = String(entry?.nonactiveSourceSuffix || "");
+        if (
+            (!resolvedSource || resolvedSource === "nonactive")
+            && verb.endsWith("l")
+            && baseSuffix === ""
+            && (nonactiveSourceSuffix === "lu"
+                || nonactiveSourceSuffix === "luwa"
+                || nonactiveSourceSuffix === "walu")
+        ) {
+            return [""];
+        }
+        if (entry?.lockNominalMarker === true) {
+            return [typeof baseSuffix === "string" ? baseSuffix : ""];
+        }
+        const suffixes = [];
+        if (typeof baseSuffix === "string") {
+            suffixes.push(baseSuffix);
+        }
+        if (tClassSuffix && tClassSuffix !== baseSuffix) {
+            suffixes.push(tClassSuffix);
+        }
+        if (baseSuffix !== "") {
+            suffixes.push("");
+        }
+        if (endsWithConsonant) {
+            suffixes.push("in");
+        }
+        return Array.from(new Set(suffixes));
+    };
+    const pushVariant = (entry, suffix) => {
+        const verb = typeof entry?.verb === "string" ? entry.verb : "";
+        const normalizedSuffix = typeof suffix === "string" ? suffix : "";
+        if (!verb) {
+            return;
+        }
+        if (!isSyllableSequencePronounceable(`${verb}${normalizedSuffix}`)) {
+            return;
+        }
+        const key = `${verb}|${normalizedSuffix}`;
+        if (seen.has(key)) {
+            return;
+        }
+        seen.add(key);
+        expanded.push({
+            verb,
+            subjectSuffix: normalizedSuffix,
+            lockNominalMarker: entry?.lockNominalMarker === true,
+        });
+    };
+    derivations.forEach((entry) => {
+        const verb = typeof entry?.verb === "string" ? entry.verb : "";
+        const baseSuffix = typeof entry?.subjectSuffix === "string" ? entry.subjectSuffix : "";
+        if (!verb) {
+            return;
+        }
+        const letters = splitVerbLetters(verb);
+        const last = letters[letters.length - 1] || "";
+        const endsWithConsonant = isVerbLetterConsonant(last);
+        const tClassSuffix = getTClassSuffixForStem(verb);
+        resolveAllowedSuffixes(entry, {
+            verb,
+            baseSuffix,
+            tClassSuffix,
+            endsWithConsonant,
+        }).forEach((suffix) => {
+            pushVariant(entry, suffix);
+        });
+    });
+    return expanded;
+}
+
+function normalizePatientivoNominalSuffixSelection(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    const normalized = String(value);
+    if (normalized === "zero" || normalized === "") {
+        return "";
+    }
+    return PATIENTIVO_NOMINAL_SUFFIX_OPTIONS.some((entry) => entry.id === normalized)
+        ? normalized
+        : null;
+}
+
+function getPatientivoNominalSuffixToggleValue(value) {
+    const normalized = normalizePatientivoNominalSuffixSelection(value);
+    if (normalized === null) {
+        return null;
+    }
+    return normalized === "" ? "zero" : normalized;
+}
+
+function getPatientivoNominalSuffixCacheToken(value) {
+    const normalized = normalizePatientivoNominalSuffixSelection(value);
+    if (normalized === null) {
+        return "*";
+    }
+    return normalized === "" ? "zero" : normalized;
+}
+
 function buildPatientivoDerivationInput({
     verb,
     analysisVerb,
@@ -7633,6 +7200,7 @@ function buildPatientivoDerivationInput({
     suppletiveStemSet = null,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
+    blockPerfectivoClassC = false,
 }) {
     return {
         verb,
@@ -7660,6 +7228,7 @@ function buildPatientivoDerivationInput({
         suppletiveStemSet,
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
+        blockPerfectivoClassC,
     };
 }
 
@@ -7799,8 +7368,15 @@ function buildPatientivoDerivations({
             return;
         }
         derivedList.forEach((derived) => {
+            const derivedSurface = `${derived.stem || ""}${derived.suffix || ""}`;
+            if (
+                option.suffix === "uwa"
+                && (derivedSurface.endsWith("it") || derivedSurface.endsWith("iti"))
+            ) {
+                return;
+            }
             if (derived.suffix === "ti") {
-                const candidate = `${derived.stem}${derived.suffix}`;
+                const candidate = derivedSurface;
                 if (!isSyllableSequencePronounceable(candidate)) {
                     return;
                 }
@@ -7814,7 +7390,7 @@ function buildPatientivoDerivations({
             results.push({
                 verb: nounStem,
                 subjectSuffix: derived.suffix,
-                blankPossessiveW: derived.blankPossessiveW,
+                nonactiveSourceSuffix: option.suffix,
             });
         });
     });
@@ -7823,7 +7399,11 @@ function buildPatientivoDerivations({
         const key = `${nounStem}|t`;
         if (!seen.has(key)) {
             seen.add(key);
-            results.push({ verb: nounStem, subjectSuffix: "t" });
+            results.push({
+                verb: nounStem,
+                subjectSuffix: "t",
+                nonactiveSourceSuffix: "",
+            });
         }
     }
     return results;
@@ -7854,6 +7434,7 @@ function buildPatientivoPerfectivoDerivations({
     suppletiveStemSet = null,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
+    blockPerfectivoClassC = false,
 }) {
     const resolvedBase = resolvePatientivoBaseFromInput({
         verb,
@@ -7901,6 +7482,9 @@ function buildPatientivoPerfectivoDerivations({
     const selectedClassKey = context.isMonosyllable
         ? "D"
         : (context.endsWithIaUa ? "C" : "A");
+    if (blockPerfectivoClassC && selectedClassKey === "C") {
+        return [];
+    }
     const getPerfectiveStemBases = (classKey) => {
         if (!context || !classKey) {
             return [];
@@ -8289,8 +7873,6 @@ function buildPatientivoTroncoDerivations({
     if (
         endsWithVCCVwa
         || endsWithVCCVwi
-        || endsWithVjCVwa
-        || endsWithVjCVwi
         || endsWithVlCVwa
         || endsWithVlCVwi
     ) {
@@ -8304,7 +7886,7 @@ function buildPatientivoTroncoDerivations({
         }
         return stem;
     };
-    const addRawResult = (stem, suffix) => {
+    const addRawResult = (stem, suffix, options = {}) => {
         const normalized = normalizeStem(stem);
         if (!normalized) {
             return;
@@ -8318,9 +7900,13 @@ function buildPatientivoTroncoDerivations({
             return;
         }
         seen.add(key);
-        results.push({ verb: nounStem, subjectSuffix: suffix });
+        results.push({
+            verb: nounStem,
+            subjectSuffix: suffix,
+            lockNominalMarker: options.lockNominalMarker === true,
+        });
     };
-    const addResult = (stem) => {
+    const addResult = (stem, options = {}) => {
         const normalized = normalizeStem(stem);
         if (!normalized) {
             return;
@@ -8335,7 +7921,11 @@ function buildPatientivoTroncoDerivations({
             return;
         }
         seen.add(key);
-        results.push({ verb: nounStem, subjectSuffix: suffix });
+        results.push({
+            verb: nounStem,
+            subjectSuffix: suffix,
+            lockNominalMarker: options.lockNominalMarker !== false,
+        });
     };
     const hasFinalConsonantCluster = (stem = "") => {
         const letters = splitVerbLetters(stem);
@@ -8346,13 +7936,69 @@ function buildPatientivoTroncoDerivations({
         const prev = letters[letters.length - 2] || "";
         return isVerbLetterConsonant(last) && isVerbLetterConsonant(prev);
     };
+    const endsWithTBaseSegment = (stem = "") => {
+        const letters = splitVerbLetters(stem);
+        return (letters[letters.length - 1] || "") === "t";
+    };
+    const targetVerbForMirror = normalizeComposerStem(analysisVerb || verb || base);
+    const shouldMirrorAgainstSeries = /(?:wi|wa|iwi|awi|ua)$/i.test(targetVerbForMirror);
+    const finalizeSeriesMirroredResults = () => {
+        if (!shouldMirrorAgainstSeries) {
+            return results;
+        }
+        return results.filter((entry) => {
+            const nounSurface = `${entry?.verb || ""}${entry?.subjectSuffix || ""}`;
+            return canComposerNounRebuildVerbThroughSeries(nounSurface, targetVerbForMirror);
+        });
+    };
+    const addTClassMirror = (stem = "") => {
+        const normalizedStem = normalizeStem(stem);
+        if (!normalizedStem) {
+            return;
+        }
+        const letters = splitVerbLetters(normalizedStem);
+        const last = letters[letters.length - 1] || "";
+        if (!isVerbLetterVowel(last)) {
+            return;
+        }
+        const tStem = `${normalizedStem}t`;
+        const nounStem = prefix ? `${prefix}${tStem}` : tStem;
+        if (canComposerNounRebuildVerbThroughSeries(nounStem, targetVerbForMirror)) {
+            addRawResult(tStem, "", { lockNominalMarker: true });
+        }
+    };
+    const addATClassMirror = (stem = "") => {
+        const normalizedStem = normalizeStem(stem);
+        if (!normalizedStem) {
+            return;
+        }
+        addTClassMirror(`${normalizedStem}a`);
+    };
+    const addYJoinedTClassMirror = (stem = "") => {
+        const normalizedStem = normalizeStem(stem);
+        if (!normalizedStem || !normalizedStem.endsWith("y")) {
+            return;
+        }
+        const letters = splitVerbLetters(normalizedStem);
+        const prev = letters[letters.length - 2] || "";
+        if (!isVerbLetterVowel(prev)) {
+            return;
+        }
+        addTClassMirror(normalizedStem.slice(0, -1));
+    };
+    const addFullAwiTClassMirror = () => {
+        if (iwiAwiUaSuffix !== "awi") {
+            return;
+        }
+        addRawResult(`${base}t`, "", { lockNominalMarker: true });
+    };
     if (isTransitive) {
         if (!isLuaEnding) {
             return [];
         }
         const core = base.slice(0, -2);
         addRawResult(core, "");
-        return results;
+        return finalizeSeriesMirroredResults();
     }
     const addWithConsonants = (stem, consonants) => {
         consonants.forEach((consonant) => {
@@ -8361,6 +8007,7 @@ function buildPatientivoTroncoDerivations({
             addResult(extendedStem);
         });
     };
+    const wiFamilyConsonants = ["k", "ch", "s", "sh"];
     const iwiAwiUaSuffix = base.endsWith("iwi")
         ? "iwi"
         : (base.endsWith("awi")
@@ -8388,8 +8035,9 @@ function buildPatientivoTroncoDerivations({
         const shortWiCore = base.slice(0, -2);
         if (shortWiCore) {
             addWithConsonants(shortWiCore, ["k"]);
+            addTClassMirror(shortWiCore);
         }
-        return results;
+        return finalizeSeriesMirroredResults();
     }
     if (
         isIwiAwiUa
@@ -8404,10 +8052,27 @@ function buildPatientivoTroncoDerivations({
         const familyCore = base.slice(0, -iwiAwiUaSuffix.length);
         if (familyCore) {
             if (hasFinalConsonantCluster(familyCore)) {
-                addResult(`${familyCore}a`);
+                const recoveredVowel = iwiAwiUaSuffix === "iwi"
+                    ? "i"
+                    : (iwiAwiUaSuffix === "awi" ? "a" : "u");
+                const repairedStem = `${familyCore}${recoveredVowel}`;
+                addRawResult(repairedStem, "");
+                addResult(repairedStem);
+                if (iwiAwiUaSuffix === "awi") {
+                    addWithConsonants(repairedStem, wiFamilyConsonants);
+                }
+                addFullAwiTClassMirror();
             } else {
-                addRawResult(familyCore, "");
-                addResult(familyCore);
+                if (!endsWithTBaseSegment(familyCore)) {
+                    addRawResult(familyCore, "");
+                    addResult(familyCore);
+                }
+                if (iwiAwiUaSuffix === "awi") {
+                    addWithConsonants(`${familyCore}a`, wiFamilyConsonants);
+                    addATClassMirror(familyCore);
+                    addFullAwiTClassMirror();
+                }
+                addYJoinedTClassMirror(familyCore);
             }
         } else if (allowMonosyllableIwiAwiUa) {
             const nounStem = prefix || "";
@@ -8432,29 +8097,28 @@ function buildPatientivoTroncoDerivations({
             || gateWiWaSuffix !== wiWaSuffix
             || !hasAllowedCore
         ) {
-            return results;
+            return finalizeSeriesMirroredResults();
         }
         const core = base.slice(0, -2);
         if (endsWithPlainWi) {
             const coreLetters = splitVerbLetters(core);
             const lastCore = coreLetters[coreLetters.length - 1] || "";
             const coreNoV = isVerbLetterVowel(lastCore) ? core.slice(0, -1) : core;
-            addWithConsonants(core, ["k", "ch"]);
+            addWithConsonants(core, wiFamilyConsonants);
             addResult(coreNoV);
         } else {
-            addWithConsonants(core, ["k", "ch", "s"]);
+            addWithConsonants(core, wiFamilyConsonants);
             addResult(core);
         }
     }
     if (endsWithProductiveNi || endsWithProductiveNa) {
         const core = base.slice(0, -2);
-        addWithConsonants(core, ["k", "sh", "s", "ch"]);
+        addWithConsonants(core, wiFamilyConsonants);
         addResult(core);
     }
     if (endsWithProductiveKi && isCvkiShape) {
-        const core = base.slice(0, -1);
-        addRawResult(core, "");
-        addResult(core);
+        const core = base.slice(0, -2);
+        addWithConsonants(core, ["k", "ch", "j"]);
         if (base === "waki" || gateBase === "waki") {
             const sCore = `${base.slice(0, -2)}s`;
             addRawResult(sCore, "");
@@ -8484,7 +8148,7 @@ function buildPatientivoTroncoDerivations({
             }
         }
     }
-    return results;
+    return finalizeSeriesMirroredResults();
 }
 
 function buildNonactiveOptionMap(options) {
@@ -8701,15 +8365,6 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         return `${base}lu`;
     };
     const blockChForTi = penultimateHasCoda || (endsWithTi && preTiConsonant);
-    // Align bare "ti" with the replacive -uwa pattern (cf. ma/ti -> machuwa),
-    // but keep consonant-final matrix prefixes out (e.g. mawis/ti != mawischuwa).
-    const preTiMaterial = (ruleBase === "ti" && source.endsWith("ti"))
-        ? source.slice(0, -2)
-        : "";
-    const preTiEndsWithNucleus = preTiMaterial.length > 0 && /[aeiou]$/i.test(preTiMaterial);
-    const forceChUwaForBareTi = !isTransitive
-        && ruleBase === "ti"
-        && (preTiMaterial.length === 0 || preTiEndsWithNucleus);
     const buildU = () => {
         return buildNonactiveUStem(source, lastOnset, lastNucleus, {
             blockCh: blockChForTi,
@@ -8719,8 +8374,8 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
     };
     const buildWa = () => `${source}wa`;
     const buildUwa = () => buildNonactiveUwaStem(source, lastOnset, lastNucleus, {
-        blockCh: forceChUwaForBareTi ? false : blockChForTi,
-        blockOnsetReplacement: forceChUwaForBareTi ? false : blockReplaciveOnsetForShort,
+        blockCh: blockChForTi,
+        blockOnsetReplacement: blockReplaciveOnsetForShort,
     });
 
     if (isClassC) {
@@ -9033,6 +8688,10 @@ function buildPersonSub({ subjectLabel, possessorLabel, objectLabel }) {
     return parts.join(" · ");
 }
 
+function getDummySubjectSubLabel(isNawat = false) {
+    return isNawat ? "yaja" : "ello";
+}
+
 function getSubjectSubLabel(selection, options = {}) {
     const isNawat = options.isNawat === true;
     const mode = options.mode || "";
@@ -9043,7 +8702,7 @@ function getSubjectSubLabel(selection, options = {}) {
         return "";
     }
     if (!isNawat && isNonanimateContext && isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)) {
-        return "eso";
+        return getDummySubjectSubLabel(isNawat);
     }
     if (!isNawat && selection.subjectPrefix === "" && selection.subjectSuffix === "t") {
         return "ellos/ellas/esos";
@@ -9880,6 +9539,9 @@ function getLocativoTemporalResult({
 
 // === Nonactive Labels ===
 function getNonactivePersonSub(prefix, isNawat = false) {
+    if (!prefix) {
+        return getDummySubjectSubLabel(isNawat);
+    }
     return getLocalizedLabel(NONACTIVE_PERSON_SUB_LABELS[prefix], isNawat, "");
 }
 
@@ -10124,6 +9786,31 @@ function buildClassBasedProvenance({
         subjectSuffix,
         blockedReason: null,
         usesSuppletiveSet: Boolean(suppletiveStemSet),
+    };
+}
+
+function buildForwardDerivationProvenance({
+    sourceVerb = "",
+    analysisTarget = "",
+    tense = "",
+    derivationType = "",
+    isTransitive = false,
+    selectedMeta = null,
+} = {}) {
+    const meta = selectedMeta && typeof selectedMeta === "object" ? selectedMeta : {};
+    const selectedStem = String(meta.surfaceStem || meta.stem || "");
+    return {
+        verb: sourceVerb,
+        analysisTarget,
+        tense,
+        isTransitive,
+        stemPath: derivationType || null,
+        rule: String(meta.rule || ""),
+        patternType: String(meta.patternType || ""),
+        causativeTrace: meta.causativeTrace || null,
+        guidanceRoute: meta.guidanceRoute || null,
+        variants: selectedStem ? [{ base: selectedStem, suffix: "" }] : [],
+        blockedReason: null,
     };
 }
 
@@ -11389,6 +11076,10 @@ function applyAgentivoNumberSuffix(habitualSuffix, slot = "") {
     return `${base}${getAgentivoNumberSuffix(slot)}`;
 }
 
+function applyPatientivoAdjectiveNumberSuffix(slot = "") {
+    return slot === "t" ? "met" : "ti";
+}
+
 function buildPrefixedChain({
     subjectPrefix = "",
     possessivePrefix = "",
@@ -11431,32 +11122,58 @@ function adjustPatientivoPossessiveSuffix(
     ownershipType = DEFAULT_PATIENTIVO_OWNERSHIP,
     options = {}
 ) {
-    if (!isPossessed || !suffix) {
+    if (!isPossessed) {
         return suffix || "";
     }
+    const normalizedSuffix = suffix || "";
     const useOrganic = ownershipType === "yu";
     const useZero = ownershipType === "zero";
-    if (suffix.endsWith("met")) {
-        const base = suffix.slice(0, -3);
+    const stem = typeof options.stem === "string" ? options.stem : "";
+    if (!normalizedSuffix) {
+        if (useOrganic && stem.endsWith("l")) {
+            return "yu";
+        }
+        if (useZero) {
+            return "";
+        }
+        return null;
+    }
+    if (normalizedSuffix.endsWith("met")) {
+        const base = normalizedSuffix.slice(0, -3);
         return useOrganic ? `${base}yuwan` : `${base}wan`;
     }
-    if (suffix.endsWith("wan")) {
-        const base = suffix.slice(0, -3);
-        return useOrganic ? `${base}yuwan` : suffix;
+    if (normalizedSuffix.endsWith("wan")) {
+        const base = normalizedSuffix.slice(0, -3);
+        return useOrganic ? `${base}yuwan` : normalizedSuffix;
     }
-    if (suffix === "ti") {
-        return "";
-    }
-    if (suffix === "t") {
+    if (normalizedSuffix === "ti") {
         if (useOrganic) {
             return "yu";
         }
-        if (useZero || options.blankPossessiveW) {
+        if (useZero) {
+            return "";
+        }
+        return null;
+    }
+    if (normalizedSuffix === "in") {
+        if (useOrganic) {
+            return "yu";
+        }
+        if (useZero) {
             return "";
         }
         return "w";
     }
-    return suffix;
+    if (normalizedSuffix === "t") {
+        if (useOrganic) {
+            return "yu";
+        }
+        if (useZero) {
+            return "";
+        }
+        return "w";
+    }
+    return normalizedSuffix;
 }
 
 function startsWithAny(value, prefixes) {
@@ -13273,6 +12990,12 @@ function buildNonactiveDerivationOptions({
     directionalPrefix = "",
     isYawi = false,
     suppletiveStemSet = null,
+    tense = "",
+    tenseMode = "",
+    derivationMode = "",
+    preferredNonactiveBaseVerb = "",
+    preferredNonactiveSourceMeta = null,
+    preferredNonactiveSourcePrefix = "",
 }) {
     return {
         verb,
@@ -13282,6 +13005,126 @@ function buildNonactiveDerivationOptions({
         directionalPrefix,
         isYawi,
         suppletiveStemSet,
+        tense,
+        tenseMode,
+        derivationMode,
+        preferredNonactiveBaseVerb,
+        preferredNonactiveSourceMeta,
+        preferredNonactiveSourcePrefix,
+    };
+}
+
+function getLexicallyAttestedValencyReducedTransitiveVariant(baseVerb = "", targetObjectSlots = 0) {
+    if (!baseVerb || !BASIC_DATA_CANONICAL_MAP.size) {
+        return null;
+    }
+    const normalizedBase = normalizeRuleBase(baseVerb);
+    if (!normalizedBase) {
+        return null;
+    }
+    const normalizedTargetSlots = Math.max(0, Math.min(MAX_OBJECT_SLOTS, Number(targetObjectSlots) || 0));
+    const nonRedupBase = normalizeRuleBase(getNonReduplicatedRoot(normalizedBase) || normalizedBase);
+    const exactRedupCandidate = nonRedupBase && nonRedupBase !== normalizedBase
+        ? normalizeRuleBase(buildReduplicatedSurfaceForm(nonRedupBase) || "")
+        : "";
+    const directCandidates = Array.from(new Set([
+        exactRedupCandidate,
+        normalizedBase,
+        nonRedupBase,
+    ].filter(Boolean)));
+    for (const candidate of directCandidates) {
+        const info = BASIC_DATA_CANONICAL_MAP.get(candidate.toLowerCase());
+        const parsed = info?.transitiveParsed || null;
+        if (parsed && getBaseObjectSlots(parsed) === normalizedTargetSlots) {
+            return parsed;
+        }
+    }
+    const matches = [];
+    BASIC_DATA_CANONICAL_MAP.forEach((info) => {
+        const parsed = info?.transitiveParsed || null;
+        if (!parsed || getBaseObjectSlots(parsed) !== normalizedTargetSlots) {
+            return;
+        }
+        const parsedBase = normalizeRuleBase(
+            parsed.canonicalRuleBase
+            || parsed.canonical?.ruleBase
+            || parsed.verb
+            || ""
+        );
+        const parsedNonRedup = normalizeRuleBase(getNonReduplicatedRoot(parsedBase) || parsedBase);
+        if (!parsedNonRedup || parsedNonRedup !== nonRedupBase) {
+            return;
+        }
+        matches.push({
+            parsed,
+            isExactRedup: Boolean(exactRedupCandidate && parsedBase === exactRedupCandidate),
+            isExactBase: parsedBase === normalizedBase,
+            length: getVerbLetterCount(parsedBase),
+        });
+    });
+    matches.sort((left, right) => {
+        if (left.isExactRedup !== right.isExactRedup) {
+            return left.isExactRedup ? -1 : 1;
+        }
+        if (left.isExactBase !== right.isExactBase) {
+            return left.isExactBase ? -1 : 1;
+        }
+        return left.length - right.length;
+    });
+    return matches[0]?.parsed || null;
+}
+
+function resolvePotencialHabitualReducedNonactiveSource({
+    parsedVerb = null,
+    verb = "",
+    analysisVerb = "",
+    objectPrefix = "",
+    tense = "",
+    tenseMode = "",
+    derivationMode = "",
+}) {
+    if (
+        !parsedVerb
+        || !isPotencialHabitualTense(tense)
+        || tenseMode !== TENSE_MODE.adjetivo
+        || derivationMode !== DERIVATION_MODE.nonactive
+    ) {
+        return null;
+    }
+    const sourceObjectSlots = getBaseObjectSlots(parsedVerb);
+    if (sourceObjectSlots < 2 || !SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES.has(objectPrefix)) {
+        return null;
+    }
+    const source = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
+    const baseVerb = stripBoundSourcePrefixFromNonactiveBase(
+        source.baseVerb || "",
+        source.prefix || "",
+        parsedVerb,
+    );
+    if (!baseVerb) {
+        return null;
+    }
+    const reducedParsed = getLexicallyAttestedValencyReducedTransitiveVariant(
+        baseVerb,
+        Math.max(0, sourceObjectSlots - 1),
+    );
+    if (!reducedParsed) {
+        return null;
+    }
+    const reducedBaseVerb = normalizeRuleBase(
+        reducedParsed.canonicalRuleBase
+        || reducedParsed.canonical?.ruleBase
+        || reducedParsed.analysisVerb
+        || reducedParsed.verb
+        || ""
+    );
+    if (!reducedBaseVerb || reducedBaseVerb === normalizeRuleBase(baseVerb)) {
+        return null;
+    }
+    return {
+        preferredNonactiveBaseVerb: reducedBaseVerb,
+        preferredNonactiveSourceMeta: reducedParsed,
+        preferredNonactiveSourcePrefix: source.prefix || "",
     };
 }
 
@@ -13352,6 +13195,7 @@ function applySelectedForwardDerivation({
         suppletiveStemSet: derivationOptions?.suppletiveStemSet || null,
         causativeAllStems: null,
         applicativeAllStems: null,
+        selectedForwardMeta: null,
     };
     const forwardDerivation = runForwardDerivation({
         derivationType,
@@ -13374,6 +13218,7 @@ function applySelectedForwardDerivation({
         if (config.resultField) {
             result[config.resultField] = derivedStems;
         }
+        result.selectedForwardMeta = derivationResult.selectedForwardMeta || null;
         return result;
     }
     return result;
@@ -13859,7 +13704,7 @@ function getSearchPossessorPlan(tenseValue) {
     const stored = getToggleStateValue(POSSESSOR_TOGGLE_STATE, possessorKey);
     const fallback = getDefaultPossessorForTense(tenseValue);
     const base = stored === undefined ? fallback : stored;
-    if (isPotencialProfileTense(tenseValue)) {
+    if (isPotencialProfileTense(tenseValue) || isPatientivoAdjectiveTense(tenseValue)) {
         return [""];
     }
     const values = POSSESSIVE_PREFIXES.map((entry) => entry.value);
@@ -14248,16 +14093,29 @@ function buildVerbSearchPlans({ tenseValue, group, isNonactive, verbMeta }) {
 }
 
 function buildNounSearchPlans({ tenseValue, verbMeta }) {
+    const nominalSearchCombinedMode = getResolvedNominalCombinedModeForTense(
+        tenseValue,
+        getCombinedMode(),
+    );
     const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
     const groupKey = prefixes.join("|");
     const subjectKey = `noun|${tenseValue}|${groupKey}`;
-    const subjectOptions = getSubjectToggleOptions();
+    const isPotencialHabitual = isPotencialHabitualTense(tenseValue);
+    const isPotencialHabitualIntransitive = isPotencialHabitual
+        && nominalSearchCombinedMode === COMBINED_MODE.nonactive
+        && getBaseObjectSlots(verbMeta) <= 0;
+    const usePotencialHabitualNonactiveSubjects = isPotencialHabitual
+        && nominalSearchCombinedMode === COMBINED_MODE.nonactive
+        && !isPotencialHabitualIntransitive;
+    const subjectOptions = usePotencialHabitualNonactiveSubjects
+        ? getPotencialHabitualNonactiveSubjectToggleOptions()
+        : getSubjectToggleOptions();
     const subjectOptionIds = subjectOptions
         .filter((entry) => entry.id !== SUBJECT_TOGGLE_ALL)
         .map((entry) => entry.id);
     const fallbackSubject = getDefaultNounSubjectId(subjectOptions) || subjectOptionIds[0] || SUBJECT_TOGGLE_ALL;
     let subjectPlan = [];
-    if (isNonanimateNounTense(tenseValue)) {
+    if (isNonanimateNounTense(tenseValue) || isPotencialHabitualIntransitive) {
         const nonanimateId = getNonanimateSubjectId();
         subjectPlan = [nonanimateId || fallbackSubject];
     } else {
@@ -14265,7 +14123,9 @@ function buildNounSearchPlans({ tenseValue, verbMeta }) {
         subjectPlan = buildSearchOptionPlan(subjectOptionIds, stored, fallbackSubject);
     }
     const objectStateKey = getObjectStateKey({ groupKey, tenseValue, mode: "noun" });
-    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, tenseValue);
+    const slotPlanBundle = getNounObjectSlotPlansFromMeta(verbMeta, tenseValue, {
+        combinedMode: nominalSearchCombinedMode,
+    });
     const objectSlotPlans = slotPlanBundle.slotPlans.map((slotPlan) => {
         const slotStateKey = getNounObjectSlotStateKey(objectStateKey, slotPlan.id);
         const stored = getToggleStateValue(OBJECT_TOGGLE_STATE, slotStateKey);
@@ -14356,6 +14216,7 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
         object: new Map(OBJECT_TOGGLE_STATE),
         possessor: new Map(POSSESSOR_TOGGLE_STATE),
         patientivoOwnership: new Map(PATIENTIVO_OWNERSHIP_STATE),
+        patientivoNominalSuffix: new Map(PATIENTIVO_NOMINAL_SUFFIX_STATE),
     };
     const applyTarget = (target) => {
         const resolvedTargetTense = target.tenseValue || "";
@@ -14495,10 +14356,12 @@ function searchAcrossTenseTabs(rawValue, queryInfo) {
         OBJECT_TOGGLE_STATE.clear();
         POSSESSOR_TOGGLE_STATE.clear();
         PATIENTIVO_OWNERSHIP_STATE.clear();
+        PATIENTIVO_NOMINAL_SUFFIX_STATE.clear();
         savedState.subject.forEach((value, key) => SUBJECT_TOGGLE_STATE.set(key, value));
         savedState.object.forEach((value, key) => OBJECT_TOGGLE_STATE.set(key, value));
         savedState.possessor.forEach((value, key) => POSSESSOR_TOGGLE_STATE.set(key, value));
         savedState.patientivoOwnership.forEach((value, key) => PATIENTIVO_OWNERSHIP_STATE.set(key, value));
+        savedState.patientivoNominalSuffix.forEach((value, key) => PATIENTIVO_NOMINAL_SUFFIX_STATE.set(key, value));
         renderTenseTabs();
         renderActiveConjugations({
             verb: displayVerb,
@@ -14604,6 +14467,8 @@ function getVerbComposerElements() {
     return {
         tutorialTrigger: document.getElementById("tutorial-trigger"),
         panel: document.getElementById("verb-composer"),
+        entryBoardButtons: document.querySelectorAll("[data-composer-entry-board]"),
+        entryBoardPanels: document.querySelectorAll("[data-composer-entry-board-panel]"),
         slots,
         slotAEmbedInput,
         slotAStemInput,
@@ -15725,20 +15590,49 @@ function getComposerMatrixAffixSpecialCatalog(slotKey = "") {
     if (slotConfig?.transitivity !== COMPOSER_TRANSITIVITY.intransitive) {
         return [];
     }
-    return COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS.map((entry) => {
+    const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+    const currentSurfaceValue = normalizeComposerStem(stemInput?.value || "");
+    const nounInfo = getComposerNounStemClassInfo(currentSurfaceValue);
+    const bridge = analyzeComposerNounToVerbSeriesBridge(currentSurfaceValue);
+    const expectedSeriesSuffix = bridge.expectedSeriesSuffix;
+    const resolvedAutoWiSuffix = bridge.autoWiSuffix;
+    return COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS
+        .map((entry) => {
         const group = COMPOSER_INTRANSITIVE_MATRIX_AFFIX_GROUPS.find(
             (groupEntry) => groupEntry.key === entry.groupKey
         ) || COMPOSER_INTRANSITIVE_MATRIX_AFFIX_GROUPS[0];
         const normalizedValue = String(entry.value || "").trim().toLowerCase();
         const detailLabel = `${group.label} ${entry.label}${entry.meta ? `: ${entry.meta}` : ""}`;
+        const normalizedTemplateSuffix = normalizeComposerStem(
+            entry.templateSuffix || normalizedValue.replace(/^_+/, "")
+        );
+        const isBlocked = !isComposerNounToVerbTemplateSuffixCompatible(
+            currentSurfaceValue,
+            normalizedTemplateSuffix,
+            nounInfo,
+            bridge
+        );
         return {
             ...entry,
             value: normalizedValue,
-            templateSuffix: normalizeComposerStem(entry.templateSuffix || normalizedValue.replace(/^_+/, "")),
+            templateSuffix: normalizedTemplateSuffix,
             serialType: String(entry.serialType || "").trim().toLowerCase(),
             groupLabel: group.label,
             triggerPrefix: group.triggerPrefix,
             detailLabel,
+            isBlocked,
+            isExpected: (
+                Boolean(expectedSeriesSuffix)
+                && !isBlocked
+                && (
+                    normalizedTemplateSuffix === expectedSeriesSuffix
+                    || (
+                        normalizedTemplateSuffix === "wiauto"
+                        && Boolean(resolvedAutoWiSuffix)
+                        && resolvedAutoWiSuffix === expectedSeriesSuffix
+                    )
+                )
+            ),
         };
     });
 }
@@ -16138,10 +16032,13 @@ function getComposerCanonicalStemFromInputValue(rawValue = "", slotKey = "a") {
     const safeSlotKey = COMPOSER_SLOT_KEYS.includes(slotKey) ? slotKey : "a";
     const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[safeSlotKey] || "auto";
     const stemInput = getVerbComposerElements().slots[safeSlotKey]?.stemInput || null;
-    const dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput);
+    const dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, safeSlotKey);
     const normalizedStem = normalizeComposerStem(rawValue);
     if (selectedType === "auto" && dropdownTemplateSuffix) {
-        return resolveComposerLockedTemplateStem(normalizedStem, dropdownTemplateSuffix).canonicalStem;
+        return resolveComposerLockedTemplateStem(normalizedStem, dropdownTemplateSuffix, {
+            slotKey: safeSlotKey,
+            surfaceValue: rawValue,
+        }).canonicalStem;
     }
     const inferredSpec = getComposerSerialSpecFromStem(normalizedStem);
     const displaySpec = getComposerSerialDisplaySpec({
@@ -16212,7 +16109,18 @@ function extractComposerSerialEditableRoot(stemValue = "", selectedType = "auto"
     return normalizeComposerStem(editableRoot);
 }
 
-function getComposerStemInputTemplateSuffix(stemInput = null) {
+function getComposerStemInputTemplateSuffix(stemInput = null, slotKey = "") {
+    const resolvedSlotKey = COMPOSER_SLOT_KEYS.includes(slotKey)
+        ? slotKey
+        : (getComposerSlotKeyByStemInput(stemInput) || "");
+    if (
+        resolvedSlotKey
+        && getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
+    ) {
+        return normalizeComposerStem(
+            COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[resolvedSlotKey] || ""
+        );
+    }
     return normalizeComposerStem(stemInput?.dataset?.dropdownTemplateSuffix || "");
 }
 
@@ -16228,9 +16136,573 @@ function extractComposerTemplateEditableRoot(stemValue = "", templateSuffix = ""
     return normalizedStem;
 }
 
+function getComposerNounStemClassInfo(stemValue = "") {
+    const noun = normalizeComposerStem(stemValue);
+    if (!noun) {
+        return {
+            surface: "",
+            stem: "",
+            suffix: "",
+            classKey: "zero",
+        };
+    }
+    if (noun.length > 2 && noun.endsWith("ti")) {
+        return {
+            surface: noun,
+            stem: noun.slice(0, -2),
+            suffix: "ti",
+            classKey: "ti",
+        };
+    }
+    if (noun.length > 2 && noun.endsWith("in")) {
+        return {
+            surface: noun,
+            stem: noun.slice(0, -2),
+            suffix: "in",
+            classKey: "in",
+        };
+    }
+    if (noun.length > 1 && noun.endsWith("t")) {
+        return {
+            surface: noun,
+            stem: noun.slice(0, -1),
+            suffix: "t",
+            classKey: "t",
+        };
+    }
+    return {
+        surface: noun,
+        stem: noun,
+        suffix: "",
+        classKey: "zero",
+    };
+}
+
+function resolveComposerNounToVerbSeriesJoinStem(stemBase = "") {
+    const letters = splitVerbLetters(stemBase || "");
+    const finalLetter = letters[letters.length - 1] || "";
+    const needsYJoiner = ["a", "e", "i", "u"].includes(finalLetter);
+    const glideStem = finalLetter === "j"
+        ? `${stemBase.slice(0, -1)}y`
+        : stemBase;
+    return {
+        finalLetter,
+        needsYJoiner,
+        stemBase,
+        glideStem,
+    };
+}
+
+const COMPOSER_NOUN_TO_VERB_TRONCO_ROUNDTRIP_CACHE = new Map();
+const COMPOSER_NOUN_TO_VERB_EXPLICIT_SERIES_SUFFIXES = Object.freeze(["ewi", "awi", "iwi", "uwi"]);
+const COMPOSER_NOUN_TO_VERB_ROUNDTRIP_SERIES_SUFFIXES = Object.freeze(["wi", ...COMPOSER_NOUN_TO_VERB_EXPLICIT_SERIES_SUFFIXES]);
+const COMPOSER_NOUN_TO_VERB_LITERAL_SERIES_SUFFIXES = Object.freeze([
+    "awi",
+    "iwi",
+    "ewi",
+    "uwi",
+    "awa",
+    "iwa",
+    "ewa",
+    "uwa",
+]);
+const COMPOSER_NOUN_TO_VERB_ALL_BRIDGE_SUFFIXES = Object.freeze([
+    ...COMPOSER_NOUN_TO_VERB_ROUNDTRIP_SERIES_SUFFIXES,
+    "wa",
+    "ewa",
+    "awa",
+    "iwa",
+    "uwa",
+]);
+
+function getComposerPatientivoTroncoSurfaceSetForVerb(verb = "") {
+    const normalizedVerb = normalizeComposerStem(verb);
+    if (!normalizedVerb) {
+        return new Set();
+    }
+    const cached = COMPOSER_NOUN_TO_VERB_TRONCO_ROUNDTRIP_CACHE.get(normalizedVerb);
+    if (cached) {
+        return cached;
+    }
+    const surfaces = new Set();
+    try {
+        const parsed = typeof parseVerbInput === "function" ? parseVerbInput(normalizedVerb) : null;
+        if (parsed && typeof buildPatientivoDerivationInput === "function" && typeof buildPatientivoTroncoDerivations === "function") {
+            const input = buildPatientivoDerivationInput({
+                verb: normalizedVerb,
+                analysisVerb: parsed.analysisVerb || parsed.verb || normalizedVerb,
+                rawAnalysisVerb: parsed.rawAnalysisVerb || "",
+                isTransitive: parsed.isTransitive === true,
+                objectPrefix: parsed.objectPrefix || "",
+                directionalPrefix: parsed.directionalPrefix || "",
+                isYawi: parsed.isYawi === true,
+                hasImpersonalTaPrefix: parsed.hasImpersonalTaPrefix === true,
+                boundPrefix: parsed.boundPrefix || "",
+                boundPrefixes: parsed.boundPrefixes || [],
+                boundExplicitFlags: parsed.boundExplicitFlags || [],
+                directionalPrefixFromSlash: parsed.directionalPrefixFromSlash || "",
+                sourceSplitPrefix: parsed.sourceSplitPrefix || "",
+                sourceCompositeBase: parsed.sourceCompositeBase || "",
+                hasSlashMarker: parsed.hasSlashMarker === true,
+                hasSuffixSeparator: parsed.hasSuffixSeparator === true,
+                hasLeadingDash: parsed.hasLeadingDash === true,
+                hasBoundMarker: parsed.hasBoundMarker === true,
+                hasCompoundMarker: parsed.hasCompoundMarker === true,
+                hasOptionalSupportiveI: parsed.hasOptionalSupportiveI === true,
+                hasNonspecificValence: parsed.hasNonspecificValence === true,
+                exactBaseVerb: parsed.exactBaseVerb || "",
+                suppletiveStemSet: parsed.suppletiveStemSet || null,
+                rootPlusYaBase: parsed.rootPlusYaBase || "",
+                rootPlusYaBasePronounceable: parsed.rootPlusYaBasePronounceable || "",
+            });
+            buildPatientivoTroncoDerivations(input).forEach((entry) => {
+                surfaces.add(normalizeComposerStem(`${entry?.verb || ""}${entry?.subjectSuffix || ""}`));
+            });
+        }
+    } catch (_error) {
+        // Empty during preload or partial test state.
+    }
+    COMPOSER_NOUN_TO_VERB_TRONCO_ROUNDTRIP_CACHE.set(normalizedVerb, surfaces);
+    return surfaces;
+}
+
+function doesComposerNounRoundTripThroughPatientivoTronco(nounSurface = "", verb = "") {
+    const normalizedNoun = normalizeComposerStem(nounSurface);
+    const normalizedVerb = normalizeComposerStem(verb);
+    if (!normalizedNoun || !normalizedVerb) {
+        return false;
+    }
+    return getComposerPatientivoTroncoSurfaceSetForVerb(normalizedVerb).has(normalizedNoun);
+}
+
+function canComposerNounRebuildVerbThroughSeries(nounSurface = "", verb = "") {
+    const normalizedNoun = normalizeComposerStem(nounSurface);
+    const normalizedVerb = normalizeComposerStem(verb);
+    if (!normalizedNoun || !normalizedVerb) {
+        return false;
+    }
+    return COMPOSER_NOUN_TO_VERB_ALL_BRIDGE_SUFFIXES.some((suffix) => (
+        buildComposerNounToVerbSeriesRoundTripCandidates(normalizedNoun, suffix).some((candidate) => (
+            normalizeComposerStem(candidate) === normalizedVerb
+        ))
+    ));
+}
+
+function getComposerNounToVerbWVCandidates(surfaceValue = "", finalNucleus = "i") {
+    const nounInfo = getComposerNounStemClassInfo(surfaceValue);
+    const surface = normalizeComposerStem(nounInfo.surface || "");
+    const stemBase = normalizeComposerStem(nounInfo.stem || "");
+    const resolvedNucleus = finalNucleus === "a" ? "a" : "i";
+    const suffix = `w${resolvedNucleus}`;
+    if (!surface || !stemBase) {
+        return [];
+    }
+    const candidates = [];
+    const seen = new Set();
+    const push = (value = "") => {
+        const normalized = normalizeComposerStem(value);
+        if (!normalized || seen.has(normalized)) {
+            return;
+        }
+        seen.add(normalized);
+        candidates.push(normalized);
+    };
+    if (surface.endsWith(`${suffix}t`) && surface.length > suffix.length + 1) {
+        push(surface.slice(0, -(suffix.length + 1)) + suffix);
+    }
+    push(`${stemBase}${suffix}`);
+    if (nounInfo.classKey === "ti") {
+        return candidates;
+    }
+    const letters = splitVerbLetters(stemBase);
+    const finalLetter = letters[letters.length - 1] || "";
+    if (
+        shouldComposerNounUseSurfaceAsSeriesBase(nounInfo)
+        && surface.endsWith("ti")
+        && !["k", "ch", "s", "sh"].includes(finalLetter)
+    ) {
+        push(`${surface}${suffix}`);
+    }
+    if (["k", "ch", "s", "sh"].includes(finalLetter)) {
+        push(`${letters.slice(0, -1).join("")}${suffix}`);
+    }
+    if (isVerbLetterConsonant(finalLetter)) {
+        ["e", "a", "i", "u"].forEach((supportVowel) => {
+            push(`${stemBase}${supportVowel}${suffix}`);
+        });
+    }
+    return candidates;
+}
+
+function getComposerNounToVerbWiCandidates(surfaceValue = "") {
+    return getComposerNounToVerbWVCandidates(surfaceValue, "i");
+}
+
+function getComposerNounToVerbWaCandidates(surfaceValue = "") {
+    return getComposerNounToVerbWVCandidates(surfaceValue, "a");
+}
+
+function resolveComposerNounToVerbWiCandidate(surfaceValue = "") {
+    const nounSurface = normalizeComposerStem(surfaceValue);
+    const candidates = getComposerNounToVerbWiCandidates(nounSurface);
+    for (const candidate of candidates) {
+        if (doesComposerNounRoundTripThroughPatientivoTronco(nounSurface, candidate)) {
+            return candidate;
+        }
+    }
+    return candidates[0] || "";
+}
+
+function resolveComposerNounToVerbWaCandidate(surfaceValue = "") {
+    const nounSurface = normalizeComposerStem(surfaceValue);
+    const candidates = getComposerNounToVerbWaCandidates(nounSurface);
+    for (const candidate of candidates) {
+        if (doesComposerNounRoundTripThroughPatientivoTronco(nounSurface, candidate)) {
+            return candidate;
+        }
+    }
+    return candidates[0] || "";
+}
+
+function shouldComposerSeriesUseYJoiner(suffix = "") {
+    const normalizedSuffix = normalizeComposerStem(suffix);
+    return normalizedSuffix.startsWith("a");
+}
+
+function shouldComposerNounUseSurfaceAsSeriesBase(nounInfo = null) {
+    if (!nounInfo || typeof nounInfo !== "object") {
+        return false;
+    }
+    return nounInfo.classKey !== "ti";
+}
+
+function buildComposerNounToVerbSeriesRoundTripCandidates(surfaceValue = "", suffix = "") {
+    const normalizedSuffix = normalizeComposerStem(suffix);
+    if (normalizedSuffix === "wi") {
+        return getComposerNounToVerbWiCandidates(surfaceValue);
+    }
+    if (normalizedSuffix === "wa") {
+        return getComposerNounToVerbWaCandidates(surfaceValue);
+    }
+    if (!COMPOSER_NOUN_TO_VERB_LITERAL_SERIES_SUFFIXES.includes(normalizedSuffix)) {
+        return [];
+    }
+    const nounInfo = getComposerNounStemClassInfo(surfaceValue);
+    const stemBase = normalizeComposerStem(nounInfo.stem || "");
+    const stemLetters = splitVerbLetters(stemBase);
+    const finalLetter = stemLetters[stemLetters.length - 1] || "";
+    const lastBefore = stemLetters[stemLetters.length - 2] || "";
+    const prevBefore = stemLetters[stemLetters.length - 3] || "";
+    const endsWithRecoveredFamilyVowel = Boolean(
+        nounInfo.classKey === "t"
+        && (finalLetter === "a" || finalLetter === "i")
+        && isVerbLetterConsonant(lastBefore)
+        && isVerbLetterConsonant(prevBefore)
+    );
+    const baseCandidates = [nounInfo.stem || ""];
+    if (!endsWithRecoveredFamilyVowel && shouldComposerNounUseSurfaceAsSeriesBase(nounInfo)) {
+        baseCandidates.push(nounInfo.surface || "");
+    }
+    const candidates = [];
+    const seen = new Set();
+    const push = (value = "") => {
+        const normalized = normalizeComposerStem(value);
+        if (!normalized || seen.has(normalized)) {
+            return;
+        }
+        seen.add(normalized);
+        candidates.push(normalized);
+    };
+    baseCandidates.forEach((baseValue) => {
+        const base = normalizeComposerStem(baseValue);
+        if (!base) {
+            return;
+        }
+        const {
+            needsYJoiner,
+            glideStem,
+        } = resolveComposerNounToVerbSeriesJoinStem(base);
+        push(`${base}${normalizedSuffix}`);
+        if (needsYJoiner && shouldComposerSeriesUseYJoiner(normalizedSuffix)) {
+            push(`${base}y${normalizedSuffix}`);
+        } else {
+            push(`${glideStem}${normalizedSuffix}`);
+        }
+    });
+    return candidates;
+}
+
+function resolveComposerNounToVerbLiteralSeriesRoundTripCandidate(surfaceValue = "", suffix = "") {
+    const nounSurface = normalizeComposerStem(surfaceValue);
+    const normalizedSuffix = normalizeComposerStem(suffix);
+    const matches = buildComposerNounToVerbSeriesRoundTripCandidates(nounSurface, normalizedSuffix).filter((candidate) =>
+        doesComposerNounRoundTripThroughPatientivoTronco(nounSurface, candidate)
+    );
+    return matches.length === 1 ? matches[0] : "";
+}
+
+function getComposerNounToVerbRoundTripSeriesEvidence(surfaceValue = "") {
+    const nounSurface = normalizeComposerStem(surfaceValue);
+    const evidence = {
+        wi: false,
+        ewi: false,
+        awi: false,
+        iwi: false,
+        uwi: false,
+    };
+    if (!nounSurface) {
+        return evidence;
+    }
+    COMPOSER_NOUN_TO_VERB_ROUNDTRIP_SERIES_SUFFIXES.forEach((suffix) => {
+        const candidates = buildComposerNounToVerbSeriesRoundTripCandidates(nounSurface, suffix);
+        evidence[suffix] = candidates.some((candidate) =>
+            doesComposerNounRoundTripThroughPatientivoTronco(nounSurface, candidate)
+        );
+    });
+    return evidence;
+}
+
+function analyzeComposerNounToVerbSeriesBridge(surfaceValue = "") {
+    const nounInfo = getComposerNounStemClassInfo(surfaceValue);
+    const surface = normalizeComposerStem(nounInfo.surface || "");
+    const stemBase = normalizeComposerStem(nounInfo.stem || "");
+    if (!surface || !stemBase) {
+        return {
+            nounInfo,
+            surface,
+            stemBase,
+            finalLetter: "",
+            lastBefore: "",
+            prevBefore: "",
+            plainWiCandidate: "",
+            rawRoundTripSeriesEvidence: {
+                wi: false,
+                ewi: false,
+                awi: false,
+                iwi: false,
+                uwi: false,
+            },
+            seriesAllowed: {
+                wi: false,
+                ewi: false,
+                awi: false,
+                iwi: false,
+                uwi: false,
+            },
+            recoveredFamilySuffix: "",
+            expectedSeriesSuffix: "",
+            autoWiSuffix: "awi",
+        };
+    }
+    const letters = splitVerbLetters(stemBase);
+    const finalLetter = letters[letters.length - 1] || "";
+    const beforeFinal = letters.slice(0, -1);
+    const lastBefore = beforeFinal[beforeFinal.length - 1] || "";
+    const prevBefore = beforeFinal[beforeFinal.length - 2] || "";
+    const isTiClass = nounInfo.classKey === "ti";
+    const endsWithRecoveredFamilyVowel = Boolean(
+        nounInfo.classKey === "t"
+        && (finalLetter === "a" || finalLetter === "i")
+        && isVerbLetterConsonant(lastBefore)
+        && isVerbLetterConsonant(prevBefore)
+    );
+    const hasDirectLiteralVowelStem = nounInfo.classKey === "t" && isVerbLetterVowel(finalLetter);
+    let plainWiAllowed = isTiClass;
+    if (surface.endsWith("wit") && surface.length > 3) {
+        plainWiAllowed = true;
+    } else if (["k", "ch", "s", "t"].includes(finalLetter)) {
+        plainWiAllowed = true;
+    } else if (endsWithRecoveredFamilyVowel) {
+        plainWiAllowed = true;
+    } else if (
+        nounInfo.classKey === "t"
+        && ["a", "e", "i", "u"].includes(finalLetter)
+        && !(isVerbLetterConsonant(lastBefore) && isVerbLetterConsonant(prevBefore))
+    ) {
+        plainWiAllowed = true;
+    }
+    const recoveredFamilySuffix = endsWithRecoveredFamilyVowel
+        ? (finalLetter === "i" ? "iwi" : "awi")
+        : "";
+    let autoWiSuffix = "awi";
+    if (nounInfo.classKey !== "t") {
+        const stemLetters = splitVerbLetters(stemBase || "");
+        const lastVowel = [...stemLetters].reverse().find((letter) => ["a", "e", "i", "u"].includes(letter)) || "";
+        autoWiSuffix = (lastVowel === "a" || lastVowel === "e") ? "iwi" : "awi";
+    }
+    const rawRoundTripSeriesEvidence = getComposerNounToVerbRoundTripSeriesEvidence(surface);
+    const hasRoundTripSeriesEvidence = Object.values(rawRoundTripSeriesEvidence).some(Boolean);
+    if (hasRoundTripSeriesEvidence && !hasDirectLiteralVowelStem && !isTiClass) {
+        plainWiAllowed = rawRoundTripSeriesEvidence.wi;
+    }
+    const seriesAllowed = {
+        wi: plainWiAllowed,
+        ewi: true,
+        awi: true,
+        iwi: true,
+        uwi: true,
+    };
+    if (recoveredFamilySuffix) {
+        seriesAllowed.awi = recoveredFamilySuffix === "awi";
+        seriesAllowed.iwi = recoveredFamilySuffix === "iwi";
+    } else if (hasRoundTripSeriesEvidence && !isTiClass) {
+        COMPOSER_NOUN_TO_VERB_EXPLICIT_SERIES_SUFFIXES.forEach((suffix) => {
+            seriesAllowed[suffix] = Boolean(rawRoundTripSeriesEvidence[suffix]);
+        });
+    }
+    let expectedSeriesSuffix = "";
+    if (isTiClass && seriesAllowed.wi) {
+        expectedSeriesSuffix = "wi";
+    } else if (recoveredFamilySuffix) {
+        expectedSeriesSuffix = recoveredFamilySuffix;
+    } else if (hasRoundTripSeriesEvidence) {
+        const roundTripExplicitSuffixes = COMPOSER_NOUN_TO_VERB_EXPLICIT_SERIES_SUFFIXES.filter(
+            (suffix) => rawRoundTripSeriesEvidence[suffix]
+        );
+        if (roundTripExplicitSuffixes.length === 1) {
+            [expectedSeriesSuffix] = roundTripExplicitSuffixes;
+        } else if (rawRoundTripSeriesEvidence.wi) {
+            expectedSeriesSuffix = "wi";
+        }
+    }
+    const plainWiCandidate = seriesAllowed.wi
+        ? resolveComposerNounToVerbWiCandidate(surface)
+        : "";
+    return {
+        nounInfo,
+        surface,
+        stemBase,
+        finalLetter,
+        lastBefore,
+        prevBefore,
+        hasDirectLiteralVowelStem,
+        plainWiCandidate,
+        rawRoundTripSeriesEvidence,
+        seriesAllowed,
+        recoveredFamilySuffix,
+        expectedSeriesSuffix,
+        autoWiSuffix,
+    };
+}
+
+function isComposerNounToVerbTemplateSuffixCompatible(
+    surfaceValue = "",
+    templateSuffix = "",
+    nounInfo = null,
+    bridge = null
+) {
+    const normalizedSurface = normalizeComposerStem(surfaceValue);
+    const normalizedSuffix = normalizeComposerStem(templateSuffix);
+    const resolvedNounInfo = nounInfo || getComposerNounStemClassInfo(normalizedSurface);
+    const stemBase = normalizeComposerStem(resolvedNounInfo.stem || "");
+    if (!normalizedSuffix || !stemBase) {
+        return true;
+    }
+    const letters = splitVerbLetters(stemBase);
+    const last = letters[letters.length - 1] || "";
+    const isVowel = ["a", "e", "i", "u"].includes(last);
+    const resolvedBridge = bridge || analyzeComposerNounToVerbSeriesBridge(normalizedSurface);
+    if (normalizedSuffix === "wi") {
+        return resolvedBridge.seriesAllowed.wi;
+    }
+    if (COMPOSER_NOUN_TO_VERB_EXPLICIT_SERIES_SUFFIXES.includes(normalizedSuffix)) {
+        return resolvedBridge.seriesAllowed[normalizedSuffix];
+    }
+    if (normalizedSuffix === "wiauto") {
+        return true;
+    }
+    if (normalizedSuffix === "ua") {
+        return !isVowel && last !== "j";
+    }
+    if (normalizedSuffix === "ya") {
+        return isVowel || last === "k" || last === "l";
+    }
+    return true;
+}
+
+function buildComposerNounToVerbCanonicalStem(surfaceValue = "", templateSuffix = "") {
+    const suffix = normalizeComposerStem(templateSuffix);
+    const nounInfo = getComposerNounStemClassInfo(surfaceValue);
+    if (!suffix || !nounInfo.surface) {
+        return "";
+    }
+    const stemBase = nounInfo.stem || "";
+    const bridge = analyzeComposerNounToVerbSeriesBridge(nounInfo.surface);
+    const {
+        needsYJoiner,
+        glideStem,
+    } = resolveComposerNounToVerbSeriesJoinStem(stemBase);
+    if (suffix === "wi" && bridge.seriesAllowed.wi) {
+        return bridge.plainWiCandidate || "";
+    }
+    if (suffix === "wa") {
+        return resolveComposerNounToVerbWaCandidate(nounInfo.surface);
+    }
+    if (suffix === "wiauto") {
+        const resolvedSuffix = bridge.autoWiSuffix;
+        const joiner = needsYJoiner && shouldComposerSeriesUseYJoiner(resolvedSuffix) ? "y" : "";
+        const joinStem = glideStem;
+        return joinStem ? `${joinStem}${joiner}${resolvedSuffix}` : "";
+    }
+    if (suffix === "ya" && /[kl]$/i.test(nounInfo.stem || "")) {
+        return `${stemBase}iya`;
+    }
+    if (COMPOSER_NOUN_TO_VERB_LITERAL_SERIES_SUFFIXES.includes(suffix)) {
+        if (!bridge.recoveredFamilySuffix && !bridge.hasDirectLiteralVowelStem) {
+            const roundTripCandidate = resolveComposerNounToVerbLiteralSeriesRoundTripCandidate(nounInfo.surface, suffix);
+            if (roundTripCandidate) {
+                return roundTripCandidate;
+            }
+        }
+        if (needsYJoiner && shouldComposerSeriesUseYJoiner(suffix)) {
+            return stemBase ? `${stemBase}y${suffix}` : "";
+        }
+        return glideStem ? `${glideStem}${suffix}` : "";
+    }
+    return stemBase ? `${stemBase}${suffix}` : "";
+}
+
+function isComposerNounToVerbTemplateSuffixAllowed(
+    slotKey = "",
+    templateSuffix = "",
+    surfaceValue = ""
+) {
+    const normalizedSuffix = normalizeComposerStem(templateSuffix);
+    if (!shouldUseComposerNounToVerbStemLogic(slotKey, normalizedSuffix)) {
+        return true;
+    }
+    return isComposerNounToVerbTemplateSuffixCompatible(surfaceValue, normalizedSuffix);
+}
+
+function shouldUseComposerNounToVerbStemLogic(slotKey = "", templateSuffix = "") {
+    if (!COMPOSER_SLOT_KEYS.includes(slotKey)) {
+        return false;
+    }
+    if (!templateSuffix) {
+        return false;
+    }
+    if (getComposerEntryBoard() !== COMPOSER_ENTRY_BOARD.nounToVerb) {
+        return false;
+    }
+    return true;
+}
+
+function getComposerNounToVerbSurfaceValue(slotKey = "", fallbackValue = "") {
+    return normalizeComposerStem(
+        fallbackValue
+        || COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey]
+        || ""
+    );
+}
+
+function getComposerNounToVerbExplicitSurfaceValue(value = "") {
+    return normalizeComposerStem(value || "");
+}
+
 function resolveComposerLockedTemplateStem(stemValue = "", templateSuffix = "", options = {}) {
     const suffix = normalizeComposerStem(templateSuffix);
     const stem = normalizeComposerStem(stemValue);
+    const slotKey = COMPOSER_SLOT_KEYS.includes(options.slotKey) ? options.slotKey : "a";
     if (!suffix) {
         return {
             editableRoot: stem,
@@ -16253,6 +16725,23 @@ function resolveComposerLockedTemplateStem(stemValue = "", templateSuffix = "", 
             editableRoot = `${previousEditableRoot}${typedSuffixFragment.slice(suffix.length)}`;
         }
     }
+    const usesNounToVerbStemLogic = shouldUseComposerNounToVerbStemLogic(
+        slotKey,
+        suffix
+    );
+    if (usesNounToVerbStemLogic) {
+        const hasExplicitSurfaceValue = Object.prototype.hasOwnProperty.call(options, "surfaceValue");
+        const surface = hasExplicitSurfaceValue
+            ? getComposerNounToVerbExplicitSurfaceValue(options.surfaceValue)
+            : getComposerNounToVerbSurfaceValue(slotKey, editableRoot);
+        const canonicalStem = buildComposerNounToVerbCanonicalStem(surface, suffix);
+        return {
+            editableRoot: surface,
+            displayStem: surface,
+            canonicalStem,
+            editableBoundary: surface.length,
+        };
+    }
     const normalizedRoot = normalizeComposerStem(editableRoot);
     const canonicalStem = normalizedRoot ? `${normalizedRoot}${suffix}` : "";
     const displayStem = normalizedRoot ? canonicalStem : `_${suffix}`;
@@ -16269,9 +16758,9 @@ function getComposerEditableRootForCurrentAffixState(slotKey = "", stemInput = n
         return "";
     }
     const selectedType = String(COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto").trim().toLowerCase();
-    const templateSuffix = getComposerStemInputTemplateSuffix(stemInput);
+    const templateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
     if (selectedType === "auto" && templateSuffix) {
-        return extractComposerTemplateEditableRoot(stemInput.value || "", templateSuffix);
+        return getComposerNounToVerbExplicitSurfaceValue(stemInput.value || "");
     }
     if (isComposerFixedSerialType(selectedType)) {
         return extractComposerSerialEditableRoot(stemInput.value || "", selectedType);
@@ -16309,14 +16798,33 @@ function getComposerSerialMaskContextFromRaw(rawValue = "", slotKey = "a") {
     const safeSlotKey = COMPOSER_SLOT_KEYS.includes(slotKey) ? slotKey : "a";
     const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[safeSlotKey] || "auto";
     const stemInput = getVerbComposerElements().slots[safeSlotKey]?.stemInput || null;
-    const dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput);
+    const dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, safeSlotKey);
     const normalizedStem = normalizeComposerStem(rawValue);
+    if (
+        selectedType === "auto"
+        && dropdownTemplateSuffix
+        && shouldUseComposerNounToVerbStemLogic(safeSlotKey, dropdownTemplateSuffix)
+    ) {
+        return {
+            slotCount: 1,
+            selectedType: "noun-to-verb-template",
+            isFixedType: false,
+            formattedValue: normalizedStem,
+            segmentRanges: [{
+                index: 0,
+                start: 0,
+                end: normalizedStem.length,
+                isEditable: true,
+            }],
+        };
+    }
     if (selectedType === "auto" && dropdownTemplateSuffix) {
         const stateKeys = getComposerSlotStateKeys(safeSlotKey);
         const previousStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
         const previousEditableRoot = extractComposerTemplateEditableRoot(previousStem, dropdownTemplateSuffix);
         const lockedTemplate = resolveComposerLockedTemplateStem(normalizedStem, dropdownTemplateSuffix, {
             previousEditableRoot,
+            slotKey: safeSlotKey,
         });
         return {
             slotCount: 1,
@@ -16458,6 +16966,10 @@ function prepareComposerTemplateMaskOverwrite(event, stemInput, slotKey = "a") {
     if (!event || !stemInput) {
         return false;
     }
+    let dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
+    if (shouldUseComposerNounToVerbStemLogic(slotKey, dropdownTemplateSuffix)) {
+        return false;
+    }
     const key = String(event.key || "");
     const isPrintable = key.length === 1 && !event.ctrlKey && !event.metaKey;
     if (!isPrintable) {
@@ -16477,6 +16989,10 @@ function prepareComposerTemplateMaskOverwrite(event, stemInput, slotKey = "a") {
 
 function enforceComposerLockedSuffixDeletion(event, stemInput, slotKey = "a") {
     if (!event || !stemInput) {
+        return false;
+    }
+    let dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
+    if (shouldUseComposerNounToVerbStemLogic(slotKey, dropdownTemplateSuffix)) {
         return false;
     }
     const key = String(event.key || "");
@@ -16612,6 +17128,13 @@ function mapComposerCaretToLockedMask(
 function formatComposerStemForInputDisplay(stemValue = "", options = {}) {
     const slotKey = COMPOSER_SLOT_KEYS.includes(options.slotKey) ? options.slotKey : "a";
     const normalizedStem = normalizeComposerStem(stemValue);
+    const templateSuffix = normalizeComposerStem(options.templateSuffix || "");
+    if (templateSuffix) {
+        return resolveComposerLockedTemplateStem(normalizedStem, templateSuffix, {
+            slotKey,
+            surfaceValue: getComposerNounToVerbSurfaceValue(slotKey, options.surfaceValue || ""),
+        }).displayStem;
+    }
     const inferredSpec = getComposerSerialSpecFromStem(normalizedStem);
     const displaySpec = getComposerSerialDisplaySpec({
         slotKey,
@@ -16654,10 +17177,22 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
         normalizedStem,
         inferredSpec,
     });
-    const dropdownTemplateSuffix = normalizeComposerStem(
-        stemInput.dataset.dropdownTemplateSuffix || ""
-    );
+    let dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
+    if (
+        displaySpec.selectedType === "auto"
+        && dropdownTemplateSuffix
+        && shouldUseComposerNounToVerbStemLogic(slotKey, dropdownTemplateSuffix)
+        && !isComposerNounToVerbTemplateSuffixAllowed(slotKey, dropdownTemplateSuffix, rawValue)
+    ) {
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        if (stemInput.dataset?.dropdownTemplateSuffix) {
+            delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+        dropdownTemplateSuffix = "";
+    }
     const previousStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+    const previousSurfaceValue = normalizeComposerStem(COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] || "");
     if (displaySpec.selectedType === "auto" && dropdownTemplateSuffix) {
         const previousEditableRoot = extractComposerTemplateEditableRoot(
             previousStem,
@@ -16665,7 +17200,14 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
         );
         const lockedTemplate = resolveComposerLockedTemplateStem(normalizedStem, dropdownTemplateSuffix, {
             previousEditableRoot,
+            slotKey,
+            surfaceValue: shouldUseComposerNounToVerbStemLogic(slotKey, dropdownTemplateSuffix)
+                ? getComposerNounToVerbExplicitSurfaceValue(rawValue)
+                : getComposerNounToVerbSurfaceValue(slotKey, rawValue || previousSurfaceValue),
         });
+        if (shouldUseComposerNounToVerbStemLogic(slotKey, dropdownTemplateSuffix)) {
+            COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = lockedTemplate.displayStem;
+        }
         if (stemInput.value !== lockedTemplate.displayStem) {
             stemInput.value = lockedTemplate.displayStem;
             if (
@@ -16846,6 +17388,8 @@ function applyComposerSerialTypeSelection({
         ? getComposerEditableRootForCurrentAffixState(slotKey, latestStemInput)
         : "";
     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = selectedType;
+    COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+    COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
     if (serialOption.slotCount > 0) {
         COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[slotKey] = serialOption.slotCount;
     }
@@ -16881,8 +17425,24 @@ function applyComposerTemplateSuffixSelection({
         return false;
     }
     const preservedRoot = getComposerEditableRootForCurrentAffixState(slotKey, latestStemInput);
+    const usesNounToVerbStemLogic = shouldUseComposerNounToVerbStemLogic(slotKey, normalizedSuffix);
+    if (
+        usesNounToVerbStemLogic
+        && !isComposerNounToVerbTemplateSuffixAllowed(slotKey, normalizedSuffix, preservedRoot)
+    ) {
+        return false;
+    }
     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
-    latestStemInput.dataset.dropdownTemplateSuffix = normalizedSuffix;
+    COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = usesNounToVerbStemLogic
+        ? normalizeComposerStem(preservedRoot)
+        : "";
+    if (usesNounToVerbStemLogic) {
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = normalizedSuffix;
+        delete latestStemInput.dataset.dropdownTemplateSuffix;
+    } else {
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        latestStemInput.dataset.dropdownTemplateSuffix = normalizedSuffix;
+    }
     latestStemInput.value = preservedRoot;
     applyComposerSerialFormattingToStemInput(latestStemInput, {
         preserveCaret: true,
@@ -16912,6 +17472,38 @@ function focusComposerStemInputAtEditableBoundary(stemInput = null, slotKey = ""
     return true;
 }
 
+function getComposerSerialTypeChipLabel(value = "") {
+    const normalizedValue = String(value || "").trim().toLowerCase();
+    if (normalizedValue === "ti-have") {
+        return "ti (tener)";
+    }
+    if (normalizedValue === "ti-become") {
+        return "ti (ser)";
+    }
+    const option = getComposerSerialTypeOptionByValue(normalizedValue);
+    return option?.label || normalizedValue;
+}
+
+function shouldShowComposerTiChoiceChips(slotKey = "", stemInput = null) {
+    const slotConfig = getComposerSlotConfig(slotKey);
+    if (slotConfig?.transitivity !== COMPOSER_TRANSITIVITY.intransitive || !stemInput) {
+        return false;
+    }
+    if (getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb) {
+        return false;
+    }
+    const selectedType = String(COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto").trim().toLowerCase();
+    if (selectedType === "ti-have" || selectedType === "ti-become") {
+        return true;
+    }
+    const dropdownTemplateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
+    if (dropdownTemplateSuffix) {
+        return false;
+    }
+    const normalizedStem = normalizeComposerStem(String(stemInput.value || ""));
+    return normalizedStem.endsWith("ti");
+}
+
 function syncComposerSerialTypeChips() {
     const { slots } = getVerbComposerElements();
     const isComposer = isVerbInputModeComposer();
@@ -16919,44 +17511,49 @@ function syncComposerSerialTypeChips() {
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const slotRefs = slots[slotKey] || {};
         const chipsContainer = slotRefs.serialTypeChips || null;
+        const stemInput = slotRefs.stemInput || null;
         if (!chipsContainer) {
             return;
         }
-        const renderChipButtons = false;
-        const optionSignature = COMPOSER_SERIAL_TYPE_OPTIONS
-            .map((option) => `${option.value}:${option.label}`)
+        const visibleOptions = ["ti-become", "ti-have"]
+            .map((value) => getComposerSerialTypeOptionByValue(value))
+            .filter(Boolean);
+        const optionSignature = visibleOptions
+            .map((option) => `${option.value}:${getComposerSerialTypeChipLabel(option.value)}`)
             .join("|");
         if ((chipsContainer.dataset.optionSignature || "") !== optionSignature) {
             chipsContainer.innerHTML = "";
-            if (renderChipButtons) {
-                COMPOSER_SERIAL_TYPE_OPTIONS.forEach((option) => {
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.className = "verb-chip";
-                    button.dataset.serialType = option.value;
-                    button.dataset.serialSlot = slotKey;
-                    button.textContent = option.label;
-                    button.addEventListener("click", () => {
-                        if (button.disabled) {
-                            return;
-                        }
-                        applyComposerSerialTypeSelection({
-                            slotKey,
-                            selectedType: option.value,
-                            stemInput: getVerbComposerElements().slots[slotKey]?.stemInput || null,
-                            matrixTokens: getComposerMatrixRootTokensForSlot(slotKey),
-                        });
+            visibleOptions.forEach((option) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "verb-chip";
+                button.dataset.serialType = option.value;
+                button.dataset.serialSlot = slotKey;
+                button.textContent = getComposerSerialTypeChipLabel(option.value);
+                button.title = option.label;
+                button.addEventListener("click", () => {
+                    if (button.disabled) {
+                        return;
+                    }
+                    applyComposerSerialTypeSelection({
+                        slotKey,
+                        selectedType: option.value,
+                        stemInput: getVerbComposerElements().slots[slotKey]?.stemInput || null,
+                        matrixTokens: getComposerMatrixRootTokensForSlot(slotKey),
                     });
-                    chipsContainer.appendChild(button);
                 });
-            }
+                chipsContainer.appendChild(button);
+            });
             chipsContainer.dataset.optionSignature = optionSignature;
         }
-        chipsContainer.hidden = true;
-        chipsContainer.setAttribute("aria-hidden", "true");
+        const shouldShow = isComposer
+            && slotKey === activeSlot
+            && shouldShowComposerTiChoiceChips(slotKey, stemInput);
+        chipsContainer.hidden = !shouldShow;
+        chipsContainer.setAttribute("aria-hidden", String(!shouldShow));
         const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
         const buttons = Array.from(chipsContainer.querySelectorAll(".verb-chip"));
-        const isDisabled = !isComposer || slotKey !== activeSlot;
+        const isDisabled = !shouldShow;
         buttons.forEach((button) => {
             const value = button.dataset.serialType || "";
             const isActive = value === selectedType;
@@ -17036,6 +17633,18 @@ function applyComposerMatrixComboboxMatch(slotKey = "", stemInput = null, match 
     if (!stemInput || !COMPOSER_SLOT_CONFIG[slotKey] || !match) {
         return false;
     }
+    if (
+        getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
+        && match.serialType
+        && match.serialType !== "auto"
+        && match.templateSuffix
+    ) {
+        return applyComposerTemplateSuffixSelection({
+            slotKey,
+            templateSuffix: match.templateSuffix,
+            stemInput,
+        });
+    }
     if (match.serialType && match.serialType !== "auto") {
         return applyComposerSerialTypeSelection({
             slotKey,
@@ -17094,7 +17703,7 @@ function getComposerMatrixAffixSerialLabel(serialType = "", { short = false } = 
 }
 
 function getComposerMatrixAffixTriggerPrefix(kind = "manual") {
-    return kind === "serial" ? "Serie" : "N→V";
+    return kind === "serial" ? "Serie" : "S→V";
 }
 
 function getComposerMatrixAffixCurrentState(slotKey = "", stemInput = null) {
@@ -17125,7 +17734,7 @@ function getComposerMatrixAffixCurrentState(slotKey = "", stemInput = null) {
             serialType: selectedType,
         };
     }
-    const templateSuffix = normalizeComposerStem(stemInput?.dataset?.dropdownTemplateSuffix || "");
+    const templateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
     if (templateSuffix) {
         const specialState = getComposerMatrixAffixStateFromEntry(
             getComposerMatrixAffixSpecialEntry(slotKey, {
@@ -17468,6 +18077,7 @@ function setComposerMatrixAffixPopoverOpen(slotKey = "", nextOpen = false, { foc
             overlayActive && candidateSlot === activeSlot
         );
     });
+    syncInputPopupOverlayActiveState();
     if (focusTrigger && normalizedSlot) {
         const trigger = matrixStemAffixTriggerBySlot?.[normalizedSlot] || null;
         if (trigger && typeof trigger.focus === "function") {
@@ -17501,6 +18111,8 @@ function clearComposerMatrixAffixSelection(slotKey = "", stemInput = null) {
         stemInput.value = extractComposerSerialEditableRoot(currentValue, previousType);
     }
     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+    COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+    COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
     delete stemInput.dataset.dropdownTemplateSuffix;
     applyComposerSerialFormattingToStemInput(stemInput, {
         preserveCaret: true,
@@ -17520,6 +18132,13 @@ function applyComposerMatrixAffixPickerSelection(slotKey = "", entry = null, opt
         return clearComposerMatrixAffixSelection(slotKey, stemInput);
     }
     if (entry.kind === "serial") {
+        if (getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb) {
+            return applyComposerTemplateSuffixSelection({
+                slotKey,
+                templateSuffix: getComposerTemplateSuffixFromSerialType(entry.serialType),
+                stemInput,
+            });
+        }
         return applyComposerSerialTypeSelection({
             slotKey,
             selectedType: entry.serialType,
@@ -17578,6 +18197,12 @@ function syncComposerMatrixAffixPickers() {
         const triggerPrefix = trigger.querySelector(".verb-composer__matrix-affix-trigger-prefix");
         if (triggerPrefix) {
             triggerPrefix.textContent = currentState.triggerPrefix || getComposerMatrixAffixTriggerPrefix("manual");
+            const shouldHidePrefix = (
+                getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
+                && isActive
+            );
+            triggerPrefix.hidden = shouldHidePrefix;
+            triggerPrefix.setAttribute("aria-hidden", String(shouldHidePrefix));
         }
         if (currentState.shortLabel) {
             triggerValue.textContent = currentState.shortLabel;
@@ -17615,8 +18240,16 @@ function syncComposerMatrixAffixPickers() {
                 if (entry.kind === "manual") {
                     button.classList.add("verb-composer__matrix-affix-chip--manual");
                 }
+                if (entry.isBlocked) {
+                    button.classList.add("is-empty");
+                }
+                if (entry.isExpected) {
+                    button.classList.add("is-expected");
+                }
                 const isCurrent = entry.key === currentState.key;
                 button.classList.toggle("is-active", isCurrent);
+                button.disabled = Boolean(entry.isBlocked);
+                button.setAttribute("aria-disabled", String(Boolean(entry.isBlocked)));
                 button.setAttribute("role", "menuitemradio");
                 button.setAttribute("aria-checked", String(isCurrent));
                 button.setAttribute("aria-label", entry.detailLabel || entry.label);
@@ -17627,7 +18260,7 @@ function syncComposerMatrixAffixPickers() {
                 if (entry.meta) {
                     const meta = document.createElement("span");
                     meta.className = "verb-composer__matrix-affix-chip-meta";
-                    meta.textContent = entry.meta;
+                    meta.textContent = entry.isExpected ? `Esperado · ${entry.meta}` : entry.meta;
                     button.appendChild(meta);
                 }
                 button.addEventListener("click", () => {
@@ -17738,6 +18371,74 @@ function syncComposerMatrixStemAffixSelects() {
 
 function isVerbInputModeComposer() {
     return VERB_COMPOSER_STATE.mode === VERB_INPUT_MODE.composer;
+}
+
+function normalizeComposerEntryBoard(value = "") {
+    const normalized = String(value || "").trim().toLowerCase();
+    return normalized === COMPOSER_ENTRY_BOARD.nounToVerb
+        ? COMPOSER_ENTRY_BOARD.nounToVerb
+        : COMPOSER_ENTRY_BOARD.general;
+}
+
+function getComposerEntryBoard() {
+    return normalizeComposerEntryBoard(VERB_COMPOSER_STATE.entryBoard);
+}
+
+function getComposerEntryBoardSlotASnapshot(board = "") {
+    return COMPOSER_ENTRY_BOARD_SLOT_A_STATE[normalizeComposerEntryBoard(board)]
+        || COMPOSER_ENTRY_BOARD_SLOT_A_STATE[COMPOSER_ENTRY_BOARD.general];
+}
+
+function captureComposerEntryBoardSlotAState(board = "") {
+    const normalizedBoard = normalizeComposerEntryBoard(board || getComposerEntryBoard());
+    const snapshot = getComposerEntryBoardSlotASnapshot(normalizedBoard);
+    const slots = getVerbComposerElements().slots || {};
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const stateKeys = getComposerSlotStateKeys(slotKey);
+        const slotSnapshot = snapshot.slots?.[slotKey];
+        if (!slotSnapshot) {
+            return;
+        }
+        const stemInput = slots[slotKey]?.stemInput || null;
+        slotSnapshot.stem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+        slotSnapshot.embed = normalizeComposerEmbedValue(VERB_COMPOSER_STATE[stateKeys.embed] || "");
+        slotSnapshot.serialType = String(COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto").trim().toLowerCase() || "auto";
+        slotSnapshot.templateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
+        slotSnapshot.templateSurface = normalizeComposerStem(COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] || "");
+    });
+}
+
+function restoreComposerEntryBoardSlotAState(board = "") {
+    const normalizedBoard = normalizeComposerEntryBoard(board || getComposerEntryBoard());
+    const snapshot = getComposerEntryBoardSlotASnapshot(normalizedBoard);
+    const slots = getVerbComposerElements().slots || {};
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const stateKeys = getComposerSlotStateKeys(slotKey);
+        const slotSnapshot = snapshot.slots?.[slotKey];
+        if (!slotSnapshot) {
+            return;
+        }
+        VERB_COMPOSER_STATE[stateKeys.stem] = normalizeComposerStem(slotSnapshot.stem || "");
+        VERB_COMPOSER_STATE[stateKeys.embed] = normalizeComposerEmbedValue(slotSnapshot.embed || "");
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = String(slotSnapshot.serialType || "auto").trim().toLowerCase() || "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = normalizeComposerStem(slotSnapshot.templateSurface || "");
+        if (normalizedBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
+            COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = normalizeComposerStem(
+                slotSnapshot.templateSuffix || ""
+            );
+        } else {
+            COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        }
+        const stemInput = slots[slotKey]?.stemInput || null;
+        if (!stemInput) {
+            return;
+        }
+        if (normalizedBoard !== COMPOSER_ENTRY_BOARD.nounToVerb && slotSnapshot.templateSuffix) {
+            stemInput.dataset.dropdownTemplateSuffix = normalizeComposerStem(slotSnapshot.templateSuffix);
+        } else {
+            delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+    });
 }
 
 function getVerbRegexPlaceholder() {
@@ -18757,6 +19458,8 @@ function renderVerbComposerFromState() {
     const {
         tutorialTrigger,
         panel,
+        entryBoardButtons,
+        entryBoardPanels,
         slots,
         transitivitySelect,
         valenceSelectIntransitive,
@@ -18767,6 +19470,7 @@ function renderVerbComposerFromState() {
         supportiveICheckbox,
     } = getVerbComposerElements();
     const isComposer = isVerbInputModeComposer();
+    const activeBoard = getComposerEntryBoard();
     const verbInput = document.getElementById("verb");
     document.body.classList.toggle("is-composer-input-mode", isComposer);
     if (verbInput) {
@@ -18778,6 +19482,7 @@ function renderVerbComposerFromState() {
         panel.classList.toggle("is-hidden", !isComposer);
         panel.setAttribute("aria-hidden", String(!isComposer));
         panel.inert = !isComposer;
+        panel.dataset.entryBoard = activeBoard;
     }
     const placeholder = document.getElementById("verb-composer-placeholder");
     if (placeholder) {
@@ -18794,6 +19499,21 @@ function renderVerbComposerFromState() {
         clearTextboxesButton.disabled = !isComposer;
         clearTextboxesButton.setAttribute("aria-disabled", String(!isComposer));
     }
+    Array.from(entryBoardButtons || []).forEach((button) => {
+        const board = normalizeComposerEntryBoard(button.getAttribute("data-composer-entry-board") || "");
+        const isActive = isComposer && board === activeBoard;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+    });
+    Array.from(entryBoardPanels || []).forEach((boardPanel) => {
+        const board = normalizeComposerEntryBoard(
+            boardPanel.getAttribute("data-composer-entry-board-panel") || ""
+        );
+        const isActive = isComposer && board === activeBoard;
+        boardPanel.hidden = !isActive;
+        boardPanel.setAttribute("aria-hidden", String(!isActive));
+    });
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const slotRefs = slots[slotKey] || {};
         const stateKeys = getComposerSlotStateKeys(slotKey);
@@ -18802,9 +19522,14 @@ function renderVerbComposerFromState() {
         }
         if (slotRefs.stemInput) {
             const rawStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+            slotRefs.stemInput.placeholder = activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb
+                ? "sustantivo"
+                : "verbo";
             slotRefs.stemInput.value = formatComposerStemForInputDisplay(rawStem, {
                 slotKey,
                 preferSplitFromStem: true,
+                templateSuffix: getComposerStemInputTemplateSuffix(slotRefs.stemInput, slotKey),
+                surfaceValue: COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] || "",
             });
         }
         if (slotRefs.objectInput) {
@@ -19139,6 +19864,40 @@ function updateCalcInputModeButtons() {
     });
 }
 
+function setComposerEntryBoard(board = "", options = {}) {
+    const nextBoard = normalizeComposerEntryBoard(board);
+    const currentBoard = getComposerEntryBoard();
+    if (currentBoard === nextBoard && options.force !== true) {
+        return;
+    }
+    captureComposerEntryBoardSlotAState(currentBoard);
+    if (currentBoard === COMPOSER_ENTRY_BOARD.general) {
+        VERB_COMPOSER_STATE.lastGeneralTransitivity = VERB_COMPOSER_STATE.transitivity;
+    } else if (currentBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
+        VERB_COMPOSER_STATE.lastNounToVerbTransitivity = VERB_COMPOSER_STATE.transitivity;
+    }
+    VERB_COMPOSER_STATE.entryBoard = nextBoard;
+    if (nextBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
+        VERB_COMPOSER_STATE.transitivity = COMPOSER_TRANSITIVITY_ORDER.includes(
+            VERB_COMPOSER_STATE.lastNounToVerbTransitivity
+        )
+            ? VERB_COMPOSER_STATE.lastNounToVerbTransitivity
+            : COMPOSER_TRANSITIVITY.intransitive;
+    } else if (
+        currentBoard === COMPOSER_ENTRY_BOARD.nounToVerb
+        && VERB_COMPOSER_STATE.lastGeneralTransitivity
+        && COMPOSER_TRANSITIVITY_ORDER.includes(VERB_COMPOSER_STATE.lastGeneralTransitivity)
+    ) {
+        VERB_COMPOSER_STATE.transitivity = VERB_COMPOSER_STATE.lastGeneralTransitivity;
+    }
+    restoreComposerEntryBoardSlotAState(nextBoard);
+    renderVerbComposerFromState();
+    applyComposerStateToVerbInput({
+        triggerGenerate: true,
+        immediateRefresh: true,
+    });
+}
+
 function populateComposerDirectionalOptions() {
     const { directionalSelect } = getVerbComposerElements();
     if (!directionalSelect) {
@@ -19165,7 +19924,11 @@ function setVerbInputMode(mode, options = {}) {
     const nextMode = mode === VERB_INPUT_MODE.regex ? VERB_INPUT_MODE.regex : VERB_INPUT_MODE.composer;
     VERB_COMPOSER_STATE.mode = nextMode;
     const shouldSync = options.syncFromInput !== false;
-    if (shouldSync) {
+    const shouldSkipRegexSyncForNounToVerb = (
+        nextMode === VERB_INPUT_MODE.composer
+        && getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
+    );
+    if (shouldSync && !shouldSkipRegexSyncForNounToVerb) {
         const verbEl = document.getElementById("verb");
         syncComposerStateFromVerbInput(verbEl?.value || "");
     }
@@ -19239,6 +20002,21 @@ function clearVerbComposerTextboxInputs() {
         VERB_COMPOSER_STATE[stateKeys.embed] = "";
         VERB_COMPOSER_STATE[stateKeys.stem] = "";
         VERB_COMPOSER_STATE[stateKeys.objectEmbed] = "";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots[slotKey]?.stemInput || null;
+        if (stemInput) {
+            delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+    });
+    Object.values(COMPOSER_ENTRY_BOARD_SLOT_A_STATE).forEach((snapshot) => {
+        Object.values(snapshot.slots || {}).forEach((slotSnapshot) => {
+            slotSnapshot.stem = "";
+            slotSnapshot.embed = "";
+            slotSnapshot.serialType = "auto";
+            slotSnapshot.templateSuffix = "";
+            slotSnapshot.templateSurface = "";
+        });
     });
     VERB_COMPOSER_STATE.stem = "";
     VERB_COMPOSER_STATE.embedPrefix = "";
@@ -19464,6 +20242,22 @@ function shouldLetNativeSpaceBehavior(element) {
     return false;
 }
 
+function shouldLetNativeDeleteBehavior(element) {
+    if (!element || typeof element !== "object") {
+        return false;
+    }
+    if (isEditableTextInput(element)) {
+        return true;
+    }
+    if (element.isContentEditable) {
+        return true;
+    }
+    if (typeof element.closest === "function" && element.closest("[contenteditable=\"true\"]")) {
+        return true;
+    }
+    return false;
+}
+
 function captureTenseTabsFocusState(container) {
     if (!container) {
         return null;
@@ -19618,6 +20412,7 @@ function updateExistingTenseTabsDom({
     universalContainer = null,
     endsWithConsonant = false,
     resolveTenseHasOutput,
+    blockedNominalTenseSet = new Set(),
     isNominalMode = false,
     shouldShowUniversalTabs = false,
     availability = [],
@@ -19667,11 +20462,13 @@ function updateExistingTenseTabsDom({
         const isActive = activeGroup === CONJUGATION_GROUPS.tense
             && tenseValue === selectedTense
             && (!buttonCombinedMode || buttonCombinedMode === currentCombinedMode);
+        const isBlockedNominalTense = blockedNominalTenseSet instanceof Set
+            && blockedNominalTenseSet.has(tenseValue);
         button.classList.toggle("is-active", isActive);
-        button.classList.toggle("is-empty", hasOutput === false);
+        button.classList.toggle("is-empty", hasOutput === false || isBlockedNominalTense);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
-        button.disabled = endsWithConsonant || hasOutput === false;
+        button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
     });
     const universalRoot = universalContainer || container;
     const universalWrap = universalRoot?.querySelector(".tense-tabs-universal");
@@ -19929,20 +20726,52 @@ function syncVerbScreenCalculatorState() {
 }
 
 function runScreenCalculatorAC() {
+    clearAllToggleStateMaps({ resetNonactiveSuffix: true });
+    CLASS_FILTER_STATE.activeClass = null;
+    setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
+    if (Object.values(DERIVATION_TYPE).includes(DERIVATION_TYPE.direct)) {
+        setActiveDerivationType(DERIVATION_TYPE.direct);
+        const derivationSelect = document.getElementById("derivation-type");
+        if (derivationSelect) {
+            derivationSelect.value = DERIVATION_TYPE.direct;
+        }
+    }
+    if (getActiveTenseMode() === TENSE_MODE.verbo && getCombinedMode() !== COMBINED_MODE.active) {
+        setCombinedMode(COMBINED_MODE.active);
+        updateCombinedModeTabs();
+    }
     const verbInput = document.getElementById("verb");
     if (isVerbInputModeComposer()) {
-        clearVerbComposerTextboxInputs();
+        syncComposerStateFromVerbInput("");
+        renderVerbComposerFromState();
+        applyComposerStateToVerbInput({ triggerGenerate: true });
+        getComposerPreferredEntryInput()?.focus();
+        updateTenseModeTabs();
+        updateDerivationTypeControl();
+        renderTenseTabs();
+        const verbMeta = getVerbInputMeta();
+        renderActiveConjugations({
+            verb: verbMeta.displayVerb,
+            objectPrefix: getCurrentObjectPrefix(),
+        });
+        syncVerbScreenCalculatorState();
         return;
     }
     if (!verbInput) {
         return;
     }
-    if (!verbInput.value) {
-        return;
-    }
     verbInput.value = "";
     dispatchTextInputUpdate(verbInput);
     verbInput.focus();
+    updateTenseModeTabs();
+    updateDerivationTypeControl();
+    renderTenseTabs();
+    const verbMeta = getVerbInputMeta();
+    renderActiveConjugations({
+        verb: verbMeta.displayVerb,
+        objectPrefix: getCurrentObjectPrefix(),
+    });
+    syncVerbScreenCalculatorState();
 }
 
 function runScreenCalculatorCE() {
@@ -20278,6 +21107,7 @@ function syncVerbComposerFieldGroupRoles() {
 function initVerbComposer() {
     const {
         slots,
+        entryBoardButtons,
         matrixStemAffixSelectBySlot,
         matrixStemAffixPickerBySlot,
         matrixStemAffixTriggerBySlot,
@@ -20310,6 +21140,12 @@ function initVerbComposer() {
     populateComposerDirectionalOptions();
     syncVerbComposerFieldGroupRoles();
     bindComposerStemTabNavigation(slotNavigationPairs);
+    Array.from(entryBoardButtons || []).forEach((button) => {
+        button.addEventListener("click", () => {
+            const board = button.getAttribute("data-composer-entry-board") || "";
+            setComposerEntryBoard(board);
+        });
+    });
     slotStemInputs.forEach(({ slotKey, stemInput }) => {
         stemInput.addEventListener("keydown", (event) => {
             prepareComposerTemplateMaskOverwrite(event, stemInput, slotKey);
@@ -20828,6 +21664,31 @@ function getFilteredVerbSuggestions(rawValue) {
     return results;
 }
 
+function syncInputPopupOverlayActiveState() {
+    const inputsPane = document.getElementById("panel-stack-pane-inputs");
+    const inputsContainer = document.getElementById("container-inputs");
+    const verbBlock = document.getElementById("verb-block");
+    const verbScreen = verbBlock?.querySelector(".verb-block__screen") || null;
+    const legendPanel = document.getElementById("keyboard-legend");
+    const suggestions = getVerbSuggestionsElement();
+    const popupActive = Boolean(COMPOSER_MATRIX_AFFIX_OPEN_SLOT)
+        || Boolean(
+            legendPanel
+            && !legendPanel.hidden
+            && legendPanel.classList.contains("is-open")
+        )
+        || Boolean(
+            suggestions
+            && suggestions.classList.contains("is-open")
+        );
+    [inputsPane, inputsContainer, verbBlock, verbScreen].forEach((element) => {
+        if (!element) {
+            return;
+        }
+        element.classList.toggle("is-popup-overlay-active", popupActive);
+    });
+}
+
 function renderVerbSuggestions(container) {
     if (!container) {
         return;
@@ -20835,6 +21696,7 @@ function renderVerbSuggestions(container) {
     container.innerHTML = "";
     if (VERB_SUGGESTION_STATE.items.length === 0) {
         container.classList.remove("is-open");
+        syncInputPopupOverlayActiveState();
         return;
     }
     VERB_SUGGESTION_STATE.items.forEach((value, index) => {
@@ -20852,6 +21714,7 @@ function renderVerbSuggestions(container) {
         container.appendChild(item);
     });
     container.classList.add("is-open");
+    syncInputPopupOverlayActiveState();
 }
 
 function updateVerbSuggestions() {
@@ -21024,6 +21887,7 @@ function buildSilentGenerationCacheKey(options = {}) {
         encodeValue(override.possessivePrefix),
         encodeValue(override.patientivoOwnership),
         encodeValue(override.patientivoSource),
+        encodeValue(getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)),
         encodeValue(override.tenseMode),
         encodeValue(override.derivationMode),
         encodeValue(override.derivationType),
@@ -21643,6 +22507,9 @@ function collectVisibleConjugationRows() {
             acc[slot.id] = "";
             return acc;
         }, { subject: "" });
+        const explicitObjectToggleCount = block.querySelectorAll(
+            '.tense-block__controls .object-toggle[data-toggle-type="object"]'
+        ).length;
         const toggles = Array.from(block.querySelectorAll(".tense-block__controls .object-toggle"));
         toggles.forEach((toggle) => {
             const activeButton = toggle.querySelector(".object-toggle-button.is-active");
@@ -21658,6 +22525,9 @@ function collectVisibleConjugationRows() {
             }
             if (toggleType === "object" && Object.prototype.hasOwnProperty.call(toggleMap, toggleSlot)) {
                 toggleMap[toggleSlot] = value;
+                return;
+            }
+            if (toggleType) {
                 return;
             }
             const ariaLabel = (toggle.getAttribute("aria-label") || "").toLowerCase();
@@ -21690,6 +22560,7 @@ function collectVisibleConjugationRows() {
                 block: blockLabel,
                 person: personLabel,
                 value,
+                objectSlotCount: explicitObjectToggleCount,
             };
             VERB_OBJECT_SLOT_SCHEMA.forEach((slot) => {
                 const hasDatasetValue = Object.prototype.hasOwnProperty.call(row.dataset, slot.datasetKey);
@@ -21713,9 +22584,12 @@ function getViewExportSourceModeLabel(sourceMode = "", isNawat = false) {
     return getLocalizedLabel(UI_LABELS["tense-tabs-mode-active"], isNawat, "activo");
 }
 
-function getViewExportObjectHeaders(activeValency, isNawat = false) {
-    const useValence3PlusRoleLabels = Number(activeValency) >= 3;
-    return VERB_OBJECT_SLOT_SCHEMA.map((slot) => (
+function getViewExportObjectHeaders(objectSlotCount, isNawat = false) {
+    const normalizedObjectSlotCount = Number.isFinite(objectSlotCount)
+        ? Math.max(0, Math.min(VERB_OBJECT_SLOT_SCHEMA.length, Number(objectSlotCount)))
+        : VERB_OBJECT_SLOT_SCHEMA.length;
+    const useValence3PlusRoleLabels = normalizedObjectSlotCount >= 2;
+    return VERB_OBJECT_SLOT_SCHEMA.slice(0, normalizedObjectSlotCount).map((slot) => (
         useValence3PlusRoleLabels
             ? (getValence3PlusSlotRoleLabel(slot.id, isNawat) || slot.exportHeader)
             : slot.exportHeader
@@ -21732,9 +22606,11 @@ function buildViewExportCSV() {
     const derivationSelect = document.getElementById("derivation-type");
     const derivationValue = derivationSelect ? derivationSelect.value : "";
     const isNawat = getIsNawat();
-    const parsedVerb = getParsedVerbForTab("verb", inputValue);
-    const valencySummary = getVerbValencySummary(parsedVerb);
-    const objectHeaders = getViewExportObjectHeaders(valencySummary.baseValency, isNawat);
+    const exportObjectSlotCount = rows.reduce((max, row) => (
+        Math.max(max, Number.isFinite(row.objectSlotCount) ? row.objectSlotCount : 0)
+    ), 0);
+    const exportSlots = VERB_OBJECT_SLOT_SCHEMA.slice(0, exportObjectSlotCount);
+    const objectHeaders = getViewExportObjectHeaders(exportObjectSlotCount, isNawat);
     const header = [
         "entrada",
         "derivación",
@@ -21751,7 +22627,7 @@ function buildViewExportCSV() {
         inputValue,
         derivationValue,
         row.subjectToggle,
-        ...VERB_OBJECT_SLOT_SCHEMA.map((slot) => row[slot.exportKey]),
+        ...exportSlots.map((slot) => row[slot.exportKey]),
         getViewExportSourceModeLabel(row.sourceMode, isNawat),
         row.block,
         row.person,
@@ -22024,6 +22900,9 @@ function forceSimpleModeGrammarDefaults() {
     const defaultTenseMode = TENSE_MODE.verbo;
     if (getActiveTenseMode() !== defaultTenseMode) {
         setActiveTenseMode(defaultTenseMode);
+    }
+    if (getVerbSourceScope() !== VERB_SOURCE_SCOPE.active) {
+        setVerbSourceScope(VERB_SOURCE_SCOPE.active);
     }
     if (getCombinedMode() !== COMBINED_MODE.active) {
         setCombinedMode(COMBINED_MODE.active);
@@ -22304,6 +23183,91 @@ function renderKeyboardLegendEntries() {
     });
 }
 
+function resetKeyboardLegendPopoverPosition(panel = null) {
+    if (!panel) {
+        return;
+    }
+    panel.style.removeProperty("position");
+    panel.style.removeProperty("left");
+    panel.style.removeProperty("top");
+    panel.style.removeProperty("right");
+    panel.style.removeProperty("bottom");
+    panel.style.removeProperty("transform");
+    panel.style.removeProperty("max-width");
+}
+
+function positionKeyboardLegendPopover() {
+    const trigger = document.getElementById("keyboard-legend-trigger");
+    const panel = document.getElementById("keyboard-legend");
+    if (!trigger || !panel || panel.hidden) {
+        return;
+    }
+    if (
+        typeof window === "undefined"
+        || typeof window.getComputedStyle !== "function"
+    ) {
+        return;
+    }
+    const isDesktop = typeof window.matchMedia === "function"
+        && window.matchMedia("(min-width: 769px)").matches;
+    if (!isDesktop) {
+        resetKeyboardLegendPopoverPosition(panel);
+        return;
+    }
+    const visualViewport = window.visualViewport || null;
+    const viewportWidth = Math.max(
+        0,
+        Number(visualViewport?.width) || window.innerWidth || document.documentElement.clientWidth || 0
+    );
+    const viewportHeight = Math.max(
+        0,
+        Number(visualViewport?.height) || window.innerHeight || document.documentElement.clientHeight || 0
+    );
+    const viewportOffsetLeft = Number(visualViewport?.offsetLeft) || 0;
+    const viewportOffsetTop = Number(visualViewport?.offsetTop) || 0;
+    const gap = 8;
+    const margin = 16;
+    const maxWidth = Math.max(240, viewportWidth - (margin * 2));
+    panel.style.position = "fixed";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+    panel.style.transform = "none";
+    panel.style.maxWidth = `${Math.round(maxWidth)}px`;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const panelWidth = Math.min(panelRect.width || panel.offsetWidth || maxWidth, maxWidth);
+    const panelHeight = Math.min(
+        panelRect.height || panel.offsetHeight || 0,
+        Math.max(120, viewportHeight - (margin * 2))
+    );
+    const availableLeft = triggerRect.left - gap - margin;
+    const availableRight = viewportWidth - triggerRect.right - gap - margin;
+    let left = viewportOffsetLeft + triggerRect.left - gap - panelWidth;
+    if (availableLeft < panelWidth && availableRight >= panelWidth) {
+        left = viewportOffsetLeft + triggerRect.right + gap;
+    } else if (availableLeft < panelWidth && availableRight < panelWidth) {
+        left = viewportOffsetLeft + Math.max(
+            margin,
+            Math.min(
+                triggerRect.left + ((triggerRect.width - panelWidth) / 2),
+                viewportWidth - margin - panelWidth
+            )
+        );
+    }
+    const minLeft = viewportOffsetLeft + margin;
+    const maxLeft = viewportOffsetLeft + viewportWidth - margin - panelWidth;
+    left = Math.min(Math.max(left, minLeft), Math.max(minLeft, maxLeft));
+
+    let top = viewportOffsetTop + triggerRect.top + ((triggerRect.height - panelHeight) / 2);
+    const minTop = viewportOffsetTop + margin;
+    const maxTop = viewportOffsetTop + viewportHeight - margin - panelHeight;
+    top = Math.min(Math.max(top, minTop), Math.max(minTop, maxTop));
+
+    panel.style.left = `${Math.round(left)}px`;
+    panel.style.top = `${Math.round(top)}px`;
+}
+
 function initKeyboardLegendPopover() {
     const trigger = document.getElementById("keyboard-legend-trigger");
     const panel = document.getElementById("keyboard-legend");
@@ -22317,6 +23281,17 @@ function initKeyboardLegendPopover() {
         panel.hidden = !isOpen;
         panel.classList.toggle("is-open", isOpen);
         trigger.setAttribute("aria-expanded", String(isOpen));
+        if (isOpen) {
+            renderKeyboardLegendEntries();
+            if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+                window.requestAnimationFrame(() => positionKeyboardLegendPopover());
+            } else {
+                positionKeyboardLegendPopover();
+            }
+        } else {
+            resetKeyboardLegendPopoverPosition(panel);
+        }
+        syncInputPopupOverlayActiveState();
         if (focusTrigger && typeof trigger.focus === "function") {
             trigger.focus({ preventScroll: true });
         }
@@ -22352,6 +23327,20 @@ function initKeyboardLegendPopover() {
             return true;
         },
     });
+    const syncPopoverPosition = () => {
+        if (!isOpen) {
+            return;
+        }
+        positionKeyboardLegendPopover();
+    };
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+        window.addEventListener("resize", syncPopoverPosition, { passive: true });
+        window.addEventListener("scroll", syncPopoverPosition, { passive: true });
+    }
+    if (window.visualViewport && typeof window.visualViewport.addEventListener === "function") {
+        window.visualViewport.addEventListener("resize", syncPopoverPosition);
+        window.visualViewport.addEventListener("scroll", syncPopoverPosition);
+    }
     renderKeyboardLegendEntries();
     setOpen(false);
 }
@@ -22493,11 +23482,13 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
         button.addEventListener("click", () => {
             const current = getSelectedNonactiveSuffix();
             setSelectedNonactiveSuffix(current === suffix ? null : suffix);
-            renderTenseTabs();
-            const verbMeta = getVerbInputMeta();
-            renderActiveConjugations({
-                verb: verbMeta.displayVerb,
-                objectPrefix: getCurrentObjectPrefix(),
+            preserveViewportAnchorPosition(button, () => {
+                renderTenseTabs();
+                const verbMeta = getVerbInputMeta();
+                renderActiveConjugations({
+                    verb: verbMeta.displayVerb,
+                    objectPrefix: getCurrentObjectPrefix(),
+                });
             });
         });
         grid.appendChild(button);
@@ -22764,6 +23755,392 @@ function buildUnifiedVerbTenseAvailabilityMatrix({
     return matrix;
 }
 
+function getSubjectlessNominalSelectionEntry() {
+    const thirdSingularSelection = getSubjectPersonSelections().find(({ group, selection, number }) => (
+        number === "singular"
+        && group?.id === "third"
+        && selection?.subjectPrefix === ""
+        && selection?.subjectSuffix === ""
+    ));
+    if (thirdSingularSelection) {
+        return {
+            group: thirdSingularSelection.group || null,
+            selection: {
+                ...(thirdSingularSelection.selection || {
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                }),
+            },
+            number: thirdSingularSelection.number || "",
+            useReduplicatedSingularSurface: false,
+        };
+    }
+    return {
+        group: null,
+        selection: {
+            subjectPrefix: "",
+            subjectSuffix: "",
+        },
+        number: "",
+        useReduplicatedSingularSurface: false,
+    };
+}
+
+function buildNominalAvailabilityObjectSlotModels(slotStates = [], {
+    includeSlot = null,
+} = {}) {
+    return (Array.isArray(slotStates) ? slotStates : [])
+        .filter((slotState) => (
+            typeof includeSlot === "function" ? includeSlot(slotState) : true
+        ))
+        .map((slotState) => {
+            const toggleValues = Array.isArray(slotState?.toggleValues) && slotState.toggleValues.length
+                ? slotState.toggleValues
+                : [slotState?.activeId || ""];
+            return {
+                id: slotState?.id || "",
+                values: Array.from(new Set(toggleValues.map((value) => String(value || "")))),
+            };
+        });
+}
+
+function hasViableNominalCombinationOutput({
+    verb = "",
+    tenseValue = "",
+    tenseMode = getActiveTenseMode(),
+    context = null,
+    selection = null,
+    number = "",
+    possessorPrefix = "",
+    objectPrefix = "",
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+    patientivoSource = null,
+    patientivoOwnership = DEFAULT_PATIENTIVO_OWNERSHIP,
+    patientivoNominalSuffix = null,
+    useReduplicatedSingularSurface = false,
+}) {
+    if (!context || !selection) {
+        return false;
+    }
+    const isAgentivo = tenseValue === "agentivo";
+    const isPatientivo = tenseValue === "patientivo";
+    const resolvedPatientivoSource = isPatientivo
+        ? (patientivoSource || "nonactive")
+        : null;
+    const ownershipSelections = (
+        isPatientivo
+        && possessorPrefix !== ""
+        && (patientivoOwnership === null || patientivoOwnership === undefined || patientivoOwnership === "")
+    )
+        ? PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id)
+        : [patientivoOwnership || DEFAULT_PATIENTIVO_OWNERSHIP];
+    const resolvedPatientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
+    const isPossessed = possessorPrefix !== "";
+    let subjectSuffixOverride = "";
+    if (tenseMode === TENSE_MODE.adjetivo) {
+        subjectSuffixOverride = selection?.subjectSuffix || "";
+    }
+    if ((isAgentivo || isPatientivo) && number === "plural") {
+        subjectSuffixOverride = isPossessed ? "p" : "t";
+    }
+    return ownershipSelections.some((resolvedPatientivoOwnership) => {
+        let result = {};
+        if (context.isInstrumentivo) {
+            const instrumentivoMode = possessorPrefix === ""
+                ? INSTRUMENTIVO_MODE.absolutivo
+                : INSTRUMENTIVO_MODE.posesivo;
+            result = getInstrumentivoResult({
+                rawVerb: verb,
+                verbMeta: context.verbMeta,
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: selection.subjectSuffix,
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                mode: instrumentivoMode,
+                possessivePrefix: possessorPrefix,
+            }) || {};
+        } else if (context.isCalificativoInstrumentivo) {
+            result = getCalificativoInstrumentivoResult({
+                rawVerb: verb,
+                verbMeta: context.verbMeta,
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: selection.subjectSuffix,
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                possessivePrefix: possessorPrefix,
+            }) || {};
+        } else {
+            const nominalDerivationMode = getNominalDerivationModeForTense(tenseValue);
+            result = getCachedSilentGenerateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    subjectPrefix: selection.subjectPrefix,
+                    subjectSuffix: subjectSuffixOverride,
+                    objectPrefix,
+                    indirectObjectMarker,
+                    thirdObjectMarker,
+                    verb,
+                    tense: tenseValue,
+                    derivationMode: nominalDerivationMode,
+                    possessivePrefix: possessorPrefix,
+                    patientivoOwnership: resolvedPatientivoOwnership,
+                    patientivoSource: resolvedPatientivoSource,
+                    patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
+                },
+            }) || {};
+            if (useReduplicatedSingularSurface && result?.result) {
+                const prefixChain = buildPrefixedChain({
+                    subjectPrefix: selection.subjectPrefix,
+                    possessivePrefix: possessorPrefix,
+                    objectPrefix: composeProjectiveObjectPrefix({
+                        objectPrefix,
+                        markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+                        subjectPrefix: selection.subjectPrefix,
+                    }),
+                    verb: "",
+                });
+                result = {
+                    ...result,
+                    result: reduplicateConjugationDisplay(result.result, { prefixChain }),
+                };
+            }
+        }
+        const maskState = getConjugationMaskState({
+            result,
+            subjectPrefix: selection.subjectPrefix,
+            subjectSuffix: selection.subjectSuffix,
+            objectPrefix,
+            possessivePrefix: possessorPrefix,
+            indirectObjectMarker,
+            derivationType: context.nounObjectSlotSummary?.derivationType,
+            comboObjectPrefix: undefined,
+            requireDistinctPossessor: isAgentivo || isPatientivo,
+            enforceInvalidCombo: !useReduplicatedSingularSurface,
+        });
+        const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3
+            && !isValidValence4Combo({
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+            });
+        return !(maskState.shouldMask || valence4Violation);
+    });
+}
+
+function hasViableLocativoTemporalOutput({
+    verb = "",
+    combinedMode = COMBINED_MODE.active,
+}) {
+    const isNawat = getIsNawat();
+    const verbMeta = getParsedVerbForTab("noun", verb);
+    const possessorValues = POSSESSIVE_PREFIXES
+        .map((entry) => entry.value)
+        .filter((value) => value);
+    const resolvedCombinedMode = combinedMode === COMBINED_MODE.nonactive
+        ? COMBINED_MODE.nonactive
+        : COMBINED_MODE.active;
+    const baseObjectStateKey = getObjectStateKey({
+        groupKey: `locativo-temporal|${resolvedCombinedMode}|objects`,
+        tenseValue: "locativo-temporal",
+        mode: "noun",
+    });
+    const slotBundle = buildNounObjectSlotToggleStates({
+        verbMeta,
+        tenseValue: "locativo-temporal",
+        baseObjectStateKey,
+        isNawat,
+        combinedMode: resolvedCombinedMode,
+    });
+    const mutableSlotStates = (slotBundle?.slotStates || []).map((slot) => ({ ...slot }));
+    const nonactiveObjectToggleValues = Array.from(SUSTANTIVO_VERBAL_TRANSITIVE_PREFIXES)
+        .map((value) => String(value || ""))
+        .filter(Boolean);
+    if (resolvedCombinedMode === COMBINED_MODE.nonactive && nonactiveObjectToggleValues.length) {
+        mutableSlotStates.forEach((slotState) => {
+            slotState.toggleValues = nonactiveObjectToggleValues;
+            slotState.options = getObjectToggleOptions(slotState.toggleValues, {
+                includeAll: true,
+                labelForPrefix: getNonspecificToggleLabel,
+                isNawat,
+            });
+            slotState.optionMap = new Map(slotState.options.map((entry) => [entry.id, entry]));
+            slotState.showToggle = slotState.toggleValues.length > 1;
+        });
+    }
+    const evaluateLocativoCombination = ({
+        objectPrefix = "",
+        indirectObjectMarker = "",
+        thirdObjectMarker = "",
+        possessorPrefix = "",
+    }) => {
+        const result = getLocativoTemporalResult({
+            rawVerb: verb,
+            verbMeta,
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            possessivePrefix: possessorPrefix,
+            combinedMode: resolvedCombinedMode,
+        }) || {};
+        const { shouldMask } = getLocativoTemporalMaskState({
+            result,
+            objectPrefix,
+        });
+        return !shouldMask;
+    };
+    if (resolvedCombinedMode === COMBINED_MODE.nonactive) {
+        const primarySelections = [];
+        if ((slotBundle?.availableObjectSlots || 0) <= 0) {
+            primarySelections.push({
+                objectPrefix: "",
+                possessorPrefix: "",
+            });
+        } else {
+            possessorValues.forEach((value) => {
+                primarySelections.push({
+                    objectPrefix: POSSESSIVE_TO_OBJECT_PREFIX[value] || "",
+                    possessorPrefix: value || "",
+                });
+            });
+            nonactiveObjectToggleValues.forEach((value) => {
+                primarySelections.push({
+                    objectPrefix: value || "",
+                    possessorPrefix: "",
+                });
+            });
+        }
+        const objectSlotModels = buildNominalAvailabilityObjectSlotModels(mutableSlotStates, {
+            includeSlot: (slotState) => slotState.id !== "object",
+        });
+        for (const selection of primarySelections) {
+            let foundViable = false;
+            iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+                if (foundViable) {
+                    return;
+                }
+                foundViable = evaluateLocativoCombination({
+                    objectPrefix: selection.objectPrefix || "",
+                    indirectObjectMarker: selectedBySlot.object2 || "",
+                    thirdObjectMarker: selectedBySlot.object3 || "",
+                    possessorPrefix: selection.possessorPrefix || "",
+                });
+            });
+            if (foundViable) {
+                return true;
+            }
+        }
+        return false;
+    }
+    const possessorSelections = possessorValues.length ? possessorValues : [""];
+    const objectSlotModels = buildNominalAvailabilityObjectSlotModels(mutableSlotStates);
+    let hasViable = false;
+    iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+        if (hasViable) {
+            return;
+        }
+        const objectPrefix = selectedBySlot.object || "";
+        const indirectObjectMarker = selectedBySlot.object2 || "";
+        const thirdObjectMarker = selectedBySlot.object3 || "";
+        hasViable = possessorSelections.some((possessorPrefix) => evaluateLocativoCombination({
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            possessorPrefix,
+        }));
+    });
+    return hasViable;
+}
+
+function hasViableNominalTenseOutput({
+    verb = "",
+    tenseValue = "",
+    tenseMode = getActiveTenseMode(),
+    combinedMode = COMBINED_MODE.active,
+}) {
+    if (!verb || !isNominalTenseMode(tenseMode) || !tenseValue) {
+        return null;
+    }
+    const resolvedCombinedMode = combinedMode === COMBINED_MODE.nonactive
+        ? COMBINED_MODE.nonactive
+        : COMBINED_MODE.active;
+    if (!isNounTenseVisibleForCombinedMode(tenseValue, resolvedCombinedMode)) {
+        return false;
+    }
+    if (tenseValue === "locativo-temporal") {
+        return hasViableLocativoTemporalOutput({
+            verb,
+            combinedMode: resolvedCombinedMode,
+        });
+    }
+    const context = buildNounTabRenderContext({ verb, tenseValue });
+    if (!context || context.resolvedTense !== tenseValue || context.isLocativoTemporal) {
+        return false;
+    }
+    const subjectSelections = context.isSubjectlessTense
+        ? [getSubjectlessNominalSelectionEntry()]
+        : getNominalSubjectSelectionEntries({
+            mode: tenseMode,
+            tenseValue: context.resolvedTense,
+        }).filter(({ selection }) => (
+            !context.showNonanimateOnly
+            || isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)
+        ));
+    const possessorSelections = Array.isArray(context.visiblePossessorValues)
+        && context.visiblePossessorValues.length
+        ? context.visiblePossessorValues
+        : [""];
+    const objectSlotModels = buildNominalAvailabilityObjectSlotModels(context.nounObjectSlotStates);
+    const patientivoSources = context.resolvedTense === "patientivo"
+        ? ["nonactive", "perfectivo", "imperfectivo", "tronco-verbal"]
+        : [null];
+    const ownershipSelections = context.resolvedTense === "patientivo"
+        ? PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id)
+        : [DEFAULT_PATIENTIVO_OWNERSHIP];
+    for (const patientivoSource of patientivoSources) {
+        for (const patientivoOwnership of ownershipSelections) {
+            let hasViable = false;
+            iterateNounObjectSlotSelections(objectSlotModels, (selectedBySlot) => {
+                if (hasViable) {
+                    return;
+                }
+                const objectPrefix = selectedBySlot.object || "";
+                const indirectObjectMarker = selectedBySlot.object2 || "";
+                const thirdObjectMarker = selectedBySlot.object3 || "";
+                hasViable = subjectSelections.some(({
+                    selection,
+                    number,
+                    useReduplicatedSingularSurface = false,
+                }) => (
+                    possessorSelections.some((possessorPrefix) => hasViableNominalCombinationOutput({
+                        verb,
+                        tenseValue: context.resolvedTense,
+                        tenseMode,
+                        context,
+                        selection,
+                        number,
+                        possessorPrefix,
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        patientivoSource,
+                        patientivoOwnership,
+                        patientivoNominalSuffix: null,
+                        useReduplicatedSingularSurface,
+                    }))
+                ));
+            });
+            if (hasViable) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function renderTenseTabs() {
     const container = document.getElementById("tense-tabs");
     if (!container) {
@@ -22816,6 +24193,17 @@ function renderTenseTabs() {
     const nounVisibleTenses = isNominalMode
         ? Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses]))
         : [];
+    const blockedNominalTenseSet = (() => {
+        if (tenseMode !== TENSE_MODE.adjetivo || !hasVerb) {
+            return new Set();
+        }
+        if (getBaseObjectSlots(verbMeta) <= 0) {
+            return new Set();
+        }
+        return new Set(
+            nounVisibleTenses.filter((tenseValue) => isIntransitiveOnlyActiveAdjectiveTense(tenseValue))
+        );
+    })();
     const dualSourceNominalTenses = new Set(["patientivo"]);
     const nonactiveNominalSet = new Set(nounNonactiveTenses);
     const activeColumnTenses = isNominalMode
@@ -22833,8 +24221,18 @@ function renderTenseTabs() {
     const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
     const visibleTenseSet = new Set(visibleTenses);
     const selectedTenseValue = getSelectedTenseTab();
-    if (!visibleTenseSet.has(selectedTenseValue)) {
-        setSelectedTenseTab(visibleTenses[0] || allowedTenses[0] || TENSE_ORDER[0]);
+    if (
+        !visibleTenseSet.has(selectedTenseValue)
+        || blockedNominalTenseSet.has(selectedTenseValue)
+    ) {
+        setSelectedTenseTab(
+            visibleTenses.find((tenseValue) => !blockedNominalTenseSet.has(tenseValue))
+            || allowedTenses.find((tenseValue) => !blockedNominalTenseSet.has(tenseValue))
+            || TENSE_ORDER.find((tenseValue) => !blockedNominalTenseSet.has(tenseValue))
+            || visibleTenses[0]
+            || allowedTenses[0]
+            || TENSE_ORDER[0]
+        );
     }
     const shouldShowUniversalTabs = tenseMode === TENSE_MODE.verbo;
     const shouldComputeUniversalAvailability = shouldShowUniversalTabs && VERB_RENDER_CONTEXT !== "typing";
@@ -23131,12 +24529,29 @@ function renderTenseTabs() {
         if (!shouldComputeTenseOutput) {
             return null;
         }
-        if (!verbOutputContextsByMode || !hasVerb || endsWithConsonant) {
+        if (!hasVerb || endsWithConsonant) {
             return null;
         }
         const resolvedCombinedMode = combinedMode === COMBINED_MODE.nonactive
             ? COMBINED_MODE.nonactive
             : COMBINED_MODE.active;
+        if (isNominalMode) {
+            const cacheKey = `nominal:${resolvedCombinedMode}:${tenseValue}`;
+            if (tenseOutputCache.has(cacheKey)) {
+                return tenseOutputCache.get(cacheKey);
+            }
+            const hasOutput = hasViableNominalTenseOutput({
+                verb: displayVerb,
+                tenseValue,
+                tenseMode,
+                combinedMode: resolvedCombinedMode,
+            });
+            tenseOutputCache.set(cacheKey, hasOutput);
+            return hasOutput;
+        }
+        if (!verbOutputContextsByMode) {
+            return null;
+        }
         const cacheKey = `${resolvedCombinedMode}:${tenseValue}`;
         if (tenseOutputCache.has(cacheKey)) {
             return tenseOutputCache.get(cacheKey);
@@ -23223,6 +24638,7 @@ function renderTenseTabs() {
             container,
             endsWithConsonant,
             resolveTenseHasOutput,
+            blockedNominalTenseSet,
             isNominalMode,
             shouldShowUniversalTabs,
             availability,
@@ -23292,14 +24708,15 @@ function renderTenseTabs() {
                 )
                 : resolveTenseHasOutput(tenseValue, resolvedCombinedMode || currentCombinedMode);
         })();
-        if (hasOutput === false) {
+        const isBlockedNominalTense = blockedNominalTenseSet.has(tenseValue);
+        if (hasOutput === false || isBlockedNominalTense) {
             button.classList.add("is-empty");
         }
         const label = document.createElement("span");
         label.className = "tense-tab-label";
         label.textContent = getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
         button.appendChild(label);
-        button.disabled = endsWithConsonant || hasOutput === false;
+        button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
         button.addEventListener("click", () => {
             const wasActive = getActiveConjugationGroup() === CONJUGATION_GROUPS.tense
                 && tenseValue === getSelectedTenseTab()
@@ -23313,7 +24730,7 @@ function renderTenseTabs() {
             if (PRETERITO_CLASS_TENSES.has(tenseValue) && wasActive && CLASS_FILTER_STATE.activeClass) {
                 CLASS_FILTER_STATE.activeClass = null;
             }
-            preserveOutputPanelViewportPosition(() => {
+            preserveViewportAnchorPosition(button, () => {
                 renderTenseTabs();
                 rerenderActiveConjugations(tenseValue);
             });
@@ -23436,7 +24853,7 @@ function renderTenseTabs() {
                     const classSelectionActive = PRETERITO_CLASS_TENSES.has(currentSelectedTense);
                     if (currentActiveGroup === CONJUGATION_GROUPS.universal && tenseValue === currentSelectedUniversal) {
                         setActiveConjugationGroup(CONJUGATION_GROUPS.tense);
-                        preserveOutputPanelViewportPosition(() => {
+                        preserveViewportAnchorPosition(button, () => {
                             renderTenseTabs();
                             rerenderActiveConjugations(currentSelectedTense);
                         });
@@ -23445,7 +24862,7 @@ function renderTenseTabs() {
                     if (currentActiveGroup === CONJUGATION_GROUPS.tense && classSelectionActive && classKey) {
                         CLASS_FILTER_STATE.activeClass =
                             CLASS_FILTER_STATE.activeClass === classKey ? null : classKey;
-                        preserveOutputPanelViewportPosition(() => {
+                        preserveViewportAnchorPosition(button, () => {
                             renderTenseTabs();
                             rerenderActiveConjugations(currentSelectedTense);
                         });
@@ -23453,7 +24870,7 @@ function renderTenseTabs() {
                     }
                     setActiveConjugationGroup(CONJUGATION_GROUPS.universal);
                     setSelectedPretUniversalTab(tenseValue);
-                    preserveOutputPanelViewportPosition(() => {
+                    preserveViewportAnchorPosition(button, () => {
                         renderTenseTabs();
                         rerenderActiveConjugations();
                     });
@@ -23706,6 +25123,104 @@ function getSubjectPersonSelections() {
     return selections;
 }
 
+function getSubjectCombinationId(subjectPrefix = "", subjectSuffix = "") {
+    const match = SUBJECT_COMBINATIONS.find((entry) => (
+        (entry?.subjectPrefix || "") === String(subjectPrefix || "")
+        && (entry?.subjectSuffix || "") === String(subjectSuffix || "")
+    ));
+    return match?.id || "";
+}
+
+function buildReduplicatedSurfaceForm(value = "", options = {}) {
+    const source = String(value || "").trim();
+    if (!source) {
+        return source;
+    }
+    const imperativePrefix = source.startsWith("ma ") ? "ma " : "";
+    const bareSource = imperativePrefix ? source.slice(3).trim() : source;
+    const requestedPrefixChain = String(options.prefixChain || "");
+    let surfacePrefix = "";
+    let stem = bareSource;
+    if (requestedPrefixChain && bareSource.startsWith(requestedPrefixChain)) {
+        surfacePrefix = requestedPrefixChain;
+        stem = bareSource.slice(requestedPrefixChain.length);
+    }
+    const syllables = splitVerbSyllables(stem);
+    const first = syllables[0];
+    if (!first || !first.nucleus) {
+        return source;
+    }
+    const redupPrefix = `${first.onset || ""}${first.nucleus || ""}j`;
+    if (!redupPrefix) {
+        return source;
+    }
+    return `${imperativePrefix}${surfacePrefix}${redupPrefix}${stem}`;
+}
+
+function reduplicateConjugationDisplay(value = "", options = {}) {
+    const forms = String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((form) => form.trim())
+        .filter(Boolean);
+    if (!forms.length) {
+        return String(value || "");
+    }
+    const deduped = Array.from(new Set(
+        forms.map((form) => buildReduplicatedSurfaceForm(form, options)).filter(Boolean)
+    ));
+    return deduped.join(" / ");
+}
+
+function getNominalSubjectSelectionEntries({
+    mode = getActiveTenseMode(),
+    tenseValue = "",
+} = {}) {
+    const baseSelections = getSubjectPersonSelections().map(({ group, selection, number }) => ({
+        group,
+        selection,
+        displaySelection: selection,
+        number,
+        toggleId: getSubjectCombinationId(selection?.subjectPrefix || "", selection?.subjectSuffix || ""),
+        displayPersonSubLabel: "",
+        useReduplicatedSingularSurface: false,
+    }));
+    if (mode !== TENSE_MODE.adjetivo) {
+        return baseSelections;
+    }
+    const adjectiveSelections = [];
+    baseSelections.forEach((entry) => {
+        const singularGroupSelection = entry.group?.singular || entry.selection;
+        const pushDistributiveEntry = (selectionOverride, displayPersonSubLabel) => {
+            adjectiveSelections.push({
+                ...entry,
+                selection: selectionOverride,
+                displayPersonSubLabel,
+                useReduplicatedSingularSurface: true,
+            });
+        };
+        const isFirstPlural = entry.selection?.subjectPrefix === "ti" && entry.selection?.subjectSuffix === "t";
+        const isSecondPlural = entry.selection?.subjectPrefix === "an" && entry.selection?.subjectSuffix === "t";
+        const isThirdPlural = entry.selection?.subjectPrefix === "" && entry.selection?.subjectSuffix === "t";
+        if (isFirstPlural) {
+            adjectiveSelections.push(entry);
+            pushDistributiveEntry({ subjectPrefix: "ti", subjectSuffix: "" }, ADJECTIVE_DISTRIBUTIVE_PLURAL_SUB_LABELS.first);
+            return;
+        }
+        if (isSecondPlural) {
+            adjectiveSelections.push(entry);
+            pushDistributiveEntry({ subjectPrefix: "an", subjectSuffix: "" }, ADJECTIVE_DISTRIBUTIVE_PLURAL_SUB_LABELS.second);
+            return;
+        }
+        if (!isThirdPlural) {
+            adjectiveSelections.push(entry);
+            return;
+        }
+        adjectiveSelections.push(entry);
+        pushDistributiveEntry(singularGroupSelection, ADJECTIVE_DISTRIBUTIVE_PLURAL_SUB_LABELS.thirdHuman);
+    });
+    return adjectiveSelections;
+}
+
 function getPersonGroupLabel(group, isNawat) {
     if (!group) {
         return "";
@@ -23803,6 +25318,10 @@ function getPatientivoOwnershipKey(groupKey) {
     return `noun|patientivo|${groupKey}|ownership`;
 }
 
+function getPatientivoNominalSuffixKey(groupKey) {
+    return `noun|patientivo|${groupKey}|nominal-suffix`;
+}
+
 function clearToggleStateByPrefix(map, prefix) {
     if (!prefix) {
         return;
@@ -23831,6 +25350,7 @@ function resetToggleStateForTense(tenseValue) {
     clearToggleStateByPrefix(OBJECT_TOGGLE_STATE, `noun|${tenseValue}|`);
     clearToggleStateByPrefix(POSSESSOR_TOGGLE_STATE, `noun|${tenseValue}|`);
     clearToggleStateByPrefix(PATIENTIVO_OWNERSHIP_STATE, `noun|${tenseValue}|`);
+    clearToggleStateByPrefix(PATIENTIVO_NOMINAL_SUFFIX_STATE, `noun|${tenseValue}|`);
     const appliedFragments = [
         `|standard|${tenseValue}|`,
         `|standard|nonactive|${tenseValue}|`,
@@ -23897,8 +25417,12 @@ function getPotencialHabitualNonactiveSubjectToggleOptions() {
         .forEach(([prefix, mapped]) => {
             const subjectPrefix = mapped?.subjectPrefix || "";
             const subjectSuffix = mapped?.subjectSuffix || "";
+            const subjectId = getSubjectCombinationId(subjectPrefix, subjectSuffix);
+            if (!subjectId) {
+                return;
+            }
             options.push({
-                id: `nonactive-${prefix}`,
+                id: subjectId,
                 label: getPassiveToggleLabel(prefix, isNawat),
                 subjectPrefix,
                 subjectSuffix,
@@ -24100,8 +25624,24 @@ function isPotencialActiveTense(tenseValue = "") {
         || tenseValue === "pasado-remoto-adverbio-activo";
 }
 
+function isPatientivoAdjectiveTense(tenseValue = "") {
+    return PATIENTIVO_ADJECTIVE_TENSE_SET.has(tenseValue);
+}
+
+function getPatientivoAdjectiveSourceForTense(tenseValue = "") {
+    return PATIENTIVO_ADJECTIVE_SOURCE_BY_TENSE[tenseValue] || "";
+}
+
+function isIntransitiveOnlyActiveAdjectiveTense(tenseValue = "") {
+    return INTRANSITIVE_ONLY_ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue);
+}
+
 function isActiveAdjectiveTabTense(tenseValue = "") {
     return ACTIVE_ADJECTIVE_TAB_TENSE_SET.has(tenseValue);
+}
+
+function isNonactiveAdjectiveTabTense(tenseValue = "") {
+    return NONACTIVE_ADJECTIVE_TAB_TENSE_SET.has(tenseValue);
 }
 
 function getNominalSourceModeForTense(tenseValue = "", {
@@ -24110,6 +25650,11 @@ function getNominalSourceModeForTense(tenseValue = "", {
 } = {}) {
     if (tenseValue === "patientivo") {
         return patientivoSource === "nonactive"
+            ? COMBINED_MODE.nonactive
+            : COMBINED_MODE.active;
+    }
+    if (isPatientivoAdjectiveTense(tenseValue)) {
+        return getPatientivoAdjectiveSourceForTense(tenseValue) === "nonactive"
             ? COMBINED_MODE.nonactive
             : COMBINED_MODE.active;
     }
@@ -24125,9 +25670,24 @@ function getNominalSourceModeForTense(tenseValue = "", {
         return COMBINED_MODE.active;
     }
     if (isPotencialHabitualTense(tenseValue)) {
-        return COMBINED_MODE.active;
+        return COMBINED_MODE.nonactive;
     }
     return COMBINED_MODE.active;
+}
+
+function getResolvedNominalCombinedModeForTense(tenseValue = "", fallbackCombinedMode = getCombinedMode()) {
+    if (isActiveAdjectiveTabTense(tenseValue)) {
+        return COMBINED_MODE.active;
+    }
+    if (isNonactiveAdjectiveTabTense(tenseValue)) {
+        return COMBINED_MODE.nonactive;
+    }
+    if (isPatientivoAdjectiveTense(tenseValue) || isPotencialProfileTense(tenseValue)) {
+        return getNominalSourceModeForTense(tenseValue);
+    }
+    return fallbackCombinedMode === COMBINED_MODE.nonactive
+        ? COMBINED_MODE.nonactive
+        : COMBINED_MODE.active;
 }
 
 function getPatientivoSourceTenseLabel(patientivoSource = "", isNawat = false) {
@@ -24155,6 +25715,12 @@ function getNominalSourceTenseLabel(tenseValue = "", {
 } = {}) {
     if (tenseValue === "patientivo") {
         return getPatientivoSourceTenseLabel(patientivoSource, isNawat);
+    }
+    if (isPatientivoAdjectiveTense(tenseValue)) {
+        return getPatientivoSourceTenseLabel(
+            getPatientivoAdjectiveSourceForTense(tenseValue),
+            isNawat
+        );
     }
     if (isPotencialTroncoNajActiveTense(tenseValue)) {
         const sourceLabelFull = getVerbBlockLabel(
@@ -24187,6 +25753,12 @@ function getNominalSourceTenseLabel(tenseValue = "", {
     return getLocalizedLabel(TENSE_LABELS[sourceTense], isNawat, sourceTense);
 }
 
+function getNominalDerivationModeForTense(tenseValue = "") {
+    return isPotencialHabitualTense(tenseValue)
+        ? DERIVATION_MODE.nonactive
+        : DERIVATION_MODE.active;
+}
+
 function normalizeHeaderLabelText(value = "") {
     return String(value || "")
         .normalize("NFD")
@@ -24210,6 +25782,7 @@ function shouldAppendNominalSourceTense(baseLabel = "", sourceTenseLabel = "") {
 
 function buildNominalSourceTaggedLabel(baseLabel = "", sourceMode = "", isNawat = false, {
     sourceTenseLabel = "",
+    labelValency = null,
 } = {}) {
     const sourceKey = sourceMode === COMBINED_MODE.nonactive
         ? "tense-tabs-mode-nonactive"
@@ -24226,9 +25799,12 @@ function buildNominalSourceTaggedLabel(baseLabel = "", sourceMode = "", isNawat 
     const sourceTensePart = shouldShowSourceTense && sourceTenseLabel
         ? `, ${sourceTenseLabel}`
         : "";
+    const valencyPart = Number.isFinite(labelValency)
+        ? ` · valencia total: ${labelValency}`
+        : "";
     return stemLabel
-        ? `${stemLabel} · ${sourcePart}${sourceTensePart}`
-        : `${sourcePart}${sourceTensePart}`;
+        ? `${stemLabel} · ${sourcePart}${sourceTensePart}${valencyPart}`
+        : `${sourcePart}${sourceTensePart}${valencyPart}`;
 }
 
 function isPotencialTroncoActiveTense(tenseValue = "") {
@@ -24577,7 +26153,7 @@ function getTenseOrderForMode(mode) {
         ];
     }
     if (mode === TENSE_MODE.adjetivo) {
-        return ACTIVE_ADJECTIVE_TAB_TENSE_ORDER;
+        return ADJECTIVE_TAB_TENSE_ORDER;
     }
     if (mode === TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
@@ -24587,6 +26163,7 @@ function getTenseOrderForMode(mode) {
         && tense !== "potencial"
         && tense !== "potencial-habitual"
         && !ACTIVE_ADJECTIVE_TENSE_SET.has(tense)
+        && !PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense)
         && tense !== "pasado-remoto-adverbio-activo"
         && tense !== "agentivo"
         && tense !== "patientivo"
@@ -24604,10 +26181,8 @@ function isNounTenseVisibleForCombinedMode(tenseValue, combinedMode = getCombine
     if (!tenseValue) {
         return false;
     }
-    if (isPotencialProfileTense(tenseValue)) {
-        return isActiveAdjectiveTabTense(tenseValue)
-            ? combinedMode === COMBINED_MODE.active
-            : combinedMode === COMBINED_MODE.nonactive;
+    if (isPatientivoAdjectiveTense(tenseValue) || isPotencialProfileTense(tenseValue)) {
+        return combinedMode === getResolvedNominalCombinedModeForTense(tenseValue, combinedMode);
     }
     if (isNounPossessionSplitTense(tenseValue)) {
         return true;
@@ -24635,33 +26210,223 @@ function isThreeColumnPanelLayout() {
         && window.matchMedia("(min-width: 1025px)").matches;
 }
 
-function preserveOutputPanelViewportPosition(callback) {
+function captureViewportAnchor(element) {
+    if (!element || typeof element.getBoundingClientRect !== "function") {
+        return null;
+    }
+    const rect = element.getBoundingClientRect();
+    const anchor = {
+        top: rect.top,
+        left: rect.left,
+        node: element,
+        selector: "",
+    };
+    if (element.matches?.("[data-tense-value]")) {
+        const selectorParts = [
+            `[data-tense-value="${escapeAttributeSelectorValue(element.getAttribute("data-tense-value") || "")}"]`,
+        ];
+        const tenseGroup = element.getAttribute("data-tense-group") || "";
+        const tenseColumn = element.getAttribute("data-tense-column") || "";
+        if (tenseGroup) {
+            selectorParts.push(`[data-tense-group="${escapeAttributeSelectorValue(tenseGroup)}"]`);
+        }
+        if (tenseColumn) {
+            selectorParts.push(`[data-tense-column="${escapeAttributeSelectorValue(tenseColumn)}"]`);
+        }
+        anchor.selector = selectorParts.join("");
+        return anchor;
+    }
+    if (element.matches?.("[data-nonactive-suffix]")) {
+        anchor.selector = `[data-nonactive-suffix="${escapeAttributeSelectorValue(element.getAttribute("data-nonactive-suffix") || "")}"]`;
+        return anchor;
+    }
+    if (element.matches?.("[data-tense-mode]")) {
+        anchor.selector = `[data-tense-mode="${escapeAttributeSelectorValue(element.getAttribute("data-tense-mode") || "")}"]`;
+        return anchor;
+    }
+    if (element.matches?.("[data-combined-mode]")) {
+        anchor.selector = `[data-combined-mode="${escapeAttributeSelectorValue(element.getAttribute("data-combined-mode") || "")}"]`;
+        return anchor;
+    }
+    if (element.matches?.("[data-derivation-type]")) {
+        anchor.selector = `[data-derivation-type="${escapeAttributeSelectorValue(element.getAttribute("data-derivation-type") || "")}"]`;
+        return anchor;
+    }
+    if (element.id) {
+        anchor.selector = `#${escapeAttributeSelectorValue(element.id)}`;
+        return anchor;
+    }
+    return anchor;
+}
+
+function resolveViewportAnchor(anchor) {
+    if (!anchor) {
+        return null;
+    }
+    if (anchor.node?.isConnected) {
+        return anchor.node;
+    }
+    if (anchor.selector) {
+        return document.querySelector(anchor.selector);
+    }
+    return null;
+}
+
+let VIEWPORT_ANCHOR_RESERVATION_SEQUENCE = 0;
+
+function captureStickyDesktopPaneAnchor(anchorSource) {
+    if (!isThreeColumnPanelLayout()) {
+        return null;
+    }
+    if (
+        !anchorSource
+        || typeof anchorSource.closest !== "function"
+        || !anchorSource.closest("#panel-stack-pane-tense")
+    ) {
+        return null;
+    }
+    const pane = document.getElementById("panel-stack-pane-tense");
+    return captureViewportAnchor(pane);
+}
+
+function captureViewportAnchorDelta(anchor) {
+    const target = resolveViewportAnchor(anchor);
+    if (!target || typeof target.getBoundingClientRect !== "function") {
+        return null;
+    }
+    const afterRect = target.getBoundingClientRect();
+    return {
+        target,
+        deltaX: afterRect.left - anchor.left,
+        deltaY: afterRect.top - anchor.top,
+    };
+}
+
+function captureOutputHeightReservation(anchorSource) {
+    if (
+        !isThreeColumnPanelLayout()
+        || !anchorSource
+        || typeof anchorSource.closest !== "function"
+        || !anchorSource.closest("#panel-stack-pane-tense")
+    ) {
+        return null;
+    }
+    const output = document.getElementById("all-tense-conjugations");
+    if (!output) {
+        return null;
+    }
+    const rect = output.getBoundingClientRect();
+    const reservedHeight = Math.ceil(
+        Math.max(
+            rect.height || 0,
+            output.offsetHeight || 0,
+            output.scrollHeight || 0
+        )
+    );
+    if (!(reservedHeight > 0)) {
+        return null;
+    }
+    return {
+        element: output,
+        previousMinHeight: output.style.minHeight || "",
+        token: `anchor-${++VIEWPORT_ANCHOR_RESERVATION_SEQUENCE}`,
+        reservedHeight,
+    };
+}
+
+function applyOutputHeightReservation(reservation) {
+    if (!reservation?.element) {
+        return;
+    }
+    const element = reservation.element;
+    element.dataset.viewportAnchorReservation = reservation.token;
+    const currentInlineMinHeight = parseFloat(element.style.minHeight || "") || 0;
+    const nextMinHeight = Math.max(currentInlineMinHeight, reservation.reservedHeight);
+    element.style.minHeight = `${Math.ceil(nextMinHeight)}px`;
+}
+
+function releaseOutputHeightReservation(reservation, { delayMs = 320 } = {}) {
+    if (!reservation?.element) {
+        return;
+    }
+    const element = reservation.element;
+    const restore = () => {
+        if (element.dataset.viewportAnchorReservation !== reservation.token) {
+            return;
+        }
+        delete element.dataset.viewportAnchorReservation;
+        element.style.minHeight = reservation.previousMinHeight;
+    };
+    if (typeof window !== "undefined" && typeof window.setTimeout === "function") {
+        window.setTimeout(restore, Math.max(0, delayMs));
+        return;
+    }
+    restore();
+}
+
+function preserveViewportAnchorPosition(anchorSource, callback) {
     if (typeof callback !== "function") {
         return;
     }
-    const outputPanel = document.getElementById("container-tense-grid");
     if (
-        !outputPanel
-        || typeof window === "undefined"
+        typeof window === "undefined"
         || typeof window.scrollBy !== "function"
     ) {
         callback();
         return;
     }
-    const beforeTop = outputPanel.getBoundingClientRect().top;
-    callback();
-    const restore = () => {
-        const afterTop = outputPanel.getBoundingClientRect().top;
-        const delta = afterTop - beforeTop;
-        if (Number.isFinite(delta) && Math.abs(delta) > 0.5) {
-            window.scrollBy(0, delta);
-        }
-    };
-    if (typeof window.requestAnimationFrame === "function") {
-        window.requestAnimationFrame(restore);
+    const primaryAnchor = captureViewportAnchor(anchorSource);
+    if (!primaryAnchor) {
+        callback();
         return;
     }
-    setTimeout(restore, 0);
+    const paneAnchor = captureStickyDesktopPaneAnchor(anchorSource);
+    const outputReservation = captureOutputHeightReservation(anchorSource);
+    applyOutputHeightReservation(outputReservation);
+    try {
+        callback();
+    } catch (error) {
+        releaseOutputHeightReservation(outputReservation, { delayMs: 0 });
+        throw error;
+    }
+    const scheduleFrame = typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame.bind(window)
+        : ((fn) => window.setTimeout(fn, 16));
+    let frameCount = 0;
+    let stableFrames = 0;
+    const maxFrames = paneAnchor ? 8 : 6;
+    const settle = () => {
+        frameCount += 1;
+        const primaryDelta = captureViewportAnchorDelta(primaryAnchor);
+        const paneDelta = captureViewportAnchorDelta(paneAnchor);
+        const resolvedDelta = primaryDelta || paneDelta;
+        let deltaX = Number(resolvedDelta?.deltaX) || 0;
+        let deltaY = Number(resolvedDelta?.deltaY) || 0;
+        if (
+            (!primaryDelta || (Math.abs(deltaX) <= 0.5 && Math.abs(deltaY) <= 0.5))
+            && paneDelta
+            && (
+                Math.abs(Number(paneDelta.deltaX) || 0) > 0.5
+                || Math.abs(Number(paneDelta.deltaY) || 0) > 0.5
+            )
+        ) {
+            deltaX = Number(paneDelta.deltaX) || 0;
+            deltaY = Number(paneDelta.deltaY) || 0;
+        }
+        const needsAdjust = Math.abs(deltaX) > 0.5 || Math.abs(deltaY) > 0.5;
+        if (needsAdjust) {
+            window.scrollBy(deltaX, deltaY);
+            stableFrames = 0;
+        } else {
+            stableFrames += 1;
+        }
+        if (frameCount < maxFrames && stableFrames < 2) {
+            scheduleFrame(settle);
+            return;
+        }
+        releaseOutputHeightReservation(outputReservation);
+    };
+    scheduleFrame(settle);
 }
 
 const PANEL_STACK_ORDER = ["inputs", "tense", "output"];
@@ -24867,11 +26632,13 @@ function initTenseModeTabs() {
                 return;
             }
             setActiveTenseMode(mode);
-            renderTenseTabs();
-            const verbMeta = getVerbInputMeta();
-            renderActiveConjugations({
-                verb: verbMeta.displayVerb,
-                objectPrefix: getCurrentObjectPrefix(),
+            preserveViewportAnchorPosition(button, () => {
+                renderTenseTabs();
+                const verbMeta = getVerbInputMeta();
+                renderActiveConjugations({
+                    verb: verbMeta.displayVerb,
+                    objectPrefix: getCurrentObjectPrefix(),
+                });
             });
         });
     });
@@ -24942,12 +26709,14 @@ function initCombinedModeTabs() {
                 return;
             }
             setCombinedMode(mode);
-            updateCombinedModeTabs();
-            renderTenseTabs();
-            const verbMeta = getVerbInputMeta();
-            renderActiveConjugations({
-                verb: verbMeta.displayVerb,
-                objectPrefix: getCurrentObjectPrefix(),
+            preserveViewportAnchorPosition(button, () => {
+                updateCombinedModeTabs();
+                renderTenseTabs();
+                const verbMeta = getVerbInputMeta();
+                renderActiveConjugations({
+                    verb: verbMeta.displayVerb,
+                    objectPrefix: getCurrentObjectPrefix(),
+                });
             });
         });
     });
@@ -25260,12 +27029,14 @@ function initDerivationTypeControl() {
     if (select) {
         select.addEventListener("change", () => {
             setActiveDerivationType(select.value);
-            updateDerivationTypeControl();
-            renderTenseTabs();
-            const verbMeta = getVerbInputMeta();
-            renderActiveConjugations({
-                verb: verbMeta.displayVerb,
-                objectPrefix: getCurrentObjectPrefix(),
+            preserveViewportAnchorPosition(select, () => {
+                updateDerivationTypeControl();
+                renderTenseTabs();
+                const verbMeta = getVerbInputMeta();
+                renderActiveConjugations({
+                    verb: verbMeta.displayVerb,
+                    objectPrefix: getCurrentObjectPrefix(),
+                });
             });
         });
     }
@@ -25280,12 +27051,14 @@ function initDerivationTypeControl() {
                 if (select) {
                     select.value = type;
                 }
-                updateDerivationTypeControl();
-                renderTenseTabs();
-                const verbMeta = getVerbInputMeta();
-                renderActiveConjugations({
-                    verb: verbMeta.displayVerb,
-                    objectPrefix: getCurrentObjectPrefix(),
+                preserveViewportAnchorPosition(button, () => {
+                    updateDerivationTypeControl();
+                    renderTenseTabs();
+                    const verbMeta = getVerbInputMeta();
+                    renderActiveConjugations({
+                        verb: verbMeta.displayVerb,
+                        objectPrefix: getCurrentObjectPrefix(),
+                    });
                 });
             });
         });
@@ -25561,6 +27334,8 @@ function applyMorphologyRules({
     verbSegment = "",
     isNounContext = false,
     patientivoSource = "nonactive",
+    patientivoNominalSuffix = null,
+    stemProvenanceSeed = null,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
     derivationType = "",
@@ -25576,6 +27351,7 @@ function applyMorphologyRules({
     const isAgentivoTense = tense === "agentivo";
     const isPotencialHabitualProfile = isPotencialHabitualTense(tense);
     const isPotencialActiveProfile = isPotencialActiveTense(tense);
+    const isPatientivoAdjectiveProfile = isPatientivoAdjectiveTense(tense);
     const isPotencialNounLikeTense = tense === "potencial";
     const isSustantivoVerbalLikeTense = tense === "sustantivo-verbal" || isPotencialNounLikeTense;
     const agentivoNumberSlot = isAgentivoTense ? baseSubjectSuffix : "";
@@ -25629,7 +27405,6 @@ function applyMorphologyRules({
     const alternateForms = [];
     let suppressPreferredPerfectAlternates = false;
     let suppressSustantivoIEndingSVariant = false;
-    let patientivoBlankPossessiveW = false;
     const isIntransitiveVerb =
         objectPrefix === ""
         && !isTaFusion
@@ -25639,6 +27414,7 @@ function applyMorphologyRules({
     const forceTransitiveBase = isTaFusion || isUnderlyingTransitive;
     const isNounTense = isNonanimateNounTense(tense)
         || isPotencialProfileTense(tense)
+        || isPatientivoAdjectiveProfile
         || tense === "agentivo"
         || tense === "patientivo"
         || tense === "instrumentivo"
@@ -25931,6 +27707,75 @@ function applyMorphologyRules({
             addSVariant(nounBase);
         }
     }
+    if (isPatientivoAdjectiveProfile) {
+        const patientivoAdjectiveSource = getPatientivoAdjectiveSourceForTense(tense) || "nonactive";
+        const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
+            return { error: true };
+        }
+        const patientivoInput = buildPatientivoDerivationInput({
+            verb,
+            analysisVerb,
+            rawAnalysisVerb,
+            isTransitive,
+            objectPrefix,
+            directionalPrefix: directionalInputPrefix,
+            isYawi,
+            hasImpersonalTaPrefix,
+            boundPrefix,
+            boundPrefixes,
+            boundExplicitFlags,
+            directionalPrefixFromSlash,
+            sourceSplitPrefix: resolvedSourceSplitPrefix,
+            sourceCompositeBase: resolvedSourceCompositeBase,
+            hasSlashMarker,
+            hasSuffixSeparator,
+            hasLeadingDash,
+            hasBoundMarker,
+            hasCompoundMarker,
+            hasOptionalSupportiveI,
+            hasNonspecificValence,
+            exactBaseVerb: exactAnalysisVerb,
+            suppletiveStemSet,
+            rootPlusYaBase,
+            rootPlusYaBasePronounceable,
+            blockPerfectivoClassC: patientivoAdjectiveSource === "perfectivo",
+        });
+        const patientivoDerivations = getPatientivoDerivationBuilder(patientivoAdjectiveSource)(patientivoInput);
+        const patientivoAdjectiveForms = [];
+        const seenPatientivoAdjectiveForms = new Set();
+        patientivoDerivations.forEach((entry) => {
+            const sourceSuffix = String(entry?.subjectSuffix || "");
+            if (sourceSuffix === "t") {
+                return;
+            }
+            const nounStem = String(entry?.verb || "").trim();
+            if (!nounStem || !isSyllableSequencePronounceable(`${nounStem}ti`)) {
+                return;
+            }
+            if (seenPatientivoAdjectiveForms.has(nounStem)) {
+                return;
+            }
+            seenPatientivoAdjectiveForms.add(nounStem);
+            patientivoAdjectiveForms.push({
+                verb: nounStem,
+                subjectSuffix: "ti",
+            });
+        });
+        if (!patientivoAdjectiveForms.length) {
+            return { error: true };
+        }
+        const [primary, ...alternates] = patientivoAdjectiveForms;
+        verb = primary.verb;
+        subjectSuffix = primary.subjectSuffix;
+        alternateForms.length = 0;
+        alternates.forEach((entry) => {
+            alternateForms.push({
+                verb: entry.verb,
+                subjectSuffix: entry.subjectSuffix,
+            });
+        });
+    }
     if (tense === "patientivo") {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
         if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
@@ -25974,19 +27819,36 @@ function applyMorphologyRules({
         });
         const patientivoDerivationBuilder = getPatientivoDerivationBuilder(patientivoSource);
         const derivations = patientivoDerivationBuilder(patientivoInput);
-        if (!derivations.length && isStrictPatientivoDerivationSource(patientivoSource)) {
+        const patientivoNominalDerivations = expandPatientivoNominalMarkerOptions(
+            derivations,
+            patientivoSource,
+        );
+        let resolvedPatientivoDerivations = patientivoNominalDerivations.length
+            ? patientivoNominalDerivations
+            : derivations;
+        const resolvedPatientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
+        if (resolvedPatientivoNominalSuffix !== null) {
+            resolvedPatientivoDerivations = resolvedPatientivoDerivations.filter((entry) => (
+                String(entry?.subjectSuffix || "") === resolvedPatientivoNominalSuffix
+            ));
+        }
+        if (
+            !resolvedPatientivoDerivations.length
+            && (
+                resolvedPatientivoNominalSuffix !== null
+                || isStrictPatientivoDerivationSource(patientivoSource)
+            )
+        ) {
             return { error: true };
         }
-        if (derivations.length) {
-            const [primary, ...alternates] = derivations;
+        if (resolvedPatientivoDerivations.length) {
+            const [primary, ...alternates] = resolvedPatientivoDerivations;
             verb = primary.verb;
             subjectSuffix = applyPatientivoSuffix(primary.subjectSuffix);
-            patientivoBlankPossessiveW = Boolean(primary.blankPossessiveW);
             alternates.forEach((entry) => {
                 alternateForms.push({
                     verb: entry.verb,
                     subjectSuffix: applyPatientivoSuffix(entry.subjectSuffix),
-                    blankPossessiveW: entry.blankPossessiveW,
                 });
             });
         }
@@ -26230,6 +28092,7 @@ function applyMorphologyRules({
         const activeWrapperSourceTense = getPotencialActiveSourceTense(tense);
         const isTroncoActiveWrapper = isPotencialTroncoActiveTense(tense);
         const isTroncoNajActiveWrapper = isPotencialTroncoNajActiveTense(tense);
+        const isTroncoTikActiveWrapper = isTroncoActiveWrapper && !isTroncoNajActiveWrapper;
         const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
         const inputMatrixRoot = normalizeRuleBase(exactAnalysisVerb);
         const wrapperObjectPrefix = baseObjectPrefix || "";
@@ -26239,6 +28102,9 @@ function applyMorphologyRules({
             subjectPrefix: baseSubjectPrefix,
         });
         const resolveWrapperSourceSubjectSuffix = (sourceTenseValue = "") => {
+            if (sourceTenseValue === "preterito") {
+                return baseSubjectSuffix === "t" ? "ket" : "";
+            }
             let resolved = applyTenseSuffixRules(sourceTenseValue, baseSubjectSuffix);
             if (
                 suppletiveTenseSuffixes
@@ -26250,6 +28116,12 @@ function applyMorphologyRules({
                 }
             }
             return resolved;
+        };
+        const resolveTroncoTikWrapperSuffix = (sourceTenseValue = "") => {
+            if (sourceTenseValue === "preterito") {
+                return baseSubjectSuffix === "t" ? "ket" : "k";
+            }
+            return resolveWrapperSourceSubjectSuffix(sourceTenseValue);
         };
         const sourceSubjectSuffix = resolveWrapperSourceSubjectSuffix(activeWrapperSourceTense);
         const splitWrapperForms = (value = "") => String(value || "")
@@ -26532,8 +28404,11 @@ function applyMorphologyRules({
                     };
                 })
                 .filter(Boolean);
+            const normalizedSource = normalizeRuleBase(sourceAnalysis || sourceVerb);
             const forms = [];
+            const tiForms = [];
             const seenForms = new Set();
+            const seenTiForms = new Set();
             const addForm = (value = "") => {
                 const form = String(value || "").trim();
                 if (!form || seenForms.has(form)) {
@@ -26542,6 +28417,22 @@ function applyMorphologyRules({
                 seenForms.add(form);
                 forms.push(form);
             };
+            const addTiForm = (value = "") => {
+                const form = String(value || "").trim();
+                if (!form || seenTiForms.has(form)) {
+                    return;
+                }
+                seenTiForms.add(form);
+                tiForms.push(form);
+            };
+            if (normalizedSource.endsWith("awi")) {
+                const familyCore = normalizedSource.slice(0, -3);
+                if (familyCore) {
+                    const familyBridgeStem = `${familyCore}a`;
+                    ["k", "ch", "s", "sh"].forEach((consonant) => addForm(`${familyBridgeStem}${consonant}`));
+                    return { baseForms: forms, tiForms };
+                }
+            }
             const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
                 const troncoStem = String(entry?.stem || "").trim();
                 const troncoSuffix = String(entry?.suffix || "");
@@ -26554,7 +28445,19 @@ function applyMorphologyRules({
                 }
                 addForm(troncoStem);
             });
-            return forms;
+            const troncoTiDerivations = troncoNounDerivations.filter((entry) => {
+                const troncoStem = String(entry?.stem || "").trim();
+                const troncoSuffix = String(entry?.suffix || "");
+                return Boolean(troncoStem) && troncoSuffix === "ti";
+            });
+            troncoTiDerivations.forEach((entry) => {
+                const troncoNoun = String(entry?.nounForm || "").trim();
+                if (!troncoNoun) {
+                    return;
+                }
+                addTiForm(troncoNoun);
+            });
+            return { baseForms: forms, tiForms };
         };
         const shouldMirrorNajFinalYaPretSimple = (value = "") => {
             const base = normalizeRuleBase(value);
@@ -26610,10 +28513,14 @@ function applyMorphologyRules({
                         const pretSimpleNajSourceBuilder = shouldMirrorNajFinalYaPretSimple(sourceAnalysis || sourceVerb)
                             ? buildObjectWrapperPretSimpleForms
                             : buildTroncoNajBaseForms;
-                        pretSimpleNajSourceBuilder({
+                        const pretSimpleNajSourceForms = pretSimpleNajSourceBuilder({
                             sourceVerb,
                             sourceAnalysis,
-                        }).forEach((stem) => addPrecomputedWrapperForm(`${stem}${MATRIX_NA_STEM}j${sourceSubjectSuffix}`));
+                        });
+                        const pretSimpleNajSourceValues = Array.isArray(pretSimpleNajSourceForms)
+                            ? pretSimpleNajSourceForms
+                            : (pretSimpleNajSourceForms?.baseForms || []);
+                        pretSimpleNajSourceValues.forEach((stem) => addPrecomputedWrapperForm(`${stem}${MATRIX_NA_STEM}j${sourceSubjectSuffix}`));
                     }
                 });
             } else {
@@ -26647,47 +28554,33 @@ function applyMorphologyRules({
                         hasBoundMarker,
                         hasCompoundMarker,
                     });
-                    const troncoNounDerivations = troncoDerivations
-                        .map((entry) => {
-                            const troncoStem = String(entry?.verb || "").trim();
-                            const troncoSuffix = String(entry?.subjectSuffix || "");
-                            if (!troncoStem) {
-                                return null;
-                            }
-                            return {
-                                stem: troncoStem,
-                                suffix: troncoSuffix,
-                                nounForm: `${troncoStem}${troncoSuffix}`,
-                            };
-                        })
-                        .filter(Boolean);
-                    const troncoBaseDerivations = troncoNounDerivations.filter((entry) => {
-                        const troncoStem = String(entry?.stem || "").trim();
-                        const troncoSuffix = String(entry?.suffix || "");
-                        return Boolean(troncoStem) && troncoSuffix === "";
+                    const troncoWrapperSuffix = activeWrapperSourceTense === "perfecto" ? "tuk" : "k";
+                    const troncoSourceForms = buildTroncoNajBaseForms({
+                        sourceVerb,
+                        sourceAnalysis,
                     });
-                    if (troncoBaseDerivations.length) {
-                        const troncoWrapperSuffix = activeWrapperSourceTense === "perfecto" ? "tuk" : "k";
-                        troncoBaseDerivations.forEach((entry) => {
-                            const troncoStem = String(entry?.stem || "").trim();
-                            if (!troncoStem) {
+                    const troncoBaseForms = Array.isArray(troncoSourceForms)
+                        ? troncoSourceForms
+                        : (troncoSourceForms?.baseForms || []);
+                    if (troncoBaseForms.length) {
+                        troncoBaseForms.forEach((troncoStem) => {
+                            const normalizedStem = String(troncoStem || "").trim();
+                            if (!normalizedStem) {
                                 return;
                             }
-                            addPrecomputedWrapperForm(`${troncoStem}ti${troncoWrapperSuffix}`);
+                            addPrecomputedWrapperForm(`${normalizedStem}ti${troncoWrapperSuffix}`);
                         });
                         return;
                     }
-                    const troncoTiDerivations = troncoNounDerivations.filter((entry) => {
-                        const troncoStem = String(entry?.stem || "").trim();
-                        const troncoSuffix = String(entry?.suffix || "");
-                        return Boolean(troncoStem) && troncoSuffix === "ti";
-                    });
-                    troncoTiDerivations.forEach((entry) => {
-                        const troncoNoun = String(entry?.nounForm || "").trim();
-                        if (!troncoNoun) {
+                    const troncoTiForms = Array.isArray(troncoSourceForms)
+                        ? []
+                        : (troncoSourceForms?.tiForms || []);
+                    troncoTiForms.forEach((troncoNoun) => {
+                        const normalizedNoun = String(troncoNoun || "").trim();
+                        if (!normalizedNoun) {
                             return;
                         }
-                        addPrecomputedWrapperForm(`${troncoNoun}${sourceSubjectSuffix}`);
+                        addPrecomputedWrapperForm(`${normalizedNoun}${troncoWrapperSuffix}`);
                     });
                 });
             }
@@ -26749,7 +28642,9 @@ function applyMorphologyRules({
                 verb: sourceVerb,
                 subjectPrefix,
                 objectPrefix: wrapperObjectPrefix,
-                subjectSuffix: sourceSubjectSuffix,
+                subjectSuffix: activeWrapperSourceTense === "preterito"
+                    ? baseSubjectSuffix
+                    : sourceSubjectSuffix,
                 tense: activeWrapperSourceTense,
                 analysisVerb: sourceAnalysis || sourceVerb,
                 exactBaseVerb: candidateExactBaseVerb,
@@ -26799,15 +28694,54 @@ function applyMorphologyRules({
             return { error: true };
         }
         const [primaryWrapperForm, ...alternateWrapperForms] = wrapperForms;
-        verb = primaryWrapperForm;
+        const splitTroncoTikWrapperForm = (formValue = "") => {
+            const form = String(formValue || "").trim();
+            if (!form) {
+                return { verb: "", suffix: "" };
+            }
+            if (activeWrapperSourceTense === "perfecto" && form.endsWith("tuk")) {
+                return {
+                    verb: form.slice(0, -3),
+                    suffix: resolveTroncoTikWrapperSuffix(activeWrapperSourceTense),
+                };
+            }
+            if (activeWrapperSourceTense === "preterito" && form.endsWith("k")) {
+                return {
+                    verb: form.slice(0, -1),
+                    suffix: resolveTroncoTikWrapperSuffix(activeWrapperSourceTense),
+                };
+            }
+            return {
+                verb: form,
+                suffix: resolveTroncoTikWrapperSuffix(activeWrapperSourceTense),
+            };
+        };
+        if (isTroncoTikActiveWrapper) {
+            const primaryWrapperParts = splitTroncoTikWrapperForm(primaryWrapperForm);
+            verb = primaryWrapperParts.verb;
+            subjectSuffix = primaryWrapperParts.suffix;
+        } else {
+            verb = primaryWrapperForm;
+            subjectSuffix = "";
+        }
         alternateForms.length = 0;
         alternateWrapperForms.forEach((formValue) => {
-            alternateForms.push({ verb: formValue, subjectSuffix: "" });
+            if (isTroncoTikActiveWrapper) {
+                const alternateWrapperParts = splitTroncoTikWrapperForm(formValue);
+                alternateForms.push({
+                    verb: alternateWrapperParts.verb,
+                    subjectSuffix: alternateWrapperParts.suffix,
+                });
+                return;
+            }
+            alternateForms.push({ verb: formValue, subjectSuffix });
         });
-        if (suppressPreferredPerfectAlternates) {
+        if (!isTroncoTikActiveWrapper && suppressPreferredPerfectAlternates) {
             alternateForms.length = 0;
         }
-        subjectPrefix = "";
+        subjectPrefix = (isTroncoTikActiveWrapper || isTroncoNajActiveWrapper)
+            ? baseSubjectPrefix
+            : "";
         objectPrefix = "";
     }
     if (isAgentivoTense) {
@@ -26857,6 +28791,18 @@ function applyMorphologyRules({
         }
         nounAlternatesWithSuffixes.forEach((entry) => alternateForms.push(entry));
     }
+    if (isPatientivoAdjectiveProfile) {
+        const pluralSlot = baseSubjectSuffix === "t" ? "t" : "";
+        subjectSuffix = applyPatientivoAdjectiveNumberSuffix(pluralSlot);
+        if (alternateForms.length) {
+            alternateForms.forEach((form) => {
+                if (!form) {
+                    return;
+                }
+                form.subjectSuffix = applyPatientivoAdjectiveNumberSuffix(pluralSlot);
+            });
+        }
+    }
     objectPrefix = normalizeValenceMarkerOrder(objectPrefix);
     return {
         subjectPrefix,
@@ -26864,7 +28810,7 @@ function applyMorphologyRules({
         subjectSuffix,
         verb,
         alternateForms,
-        patientivoBlankPossessiveW,
+        stemProvenance: stemProvenanceSeed || null,
     };
 }
 
@@ -27107,6 +29053,9 @@ function applyNonactiveDerivation({
     applicativeAllStems,
     isYawi,
     suppletiveStemSet,
+    preferredNonactiveBaseVerb = "",
+    preferredNonactiveSourceMeta = null,
+    preferredNonactiveSourcePrefix = "",
 }) {
     if (!isNonactive) {
         return {
@@ -27122,11 +29071,19 @@ function applyNonactiveDerivation({
     }
     suppletiveStemSet = null;
     const nonactiveIsTransitive = isNonactiveTransitiveVerb(objectPrefix, parsedVerb);
-    const nonactiveSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
+    const effectiveSourceMeta = preferredNonactiveSourceMeta || parsedVerb;
+    const nonactiveSource = preferredNonactiveBaseVerb
+        ? {
+            baseVerb: preferredNonactiveBaseVerb,
+            prefix: typeof preferredNonactiveSourcePrefix === "string"
+                ? preferredNonactiveSourcePrefix
+                : "",
+        }
+        : getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
     const nonactiveBaseVerb = stripBoundSourcePrefixFromNonactiveBase(
         nonactiveSource.baseVerb || "",
         nonactiveSource.prefix || "",
-        parsedVerb,
+        effectiveSourceMeta,
     );
     const forwardDerivationConfig = getForwardDerivationConfig(derivationType);
     const derivedStemPoolByField = { causativeAllStems, applicativeAllStems };
@@ -27140,7 +29097,7 @@ function applyNonactiveDerivation({
         isYawi,
         forceAll: forceAllNonactiveOptions,
         ruleBase: nonactiveRuleBase,
-        rootPlusYaBase: parsedVerb.rootPlusYaBase,
+        rootPlusYaBase: effectiveSourceMeta?.rootPlusYaBase || parsedVerb?.rootPlusYaBase,
     });
     let resolvedDirectionalPrefix = directionalPrefix;
     let selectionHasPrefixedStems = false;
@@ -27505,6 +29462,10 @@ function applyGenerateForwardDerivations({
         causativeAllStems: null,
         applicativeAllStems: null,
     };
+    const selectedForwardMetaByType = {
+        [DERIVATION_TYPE.causative]: null,
+        [DERIVATION_TYPE.applicative]: null,
+    };
 
     const applyStage = (derivationType, enabled) => {
         const stageResult = applyForwardStageForGenerate({
@@ -27547,6 +29508,7 @@ function applyGenerateForwardDerivations({
         if (config?.resultField) {
             derivedStemPoolByField[config.resultField] = stageResult.derivedStems;
         }
+        selectedForwardMetaByType[stageType] = stageResult.stage?.selectedForwardMeta || null;
     }
 
     return {
@@ -27557,6 +29519,8 @@ function applyGenerateForwardDerivations({
         suppletiveStemSet,
         causativeAllStems: derivedStemPoolByField.causativeAllStems,
         applicativeAllStems: derivedStemPoolByField.applicativeAllStems,
+        causativeSelectionMeta: selectedForwardMetaByType[DERIVATION_TYPE.causative] || null,
+        applicativeSelectionMeta: selectedForwardMetaByType[DERIVATION_TYPE.applicative] || null,
     };
 }
 
@@ -27673,6 +29637,9 @@ function generateWord(options = {}) {
     let possessivePrefix = prefixInputs.possessivePrefix;
     const patientivoOwnership = override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP;
     const patientivoSource = override?.patientivoSource ?? "nonactive";
+    const patientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(
+        override?.patientivoNominalSuffix
+    );
     let searchQuery = "";
     let hasSearchQuery = false;
     let hasSearchSeparator = false;
@@ -27703,7 +29670,11 @@ function generateWord(options = {}) {
             : getSelectedTenseTab();
     }
     const isTroncoNajActiveWrapperTense = isPotencialTroncoNajActiveTense(tense);
+    const isPatientivoAdjectiveProfile = isPatientivoAdjectiveTense(tense);
     if (isPotencialProfileTense(tense)) {
+        possessivePrefix = "";
+    }
+    if (isPatientivoAdjectiveProfile) {
         possessivePrefix = "";
     }
     if (isTroncoNajActiveWrapperTense) {
@@ -27953,26 +29924,10 @@ function generateWord(options = {}) {
         verb = suppletiveStemSet.imperfective.verb;
         analysisVerb = suppletiveStemSet.imperfective.analysisVerb;
     }
-    const hasPotencialHabitualTransitiveBase = getBaseObjectSlots(parsedVerb) > 0;
     const isPotencialHabitualNominalProfile = isPotencialHabitualTense(tense)
         && resolvedTenseMode === TENSE_MODE.adjetivo
         && resolvedDerivationMode === DERIVATION_MODE.nonactive;
-    if (isPotencialHabitualNominalProfile && !hasPotencialHabitualTransitiveBase) {
-        if (skipValidation) {
-            return {
-                result: "—",
-                error: true,
-                isReflexive,
-            };
-        }
-        const error = returnIfError(
-            "Potencial habitual no activo requiere base transitiva.",
-            ["verb"]
-        );
-        if (error) return error;
-    }
-    const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile
-        && hasPotencialHabitualTransitiveBase;
+    const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile;
     const isPassiveImpersonalMode =
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedVoiceMode === VOICE_MODE.passive)
         || isPotencialHabitualNominalNonactive;
@@ -28021,15 +29976,36 @@ function generateWord(options = {}) {
         isNonactive,
         derivationType: resolvedDerivationType,
     });
-    const getCurrentDerivationOptions = (overrides = {}) => buildNonactiveDerivationOptions({
-        verb: overrides.verb ?? verb,
-        analysisVerb: overrides.analysisVerb ?? analysisVerb,
-        objectPrefix,
-        parsedVerb,
-        directionalPrefix,
-        isYawi: overrides.isYawi ?? isYawi,
-        suppletiveStemSet: overrides.suppletiveStemSet ?? suppletiveStemSet,
-    });
+    const getCurrentDerivationOptions = (overrides = {}) => {
+        const optionVerb = overrides.verb ?? verb;
+        const optionAnalysisVerb = overrides.analysisVerb ?? analysisVerb;
+        const optionIsYawi = overrides.isYawi ?? isYawi;
+        const optionSuppletiveStemSet = overrides.suppletiveStemSet ?? suppletiveStemSet;
+        const reducedPotencialHabitualSource = resolvePotencialHabitualReducedNonactiveSource({
+            parsedVerb,
+            verb: optionVerb,
+            analysisVerb: optionAnalysisVerb,
+            objectPrefix,
+            tense,
+            tenseMode: resolvedTenseMode,
+            derivationMode: resolvedDerivationMode,
+        });
+        return buildNonactiveDerivationOptions({
+            verb: optionVerb,
+            analysisVerb: optionAnalysisVerb,
+            objectPrefix,
+            parsedVerb,
+            directionalPrefix,
+            isYawi: optionIsYawi,
+            suppletiveStemSet: optionSuppletiveStemSet,
+            tense,
+            tenseMode: resolvedTenseMode,
+            derivationMode: resolvedDerivationMode,
+            preferredNonactiveBaseVerb: reducedPotencialHabitualSource?.preferredNonactiveBaseVerb || "",
+            preferredNonactiveSourceMeta: reducedPotencialHabitualSource?.preferredNonactiveSourceMeta || null,
+            preferredNonactiveSourcePrefix: reducedPotencialHabitualSource?.preferredNonactiveSourcePrefix || "",
+        });
+    };
     const forwardDerivations = applyGenerateForwardDerivations({
         resolvedDerivationType,
         buildDerivationOptions: ({ verb, analysisVerb, isYawi, suppletiveStemSet }) => getCurrentDerivationOptions({
@@ -28056,6 +30032,20 @@ function generateWord(options = {}) {
     } = forwardDerivations);
     let causativeAllStems = forwardDerivations.causativeAllStems;
     let applicativeAllStems = forwardDerivations.applicativeAllStems;
+    const forwardStemProvenance = (
+        !isNonactive
+        && resolvedDerivationType === DERIVATION_TYPE.causative
+        && forwardDerivations.causativeSelectionMeta
+    )
+        ? buildForwardDerivationProvenance({
+            sourceVerb: renderVerb,
+            analysisTarget: analysisVerb,
+            tense,
+            derivationType: resolvedDerivationType,
+            isTransitive: getBaseObjectSlots(parsedVerb) > 0,
+            selectedMeta: forwardDerivations.causativeSelectionMeta,
+        })
+        : null;
     const nonactiveDerivation = applyNonactiveDerivationFromOptions({
         isNonactive,
         derivationType: resolvedDerivationType,
@@ -28258,6 +30248,7 @@ function generateWord(options = {}) {
     const isCalificativoInstrumentivo = tense === "calificativo-instrumentivo";
     const isNounTense = isNonanimateNounTense(tense)
         || isPotencialProfileTense(tense)
+        || isPatientivoAdjectiveProfile
         || tense === "agentivo"
         || tense === "patientivo";
     const invalidComboObjectPrefix = resolveComboValidationObjectPrefix({
@@ -28285,6 +30276,24 @@ function generateWord(options = {}) {
             if (error) return error;
         }
         const isTransitiveVerb = getBaseObjectSlots(parsedVerb) > 0;
+        if (
+            resolvedTenseMode === TENSE_MODE.adjetivo
+            && isIntransitiveOnlyActiveAdjectiveTense(tense)
+            && isTransitiveVerb
+        ) {
+            if (skipValidation) {
+                return {
+                    result: "—",
+                    error: true,
+                    isReflexive,
+                };
+            }
+            const error = returnIfError(
+                "Adjetivo pretérito/perfecto solo para verbos intransitivos.",
+                ["verb"]
+            );
+            if (error) return error;
+        }
         const nounCombinedMode = resolvedDerivationMode === DERIVATION_MODE.nonactive
             ? COMBINED_MODE.nonactive
             : COMBINED_MODE.active;
@@ -28361,12 +30370,16 @@ function generateWord(options = {}) {
                         return "Potencial transitivo solo con Ø.";
                     case "adjetivo-preterito":
                     case "adjetivo-perfecto":
+                        return "Adjetivo pretérito/perfecto solo para verbos intransitivos.";
                     case "adjetivo-preterito-tik":
                     case "adjetivo-perfecto-tik":
                         return "Adjetivo activo transitivo solo con ta/te/mu.";
                     case "adjetivo-preterito-naj":
                     case "adjetivo-perfecto-naj":
                         return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
+                    case "adjetivo-patientivo-no-activo":
+                    case "adjetivo-patientivo-perfectivo":
+                        return "Adjetivo patientivo transitivo solo con ta/te/mu o Ø.";
                     case "potencial-habitual":
                         return "Adjetivo no activo transitivo solo con ta/te/mu.";
                     case "pasado-remoto-adverbio-activo":
@@ -28395,6 +30408,9 @@ function generateWord(options = {}) {
                     case "adjetivo-preterito-naj":
                     case "adjetivo-perfecto-naj":
                         return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
+                    case "adjetivo-patientivo-no-activo":
+                    case "adjetivo-patientivo-perfectivo":
+                        return "Adjetivo patientivo intransitivo va sin prefijo.";
                     case "potencial-habitual":
                         return "Adjetivo no activo intransitivo va sin prefijo.";
                     case "pasado-remoto-adverbio-activo":
@@ -28446,6 +30462,9 @@ function generateWord(options = {}) {
                         case "adjetivo-preterito-naj":
                         case "adjetivo-perfecto-naj":
                             return "Adjetivo activo de tronco verbal 2 va sin prefijo.";
+                        case "adjetivo-patientivo-no-activo":
+                        case "adjetivo-patientivo-perfectivo":
+                            return "Adjetivo patientivo intransitivo va sin prefijo.";
                         case "potencial-habitual":
                             return "Adjetivo no activo intransitivo va sin prefijo.";
                         case "pasado-remoto-adverbio-activo":
@@ -28527,8 +30546,10 @@ function generateWord(options = {}) {
         verbSegment: parsedVerb.verbSegment || "",
         patientivoOwnership: override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP,
         patientivoSource,
+        patientivoNominalSuffix,
         derivationType: resolvedDerivationType,
         isNonactiveMode: isNonactive,
+        stemProvenanceSeed: forwardStemProvenance,
     };
     const appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     if (appliedMorphology?.error) {
@@ -28541,8 +30562,13 @@ function generateWord(options = {}) {
             subjectSuffix,
             true,
             patientivoOwnership,
-            { blankPossessiveW: appliedMorphology.patientivoBlankPossessiveW }
+            {
+                stem: verb,
+            }
         );
+        if (subjectSuffix === null) {
+            return { error: true };
+        }
     }
     const alternateForms = (appliedMorphology.alternateForms || []).map((form) => {
         if (!form) {
@@ -28557,10 +30583,12 @@ function generateWord(options = {}) {
                 form.subjectSuffix ?? subjectSuffix,
                 true,
                 patientivoOwnership,
-                { blankPossessiveW: form.blankPossessiveW }
+                {
+                    stem: form.verb,
+                }
             ),
         };
-    });
+    }).filter((form) => form && form.subjectSuffix !== null);
     const stemProvenance = appliedMorphology.stemProvenance || null;
     // Combine the prefixes, verb, and suffixes into a single word
     let forms = [];
@@ -28610,8 +30638,13 @@ function generateWord(options = {}) {
                 localSubjectSuffix,
                 true,
                 patientivoOwnership,
-                { blankPossessiveW: applied.patientivoBlankPossessiveW }
+                {
+                    stem: applied.verb,
+                }
             );
+            if (localSubjectSuffix === null) {
+                return;
+            }
         }
         const localAlternates = applied.alternateForms || [];
         const isYawiImperative =
@@ -28635,9 +30668,14 @@ function generateWord(options = {}) {
                     form.subjectSuffix ?? localSubjectSuffix,
                     true,
                     patientivoOwnership,
-                    { blankPossessiveW: form.blankPossessiveW }
+                    {
+                        stem: form.verb,
+                    }
                 )
                 : (form.subjectSuffix ?? localSubjectSuffix);
+            if (altSuffix === null) {
+                return;
+            }
             const altText = buildWordFromParts({
                 subjectPrefix: localSubjectPrefix,
                 objectPrefix: localObjectPrefix,
@@ -28867,69 +30905,175 @@ function resolveOutputPanelProvenance({
     return null;
 }
 
-function resolvePretExplainabilitySummary(provenance = null, verbMeta = null) {
-    if (!provenance || typeof buildPretUniversalRuleSummary !== "function") {
-        return null;
-    }
-    const tenseValue = String(provenance.tense || "");
-    const shouldSummarize = PRETERITO_UNIVERSAL_ORDER.includes(tenseValue)
-        || PRETERITO_CLASS_TENSES.has(tenseValue);
-    if (!shouldSummarize) {
-        return null;
-    }
-    const sourceVerb = String(provenance.verb || verbMeta?.displayVerb || "");
-    if (!sourceVerb) {
-        return null;
-    }
-    const markerOptions = buildPretMarkerOptionsFromFlags({
-        analysisVerb: verbMeta?.analysisVerb || provenance.analysisTarget || sourceVerb,
-        hasSlashMarker: verbMeta?.hasSlashMarker,
-        hasSuffixSeparator: verbMeta?.hasSuffixSeparator,
-        hasLeadingDash: verbMeta?.hasLeadingDash,
-        hasBoundMarker: verbMeta?.hasBoundMarker,
-        hasCompoundMarker: verbMeta?.hasCompoundMarker,
-    });
-    const analysisTarget = String(
-        provenance.analysisTarget
-        || getDerivationRuleBase(verbMeta?.analysisVerb || sourceVerb, markerOptions)
-        || sourceVerb
-    );
-    const contextOptions = buildPretContextOptionsFromMeta(verbMeta, {
-        derivationType: verbMeta?.derivationType || getActiveDerivationType(),
-        forceClassBOnly: shouldForceClassBOnlyForVerbMode(),
-    });
-    const context = buildPretUniversalContext(
-        sourceVerb,
-        analysisTarget,
-        provenance.isTransitive === true,
-        contextOptions
-    );
-    return context ? buildPretUniversalRuleSummary(context) : null;
-}
-
-function getPretBlockedReasonLabel(reason = "", isNawat = false) {
-    const normalized = String(reason || "").trim();
-    if (!normalized) {
+function buildSurfaceRouteText(sourceBase = "", sourceSuffix = "", outputStem = "") {
+    const normalizedSourceSuffix = normalizeDerivationStemValue(sourceSuffix);
+    const normalizedOutputStem = normalizeDerivationStemValue(outputStem);
+    if (!normalizedSourceSuffix || !normalizedOutputStem) {
         return "";
     }
-    const labelsEs = {
-        "class-b-fallback-to-a-kwv": "clase B redirigida a clase A (kwv)",
-        "class-b-fallback-to-a": "clase B redirigida a clase A",
-        "suppletive-plural-class-blocked": "plural supletivo bloqueado para esta clase",
-        "no-variants": "sin variantes para esta combinacion",
-    };
-    const labelsNa = {
-        "class-b-fallback-to-a-kwv": "clase B tiknektili ka clase A (kwv)",
-        "class-b-fallback-to-a": "clase B tiknektili ka clase A",
-        "suppletive-plural-class-blocked": "plural supletivo tsajkuili ipan in clase",
-        "no-variants": "ajak variantes ipan in nejnemi",
-    };
-    const labels = isNawat ? labelsNa : labelsEs;
-    return labels[normalized] || normalized.replace(/-/g, " ");
+    const normalizedSourceBase = normalizeDerivationStemValue(sourceBase);
+    if (normalizedSourceBase && !normalizedOutputStem.startsWith(normalizedSourceBase)) {
+        return "";
+    }
+    const resultSuffix = normalizedOutputStem.slice(normalizedSourceBase.length);
+    if (!resultSuffix) {
+        return "";
+    }
+    return `${normalizedSourceSuffix} → ${resultSuffix}`;
 }
 
-function renderOutputProvenancePanel({ verb = "", objectPrefix = "", tenseOverride = null } = {}) {
-    const panel = document.getElementById("calc-provenance");
+function getSharedLetterPrefixLength(leftValue = "", rightValue = "") {
+    const leftLetters = splitVerbLetters(normalizeDerivationStemValue(leftValue));
+    const rightLetters = splitVerbLetters(normalizeDerivationStemValue(rightValue));
+    const limit = Math.min(leftLetters.length, rightLetters.length);
+    let index = 0;
+    while (index < limit && leftLetters[index] === rightLetters[index]) {
+        index += 1;
+    }
+    return index;
+}
+
+function getSurfaceFamilyBaseCutIndex(surface = "") {
+    const normalizedSurface = normalizeDerivationStemValue(surface);
+    const letters = splitVerbLetters(normalizedSurface);
+    if (!letters.length) {
+        return 0;
+    }
+    const syllables = splitVerbSyllables(normalizedSurface);
+    if (!syllables.length) {
+        return Math.max(letters.length - 1, 0);
+    }
+    const syllableStartIndexes = [];
+    let cursor = 0;
+    syllables.forEach((syllable) => {
+        syllableStartIndexes.push(cursor);
+        cursor += Array.isArray(syllable?.letters) ? syllable.letters.length : 0;
+    });
+    for (let index = syllables.length - 1; index >= 0; index -= 1) {
+        const syllable = syllables[index];
+        if (!syllable?.nucleus) {
+            continue;
+        }
+        if (syllable.onset) {
+            return syllableStartIndexes[index];
+        }
+        if (index > 0) {
+            const previousSyllable = syllables[index - 1];
+            const previousStart = syllableStartIndexes[index - 1];
+            if (previousSyllable?.nucleus) {
+                if (previousSyllable.coda) {
+                    return previousStart;
+                }
+                return Math.max(previousStart + (previousSyllable.letters?.length || 1) - 1, 0);
+            }
+        }
+        return syllableStartIndexes[index];
+    }
+    return Math.max(letters.length - 1, 0);
+}
+
+function getLetterSliceText(surface = "", startIndex = 0) {
+    const letters = splitVerbLetters(normalizeDerivationStemValue(surface));
+    if (!letters.length) {
+        return "";
+    }
+    const clampedStart = Math.max(0, Math.min(startIndex, letters.length - 1));
+    return letters.slice(clampedStart).join("");
+}
+
+function normalizeDerivationalInputFamilyToken(token = "") {
+    const normalizedToken = normalizeDerivationStemValue(token);
+    if (/^[aeiu]w[ai]$/.test(normalizedToken)) {
+        return normalizedToken.slice(1);
+    }
+    return normalizedToken;
+}
+
+function isSameDerivationalGuidanceRow(left = null, right = null) {
+    if (!left || !right) {
+        return false;
+    }
+    return String(left.stem || "") === String(right.stem || "")
+        && String(left.rule || "") === String(right.rule || "")
+        && String(left.patternType || "") === String(right.patternType || "");
+}
+
+function buildDerivationalFamilySummaryEntries({
+    inputStem = "",
+    rows = [],
+    activeRow = null,
+} = {}) {
+    const normalizedInputStem = normalizeDerivationStemValue(inputStem);
+    const normalizedRows = (Array.isArray(rows) ? rows : [])
+        .filter((row) => normalizeDerivationStemValue(row?.stem || ""));
+    if (!normalizedInputStem || !normalizedRows.length) {
+        return [];
+    }
+    let cutIndex = getSurfaceFamilyBaseCutIndex(normalizedInputStem);
+    normalizedRows.forEach((row) => {
+        cutIndex = Math.min(
+            cutIndex,
+            getSharedLetterPrefixLength(normalizedInputStem, row.stem || "")
+        );
+    });
+    const inputFamily = normalizeDerivationalInputFamilyToken(
+        getLetterSliceText(normalizedInputStem, cutIndex)
+    );
+    if (!inputFamily) {
+        return [];
+    }
+    const entries = [];
+    const seen = new Map();
+    normalizedRows.forEach((row) => {
+        const outputFamily = getLetterSliceText(row.stem || "", cutIndex);
+        if (!outputFamily) {
+            return;
+        }
+        const text = `${inputFamily} → ${outputFamily}`;
+        const existingIndex = seen.get(text);
+        if (typeof existingIndex === "number") {
+            if (isSameDerivationalGuidanceRow(row, activeRow)) {
+                entries[existingIndex].active = true;
+            }
+            return;
+        }
+        seen.set(text, entries.length);
+        entries.push({
+            text,
+            active: isSameDerivationalGuidanceRow(row, activeRow) || (!activeRow && row.preferred === true),
+        });
+    });
+    return entries;
+}
+
+function resolveCurrentDerivationalGuidanceEntries(verb = "", derivationType = "", activeRow = null) {
+    const resolvedVerb = String(verb || "");
+    if (!resolvedVerb) {
+        return [];
+    }
+    const parsedVerb = parseVerbInput(resolvedVerb);
+    if (!parsedVerb) {
+        return [];
+    }
+    const traced = traceDerivationalFunction(resolvedVerb, {
+        includeBothTransitivity: false,
+        isTransitive: getBaseObjectSlots(parsedVerb) > 0,
+    });
+    const normalizedDerivationType = Object.values(DERIVATION_TYPE).includes(derivationType)
+        ? derivationType
+        : DERIVATION_TYPE.direct;
+    const derivationRows = Array.isArray(traced?.[normalizedDerivationType]) ? traced[normalizedDerivationType] : [];
+    const selectedRow = derivationRows.find((row) => row?.preferred) || derivationRows[0] || null;
+    const summaryEntries = buildDerivationalFamilySummaryEntries({
+        inputStem: resolvedVerb,
+        rows: derivationRows,
+        activeRow: activeRow || selectedRow,
+    });
+    return summaryEntries;
+}
+
+function renderOutputGuidancePanel({ verb = "" } = {}) {
+    const panel = document.getElementById("calc-guidance");
     if (!panel) {
         return;
     }
@@ -28939,82 +31083,44 @@ function renderOutputProvenancePanel({ verb = "", objectPrefix = "", tenseOverri
         panel.classList.add("is-empty");
     };
     const resolvedVerb = String(verb || "");
-    if (getActiveTenseMode() !== TENSE_MODE.verbo || !resolvedVerb) {
+    const activeDerivationType = getActiveDerivationType();
+    if (
+        getActiveTenseMode() !== TENSE_MODE.verbo
+        || !resolvedVerb
+        || (
+            activeDerivationType !== DERIVATION_TYPE.causative
+            && activeDerivationType !== DERIVATION_TYPE.applicative
+        )
+        || getCombinedMode() !== COMBINED_MODE.active
+    ) {
         hidePanel();
         return;
     }
     const provenance = resolveOutputPanelProvenance({
         verb: resolvedVerb,
-        objectPrefix,
-        tenseOverride,
+        objectPrefix: getCurrentObjectPrefix(),
+        tenseOverride: getExplainabilitySelectedTense(null),
     });
-    if (!provenance) {
-        hidePanel();
-        return;
-    }
-    const isNawat = Boolean(document.getElementById("language")?.checked);
-    const verbMeta = getVerbInputMeta();
-    const summary = resolvePretExplainabilitySummary(provenance, verbMeta);
-    const entries = [];
-    if (summary?.ruleLabel) {
-        entries.push({
-            label: isNawat ? "regla" : "regla",
-            text: summary.ruleLabel,
-        });
-    }
-    if (summary?.exactLabel) {
-        entries.push({
-            label: isNawat ? "patron" : "patron",
-            text: summary.exactLabel,
-        });
-    }
-    const classLabel = String(
-        provenance.classKey
-        || summary?.resolvedClassList
-        || summary?.classList
-        || ""
-    ).trim();
-    if (classLabel) {
-        entries.push({
-            label: isNawat ? "clase" : "clase",
-            text: classLabel,
-        });
-    }
-    if (provenance.stemPath) {
-        entries.push({
-            label: isNawat ? "ruta" : "ruta",
-            text: String(provenance.stemPath),
-        });
-    }
-    if (provenance.fromRootPlusYa) {
-        entries.push({
-            label: isNawat ? "origen" : "origen",
-            text: "root+ya",
-        });
-    }
-    if (provenance.usesSuppletiveSet) {
-        entries.push({
-            label: isNawat ? "fuente" : "fuente",
-            text: "supletivo",
-        });
-    }
-    if (provenance.blockedReason) {
-        entries.push({
-            label: isNawat ? "ajuste" : "ajuste",
-            text: getPretBlockedReasonLabel(provenance.blockedReason, isNawat),
-        });
-    }
-    const variants = Array.isArray(provenance.variants)
-        ? provenance.variants
-            .map((variant) => `${variant?.base || ""}${variant?.suffix || ""}`)
-            .filter(Boolean)
-        : [];
-    if (variants.length) {
-        entries.push({
-            label: isNawat ? "bases" : "bases",
-            text: variants.slice(0, 3).join(" / "),
-        });
-    }
+    const activeRow = (provenance && (
+        provenance.rule
+        || provenance.causativeTrace
+        || provenance.guidanceRoute
+    ))
+        ? {
+            rule: provenance.rule,
+            patternType: provenance.patternType,
+            causativeTrace: provenance.causativeTrace,
+            guidanceRoute: provenance.guidanceRoute || null,
+            stem: Array.isArray(provenance.variants) && provenance.variants[0]
+                ? `${provenance.variants[0].base || ""}${provenance.variants[0].suffix || ""}`
+                : "",
+        }
+        : null;
+    const entries = resolveCurrentDerivationalGuidanceEntries(
+        resolvedVerb,
+        activeDerivationType,
+        activeRow,
+    );
     if (!entries.length) {
         hidePanel();
         return;
@@ -29023,28 +31129,26 @@ function renderOutputProvenancePanel({ verb = "", objectPrefix = "", tenseOverri
     panel.hidden = false;
     panel.classList.remove("is-empty");
     const title = document.createElement("div");
-    title.className = "calc-provenance__title";
-    title.textContent = isNawat ? "ken muchij in forma" : "por que esta forma";
+    title.className = "calc-guidance__title";
+    title.textContent = "rutas";
     panel.appendChild(title);
+    const chips = document.createElement("div");
+    chips.className = "calc-guidance__chips";
     entries.forEach((entry) => {
-        const item = document.createElement("div");
-        item.className = "calc-provenance__item";
-        const label = document.createElement("div");
-        label.className = "calc-provenance__label";
-        label.textContent = entry.label;
-        const text = document.createElement("div");
-        text.className = "calc-provenance__text";
-        text.textContent = entry.text;
-        item.appendChild(label);
-        item.appendChild(text);
-        panel.appendChild(item);
+        const chip = document.createElement("div");
+        chip.className = entry.active
+            ? "calc-guidance__chip calc-guidance__chip--active"
+            : "calc-guidance__chip";
+        chip.textContent = entry.text;
+        chips.appendChild(chip);
     });
+    panel.appendChild(chips);
 }
 
 function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
     const tenseOverride = onlyTense || tense || "";
     updateTensePanelDescription();
-    renderOutputProvenancePanel({ verb, objectPrefix, tenseOverride });
+    renderOutputGuidancePanel({ verb });
     if (isNominalTenseMode(getActiveTenseMode())) {
         clearUnifiedVerbOutputDataset();
         renderNounConjugations({
@@ -29164,7 +31268,7 @@ function renderNonactiveConjugationRows({
     if (forceImpersonal) {
         buildNonactiveRow(
             getNonactivePersonLabel("", { isIntransitive: true, isNawat }),
-            "",
+            getNonactivePersonSub("", isNawat),
             ""
         );
         return;
@@ -29172,7 +31276,7 @@ function renderNonactiveConjugationRows({
     if (isIntransitiveOnly) {
         buildNonactiveRow(
             getNonactivePersonLabel("", { isIntransitive: true, isNawat }),
-            "",
+            getNonactivePersonSub("", isNawat),
             ""
         );
         return;
@@ -30296,9 +32400,12 @@ function buildVerbTenseBlock({
     tenseBlock.appendChild(list);
     if (isNonactiveMode) {
         const isIntransitiveOnly = prefixes.length === 1 && prefixes[0] === "";
-        titleLabel.textContent = isIntransitiveOnly
+        const nonactiveBaseLabel = isIntransitiveOnly
             ? impersonalLabel
             : (isDirectGroup ? passiveLabel : impersonalLabel);
+        titleLabel.textContent = valencyLabel
+            ? `${nonactiveBaseLabel} · ${valencyLabel}`
+            : nonactiveBaseLabel;
         setActivePrefix(activeObjectPrefix, { render: false });
         if (setActivePassiveSubject) {
             setActivePassiveSubject(activePassiveSubject, { render: false });
@@ -30516,6 +32623,7 @@ function buildToggleControl({
     getActiveId,
     stacked = true,
     toggleClassName = "",
+    allowDeselect = false,
 }) {
     const toggle = document.createElement("div");
     toggle.className = stacked
@@ -30547,15 +32655,25 @@ function buildToggleControl({
             const resolvedActiveId = typeof getActiveId === "function"
                 ? getActiveId()
                 : activeId;
-            if (isToggleLockEnabled() && resolvedActiveId === option.id) {
-                setToggleLockEnabled(false, {
-                    resetToDefaults: true,
-                    persist: true,
-                    refreshUi: true,
+            if (allowDeselect && resolvedActiveId === option.id) {
+                preserveViewportAnchorPosition(button, () => {
+                    onSelect(null);
                 });
                 return;
             }
-            onSelect(option.id);
+            if (isToggleLockEnabled() && resolvedActiveId === option.id) {
+                preserveViewportAnchorPosition(button, () => {
+                    setToggleLockEnabled(false, {
+                        resetToDefaults: true,
+                        persist: true,
+                        refreshUi: true,
+                    });
+                });
+                return;
+            }
+            preserveViewportAnchorPosition(button, () => {
+                onSelect(option.id);
+            });
         });
         buttons.set(option.id, button);
         toggle.appendChild(button);
@@ -30722,13 +32840,16 @@ function renderVerbConjugationsCore({
 }) {
     const selectedCombinedMode = getCombinedMode();
     const sourceScope = getVerbSourceScope();
-    const modesToRender = getActiveTenseMode() !== TENSE_MODE.verbo
+    const isSimpleUi = getActiveUiDensityMode() === UI_DENSITY_MODE.simple;
+    const modesToRender = isSimpleUi
+        ? [COMBINED_MODE.active]
+        : (getActiveTenseMode() !== TENSE_MODE.verbo
         ? [selectedCombinedMode]
         : (sourceScope === VERB_SOURCE_SCOPE.active
             ? [COMBINED_MODE.active]
             : (sourceScope === VERB_SOURCE_SCOPE.nonactive
                 ? [COMBINED_MODE.nonactive]
-                : [COMBINED_MODE.active, COMBINED_MODE.nonactive]));
+                : [COMBINED_MODE.active, COMBINED_MODE.nonactive])));
     const contextByMode = new Map();
     modesToRender.forEach((mode) => {
         const modeContext = buildVerbTabRenderContext({
@@ -31499,6 +33620,8 @@ function renderLocativoTemporalConjugations({
                     },
                     getActiveId: () => activeNonactivePrimary,
                 });
+                primaryToggle.dataset.toggleType = "meta";
+                primaryToggle.dataset.toggleSlot = "nonactive-primary";
                 primaryButtons = buttons;
                 titleControls.appendChild(primaryToggle);
             }
@@ -31520,6 +33643,8 @@ function renderLocativoTemporalConjugations({
                     },
                     getActiveId: () => activePossessor,
                 });
+                possessorToggle.dataset.toggleType = "meta";
+                possessorToggle.dataset.toggleSlot = "possessor";
                 possessorButtons = buttons;
                 titleControls.appendChild(possessorToggle);
             }
@@ -31553,6 +33678,8 @@ function renderLocativoTemporalConjugations({
                     },
                     getActiveId: () => slotState.activeId,
                 });
+                objectToggle.dataset.toggleType = "object";
+                objectToggle.dataset.toggleSlot = slotState.id;
                 slotButtonsById.set(slotState.id, buttons);
                 titleControls.appendChild(objectToggle);
             });
@@ -31619,13 +33746,19 @@ function buildNounTabRenderContext({
     const isInstrumentivo = resolvedTense === "instrumentivo";
     const isCalificativoInstrumentivo = resolvedTense === "calificativo-instrumentivo";
     const isPotencial = isPotencialProfileTense(resolvedTense);
+    const isPatientivoAdjective = isPatientivoAdjectiveTense(resolvedTense);
     const isSubjectlessTense = isSubjectlessNominalTense(resolvedTense);
     const isPossessionSplit = isNounPossessionSplitTense(resolvedTense);
     const isPotencialHabitual = isPotencialHabitualTense(resolvedTense);
+    const nominalControlCombinedMode = getResolvedNominalCombinedModeForTense(
+        resolvedTense,
+        combinedMode,
+    );
     const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
     const groupKey = prefixes.join("|");
     const possessorKey = `noun|${resolvedTense}|${groupKey}|possessor`;
     const ownershipKey = getPatientivoOwnershipKey(groupKey);
+    const patientivoNominalSuffixKey = getPatientivoNominalSuffixKey(groupKey);
     const objectStateKey = getObjectStateKey({ groupKey, tenseValue: resolvedTense, mode: "noun" });
     const subjectKey = `noun|${resolvedTense}|${groupKey}`;
     const verbMeta = getParsedVerbForTab("noun", verb);
@@ -31644,6 +33777,7 @@ function buildNounTabRenderContext({
         tenseValue: resolvedTense,
         baseObjectStateKey: objectStateKey,
         isNawat,
+        combinedMode: nominalControlCombinedMode,
     });
     const nounObjectSlotStates = nounObjectSlotBundle.slotStates;
     const primaryObjectSlot = nounObjectSlotStates.find((slot) => slot.id === "object") || null;
@@ -31657,6 +33791,7 @@ function buildNounTabRenderContext({
         : new Map(objectOptions.map((entry) => [entry.id, entry]));
     const possessorValues = POSSESSIVE_PREFIXES.map((entry) => entry.value);
     const visiblePossessorValues = isPotencial
+        || isPatientivoAdjective
         ? [""]
         : (isPossessionSplit
         ? (
@@ -31681,11 +33816,19 @@ function buildNounTabRenderContext({
     }
     const ownershipOptions = PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id);
     let activeOwnership = getToggleStateValue(PATIENTIVO_OWNERSHIP_STATE, ownershipKey);
-    if (!ownershipOptions.includes(activeOwnership)) {
-        activeOwnership = DEFAULT_PATIENTIVO_OWNERSHIP;
+    if (activeOwnership !== null && !ownershipOptions.includes(activeOwnership)) {
+        activeOwnership = null;
+    }
+    const patientivoNominalSuffixOptions = PATIENTIVO_NOMINAL_SUFFIX_OPTIONS.map((entry) => entry.id);
+    let activePatientivoNominalSuffix = getPatientivoNominalSuffixToggleValue(
+        getToggleStateValue(PATIENTIVO_NOMINAL_SUFFIX_STATE, patientivoNominalSuffixKey, null)
+    );
+    if (!patientivoNominalSuffixOptions.includes(activePatientivoNominalSuffix)) {
+        activePatientivoNominalSuffix = null;
     }
     if (resolvedTense !== "patientivo") {
-        activeOwnership = DEFAULT_PATIENTIVO_OWNERSHIP;
+        activeOwnership = null;
+        activePatientivoNominalSuffix = null;
     }
     const isSubjectOptionAllowed = (entry) => (
         !showNonanimateOnly
@@ -31694,7 +33837,14 @@ function buildNounTabRenderContext({
     );
     const showSubjectToggle = !showNonanimateOnly && !isSubjectlessTense;
     const showObjectToggle = nounObjectSlotStates.some((slot) => slot.showToggle);
-    const showPossessorToggle = visiblePossessorValues.length > 1;
+    const hasImplicitAbsolutePossessor = visiblePossessorValues.includes("");
+    const explicitPossessorToggleValues = hasImplicitAbsolutePossessor
+        ? visiblePossessorValues.filter((value) => value)
+        : visiblePossessorValues;
+    const showPossessorToggle = hasImplicitAbsolutePossessor
+        ? explicitPossessorToggleValues.length > 0
+        : explicitPossessorToggleValues.length > 1;
+    const showPatientivoPossessionControls = resolvedTense === "patientivo" && Boolean(activePossessor);
     const defaultSubjectId = getDefaultNounSubjectId(subjectOptions);
     let activeSubject = getToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, defaultSubjectId)
         ?? defaultSubjectId;
@@ -31716,6 +33866,7 @@ function buildNounTabRenderContext({
         showNonanimateOnly,
         possessorKey,
         ownershipKey,
+        patientivoNominalSuffixKey,
         objectStateKey,
         subjectKey,
         subjectOptions,
@@ -31727,7 +33878,10 @@ function buildNounTabRenderContext({
         nounObjectSlotStates,
         nounObjectSlotSummary: nounObjectSlotBundle,
         visiblePossessorValues,
+        explicitPossessorToggleValues,
+        hasImplicitAbsolutePossessor,
         activeOwnership,
+        activePatientivoNominalSuffix,
         activeObjectPrefix,
         activePossessor,
         activeSubject,
@@ -31735,7 +33889,8 @@ function buildNounTabRenderContext({
         showSubjectToggle,
         showObjectToggle,
         showPossessorToggle,
-        showOwnershipToggle: resolvedTense === "patientivo",
+        showOwnershipToggle: showPatientivoPossessionControls,
+        showPatientivoNominalSuffixToggle: resolvedTense === "patientivo",
     };
 }
 
@@ -31770,6 +33925,7 @@ function renderNounConjugations({
         showNonanimateOnly,
         possessorKey,
         ownershipKey,
+        patientivoNominalSuffixKey,
         objectStateKey,
         subjectKey,
         subjectOptions,
@@ -31780,15 +33936,20 @@ function renderNounConjugations({
         nounObjectSlotStates,
         nounObjectSlotSummary,
         visiblePossessorValues,
+        explicitPossessorToggleValues,
+        hasImplicitAbsolutePossessor,
         activeOwnership,
+        activePatientivoNominalSuffix: initialPatientivoNominalSuffix,
         isSubjectOptionAllowed,
         showSubjectToggle,
         showObjectToggle,
         showPossessorToggle,
         showOwnershipToggle,
+        showPatientivoNominalSuffixToggle,
     } = context;
     let { activeObjectPrefix, activePossessor, activeSubject } = context;
     let activePatientivoOwnership = activeOwnership;
+    let activePatientivoNominalSuffix = initialPatientivoNominalSuffix;
     const mutableNounObjectSlots = nounObjectSlotStates.map((slot) => ({ ...slot }));
     const nounObjectSlotStateById = new Map(mutableNounObjectSlots.map((slot) => [slot.id, slot]));
     const nounObjectToggleButtonsById = new Map();
@@ -31813,15 +33974,14 @@ function renderNounConjugations({
         if (isPossessionSplit) {
             return null;
         }
-        if (isPotencialProfileTense(resolvedTense)) {
-            return isActiveAdjectiveTabTense(resolvedTense)
-                ? COMBINED_MODE.active
-                : COMBINED_MODE.nonactive;
-        }
-        return COMBINED_MODE.active;
+        return getResolvedNominalCombinedModeForTense(resolvedTense, COMBINED_MODE.active);
     })();
     const isPatientivoTense = resolvedTense === "patientivo";
-    const hasNounControls = showSubjectToggle || showPossessorToggle || showOwnershipToggle || showObjectToggle;
+    const hasNounControls = showSubjectToggle
+        || showPossessorToggle
+        || showOwnershipToggle
+        || showPatientivoNominalSuffixToggle
+        || showObjectToggle;
     const useSharedPatientivoControls = isPatientivoTense && hasNounControls;
     const defaultNominalSourceMode = getNominalSourceModeForTense(resolvedTense);
     const blockConfigs = isPatientivoTense
@@ -31892,6 +34052,7 @@ function renderNounConjugations({
     let toggleButtons = new Map();
     let possessorButtons = new Map();
     let ownershipButtons = new Map();
+    let patientivoNominalSuffixButtons = new Map();
     let subjectButtons = new Map();
     const blocks = [];
     const resolveNounBlockPaletteSignature = () => {
@@ -32015,16 +34176,12 @@ function renderNounConjugations({
         if (isSubjectlessTense) {
             return [subjectlessSelection];
         }
-        let selections = getSubjectPersonSelections();
+        let selections = getNominalSubjectSelectionEntries({
+            mode: getActiveTenseMode(),
+            tenseValue: resolvedTense,
+        });
         if (subjectId !== SUBJECT_TOGGLE_ALL) {
-            const activeEntry = subjectOptionMap.get(subjectId);
-            if (!activeEntry) {
-                return [];
-            }
-            selections = selections.filter(({ selection }) => (
-                selection.subjectPrefix === activeEntry.subjectPrefix
-                && selection.subjectSuffix === activeEntry.subjectSuffix
-            ));
+            selections = selections.filter((entry) => entry.toggleId === subjectId);
         }
         if (showNonanimateOnly) {
             selections = selections.filter(({ selection }) => (
@@ -32075,12 +34232,23 @@ function renderNounConjugations({
         };
     };
     const resolveNounBlockSourceMeta = (entry = {}) => {
+        const resolvedSourceMode = entry.sourceMode ?? defaultNominalSourceMode;
+        const labelSlotSummary = getNounObjectSlotSummary(verbMeta, resolvedTense, {
+            combinedMode: resolvedSourceMode,
+        });
+        const labelValency = Number.isFinite(labelSlotSummary?.availableObjectSlots)
+            ? Math.max(1, Number(labelSlotSummary.availableObjectSlots) + 1)
+            : null;
         if (resolvedTense === "instrumentivo") {
-            return resolveInstrumentivoHeaderSourceMeta();
+            return {
+                ...resolveInstrumentivoHeaderSourceMeta(),
+                labelValency,
+            };
         }
         return {
-            sourceMode: entry.sourceMode ?? defaultNominalSourceMode,
+            sourceMode: resolvedSourceMode,
             sourceTenseLabel: entry.sourceTenseLabel || "",
+            labelValency,
         };
     };
     const resolveNounBlockTitleText = (entry = {}) => {
@@ -32089,7 +34257,10 @@ function renderNounConjugations({
             entry.label || "",
             meta.sourceMode,
             isNawat,
-            { sourceTenseLabel: meta.sourceTenseLabel }
+            {
+                sourceTenseLabel: meta.sourceTenseLabel,
+                labelValency: meta.labelValency,
+            }
         );
     };
     const refreshNounBlockTitles = () => {
@@ -32133,13 +34304,22 @@ function renderNounConjugations({
         thirdObjectMarker = "",
         patientivoSource = null,
         patientivoOwnership = activePatientivoOwnership,
+        patientivoNominalSuffix = activePatientivoNominalSuffix,
+        useReduplicatedSingularSurface = false,
     }) => {
         const isAgentivo = resolvedTense === "agentivo";
         const isPatientivo = resolvedTense === "patientivo";
         const resolvedPatientivoSource = isPatientivo
             ? (patientivoSource || "nonactive")
             : null;
-        const resolvedPatientivoOwnership = patientivoOwnership || DEFAULT_PATIENTIVO_OWNERSHIP;
+        const ownershipSelections = (
+            isPatientivo
+            && possessorPrefix !== ""
+            && (patientivoOwnership === null || patientivoOwnership === undefined || patientivoOwnership === "")
+        )
+            ? PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => entry.id)
+            : [patientivoOwnership || DEFAULT_PATIENTIVO_OWNERSHIP];
+        const resolvedPatientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
         const cacheKey = [
             selection.subjectPrefix || "",
             selection.subjectSuffix || "",
@@ -32149,7 +34329,9 @@ function renderNounConjugations({
             indirectObjectMarker || "",
             thirdObjectMarker || "",
             resolvedPatientivoSource || "",
-            resolvedPatientivoOwnership || "",
+            ownershipSelections.join(","),
+            resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix,
+            useReduplicatedSingularSurface ? "redup" : "plain",
         ].join("|");
         const cached = nounCombinationEvaluationCache.get(cacheKey);
         if (cached) {
@@ -32157,77 +34339,123 @@ function renderNounConjugations({
         }
         const isPossessed = possessorPrefix !== "";
         let subjectSuffixOverride = "";
+        const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
+        if (isAdjectiveMode) {
+            subjectSuffixOverride = selection?.subjectSuffix || "";
+        }
         if ((isAgentivo || isPatientivo) && number === "plural") {
             subjectSuffixOverride = isPossessed ? "p" : "t";
         }
-        let result = {};
-        if (isInstrumentivo) {
-            const instrumentivoMode = possessorPrefix === ""
-                ? INSTRUMENTIVO_MODE.absolutivo
-                : INSTRUMENTIVO_MODE.posesivo;
-            result = getInstrumentivoResult({
-                rawVerb: verb,
-                verbMeta,
-                subjectPrefix: selection.subjectPrefix,
-                subjectSuffix: selection.subjectSuffix,
-                objectPrefix,
-                indirectObjectMarker,
-                thirdObjectMarker,
-                mode: instrumentivoMode,
-                possessivePrefix: possessorPrefix,
-            }) || {};
-        } else if (isCalificativoInstrumentivo) {
-            result = getCalificativoInstrumentivoResult({
-                rawVerb: verb,
-                verbMeta,
-                subjectPrefix: selection.subjectPrefix,
-                subjectSuffix: selection.subjectSuffix,
-                objectPrefix,
-                indirectObjectMarker,
-                thirdObjectMarker,
-                possessivePrefix: possessorPrefix,
-            }) || {};
-        } else {
-            result = getCachedSilentGenerateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
+        const evaluateForOwnership = (resolvedPatientivoOwnership) => {
+            let result = {};
+            if (isInstrumentivo) {
+                const instrumentivoMode = possessorPrefix === ""
+                    ? INSTRUMENTIVO_MODE.absolutivo
+                    : INSTRUMENTIVO_MODE.posesivo;
+                result = getInstrumentivoResult({
+                    rawVerb: verb,
+                    verbMeta,
                     subjectPrefix: selection.subjectPrefix,
-                    subjectSuffix: subjectSuffixOverride,
+                    subjectSuffix: selection.subjectSuffix,
                     objectPrefix,
                     indirectObjectMarker,
                     thirdObjectMarker,
-                    verb,
-                    tense: tenseValue,
+                    mode: instrumentivoMode,
                     possessivePrefix: possessorPrefix,
-                    patientivoOwnership: resolvedPatientivoOwnership,
-                    patientivoSource: resolvedPatientivoSource,
-                },
-            }) || {};
-        }
-        const maskState = getConjugationMaskState({
-            result,
-            subjectPrefix: selection.subjectPrefix,
-            subjectSuffix: selection.subjectSuffix,
-            objectPrefix,
-            possessivePrefix: possessorPrefix,
-            indirectObjectMarker,
-            derivationType: nounObjectSlotSummary.derivationType,
-            comboObjectPrefix: undefined,
-            requireDistinctPossessor: isAgentivo || isPatientivo,
-            enforceInvalidCombo: true,
-        });
-        const valence4Violation = mutableNounObjectSlots.length >= 3
-            && !isValidValence4Combo({
+                }) || {};
+            } else if (isCalificativoInstrumentivo) {
+                result = getCalificativoInstrumentivoResult({
+                    rawVerb: verb,
+                    verbMeta,
+                    subjectPrefix: selection.subjectPrefix,
+                    subjectSuffix: selection.subjectSuffix,
+                    objectPrefix,
+                    indirectObjectMarker,
+                    thirdObjectMarker,
+                    possessivePrefix: possessorPrefix,
+                }) || {};
+            } else {
+                const nominalDerivationMode = getNominalDerivationModeForTense(tenseValue);
+                result = getCachedSilentGenerateWord({
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        subjectPrefix: selection.subjectPrefix,
+                        subjectSuffix: subjectSuffixOverride,
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        verb,
+                        tense: tenseValue,
+                        derivationMode: nominalDerivationMode,
+                        possessivePrefix: possessorPrefix,
+                        patientivoOwnership: resolvedPatientivoOwnership,
+                        patientivoSource: resolvedPatientivoSource,
+                        patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
+                    },
+                }) || {};
+                if (useReduplicatedSingularSurface && result?.result) {
+                    const prefixChain = buildPrefixedChain({
+                        subjectPrefix: selection.subjectPrefix,
+                        possessivePrefix: possessorPrefix,
+                        objectPrefix: composeProjectiveObjectPrefix({
+                            objectPrefix,
+                            markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+                            subjectPrefix: selection.subjectPrefix,
+                        }),
+                        verb: "",
+                    });
+                    result = {
+                        ...result,
+                        result: reduplicateConjugationDisplay(result.result, { prefixChain }),
+                    };
+                }
+            }
+            const maskState = getConjugationMaskState({
+                result,
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: selection.subjectSuffix,
                 objectPrefix,
+                possessivePrefix: possessorPrefix,
                 indirectObjectMarker,
-                thirdObjectMarker,
+                derivationType: nounObjectSlotSummary.derivationType,
+                comboObjectPrefix: undefined,
+                requireDistinctPossessor: isAgentivo || isPatientivo,
+                enforceInvalidCombo: !useReduplicatedSingularSurface,
             });
-        const evaluation = {
-            result,
-            shouldMaskRow: maskState.shouldMask || valence4Violation,
-            isErrorRow: maskState.isError || valence4Violation,
+            const valence4Violation = mutableNounObjectSlots.length >= 3
+                && !isValidValence4Combo({
+                    objectPrefix,
+                    indirectObjectMarker,
+                    thirdObjectMarker,
+                });
+            return {
+                result,
+                shouldMaskRow: maskState.shouldMask || valence4Violation,
+                isErrorRow: maskState.isError || valence4Violation,
+            };
         };
+        const evaluations = ownershipSelections.map((ownership) => evaluateForOwnership(ownership));
+        const visibleEvaluations = evaluations.filter((entry) => !entry.shouldMaskRow && entry.result?.result);
+        const evaluation = visibleEvaluations.length
+            ? {
+                result: {
+                    ...visibleEvaluations[0].result,
+                    result: Array.from(new Set(
+                        visibleEvaluations.flatMap((entry) => String(entry.result?.result || "")
+                            .split(/\s*\/\s*/g)
+                            .map((form) => form.trim())
+                            .filter(Boolean))
+                    )).join(" / "),
+                },
+                shouldMaskRow: false,
+                isErrorRow: false,
+            }
+            : (evaluations[0] || {
+                result: {},
+                shouldMaskRow: true,
+                isErrorRow: true,
+            });
         nounCombinationEvaluationCache.set(cacheKey, evaluation);
         return evaluation;
     };
@@ -32236,6 +34464,7 @@ function renderNounConjugations({
         possessorSelections,
         objectSlotModels,
         patientivoOwnership = activePatientivoOwnership,
+        patientivoNominalSuffix = activePatientivoNominalSuffix,
     }) => {
         const memoKey = [
             subjectSelections.map(({ selection, number }) => (
@@ -32246,6 +34475,7 @@ function renderNounConjugations({
                 `${slotModel.id}:${(slotModel.values || []).join(",")}`
             )).join(";"),
             patientivoOwnership || "",
+            getPatientivoNominalSuffixCacheToken(patientivoNominalSuffix),
             nounAvailabilityPatientivoSources.join(","),
         ].join("|");
         if (nounToggleAvailabilityMemo.has(memoKey)) {
@@ -32261,7 +34491,7 @@ function renderNounConjugations({
                 const objectPrefix = selectedBySlot.object || "";
                 const indirectObjectMarker = selectedBySlot.object2 || "";
                 const thirdObjectMarker = selectedBySlot.object3 || "";
-                subjectSelections.forEach(({ selection, number }) => {
+                subjectSelections.forEach(({ selection, number, useReduplicatedSingularSurface }) => {
                     possessorSelections.forEach((possessorPrefix) => {
                         const evaluation = evaluateNounCombinationState({
                             selection,
@@ -32272,6 +34502,8 @@ function renderNounConjugations({
                             thirdObjectMarker,
                             patientivoSource: source,
                             patientivoOwnership,
+                            patientivoNominalSuffix,
+                            useReduplicatedSingularSurface,
                         });
                         summary.hasAnyCombination = true;
                         if (evaluation.shouldMaskRow) {
@@ -32291,6 +34523,10 @@ function renderNounConjugations({
         subjectButtons.forEach((button) => clearToggleAvailabilityClasses(button));
         possessorButtons.forEach((button) => clearToggleAvailabilityClasses(button));
         ownershipButtons.forEach((button) => clearToggleAvailabilityClasses(button));
+        patientivoNominalSuffixButtons.forEach((button) => {
+            clearToggleAvailabilityClasses(button);
+            button.disabled = false;
+        });
         nounObjectToggleButtonsById.forEach((slotButtons) => {
             slotButtons.forEach((button) => clearToggleAvailabilityClasses(button));
         });
@@ -32360,6 +34596,22 @@ function renderNounConjugations({
                 applySelectedAvailabilityClass(button, state, ownershipId === activePatientivoOwnership);
             });
         }
+        if (patientivoNominalSuffixButtons.size) {
+            const activeObjectSlotModels = buildNounObjectSlotModelsForState();
+            patientivoNominalSuffixButtons.forEach((button, suffixId) => {
+                const normalizedSuffix = normalizePatientivoNominalSuffixSelection(suffixId);
+                const state = resolveNounToggleAvailabilityState({
+                    subjectSelections: activeSubjectSelections,
+                    possessorSelections: activePossessorSelections,
+                    objectSlotModels: activeObjectSlotModels,
+                    patientivoOwnership: activePatientivoOwnership,
+                    patientivoNominalSuffix: normalizedSuffix,
+                });
+                applyToggleAvailabilityClass(button, state);
+                applySelectedAvailabilityClass(button, state, suffixId === activePatientivoNominalSuffix);
+                button.disabled = state === "impossible";
+            });
+        }
     };
 
     const buildNounTitleControls = () => {
@@ -32372,6 +34624,7 @@ function renderNounConjugations({
         toggleButtons = new Map();
         possessorButtons = new Map();
         ownershipButtons = new Map();
+        patientivoNominalSuffixButtons = new Map();
         subjectButtons = new Map();
         nounObjectToggleButtonsById.clear();
         if (showSubjectToggle) {
@@ -32386,15 +34639,17 @@ function renderNounConjugations({
                 getIsDisabled: (entry) => !isSubjectOptionAllowed(entry),
                 getActiveId: () => activeSubject,
             });
+            subjectToggle.dataset.toggleType = "subject";
+            subjectToggle.dataset.toggleSlot = "subject";
             subjectButtons = buttons;
             titleControls.appendChild(subjectToggle);
         }
         if (showPossessorToggle) {
             const possessorOptions = [
                 { id: OBJECT_TOGGLE_ALL, label: allToggleLabel, value: OBJECT_TOGGLE_ALL },
-                ...visiblePossessorValues.map((value) => ({
+                ...explicitPossessorToggleValues.map((value) => ({
                     id: value,
-                    label: value ? value : "Ø",
+                    label: value,
                     value,
                     title: getPossessorPersonLabel(value, isNawat),
                 })),
@@ -32408,11 +34663,16 @@ function renderNounConjugations({
                 },
                 getTitle: (entry) => entry.title,
                 getActiveId: () => activePossessor,
+                allowDeselect: hasImplicitAbsolutePossessor,
             });
+            possessorToggle.dataset.toggleType = "meta";
+            possessorToggle.dataset.toggleSlot = "possessor";
             possessorButtons = buttons;
             titleControls.appendChild(possessorToggle);
         } else {
-            activePossessor = visiblePossessorValues[0] ?? "";
+            activePossessor = hasImplicitAbsolutePossessor
+                ? ""
+                : (explicitPossessorToggleValues[0] ?? visiblePossessorValues[0] ?? "");
         }
         if (showOwnershipToggle) {
             const ownershipToggleOptions = PATIENTIVO_OWNERSHIP_OPTIONS.map((entry) => ({
@@ -32437,9 +34697,34 @@ function renderNounConjugations({
                 getActiveId: () => activePatientivoOwnership,
                 stacked: false,
                 toggleClassName: "object-toggle--ownership-corner",
+                allowDeselect: true,
             });
+            ownershipToggle.dataset.toggleType = "meta";
+            ownershipToggle.dataset.toggleSlot = "ownership";
             ownershipButtons = buttons;
             titleControls.appendChild(ownershipToggle);
+        }
+        if (showPatientivoNominalSuffixToggle) {
+            const patientivoNominalSuffixToggleOptions = PATIENTIVO_NOMINAL_SUFFIX_OPTIONS.map((entry) => ({
+                ...entry,
+            }));
+            const { toggle: patientivoNominalSuffixToggle, buttons } = buildToggleControl({
+                options: patientivoNominalSuffixToggleOptions,
+                activeId: activePatientivoNominalSuffix,
+                ariaLabel: getToggleLabel("suffix", isNawat, "Sufijo"),
+                onSelect: (id) => {
+                    setActivePatientivoNominalSuffix(id);
+                },
+                getTitle: (entry) => entry.title,
+                getActiveId: () => activePatientivoNominalSuffix,
+                stacked: false,
+                toggleClassName: "object-toggle--patientivo-suffix-corner",
+                allowDeselect: true,
+            });
+            patientivoNominalSuffixToggle.dataset.toggleType = "meta";
+            patientivoNominalSuffixToggle.dataset.toggleSlot = "patientivo-suffix";
+            patientivoNominalSuffixButtons = buttons;
+            titleControls.appendChild(patientivoNominalSuffixToggle);
         }
         if (showObjectToggle) {
             mutableNounObjectSlots.forEach((slotState, index) => {
@@ -32458,6 +34743,8 @@ function renderNounConjugations({
                     },
                     getActiveId: () => slotState.activeId,
                 });
+                objectToggle.dataset.toggleType = "object";
+                objectToggle.dataset.toggleSlot = slotState.id;
                 if (slotState.id === "object") {
                     toggleButtons = buttons;
                 }
@@ -32479,10 +34766,10 @@ function renderNounConjugations({
         controlsTitle.appendChild(controlsLabel);
         const controls = buildNounTitleControls();
         if (controls) {
-            const ownershipToggle = controls.querySelector(".object-toggle--ownership-corner");
-            if (ownershipToggle) {
-                controlsTitle.appendChild(ownershipToggle);
-            }
+            controls.querySelectorAll(".object-toggle--ownership-corner, .object-toggle--patientivo-suffix-corner")
+                .forEach((control) => {
+                    controlsTitle.appendChild(control);
+                });
         }
         controlsBlock.appendChild(controlsTitle);
         if (controls) {
@@ -32566,7 +34853,15 @@ function renderNounConjugations({
             const objectPrefix = selectedBySlot.object || "";
             const indirectObjectMarker = selectedBySlot.object2 || "";
             const thirdObjectMarker = selectedBySlot.object3 || "";
-            selections.forEach(({ group, selection, number }) => {
+            selections.forEach((subjectEntry) => {
+                const {
+                    group,
+                    selection,
+                    displaySelection = selection,
+                    displayPersonSubLabel = "",
+                    number,
+                    useReduplicatedSingularSurface = false,
+                } = subjectEntry;
                 possessorSelections.forEach((possessorPrefix) => {
                     const row = document.createElement("div");
                     row.className = "conjugation-row";
@@ -32576,18 +34871,22 @@ function renderNounConjugations({
                     label.className = "conjugation-label";
                     const personLabel = document.createElement("div");
                     personLabel.className = "person-label";
-                    personLabel.textContent = selection
-                        ? getSubjectPersonLabel(group, selection, isNawat)
+                    personLabel.textContent = displaySelection
+                        ? getSubjectPersonLabel(group, displaySelection, isNawat)
                         : "";
                     const personSub = document.createElement("div");
                     personSub.className = "person-sub";
-                    const basePersonSub = selection
-                        ? getSubjectSubLabel(selection, {
-                            isNawat,
-                            mode: "noun",
-                            tenseValue: resolvedTense,
-                        })
-                        : "";
+                    const basePersonSub = displayPersonSubLabel
+                        ? getLocalizedLabel(displayPersonSubLabel, isNawat, "")
+                        : (
+                            displaySelection
+                                ? getSubjectSubLabel(displaySelection, {
+                                    isNawat,
+                                    mode: "noun",
+                                    tenseValue: resolvedTense,
+                                })
+                                : ""
+                        );
                     const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
                     const suppressZeroObjectLabel = isPotencialProfileTense(resolvedTense);
                     const isDummyImpersonalRow = combinedMode === COMBINED_MODE.nonactive
@@ -32616,6 +34915,8 @@ function renderNounConjugations({
                         thirdObjectMarker,
                         patientivoSource,
                         patientivoOwnership: activePatientivoOwnership,
+                        patientivoNominalSuffix: activePatientivoNominalSuffix,
+                        useReduplicatedSingularSurface,
                     });
                     personSub.textContent = buildPersonSub({
                         subjectLabel: basePersonSub,
@@ -32680,10 +34981,21 @@ function renderNounConjugations({
     };
 
     const setActivePossessor = (prefix) => {
-        activePossessor = prefix;
-        setToggleStateValue(POSSESSOR_TOGGLE_STATE, possessorKey, prefix, { syncLock: true });
+        const hadPossessor = Boolean(activePossessor);
+        const resolvedPrefix = typeof prefix === "string" ? prefix : "";
+        activePossessor = resolvedPrefix;
+        setToggleStateValue(POSSESSOR_TOGGLE_STATE, possessorKey, resolvedPrefix, { syncLock: true });
+        const hasPossessor = Boolean(resolvedPrefix);
+        if (resolvedTense === "patientivo" && hadPossessor !== hasPossessor) {
+            renderNounConjugations({
+                verb,
+                containerId,
+                tenseValue: resolvedTense,
+            });
+            return;
+        }
         possessorButtons.forEach((button, key) => {
-            const isActive = key === prefix;
+            const isActive = key === resolvedPrefix;
             button.classList.toggle("is-active", isActive);
             button.setAttribute("aria-pressed", String(isActive));
         });
@@ -32698,6 +35010,14 @@ function renderNounConjugations({
         });
         setToggleActiveState(ownershipButtons, ownership);
         updateNounBlockPalettes();
+        renderRows();
+    };
+    const setActivePatientivoNominalSuffix = (suffix) => {
+        activePatientivoNominalSuffix = getPatientivoNominalSuffixToggleValue(suffix);
+        setToggleStateValue(PATIENTIVO_NOMINAL_SUFFIX_STATE, patientivoNominalSuffixKey, activePatientivoNominalSuffix, {
+            syncLock: true,
+        });
+        setToggleActiveState(patientivoNominalSuffixButtons, activePatientivoNominalSuffix);
         renderRows();
     };
     const setActiveSubject = (subjectId) => {
@@ -36731,16 +39051,40 @@ async function installDeveloperHooksIfEnabled() {
 // Keyboard navigation (kept minimal now that radios are removed)
 document.addEventListener("keydown", (event) => {
     const verbEl = document.getElementById("verb");
+    const activeElement = document.activeElement;
     if (handleVerbTextboxTabShortcut(event)) {
         return;
     }
     if (!event.altKey && !event.ctrlKey && !event.metaKey && event.key === "Escape") {
-        LAST_COMPOSER_ESCAPE_TS = 0;
         LAST_COMPOSER_SPACE_TS = 0;
         if (closeEscapeManagedOverlay(event)) {
+            LAST_COMPOSER_ESCAPE_TS = 0;
             event.preventDefault();
             return;
         }
+    }
+    const isDeleteLikeKey = event.key === "Backspace" || event.key === "Delete";
+    if (
+        isDeleteLikeKey
+        && !event.ctrlKey
+        && !event.metaKey
+        && !shouldLetNativeDeleteBehavior(activeElement)
+    ) {
+        LAST_COMPOSER_ESCAPE_TS = 0;
+        LAST_COMPOSER_SPACE_TS = 0;
+        if (event.altKey) {
+            runScreenCalculatorAC();
+            event.preventDefault();
+            return;
+        }
+        if (event.shiftKey) {
+            runScreenCalculatorCE();
+            event.preventDefault();
+            return;
+        }
+        runScreenCalculatorDEL();
+        event.preventDefault();
+        return;
     }
     if (event.altKey && !event.ctrlKey && !event.metaKey) {
         const altNavKey = event.key;
@@ -36836,7 +39180,6 @@ document.addEventListener("keydown", (event) => {
         }
     }
     if (!event.altKey && !event.ctrlKey && !event.metaKey && event.key === " ") {
-        const activeElement = document.activeElement;
         if (shouldLetNativeSpaceBehavior(activeElement)) {
             LAST_COMPOSER_ESCAPE_TS = 0;
             LAST_COMPOSER_SPACE_TS = 0;
@@ -36866,7 +39209,6 @@ document.addEventListener("keydown", (event) => {
             return;
         }
     } else if (event.key === "Enter") {
-        const activeElement = document.activeElement;
         if (shouldLetNativeEnterSelectControl(activeElement)) {
             LAST_COMPOSER_ESCAPE_TS = 0;
             LAST_COMPOSER_SPACE_TS = 0;
