@@ -22164,14 +22164,18 @@ function getExactPatternLabels(context) {
     if (!context) {
         return [];
     }
-    const labels = new Set();
-    for (let i = 0; i < PRET_EXACT_PATTERN_LABELS.length; i += 1) {
-        const entry = PRET_EXACT_PATTERN_LABELS[i];
-        if (context[entry.key]) {
-            labels.add(entry.label);
-        }
+    const descriptorState = context.descriptorState || {};
+    const exactDescriptors = Array.isArray(descriptorState.exactDescriptors)
+        ? descriptorState.exactDescriptors
+        : [];
+    if (typeof formatPretDescriptorLabel === "function") {
+        return exactDescriptors
+            .map((descriptor) => formatPretDescriptorLabel(descriptor, {
+                activeRightEdgeProfile: context.rightEdgeProfile,
+            }))
+            .filter(Boolean);
     }
-    return Array.from(labels);
+    return [];
 }
 
 function getPretClassSignatureFromParsed(parsedVerb) {

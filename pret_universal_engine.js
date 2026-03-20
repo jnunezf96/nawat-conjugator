@@ -3,8 +3,9 @@
 function buildPretUniversalClassC(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
-    const allowExactCVV = context.isTransitive && context.isExactCVV;
-    const allowExactVV = !context.isTransitive && context.isExactVV;
+    const patterns = createPretDescriptorMatcher(context);
+    const allowExactCVV = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvv);
+    const allowExactVV = !context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vv);
     if (!context.endsInOpenSyllableNonU && !(allowExactCVV || allowExactVV)) {
         return null;
     }
@@ -21,7 +22,8 @@ function buildPretUniversalClassC(context) {
 }
 
 function buildPretUniversalClassD(context) {
-    if (context.isTransitive && context.isExactVwaI) {
+    const patterns = createPretDescriptorMatcher(context);
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwaI)) {
         const base = `${context.verb}j`;
         if (!isSyllableSequencePronounceable(base)) {
             return null;
@@ -74,9 +76,47 @@ function isSlashDenominalRootPlusYaMatrix(context) {
     );
 }
 
+function createPretDescriptorMatcher(context) {
+    const descriptorState = context?.descriptorState || {};
+    const exactDescriptors = Array.isArray(descriptorState.exactDescriptors)
+        ? descriptorState.exactDescriptors
+        : [];
+    const aggregateDescriptors = Array.isArray(descriptorState.aggregateDescriptors)
+        ? descriptorState.aggregateDescriptors
+        : [];
+
+    return {
+        hasExact(query) {
+            return pretDescriptorListHasQuery(exactDescriptors, query);
+        },
+        hasAggregate(query) {
+            return pretDescriptorListHasQuery(aggregateDescriptors, query);
+        },
+        hasExactEndingFamily(endingFamily) {
+            return pretDescriptorListHasQuery(exactDescriptors, { endingFamily });
+        },
+        hasAggregateEndingFamily(endingFamily) {
+            return pretDescriptorListHasQuery(aggregateDescriptors, { endingFamily });
+        },
+        hasExactModifier(modifier, options = {}) {
+            return pretDescriptorListHasQuery(exactDescriptors, {
+                endingFamily: options.endingFamily || "",
+                modifiers: [modifier],
+            });
+        },
+        hasAggregateModifier(modifier, options = {}) {
+            return pretDescriptorListHasQuery(aggregateDescriptors, {
+                endingFamily: options.endingFamily || "",
+                modifiers: [modifier],
+            });
+        },
+    };
+}
+
 function buildPretUniversalClassA(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
+    const patterns = createPretDescriptorMatcher(context);
     if (!context.isTransitive && context.fromRootPlusYa) {
         if (isSlashDenominalRootPlusYaMatrix(context)) {
             return null;
@@ -106,56 +146,46 @@ function buildPretUniversalClassA(context) {
     }
     let allowZeroSuffix = context.totalVowels > 2;
     let allowKiSuffix = true;
-    if (!context.isTransitive && context.isExactCVniU) {
+    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvniU)) {
         return null;
     }
     const isIntransitiveWiKiOnly = !context.isTransitive && (
-        context.isExactVwi
-        || (context.isExactVCVwi && !context.supportiveInitialI)
-        || context.isExactVjCVwi
-        || context.isExactVlVwi
-        || context.isExactCVlVwi
+        patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwi)
+        || (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vcvwi) && !context.supportiveInitialI)
+        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvwi)
+        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlvwi)
+        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlvwi)
     );
     const allowIntransitiveChiClassA = !context.isTransitive && context.endsWithChi;
     const isExactLVIKiOnly = !context.endsWithLV
         && context.lastNucleus === "i"
-        && (context.isExactVlV || context.isExactCVlV);
-    const isIntransitiveLWaKiOnly = !context.isTransitive && context.isExactLWaPattern;
-    const isEwaKiOnly = context.isTransitive && context.isExactCewa;
+        && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlv) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlv));
+    const isIntransitiveLWaKiOnly = !context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern);
+    const isEwaKiOnly = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cewa);
     const isTransitiveVwaKiOnly = context.isTransitive
-        && context.isExactVwa
-        && !context.isExactVwaI;
+        && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwa)
+        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwaI);
     const isEwaAllowZero = context.isTransitive
-        && context.isExactEwaPattern
-        && !context.isExactCewa;
-    const isTransitiveCawa = context.isTransitive && context.isExactCVwaA;
-    const isTransitiveCVwaI = context.isTransitive && context.isExactCVwaI;
+        && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern)
+        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cewa);
+    const isTransitiveCawa = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwaA);
+    const isTransitiveCVwaI = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwaI);
     const isTransitiveCawaZeroOnly = isTransitiveCawa && context.hasSlashMarker;
     const isTransitiveCawaAllowZero = isTransitiveCawa && context.isReduplicated;
     const isTransitiveCawaKiOnly = isTransitiveCawa
         && !isTransitiveCawaZeroOnly
         && !isTransitiveCawaAllowZero;
     const isTransitiveAwaAllowZero = context.isTransitive
-        && (context.isExactCVCawa || context.isExactCVlawa);
-    const isTransitiveCVwi = context.isTransitive && context.isExactCVwi;
+        && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcawa) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlawa));
+    const isTransitiveCVwi = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwi);
     const isTransitiveMV = context.isTransitive && context.endsWithMV && !context.isMonosyllable;
-    const isTransitiveExactCVCVna = context.isTransitive && context.isExactCVCVna;
+    const isTransitiveExactCVCVna = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvna);
     const isTransitiveCVnaAllowZero = context.isTransitive
-        && context.isExactCVna
+        && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)
         && (context.isReduplicated || context.isBitransitive);
     const isTransitiveExactNi = context.isTransitive
-        && !context.isExactCVnV
-        && (
-            context.isExactCVni
-            || context.isExactCVCVni
-            || context.isExactCVlVni
-            || context.isExactVjCVni
-            || context.isExactCVVni
-            || context.isExactCVCVCVni
-            || context.isExactCVCCVCVni
-            || context.isExactCVCVCVCVni
-            || context.isExactLongNi
-        );
+        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvnV)
+        && patterns.hasExactEndingFamily("n+i");
     const isTransitiveTaRedupCVCV = context.isTransitive
         && context.endsWithTA
         && context.isReduplicatedCVCV
@@ -167,16 +197,16 @@ function buildPretUniversalClassA(context) {
         && context.isDenominalMatrixInput
         && context.isDenominalWiMatrix
         && context.denominalSourceEndsWithVowel;
-    if (context.isExactCVsV) {
+    if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV)) {
         allowZeroSuffix = false;
     }
-    if (context.isTransitive && context.isExactCVpV) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvpV)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
     if (
         !context.isTransitive
-        && (context.isExactWaPattern || context.isExactLWaPattern)
+        && (patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.waPattern) || patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern))
         && !isEwaAllowZero
     ) {
         allowZeroSuffix = false;
@@ -222,7 +252,7 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = false;
     }
     if (!context.isTransitive && context.endsWithNA) {
-        if (context.totalVowels <= 2 && !context.isExactCVna) {
+        if (context.totalVowels <= 2 && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)) {
             return null;
         }
         allowZeroSuffix = false;
@@ -233,18 +263,18 @@ function buildPretUniversalClassA(context) {
     if (!context.isTransitive && context.endsWithCVnV) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.isExactCVlVni) {
+    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlvni)) {
         allowZeroSuffix = false;
     }
-    if (context.isTransitive && context.isExactVnV) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vnV)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.isExactCVnV) {
-        if (context.isExactCVna) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvnV)) {
+        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
-        } else if (context.isExactCVni) {
+        } else if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvni)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
         } else {
@@ -252,11 +282,11 @@ function buildPretUniversalClassA(context) {
             allowKiSuffix = !context.isReduplicated;
         }
     }
-    if (context.isTransitive && context.isExactVjCVna) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvna)) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.isExactVlCVna) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlcvna)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -272,8 +302,8 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.isExactCVmV) {
-        if (context.isExactCVma) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvmV)) {
+        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvma)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
         } else {
@@ -281,7 +311,7 @@ function buildPretUniversalClassA(context) {
             allowKiSuffix = !context.isReduplicated;
         }
     }
-    if (context.isTransitive && context.isExactVjCVma) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvma)) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
@@ -293,7 +323,7 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = false;
     }
     if (!context.forceClassAForKWV) {
-        const allowIntransitiveWiVtV = !context.isTransitive && context.isExactWiPattern;
+        const allowIntransitiveWiVtV = !context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern);
         if (
             (context.isMonosyllable && !context.endsWithTV && !isDenominalWiVowelSourceClassA) ||
             (
@@ -337,11 +367,11 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && (context.isExactVjCVwa || context.isExactVlCVwa)) {
+    if (context.isTransitive && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvwa) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlcvwa))) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.isExactCVjCVwa) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvjcvwa)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -359,7 +389,7 @@ function buildPretUniversalClassA(context) {
     }
     if (
         !context.isTransitive
-        && context.isExactWiPattern
+        && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern)
         && context.isReduplicated
         && !isIntransitiveWiKiOnly
     ) {
@@ -370,7 +400,7 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = context.isReduplicated;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.isExactCVCVwi) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwi)) {
         allowZeroSuffix = true;
         allowKiSuffix = false;
     }
@@ -409,12 +439,12 @@ function buildPretUniversalClassA(context) {
         : getPerfectiveAlternationStems(context.verb, {
             isTransitive: context.isTransitive,
         });
-    if (context.isTransitive && context.isExactVCCawa) {
+    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vccawa)) {
         deletedStems = deletedStems.filter((base) => !base.endsWith("j"));
     }
     if (
         context.isTransitive
-        && context.isExactKawa
+        && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.kawa)
         && !(context.isReduplicated || context.hasSlashMarker)
     ) {
         deletedStems = deletedStems.filter((base) => !base.endsWith("j"));
@@ -437,6 +467,7 @@ function buildPretUniversalClassA(context) {
 function buildPretUniversalClassB(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
+    const patterns = createPretDescriptorMatcher(context);
     if (!context.isTransitive && context.fromRootPlusYa) {
         if (isSlashDenominalRootPlusYaMatrix(context)) {
             const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context) || context.verb || "";
@@ -490,43 +521,25 @@ function buildPretUniversalClassB(context) {
         }
         return variants;
     }
-    const isExactNaPattern = context.isExactVna
-        || context.isExactCVna
-        || context.isExactCVCVna
-        || context.isExactCVlVna
-        || context.isExactCVCCVna
-        || context.isExactCVCVCVna
-        || context.isExactCVCCVCVna
-        || context.isExactLongNa;
-    const isExactNiPattern = context.isExactCVni
-        || context.isExactCVCVni
-        || context.isExactCVlVni
-        || context.isExactVjCVni
-        || context.isExactCVVni
-        || context.isExactCVCVCVni
-        || context.isExactCVCCVCVni
-        || context.isExactCVCVCVCVni
-        || context.isExactLongNi;
-    const isExactNiaPattern = context.isExactCVnia
-        || context.isExactCVCVnia
-        || context.isExactCVlVnia
-        || context.isExactVjCVnia;
+    const isExactNaPattern = patterns.hasExactEndingFamily("n+a");
+    const isExactNiPattern = patterns.hasExactEndingFamily("n+i");
+    const isExactNiaPattern = patterns.hasExactEndingFamily("n+ia");
     if (context.isTransitive && (isExactNaPattern || isExactNiPattern || isExactNiaPattern)) {
         return null;
     }
-    if (!context.isTransitive && context.isExactCVCVCVna) {
+    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvcvna)) {
         return null;
     }
-    if (!context.isTransitive && context.isExactWaPattern) {
-        if (context.isExactCuwa) {
+    if (!context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.waPattern)) {
+        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cuwa)) {
             return [{ base: context.verb, suffix: "k" }];
         }
-        if (context.isReduplicated || !context.isExactCVCVwa) {
+        if (context.isReduplicated || !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa)) {
             return null;
         }
         return [{ base: context.verb, suffix: "k" }];
     }
-    if (context.isExactCVsV && !context.endsWithU) {
+    if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV) && !context.endsWithU) {
         if (context.lastNucleus !== "i" || context.isTransitive) {
             return null;
         }
@@ -1034,6 +1047,7 @@ function getKVClassPolicy({
     hasClassB,
     allowAllClasses = false,
 }) {
+    const patterns = createPretDescriptorMatcher(context);
     const isRootPlusYaIntransitive = !!(context && !context.isTransitive && context.fromRootPlusYa);
     const isTVEnding = !!(context && context.endsWithTV);
     const mvSource = context?.analysisVerb || context?.verb || "";
@@ -1059,9 +1073,9 @@ function getKVClassPolicy({
         && context
         && !isTransitive
         && (
-            (context.isExactCVCVwa && !context.isReduplicated)
-            || context.isExactLWaPattern
-            || context.isExactCVna
+            (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa) && !context.isReduplicated)
+            || patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern)
+            || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)
         );
     const baseMaskClassB = !allowAllClasses
         && classFilter === "B"
@@ -1136,6 +1150,49 @@ function buildForcedClassBPolicyResult(isPreterit) {
     };
 }
 
+function buildPretOpenClassPolicyResult(isPreterit) {
+    return buildPretClassPolicyResult(isPreterit, {
+        shouldMaskClassBSelection: false,
+        shouldSkipClassA: false,
+        shouldSkipClassB: false,
+    });
+}
+
+function buildPretSkipClassBPolicyResult(isPreterit, classFilter) {
+    return buildPretClassPolicyResult(isPreterit, {
+        shouldMaskClassBSelection: classFilter === "B",
+        shouldSkipClassA: false,
+        shouldSkipClassB: true,
+    });
+}
+
+function isPretPolicyPreteritSingular(ruleContext) {
+    return Boolean(ruleContext?.isPreterit && ruleContext?.subjectSuffix !== "t");
+}
+
+function applyPretSkipClassBState(state, ruleContext) {
+    const next = makePretClassPolicyState(state);
+    next.shouldSkipClassB = true;
+    if (ruleContext?.classFilter === "B") {
+        next.shouldMaskClassBSelection = true;
+    }
+    return next;
+}
+
+function applyPretPreferClassBState(state, ruleContext) {
+    const next = makePretClassPolicyState(state);
+    next.shouldSkipClassA = Boolean(ruleContext?.hasClassB);
+    next.shouldSkipClassB = false;
+    next.shouldMaskClassBSelection = false;
+    return next;
+}
+
+function applyPretSingularElseSkipClassBState(state, ruleContext) {
+    return isPretPolicyPreteritSingular(ruleContext)
+        ? applyPretPreferClassBState(state, ruleContext)
+        : applyPretSkipClassBState(state, ruleContext);
+}
+
 function applyPretClassPolicyRulePipeline({
     state,
     ruleContext,
@@ -1179,6 +1236,7 @@ function resolvePretClassPolicy({
     subjectSuffix = "",
 }) {
     const isPreterit = tense === "preterito";
+    const patterns = createPretDescriptorMatcher(context);
     const forceClassBOnly = Array.isArray(context?.verbOverride?.classes)
         && context.verbOverride.classes.length === 1
         && context.verbOverride.classes[0] === "B";
@@ -1218,19 +1276,19 @@ function resolvePretClassPolicy({
         ),
         isWiPattern: Boolean(
             context
-            && context.isExactWiPattern
+            && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern)
             && !context.isTransitive
             && !context.fromRootPlusYa
         ),
         isCVliPattern: Boolean(
             context
             && !context.isTransitive
-            && (context.isExactCVlV || context.isExactVlV || context.endsWithLV)
+            && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlv) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlv) || context.endsWithLV)
             && context.lastNucleus === "i"
         ),
         isCVpVPattern: Boolean(
             context
-            && context.isExactCVpV
+            && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvpV)
             && !context.isTransitive
         ),
         isIntransitivePiPattern: Boolean(
@@ -1241,7 +1299,7 @@ function resolvePretClassPolicy({
         ),
         isCVVniPattern: Boolean(
             context
-            && context.isExactCVVni
+            && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvvni)
             && !context.isTransitive
         ),
     };
@@ -1276,18 +1334,8 @@ function resolvePretClassPolicy({
             run: (ctx) => ({
                 terminal: true,
                 policy: ctx.isPreterit
-                    ? {
-                        isPreterit: ctx.isPreterit,
-                        shouldMaskClassBSelection: false,
-                        shouldSkipClassA: false,
-                        shouldSkipClassB: false,
-                    }
-                    : {
-                        isPreterit: ctx.isPreterit,
-                        shouldMaskClassBSelection: ctx.classFilter === "B",
-                        shouldSkipClassA: false,
-                        shouldSkipClassB: true,
-                    },
+                    ? buildPretOpenClassPolicyResult(ctx.isPreterit)
+                    : buildPretSkipClassBPolicyResult(ctx.isPreterit, ctx.classFilter),
             }),
         },
         {
@@ -1300,105 +1348,50 @@ function resolvePretClassPolicy({
                         policy: buildForcedClassBPolicyResult(ctx.isPreterit),
                     };
                 }
-                const next = makePretClassPolicyState(currentState);
                 const isReduplicated = ctx.context.isReduplicated;
-                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
-                const isPreteritPlural = ctx.isPreterit && ctx.subjectSuffix === "t";
                 if (isReduplicated) {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
-                } else if (isPreteritSingular) {
-                    next.shouldSkipClassA = ctx.hasClassB;
-                } else if (isPreteritPlural) {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
-                } else {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
+                    return { state: applyPretSkipClassBState(currentState, ctx) };
                 }
-                return { state: next };
+                return { state: applyPretSingularElseSkipClassBState(currentState, ctx) };
             },
         },
         {
             name: "cvli-pattern",
             when: (ctx) => ctx.isCVliPattern,
             run: (ctx, currentState) => {
-                const next = makePretClassPolicyState(currentState);
                 const penult = ctx.context.penultimateNucleus;
-                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
                 if (penult === "e") {
-                    next.shouldSkipClassA = true;
-                    next.shouldSkipClassB = false;
-                    next.shouldMaskClassBSelection = false;
+                    return { state: applyPretPreferClassBState(currentState, ctx) };
                 } else if (penult === "u") {
-                    if (isPreteritSingular) {
-                        next.shouldSkipClassA = true;
-                        next.shouldSkipClassB = false;
-                        next.shouldMaskClassBSelection = false;
-                    } else {
-                        next.shouldSkipClassB = true;
-                        next.shouldMaskClassBSelection = next.shouldMaskClassBSelection || ctx.classFilter === "B";
-                    }
+                    return {
+                        state: isPretPolicyPreteritSingular(ctx)
+                            ? applyPretPreferClassBState(currentState, ctx)
+                            : applyPretSkipClassBState(currentState, ctx),
+                    };
                 }
-                return { state: next };
+                return { state: makePretClassPolicyState(currentState) };
             },
         },
         {
             name: "cvpv-pattern",
             when: (ctx) => ctx.isCVpVPattern,
-            run: (ctx, currentState) => {
-                const next = makePretClassPolicyState(currentState);
-                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
-                if (isPreteritSingular) {
-                    next.shouldSkipClassA = ctx.hasClassB;
-                } else {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
-                }
-                return { state: next };
-            },
+            run: (ctx, currentState) => ({
+                state: applyPretSingularElseSkipClassBState(currentState, ctx),
+            }),
         },
         {
             name: "intransitive-pi-pattern",
             when: (ctx) => ctx.isIntransitivePiPattern,
-            run: (ctx, currentState) => {
-                const next = makePretClassPolicyState(currentState);
-                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
-                if (isPreteritSingular) {
-                    next.shouldSkipClassA = ctx.hasClassB;
-                } else {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
-                }
-                return { state: next };
-            },
+            run: (ctx, currentState) => ({
+                state: applyPretSingularElseSkipClassBState(currentState, ctx),
+            }),
         },
         {
             name: "cvvni-pattern",
             when: (ctx) => ctx.isCVVniPattern,
-            run: (ctx, currentState) => {
-                const next = makePretClassPolicyState(currentState);
-                const isPreteritSingular = ctx.isPreterit && ctx.subjectSuffix !== "t";
-                if (isPreteritSingular) {
-                    next.shouldSkipClassA = ctx.hasClassB;
-                } else {
-                    next.shouldSkipClassB = true;
-                    if (ctx.classFilter === "B") {
-                        next.shouldMaskClassBSelection = true;
-                    }
-                }
-                return { state: next };
-            },
+            run: (ctx, currentState) => ({
+                state: applyPretSingularElseSkipClassBState(currentState, ctx),
+            }),
         },
     ];
     return applyPretClassPolicyRulePipeline({
@@ -1758,9 +1751,10 @@ function buildPretUniversalResultWithProvenance({
         if (!isTransitive && !context.fromRootPlusYa) {
             const mvSource = context.analysisVerb || context.verb || "";
             const isMVEnding = context.endsWithMV || /m[ai]$/.test(mvSource);
+            const patterns = createPretDescriptorMatcher(context);
             const allowClassBWithA = (
-                (context.isExactCVsV && context.lastNucleus === "i")
-                || context.isExactCVCVwa
+                (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV) && context.lastNucleus === "i")
+                || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa)
             ) && !isTransitive && !context.isReduplicated;
             if (candidates.has("A") && hasClassAVariants && !isMVEnding && !allowClassBWithA) {
                 blockedReason = "class-b-fallback-to-a";
