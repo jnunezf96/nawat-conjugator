@@ -4,12 +4,24 @@ function buildPretUniversalClassC(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
     const patterns = createPretDescriptorMatcher(context);
-    const allowExactCVV = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvv);
-    const allowExactVV = !context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vv);
-    if (!context.endsInOpenSyllableNonU && !(allowExactCVV || allowExactVV)) {
+    const allowShapeCVV = context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvv);
+    const allowShapeVV = !context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vv);
+    if (!context.endsInOpenSyllableNonU && !(allowShapeCVV || allowShapeVV)) {
         return null;
     }
-    if (context.vowelCount !== 2 || (!context.endsWithIaUa && !allowExactCVV && !allowExactVV)) {
+    if (
+        context.vowelCount !== 2
+        || (
+            !pretContextHasRightEdge(context, {
+                finalForm: "V",
+                finalNucleus: "a",
+                previousHasCoda: false,
+                previousNuclei: ["i", "u"],
+            })
+            && !allowShapeCVV
+            && !allowShapeVV
+        )
+    ) {
         return null;
     }
     const replaced = getPerfectiveReplacementStem(context.verb, {
@@ -23,7 +35,7 @@ function buildPretUniversalClassC(context) {
 
 function buildPretUniversalClassD(context) {
     const patterns = createPretDescriptorMatcher(context);
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwaI)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vwaI)) {
         const base = `${context.verb}j`;
         if (!isSyllableSequencePronounceable(base)) {
             return null;
@@ -76,39 +88,52 @@ function isSlashDenominalRootPlusYaMatrix(context) {
     );
 }
 
+function createPretDescriptorTierMatcher(descriptors = []) {
+    return Object.freeze({
+        has(query) {
+            return pretDescriptorListHasQuery(descriptors, query);
+        },
+        hasEndingFamily(endingFamily) {
+            return pretDescriptorListHasQuery(descriptors, { endingFamily });
+        },
+        hasModifier(modifier, options = {}) {
+            return pretDescriptorListHasQuery(descriptors, {
+                endingFamily: options.endingFamily || "",
+                modifiers: [modifier],
+            });
+        },
+    });
+}
+
 function createPretDescriptorMatcher(context) {
     const descriptorState = context?.descriptorState || {};
-    const exactDescriptors = Array.isArray(descriptorState.exactDescriptors)
-        ? descriptorState.exactDescriptors
+    const shapeDescriptors = Array.isArray(descriptorState.shapeDescriptors)
+        ? descriptorState.shapeDescriptors
         : [];
     const aggregateDescriptors = Array.isArray(descriptorState.aggregateDescriptors)
         ? descriptorState.aggregateDescriptors
         : [];
+    const shape = createPretDescriptorTierMatcher(shapeDescriptors);
+    const aggregate = createPretDescriptorTierMatcher(aggregateDescriptors);
 
     return {
-        hasExact(query) {
-            return pretDescriptorListHasQuery(exactDescriptors, query);
+        hasShape(query) {
+            return shape.has(query);
         },
         hasAggregate(query) {
-            return pretDescriptorListHasQuery(aggregateDescriptors, query);
+            return aggregate.has(query);
         },
-        hasExactEndingFamily(endingFamily) {
-            return pretDescriptorListHasQuery(exactDescriptors, { endingFamily });
+        hasShapeEndingFamily(endingFamily) {
+            return shape.hasEndingFamily(endingFamily);
         },
         hasAggregateEndingFamily(endingFamily) {
-            return pretDescriptorListHasQuery(aggregateDescriptors, { endingFamily });
+            return aggregate.hasEndingFamily(endingFamily);
         },
-        hasExactModifier(modifier, options = {}) {
-            return pretDescriptorListHasQuery(exactDescriptors, {
-                endingFamily: options.endingFamily || "",
-                modifiers: [modifier],
-            });
+        hasShapeModifier(modifier, options = {}) {
+            return shape.hasModifier(modifier, options);
         },
         hasAggregateModifier(modifier, options = {}) {
-            return pretDescriptorListHasQuery(aggregateDescriptors, {
-                endingFamily: options.endingFamily || "",
-                modifiers: [modifier],
-            });
+            return aggregate.hasModifier(modifier, options);
         },
     };
 }
@@ -117,6 +142,11 @@ function buildPretUniversalClassA(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
     const patterns = createPretDescriptorMatcher(context);
+    const hasRightEdge = (query = {}) => pretContextHasRightEdge(context, query);
+    const hasAnyRightEdge = (queries = []) => pretContextHasAnyRightEdge(context, queries);
+    const rightEdgeDescriptor = context?.rightEdgeDescriptor || {};
+    const finalOnset = rightEdgeDescriptor.finalOnset || "";
+    const finalNucleus = rightEdgeDescriptor.finalNucleus || "";
     if (!context.isTransitive && context.fromRootPlusYa) {
         if (isSlashDenominalRootPlusYaMatrix(context)) {
             return null;
@@ -146,48 +176,51 @@ function buildPretUniversalClassA(context) {
     }
     let allowZeroSuffix = context.totalVowels > 2;
     let allowKiSuffix = true;
-    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvniU)) {
+    if (!context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvniU)) {
         return null;
     }
     const isIntransitiveWiKiOnly = !context.isTransitive && (
-        patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwi)
-        || (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vcvwi) && !context.supportiveInitialI)
-        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvwi)
-        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlvwi)
-        || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlvwi)
+        patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vwi)
+        || (pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiV_CV_CV) && !context.supportiveInitialI)
+        || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvwi)
+        || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlvwi)
+        || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvlvwi)
     );
-    const allowIntransitiveChiClassA = !context.isTransitive && context.endsWithChi;
-    const isExactLVIKiOnly = !context.endsWithLV
+    const allowIntransitiveChiClassA = !context.isTransitive && hasRightEdge({ endingFamily: "ch+i" });
+    const isShapeLVIKiOnly = !hasAnyRightEdge([{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }])
         && context.lastNucleus === "i"
-        && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlv) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlv));
+        && (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlv) || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvlv));
     const isIntransitiveLWaKiOnly = !context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern);
-    const isEwaKiOnly = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cewa);
+    const isEwaKiOnly = context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cewa);
     const isTransitiveVwaKiOnly = context.isTransitive
-        && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwa)
-        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vwaI);
+        && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vwa)
+        && !patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vwaI);
     const isEwaAllowZero = context.isTransitive
         && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern)
-        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cewa);
-    const isTransitiveCawa = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwaA);
-    const isTransitiveCVwaI = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwaI);
+        && !patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cewa);
+    const isTransitiveCawa = context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvwaA);
+    const isTransitiveCVwaI = context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvwaI);
     const isTransitiveCawaZeroOnly = isTransitiveCawa && context.hasSlashMarker;
     const isTransitiveCawaAllowZero = isTransitiveCawa && context.isReduplicated;
     const isTransitiveCawaKiOnly = isTransitiveCawa
         && !isTransitiveCawaZeroOnly
         && !isTransitiveCawaAllowZero;
     const isTransitiveAwaAllowZero = context.isTransitive
-        && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcawa) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlawa));
-    const isTransitiveCVwi = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvwi);
-    const isTransitiveMV = context.isTransitive && context.endsWithMV && !context.isMonosyllable;
-    const isTransitiveExactCVCVna = context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvna);
+        && (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvcawa) || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvlawa));
+    const isTransitiveCVwi = context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvwi);
+    const isTransitiveMV = context.isTransitive
+        && !context.isMonosyllable
+        && hasRightEdge({ finalOnset: "m", finalNuclei: ["a", "i"] });
+    const isTransitiveShapeCVCVna = context.isTransitive
+        && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV);
     const isTransitiveCVnaAllowZero = context.isTransitive
-        && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)
+        && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvna)
         && (context.isReduplicated || context.isBitransitive);
-    const isTransitiveExactNi = context.isTransitive
-        && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvnV)
-        && patterns.hasExactEndingFamily("n+i");
+    const isTransitiveShapeNi = context.isTransitive
+        && !patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvnV)
+        && patterns.hasShapeEndingFamily("n+i");
     const isTransitiveTaRedupCVCV = context.isTransitive
-        && context.endsWithTA
+        && hasRightEdge({ endingFamily: "t+a" })
         && context.isReduplicatedCVCV
         && context.analysisVerb !== "ita";
     const allowSlashAkiZero = !context.isTransitive
@@ -197,10 +230,10 @@ function buildPretUniversalClassA(context) {
         && context.isDenominalMatrixInput
         && context.isDenominalWiMatrix
         && context.denominalSourceEndsWithVowel;
-    if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV)) {
+    if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvsV)) {
         allowZeroSuffix = false;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvpV)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvpV)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -211,7 +244,7 @@ function buildPretUniversalClassA(context) {
     ) {
         allowZeroSuffix = false;
     }
-    const isKSeriesNoU = context.endsWithKSeriesNoU;
+    const isKSeriesNoU = ["k", "kw"].includes(finalOnset) && finalNucleus !== "u";
     const allowIntransitiveKV = context.allowIntransitiveKV === true;
     if (
         !context.isTransitive
@@ -221,23 +254,30 @@ function buildPretUniversalClassA(context) {
     ) {
         return null;
     }
-    if (context.isTransitive && context.endsWithKA && !context.endsWithCaka) {
+    if (
+        context.isTransitive
+        && hasRightEdge({ endingFamily: "k+a" })
+        && !hasRightEdge({ endingFamily: "k+a", previousForm: "CV", previousNucleus: "a" })
+    ) {
         return null;
     }
-    if (!context.isTransitive && context.endsWithVka) {
+    if (!context.isTransitive && hasRightEdge({ endingFamily: "k+a", previousForm: "V" })) {
         return null;
     }
-    if (!context.isTransitive && context.endsWithCVka) {
+    if (!context.isTransitive && hasRightEdge({ endingFamily: "k+a", previousForm: "CV" })) {
         return null;
     }
-    if (context.isTransitive && context.endsWithTZA) {
+    if (context.isTransitive && hasRightEdge({ endingFamily: "tz+a" })) {
         allowZeroSuffix = false;
     }
-    if (context.endsWithTZV && !context.endsWithVCCV) {
+    if (
+        hasRightEdge({ finalOnset: "tz" })
+        && !hasAnyRightEdge([{ rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"] }])
+    ) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && context.endsWithPA && !context.isMonosyllable) {
+    if (context.isTransitive && !context.isMonosyllable && hasRightEdge({ endingFamily: "p+a" })) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -245,36 +285,36 @@ function buildPretUniversalClassA(context) {
         allowKiSuffix = false;
         allowZeroSuffix = true;
     }
-    if (context.endsWithTV && !isKSeriesNoU) {
+    if (finalOnset === "t" && !isKSeriesNoU) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.endsWithWV && !isKSeriesNoU && !isEwaAllowZero) {
+    if (!context.isTransitive && finalOnset === "w" && !isKSeriesNoU && !isEwaAllowZero) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.endsWithNA) {
-        if (context.totalVowels <= 2 && !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)) {
+    if (!context.isTransitive && hasRightEdge({ endingFamily: "n+a" })) {
+        if (context.totalVowels <= 2 && !patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvna)) {
             return null;
         }
         allowZeroSuffix = false;
     }
-    if (context.endsWithYA) {
+    if (hasRightEdge({ endingFamily: "y+a" })) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && context.endsWithCVnV) {
+    if (!context.isTransitive && hasRightEdge({ finalOnset: "n", previousForm: "CV" })) {
         allowZeroSuffix = false;
     }
-    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlvni)) {
+    if (!context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvlvni)) {
         allowZeroSuffix = false;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vnV)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vnV)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvnV)) {
-        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvnV)) {
+        if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvna)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
-        } else if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvni)) {
+        } else if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvni)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
         } else {
@@ -282,15 +322,15 @@ function buildPretUniversalClassA(context) {
             allowKiSuffix = !context.isReduplicated;
         }
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvna)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvna)) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlcvna)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlcvna)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (isTransitiveExactCVCVna) {
+    if (isTransitiveShapeCVCVna) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
@@ -298,12 +338,12 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (isTransitiveExactNi) {
+    if (isTransitiveShapeNi) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvmV)) {
-        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvma)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvmV)) {
+        if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvma)) {
             allowZeroSuffix = true;
             allowKiSuffix = true;
         } else {
@@ -311,7 +351,7 @@ function buildPretUniversalClassA(context) {
             allowKiSuffix = !context.isReduplicated;
         }
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvma)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvma)) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
@@ -319,13 +359,22 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (!context.isTransitive && context.endsWithKisV) {
+    if (
+        !context.isTransitive
+        && hasRightEdge({
+            finalOnset: "s",
+            previousForm: "CV",
+            previousOnset: "k",
+            previousNucleus: "i",
+            antepenultimateForms: ["V", "CV", "Vj", "CVj", "Vl", "CVl", "C"],
+        })
+    ) {
         allowZeroSuffix = false;
     }
     if (!context.forceClassAForKWV) {
         const allowIntransitiveWiVtV = !context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern);
         if (
-            (context.isMonosyllable && !context.endsWithTV && !isDenominalWiVowelSourceClassA) ||
+            (context.isMonosyllable && finalOnset !== "t" && !isDenominalWiVowelSourceClassA) ||
             (
                 !context.isTransitive
                 && (context.isVtVStart || context.isVVtVStart)
@@ -338,7 +387,7 @@ function buildPretUniversalClassA(context) {
     }
     if (
         isIntransitiveWiKiOnly
-        || isExactLVIKiOnly
+        || isShapeLVIKiOnly
         || isIntransitiveLWaKiOnly
         || isEwaKiOnly
         || isTransitiveVwaKiOnly
@@ -367,19 +416,19 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vjcvwa) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlcvwa))) {
+    if (context.isTransitive && (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvwa) || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlcvwa))) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvjcvwa)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvjcvwa)) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    if (context.endsWithLV) {
+    if (hasAnyRightEdge([{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }])) {
         allowZeroSuffix = true;
         allowKiSuffix = false;
     }
-    if (!context.isTransitive && !context.endsWithLV) {
+    if (!context.isTransitive && !hasAnyRightEdge([{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }])) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
@@ -400,7 +449,7 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = context.isReduplicated;
         allowKiSuffix = true;
     }
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwi)) {
+    if (context.isTransitive && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
         allowZeroSuffix = true;
         allowKiSuffix = false;
     }
@@ -412,8 +461,8 @@ function buildPretUniversalClassA(context) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
     }
-    const isExactItaVerb = context.analysisVerb === "ita";
-    if (context.isTransitive && context.isItaVerb && isExactItaVerb) {
+    const isShapeItaVerb = context.analysisVerb === "ita";
+    if (context.isTransitive && context.isItaVerb && isShapeItaVerb) {
         const variants = [];
         const itaStem = context.verb.slice(0, -2) + "tz";
         if (!isAllowedStem(itaStem)) {
@@ -439,7 +488,7 @@ function buildPretUniversalClassA(context) {
         : getPerfectiveAlternationStems(context.verb, {
             isTransitive: context.isTransitive,
         });
-    if (context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vccawa)) {
+    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vccawa)) {
         deletedStems = deletedStems.filter((base) => !base.endsWith("j"));
     }
     if (
@@ -468,6 +517,7 @@ function buildPretUniversalClassB(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
     const patterns = createPretDescriptorMatcher(context);
+    const hasRightEdge = (query = {}) => pretContextHasRightEdge(context, query);
     if (!context.isTransitive && context.fromRootPlusYa) {
         if (isSlashDenominalRootPlusYaMatrix(context)) {
             const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context) || context.verb || "";
@@ -521,25 +571,25 @@ function buildPretUniversalClassB(context) {
         }
         return variants;
     }
-    const isExactNaPattern = patterns.hasExactEndingFamily("n+a");
-    const isExactNiPattern = patterns.hasExactEndingFamily("n+i");
-    const isExactNiaPattern = patterns.hasExactEndingFamily("n+ia");
-    if (context.isTransitive && (isExactNaPattern || isExactNiPattern || isExactNiaPattern)) {
+    const isShapeNaPattern = patterns.hasShapeEndingFamily("n+a");
+    const isShapeNiPattern = patterns.hasShapeEndingFamily("n+i");
+    const isShapeNiaPattern = patterns.hasShapeEndingFamily("n+ia");
+    if (context.isTransitive && (isShapeNaPattern || isShapeNiPattern || isShapeNiaPattern)) {
         return null;
     }
-    if (!context.isTransitive && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvcvna)) {
+    if (!context.isTransitive && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV_CV)) {
         return null;
     }
     if (!context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.waPattern)) {
-        if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cuwa)) {
+        if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cuwa)) {
             return [{ base: context.verb, suffix: "k" }];
         }
-        if (context.isReduplicated || !patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa)) {
+        if (context.isReduplicated || !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV)) {
             return null;
         }
         return [{ base: context.verb, suffix: "k" }];
     }
-    if (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV) && !context.endsWithU) {
+    if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvsV) && !hasRightEdge({ finalForm: "V", finalNucleus: "u" })) {
         if (context.lastNucleus !== "i" || context.isTransitive) {
             return null;
         }
@@ -576,7 +626,11 @@ function getPretUniversalVariants(verb, tense, isTransitive, analysisVerb = verb
         return null;
     }
     const context = buildPretUniversalContext(verb, analysisVerb, isTransitive, options);
-    if (!isTransitive && context.endsWithKSeriesNoU) {
+    if (
+        !isTransitive
+        && ["k", "kw"].includes(context?.rightEdgeDescriptor?.finalOnset || "")
+        && (context?.rightEdgeDescriptor?.finalNucleus || "") !== "u"
+    ) {
         context.allowIntransitiveKV = true;
     }
     const candidates = getPretUniversalClassCandidates(context);
@@ -1048,13 +1102,18 @@ function getKVClassPolicy({
     allowAllClasses = false,
 }) {
     const patterns = createPretDescriptorMatcher(context);
+    const hasRightEdge = (query = {}) => pretContextHasRightEdge(context, query);
+    const rightEdgeDescriptor = context?.rightEdgeDescriptor || {};
     const isRootPlusYaIntransitive = !!(context && !context.isTransitive && context.fromRootPlusYa);
-    const isTVEnding = !!(context && context.endsWithTV);
+    const isTVEnding = !!(context && rightEdgeDescriptor.finalOnset === "t");
     const mvSource = context?.analysisVerb || context?.verb || "";
     const isMVEnding = !!(
         context
         && !isTransitive
-        && (context.endsWithMV || /m[ai]$/.test(mvSource))
+        && (
+            hasRightEdge({ finalOnset: "m", finalNuclei: ["a", "i"] })
+            || /m[ai]$/.test(mvSource)
+        )
     );
     const allowSlashAkiZero = !!(
         context
@@ -1073,9 +1132,9 @@ function getKVClassPolicy({
         && context
         && !isTransitive
         && (
-            (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa) && !context.isReduplicated)
+            (pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV) && !context.isReduplicated)
             || patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern)
-            || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvna)
+            || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvna)
         );
     const baseMaskClassB = !allowAllClasses
         && classFilter === "B"
@@ -1107,7 +1166,8 @@ function getKVClassPolicy({
     }
     const forceClassAForKWV = context.forceClassAForKWV;
     const allowBothForKi = isTransitive && baseObjectPrefix === "ki";
-    const isKOnlyNoU = context.endsWithKV && !context.endsWithKU;
+    const isKOnlyNoU = ["k", "kw"].includes(rightEdgeDescriptor.finalOnset || "")
+        && (rightEdgeDescriptor.finalNucleus || "") !== "u";
     const preferClassBForKV = !allowAllClasses
         && isPreterit
         && !classFilter
@@ -1283,23 +1343,27 @@ function resolvePretClassPolicy({
         isCVliPattern: Boolean(
             context
             && !context.isTransitive
-            && (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvlv) || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.vlv) || context.endsWithLV)
+            && (
+                patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvlv)
+                || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlv)
+                || pretContextHasAnyRightEdge(context, [{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }])
+            )
             && context.lastNucleus === "i"
         ),
         isCVpVPattern: Boolean(
             context
-            && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvpV)
+            && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvpV)
             && !context.isTransitive
         ),
         isIntransitivePiPattern: Boolean(
             context
             && !context.isTransitive
-            && context.endsWithPI
+            && pretContextHasRightEdge(context, { endingFamily: "p+i" })
             && !context.isMonosyllable
         ),
         isCVVniPattern: Boolean(
             context
-            && patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvvni)
+            && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvvni)
             && !context.isTransitive
         ),
     };
@@ -1473,7 +1537,8 @@ function buildClassBasedResult({
         });
         if (
             !isTransitive
-            && context.endsWithKSeriesNoU
+            && ["k", "kw"].includes(context?.rightEdgeDescriptor?.finalOnset || "")
+            && (context?.rightEdgeDescriptor?.finalNucleus || "") !== "u"
             && tense !== "preterito"
         ) {
             context.allowIntransitiveKV = true;
@@ -1750,11 +1815,14 @@ function buildPretUniversalResultWithProvenance({
         }
         if (!isTransitive && !context.fromRootPlusYa) {
             const mvSource = context.analysisVerb || context.verb || "";
-            const isMVEnding = context.endsWithMV || /m[ai]$/.test(mvSource);
+            const isMVEnding = pretContextHasRightEdge(context, {
+                finalOnset: "m",
+                finalNuclei: ["a", "i"],
+            }) || /m[ai]$/.test(mvSource);
             const patterns = createPretDescriptorMatcher(context);
             const allowClassBWithA = (
-                (patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvsV) && context.lastNucleus === "i")
-                || patterns.hasExact(PRET_DESCRIPTOR_QUERIES.exact.cvcvwa)
+                (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvsV) && context.lastNucleus === "i")
+                || pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV)
             ) && !isTransitive && !context.isReduplicated;
             if (candidates.has("A") && hasClassAVariants && !isMVEnding && !allowClassBWithA) {
                 blockedReason = "class-b-fallback-to-a";

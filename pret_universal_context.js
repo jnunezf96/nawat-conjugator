@@ -81,7 +81,7 @@ const PRET_UNIVERSAL_RULE_TIER_ORDER = Object.freeze([
     "path",
     "monosyllable",
     "forced",
-    "exact",
+    "shape",
     "default",
 ]);
 const PRET_UNIVERSAL_DEFAULT_RULE_LABEL = "default class rules";
@@ -315,19 +315,311 @@ function formatPretEndingFamily(syllable = null) {
     return `${onset}+${nucleus}`;
 }
 
+function buildPretOrderedRightEdgeDescriptor({
+    endingFamily = "",
+    rightEdgeProfile = "",
+    juncture = "",
+    rightEdgeDepth = 0,
+    previousForm = "",
+    previousOnset = "",
+    previousNucleus = "",
+    previousCoda = "",
+    previousHasCoda = false,
+    antepenultimateForm = "",
+    antepenultimateOnset = "",
+    antepenultimateNucleus = "",
+    antepenultimateCoda = "",
+    finalOnset = "",
+    finalNucleus = "",
+    finalCoda = "",
+    finalForm = "",
+} = {}) {
+    return Object.freeze({
+        endingFamily,
+        rightEdgeProfile,
+        juncture,
+        rightEdgeDepth,
+        previousForm,
+        previousOnset,
+        previousNucleus,
+        previousCoda,
+        previousHasCoda,
+        antepenultimateForm,
+        antepenultimateOnset,
+        antepenultimateNucleus,
+        antepenultimateCoda,
+        finalOnset,
+        finalNucleus,
+        finalCoda,
+        finalForm,
+    });
+}
+
 function buildPretRightEdgeDescriptor(syllables = []) {
     const safeSyllables = Array.isArray(syllables) ? syllables : [];
     const lastSyllable = safeSyllables[safeSyllables.length - 1] || null;
-    return {
+    const previousSyllable = safeSyllables[safeSyllables.length - 2] || null;
+    const antepenultimateSyllable = safeSyllables[safeSyllables.length - 3] || null;
+    return buildPretOrderedRightEdgeDescriptor({
+        endingFamily: formatPretEndingFamily(lastSyllable),
         rightEdgeProfile: formatPretRightEdgeProfile(safeSyllables),
         juncture: formatPretJuncture(safeSyllables),
-        endingFamily: formatPretEndingFamily(lastSyllable),
         rightEdgeDepth: safeSyllables.length,
-        finalForm: lastSyllable?.form || "",
+        previousForm: previousSyllable?.form || "",
+        previousOnset: previousSyllable?.onset || "",
+        previousNucleus: previousSyllable?.nucleus || "",
+        previousCoda: previousSyllable?.coda || "",
+        previousHasCoda: Boolean(previousSyllable?.coda),
+        antepenultimateForm: antepenultimateSyllable?.form || "",
+        antepenultimateOnset: antepenultimateSyllable?.onset || "",
+        antepenultimateNucleus: antepenultimateSyllable?.nucleus || "",
+        antepenultimateCoda: antepenultimateSyllable?.coda || "",
         finalOnset: lastSyllable?.onset || "",
         finalNucleus: lastSyllable?.nucleus || "",
         finalCoda: lastSyllable?.coda || "",
-    };
+        finalForm: lastSyllable?.form || "",
+    });
+}
+
+function buildPretOrderedRightEdgeQuery({
+    endingFamily = "",
+    endingFamilies = [],
+    rightEdgeProfiles = [],
+    rightEdgeProfileSuffixes = [],
+    rightEdgeDepth = 0,
+    minimumRightEdgeDepth = 0,
+    maximumRightEdgeDepth = 0,
+    junctures = [],
+    finalForm = "",
+    finalOnset = "",
+    finalOnsets = [],
+    finalNucleus = "",
+    finalNuclei = [],
+    previousForm = "",
+    previousForms = [],
+    previousOnset = "",
+    previousOnsets = [],
+    previousNucleus = "",
+    previousNuclei = [],
+    previousCoda = "",
+    previousCodas = [],
+    previousHasCoda,
+    antepenultimateForm = "",
+    antepenultimateForms = [],
+} = {}) {
+    const query = {};
+    if (endingFamily) {
+        query.endingFamily = endingFamily;
+    }
+    if (endingFamilies.length) {
+        query.endingFamilies = freezePretDescriptorList(endingFamilies);
+    }
+    if (rightEdgeProfiles.length) {
+        query.rightEdgeProfiles = freezePretDescriptorList(rightEdgeProfiles);
+    }
+    if (rightEdgeProfileSuffixes.length) {
+        query.rightEdgeProfileSuffixes = freezePretDescriptorList(rightEdgeProfileSuffixes);
+    }
+    if (rightEdgeDepth > 0) {
+        query.rightEdgeDepth = rightEdgeDepth;
+    }
+    if (minimumRightEdgeDepth > 0) {
+        query.minimumRightEdgeDepth = minimumRightEdgeDepth;
+    }
+    if (maximumRightEdgeDepth > 0) {
+        query.maximumRightEdgeDepth = maximumRightEdgeDepth;
+    }
+    if (junctures.length) {
+        query.junctures = freezePretDescriptorList(junctures);
+    }
+    if (finalForm) {
+        query.finalForm = finalForm;
+    }
+    if (finalOnset) {
+        query.finalOnset = finalOnset;
+    }
+    if (finalOnsets.length) {
+        query.finalOnsets = freezePretDescriptorList(finalOnsets);
+    }
+    if (finalNucleus) {
+        query.finalNucleus = finalNucleus;
+    }
+    if (finalNuclei.length) {
+        query.finalNuclei = freezePretDescriptorList(finalNuclei);
+    }
+    if (previousForm) {
+        query.previousForm = previousForm;
+    }
+    if (previousForms.length) {
+        query.previousForms = freezePretDescriptorList(previousForms);
+    }
+    if (previousOnset) {
+        query.previousOnset = previousOnset;
+    }
+    if (previousOnsets.length) {
+        query.previousOnsets = freezePretDescriptorList(previousOnsets);
+    }
+    if (previousNucleus) {
+        query.previousNucleus = previousNucleus;
+    }
+    if (previousNuclei.length) {
+        query.previousNuclei = freezePretDescriptorList(previousNuclei);
+    }
+    if (previousCoda) {
+        query.previousCoda = previousCoda;
+    }
+    if (previousCodas.length) {
+        query.previousCodas = freezePretDescriptorList(previousCodas);
+    }
+    if (typeof previousHasCoda === "boolean") {
+        query.previousHasCoda = previousHasCoda;
+    }
+    if (antepenultimateForm) {
+        query.antepenultimateForm = antepenultimateForm;
+    }
+    if (antepenultimateForms.length) {
+        query.antepenultimateForms = freezePretDescriptorList(antepenultimateForms);
+    }
+    return Object.freeze(query);
+}
+
+function normalizePretRightEdgeQuery(query = {}) {
+    if (!query || typeof query !== "object") {
+        return Object.freeze({});
+    }
+    return buildPretOrderedRightEdgeQuery({
+        endingFamily: query.endingFamily || "",
+        endingFamilies: Array.isArray(query.endingFamilies) ? query.endingFamilies : [],
+        rightEdgeProfiles: Array.isArray(query.rightEdgeProfiles)
+            ? query.rightEdgeProfiles
+            : (query.rightEdgeProfile ? [query.rightEdgeProfile] : []),
+        rightEdgeProfileSuffixes: Array.isArray(query.rightEdgeProfileSuffixes)
+            ? query.rightEdgeProfileSuffixes
+            : (query.rightEdgeProfileSuffix ? [query.rightEdgeProfileSuffix] : []),
+        rightEdgeDepth: Number.isInteger(query.rightEdgeDepth) ? query.rightEdgeDepth : 0,
+        minimumRightEdgeDepth: Number.isInteger(query.minimumRightEdgeDepth) ? query.minimumRightEdgeDepth : 0,
+        maximumRightEdgeDepth: Number.isInteger(query.maximumRightEdgeDepth) ? query.maximumRightEdgeDepth : 0,
+        junctures: Array.isArray(query.junctures)
+            ? query.junctures
+            : (query.juncture ? [query.juncture] : []),
+        finalForm: query.finalForm || "",
+        finalOnset: query.finalOnset || "",
+        finalOnsets: Array.isArray(query.finalOnsets) ? query.finalOnsets : [],
+        finalNucleus: query.finalNucleus || "",
+        finalNuclei: Array.isArray(query.finalNuclei) ? query.finalNuclei : [],
+        previousForm: query.previousForm || "",
+        previousForms: Array.isArray(query.previousForms) ? query.previousForms : [],
+        previousOnset: query.previousOnset || "",
+        previousOnsets: Array.isArray(query.previousOnsets) ? query.previousOnsets : [],
+        previousNucleus: query.previousNucleus || "",
+        previousNuclei: Array.isArray(query.previousNuclei) ? query.previousNuclei : [],
+        previousCoda: query.previousCoda || "",
+        previousCodas: Array.isArray(query.previousCodas) ? query.previousCodas : [],
+        previousHasCoda: query.previousHasCoda,
+        antepenultimateForm: query.antepenultimateForm || "",
+        antepenultimateForms: Array.isArray(query.antepenultimateForms) ? query.antepenultimateForms : [],
+    });
+}
+
+function pretRightEdgeDescriptorMatchesQuery(descriptor, query = {}) {
+    if (!descriptor || !query || typeof query !== "object") {
+        return false;
+    }
+    const orderedQuery = normalizePretRightEdgeQuery(query);
+    const endingFamilies = Array.isArray(orderedQuery.endingFamilies)
+        ? orderedQuery.endingFamilies
+        : (orderedQuery.endingFamily ? [orderedQuery.endingFamily] : []);
+    if (endingFamilies.length && !endingFamilies.includes(descriptor.endingFamily)) {
+        return false;
+    }
+    const rightEdgeProfiles = Array.isArray(orderedQuery.rightEdgeProfiles) ? orderedQuery.rightEdgeProfiles : [];
+    if (rightEdgeProfiles.length && !rightEdgeProfiles.includes(descriptor.rightEdgeProfile)) {
+        return false;
+    }
+    const rightEdgeProfileSuffixes = Array.isArray(orderedQuery.rightEdgeProfileSuffixes)
+        ? orderedQuery.rightEdgeProfileSuffixes
+        : [];
+    if (
+        rightEdgeProfileSuffixes.length
+        && !rightEdgeProfileSuffixes.some((suffix) => descriptor.rightEdgeProfile === suffix || descriptor.rightEdgeProfile.endsWith(`|${suffix}`))
+    ) {
+        return false;
+    }
+    if (orderedQuery.rightEdgeDepth && descriptor.rightEdgeDepth !== orderedQuery.rightEdgeDepth) {
+        return false;
+    }
+    if (orderedQuery.minimumRightEdgeDepth && descriptor.rightEdgeDepth < orderedQuery.minimumRightEdgeDepth) {
+        return false;
+    }
+    if (orderedQuery.maximumRightEdgeDepth && descriptor.rightEdgeDepth > orderedQuery.maximumRightEdgeDepth) {
+        return false;
+    }
+    const junctures = Array.isArray(orderedQuery.junctures) ? orderedQuery.junctures : [];
+    if (junctures.length && !junctures.includes(descriptor.juncture)) {
+        return false;
+    }
+    if (orderedQuery.finalForm && descriptor.finalForm !== orderedQuery.finalForm) {
+        return false;
+    }
+    const finalOnsets = Array.isArray(orderedQuery.finalOnsets)
+        ? orderedQuery.finalOnsets
+        : (orderedQuery.finalOnset ? [orderedQuery.finalOnset] : []);
+    if (finalOnsets.length && !finalOnsets.includes(descriptor.finalOnset)) {
+        return false;
+    }
+    const finalNuclei = Array.isArray(orderedQuery.finalNuclei)
+        ? orderedQuery.finalNuclei
+        : (orderedQuery.finalNucleus ? [orderedQuery.finalNucleus] : []);
+    if (finalNuclei.length && !finalNuclei.includes(descriptor.finalNucleus)) {
+        return false;
+    }
+    const previousForms = Array.isArray(orderedQuery.previousForms)
+        ? orderedQuery.previousForms
+        : (orderedQuery.previousForm ? [orderedQuery.previousForm] : []);
+    if (previousForms.length && !previousForms.includes(descriptor.previousForm)) {
+        return false;
+    }
+    const previousOnsets = Array.isArray(orderedQuery.previousOnsets)
+        ? orderedQuery.previousOnsets
+        : (orderedQuery.previousOnset ? [orderedQuery.previousOnset] : []);
+    if (previousOnsets.length && !previousOnsets.includes(descriptor.previousOnset)) {
+        return false;
+    }
+    const previousNuclei = Array.isArray(orderedQuery.previousNuclei)
+        ? orderedQuery.previousNuclei
+        : (orderedQuery.previousNucleus ? [orderedQuery.previousNucleus] : []);
+    if (previousNuclei.length && !previousNuclei.includes(descriptor.previousNucleus)) {
+        return false;
+    }
+    const previousCodas = Array.isArray(orderedQuery.previousCodas)
+        ? orderedQuery.previousCodas
+        : (orderedQuery.previousCoda ? [orderedQuery.previousCoda] : []);
+    if (previousCodas.length && !previousCodas.includes(descriptor.previousCoda)) {
+        return false;
+    }
+    if (
+        Object.prototype.hasOwnProperty.call(orderedQuery, "previousHasCoda")
+        && descriptor.previousHasCoda !== Boolean(orderedQuery.previousHasCoda)
+    ) {
+        return false;
+    }
+    const antepenultimateForms = Array.isArray(orderedQuery.antepenultimateForms)
+        ? orderedQuery.antepenultimateForms
+        : (orderedQuery.antepenultimateForm ? [orderedQuery.antepenultimateForm] : []);
+    if (antepenultimateForms.length && !antepenultimateForms.includes(descriptor.antepenultimateForm)) {
+        return false;
+    }
+    return true;
+}
+
+function pretContextHasRightEdge(context, query = {}) {
+    return pretRightEdgeDescriptorMatchesQuery(context?.rightEdgeDescriptor, query);
+}
+
+function pretContextHasAnyRightEdge(context, queries = []) {
+    return (Array.isArray(queries) ? queries : []).some((query) => (
+        pretContextHasRightEdge(context, query)
+    ));
 }
 
 function freezePretDescriptorList(list = []) {
@@ -352,8 +644,57 @@ function buildPretJuncturesFromProfiles(rightEdgeProfiles = []) {
     return freezePretDescriptorList(junctures);
 }
 
-function makePretDescriptorQuery(endingFamily = "", rightEdgeProfileOrProfiles = null, options = {}) {
+function buildPretOrderedDescriptorQuery({
+    endingFamily = "",
+    rightEdgeProfiles = [],
+    junctures = [],
+    modifierSet = null,
+    modifiers = [],
+    excludeModifiers = [],
+} = {}) {
     const query = {};
+    if (endingFamily) {
+        query.endingFamily = endingFamily;
+    }
+    if (rightEdgeProfiles.length) {
+        query.rightEdgeProfiles = freezePretDescriptorList(rightEdgeProfiles);
+    }
+    if (junctures.length) {
+        query.junctures = freezePretDescriptorList(junctures);
+    }
+    if (modifierSet !== null) {
+        query.modifierSet = freezePretDescriptorList(modifierSet);
+    }
+    if (modifiers.length) {
+        query.modifiers = freezePretDescriptorList(modifiers);
+    }
+    if (excludeModifiers.length) {
+        query.excludeModifiers = freezePretDescriptorList(excludeModifiers);
+    }
+    return Object.freeze(query);
+}
+
+function normalizePretDescriptorQuery(query = {}) {
+    if (!query || typeof query !== "object") {
+        return Object.freeze({});
+    }
+    return buildPretOrderedDescriptorQuery({
+        rightEdgeProfiles: Array.isArray(query.rightEdgeProfiles)
+            ? query.rightEdgeProfiles
+            : (query.rightEdgeProfile ? [query.rightEdgeProfile] : []),
+        junctures: Array.isArray(query.junctures)
+            ? query.junctures
+            : (query.juncture ? [query.juncture] : []),
+        endingFamily: query.endingFamily || "",
+        modifierSet: Object.prototype.hasOwnProperty.call(query, "modifierSet")
+            ? (Array.isArray(query.modifierSet) ? query.modifierSet : [])
+            : null,
+        modifiers: Array.isArray(query.modifiers) ? query.modifiers : [],
+        excludeModifiers: Array.isArray(query.excludeModifiers) ? query.excludeModifiers : [],
+    });
+}
+
+function makePretDescriptorQuery(endingFamily = "", rightEdgeProfileOrProfiles = null, options = {}) {
     const rightEdgeProfiles = Array.isArray(rightEdgeProfileOrProfiles)
         ? rightEdgeProfileOrProfiles.filter(Boolean)
         : (rightEdgeProfileOrProfiles ? [String(rightEdgeProfileOrProfiles)] : []);
@@ -367,64 +708,56 @@ function makePretDescriptorQuery(endingFamily = "", rightEdgeProfileOrProfiles =
     const junctures = Array.isArray(options.junctures)
         ? options.junctures.filter(Boolean)
         : (options.juncture ? [String(options.juncture)] : buildPretJuncturesFromProfiles(rightEdgeProfiles));
-    if (endingFamily) {
-        query.endingFamily = endingFamily;
-    }
-    if (rightEdgeProfiles.length) {
-        query.rightEdgeProfiles = freezePretDescriptorList(rightEdgeProfiles);
-    }
-    if (modifierSet !== null) {
-        query.modifierSet = freezePretDescriptorList(modifierSet);
-    }
-    if (descriptorModifiers.length) {
-        query.modifiers = freezePretDescriptorList(descriptorModifiers);
-    }
-    if (Array.isArray(options.excludeModifiers) && options.excludeModifiers.length) {
-        query.excludeModifiers = freezePretDescriptorList(options.excludeModifiers.filter(Boolean));
-    }
-    if (junctures.length) {
-        query.junctures = freezePretDescriptorList(junctures);
-    }
-    return Object.freeze(query);
+    return buildPretOrderedDescriptorQuery({
+        rightEdgeProfiles,
+        junctures,
+        endingFamily,
+        modifierSet,
+        modifiers: descriptorModifiers,
+        excludeModifiers: Array.isArray(options.excludeModifiers)
+            ? options.excludeModifiers.filter(Boolean)
+            : [],
+    });
 }
 
 function pretDescriptorMatchesQuery(descriptor, query = {}) {
     if (!descriptor || !query || typeof query !== "object") {
         return false;
     }
+    const orderedQuery = normalizePretDescriptorQuery(query);
     const descriptorModifiers = Array.isArray(descriptor.modifiers) ? descriptor.modifiers : [];
     const descriptorProfiles = Array.isArray(descriptor.rightEdgeProfiles) ? descriptor.rightEdgeProfiles : [];
     const descriptorJunctures = Array.isArray(descriptor.junctures) ? descriptor.junctures : [];
     const endingFamilies = Array.isArray(query.endingFamilies)
         ? query.endingFamilies
-        : (query.endingFamily ? [query.endingFamily] : []);
+        : (orderedQuery.endingFamily ? [orderedQuery.endingFamily] : []);
     if (endingFamilies.length && !endingFamilies.includes(descriptor.endingFamily)) {
         return false;
     }
-    const profiles = Array.isArray(query.rightEdgeProfiles)
-        ? query.rightEdgeProfiles
-        : (query.rightEdgeProfile ? [query.rightEdgeProfile] : []);
+    const profiles = Array.isArray(orderedQuery.rightEdgeProfiles)
+        ? orderedQuery.rightEdgeProfiles
+        : (orderedQuery.rightEdgeProfile ? [orderedQuery.rightEdgeProfile] : []);
     if (profiles.length && !profiles.some((profile) => descriptorProfiles.includes(profile))) {
         return false;
     }
-    const junctures = Array.isArray(query.junctures)
-        ? query.junctures
-        : (query.juncture ? [query.juncture] : []);
+    const junctures = Array.isArray(orderedQuery.junctures)
+        ? orderedQuery.junctures
+        : (orderedQuery.juncture ? [orderedQuery.juncture] : []);
     if (junctures.length && !junctures.some((value) => descriptorJunctures.includes(value))) {
         return false;
     }
-    if (Array.isArray(query.modifiers) && query.modifiers.length) {
-        if (!query.modifiers.every((modifier) => descriptorModifiers.includes(modifier))) {
+    if (Array.isArray(orderedQuery.modifiers) && orderedQuery.modifiers.length) {
+        if (!orderedQuery.modifiers.every((modifier) => descriptorModifiers.includes(modifier))) {
             return false;
         }
     }
-    if (Array.isArray(query.excludeModifiers) && query.excludeModifiers.length) {
-        if (query.excludeModifiers.some((modifier) => descriptorModifiers.includes(modifier))) {
+    if (Array.isArray(orderedQuery.excludeModifiers) && orderedQuery.excludeModifiers.length) {
+        if (orderedQuery.excludeModifiers.some((modifier) => descriptorModifiers.includes(modifier))) {
             return false;
         }
     }
-    if (Object.prototype.hasOwnProperty.call(query, "modifierSet")) {
-        const expectedModifiers = Array.isArray(query.modifierSet) ? query.modifierSet : [];
+    if (Object.prototype.hasOwnProperty.call(orderedQuery, "modifierSet")) {
+        const expectedModifiers = Array.isArray(orderedQuery.modifierSet) ? orderedQuery.modifierSet : [];
         if (descriptorModifiers.length !== expectedModifiers.length) {
             return false;
         }
@@ -457,11 +790,11 @@ function formatPretDescriptorLabel(descriptor, options = {}) {
         ? options.activeRightEdgeProfile
         : (descriptor.rightEdgeProfiles?.[0] || "");
     const parts = [];
-    if (activeProfile) {
-        parts.push(activeProfile);
-    }
     if (descriptor.endingFamily) {
         parts.push(descriptor.endingFamily);
+    }
+    if (activeProfile) {
+        parts.push(activeProfile);
     }
     const modifiers = Array.isArray(descriptor.modifiers)
         ? descriptor.modifiers.filter((modifier) => modifier !== "aggregate")
@@ -470,7 +803,7 @@ function formatPretDescriptorLabel(descriptor, options = {}) {
 }
 
 const PRET_DESCRIPTOR_QUERIES = Object.freeze({
-    exact: Object.freeze({
+    shape: Object.freeze({
         cvv: makePretDescriptorQuery("Ø+*", "CV|V", { modifierSet: [] }),
         vv: makePretDescriptorQuery("Ø+*", "V|V", { modifierSet: [] }),
         vlv: makePretDescriptorQuery("Ø+*", "Vl|V", { modifierSet: [] }),
@@ -572,74 +905,344 @@ const PRET_DESCRIPTOR_QUERIES = Object.freeze({
     }),
 });
 
+const PRET_DERIVED_SHAPE_DESCRIPTOR_SPECS = Object.freeze([
+    Object.freeze({ descriptorKey: "cvniU", baseKey: "cvni", leadingNucleus: "u" }),
+    Object.freeze({ descriptorKey: "cvwaA", baseKey: "cvwa", leadingNucleus: "a" }),
+    Object.freeze({ descriptorKey: "cvwaI", baseKey: "cvwa", leadingNucleus: "i" }),
+    Object.freeze({ descriptorKey: "cuwa", baseKey: "cvwa", leadingNucleus: "u" }),
+    Object.freeze({ descriptorKey: "vwaI", baseKey: "vwa", leadingNucleus: "i" }),
+]);
+
+const PRET_RIGHT_EDGE_RULE_QUERIES = Object.freeze({
+    naCV_CV_CV: buildPretOrderedRightEdgeQuery({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV|CV"],
+    }),
+    naCV_CV_CV_CV: buildPretOrderedRightEdgeQuery({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV|CV|CV"],
+    }),
+    naDepthAtLeastFour: buildPretOrderedRightEdgeQuery({
+        endingFamily: "n+a",
+        minimumRightEdgeDepth: 4,
+    }),
+    wiV_CV_CV: buildPretOrderedRightEdgeQuery({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["V|CV|CV"],
+    }),
+    wiCV_CV_CV: buildPretOrderedRightEdgeQuery({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV|CV"],
+    }),
+    waCV_CV_CV: buildPretOrderedRightEdgeQuery({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV|CV"],
+    }),
+});
+
 const PRET_AGGREGATE_DESCRIPTOR_SPECS = Object.freeze([
     Object.freeze({
         descriptor: PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern,
         sourceQueries: Object.freeze([
-            PRET_DESCRIPTOR_QUERIES.exact.vwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.vcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.vlvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvlvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.vccvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvjcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvlvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvccvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvccvcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvlcvcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.vjcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.vjcvcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.cvvjcvwi,
-            PRET_DESCRIPTOR_QUERIES.exact.longWi,
+            PRET_DESCRIPTOR_QUERIES.shape.vwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.vcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.vlvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvlvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.vccvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvjcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvlvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvccvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvccvcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvlcvcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.vjcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.vjcvcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.cvvjcvwi,
+            PRET_DESCRIPTOR_QUERIES.shape.longWi,
         ]),
     }),
     Object.freeze({
         descriptor: PRET_DESCRIPTOR_QUERIES.aggregate.waPattern,
         sourceQueries: Object.freeze([
-            PRET_DESCRIPTOR_QUERIES.exact.cvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.vccvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvccvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvcvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvccvcvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvlcvcvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.vccvcvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.longWa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.vccvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvccvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvcvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvccvcvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvlcvcvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.vccvcvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.longWa,
         ]),
     }),
     Object.freeze({
         descriptor: PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern,
         sourceQueries: Object.freeze([
-            PRET_DESCRIPTOR_QUERIES.exact.cewa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvcvewa,
-            PRET_DESCRIPTOR_QUERIES.exact.vjcewa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvlewa,
+            PRET_DESCRIPTOR_QUERIES.shape.cewa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvcvewa,
+            PRET_DESCRIPTOR_QUERIES.shape.vjcewa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvlewa,
         ]),
     }),
     Object.freeze({
         descriptor: PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern,
         sourceQueries: Object.freeze([
-            PRET_DESCRIPTOR_QUERIES.exact.vlvwa,
-            PRET_DESCRIPTOR_QUERIES.exact.cvlvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.vlvwa,
+            PRET_DESCRIPTOR_QUERIES.shape.cvlvwa,
         ]),
     }),
     Object.freeze({
         descriptor: PRET_DESCRIPTOR_QUERIES.aggregate.kawa,
-        matcher: (exactDescriptors = [], runtimeState = {}) => (
-            pretDescriptorListHasQuery(exactDescriptors, PRET_DESCRIPTOR_QUERIES.exact.cvwaA)
+        matcher: (shapeDescriptors = [], runtimeState = {}) => (
+            pretDescriptorListHasQuery(shapeDescriptors, PRET_DESCRIPTOR_QUERIES.shape.cvwaA)
             && runtimeState.leadingOnset === "k"
         ),
     }),
 ]);
 
-function buildPretAggregateDescriptors(exactDescriptors = [], runtimeState = {}) {
+function pretEndingFamilyMatchesPattern(actualFamily = "", expectedFamily = "") {
+    if (!expectedFamily) {
+        return true;
+    }
+    const [actualOnset = "", actualNucleus = ""] = String(actualFamily || "").split("+");
+    const [expectedOnset = "", expectedNucleus = ""] = String(expectedFamily || "").split("+");
+    const onsetMatches = expectedOnset === "*" || actualOnset === expectedOnset;
+    const nucleusMatches = expectedNucleus === "*" || actualNucleus === expectedNucleus;
+    return onsetMatches && nucleusMatches;
+}
+
+function pretRightEdgeProfileMatchesSyllableWindow(profile = "", syllables = [], startIndex = 0) {
+    const windowSyllables = (Array.isArray(syllables) ? syllables : []).slice(startIndex);
+    const windowForms = windowSyllables.map((syllable) => String(syllable?.form || "")).filter(Boolean);
+    const profileParts = String(profile || "").split("|").filter(Boolean);
+    if (!windowForms.length || !profileParts.length) {
+        return false;
+    }
+    if (profileParts[0] === "...") {
+        const suffixParts = profileParts.slice(1);
+        if (!suffixParts.length || windowForms.length < suffixParts.length) {
+            return false;
+        }
+        return suffixParts.every((part, index) => (
+            windowForms[windowForms.length - suffixParts.length + index] === part
+        ));
+    }
+    if (windowForms.length !== profileParts.length) {
+        return false;
+    }
+    return profileParts.every((part, index) => windowForms[index] === part);
+}
+
+function pretShapeModifiersMatchSyllableWindow(query = {}, syllables = [], startIndex = 0) {
+    const windowSyllables = (Array.isArray(syllables) ? syllables : []).slice(startIndex);
+    const modifiers = Array.isArray(query?.modifiers) ? query.modifiers : [];
+    if (!modifiers.length) {
+        return true;
+    }
+    const leadSyllable = windowSyllables[0] || null;
+    const bridgeSyllable = windowSyllables[windowSyllables.length - 2] || null;
+    return modifiers.every((modifier) => {
+        if (modifier === "long") {
+            return windowSyllables.length >= 4;
+        }
+        if (modifier === "aggregate" || modifier === "l-bridge") {
+            return true;
+        }
+        if (modifier.startsWith("leadNucleus=")) {
+            return (leadSyllable?.nucleus || "") === modifier.slice("leadNucleus=".length);
+        }
+        if (modifier.startsWith("leadOnset=")) {
+            return (leadSyllable?.onset || "") === modifier.slice("leadOnset=".length);
+        }
+        if (modifier.startsWith("bridgeNucleus=")) {
+            return (bridgeSyllable?.nucleus || "") === modifier.slice("bridgeNucleus=".length);
+        }
+        return true;
+    });
+}
+
+function pretShapeDescriptorMatchesSyllableWindow(query = {}, syllables = [], startIndex = 0) {
+    const windowSyllables = (Array.isArray(syllables) ? syllables : []).slice(startIndex);
+    if (!windowSyllables.length) {
+        return false;
+    }
+    const normalizedQuery = normalizePretDescriptorQuery(query);
+    const rightEdgeProfiles = Array.isArray(normalizedQuery.rightEdgeProfiles)
+        ? normalizedQuery.rightEdgeProfiles
+        : [];
+    if (
+        rightEdgeProfiles.length
+        && !rightEdgeProfiles.some((profile) => pretRightEdgeProfileMatchesSyllableWindow(profile, windowSyllables, 0))
+    ) {
+        return false;
+    }
+    const actualEndingFamily = formatPretEndingFamily(windowSyllables[windowSyllables.length - 1]);
+    if (!pretEndingFamilyMatchesPattern(actualEndingFamily, normalizedQuery.endingFamily || "")) {
+        return false;
+    }
+    return pretShapeModifiersMatchSyllableWindow(normalizedQuery, windowSyllables, 0);
+}
+
+const PRET_SHAPE_SOURCE_OPTIONS = Object.freeze({
+    cvta: Object.freeze({ includeRawReduplicatedSource: true }),
+    vcvcu: Object.freeze({ includeSupportiveSource: false }),
+    vnV: Object.freeze({
+        extraSources: Object.freeze([
+            Object.freeze({ source: "syllables", startIndex: 1, prefixForms: Object.freeze(["V", "Vj"]) }),
+        ]),
+    }),
+    cvnV: Object.freeze({
+        extraSources: Object.freeze([
+            Object.freeze({ source: "syllables", startIndex: 1, prefixForms: Object.freeze(["CV", "CVj"]) }),
+        ]),
+    }),
+    cvsV: Object.freeze({
+        extraSources: Object.freeze([
+            Object.freeze({ source: "syllables", startIndex: 1, prefixForms: Object.freeze(["CV", "CVj"]) }),
+        ]),
+    }),
+    cvmV: Object.freeze({
+        extraSources: Object.freeze([
+            Object.freeze({ source: "syllables", startIndex: 1, prefixForms: Object.freeze(["CV", "CVj"]) }),
+        ]),
+    }),
+});
+
+function pretShapeDescriptorMatchesSources(shapeKey = "", query = {}, {
+    syllables = [],
+    analysisSyllables = [],
+    supportiveSyllables = null,
+    rawSyllables = [],
+    baseIsReduplicated = false,
+} = {}) {
+    const options = PRET_SHAPE_SOURCE_OPTIONS[shapeKey] || {};
+    const availableSources = Object.freeze({
+        syllables,
+        analysisSyllables,
+        supportiveSyllables,
+        rawSyllables,
+    });
+    const sourceMatches = (sourceSyllables = [], startIndex = 0, prefixForms = []) => {
+        if (!Array.isArray(sourceSyllables) || !sourceSyllables.length) {
+            return false;
+        }
+        if (Array.isArray(prefixForms) && prefixForms.length) {
+            const prefixForm = sourceSyllables[startIndex - 1]?.form || "";
+            if (!prefixForms.includes(prefixForm)) {
+                return false;
+            }
+        }
+        return pretShapeDescriptorMatchesSyllableWindow(query, sourceSyllables, startIndex);
+    };
+    if (pretShapeDescriptorMatchesSyllableWindow(query, syllables, 0)) {
+        return true;
+    }
+    if (baseIsReduplicated && pretShapeDescriptorMatchesSyllableWindow(query, analysisSyllables, 1)) {
+        return true;
+    }
+    if (
+        options.includeRawReduplicatedSource === true
+        && baseIsReduplicated
+        && pretShapeDescriptorMatchesSyllableWindow(query, rawSyllables, 0)
+    ) {
+        return true;
+    }
+    if (
+        options.includeSupportiveSource !== false
+        && supportiveSyllables
+        && pretShapeDescriptorMatchesSyllableWindow(query, supportiveSyllables, 0)
+    ) {
+        return true;
+    }
+    const extraSources = Array.isArray(options.extraSources) ? options.extraSources : [];
+    for (const extraSource of extraSources) {
+        const sourceName = extraSource?.source || "";
+        if (!sourceName || !Object.prototype.hasOwnProperty.call(availableSources, sourceName)) {
+            continue;
+        }
+        if (
+            sourceMatches(
+                availableSources[sourceName],
+                Number.isInteger(extraSource?.startIndex) ? extraSource.startIndex : 0,
+                Array.isArray(extraSource?.prefixForms) ? extraSource.prefixForms : [],
+            )
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function pretShapeHasRedupPrefix(query = {}, syllables = [], prefixForms = []) {
+    if (!Array.isArray(syllables) || !syllables.length) {
+        return false;
+    }
+    const prefixForm = syllables[0]?.form || "";
+    if (!Array.isArray(prefixForms) || !prefixForms.includes(prefixForm)) {
+        return false;
+    }
+    return pretShapeDescriptorMatchesSyllableWindow(query, syllables, 1);
+}
+
+function buildPretActiveShapeDescriptors(shapeQueries = PRET_DESCRIPTOR_QUERIES.shape, {
+    syllables = [],
+    analysisSyllables = [],
+    supportiveSyllables = null,
+    rawSyllables = [],
+    baseIsReduplicated = false,
+    leadingNucleus = "",
+} = {}) {
+    const activeDescriptors = [];
+    const derivedKeys = new Set(PRET_DERIVED_SHAPE_DESCRIPTOR_SPECS.map((spec) => spec.descriptorKey));
+    const activate = (query) => {
+        if (query && !pretDescriptorListHasQuery(activeDescriptors, query)) {
+            activeDescriptors.push(query);
+        }
+    };
+    const hasShape = (query) => pretDescriptorListHasQuery(activeDescriptors, query);
+    Object.entries(shapeQueries).forEach(([shapeKey, query]) => {
+        if (derivedKeys.has(shapeKey)) {
+            return;
+        }
+        if (
+            pretShapeDescriptorMatchesSources(shapeKey, query, {
+                syllables,
+                analysisSyllables,
+                supportiveSyllables,
+                rawSyllables,
+                baseIsReduplicated,
+            })
+        ) {
+            activate(query);
+        }
+    });
+    PRET_DERIVED_SHAPE_DESCRIPTOR_SPECS.forEach((spec) => {
+        if (leadingNucleus !== spec.leadingNucleus) {
+            return;
+        }
+        const baseDescriptor = shapeQueries[spec.baseKey];
+        if (!hasShape(baseDescriptor)) {
+            return;
+        }
+        activate(shapeQueries[spec.descriptorKey]);
+    });
+    if (hasShape(shapeQueries.vna) || hasShape(shapeQueries.cvna)) {
+        return Object.freeze(activeDescriptors.filter((descriptor) => (
+            !pretDescriptorMatchesQuery(descriptor, shapeQueries.vnV)
+            && !pretDescriptorMatchesQuery(descriptor, shapeQueries.cvnV)
+        )));
+    }
+    return Object.freeze(activeDescriptors.slice());
+}
+
+function buildPretAggregateDescriptors(shapeDescriptors = [], runtimeState = {}) {
     const activeDescriptors = [];
     PRET_AGGREGATE_DESCRIPTOR_SPECS.forEach((spec) => {
         const isActive = typeof spec.matcher === "function"
-            ? spec.matcher(exactDescriptors, runtimeState)
-            : pretDescriptorListHasAnyQuery(exactDescriptors, spec.sourceQueries || []);
+            ? spec.matcher(shapeDescriptors, runtimeState)
+            : pretDescriptorListHasAnyQuery(shapeDescriptors, spec.sourceQueries || []);
         if (!isActive || pretDescriptorListHasQuery(activeDescriptors, spec.descriptor)) {
             return;
         }
@@ -648,9 +1251,9 @@ function buildPretAggregateDescriptors(exactDescriptors = [], runtimeState = {})
     return Object.freeze(activeDescriptors.slice());
 }
 
-function buildPretDescriptorState(exactDescriptors = [], aggregateDescriptors = []) {
+function buildPretDescriptorState(shapeDescriptors = [], aggregateDescriptors = []) {
     return Object.freeze({
-        exactDescriptors: Object.freeze(Array.isArray(exactDescriptors) ? exactDescriptors.slice() : []),
+        shapeDescriptors: Object.freeze(Array.isArray(shapeDescriptors) ? shapeDescriptors.slice() : []),
         aggregateDescriptors: Object.freeze(Array.isArray(aggregateDescriptors) ? aggregateDescriptors.slice() : []),
     });
 }
@@ -659,14 +1262,14 @@ function pretContextGetDescriptorState(context) {
     return context?.descriptorState || null;
 }
 
-function pretContextHasExactDescriptor(context, query) {
+function pretContextHasShapeDescriptor(context, query) {
     const descriptorState = pretContextGetDescriptorState(context);
-    return pretDescriptorListHasQuery(descriptorState?.exactDescriptors, query);
+    return pretDescriptorListHasQuery(descriptorState?.shapeDescriptors, query);
 }
 
-function pretContextHasAnyExactDescriptor(context, queries = []) {
+function pretContextHasAnyShapeDescriptor(context, queries = []) {
     const descriptorState = pretContextGetDescriptorState(context);
-    return pretDescriptorListHasAnyQuery(descriptorState?.exactDescriptors, queries);
+    return pretDescriptorListHasAnyQuery(descriptorState?.shapeDescriptors, queries);
 }
 
 function pretContextHasAggregateDescriptor(context, query) {
@@ -674,8 +1277,8 @@ function pretContextHasAggregateDescriptor(context, query) {
     return pretDescriptorListHasQuery(descriptorState?.aggregateDescriptors, query);
 }
 
-function pretContextHasExactEndingFamily(context, endingFamily) {
-    return pretContextHasExactDescriptor(context, { endingFamily });
+function pretContextHasShapeEndingFamily(context, endingFamily) {
+    return pretContextHasShapeDescriptor(context, { endingFamily });
 }
 
 function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {}) {
@@ -823,11 +1426,6 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         ? getSyllables(supportiveRoot, { analysis: true, assumeFinalV: true })
         : null;
     const analysisSyllables = baseIsReduplicated ? rawSyllables : syllables;
-    const matchExact = (matcher) => (
-        matcher(syllables, 0)
-        || (baseIsReduplicated && matcher(analysisSyllables, 1))
-        || (supportiveSyllables && matcher(supportiveSyllables, 0))
-    );
     const letterCount = getVerbLetterCount(analysisRoot);
     const syllableForms = syllables.length ? syllables.map((syllable) => syllable.form) : null;
     const syllableCount = syllableForms
@@ -852,830 +1450,36 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const rightEdgeProfile = rightEdgeDescriptor.rightEdgeProfile;
     const juncture = rightEdgeDescriptor.juncture;
     const endingFamily = rightEdgeDescriptor.endingFamily;
-    const endsWithKV = lastSyllable?.form === "CV" && lastOnset === "k";
-    const endsWithKU = endsWithKV && lastNucleus === "u";
-    const endsWithKWV = lastSyllable?.form === "CV" && lastOnset === "kw";
-    const endsWithKWU = endsWithKWV && lastNucleus === "u";
-    const endsWithKSeries = endsWithKV || endsWithKWV;
-    const endsWithKSeriesU = endsWithKU || endsWithKWU;
-    const endsWithKSeriesNoU = endsWithKSeries && !endsWithKSeriesU;
-    const endsWithWV = lastSyllable?.form === "CV" && lastOnset === "w";
-    const endsWithWa = endsWithWV && lastNucleus === "a";
-    const endsWithTV = lastSyllable?.form === "CV" && lastOnset === "t";
-    const endsWithNV = lastSyllable?.form === "CV" && lastOnset === "n";
-    const endsWithLV = letterCount >= 5
-        && lastSyllable?.form === "V"
-        && penultimateSyllable?.coda === "l";
-    const endsWithVjCV = lastSyllable?.form === "CV"
-        && (penultimateSyllable?.form === "Vj" || penultimateSyllable?.form === "CVj");
-    const endsWithVlCV = lastSyllable?.form === "CV"
-        && (penultimateSyllable?.form === "Vl" || penultimateSyllable?.form === "CVl");
-    const endsWithVCCV = syllables.length >= 3
-        && penultimateSyllable?.form === "C"
-        && lastSyllable?.form === "CV"
-        && (
-            syllables[syllables.length - 3]?.form === "V"
-            || syllables[syllables.length - 3]?.form === "CV"
-        );
-    const forceClassBEnding = endsWithVjCV || endsWithVlCV || endsWithVCCV;
-    const endsWithPV = lastSyllable?.form === "CV" && lastOnset === "p";
-    const endsWithPA = endsWithPV && lastNucleus === "a";
-    const endsWithPI = endsWithPV && lastNucleus === "i";
-    const endsWithMV = lastSyllable?.form === "CV"
-        && lastOnset === "m"
-        && (lastNucleus === "a" || lastNucleus === "i");
-    const endsWithChi = lastSyllable?.form === "CV"
-        && lastOnset === "ch"
-        && lastNucleus === "i";
-    const endsWithU = isOpenSyllable(lastSyllable) && lastNucleus === "u";
-    const endsWithTA = lastSyllable?.form === "CV" && lastOnset === "t" && lastNucleus === "a";
-    const endsWithYA = lastSyllable?.form === "CV" && lastOnset === "y" && lastNucleus === "a";
-    const endsWithTZV = lastSyllable?.form === "CV" && lastOnset === "tz";
-    const endsWithTZA = endsWithTZV && lastNucleus === "a";
-    const endsWithKA = lastSyllable?.form === "CV" && lastOnset === "k" && lastNucleus === "a";
-    const endsWithVka = endsWithKA && penultimateSyllable?.form === "V";
-    const endsWithCVka = endsWithKA && penultimateSyllable?.form === "CV";
-    const endsWithCaka = endsWithCVka && penultimateSyllable?.nucleus === "a";
-    const endsWithCVnV = endsWithNV && penultimateSyllable?.form === "CV";
-    const endsWithVnV = endsWithNV && penultimateSyllable?.form === "V";
-    const matchesExactVnV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 1]?.onset === "n"
-    );
-    const matchesExactCVnV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 1]?.onset === "n"
-    );
-    const matchesExactCVsV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 1]?.onset === "s"
-    );
-    const matchesExactCVpV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 1]?.onset === "p"
-    );
-    const isNaFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "n"
-        && syllable.nucleus === "a"
-    );
-    const isNiFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "n"
-        && syllable.nucleus === "i"
-    );
-    const isTaFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "t"
-        && syllable.nucleus === "a"
-    );
-    const isTzaFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "tz"
-        && syllable.nucleus === "a"
-    );
-    const isMaFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "m"
-        && syllable.nucleus === "a"
-    );
-    const isKwiFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "kw"
-        && syllable.nucleus === "i"
-    );
-    const isCuFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.nucleus === "u"
-    );
-    const matchesNiaSuffix = (syls, startIndex = 0) => (
-        syls.length - startIndex >= 2
-        && isNiFinalSyllable(syls[startIndex])
-        && syls[startIndex + 1]?.form === "V"
-        && syls[startIndex + 1]?.nucleus === "a"
-    );
-    const matchesExactVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "V"
-        && isNaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCVCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVlVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && isNaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVlCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCVCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCCVCVna = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isNaFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVta = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isTaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCVtza = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isTzaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVjCVtza = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isTzaFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isTzaFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactCVnia = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && matchesNiaSuffix(syls, startIndex + 1)
-    );
-    const matchesExactCVCVnia = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && matchesNiaSuffix(syls, startIndex + 2)
-    );
-    const matchesExactCVlVnia = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && matchesNiaSuffix(syls, startIndex + 2)
-    );
-    const matchesExactVjCVnia = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && matchesNiaSuffix(syls, startIndex + 2)
-        ) || (
-            syls.length - startIndex === 5
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && matchesNiaSuffix(syls, startIndex + 3)
-        )
-    );
-    const matchesExactCVlVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && isNiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVjCVni = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isNiFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isNiFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactVjCVna = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isNaFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isNaFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactCVCVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && isNiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCVCVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isNiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCCVCVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isNiFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVCVCVCVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isNiFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "V"
-        && isNiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVni = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isNiFinalSyllable(syls[startIndex + 1])
-    );
-    const isWiFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "w"
-        && syllable.nucleus === "i"
-    );
-    const matchesExactVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "V"
-        && isWiFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "C"
-        && isWiFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVCCVwiShort = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "C"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVjCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVj"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVkwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isKwiFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVCVCu = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "CV"
-        && isCuFinalSyllable(syls[startIndex + 2])
-    );
-    const isCewaCVSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.nucleus === "e"
-    );
-    const isCawaCVSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.nucleus === "a"
-    );
-    const matchesExactCewa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && isCewaCVSyllable(syls[startIndex])
-        && isWaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVCCawa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "C"
-        && isCawaCVSyllable(syls[startIndex + 2])
-        && isWaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactVlV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "V"
-    );
-    const matchesExactCVlV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-    );
-    const matchesExactVlVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "V"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const isWaFinalSyllable = (syllable) => (
-        syllable?.form === "CV"
-        && syllable.onset === "w"
-        && syllable.nucleus === "a"
-    );
-    const matchesExactVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "V"
-        && isWaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVjwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "Vj"
-        && isWaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVCCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "C"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVjCVwa = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isWaFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isWaFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactCVjCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVj"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCawa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && isCawaCVSyllable(syls[startIndex + 1])
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCewa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && isCewaCVSyllable(syls[startIndex + 1])
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVjCewa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vj"
-        && isCewaCVSyllable(syls[startIndex + 1])
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVlewa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && syls[startIndex + 1]?.nucleus === "e"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVlawa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && syls[startIndex + 1]?.nucleus === "a"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVlVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "V"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVlVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVlCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCVCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCCVCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVlCVCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactVCCVCVwa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isWaFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVlVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "V"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactVlCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 3
-        && syls[startIndex]?.form === "Vl"
-        && syls[startIndex + 1]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 2])
-    );
-    const matchesExactCVCVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactVCCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactVjCVwi = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isWiFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isWiFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactVjCVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "Vj"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVVjCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "Vj"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCVlVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CVl"
-        && syls[startIndex + 2]?.form === "V"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactCVCCVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 5
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "C"
-        && syls[startIndex + 2]?.form === "CV"
-        && syls[startIndex + 3]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 4])
-    );
-    const matchesExactCVlCVCVwi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 4
-        && syls[startIndex]?.form === "CVl"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 2]?.form === "CV"
-        && isWiFinalSyllable(syls[startIndex + 3])
-    );
-    const matchesExactLongFinal = (syls, startIndex, minLength, isFinal) => {
-        if (syls.length - startIndex < minLength) {
-            return false;
-        }
-        if (!isFinal(syls[syls.length - 1])) {
-            return false;
-        }
-        for (let i = startIndex; i < syls.length; i += 1) {
-            if (!SYLLABLE_FORM_SET.has(syls[i]?.form)) {
-                return false;
-            }
-        }
-        return true;
-    };
-    const matchesExactLongWa = (syls, startIndex = 0) => (
-        matchesExactLongFinal(syls, startIndex, 4, isWaFinalSyllable)
-    );
-    const matchesExactLongWi = (syls, startIndex = 0) => (
-        matchesExactLongFinal(syls, startIndex, 4, isWiFinalSyllable)
-    );
-    const matchesExactLongNa = (syls, startIndex = 0) => (
-        matchesExactLongFinal(syls, startIndex, 4, isNaFinalSyllable)
-    );
-    const matchesExactLongNi = (syls, startIndex = 0) => (
-        matchesExactLongFinal(syls, startIndex, 4, isNiFinalSyllable)
-    );
-    const matchesExactCVmV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "CV"
-        && syls[startIndex + 1]?.onset === "m"
-    );
-    const matchesExactCVma = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && isMaFinalSyllable(syls[startIndex + 1])
-    );
-    const matchesExactVjCVma = (syls, startIndex = 0) => (
-        (
-            syls.length - startIndex === 3
-            && syls[startIndex]?.form === "Vj"
-            && syls[startIndex + 1]?.form === "CV"
-            && isMaFinalSyllable(syls[startIndex + 2])
-        ) || (
-            syls.length - startIndex === 4
-            && syls[startIndex]?.form === "V"
-            && syls[startIndex + 1]?.form === "C"
-            && syls[startIndex + 1]?.onset === "j"
-            && syls[startIndex + 2]?.form === "CV"
-            && isMaFinalSyllable(syls[startIndex + 3])
-        )
-    );
-    const matchesExactCVV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex + 1]?.form === "V"
-    );
-    const matchesExactVV = (syls, startIndex = 0) => (
-        syls.length - startIndex === 2
-        && syls[startIndex]?.form === "V"
-        && syls[startIndex + 1]?.form === "V"
-    );
-    const matchesExactCa = (syls, startIndex = 0) => (
-        syls.length - startIndex === 1
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex]?.nucleus === "a"
-    );
-    const matchesExactTi = (syls, startIndex = 0) => (
-        syls.length - startIndex === 1
-        && syls[startIndex]?.form === "CV"
-        && syls[startIndex]?.onset === "t"
-        && syls[startIndex]?.nucleus === "i"
-    );
-    const hasVnVRedupPrefix = syllables.length === 3
-        && (syllables[0]?.form === "V" || syllables[0]?.form === "Vj")
-        && matchesExactVnV(syllables, 1);
-    const hasCVnVRedupPrefix = syllables.length === 3
-        && (syllables[0]?.form === "CV" || syllables[0]?.form === "CVj")
-        && matchesExactCVnV(syllables, 1);
-    const hasCVsVRedupPrefix = syllables.length === 3
-        && (syllables[0]?.form === "CV" || syllables[0]?.form === "CVj")
-        && matchesExactCVsV(syllables, 1);
-    const hasCVmVRedupPrefix = syllables.length === 3
-        && (syllables[0]?.form === "CV" || syllables[0]?.form === "CVj")
-        && matchesExactCVmV(syllables, 1);
-    const exactQuery = PRET_DESCRIPTOR_QUERIES.exact;
-    const activePretExactDescriptors = [];
-    const activateExactDescriptor = (query, value) => {
-        const isActive = Boolean(value);
-        if (isActive && query && !pretDescriptorListHasQuery(activePretExactDescriptors, query)) {
-            activePretExactDescriptors.push(query);
-        }
-        return isActive;
-    };
-    const hasExactDescriptor = (query) => pretDescriptorListHasQuery(activePretExactDescriptors, query);
-
-    const rawVnVMatch = matchExact(matchesExactVnV) || hasVnVRedupPrefix;
-    const rawCVnVMatch = matchExact(matchesExactCVnV) || hasCVnVRedupPrefix;
-
-    activateExactDescriptor(exactQuery.cvsV, matchExact(matchesExactCVsV) || hasCVsVRedupPrefix);
-    activateExactDescriptor(exactQuery.cvpV, matchExact(matchesExactCVpV));
-    activateExactDescriptor(exactQuery.cvmV, matchExact(matchesExactCVmV) || hasCVmVRedupPrefix);
-    activateExactDescriptor(exactQuery.cvma, matchExact(matchesExactCVma));
-    activateExactDescriptor(exactQuery.vjcvma, matchExact(matchesExactVjCVma));
-    activateExactDescriptor(exactQuery.cvv, matchExact(matchesExactCVV));
-    activateExactDescriptor(exactQuery.vv, matchExact(matchesExactVV));
-    activateExactDescriptor(exactQuery.ca, matchExact(matchesExactCa));
-    activateExactDescriptor(exactQuery.ti, matchExact(matchesExactTi));
-    activateExactDescriptor(exactQuery.vna, matchExact(matchesExactVna));
-    activateExactDescriptor(exactQuery.cvna, matchExact(matchesExactCVna));
-    activateExactDescriptor(exactQuery.cvcvna, matchExact(matchesExactCVCVna));
-    activateExactDescriptor(exactQuery.cvlvna, matchExact(matchesExactCVlVna));
-    activateExactDescriptor(exactQuery.vlcvna, matchExact(matchesExactVlCVna));
-    activateExactDescriptor(exactQuery.cvccvna, matchExact(matchesExactCVCCVna));
-    activateExactDescriptor(exactQuery.cvcvcvna, matchExact(matchesExactCVCVCVna));
-    activateExactDescriptor(exactQuery.cvccvcvna, matchExact(matchesExactCVCCVCVna));
-    activateExactDescriptor(
-        exactQuery.cvta,
-        matchExact(matchesExactCVta) || (baseIsReduplicated && matchesExactCVta(rawSyllables, 0))
-    );
-    activateExactDescriptor(exactQuery.cvtza, matchExact(matchesExactCVtza));
-    activateExactDescriptor(exactQuery.vjcvtza, matchExact(matchesExactVjCVtza));
-    activateExactDescriptor(exactQuery.cvnia, matchExact(matchesExactCVnia));
-    activateExactDescriptor(exactQuery.cvcvnia, matchExact(matchesExactCVCVnia));
-    activateExactDescriptor(exactQuery.cvlvnia, matchExact(matchesExactCVlVnia));
-    activateExactDescriptor(exactQuery.vjcvnia, matchExact(matchesExactVjCVnia));
-    activateExactDescriptor(exactQuery.cvlvni, matchExact(matchesExactCVlVni));
-    activateExactDescriptor(exactQuery.vjcvni, matchExact(matchesExactVjCVni));
-    activateExactDescriptor(exactQuery.vjcvna, matchExact(matchesExactVjCVna));
-    activateExactDescriptor(exactQuery.cvcvni, matchExact(matchesExactCVCVni));
-    activateExactDescriptor(exactQuery.cvcvcvni, matchExact(matchesExactCVCVCVni));
-    activateExactDescriptor(exactQuery.cvccvcvni, matchExact(matchesExactCVCCVCVni));
-    activateExactDescriptor(exactQuery.cvcvcvcvni, matchExact(matchesExactCVCVCVCVni));
-    activateExactDescriptor(exactQuery.cvvni, matchExact(matchesExactCVVni));
-    activateExactDescriptor(exactQuery.cvni, matchExact(matchesExactCVni));
-    activateExactDescriptor(exactQuery.cvniU, hasExactDescriptor(exactQuery.cvni) && syllables[0]?.nucleus === "u");
-
-    const endsWithNaOrNi = hasExactDescriptor(exactQuery.vna) || hasExactDescriptor(exactQuery.cvna);
-    activateExactDescriptor(exactQuery.vnV, rawVnVMatch && !hasExactDescriptor(exactQuery.vna) && !endsWithNaOrNi);
-    activateExactDescriptor(exactQuery.cvnV, rawCVnVMatch && !hasExactDescriptor(exactQuery.cvna) && !endsWithNaOrNi);
-
-    activateExactDescriptor(exactQuery.vwi, matchExact(matchesExactVwi));
-    activateExactDescriptor(exactQuery.cvwi, matchExact(matchesExactCVwi));
-    activateExactDescriptor(exactQuery.ccvwi, matchExact(matchesExactCCVwi));
-    activateExactDescriptor(exactQuery.vccvwiShort, matchExact(matchesExactVCCVwiShort));
-    activateExactDescriptor(exactQuery.cvkwi, matchExact(matchesExactCVkwi));
-    activateExactDescriptor(exactQuery.vcvwi, matchExact(matchesExactVCVwi));
-    activateExactDescriptor(
-        exactQuery.vcvcu,
-        matchesExactVCVCu(syllables, 0) || (baseIsReduplicated && matchesExactVCVCu(analysisSyllables, 1))
-    );
-    activateExactDescriptor(exactQuery.vlv, matchExact(matchesExactVlV));
-    activateExactDescriptor(exactQuery.cvlv, matchExact(matchesExactCVlV));
-    activateExactDescriptor(exactQuery.vlvwi, matchExact(matchesExactVlVwi));
-
-    activateExactDescriptor(exactQuery.vwa, matchExact(matchesExactVwa));
-    activateExactDescriptor(exactQuery.vjwa, matchExact(matchesExactVjwa));
-    activateExactDescriptor(exactQuery.cvwa, matchExact(matchesExactCVwa));
-    activateExactDescriptor(exactQuery.vccvwa, matchExact(matchesExactVCCVwa));
-    activateExactDescriptor(exactQuery.cvwaA, hasExactDescriptor(exactQuery.cvwa) && syllables[0]?.nucleus === "a");
-    activateExactDescriptor(exactQuery.cvwaI, hasExactDescriptor(exactQuery.cvwa) && syllables[0]?.nucleus === "i");
-    activateExactDescriptor(exactQuery.cewa, matchExact(matchesExactCewa));
-    activateExactDescriptor(exactQuery.vccawa, matchExact(matchesExactVCCawa));
-    activateExactDescriptor(exactQuery.cuwa, hasExactDescriptor(exactQuery.cvwa) && syllables[0]?.nucleus === "u");
-    activateExactDescriptor(exactQuery.vwaI, hasExactDescriptor(exactQuery.vwa) && syllables[0]?.nucleus === "i");
-    activateExactDescriptor(exactQuery.cvcvwa, matchExact(matchesExactCVCVwa));
-    activateExactDescriptor(exactQuery.vjcvwa, matchExact(matchesExactVjCVwa));
-    activateExactDescriptor(exactQuery.cvjcvwa, matchExact(matchesExactCVjCVwa));
-    activateExactDescriptor(exactQuery.cvcawa, matchExact(matchesExactCVCawa));
-    activateExactDescriptor(exactQuery.cvcvewa, matchExact(matchesExactCVCewa));
-    activateExactDescriptor(exactQuery.vjcewa, matchExact(matchesExactVjCewa));
-    activateExactDescriptor(exactQuery.cvlewa, matchExact(matchesExactCVlewa));
-    activateExactDescriptor(exactQuery.cvlawa, matchExact(matchesExactCVlawa));
-    activateExactDescriptor(exactQuery.vlvwa, matchExact(matchesExactVlVwa));
-    activateExactDescriptor(exactQuery.cvlvwa, matchExact(matchesExactCVlVwa));
-    activateExactDescriptor(exactQuery.vlcvwa, matchExact(matchesExactVlCVwa));
-    activateExactDescriptor(exactQuery.cvccvwa, matchExact(matchesExactCVCCVwa));
-    activateExactDescriptor(exactQuery.cvcvcvwa, matchExact(matchesExactCVCVCVwa));
-    activateExactDescriptor(exactQuery.cvccvcvwa, matchExact(matchesExactCVCCVCVwa));
-    activateExactDescriptor(exactQuery.cvlcvcvwa, matchExact(matchesExactCVlCVCVwa));
-    activateExactDescriptor(exactQuery.vccvcvwa, matchExact(matchesExactVCCVCVwa));
-
-    activateExactDescriptor(exactQuery.cvcvwi, matchExact(matchesExactCVCVwi));
-    activateExactDescriptor(exactQuery.cvlvwi, matchExact(matchesExactCVlVwi));
-    activateExactDescriptor(exactQuery.vlcvwi, matchExact(matchesExactVlCVwi));
-    activateExactDescriptor(exactQuery.cvcvcvwi, matchExact(matchesExactCVCVCVwi));
-    activateExactDescriptor(exactQuery.vccvwi, matchExact(matchesExactVCCVwi));
-    activateExactDescriptor(exactQuery.cvjcvwi, matchExact(matchesExactCVjCVwi));
-    activateExactDescriptor(exactQuery.cvcvlvwi, matchExact(matchesExactCVCVlVwi));
-    activateExactDescriptor(exactQuery.cvccvwi, matchExact(matchesExactCVCCVwi));
-    activateExactDescriptor(exactQuery.cvccvcvwi, matchExact(matchesExactCVCCVCVwi));
-    activateExactDescriptor(exactQuery.cvlcvcvwi, matchExact(matchesExactCVlCVCVwi));
-    activateExactDescriptor(exactQuery.vjcvwi, matchExact(matchesExactVjCVwi));
-    activateExactDescriptor(exactQuery.vjcvcvwi, matchExact(matchesExactVjCVCVwi));
-    activateExactDescriptor(exactQuery.cvvjcvwi, matchExact(matchesExactCVVjCVwi));
-
-    activateExactDescriptor(exactQuery.longWa, matchExact(matchesExactLongWa));
-    activateExactDescriptor(exactQuery.longWi, matchExact(matchesExactLongWi));
-    activateExactDescriptor(exactQuery.longNa, matchExact(matchesExactLongNa));
-    activateExactDescriptor(exactQuery.longNi, matchExact(matchesExactLongNi));
+    const hasRightEdge = (query = {}) => pretRightEdgeDescriptorMatchesQuery(rightEdgeDescriptor, query);
+    const forceClassBEnding = pretContextHasAnyRightEdge(
+        { rightEdgeDescriptor },
+        [
+            { rightEdgeProfileSuffixes: ["Vj|CV", "CVj|CV"] },
+            { rightEdgeProfileSuffixes: ["Vl|CV", "CVl|CV"] },
+            { rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"] },
+        ],
+    );
+    const shapeQuery = PRET_DESCRIPTOR_QUERIES.shape;
+    const hasVnVRedupPrefix = pretShapeHasRedupPrefix(shapeQuery.vnV, syllables, ["V", "Vj"]);
+    const hasCVnVRedupPrefix = pretShapeHasRedupPrefix(shapeQuery.cvnV, syllables, ["CV", "CVj"]);
+    const hasCVmVRedupPrefix = pretShapeHasRedupPrefix(shapeQuery.cvmV, syllables, ["CV", "CVj"]);
+    const activePretShapeDescriptors = buildPretActiveShapeDescriptors(shapeQuery, {
+        syllables,
+        analysisSyllables,
+        supportiveSyllables,
+        rawSyllables,
+        baseIsReduplicated,
+        leadingNucleus: syllables[0]?.nucleus || "",
+    });
+    const hasShapeDescriptor = (query) => pretDescriptorListHasQuery(activePretShapeDescriptors, query);
 
     const resolvedForceClassBEnding = forceClassBEnding
-        && !hasExactDescriptor(exactQuery.vccvwi)
-        && !hasExactDescriptor(exactQuery.vccvwiShort)
-        && !hasExactDescriptor(exactQuery.vccvwa);
-    const activePretAggregateDescriptors = buildPretAggregateDescriptors(activePretExactDescriptors, {
+        && !hasShapeDescriptor(shapeQuery.vccvwi)
+        && !hasShapeDescriptor(shapeQuery.vccvwiShort)
+        && !hasShapeDescriptor(shapeQuery.vccvwa);
+    const activePretAggregateDescriptors = buildPretAggregateDescriptors(activePretShapeDescriptors, {
         leadingOnset: syllables[0]?.onset || "",
     });
-    const endsWithNA = lastSyllable?.form === "CV" && lastOnset === "n" && lastNucleus === "a";
-    const endsWithKisV = lastSyllable?.form === "CV"
-        && lastOnset === "s"
-        && penultimateSyllable?.form === "CV"
-        && penultimateSyllable.onset === "k"
-        && penultimateSyllable.nucleus === "i"
-        && antepenultimateSyllable
-        && SYLLABLE_FORM_SET.has(antepenultimateSyllable.form);
     const totalVowels = getTotalVowelCountFromSyllables(syllables);
     const isVtVStart = isPlainVowelSyllable(syllables[0]) && isCVWithOnset(syllables[1], "t");
     const isVVtVStart = isPlainVowelSyllable(syllables[0])
@@ -1686,10 +1490,11 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
     const lastSyllableForm = lastSyllable?.form || null;
     const endsInOpenSyllable = isOpenSyllable(lastSyllable);
     const endsInOpenSyllableNonU = endsInOpenSyllable && lastNucleus !== "u";
-    const endsWithIaUa = endsWithIaUaSyllables(syllables);
     const isItaVerb = isItaSyllableSequence(syllables);
-
-    const forceClassAForKWV = endsWithKWV && !endsWithKWU && !isRootPlusYa && !isMonosyllable;
+    const forceClassAForKWV = hasRightEdge({ finalForm: "CV", finalOnset: "kw" })
+        && !hasRightEdge({ finalForm: "CV", finalOnset: "kw", finalNucleus: "u" })
+        && !isRootPlusYa
+        && !isMonosyllable;
     const resolvedForceClassAForKWV = forceClassAForKWV && !allowKWVClassB;
     const resolvedVerb = isWeya && rootPlusYaBase ? `${rootPlusYaBase}ya` : verb;
     const deletionCreatesCluster = !isTransitive
@@ -1730,40 +1535,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         stemPath,
         isCausativeTypeTwo,
         monosyllableStemPath,
-        endsWithKV,
-        endsWithKU,
-        endsWithKWV,
-        endsWithKWU,
-        endsWithKSeries,
-        endsWithKSeriesU,
-        endsWithKSeriesNoU,
-        endsWithWV,
-        endsWithWa,
-        endsWithTV,
-        endsWithNV,
-        endsWithLV,
-        endsWithVjCV,
-        endsWithVlCV,
-        endsWithVCCV,
         forceClassBEnding: resolvedForceClassBEnding,
-        endsWithMV,
-        endsWithU,
-        endsWithTA,
-        endsWithYA,
-        endsWithTZA,
-        endsWithTZV,
-        endsWithKA,
-        endsWithVka,
-        endsWithCVka,
-        endsWithCaka,
-        endsWithCVnV,
-        endsWithVnV,
-        endsWithPV,
-        endsWithPA,
-        endsWithPI,
-        endsWithChi,
-        endsWithNA,
-        endsWithKisV,
         totalVowels,
         isVtVStart,
         isVVtVStart,
@@ -1775,7 +1547,6 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         penultimateNucleus,
         endsInOpenSyllable,
         endsInOpenSyllableNonU,
-        endsWithIaUa,
         isItaVerb,
         ...denominalSource,
         isYawi,
@@ -1786,7 +1557,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         allowIntransitiveKV: resolvedForceClassAForKWV,
         forceClassAForKWV: resolvedForceClassAForKWV,
     };
-    const descriptorState = buildPretDescriptorState(activePretExactDescriptors, activePretAggregateDescriptors);
+    const descriptorState = buildPretDescriptorState(activePretShapeDescriptors, activePretAggregateDescriptors);
     context.descriptorState = descriptorState;
     PRET_UNIVERSAL_CONTEXT_CACHE.set(contextCacheKey, clonePretUniversalContext(context));
     if (PRET_UNIVERSAL_CONTEXT_CACHE.size > PRET_UNIVERSAL_CONTEXT_CACHE_LIMIT) {
@@ -1921,77 +1692,102 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
             if (context.isTransitive || !context.deletionCreatesCluster) {
                 return false;
             }
-            const allowClusterExactWiWa = pretContextHasAnyExactDescriptor(
+            const allowClusterWiWaShape = pretContextHasAnyShapeDescriptor(
                 context,
                 [
-                    PRET_DESCRIPTOR_QUERIES.exact.ccvwi,
-                    PRET_DESCRIPTOR_QUERIES.exact.vccvwiShort,
-                    PRET_DESCRIPTOR_QUERIES.exact.vccvwa,
+                    PRET_DESCRIPTOR_QUERIES.shape.ccvwi,
+                    PRET_DESCRIPTOR_QUERIES.shape.vccvwiShort,
+                    PRET_DESCRIPTOR_QUERIES.shape.vccvwa,
                 ]
             );
-            return !allowClusterExactWiWa;
+            return !allowClusterWiWaShape;
         },
         classes: ["B"],
     },
     {
-        id: "ends_with_ta_intransitive",
-        label: "ends with ta (intransitive)",
+        id: "descriptor_t+a_intransitive",
+        label: "descriptor t+a (intransitive)",
         tier: "forced",
-        when: (context) => !context.isTransitive && context.endsWithTA,
+        when: (context) => !context.isTransitive && pretContextHasRightEdge(context, { endingFamily: "t+a" }),
         classes: ["B"],
     },
     {
-        id: "ends_with_chi_intransitive",
-        label: "ends with chi (intransitive)",
+        id: "descriptor_ch+i_intransitive",
+        label: "descriptor ch+i (intransitive)",
         tier: "forced",
-        when: (context) => !context.isTransitive && context.endsWithChi && !context.isMonosyllable,
+        when: (context) => (
+            !context.isTransitive
+            && !context.isMonosyllable
+            && pretContextHasRightEdge(context, { endingFamily: "ch+i" })
+        ),
         classes: ["A", "B"],
     },
     {
-        id: "ends_with_pa_transitive",
-        label: "ends with pa (transitive)",
-        tier: "forced",
-        when: (context) => context.isTransitive && context.endsWithPA && !context.isMonosyllable,
-        classes: ["A"],
-    },
-    {
-        id: "ends_with_ma_mi_transitive",
-        label: "ends with ma/mi (transitive)",
-        tier: "forced",
-        when: (context) => context.isTransitive && context.endsWithMV && !context.isMonosyllable,
-        classes: ["A"],
-    },
-    {
-        id: "ends_with_pi_intransitive",
-        label: "ends with pi (intransitive)",
-        tier: "forced",
-        when: (context) => !context.isTransitive && context.endsWithPI && !context.isMonosyllable,
-        classes: ["A", "B"],
-    },
-    {
-        id: "ends_with_ta_transitive_redup_cvcv",
-        label: "ends with ta (transitive redup CVCV)",
+        id: "descriptor_p+a_transitive",
+        label: "descriptor p+a (transitive)",
         tier: "forced",
         when: (context) => (
             context.isTransitive
-            && context.endsWithTA
+            && !context.isMonosyllable
+            && pretContextHasRightEdge(context, { endingFamily: "p+a" })
+        ),
+        classes: ["A"],
+    },
+    {
+        id: "descriptor_m+[a|i]_transitive",
+        label: "descriptor m+[a|i] (transitive)",
+        tier: "forced",
+        when: (context) => (
+            context.isTransitive
+            && !context.isMonosyllable
+            && pretContextHasRightEdge(context, { finalOnset: "m", finalNuclei: ["a", "i"] })
+        ),
+        classes: ["A"],
+    },
+    {
+        id: "descriptor_p+i_intransitive",
+        label: "descriptor p+i (intransitive)",
+        tier: "forced",
+        when: (context) => (
+            !context.isTransitive
+            && !context.isMonosyllable
+            && pretContextHasRightEdge(context, { endingFamily: "p+i" })
+        ),
+        classes: ["A", "B"],
+    },
+    {
+        id: "descriptor_t+a_transitive_redup_cvcv",
+        label: "descriptor t+a (transitive redup CVCV)",
+        tier: "forced",
+        when: (context) => (
+            context.isTransitive
+            && pretContextHasRightEdge(context, { endingFamily: "t+a" })
             && context.analysisVerb !== "ita"
             && context.isReduplicatedCVCV
         ),
         classes: ["A", "B"],
     },
     {
-        id: "ends_with_ta_transitive",
-        label: "ends with ta (transitive)",
+        id: "descriptor_t+a_transitive",
+        label: "descriptor t+a (transitive)",
         tier: "forced",
-        when: (context) => context.isTransitive && context.endsWithTA && context.analysisVerb !== "ita",
+        when: (context) => (
+            context.isTransitive
+            && context.analysisVerb !== "ita"
+            && pretContextHasRightEdge(context, { endingFamily: "t+a" })
+        ),
         classes: ["B"],
     },
     {
-        id: "ends_with_tzv",
-        label: "ends with tzV",
+        id: "descriptor_tz+*",
+        label: "descriptor tz+*",
         tier: "forced",
-        when: (context) => context.endsWithTZV && !context.endsWithVCCV,
+        when: (context) => (
+            pretContextHasRightEdge(context, { finalOnset: "tz" })
+            && !pretContextHasAnyRightEdge(context, [
+                { rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"] },
+            ])
+        ),
         classes: ["A"],
     },
     {
@@ -2006,383 +1802,392 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
 const PRET_UNIVERSAL_LV_TIER_RULES = Object.freeze([
     {
         id: "lv_i",
-        label: "LV (i)",
+        label: "descriptor l+* · [Vl|V|CVl|V] · i",
         tier: "forced",
         when: (context) => (
             !context.isTransitive
             && context.lastNucleus === "i"
-            && pretContextHasAnyExactDescriptor(
+            && pretContextHasAnyRightEdge(
                 context,
-                [PRET_DESCRIPTOR_QUERIES.exact.vlv, PRET_DESCRIPTOR_QUERIES.exact.cvlv]
+                [{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }]
             )
         ),
         classes: ["A", "B"],
     },
     {
-        id: "ends_with_lv",
-        label: "ends with LV",
+        id: "descriptor_lv",
+        label: "descriptor l+* · [Vl|V|CVl|V]",
         tier: "forced",
-        when: (context) => context.endsWithLV,
+        when: (context) => pretContextHasAnyRightEdge(context, [{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }]),
         classes: ["A"],
     },
     {
-        id: "exact_lv_i",
-        label: "exact LV (i)",
-        tier: "exact",
+        id: "descriptor_lv_i",
+        label: "descriptor l+* · [Vl|V|CVl|V] · i",
+        tier: "shape",
         when: (context) => (
             context.lastNucleus === "i"
-            && pretContextHasAnyExactDescriptor(
+            && pretContextHasAnyRightEdge(
                 context,
-                [PRET_DESCRIPTOR_QUERIES.exact.vlv, PRET_DESCRIPTOR_QUERIES.exact.cvlv]
+                [{ rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"] }]
             )
         ),
         classes: ["A", "B"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_CORE_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_CORE_TIER_RULES = Object.freeze([
     {
-        id: "exact_nia_transitive",
-        label: "exact Nia (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactEndingFamily(context, "n+ia"),
+        id: "descriptor_nia_transitive",
+        label: "descriptor Nia (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeEndingFamily(context, "n+ia"),
         classes: ["C"],
     },
     {
-        id: "exact_cvv_transitive",
-        label: "exact CV-V (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvv),
+        id: "descriptor_cvv_transitive",
+        label: "descriptor CV-V (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvv),
         classes: ["C"],
     },
     {
-        id: "exact_vv_intransitive",
-        label: "exact V-V (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vv),
+        id: "descriptor_vv_intransitive",
+        label: "descriptor V-V (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vv),
         classes: ["C"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_NA_INTRANSITIVE_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_NA_INTRANSITIVE_TIER_RULES = Object.freeze([
     {
-        id: "exact_vna_intransitive",
-        label: "exact V-CV(na) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vna),
+        id: "descriptor_vna_intransitive",
+        label: "descriptor V-CV(na) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vna),
         classes: ["B"],
     },
     {
-        id: "exact_cvna_intransitive",
-        label: "exact CV-CV(na) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvna),
+        id: "descriptor_cvna_intransitive",
+        label: "descriptor CV-CV(na) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvna),
         classes: ["A", "B"],
     },
     {
-        id: "exact_cvcvna_intransitive",
-        label: "exact CV-CV-CV(na) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvcvna),
+        id: "descriptor_na_three_syllable_intransitive",
+        label: "descriptor n+a, three-syllable right edge (intransitive)",
+        tier: "shape",
+        when: (context) => (
+            !context.isTransitive
+            && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV)
+        ),
         classes: ["A"],
     },
     {
-        id: "exact_cvcvcvna_intransitive",
-        label: "exact CV-CV-CV-CV(na) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvcvcvna),
+        id: "descriptor_na_four_syllable_intransitive",
+        label: "descriptor n+a, four-syllable right edge (intransitive)",
+        tier: "shape",
+        when: (context) => (
+            !context.isTransitive
+            && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV_CV)
+        ),
         classes: ["A"],
     },
     {
-        id: "exact_vwi_intransitive",
-        label: "exact V-CV(wi) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vwi),
+        id: "descriptor_vwi_intransitive",
+        label: "descriptor V-CV(wi) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vwi),
         classes: ["A"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_NA_TRANSITIVE_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_NA_TRANSITIVE_TIER_RULES = Object.freeze([
     {
-        id: "exact_cvcvna",
-        label: "exact CV-CV-CV(na)",
-        tier: "exact",
-        when: (context) => pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvcvna),
+        id: "descriptor_na_three_syllable_transitive",
+        label: "descriptor n+a, three-syllable right edge (transitive)",
+        tier: "shape",
+        when: (context) => pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV),
         classes: ["A"],
     },
     {
-        id: "exact_cvlvna_transitive",
-        label: "exact CVl-V-CV(na) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvlvna),
+        id: "descriptor_cvlvna_transitive",
+        label: "descriptor CVl-V-CV(na) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvlvna),
         classes: ["A"],
     },
     {
-        id: "exact_vlcvna_transitive",
-        label: "exact Vl-CV-CV(na) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vlcvna),
+        id: "descriptor_vlcvna_transitive",
+        label: "descriptor Vl-CV-CV(na) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna),
         classes: ["A"],
     },
     {
-        id: "exact_vjcvna_transitive",
-        label: "exact Vj-CV-CV(na) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vjcvna),
+        id: "descriptor_vjcvna_transitive",
+        label: "descriptor Vj-CV-CV(na) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna),
         classes: ["A"],
     },
     {
-        id: "exact_cvtza_transitive",
-        label: "exact CV-CV(tza) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasAnyExactDescriptor(
+        id: "descriptor_cvtza_transitive",
+        label: "descriptor CV-CV(tza) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasAnyShapeDescriptor(
             context,
-            [PRET_DESCRIPTOR_QUERIES.exact.cvtza, PRET_DESCRIPTOR_QUERIES.exact.vjcvtza]
+            [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza]
         ),
         classes: ["A"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_TA_PV_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_TA_PV_TIER_RULES = Object.freeze([
     {
-        id: "exact_cvta_intransitive",
-        label: "exact CV-CV(ta) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvta),
+        id: "descriptor_cvta_intransitive",
+        label: "descriptor CV-CV(ta) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvta),
         classes: ["B"],
     },
     {
-        id: "exact_cvpv_transitive",
-        label: "exact CV-CV(pV) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvpV),
+        id: "descriptor_cvpv_transitive",
+        label: "descriptor CV-CV(pV) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvpV),
         classes: ["A"],
     },
     {
-        id: "exact_cvpv_intransitive",
-        label: "exact CV-CV(pV) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvpV),
+        id: "descriptor_cvpv_intransitive",
+        label: "descriptor CV-CV(pV) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvpV),
         classes: ["A", "B"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_MA_KWI_NI_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_MA_KWI_NI_TIER_RULES = Object.freeze([
     {
-        id: "exact_cvma_transitive",
-        label: "exact CV-CV(ma) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasAnyExactDescriptor(
+        id: "descriptor_cvma_transitive",
+        label: "descriptor CV-CV(ma) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasAnyShapeDescriptor(
             context,
-            [PRET_DESCRIPTOR_QUERIES.exact.cvma, PRET_DESCRIPTOR_QUERIES.exact.vjcvma]
+            [PRET_DESCRIPTOR_QUERIES.shape.cvma, PRET_DESCRIPTOR_QUERIES.shape.vjcvma]
         ),
         classes: ["A"],
     },
     {
-        id: "exact_cvkwi_intransitive",
-        label: "exact CV-CV(kwi) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvkwi),
+        id: "descriptor_cvkwi_intransitive",
+        label: "descriptor CV-CV(kwi) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvkwi),
         classes: ["B"],
     },
     {
-        id: "exact_vcvcu_intransitive",
-        label: "exact V-CV-CV(u) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vcvcu),
+        id: "descriptor_vcvcu_intransitive",
+        label: "descriptor V-CV-CV(u) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vcvcu),
         classes: ["B"],
     },
     {
-        id: "exact_vlcvwi_intransitive",
-        label: "exact Vl-CV-CV(wi) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vlcvwi),
+        id: "descriptor_vlcvwi_intransitive",
+        label: "descriptor Vl-CV-CV(wi) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvwi),
         classes: ["B"],
     },
     {
-        id: "exact_cvniu_intransitive",
-        label: "exact CV(u)-CV(ni) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvniU),
+        id: "descriptor_cvniu_intransitive",
+        label: "descriptor CV(u)-CV(ni) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvniU),
         classes: ["B"],
     },
     {
-        id: "exact_cvvni_intransitive",
-        label: "exact CV-V-CV(ni) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvvni),
+        id: "descriptor_cvvni_intransitive",
+        label: "descriptor CV-V-CV(ni) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvvni),
         classes: ["A", "B"],
     },
     {
-        id: "exact_ni_transitive",
-        label: "exact Ni (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactEndingFamily(context, "n+i"),
+        id: "descriptor_ni_transitive",
+        label: "descriptor Ni (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeEndingFamily(context, "n+i"),
         classes: ["A"],
     },
     {
-        id: "exact_na_transitive",
-        label: "exact Na (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactEndingFamily(context, "n+a"),
+        id: "descriptor_na_transitive",
+        label: "descriptor Na (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeEndingFamily(context, "n+a"),
         classes: ["A"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_WA_ENTRY_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_WA_ENTRY_TIER_RULES = Object.freeze([
     {
-        id: "exact_vjwa",
-        label: "exact Vj-CV(wa)",
-        tier: "exact",
-        when: (context) => pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vjwa),
+        id: "descriptor_vjwa",
+        label: "descriptor Vj-CV(wa)",
+        tier: "shape",
+        when: (context) => pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjwa),
         classes: ["B"],
     },
     {
-        id: "ends_with_u",
-        label: "ends with U",
+        id: "descriptor_Ø+u",
+        label: "descriptor Ø+u",
         tier: "forced",
-        when: (context) => context.endsWithU,
+        when: (context) => pretContextHasRightEdge(context, { finalForm: "V", finalNucleus: "u" }),
         classes: ["B"],
     },
     {
-        id: "exact_cvwai_transitive",
-        label: "exact CV(i)-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvwaI),
+        id: "descriptor_cvwai_transitive",
+        label: "descriptor CV(i)-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwaI),
         classes: ["A"],
     },
     {
-        id: "exact_vwai_transitive",
-        label: "exact V(i)-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vwaI),
+        id: "descriptor_vwai_transitive",
+        label: "descriptor V(i)-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vwaI),
         classes: ["D"],
     },
     {
-        id: "exact_vwa_transitive",
-        label: "exact V-CV(wa) (transitive)",
-        tier: "exact",
+        id: "descriptor_vwa_transitive",
+        label: "descriptor V-CV(wa) (transitive)",
+        tier: "shape",
         when: (context) => context.isTransitive
-            && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vwa)
-            && !pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vwaI),
+            && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vwa)
+            && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vwaI),
         classes: ["A"],
     },
 ]);
 
-const PRET_UNIVERSAL_EXACT_WA_REST_TIER_RULES = Object.freeze([
+const PRET_UNIVERSAL_SHAPE_WA_REST_TIER_RULES = Object.freeze([
     {
-        id: "exact_vccawa_transitive",
-        label: "exact V-C-CV(a)-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vccawa),
+        id: "descriptor_vccawa_transitive",
+        label: "descriptor V-C-CV(a)-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vccawa),
         classes: ["A"],
     },
     {
-        id: "exact_wa_transitive",
-        label: "exact Wa (transitive)",
-        tier: "exact",
+        id: "descriptor_wa_transitive",
+        label: "descriptor Wa (transitive)",
+        tier: "shape",
         when: (context) => (
             context.isTransitive
-            && pretContextHasAnyExactDescriptor(
+            && pretContextHasAnyShapeDescriptor(
                 context,
                 [
-                    PRET_DESCRIPTOR_QUERIES.exact.cvwaA,
-                    PRET_DESCRIPTOR_QUERIES.exact.cvcawa,
-                    PRET_DESCRIPTOR_QUERIES.exact.cvlawa,
+                    PRET_DESCRIPTOR_QUERIES.shape.cvwaA,
+                    PRET_DESCRIPTOR_QUERIES.shape.cvcawa,
+                    PRET_DESCRIPTOR_QUERIES.shape.cvlawa,
                 ]
             )
         ),
         classes: ["A"],
     },
     {
-        id: "exact_ewa_transitive",
-        label: "exact Ewa (transitive)",
-        tier: "exact",
+        id: "descriptor_ewa_transitive",
+        label: "descriptor Ewa (transitive)",
+        tier: "shape",
         when: (context) => context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern),
         classes: ["A"],
     },
     {
-        id: "exact_vjcvwa_transitive",
-        label: "exact Vj-CV-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vjcvwa),
+        id: "descriptor_vjcvwa_transitive",
+        label: "descriptor Vj-CV-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvwa),
         classes: ["A"],
     },
     {
-        id: "exact_cvjcvwa_transitive",
-        label: "exact CVj-CV-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvjcvwa),
+        id: "descriptor_cvjcvwa_transitive",
+        label: "descriptor CVj-CV-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvjcvwa),
         classes: ["A"],
     },
     {
-        id: "exact_vlcvwa_transitive",
-        label: "exact Vl-CV-CV(wa) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.vlcvwa),
+        id: "descriptor_vlcvwa_transitive",
+        label: "descriptor Vl-CV-CV(wa) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvwa),
         classes: ["A"],
     },
     {
-        id: "exact_cvwi_transitive",
-        label: "exact CV-CV(wi) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvwi),
+        id: "descriptor_cvwi_transitive",
+        label: "descriptor CV-CV(wi) (transitive)",
+        tier: "shape",
+        when: (context) => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwi),
         classes: ["A", "B"],
     },
     {
-        id: "exact_cvcvwi_transitive",
-        label: "exact CV-CV-CV(wi) (transitive)",
-        tier: "exact",
-        when: (context) => context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvcvwi),
+        id: "descriptor_wi_three_syllable_transitive",
+        label: "descriptor w+i, three-syllable right edge (transitive)",
+        tier: "shape",
+        when: (context) => (
+            context.isTransitive
+            && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)
+        ),
         classes: ["A", "B"],
     },
     {
-        id: "exact_wi_transitive",
-        label: "exact Wi (transitive)",
-        tier: "exact",
+        id: "descriptor_wi_transitive",
+        label: "descriptor Wi (transitive)",
+        tier: "shape",
         when: (context) => context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern),
         classes: ["A", "B"],
     },
     {
-        id: "exact_cuwa_intransitive",
-        label: "exact CV(u)-CV(wa) (intransitive)",
-        tier: "exact",
-        when: (context) => !context.isTransitive && pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cuwa),
+        id: "descriptor_cuwa_intransitive",
+        label: "descriptor CV(u)-CV(wa) (intransitive)",
+        tier: "shape",
+        when: (context) => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cuwa),
         classes: ["B"],
     },
     {
-        id: "exact_lwa_intransitive",
-        label: "exact Lwa (intransitive)",
-        tier: "exact",
+        id: "descriptor_lwa_intransitive",
+        label: "descriptor Lwa (intransitive)",
+        tier: "shape",
         when: (context) => !context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.lwaPattern),
         classes: ["A", "B"],
     },
     {
-        id: "exact_short_wi_intransitive",
-        label: "exact short Wi (intransitive)",
-        tier: "exact",
+        id: "descriptor_short_wi_intransitive",
+        label: "descriptor short Wi (intransitive)",
+        tier: "shape",
         when: (context) => !context.isTransitive
-            && pretContextHasAnyExactDescriptor(
+            && pretContextHasAnyShapeDescriptor(
                 context,
-                [PRET_DESCRIPTOR_QUERIES.exact.vccvwiShort, PRET_DESCRIPTOR_QUERIES.exact.ccvwi]
+                [PRET_DESCRIPTOR_QUERIES.shape.vccvwiShort, PRET_DESCRIPTOR_QUERIES.shape.ccvwi]
             ),
         classes: ["A"],
     },
     {
-        id: "exact_wi_intransitive",
-        label: "exact Wi (intransitive)",
-        tier: "exact",
+        id: "descriptor_wi_intransitive",
+        label: "descriptor Wi (intransitive)",
+        tier: "shape",
         when: (context) => !context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern),
         classes: ["A", "B"],
     },
     {
-        id: "exact_wa_intransitive",
-        label: "exact Wa (intransitive)",
-        tier: "exact",
+        id: "descriptor_wa_intransitive",
+        label: "descriptor Wa (intransitive)",
+        tier: "shape",
         resolveCandidates: (context) => {
             if (!context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.waPattern)) {
                 const classes = ["A"];
-                if (pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvcvwa) && !context.isReduplicated) {
+                if (pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV) && !context.isReduplicated) {
                     classes.push("B");
                 }
                 return classes;
@@ -2393,41 +2198,34 @@ const PRET_UNIVERSAL_EXACT_WA_REST_TIER_RULES = Object.freeze([
     {
         id: "length_gradient_na_intransitive",
         label: "length gradient Na (intransitive)",
-        tier: "exact",
+        tier: "shape",
         when: (context) => (
             !context.isTransitive
-            && pretContextHasAnyExactDescriptor(
-                context,
-                [
-                    PRET_DESCRIPTOR_QUERIES.exact.cvccvna,
-                    PRET_DESCRIPTOR_QUERIES.exact.cvccvcvna,
-                    PRET_DESCRIPTOR_QUERIES.exact.longNa,
-                ]
-            )
+            && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naDepthAtLeastFour)
         ),
         classes: ["A"],
     },
     {
-        id: "exact_vnv_cvnv_cvmv_transitive",
-        label: "exact V-CV(nV)/CV-CV(nV)/CV-CV(mV) (transitive)",
-        tier: "exact",
+        id: "descriptor_vnv_cvnv_cvmv_transitive",
+        label: "descriptor V-CV(nV)/CV-CV(nV)/CV-CV(mV) (transitive)",
+        tier: "shape",
         when: (context) => context.isTransitive
-            && pretContextHasAnyExactDescriptor(
+            && pretContextHasAnyShapeDescriptor(
                 context,
                 [
-                    PRET_DESCRIPTOR_QUERIES.exact.vnV,
-                    PRET_DESCRIPTOR_QUERIES.exact.cvnV,
-                    PRET_DESCRIPTOR_QUERIES.exact.cvmV,
+                    PRET_DESCRIPTOR_QUERIES.shape.vnV,
+                    PRET_DESCRIPTOR_QUERIES.shape.cvnV,
+                    PRET_DESCRIPTOR_QUERIES.shape.cvmV,
                 ]
             ),
         classes: ["A"],
     },
     {
-        id: "exact_cvsv",
-        label: "exact CV-CV(sV)",
-        tier: "exact",
+        id: "descriptor_cvsv",
+        label: "descriptor CV-CV(sV)",
+        tier: "shape",
         resolveCandidates: (context) => {
-            if (!pretContextHasExactDescriptor(context, PRET_DESCRIPTOR_QUERIES.exact.cvsV)) {
+            if (!pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvsV)) {
                 return [];
             }
             const classes = ["A"];
@@ -2460,7 +2258,12 @@ const PRET_UNIVERSAL_DEFAULT_CLASS_RULES = Object.freeze([
         when: (ctx) => (
             ctx.endsInOpenSyllableNonU
             && ctx.vowelCount === 2
-            && ctx.endsWithIaUa
+            && pretContextHasRightEdge(ctx, {
+                finalForm: "V",
+                finalNucleus: "a",
+                previousHasCoda: false,
+                previousNuclei: ["i", "u"],
+            })
         ),
         classes: ["C"],
     },
@@ -2474,13 +2277,13 @@ const PRET_UNIVERSAL_DEFAULT_CLASS_RULES = Object.freeze([
 const PRET_UNIVERSAL_CLASS_TIER_TABLES = Object.freeze([
     PRET_UNIVERSAL_EARLY_TIER_RULES,
     PRET_UNIVERSAL_LV_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_CORE_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_NA_INTRANSITIVE_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_NA_TRANSITIVE_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_TA_PV_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_MA_KWI_NI_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_WA_ENTRY_TIER_RULES,
-    PRET_UNIVERSAL_EXACT_WA_REST_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_CORE_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_NA_INTRANSITIVE_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_NA_TRANSITIVE_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_TA_PV_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_MA_KWI_NI_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_WA_ENTRY_TIER_RULES,
+    PRET_UNIVERSAL_SHAPE_WA_REST_TIER_RULES,
 ]);
 
 function buildPretUniversalRuleTierByLabelMap() {
@@ -2598,7 +2401,7 @@ function buildPretUniversalClassComputationFlags(context) {
     const allowUnpronounceable = override?.allowUnpronounceable === true || context?.allowUnpronounceable === true;
     const disallowTransitiveWaB = Boolean(
         context?.isTransitive
-        && context?.endsWithWa
+        && pretContextHasRightEdge(context, { endingFamily: "w+a" })
         && context?.letterCount >= 4,
     );
     const forceClassAForKWV = context?.forceClassAForKWV === true;
@@ -2670,20 +2473,20 @@ function resolvePretUniversalClassSelection(context, options = {}) {
 }
 
 function getPretUniversalClassCandidates(context, trace = null) {
-    // Precedence: root+ya > monosyllable > forced-B endings > endsWithLV > exact patterns
+    // Precedence: root+ya > monosyllable > forced-B endings > descriptor LV > descriptor patterns
     // > general class rules.
     return resolvePretUniversalClassSelection(context, { trace }).candidates;
 }
 
-function getPretUniversalExactPatternLabels(context) {
+function getPretUniversalShapeLabels(context) {
     if (!context) {
         return [];
     }
     const descriptorState = pretContextGetDescriptorState(context);
-    const exactDescriptors = Array.isArray(descriptorState?.exactDescriptors)
-        ? descriptorState.exactDescriptors
+    const shapeDescriptors = Array.isArray(descriptorState?.shapeDescriptors)
+        ? descriptorState.shapeDescriptors
         : [];
-    return exactDescriptors
+    return shapeDescriptors
         .map((descriptor) => formatPretDescriptorLabel(descriptor, {
             activeRightEdgeProfile: context.rightEdgeProfile,
         }))
@@ -2700,8 +2503,8 @@ function buildPretUniversalRuleSummary(context) {
     const candidates = selection.candidates;
     const ruleLabel = selection.ruleLabel;
     const ruleTier = selection.ruleTier;
-    const exactLabels = getPretUniversalExactPatternLabels(context);
-    const exactLabel = exactLabels.length ? exactLabels[0] : "";
+    const shapeLabels = getPretUniversalShapeLabels(context);
+    const shapeLabel = shapeLabels.length ? shapeLabels[0] : "";
     const classList = candidates.size ? formatPretUniversalClassList(candidates) : "";
     let resolvedClassList = "";
     if (typeof getPretUniversalVariantsByClass === "function") {
@@ -2721,8 +2524,8 @@ function buildPretUniversalRuleSummary(context) {
     return {
         ruleLabel,
         ruleTier,
-        exactLabel,
-        exactLabels,
+        shapeLabel,
+        shapeLabels,
         classList,
         resolvedClassList,
         gates: selection.gates,
