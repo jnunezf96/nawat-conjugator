@@ -355,19 +355,24 @@ const COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT = {
     b: "",
     c: "",
 };
+const COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT = {
+    a: "",
+    b: "",
+    c: "",
+};
 const COMPOSER_ENTRY_BOARD_SLOT_A_STATE = {
     [COMPOSER_ENTRY_BOARD.general]: {
         slots: {
-            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
-            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
-            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
+            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
+            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
         },
     },
     [COMPOSER_ENTRY_BOARD.nounToVerb]: {
         slots: {
-            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
-            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
-            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "" },
+            a: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
+            b: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
+            c: { stem: "", embed: "", serialType: "auto", templateSuffix: "", templateSurface: "", templateTiCausativeClass: "" },
         },
     },
 };
@@ -389,7 +394,8 @@ const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
     {
         key: "token:ti-become",
         kind: "token",
-        value: "_ti2",
+        value: "_ti1",
+        serialType: "ti-become",
         templateSuffix: "ti",
         groupKey: "noun-to-verb",
         label: "-TI (SER)",
@@ -409,7 +415,8 @@ const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
     {
         key: "token:ti-have",
         kind: "token",
-        value: "_ti1",
+        value: "_ti2",
+        serialType: "ti-have",
         templateSuffix: "ti",
         groupKey: "noun-to-verb",
         label: "-TI (TENER)",
@@ -17699,6 +17706,12 @@ function getComposerActiveTiCausativeClass() {
         return "";
     }
     const activeSlot = getComposerActiveSlotFromState();
+    const nounToVerbTiClass = normalizeTiCausativeClass(
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[activeSlot] || ""
+    );
+    if (nounToVerbTiClass) {
+        return nounToVerbTiClass;
+    }
     const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] || "auto";
     return getComposerTiCausativeClassFromSerialType(selectedType);
 }
@@ -18111,6 +18124,7 @@ function applyComposerSerialFormattingToStemInput(stemInput, options = {}) {
         && !isComposerNounToVerbTemplateSuffixAllowed(slotKey, dropdownTemplateSuffix, rawValue)
     ) {
         COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
         COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
         if (stemInput.dataset?.dropdownTemplateSuffix) {
             delete stemInput.dataset.dropdownTemplateSuffix;
@@ -18289,10 +18303,10 @@ function getComposerTemplateSuffixFromSerialType(selectedType = "") {
 
 function getComposerMatrixComboboxValueForSerialType(selectedType = "") {
     const type = String(selectedType || "").toLowerCase();
-    if (type === "ti-have") {
+    if (type === "ti-become") {
         return "_ti1";
     }
-    if (type === "ti-become") {
+    if (type === "ti-have") {
         return "_ti2";
     }
     const templateSuffix = getComposerTemplateSuffixFromSerialType(type);
@@ -18316,6 +18330,7 @@ function applyComposerSerialTypeSelection({
     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = selectedType;
     COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
     COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+    COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
     if (serialOption.slotCount > 0) {
         COMPOSER_SERIAL_SLOT_PREF_BY_SLOT[slotKey] = serialOption.slotCount;
     }
@@ -18338,6 +18353,7 @@ function applyComposerTemplateSuffixSelection({
     slotKey = "",
     templateSuffix = "",
     stemInput = null,
+    tiCausativeClass = "",
 } = {}) {
     if (!COMPOSER_SLOT_KEYS.includes(slotKey)) {
         return false;
@@ -18352,6 +18368,7 @@ function applyComposerTemplateSuffixSelection({
     }
     const preservedRoot = getComposerEditableRootForCurrentAffixState(slotKey, latestStemInput);
     const usesNounToVerbStemLogic = shouldUseComposerNounToVerbStemLogic(slotKey, normalizedSuffix);
+    const normalizedTiCausativeClass = normalizeTiCausativeClass(tiCausativeClass);
     if (
         usesNounToVerbStemLogic
         && !isComposerNounToVerbTemplateSuffixAllowed(slotKey, normalizedSuffix, preservedRoot)
@@ -18364,9 +18381,13 @@ function applyComposerTemplateSuffixSelection({
         : "";
     if (usesNounToVerbStemLogic) {
         COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = normalizedSuffix;
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = normalizedSuffix === "ti"
+            ? normalizedTiCausativeClass
+            : "";
         delete latestStemInput.dataset.dropdownTemplateSuffix;
     } else {
         COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
         latestStemInput.dataset.dropdownTemplateSuffix = normalizedSuffix;
     }
     latestStemInput.value = preservedRoot;
@@ -18577,6 +18598,7 @@ function applyComposerMatrixComboboxMatch(slotKey = "", stemInput = null, match 
             slotKey,
             templateSuffix: match.templateSuffix,
             stemInput,
+            tiCausativeClass: getComposerTiCausativeClassFromSerialType(match.serialType),
         });
     }
     if (match.serialType && match.serialType !== "auto") {
@@ -18670,9 +18692,18 @@ function getComposerMatrixAffixCurrentState(slotKey = "", stemInput = null) {
     }
     const templateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
     if (templateSuffix) {
+        const templateTiCausativeClass = normalizeTiCausativeClass(
+            COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] || ""
+        );
+        const templateSerialType = templateTiCausativeClass === "become"
+            ? "ti-become"
+            : (templateTiCausativeClass === "have" ? "ti-have" : "");
         const specialState = getComposerMatrixAffixStateFromEntry(
             getComposerMatrixAffixSpecialEntry(slotKey, {
-                value: `_${templateSuffix}`,
+                value: templateSerialType
+                    ? getComposerMatrixComboboxValueForSerialType(templateSerialType)
+                    : `_${templateSuffix}`,
+                serialType: templateSerialType,
                 templateSuffix,
             })
         );
@@ -18686,7 +18717,10 @@ function getComposerMatrixAffixCurrentState(slotKey = "", stemInput = null) {
             shortLabel,
             detailLabel: `Nombre→verbo ${shortLabel}`,
             triggerPrefix: getComposerMatrixAffixTriggerPrefix("token"),
-            value: `_${templateSuffix}`,
+            value: templateSerialType
+                ? getComposerMatrixComboboxValueForSerialType(templateSerialType)
+                : `_${templateSuffix}`,
+            serialType: templateSerialType,
         };
     }
     const typedValue = String(stemInput?.value || "").trim().toLowerCase();
@@ -19047,6 +19081,7 @@ function clearComposerMatrixAffixSelection(slotKey = "", stemInput = null) {
     COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
     COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
     COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+    COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
     delete stemInput.dataset.dropdownTemplateSuffix;
     applyComposerSerialFormattingToStemInput(stemInput, {
         preserveCaret: true,
@@ -19089,6 +19124,7 @@ function applyComposerMatrixAffixPickerSelection(slotKey = "", entry = null, opt
             slotKey,
             templateSuffix: String(entry.value || "").replace(/^_+/, ""),
             stemInput,
+            tiCausativeClass: getComposerTiCausativeClassFromSerialType(entry.serialType || ""),
         });
     }
     if (!optionList) {
@@ -19343,6 +19379,9 @@ function captureComposerEntryBoardSlotAState(board = "") {
         slotSnapshot.serialType = String(COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto").trim().toLowerCase() || "auto";
         slotSnapshot.templateSuffix = getComposerStemInputTemplateSuffix(stemInput, slotKey);
         slotSnapshot.templateSurface = normalizeComposerStem(COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] || "");
+        slotSnapshot.templateTiCausativeClass = normalizeTiCausativeClass(
+            COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] || ""
+        );
     });
 }
 
@@ -19364,8 +19403,12 @@ function restoreComposerEntryBoardSlotAState(board = "") {
             COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = normalizeComposerStem(
                 slotSnapshot.templateSuffix || ""
             );
+            COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = normalizeTiCausativeClass(
+                slotSnapshot.templateTiCausativeClass || ""
+            );
         } else {
             COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+            COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
         }
         const stemInput = slots[slotKey]?.stemInput || null;
         if (!stemInput) {
@@ -20047,13 +20090,18 @@ function buildRegexFromComposerState(state) {
     const activeSlot = transitivity === COMPOSER_TRANSITIVITY.bitransitive
         ? "c"
         : (transitivity === COMPOSER_TRANSITIVITY.transitive ? "b" : "a");
+    const activeStemInput = getVerbComposerElements().slots?.[activeSlot]?.stemInput || null;
     const selectedSerialType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] || "auto";
     const selectedSerialOption = getComposerSerialTypeOptionByValue(selectedSerialType);
     const selectedSerialSlotCount = Math.max(1, Number(selectedSerialOption?.slotCount || 1));
-    const tiCausativeClass = getComposerTiCausativeClassFromSerialType(selectedSerialType);
+    const tiCausativeClass = normalizeTiCausativeClass(
+        getComposerActiveTiCausativeClass()
+        || getComposerTiCausativeClassFromSerialType(selectedSerialType)
+    );
     const tiClassSuffix = tiCausativeClass === "become"
         ? "1"
         : (tiCausativeClass === "have" ? "2" : "");
+    const activeTemplateSuffix = getComposerStemInputTemplateSuffix(activeStemInput, activeSlot);
     const directionalPrefix = state.directionalPrefix || "";
     const directionalRegexPrefix = directionalPrefix ? `[${directionalPrefix}]` : "";
     const hasMatrixStem = Boolean(matrixStem);
@@ -20072,13 +20120,37 @@ function buildRegexFromComposerState(state) {
         state?.mode === VERB_INPUT_MODE.composer
         || isVerbInputModeComposer()
     );
-    const matrixPlaceholderStem = getComposerSerialInputTemplate(
-        selectedSerialType,
-        selectedSerialSlotCount
-    ).placeholder || "_";
-    const matrixRegexStem = hasMatrixStem
-        ? matrixStem
-        : ((hasSelectionStructure || isComposerTemplateMode) ? matrixPlaceholderStem : "");
+    const matrixPlaceholderStem = activeTemplateSuffix
+        ? `_${activeTemplateSuffix}`
+        : (
+            getComposerSerialInputTemplate(
+                selectedSerialType,
+                selectedSerialSlotCount
+            ).placeholder || "_"
+        );
+    const matrixSurfaceValue = activeTemplateSuffix
+        ? getComposerNounToVerbSurfaceValue(activeSlot, matrixStem || "")
+        : "";
+    const templateCanonicalStem = activeTemplateSuffix
+        ? resolveComposerLockedTemplateStem(
+            matrixStem || matrixPlaceholderStem,
+            activeTemplateSuffix,
+            {
+                slotKey: activeSlot,
+                surfaceValue: matrixSurfaceValue || matrixStem || "",
+            }
+        ).canonicalStem
+        : "";
+    const matrixRegexStem = activeTemplateSuffix
+        ? (
+            templateCanonicalStem
+            || ((hasSelectionStructure || isComposerTemplateMode) ? matrixPlaceholderStem : "")
+        )
+        : (
+            hasMatrixStem
+                ? matrixStem
+                : ((hasSelectionStructure || isComposerTemplateMode) ? matrixPlaceholderStem : "")
+        );
     const formatValenceToken = (token = "") => {
         const surface = normalizeComposerSecondaryValenceSurfaceToken(token)
             || normalizeComposerValenceToken(token);
@@ -20100,6 +20172,11 @@ function buildRegexFromComposerState(state) {
         }
         return stem;
     };
+    const realizedMatrixStemBase = (
+        hasMatrixStem && !activeTemplateSuffix
+            ? normalizeComposerStem(matrixStem)
+            : matrixRegexStem
+    );
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive && getComposerValenceFamilyToken(valenceIntransitive) === "ta") {
         if (!matrixRegexStem) {
             return "";
@@ -20114,9 +20191,7 @@ function buildRegexFromComposerState(state) {
                 state.supportiveI
             )
             : normalizeComposerEmbedValue(matrixAdjacentEmbed);
-        const taRightStemBase = hasMatrixStem
-            ? appendTiClassSuffix(normalizeComposerStem(matrixStem))
-            : appendTiClassSuffix(matrixRegexStem);
+        const taRightStemBase = appendTiClassSuffix(realizedMatrixStemBase);
         const taRightMarked = applyComposerSupportiveIMarkerToRootPath({
             embed: taRightEmbed,
             stem: taRightStemBase,
@@ -20131,9 +20206,7 @@ function buildRegexFromComposerState(state) {
     if (!matrixRegexStem) {
         return "";
     }
-    const supportiveStemBase = hasMatrixStem
-        ? appendTiClassSuffix(normalizeComposerStem(matrixStem))
-        : appendTiClassSuffix(matrixRegexStem);
+    const supportiveStemBase = appendTiClassSuffix(realizedMatrixStemBase);
     const normalizedMatrixAdjacentEmbed = hasMatrixStem
         ? normalizeComposerMatrixAdjacentEmbed(
             matrixAdjacentEmbed,
@@ -21195,6 +21268,7 @@ function clearVerbComposerTextboxInputs() {
         VERB_COMPOSER_STATE[stateKeys.objectEmbed] = "";
         COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
         COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
         const stemInput = getVerbComposerElements().slots[slotKey]?.stemInput || null;
         if (stemInput) {
             delete stemInput.dataset.dropdownTemplateSuffix;
@@ -21207,6 +21281,7 @@ function clearVerbComposerTextboxInputs() {
             slotSnapshot.serialType = "auto";
             slotSnapshot.templateSuffix = "";
             slotSnapshot.templateSurface = "";
+            slotSnapshot.templateTiCausativeClass = "";
         });
     });
     VERB_COMPOSER_STATE.stem = "";
