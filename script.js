@@ -151,13 +151,36 @@ const COMPOSER_SECONDARY_VALENCE_OPTIONS = [
     "te",
     "mu",
 ];
-const COMPOSER_SECONDARY_VALENCE_INVENTORY = Object.freeze(["ta", "te", "mu", "ta", "te"]);
 const COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT = 2;
 const COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY = Object.freeze({
     te: 2,
     ta: 2,
     mu: 1,
 });
+const COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER = Object.freeze(["ta", "te", "mu"]);
+const COMPOSER_SECONDARY_VALENCE_FAMILY_BY_TOKEN = Object.freeze({
+    ta: "ta",
+    t: "ta",
+    taj: "ta",
+    tajta: "ta",
+    te: "te",
+    tej: "te",
+    tejte: "te",
+    mu: "mu",
+    mujmu: "mu",
+    m: "mu",
+});
+const DEFAULT_COMPOSER_SECONDARY_VALENCE_INVENTORY = Object.freeze([
+    "ta",
+    "t",
+    "taj",
+    "tajta",
+    "te",
+    "tej",
+    "tejte",
+    "mu",
+    "mujmu",
+]);
 const COMPOSER_ROOT_EMBED_INPUT_IDS = new Set([
     "composer-embed",
     "composer-valence-embed-1",
@@ -2170,24 +2193,6 @@ function isVerbLetterConsonant(letter) {
     return !!letter && !isVerbLetterVowel(letter);
 }
 
-function createsConsonantClusterAfterFinalDeletion(verb) {
-    if (!verb) {
-        return false;
-    }
-    const letters = splitVerbLetters(verb);
-    if (letters.length < 3) {
-        return false;
-    }
-    const dropTwo = endsWithAny(verb, IA_UA_SUFFIXES);
-    const base = dropTwo ? letters.slice(0, -2) : letters.slice(0, -1);
-    if (base.length < 2) {
-        return false;
-    }
-    const last = base[base.length - 1];
-    const prev = base[base.length - 2];
-    return isVerbLetterConsonant(last) && isVerbLetterConsonant(prev);
-}
-
 function startsWithICVCVPattern(verb) {
     const letters = splitVerbLetters(verb);
     if (!letters.length || letters[0] !== "i") {
@@ -2736,13 +2741,6 @@ function shouldDropYaInRootPlusYaNonactive(source, options = {}) {
         return false;
     }
     return isSyllableSequencePronounceable(rootBase);
-}
-
-function deletionCreatesConsonantCluster(verb) {
-    if (!verb || !VOWEL_END_RE.test(verb)) {
-        return false;
-    }
-    return createsConsonantClusterAfterFinalDeletion(verb);
 }
 
 // === Person & Agreement ===
@@ -3707,8 +3705,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     };
     const classifyIntransitiveICausativeLexical = () => {
         // Intentionally list-free for intransitive ...i causative classification.
-        // Hard phonological block: -tzi stems do not form type-one causative.
         if (isIntransitiveEndsWithI && hasEndingFamily("tz+i")) {
+            if (causativePattern.has({
+                endingFamily: "tz+i",
+                juncture: "CV|CV",
+            }) && previousSyllableOnset !== "w") {
+                return null;
+            }
             return {
                 label: "none",
                 source: "phonological-tzi-block",
@@ -3729,8 +3732,8 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                     source: "phonological-final-glide-replacive",
                 };
             }
-            // Nasal final + fricative initial onset robustly predicts additive.
-            if (["m", "n"].includes(finalConsonant) && firstFeatures.manner === "fricative") {
+            // Keep this lexical override on -n+i; -m+i is now descriptor-driven.
+            if (finalConsonant === "n" && firstFeatures.manner === "fricative") {
                 return {
                     label: "additive",
                     source: "phonological-nasal-fricative-additive",
@@ -3785,7 +3788,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (causativePattern.has({ endingFamily: "p+i", rightEdgeProfile: "Vl|CV" })) {
             return null;
         }
-        if (causativePattern.has({ endingFamily: "m+i", juncture: "CV|CV" })) {
+        if (causativePattern.has({ endingFamily: "m+i" })) {
             return null;
         }
         if (hasEndingFamily("t+i") && causativePattern.has({ tiCausativeClasses: ["become", "have"] })) {
@@ -3808,10 +3811,10 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         if (!scoreRules.length) {
             return null;
         }
-        const context = {
+    const context = {
             endsWithWi: hasEndingFamily("w+i"),
             endsWithTi: hasEndingFamily("t+i"),
-            endsWithConsonantCluster: causativePattern.has({ modifiers: ["deletionCluster"] }),
+            endsWithConsonantCluster: causativePattern.has({ juncture: "C|CV" }),
             penultimateNucleus: previousSyllableNucleus || "",
             penultimateHasCoda: previousHasCoda === true,
             previousSyllableForm,
@@ -3892,7 +3895,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
 
         // Shape-first routing for -wi allomorphy.
         if (hasEndingFamily("w+i")) {
-            if (causativePattern.has({ modifiers: ["deletionCluster"] }) && firstFeatures.manner === "glide") {
+            if (causativePattern.has({ juncture: "C|CV" }) && firstFeatures.manner === "glide") {
                 return { label: "none", source: "matrix-wi-glide-cluster" };
             }
             if (penultimateNucleus === "e" && firstOnset === "s") {
@@ -3947,7 +3950,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             }
             return { label: "none", source: "matrix-n-to-none" };
         }
-        if (finalConsonant === "m") {
+        if (hasEndingFamily("m+i")) {
             if (causativePattern.has({ endingFamily: "m+i", juncture: "CV|CV" })) {
                 if (penultimateNucleus === "a") {
                     return { label: "additive", source: "descriptor-mi-cv-cv-a" };
@@ -3959,13 +3962,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                     return { label: "replacive", source: "descriptor-mi-cv-cv-uie" };
                 }
             }
-            if (firstOnset === "n") {
-                return { label: "none", source: "matrix-mn-block" };
-            }
-            if (firstOnset === "t" && penultimateNucleus === "a") {
-                return { label: "additive", source: "matrix-tami-ami" };
-            }
-            return { label: "replacive", source: "matrix-m-default" };
+            return { label: "replacive", source: "descriptor-mi-default" };
+        }
+        if (causativePattern.has({
+            endingFamily: "tz+i",
+            juncture: "CV|CV",
+        }) && previousSyllableOnset !== "w") {
+            return { label: "replacive", source: "descriptor-tzi-cv-cv-replacive" };
         }
         if (["s", "l"].includes(finalConsonant)) {
             return { label: "none", source: "matrix-fricative-lateral" };
@@ -4168,7 +4171,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
         : [];
     const allowReplaceFinalA = replacementOnlyA.length === 0
         || matchesDerivationRuleBaseList(replacementOnlyA, ruleBase, fullRuleBase);
-    if (isIntransitive && finalNucleus === "a" && !(hasIntransitiveWiWaPolicy && hasEndingFamily("w+a"))) {
+    if (isIntransitive && finalNucleus === "a" && !(hasIntransitiveTypeOnePolicy && hasEndingFamily("w+a"))) {
         if (isRootPlusYa && rootPlusYaBase) {
             const rootPlusYaRules = rules?.intransitiveEndsWithA?.rootPlusYa || {};
             const allowVerbs = Array.isArray(rootPlusYaRules.allowVerbs)
@@ -4461,7 +4464,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             }
             if (isIntransitive && hasEndingFamily("w+i")) {
                 const wiSyllableCount = causativeDescriptor.nonRedupSyllableCount || causativeDescriptor.syllableCount;
-                const wiCluster = causativePattern.has({ modifiers: ["deletionCluster"] });
+                const wiCluster = causativePattern.has({ juncture: "C|CV" });
                 if (wiCluster && optionHasFamily(option, "uwa")) {
                     return;
                 }
@@ -5145,7 +5148,7 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         { modifiers: ["transitive"], endingFamily: "y+a" },
     ]);
     const blockReplaciveOnsetForShort = isShortReplaciveOnsetBase(ruleBase);
-    const clusterAfterDeletion = applicativePattern.has({ modifiers: ["deletionCluster"] });
+    const clusterAfterDeletion = applicativePattern.has({ juncture: "C|CV" });
     const endsWithAorI = finalNucleus === "a" || finalNucleus === "i";
     const allowTypeOneTransitive = endsWithAorI && (
         (finalOnset === "w")
@@ -5258,7 +5261,8 @@ function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
         const adjustedFinalNucleus = baseDescriptor.finalNucleus;
         const adjustedFinalOnset = baseDescriptor.finalOnset;
         const blockReplaciveForCluster = applicativePattern.has({
-            modifiers: ["classC", "deletionCluster"],
+            modifiers: ["classC"],
+            juncture: "C|CV",
         });
         const allowReplaciveOnset = !applicativePattern.hasAny([
             { modifiers: ["rootPlusYa"] },
@@ -6578,9 +6582,11 @@ function grammarPipelineRealizeUiConfig({
     const defaultObjectToggles = {};
     visibleSlots.forEach((slot) => {
         const options = viableOptionsPerSlot[slot.slotId] || [];
-        const preferred = options.includes("ki")
-            ? "ki"
-            : (options.includes(OBJECT_TOGGLE_ALL) ? OBJECT_TOGGLE_ALL : (options[0] || ""));
+        const preferred = getDefaultOutputToggleSelection({
+            context: slot.slotId === "object" ? "verb-primary-object" : "verb-extra-object",
+            values: options,
+            isNonactiveMode,
+        });
         defaultObjectToggles[slot.slotId] = preferred;
     });
     return {
@@ -6588,8 +6594,8 @@ function grammarPipelineRealizeUiConfig({
         visibleSlots,
         visibleSlotIds: visibleSlots.map((slot) => slot.slotId),
         defaultToggles: {
-            subject: SUBJECT_TOGGLE_ALL,
-            passiveSubject: OBJECT_TOGGLE_ALL,
+            subject: getDefaultOutputToggleSelection({ context: "verb-subject" }),
+            passiveSubject: getDefaultOutputToggleSelection({ context: "verb-passive-subject" }),
             objectBySlotId: defaultObjectToggles,
         },
         viableOptionsPerSlot,
@@ -6810,7 +6816,6 @@ function getNonactiveBaseInfo(ruleBase) {
     const endsWithWi = ruleBase.endsWith("wi");
     const endsWithJsA = endsWithA && prev === "s" && prev2 === "j";
     const endsWithMV = prev === "m" && (endsWithA || endsWithI);
-    const endsWithConsonantCluster = createsConsonantClusterAfterFinalDeletion(ruleBase);
     const endsWithTzV = isVerbLetterVowel(last) && prev === "tz";
     const endsWithChi = endsWithI && prev === "ch";
     const hasMultipleTz = ruleBase.indexOf("tz") !== ruleBase.lastIndexOf("tz");
@@ -6857,7 +6862,6 @@ function getNonactiveBaseInfo(ruleBase) {
         endsWithWi,
         endsWithJsA,
         endsWithMV,
-        endsWithConsonantCluster,
         endsWithTzV,
         endsWithChi,
         hasMultipleTz,
@@ -7110,9 +7114,6 @@ function buildDerivationDescriptor(ruleBase, options = {}) {
         modifiers.push("previousClosed");
     } else if (previousSyllable) {
         modifiers.push("previousOpen");
-    }
-    if (createsConsonantClusterAfterFinalDeletion(normalizedRuleBase)) {
-        modifiers.push("deletionCluster");
     }
     if (Array.isArray(options.extraModifiers)) {
         options.extraModifiers.filter(Boolean).forEach((modifier) => modifiers.push(modifier));
@@ -11657,18 +11658,120 @@ function resolveDisplayValencePrefixes({
     });
 }
 
-function getPreferredObjectPrefix(prefixes) {
-    if (prefixes.includes("ki")) {
-        return "ki";
+function resolveDefaultToggleId(options, preferredId, fallbackIds = []) {
+    const ids = options instanceof Map
+        ? Array.from(options.keys())
+        : (Array.isArray(options) ? options : []);
+    if (!ids.length) {
+        return "";
     }
-    return prefixes[0] || "";
+    const normalizedIds = ids
+        .filter((value) => value !== undefined && value !== null)
+        .map((value) => String(value || ""));
+    const available = new Set(normalizedIds);
+    const ordered = [preferredId, ...fallbackIds];
+    for (let index = 0; index < ordered.length; index += 1) {
+        const candidate = ordered[index];
+        if (candidate === undefined || candidate === null) {
+            continue;
+        }
+        const normalizedCandidate = String(candidate || "");
+        if (available.has(normalizedCandidate)) {
+            return normalizedCandidate;
+        }
+    }
+    return normalizedIds[0] || "";
+}
+
+function getDefaultOutputToggleSelection({
+    context = "",
+    values = [],
+    preferredId,
+    fallbackIds = [],
+    subjectOptions = null,
+    isAddedSlot = false,
+    isNonactiveMode = false,
+} = {}) {
+    if (context === "verb-subject") {
+        return resolveDefaultToggleId(values, preferredId, [SUBJECT_TOGGLE_ALL, ...fallbackIds]);
+    }
+    if (context === "verb-passive-subject") {
+        return resolveDefaultToggleId(values, preferredId, [OBJECT_TOGGLE_ALL, ...fallbackIds]);
+    }
+    if (context === "verb-primary-object") {
+        const defaultPreferredId = "ki";
+        return resolveDefaultToggleId(values, preferredId ?? defaultPreferredId, [
+            defaultPreferredId,
+            OBJECT_TOGGLE_ALL,
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "verb-extra-object") {
+        return resolveDefaultToggleId(values, preferredId ?? "ki", [
+            "ki",
+            OBJECT_TOGGLE_ALL,
+            "",
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "noun-primary-object") {
+        return resolveDefaultToggleId(values, preferredId ?? "ta", [
+            "ta",
+            "ki",
+            "",
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "noun-extra-object") {
+        const normalizedValues = Array.isArray(values)
+            ? values.map((value) => String(value || ""))
+            : [];
+        if (!isAddedSlot && normalizedValues.includes("")) {
+            return "";
+        }
+        return resolveDefaultToggleId(normalizedValues, preferredId ?? "ta", [
+            "ta",
+            "",
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "noun-possessor") {
+        return resolveDefaultToggleId(values, preferredId ?? "i", [
+            "i",
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "noun-nonactive-primary") {
+        return resolveDefaultToggleId(values, preferredId ?? "obj:ta", [
+            "obj:ta",
+            ...fallbackIds,
+        ]);
+    }
+    if (context === "noun-subject") {
+        const zeroSubjectId = Array.isArray(subjectOptions)
+            ? (subjectOptions.find((entry) => entry.subjectPrefix === "" && entry.subjectSuffix === "")?.id)
+            : null;
+        return resolveDefaultToggleId(values, preferredId ?? zeroSubjectId ?? SUBJECT_TOGGLE_ALL, [
+            zeroSubjectId,
+            SUBJECT_TOGGLE_ALL,
+            ...fallbackIds,
+        ]);
+    }
+    return resolveDefaultToggleId(values, preferredId, fallbackIds);
+}
+
+function getPreferredObjectPrefix(prefixes) {
+    return getDefaultOutputToggleSelection({
+        context: "verb-primary-object",
+        values: prefixes,
+    });
 }
 
 function getPreferredNounObjectPrefix(prefixes) {
-    if (prefixes.includes("ta")) {
-        return "ta";
-    }
-    return getPreferredObjectPrefix(prefixes);
+    return getDefaultOutputToggleSelection({
+        context: "noun-primary-object",
+        values: prefixes,
+    });
 }
 
 function getCurrentObjectPrefix() {
@@ -14603,15 +14706,16 @@ function getPreferredNounObjectSlotPrefix(toggleValues, options = {}) {
     const isPrimary = options.isPrimary === true;
     const isAddedSlot = options.isAddedSlot === true;
     if (isPrimary) {
-        return getPreferredNounObjectPrefix(values);
+        return getDefaultOutputToggleSelection({
+            context: "noun-primary-object",
+            values,
+        });
     }
-    if (!isAddedSlot && values.includes("")) {
-        return "";
-    }
-    if (values.includes("ta")) {
-        return "ta";
-    }
-    return values[0] || "";
+    return getDefaultOutputToggleSelection({
+        context: "noun-extra-object",
+        values,
+        isAddedSlot,
+    });
 }
 
 function getAllowedNounObjectPrefixesFromMeta(verbMeta, tenseValue, options = {}) {
@@ -15689,8 +15793,9 @@ function syncComposerChipGroup(container, selectEl, source = "other") {
 }
 
 function getComposerSecondaryInventorySelectionEntries(tokens = []) {
+    const inventory = getComposerSecondaryValenceInventory();
     const normalizedTokens = (Array.isArray(tokens) ? tokens : [])
-        .map((token) => normalizeComposerValenceToken(token))
+        .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
         .filter(Boolean)
         .slice(0, COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT);
     if (!normalizedTokens.length) {
@@ -15699,7 +15804,7 @@ function getComposerSecondaryInventorySelectionEntries(tokens = []) {
     const usedIndexes = new Set();
     const entries = [];
     normalizedTokens.forEach((token, orderIndex) => {
-        const nextIndex = COMPOSER_SECONDARY_VALENCE_INVENTORY.findIndex(
+        const nextIndex = inventory.findIndex(
             (candidate, poolIndex) => candidate === token && !usedIndexes.has(poolIndex)
         );
         if (nextIndex < 0) {
@@ -15717,7 +15822,7 @@ function getComposerSecondaryInventorySelectionEntries(tokens = []) {
 
 function encodeComposerSecondaryInventoryTokens(tokens = []) {
     const normalizedTokens = (Array.isArray(tokens) ? tokens : [])
-        .map((token) => normalizeComposerValenceToken(token))
+        .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
         .filter(Boolean)
         .slice(0, COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT);
     if (!normalizedTokens.length) {
@@ -15733,47 +15838,64 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
     if (!container || !selectEl) {
         return;
     }
-    const inventorySignature = COMPOSER_SECONDARY_VALENCE_INVENTORY.join("|");
+    const families = COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER.slice();
+    const inventorySignature = families.join("|");
     if (container.dataset.secondaryInventorySignature !== inventorySignature) {
         container.innerHTML = "";
-        COMPOSER_SECONDARY_VALENCE_INVENTORY.forEach((token, index) => {
+        families.forEach((family) => {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "verb-chip";
-            button.dataset.chipValue = token;
-            button.dataset.poolIndex = String(index);
-            button.textContent = token;
+            button.dataset.chipFamily = family;
+            button.textContent = family;
             button.addEventListener("click", () => {
                 if (button.disabled) {
                     return;
                 }
-                const poolIndex = Number(button.dataset.poolIndex);
-                const clickedToken = normalizeComposerValenceToken(button.dataset.chipValue);
-                if (!clickedToken || Number.isNaN(poolIndex)) {
+                const clickedFamily = String(button.dataset.chipFamily || "").trim().toLowerCase();
+                const familyInventory = getComposerSecondaryValenceFamilyInventory(clickedFamily);
+                if (!clickedFamily || !familyInventory.length) {
                     return;
                 }
                 const currentTokens = getComposerSecondaryValenceTokens(selectEl.value);
-                const currentEntries = getComposerSecondaryInventorySelectionEntries(currentTokens);
-                const activeIndexes = new Set(currentEntries.map((entry) => entry.index));
-                const isActive = activeIndexes.has(poolIndex);
-                let nextTokens = currentEntries.map((entry) => entry.token);
-                if (isActive) {
-                    nextTokens = currentEntries
-                        .filter((entry) => entry.index !== poolIndex)
-                        .sort((left, right) => left.order - right.order)
-                        .map((entry) => entry.token);
-                } else {
+                const familyIndexes = currentTokens
+                    .map((token, index) => ({
+                        token: normalizeComposerSecondaryValenceSurfaceToken(token),
+                        family: getComposerValenceFamilyToken(token),
+                        index,
+                    }))
+                    .filter((entry) => entry.family === clickedFamily);
+                let nextTokens = currentTokens
+                    .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
+                    .filter(Boolean);
+                const familyCapacity = Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[clickedFamily] || 0);
+                if (!familyIndexes.length) {
                     if (nextTokens.length >= COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT) {
                         return;
                     }
-                    const capacity = Number(
-                        COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[clickedToken] || 0
-                    );
-                    const count = nextTokens.filter((token) => token === clickedToken).length;
-                    if (count >= capacity) {
+                    nextTokens.push(familyInventory[0]);
+                } else if (
+                    familyIndexes.length < familyCapacity
+                    && nextTokens.length < COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT
+                ) {
+                    const nextUnused = familyInventory.find((token) => !nextTokens.includes(token));
+                    if (!nextUnused) {
                         return;
                     }
-                    nextTokens.push(clickedToken);
+                    nextTokens.push(nextUnused);
+                } else {
+                    const targetIndex = familyIndexes[familyIndexes.length - 1].index;
+                    const reserved = nextTokens.filter((token, index) => index !== targetIndex);
+                    const currentToken = normalizeComposerSecondaryValenceSurfaceToken(nextTokens[targetIndex]);
+                    const nextVariant = getComposerNextFamilySurfaceToken(clickedFamily, currentToken, {
+                        reservedTokens: reserved,
+                        allowClear: true,
+                    });
+                    if (!nextVariant) {
+                        nextTokens = nextTokens.filter((token, index) => index !== targetIndex);
+                    } else {
+                        nextTokens[targetIndex] = nextVariant;
+                    }
                 }
                 selectEl.value = encodeComposerSecondaryInventoryTokens(nextTokens);
                 onVerbComposerControlChange(source);
@@ -15783,24 +15905,21 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
         container.dataset.secondaryInventorySignature = inventorySignature;
     }
     const selectedTokens = getComposerSecondaryValenceTokens(selectEl.value);
-    const selectedEntries = getComposerSecondaryInventorySelectionEntries(selectedTokens);
-    const activeIndexes = new Set(selectedEntries.map((entry) => entry.index));
     const counts = selectedTokens.reduce((acc, token) => {
-        const normalized = normalizeComposerValenceToken(token);
-        if (!normalized) {
+        const family = getComposerValenceFamilyToken(token);
+        if (!family) {
             return acc;
         }
-        acc[normalized] = (acc[normalized] || 0) + 1;
+        acc[family] = (acc[family] || 0) + 1;
         return acc;
     }, {});
     const totalSelected = selectedTokens.length;
     const buttons = Array.from(container.querySelectorAll(".verb-chip"));
     buttons.forEach((button) => {
-        const token = normalizeComposerValenceToken(button.dataset.chipValue);
-        const poolIndex = Number(button.dataset.poolIndex);
-        const isActive = activeIndexes.has(poolIndex);
-        const capacity = Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[token] || 0);
-        const tokenCount = Number(counts[token] || 0);
+        const family = String(button.dataset.chipFamily || "").trim().toLowerCase();
+        const isActive = Number(counts[family] || 0) > 0;
+        const capacity = Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[family] || 0);
+        const tokenCount = Number(counts[family] || 0);
         const atTokenLimit = tokenCount >= capacity;
         const atTotalLimit = totalSelected >= COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT;
         const isDisabled = Boolean(selectEl.disabled)
@@ -15808,6 +15927,13 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
         button.disabled = isDisabled;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
+        const activeTokens = selectedTokens.filter((token) => getComposerValenceFamilyToken(token) === family);
+        button.setAttribute(
+            "aria-label",
+            activeTokens.length
+                ? `${family}. Actuales ${activeTokens.join(", ")}.`
+                : family
+        );
     });
 }
 
@@ -15973,8 +16099,18 @@ function syncComposerChipGroupsFromState() {
         directionalChips,
     } = getVerbComposerElements();
     syncComposerTransitivitySlotButtons();
-    syncComposerChipGroup(valenceChipsIntransitive, valenceSelectIntransitive, "other");
-    syncComposerChipGroup(valenceChips, valenceSelect, "other");
+    syncComposerValenceFamilyChipGroup(
+        valenceChipsIntransitive,
+        valenceSelectIntransitive,
+        getComposerAllowedValenceFamilies(COMPOSER_TRANSITIVITY.intransitive),
+        "other"
+    );
+    syncComposerValenceFamilyChipGroup(
+        valenceChips,
+        valenceSelect,
+        getComposerAllowedValenceFamilies(COMPOSER_TRANSITIVITY.transitive),
+        "other"
+    );
     syncComposerSecondaryValenceChipInventory(valenceChipsSecondary, valenceSelectSecondary, "other");
     syncComposerChipGroup(directionalChips, directionalSelect, "other");
     syncComposerSlotChipVisibility();
@@ -18325,6 +18461,14 @@ function syncComposerSerialTypeChips() {
                     if (button.disabled) {
                         return;
                     }
+                    const currentType = String(COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto").trim().toLowerCase();
+                    if (currentType === option.value) {
+                        clearComposerMatrixAffixSelection(
+                            slotKey,
+                            getVerbComposerElements().slots[slotKey]?.stemInput || null
+                        );
+                        return;
+                    }
                     applyComposerSerialTypeSelection({
                         slotKey,
                         selectedType: option.value,
@@ -18918,6 +19062,10 @@ function applyComposerMatrixAffixPickerSelection(slotKey = "", entry = null, opt
     if (!entry || !stemInput || !COMPOSER_SLOT_CONFIG[slotKey]) {
         return false;
     }
+    const currentState = getComposerMatrixAffixCurrentState(slotKey, stemInput);
+    if (entry.kind !== "manual" && currentState?.key === entry.key) {
+        return clearComposerMatrixAffixSelection(slotKey, stemInput);
+    }
     if (entry.kind === "manual") {
         return clearComposerMatrixAffixSelection(slotKey, stemInput);
     }
@@ -19274,8 +19422,8 @@ function normalizeComposerEmbedValue(value) {
     return getComposerEmbedTokens(value).join("/");
 }
 
-function normalizeComposerValenceToken(value) {
-    const token = String(value || "").trim();
+function normalizeComposerSecondaryValenceSurfaceToken(value) {
+    const token = String(value || "").trim().toLowerCase();
     if (token === "ta-1" || token === "ta-2") {
         return "ta";
     }
@@ -19285,7 +19433,116 @@ function normalizeComposerValenceToken(value) {
     if (token === "mu-1" || token === "mu-2") {
         return "mu";
     }
-    return COMPOSER_VALENCE_OPTIONS.includes(token) ? token : "";
+    const compact = token.replace(/[^a-z]/g, "");
+    return COMPOSER_SECONDARY_VALENCE_FAMILY_BY_TOKEN[compact] ? compact : "";
+}
+
+function getComposerValenceFamilyToken(value) {
+    const surfaceToken = normalizeComposerSecondaryValenceSurfaceToken(value);
+    return surfaceToken
+        ? (COMPOSER_SECONDARY_VALENCE_FAMILY_BY_TOKEN[surfaceToken] || "")
+        : "";
+}
+
+function normalizeComposerValenceToken(value) {
+    return getComposerValenceFamilyToken(value);
+}
+
+function getComposerSecondaryValenceInventory() {
+    const sourceInventory = Array.isArray(NONSPECIFIC_VALENCE_AFFIXES) && NONSPECIFIC_VALENCE_AFFIXES.length
+        ? NONSPECIFIC_VALENCE_AFFIXES
+        : DEFAULT_COMPOSER_SECONDARY_VALENCE_INVENTORY;
+    const grouped = new Map();
+    COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER.forEach((family) => {
+        grouped.set(family, []);
+    });
+    sourceInventory.forEach((token) => {
+        const normalized = normalizeComposerSecondaryValenceSurfaceToken(token);
+        const family = getComposerValenceFamilyToken(normalized);
+        if (!normalized || !family || normalized === "m") {
+            return;
+        }
+        const bucket = grouped.get(family);
+        if (!bucket || bucket.includes(normalized)) {
+            return;
+        }
+        bucket.push(normalized);
+    });
+    return COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER.flatMap((family) => grouped.get(family) || []);
+}
+
+function getComposerSecondaryValenceFamilyInventory(family = "") {
+    const normalizedFamily = getComposerValenceFamilyToken(family) || String(family || "").trim().toLowerCase();
+    if (!normalizedFamily) {
+        return [];
+    }
+    return getComposerSecondaryValenceInventory().filter((token) => (
+        getComposerValenceFamilyToken(token) === normalizedFamily
+    ));
+}
+
+function getComposerSecondaryValenceOptionEntries() {
+    const entries = [];
+    const seen = new Set();
+    const addEntry = (value = "", label = "") => {
+        const normalizedValue = String(value || "").trim();
+        if (seen.has(normalizedValue)) {
+            return;
+        }
+        seen.add(normalizedValue);
+        entries.push({
+            value: normalizedValue,
+            label: label || normalizedValue || "Sin prefijo",
+        });
+    };
+    addEntry("", "Sin prefijo");
+    COMPOSER_SECONDARY_VALENCE_OPTIONS.forEach((value) => {
+        if (!value) {
+            return;
+        }
+        addEntry(value, value);
+    });
+    const inventory = getComposerSecondaryValenceInventory();
+    inventory.forEach((token) => {
+        addEntry(token, token);
+    });
+    inventory.forEach((firstToken) => {
+        inventory.forEach((secondToken) => {
+            const familyCounts = {};
+            [firstToken, secondToken].forEach((token) => {
+                const family = getComposerValenceFamilyToken(token);
+                if (!family) {
+                    return;
+                }
+                familyCounts[family] = (familyCounts[family] || 0) + 1;
+            });
+            const isAllowedPair = Object.entries(familyCounts).every(([family, count]) => (
+                count <= Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[family] || 0)
+            ));
+            if (!isAllowedPair) {
+                return;
+            }
+            const encoded = encodeComposerSecondaryValenceSelection(firstToken, secondToken);
+            if (!encoded) {
+                return;
+            }
+            const parsed = parseComposerSecondaryValenceSelection(encoded);
+            const first = normalizeComposerSecondaryValenceSurfaceToken(parsed.first);
+            const second = normalizeComposerSecondaryValenceSurfaceToken(parsed.second);
+            if (!first || !second) {
+                return;
+            }
+            addEntry(encoded, `${first}+${second}`);
+        });
+    });
+    return entries;
+}
+
+function getComposerAllowedValenceFamilies(transitivity) {
+    if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
+        return ["ta"];
+    }
+    return COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER.slice();
 }
 
 function parseComposerSecondaryValenceSelection(value) {
@@ -19293,7 +19550,7 @@ function parseComposerSecondaryValenceSelection(value) {
     if (token.includes("+")) {
         const parts = token
             .split("+")
-            .map((part) => normalizeComposerValenceToken(part))
+            .map((part) => normalizeComposerSecondaryValenceSurfaceToken(part))
             .filter(Boolean);
         if (parts.length >= 2) {
             return {
@@ -19320,7 +19577,7 @@ function parseComposerSecondaryValenceSelection(value) {
     if (token === "mu-2" || token === "mu") {
         return { first: "", second: "mu" };
     }
-    const single = normalizeComposerValenceToken(token);
+    const single = normalizeComposerSecondaryValenceSurfaceToken(token);
     return {
         first: "",
         second: single,
@@ -19328,25 +19585,28 @@ function parseComposerSecondaryValenceSelection(value) {
 }
 
 function canonicalizeComposerSecondaryValencePair(firstValue, secondValue) {
-    const first = normalizeComposerValenceToken(firstValue);
-    const second = normalizeComposerValenceToken(secondValue);
-    if (!first || !second || first === second) {
+    const first = normalizeComposerSecondaryValenceSurfaceToken(firstValue);
+    const second = normalizeComposerSecondaryValenceSurfaceToken(secondValue);
+    const firstFamily = getComposerValenceFamilyToken(first);
+    const secondFamily = getComposerValenceFamilyToken(second);
+    if (!first || !second || !firstFamily || !secondFamily || firstFamily === secondFamily) {
         return { first, second };
     }
-    const hasMu = first === "mu" || second === "mu";
+    const hasMu = firstFamily === "mu" || secondFamily === "mu";
     if (hasMu) {
-        const other = first === "mu" ? second : first;
+        const muToken = firstFamily === "mu" ? first : second;
+        const other = firstFamily === "mu" ? second : first;
         return {
-            first: "mu",
+            first: muToken,
             second: other,
         };
     }
-    const hasTe = first === "te" || second === "te";
-    const hasTa = first === "ta" || second === "ta";
+    const hasTe = firstFamily === "te" || secondFamily === "te";
+    const hasTa = firstFamily === "ta" || secondFamily === "ta";
     if (hasTe && hasTa) {
         return {
-            first: "te",
-            second: "ta",
+            first: firstFamily === "te" ? first : second,
+            second: firstFamily === "ta" ? first : second,
         };
     }
     return { first, second };
@@ -19354,8 +19614,8 @@ function canonicalizeComposerSecondaryValencePair(firstValue, secondValue) {
 
 function getComposerSecondaryValenceTokens(value) {
     const parsed = parseComposerSecondaryValenceSelection(value);
-    const first = normalizeComposerValenceToken(parsed.first);
-    const second = normalizeComposerValenceToken(parsed.second);
+    const first = normalizeComposerSecondaryValenceSurfaceToken(parsed.first);
+    const second = normalizeComposerSecondaryValenceSurfaceToken(parsed.second);
     if (first && second) {
         return [first, second];
     }
@@ -19365,21 +19625,12 @@ function getComposerSecondaryValenceTokens(value) {
 
 function encodeComposerSecondaryValenceSelection(firstValue, secondValue) {
     const canonicalPair = canonicalizeComposerSecondaryValencePair(firstValue, secondValue);
-    const first = normalizeComposerValenceToken(canonicalPair.first);
-    const second = normalizeComposerValenceToken(canonicalPair.second);
+    const first = normalizeComposerSecondaryValenceSurfaceToken(canonicalPair.first);
+    const second = normalizeComposerSecondaryValenceSurfaceToken(canonicalPair.second);
     if (first && second) {
         return `${first}+${second}`;
     }
     const canonicalToken = second || first;
-    if (canonicalToken === "te") {
-        return "te-2";
-    }
-    if (canonicalToken === "ta") {
-        return "ta-2";
-    }
-    if (canonicalToken === "mu") {
-        return "mu-2";
-    }
     if (canonicalToken) {
         return canonicalToken;
     }
@@ -19543,11 +19794,137 @@ function updateVerbComposerHint() {
     hint.textContent = `Sílabas detectadas (raíz matriz): ${syllableCount || 0}.`;
 }
 
-function getComposerAllowedValenceOptions(transitivity) {
-    if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
-        return new Set(["", "ta"]);
+function syncComposerSecondaryValenceOptions(selectEl) {
+    if (!selectEl) {
+        return;
     }
-    return new Set(COMPOSER_VALENCE_OPTIONS);
+    const entries = getComposerSecondaryValenceOptionEntries();
+    const signature = entries.map((entry) => `${entry.value}:${entry.label}`).join("|");
+    if ((selectEl.dataset.optionSignature || "") === signature) {
+        return;
+    }
+    selectEl.innerHTML = "";
+    entries.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        selectEl.appendChild(option);
+    });
+    selectEl.dataset.optionSignature = signature;
+}
+
+function getComposerAllowedValenceOptions(transitivity) {
+    const options = new Set([""]);
+    getComposerAllowedValenceFamilies(transitivity).forEach((family) => {
+        getComposerSecondaryValenceFamilyInventory(family).forEach((token) => {
+            options.add(token);
+        });
+    });
+    return options;
+}
+
+function syncComposerSingleValenceOptions(selectEl, families = []) {
+    if (!selectEl) {
+        return;
+    }
+    const entries = [{ value: "", label: "Sin prefijo" }];
+    (Array.isArray(families) ? families : []).forEach((family) => {
+        getComposerSecondaryValenceFamilyInventory(family).forEach((token) => {
+            entries.push({ value: token, label: token });
+        });
+    });
+    const signature = entries.map((entry) => `${entry.value}:${entry.label}`).join("|");
+    if ((selectEl.dataset.optionSignature || "") === signature) {
+        return;
+    }
+    selectEl.innerHTML = "";
+    entries.forEach((entry) => {
+        const option = document.createElement("option");
+        option.value = entry.value;
+        option.textContent = entry.label;
+        selectEl.appendChild(option);
+    });
+    selectEl.dataset.optionSignature = signature;
+}
+
+function getComposerNextFamilySurfaceToken(
+    family = "",
+    currentToken = "",
+    {
+        reservedTokens = [],
+        allowClear = false,
+    } = {}
+) {
+    const reserved = new Set(
+        (Array.isArray(reservedTokens) ? reservedTokens : [])
+            .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
+            .filter(Boolean)
+    );
+    const inventory = getComposerSecondaryValenceFamilyInventory(family)
+        .filter((token) => !reserved.has(token));
+    if (!inventory.length) {
+        return "";
+    }
+    const normalizedCurrent = normalizeComposerSecondaryValenceSurfaceToken(currentToken);
+    const currentIndex = inventory.indexOf(normalizedCurrent);
+    if (currentIndex < 0) {
+        return inventory[0];
+    }
+    if (currentIndex >= inventory.length - 1) {
+        return allowClear ? "" : inventory[0];
+    }
+    return inventory[currentIndex + 1] || inventory[0];
+}
+
+function syncComposerValenceFamilyChipGroup(container, selectEl, families = [], source = "other") {
+    if (!container || !selectEl) {
+        return;
+    }
+    const normalizedFamilies = (Array.isArray(families) ? families : [])
+        .map((family) => String(family || "").trim().toLowerCase())
+        .filter(Boolean);
+    const optionSignature = normalizedFamilies.join("|");
+    if ((container.dataset.familySignature || "") !== optionSignature) {
+        container.innerHTML = "";
+        normalizedFamilies.forEach((family) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "verb-chip";
+            button.dataset.chipFamily = family;
+            button.textContent = family;
+            button.addEventListener("click", () => {
+                if (button.disabled) {
+                    return;
+                }
+                const currentToken = normalizeComposerSecondaryValenceSurfaceToken(selectEl.value);
+                const currentFamily = getComposerValenceFamilyToken(currentToken);
+                const nextToken = currentFamily === family
+                    ? getComposerNextFamilySurfaceToken(family, currentToken, { allowClear: true })
+                    : getComposerNextFamilySurfaceToken(family, "");
+                selectEl.value = nextToken;
+                onVerbComposerControlChange(source);
+            });
+            container.appendChild(button);
+        });
+        container.dataset.familySignature = optionSignature;
+    }
+    const currentToken = normalizeComposerSecondaryValenceSurfaceToken(selectEl.value);
+    const currentFamily = getComposerValenceFamilyToken(currentToken);
+    const buttons = Array.from(container.querySelectorAll(".verb-chip"));
+    buttons.forEach((button) => {
+        const family = String(button.dataset.chipFamily || "");
+        const isDisabled = Boolean(selectEl.disabled);
+        const isActive = currentFamily === family;
+        button.disabled = isDisabled;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        button.setAttribute(
+            "aria-label",
+            isActive && currentToken
+                ? `${family}. Actual ${currentToken}.`
+                : family
+        );
+    });
 }
 
 function syncComposerValenceAvailability() {
@@ -19562,6 +19939,15 @@ function syncComposerValenceAvailability() {
     if (!valenceSelectIntransitive || !valenceSelect || !valenceSelectSecondary) {
         return;
     }
+    syncComposerSingleValenceOptions(
+        valenceSelectIntransitive,
+        getComposerAllowedValenceFamilies(COMPOSER_TRANSITIVITY.intransitive)
+    );
+    syncComposerSingleValenceOptions(
+        valenceSelect,
+        getComposerAllowedValenceFamilies(COMPOSER_TRANSITIVITY.transitive)
+    );
+    syncComposerSecondaryValenceOptions(valenceSelectSecondary);
     const allowedIntransitive = getComposerAllowedValenceOptions(COMPOSER_TRANSITIVITY.intransitive);
     Array.from(valenceSelectIntransitive.options).forEach((option) => {
         option.disabled = !allowedIntransitive.has(option.value);
@@ -19573,7 +19959,7 @@ function syncComposerValenceAvailability() {
     if (valenceIntransitiveEmbedInput) {
         const showEmbed = (
             VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.intransitive
-            && VERB_COMPOSER_STATE.valenceIntransitive === "ta"
+            && getComposerValenceFamilyToken(VERB_COMPOSER_STATE.valenceIntransitive) === "ta"
         );
         const embedField = valenceIntransitiveEmbedInput.closest(".verb-composer__stem-field");
         if (embedField) {
@@ -19600,7 +19986,9 @@ function syncComposerValenceAvailability() {
     }
     valenceSelect.disabled = isBitransitive;
     valenceSelect.value = VERB_COMPOSER_STATE.valence;
-    const allowedSecondary = new Set(COMPOSER_SECONDARY_VALENCE_OPTIONS);
+    const allowedSecondary = new Set(
+        getComposerSecondaryValenceOptionEntries().map((entry) => entry.value)
+    );
     Array.from(valenceSelectSecondary.options).forEach((option) => {
         option.disabled = !allowedSecondary.has(option.value);
     });
@@ -19643,9 +20031,9 @@ function buildRegexFromComposerState(state) {
     const slotBEmbed = getComposerSlotEmbedForRegex("b", state.slotBEmbed || "");
     const slotCStem = normalizeComposerStem(state.slotCStem || "");
     const slotCEmbed = getComposerSlotEmbedForRegex("c", state.slotCEmbed || "");
-    const valenceIntransitive = state.valenceIntransitive === "ta" ? "ta" : "";
+    const valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(state.valenceIntransitive || "");
     const valenceIntransitiveEmbed = normalizeComposerEmbedValue(state.valenceIntransitiveEmbed || "");
-    const valence = normalizeComposerValenceToken(state.valence);
+    const valence = normalizeComposerSecondaryValenceSurfaceToken(state.valence || "");
     const valenceEmbedPrimary = normalizeComposerEmbedValue(state.valenceEmbedPrimary || "");
     const valenceSecondaryRaw = String(state.valenceSecondary || "").trim();
     const valenceSecondary = normalizeComposerValenceToken(valenceSecondaryRaw);
@@ -19692,11 +20080,12 @@ function buildRegexFromComposerState(state) {
         ? matrixStem
         : ((hasSelectionStructure || isComposerTemplateMode) ? matrixPlaceholderStem : "");
     const formatValenceToken = (token = "") => {
-        const normalized = normalizeComposerValenceToken(token);
-        if (!normalized) {
+        const surface = normalizeComposerSecondaryValenceSurfaceToken(token)
+            || normalizeComposerValenceToken(token);
+        if (!surface) {
             return "";
         }
-        return `(${normalized})`;
+        return `(${surface})`;
     };
     const appendTiClassSuffix = (stemValue = "") => {
         const stem = String(stemValue || "");
@@ -19711,7 +20100,7 @@ function buildRegexFromComposerState(state) {
         }
         return stem;
     };
-    if (transitivity === COMPOSER_TRANSITIVITY.intransitive && valenceIntransitive === "ta") {
+    if (transitivity === COMPOSER_TRANSITIVITY.intransitive && getComposerValenceFamilyToken(valenceIntransitive) === "ta") {
         if (!matrixRegexStem) {
             return "";
         }
@@ -19736,7 +20125,7 @@ function buildRegexFromComposerState(state) {
         const taRightSegment = taRightMarked.embed
             ? `${taRightMarked.embed}/${taRightMarked.stem}`
             : taRightMarked.stem;
-        const core = `${taLeftSegment}${formatValenceToken("ta")}/${taRightSegment}`;
+        const core = `${taLeftSegment}${formatValenceToken(valenceIntransitive)}/${taRightSegment}`;
         return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
     if (!matrixRegexStem) {
@@ -19855,7 +20244,7 @@ function resolveComposerValenceSequenceFromParsed(parsed, baseValue) {
     const normalizeValenceToken = (value) => String(value || "").trim();
     const inOptions = (value) => {
         const token = normalizeValenceToken(value);
-        return Boolean(token) && COMPOSER_VALENCE_OPTIONS.includes(token);
+        return Boolean(getComposerValenceFamilyToken(token));
     };
     const sequence = [];
     const addToken = (value) => {
@@ -19928,7 +20317,7 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
     }
     const isValenceToken = (token) => (
         Boolean(token)
-        && COMPOSER_VALENCE_OPTIONS.includes(token)
+        && Boolean(getComposerValenceFamilyToken(token))
         && token !== ""
     );
     const expectedValenceCount = (Array.isArray(resolvedValences) ? resolvedValences : [resolvedValences])
@@ -20011,7 +20400,7 @@ function resolveComposerNoPrefixValenceEmbedsFromBase(baseValue, resolvedDirecti
             if (token === directionalToken || Boolean(getBracketDirectionalPrefixToken(rawToken))) {
                 return false;
             }
-            if (COMPOSER_VALENCE_OPTIONS.includes(token)) {
+            if (getComposerValenceFamilyToken(token)) {
                 return false;
             }
             if (OBJECT_MARKERS.has(token)) {
@@ -20044,7 +20433,7 @@ function resolveComposerEmbedFromParsed(parsed, resolvedValences = [], resolvedD
             if (normalized === directionalToken || Boolean(getBracketDirectionalPrefixToken(rawToken))) {
                 return;
             }
-            if (valenceTokenSet.has(normalized) || COMPOSER_VALENCE_OPTIONS.includes(normalized)) {
+            if (valenceTokenSet.has(normalized) || getComposerValenceFamilyToken(normalized)) {
                 return;
             }
             if (OBJECT_MARKERS.has(normalized)) {
@@ -20195,18 +20584,21 @@ function parseComposerStateFromRegexValue(rawValue) {
         : COMPOSER_SYLLABLE_MODE.multisyllable;
     state.valenceIntransitive = (
         parsed?.hasImpersonalTaPrefix
-        || (state.transitivity === COMPOSER_TRANSITIVITY.intransitive && parsedPrimaryValence === "ta")
+        || (
+            state.transitivity === COMPOSER_TRANSITIVITY.intransitive
+            && getComposerValenceFamilyToken(parsedPrimaryValence) === "ta"
+        )
     )
-        ? "ta"
+        ? (normalizeComposerSecondaryValenceSurfaceToken(parsedPrimaryValence) || "ta")
         : "";
     if (state.transitivity === COMPOSER_TRANSITIVITY.intransitive) {
         state.valence = "";
         state.valenceSecondary = "";
-        state.valenceIntransitiveEmbed = state.valenceIntransitive === "ta"
+        state.valenceIntransitiveEmbed = getComposerValenceFamilyToken(state.valenceIntransitive) === "ta"
             ? normalizeComposerEmbedValue(state.valenceEmbedPrimary || "")
             : "";
         state.slotAStem = state.stem;
-        state.slotAEmbed = state.valenceIntransitive === "ta"
+        state.slotAEmbed = getComposerValenceFamilyToken(state.valenceIntransitive) === "ta"
             ? globalEmbed
             : (globalEmbed || parsedEmbedFallback);
         state.stem = state.slotAStem;
@@ -20219,11 +20611,18 @@ function parseComposerStateFromRegexValue(rawValue) {
         state.embedPrefix = state.slotBEmbed;
     } else {
         const parsedSecondary = parseComposerSecondaryValenceSelection(state.valenceSecondary);
-        let firstForCombo = normalizeComposerValenceToken(parsedSecondary.first);
-        let secondForCombo = normalizeComposerValenceToken(parsedSecondary.second);
+        let firstForCombo = normalizeComposerSecondaryValenceSurfaceToken(parsedSecondary.first);
+        let secondForCombo = normalizeComposerSecondaryValenceSurfaceToken(parsedSecondary.second);
         if (!firstForCombo && !secondForCombo) {
-            firstForCombo = normalizeComposerValenceToken(state.valence);
-            secondForCombo = normalizeComposerValenceToken(state.valenceSecondary);
+            firstForCombo = normalizeComposerSecondaryValenceSurfaceToken(state.valence);
+                // Fall back to canonical family if no explicit surface survives.
+            if (!firstForCombo) {
+                firstForCombo = normalizeComposerValenceToken(state.valence);
+            }
+            secondForCombo = normalizeComposerSecondaryValenceSurfaceToken(state.valenceSecondary);
+            if (!secondForCombo) {
+                secondForCombo = normalizeComposerValenceToken(state.valenceSecondary);
+            }
         }
         state.valenceSecondary = encodeComposerSecondaryValenceSelection(firstForCombo, secondForCombo);
         state.valence = "";
@@ -20462,7 +20861,9 @@ function collectComposerStateFromControls({ preserveSupportiveState = false } = 
     } else {
         VERB_COMPOSER_STATE.transitivity = COMPOSER_TRANSITIVITY.intransitive;
     }
-    VERB_COMPOSER_STATE.valenceIntransitive = (valenceSelectIntransitive?.value === "ta") ? "ta" : "";
+    VERB_COMPOSER_STATE.valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(
+        valenceSelectIntransitive?.value || ""
+    );
     VERB_COMPOSER_STATE.valence = valenceSelect?.value || "";
     VERB_COMPOSER_STATE.valenceSecondary = valenceSelectSecondary?.value || "";
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
@@ -26227,8 +26628,11 @@ function getPotencialHabitualNonactiveSubjectToggleOptions() {
 }
 
 function getDefaultNounSubjectId(subjectOptions) {
-    const match = subjectOptions.find((entry) => entry.subjectPrefix === "" && entry.subjectSuffix === "");
-    return match ? match.id : SUBJECT_TOGGLE_ALL;
+    return getDefaultOutputToggleSelection({
+        context: "noun-subject",
+        values: Array.isArray(subjectOptions) ? subjectOptions.map((entry) => entry.id) : [],
+        subjectOptions,
+    });
 }
 
 function getObjectToggleOptions(prefixes, options = {}) {
@@ -32220,21 +32624,6 @@ function buildVerbTenseBlock({
         ? getObjectToggleOptions(passiveSubjectPrefixes, { labelForPrefix: getPassiveToggleLabel })
         : [];
     const passiveSubjectOptionMap = new Map(passiveSubjectOptions.map((entry) => [entry.id, entry]));
-    const resolveDefaultToggleId = (optionMap, preferredId, fallbackIds = []) => {
-        if (!(optionMap instanceof Map) || !optionMap.size) {
-            return "";
-        }
-        const ordered = [preferredId, ...fallbackIds];
-        for (let index = 0; index < ordered.length; index += 1) {
-            const candidate = ordered[index];
-            if (candidate !== undefined && candidate !== null && optionMap.has(candidate)) {
-                return candidate;
-            }
-        }
-        const iterator = optionMap.keys();
-        const first = iterator.next();
-        return first.done ? "" : first.value;
-    };
     const subjectOptions = getSubjectToggleOptions();
     const subjectOptionMap = new Map(subjectOptions.map((entry) => [entry.id, entry]));
     const passiveSubjectStateKey = allowSubjectToggle ? `${objectStateKey}|subject` : "";
@@ -32246,18 +32635,31 @@ function buildVerbTenseBlock({
     const uiDefaultObjectBySlot = grammarUiConfig?.defaultToggles?.objectBySlotId || null;
     const uiDefaultPrimaryObjectId = uiDefaultObjectBySlot?.object;
     const bitransitiveDefaultObjectId = shouldDefaultBitransitiveObjects
-        ? resolveDefaultToggleId(
-            objectOptionMap,
-            uiDefaultPrimaryObjectId || "ki",
-            [OBJECT_TOGGLE_ALL, getPreferredObjectPrefix(prefixes), ""]
-        )
+        ? getDefaultOutputToggleSelection({
+            context: "verb-primary-object",
+            values: Array.from(objectOptionMap.keys()),
+            preferredId: uiDefaultPrimaryObjectId || "ki",
+            fallbackIds: [getPreferredObjectPrefix(prefixes), ""],
+            isNonactiveMode,
+        })
         : "";
     const shouldDefaultTripleValencySubject = !isNonactiveMode && activeValency >= 3 && verbKey;
     const tripleValencySubjectSeedKey = shouldDefaultTripleValencySubject ? `${verbKey}|valency-3` : verbKey;
-    const uiDefaultSubjectId = grammarUiConfig?.defaultToggles?.subject || SUBJECT_TOGGLE_ALL;
+    const uiDefaultSubjectId = grammarUiConfig?.defaultToggles?.subject
+        || getDefaultOutputToggleSelection({
+            context: "verb-subject",
+            values: Array.from(subjectOptionMap.keys()),
+        });
     const tripleDefaultSubjectId = shouldDefaultTripleValencySubject
-        ? resolveDefaultToggleId(subjectOptionMap, uiDefaultSubjectId, [])
-        : SUBJECT_TOGGLE_ALL;
+        ? getDefaultOutputToggleSelection({
+            context: "verb-subject",
+            values: Array.from(subjectOptionMap.keys()),
+            preferredId: uiDefaultSubjectId,
+        })
+        : getDefaultOutputToggleSelection({
+            context: "verb-subject",
+            values: Array.from(subjectOptionMap.keys()),
+        });
     const shouldForceDefaults = forceDefaultTodosKi && verbKey;
     if (shouldForceDefaults && objectOptionMap.has("ki")) {
         applyDefaultToggleStateOnce(OBJECT_TOGGLE_STATE, objectStateKey, verbKey, "ki");
@@ -32280,9 +32682,14 @@ function buildVerbTenseBlock({
         }
         return prefix || "intrans";
     };
-    let activeObjectPrefix = isIntransitiveGroup
-        ? ""
-        : (isNonactiveMode ? OBJECT_TOGGLE_ALL : getPreferredObjectPrefix(prefixes));
+    const defaultObjectPrefix = getDefaultOutputToggleSelection({
+        context: "verb-primary-object",
+        values: Array.from(objectOptionMap.keys()),
+        preferredId: uiDefaultPrimaryObjectId || getPreferredObjectPrefix(prefixes),
+        isNonactiveMode,
+        fallbackIds: [getPreferredObjectPrefix(prefixes)],
+    });
+    let activeObjectPrefix = isIntransitiveGroup ? "" : defaultObjectPrefix;
     if (shouldSeedAllTensesDefault && !OBJECT_TOGGLE_STATE.has(objectStateKey)) {
         setToggleStateValue(OBJECT_TOGGLE_STATE, objectStateKey, "ki", { syncLock: false });
     }
@@ -32296,7 +32703,13 @@ function buildVerbTenseBlock({
     if (primaryObjectSlot) {
         primaryObjectSlot.activeId = activeObjectPrefix;
     }
-    let activePassiveSubject = allowSubjectToggle ? OBJECT_TOGGLE_ALL : null;
+    const defaultPassiveSubjectId = allowSubjectToggle
+        ? getDefaultOutputToggleSelection({
+            context: "verb-passive-subject",
+            values: Array.from(passiveSubjectOptionMap.keys()),
+        })
+        : null;
+    let activePassiveSubject = allowSubjectToggle ? defaultPassiveSubjectId : null;
     const storedPassiveSubject = allowSubjectToggle
         ? getToggleStateValue(OBJECT_TOGGLE_STATE, passiveSubjectStateKey)
         : undefined;
@@ -32376,12 +32789,12 @@ function buildVerbTenseBlock({
         );
     }
     if (shouldSeedAllTensesDefault && !SUBJECT_TOGGLE_STATE.has(subjectKey)) {
-        setToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, SUBJECT_TOGGLE_ALL, { syncLock: false });
+        setToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, tripleDefaultSubjectId, { syncLock: false });
     }
-    let activeSubject = getToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, SUBJECT_TOGGLE_ALL)
-        ?? SUBJECT_TOGGLE_ALL;
+    let activeSubject = getToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, tripleDefaultSubjectId)
+        ?? tripleDefaultSubjectId;
     if (!subjectOptionMap.has(activeSubject)) {
-        activeSubject = SUBJECT_TOGGLE_ALL;
+        activeSubject = tripleDefaultSubjectId;
         setToggleStateValue(SUBJECT_TOGGLE_STATE, subjectKey, activeSubject, { syncLock: false });
     }
 
@@ -32571,11 +32984,12 @@ function buildVerbTenseBlock({
             }
             if (shouldDefaultBitransitiveObjects) {
                 const defaults = getExtraSlotBitransitiveDefaults(slotState.id);
-                const defaultId = resolveDefaultToggleId(
-                    slotState.optionMap,
-                    defaults.preferredId,
-                    defaults.fallbackIds
-                );
+                const defaultId = getDefaultOutputToggleSelection({
+                    context: "verb-extra-object",
+                    values: Array.from(slotState.optionMap.keys()),
+                    preferredId: defaults.preferredId,
+                    fallbackIds: defaults.fallbackIds,
+                });
                 applyDefaultToggleStateOnce(
                     OBJECT_TOGGLE_STATE,
                     slotState.stateKey,
@@ -33831,9 +34245,11 @@ function renderLocativoTemporalConjugations({
                         || (slotState.showToggle && slotState.activeId === OBJECT_TOGGLE_ALL)
                     );
                 if (!isActiveValid) {
-                    slotState.activeId = slotState.toggleValues.includes("ta")
-                        ? "ta"
-                        : (slotState.toggleValues[0] || "");
+                    slotState.activeId = getDefaultOutputToggleSelection({
+                        context: "noun-extra-object",
+                        values: slotState.toggleValues,
+                        isAddedSlot: slotState.isAddedSlot,
+                    });
                 }
                 setToggleStateValue(OBJECT_TOGGLE_STATE, slotState.stateKey, slotState.activeId, {
                     syncLock: false,
@@ -33874,7 +34290,10 @@ function renderLocativoTemporalConjugations({
         const resolveActiveSlotValue = (slotId) => slotStateById.get(slotId)?.activeId || "";
         const possessorStateKey = activePossessorKey;
         const possessorToggleValues = possessorValues;
-        const defaultPossessor = possessorValues.includes("i") ? "i" : (possessorValues[0] || "");
+        const defaultPossessor = getDefaultOutputToggleSelection({
+            context: "noun-possessor",
+            values: possessorValues,
+        });
         let activePossessor = resolveStoredPossessor({
             stateKey: possessorStateKey,
             allowedValues: possessorToggleValues,
@@ -33887,9 +34306,14 @@ function renderLocativoTemporalConjugations({
             const hasStoredPrimary = activeNonactivePrimary === OBJECT_TOGGLE_ALL
                 || nonactivePrimaryOptionMap.has(activeNonactivePrimary);
             if (!hasStoredPrimary) {
-                activeNonactivePrimary = nonactivePrimaryOptionMap.has("obj:ta")
-                    ? "obj:ta"
-                    : ((nonactivePrimaryOptions.find((option) => option.id !== OBJECT_TOGGLE_ALL)?.id) || OBJECT_TOGGLE_ALL);
+                const firstSpecificNonactivePrimary = nonactivePrimaryOptions.find(
+                    (option) => option.id !== OBJECT_TOGGLE_ALL
+                )?.id;
+                activeNonactivePrimary = getDefaultOutputToggleSelection({
+                    context: "noun-nonactive-primary",
+                    values: Array.from(nonactivePrimaryOptionMap.keys()),
+                    fallbackIds: [firstSpecificNonactivePrimary, OBJECT_TOGGLE_ALL],
+                });
             }
             setToggleStateValue(OBJECT_TOGGLE_STATE, nonactivePrimaryKey, activeNonactivePrimary, {
                 syncLock: false,

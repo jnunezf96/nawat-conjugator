@@ -1497,9 +1497,9 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         && !isMonosyllable;
     const resolvedForceClassAForKWV = forceClassAForKWV && !allowKWVClassB;
     const resolvedVerb = isWeya && rootPlusYaBase ? `${rootPlusYaBase}ya` : verb;
-    const deletionCreatesCluster = !isTransitive
+    const hasCJunctureIntransitive = !isTransitive
         && !isRootPlusYa
-        && deletionCreatesConsonantCluster(resolvedVerb);
+        && hasRightEdge({ juncture: "C|CV" });
     const context = {
         verb: resolvedVerb,
         analysisVerb: analysisRoot,
@@ -1541,7 +1541,7 @@ function buildPretUniversalContext(verb, analysisVerb, isTransitive, options = {
         isVVtVStart,
         isTransitiveUniI,
         rootSyllablesOk,
-        deletionCreatesCluster,
+        hasCJunctureIntransitive,
         lastSyllableForm,
         lastNucleus,
         penultimateNucleus,
@@ -1685,11 +1685,11 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
         classes: ["B"],
     },
     {
-        id: "deleted_vowel_cluster_intransitive",
-        label: "deleted vowel cluster (intransitive)",
+        id: "c_juncture_intransitive",
+        label: "C|CV (intransitive)",
         tier: "forced",
         when: (context) => {
-            if (context.isTransitive || !context.deletionCreatesCluster) {
+            if (context.isTransitive || !context.hasCJunctureIntransitive) {
                 return false;
             }
             const allowClusterWiWaShape = pretContextHasAnyShapeDescriptor(
@@ -1785,7 +1785,7 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
         when: (context) => (
             pretContextHasRightEdge(context, { finalOnset: "tz" })
             && !pretContextHasAnyRightEdge(context, [
-                { rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"] },
+                { juncture: "C|CV" },
             ])
         ),
         classes: ["A"],

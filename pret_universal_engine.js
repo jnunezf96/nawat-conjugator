@@ -1318,10 +1318,10 @@ function resolvePretClassPolicy({
         subjectSuffix,
         isPreterit,
         forceClassBOnly,
-        isDeletionClusterIntransitive: Boolean(
+        isCJunctureIntransitive: Boolean(
             context
             && !context.isTransitive
-            && context.deletionCreatesCluster
+            && context.hasCJunctureIntransitive
         ),
         isRootPlusYaIntransitive: Boolean(
             context
@@ -1377,8 +1377,8 @@ function resolvePretClassPolicy({
             }),
         },
         {
-            name: "deletion-cluster-intransitive",
-            when: (ctx) => ctx.isDeletionClusterIntransitive,
+            name: "c-juncture-intransitive",
+            when: (ctx) => ctx.isCJunctureIntransitive,
             run: () => ({
                 terminal: true,
                 policy: buildForcedClassBPolicyResult(isPreterit),
