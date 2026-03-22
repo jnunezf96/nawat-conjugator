@@ -387,7 +387,7 @@ const COMPOSER_SERIAL_TYPE_OPTIONS = Object.freeze([
     { value: "iwi", label: "iwi", slotCount: 3, family: "iwi" },
 ]);
 const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_GROUPS = Object.freeze([
-    { key: "noun-to-verb", label: "Sustantivo→verbo", triggerPrefix: "S→V" },
+    { key: "noun-to-verb", label: "Sustantivo→verbo", triggerPrefix: "Sufijo" },
     { key: "series", label: "Serie", triggerPrefix: "Serie" },
 ]);
 const COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([
@@ -15368,8 +15368,8 @@ function getVerbComposerElements() {
     return {
         tutorialTrigger: document.getElementById("tutorial-trigger"),
         panel: document.getElementById("verb-composer"),
+        entryBoardTabsHost: document.getElementById("verb-entry-board-tabs"),
         entryBoardButtons: document.querySelectorAll("[data-composer-entry-board]"),
-        entryBoardPanels: document.querySelectorAll("[data-composer-entry-board-panel]"),
         slots,
         slotAEmbedInput,
         slotAStemInput,
@@ -17051,7 +17051,9 @@ function getComposerStemInputTemplateSuffix(stemInput = null, slotKey = "") {
         && getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
     ) {
         return normalizeComposerStem(
-            COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[resolvedSlotKey] || ""
+            COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[resolvedSlotKey]
+            || stemInput?.dataset?.dropdownTemplateSuffix
+            || ""
         );
     }
     return normalizeComposerStem(stemInput?.dataset?.dropdownTemplateSuffix || "");
@@ -17559,6 +17561,9 @@ function buildComposerNounToVerbCanonicalStem(surfaceValue = "", templateSuffix 
     if (!suffix || !nounInfo.surface) {
         return "";
     }
+    if (nounInfo.classKey === "zero" && nounInfo.surface.endsWith(suffix)) {
+        return nounInfo.surface;
+    }
     const stemBase = nounInfo.stem || "";
     const bridge = analyzeComposerNounToVerbSeriesBridge(nounInfo.surface);
     const {
@@ -17617,7 +17622,8 @@ function shouldUseComposerNounToVerbStemLogic(slotKey = "", templateSuffix = "")
     if (getComposerEntryBoard() !== COMPOSER_ENTRY_BOARD.nounToVerb) {
         return false;
     }
-    return true;
+    const slotConfig = getComposerSlotConfig(slotKey);
+    return Boolean(slotConfig);
 }
 
 function getComposerNounToVerbSurfaceValue(slotKey = "", fallbackValue = "") {
@@ -18659,7 +18665,7 @@ function getComposerMatrixAffixSerialLabel(serialType = "", { short = false } = 
 }
 
 function getComposerMatrixAffixTriggerPrefix(kind = "manual") {
-    return kind === "serial" ? "Serie" : "S→V";
+    return kind === "serial" ? "Serie" : "Sufijo";
 }
 
 function getComposerMatrixAffixCurrentState(slotKey = "", stemInput = null) {
@@ -20720,8 +20726,8 @@ function renderVerbComposerFromState() {
     const {
         tutorialTrigger,
         panel,
+        entryBoardTabsHost,
         entryBoardButtons,
-        entryBoardPanels,
         slots,
         transitivitySelect,
         valenceSelectIntransitive,
@@ -20746,6 +20752,10 @@ function renderVerbComposerFromState() {
         panel.inert = !isComposer;
         panel.dataset.entryBoard = activeBoard;
     }
+    if (entryBoardTabsHost) {
+        entryBoardTabsHost.hidden = false;
+        entryBoardTabsHost.setAttribute("aria-hidden", "false");
+    }
     const placeholder = document.getElementById("verb-composer-placeholder");
     if (placeholder) {
         placeholder.hidden = isComposer;
@@ -20765,16 +20775,8 @@ function renderVerbComposerFromState() {
         const board = normalizeComposerEntryBoard(button.getAttribute("data-composer-entry-board") || "");
         const isActive = isComposer && board === activeBoard;
         button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
-    });
-    Array.from(entryBoardPanels || []).forEach((boardPanel) => {
-        const board = normalizeComposerEntryBoard(
-            boardPanel.getAttribute("data-composer-entry-board-panel") || ""
-        );
-        const isActive = isComposer && board === activeBoard;
-        boardPanel.hidden = !isActive;
-        boardPanel.setAttribute("aria-hidden", String(!isActive));
+        button.setAttribute("aria-pressed", String(isActive));
+        button.tabIndex = 0;
     });
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const slotRefs = slots[slotKey] || {};
@@ -22409,7 +22411,12 @@ function initVerbComposer() {
     Array.from(entryBoardButtons || []).forEach((button) => {
         button.addEventListener("click", () => {
             const board = button.getAttribute("data-composer-entry-board") || "";
+            if (!isVerbInputModeComposer()) {
+                setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+            }
             setComposerEntryBoard(board);
+            getComposerPreferredEntryInput()?.focus();
+            syncVerbScreenCalculatorState();
         });
     });
     slotStemInputs.forEach(({ slotKey, stemInput }) => {

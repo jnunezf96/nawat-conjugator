@@ -182,27 +182,40 @@
                   <div
                     class="calc-input-mode"
                     role="group"
-                    aria-label="Modo de entrada"
+                    aria-label="Entrada verbal"
                   >
-                    <button
-                      type="button"
-                      class="calc-input-mode__button button-with-icon"
-                      data-input-mode="composer"
-                      aria-pressed="true"
+                    <div
+                      class="verb-entry-board-tabs"
+                      id="verb-entry-board-tabs"
+                      role="group"
+                      aria-label="Entrada por compositor"
                     >
-                      <span class="button-icon" aria-hidden="true">
-                        <svg viewBox="0 0 16 16" focusable="false">
-                          <rect x="2.5" y="2.5" width="4.25" height="4.25" rx="1"></rect>
-                          <rect x="9.25" y="2.5" width="4.25" height="4.25" rx="1"></rect>
-                          <rect x="2.5" y="9.25" width="4.25" height="4.25" rx="1"></rect>
-                          <rect x="9.25" y="9.25" width="4.25" height="4.25" rx="1"></rect>
-                        </svg>
-                      </span>
-                      <span class="button-label">Selecciones</span>
-                    </button>
+                      <button
+                        type="button"
+                        class="verb-entry-board-tabs__button"
+                        id="verb-entry-board-tab-general"
+                        data-composer-entry-board="general"
+                        aria-pressed="true"
+                        aria-label="Tablero Verbo puro"
+                        title="Verbo puro"
+                      >
+                        V
+                      </button>
+                      <button
+                        type="button"
+                        class="verb-entry-board-tabs__button"
+                        id="verb-entry-board-tab-noun-to-verb"
+                        data-composer-entry-board="noun-to-verb"
+                        aria-pressed="false"
+                        aria-label="Tablero Sustantivo→verbo"
+                        title="Sustantivo→verbo"
+                      >
+                        S→V
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      class="calc-input-mode__button button-with-icon"
+                      class="calc-input-mode__button calc-input-mode__button--regex button-with-icon"
                       data-input-mode="regex"
                       aria-pressed="false"
                     >
@@ -320,64 +333,6 @@
                 <div class="verb-block__controls">
                       <div class="verb-block__composer">
                       <div class="verb-composer" id="verb-composer">
-                        <div class="verb-entry-board-rail">
-                          <div
-                            class="verb-entry-board-tabs"
-                            role="tablist"
-                            aria-label="Tableros internos de Selecciones"
-                          >
-                            <button
-                              type="button"
-                              class="verb-entry-board-tabs__button"
-                              id="verb-entry-board-tab-general"
-                              data-composer-entry-board="general"
-                              role="tab"
-                              aria-selected="true"
-                              aria-controls="verb-entry-board-panel-general"
-                            >
-                              Verbo puro
-                            </button>
-                            <button
-                              type="button"
-                              class="verb-entry-board-tabs__button"
-                              id="verb-entry-board-tab-noun-to-verb"
-                              data-composer-entry-board="noun-to-verb"
-                              role="tab"
-                              aria-selected="false"
-                              aria-controls="verb-entry-board-panel-noun-to-verb"
-                            >
-                              Sustantivo→verbo
-                            </button>
-                          </div>
-                          <div
-                            class="verb-entry-board-callout"
-                            id="verb-entry-board-panel-general"
-                            data-composer-entry-board-panel="general"
-                            role="tabpanel"
-                            aria-labelledby="verb-entry-board-tab-general"
-                            aria-live="polite"
-                          >
-                            <strong class="verb-entry-board-callout__title">Verbo puro</strong>
-                            <span class="verb-entry-board-callout__body">
-                              Escribe un verbo ya verbal y combínalo con sus selecciones verbales normales.
-                            </span>
-                          </div>
-                          <div
-                            class="verb-entry-board-callout"
-                            id="verb-entry-board-panel-noun-to-verb"
-                            data-composer-entry-board-panel="noun-to-verb"
-                            role="tabpanel"
-                            aria-labelledby="verb-entry-board-tab-noun-to-verb"
-                            aria-live="polite"
-                            hidden
-                            aria-hidden="true"
-                          >
-                            <strong class="verb-entry-board-callout__title">Sustantivo→verbo</strong>
-                            <span class="verb-entry-board-callout__body">
-                              Escribe un sustantivo y usa S→V para verbalizarlo sin mezclar el sufijo en la raíz matriz.
-                            </span>
-                          </div>
-                        </div>
                         <div class="verb-composer__grid">
                           <div
                             class="verb-composer__slots"
@@ -486,7 +441,7 @@
                                           aria-controls="composer-stem-a-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot A"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-a-affix-trigger-value"
@@ -622,7 +577,7 @@
                                           aria-controls="composer-stem-b-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot B"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-b-affix-trigger-value"
@@ -760,7 +715,7 @@
                                           aria-controls="composer-stem-c-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot C"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">S→V</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-c-affix-trigger-value"
