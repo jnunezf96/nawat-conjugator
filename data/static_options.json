@@ -1,7 +1,7 @@
 {
   "specificValencePrefixes": ["nech", "metz", "ki", "tech", "metzin", "kin"],
   "nonspecificValencePrefixes": ["ta", "te", "mu"],
-  "nonspecificValenceAffixes": ["ta", "te", "mu", "taj", "tajta", "tej", "tejte", "t", "mujmu"],
+  "nonspecificValenceAffixes": ["ta", "te", "mu", "tajta", "tejte", "t", "mujmu", "m"],
   "objectPrefixes": [
     { "value": "nech" },
     { "value": "metz" },

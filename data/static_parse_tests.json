@@ -2,6 +2,81 @@
   "version": 1,
   "cases": [
     {
+      "input": "(tzin/pewa)",
+      "expect": {
+        "displayVerb": "(tzin/pewa)",
+        "displayCore": "tzin/pewa",
+        "dashPrefix": "",
+        "hasExternalObjectDash": false,
+        "semanticObjectSlotCount": 0,
+        "hasSlashMarker": true
+      }
+    },
+    {
+      "input": "(shuchi-temua)",
+      "expect": {
+        "displayVerb": "(shuchi-temua)",
+        "displayCore": "shuchi-temua",
+        "dashPrefix": "",
+        "hasExternalObjectDash": false,
+        "semanticObjectSlotCount": 1,
+        "isMarkedTransitive": true
+      }
+    },
+    {
+      "input": "(a/T-i)",
+      "expect": {
+        "displayVerb": "(a/T-i)",
+        "displayCore": "a/T-i",
+        "dashPrefix": "",
+        "hasExternalObjectDash": false,
+        "semanticObjectSlotCount": 1,
+        "isTaFusion": true
+      }
+    },
+    {
+      "input": "-(TA-ish/piya)",
+      "expect": {
+        "displayVerb": "-(TA-ish/piya)",
+        "displayCore": "TA-ish/piya",
+        "dashPrefix": "-",
+        "hasExternalObjectDash": true,
+        "semanticObjectSlotCount": 2,
+        "isMarkedTransitive": true
+      }
+    },
+    {
+      "input": "-(kal-ish/piya)",
+      "expect": {
+        "displayVerb": "-(kal-ish/piya)",
+        "displayCore": "kal-ish/piya",
+        "dashPrefix": "-",
+        "hasExternalObjectDash": true,
+        "semanticObjectSlotCount": 2,
+        "isMarkedTransitive": true
+      }
+    },
+    {
+      "input": "(michti1)",
+      "expect": {
+        "displayVerb": "(michti1)",
+        "displayCore": "michti1",
+        "dashPrefix": "",
+        "hasExternalObjectDash": false,
+        "semanticObjectSlotCount": 0,
+        "tiCausativeClass": "become"
+      }
+    },
+    {
+      "input": "({i}stat)",
+      "expect": {
+        "displayVerb": "({i}stat)",
+        "displayCore": "{i}stat",
+        "hasOptionalSupportiveI": true,
+        "optionalSupportiveLetter": "i"
+      }
+    },
+    {
       "input": "a/t-i",
       "expect": {
         "verb": "ati",

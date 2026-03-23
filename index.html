@@ -16,10 +16,10 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
-    <script src="pret_universal_context.js" defer></script>
-    <script src="pret_universal_engine.js" defer></script>
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260322-regex-core-22" />
+    <script src="pret_universal_context.js?v=20260322-regex-core-22" defer></script>
+    <script src="pret_universal_engine.js?v=20260322-regex-core-22" defer></script>
+    <script src="script.js?v=20260322-regex-core-22" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
@@ -253,7 +253,10 @@
                         hidden
                       >
                         <div class="keyboard-legend-header">
-                          <strong>Atajos</strong>
+                          <div class="keyboard-legend-title-block">
+                            <strong>Atajos</strong>
+                            <span class="keyboard-legend-subtitle">navegacion, modos y edicion</span>
+                          </div>
                           <button
                             type="button"
                             class="keyboard-legend-close"
@@ -300,7 +303,15 @@
                     <div class="verb-block__screen">
                       <div class="verb-input-wrap">
                         <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
-                          <div class="verb-mirror-content" id="verb-mirror-content"></div>
+                          <div
+                            class="verb-mirror-content"
+                            id="verb-mirror-content"
+                            contenteditable="false"
+                            role="textbox"
+                            aria-label="Forma canónica"
+                            aria-readonly="true"
+                            spellcheck="false"
+                          ></div>
                         </div>
                         <input
                           type="text"
@@ -340,50 +351,10 @@
                             aria-label="Campos del compositor verbal"
                           >
                             <div
-                              class="verb-composer__slots-group verb-composer__slots-group--transitivity"
-                              role="group"
-                              aria-label="Grupo de transitividad"
-                            >
-                              <span class="verb-composer__sub-label verb-composer__slot-tabs-label">Transitividad</span>
-                              <div class="verb-composer__slot-tabs" role="tablist" aria-label="Slots de transitividad">
-                                <button
-                                  type="button"
-                                  class="verb-composer__slot-transitivity verb-composer__slot-tab"
-                                  data-composer-transitivity="intransitive"
-                                  role="tab"
-                                  aria-selected="false"
-                                  aria-controls="composer-slot-a"
-                                >
-                                  Intransitivo
-                                </button>
-                                <button
-                                  type="button"
-                                  class="verb-composer__slot-transitivity verb-composer__slot-tab"
-                                  data-composer-transitivity="transitive"
-                                  role="tab"
-                                  aria-selected="false"
-                                  aria-controls="composer-slot-b"
-                                >
-                                  Transitivo
-                                </button>
-                                <button
-                                  type="button"
-                                  class="verb-composer__slot-transitivity verb-composer__slot-tab"
-                                  data-composer-transitivity="bitransitive"
-                                  role="tab"
-                                  aria-selected="false"
-                                  aria-controls="composer-slot-c"
-                                >
-                                  Bitransitivo
-                                </button>
-                              </div>
-                            </div>
-                            <div
                               class="verb-composer__slots-group verb-composer__slots-group--inputs"
                               role="group"
                               aria-label="Grupo de campos de entrada"
                             >
-                              <span class="verb-composer__sub-label">Ingrese aquí:</span>
                               <div
                                 class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                                 id="composer-slot-a"
@@ -398,16 +369,19 @@
                                   >
                                     <span class="verb-composer__sub-label">Raíz incorporada</span>
                                     <div class="verb-composer__embed-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-embed"
-                                        class="verb-composer__input"
-                                        placeholder="prefijo"
-                                        aria-label="Raíz incorporada Slot A"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-embed"
+                                          class="verb-composer__input verb-composer__tagged-input-control"
+                                          placeholder="prefijo"
+                                          aria-label="Raíz incorporada Slot A"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                   <div
@@ -416,18 +390,59 @@
                                   >
                                     <div class="verb-composer__matrix-head">
                                       <span class="verb-composer__sub-label">Raíz matriz</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="intransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-a"
+                                          aria-label="Intransitivo"
+                                          title="Intransitivo"
+                                        >
+                                          VI
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="transitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-b"
+                                          aria-label="Transitivo"
+                                          title="Transitivo"
+                                        >
+                                          VT
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="bitransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-c"
+                                          aria-label="Bitransitivo"
+                                          title="Bitransitivo"
+                                        >
+                                          VB
+                                        </button>
+                                      </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-stem-a"
-                                        class="verb-composer__input"
-                                        placeholder="verbo"
-                                        aria-label="Raíz matriz Slot A"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-stem-a"
+                                          class="verb-composer__input verb-composer__tagged-input-control"
+                                          placeholder="verbo"
+                                          aria-label="Raíz matriz Slot A"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                       <div
                                         class="verb-composer__matrix-affix-picker"
                                         data-composer-matrix-affix-picker="a"
@@ -534,16 +549,19 @@
                                   >
                                     <span class="verb-composer__sub-label">Raíz incorporada</span>
                                     <div class="verb-composer__embed-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-valence-embed-1"
-                                        class="verb-composer__input verb-composer__valence-embed-input"
-                                        placeholder="prefijo"
-                                        aria-label="Raíz incorporada Slot B"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-valence-embed-1"
+                                          class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
+                                          placeholder="prefijo"
+                                          aria-label="Raíz incorporada Slot B"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                   <div
@@ -552,18 +570,59 @@
                                   >
                                     <div class="verb-composer__matrix-head">
                                       <span class="verb-composer__sub-label">Raíz matriz</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="intransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-a"
+                                          aria-label="Intransitivo"
+                                          title="Intransitivo"
+                                        >
+                                          VI
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="transitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-b"
+                                          aria-label="Transitivo"
+                                          title="Transitivo"
+                                        >
+                                          VT
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="bitransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-c"
+                                          aria-label="Bitransitivo"
+                                          title="Bitransitivo"
+                                        >
+                                          VB
+                                        </button>
+                                      </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-stem-b"
-                                        class="verb-composer__input"
-                                        placeholder="verbo"
-                                        aria-label="Raíz matriz Slot B"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-stem-b"
+                                          class="verb-composer__input verb-composer__tagged-input-control"
+                                          placeholder="verbo"
+                                          aria-label="Raíz matriz Slot B"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                       <div
                                         class="verb-composer__matrix-affix-picker"
                                         data-composer-matrix-affix-picker="b"
@@ -672,16 +731,19 @@
                                   >
                                     <span class="verb-composer__sub-label">Raíz incorporada</span>
                                     <div class="verb-composer__embed-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-valence-embed-2"
-                                        class="verb-composer__input verb-composer__valence-embed-input"
-                                        placeholder="prefijo"
-                                        aria-label="Raíz incorporada Slot C"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-valence-embed-2"
+                                          class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
+                                          placeholder="prefijo"
+                                          aria-label="Raíz incorporada Slot C"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                   <div
@@ -690,18 +752,59 @@
                                   >
                                     <div class="verb-composer__matrix-head">
                                       <span class="verb-composer__sub-label">Raíz matriz</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="intransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-a"
+                                          aria-label="Intransitivo"
+                                          title="Intransitivo"
+                                        >
+                                          VI
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="transitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-b"
+                                          aria-label="Transitivo"
+                                          title="Transitivo"
+                                        >
+                                          VT
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="verb-composer__slot-transitivity verb-composer__slot-tab"
+                                          data-composer-transitivity="bitransitive"
+                                          role="tab"
+                                          aria-selected="false"
+                                          aria-controls="composer-slot-c"
+                                          aria-label="Bitransitivo"
+                                          title="Bitransitivo"
+                                        >
+                                          VB
+                                        </button>
+                                      </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
-                                      <input
-                                        type="text"
-                                        id="composer-stem-c"
-                                        class="verb-composer__input"
-                                        placeholder="verbo"
-                                        aria-label="Raíz matriz Slot C"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-stem-c"
+                                          class="verb-composer__input verb-composer__tagged-input-control"
+                                          placeholder="verbo"
+                                          aria-label="Raíz matriz Slot C"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                       <div
                                         class="verb-composer__matrix-affix-picker"
                                         data-composer-matrix-affix-picker="c"
@@ -835,7 +938,7 @@
                           </div>
                           <label class="verb-composer__checkbox">
                             <input type="checkbox" id="composer-supportive-i" />
-                            <span>i/y de apoyo opcional (i)/(y)</span>
+                            <span>i/y de apoyo opcional [i]/[y]</span>
                           </label>
                           <div
                             class="verb-composer__supportive-toggle-row"
@@ -1192,34 +1295,30 @@
             <div class="tutorial-block">
               <div class="tutorial-block-title">Símbolos clave</div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">-</span>
-                <span class="tutorial-chip-label">con = transitivo; sin = intransitivo</span>
-              </div>
-              <div class="tutorial-chip-row">
                 <span class="tutorial-chip">/</span>
-                <span class="tutorial-chip-label">separador</span>
+                <span class="tutorial-chip-label">separador principal del regex</span>
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">ta-,te-,mu-</span>
-                <span class="tutorial-chip-label">objeto indefinido</span>
+                <span class="tutorial-chip">-</span>
+                <span class="tutorial-chip-label">liga externa del objeto o del bloque verbal</span>
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">t-,m-</span>
+                <span class="tutorial-chip">(ta), (te), (mu)</span>
+                <span class="tutorial-chip-label">objeto indefinido gramatical</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">(t), (m)</span>
                 <span class="tutorial-chip-label">forma corta de objeto indefinido</span>
               </div>
               <div class="tutorial-chip-row">
                 <span class="tutorial-chip">(i)/(y)</span>
                 <span class="tutorial-chip-label"
-                  >i/y de apoyo opcional; (i) con ta/te/mu se elimina, (y) puede mantenerse en cualquier entorno</span
+                  >i/y de apoyo opcional dentro del regex</span
                 >
               </div>
               <div class="tutorial-chip-row">
                 <span class="tutorial-chip">[wal]/[un]/[ku]/</span>
                 <span class="tutorial-chip-label">direccional; usa [prefijo]/. sin corchetes queda como raíz incorporada.</span>
-              </div>
-              <div class="tutorial-chip-row">
-                <span class="tutorial-chip">?</span>
-                <span class="tutorial-chip-label">búsqueda rápida</span>
               </div>
             </div>
             <div class="tutorial-block">
@@ -1228,91 +1327,52 @@
                 <div class="tutorial-structure-line">
                   <span class="tutorial-code">intransitivo con prefijo</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="tzin/pewa">
-                      TZIN/PEWA
+                    <button type="button" class="tutorial-token" data-example="(tzin/pewa)">
+                      tzin/pewa
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">transitivo con prefijo</span>
+                  <span class="tutorial-code">transitivo con objeto incorporado</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-ten/tzakwa">
-                      -TEN/TZAKWA
+                    <button type="button" class="tutorial-token" data-example="(shuchi-temua)">
+                      -shuchi-temua
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">transitivo con OI (ta/te/mu)</span>
+                  <span class="tutorial-code">bitransitivo con objeto indefinido interno</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-ta-ish/piya">
-                      -TA-ISH/PIYA
+                    <button type="button" class="tutorial-token" data-example="-(TA-ish/piya)">
+                      -(ta)-ish/piya
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">transitivo con OD + prefijo</span>
+                  <span class="tutorial-code">bitransitivo con objeto incorporado interno</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-kal-ish/piya">
-                      -KAL-ISH/PIYA
+                    <button type="button" class="tutorial-token" data-example="-(kal-ish/piya)">
+                      -kal-ish/piya
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">prefijo ligado + ta‑fusión</span>
+                  <span class="tutorial-code">objeto incorporado + objeto indefinido ligado</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
+                    <button type="button" class="tutorial-token" data-example="(a/T-i)">-a/(t)-i</button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">direccional + ta‑fusión</span>
+                  <span class="tutorial-code">ti con subclase inline</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-ku/ta-mima">
-                      -KU/TA-MIMA
-                    </button>
-                  </span>
-                </div>
-              </div>
-              <div class="tutorial-note">
-                Transitivo mínimo:
-                <button type="button" class="tutorial-token" data-example="-piya">-PIYA</button>
-                · Fusión:
-                <button type="button" class="tutorial-token" data-example="ta-chiya">
-                  TA-CHIYA
-                </button>
-                · Prefijo ligado:
-                <button type="button" class="tutorial-token" data-example="a/t-i">A/T-I</button>
-              </div>
-            </div>
-            <div class="tutorial-block">
-              <div class="tutorial-block-title">Búsqueda rápida</div>
-              <div class="tutorial-structure">
-                <div class="tutorial-structure-line">
-                  <span class="tutorial-code">termina en</span>
-                  <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-piya?-lis">
-                      -PIYA?-LIS
-                    </button>
-                  </span>
-                </div>
-                <div class="tutorial-structure-line">
-                  <span class="tutorial-code">empieza con</span>
-                  <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-piya?ta-">
-                      -PIYA?TA-
-                    </button>
-                  </span>
-                </div>
-                <div class="tutorial-structure-line">
-                  <span class="tutorial-code">contiene</span>
-                  <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-piya?-ka-">
-                      -PIYA?-KA-
+                    <button type="button" class="tutorial-token" data-example="(michti1)">
+                      michti1
                     </button>
                   </span>
                 </div>
               </div>
               <div class="tutorial-note">
-                Busca en todas las tablas y salta a la primera coincidencia.
+                Usa minúsculas para objeto incorporado léxico y mayúsculas solo para TA/TE/MU/T/M.
               </div>
             </div>
           </div>

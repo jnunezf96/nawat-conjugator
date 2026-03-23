@@ -27,9 +27,9 @@ let DIGRAPH_SET = new Set();
 let SYLLABLE_FORMS = [];
 let SYLLABLE_FORM_SET = new Set();
 let REDUP_PREFIX_FORMS = new Set();
-let COMPOUND_MARKER_RE = /[|~#()\[\]\\/?-]/g;
-let COMPOUND_MARKER_SPLIT_RE = /[|~#()\\/?-]/;
-let COMPOUND_ALLOWED_RE = /[|~#()\[\]\\/?-]/g;
+let COMPOUND_MARKER_RE = /[|~#()\[\]{}\\/?-]/g;
+let COMPOUND_MARKER_SPLIT_RE = /[|~#(){}\\/?-]/;
+let COMPOUND_ALLOWED_RE = /[|~#()\[\]{}\\/?-]/g;
 let PARSE_PIPELINE = [];
 let DIRECTIONAL_RULES = [];
 let SUPPORTIVE_I_KEEP_SLASH_PREFIXES = new Set();
@@ -42,16 +42,53 @@ const OPTIONAL_SUPPORTIVE_Y_MARKER = "(y)";
 const OPTIONAL_SUPPORTIVE_I_RE = /\(i\)/g;
 const OPTIONAL_SUPPORTIVE_MARKER_RE = /\((i|y)\)/g;
 const OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE = /\((i|y)\)/;
+const REGEX_OPTIONAL_SUPPORTIVE_I_MARKER = "[i]";
+const REGEX_OPTIONAL_SUPPORTIVE_Y_MARKER = "[y]";
+const REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE = /\[([iy])\]/gi;
+const REGEX_OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE = /\[([iy])\]/i;
+const REGEX_ENVELOPE_OBJECT_MARKERS = Object.freeze(["TA", "TE", "MU", "T", "M"]);
 const FALLBACK_DIRECTIONAL_PREFIXES = Object.freeze(["wal", "un", "ku"]);
+const SUPPORTIVE_MARKER_FORMAT = Object.freeze({
+    legacy: "legacy",
+    regex: "regex",
+    screen: "screen",
+});
+
+function getSupportiveMarkerTokenForLetter(letter = "", format = SUPPORTIVE_MARKER_FORMAT.legacy) {
+    const normalized = String(letter || "").trim().toLowerCase();
+    const resolvedLetter = normalized === "y" ? "y" : "i";
+    if (format === SUPPORTIVE_MARKER_FORMAT.regex || format === SUPPORTIVE_MARKER_FORMAT.screen) {
+        return resolvedLetter === "y" ? REGEX_OPTIONAL_SUPPORTIVE_Y_MARKER : REGEX_OPTIONAL_SUPPORTIVE_I_MARKER;
+    }
+    return resolvedLetter === "y" ? OPTIONAL_SUPPORTIVE_Y_MARKER : OPTIONAL_SUPPORTIVE_I_MARKER;
+}
+
+function getSupportiveMarkerLetterFromValue(value = "", format = SUPPORTIVE_MARKER_FORMAT.legacy) {
+    const source = String(value || "");
+    const match = (
+        format === SUPPORTIVE_MARKER_FORMAT.regex || format === SUPPORTIVE_MARKER_FORMAT.screen
+    )
+        ? source.match(REGEX_OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE)
+        : source.match(OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
+    return match ? String(match[1] || "").toLowerCase() : "";
+}
+
+function replaceSupportiveMarkersWithLetters(value = "", format = SUPPORTIVE_MARKER_FORMAT.legacy) {
+    const source = String(value || "");
+    const pattern = (
+        format === SUPPORTIVE_MARKER_FORMAT.regex || format === SUPPORTIVE_MARKER_FORMAT.screen
+    )
+        ? REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE
+        : OPTIONAL_SUPPORTIVE_MARKER_RE;
+    return source.replace(pattern, (_match, letter) => String(letter || "").toLowerCase());
+}
 
 function getOptionalSupportiveMarkerForLetter(letter = "") {
-    const normalized = String(letter || "").trim().toLowerCase();
-    return normalized === "y" ? OPTIONAL_SUPPORTIVE_Y_MARKER : OPTIONAL_SUPPORTIVE_I_MARKER;
+    return getSupportiveMarkerTokenForLetter(letter, SUPPORTIVE_MARKER_FORMAT.legacy);
 }
 
 function getOptionalSupportiveMarkerLetter(value = "") {
-    const match = String(value || "").match(OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
-    return match ? String(match[1] || "").toLowerCase() : "";
+    return getSupportiveMarkerLetterFromValue(value, SUPPORTIVE_MARKER_FORMAT.legacy);
 }
 
 function hasOptionalSupportiveMarker(value = "") {
@@ -59,13 +96,434 @@ function hasOptionalSupportiveMarker(value = "") {
 }
 
 function replaceOptionalSupportiveMarkersWithLetters(value = "") {
-    return String(value || "").replace(OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
-        String(letter || "").toLowerCase()
-    ));
+    return replaceSupportiveMarkersWithLetters(value, SUPPORTIVE_MARKER_FORMAT.legacy);
 }
 
 function stripOptionalSupportiveMarkers(value = "") {
     return String(value || "").replace(OPTIONAL_SUPPORTIVE_MARKER_RE, "");
+}
+
+function getRegexOptionalSupportiveMarkerForLetter(letter = "") {
+    return getSupportiveMarkerTokenForLetter(letter, SUPPORTIVE_MARKER_FORMAT.regex);
+}
+
+function getRegexOptionalSupportiveMarkerLetter(value = "") {
+    return getSupportiveMarkerLetterFromValue(value, SUPPORTIVE_MARKER_FORMAT.regex);
+}
+
+function replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(value = "") {
+    return String(value || "").replace(REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
+        getOptionalSupportiveMarkerForLetter(letter)
+    ));
+}
+
+function replaceLegacyOptionalSupportiveMarkersWithRegexMarkers(value = "") {
+    return String(value || "").replace(OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
+        getRegexOptionalSupportiveMarkerForLetter(letter)
+    ));
+}
+
+function replaceLegacyExplicitValenceMarkersWithRegexMarkers(value = "") {
+    return String(value || "").replace(
+        /(^|[-/])\((ta|te|mu|t|m)\)(?=$|[-/])/gi,
+        (_match, separator, token) => `${separator}${String(token || "").toUpperCase()}`
+    );
+}
+
+function normalizeRegexCoreTokenCase(value = "", options = {}) {
+    const forceUppercaseMarkers = options.forceUppercaseMarkers === true;
+    return String(value || "")
+        .split(/([/-])/)
+        .map((part) => {
+            if (part === "/" || part === "-") {
+                return part;
+            }
+            const trimmed = String(part || "").trim();
+            if (!trimmed) {
+                return "";
+            }
+            if (/^\[[a-z]+\]$/i.test(trimmed)) {
+                return `[${trimmed.slice(1, -1).toLowerCase()}]`;
+            }
+            const supportiveMatch = trimmed.match(/^\[([iy])\]/i);
+            if (supportiveMatch) {
+                const supportiveLetter = String(supportiveMatch[1] || "").toLowerCase();
+                const remainder = trimmed.slice(supportiveMatch[0].length).toLowerCase();
+                return `${getRegexOptionalSupportiveMarkerForLetter(supportiveLetter)}${remainder}`;
+            }
+            const normalized = trimmed.toLowerCase();
+            const shouldUppercaseMarker = (
+                REGEX_ENVELOPE_OBJECT_MARKERS.includes(trimmed.toUpperCase())
+                && (forceUppercaseMarkers || trimmed === trimmed.toUpperCase())
+            );
+            return shouldUppercaseMarker ? trimmed.toUpperCase() : normalized;
+        })
+        .join("");
+}
+
+function parseComposerPlaceholderLegacyBase(rawValue = "") {
+    const raw = String(rawValue || "").trim();
+    if (!raw) {
+        return null;
+    }
+    const match = raw.match(/^(--|-)?(_+(?:[a-z]+)?)$/i);
+    if (!match) {
+        return null;
+    }
+    const dashPrefix = match[1] === "--"
+        ? "--"
+        : (match[1] === "-" ? "-" : "");
+    const coreText = String(match[2] || "").toLowerCase();
+    if (!coreText) {
+        return null;
+    }
+    return {
+        dashPrefix,
+        coreText,
+        displayCore: coreText,
+        displayVerb: buildRegexDisplayVerb(dashPrefix, coreText),
+    };
+}
+
+function serializeComposerPlaceholderValenceScreen(rawValue = "") {
+    const raw = String(rawValue || "").trim();
+    if (!raw) {
+        return "";
+    }
+    const directMatch = raw.match(/^(--|-)?\((tajta|tejte|mujmu)\)-(_+(?:[a-z]+)?)$/i);
+    if (directMatch) {
+        const dashPrefix = directMatch[1] === "--"
+            ? "--"
+            : (directMatch[1] === "-" ? "-" : "");
+        const token = String(directMatch[2] || "").toLowerCase();
+        const placeholderStem = String(directMatch[3] || "").toLowerCase();
+        return `${dashPrefix}(${token})-${placeholderStem}`;
+    }
+    const wrappedMatch = raw.match(/^(--|-)?\(\((tajta|tejte|mujmu)\)-(_+(?:[a-z]+)?)\)$/i);
+    if (wrappedMatch) {
+        const dashPrefix = wrappedMatch[1] === "--"
+            ? "--"
+            : (wrappedMatch[1] === "-" ? "-" : "");
+        const token = String(wrappedMatch[2] || "").toLowerCase();
+        const placeholderStem = String(wrappedMatch[3] || "").toLowerCase();
+        return `${dashPrefix}(${token})-${placeholderStem}`;
+    }
+    return "";
+}
+
+function convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers(value = "") {
+    return String(value || "").replace(
+        /(^|[-/])((?:TA|TE|MU|T|M))(?=$|[-/])/g,
+        (_match, separator, token) => `${separator}(${String(token || "").toLowerCase()})`
+    );
+}
+
+function getRegexCoreMainObjectCount(coreText = "") {
+    const normalized = String(coreText || "").trim();
+    if (!normalized) {
+        return 0;
+    }
+    const splitIndex = normalized.lastIndexOf("-");
+    if (splitIndex <= 0 || splitIndex >= normalized.length - 1) {
+        return 0;
+    }
+    const head = normalized.slice(0, splitIndex).trim();
+    const tail = normalized.slice(splitIndex + 1).trim();
+    return head && tail ? 1 : 0;
+}
+
+function buildRegexDisplayVerb(dashPrefix = "", coreText = "", options = {}) {
+    const normalizedDashPrefix = String(dashPrefix || "").startsWith("--")
+        ? "--"
+        : (String(dashPrefix || "").startsWith("-") ? "-" : "");
+    const normalizedCore = normalizeRegexCoreTokenCase(coreText, options);
+    if (!normalizedCore) {
+        return normalizedDashPrefix;
+    }
+    return `${normalizedDashPrefix}(${normalizedCore})`;
+}
+
+function parseRegexCore(coreText = "", options = {}) {
+    const rawCore = String(coreText || "").trim();
+    if (!rawCore) {
+        return {
+            rawCore,
+            coreText: "",
+            displayCore: "",
+            coreObjectCount: 0,
+            isValid: false,
+            invalidReason: options.allowEmpty === true ? "" : "core-empty",
+        };
+    }
+    const withoutRegexMarkers = rawCore.replace(REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE, "");
+    if (/[()]/.test(rawCore)) {
+        return {
+            rawCore,
+            coreText: rawCore,
+            displayCore: "",
+            coreObjectCount: 0,
+            isValid: false,
+            invalidReason: "legacy-parentheses",
+        };
+    }
+    if (/[{}]/.test(withoutRegexMarkers)) {
+        return {
+            rawCore,
+            coreText: rawCore,
+            displayCore: "",
+            coreObjectCount: 0,
+            isValid: false,
+            invalidReason: "supportive-marker",
+        };
+    }
+    const displayCore = normalizeRegexCoreTokenCase(rawCore);
+    return {
+        rawCore,
+        coreText: displayCore,
+        displayCore,
+        coreObjectCount: getRegexCoreMainObjectCount(displayCore),
+        isValid: true,
+        invalidReason: "",
+    };
+}
+
+function serializeRegexEnvelope({ dashPrefix = "", coreText = "" } = {}) {
+    return buildRegexDisplayVerb(dashPrefix, coreText);
+}
+
+function serializeRegexCore(coreState = {}) {
+    if (typeof coreState === "string") {
+        return normalizeRegexCoreTokenCase(coreState);
+    }
+    if (coreState && typeof coreState === "object") {
+        if (typeof coreState.coreText === "string" && coreState.coreText) {
+            return normalizeRegexCoreTokenCase(coreState.coreText);
+        }
+        if (typeof coreState.displayCore === "string" && coreState.displayCore) {
+            return normalizeRegexCoreTokenCase(coreState.displayCore);
+        }
+        if (typeof coreState.legacyBase === "string" && coreState.legacyBase) {
+            return convertLegacyBaseToRegexEnvelopeParts(coreState.legacyBase, coreState).displayCore;
+        }
+    }
+    return "";
+}
+
+function convertLegacyBaseToRegexEnvelopeParts(legacyBase = "", options = {}) {
+    const raw = String(legacyBase || "").trim();
+    let index = 0;
+    let dashPrefix = "";
+    while (raw[index] === "-" && dashPrefix.length < 2) {
+        dashPrefix += "-";
+        index += 1;
+    }
+    const overrideDashPrefix = Object.prototype.hasOwnProperty.call(options, "dashPrefix")
+        ? String(options.dashPrefix || "")
+        : null;
+    const normalizedDashPrefix = overrideDashPrefix === null
+        ? dashPrefix
+        : (
+            overrideDashPrefix.startsWith("--")
+                ? "--"
+                : (overrideDashPrefix.startsWith("-") ? "-" : "")
+        );
+    const coreSource = raw.slice(index);
+    const displayCore = normalizeRegexCoreTokenCase(
+        replaceLegacyExplicitValenceMarkersWithRegexMarkers(
+            replaceLegacyOptionalSupportiveMarkersWithRegexMarkers(coreSource)
+        ),
+        { forceUppercaseMarkers: true }
+    );
+    return {
+        dashPrefix: normalizedDashPrefix,
+        coreText: displayCore,
+        displayCore,
+        displayVerb: serializeRegexEnvelope({
+            dashPrefix: normalizedDashPrefix,
+            coreText: displayCore,
+        }),
+        coreObjectCount: getRegexCoreMainObjectCount(displayCore),
+    };
+}
+
+function isAllowedPartialRegexEnvelopeValue(rawValue = "") {
+    const trimmed = String(rawValue || "").trim();
+    if (!trimmed) {
+        return true;
+    }
+    if (trimmed.includes("?")) {
+        return false;
+    }
+    let index = 0;
+    while (trimmed[index] === "-" && index < 2) {
+        index += 1;
+    }
+    if (trimmed[index] === "-") {
+        return false;
+    }
+    const body = trimmed.slice(index);
+    if (!body) {
+        return true;
+    }
+    if (!body.startsWith("(")) {
+        return false;
+    }
+    const partialCore = body.slice(1);
+    if (!partialCore) {
+        return true;
+    }
+    if (partialCore.includes(")")) {
+        return parseRegexEnvelope(trimmed, { allowEmpty: true }).isValid;
+    }
+    const withoutRegexMarkers = partialCore.replace(REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE, "");
+    return !(/[()]/.test(partialCore) || /[{}]/.test(withoutRegexMarkers));
+}
+
+function parseRegexEnvelope(rawValue = "", options = {}) {
+    const raw = String(rawValue || "");
+    const trimmed = raw.trim();
+    if (!trimmed) {
+        return {
+            raw,
+            trimmed,
+            dashPrefix: "",
+            coreText: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: options.allowEmpty === true ? "" : "empty",
+        };
+    }
+    if (trimmed.includes("?")) {
+        return {
+            raw,
+            trimmed,
+            dashPrefix: "",
+            coreText: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: "search",
+        };
+    }
+    let index = 0;
+    let dashPrefix = "";
+    while (trimmed[index] === "-" && dashPrefix.length < 2) {
+        dashPrefix += "-";
+        index += 1;
+    }
+    if (trimmed[index] === "-") {
+        return {
+            raw,
+            trimmed,
+            dashPrefix,
+            coreText: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: "dash",
+        };
+    }
+    const body = trimmed.slice(index);
+    if (!body.startsWith("(")) {
+        return {
+            raw,
+            trimmed,
+            dashPrefix,
+            coreText: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: "core-envelope",
+        };
+    }
+    let depth = 0;
+    let endIndex = -1;
+    for (let i = 0; i < body.length; i += 1) {
+        const char = body[i];
+        if (char === "(") {
+            depth += 1;
+        } else if (char === ")") {
+            depth -= 1;
+            if (depth === 0) {
+                endIndex = i;
+                break;
+            }
+            if (depth < 0) {
+                break;
+            }
+        }
+    }
+    if (endIndex < 0 || depth !== 0 || body.slice(endIndex + 1).trim()) {
+        return {
+            raw,
+            trimmed,
+            dashPrefix,
+            coreText: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: "core-envelope",
+        };
+    }
+    const parsedCore = parseRegexCore(body.slice(1, endIndex).trim(), options);
+    if (!parsedCore.isValid) {
+        return {
+            raw,
+            trimmed,
+            dashPrefix,
+            coreText: parsedCore.coreText || "",
+            displayCore: parsedCore.displayCore || "",
+            displayVerb: "",
+            coreObjectCount: 0,
+            hasExternalObjectDash: false,
+            isValid: false,
+            invalidReason: parsedCore.invalidReason || "core-envelope",
+        };
+    }
+    return {
+        raw,
+        trimmed,
+        dashPrefix,
+        coreText: parsedCore.coreText,
+        displayCore: parsedCore.displayCore,
+        displayVerb: serializeRegexEnvelope({
+            dashPrefix,
+            coreText: parsedCore.displayCore,
+        }),
+        coreObjectCount: parsedCore.coreObjectCount,
+        hasExternalObjectDash: Boolean(dashPrefix),
+        isValid: true,
+        invalidReason: "",
+    };
+}
+
+function translateRegexCoreToLegacyBase(coreText = "", options = {}) {
+    const normalizedDashPrefix = String(options.dashPrefix || "").startsWith("--")
+        ? "--"
+        : (String(options.dashPrefix || "").startsWith("-") ? "-" : "");
+    const displayCore = normalizeRegexCoreTokenCase(coreText);
+    const legacyCore = convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers(
+        replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(displayCore)
+    ).toLowerCase();
+    return {
+        legacyBase: `${normalizedDashPrefix}${legacyCore}`,
+        displayCore,
+        displayVerb: buildRegexDisplayVerb(normalizedDashPrefix, displayCore),
+        coreObjectCount: getRegexCoreMainObjectCount(displayCore),
+        dashPrefix: normalizedDashPrefix,
+        effectiveDashPrefix: normalizedDashPrefix,
+    };
 }
 
 function getStemLeadingSupportiveLetter(stem = "") {
@@ -161,10 +619,8 @@ const COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER = Object.freeze(["ta", "te", "mu"]
 const COMPOSER_SECONDARY_VALENCE_FAMILY_BY_TOKEN = Object.freeze({
     ta: "ta",
     t: "ta",
-    taj: "ta",
     tajta: "ta",
     te: "te",
-    tej: "te",
     tejte: "te",
     mu: "mu",
     mujmu: "mu",
@@ -173,13 +629,12 @@ const COMPOSER_SECONDARY_VALENCE_FAMILY_BY_TOKEN = Object.freeze({
 const DEFAULT_COMPOSER_SECONDARY_VALENCE_INVENTORY = Object.freeze([
     "ta",
     "t",
-    "taj",
     "tajta",
     "te",
-    "tej",
     "tejte",
     "mu",
     "mujmu",
+    "m",
 ]);
 const COMPOSER_ROOT_EMBED_INPUT_IDS = new Set([
     "composer-embed",
@@ -3011,12 +3466,19 @@ function getNonactiveDerivationSource(verbMeta, verb, analysisVerb) {
         verb: verb || "",
         analysisVerb: analysisVerb || "",
     });
+    const explicitBoundNonspecificPrefix = getExplicitBoundNonspecificPrefixes(
+        Array.isArray(verbMeta?.boundPrefixes) ? verbMeta.boundPrefixes : [],
+        Array.isArray(verbMeta?.boundExplicitFlags) ? verbMeta.boundExplicitFlags : []
+    ).join("");
     if (splitSource.hasBoundMarker) {
         if (splitSource.slashCompositeBase) {
             return applyImpersonalPrefix(splitSource.slashCompositeBase, "");
         }
         const matrixSource = splitSource.matrixBase || analysisVerb || verb || "";
-        return applyImpersonalPrefix(matrixSource, splitSource.sourcePrefix || "");
+        return applyImpersonalPrefix(
+            matrixSource,
+            `${splitSource.sourcePrefix || ""}${explicitBoundNonspecificPrefix}`
+        );
     }
     if (
         verbMeta?.directionalPrefix
@@ -3219,24 +3681,6 @@ function parseInlineTiCausativeClassFromBase(baseValue = "") {
         base: collapseLegacySlashTiInput(normalizedBase),
         tiCausativeClass,
     };
-}
-
-function shouldPreserveRawVerbInputForTiClass(rawValue = "") {
-    const raw = String(rawValue || "");
-    if (!raw) {
-        return false;
-    }
-    const { base } = splitSearchInput(raw);
-    const rawBase = String(base || "").trim().toLowerCase();
-    if (!rawBase) {
-        return false;
-    }
-    const inline = parseInlineTiCausativeClassFromBase(rawBase);
-    if (!inline.tiCausativeClass) {
-        return false;
-    }
-    const normalizedBase = String(inline.base || "").trim().toLowerCase();
-    return Boolean(normalizedBase) && normalizedBase !== rawBase;
 }
 
 function getCanonicalRuleBaseFromOptions(source, options = {}) {
@@ -10933,7 +11377,7 @@ function getInvalidVerbCharacters(rawValue) {
     const raw = getRawInputTiCausativeMetadata(rawValue).normalizedInput || String(rawValue || "");
     const invalid = new Set();
     for (const char of raw) {
-        if (/[a-z0-9|~#()\[\]\/?\s-]/i.test(char)) {
+        if (/[a-z0-9|~#()\[\]{}\/\s-]/i.test(char)) {
             continue;
         }
         invalid.add(char);
@@ -10967,7 +11411,7 @@ function getInvalidVerbLetters(rawValue) {
     return Array.from(invalid);
 }
 
-function getInvalidVerbStructure(rawValue, options = {}) {
+function getInvalidLegacyVerbStructure(rawValue, options = {}) {
     const raw = (
         getRawInputTiCausativeMetadata(rawValue).normalizedInput
         || String(rawValue || "")
@@ -11065,6 +11509,143 @@ function getInvalidVerbStructure(rawValue, options = {}) {
         }
     }
     return "";
+}
+
+function getInvalidVerbStructure(rawValue, options = {}) {
+    const expectRegexEnvelope = options.expectRegexEnvelope === true
+        ? true
+        : (options.expectRegexEnvelope === false
+            ? false
+            : isVerbInputModeComposer());
+    const allowPartial = options.allowPartial === true;
+    if (expectRegexEnvelope) {
+        const trimmed = String(rawValue || "").trim();
+        if (!trimmed) {
+            return "";
+        }
+        const envelope = parseRegexEnvelope(trimmed, { allowEmpty: true });
+        if (envelope.isValid) {
+            return "";
+        }
+        if (allowPartial && isAllowedPartialRegexEnvelopeValue(trimmed)) {
+            return "";
+        }
+        return envelope.invalidReason || "core-envelope";
+    }
+    const trimmed = String(rawValue || "").trim();
+    if (!trimmed) {
+        return "";
+    }
+    const envelope = parseRegexEnvelope(trimmed, { allowEmpty: true });
+    if (envelope.isValid) {
+        return "";
+    }
+    return getInvalidLegacyVerbStructure(rawValue, options);
+}
+
+function getInvalidVerbStructureMessage(invalidStructure = "", options = {}) {
+    const isComposer = options.expectRegexEnvelope === true
+        ? true
+        : (options.expectRegexEnvelope === false
+            ? false
+            : isVerbInputModeComposer());
+    switch (String(invalidStructure || "")) {
+        case "search":
+            return "La búsqueda con ? ya no forma parte del regex.";
+        case "core-envelope":
+            return isComposer
+                ? "La forma canónica debe llevar paréntesis exteriores: (core) o -(core)."
+                : "Regex usa la forma legacy; quita los paréntesis exteriores.";
+        case "core-empty":
+            return isComposer
+                ? "El core no puede ir vacío."
+                : "El regex no puede ir vacío.";
+        case "legacy-parentheses":
+            return isComposer
+                ? "Usa TA/TE/MU/T/M y [i]/[y] dentro del core; no paréntesis internos."
+                : "Regex usa (ta)/(te)/(mu)/(t)/(m) y (i)/(y); no marcadores canónicos.";
+        case "supportive-marker":
+            return isComposer
+                ? "Usa [i] o [y] como apoyo opcional."
+                : "Regex usa (i) o (y) como apoyo opcional.";
+        case "dash":
+            return isComposer
+                ? "La forma canónica solo permite hasta dos guiones antes del core."
+                : "El regex solo permite hasta dos guiones al inicio.";
+        case "separator":
+            return "El verbo contiene separadores inválidos.";
+        default:
+            return "La estructura del regex es inválida.";
+    }
+}
+
+function serializeCanonicalRegexEnvelope(rawValue = "") {
+    const raw = String(rawValue || "").trim();
+    if (!raw) {
+        return "";
+    }
+    const composerPlaceholder = parseComposerPlaceholderLegacyBase(raw);
+    if (composerPlaceholder) {
+        return composerPlaceholder.displayVerb;
+    }
+    const envelope = parseRegexEnvelope(raw, { allowEmpty: true });
+    if (envelope.isValid) {
+        return envelope.displayVerb;
+    }
+    if (getInvalidVerbCharacters(raw).length) {
+        return raw;
+    }
+    const legacyLooksCanonicalizable = /[\/\-\[\](){}_0-9]/.test(raw);
+    if (!legacyLooksCanonicalizable) {
+        return raw;
+    }
+    const normalizedLegacy = collapseSerialStemDashInput(raw);
+    return convertLegacyBaseToRegexEnvelopeParts(normalizedLegacy).displayVerb || raw;
+}
+
+function normalizeComposerScreenCoreValue(value = "", options = {}) {
+    const preserveSupportiveMarkers = options.preserveSupportiveMarkers === true;
+    const supportivePattern = /\[([iy])\]/g;
+    const supportiveReplacement = preserveSupportiveMarkers ? "[$1]" : "$1";
+    return String(value || "")
+        .replace(/\//g, "-")
+        .toLowerCase()
+        .replace(supportivePattern, supportiveReplacement)
+        .replace(/\((tajta|tejte|mujmu)\)/g, "$1");
+}
+
+function serializeComposerScreen(rawValue = "", options = {}) {
+    const placeholderValenceScreen = serializeComposerPlaceholderValenceScreen(rawValue);
+    if (placeholderValenceScreen) {
+        return placeholderValenceScreen;
+    }
+    const canonicalValue = serializeCanonicalRegexEnvelope(rawValue);
+    if (!canonicalValue) {
+        return "";
+    }
+    const envelope = parseRegexEnvelope(canonicalValue, { allowEmpty: true });
+    if (!envelope.isValid) {
+        return normalizeComposerScreenCoreValue(canonicalValue, options);
+    }
+    const screenCore = normalizeComposerScreenCoreValue(
+        envelope.displayCore || envelope.coreText || "",
+        options
+    );
+    return buildRegexDisplayVerb(envelope.dashPrefix || "", screenCore);
+}
+
+function serializeRegexModeInput(rawValue = "") {
+    const raw = String(rawValue || "").trim();
+    if (!raw) {
+        return "";
+    }
+    const envelope = parseRegexEnvelope(raw, { allowEmpty: true });
+    if (!envelope.isValid) {
+        return raw;
+    }
+    return translateRegexCoreToLegacyBase(envelope.displayCore || envelope.coreText || "", {
+        dashPrefix: envelope.dashPrefix || "",
+    }).legacyBase || raw;
 }
 
 function isVerbValueAllowed(rawValue) {
@@ -12238,12 +12819,11 @@ const DEFAULT_NONSPECIFIC_VALENCE_AFFIXES = Object.freeze([
     "ta",
     "te",
     "mu",
-    "taj",
     "tajta",
-    "tej",
     "tejte",
     "t",
     "mujmu",
+    "m",
 ]);
 const DEFAULT_NONSPECIFIC_VALENCE_AFFIX_SET = new Set(DEFAULT_NONSPECIFIC_VALENCE_AFFIXES);
 const EXPLICIT_VALENCE_SHORTHAND_MAP = Object.freeze({
@@ -12561,6 +13141,23 @@ function getLexicalBoundPrefixes(boundPrefixes = [], boundExplicitFlags = []) {
                 return false;
             }
             return true;
+        });
+}
+
+function getExplicitBoundNonspecificPrefixes(boundPrefixes = [], boundExplicitFlags = []) {
+    const explicitFlags = Array.isArray(boundExplicitFlags) ? boundExplicitFlags : [];
+    return (Array.isArray(boundPrefixes) ? boundPrefixes : [])
+        .map((prefix) => getBracketDirectionalPrefixToken(String(prefix || "")) || String(prefix || ""))
+        .map((prefix) => normalizeRuleBase(prefix))
+        .filter((prefix, index) => {
+            if (!prefix) {
+                return false;
+            }
+            if (isDirectionalPrefixToken(prefix)) {
+                return false;
+            }
+            return explicitFlags[index] === true
+                && isNonspecificValenceAffixToken(prefix, { explicit: true });
         });
 }
 
@@ -13630,6 +14227,16 @@ function parseVerbInput(value) {
     const normalizedParseInput = tiInputMetadata.normalizedInput || sourceRawVerb;
     const state = buildParseState(normalizedParseInput);
     runParsePipeline(state);
+    const semanticObjectSlotCount = Number.isFinite(tiInputMetadata.semanticObjectSlotCount)
+        ? Math.max(0, Math.min(MAX_OBJECT_SLOTS, Number(tiInputMetadata.semanticObjectSlotCount) || 0))
+        : 0;
+    if (semanticObjectSlotCount > 0) {
+        state.totalValenceSlotCount = Math.max(state.totalValenceSlotCount, semanticObjectSlotCount);
+        state.isMarkedTransitive = true;
+    }
+    if (tiInputMetadata.displayVerb) {
+        state.displayVerb = tiInputMetadata.displayVerb;
+    }
     const canonical = buildCanonicalVerbState(state);
     state.canonical = canonical;
     return {
@@ -13668,6 +14275,11 @@ function parseVerbInput(value) {
         directObjectToken: state.directObjectToken,
         indirectObjectMarker: state.indirectObjectMarker,
         displayVerb: state.displayVerb,
+        displayCore: tiInputMetadata.displayCore || "",
+        coreText: tiInputMetadata.displayCore || "",
+        dashPrefix: tiInputMetadata.dashPrefix || "",
+        hasExternalObjectDash: tiInputMetadata.hasExternalObjectDash === true,
+        semanticObjectSlotCount,
         exactBaseVerb: state.exactBaseVerb,
         hasLeadingDash: state.hasLeadingDash,
         dashCount: state.dashCount,
@@ -14327,16 +14939,32 @@ function getVerbInputMeta() {
             tiCausativeClass: "",
             derivationType: getActiveDerivationType(),
             derivationValencyDelta: getDerivationValencyDelta(getActiveDerivationType()),
+            rawInputVerb: "",
+            screenDisplayVerb: "",
+            regexInputVerb: "",
+            parseInputVerb: "",
+            inputMode: isVerbInputModeComposer() ? VERB_INPUT_MODE.composer : VERB_INPUT_MODE.regex,
         };
     }
     const raw = verbInput.value;
-    const parsed = getParsedVerbForTab("verb-input", raw, { derivationType: getActiveDerivationType() });
-    const baseValue = getSearchInputBase(raw);
+    const verbInputSource = resolveVerbInputSource(raw);
+    const parsed = getParsedVerbForTab("verb-input", verbInputSource.parseValue, {
+        derivationType: getActiveDerivationType(),
+    });
+    const baseValue = getSearchInputBase(verbInputSource.parseValue);
+    const parsedWithInputSource = {
+        ...parsed,
+        rawInputVerb: verbInputSource.rawValue,
+        screenDisplayVerb: verbInputSource.displayValue,
+        regexInputVerb: verbInputSource.regexValue,
+        parseInputVerb: verbInputSource.parseValue,
+        inputMode: verbInputSource.mode,
+    };
     if (!isComposerTemplateOnlyBaseValue(baseValue)) {
-        return parsed;
+        return parsedWithInputSource;
     }
     return {
-        ...parsed,
+        ...parsedWithInputSource,
         verb: "",
         analysisVerb: "",
         rawAnalysisVerb: "",
@@ -14348,85 +14976,88 @@ function getVerbInputMeta() {
 // === Conjugation Search ===
 function splitSearchInput(rawValue) {
     const raw = String(rawValue || "");
-    const index = raw.indexOf("?");
-    if (index === -1) {
-        return { base: raw, query: "", hasQuery: false };
-    }
-    return {
-        base: raw.slice(0, index),
-        query: raw.slice(index + 1),
-        hasQuery: true,
-    };
+    return { base: raw, query: "", hasQuery: false };
 }
 
 function getRawInputTiCausativeMetadata(rawValue = "") {
     const raw = String(rawValue || "");
-    const { base, query, hasQuery } = splitSearchInput(raw);
+    const envelope = parseRegexEnvelope(raw);
+    if (envelope.isValid) {
+        const normalizedSerialCore = collapseSerialStemDashInput(envelope.coreText || "");
+        const inline = parseInlineTiCausativeClassFromBase(normalizedSerialCore);
+        const normalizedCore = normalizeRegexCoreTokenCase(inline.base || envelope.coreText || "");
+        const translated = translateRegexCoreToLegacyBase(normalizedCore, {
+            dashPrefix: envelope.dashPrefix || "",
+        });
+        return {
+            raw,
+            hasQuery: false,
+            query: "",
+            normalizedBase: translated.displayVerb,
+            normalizedQuery: "",
+            normalizedInput: translated.legacyBase,
+            tiCausativeClass: inline.tiCausativeClass || "",
+            dashPrefix: envelope.dashPrefix || "",
+            displayCore: normalizeRegexCoreTokenCase(envelope.coreText || ""),
+            displayVerb: buildRegexDisplayVerb(envelope.dashPrefix || "", envelope.coreText || ""),
+            hasExternalObjectDash: envelope.hasExternalObjectDash === true,
+            semanticObjectSlotCount: translated.coreObjectCount + Math.min(2, String(envelope.dashPrefix || "").length),
+            isRegexEnvelope: true,
+        };
+    }
+    const { base } = splitSearchInput(raw);
     const normalizedSerialBase = collapseSerialStemDashInput(base);
     const inline = parseInlineTiCausativeClassFromBase(normalizedSerialBase);
     const normalizedBase = collapseSerialStemDashInput(inline.base || "");
-    const queryDirectives = parseSearchQueryDirectives(query);
-    const tiCausativeClass = inline.tiCausativeClass || queryDirectives.tiCausativeClass || "";
-    const normalizedQuery = queryDirectives.searchQuery || "";
-    const normalizedInput = hasQuery
-        ? (normalizedQuery ? `${normalizedBase}?${normalizedQuery}` : normalizedBase)
-        : normalizedBase;
+    const legacyEnvelope = normalizedSerialBase
+        ? convertLegacyBaseToRegexEnvelopeParts(normalizedSerialBase)
+        : {
+            dashPrefix: "",
+            displayCore: "",
+            displayVerb: "",
+            coreObjectCount: 0,
+        };
+    const semanticObjectSlotCount = Math.max(
+        0,
+        Math.min(
+            MAX_OBJECT_SLOTS,
+            Number(legacyEnvelope.coreObjectCount || 0)
+                + Math.min(2, String(legacyEnvelope.dashPrefix || "").length)
+        )
+    );
     return {
         raw,
-        hasQuery,
-        query,
+        hasQuery: false,
+        query: "",
         normalizedBase,
-        normalizedQuery,
-        normalizedInput,
-        tiCausativeClass,
+        normalizedQuery: "",
+        normalizedInput: normalizedBase,
+        tiCausativeClass: inline.tiCausativeClass || "",
+        dashPrefix: legacyEnvelope.dashPrefix
+            || (normalizedBase.startsWith("--") ? "--" : (normalizedBase.startsWith("-") ? "-" : "")),
+        displayCore: legacyEnvelope.displayCore || "",
+        displayVerb: legacyEnvelope.displayVerb || normalizedBase,
+        hasExternalObjectDash: Boolean(legacyEnvelope.dashPrefix),
+        semanticObjectSlotCount,
+        isRegexEnvelope: false,
     };
 }
 
 function getSearchParts(rawValue) {
     const parts = splitSearchInput(rawValue);
-    const directives = parseSearchQueryDirectives(parts.query);
     return {
         ...parts,
         trimmedBase: parts.base.trim(),
-        trimmedQuery: parts.query.trim(),
-        tiCausativeClass: directives.tiCausativeClass,
-        searchQuery: directives.searchQuery,
+        trimmedQuery: "",
+        tiCausativeClass: "",
+        searchQuery: "",
     };
 }
 
 function parseSearchQueryDirectives(rawQuery = "") {
-    const query = String(rawQuery || "");
-    const trimmed = query.trim();
-    if (!trimmed) {
-        return {
-            tiCausativeClass: "",
-            searchQuery: "",
-        };
-    }
-    const tokens = trimmed.split(/[\s,;]+/).filter(Boolean);
-    let tiCausativeClass = "";
-    const remainder = [];
-    tokens.forEach((token) => {
-        const tiClass = parseTiCausativeDirectiveToken(token);
-        if (tiClass && !tiCausativeClass) {
-            tiCausativeClass = tiClass;
-            return;
-        }
-        remainder.push(token);
-    });
-    if (!tiCausativeClass) {
-        const wholeTiClass = parseTiCausativeDirectiveToken(trimmed);
-        if (wholeTiClass) {
-            tiCausativeClass = wholeTiClass;
-            return {
-                tiCausativeClass,
-                searchQuery: "",
-            };
-        }
-    }
     return {
-        tiCausativeClass,
-        searchQuery: remainder.join(" ").trim(),
+        tiCausativeClass: "",
+        searchQuery: "",
     };
 }
 
@@ -14448,14 +15079,8 @@ function rememberNonSearchValue(parts) {
 }
 
 function getSearchInputBase(rawValue) {
-    const { base, hasQuery, trimmedBase } = getSearchParts(rawValue);
-    if (trimmedBase) {
-        return base;
-    }
-    if (hasQuery) {
-        return VERB_INPUT_STATE.lastNonSearchValue || "";
-    }
-    return rawValue;
+    const { base } = getSearchParts(rawValue);
+    return base;
 }
 
 function isComposerTemplateOnlyBaseValue(rawValue = "") {
@@ -14464,29 +15089,8 @@ function isComposerTemplateOnlyBaseValue(rawValue = "") {
 }
 
 function getSearchQueryInfo(rawValue) {
-    const { searchQuery } = getSearchParts(rawValue);
-    const trimmed = searchQuery;
-    if (!trimmed) {
-        return null;
-    }
-    const startsWithDash = trimmed.startsWith("-");
-    const endsWithDash = trimmed.endsWith("-");
-    let mode = "exact";
-    let term = trimmed;
-    if (startsWithDash && endsWithDash && trimmed.length > 1) {
-        mode = "contains";
-        term = trimmed.slice(1, -1);
-    } else if (startsWithDash) {
-        mode = "ends";
-        term = trimmed.slice(1);
-    } else if (endsWithDash) {
-        mode = "starts";
-        term = trimmed.slice(0, -1);
-    }
-    if (!term.trim()) {
-        return null;
-    }
-    return { mode, term };
+    void rawValue;
+    return null;
 }
 
 function isSearchModeInput(rawValue) {
@@ -15846,25 +16450,44 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
         return;
     }
     const families = COMPOSER_SECONDARY_VALENCE_FAMILY_ORDER.slice();
-    const inventorySignature = families.join("|");
+    const buttonSpecs = families.flatMap((family) => {
+        const capacity = Math.max(
+            1,
+            Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[family] || 1)
+        );
+        return Array.from({ length: capacity }, (_unused, ordinal) => ({
+            family,
+            ordinal,
+        }));
+    });
+    const inventorySignature = buttonSpecs
+        .map((spec) => `${spec.family}:${spec.ordinal}`)
+        .join("|");
     if (container.dataset.secondaryInventorySignature !== inventorySignature) {
         container.innerHTML = "";
-        families.forEach((family) => {
+        buttonSpecs.forEach((spec) => {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "verb-chip";
-            button.dataset.chipFamily = family;
-            button.textContent = family;
+            button.dataset.chipFamily = spec.family;
+            button.dataset.chipOrdinal = String(spec.ordinal);
+            button.textContent = spec.family;
             button.addEventListener("click", () => {
                 if (button.disabled) {
                     return;
                 }
                 const clickedFamily = String(button.dataset.chipFamily || "").trim().toLowerCase();
-                const familyInventory = getComposerSecondaryValenceFamilyInventory(clickedFamily);
+                const clickedOrdinal = Math.max(0, Number(button.dataset.chipOrdinal || 0));
+                const currentTokens = getComposerSecondaryValenceTokens(selectEl.value);
+                const familyInventory = getComposerSecondaryValenceFamilyInventoryForContext(clickedFamily, {
+                    state: VERB_COMPOSER_STATE,
+                    scope: "secondary",
+                    secondaryTokens: currentTokens,
+                    secondaryIndex: clickedOrdinal,
+                });
                 if (!clickedFamily || !familyInventory.length) {
                     return;
                 }
-                const currentTokens = getComposerSecondaryValenceTokens(selectEl.value);
                 const familyIndexes = currentTokens
                     .map((token, index) => ({
                         token: normalizeComposerSecondaryValenceSurfaceToken(token),
@@ -15875,33 +16498,50 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
                 let nextTokens = currentTokens
                     .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
                     .filter(Boolean);
-                const familyCapacity = Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[clickedFamily] || 0);
-                if (!familyIndexes.length) {
-                    if (nextTokens.length >= COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT) {
+                const familySelection = familyIndexes[clickedOrdinal] || null;
+                if (familySelection) {
+                    const targetIndex = familySelection.index;
+                    const reserved = nextTokens.filter((_token, index) => index !== targetIndex);
+                    const nextVariant = getComposerNextFamilySurfaceToken(clickedFamily, familySelection.token, {
+                        reservedTokens: reserved,
+                        allowClear: true,
+                        state: VERB_COMPOSER_STATE,
+                        scope: "secondary",
+                        secondaryTokens: nextTokens,
+                        secondaryIndex: targetIndex,
+                    });
+                    if (!nextVariant) {
+                        nextTokens = nextTokens.filter((_token, index) => index !== targetIndex);
+                    } else {
+                        nextTokens[targetIndex] = nextVariant;
+                    }
+                } else {
+                    if (
+                        nextTokens.length >= COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT
+                        || clickedOrdinal > familyIndexes.length
+                    ) {
                         return;
                     }
-                    nextTokens.push(familyInventory[0]);
-                } else if (
-                    familyIndexes.length < familyCapacity
-                    && nextTokens.length < COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT
-                ) {
-                    const nextUnused = familyInventory.find((token) => !nextTokens.includes(token));
+                    const insertionIndex = familyIndexes.length
+                        ? familyIndexes[familyIndexes.length - 1].index + 1
+                        : Math.min(clickedOrdinal, nextTokens.length);
+                    const previewTokens = nextTokens.slice();
+                    previewTokens.splice(insertionIndex, 0, clickedFamily);
+                    const nextUnused = getComposerNextFamilySurfaceToken(clickedFamily, "", {
+                        reservedTokens: nextTokens,
+                        state: VERB_COMPOSER_STATE,
+                        scope: "secondary",
+                        secondaryTokens: previewTokens,
+                        secondaryIndex: insertionIndex,
+                    });
                     if (!nextUnused) {
                         return;
                     }
-                    nextTokens.push(nextUnused);
-                } else {
-                    const targetIndex = familyIndexes[familyIndexes.length - 1].index;
-                    const reserved = nextTokens.filter((token, index) => index !== targetIndex);
-                    const currentToken = normalizeComposerSecondaryValenceSurfaceToken(nextTokens[targetIndex]);
-                    const nextVariant = getComposerNextFamilySurfaceToken(clickedFamily, currentToken, {
-                        reservedTokens: reserved,
-                        allowClear: true,
-                    });
-                    if (!nextVariant) {
-                        nextTokens = nextTokens.filter((token, index) => index !== targetIndex);
+                    if (familyIndexes.length) {
+                        const lastFamilyIndex = familyIndexes[familyIndexes.length - 1].index;
+                        nextTokens.splice(lastFamilyIndex + 1, 0, nextUnused);
                     } else {
-                        nextTokens[targetIndex] = nextVariant;
+                        nextTokens.push(nextUnused);
                     }
                 }
                 selectEl.value = encodeComposerSecondaryInventoryTokens(nextTokens);
@@ -15924,22 +16564,24 @@ function syncComposerSecondaryValenceChipInventory(container, selectEl, source =
     const buttons = Array.from(container.querySelectorAll(".verb-chip"));
     buttons.forEach((button) => {
         const family = String(button.dataset.chipFamily || "").trim().toLowerCase();
-        const isActive = Number(counts[family] || 0) > 0;
+        const ordinal = Math.max(0, Number(button.dataset.chipOrdinal || 0));
         const capacity = Number(COMPOSER_SECONDARY_VALENCE_INVENTORY_CAPACITY[family] || 0);
         const tokenCount = Number(counts[family] || 0);
+        const isActive = tokenCount > ordinal;
         const atTokenLimit = tokenCount >= capacity;
         const atTotalLimit = totalSelected >= COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT;
+        const canOpenThisOrdinal = ordinal <= tokenCount;
         const isDisabled = Boolean(selectEl.disabled)
-            || (!isActive && (atTotalLimit || atTokenLimit));
+            || (!isActive && (!canOpenThisOrdinal || atTotalLimit || atTokenLimit));
         button.disabled = isDisabled;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         const activeTokens = selectedTokens.filter((token) => getComposerValenceFamilyToken(token) === family);
         button.setAttribute(
             "aria-label",
-            activeTokens.length
-                ? `${family}. Actuales ${activeTokens.join(", ")}.`
-                : family
+            activeTokens[ordinal]
+                ? `${family} ${ordinal + 1}. Actual ${activeTokens[ordinal]}.`
+                : `${family} ${ordinal + 1}`
         );
     });
 }
@@ -19508,7 +20150,7 @@ function getComposerSecondaryValenceInventory() {
     sourceInventory.forEach((token) => {
         const normalized = normalizeComposerSecondaryValenceSurfaceToken(token);
         const family = getComposerValenceFamilyToken(normalized);
-        if (!normalized || !family || normalized === "m") {
+        if (!normalized || !family) {
             return;
         }
         const bucket = grouped.get(family);
@@ -19549,14 +20191,42 @@ function getComposerSecondaryValenceOptionEntries() {
         if (!value) {
             return;
         }
+        if (value === "ta" || value === "mu") {
+            // Keep family-only legacy values available through the chip UI, not as distinct options here.
+            return;
+        }
         addEntry(value, value);
     });
     const inventory = getComposerSecondaryValenceInventory();
     inventory.forEach((token) => {
+        if (!isComposerShortValenceTokenAllowed(token, {
+            state: VERB_COMPOSER_STATE,
+            scope: "secondary",
+            secondaryTokens: [token],
+            secondaryIndex: 1,
+        })) {
+            return;
+        }
         addEntry(token, token);
     });
     inventory.forEach((firstToken) => {
         inventory.forEach((secondToken) => {
+            if (!isComposerShortValenceTokenAllowed(firstToken, {
+                state: VERB_COMPOSER_STATE,
+                scope: "secondary",
+                secondaryTokens: [firstToken, secondToken],
+                secondaryIndex: 0,
+            })) {
+                return;
+            }
+            if (!isComposerShortValenceTokenAllowed(secondToken, {
+                state: VERB_COMPOSER_STATE,
+                scope: "secondary",
+                secondaryTokens: [firstToken, secondToken],
+                secondaryIndex: 1,
+            })) {
+                return;
+            }
             const familyCounts = {};
             [firstToken, secondToken].forEach((token) => {
                 const family = getComposerValenceFamilyToken(token);
@@ -19684,6 +20354,151 @@ function encodeComposerSecondaryValenceSelection(firstValue, secondValue) {
         return canonicalToken;
     }
     return "";
+}
+
+function normalizeComposerFollowerSurfaceForNucleusCheck(value = "") {
+    return replaceOptionalSupportiveMarkersWithLetters(
+        replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(String(value || ""))
+    ).trim().toLowerCase();
+}
+
+function composerFollowerStartsWithNucleus(value = "") {
+    const normalized = normalizeComposerFollowerSurfaceForNucleusCheck(value);
+    return Boolean(normalized) && VOWEL_START_RE.test(normalized);
+}
+
+function buildComposerOptionalValenceSlotSegment(value = "", leftEmbed = "") {
+    if (value) {
+        const leftSegment = leftEmbed ? `${leftEmbed}/` : "";
+        return `${leftSegment}(${value})-`;
+    }
+    const embedTokens = getComposerEmbedTokens(leftEmbed);
+    if (embedTokens.length) {
+        return embedTokens.map((token) => `${token}-`).join("");
+    }
+    return "-";
+}
+
+function resolveComposerSemanticFollowerSegments(semantic = {}) {
+    const matrixStem = semantic.matrix?.stem || "";
+    const matrixAdjacentEmbed = semantic.matrix?.adjacentEmbed || "";
+    const hasMatrixStem = semantic.matrix?.hasStem === true;
+    const matrixRegexStem = semantic.matrix?.regexStem || "";
+    const realizedMatrixStemBase = semantic.matrix?.realizedStemBase || matrixRegexStem;
+    const supportiveI = semantic.supportiveI === true;
+    const tiClassSuffix = semantic.ti?.classSuffix || "";
+    if (!matrixRegexStem) {
+        return {
+            transitiveStem: "",
+            supportiveStem: "",
+            supportiveEmbed: "",
+        };
+    }
+    const appendTiClassSuffix = (stemValue = "") => {
+        const stem = String(stemValue || "");
+        if (!tiClassSuffix || !stem) {
+            return stem;
+        }
+        if (/ti[12]$/i.test(stem)) {
+            return stem;
+        }
+        if (/ti$/i.test(stem)) {
+            return `${stem}${tiClassSuffix}`;
+        }
+        return stem;
+    };
+    const supportiveStemBase = appendTiClassSuffix(realizedMatrixStemBase);
+    const normalizedMatrixAdjacentEmbed = hasMatrixStem
+        ? normalizeComposerMatrixAdjacentEmbed(
+            matrixAdjacentEmbed,
+            matrixStem,
+            supportiveI
+        )
+        : normalizeComposerEmbedValue(matrixAdjacentEmbed);
+    const supportiveRootPath = applyComposerSupportiveIMarkerToRootPath({
+        embed: normalizedMatrixAdjacentEmbed,
+        stem: supportiveStemBase,
+        supportiveI,
+    });
+    const supportiveStem = supportiveRootPath.stem;
+    const supportiveEmbed = supportiveRootPath.embed;
+    return {
+        transitiveStem: supportiveEmbed ? `${supportiveEmbed}/${supportiveStem}` : supportiveStem,
+        supportiveStem,
+        supportiveEmbed,
+    };
+}
+
+function isComposerShortValenceTokenAllowed(
+    token = "",
+    {
+        state = VERB_COMPOSER_STATE,
+        scope = "",
+        secondaryTokens = [],
+        secondaryIndex = 0,
+    } = {}
+) {
+    const normalizedToken = normalizeComposerSecondaryValenceSurfaceToken(token);
+    if (normalizedToken !== "t" && normalizedToken !== "m") {
+        return true;
+    }
+    const semantic = buildComposerSemanticState(state || VERB_COMPOSER_STATE);
+    const followerSegments = resolveComposerSemanticFollowerSegments(semantic);
+    let followerSurface = followerSegments.transitiveStem || "";
+    if (scope === "secondary" && semantic.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        const normalizedTokens = (Array.isArray(secondaryTokens) ? secondaryTokens : [])
+            .map((entry) => normalizeComposerSecondaryValenceSurfaceToken(entry))
+            .filter(Boolean)
+            .slice(0, COMPOSER_SECONDARY_VALENCE_INVENTORY_LIMIT);
+        const slotIndex = Math.max(0, Number(secondaryIndex || 0));
+        if (slotIndex <= 0) {
+            const slotOneValue = normalizedTokens[0] || "";
+            const slotTwoValue = normalizedTokens[1] || "";
+            const governingEmbed = normalizeComposerEmbedValue(
+                semantic.valence?.secondary?.embed
+                || semantic.valence?.primary?.embed
+                || ""
+            );
+            const governingSlot = !slotOneValue ? 1 : (!slotTwoValue ? 2 : 0);
+            const slotTwoSegment = buildComposerOptionalValenceSlotSegment(
+                slotTwoValue,
+                governingSlot === 2 ? governingEmbed : ""
+            );
+            followerSurface = `${slotTwoSegment}${followerSegments.transitiveStem || ""}`;
+        }
+    }
+    return composerFollowerStartsWithNucleus(followerSurface);
+}
+
+function getComposerSecondaryValenceFamilyInventoryForContext(
+    family = "",
+    options = {}
+) {
+    return getComposerSecondaryValenceFamilyInventory(family).filter((token) => (
+        isComposerShortValenceTokenAllowed(token, options)
+    ));
+}
+
+function getComposerPreferredFamilyBaseToken(family = "") {
+    const normalizedFamily = getComposerValenceFamilyToken(family) || String(family || "").trim().toLowerCase();
+    if (!normalizedFamily) {
+        return "";
+    }
+    return normalizedFamily;
+}
+
+function normalizeComposerValenceTokenForCurrentContext(
+    token = "",
+    options = {}
+) {
+    const normalizedToken = normalizeComposerSecondaryValenceSurfaceToken(token);
+    if (!normalizedToken) {
+        return "";
+    }
+    if (isComposerShortValenceTokenAllowed(normalizedToken, options)) {
+        return normalizedToken;
+    }
+    return getComposerPreferredFamilyBaseToken(normalizedToken);
 }
 
 function shouldUseNhBeforeMatrixStem(matrixStem, supportiveI = false) {
@@ -19864,8 +20679,14 @@ function syncComposerSecondaryValenceOptions(selectEl) {
 
 function getComposerAllowedValenceOptions(transitivity) {
     const options = new Set([""]);
+    const scope = transitivity === COMPOSER_TRANSITIVITY.intransitive
+        ? "intransitive"
+        : "primary";
     getComposerAllowedValenceFamilies(transitivity).forEach((family) => {
-        getComposerSecondaryValenceFamilyInventory(family).forEach((token) => {
+        getComposerSecondaryValenceFamilyInventoryForContext(family, {
+            state: VERB_COMPOSER_STATE,
+            scope,
+        }).forEach((token) => {
             options.add(token);
         });
     });
@@ -19877,8 +20698,14 @@ function syncComposerSingleValenceOptions(selectEl, families = []) {
         return;
     }
     const entries = [{ value: "", label: "Sin prefijo" }];
+    const scope = selectEl?.id === "composer-valence-a"
+        ? "intransitive"
+        : "primary";
     (Array.isArray(families) ? families : []).forEach((family) => {
-        getComposerSecondaryValenceFamilyInventory(family).forEach((token) => {
+        getComposerSecondaryValenceFamilyInventoryForContext(family, {
+            state: VERB_COMPOSER_STATE,
+            scope,
+        }).forEach((token) => {
             entries.push({ value: token, label: token });
         });
     });
@@ -19902,6 +20729,10 @@ function getComposerNextFamilySurfaceToken(
     {
         reservedTokens = [],
         allowClear = false,
+        state = VERB_COMPOSER_STATE,
+        scope = "primary",
+        secondaryTokens = [],
+        secondaryIndex = 0,
     } = {}
 ) {
     const reserved = new Set(
@@ -19909,7 +20740,12 @@ function getComposerNextFamilySurfaceToken(
             .map((token) => normalizeComposerSecondaryValenceSurfaceToken(token))
             .filter(Boolean)
     );
-    const inventory = getComposerSecondaryValenceFamilyInventory(family)
+    const inventory = getComposerSecondaryValenceFamilyInventoryForContext(family, {
+        state,
+        scope,
+        secondaryTokens,
+        secondaryIndex,
+    })
         .filter((token) => !reserved.has(token));
     if (!inventory.length) {
         return "";
@@ -19947,9 +20783,19 @@ function syncComposerValenceFamilyChipGroup(container, selectEl, families = [], 
                 }
                 const currentToken = normalizeComposerSecondaryValenceSurfaceToken(selectEl.value);
                 const currentFamily = getComposerValenceFamilyToken(currentToken);
+                const scope = selectEl?.id === "composer-valence-a"
+                    ? "intransitive"
+                    : "primary";
                 const nextToken = currentFamily === family
-                    ? getComposerNextFamilySurfaceToken(family, currentToken, { allowClear: true })
-                    : getComposerNextFamilySurfaceToken(family, "");
+                    ? getComposerNextFamilySurfaceToken(family, currentToken, {
+                        allowClear: true,
+                        state: VERB_COMPOSER_STATE,
+                        scope,
+                    })
+                    : getComposerNextFamilySurfaceToken(family, "", {
+                        state: VERB_COMPOSER_STATE,
+                        scope,
+                    });
                 selectEl.value = nextToken;
                 onVerbComposerControlChange(source);
             });
@@ -20001,6 +20847,13 @@ function syncComposerValenceAvailability() {
     Array.from(valenceSelectIntransitive.options).forEach((option) => {
         option.disabled = !allowedIntransitive.has(option.value);
     });
+    VERB_COMPOSER_STATE.valenceIntransitive = normalizeComposerValenceTokenForCurrentContext(
+        VERB_COMPOSER_STATE.valenceIntransitive,
+        {
+            state: VERB_COMPOSER_STATE,
+            scope: "intransitive",
+        }
+    );
     if (!allowedIntransitive.has(VERB_COMPOSER_STATE.valenceIntransitive)) {
         VERB_COMPOSER_STATE.valenceIntransitive = "";
     }
@@ -20030,6 +20883,13 @@ function syncComposerValenceAvailability() {
         option.disabled = !allowedPrimary.has(option.value);
     });
     const isBitransitive = VERB_COMPOSER_STATE.transitivity === COMPOSER_TRANSITIVITY.bitransitive;
+    VERB_COMPOSER_STATE.valence = normalizeComposerValenceTokenForCurrentContext(
+        VERB_COMPOSER_STATE.valence,
+        {
+            state: VERB_COMPOSER_STATE,
+            scope: "primary",
+        }
+    );
     if (!allowedPrimary.has(VERB_COMPOSER_STATE.valence)) {
         VERB_COMPOSER_STATE.valence = "";
     }
@@ -20041,6 +20901,15 @@ function syncComposerValenceAvailability() {
     Array.from(valenceSelectSecondary.options).forEach((option) => {
         option.disabled = !allowedSecondary.has(option.value);
     });
+    const normalizedSecondaryTokens = getComposerSecondaryValenceTokens(VERB_COMPOSER_STATE.valenceSecondary)
+        .map((token, index, tokens) => normalizeComposerValenceTokenForCurrentContext(token, {
+            state: VERB_COMPOSER_STATE,
+            scope: "secondary",
+            secondaryTokens: tokens,
+            secondaryIndex: index,
+        }))
+        .filter(Boolean);
+    VERB_COMPOSER_STATE.valenceSecondary = encodeComposerSecondaryInventoryTokens(normalizedSecondaryTokens);
     if (!allowedSecondary.has(VERB_COMPOSER_STATE.valenceSecondary)) {
         VERB_COMPOSER_STATE.valenceSecondary = "";
     }
@@ -20067,7 +20936,7 @@ function getComposerSlotEmbedForRegex(slotKey = "", embedValue = "") {
     return normalizedEmbed;
 }
 
-function buildRegexFromComposerState(state) {
+function buildComposerSemanticState(state = {}) {
     const transitivity = (
         state.transitivity === COMPOSER_TRANSITIVITY.transitive
         || state.transitivity === COMPOSER_TRANSITIVITY.bitransitive
@@ -20100,8 +20969,10 @@ function buildRegexFromComposerState(state) {
     const selectedSerialType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] || "auto";
     const selectedSerialOption = getComposerSerialTypeOptionByValue(selectedSerialType);
     const selectedSerialSlotCount = Math.max(1, Number(selectedSerialOption?.slotCount || 1));
+    const stateTiCausativeClass = normalizeTiCausativeClass(state.tiCausativeClass || "");
     const tiCausativeClass = normalizeTiCausativeClass(
-        getComposerActiveTiCausativeClass()
+        stateTiCausativeClass
+        || getComposerActiveTiCausativeClass()
         || getComposerTiCausativeClassFromSerialType(selectedSerialType)
     );
     const tiClassSuffix = tiCausativeClass === "become"
@@ -20183,6 +21054,97 @@ function buildRegexFromComposerState(state) {
             ? normalizeComposerStem(matrixStem)
             : matrixRegexStem
     );
+    return {
+        transitivity,
+        supportiveI: Boolean(state.supportiveI),
+        directional: {
+            prefix: directionalPrefix,
+            regexPrefix: directionalRegexPrefix,
+        },
+        slots: {
+            a: { stem: slotAStem, embed: slotAEmbed },
+            b: { stem: slotBStem, embed: slotBEmbed },
+            c: { stem: slotCStem, embed: slotCEmbed },
+        },
+        valence: {
+            intransitive: {
+                token: valenceIntransitive,
+                embed: valenceIntransitiveEmbed,
+            },
+            primary: {
+                token: valence,
+                embed: valenceEmbedPrimary,
+            },
+            secondary: {
+                raw: valenceSecondaryRaw,
+                token: valenceSecondary,
+                embed: valenceEmbedSecondary,
+            },
+        },
+        ti: {
+            causativeClass: tiCausativeClass,
+            classSuffix: tiClassSuffix,
+        },
+        matrix: {
+            stem: matrixStem,
+            adjacentEmbed: matrixAdjacentEmbed,
+            hasStem: hasMatrixStem,
+            hasSelectionStructure,
+            isComposerTemplateMode,
+            placeholderStem: matrixPlaceholderStem,
+            surfaceValue: matrixSurfaceValue,
+            templateSuffix: activeTemplateSuffix,
+            templateCanonicalStem,
+            regexStem: matrixRegexStem,
+            realizedStemBase: realizedMatrixStemBase,
+        },
+    };
+}
+
+function serializeComposerSemanticToLegacyRegex(semantic = {}) {
+    const transitivity = (
+        semantic.transitivity === COMPOSER_TRANSITIVITY.transitive
+        || semantic.transitivity === COMPOSER_TRANSITIVITY.bitransitive
+    )
+        ? semantic.transitivity
+        : COMPOSER_TRANSITIVITY.intransitive;
+    const supportiveI = semantic.supportiveI === true;
+    const directionalRegexPrefix = semantic.directional?.regexPrefix || "";
+    const valenceIntransitive = semantic.valence?.intransitive?.token || "";
+    const valenceIntransitiveEmbed = semantic.valence?.intransitive?.embed || "";
+    const valence = semantic.valence?.primary?.token || "";
+    const valenceEmbedPrimary = semantic.valence?.primary?.embed || "";
+    const valenceSecondaryRaw = semantic.valence?.secondary?.raw || "";
+    const valenceSecondary = semantic.valence?.secondary?.token || "";
+    const valenceEmbedSecondary = semantic.valence?.secondary?.embed || "";
+    const matrixStem = semantic.matrix?.stem || "";
+    const matrixAdjacentEmbed = semantic.matrix?.adjacentEmbed || "";
+    const hasMatrixStem = semantic.matrix?.hasStem === true;
+    const matrixRegexStem = semantic.matrix?.regexStem || "";
+    const activeTemplateSuffix = semantic.matrix?.templateSuffix || "";
+    const realizedMatrixStemBase = semantic.matrix?.realizedStemBase || matrixRegexStem;
+    const tiClassSuffix = semantic.ti?.classSuffix || "";
+    const formatValenceToken = (token = "") => {
+        const surface = normalizeComposerSecondaryValenceSurfaceToken(token)
+            || normalizeComposerValenceToken(token);
+        if (!surface) {
+            return "";
+        }
+        return `(${surface})`;
+    };
+    const appendTiClassSuffix = (stemValue = "") => {
+        const stem = String(stemValue || "");
+        if (!tiClassSuffix || !stem) {
+            return stem;
+        }
+        if (/ti[12]$/i.test(stem)) {
+            return stem;
+        }
+        if (/ti$/i.test(stem)) {
+            return `${stem}${tiClassSuffix}`;
+        }
+        return stem;
+    };
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive && getComposerValenceFamilyToken(valenceIntransitive) === "ta") {
         if (!matrixRegexStem) {
             return "";
@@ -20194,14 +21156,14 @@ function buildRegexFromComposerState(state) {
             ? normalizeComposerMatrixAdjacentEmbed(
                 matrixAdjacentEmbed,
                 matrixStem,
-                state.supportiveI
+                supportiveI
             )
             : normalizeComposerEmbedValue(matrixAdjacentEmbed);
         const taRightStemBase = appendTiClassSuffix(realizedMatrixStemBase);
         const taRightMarked = applyComposerSupportiveIMarkerToRootPath({
             embed: taRightEmbed,
             stem: taRightStemBase,
-            supportiveI: state.supportiveI,
+            supportiveI,
         });
         const taRightSegment = taRightMarked.embed
             ? `${taRightMarked.embed}/${taRightMarked.stem}`
@@ -20217,13 +21179,13 @@ function buildRegexFromComposerState(state) {
         ? normalizeComposerMatrixAdjacentEmbed(
             matrixAdjacentEmbed,
             matrixStem,
-            state.supportiveI
+            supportiveI
         )
         : normalizeComposerEmbedValue(matrixAdjacentEmbed);
     const supportiveRootPath = applyComposerSupportiveIMarkerToRootPath({
         embed: normalizedMatrixAdjacentEmbed,
         stem: supportiveStemBase,
-        supportiveI: state.supportiveI,
+        supportiveI,
     });
     const supportiveStem = supportiveRootPath.stem;
     const supportiveEmbed = supportiveRootPath.embed;
@@ -20295,6 +21257,90 @@ function buildRegexFromComposerState(state) {
     return `-${directionalSegment}${transitiveStem}`;
 }
 
+function buildLegacyRegexBaseFromComposerState(state) {
+    if (shouldPreserveRawRegexBaseForComposerState(state)) {
+        return serializeRegexModeInput(state.rawRegexBase || "") || String(state.rawRegexBase || "");
+    }
+    return serializeComposerSemanticToLegacyRegex(buildComposerSemanticState(state));
+}
+
+function shouldPreserveRawRegexBaseForComposerState(state = {}) {
+    return Boolean(state.preserveRawRegexBase && String(state.rawRegexBase || "").trim());
+}
+
+function resolveComposerDisplayBundleFromState(state, rawFallback = "") {
+    const fallback = String(rawFallback || "");
+    const regexValue = buildLegacyRegexBaseFromComposerState(state)
+        || serializeRegexModeInput(fallback)
+        || fallback;
+    if (!regexValue) {
+        return {
+            regexValue: "",
+            displayValue: "",
+            canonicalValue: "",
+        };
+    }
+    const canonicalValue = serializeCanonicalRegexEnvelope(regexValue) || regexValue;
+    return {
+        regexValue,
+        displayValue: serializeComposerScreen(regexValue) || regexValue,
+        canonicalValue,
+    };
+}
+
+function buildRegexFromComposerState(state, rawFallback = "") {
+    return resolveComposerDisplayBundleFromState(state, rawFallback).canonicalValue;
+}
+
+function buildComposerScreenDisplayFromState(state, rawFallback = "") {
+    return resolveComposerDisplayBundleFromState(state, rawFallback).displayValue;
+}
+
+// Regex mode edits legacy syntax directly. Composer mode shows a screen-only surface.
+// Outputs and parsers must not read that screen string; they must read the parseable
+// legacy regex representation from this resolver instead.
+function resolveVerbInputSource(rawValue = "", options = {}) {
+    const raw = String(rawValue || "");
+    const explicitMode = options.mode;
+    const resolvedMode = explicitMode === VERB_INPUT_MODE.regex
+        ? VERB_INPUT_MODE.regex
+        : (
+            explicitMode === VERB_INPUT_MODE.composer
+                ? VERB_INPUT_MODE.composer
+                : (isVerbInputModeComposer() ? VERB_INPUT_MODE.composer : VERB_INPUT_MODE.regex)
+        );
+    if (resolvedMode === VERB_INPUT_MODE.composer) {
+        const composerDisplayBundle = resolveComposerDisplayBundleFromState(VERB_COMPOSER_STATE, raw);
+        const regexValue = composerDisplayBundle.regexValue
+            || serializeRegexModeInput(raw)
+            || raw;
+        const displayValue = composerDisplayBundle.displayValue
+            || serializeComposerScreen(raw)
+            || raw;
+        return {
+            mode: resolvedMode,
+            source: "composer",
+            rawValue: raw,
+            displayValue,
+            regexValue,
+            parseValue: regexValue,
+            canonicalValue: composerDisplayBundle.canonicalValue
+                || serializeCanonicalRegexEnvelope(regexValue)
+                || regexValue,
+        };
+    }
+    const regexValue = serializeRegexModeInput(raw) || raw;
+    return {
+        mode: resolvedMode,
+        source: "regex",
+        rawValue: raw,
+        displayValue: raw,
+        regexValue,
+        parseValue: regexValue,
+        canonicalValue: serializeCanonicalRegexEnvelope(regexValue) || regexValue,
+    };
+}
+
 function resolveComposerDirectionalPrefixFromBase(baseValue = "") {
     const base = String(baseValue || "").toLowerCase();
     if (!base) {
@@ -20350,7 +21396,7 @@ function resolveComposerValenceSequenceFromParsed(parsed, baseValue) {
         return sequence;
     }
     // Fallback for partial developer typing only when separators are structurally valid.
-    if (getInvalidVerbStructure(baseValue, { allowPartial: true })) {
+    if (getInvalidVerbStructure(baseValue, { allowPartial: true, expectRegexEnvelope: false })) {
         return sequence;
     }
     const base = String(baseValue || "");
@@ -20367,7 +21413,7 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
         secondary: "",
         global: "",
     };
-    if (getInvalidVerbStructure(baseValue, { allowPartial: true })) {
+    if (getInvalidVerbStructure(baseValue, { allowPartial: true, expectRegexEnvelope: false })) {
         return result;
     }
     const rawParts = String(baseValue || "")
@@ -20456,7 +21502,7 @@ function resolveComposerValenceEmbedStateFromBase(baseValue, resolvedValences = 
 }
 
 function resolveComposerNoPrefixValenceEmbedsFromBase(baseValue, resolvedDirectional = "") {
-    if (getInvalidVerbStructure(baseValue, { allowPartial: true })) {
+    if (getInvalidVerbStructure(baseValue, { allowPartial: true, expectRegexEnvelope: false })) {
         return [];
     }
     const raw = String(baseValue || "");
@@ -20542,8 +21588,12 @@ function resolveComposerEmbedFromParsed(parsed, resolvedValences = [], resolvedD
 }
 
 function parseComposerStateFromRegexValue(rawValue) {
-    const baseValue = String(getSearchInputBase(rawValue || "") || "").toLowerCase().trim();
+    const raw = String(rawValue || "");
+    const envelope = parseRegexEnvelope(raw, { allowEmpty: true });
+    const rawTiMetadata = getRawInputTiCausativeMetadata(raw);
+    const baseValue = String(rawTiMetadata.normalizedInput || getSearchInputBase(raw) || "").toLowerCase().trim();
     const state = {
+        mode: VERB_INPUT_MODE.composer,
         transitivity: COMPOSER_TRANSITIVITY.intransitive,
         valenceIntransitive: "",
         valenceIntransitiveEmbed: "",
@@ -20562,12 +21612,23 @@ function parseComposerStateFromRegexValue(rawValue) {
         supportiveI: hasOptionalSupportiveMarker(baseValue),
         syllableMode: COMPOSER_SYLLABLE_MODE.multisyllable,
         stem: "",
+        tiCausativeClass: "",
+        rawRegexBase: "",
+        preserveRawRegexBase: false,
     };
     if (!baseValue) {
         return state;
     }
-    const parsed = parseVerbInput(baseValue);
-    state.supportiveI = Boolean(parsed?.hasOptionalSupportiveI) || state.supportiveI;
+    const parsed = parseVerbInput(raw);
+    state.rawRegexBase = serializeRegexModeInput(raw) || baseValue;
+    state.tiCausativeClass = normalizeTiCausativeClass(
+        rawTiMetadata.tiCausativeClass
+        || parsed?.tiCausativeClass
+        || ""
+    );
+    state.supportiveI = envelope.isValid
+        ? Boolean(getRegexOptionalSupportiveMarkerLetter(envelope.displayCore))
+        : (Boolean(parsed?.hasOptionalSupportiveI) || state.supportiveI);
     let directionalPrefix = parsed?.directionalPrefix || "";
     if (!directionalPrefix) {
         const fusionPrefixes = Array.isArray(parsed?.fusionPrefixes) ? parsed.fusionPrefixes : [];
@@ -20588,17 +21649,34 @@ function parseComposerStateFromRegexValue(rawValue) {
         || parsed?.hasSpecificValence
         || parsed?.hasNonspecificValence
     );
-    const isBitransitiveBySlots = Boolean(
-        parsed?.hasLeadingDash
-        && Number(parsed?.totalValenceSlotCount || 0) >= 2
-    );
+    const envelopeSemanticObjectCount = envelope.isValid
+        ? Math.max(
+            0,
+            Math.min(
+                MAX_OBJECT_SLOTS,
+                envelope.coreObjectCount + Math.min(2, String(envelope.dashPrefix || "").length)
+            )
+        )
+        : 0;
+    const resolvedSemanticObjectCount = envelope.isValid
+        ? envelopeSemanticObjectCount
+        : Math.max(0, Number(parsed?.semanticObjectSlotCount || 0));
     state.transitivity = parsed?.hasImpersonalTaPrefix
         ? COMPOSER_TRANSITIVITY.intransitive
         : (
-            (valenceSequence.length >= 2 || isBitransitiveBySlots)
+            resolvedSemanticObjectCount >= 2
                 ? COMPOSER_TRANSITIVITY.bitransitive
-                : (isTransitiveParsed ? COMPOSER_TRANSITIVITY.transitive : COMPOSER_TRANSITIVITY.intransitive)
+                : (resolvedSemanticObjectCount === 1
+                    ? COMPOSER_TRANSITIVITY.transitive
+                    : (isTransitiveParsed ? COMPOSER_TRANSITIVITY.transitive : COMPOSER_TRANSITIVITY.intransitive))
         );
+    state.preserveRawRegexBase = Boolean(
+        state.tiCausativeClass
+        || (
+            state.transitivity === COMPOSER_TRANSITIVITY.bitransitive
+            && valenceSequence.length === 0
+        )
+    );
     const valenceEmbedState = resolveComposerValenceEmbedStateFromBase(
         baseValue,
         valenceSequence,
@@ -20608,7 +21686,7 @@ function parseComposerStateFromRegexValue(rawValue) {
     state.valenceEmbedSecondary = valenceEmbedState.secondary;
     const shouldShiftSingleValenceToSecondary = Boolean(
         state.transitivity === COMPOSER_TRANSITIVITY.bitransitive
-        && parsed?.hasLeadingDash
+        && (envelope.isValid ? envelope.hasExternalObjectDash : parsed?.hasLeadingDash)
         && valenceSequence.length === 1
         && !parsedSecondaryValence
     );
@@ -20740,10 +21818,22 @@ function renderVerbComposerFromState() {
     const isComposer = isVerbInputModeComposer();
     const activeBoard = getComposerEntryBoard();
     const verbInput = document.getElementById("verb");
+    const verbMirror = getVerbMirror();
+    const verbMirrorContent = getVerbMirrorContent();
     document.body.classList.toggle("is-composer-input-mode", isComposer);
     if (verbInput) {
         verbInput.readOnly = isComposer;
         verbInput.setAttribute("aria-readonly", String(isComposer));
+        verbInput.tabIndex = isComposer ? -1 : 0;
+    }
+    if (verbMirror) {
+        verbMirror.setAttribute("aria-hidden", String(!isComposer));
+    }
+    if (verbMirrorContent) {
+        verbMirrorContent.setAttribute("contenteditable", isComposer ? "true" : "false");
+        verbMirrorContent.tabIndex = isComposer ? 0 : -1;
+        verbMirrorContent.setAttribute("aria-hidden", String(!isComposer));
+        verbMirrorContent.setAttribute("aria-readonly", "true");
     }
     updateVerbInputPlaceholder();
     if (panel) {
@@ -20837,6 +21927,9 @@ function renderVerbComposerFromState() {
 function syncComposerStateFromVerbInput(rawValue = "") {
     const baseValue = String(getSearchInputBase(rawValue || "") || "").toLowerCase().trim();
     const next = parseComposerStateFromRegexValue(rawValue);
+    const nextTiCausativeClass = normalizeTiCausativeClass(
+        getRawInputTiCausativeMetadata(rawValue).tiCausativeClass || ""
+    );
     VERB_COMPOSER_STATE.transitivity = next.transitivity;
     VERB_COMPOSER_STATE.valenceIntransitive = next.valenceIntransitive;
     VERB_COMPOSER_STATE.valenceIntransitiveEmbed = next.valenceIntransitiveEmbed;
@@ -20855,6 +21948,20 @@ function syncComposerStateFromVerbInput(rawValue = "") {
     VERB_COMPOSER_STATE.supportiveI = next.supportiveI;
     VERB_COMPOSER_STATE.syllableMode = next.syllableMode;
     VERB_COMPOSER_STATE.stem = next.stem;
+    const activeSlot = next.transitivity === COMPOSER_TRANSITIVITY.bitransitive
+        ? "c"
+        : (next.transitivity === COMPOSER_TRANSITIVITY.transitive ? "b" : "a");
+    const activeStem = activeSlot === "c"
+        ? next.slotCStem
+        : (activeSlot === "b" ? next.slotBStem : next.slotAStem);
+    const normalizedActiveStem = normalizeComposerStem(activeStem || "");
+    if (getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb) {
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[activeSlot] = nextTiCausativeClass;
+    } else if (/ti$/i.test(normalizedActiveStem)) {
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] = nextTiCausativeClass === "become"
+            ? "ti-become"
+            : (nextTiCausativeClass === "have" ? "ti-have" : "auto");
+    }
     if (!baseValue) {
         VERB_COMPOSER_STATE.sourceBase = "";
         VERB_COMPOSER_STATE.stemManualOverride = false;
@@ -20874,14 +21981,16 @@ function applyComposerStateToVerbInput(options = {}) {
     if (!verbEl) {
         return;
     }
-    const searchParts = splitSearchInput(verbEl.value);
-    const nextBase = buildRegexFromComposerState(VERB_COMPOSER_STATE);
-    const nextValue = searchParts.hasQuery && nextBase
-        ? `${nextBase}?${searchParts.query}`
-        : nextBase;
+    const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+        VERB_COMPOSER_STATE,
+        verbEl.value || ""
+    );
+    const nextBase = isVerbInputModeComposer()
+        ? composerDisplayBundle.displayValue
+        : composerDisplayBundle.regexValue;
     VERB_COMPOSER_STATE.isApplying = true;
     try {
-        verbEl.value = nextValue;
+        verbEl.value = nextBase;
         if (triggerGenerate) {
             verbEl.dispatchEvent(new Event("input", { bubbles: true }));
             if (immediateRefresh) {
@@ -21187,6 +22296,9 @@ function populateComposerDirectionalOptions() {
 }
 
 function setVerbInputMode(mode, options = {}) {
+    const currentMode = isVerbInputModeComposer()
+        ? VERB_INPUT_MODE.composer
+        : VERB_INPUT_MODE.regex;
     const nextMode = mode === VERB_INPUT_MODE.regex ? VERB_INPUT_MODE.regex : VERB_INPUT_MODE.composer;
     VERB_COMPOSER_STATE.mode = nextMode;
     const shouldSync = options.syncFromInput !== false;
@@ -21194,11 +22306,35 @@ function setVerbInputMode(mode, options = {}) {
         nextMode === VERB_INPUT_MODE.composer
         && getComposerEntryBoard() === COMPOSER_ENTRY_BOARD.nounToVerb
     );
-    if (shouldSync && !shouldSkipRegexSyncForNounToVerb) {
-        const verbEl = document.getElementById("verb");
+    const verbEl = document.getElementById("verb");
+    const shouldSkipSyncFromComposerScreen = (
+        currentMode === VERB_INPUT_MODE.composer
+        && nextMode === VERB_INPUT_MODE.regex
+    );
+    if (shouldSync && !shouldSkipRegexSyncForNounToVerb && !shouldSkipSyncFromComposerScreen) {
         syncComposerStateFromVerbInput(verbEl?.value || "");
     }
     renderVerbComposerFromState();
+    if (verbEl) {
+        const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+            VERB_COMPOSER_STATE,
+            verbEl.value || ""
+        );
+        const nextDisplayValue = nextMode === VERB_INPUT_MODE.regex
+            ? (
+                composerDisplayBundle.regexValue
+                || serializeRegexModeInput(verbEl.value || "")
+            )
+            : (
+                composerDisplayBundle.displayValue
+                || serializeComposerScreen(verbEl.value || "")
+            );
+        if (nextDisplayValue !== verbEl.value) {
+            verbEl.value = nextDisplayValue;
+            verbEl.dataset.prevValue = nextDisplayValue;
+            renderVerbMirror();
+        }
+    }
     if (nextMode === VERB_INPUT_MODE.regex) {
         updateVerbDisambiguation();
     } else {
@@ -21305,6 +22441,17 @@ function isEditableTextInput(element) {
     );
 }
 
+function isFocusableTextInput(element, options = {}) {
+    const allowReadOnly = options.allowReadOnly === true;
+    return Boolean(
+        element
+        && element.tagName === "INPUT"
+        && element.type === "text"
+        && !element.disabled
+        && (allowReadOnly || !element.readOnly)
+    );
+}
+
 function dispatchTextInputUpdate(element) {
     if (!element) {
         return;
@@ -21375,7 +22522,7 @@ function getComposerStemInputPreferredCaret(inputEl) {
 }
 
 function focusTextInputAtEnd(inputEl) {
-    if (!isEditableTextInput(inputEl) || typeof inputEl.focus !== "function") {
+    if (!isFocusableTextInput(inputEl, { allowReadOnly: true }) || typeof inputEl.focus !== "function") {
         return false;
     }
     inputEl.focus();
@@ -21428,7 +22575,10 @@ function handleVerbTextboxTabShortcut(event) {
     }
     const verbEl = document.getElementById("verb");
     const composerTextbox = getComposerAvailableTextboxForKeyboardNavigation();
-    if (!isEditableTextInput(verbEl) || !isEditableTextInput(composerTextbox)) {
+    if (
+        !isFocusableTextInput(verbEl, { allowReadOnly: true })
+        || !isFocusableTextInput(composerTextbox, { allowReadOnly: true })
+    ) {
         return false;
     }
     const activeElement = document.activeElement;
@@ -21478,8 +22628,21 @@ function escapeAttributeSelectorValue(value = "") {
         .replace(/"/g, "\\\"");
 }
 
+function isDisplayOnlyVerbMirrorElement(element) {
+    if (!element || typeof element !== "object") {
+        return false;
+    }
+    if (element.id === "verb-mirror-content") {
+        return true;
+    }
+    return typeof element.closest === "function" && Boolean(element.closest("#verb-mirror-content"));
+}
+
 function shouldLetNativeSpaceBehavior(element) {
     if (!element || typeof element !== "object") {
+        return false;
+    }
+    if (isDisplayOnlyVerbMirrorElement(element)) {
         return false;
     }
     if (isEditableTextInput(element)) {
@@ -21512,6 +22675,9 @@ function shouldLetNativeSpaceBehavior(element) {
 
 function shouldLetNativeDeleteBehavior(element) {
     if (!element || typeof element !== "object") {
+        return false;
+    }
+    if (isDisplayOnlyVerbMirrorElement(element)) {
         return false;
     }
     if (isEditableTextInput(element)) {
@@ -21804,7 +22970,7 @@ function rememberScreenCalculatorAnsState({
     if (!normalizedForm || normalizedForm === "—") {
         return;
     }
-    const regexBase = normalizeComposerStem(parsedVerb?.displayVerb || "");
+    const regexBase = String(parsedVerb?.displayVerb || "").trim();
     const composerStem = normalizeComposerStem(VERB_COMPOSER_STATE.stem || "");
     const parsedStemFromRegex = regexBase
         ? normalizeComposerStem(parseComposerStateFromRegexValue(regexBase).stem || "")
@@ -21842,26 +23008,43 @@ function getVerbScreenCalculatorButtons() {
 }
 
 function getRegexSupportiveIToggleInfo(rawValue = "") {
-    const { base, query, hasQuery } = splitSearchInput(rawValue);
-    const baseValue = String(base || "");
-    if (!baseValue.trim()) {
+    const canonicalValue = String(
+        getRawInputTiCausativeMetadata(rawValue).displayVerb
+        || serializeCanonicalRegexEnvelope(rawValue)
+        || ""
+    ).trim();
+    const envelope = parseRegexEnvelope(canonicalValue, { allowEmpty: true });
+    if (!envelope.isValid) {
         return {
             canToggle: false,
             hasMarker: false,
             nextValue: rawValue,
         };
     }
-    const markerLetter = getOptionalSupportiveMarkerLetter(baseValue);
+    const coreValue = String(envelope.coreText || "");
+    if (!coreValue.trim()) {
+        return {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: rawValue,
+        };
+    }
+    const markerLetter = getRegexOptionalSupportiveMarkerLetter(coreValue);
     if (markerLetter) {
-        const nextBase = replaceOptionalSupportiveMarkersWithLetters(baseValue);
+        const nextCore = coreValue.replace(REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
+            String(letter || "").toLowerCase()
+        ));
         return {
             canToggle: true,
             hasMarker: true,
-            nextValue: hasQuery ? `${nextBase}?${query}` : nextBase,
+            nextValue: serializeRegexModeInput(serializeRegexEnvelope({
+                dashPrefix: envelope.dashPrefix,
+                coreText: nextCore,
+            })),
         };
     }
-    const parsedBase = parseVerbInput(baseValue);
-    const stem = normalizeComposerStem(getInputGateRightmostStem(baseValue, parsedBase));
+    const parsedBase = parseVerbInput(canonicalValue || rawValue);
+    const stem = normalizeComposerStem(getInputGateRightmostStem(canonicalValue || rawValue, parsedBase));
     const leadingSupportiveLetter = getStemLeadingSupportiveLetter(stem);
     if (!leadingSupportiveLetter) {
         return {
@@ -21870,7 +23053,7 @@ function getRegexSupportiveIToggleInfo(rawValue = "") {
             nextValue: rawValue,
         };
     }
-    const stemIndex = baseValue.toLowerCase().lastIndexOf(stem);
+    const stemIndex = coreValue.toLowerCase().lastIndexOf(stem);
     if (stemIndex < 0) {
         return {
             canToggle: false,
@@ -21878,13 +23061,16 @@ function getRegexSupportiveIToggleInfo(rawValue = "") {
             nextValue: rawValue,
         };
     }
-    const marker = getOptionalSupportiveMarkerForLetter(leadingSupportiveLetter);
+    const marker = getRegexOptionalSupportiveMarkerForLetter(leadingSupportiveLetter);
     const markedStem = `${marker}${stem.slice(1)}`;
-    const nextBase = `${baseValue.slice(0, stemIndex)}${markedStem}${baseValue.slice(stemIndex + stem.length)}`;
+    const nextCore = `${coreValue.slice(0, stemIndex)}${markedStem}${coreValue.slice(stemIndex + stem.length)}`;
     return {
         canToggle: true,
         hasMarker: false,
-        nextValue: hasQuery ? `${nextBase}?${query}` : nextBase,
+        nextValue: serializeRegexModeInput(serializeRegexEnvelope({
+            dashPrefix: envelope.dashPrefix,
+            coreText: nextCore,
+        })),
     };
 }
 
@@ -22109,7 +23295,7 @@ function runScreenCalculatorDEL() {
 function runScreenCalculatorANS() {
     const verbInput = document.getElementById("verb");
     const ansStem = normalizeComposerStem(VERB_SCREEN_ANS_STATE.stem || "");
-    const ansRegexBase = normalizeComposerStem(VERB_SCREEN_ANS_STATE.regexBase || "");
+    const ansRegexBase = String(VERB_SCREEN_ANS_STATE.regexBase || "").trim();
     const fallbackFromForm = getScreenCalculatorAnsFallbackFromForm();
     if (isVerbInputModeComposer()) {
         const preferredInput = getComposerPreferredEntryInput();
@@ -22125,14 +23311,11 @@ function runScreenCalculatorANS() {
     if (!verbInput) {
         return;
     }
-    const searchParts = splitSearchInput(verbInput.value);
     const nextBase = ansRegexBase || ansStem || fallbackFromForm;
     if (!nextBase) {
         return;
     }
-    verbInput.value = searchParts.hasQuery
-        ? `${nextBase}?${searchParts.query}`
-        : nextBase;
+    verbInput.value = serializeRegexModeInput(nextBase) || nextBase;
     dispatchTextInputUpdate(verbInput);
     verbInput.focus();
 }
@@ -22601,6 +23784,32 @@ function getVerbMirrorContent() {
     return document.getElementById("verb-mirror-content");
 }
 
+function focusVerbMirrorAtEnd() {
+    const mirrorContent = getVerbMirrorContent();
+    if (!mirrorContent || typeof mirrorContent.focus !== "function") {
+        return false;
+    }
+    mirrorContent.focus();
+    const selection = window.getSelection ? window.getSelection() : null;
+    if (!selection || typeof document.createRange !== "function") {
+        return true;
+    }
+    const range = document.createRange();
+    range.selectNodeContents(mirrorContent);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return true;
+}
+
+function focusVisibleVerbSurfaceAtEnd() {
+    if (isVerbInputModeComposer()) {
+        return focusVerbMirrorAtEnd();
+    }
+    const verbInput = document.getElementById("verb");
+    return focusTextInputAtEnd(verbInput);
+}
+
 function getVerbSuggestionsElement() {
     return document.getElementById("verb-suggestions");
 }
@@ -22766,7 +23975,7 @@ function formatSupportiveISuggestionBase(base) {
     if (!core) {
         return base;
     }
-    return `${getOptionalSupportiveMarkerForLetter(letters[0])}${core}`;
+    return `${getRegexOptionalSupportiveMarkerForLetter(letters[0])}${core}`;
 }
 
 function buildSuggestionBaseInfo(entries) {
@@ -23215,13 +24424,16 @@ function applyVerbSuggestion(value) {
         return;
     }
     CLASS_FILTER_STATE.activeClass = null;
-    verbInput.value = value;
-    VERB_INPUT_STATE.lastNonSearchValue = value;
-    verbInput.dataset.lastClassVerb = parseVerbInput(value).verb;
+    const nextValue = isVerbInputModeComposer()
+        ? serializeComposerScreen(value)
+        : serializeRegexModeInput(value);
+    verbInput.value = nextValue;
+    VERB_INPUT_STATE.lastNonSearchValue = nextValue;
+    verbInput.dataset.lastClassVerb = parseVerbInput(nextValue).verb;
     renderVerbMirror();
     closeVerbSuggestions();
-    scheduleVerbInputRefresh(value, { immediate: true, source: "immediate" });
-    verbInput.focus();
+    scheduleVerbInputRefresh(nextValue, { immediate: true, source: "immediate" });
+    focusVisibleVerbSurfaceAtEnd();
 }
 
 // === Verb Disambiguation ===
@@ -23557,7 +24769,7 @@ function buildVerbDisambiguationCandidates(rawValue) {
         if (!nextCore) {
             return "";
         }
-        const marker = getOptionalSupportiveMarkerForLetter(letters[0]);
+        const marker = getRegexOptionalSupportiveMarkerForLetter(letters[0]);
         const candidateCore = `${marker}${nextCore}`;
         return `${hasLeadingDash ? "-" : ""}${candidateCore}`;
     })();
@@ -23941,14 +25153,22 @@ function initViewExport() {
 
 // === UI Panels & Tabs ===
 function getVerbMirrorDisplayValue(rawValue = "") {
+    const inputValue = String(rawValue || "");
     if (!isVerbInputModeComposer()) {
-        return String(rawValue || "");
+        return inputValue;
     }
-    const regexValue = String(rawValue || "");
+    const regexValue = inputValue;
     if (regexValue.trim()) {
-        // In composer interactions, preserve full regex markup so users can
-        // immediately see button cause/effect in the input screen.
-        return regexValue;
+        const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+            VERB_COMPOSER_STATE,
+            regexValue
+        );
+        const mirrorSource = composerDisplayBundle.regexValue
+            || serializeRegexModeInput(regexValue)
+            || regexValue;
+        return serializeComposerScreen(mirrorSource, {
+            preserveSupportiveMarkers: true,
+        });
     }
     const preferredInputValue = String(getComposerPreferredEntryInput()?.value || "").trim();
     if (preferredInputValue) {
@@ -23982,32 +25202,55 @@ function renderVerbMirror() {
         mirrorContent.appendChild(prefixSpan);
     }
     const body = rawValue.slice(prefixText.length);
-    const bodyLower = body.toLowerCase();
-    const units = splitVerbLetters(bodyLower);
     let cursor = 0;
-    units.forEach((unit) => {
-        const len = unit.length;
-        const text = body.slice(cursor, cursor + len);
+    const digraphs = Array.from(DIGRAPH_SET || []).sort((a, b) => b.length - a.length);
+    while (cursor < body.length) {
+        const remaining = body.slice(cursor);
+        const supportiveMatch = remaining.match(/^\[([iy])\]/i);
+        if (supportiveMatch) {
+            const text = String(supportiveMatch[1] || "").toLowerCase();
+            const span = document.createElement("span");
+            span.className = "verb-letter verb-letter--supportive";
+            span.dataset.len = String(text.length);
+            span.textContent = text;
+            mirrorContent.appendChild(span);
+            cursor += supportiveMatch[0].length;
+            continue;
+        }
+        const matchedDigraph = digraphs.find((digraph) => (
+            remaining.slice(0, digraph.length).toLowerCase() === digraph
+        ));
+        if (matchedDigraph) {
+            const text = remaining.slice(0, matchedDigraph.length);
+            const span = document.createElement("span");
+            span.className = "verb-letter";
+            span.dataset.len = String(text.length);
+            span.textContent = text;
+            mirrorContent.appendChild(span);
+            cursor += matchedDigraph.length;
+            continue;
+        }
+        const text = remaining[0];
         const span = document.createElement("span");
         span.className = "verb-letter";
-        span.dataset.len = String(len);
+        span.dataset.len = "1";
         span.textContent = text;
         mirrorContent.appendChild(span);
-        cursor += len;
-    });
-    if (cursor < body.length) {
-        const span = document.createElement("span");
-        span.className = "verb-letter";
-        span.dataset.len = String(body.length - cursor);
-        span.textContent = body.slice(cursor);
-        mirrorContent.appendChild(span);
+        cursor += 1;
     }
     mirrorContent.style.transform = `translateX(${-verbInput.scrollLeft}px)`;
 }
 
+function handleVerbMirrorBeforeInput(event) {
+    if (!isVerbInputModeComposer()) {
+        return;
+    }
+    event.preventDefault();
+}
+
 function getVerbPrefixText(rawValue) {
     const raw = String(rawValue || "");
-    const match = raw.toLowerCase().match(/[a-z0-9]/);
+    const match = raw.match(/\[[iy]\]|[a-z0-9]/i);
     if (!match) {
         return raw;
     }
@@ -24353,13 +25596,30 @@ function initTutorialPanel() {
     }
     const closeButtons = modal.querySelectorAll("[data-tutorial-close]");
     const exampleButtons = modal.querySelectorAll("[data-example]");
+    const renderExampleLabels = () => {
+        exampleButtons.forEach((button) => {
+            const value = String(button.getAttribute("data-example") || "").trim();
+            if (!value) {
+                return;
+            }
+            const nextLabel = isVerbInputModeComposer()
+                ? serializeComposerScreen(value)
+                : serializeRegexModeInput(value);
+            if (nextLabel) {
+                button.textContent = nextLabel;
+            }
+        });
+    };
     const setModalState = (isOpen) => {
         modal.classList.toggle("is-open", isOpen);
         modal.setAttribute("aria-hidden", isOpen ? "false" : "true");
         document.body.classList.toggle("is-modal-open", isOpen);
     };
     const closeModal = () => setModalState(false);
-    const openModal = () => setModalState(true);
+    const openModal = () => {
+        renderExampleLabels();
+        setModalState(true);
+    };
     trigger.addEventListener("click", openModal);
     closeButtons.forEach((button) => {
         button.addEventListener("click", closeModal);
@@ -24372,13 +25632,16 @@ function initTutorialPanel() {
             }
             const verbEl = document.getElementById("verb");
             if (verbEl) {
-                verbEl.value = value;
-                verbEl.focus();
+                verbEl.value = isVerbInputModeComposer()
+                    ? serializeComposerScreen(value)
+                    : serializeRegexModeInput(value);
                 verbEl.dispatchEvent(new Event("input", { bubbles: true }));
+                focusVisibleVerbSurfaceAtEnd();
             }
             closeModal();
         });
     });
+    renderExampleLabels();
     registerEscapeOverlayHandler({
         id: "tutorial-modal",
         priority: 20,
@@ -24438,25 +25701,71 @@ function buildKeyboardLegendEntries() {
     ];
 }
 
+function buildKeyboardLegendSections() {
+    const entries = buildKeyboardLegendEntries();
+    return [
+        {
+            title: "Mover",
+            entries: entries.filter((entry) => (
+                ["Tab", "Space", "Enter", "Esc", "Esc x2"].includes(entry.label)
+            )),
+        },
+        {
+            title: "Atajos",
+            entries: entries.filter((entry) => String(entry.label || "").startsWith("⌥/Alt +")),
+        },
+        {
+            title: "Edicion",
+            entries: entries.filter((entry) => (
+                ["Delete / Backspace", "Shift + Delete / Backspace", "⌥/Alt + Delete / Backspace"].includes(entry.label)
+            )),
+        },
+        {
+            title: "Nota",
+            entries: entries.filter((entry) => entry.label === "Tip"),
+            note: true,
+        },
+    ].filter((section) => Array.isArray(section.entries) && section.entries.length);
+}
+
 function renderKeyboardLegendEntries() {
     const list = document.getElementById("keyboard-legend-list");
     if (!list) {
         return;
     }
     list.innerHTML = "";
-    const entries = buildKeyboardLegendEntries();
-    entries.forEach((entry) => {
-        const row = document.createElement("div");
-        row.className = "keyboard-legend-item";
-        const key = document.createElement("span");
-        key.className = "keyboard-legend-item__key";
-        key.textContent = `${entry.label}:`;
-        const text = document.createElement("span");
-        text.className = "keyboard-legend-item__text";
-        text.textContent = entry.description;
-        row.appendChild(key);
-        row.appendChild(text);
-        list.appendChild(row);
+    const sections = buildKeyboardLegendSections();
+    sections.forEach((section) => {
+        const card = document.createElement("section");
+        card.className = `keyboard-legend-section${section.note ? " keyboard-legend-section--note" : ""}`;
+        const heading = document.createElement("h3");
+        heading.className = "keyboard-legend-section__title";
+        heading.textContent = section.title;
+        card.appendChild(heading);
+
+        const sectionList = document.createElement("div");
+        sectionList.className = "keyboard-legend-section__list";
+
+        section.entries.forEach((entry) => {
+            const row = document.createElement("div");
+            row.className = `keyboard-legend-item${section.note ? " keyboard-legend-item--note" : ""}`;
+
+            if (!section.note) {
+                const key = document.createElement("span");
+                key.className = "keyboard-legend-item__key";
+                key.textContent = entry.label;
+                row.appendChild(key);
+            }
+
+            const text = document.createElement("span");
+            text.className = "keyboard-legend-item__text";
+            text.textContent = entry.description;
+            row.appendChild(text);
+            sectionList.appendChild(row);
+        });
+
+        card.appendChild(sectionList);
+        list.appendChild(card);
     });
 }
 
@@ -30094,11 +31403,22 @@ function applyMorphologyRules({
     };
 }
 
-function getPrefixInputs({ override, subjectPrefixInput, subjectSuffixInput, verbInput }) {
+function getPrefixInputs({
+    override,
+    subjectPrefixInput,
+    subjectSuffixInput,
+    verbInput,
+    verbInputSource = null,
+}) {
+    const resolvedVerbInputSource = (
+        verbInputSource && typeof verbInputSource === "object"
+    )
+        ? verbInputSource
+        : resolveVerbInputSource(verbInput?.value || "");
     return {
         subjectPrefix: override?.subjectPrefix ?? subjectPrefixInput.value,
         objectPrefix: override?.objectPrefix ?? getCurrentObjectPrefix(),
-        verb: override?.verb ?? verbInput.value,
+        verb: override?.verb ?? resolvedVerbInputSource.parseValue ?? verbInput.value,
         subjectSuffix: override?.subjectSuffix ?? subjectSuffixInput.value,
         possessivePrefix: override?.possessivePrefix ?? "",
     };
@@ -30903,12 +32223,14 @@ function generateWord(options = {}) {
     const subjectPrefixInput = document.getElementById("subject-prefix");
     const subjectSuffixInput = document.getElementById("subject-suffix");
     const verbInput = document.getElementById("verb");
+    const verbInputSource = resolveVerbInputSource(verbInput?.value || "");
     // Get the selected values of the prefixes and suffixes
     const prefixInputs = getPrefixInputs({
         override,
         subjectPrefixInput,
         subjectSuffixInput,
         verbInput,
+        verbInputSource,
     });
     let subjectPrefix = prefixInputs.subjectPrefix;
     let objectPrefix = prefixInputs.objectPrefix;
@@ -31093,17 +32415,18 @@ function generateWord(options = {}) {
     clearError("object-prefix");
     clearError("subject-suffix");
 
-    // Allow lowercase letters, digits, and separators ("-" marks transitivity, "/" splits parts, "?" starts search).
+    // Canonical display uses a parenthesized core; regex mode still accepts legacy input.
     const rawVerb = String(verb || "");
     const rawVerbTiMetadata = getRawInputTiCausativeMetadata(rawVerb);
-    const normalizedRawVerb = rawVerbTiMetadata.normalizedInput || rawVerb;
     const invalidCharacters = getInvalidVerbCharacters(rawVerb);
     const invalidLetters = getInvalidVerbLetters(rawVerb);
     const invalidStructure = getInvalidVerbStructure(rawVerb);
     if (invalidCharacters.length || invalidLetters.length || invalidStructure) {
         const invalidList = Array.from(new Set([...invalidCharacters, ...invalidLetters])).join(", ");
         const message = invalidStructure
-            ? "El verbo contiene separadores invalidos."
+            ? getInvalidVerbStructureMessage(invalidStructure, {
+                expectRegexEnvelope: isVerbInputModeComposer(),
+            })
             : (invalidList
                 ? `El verbo contiene letras invalidas: ${invalidList}`
                 : "El verbo contiene letras invalidas.");
@@ -31117,7 +32440,7 @@ function generateWord(options = {}) {
     });
     const parsedVerb = shouldReusePreParsed
         ? { ...preParsedVerb }
-        : parseVerbInput(normalizedRawVerb);
+        : parseVerbInput(rawVerb);
     hasOptionalSupportiveYSurface = parsedVerb.hasOptionalSupportiveI === true
         && parsedVerb.optionalSupportiveLetter === "y";
     parsedVerb.derivationType = resolvedDerivationType;
@@ -31234,13 +32557,15 @@ function generateWord(options = {}) {
     analysisVerb = allomorphyResult.analysisVerb;
     let morphologyObjectPrefix = allomorphyResult.morphologyObjectPrefix;
     if (!silent) {
-        const preserveRawVerbInput = shouldPreserveRawVerbInputForTiClass(rawVerb);
         const canonicalDisplayValue = hasSearchSeparator
             ? `${parsedVerb.displayVerb}?${searchQuery}`
             : parsedVerb.displayVerb;
-        const nextVerbInputValue = preserveRawVerbInput
-            ? rawVerb
-            : canonicalDisplayValue;
+        const resolvedComposerDisplayValue = isVerbInputModeComposer()
+            ? resolveVerbInputSource(verbInput?.value || rawVerb, { mode: VERB_INPUT_MODE.composer }).displayValue
+            : "";
+        const nextVerbInputValue = isVerbInputModeComposer()
+            ? (resolvedComposerDisplayValue || rawVerb)
+            : (serializeRegexModeInput(rawVerb) || rawVerb);
         verbInput.value = nextVerbInputValue;
         verbInput.dataset.prevValue = nextVerbInputValue;
         renderVerbMirror();
@@ -36579,6 +37904,468 @@ async function runParsePipelineTests(testData = null) {
     return summary;
 }
 
+function runRegexEnvelopeLanguageTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        if (actual !== expected) {
+            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+        }
+    };
+    const expectTruthy = (label, value) => {
+        if (!value) {
+            failures.push(`${label}: expected truthy value`);
+        }
+    };
+
+    const validCases = [
+        { input: "(tzin/pewa)", dashPrefix: "", coreText: "tzin/pewa" },
+        { input: "(shuchi-temua)", dashPrefix: "", coreText: "shuchi-temua" },
+        { input: "(a/T-i)", dashPrefix: "", coreText: "a/T-i" },
+        { input: "-(TA-ish/piya)", dashPrefix: "-", coreText: "TA-ish/piya" },
+        { input: "-(kal-ish/piya)", dashPrefix: "-", coreText: "kal-ish/piya" },
+        { input: "(michti1)", dashPrefix: "", coreText: "michti1" },
+        { input: "([i]stat)", dashPrefix: "", coreText: "[i]stat" },
+    ];
+    validCases.forEach((testCase) => {
+        const parsed = parseRegexEnvelope(testCase.input);
+        expectTruthy(`${testCase.input} valid`, parsed.isValid);
+        expectEqual(`${testCase.input} dashPrefix`, parsed.dashPrefix, testCase.dashPrefix);
+        expectEqual(`${testCase.input} coreText`, parsed.coreText, testCase.coreText);
+        expectEqual(`${testCase.input} displayVerb`, parsed.displayVerb, testCase.input);
+    });
+
+    const invalidCases = [
+        ["tzin/pewa", "core-envelope"],
+        ["-(kal-ish/piya", "core-envelope"],
+        ["-(kal-ish/piya))", "core-envelope"],
+        ["-(kal-ish/piya)?-lis", "search"],
+        ["((i)stat)", "legacy-parentheses"],
+        ["((ta)/piya)", "legacy-parentheses"],
+    ];
+    invalidCases.forEach(([input, expected]) => {
+        expectEqual(`${input} invalid`, getInvalidVerbStructure(input, { expectRegexEnvelope: true }), expected);
+    });
+
+    const translatedLegacy = convertLegacyBaseToRegexEnvelopeParts("a/(t)-i");
+    expectEqual("legacy a/(t)-i displayVerb", translatedLegacy.displayVerb, "(a/T-i)");
+    expectEqual("legacy a/(t)-i coreText", translatedLegacy.coreText, "a/T-i");
+
+    const translatedMetadata = getRawInputTiCausativeMetadata("-(TA-ish/piya)");
+    expectEqual("-(TA-ish/piya) semanticObjectSlotCount", translatedMetadata.semanticObjectSlotCount, 2);
+    expectEqual("-(TA-ish/piya) normalizedInput", translatedMetadata.normalizedInput, "-(ta)-ish/piya");
+
+    const parseSemantic = parseVerbInput("-(kal-ish/piya)");
+    expectEqual("-(kal-ish/piya) parsed semanticObjectSlotCount", parseSemantic.semanticObjectSlotCount, 2);
+    expectEqual("-(kal-ish/piya) displayVerb", parseSemantic.displayVerb, "-(kal-ish/piya)");
+    expectEqual("legacy pe wa canonical displayVerb", parseVerbInput("pewa").displayVerb, "(pewa)");
+    expectEqual("legacy michti1 canonical displayVerb", parseVerbInput("michti1").displayVerb, "(michti1)");
+
+    expectEqual("legacy tzin/pewa canonicalizes", serializeCanonicalRegexEnvelope("tzin/pewa"), "(tzin/pewa)");
+    expectEqual("legacy a/t-i canonicalizes", serializeCanonicalRegexEnvelope("a/t-i"), "(a/T-i)");
+    expectEqual("canonical (a/T-i) legacy display", serializeRegexModeInput("(a/T-i)"), "a/(t)-i");
+    expectEqual("canonical (michti1) legacy display", serializeRegexModeInput("(michti1)"), "michti1");
+
+    const summary = {
+        total: validCases.length + invalidCases.length + 11,
+        passed: validCases.length + invalidCases.length + 11 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Regex envelope language tests failed:", summary);
+    } else {
+        console.log("Regex envelope language tests passed:", summary);
+    }
+    return summary;
+}
+
+function runRegexComposerProjectionTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        if (actual !== expected) {
+            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+        }
+    };
+    const cases = [
+        {
+            regex: "tzin/pewa",
+            composerScreen: "(tzin-pewa)",
+            canonicalEnvelope: "(tzin/pewa)",
+        },
+        {
+            regex: "-(ta)-ish/piya",
+            composerScreen: "-(ta-ish-piya)",
+            canonicalEnvelope: "-(TA-ish/piya)",
+        },
+        {
+            regex: "-kal-ish/piya",
+            composerScreen: "-(kal-ish-piya)",
+            canonicalEnvelope: "-(kal-ish/piya)",
+        },
+        {
+            regex: "a/(t)-i",
+            composerScreen: "(a-t-i)",
+            canonicalEnvelope: "(a/T-i)",
+        },
+        {
+            regex: "michti1",
+            composerScreen: "(michti1)",
+            canonicalEnvelope: "(michti1)",
+        },
+        {
+            regex: "-(i)tta",
+            composerScreen: "-(itta)",
+            canonicalEnvelope: "-([i]tta)",
+        },
+        {
+            regex: "(tajta)-ish/piya",
+            composerScreen: "(tajta-ish-piya)",
+            canonicalEnvelope: "((tajta)-ish/piya)",
+        },
+        {
+            regex: "(tejte)-ish/piya",
+            composerScreen: "(tejte-ish-piya)",
+            canonicalEnvelope: "((tejte)-ish/piya)",
+        },
+        {
+            regex: "-(mujmu)-ish/piya",
+            composerScreen: "-(mujmu-ish-piya)",
+            canonicalEnvelope: "-((mujmu)-ish/piya)",
+        },
+    ];
+    const previousComposerState = { ...VERB_COMPOSER_STATE };
+    const previousMode = VERB_COMPOSER_STATE.mode;
+    try {
+        cases.forEach((testCase) => {
+            const parsedState = parseComposerStateFromRegexValue(testCase.regex);
+            const rebuiltRegex = buildLegacyRegexBaseFromComposerState(parsedState);
+            const composerScreen = buildComposerScreenDisplayFromState(parsedState);
+            const canonicalEnvelope = buildRegexFromComposerState(parsedState);
+            expectEqual(`${testCase.regex} regex rebuild`, rebuiltRegex, testCase.regex);
+            expectEqual(`${testCase.regex} composer screen`, composerScreen, testCase.composerScreen);
+            expectEqual(`${testCase.regex} canonical envelope`, canonicalEnvelope, testCase.canonicalEnvelope);
+
+            Object.assign(VERB_COMPOSER_STATE, previousComposerState, parsedState, { mode: VERB_INPUT_MODE.composer });
+            const resolvedSource = resolveVerbInputSource(composerScreen, { mode: VERB_INPUT_MODE.composer });
+            expectEqual(`${testCase.regex} resolved display`, resolvedSource.displayValue, testCase.composerScreen);
+            expectEqual(`${testCase.regex} resolved regex`, resolvedSource.regexValue, testCase.regex);
+            expectEqual(`${testCase.regex} resolved parse`, resolvedSource.parseValue, testCase.regex);
+        });
+    } finally {
+        Object.assign(VERB_COMPOSER_STATE, previousComposerState, { mode: previousMode });
+    }
+    const summary = {
+        total: cases.length * 6,
+        passed: (cases.length * 6) - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Regex/composer projection tests failed:", summary);
+    } else {
+        console.log("Regex/composer projection tests passed:", summary);
+    }
+    return summary;
+}
+
+function runComposerValenceScreenWritebackTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        if (actual !== expected) {
+            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+        }
+    };
+    const verbInput = document.getElementById("verb");
+    const mirrorContent = document.getElementById("verb-mirror-content");
+    if (!verbInput || !mirrorContent) {
+        return {
+            total: 0,
+            passed: 0,
+            failed: 1,
+            failures: ["missing-verb-surface"],
+        };
+    }
+    const previousComposerState = { ...VERB_COMPOSER_STATE };
+    const previousValue = verbInput.value;
+    const previousPrevValue = verbInput.dataset.prevValue || "";
+    const cases = [
+        { token: "tajta", expected: "(tajta-ketza)" },
+        { token: "tejte", expected: "(tejte-ketza)" },
+        { token: "mujmu", expected: "(mujmu-ketza)" },
+    ];
+    try {
+        cases.forEach((testCase) => {
+            Object.assign(VERB_COMPOSER_STATE, previousComposerState, {
+                mode: VERB_INPUT_MODE.composer,
+                transitivity: COMPOSER_TRANSITIVITY.transitive,
+                valenceIntransitive: "",
+                valenceIntransitiveEmbed: "",
+                valence: testCase.token,
+                valenceEmbedPrimary: "",
+                valenceSecondary: "",
+                valenceEmbedSecondary: "",
+                slotAStem: "",
+                slotAEmbed: "",
+                slotBStem: "ketza",
+                slotBEmbed: "",
+                slotCStem: "",
+                slotCEmbed: "",
+                supportiveI: false,
+                tiCausativeClass: "",
+                preserveRawRegexBase: false,
+                rawRegexBase: "",
+            });
+            renderVerbComposerFromState();
+            applyComposerStateToVerbInput({ triggerGenerate: false });
+            generateWord({ skipValidation: true });
+            expectEqual(`${testCase.token} input`, verbInput.value, testCase.expected);
+            expectEqual(
+                `${testCase.token} mirror`,
+                String(mirrorContent.textContent || "").trim(),
+                testCase.expected
+            );
+        });
+    } finally {
+        Object.assign(VERB_COMPOSER_STATE, previousComposerState);
+        verbInput.value = previousValue;
+        verbInput.dataset.prevValue = previousPrevValue;
+        renderVerbComposerFromState();
+        renderVerbMirror();
+    }
+    const summary = {
+        total: cases.length * 2,
+        passed: (cases.length * 2) - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Composer valence screen writeback tests failed:", summary);
+    } else {
+        console.log("Composer valence screen writeback tests passed:", summary);
+    }
+    return summary;
+}
+
+function runComposerPlaceholderScreenTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        if (actual !== expected) {
+            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+        }
+    };
+    expectEqual("serializeComposerScreen _", serializeComposerScreen("_"), "(_)");
+    expectEqual("serializeComposerScreen -_", serializeComposerScreen("-_"), "-(_)");
+    expectEqual("serializeComposerScreen (tajta)-_", serializeComposerScreen("(tajta)-_"), "(tajta)-_");
+    expectEqual("serializeComposerScreen (tejte)-_", serializeComposerScreen("(tejte)-_"), "(tejte)-_");
+    expectEqual("serializeComposerScreen (mujmu)-_", serializeComposerScreen("(mujmu)-_"), "(mujmu)-_");
+    expectEqual("canonical envelope _", serializeCanonicalRegexEnvelope("_"), "(_)");
+    expectEqual("canonical envelope -_", serializeCanonicalRegexEnvelope("-_"), "-(_)");
+    const summary = {
+        total: 7,
+        passed: 7 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Composer placeholder screen tests failed:", summary);
+    } else {
+        console.log("Composer placeholder screen tests passed:", summary);
+    }
+    return summary;
+}
+
+function runComposerValencePlaceholderWritebackTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        if (actual !== expected) {
+            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+        }
+    };
+    const verbInput = document.getElementById("verb");
+    const mirrorContent = document.getElementById("verb-mirror-content");
+    if (!verbInput || !mirrorContent) {
+        return {
+            total: 0,
+            passed: 0,
+            failed: 1,
+            failures: ["missing-verb-surface"],
+        };
+    }
+    const previousComposerState = { ...VERB_COMPOSER_STATE };
+    const previousValue = verbInput.value;
+    const previousPrevValue = verbInput.dataset.prevValue || "";
+    const cases = [
+        { token: "tajta", expected: "(tajta)-_" },
+        { token: "tejte", expected: "(tejte)-_" },
+        { token: "mujmu", expected: "(mujmu)-_" },
+    ];
+    try {
+        cases.forEach((testCase) => {
+            Object.assign(VERB_COMPOSER_STATE, previousComposerState, {
+                mode: VERB_INPUT_MODE.composer,
+                transitivity: COMPOSER_TRANSITIVITY.transitive,
+                valenceIntransitive: "",
+                valenceIntransitiveEmbed: "",
+                valence: testCase.token,
+                valenceEmbedPrimary: "",
+                valenceSecondary: "",
+                valenceEmbedSecondary: "",
+                slotAStem: "",
+                slotAEmbed: "",
+                slotBStem: "",
+                slotBEmbed: "",
+                slotCStem: "",
+                slotCEmbed: "",
+                supportiveI: false,
+                tiCausativeClass: "",
+                preserveRawRegexBase: false,
+                rawRegexBase: "",
+            });
+            renderVerbComposerFromState();
+            applyComposerStateToVerbInput({ triggerGenerate: false });
+            generateWord({ skipValidation: true });
+            expectEqual(`${testCase.token} placeholder input`, verbInput.value, testCase.expected);
+            expectEqual(
+                `${testCase.token} placeholder mirror`,
+                String(mirrorContent.textContent || "").trim(),
+                testCase.expected
+            );
+        });
+    } finally {
+        Object.assign(VERB_COMPOSER_STATE, previousComposerState);
+        verbInput.value = previousValue;
+        verbInput.dataset.prevValue = previousPrevValue;
+        renderVerbComposerFromState();
+        renderVerbMirror();
+    }
+    const summary = {
+        total: cases.length * 2,
+        passed: (cases.length * 2) - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Composer valence placeholder writeback tests failed:", summary);
+    } else {
+        console.log("Composer valence placeholder writeback tests passed:", summary);
+    }
+    return summary;
+}
+
+function runComposerValenceShortFormContextTests() {
+    const failures = [];
+    const expectEqual = (label, actual, expected) => {
+        const actualJson = JSON.stringify(actual);
+        const expectedJson = JSON.stringify(expected);
+        if (actualJson !== expectedJson) {
+            failures.push(`${label}: expected ${expectedJson} but got ${actualJson}`);
+        }
+    };
+    const buildState = (overrides = {}) => ({
+        ...VERB_COMPOSER_STATE,
+        mode: VERB_INPUT_MODE.composer,
+        transitivity: COMPOSER_TRANSITIVITY.transitive,
+        valenceIntransitive: "",
+        valenceIntransitiveEmbed: "",
+        valence: "",
+        valenceEmbedPrimary: "",
+        valenceSecondary: "",
+        valenceEmbedSecondary: "",
+        slotAStem: "",
+        slotAEmbed: "",
+        slotBStem: "",
+        slotBEmbed: "",
+        slotCStem: "",
+        slotCEmbed: "",
+        supportiveI: false,
+        tiCausativeClass: "",
+        preserveRawRegexBase: false,
+        rawRegexBase: "",
+        ...overrides,
+    });
+    const ketzaState = buildState({ slotBStem: "ketza" });
+    expectEqual(
+        "ta family before consonant-starting follower",
+        getComposerSecondaryValenceFamilyInventoryForContext("ta", {
+            state: ketzaState,
+            scope: "primary",
+        }),
+        ["ta", "tajta"]
+    );
+    expectEqual(
+        "mu family before consonant-starting follower",
+        getComposerSecondaryValenceFamilyInventoryForContext("mu", {
+            state: ketzaState,
+            scope: "primary",
+        }),
+        ["mu", "mujmu"]
+    );
+    const ishState = buildState({ slotBStem: "ishpiya" });
+    expectEqual(
+        "ta family before nucleus-starting follower",
+        getComposerSecondaryValenceFamilyInventoryForContext("ta", {
+            state: ishState,
+            scope: "primary",
+        }),
+        ["ta", "tajta", "t"]
+    );
+    expectEqual(
+        "mu family before nucleus-starting follower",
+        getComposerSecondaryValenceFamilyInventoryForContext("mu", {
+            state: ishState,
+            scope: "primary",
+        }),
+        ["mu", "mujmu", "m"]
+    );
+    const summary = {
+        total: 4,
+        passed: 4 - failures.length,
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Composer valence short-form context tests failed:", summary);
+    } else {
+        console.log("Composer valence short-form context tests passed:", summary);
+    }
+    return summary;
+}
+
+function runComposerDisplayBridgeTests() {
+    const projection = runRegexComposerProjectionTests();
+    const writeback = runComposerValenceScreenWritebackTests();
+    const placeholderWriteback = runComposerValencePlaceholderWritebackTests();
+    const placeholders = runComposerPlaceholderScreenTests();
+    const shortForms = runComposerValenceShortFormContextTests();
+    const failures = [
+        ...(projection?.failures || []).map((message) => `projection: ${message}`),
+        ...(writeback?.failures || []).map((message) => `writeback: ${message}`),
+        ...(placeholderWriteback?.failures || []).map((message) => `placeholder-writeback: ${message}`),
+        ...(placeholders?.failures || []).map((message) => `placeholder: ${message}`),
+        ...(shortForms?.failures || []).map((message) => `short-form: ${message}`),
+    ];
+    const summary = {
+        total: Number(projection?.total || 0)
+            + Number(writeback?.total || 0)
+            + Number(placeholderWriteback?.total || 0)
+            + Number(placeholders?.total || 0)
+            + Number(shortForms?.total || 0),
+        passed: Number(projection?.passed || 0)
+            + Number(writeback?.passed || 0)
+            + Number(placeholderWriteback?.passed || 0)
+            + Number(placeholders?.passed || 0)
+            + Number(shortForms?.passed || 0),
+        failed: failures.length,
+        failures,
+    };
+    if (failures.length) {
+        console.error("Composer display bridge tests failed:", summary);
+    } else {
+        console.log("Composer display bridge tests passed:", summary);
+    }
+    return summary;
+}
+
 function runGenerateWordOptionNormalizationTests() {
     const failures = [];
     const cases = [
@@ -40294,6 +42081,10 @@ function getDeveloperHookMap() {
     return {
         runExactRedupTests,
         runParsePipelineTests,
+        runRegexEnvelopeLanguageTests,
+        runRegexComposerProjectionTests,
+        runComposerValenceScreenWritebackTests,
+        runComposerDisplayBridgeTests,
         runGenerateWordOptionNormalizationTests,
         runRenderOnlyTenseDeprecationTests,
         runInternalGenerateWordOptionCallerTests,
@@ -40494,6 +42285,10 @@ document.addEventListener("keydown", (event) => {
             event.preventDefault();
             return;
         }
+        if (isVerbInputModeComposer() && focusVerbMirrorAtEnd()) {
+            event.preventDefault();
+            return;
+        }
         if (focusTextInputAtEnd(verbEl)) {
             event.preventDefault();
             return;
@@ -40573,7 +42368,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     initCalcInputModeButtons();
     enforceNoAutofillOnTextboxes(document);
     const verbEl = document.getElementById("verb");
+    const verbMirrorContent = getVerbMirrorContent();
     if (verbEl) {
+        const initialDisplayValue = isVerbInputModeComposer()
+            ? serializeComposerScreen(verbEl.value || "")
+            : serializeRegexModeInput(verbEl.value || "");
+        if (initialDisplayValue && initialDisplayValue !== verbEl.value) {
+            verbEl.value = initialDisplayValue;
+        }
         verbEl.dataset.prevValue = verbEl.value || "";
         const initialParts = getSearchParts(verbEl.value);
         const initialBase = initialParts.trimmedBase;
@@ -40590,6 +42392,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 verbEl.value = verbEl.dataset.prevValue || "";
             } else {
                 verbEl.dataset.prevValue = verbEl.value;
+            }
+            if (!isVerbInputModeComposer() && !VERB_COMPOSER_STATE.isApplying) {
+                const legacyValue = serializeRegexModeInput(verbEl.value);
+                if (legacyValue !== verbEl.value) {
+                    verbEl.value = legacyValue;
+                    verbEl.dataset.prevValue = legacyValue;
+                }
             }
             renderVerbMirror();
             const searchParts = getSearchParts(verbEl.value);
@@ -40616,6 +42425,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         verbEl.addEventListener("keydown", handleVerbSuggestionKeydown);
         verbEl.addEventListener("scroll", () => {
             renderVerbMirror();
+        });
+    }
+    if (verbMirrorContent) {
+        verbMirrorContent.addEventListener("beforeinput", handleVerbMirrorBeforeInput);
+        verbMirrorContent.addEventListener("paste", (event) => {
+            if (!isVerbInputModeComposer()) {
+                return;
+            }
+            event.preventDefault();
+        });
+        verbMirrorContent.addEventListener("drop", (event) => {
+            if (!isVerbInputModeComposer()) {
+                return;
+            }
+            event.preventDefault();
+        });
+        verbMirrorContent.addEventListener("cut", (event) => {
+            if (!isVerbInputModeComposer()) {
+                return;
+            }
+            event.preventDefault();
         });
     }
     window.addEventListener("resize", () => {
