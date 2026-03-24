@@ -48,6 +48,10 @@ const REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE = /\[([iy])\]/gi;
 const REGEX_OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE = /\[([iy])\]/i;
 const REGEX_ENVELOPE_OBJECT_MARKERS = Object.freeze(["TA", "TE", "MU", "T", "M"]);
 const FALLBACK_DIRECTIONAL_PREFIXES = Object.freeze(["wal", "un", "ku"]);
+// Supportive marker formats:
+// - legacy: editable regex-mode syntax, e.g. (i)/(y)
+// - regex: canonical envelope syntax, e.g. [i]/[y]
+// - screen: composer mirror syntax, which preserves bracket markers for styling
 const SUPPORTIVE_MARKER_FORMAT = Object.freeze({
     legacy: "legacy",
     regex: "regex",
@@ -111,13 +115,13 @@ function getRegexOptionalSupportiveMarkerLetter(value = "") {
     return getSupportiveMarkerLetterFromValue(value, SUPPORTIVE_MARKER_FORMAT.regex);
 }
 
-function replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(value = "") {
+function convertEnvelopeSupportiveMarkersToRegexInput(value = "") {
     return String(value || "").replace(REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
         getOptionalSupportiveMarkerForLetter(letter)
     ));
 }
 
-function replaceLegacyOptionalSupportiveMarkersWithRegexMarkers(value = "") {
+function convertRegexInputSupportiveMarkersToEnvelope(value = "") {
     return String(value || "").replace(OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letter) => (
         getRegexOptionalSupportiveMarkerForLetter(letter)
     ));
@@ -128,6 +132,286 @@ function replaceLegacyExplicitValenceMarkersWithRegexMarkers(value = "") {
         /(^|[-/])\((ta|te|mu|t|m)\)(?=$|[-/])/gi,
         (_match, separator, token) => `${separator}${String(token || "").toUpperCase()}`
     );
+}
+
+function normalizeSupportiveYContextSurface(value = "") {
+    return replaceOptionalSupportiveMarkersWithLetters(
+        convertEnvelopeSupportiveMarkersToRegexInput(String(value || ""))
+    ).replace(/[^a-z]/gi, "").toLowerCase();
+}
+
+function getSupportiveYFollowingSurfaceLetters(followingSurface = "") {
+    const normalized = normalizeSupportiveYContextSurface(followingSurface);
+    if (!normalized) {
+        return [];
+    }
+    const letters = splitVerbLetters(normalized);
+    if (letters[0] === "y" && isVerbLetterVowel(letters[1] || "")) {
+        return letters.slice(1);
+    }
+    return letters;
+}
+
+function getSupportiveYFollowingVowel(followingSurface = "") {
+    const letters = getSupportiveYFollowingSurfaceLetters(followingSurface);
+    return letters.find((letter) => isVerbLetterVowel(letter)) || "";
+}
+
+function hasInitialReduplicativeSupportiveYPattern(followingSurface = "") {
+    const letters = getSupportiveYFollowingSurfaceLetters(followingSurface);
+    return (
+        letters.length >= 4
+        && isVerbLetterVowel(letters[0] || "")
+        && letters[1] === "j"
+        && letters[2] === "y"
+        && isVerbLetterVowel(letters[3] || "")
+    );
+}
+
+function dropReduplicativeYAfterVj(followingSurface = "") {
+    return normalizeSupportiveYContextSurface(followingSurface).replace(/^([aeiu]j)y(?=[aeiu])/i, "$1");
+}
+
+function markReduplicativeYAfterVj(
+    followingSurface = "",
+    format = SUPPORTIVE_MARKER_FORMAT.legacy
+) {
+    const normalized = normalizeSupportiveYContextSurface(followingSurface);
+    if (!normalized) {
+        return "";
+    }
+    const marker = getSupportiveMarkerTokenForLetter("y", format);
+    return normalized.replace(/^([aeiu]j)y(?=[aeiu])/i, `$1${marker}`);
+}
+
+function markInitialReduplicativeSupportiveYSurface(
+    surface = "",
+    format = SUPPORTIVE_MARKER_FORMAT.legacy
+) {
+    const normalized = normalizeSupportiveYContextSurface(surface);
+    if (!normalized) {
+        return "";
+    }
+    const leadingMarker = getSupportiveMarkerTokenForLetter("y", format);
+    if (!normalized.startsWith("y")) {
+        return normalized;
+    }
+    const remainder = normalized.slice(1);
+    return `${leadingMarker}${markReduplicativeYAfterVj(remainder, format) || remainder}`;
+}
+
+function resolveOptionalSupportiveYBehavior({
+    precedingSurface = "",
+    followingSurface = "",
+} = {}) {
+    const followingVowel = getSupportiveYFollowingVowel(followingSurface);
+    const hasReduplicativePattern = hasInitialReduplicativeSupportiveYPattern(followingSurface);
+    const normalizedPreceding = normalizeSupportiveYContextSurface(precedingSurface);
+    const precedingLetters = splitVerbLetters(normalizedPreceding);
+    const finalLetter = precedingLetters.length ? precedingLetters[precedingLetters.length - 1] : "";
+    const isWordInitial = !finalLetter;
+    if (isWordInitial) {
+        return {
+            deleteMarker: hasReduplicativePattern,
+            deleteReduplicativeY: hasReduplicativePattern,
+        };
+    }
+    if (isVerbLetterConsonant(finalLetter)) {
+        return { deleteMarker: true, deleteReduplicativeY: hasReduplicativePattern };
+    }
+    if (finalLetter === "i") {
+        return { deleteMarker: true, deleteReduplicativeY: hasReduplicativePattern };
+    }
+    if (followingVowel === "e") {
+        return { deleteMarker: true, deleteReduplicativeY: hasReduplicativePattern };
+    }
+    return { deleteMarker: false, deleteReduplicativeY: false };
+}
+
+function normalizeSupportiveMarkedLegacySurface(
+    value = "",
+    format = SUPPORTIVE_MARKER_FORMAT.legacy
+) {
+    const source = String(value || "");
+    if (format === SUPPORTIVE_MARKER_FORMAT.regex || format === SUPPORTIVE_MARKER_FORMAT.screen) {
+        return convertEnvelopeSupportiveMarkersToRegexInput(source);
+    }
+    return source;
+}
+
+function formatResolvedSupportiveMarkedSurface(
+    value = "",
+    format = SUPPORTIVE_MARKER_FORMAT.legacy,
+    preserveMarkers = false
+) {
+    const legacyValue = String(value || "");
+    if (!preserveMarkers) {
+        return replaceOptionalSupportiveMarkersWithLetters(legacyValue);
+    }
+    if (format === SUPPORTIVE_MARKER_FORMAT.regex || format === SUPPORTIVE_MARKER_FORMAT.screen) {
+        return convertRegexInputSupportiveMarkersToEnvelope(legacyValue);
+    }
+    return legacyValue;
+}
+
+function resolveOptionalSupportiveMarkedSurface({
+    precedingSurface = "",
+    markedSurface = "",
+    inputFormat = SUPPORTIVE_MARKER_FORMAT.legacy,
+    outputFormat = inputFormat,
+    preserveMarkers = false,
+} = {}) {
+    const legacyMarkedSurface = normalizeSupportiveMarkedLegacySurface(markedSurface, inputFormat);
+    if (!legacyMarkedSurface) {
+        return {
+            markerLetter: "",
+            legacyMarkedSurface: "",
+            plainSurface: "",
+            outputSurface: "",
+        };
+    }
+    const markerMatch = legacyMarkedSurface.match(OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
+    const markerLetter = markerMatch ? String(markerMatch[1] || "").toLowerCase() : "";
+    let resolvedLegacySurface = legacyMarkedSurface;
+    if (markerLetter === "y" && markerMatch) {
+        const markerToken = markerMatch[0];
+        const markerIndex = legacyMarkedSurface.indexOf(markerToken);
+        const localPrecedingSurface = `${String(precedingSurface || "")}${legacyMarkedSurface.slice(0, markerIndex)}`;
+        const followingSurface = legacyMarkedSurface.slice(markerIndex + markerToken.length);
+        const yBehavior = resolveOptionalSupportiveYBehavior({
+            precedingSurface: localPrecedingSurface,
+            followingSurface,
+        });
+        const resolvedFollowingSurface = yBehavior.deleteReduplicativeY
+            ? dropReduplicativeYAfterVj(followingSurface)
+            : followingSurface;
+        resolvedLegacySurface = (
+            preserveMarkers && yBehavior.deleteReduplicativeY
+                ? legacyMarkedSurface
+                : (
+                    `${legacyMarkedSurface.slice(0, markerIndex)}`
+                    + `${yBehavior.deleteMarker ? "" : markerToken}`
+                    + `${resolvedFollowingSurface}`
+                )
+        );
+    }
+    return {
+        markerLetter,
+        legacyMarkedSurface: resolvedLegacySurface,
+        plainSurface: replaceOptionalSupportiveMarkersWithLetters(resolvedLegacySurface),
+        outputSurface: formatResolvedSupportiveMarkedSurface(
+            resolvedLegacySurface,
+            outputFormat,
+            preserveMarkers
+        ),
+    };
+}
+
+function markOptionalSupportiveSurface(
+    value = "",
+    letter = "",
+    format = SUPPORTIVE_MARKER_FORMAT.legacy
+) {
+    const normalizedSurface = normalizeSupportiveYContextSurface(value);
+    if (!normalizedSurface) {
+        return "";
+    }
+    const supportiveLetter = resolveOptionalSupportiveLetter(letter, normalizedSurface);
+    if (supportiveLetter === "y") {
+        const supportiveYIndex = normalizedSurface.search(/y(?=[aeiu])/i);
+        if (supportiveYIndex < 0) {
+            return normalizedSurface;
+        }
+        const prefix = normalizedSurface.slice(0, supportiveYIndex);
+        const ySegment = normalizedSurface.slice(supportiveYIndex);
+        if (hasInitialReduplicativeSupportiveYPattern(ySegment)) {
+            return `${prefix}${markInitialReduplicativeSupportiveYSurface(ySegment, format)}`;
+        }
+        if (ySegment.startsWith("y")) {
+            return `${prefix}${getSupportiveMarkerTokenForLetter("y", format)}${ySegment.slice(1)}`;
+        }
+        return normalizedSurface;
+    }
+    if (normalizedSurface.startsWith("i")) {
+        return `${getSupportiveMarkerTokenForLetter("i", format)}${normalizedSurface.slice(1)}`;
+    }
+    return normalizedSurface;
+}
+
+function resolveOptionalSupportiveOutputVerb({
+    subjectPrefix = "",
+    possessivePrefix = "",
+    objectPrefix = "",
+    verb = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+}) {
+    if (!hasOptionalSupportiveI || optionalSupportiveLetter !== "y") {
+        return String(verb || "");
+    }
+    const baseVerb = String(verb || "");
+    const markedVerb = markOptionalSupportiveSurface(
+        baseVerb,
+        optionalSupportiveLetter,
+        SUPPORTIVE_MARKER_FORMAT.legacy
+    );
+    if (!hasOptionalSupportiveMarker(markedVerb)) {
+        return baseVerb;
+    }
+    const precedingSurface = `${subjectPrefix || ""}${possessivePrefix || ""}${objectPrefix || ""}`;
+    return resolveOptionalSupportiveMarkedSurface({
+        precedingSurface,
+        markedSurface: markedVerb,
+        inputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+        outputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+        preserveMarkers: false,
+    }).plainSurface || baseVerb;
+}
+
+function resolveOptionalSupportiveOutputText({
+    value = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+} = {}) {
+    return String(value || "")
+        .split(" / ")
+        .map((entry) => {
+            const form = String(entry || "").trim();
+            if (!form) {
+                return "";
+            }
+            return resolveOptionalSupportiveOutputVerb({
+                verb: form,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            }) || form;
+        })
+        .filter(Boolean)
+        .join(" / ");
+}
+
+function buildOutputPrefixedChain({
+    subjectPrefix = "",
+    possessivePrefix = "",
+    objectPrefix = "",
+    verb = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+}) {
+    const surfaceVerb = resolveOptionalSupportiveOutputVerb({
+        subjectPrefix,
+        possessivePrefix,
+        objectPrefix,
+        verb,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter,
+    });
+    return buildPrefixedChain({
+        subjectPrefix,
+        possessivePrefix,
+        objectPrefix,
+        verb: surfaceVerb,
+    });
 }
 
 function normalizeRegexCoreTokenCase(value = "", options = {}) {
@@ -330,7 +614,7 @@ function convertLegacyBaseToRegexEnvelopeParts(legacyBase = "", options = {}) {
     const coreSource = raw.slice(index);
     const displayCore = normalizeRegexCoreTokenCase(
         replaceLegacyExplicitValenceMarkersWithRegexMarkers(
-            replaceLegacyOptionalSupportiveMarkersWithRegexMarkers(coreSource)
+            convertRegexInputSupportiveMarkersToEnvelope(coreSource)
         ),
         { forceUppercaseMarkers: true }
     );
@@ -514,7 +798,7 @@ function translateRegexCoreToLegacyBase(coreText = "", options = {}) {
         : (String(options.dashPrefix || "").startsWith("-") ? "-" : "");
     const displayCore = normalizeRegexCoreTokenCase(coreText);
     const legacyCore = convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers(
-        replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(displayCore)
+        convertEnvelopeSupportiveMarkersToRegexInput(displayCore)
     ).toLowerCase();
     return {
         legacyBase: `${normalizedDashPrefix}${legacyCore}`,
@@ -3351,6 +3635,7 @@ function applyNonspecificObjectAllomorphy({
     optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     hasSlashMarker = false,
+    hasBoundMarker = false,
     directionalPrefix = "",
 }) {
     if (!verb) {
@@ -3373,15 +3658,25 @@ function applyNonspecificObjectAllomorphy({
     }
     if (hasOptionalSupportiveI) {
         const supportiveLetter = resolveOptionalSupportiveLetter(optionalSupportiveLetter, nextAnalysis);
+        const isSupportiveI = supportiveLetter === "i";
+        const shouldPreserveBoundSlashSupportiveI = Boolean(
+            hasSlashMarker
+            && hasBoundMarker
+            && isSupportiveI
+        );
         const shouldKeepSupportiveIForSlash = hasSlashMarker
-            && supportiveLetter === "i"
+            && isSupportiveI
             && (
+                shouldPreserveBoundSlashSupportiveI
+                || (
                 SUPPORTIVE_I_KEEP_SLASH_PREFIXES_LOADED
                     ? SUPPORTIVE_I_KEEP_SLASH_PREFIXES.has(directionalPrefix)
                     : Boolean(directionalPrefix)
+                )
             );
         const shouldDropSupportiveMarker = (
-            supportiveLetter === "i"
+            isSupportiveI
+            && !shouldPreserveBoundSlashSupportiveI
             && (
                 hasNonspecificMarker
                 || (hasSlashMarker && !shouldKeepSupportiveIForSlash)
@@ -3392,12 +3687,16 @@ function applyNonspecificObjectAllomorphy({
                 const dropped = nextAnalysis.slice(1);
                 const updated = replaceAnalysisSuffix(nextVerb, nextAnalysis, dropped);
                 nextVerb = updated.verb;
-                nextAnalysis = updated.analysisVerb;
+                // Keep the underlying matrix analysis for bound slash inputs even when
+                // nonspecific object allomorphy drops the surface supportive i.
+                nextAnalysis = hasSlashMarker && hasBoundMarker
+                    ? nextAnalysis
+                    : updated.analysisVerb;
             } else if (nextVerb.startsWith(supportiveLetter)) {
                 // Slash/fused paths can keep matrix support in surface verb while analysis is matrix-only.
                 nextVerb = nextVerb.slice(1);
             }
-        } else if (!nextAnalysis.startsWith(supportiveLetter)) {
+        } else if (isSupportiveI && !nextAnalysis.startsWith(supportiveLetter)) {
             const isCompositeSlashBoundary = Boolean(
                 hasSlashMarker
                 && nextAnalysis
@@ -9535,8 +9834,10 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         && !blockUwaForPenultimateOnset
         && !blockUwaForCoda;
 
-    // -wa nonactive is intransitive-only in this system; transitives use -u/-lu paths.
-    const waCandidate = !isTransitive && (endsWithNucleusI || endsWithNucleusU);
+    // -wa is generally intransitive-only, but bare transitive -i also keeps a wa path.
+    const allowWaForI = isTransitive && ruleBase === "i";
+    const waCandidate = (!isTransitive && (endsWithNucleusI || endsWithNucleusU))
+        || allowWaForI;
     const allowLuVariantTzV = isTransitive && endsWithTzV;
     const allowLuVariantTV = isTransitive && endsWithA && prev === "t";
     const allowLuVariantTransitiveA = isTransitive && endsWithA;
@@ -10107,6 +10408,7 @@ function buildObjectAllomorphyMetaOptions(meta, overrides = {}) {
         optionalSupportiveLetter: meta?.optionalSupportiveLetter || "",
         hasNonspecificValence: resolveHasNonspecificValence(meta),
         hasSlashMarker: meta?.hasSlashMarker,
+        hasBoundMarker: meta?.hasBoundMarker,
         directionalPrefix: meta?.directionalPrefix,
         ...overrides,
     };
@@ -10120,9 +10422,39 @@ function buildNonspecificAllomorphyOptions(meta, overrides = {}) {
         optionalSupportiveLetter: meta?.optionalSupportiveLetter || "",
         hasNonspecificValence: resolveHasNonspecificValence(meta),
         hasSlashMarker: meta?.hasSlashMarker,
+        hasBoundMarker: meta?.hasBoundMarker,
         directionalPrefix: meta?.directionalPrefix,
         ...overrides,
     };
+}
+
+function shouldDelaySlashSupportiveIAllomorphyForPret({
+    parsedVerb = null,
+    tense = "",
+    objectPrefix = "",
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+} = {}) {
+    if (!parsedVerb?.hasSlashMarker || !parsedVerb?.hasBoundMarker || !parsedVerb?.hasOptionalSupportiveI) {
+        return false;
+    }
+    const supportiveLetter = resolveOptionalSupportiveLetter(
+        parsedVerb.optionalSupportiveLetter,
+        parsedVerb.analysisVerb || parsedVerb.verb || "",
+    );
+    if (supportiveLetter !== "i") {
+        return false;
+    }
+    const isPretLikeTense = isPerfectiveTense(tense);
+    if (!isPretLikeTense) {
+        return false;
+    }
+    return (
+        NONSPECIFIC_VALENCE_AFFIX_SET.has(objectPrefix)
+        || NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker)
+        || NONSPECIFIC_VALENCE_AFFIX_SET.has(thirdObjectMarker)
+        || resolveHasNonspecificValence(parsedVerb)
+    );
 }
 
 function applyNounForwardDerivation({
@@ -10418,10 +10750,12 @@ function getInstrumentivoResult({
                     indirectObjectMarker,
                     thirdObjectMarker,
                 });
-                const core = buildPrefixedChain({
+                const core = buildOutputPrefixedChain({
                     subjectPrefix: applied.subjectPrefix,
                     objectPrefix: applied.objectPrefix,
                     verb: applied.verb,
+                    hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+                    optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
                 });
                 const text = `${core}${applied.subjectSuffix}`;
                 if (text) {
@@ -10457,10 +10791,12 @@ function getInstrumentivoResult({
             indirectObjectMarker,
             thirdObjectMarker,
         });
-        const text = `${buildPrefixedChain({
+        const text = `${buildOutputPrefixedChain({
             possessivePrefix: resolvedPossessivePrefix,
             objectPrefix: applied.objectPrefix,
             verb: applied.verb,
+            hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+            optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
         })}${applied.subjectSuffix}`;
         if (text) {
             forms.add(text);
@@ -10586,9 +10922,11 @@ function getCalificativoInstrumentivoResult({
         if (!baseForms.length) {
             return;
         }
-        const objectChainForms = baseForms.map((form) => buildPrefixedChain({
+        const objectChainForms = baseForms.map((form) => buildOutputPrefixedChain({
             objectPrefix: applied.objectPrefix || "",
             verb: form,
+            hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+            optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
         }));
         if (resolvedPossessivePrefix === "") {
             objectChainForms.forEach((form) => {
@@ -10600,9 +10938,11 @@ function getCalificativoInstrumentivoResult({
             return;
         }
         objectChainForms.forEach((form) => {
-            const text = buildPrefixedChain({
+            const text = buildOutputPrefixedChain({
                 possessivePrefix: resolvedPossessivePrefix,
                 verb: form,
+                hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+                optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
             });
             if (text) {
                 forms.add(text);
@@ -10761,9 +11101,11 @@ function getLocativoTemporalResult({
             if (!applied || !applied.verb) {
                 return;
             }
-            const predicate = `${buildPrefixedChain({
+            const predicate = `${buildOutputPrefixedChain({
                 objectPrefix: applied.objectPrefix,
                 verb: applied.verb,
+                hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+                optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
             })}${applied.subjectSuffix}`;
             const text = `${possessorPrefix}${predicate}n`;
             if (text) {
@@ -11236,6 +11578,7 @@ function buildClassBasedResultWithProvenance({
     hasCompoundMarker = false,
     hasImpersonalTaPrefix = false,
     hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
@@ -11285,6 +11628,7 @@ function buildClassBasedResultWithProvenance({
         hasCompoundMarker,
         hasImpersonalTaPrefix,
         hasOptionalSupportiveI,
+        optionalSupportiveLetter,
         hasNonspecificValence,
         rootPlusYaBase: effectiveRootPlusYaBase,
         rootPlusYaBasePronounceable: effectiveRootPlusYaBasePronounceable,
@@ -11607,14 +11951,25 @@ function normalizeComposerScreenCoreValue(value = "", options = {}) {
     const preserveSupportiveMarkers = options.preserveSupportiveMarkers === true;
     const supportivePattern = /\[([iy])\]/g;
     const supportiveReplacement = preserveSupportiveMarkers ? "[$1]" : "$1";
+    const boundSupportiveIPattern = /(^|[-/])\[i\]([a-z]+)\/i([a-z]+)/gi;
     return String(value || "")
+        .replace(/\[([a-z]+)\]/gi, (match) => getBracketDirectionalPrefixToken(match) || match)
+        .replace(boundSupportiveIPattern, (_match, separator, embed, stem) => {
+            const normalizedSeparator = String(separator || "");
+            const normalizedEmbed = String(embed || "").toLowerCase();
+            const normalizedStem = `i${String(stem || "").toLowerCase()}`;
+            if (preserveSupportiveMarkers) {
+                return `${normalizedSeparator}[i]${normalizedEmbed}/${normalizedStem}`;
+            }
+            return `${normalizedSeparator}i${normalizedEmbed}/${normalizedStem}`;
+        })
         .replace(/\//g, "-")
         .toLowerCase()
         .replace(supportivePattern, supportiveReplacement)
         .replace(/\((tajta|tejte|mujmu)\)/g, "$1");
 }
 
-function serializeComposerScreen(rawValue = "", options = {}) {
+function serializeComposerDisplayValue(rawValue = "", options = {}) {
     const placeholderValenceScreen = serializeComposerPlaceholderValenceScreen(rawValue);
     if (placeholderValenceScreen) {
         return placeholderValenceScreen;
@@ -11634,7 +11989,7 @@ function serializeComposerScreen(rawValue = "", options = {}) {
     return buildRegexDisplayVerb(envelope.dashPrefix || "", screenCore);
 }
 
-function serializeRegexModeInput(rawValue = "") {
+function serializeRegexInputValue(rawValue = "") {
     const raw = String(rawValue || "").trim();
     if (!raw) {
         return "";
@@ -13695,21 +14050,23 @@ const DIRECTIONAL_RULE_HANDLERS = new Map([
 ]);
 
 function parseStageSupportiveI(state) {
+    const rawSupportiveSource = String(state.raw || "");
     const cleaned = state.cleaned || "";
-    state.optionalSupportiveLetter = getOptionalSupportiveMarkerLetter(cleaned);
+    const normalizedSupportiveSource = convertEnvelopeSupportiveMarkersToRegexInput(rawSupportiveSource);
+    const supportiveResolution = resolveOptionalSupportiveMarkedSurface({
+        markedSurface: normalizedSupportiveSource,
+        inputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+        outputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+        preserveMarkers: false,
+    });
+    state.optionalSupportiveLetter = supportiveResolution.markerLetter;
     state.hasOptionalSupportiveI = Boolean(state.optionalSupportiveLetter);
     if (!state.hasOptionalSupportiveI) {
         state.cleanedSupportive = cleaned;
         return;
     }
-    if (state.optionalSupportiveLetter === "y") {
-        // (y) is optional and does not surface; keep only non-y optional markers.
-        state.cleanedSupportive = String(cleaned || "")
-            .replace(/\(y\)/g, "")
-            .replace(/\(i\)/g, "i");
-        return;
-    }
-    state.cleanedSupportive = replaceOptionalSupportiveMarkersWithLetters(cleaned);
+    state.cleanedSupportive = String(supportiveResolution.plainSurface || normalizedSupportiveSource)
+        .replace(COMPOUND_ALLOWED_RE, "");
 }
 
 function parseStageExactBase(state) {
@@ -16091,30 +16448,6 @@ function stripComposerOptionalSupportiveIMarker(value = "") {
     return replaceOptionalSupportiveMarkersWithLetters(value || "");
 }
 
-function getComposerLeftmostSupportiveLetterInfo(value = "") {
-    const source = String(value || "").toLowerCase();
-    const first = source[0] || "";
-    if (first !== "i" && first !== "y") {
-        return { index: -1, letter: "" };
-    }
-    return { index: 0, letter: first };
-}
-
-function markComposerLeftmostIWithParenthesis(inputEl) {
-    if (!inputEl) {
-        return false;
-    }
-    const plain = stripComposerOptionalSupportiveIMarker(inputEl.value || "");
-    const markerInfo = getComposerLeftmostSupportiveLetterInfo(plain);
-    if (markerInfo.index < 0 || !markerInfo.letter) {
-        inputEl.value = plain;
-        return false;
-    }
-    const marker = getOptionalSupportiveMarkerForLetter(markerInfo.letter);
-    inputEl.value = `${plain.slice(0, markerInfo.index)}${marker}${plain.slice(markerInfo.index + 1)}`;
-    return true;
-}
-
 function getComposerOrderedRootInputEntries(slotKey = "", slotRefs = null) {
     const refs = slotRefs || getVerbComposerElements().slots[slotKey] || {};
     const entries = [];
@@ -16995,6 +17328,9 @@ function maybeRefreshComposerManualMatrixStemFromEmbed() {
     const niCycleForms = getComposerNiFamilyCycleForms(niVariant.base, embedStem);
     if (!niCycleForms.length) {
         if (!currentStem) {
+            return false;
+        }
+        if (normalizeComposerEmbedValue(embedValue)) {
             return false;
         }
         VERB_COMPOSER_STATE[stateKeys.stem] = "";
@@ -20358,7 +20694,7 @@ function encodeComposerSecondaryValenceSelection(firstValue, secondValue) {
 
 function normalizeComposerFollowerSurfaceForNucleusCheck(value = "") {
     return replaceOptionalSupportiveMarkersWithLetters(
-        replaceRegexOptionalSupportiveMarkersWithLegacyMarkers(String(value || ""))
+        convertEnvelopeSupportiveMarkersToRegexInput(String(value || ""))
     ).trim().toLowerCase();
 }
 
@@ -20379,7 +20715,7 @@ function buildComposerOptionalValenceSlotSegment(value = "", leftEmbed = "") {
     return "-";
 }
 
-function resolveComposerSemanticFollowerSegments(semantic = {}) {
+function resolveComposerSemanticFollowerSegments(semantic = {}, options = {}) {
     const matrixStem = semantic.matrix?.stem || "";
     const matrixAdjacentEmbed = semantic.matrix?.adjacentEmbed || "";
     const hasMatrixStem = semantic.matrix?.hasStem === true;
@@ -20419,6 +20755,7 @@ function resolveComposerSemanticFollowerSegments(semantic = {}) {
         embed: normalizedMatrixAdjacentEmbed,
         stem: supportiveStemBase,
         supportiveI,
+        precedingSurface: options.precedingSurface || "",
     });
     const supportiveStem = supportiveRootPath.stem;
     const supportiveEmbed = supportiveRootPath.embed;
@@ -20443,7 +20780,9 @@ function isComposerShortValenceTokenAllowed(
         return true;
     }
     const semantic = buildComposerSemanticState(state || VERB_COMPOSER_STATE);
-    const followerSegments = resolveComposerSemanticFollowerSegments(semantic);
+    const followerSegments = resolveComposerSemanticFollowerSegments(semantic, {
+        precedingSurface: normalizedToken,
+    });
     let followerSurface = followerSegments.transitiveStem || "";
     if (scope === "secondary" && semantic.transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
         const normalizedTokens = (Array.isArray(secondaryTokens) ? secondaryTokens : [])
@@ -20536,48 +20875,161 @@ function normalizeComposerMatrixAdjacentEmbed(embedValue, matrixStem, supportive
     return embedTokens.join("/");
 }
 
-function formatComposerSupportiveStem(stemValue, supportiveI = false) {
-    const stem = normalizeComposerStem(stemValue);
-    if (!stem) {
-        return "";
-    }
-    if (!supportiveI) {
-        return stem;
-    }
-    const leadingLetter = getStemLeadingSupportiveLetter(stem);
-    if (leadingLetter) {
-        return `${getOptionalSupportiveMarkerForLetter(leadingLetter)}${stem.slice(1)}`;
-    }
-    return `${OPTIONAL_SUPPORTIVE_I_MARKER}${stem}`;
-}
-
 function applyComposerSupportiveIMarkerToRootPath({
     embed = "",
     stem = "",
     supportiveI = false,
+    precedingSurface = "",
 } = {}) {
     const cleanEmbed = stripComposerOptionalSupportiveIMarker(embed || "");
     const cleanStem = stripComposerOptionalSupportiveIMarker(stem || "");
     if (!supportiveI) {
         return { embed: cleanEmbed, stem: cleanStem };
     }
-    const embedMarkerInfo = getComposerLeftmostSupportiveLetterInfo(cleanEmbed);
-    if (embedMarkerInfo.index >= 0 && embedMarkerInfo.letter) {
-        const marker = getOptionalSupportiveMarkerForLetter(embedMarkerInfo.letter);
+    const resolveSegment = (segmentValue = "") => {
+        const leadingLetter = getStemLeadingSupportiveLetter(segmentValue);
+        if (!leadingLetter) {
+            return String(segmentValue || "");
+        }
+        const markedSurface = markOptionalSupportiveSurface(
+            segmentValue,
+            leadingLetter,
+            SUPPORTIVE_MARKER_FORMAT.legacy
+        );
+        return resolveOptionalSupportiveMarkedSurface({
+            precedingSurface,
+            markedSurface,
+            inputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+            outputFormat: SUPPORTIVE_MARKER_FORMAT.legacy,
+            preserveMarkers: true,
+        }).outputSurface || String(segmentValue || "");
+    };
+    if (getStemLeadingSupportiveLetter(cleanEmbed)) {
         return {
-            embed: `${cleanEmbed.slice(0, embedMarkerInfo.index)}${marker}${cleanEmbed.slice(embedMarkerInfo.index + 1)}`,
+            embed: resolveSegment(cleanEmbed),
             stem: cleanStem,
         };
     }
-    const stemMarkerInfo = getComposerLeftmostSupportiveLetterInfo(cleanStem);
-    if (stemMarkerInfo.index >= 0 && stemMarkerInfo.letter) {
-        const marker = getOptionalSupportiveMarkerForLetter(stemMarkerInfo.letter);
+    if (getStemLeadingSupportiveLetter(cleanStem)) {
         return {
             embed: cleanEmbed,
-            stem: `${cleanStem.slice(0, stemMarkerInfo.index)}${marker}${cleanStem.slice(stemMarkerInfo.index + 1)}`,
+            stem: resolveSegment(cleanStem),
         };
     }
     return { embed: cleanEmbed, stem: cleanStem };
+}
+
+function shouldProjectBoundSupportiveIToComposerInputs({
+    embed = "",
+    stem = "",
+    supportiveI = false,
+    supportiveLetter = "",
+    hasBoundMarker = false,
+    hasSlashMarker = false,
+} = {}) {
+    const cleanEmbed = normalizeComposerEmbedValue(embed || "");
+    const cleanStem = normalizeComposerStem(stem || "");
+    return (
+        supportiveI === true
+        && supportiveLetter === "i"
+        && hasBoundMarker === true
+        && hasSlashMarker === true
+        && Boolean(cleanEmbed)
+        && cleanStem.startsWith("i")
+    );
+}
+
+function projectBoundSupportiveIToComposerInputs({
+    embed = "",
+    stem = "",
+    supportiveI = false,
+    supportiveLetter = "",
+    hasBoundMarker = false,
+    hasSlashMarker = false,
+} = {}) {
+    const cleanEmbed = normalizeComposerEmbedValue(embed || "");
+    const cleanStem = normalizeComposerStem(stem || "");
+    if (!shouldProjectBoundSupportiveIToComposerInputs({
+        embed: cleanEmbed,
+        stem: cleanStem,
+        supportiveI,
+        supportiveLetter,
+        hasBoundMarker,
+        hasSlashMarker,
+    })) {
+        return {
+            embed: cleanEmbed,
+            stem: cleanStem,
+        };
+    }
+    const embedTokens = getComposerEmbedTokens(cleanEmbed);
+    if (!embedTokens.length) {
+        return {
+            embed: cleanEmbed,
+            stem: cleanStem,
+        };
+    }
+    if (!embedTokens[0].startsWith("i")) {
+        embedTokens[0] = `i${embedTokens[0]}`;
+    }
+    return {
+        embed: embedTokens.join("/"),
+        stem: cleanStem,
+    };
+}
+
+function shouldSerializeBoundSupportiveIFromComposerInputs({
+    embed = "",
+    stem = "",
+    supportiveI = false,
+} = {}) {
+    const cleanEmbed = normalizeComposerEmbedValue(embed || "");
+    const cleanStem = normalizeComposerStem(stem || "");
+    const firstEmbedToken = getComposerEmbedTokens(cleanEmbed)[0] || "";
+    return (
+        supportiveI === true
+        && Boolean(cleanEmbed)
+        && Boolean(cleanStem)
+        && firstEmbedToken.startsWith("i")
+    );
+}
+
+function resolveComposerLegacySupportiveRootPath({
+    embed = "",
+    stem = "",
+    supportiveI = false,
+    precedingSurface = "",
+} = {}) {
+    const cleanEmbed = normalizeComposerEmbedValue(embed || "");
+    const cleanStem = normalizeComposerStem(stem || "");
+    if (shouldSerializeBoundSupportiveIFromComposerInputs({
+        embed: cleanEmbed,
+        stem: cleanStem,
+        supportiveI,
+    })) {
+        const embedTokens = getComposerEmbedTokens(cleanEmbed);
+        const regexEmbedTokens = embedTokens.slice();
+        regexEmbedTokens[0] = regexEmbedTokens[0].replace(/^i/, "");
+        const regexEmbed = normalizeComposerEmbedValue(regexEmbedTokens);
+        const regexStem = cleanStem;
+        const markedEmbed = `${getOptionalSupportiveMarkerForLetter("i")}${regexEmbed}`;
+        return {
+            embed: markedEmbed,
+            stem: regexStem,
+            combined: `${markedEmbed}/${regexStem}`,
+        };
+    }
+    const resolved = applyComposerSupportiveIMarkerToRootPath({
+        embed: cleanEmbed,
+        stem: cleanStem,
+        supportiveI,
+        precedingSurface,
+    });
+    return {
+        embed: resolved.embed,
+        stem: resolved.stem,
+        combined: resolved.embed ? `${resolved.embed}/${resolved.stem}` : resolved.stem,
+    };
 }
 
 function getComposerStemSyllableCount(stem) {
@@ -20603,8 +21055,7 @@ function canComposerUseSupportiveI(stem) {
     const activeSlot = getComposerActiveSlotFromState();
     const slotRefs = getVerbComposerElements().slots?.[activeSlot] || {};
     const embedValue = getComposerEmbedValueForSlot(activeSlot, slotRefs);
-    const embedHead = getComposerLeftmostSupportiveLetterInfo(embedValue);
-    return embedHead.index === 0 && Boolean(embedHead.letter);
+    return Boolean(getStemLeadingSupportiveLetter(embedValue));
 }
 
 function syncComposerSupportiveIAvailability() {
@@ -21160,14 +21611,13 @@ function serializeComposerSemanticToLegacyRegex(semantic = {}) {
             )
             : normalizeComposerEmbedValue(matrixAdjacentEmbed);
         const taRightStemBase = appendTiClassSuffix(realizedMatrixStemBase);
-        const taRightMarked = applyComposerSupportiveIMarkerToRootPath({
+        const taRightMarked = resolveComposerLegacySupportiveRootPath({
             embed: taRightEmbed,
             stem: taRightStemBase,
             supportiveI,
+            precedingSurface: `${taLeftSegment}${formatValenceToken(valenceIntransitive)}`,
         });
-        const taRightSegment = taRightMarked.embed
-            ? `${taRightMarked.embed}/${taRightMarked.stem}`
-            : taRightMarked.stem;
+        const taRightSegment = taRightMarked.combined || "";
         const core = `${taLeftSegment}${formatValenceToken(valenceIntransitive)}/${taRightSegment}`;
         return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
@@ -21182,16 +21632,16 @@ function serializeComposerSemanticToLegacyRegex(semantic = {}) {
             supportiveI
         )
         : normalizeComposerEmbedValue(matrixAdjacentEmbed);
-    const supportiveRootPath = applyComposerSupportiveIMarkerToRootPath({
+    const supportiveRootPath = resolveComposerLegacySupportiveRootPath({
         embed: normalizedMatrixAdjacentEmbed,
         stem: supportiveStemBase,
         supportiveI,
+        precedingSurface: "",
     });
     const supportiveStem = supportiveRootPath.stem;
     const supportiveEmbed = supportiveRootPath.embed;
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
-        const embedSegment = supportiveEmbed ? `${supportiveEmbed}/` : "";
-        const core = `${embedSegment}${supportiveStem}`;
+        const core = supportiveRootPath.combined || "";
         return directionalRegexPrefix ? `${directionalRegexPrefix}/${core}` : core;
     }
     const directionalSegment = directionalRegexPrefix ? `${directionalRegexPrefix}/` : "";
@@ -21228,15 +21678,24 @@ function serializeComposerSemanticToLegacyRegex(semantic = {}) {
             governingSlot === 2 ? governingEmbed : ""
         );
         const slotBlock = `${slotOne}${slotTwo}`;
+        const bitransitiveRootPath = applyComposerSupportiveIMarkerToRootPath({
+            embed: normalizedMatrixAdjacentEmbed,
+            stem: supportiveStemBase,
+            supportiveI,
+            precedingSurface: slotBlock,
+        });
+        const bitransitiveStem = bitransitiveRootPath.embed
+            ? `${bitransitiveRootPath.embed}/${bitransitiveRootPath.stem}`
+            : bitransitiveRootPath.stem;
         if (!directionalSegment) {
-            return `${slotBlock}${transitiveStem}`;
+            return `${slotBlock}${bitransitiveStem}`;
         }
         // Canonical directional placement is leftmost; keep it after leading dashes
         // when needed to avoid invalid "/-" sequences.
         if (slotBlock.startsWith("-")) {
-            return `${slotBlock}${directionalSegment}${transitiveStem}`;
+            return `${slotBlock}${directionalSegment}${bitransitiveStem}`;
         }
-        return `${directionalSegment}${slotBlock}${transitiveStem}`;
+        return `${directionalSegment}${slotBlock}${bitransitiveStem}`;
     }
     const slotSegments = [];
     const appendValenceSlot = (valenceToken, valenceEmbedToken = "") => {
@@ -21252,14 +21711,21 @@ function serializeComposerSemanticToLegacyRegex(semantic = {}) {
     };
     appendValenceSlot(valence, valenceEmbedPrimary);
     if (slotSegments.length) {
-        return `${directionalSegment}${slotSegments.join("")}${transitiveStem}`;
+        const transitiveRootPath = resolveComposerLegacySupportiveRootPath({
+            embed: normalizedMatrixAdjacentEmbed,
+            stem: supportiveStemBase,
+            supportiveI,
+            precedingSurface: slotSegments.join(""),
+        });
+        const transitiveSurface = transitiveRootPath.combined || "";
+        return `${directionalSegment}${slotSegments.join("")}${transitiveSurface}`;
     }
     return `-${directionalSegment}${transitiveStem}`;
 }
 
 function buildLegacyRegexBaseFromComposerState(state) {
     if (shouldPreserveRawRegexBaseForComposerState(state)) {
-        return serializeRegexModeInput(state.rawRegexBase || "") || String(state.rawRegexBase || "");
+        return serializeRegexInputValue(state.rawRegexBase || "") || String(state.rawRegexBase || "");
     }
     return serializeComposerSemanticToLegacyRegex(buildComposerSemanticState(state));
 }
@@ -21268,37 +21734,33 @@ function shouldPreserveRawRegexBaseForComposerState(state = {}) {
     return Boolean(state.preserveRawRegexBase && String(state.rawRegexBase || "").trim());
 }
 
-function resolveComposerDisplayBundleFromState(state, rawFallback = "") {
+// Composer has one editable state and two derived strings:
+// - regexValue: parseable expert syntax for outputs/parsers
+// - displayValue: screen-only composer surface for the blinking field
+// - envelopeValue: internal normalized envelope syntax, never shown directly
+function buildComposerModeBundle(state, rawFallback = "") {
     const fallback = String(rawFallback || "");
     const regexValue = buildLegacyRegexBaseFromComposerState(state)
-        || serializeRegexModeInput(fallback)
+        || serializeRegexInputValue(fallback)
         || fallback;
     if (!regexValue) {
         return {
             regexValue: "",
             displayValue: "",
-            canonicalValue: "",
+            envelopeValue: "",
         };
     }
-    const canonicalValue = serializeCanonicalRegexEnvelope(regexValue) || regexValue;
+    const envelopeValue = serializeCanonicalRegexEnvelope(regexValue) || regexValue;
     return {
         regexValue,
-        displayValue: serializeComposerScreen(regexValue) || regexValue,
-        canonicalValue,
+        displayValue: serializeComposerDisplayValue(regexValue) || regexValue,
+        envelopeValue,
     };
 }
 
-function buildRegexFromComposerState(state, rawFallback = "") {
-    return resolveComposerDisplayBundleFromState(state, rawFallback).canonicalValue;
-}
-
-function buildComposerScreenDisplayFromState(state, rawFallback = "") {
-    return resolveComposerDisplayBundleFromState(state, rawFallback).displayValue;
-}
-
-// Regex mode edits legacy syntax directly. Composer mode shows a screen-only surface.
-// Outputs and parsers must not read that screen string; they must read the parseable
-// legacy regex representation from this resolver instead.
+// Regex mode edits the parseable syntax directly. Composer mode shows a screen-only
+// surface. Outputs and parsers must never read the composer display string; they must
+// always consume parseValue from this resolver instead.
 function resolveVerbInputSource(rawValue = "", options = {}) {
     const raw = String(rawValue || "");
     const explicitMode = options.mode;
@@ -21310,12 +21772,12 @@ function resolveVerbInputSource(rawValue = "", options = {}) {
                 : (isVerbInputModeComposer() ? VERB_INPUT_MODE.composer : VERB_INPUT_MODE.regex)
         );
     if (resolvedMode === VERB_INPUT_MODE.composer) {
-        const composerDisplayBundle = resolveComposerDisplayBundleFromState(VERB_COMPOSER_STATE, raw);
+        const composerDisplayBundle = buildComposerModeBundle(VERB_COMPOSER_STATE, raw);
         const regexValue = composerDisplayBundle.regexValue
-            || serializeRegexModeInput(raw)
+            || serializeRegexInputValue(raw)
             || raw;
         const displayValue = composerDisplayBundle.displayValue
-            || serializeComposerScreen(raw)
+            || serializeComposerDisplayValue(raw)
             || raw;
         return {
             mode: resolvedMode,
@@ -21324,12 +21786,12 @@ function resolveVerbInputSource(rawValue = "", options = {}) {
             displayValue,
             regexValue,
             parseValue: regexValue,
-            canonicalValue: composerDisplayBundle.canonicalValue
+            envelopeValue: composerDisplayBundle.envelopeValue
                 || serializeCanonicalRegexEnvelope(regexValue)
                 || regexValue,
         };
     }
-    const regexValue = serializeRegexModeInput(raw) || raw;
+    const regexValue = serializeRegexInputValue(raw) || raw;
     return {
         mode: resolvedMode,
         source: "regex",
@@ -21337,7 +21799,7 @@ function resolveVerbInputSource(rawValue = "", options = {}) {
         displayValue: raw,
         regexValue,
         parseValue: regexValue,
-        canonicalValue: serializeCanonicalRegexEnvelope(regexValue) || regexValue,
+        envelopeValue: serializeCanonicalRegexEnvelope(regexValue) || regexValue,
     };
 }
 
@@ -21620,14 +22082,17 @@ function parseComposerStateFromRegexValue(rawValue) {
         return state;
     }
     const parsed = parseVerbInput(raw);
-    state.rawRegexBase = serializeRegexModeInput(raw) || baseValue;
+    state.rawRegexBase = serializeRegexInputValue(raw) || baseValue;
     state.tiCausativeClass = normalizeTiCausativeClass(
         rawTiMetadata.tiCausativeClass
         || parsed?.tiCausativeClass
         || ""
     );
+    const supportiveLetter = envelope.isValid
+        ? getRegexOptionalSupportiveMarkerLetter(envelope.displayCore)
+        : String(parsed?.optionalSupportiveLetter || "").toLowerCase();
     state.supportiveI = envelope.isValid
-        ? Boolean(getRegexOptionalSupportiveMarkerLetter(envelope.displayCore))
+        ? Boolean(supportiveLetter)
         : (Boolean(parsed?.hasOptionalSupportiveI) || state.supportiveI);
     let directionalPrefix = parsed?.directionalPrefix || "";
     if (!directionalPrefix) {
@@ -21794,6 +22259,23 @@ function parseComposerStateFromRegexValue(rawValue) {
         state.stem = state.slotCStem;
         state.embedPrefix = state.slotCEmbed;
     }
+    const activeStateKeys = getComposerSlotStateKeys(
+        state.transitivity === COMPOSER_TRANSITIVITY.bitransitive
+            ? "c"
+            : (state.transitivity === COMPOSER_TRANSITIVITY.transitive ? "b" : "a")
+    );
+    const projectedRootPath = projectBoundSupportiveIToComposerInputs({
+        embed: state[activeStateKeys.embed],
+        stem: state[activeStateKeys.stem],
+        supportiveI: state.supportiveI,
+        supportiveLetter,
+        hasBoundMarker: parsed?.hasBoundMarker === true,
+        hasSlashMarker: parsed?.hasSlashMarker === true,
+    });
+    state[activeStateKeys.embed] = projectedRootPath.embed;
+    state[activeStateKeys.stem] = projectedRootPath.stem;
+    state.stem = projectedRootPath.stem;
+    state.embedPrefix = projectedRootPath.embed;
     if (state.transitivity !== COMPOSER_TRANSITIVITY.bitransitive) {
         state.valenceEmbedSecondary = "";
     }
@@ -21981,7 +22463,7 @@ function applyComposerStateToVerbInput(options = {}) {
     if (!verbEl) {
         return;
     }
-    const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+    const composerDisplayBundle = buildComposerModeBundle(
         VERB_COMPOSER_STATE,
         verbEl.value || ""
     );
@@ -22053,11 +22535,17 @@ function collectComposerStateFromControls({ preserveSupportiveState = false } = 
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {
         const stateKeys = getComposerSlotStateKeys(slotKey);
         const slotRefs = slots[slotKey] || {};
-        VERB_COMPOSER_STATE[stateKeys.embed] = normalizeComposerEmbedValue(slotRefs.embedInput?.value || "");
-        VERB_COMPOSER_STATE[stateKeys.stem] = getComposerCanonicalStemFromInputValue(
+        const previousStem = normalizeComposerStem(VERB_COMPOSER_STATE[stateKeys.stem] || "");
+        const nextEmbed = normalizeComposerEmbedValue(slotRefs.embedInput?.value || "");
+        let nextStem = getComposerCanonicalStemFromInputValue(
             slotRefs.stemInput?.value || "",
             slotKey
         );
+        if (!nextStem && nextEmbed && previousStem) {
+            nextStem = previousStem;
+        }
+        VERB_COMPOSER_STATE[stateKeys.embed] = nextEmbed;
+        VERB_COMPOSER_STATE[stateKeys.stem] = nextStem;
         VERB_COMPOSER_STATE[stateKeys.objectEmbed] = normalizeComposerEmbedValue(slotRefs.objectInput?.value || "");
     });
     VERB_COMPOSER_STATE.directionalPrefix = directionalSelect?.value || "";
@@ -22316,18 +22804,18 @@ function setVerbInputMode(mode, options = {}) {
     }
     renderVerbComposerFromState();
     if (verbEl) {
-        const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+        const composerDisplayBundle = buildComposerModeBundle(
             VERB_COMPOSER_STATE,
             verbEl.value || ""
         );
         const nextDisplayValue = nextMode === VERB_INPUT_MODE.regex
             ? (
                 composerDisplayBundle.regexValue
-                || serializeRegexModeInput(verbEl.value || "")
+                || serializeRegexInputValue(verbEl.value || "")
             )
             : (
                 composerDisplayBundle.displayValue
-                || serializeComposerScreen(verbEl.value || "")
+                || serializeComposerDisplayValue(verbEl.value || "")
             );
         if (nextDisplayValue !== verbEl.value) {
             verbEl.value = nextDisplayValue;
@@ -23037,7 +23525,7 @@ function getRegexSupportiveIToggleInfo(rawValue = "") {
         return {
             canToggle: true,
             hasMarker: true,
-            nextValue: serializeRegexModeInput(serializeRegexEnvelope({
+            nextValue: serializeRegexInputValue(serializeRegexEnvelope({
                 dashPrefix: envelope.dashPrefix,
                 coreText: nextCore,
             })),
@@ -23067,11 +23555,33 @@ function getRegexSupportiveIToggleInfo(rawValue = "") {
     return {
         canToggle: true,
         hasMarker: false,
-        nextValue: serializeRegexModeInput(serializeRegexEnvelope({
+        nextValue: serializeRegexInputValue(serializeRegexEnvelope({
             dashPrefix: envelope.dashPrefix,
             coreText: nextCore,
         })),
     };
+}
+
+function getSupportiveYRuleSummary() {
+    return "Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV.";
+}
+
+function getSupportiveToggleGuidance({
+    mode = VERB_INPUT_MODE.composer,
+    unavailable = false,
+    active = false,
+} = {}) {
+    const ruleSummary = getSupportiveYRuleSummary();
+    if (mode === VERB_INPUT_MODE.regex) {
+        if (unavailable) {
+            return `Regex: disponible si el tronco inicia con i/y o ya contiene (i)/(y). ${ruleSummary}`;
+        }
+        return `${active ? "Regex: quitar" : "Regex: agregar"} (i)/(y) opcional. ${ruleSummary}`;
+    }
+    if (unavailable) {
+        return `Disponible solo si la raíz izquierda inicia con i o y. ${ruleSummary}`;
+    }
+    return `${active ? "Quitar" : "Aplicar"} i/y de apoyo opcional. ${ruleSummary}`;
 }
 
 function syncVerbScreenCalculatorState() {
@@ -23137,36 +23647,38 @@ function syncVerbScreenCalculatorState() {
         if (isComposer) {
             const supportiveOn = Boolean(supportiveICheckbox?.checked);
             const supportiveUnavailable = Boolean(supportiveICheckbox?.disabled);
+            const supportiveGuidance = getSupportiveToggleGuidance({
+                mode: VERB_INPUT_MODE.composer,
+                unavailable: supportiveUnavailable,
+                active: supportiveOn,
+            });
             supportiveIButton.disabled = supportiveUnavailable;
             supportiveIButton.setAttribute("aria-disabled", String(supportiveUnavailable));
             supportiveIButton.classList.toggle("is-active", !supportiveUnavailable && supportiveOn);
             supportiveIButton.setAttribute("aria-pressed", String(!supportiveUnavailable && supportiveOn));
-            supportiveIButton.title = supportiveUnavailable
-                ? "Solo disponible si la raíz izquierda inicia con i o y"
-                : (supportiveOn ? "Quitar i/y de apoyo opcional" : "Aplicar i/y de apoyo opcional");
+            supportiveIButton.title = supportiveGuidance;
             supportiveIButton.setAttribute(
                 "aria-label",
-                supportiveUnavailable
-                    ? "i/y de apoyo opcional disponible solo si la raíz izquierda inicia con i o y"
-                    : (supportiveOn ? "Quitar i/y de apoyo opcional" : "Aplicar i/y de apoyo opcional")
+                supportiveGuidance
             );
         } else {
             const verbInput = document.getElementById("verb");
             const toggleInfo = getRegexSupportiveIToggleInfo(verbInput?.value || "");
             const regexHasMarker = toggleInfo.hasMarker;
             const regexUnavailable = !toggleInfo.canToggle;
+            const regexSupportiveGuidance = getSupportiveToggleGuidance({
+                mode: VERB_INPUT_MODE.regex,
+                unavailable: regexUnavailable,
+                active: regexHasMarker,
+            });
             supportiveIButton.disabled = regexUnavailable;
             supportiveIButton.setAttribute("aria-disabled", String(regexUnavailable));
             supportiveIButton.classList.toggle("is-active", !regexUnavailable && regexHasMarker);
             supportiveIButton.setAttribute("aria-pressed", String(!regexUnavailable && regexHasMarker));
-            supportiveIButton.title = regexUnavailable
-                ? "Regex: disponible si el tronco inicia con i/y o ya contiene (i)/(y)"
-                : (regexHasMarker ? "Regex: quitar (i)/(y) opcional" : "Regex: agregar (i)/(y) opcional");
+            supportiveIButton.title = regexSupportiveGuidance;
             supportiveIButton.setAttribute(
                 "aria-label",
-                regexUnavailable
-                    ? "i/y de apoyo opcional en Regex disponible si el tronco inicia con i/y o ya contiene (i)/(y)"
-                    : (regexHasMarker ? "Regex quitar i/y de apoyo opcional" : "Regex agregar i/y de apoyo opcional")
+                regexSupportiveGuidance
             );
         }
     }
@@ -23315,7 +23827,7 @@ function runScreenCalculatorANS() {
     if (!nextBase) {
         return;
     }
-    verbInput.value = serializeRegexModeInput(nextBase) || nextBase;
+    verbInput.value = serializeRegexInputValue(nextBase) || nextBase;
     dispatchTextInputUpdate(verbInput);
     verbInput.focus();
 }
@@ -24425,8 +24937,8 @@ function applyVerbSuggestion(value) {
     }
     CLASS_FILTER_STATE.activeClass = null;
     const nextValue = isVerbInputModeComposer()
-        ? serializeComposerScreen(value)
-        : serializeRegexModeInput(value);
+        ? serializeComposerDisplayValue(value)
+        : serializeRegexInputValue(value);
     verbInput.value = nextValue;
     VERB_INPUT_STATE.lastNonSearchValue = nextValue;
     verbInput.dataset.lastClassVerb = parseVerbInput(nextValue).verb;
@@ -25159,14 +25671,14 @@ function getVerbMirrorDisplayValue(rawValue = "") {
     }
     const regexValue = inputValue;
     if (regexValue.trim()) {
-        const composerDisplayBundle = resolveComposerDisplayBundleFromState(
+        const composerDisplayBundle = buildComposerModeBundle(
             VERB_COMPOSER_STATE,
             regexValue
         );
         const mirrorSource = composerDisplayBundle.regexValue
-            || serializeRegexModeInput(regexValue)
+            || serializeRegexInputValue(regexValue)
             || regexValue;
-        return serializeComposerScreen(mirrorSource, {
+        return serializeComposerDisplayValue(mirrorSource, {
             preserveSupportiveMarkers: true,
         });
     }
@@ -25603,8 +26115,8 @@ function initTutorialPanel() {
                 return;
             }
             const nextLabel = isVerbInputModeComposer()
-                ? serializeComposerScreen(value)
-                : serializeRegexModeInput(value);
+                ? serializeComposerDisplayValue(value)
+                : serializeRegexInputValue(value);
             if (nextLabel) {
                 button.textContent = nextLabel;
             }
@@ -25633,8 +26145,8 @@ function initTutorialPanel() {
             const verbEl = document.getElementById("verb");
             if (verbEl) {
                 verbEl.value = isVerbInputModeComposer()
-                    ? serializeComposerScreen(value)
-                    : serializeRegexModeInput(value);
+                    ? serializeComposerDisplayValue(value)
+                    : serializeRegexInputValue(value);
                 verbEl.dispatchEvent(new Event("input", { bubbles: true }));
                 focusVisibleVerbSurfaceAtEnd();
             }
@@ -29906,6 +30418,7 @@ function applyMorphologyRules({
     hasCompoundMarker = false,
     hasImpersonalTaPrefix = false,
     hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     isTaFusion = false,
     indirectObjectMarker = "",
@@ -30443,6 +30956,15 @@ function applyMorphologyRules({
         }
     }
 
+    const resolveOutputVerbForCurrentPrefixes = (verbValue = "", prefixOverrides = {}) => (
+        resolveOptionalSupportiveOutputVerb({
+            subjectPrefix: prefixOverrides.subjectPrefix ?? subjectPrefix,
+            objectPrefix: prefixOverrides.objectPrefix ?? objectPrefix,
+            verb: verbValue,
+            hasOptionalSupportiveI,
+            optionalSupportiveLetter,
+        })
+    );
     const isVerbNonactiveMode = !isNounContextFinal && (
         isNonactiveMode === true
         || (
@@ -30457,7 +30979,7 @@ function applyMorphologyRules({
         subjectSuffix,
         tense,
         analysisVerb,
-        exactBaseVerb: exactAnalysisVerb,
+        exactBaseVerb: resolveOutputVerbForCurrentPrefixes(exactAnalysisVerb),
         isYawi,
         isWeya,
         hasSlashMarker,
@@ -30467,6 +30989,7 @@ function applyMorphologyRules({
         hasCompoundMarker,
         hasImpersonalTaPrefix,
         hasOptionalSupportiveI,
+        optionalSupportiveLetter,
         hasNonspecificValence,
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
@@ -30490,7 +31013,11 @@ function applyMorphologyRules({
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: universalOutput.result || "—",
+            verb: resolveOptionalSupportiveOutputText({
+                value: universalOutput.result || "—",
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            }) || "—",
             stemProvenance: universalOutput.provenance || null,
         };
     }
@@ -30510,12 +31037,18 @@ function applyMorphologyRules({
                 baseSubjectPrefix,
                 baseObjectPrefix,
                 indirectObjectMarker,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
             });
             return {
                 subjectPrefix: "",
                 objectPrefix: "",
                 subjectSuffix: "",
-                verb: nonactiveResult || "—",
+                verb: resolveOptionalSupportiveOutputText({
+                    value: nonactiveResult || "—",
+                    hasOptionalSupportiveI,
+                    optionalSupportiveLetter,
+                }) || "—",
                 stemProvenance: null,
             };
         }
@@ -30530,7 +31063,11 @@ function applyMorphologyRules({
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: classOutput.result || "—",
+            verb: resolveOptionalSupportiveOutputText({
+                value: classOutput.result || "—",
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            }) || "—",
             stemProvenance: classOutput.provenance || null,
         };
     }
@@ -30868,6 +31405,7 @@ function applyMorphologyRules({
                 hasCompoundMarker: false,
                 hasImpersonalTaPrefix: false,
                 hasOptionalSupportiveI,
+                optionalSupportiveLetter,
                 hasNonspecificValence: false,
                 rootPlusYaBase: "",
                 rootPlusYaBasePronounceable: "",
@@ -30929,6 +31467,7 @@ function applyMorphologyRules({
                 hasCompoundMarker,
                 hasImpersonalTaPrefix,
                 hasOptionalSupportiveI,
+                optionalSupportiveLetter,
                 hasNonspecificValence,
                 rootPlusYaBase,
                 rootPlusYaBasePronounceable,
@@ -31248,6 +31787,7 @@ function applyMorphologyRules({
                 hasCompoundMarker,
                 hasImpersonalTaPrefix,
                 hasOptionalSupportiveI,
+                optionalSupportiveLetter,
                 hasNonspecificValence,
                 rootPlusYaBase: candidateRootPlusYaProxyBase
                     || (shouldCarryRootPlusYaIntoWrapper ? rootPlusYaBase : ""),
@@ -31392,6 +31932,25 @@ function applyMorphologyRules({
             });
         }
     }
+
+    verb = resolveOutputVerbForCurrentPrefixes(verb);
+    analysisVerb = resolveOutputVerbForCurrentPrefixes(analysisVerb);
+    alternateForms.forEach((form) => {
+        if (!form || !form.verb) {
+            return;
+        }
+        const formSubjectPrefix = typeof form.subjectPrefix === "string"
+            ? form.subjectPrefix
+            : subjectPrefix;
+        const formObjectPrefix = typeof form.objectPrefix === "string"
+            ? form.objectPrefix
+            : objectPrefix;
+        form.verb = resolveOutputVerbForCurrentPrefixes(form.verb, {
+            subjectPrefix: formSubjectPrefix,
+            objectPrefix: formObjectPrefix,
+        });
+    });
+
     objectPrefix = normalizeValenceMarkerOrder(objectPrefix);
     return {
         subjectPrefix,
@@ -31465,6 +32024,7 @@ function applyObjectAllomorphy({
     optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     hasSlashMarker = false,
+    hasBoundMarker = false,
     directionalPrefix = "",
 }) {
     const allomorphyObjectPrefix = !isPassiveImpersonalMode
@@ -31482,6 +32042,7 @@ function applyObjectAllomorphy({
         optionalSupportiveLetter,
         hasNonspecificValence,
         hasSlashMarker,
+        hasBoundMarker,
         directionalPrefix,
     });
     return {
@@ -32323,7 +32884,6 @@ function generateWord(options = {}) {
         && getSubjectPersonInfo(subjectPrefix, subjectSuffix)?.person === 2;
     let isYawiImperativeSingular = false;
     let shouldAddYuVariant = false;
-    let hasOptionalSupportiveYSurface = false;
     // Surface yawi as ya in active generation, while preserving legacy non-wal alternants.
     const yawiSurfaceBase = getSuppletiveYawiImperfective();
     const yawiPresentLong = yawiSurfaceBase;
@@ -32337,18 +32897,22 @@ function generateWord(options = {}) {
             || isPotencialProfileTense(tense)
             || tense === "agentivo"
             || tense === "patientivo") {
-            const core = buildPrefixedChain({
+            const core = buildOutputPrefixedChain({
                 subjectPrefix,
                 possessivePrefix,
                 objectPrefix,
                 verb: overrideVerb,
+                hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI === true,
+                optionalSupportiveLetter: parsedVerb.optionalSupportiveLetter || "",
             });
             return `${core}${overrideSuffix}`;
         }
-        const core = buildPrefixedChain({
+        const core = buildOutputPrefixedChain({
             subjectPrefix,
             objectPrefix,
             verb: overrideVerb,
+            hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI === true,
+            optionalSupportiveLetter: parsedVerb.optionalSupportiveLetter || "",
         });
         if (tense === "imperativo") {
             if (isYawiImperativeSingular) {
@@ -32370,18 +32934,22 @@ function generateWord(options = {}) {
             || isPotencialProfileTense(tense)
             || tense === "agentivo"
             || tense === "patientivo") {
-            const core = buildPrefixedChain({
+            const core = buildOutputPrefixedChain({
                 subjectPrefix: subjectPrefixValue,
                 possessivePrefix,
                 objectPrefix: objectPrefixValue,
                 verb: verbValue,
+                hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI === true,
+                optionalSupportiveLetter: parsedVerb.optionalSupportiveLetter || "",
             });
             return `${core}${subjectSuffixValue}`;
         }
-        const core = buildPrefixedChain({
+        const core = buildOutputPrefixedChain({
             subjectPrefix: subjectPrefixValue,
             objectPrefix: objectPrefixValue,
             verb: verbValue,
+            hasOptionalSupportiveI: parsedVerb.hasOptionalSupportiveI === true,
+            optionalSupportiveLetter: parsedVerb.optionalSupportiveLetter || "",
         });
         if (tense === "imperativo") {
             if (isYawiImperative) {
@@ -32441,8 +33009,6 @@ function generateWord(options = {}) {
     const parsedVerb = shouldReusePreParsed
         ? { ...preParsedVerb }
         : parseVerbInput(rawVerb);
-    hasOptionalSupportiveYSurface = parsedVerb.hasOptionalSupportiveI === true
-        && parsedVerb.optionalSupportiveLetter === "y";
     parsedVerb.derivationType = resolvedDerivationType;
     parsedVerb.derivationValencyDelta = derivationValencyDelta;
     parsedVerb.tiCausativeClass = parsedVerb.tiCausativeClass
@@ -32542,17 +33108,30 @@ function generateWord(options = {}) {
         || fusionPrefixes.some((prefix) => PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(prefix))
         || hasOpenObjectSlot;
     const hasSubjectValent = !isPassiveImpersonalMode || (targetValency > 0 && hasPromotableObject);
-    const allomorphyResult = applyObjectAllomorphy({
-        verb,
-        analysisVerb,
-        subjectPrefix,
-        subjectSuffix,
+    const shouldDelayPretAllomorphy = shouldDelaySlashSupportiveIAllomorphyForPret({
+        parsedVerb,
+        tense,
         objectPrefix,
         indirectObjectMarker,
         thirdObjectMarker,
-        isPassiveImpersonalMode,
-        ...buildObjectAllomorphyMetaOptions(parsedVerb),
     });
+    const allomorphyResult = shouldDelayPretAllomorphy
+        ? {
+            verb,
+            analysisVerb,
+            morphologyObjectPrefix: objectPrefix,
+        }
+        : applyObjectAllomorphy({
+            verb,
+            analysisVerb,
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            isPassiveImpersonalMode,
+            ...buildObjectAllomorphyMetaOptions(parsedVerb),
+        });
     verb = allomorphyResult.verb;
     analysisVerb = allomorphyResult.analysisVerb;
     let morphologyObjectPrefix = allomorphyResult.morphologyObjectPrefix;
@@ -32565,7 +33144,7 @@ function generateWord(options = {}) {
             : "";
         const nextVerbInputValue = isVerbInputModeComposer()
             ? (resolvedComposerDisplayValue || rawVerb)
-            : (serializeRegexModeInput(rawVerb) || rawVerb);
+            : (serializeRegexInputValue(rawVerb) || rawVerb);
         verbInput.value = nextVerbInputValue;
         verbInput.dataset.prevValue = nextVerbInputValue;
         renderVerbMirror();
@@ -33330,34 +33909,6 @@ function generateWord(options = {}) {
         if (!forms.includes(yuText)) {
             forms.push(yuText);
         }
-    }
-    // Optional supportive (y): keep conjugation/core class selection untouched and
-    // normalize only the final displayed form.
-    if (hasOptionalSupportiveYSurface) {
-        const normalizeOptionalSupportiveYForm = (value = "") => {
-            const source = String(value || "");
-            if (!source) {
-                return source;
-            }
-            const imperativePrefix = source.startsWith("ma ") ? "ma " : "";
-            let core = imperativePrefix ? source.slice(3) : source;
-            core = core.replace(/yawi\b/g, "yaw");
-            if (!core.startsWith("y")) {
-                const supportiveYIndex = core.search(/y(?=[aeiu])/);
-                if (supportiveYIndex > 0) {
-                    core = `${core.slice(0, supportiveYIndex)}${core.slice(supportiveYIndex + 1)}`;
-                }
-                if (
-                    core.startsWith("an")
-                    && !core.startsWith("anh")
-                    && VOWEL_START_RE.test(core.slice(2))
-                ) {
-                    core = `anh${core.slice(2)}`;
-                }
-            }
-            return `${imperativePrefix}${core}`;
-        };
-        forms = forms.map((form) => normalizeOptionalSupportiveYForm(form));
     }
     const generatedText = forms.join(" / ");
 
@@ -37680,4380 +38231,6 @@ function renderAllTenseConjugations({ verb, onlyTense = null }) {
     });
 }
 
-// Developer helper: console-only tests for exact-pattern reduplication rules.
-async function runExactRedupTests(rulesData = null) {
-    const normalizeList = (values) => Array.from(new Set(values)).sort();
-    const formatList = (values) => values.map((value) => (value === "" ? "Ø" : value)).join(", ");
-    const isEqualList = (left, right) => (
-        left.length === right.length && left.every((value, index) => value === right[index])
-    );
-    const getClassASuffixes = (context) => {
-        const variants = buildPretUniversalClassA(context);
-        if (!variants) {
-            return null;
-        }
-        return normalizeList(variants.map((variant) => variant.suffix));
-    };
-    const getClassAHasJAlt = (context) => {
-        const variants = buildPretUniversalClassA(context);
-        return variants ? variants.some((variant) => variant.base.endsWith("j")) : false;
-    };
-    const getCandidates = (context) => normalizeList(getPretUniversalClassCandidates(context));
-    const loadRules = async (source) => {
-        if (source && Array.isArray(source.cases)) {
-            return source;
-        }
-        const path = typeof source === "string" && source ? source : "data/exact_rules.json";
-        if (typeof fetch !== "function") {
-            throw new Error("fetch not available for loading exact_rules.json");
-        }
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) {
-            throw new Error(`Failed to load ${path}: ${response.status}`);
-        }
-        return response.json();
-    };
-
-    let rules;
-    try {
-        rules = await loadRules(rulesData);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const summary = {
-            total: 0,
-            passed: 0,
-            failed: 1,
-            failures: [message],
-        };
-        console.error("Exact redup tests failed:", summary);
-        return summary;
-    }
-
-    const failures = [];
-    let total = 0;
-    const recordFailure = (name, formLabel, message) => {
-        failures.push(`${name} (${formLabel}): ${message}`);
-    };
-    const checkExactFlags = (context, name, formLabel, flags) => {
-        if (!flags) {
-            return;
-        }
-        Object.entries(flags).forEach(([key, expected]) => {
-            if (context[key] !== expected) {
-                recordFailure(
-                    name,
-                    formLabel,
-                    `${key} expected ${expected ? "true" : "false"} but got ${context[key] ? "true" : "false"}`
-                );
-            }
-        });
-    };
-    const checkList = (name, formLabel, label, actual, expected) => {
-        if (!actual) {
-            recordFailure(name, formLabel, `${label} expected ${formatList(expected)} but got none`);
-            return;
-        }
-        if (!isEqualList(actual, expected)) {
-            recordFailure(
-                name,
-                formLabel,
-                `${label} expected ${formatList(expected)} but got ${formatList(actual)}`
-            );
-        }
-    };
-
-    (rules.cases || []).forEach((test) => {
-        const caseOptions = test.options || {};
-        (test.forms || []).forEach((form) => {
-            total += 1;
-            const options = { ...caseOptions, ...(form.options || {}) };
-            const context = resolvePretUniversalContextBundle({
-                verb: form.verb,
-                analysisVerb: form.verb,
-                analysisTarget: form.verb,
-                isTransitive: test.isTransitive,
-                contextOptions: buildPretContextOptionsFromFlags(options),
-            }).context;
-            if (!context) {
-                recordFailure(test.name, form.label, "context missing");
-                return;
-            }
-            if (test.exactKey && context[test.exactKey] !== true) {
-                recordFailure(
-                    test.name,
-                    form.label,
-                    `${test.exactKey} expected true but got ${context[test.exactKey] ? "true" : "false"}`
-                );
-            }
-            checkExactFlags(context, test.name, form.label, test.expectExactFlags);
-            checkExactFlags(context, test.name, form.label, form.expectExactFlags);
-            const expectations = form.expect || {};
-            if (Object.prototype.hasOwnProperty.call(expectations, "isReduplicated")) {
-                if (context.isReduplicated !== expectations.isReduplicated) {
-                    recordFailure(
-                        test.name,
-                        form.label,
-                        `isReduplicated expected ${expectations.isReduplicated ? "true" : "false"} but got ${context.isReduplicated ? "true" : "false"}`
-                    );
-                }
-            }
-            if (expectations.candidates) {
-                const candidates = getCandidates(context);
-                checkList(test.name, form.label, "candidates", candidates, expectations.candidates);
-            }
-            if (Object.prototype.hasOwnProperty.call(expectations, "classASuffixes")) {
-                const suffixes = getClassASuffixes(context);
-                checkList(test.name, form.label, "class A suffixes", suffixes, expectations.classASuffixes);
-            }
-            if (Object.prototype.hasOwnProperty.call(expectations, "hasJAlt")) {
-                const hasJAlt = getClassAHasJAlt(context);
-                if (hasJAlt !== expectations.hasJAlt) {
-                    recordFailure(
-                        test.name,
-                        form.label,
-                        `w/j alternation expected ${expectations.hasJAlt ? "true" : "false"} but got ${hasJAlt ? "true" : "false"}`
-                    );
-                }
-            }
-        });
-    });
-
-    const summary = {
-        total,
-        passed: total - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Exact redup tests failed:", summary);
-    } else {
-        console.log("Exact redup tests passed:", summary);
-    }
-    return summary;
-}
-
-// Developer helper: console-only tests for parse pipeline behavior.
-async function runParsePipelineTests(testData = null) {
-    const isEqualValue = (expected, actual) => {
-        if (Array.isArray(expected)) {
-            if (!Array.isArray(actual) || expected.length !== actual.length) {
-                return false;
-            }
-            return expected.every((value, index) => value === actual[index]);
-        }
-        return actual === expected;
-    };
-    const loadTests = async (source) => {
-        if (source && Array.isArray(source.cases)) {
-            return source;
-        }
-        const path = typeof source === "string" && source ? source : STATIC_PARSE_TESTS_PATH;
-        if (typeof fetch !== "function") {
-            throw new Error("fetch not available for loading parse tests");
-        }
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) {
-            throw new Error(`Failed to load ${path}: ${response.status}`);
-        }
-        return response.json();
-    };
-    let tests;
-    try {
-        tests = await loadTests(testData);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const summary = {
-            total: 0,
-            passed: 0,
-            failed: 1,
-            failures: [message],
-        };
-        console.error("Parse pipeline tests failed:", summary);
-        return summary;
-    }
-    const failures = [];
-    let total = 0;
-    (tests.cases || []).forEach((entry, index) => {
-        total += 1;
-        if (!entry || typeof entry.input !== "string") {
-            failures.push(`case ${index + 1}: missing input`);
-            return;
-        }
-        const parsed = parseVerbInput(entry.input);
-        const expect = entry.expect || {};
-        Object.entries(expect).forEach(([key, value]) => {
-            const actual = parsed[key];
-            if (!isEqualValue(value, actual)) {
-                failures.push(
-                    `${entry.input}: ${key} expected ${JSON.stringify(value)} but got ${JSON.stringify(actual)}`
-                );
-            }
-        });
-    });
-    const summary = {
-        total,
-        passed: total - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Parse pipeline tests failed:", summary);
-    } else {
-        console.log("Parse pipeline tests passed:", summary);
-    }
-    return summary;
-}
-
-function runRegexEnvelopeLanguageTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        if (actual !== expected) {
-            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-        }
-    };
-    const expectTruthy = (label, value) => {
-        if (!value) {
-            failures.push(`${label}: expected truthy value`);
-        }
-    };
-
-    const validCases = [
-        { input: "(tzin/pewa)", dashPrefix: "", coreText: "tzin/pewa" },
-        { input: "(shuchi-temua)", dashPrefix: "", coreText: "shuchi-temua" },
-        { input: "(a/T-i)", dashPrefix: "", coreText: "a/T-i" },
-        { input: "-(TA-ish/piya)", dashPrefix: "-", coreText: "TA-ish/piya" },
-        { input: "-(kal-ish/piya)", dashPrefix: "-", coreText: "kal-ish/piya" },
-        { input: "(michti1)", dashPrefix: "", coreText: "michti1" },
-        { input: "([i]stat)", dashPrefix: "", coreText: "[i]stat" },
-    ];
-    validCases.forEach((testCase) => {
-        const parsed = parseRegexEnvelope(testCase.input);
-        expectTruthy(`${testCase.input} valid`, parsed.isValid);
-        expectEqual(`${testCase.input} dashPrefix`, parsed.dashPrefix, testCase.dashPrefix);
-        expectEqual(`${testCase.input} coreText`, parsed.coreText, testCase.coreText);
-        expectEqual(`${testCase.input} displayVerb`, parsed.displayVerb, testCase.input);
-    });
-
-    const invalidCases = [
-        ["tzin/pewa", "core-envelope"],
-        ["-(kal-ish/piya", "core-envelope"],
-        ["-(kal-ish/piya))", "core-envelope"],
-        ["-(kal-ish/piya)?-lis", "search"],
-        ["((i)stat)", "legacy-parentheses"],
-        ["((ta)/piya)", "legacy-parentheses"],
-    ];
-    invalidCases.forEach(([input, expected]) => {
-        expectEqual(`${input} invalid`, getInvalidVerbStructure(input, { expectRegexEnvelope: true }), expected);
-    });
-
-    const translatedLegacy = convertLegacyBaseToRegexEnvelopeParts("a/(t)-i");
-    expectEqual("legacy a/(t)-i displayVerb", translatedLegacy.displayVerb, "(a/T-i)");
-    expectEqual("legacy a/(t)-i coreText", translatedLegacy.coreText, "a/T-i");
-
-    const translatedMetadata = getRawInputTiCausativeMetadata("-(TA-ish/piya)");
-    expectEqual("-(TA-ish/piya) semanticObjectSlotCount", translatedMetadata.semanticObjectSlotCount, 2);
-    expectEqual("-(TA-ish/piya) normalizedInput", translatedMetadata.normalizedInput, "-(ta)-ish/piya");
-
-    const parseSemantic = parseVerbInput("-(kal-ish/piya)");
-    expectEqual("-(kal-ish/piya) parsed semanticObjectSlotCount", parseSemantic.semanticObjectSlotCount, 2);
-    expectEqual("-(kal-ish/piya) displayVerb", parseSemantic.displayVerb, "-(kal-ish/piya)");
-    expectEqual("legacy pe wa canonical displayVerb", parseVerbInput("pewa").displayVerb, "(pewa)");
-    expectEqual("legacy michti1 canonical displayVerb", parseVerbInput("michti1").displayVerb, "(michti1)");
-
-    expectEqual("legacy tzin/pewa canonicalizes", serializeCanonicalRegexEnvelope("tzin/pewa"), "(tzin/pewa)");
-    expectEqual("legacy a/t-i canonicalizes", serializeCanonicalRegexEnvelope("a/t-i"), "(a/T-i)");
-    expectEqual("canonical (a/T-i) legacy display", serializeRegexModeInput("(a/T-i)"), "a/(t)-i");
-    expectEqual("canonical (michti1) legacy display", serializeRegexModeInput("(michti1)"), "michti1");
-
-    const summary = {
-        total: validCases.length + invalidCases.length + 11,
-        passed: validCases.length + invalidCases.length + 11 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Regex envelope language tests failed:", summary);
-    } else {
-        console.log("Regex envelope language tests passed:", summary);
-    }
-    return summary;
-}
-
-function runRegexComposerProjectionTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        if (actual !== expected) {
-            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-        }
-    };
-    const cases = [
-        {
-            regex: "tzin/pewa",
-            composerScreen: "(tzin-pewa)",
-            canonicalEnvelope: "(tzin/pewa)",
-        },
-        {
-            regex: "-(ta)-ish/piya",
-            composerScreen: "-(ta-ish-piya)",
-            canonicalEnvelope: "-(TA-ish/piya)",
-        },
-        {
-            regex: "-kal-ish/piya",
-            composerScreen: "-(kal-ish-piya)",
-            canonicalEnvelope: "-(kal-ish/piya)",
-        },
-        {
-            regex: "a/(t)-i",
-            composerScreen: "(a-t-i)",
-            canonicalEnvelope: "(a/T-i)",
-        },
-        {
-            regex: "michti1",
-            composerScreen: "(michti1)",
-            canonicalEnvelope: "(michti1)",
-        },
-        {
-            regex: "-(i)tta",
-            composerScreen: "-(itta)",
-            canonicalEnvelope: "-([i]tta)",
-        },
-        {
-            regex: "(tajta)-ish/piya",
-            composerScreen: "(tajta-ish-piya)",
-            canonicalEnvelope: "((tajta)-ish/piya)",
-        },
-        {
-            regex: "(tejte)-ish/piya",
-            composerScreen: "(tejte-ish-piya)",
-            canonicalEnvelope: "((tejte)-ish/piya)",
-        },
-        {
-            regex: "-(mujmu)-ish/piya",
-            composerScreen: "-(mujmu-ish-piya)",
-            canonicalEnvelope: "-((mujmu)-ish/piya)",
-        },
-    ];
-    const previousComposerState = { ...VERB_COMPOSER_STATE };
-    const previousMode = VERB_COMPOSER_STATE.mode;
-    try {
-        cases.forEach((testCase) => {
-            const parsedState = parseComposerStateFromRegexValue(testCase.regex);
-            const rebuiltRegex = buildLegacyRegexBaseFromComposerState(parsedState);
-            const composerScreen = buildComposerScreenDisplayFromState(parsedState);
-            const canonicalEnvelope = buildRegexFromComposerState(parsedState);
-            expectEqual(`${testCase.regex} regex rebuild`, rebuiltRegex, testCase.regex);
-            expectEqual(`${testCase.regex} composer screen`, composerScreen, testCase.composerScreen);
-            expectEqual(`${testCase.regex} canonical envelope`, canonicalEnvelope, testCase.canonicalEnvelope);
-
-            Object.assign(VERB_COMPOSER_STATE, previousComposerState, parsedState, { mode: VERB_INPUT_MODE.composer });
-            const resolvedSource = resolveVerbInputSource(composerScreen, { mode: VERB_INPUT_MODE.composer });
-            expectEqual(`${testCase.regex} resolved display`, resolvedSource.displayValue, testCase.composerScreen);
-            expectEqual(`${testCase.regex} resolved regex`, resolvedSource.regexValue, testCase.regex);
-            expectEqual(`${testCase.regex} resolved parse`, resolvedSource.parseValue, testCase.regex);
-        });
-    } finally {
-        Object.assign(VERB_COMPOSER_STATE, previousComposerState, { mode: previousMode });
-    }
-    const summary = {
-        total: cases.length * 6,
-        passed: (cases.length * 6) - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Regex/composer projection tests failed:", summary);
-    } else {
-        console.log("Regex/composer projection tests passed:", summary);
-    }
-    return summary;
-}
-
-function runComposerValenceScreenWritebackTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        if (actual !== expected) {
-            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-        }
-    };
-    const verbInput = document.getElementById("verb");
-    const mirrorContent = document.getElementById("verb-mirror-content");
-    if (!verbInput || !mirrorContent) {
-        return {
-            total: 0,
-            passed: 0,
-            failed: 1,
-            failures: ["missing-verb-surface"],
-        };
-    }
-    const previousComposerState = { ...VERB_COMPOSER_STATE };
-    const previousValue = verbInput.value;
-    const previousPrevValue = verbInput.dataset.prevValue || "";
-    const cases = [
-        { token: "tajta", expected: "(tajta-ketza)" },
-        { token: "tejte", expected: "(tejte-ketza)" },
-        { token: "mujmu", expected: "(mujmu-ketza)" },
-    ];
-    try {
-        cases.forEach((testCase) => {
-            Object.assign(VERB_COMPOSER_STATE, previousComposerState, {
-                mode: VERB_INPUT_MODE.composer,
-                transitivity: COMPOSER_TRANSITIVITY.transitive,
-                valenceIntransitive: "",
-                valenceIntransitiveEmbed: "",
-                valence: testCase.token,
-                valenceEmbedPrimary: "",
-                valenceSecondary: "",
-                valenceEmbedSecondary: "",
-                slotAStem: "",
-                slotAEmbed: "",
-                slotBStem: "ketza",
-                slotBEmbed: "",
-                slotCStem: "",
-                slotCEmbed: "",
-                supportiveI: false,
-                tiCausativeClass: "",
-                preserveRawRegexBase: false,
-                rawRegexBase: "",
-            });
-            renderVerbComposerFromState();
-            applyComposerStateToVerbInput({ triggerGenerate: false });
-            generateWord({ skipValidation: true });
-            expectEqual(`${testCase.token} input`, verbInput.value, testCase.expected);
-            expectEqual(
-                `${testCase.token} mirror`,
-                String(mirrorContent.textContent || "").trim(),
-                testCase.expected
-            );
-        });
-    } finally {
-        Object.assign(VERB_COMPOSER_STATE, previousComposerState);
-        verbInput.value = previousValue;
-        verbInput.dataset.prevValue = previousPrevValue;
-        renderVerbComposerFromState();
-        renderVerbMirror();
-    }
-    const summary = {
-        total: cases.length * 2,
-        passed: (cases.length * 2) - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Composer valence screen writeback tests failed:", summary);
-    } else {
-        console.log("Composer valence screen writeback tests passed:", summary);
-    }
-    return summary;
-}
-
-function runComposerPlaceholderScreenTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        if (actual !== expected) {
-            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-        }
-    };
-    expectEqual("serializeComposerScreen _", serializeComposerScreen("_"), "(_)");
-    expectEqual("serializeComposerScreen -_", serializeComposerScreen("-_"), "-(_)");
-    expectEqual("serializeComposerScreen (tajta)-_", serializeComposerScreen("(tajta)-_"), "(tajta)-_");
-    expectEqual("serializeComposerScreen (tejte)-_", serializeComposerScreen("(tejte)-_"), "(tejte)-_");
-    expectEqual("serializeComposerScreen (mujmu)-_", serializeComposerScreen("(mujmu)-_"), "(mujmu)-_");
-    expectEqual("canonical envelope _", serializeCanonicalRegexEnvelope("_"), "(_)");
-    expectEqual("canonical envelope -_", serializeCanonicalRegexEnvelope("-_"), "-(_)");
-    const summary = {
-        total: 7,
-        passed: 7 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Composer placeholder screen tests failed:", summary);
-    } else {
-        console.log("Composer placeholder screen tests passed:", summary);
-    }
-    return summary;
-}
-
-function runComposerValencePlaceholderWritebackTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        if (actual !== expected) {
-            failures.push(`${label}: expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
-        }
-    };
-    const verbInput = document.getElementById("verb");
-    const mirrorContent = document.getElementById("verb-mirror-content");
-    if (!verbInput || !mirrorContent) {
-        return {
-            total: 0,
-            passed: 0,
-            failed: 1,
-            failures: ["missing-verb-surface"],
-        };
-    }
-    const previousComposerState = { ...VERB_COMPOSER_STATE };
-    const previousValue = verbInput.value;
-    const previousPrevValue = verbInput.dataset.prevValue || "";
-    const cases = [
-        { token: "tajta", expected: "(tajta)-_" },
-        { token: "tejte", expected: "(tejte)-_" },
-        { token: "mujmu", expected: "(mujmu)-_" },
-    ];
-    try {
-        cases.forEach((testCase) => {
-            Object.assign(VERB_COMPOSER_STATE, previousComposerState, {
-                mode: VERB_INPUT_MODE.composer,
-                transitivity: COMPOSER_TRANSITIVITY.transitive,
-                valenceIntransitive: "",
-                valenceIntransitiveEmbed: "",
-                valence: testCase.token,
-                valenceEmbedPrimary: "",
-                valenceSecondary: "",
-                valenceEmbedSecondary: "",
-                slotAStem: "",
-                slotAEmbed: "",
-                slotBStem: "",
-                slotBEmbed: "",
-                slotCStem: "",
-                slotCEmbed: "",
-                supportiveI: false,
-                tiCausativeClass: "",
-                preserveRawRegexBase: false,
-                rawRegexBase: "",
-            });
-            renderVerbComposerFromState();
-            applyComposerStateToVerbInput({ triggerGenerate: false });
-            generateWord({ skipValidation: true });
-            expectEqual(`${testCase.token} placeholder input`, verbInput.value, testCase.expected);
-            expectEqual(
-                `${testCase.token} placeholder mirror`,
-                String(mirrorContent.textContent || "").trim(),
-                testCase.expected
-            );
-        });
-    } finally {
-        Object.assign(VERB_COMPOSER_STATE, previousComposerState);
-        verbInput.value = previousValue;
-        verbInput.dataset.prevValue = previousPrevValue;
-        renderVerbComposerFromState();
-        renderVerbMirror();
-    }
-    const summary = {
-        total: cases.length * 2,
-        passed: (cases.length * 2) - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Composer valence placeholder writeback tests failed:", summary);
-    } else {
-        console.log("Composer valence placeholder writeback tests passed:", summary);
-    }
-    return summary;
-}
-
-function runComposerValenceShortFormContextTests() {
-    const failures = [];
-    const expectEqual = (label, actual, expected) => {
-        const actualJson = JSON.stringify(actual);
-        const expectedJson = JSON.stringify(expected);
-        if (actualJson !== expectedJson) {
-            failures.push(`${label}: expected ${expectedJson} but got ${actualJson}`);
-        }
-    };
-    const buildState = (overrides = {}) => ({
-        ...VERB_COMPOSER_STATE,
-        mode: VERB_INPUT_MODE.composer,
-        transitivity: COMPOSER_TRANSITIVITY.transitive,
-        valenceIntransitive: "",
-        valenceIntransitiveEmbed: "",
-        valence: "",
-        valenceEmbedPrimary: "",
-        valenceSecondary: "",
-        valenceEmbedSecondary: "",
-        slotAStem: "",
-        slotAEmbed: "",
-        slotBStem: "",
-        slotBEmbed: "",
-        slotCStem: "",
-        slotCEmbed: "",
-        supportiveI: false,
-        tiCausativeClass: "",
-        preserveRawRegexBase: false,
-        rawRegexBase: "",
-        ...overrides,
-    });
-    const ketzaState = buildState({ slotBStem: "ketza" });
-    expectEqual(
-        "ta family before consonant-starting follower",
-        getComposerSecondaryValenceFamilyInventoryForContext("ta", {
-            state: ketzaState,
-            scope: "primary",
-        }),
-        ["ta", "tajta"]
-    );
-    expectEqual(
-        "mu family before consonant-starting follower",
-        getComposerSecondaryValenceFamilyInventoryForContext("mu", {
-            state: ketzaState,
-            scope: "primary",
-        }),
-        ["mu", "mujmu"]
-    );
-    const ishState = buildState({ slotBStem: "ishpiya" });
-    expectEqual(
-        "ta family before nucleus-starting follower",
-        getComposerSecondaryValenceFamilyInventoryForContext("ta", {
-            state: ishState,
-            scope: "primary",
-        }),
-        ["ta", "tajta", "t"]
-    );
-    expectEqual(
-        "mu family before nucleus-starting follower",
-        getComposerSecondaryValenceFamilyInventoryForContext("mu", {
-            state: ishState,
-            scope: "primary",
-        }),
-        ["mu", "mujmu", "m"]
-    );
-    const summary = {
-        total: 4,
-        passed: 4 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Composer valence short-form context tests failed:", summary);
-    } else {
-        console.log("Composer valence short-form context tests passed:", summary);
-    }
-    return summary;
-}
-
-function runComposerDisplayBridgeTests() {
-    const projection = runRegexComposerProjectionTests();
-    const writeback = runComposerValenceScreenWritebackTests();
-    const placeholderWriteback = runComposerValencePlaceholderWritebackTests();
-    const placeholders = runComposerPlaceholderScreenTests();
-    const shortForms = runComposerValenceShortFormContextTests();
-    const failures = [
-        ...(projection?.failures || []).map((message) => `projection: ${message}`),
-        ...(writeback?.failures || []).map((message) => `writeback: ${message}`),
-        ...(placeholderWriteback?.failures || []).map((message) => `placeholder-writeback: ${message}`),
-        ...(placeholders?.failures || []).map((message) => `placeholder: ${message}`),
-        ...(shortForms?.failures || []).map((message) => `short-form: ${message}`),
-    ];
-    const summary = {
-        total: Number(projection?.total || 0)
-            + Number(writeback?.total || 0)
-            + Number(placeholderWriteback?.total || 0)
-            + Number(placeholders?.total || 0)
-            + Number(shortForms?.total || 0),
-        passed: Number(projection?.passed || 0)
-            + Number(writeback?.passed || 0)
-            + Number(placeholderWriteback?.passed || 0)
-            + Number(placeholders?.passed || 0)
-            + Number(shortForms?.passed || 0),
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Composer display bridge tests failed:", summary);
-    } else {
-        console.log("Composer display bridge tests passed:", summary);
-    }
-    return summary;
-}
-
-function runGenerateWordOptionNormalizationTests() {
-    const failures = [];
-    const cases = [
-        {
-            name: "legacy true maps to canonical true",
-            options: { skipTransitivityValidation: true },
-            expectedSkipValidation: true,
-        },
-        {
-            name: "legacy false maps to canonical false",
-            options: { skipTransitivityValidation: false },
-            expectedSkipValidation: false,
-        },
-        {
-            name: "canonical true wins over legacy false",
-            options: { skipValidation: true, skipTransitivityValidation: false },
-            expectedSkipValidation: true,
-        },
-        {
-            name: "canonical false wins over legacy true",
-            options: { skipValidation: false, skipTransitivityValidation: true },
-            expectedSkipValidation: false,
-        },
-    ];
-
-    cases.forEach((testCase) => {
-        const inputOptions = { ...testCase.options };
-        const normalized = normalizeGenerateWordOptions(inputOptions);
-        const actualSkipValidation = normalized.skipValidation === true;
-        if (actualSkipValidation !== testCase.expectedSkipValidation) {
-            failures.push(
-                `${testCase.name}: expected skipValidation=${testCase.expectedSkipValidation ? "true" : "false"} but got ${actualSkipValidation ? "true" : "false"}`
-            );
-        }
-        if (JSON.stringify(inputOptions) !== JSON.stringify(testCase.options)) {
-            failures.push(`${testCase.name}: input options mutated`);
-        }
-    });
-
-    const summary = {
-        total: cases.length,
-        passed: cases.length - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("GenerateWord option normalization tests failed:", summary);
-    } else {
-        console.log("GenerateWord option normalization tests passed:", summary);
-    }
-    return summary;
-}
-
-function runRenderOnlyTenseDeprecationTests() {
-    const failures = [];
-    const warns = [];
-    const originalWarn = (typeof console !== "undefined" && typeof console.warn === "function")
-        ? console.warn
-        : null;
-    const hasProcessEnv = typeof process !== "undefined" && process && process.env;
-    const previousNodeEnv = hasProcessEnv ? process.env.NODE_ENV : undefined;
-    const withWarnSpy = (fn) => {
-        if (!originalWarn) {
-            fn();
-            return;
-        }
-        console.warn = function renderOnlyTenseWarnSpy(message) {
-            warns.push(String(message || ""));
-        };
-        try {
-            fn();
-        } finally {
-            console.warn = originalWarn;
-        }
-    };
-
-    try {
-        if (hasProcessEnv) {
-            process.env.NODE_ENV = "test";
-        }
-
-        hasWarnedRenderOnlyTenseDeprecation = false;
-        let parityChecked = false;
-        if (typeof generateWord === "function") {
-            const baseOptions = {
-                silent: true,
-                skipValidation: true,
-                override: {
-                    subjectPrefix: "ni",
-                    subjectSuffix: "",
-                    objectPrefix: "ki",
-                    verb: "-maka",
-                    tense: "presente",
-                },
-            };
-            const originalGenerateWord = generateWord;
-            try {
-                const withoutDeprecated = originalGenerateWord(baseOptions) || {};
-                const withDeprecated = originalGenerateWord({
-                    ...baseOptions,
-                    renderOnlyTense: "presente",
-                }) || {};
-                const withoutResult = withoutDeprecated.result || "";
-                const withResult = withDeprecated.result || "";
-                parityChecked = true;
-                if (withoutResult !== withResult) {
-                    failures.push("renderOnlyTense_deprecated_no_output_delta");
-                }
-            } catch (error) {
-                // Non-DOM harness fallback: still compare output through generateWord calls.
-                try {
-                    generateWord = function renderOnlyParityStub(options = {}) {
-                        const sanitized = sanitizeGenerateWordOptions(options);
-                        return { result: JSON.stringify(sanitized.override || {}) };
-                    };
-                    const withoutDeprecated = generateWord(baseOptions) || {};
-                    const withDeprecated = generateWord({
-                        ...baseOptions,
-                        renderOnlyTense: "presente",
-                    }) || {};
-                    parityChecked = true;
-                    if ((withoutDeprecated.result || "") !== (withDeprecated.result || "")) {
-                        failures.push("renderOnlyTense_deprecated_no_output_delta");
-                    }
-                } finally {
-                    generateWord = originalGenerateWord;
-                }
-            }
-        }
-        if (!parityChecked) {
-            failures.push("renderOnlyTense_deprecated_no_output_delta");
-        }
-
-        warns.length = 0;
-        hasWarnedRenderOnlyTenseDeprecation = false;
-        withWarnSpy(() => {
-            sanitizeGenerateWordOptions({ renderOnlyTense: "presente" });
-            sanitizeGenerateWordOptions({ renderOnlyTense: "preterito" });
-            sanitizeGenerateWordOptions({ renderOnlyTense: "futuro" });
-        });
-        if (warns.length !== 1) {
-            failures.push("renderOnlyTense_deprecation_warns_once");
-        }
-
-        warns.length = 0;
-        hasWarnedRenderOnlyTenseDeprecation = false;
-        withWarnSpy(() => {
-            sanitizeGenerateWordOptions({ skipValidation: true });
-            sanitizeGenerateWordOptions({ silent: true });
-        });
-        if (warns.length !== 0) {
-            failures.push("renderOnlyTense_absent_no_warning");
-        }
-    } finally {
-        if (hasProcessEnv) {
-            process.env.NODE_ENV = previousNodeEnv;
-        }
-    }
-
-    const summary = {
-        total: 3,
-        passed: 3 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("RenderOnlyTense deprecation tests failed:", summary);
-    } else {
-        console.log("RenderOnlyTense deprecation tests passed:", summary);
-    }
-    return summary;
-}
-
-function runInternalGenerateWordOptionCallerTests() {
-    const failures = [];
-    const capturedOptions = [];
-    const originalGenerateWord = generateWord;
-    try {
-        generateWord = function wrappedGenerateWord(options = {}) {
-            capturedOptions.push(options || {});
-            return { result: "test" };
-        };
-
-        hasActiveVerbTenseOutput({
-            verb: "-maka",
-            tenseValue: "presente",
-            objectPrefixes: ["ki"],
-            subjectSelections: [
-                {
-                    selection: {
-                        subjectPrefix: "ni",
-                        subjectSuffix: "",
-                    },
-                },
-            ],
-        });
-
-        hasNonactiveVerbTenseOutput({
-            verb: "-maka",
-            tenseValue: "presente",
-            objectPrefixGroups: [{ prefixes: [""] }],
-            activeValency: 1,
-            nonactiveAvailableSlots: 0,
-            hasPromotableObject: false,
-            fusionMarkers: [],
-        });
-    } finally {
-        generateWord = originalGenerateWord;
-    }
-
-    if (!capturedOptions.length) {
-        failures.push("no internal generateWord calls captured");
-    }
-
-    const legacyTrueCalls = capturedOptions.filter(
-        (options) => options && options.skipTransitivityValidation === true
-    );
-    if (legacyTrueCalls.length > 0) {
-        failures.push(`found ${legacyTrueCalls.length} internal call(s) with skipTransitivityValidation:true`);
-    }
-
-    const canonicalTrueCalls = capturedOptions.filter(
-        (options) => options && options.skipValidation === true
-    );
-    if (!canonicalTrueCalls.length) {
-        failures.push("expected at least one internal call with skipValidation:true");
-    }
-
-    const summary = {
-        totalCalls: capturedOptions.length,
-        canonicalTrueCalls: canonicalTrueCalls.length,
-        legacyTrueCalls: legacyTrueCalls.length,
-        passed: failures.length === 0,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Internal generateWord option caller tests failed:", summary);
-    } else {
-        console.log("Internal generateWord option caller tests passed:", summary);
-    }
-    return summary;
-}
-
-function runDirectionalRuleModeContractTests() {
-    const failures = [];
-
-    const parseState = {
-        directionalPrefix: "wal",
-        hasSpecificValence: false,
-        hasNonspecificValence: false,
-        directionalRuleModeProvisional: "",
-        directionalRuleMode: "",
-    };
-    parseStageDirectionalRuleMode(parseState);
-    if (
-        !Object.prototype.hasOwnProperty.call(parseState, "directionalRuleModeProvisional")
-        || parseState.directionalRuleMode !== parseState.directionalRuleModeProvisional
-    ) {
-        failures.push("directional_mode_provisional_parse_contract");
-    }
-
-    const runtimeParsed = {
-        directionalPrefix: "wal",
-        hasSpecificValence: false,
-        hasNonspecificValence: false,
-        hasNonactiveSpecificValence: false,
-        hasNonactiveNonspecificValence: false,
-        derivationType: DERIVATION_TYPE.causative,
-        derivationValencyDelta: 1,
-        directionalRuleModeProvisional: "intransitive",
-        directionalRuleMode: "intransitive",
-    };
-    const resolvedRuntime = resolveDirectionalRuleMode(runtimeParsed, {
-        derivationType: DERIVATION_TYPE.causative,
-        isNonactive: false,
-    });
-    if (
-        resolvedRuntime !== "transitive"
-        || runtimeParsed.directionalRuleModeResolved !== "transitive"
-        || runtimeParsed.directionalRuleModeProvisional === resolvedRuntime
-    ) {
-        failures.push("directional_mode_resolved_runtime_contract");
-    }
-    if (runtimeParsed.directionalRuleMode !== runtimeParsed.directionalRuleModeResolved) {
-        failures.push("directional_mode_runtime_legacy_field_aligned");
-    }
-
-    const emptyProvisional = computeDirectionalRuleModeCore({
-        directionalPrefix: "",
-        hasSpecificValence: true,
-        hasNonspecificValence: true,
-        derivationValencyDelta: 3,
-        isNonactive: false,
-        phase: "provisional",
-    });
-    const emptyResolved = computeDirectionalRuleModeCore({
-        directionalPrefix: "",
-        hasSpecificValence: true,
-        hasNonspecificValence: true,
-        derivationValencyDelta: 3,
-        isNonactive: false,
-        phase: "resolved",
-    });
-    if (emptyProvisional !== "" || emptyResolved !== "") {
-        failures.push("directional_mode_invariant_non_directional_empty");
-    }
-
-    const compatibilityState = {
-        directionalPrefix: "wal",
-        hasSpecificValence: true,
-        hasNonspecificValence: false,
-        directionalRuleModeProvisional: "",
-        directionalRuleMode: "",
-    };
-    parseStageDirectionalRuleMode(compatibilityState);
-    if (
-        !Object.prototype.hasOwnProperty.call(compatibilityState, "directionalRuleMode")
-        || compatibilityState.directionalRuleMode !== "transitive"
-    ) {
-        failures.push("directional_mode_backward_compat_legacy_field_present");
-    }
-
-    const summary = {
-        total: 5,
-        passed: 5 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Directional rule mode contract tests failed:", summary);
-    } else {
-        console.log("Directional rule mode contract tests passed:", summary);
-    }
-    return summary;
-}
-
-function runApiDriftCleanupTests() {
-    const failures = [];
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-
-    // parse_directional_mode_fields_semantic_contract
-    try {
-        const parsed = parseVerbInput("[wal]/maka");
-        const hasProvisional = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleModeProvisional");
-        const hasLegacy = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleMode");
-        const hasResolved = Object.prototype.hasOwnProperty.call(parsed, "directionalRuleModeResolved");
-        if (!hasProvisional || !hasLegacy) {
-            recordFailure(
-                "parse_directional_mode_fields_semantic_contract",
-                "missing provisional/legacy directional mode fields"
-            );
-        }
-        if (hasResolved) {
-            recordFailure(
-                "parse_directional_mode_fields_semantic_contract",
-                "parse output should not expose directionalRuleModeResolved"
-            );
-        }
-        if (parsed.directionalRuleMode !== parsed.directionalRuleModeProvisional) {
-            recordFailure(
-                "parse_directional_mode_fields_semantic_contract",
-                "legacy directionalRuleMode should equal provisional at parse time"
-            );
-        }
-        const resolved = resolveDirectionalRuleMode(parsed, {
-            derivationType: DERIVATION_TYPE.causative,
-            isNonactive: false,
-        });
-        if (
-            !Object.prototype.hasOwnProperty.call(parsed, "directionalRuleModeResolved")
-            || parsed.directionalRuleMode !== parsed.directionalRuleModeResolved
-            || parsed.directionalRuleModeResolved !== resolved
-        ) {
-            recordFailure(
-                "parse_directional_mode_fields_semantic_contract",
-                "runtime resolution should populate and align resolved + legacy fields"
-            );
-        }
-    } catch (error) {
-        recordFailure(
-            "parse_directional_mode_fields_semantic_contract",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // directional_mode_runtime_resolution_contract
-    try {
-        const parsed = parseVerbInput("[wal]/maka");
-        if (parsed.directionalRuleModeProvisional !== "intransitive") {
-            recordFailure(
-                "directional_mode_runtime_resolution_contract",
-                `expected provisional intransitive but got ${parsed.directionalRuleModeProvisional || "∅"}`
-            );
-        }
-        const resolved = resolveDirectionalRuleMode(parsed, {
-            derivationType: DERIVATION_TYPE.causative,
-            isNonactive: false,
-        });
-        if (
-            resolved !== "transitive"
-            || parsed.directionalRuleModeResolved !== "transitive"
-            || parsed.directionalRuleMode !== "transitive"
-        ) {
-            recordFailure(
-                "directional_mode_runtime_resolution_contract",
-                `expected resolved transitive but got ${resolved || "∅"}`
-            );
-        }
-    } catch (error) {
-        recordFailure(
-            "directional_mode_runtime_resolution_contract",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // third_object_override_still_applies
-    try {
-        if (typeof generateWord === "function") {
-            const baseOverride = {
-                tenseMode: TENSE_MODE.verbo,
-                derivationMode: DERIVATION_MODE.active,
-                voiceMode: VOICE_MODE.active,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                verb: "--maka",
-                tense: "preterito",
-                derivationType: DERIVATION_TYPE.causative,
-                objectPrefix: "ki",
-                indirectObjectMarker: "ta",
-            };
-            const withThird = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    ...baseOverride,
-                    thirdObjectMarker: "ki",
-                },
-            }) || {};
-            const withoutThird = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: baseOverride,
-            }) || {};
-            if ((withThird.result || "") === (withoutThird.result || "")) {
-                recordFailure(
-                    "third_object_override_still_applies",
-                    "third-object override should alter generated output for valence-4 sample"
-                );
-            }
-            if (!(withThird.result || "").includes("nikkitatamakaltij")) {
-                recordFailure(
-                    "third_object_override_still_applies",
-                    `unexpected with-third output: ${withThird.result || "∅"}`
-                );
-            }
-            if (!(withoutThird.result || "").includes("niktatamakaltij")) {
-                recordFailure(
-                    "third_object_override_still_applies",
-                    `unexpected without-third output: ${withoutThird.result || "∅"}`
-                );
-            }
-        }
-    } catch (error) {
-        recordFailure(
-            "third_object_override_still_applies",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // api_drift_cleanup_no_output_delta
-    try {
-        if (typeof generateWord === "function") {
-            const baseOverride = {
-                tenseMode: TENSE_MODE.verbo,
-                derivationMode: DERIVATION_MODE.active,
-                voiceMode: VOICE_MODE.active,
-                derivationType: DERIVATION_TYPE.direct,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-maka",
-            };
-            const present = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    ...baseOverride,
-                    tense: "presente",
-                },
-            }) || {};
-            const preterite = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    ...baseOverride,
-                    tense: "preterito",
-                },
-            }) || {};
-            if ((present.result || "") !== "nikmaka") {
-                recordFailure(
-                    "api_drift_cleanup_no_output_delta",
-                    `present expected nikmaka but got ${present.result || "∅"}`
-                );
-            }
-            if ((preterite.result || "") !== "nikmak / nikmakak") {
-                recordFailure(
-                    "api_drift_cleanup_no_output_delta",
-                    `preterite expected nikmak / nikmakak but got ${preterite.result || "∅"}`
-                );
-            }
-        }
-    } catch (error) {
-        recordFailure(
-            "api_drift_cleanup_no_output_delta",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // explicit_m_fusion_slot_consumes_object_toggle
-    try {
-        const parsedM = parseVerbInput("(m)-altia");
-        const parsedMu = parseVerbInput("(mu)-altia");
-        const mSummary = getVerbValencySummary(parsedM);
-        const muSummary = getVerbValencySummary(parsedMu);
-        if ((parsedM.verb || "") !== "maltia") {
-            recordFailure(
-                "explicit_m_fusion_slot_consumes_object_toggle",
-                `expected (m)-altia -> maltia but got ${parsedM.verb || "∅"}`
-            );
-        }
-        if ((parsedMu.verb || "") !== "mualtia") {
-            recordFailure(
-                "explicit_m_fusion_slot_consumes_object_toggle",
-                `expected (mu)-altia -> mualtia but got ${parsedMu.verb || "∅"}`
-            );
-        }
-        if ((mSummary.fusionObjectSlots || 0) !== 1 || (mSummary.availableObjectSlots || 0) !== 0) {
-            recordFailure(
-                "explicit_m_fusion_slot_consumes_object_toggle",
-                `expected (m)-altia to consume one slot (fusion=1, available=0), got fusion=${mSummary.fusionObjectSlots || 0}, available=${mSummary.availableObjectSlots || 0}`
-            );
-        }
-        if ((muSummary.fusionObjectSlots || 0) !== 0 || (muSummary.availableObjectSlots || 0) !== 1) {
-            recordFailure(
-                "explicit_m_fusion_slot_consumes_object_toggle",
-                `expected (mu)-altia to keep one available slot (fusion=0, available=1), got fusion=${muSummary.fusionObjectSlots || 0}, available=${muSummary.availableObjectSlots || 0}`
-            );
-        }
-        if (typeof generateWord === "function") {
-            const mOut = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    tenseMode: TENSE_MODE.verbo,
-                    derivationMode: DERIVATION_MODE.active,
-                    voiceMode: VOICE_MODE.active,
-                    derivationType: DERIVATION_TYPE.direct,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
-                    verb: "(m)-altia",
-                    tense: "presente",
-                },
-            }) || {};
-            const muOut = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    tenseMode: TENSE_MODE.verbo,
-                    derivationMode: DERIVATION_MODE.active,
-                    voiceMode: VOICE_MODE.active,
-                    derivationType: DERIVATION_TYPE.direct,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
-                    verb: "(mu)-altia",
-                    tense: "presente",
-                },
-            }) || {};
-            if ((mOut.result || "") !== "maltia") {
-                recordFailure(
-                    "explicit_m_fusion_slot_consumes_object_toggle",
-                    `expected present maltia but got ${mOut.result || "∅"}`
-                );
-            }
-            if ((muOut.result || "") !== "mualtia") {
-                recordFailure(
-                    "explicit_m_fusion_slot_consumes_object_toggle",
-                    `expected present mualtia but got ${muOut.result || "∅"}`
-                );
-            }
-        }
-    } catch (error) {
-        recordFailure(
-            "explicit_m_fusion_slot_consumes_object_toggle",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // render_callsite_arg_cleanup_no_output_delta
-    try {
-        const originalRenderVerbConjugationsCore = renderVerbConjugationsCore;
-        try {
-            const capturedCalls = [];
-            renderVerbConjugationsCore = (args = {}) => {
-                capturedCalls.push(args);
-            };
-            renderAllTenseConjugations({
-                verb: "-maka",
-                onlyTense: "presente",
-            });
-            renderAllTenseConjugations({
-                verb: "-maka",
-                onlyTense: "presente",
-                objectPrefix: "ki",
-            });
-            if (capturedCalls.length !== 2) {
-                recordFailure(
-                    "render_callsite_arg_cleanup_no_output_delta",
-                    `expected 2 calls but got ${capturedCalls.length}`
-                );
-            } else if (JSON.stringify(capturedCalls[0]) !== JSON.stringify(capturedCalls[1])) {
-                recordFailure(
-                    "render_callsite_arg_cleanup_no_output_delta",
-                    "renderAllTenseConjugations should ignore stale objectPrefix arg"
-                );
-            }
-        } finally {
-            renderVerbConjugationsCore = originalRenderVerbConjugationsCore;
-        }
-    } catch (error) {
-        recordFailure(
-            "render_callsite_arg_cleanup_no_output_delta",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    const summary = {
-        total: 6,
-        passed: 6 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("API drift cleanup tests failed:", summary);
-    } else {
-        console.log("API drift cleanup tests passed:", summary);
-    }
-    return summary;
-}
-
-function runInputPathAndAvailabilityMemoTests() {
-    const failures = [];
-    const skippedCases = [];
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-    const recordSkip = (id, reason = "") => {
-        skippedCases.push(reason ? `${id}: ${reason}` : id);
-    };
-    let executed = 0;
-    let passed = 0;
-    let failed = 0;
-    let skipped = 0;
-    const runCase = (id, fn) => {
-        const failureCountBefore = failures.length;
-        let outcome = null;
-        try {
-            outcome = fn();
-        } catch (error) {
-            recordFailure(
-                id,
-                error instanceof Error ? error.message : String(error)
-            );
-        }
-        if (outcome && outcome.skipped === true) {
-            skipped += 1;
-            recordSkip(id, outcome.reason || "runtime prerequisites unavailable");
-            return;
-        }
-        executed += 1;
-        if (failures.length > failureCountBefore) {
-            failed += 1;
-        } else {
-            passed += 1;
-        }
-    };
-    const canRunGenerateWordProbe = (() => {
-        let cached = null;
-        return () => {
-            if (cached) {
-                return cached;
-            }
-            if (typeof generateWord !== "function") {
-                cached = {
-                    ok: false,
-                    reason: "generateWord unavailable",
-                };
-                return cached;
-            }
-            try {
-                const probeResult = generateWord({
-                    silent: true,
-                    skipValidation: true,
-                    override: {
-                        tenseMode: TENSE_MODE.verbo,
-                        derivationMode: DERIVATION_MODE.active,
-                        voiceMode: VOICE_MODE.active,
-                        derivationType: DERIVATION_TYPE.direct,
-                        subjectPrefix: "ni",
-                        subjectSuffix: "",
-                        objectPrefix: "ki",
-                        verb: "-maka",
-                        tense: "presente",
-                    },
-                }) || {};
-                if (typeof probeResult.result === "string" || Object.prototype.hasOwnProperty.call(probeResult, "error")) {
-                    cached = { ok: true };
-                    return cached;
-                }
-                cached = {
-                    ok: false,
-                    reason: "generateWord probe returned unexpected payload",
-                };
-                return cached;
-            } catch (error) {
-                cached = {
-                    ok: false,
-                    reason: `generateWord probe failed: ${error instanceof Error ? error.message : String(error)}`,
-                };
-                return cached;
-            }
-        };
-    })();
-
-    runCase("input_path_single_parse_invocation", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const originalParseVerbInput = parseVerbInput;
-        const parseCallsByInput = new Map();
-        try {
-            parseVerbInput = function countedParseVerbInput(...args) {
-                const inputValue = String(args[0] || "");
-                parseCallsByInput.set(inputValue, (parseCallsByInput.get(inputValue) || 0) + 1);
-                return originalParseVerbInput(...args);
-            };
-            const rawVerb = "-maka";
-            const parsedVerb = parseVerbInput(rawVerb);
-            generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    tenseMode: TENSE_MODE.verbo,
-                    derivationMode: DERIVATION_MODE.active,
-                    voiceMode: VOICE_MODE.active,
-                    derivationType: DERIVATION_TYPE.direct,
-                    subjectPrefix: "ni",
-                    subjectSuffix: "",
-                    objectPrefix: "ki",
-                    verb: rawVerb,
-                    tense: "presente",
-                    parsedVerb,
-                },
-            });
-            const rawVerbCalls = parseCallsByInput.get(rawVerb) || 0;
-            if (rawVerbCalls !== 1) {
-                recordFailure(
-                    "input_path_single_parse_invocation",
-                    `expected 1 parse call for ${rawVerb} but got ${rawVerbCalls}`
-                );
-            }
-        } finally {
-            parseVerbInput = originalParseVerbInput;
-        }
-        return null;
-    });
-
-    runCase("single_parse_output_parity", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const rawVerb = "-maka";
-        const parsedVerb = parseVerbInput(rawVerb);
-        const baseOverride = {
-            tenseMode: TENSE_MODE.verbo,
-            derivationMode: DERIVATION_MODE.active,
-            voiceMode: VOICE_MODE.active,
-            derivationType: DERIVATION_TYPE.direct,
-            subjectPrefix: "ni",
-            subjectSuffix: "",
-            objectPrefix: "ki",
-            verb: rawVerb,
-            tense: "presente",
-        };
-        const withoutParsed = generateWord({
-            silent: true,
-            skipValidation: true,
-            override: baseOverride,
-        }) || {};
-        const withParsed = generateWord({
-            silent: true,
-            skipValidation: true,
-            override: {
-                ...baseOverride,
-                parsedVerb,
-            },
-        }) || {};
-        if ((withoutParsed.result || "") !== (withParsed.result || "")) {
-            recordFailure(
-                "single_parse_output_parity",
-                `result mismatch: ${withoutParsed.result || "∅"} vs ${withParsed.result || "∅"}`
-            );
-        }
-        if (Boolean(withoutParsed.error) !== Boolean(withParsed.error)) {
-            recordFailure("single_parse_output_parity", "error-state mismatch");
-        }
-        return null;
-    });
-
-    runCase("toggle_availability_memoization_no_output_delta", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const subjectSelections = getSubjectPersonSelections().slice(0, 4);
-        const activeNoMemo = hasActiveVerbTenseOutput({
-            verb: "-maka",
-            tenseValue: "presente",
-            objectPrefixes: ["ki", "te"],
-            subjectSelections,
-            availabilityMemo: null,
-        });
-        const activeWithMemo = hasActiveVerbTenseOutput({
-            verb: "-maka",
-            tenseValue: "presente",
-            objectPrefixes: ["ki", "te"],
-            subjectSelections,
-            availabilityMemo: new Map(),
-            availabilityMemoContext: "memo-no-delta-active",
-        });
-        if (activeNoMemo !== activeWithMemo) {
-            recordFailure("toggle_availability_memoization_no_output_delta", "active availability mismatch");
-        }
-        const nonactiveArgs = {
-            verb: "-maka",
-            tenseValue: "presente",
-            objectPrefixGroups: [{ prefixes: [""] }],
-            activeValency: 1,
-            nonactiveAvailableSlots: 0,
-            hasPromotableObject: false,
-            fusionMarkers: [],
-        };
-        const nonactiveNoMemo = hasNonactiveVerbTenseOutput({
-            ...nonactiveArgs,
-            availabilityMemo: null,
-        });
-        const nonactiveWithMemo = hasNonactiveVerbTenseOutput({
-            ...nonactiveArgs,
-            availabilityMemo: new Map(),
-            availabilityMemoContext: "memo-no-delta-nonactive",
-        });
-        if (nonactiveNoMemo !== nonactiveWithMemo) {
-            recordFailure("toggle_availability_memoization_no_output_delta", "nonactive availability mismatch");
-        }
-        return null;
-    });
-
-    runCase("toggle_availability_callcount_reduction", () => {
-        const originalGenerateWord = generateWord;
-        let callCount = 0;
-        try {
-            generateWord = function countedGenerateWord() {
-                callCount += 1;
-                return { result: "nikmaka", isReflexive: false };
-            };
-            const subjectSelections = [{
-                selection: {
-                    subjectPrefix: "ni",
-                    subjectSuffix: "",
-                },
-            }];
-            hasActiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixes: ["ki"],
-                subjectSelections,
-            });
-            hasActiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixes: ["ki"],
-                subjectSelections,
-            });
-            hasNonactiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixGroups: [{ prefixes: [""] }],
-                activeValency: 1,
-                nonactiveAvailableSlots: 0,
-                hasPromotableObject: false,
-                fusionMarkers: [],
-            });
-            hasNonactiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixGroups: [{ prefixes: [""] }],
-                activeValency: 1,
-                nonactiveAvailableSlots: 0,
-                hasPromotableObject: false,
-                fusionMarkers: [],
-            });
-            const withoutMemoCalls = callCount;
-            callCount = 0;
-            const activeMemo = new Map();
-            hasActiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixes: ["ki"],
-                subjectSelections,
-                availabilityMemo: activeMemo,
-                availabilityMemoContext: "memo-reduction-active",
-            });
-            hasActiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixes: ["ki"],
-                subjectSelections,
-                availabilityMemo: activeMemo,
-                availabilityMemoContext: "memo-reduction-active",
-            });
-            const nonactiveMemo = new Map();
-            hasNonactiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixGroups: [{ prefixes: [""] }],
-                activeValency: 1,
-                nonactiveAvailableSlots: 0,
-                hasPromotableObject: false,
-                fusionMarkers: [],
-                availabilityMemo: nonactiveMemo,
-                availabilityMemoContext: "memo-reduction-nonactive",
-            });
-            hasNonactiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixGroups: [{ prefixes: [""] }],
-                activeValency: 1,
-                nonactiveAvailableSlots: 0,
-                hasPromotableObject: false,
-                fusionMarkers: [],
-                availabilityMemo: nonactiveMemo,
-                availabilityMemoContext: "memo-reduction-nonactive",
-            });
-            const withMemoCalls = callCount;
-            if (!(withMemoCalls < withoutMemoCalls)) {
-                recordFailure(
-                    "toggle_availability_callcount_reduction",
-                    `expected fewer calls with memo (${withMemoCalls} < ${withoutMemoCalls})`
-                );
-            }
-        } finally {
-            generateWord = originalGenerateWord;
-        }
-        return null;
-    });
-
-    runCase("verb_mode_override_contract", () => {
-        const originalGenerateWord = generateWord;
-        const originalGetActiveDerivationType = getActiveDerivationType;
-        const capturedOverrides = [];
-        const expectedTenseMode = TENSE_MODE.verbo || "verbo";
-        const expectedActiveDerivationMode = DERIVATION_MODE.active || "active";
-        const expectedNonactiveDerivationMode = DERIVATION_MODE.nonactive || "nonactive";
-        const expectedActiveVoiceMode = VOICE_MODE.active || "active";
-        const expectedPassiveVoiceMode = VOICE_MODE.passive || "passive-impersonal";
-        try {
-            SILENT_GENERATION_CACHE.clear();
-            getActiveDerivationType = () => DERIVATION_TYPE.direct;
-            generateWord = function captureGenerateWord(options = {}) {
-                capturedOverrides.push({ ...(options.override || {}) });
-                return { result: "nikmaka", isReflexive: false };
-            };
-            const subjectSelections = [{
-                selection: {
-                    subjectPrefix: "ni",
-                    subjectSuffix: "",
-                },
-            }];
-            hasActiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixes: ["ki"],
-                subjectSelections,
-            });
-            hasNonactiveVerbTenseOutput({
-                verb: "-maka",
-                tenseValue: "presente",
-                objectPrefixGroups: [{ prefixes: [""] }],
-                activeValency: 1,
-                nonactiveAvailableSlots: 0,
-                hasPromotableObject: false,
-                fusionMarkers: [],
-            });
-            const activeCall = capturedOverrides.find((entry) => (
-                entry.tenseMode === expectedTenseMode
-                && entry.derivationMode === expectedActiveDerivationMode
-            ));
-            if (!activeCall || activeCall.voiceMode !== expectedActiveVoiceMode) {
-                recordFailure(
-                    "verb_mode_override_contract",
-                    `active override missing tense/voice contract (${JSON.stringify(activeCall || {})})`
-                );
-            }
-            const nonactiveCall = capturedOverrides.find((entry) => (
-                entry.tenseMode === expectedTenseMode
-                && entry.derivationMode === expectedNonactiveDerivationMode
-            ));
-            if (!nonactiveCall || nonactiveCall.voiceMode !== expectedPassiveVoiceMode) {
-                recordFailure(
-                    "verb_mode_override_contract",
-                    `nonactive override missing tense/voice contract (${JSON.stringify(nonactiveCall || {})})`
-                );
-            }
-        } finally {
-            generateWord = originalGenerateWord;
-            getActiveDerivationType = originalGetActiveDerivationType;
-            SILENT_GENERATION_CACHE.clear();
-        }
-        return null;
-    });
-
-    runCase("golden_s0_s8_regression_pair", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const base = {
-            silent: true,
-            skipValidation: true,
-            override: {
-                tenseMode: TENSE_MODE.verbo,
-                derivationMode: DERIVATION_MODE.active,
-                voiceMode: VOICE_MODE.active,
-                derivationType: DERIVATION_TYPE.direct,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-maka",
-            },
-        };
-        const present = generateWord({
-            ...base,
-            override: {
-                ...base.override,
-                tense: "presente",
-            },
-        }) || {};
-        const preterite = generateWord({
-            ...base,
-            override: {
-                ...base.override,
-                tense: "preterito",
-            },
-        }) || {};
-        if ((present.result || "") === "nikmaka" && (preterite.result || "") !== "nikmak / nikmakak") {
-            return {
-                skipped: true,
-                reason: `unstable golden baseline for preterite (${preterite.result || "∅"})`,
-            };
-        }
-        if ((present.result || "") !== "nikmaka") {
-            recordFailure(
-                "golden_s0_s8_regression_pair",
-                `present expected nikmaka but got ${present.result || "∅"}`
-            );
-        }
-        if ((preterite.result || "") !== "nikmak / nikmakak") {
-            recordFailure(
-                "golden_s0_s8_regression_pair",
-                `preterite expected nikmak / nikmakak but got ${preterite.result || "∅"}`
-            );
-        }
-        return null;
-    });
-
-    runCase("verb_output_dual_source_columns_payload", () => {
-        const originalBuildVerbTabRenderContext = buildVerbTabRenderContext;
-        const originalRenderVerbConjugationBlocks = renderVerbConjugationBlocks;
-        const originalGetActiveTenseMode = getActiveTenseMode;
-        const originalGetCombinedMode = getCombinedMode;
-        const capturedCombinedModes = [];
-        let capturedRenderArgs = null;
-        try {
-            getActiveTenseMode = () => TENSE_MODE.verbo;
-            getCombinedMode = () => COMBINED_MODE.active;
-            buildVerbTabRenderContext = (args = {}) => {
-                const combinedMode = args.combinedMode === COMBINED_MODE.nonactive
-                    ? COMBINED_MODE.nonactive
-                    : COMBINED_MODE.active;
-                capturedCombinedModes.push(combinedMode);
-                return {
-                    container: {},
-                    verb: args.verb || "-maka",
-                    resolvedTenseValue: args.tenseValue || "presente",
-                    combinedMode,
-                    isNonactiveMode: combinedMode === COMBINED_MODE.nonactive,
-                    isNawat: false,
-                    modeKey: args.modeKey || "standard",
-                    subjectKeyPrefix: args.subjectKeyPrefix || "standard",
-                    subjectSubMode: args.subjectSubMode || "universal",
-                    derivationType: DERIVATION_TYPE.direct,
-                    activeValency: 2,
-                    modeObjectSlots: 1,
-                    nonactiveAvailableSlots: 1,
-                    hasPromotableObject: true,
-                    embeddedObjectFilled: false,
-                    fusionMarkers: [],
-                    objectPrefixGroups: [{ prefixes: [""] }],
-                    forceDefaultTodosKi: false,
-                    allowIndirectObjectToggle: false,
-                    indirectTogglePrefixes: [],
-                    grammarState: {},
-                    grammarUiConfig: {},
-                };
-            };
-            renderVerbConjugationBlocks = (args = {}) => {
-                capturedRenderArgs = args;
-            };
-            renderVerbConjugationsCore({
-                verb: "-maka",
-                containerId: "diag-test-container",
-                tenseValue: "presente",
-                modeKey: "standard",
-                subjectKeyPrefix: "standard",
-                subjectSubMode: "universal",
-            });
-            if (!capturedCombinedModes.includes(COMBINED_MODE.active)
-                || !capturedCombinedModes.includes(COMBINED_MODE.nonactive)) {
-                recordFailure(
-                    "verb_output_dual_source_columns_payload",
-                    `expected active+nonactive context build, got [${capturedCombinedModes.join(",")}]`
-                );
-            }
-            const renderedModes = Array.isArray(capturedRenderArgs?.modesToRender)
-                ? capturedRenderArgs.modesToRender
-                : [];
-            if (!renderedModes.includes(COMBINED_MODE.active)
-                || !renderedModes.includes(COMBINED_MODE.nonactive)) {
-                recordFailure(
-                    "verb_output_dual_source_columns_payload",
-                    `expected active+nonactive render modes, got [${renderedModes.join(",")}]`
-                );
-            }
-            if (!(capturedRenderArgs?.objectPrefixGroupsByMode instanceof Map)) {
-                recordFailure(
-                    "verb_output_dual_source_columns_payload",
-                    "objectPrefixGroupsByMode should be a Map"
-                );
-            } else {
-                if (!capturedRenderArgs.objectPrefixGroupsByMode.has(COMBINED_MODE.active)
-                    || !capturedRenderArgs.objectPrefixGroupsByMode.has(COMBINED_MODE.nonactive)) {
-                    recordFailure(
-                        "verb_output_dual_source_columns_payload",
-                        "objectPrefixGroupsByMode should include active and nonactive"
-                    );
-                }
-            }
-        } finally {
-            buildVerbTabRenderContext = originalBuildVerbTabRenderContext;
-            renderVerbConjugationBlocks = originalRenderVerbConjugationBlocks;
-            getActiveTenseMode = originalGetActiveTenseMode;
-            getCombinedMode = originalGetCombinedMode;
-        }
-        return null;
-    });
-
-    const summary = {
-        total: executed,
-        executed,
-        passed,
-        failed,
-        skipped,
-        failures,
-        skippedCases,
-    };
-    if (failures.length) {
-        console.error("Input path + availability memo tests failed:", summary);
-    } else {
-        console.log("Input path + availability memo tests passed:", summary);
-    }
-    return summary;
-}
-
-function runConstraintMutationAndCoverageTests() {
-    const failures = [];
-    const skippedCases = [];
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-    const recordSkip = (id, reason = "") => {
-        skippedCases.push(reason ? `${id}: ${reason}` : id);
-    };
-    let executed = 0;
-    let passed = 0;
-    let failed = 0;
-    let skipped = 0;
-    const runCase = (id, fn) => {
-        const failureCountBefore = failures.length;
-        let outcome = null;
-        try {
-            outcome = fn();
-        } catch (error) {
-            recordFailure(
-                id,
-                error instanceof Error ? error.message : String(error)
-            );
-        }
-        if (outcome && outcome.skipped === true) {
-            skipped += 1;
-            recordSkip(id, outcome.reason || "runtime prerequisites unavailable");
-            return;
-        }
-        executed += 1;
-        if (failures.length > failureCountBefore) {
-            failed += 1;
-        } else {
-            passed += 1;
-        }
-    };
-    const canRunGenerateWordProbe = (() => {
-        let cached = null;
-        return () => {
-            if (cached) {
-                return cached;
-            }
-            if (typeof generateWord !== "function") {
-                cached = {
-                    ok: false,
-                    reason: "generateWord unavailable",
-                };
-                return cached;
-            }
-            try {
-                const probeResult = generateWord({
-                    silent: true,
-                    skipValidation: true,
-                    override: {
-                        tenseMode: TENSE_MODE.verbo,
-                        derivationMode: DERIVATION_MODE.active,
-                        voiceMode: VOICE_MODE.active,
-                        derivationType: DERIVATION_TYPE.direct,
-                        subjectPrefix: "ni",
-                        subjectSuffix: "",
-                        objectPrefix: "ki",
-                        verb: "-maka",
-                        tense: "presente",
-                    },
-                }) || {};
-                if (typeof probeResult.result === "string" || Object.prototype.hasOwnProperty.call(probeResult, "error")) {
-                    cached = { ok: true };
-                    return cached;
-                }
-                cached = {
-                    ok: false,
-                    reason: "generateWord probe returned unexpected payload",
-                };
-                return cached;
-            } catch (error) {
-                cached = {
-                    ok: false,
-                    reason: `generateWord probe failed: ${error instanceof Error ? error.message : String(error)}`,
-                };
-                return cached;
-            }
-        };
-    })();
-    const subjectSelections = [
-        { subjectPrefix: "ni", subjectSuffix: "" },
-        { subjectPrefix: "ti", subjectSuffix: "" },
-        { subjectPrefix: "", subjectSuffix: "" },
-        { subjectPrefix: "ti", subjectSuffix: "t" },
-        { subjectPrefix: "an", subjectSuffix: "t" },
-        { subjectPrefix: "", subjectSuffix: "t" },
-    ];
-    const slotSamples = [
-        { mainline: "", shuntline1: "", shuntline2: "" },
-        { mainline: "ki", shuntline1: "", shuntline2: "" },
-        { mainline: "nech", shuntline1: "", shuntline2: "" },
-        { mainline: "metz", shuntline1: "", shuntline2: "" },
-        { mainline: "tech", shuntline1: "", shuntline2: "" },
-        { mainline: "metzin", shuntline1: "", shuntline2: "" },
-        { mainline: "ta", shuntline1: "", shuntline2: "" },
-        { mainline: "te", shuntline1: "", shuntline2: "" },
-        { mainline: "mu", shuntline1: "ta", shuntline2: "" },
-        { mainline: "ki", shuntline1: "mu", shuntline2: "ta" },
-        { mainline: "ki", shuntline1: "mu", shuntline2: "mu" },
-        { mainline: "ta", shuntline1: "te", shuntline2: "te" },
-    ];
-    const computeHierarchyProbe = (cases) => cases.map((entry) => {
-        const violations = computeConstraintViolationsCore({
-            subjectPrefix: entry.subjectPrefix,
-            subjectSuffix: entry.subjectSuffix,
-            controllerPrefix: entry.objectPrefix,
-            shouldApplyPersonAgreement: true,
-        });
-        const maskState = getConjugationMaskState({
-            subjectPrefix: entry.subjectPrefix,
-            subjectSuffix: entry.subjectSuffix,
-            objectPrefix: entry.objectPrefix,
-            comboObjectPrefix: entry.objectPrefix,
-            enforceInvalidCombo: false,
-        });
-        return {
-            entry,
-            hierarchy: violations.hierarchyOrderViolation,
-            mask: maskState.shouldMask,
-        };
-    });
-    const computeValence4Probe = (cases) => cases.map((entry) => {
-        const evaluation = evaluateGrammarConstraintSet({
-            grammarState: {
-                derivationType: DERIVATION_TYPE.causative,
-                modeValency: 4,
-            },
-            subjectSelection: { subjectPrefix: "ni", subjectSuffix: "" },
-            slotValuesByRole: entry.slotValuesByRole,
-            enforceValence4Matrix: true,
-        });
-        return {
-            entry,
-            valence4Violation: evaluation.valence4Violation,
-            shouldMask: evaluation.shouldMask,
-        };
-    });
-
-    // A) hierarchy_order_allows_third_subject_participant_objects
-    runCase("hierarchy_order_allows_third_subject_participant_objects", () => {
-        const allowedCases = [
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "nech" },
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "metz" },
-            { subjectPrefix: "", subjectSuffix: "t", objectPrefix: "tech" },
-            { subjectPrefix: "ni", subjectSuffix: "", objectPrefix: "ki" },
-            { subjectPrefix: "ti", subjectSuffix: "", objectPrefix: "ki" },
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "ki" },
-        ];
-        const allowedResults = computeHierarchyProbe(allowedCases);
-        allowedResults.forEach((result) => {
-            if (result.hierarchy || result.mask) {
-                recordFailure(
-                    "hierarchy_order_allows_third_subject_participant_objects",
-                    `expected pass for ${result.entry.subjectPrefix}|${result.entry.objectPrefix}|${result.entry.subjectSuffix}`
-                );
-            }
-        });
-        return null;
-    });
-
-    // B) valence4_whitelist_enforced
-    runCase("valence4_whitelist_enforced", () => {
-        const validCases = [
-            { slotValuesByRole: { mainline: "ki", shuntline1: "", shuntline2: "" } },
-            { slotValuesByRole: { mainline: "ki", shuntline1: "mu", shuntline2: "ta" } },
-            { slotValuesByRole: { mainline: "te", shuntline1: "te", shuntline2: "ta" } },
-        ];
-        const invalidCases = [
-            { slotValuesByRole: { mainline: "ki", shuntline1: "mu", shuntline2: "mu" } },
-            { slotValuesByRole: { mainline: "ta", shuntline1: "te", shuntline2: "te" } },
-            { slotValuesByRole: { mainline: "ki", shuntline1: "ta", shuntline2: "mu" } },
-        ];
-        computeValence4Probe(validCases).forEach((result) => {
-            if (result.valence4Violation || result.shouldMask) {
-                recordFailure(
-                    "valence4_whitelist_enforced",
-                    `expected valid combo but masked: ${JSON.stringify(result.entry.slotValuesByRole)}`
-                );
-            }
-        });
-        computeValence4Probe(invalidCases).forEach((result) => {
-            if (!result.valence4Violation || !result.shouldMask) {
-                recordFailure(
-                    "valence4_whitelist_enforced",
-                    `expected invalid combo to mask: ${JSON.stringify(result.entry.slotValuesByRole)}`
-                );
-            }
-        });
-        return null;
-    });
-
-    // C) mutation_probe_hierarchy_guard_detects_regression
-    runCase("mutation_probe_hierarchy_guard_detects_regression", () => {
-        const invalidCases = [
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "nech" },
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "metz" },
-            { subjectPrefix: "", subjectSuffix: "t", objectPrefix: "tech" },
-        ];
-        const baseline = computeHierarchyProbe(invalidCases);
-        const baselineHealthy = baseline.every((result) => result.hierarchy && result.mask);
-        if (!baselineHealthy) {
-            recordFailure("mutation_probe_hierarchy_guard_detects_regression", "baseline hierarchy probe not healthy");
-        }
-        const originalIsHierarchyOrderViolation = isHierarchyOrderViolation;
-        try {
-            isHierarchyOrderViolation = () => false;
-            const mutated = computeHierarchyProbe(invalidCases);
-            const regressionDetected = mutated.some((result) => !result.hierarchy || !result.mask);
-            if (!regressionDetected) {
-                recordFailure("mutation_probe_hierarchy_guard_detects_regression", "mutation did not trigger detectable drift");
-            }
-        } finally {
-            isHierarchyOrderViolation = originalIsHierarchyOrderViolation;
-        }
-        const hierarchyRestoreSanity = (
-            isHierarchyOrderViolation("", "", "nech")
-            && !isHierarchyOrderViolation("ni", "", "ki")
-        );
-        if (!hierarchyRestoreSanity) {
-            recordFailure(
-                "mutation_probe_hierarchy_restore_failed",
-                "post-restore hierarchy guard sanity check failed"
-            );
-        }
-        return null;
-    });
-
-    // D) mutation_probe_valence4_guard_detects_regression
-    runCase("mutation_probe_valence4_guard_detects_regression", () => {
-        const invalidCases = [
-            { slotValuesByRole: { mainline: "ki", shuntline1: "mu", shuntline2: "mu" } },
-            { slotValuesByRole: { mainline: "ta", shuntline1: "te", shuntline2: "te" } },
-        ];
-        const baseline = computeValence4Probe(invalidCases);
-        const baselineHealthy = baseline.every((result) => result.valence4Violation && result.shouldMask);
-        if (!baselineHealthy) {
-            recordFailure("mutation_probe_valence4_guard_detects_regression", "baseline valence-4 probe not healthy");
-        }
-        const originalIsValidValence4Combo = isValidValence4Combo;
-        try {
-            isValidValence4Combo = () => true;
-            const mutated = computeValence4Probe(invalidCases);
-            const regressionDetected = mutated.some((result) => !result.valence4Violation || !result.shouldMask);
-            if (!regressionDetected) {
-                recordFailure("mutation_probe_valence4_guard_detects_regression", "mutation did not trigger detectable drift");
-            }
-        } finally {
-            isValidValence4Combo = originalIsValidValence4Combo;
-        }
-        const valence4RestoreSanity = (
-            isValidValence4Combo({
-                objectPrefix: "ki",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-            })
-            && !isValidValence4Combo({
-                objectPrefix: "ki",
-                indirectObjectMarker: "mu",
-                thirdObjectMarker: "mu",
-            })
-        );
-        if (!valence4RestoreSanity) {
-            recordFailure(
-                "mutation_probe_valence4_restore_failed",
-                "post-restore valence-4 guard sanity check failed"
-            );
-        }
-        return null;
-    });
-
-    // E) coverage_v1_v2_v3_v4_mask_counts_snapshot
-    runCase("coverage_v1_v2_v3_v4_mask_counts_snapshot", () => {
-        const counts = {
-            1: 0,
-            2: 0,
-            3: 0,
-            4: 0,
-        };
-        [1, 2, 3, 4].forEach((modeValency) => {
-            subjectSelections.forEach((selection) => {
-                slotSamples.forEach((slotValuesByRole) => {
-                    const evaluation = evaluateGrammarConstraintSet({
-                        grammarState: {
-                            derivationType: DERIVATION_TYPE.applicative,
-                            modeValency,
-                        },
-                        subjectSelection: selection,
-                        slotValuesByRole,
-                        enforceValence4Matrix: modeValency >= 4,
-                    });
-                    if (evaluation.shouldMask) {
-                        counts[modeValency] += 1;
-                    }
-                });
-            });
-        });
-        const expectedCounts = {
-            1: 0,
-            2: 16,
-            3: 16,
-            4: 52,
-        };
-        [1, 2, 3, 4].forEach((modeValency) => {
-            if (counts[modeValency] !== expectedCounts[modeValency]) {
-                recordFailure(
-                    "coverage_v1_v2_v3_v4_mask_counts_snapshot",
-                    `v${modeValency} expected ${expectedCounts[modeValency]} but got ${counts[modeValency]}`
-                );
-            }
-        });
-        return null;
-    });
-
-    // F) metamorphic_includeDiagnostics_output_invariant
-    runCase("metamorphic_includeDiagnostics_output_invariant", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const base = {
-            silent: true,
-            skipValidation: true,
-            override: {
-                tenseMode: TENSE_MODE.verbo,
-                derivationMode: DERIVATION_MODE.active,
-                voiceMode: VOICE_MODE.active,
-                derivationType: DERIVATION_TYPE.direct,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-maka",
-                tense: "presente",
-            },
-        };
-        const withoutDiagnostics = generateWord({
-            ...base,
-            includeDiagnostics: false,
-        }) || {};
-        const withDiagnostics = generateWord({
-            ...base,
-            includeDiagnostics: true,
-        }) || {};
-        if ((withoutDiagnostics.result || "") !== (withDiagnostics.result || "")) {
-            recordFailure(
-                "metamorphic_includeDiagnostics_output_invariant",
-                `output drift: ${withoutDiagnostics.result || "∅"} vs ${withDiagnostics.result || "∅"}`
-            );
-        }
-        return null;
-    });
-
-    // G) metamorphic_skip_alias_parity_invariant
-    runCase("metamorphic_skip_alias_parity_invariant", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const override = {
-            tenseMode: TENSE_MODE.verbo,
-            derivationMode: DERIVATION_MODE.active,
-            voiceMode: VOICE_MODE.active,
-            derivationType: DERIVATION_TYPE.direct,
-            subjectPrefix: "ni",
-            subjectSuffix: "",
-            objectPrefix: "ki",
-            verb: "-maka",
-            tense: "preterito",
-        };
-        const canonical = generateWord({
-            silent: true,
-            skipValidation: true,
-            override,
-        }) || {};
-        const legacy = generateWord({
-            silent: true,
-            skipTransitivityValidation: true,
-            override,
-        }) || {};
-        if ((canonical.result || "") !== (legacy.result || "")) {
-            recordFailure(
-                "metamorphic_skip_alias_parity_invariant",
-                `result mismatch: ${canonical.result || "∅"} vs ${legacy.result || "∅"}`
-            );
-        }
-        if (Boolean(canonical.error) !== Boolean(legacy.error)) {
-            recordFailure("metamorphic_skip_alias_parity_invariant", "error-state mismatch");
-        }
-        return null;
-    });
-
-    // H) metamorphic_non_directional_mode_empty
-    runCase("metamorphic_non_directional_mode_empty", () => {
-        const nonDirectionalInputs = ["maka", "-maka", "ilwia", "-ilwia"];
-        nonDirectionalInputs.forEach((input) => {
-            const parsed = parseVerbInput(input);
-            if (parsed.directionalPrefix) {
-                recordFailure(
-                    "metamorphic_non_directional_mode_empty",
-                    `${input} should not have directionalPrefix`
-                );
-                return;
-            }
-            if (parsed.directionalRuleModeProvisional !== "" || parsed.directionalRuleMode !== "") {
-                recordFailure(
-                    "metamorphic_non_directional_mode_empty",
-                    `${input} provisional/legacy mode should be empty`
-                );
-            }
-            const resolved = resolveDirectionalRuleMode(parsed, {
-                derivationType: DERIVATION_TYPE.causative,
-                isNonactive: false,
-            });
-            if (resolved !== "" || parsed.directionalRuleModeResolved !== "" || parsed.directionalRuleMode !== "") {
-                recordFailure(
-                    "metamorphic_non_directional_mode_empty",
-                    `${input} resolved mode should be empty`
-                );
-            }
-        });
-        return null;
-    });
-
-    // I) golden_s0_s8_regression_pair
-    runCase("golden_s0_s8_regression_pair", () => {
-        const probe = canRunGenerateWordProbe();
-        if (!probe.ok) {
-            return { skipped: true, reason: probe.reason };
-        }
-        const base = {
-            silent: true,
-            skipValidation: true,
-            override: {
-                tenseMode: TENSE_MODE.verbo,
-                derivationMode: DERIVATION_MODE.active,
-                voiceMode: VOICE_MODE.active,
-                derivationType: DERIVATION_TYPE.direct,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-maka",
-            },
-        };
-        const present = generateWord({
-            ...base,
-            override: {
-                ...base.override,
-                tense: "presente",
-            },
-        }) || {};
-        const preterite = generateWord({
-            ...base,
-            override: {
-                ...base.override,
-                tense: "preterito",
-            },
-        }) || {};
-        if ((present.result || "") !== "nikmaka") {
-            recordFailure(
-                "golden_s0_s8_regression_pair",
-                `present expected nikmaka but got ${present.result || "∅"}`
-            );
-        }
-        if ((preterite.result || "") !== "nikmak / nikmakak") {
-            recordFailure(
-                "golden_s0_s8_regression_pair",
-                `preterite expected nikmak / nikmakak but got ${preterite.result || "∅"}`
-            );
-        }
-        return null;
-    });
-
-    const summary = {
-        total: executed,
-        executed,
-        passed,
-        failed,
-        skipped,
-        failures,
-        skippedCases,
-    };
-    if (failures.length) {
-        console.error("Constraint mutation and coverage tests failed:", summary);
-    } else {
-        console.log("Constraint mutation and coverage tests passed:", summary);
-    }
-    return summary;
-}
-
-function runPreloadBootstrapSafetyTests() {
-    const failures = [];
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-    const canRunGenerateWord = typeof generateWord === "function";
-    const runSampleGeneration = () => {
-        if (!canRunGenerateWord) {
-            return "";
-        }
-        const result = generateWord({
-            silent: true,
-            skipValidation: true,
-            override: {
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-[wal]/maka",
-                tense: "presente",
-            },
-        }) || {};
-        return result.result || "";
-    };
-    const originalDirectionalPrefixes = Array.isArray(DIRECTIONAL_PREFIXES)
-        ? [...DIRECTIONAL_PREFIXES]
-        : [];
-    const originalCompoundMarkerRe = COMPOUND_MARKER_RE;
-    const originalCompoundMarkerSplitRe = COMPOUND_MARKER_SPLIT_RE;
-    const originalCompoundAllowedRe = COMPOUND_ALLOWED_RE;
-
-    const setPreloadState = () => {
-        DIRECTIONAL_PREFIXES = [];
-        COMPOUND_MARKER_RE = null;
-        COMPOUND_MARKER_SPLIT_RE = null;
-        COMPOUND_ALLOWED_RE = null;
-    };
-    const restoreLoadedState = () => {
-        DIRECTIONAL_PREFIXES = [...originalDirectionalPrefixes];
-        COMPOUND_MARKER_RE = originalCompoundMarkerRe;
-        COMPOUND_MARKER_SPLIT_RE = originalCompoundMarkerSplitRe;
-        COMPOUND_ALLOWED_RE = originalCompoundAllowedRe;
-    };
-
-    let baselineLoadedOutput = "";
-    try {
-        baselineLoadedOutput = runSampleGeneration();
-    } catch (error) {
-        recordFailure(
-            "parse_after_static_load_same_output",
-            `baseline generation failed: ${error instanceof Error ? error.message : String(error)}`
-        );
-    }
-
-    // parse_before_static_load_no_throw
-    try {
-        setPreloadState();
-        parseVerbInput("-[wal]/maka");
-        parseVerbInput("--maka");
-        runSampleGeneration();
-    } catch (error) {
-        recordFailure(
-            "parse_before_static_load_no_throw",
-            error instanceof Error ? error.message : String(error)
-        );
-    } finally {
-        restoreLoadedState();
-    }
-
-    // parse_after_static_load_same_output
-    try {
-        setPreloadState();
-        runSampleGeneration();
-    } catch (error) {
-        recordFailure(
-            "parse_after_static_load_same_output",
-            `preload generation failed: ${error instanceof Error ? error.message : String(error)}`
-        );
-    } finally {
-        restoreLoadedState();
-    }
-    try {
-        const postLoadOutput = runSampleGeneration();
-        if (baselineLoadedOutput !== postLoadOutput) {
-            recordFailure(
-                "parse_after_static_load_same_output",
-                `expected ${baselineLoadedOutput} but got ${postLoadOutput}`
-            );
-        }
-    } catch (error) {
-        recordFailure(
-            "parse_after_static_load_same_output",
-            `postload generation failed: ${error instanceof Error ? error.message : String(error)}`
-        );
-    }
-
-    // directional_mode_preload_safe_non_throw
-    try {
-        setPreloadState();
-        const parsedPreload = parseVerbInput("-[wal]/maka");
-        const resolvedPreloadMode = resolveDirectionalRuleMode(parsedPreload, {
-            derivationType: DERIVATION_TYPE.direct,
-            isNonactive: false,
-        });
-        if (parsedPreload.directionalPrefix !== "wal") {
-            recordFailure(
-                "directional_mode_preload_safe_non_throw",
-                `expected directionalPrefix=wal but got ${parsedPreload.directionalPrefix || "∅"}`
-            );
-        }
-        if (resolvedPreloadMode !== "transitive") {
-            recordFailure(
-                "directional_mode_preload_safe_non_throw",
-                `expected transitive but got ${resolvedPreloadMode || "∅"}`
-            );
-        }
-    } catch (error) {
-        recordFailure(
-            "directional_mode_preload_safe_non_throw",
-            error instanceof Error ? error.message : String(error)
-        );
-    } finally {
-        restoreLoadedState();
-    }
-
-    // directional_mode_postload_expected
-    try {
-        const parsedPostload = parseVerbInput("-[wal]/maka");
-        const resolvedPostloadMode = resolveDirectionalRuleMode(parsedPostload, {
-            derivationType: DERIVATION_TYPE.direct,
-            isNonactive: false,
-        });
-        if (parsedPostload.directionalPrefix !== "wal") {
-            recordFailure(
-                "directional_mode_postload_expected",
-                `expected directionalPrefix=wal but got ${parsedPostload.directionalPrefix || "∅"}`
-            );
-        }
-        if (resolvedPostloadMode !== "transitive") {
-            recordFailure(
-                "directional_mode_postload_expected",
-                `expected transitive but got ${resolvedPostloadMode || "∅"}`
-            );
-        }
-    } catch (error) {
-        recordFailure(
-            "directional_mode_postload_expected",
-            error instanceof Error ? error.message : String(error)
-        );
-    } finally {
-        restoreLoadedState();
-    }
-
-    const summary = {
-        total: 4,
-        passed: 4 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Preload bootstrap safety tests failed:", summary);
-    } else {
-        console.log("Preload bootstrap safety tests passed:", summary);
-    }
-    return summary;
-}
-
-function runGrammarDiagnosticsTransportTests() {
-    const failures = [];
-
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-
-    const hasDocumentApi = (
-        typeof document !== "undefined"
-        && document
-        && typeof document.getElementById === "function"
-    );
-
-    // diagnostics_off_default_no_transport_payload
-    // diagnostics_on_includes_constraint_and_stempairs
-    if (hasDocumentApi) {
-        const originalGetElementById = document.getElementById.bind(document);
-        const originalGetActiveTenseMode = getActiveTenseMode;
-        const originalGetCombinedMode = getCombinedMode;
-        const originalGetParsedVerbForTab = getParsedVerbForTab;
-        const originalGetActiveDerivationType = getActiveDerivationType;
-        const originalBuildCanonicalGrammarState = buildCanonicalGrammarState;
-        const originalGetAvailableObjectSlots = getAvailableObjectSlots;
-        const originalGetVerbObjectPrefixGroups = getVerbObjectPrefixGroups;
-        const originalRunVerbGrammarPipeline = runVerbGrammarPipeline;
-        const capturedIncludeDiagnostics = [];
-        try {
-            const fakeContainer = {};
-            const fakeLanguage = { checked: false };
-            document.getElementById = (id) => {
-                if (id === "diag-test-container") {
-                    return fakeContainer;
-                }
-                if (id === "language") {
-                    return fakeLanguage;
-                }
-                return null;
-            };
-            getActiveTenseMode = () => TENSE_MODE.verbo;
-            getCombinedMode = () => COMBINED_MODE.active;
-            getParsedVerbForTab = () => ({
-                derivationType: DERIVATION_TYPE.direct,
-                hasConsecutiveSpecificValences: false,
-                embeddedValenceCount: 0,
-                isTaFusion: false,
-                fusionPrefixes: [],
-            });
-            getActiveDerivationType = () => DERIVATION_TYPE.direct;
-            buildCanonicalGrammarState = () => ({
-                valencySummary: {
-                    nonactiveObjectSlots: 0,
-                    baseObjectSlots: 1,
-                    fusionObjectSlots: 0,
-                    availableObjectSlots: 1,
-                },
-                valencyActive: 2,
-                modeSlots: ["mainline"],
-            });
-            getAvailableObjectSlots = () => 1;
-            getVerbObjectPrefixGroups = () => [{ prefixes: ["ki"] }];
-            runVerbGrammarPipeline = (args = {}) => {
-                capturedIncludeDiagnostics.push(args.includeDiagnostics);
-                return {
-                    state: {
-                        valencySummary: { nonactiveObjectSlots: 0 },
-                        valencyActive: 2,
-                        modeSlots: ["mainline"],
-                    },
-                    uiConfig: { visibleSlots: [] },
-                    constraintStep: { constraintIds: [GRAMMAR_CONSTRAINT_IDS.personAgreement] },
-                    stemStep: { stemPairs: [{ index: 0, active: "mak", nonactive: "maku" }] },
-                };
-            };
-
-            const contextDefault = buildVerbTabRenderContext({
-                verb: "-maka",
-                containerId: "diag-test-container",
-                tenseValue: "presente",
-                modeKey: "standard",
-                subjectKeyPrefix: "standard",
-                subjectSubMode: "universal",
-            });
-            if (Object.prototype.hasOwnProperty.call(contextDefault, "grammarConstraintContext")) {
-                recordFailure("diagnostics_off_default_no_transport_payload", "grammarConstraintContext should be omitted");
-            }
-            if (Object.prototype.hasOwnProperty.call(contextDefault, "grammarStemPairs")) {
-                recordFailure("diagnostics_off_default_no_transport_payload", "grammarStemPairs should be omitted");
-            }
-            if (capturedIncludeDiagnostics[0] !== false) {
-                recordFailure("diagnostics_off_default_no_transport_payload", "includeDiagnostics should thread as false");
-            }
-
-            const contextDiagnostics = buildVerbTabRenderContext({
-                verb: "-maka",
-                containerId: "diag-test-container",
-                tenseValue: "presente",
-                modeKey: "standard",
-                subjectKeyPrefix: "standard",
-                subjectSubMode: "universal",
-                includeDiagnostics: true,
-            });
-            if (!Object.prototype.hasOwnProperty.call(contextDiagnostics, "grammarConstraintContext")) {
-                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "missing grammarConstraintContext");
-            }
-            if (!Object.prototype.hasOwnProperty.call(contextDiagnostics, "grammarStemPairs")) {
-                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "missing grammarStemPairs");
-            }
-            if (!Array.isArray(contextDiagnostics.grammarStemPairs)) {
-                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "grammarStemPairs should be an array");
-            }
-            if (capturedIncludeDiagnostics[1] !== true) {
-                recordFailure("diagnostics_on_includes_constraint_and_stempairs", "includeDiagnostics should thread as true");
-            }
-        } finally {
-            document.getElementById = originalGetElementById;
-            getActiveTenseMode = originalGetActiveTenseMode;
-            getCombinedMode = originalGetCombinedMode;
-            getParsedVerbForTab = originalGetParsedVerbForTab;
-            getActiveDerivationType = originalGetActiveDerivationType;
-            buildCanonicalGrammarState = originalBuildCanonicalGrammarState;
-            getAvailableObjectSlots = originalGetAvailableObjectSlots;
-            getVerbObjectPrefixGroups = originalGetVerbObjectPrefixGroups;
-            runVerbGrammarPipeline = originalRunVerbGrammarPipeline;
-        }
-    }
-
-    // diagnostics_off_skips_stem_derivation_step
-    const originalGrammarPipelineDeriveStems = grammarPipelineDeriveStems;
-    try {
-        let deriveCalls = 0;
-        grammarPipelineDeriveStems = function wrappedGrammarPipelineDeriveStems(args = {}) {
-            deriveCalls += 1;
-            return originalGrammarPipelineDeriveStems(args);
-        };
-        const parsedVerb = {
-            verb: "-maka",
-            analysisVerb: "maka",
-            derivationType: DERIVATION_TYPE.direct,
-            hasSpecificValence: true,
-            hasNonspecificValence: false,
-            hasNonactiveSpecificValence: false,
-            hasNonactiveNonspecificValence: false,
-            fusionPrefixes: [],
-        };
-        const offRun = runVerbGrammarPipeline({
-            verb: parsedVerb.verb,
-            modeKey: "diag-off",
-            parsedVerb,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: false,
-        });
-        if (deriveCalls !== 0) {
-            recordFailure("diagnostics_off_skips_stem_derivation_step", `expected 0 derive calls, got ${deriveCalls}`);
-        }
-        if (Object.prototype.hasOwnProperty.call(offRun, "stemStep")) {
-            recordFailure("diagnostics_off_skips_stem_derivation_step", "stemStep should be omitted when diagnostics off");
-        }
-        const onRun = runVerbGrammarPipeline({
-            verb: parsedVerb.verb,
-            modeKey: "diag-on",
-            parsedVerb,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: true,
-        });
-        if (deriveCalls < 1) {
-            recordFailure("diagnostics_off_skips_stem_derivation_step", "derive step should execute when diagnostics on");
-        }
-        if (!onRun || !onRun.stemStep) {
-            recordFailure("diagnostics_off_skips_stem_derivation_step", "stemStep missing when diagnostics on");
-        }
-    } finally {
-        grammarPipelineDeriveStems = originalGrammarPipelineDeriveStems;
-    }
-
-    // grammar_diagnostics_tests_non_dom_safe
-    try {
-        const sampleParsed = {
-            verb: "-maka",
-            analysisVerb: "maka",
-            derivationType: DERIVATION_TYPE.direct,
-            hasSpecificValence: true,
-            hasNonspecificValence: false,
-            hasNonactiveSpecificValence: false,
-            hasNonactiveNonspecificValence: false,
-            fusionPrefixes: [],
-        };
-        const nonDomOff = runVerbGrammarPipeline({
-            verb: sampleParsed.verb,
-            modeKey: "non-dom-safe-off",
-            parsedVerb: sampleParsed,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: false,
-        });
-        const nonDomOn = runVerbGrammarPipeline({
-            verb: sampleParsed.verb,
-            modeKey: "non-dom-safe-on",
-            parsedVerb: sampleParsed,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: true,
-        });
-        if (!nonDomOff || !nonDomOn) {
-            recordFailure("grammar_diagnostics_tests_non_dom_safe");
-        }
-    } catch (error) {
-        recordFailure(
-            "grammar_diagnostics_tests_non_dom_safe",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // golden_output_unchanged_with_diagnostics_toggle
-    let resultWithoutDiagnostics = "";
-    let resultWithDiagnostics = "";
-    if (
-        typeof generateWord === "function"
-        && typeof document !== "undefined"
-        && document.getElementById
-        && document.getElementById("verb")
-    ) {
-        const baseOptions = {
-            silent: true,
-            skipValidation: true,
-            override: {
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: "ki",
-                verb: "-maka",
-                tense: "presente",
-            },
-        };
-        resultWithoutDiagnostics = (generateWord(baseOptions) || {}).result || "";
-        resultWithDiagnostics = (generateWord({
-            ...baseOptions,
-            includeDiagnostics: true,
-        }) || {}).result || "";
-    } else {
-        const sampleParsed = {
-            verb: "-maka",
-            analysisVerb: "maka",
-            derivationType: DERIVATION_TYPE.direct,
-            hasSpecificValence: true,
-            hasNonspecificValence: false,
-            hasNonactiveSpecificValence: false,
-            hasNonactiveNonspecificValence: false,
-            fusionPrefixes: [],
-        };
-        const offRun = runVerbGrammarPipeline({
-            verb: sampleParsed.verb,
-            modeKey: "golden-off",
-            parsedVerb: sampleParsed,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: false,
-        });
-        const onRun = runVerbGrammarPipeline({
-            verb: sampleParsed.verb,
-            modeKey: "golden-on",
-            parsedVerb: sampleParsed,
-            derivationType: DERIVATION_TYPE.direct,
-            voiceMode: VOICE_MODE.active,
-            isNonactiveMode: false,
-            includeDiagnostics: true,
-        });
-        resultWithoutDiagnostics = offRun?.parseStep?.parsedVerb?.verb || "";
-        resultWithDiagnostics = onRun?.parseStep?.parsedVerb?.verb || "";
-    }
-    if (resultWithoutDiagnostics !== resultWithDiagnostics) {
-        recordFailure(
-            "golden_output_unchanged_with_diagnostics_toggle",
-            `result mismatch (${resultWithoutDiagnostics} vs ${resultWithDiagnostics})`
-        );
-    }
-
-    const summary = {
-        total: 5,
-        passed: 5 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Grammar diagnostics transport tests failed:", summary);
-    } else {
-        console.log("Grammar diagnostics transport tests passed:", summary);
-    }
-    return summary;
-}
-
-function runConstraintCoreUnificationTests() {
-    const failures = [];
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-    const normalizeConstraintIds = (ids) => (Array.isArray(ids) ? ids.slice().sort().join("|") : "");
-    const legacyComputeConstraintViolations = ({
-        subjectPrefix = "",
-        subjectSuffix = "",
-        controllerPrefix = "",
-        shouldApplyPersonAgreement = true,
-        enforceValence4Matrix = false,
-        valence4Slots = null,
-    }) => {
-        const resolvedSubjectPrefix = subjectPrefix || "";
-        const resolvedSubjectSuffix = subjectSuffix || "";
-        const resolvedControllerPrefix = controllerPrefix || "";
-        const personAgreementViolation = shouldApplyPersonAgreement
-            && !!resolvedControllerPrefix
-            && isSamePersonAcrossNumber(
-                resolvedSubjectPrefix,
-                resolvedSubjectSuffix,
-                resolvedControllerPrefix
-            );
-        const hierarchyOrderViolation = shouldApplyPersonAgreement
-            && !!resolvedControllerPrefix
-            && isHierarchyOrderViolation(
-                resolvedSubjectPrefix,
-                resolvedSubjectSuffix,
-                resolvedControllerPrefix
-            );
-        const valence4Violation = enforceValence4Matrix
-            && !!valence4Slots
-            && !isValidValence4Combo({
-                objectPrefix: valence4Slots.objectPrefix || "",
-                indirectObjectMarker: valence4Slots.indirectObjectMarker || "",
-                thirdObjectMarker: valence4Slots.thirdObjectMarker || "",
-            });
-        return {
-            personAgreementViolation,
-            hierarchyOrderViolation,
-            valence4Violation,
-            shouldMaskByCore: personAgreementViolation || hierarchyOrderViolation || valence4Violation,
-        };
-    };
-    const legacyEvaluateGrammarConstraintSet = ({
-        grammarState = null,
-        subjectSelection = null,
-        slotValuesByRole = {},
-        enforceValence4Matrix = false,
-    }) => {
-        const state = grammarState || buildCanonicalGrammarState({});
-        const rawRoleValues = {
-            mainline: slotValuesByRole.mainline || "",
-            shuntline1: slotValuesByRole.shuntline1 || "",
-            shuntline2: slotValuesByRole.shuntline2 || "",
-        };
-        const controllerRole = getCanonicalControllerRole(state.derivationType);
-        const rawControllerPrefix = rawRoleValues[controllerRole] || "";
-        const controllerPriority = getDerivationControllerSlotPriority(state.derivationType);
-        const roleValuesBySlotId = {
-            [getCanonicalSlotIdForRole("mainline")]: rawRoleValues.mainline || "",
-            [getCanonicalSlotIdForRole("shuntline1")]: rawRoleValues.shuntline1 || "",
-        };
-        const controllerPrefix = resolveComboValidationObjectPrefix({
-            objectPrefix: roleValuesBySlotId.object || "",
-            indirectObjectMarker: roleValuesBySlotId.object2 || "",
-            derivationType: state.derivationType,
-            controllerObjectMarker: rawControllerPrefix !== ""
-                ? rawControllerPrefix
-                : controllerPriority
-                    .map((slotId) => roleValuesBySlotId[slotId] || "")
-                    .find((prefix) => Boolean(prefix)) || null,
-        });
-        const subjectPrefix = subjectSelection?.subjectPrefix || "";
-        const subjectSuffix = subjectSelection?.subjectSuffix || "";
-        const legacyViolations = legacyComputeConstraintViolations({
-            subjectPrefix,
-            subjectSuffix,
-            controllerPrefix,
-            shouldApplyPersonAgreement: Number(state.modeValency) >= 2,
-            enforceValence4Matrix,
-            valence4Slots: {
-                objectPrefix: rawRoleValues.mainline,
-                indirectObjectMarker: rawRoleValues.shuntline1,
-                thirdObjectMarker: rawRoleValues.shuntline2,
-            },
-        });
-        const maskedConstraintIds = [];
-        if (legacyViolations.personAgreementViolation) {
-            maskedConstraintIds.push(GRAMMAR_CONSTRAINT_IDS.personAgreement);
-        }
-        if (legacyViolations.hierarchyOrderViolation) {
-            maskedConstraintIds.push(GRAMMAR_CONSTRAINT_IDS.hierarchyOrder);
-        }
-        if (legacyViolations.valence4Violation) {
-            maskedConstraintIds.push(GRAMMAR_CONSTRAINT_IDS.valence4Matrix);
-        }
-        return {
-            personAgreementViolation: legacyViolations.personAgreementViolation,
-            hierarchyOrderViolation: legacyViolations.hierarchyOrderViolation,
-            valence4Violation: legacyViolations.valence4Violation,
-            shouldMask: legacyViolations.shouldMaskByCore,
-            maskedConstraintIds,
-        };
-    };
-    const legacyGetConjugationMaskState = ({
-        result,
-        subjectPrefix,
-        subjectSuffix,
-        objectPrefix = "",
-        comboObjectPrefix,
-        derivationType = "",
-        indirectObjectMarker = "",
-        controllerObjectMarker = null,
-        enforceInvalidCombo = true,
-        invalidComboSet = INVALID_COMBINATION_KEYS,
-    }) => {
-        const hasExplicitComboObjectPrefix = (
-            comboObjectPrefix !== undefined
-            && comboObjectPrefix !== null
-            && comboObjectPrefix !== ""
-        );
-        const effectiveObjectPrefix = hasExplicitComboObjectPrefix
-            ? comboObjectPrefix
-            : resolveComboValidationObjectPrefix({
-                objectPrefix,
-                indirectObjectMarker,
-                derivationType,
-                controllerObjectMarker,
-            });
-        const invalidCombo = enforceInvalidCombo && invalidComboSet.has(
-            getComboKey(subjectPrefix, effectiveObjectPrefix, subjectSuffix)
-        );
-        const samePerson = !!effectiveObjectPrefix
-            && isSamePersonAcrossNumber(subjectPrefix, subjectSuffix, effectiveObjectPrefix);
-        const hierarchyOrderViolation = !!effectiveObjectPrefix
-            && isHierarchyOrderViolation(subjectPrefix, subjectSuffix, effectiveObjectPrefix);
-        const hideReflexive = !!(result && result.isReflexive && getObjectCategory(objectPrefix) !== "reflexive");
-        const shouldMask = !!(
-            result?.error
-            || hideReflexive
-            || invalidCombo
-            || samePerson
-            || hierarchyOrderViolation
-        );
-        const isError = !!(result?.error || invalidCombo || samePerson || hierarchyOrderViolation);
-        return { shouldMask, isError };
-    };
-
-    // constraint_core_parity_with_existing_paths
-    try {
-        const derivationTypes = [
-            DERIVATION_TYPE.direct,
-            DERIVATION_TYPE.causative,
-            DERIVATION_TYPE.applicative,
-        ];
-        const modeValencies = [1, 2, 3, 4];
-        const subjectSelections = [
-            { subjectPrefix: "ni", subjectSuffix: "" },
-            { subjectPrefix: "ti", subjectSuffix: "" },
-            { subjectPrefix: "", subjectSuffix: "" },
-            { subjectPrefix: "ti", subjectSuffix: "t" },
-            { subjectPrefix: "an", subjectSuffix: "t" },
-            { subjectPrefix: "", subjectSuffix: "t" },
-        ];
-        const slotSamples = [
-            { mainline: "", shuntline1: "", shuntline2: "" },
-            { mainline: "ki", shuntline1: "", shuntline2: "" },
-            { mainline: "nech", shuntline1: "", shuntline2: "" },
-            { mainline: "metz", shuntline1: "", shuntline2: "" },
-            { mainline: "ta", shuntline1: "", shuntline2: "" },
-            { mainline: "mu", shuntline1: "ta", shuntline2: "" },
-            { mainline: "te", shuntline1: "ta", shuntline2: "" },
-            { mainline: "ki", shuntline1: "mu", shuntline2: "ta" },
-            { mainline: "ta", shuntline1: "te", shuntline2: "te" },
-            { mainline: "metzin", shuntline1: "", shuntline2: "" },
-        ];
-        derivationTypes.forEach((derivationType) => {
-            modeValencies.forEach((modeValency) => {
-                const grammarState = {
-                    derivationType,
-                    modeValency,
-                };
-                subjectSelections.forEach((selection) => {
-                    slotSamples.forEach((slotValuesByRole) => {
-                        const enforceValence4Matrix = modeValency >= 4;
-                        const currentEval = evaluateGrammarConstraintSet({
-                            grammarState,
-                            subjectSelection: selection,
-                            slotValuesByRole,
-                            enforceValence4Matrix,
-                        });
-                        const legacyEval = legacyEvaluateGrammarConstraintSet({
-                            grammarState,
-                            subjectSelection: selection,
-                            slotValuesByRole,
-                            enforceValence4Matrix,
-                        });
-                        if (
-                            currentEval.personAgreementViolation !== legacyEval.personAgreementViolation
-                            || currentEval.hierarchyOrderViolation !== legacyEval.hierarchyOrderViolation
-                            || currentEval.valence4Violation !== legacyEval.valence4Violation
-                            || currentEval.shouldMask !== legacyEval.shouldMask
-                            || normalizeConstraintIds(currentEval.maskedConstraintIds)
-                                !== normalizeConstraintIds(legacyEval.maskedConstraintIds)
-                        ) {
-                            recordFailure(
-                                "constraint_core_parity_with_existing_paths",
-                                `${derivationType}|v${modeValency}|${selection.subjectPrefix}${selection.subjectSuffix}|${slotValuesByRole.mainline}|${slotValuesByRole.shuntline1}|${slotValuesByRole.shuntline2}`
-                            );
-                        }
-
-                        const maskArgs = {
-                            result: slotValuesByRole.mainline === "mu" ? { isReflexive: true } : null,
-                            subjectPrefix: selection.subjectPrefix,
-                            subjectSuffix: selection.subjectSuffix,
-                            objectPrefix: slotValuesByRole.mainline,
-                            derivationType,
-                            indirectObjectMarker: slotValuesByRole.shuntline1,
-                            enforceInvalidCombo: true,
-                            invalidComboSet: INVALID_COMBINATION_KEYS,
-                        };
-                        const currentMask = getConjugationMaskState(maskArgs);
-                        const legacyMask = legacyGetConjugationMaskState(maskArgs);
-                        if (
-                            currentMask.shouldMask !== legacyMask.shouldMask
-                            || currentMask.isError !== legacyMask.isError
-                        ) {
-                            recordFailure(
-                                "constraint_core_parity_with_existing_paths",
-                                `mask:${derivationType}|v${modeValency}|${selection.subjectPrefix}${selection.subjectSuffix}|${slotValuesByRole.mainline}|${slotValuesByRole.shuntline1}|${slotValuesByRole.shuntline2}`
-                            );
-                        }
-                    });
-                });
-            });
-        });
-    } catch (error) {
-        recordFailure(
-            "constraint_core_parity_with_existing_paths",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // constraint_core_allows_third_subject_participant_objects
-    try {
-        const allowedCases = [
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "nech" },
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "metz" },
-            { subjectPrefix: "", subjectSuffix: "t", objectPrefix: "tech" },
-            { subjectPrefix: "ni", subjectSuffix: "", objectPrefix: "ki" },
-            { subjectPrefix: "ti", subjectSuffix: "", objectPrefix: "ki" },
-            { subjectPrefix: "", subjectSuffix: "", objectPrefix: "ki" },
-        ];
-        allowedCases.forEach((entry) => {
-            const violations = computeConstraintViolationsCore({
-                subjectPrefix: entry.subjectPrefix,
-                subjectSuffix: entry.subjectSuffix,
-                controllerPrefix: entry.objectPrefix,
-                shouldApplyPersonAgreement: true,
-            });
-            const maskState = getConjugationMaskState({
-                subjectPrefix: entry.subjectPrefix,
-                subjectSuffix: entry.subjectSuffix,
-                objectPrefix: entry.objectPrefix,
-                comboObjectPrefix: entry.objectPrefix,
-                enforceInvalidCombo: false,
-            });
-            if (violations.hierarchyOrderViolation || maskState.shouldMask) {
-                recordFailure(
-                    "constraint_core_allows_third_subject_participant_objects",
-                    `expected pass for ${entry.subjectPrefix}|${entry.objectPrefix}|${entry.subjectSuffix}`
-                );
-            }
-        });
-    } catch (error) {
-        recordFailure(
-            "constraint_core_allows_third_subject_participant_objects",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // constraint_core_valence4_matrix_cases
-    try {
-        const grammarState = {
-            derivationType: DERIVATION_TYPE.causative,
-            modeValency: 4,
-        };
-        const subjectSelection = { subjectPrefix: "ni", subjectSuffix: "" };
-        const cases = [
-            {
-                name: "valid_ki_silent_silent",
-                slotValuesByRole: { mainline: "ki", shuntline1: "", shuntline2: "" },
-                expectedViolation: false,
-            },
-            {
-                name: "valid_specific_representative_collapse",
-                slotValuesByRole: { mainline: "metz", shuntline1: "", shuntline2: "" },
-                expectedViolation: false,
-            },
-            {
-                name: "invalid_ki_mu_mu",
-                slotValuesByRole: { mainline: "ki", shuntline1: "mu", shuntline2: "mu" },
-                expectedViolation: true,
-            },
-            {
-                name: "invalid_ta_te_te",
-                slotValuesByRole: { mainline: "ta", shuntline1: "te", shuntline2: "te" },
-                expectedViolation: true,
-            },
-        ];
-        cases.forEach((entry) => {
-            const evaluation = evaluateGrammarConstraintSet({
-                grammarState,
-                subjectSelection,
-                slotValuesByRole: entry.slotValuesByRole,
-                enforceValence4Matrix: true,
-            });
-            if (evaluation.valence4Violation !== entry.expectedViolation) {
-                recordFailure(
-                    "constraint_core_valence4_matrix_cases",
-                    `${entry.name}: expected valence4Violation=${entry.expectedViolation ? "true" : "false"}`
-                );
-            }
-            if (evaluation.shouldMask !== entry.expectedViolation) {
-                recordFailure(
-                    "constraint_core_valence4_matrix_cases",
-                    `${entry.name}: expected shouldMask=${entry.expectedViolation ? "true" : "false"}`
-                );
-            }
-        });
-    } catch (error) {
-        recordFailure(
-            "constraint_core_valence4_matrix_cases",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    // constraint_core_no_output_delta_golden
-    try {
-        const hasRuntimeGenerateWord = typeof generateWord === "function";
-        const hasRuntimeVerbInput = (
-            typeof document !== "undefined"
-            && document
-            && typeof document.getElementById === "function"
-            && !!document.getElementById("verb")
-        );
-        if (hasRuntimeGenerateWord && hasRuntimeVerbInput) {
-            const snapshot = generateWord({
-                silent: true,
-                skipValidation: true,
-                override: {
-                    tenseMode: TENSE_MODE.verbo,
-                    derivationMode: DERIVATION_MODE.active,
-                    voiceMode: VOICE_MODE.active,
-                    derivationType: DERIVATION_TYPE.direct,
-                    subjectPrefix: "ni",
-                    subjectSuffix: "",
-                    objectPrefix: "ki",
-                    verb: "-maka",
-                    tense: "preterito",
-                },
-            }) || {};
-            const expected = "nikmak / nikmakak";
-            if ((snapshot.result || "") !== expected) {
-                recordFailure(
-                    "constraint_core_no_output_delta_golden",
-                    `expected ${expected} but got ${snapshot.result || "∅"}`
-                );
-            }
-        }
-    } catch (error) {
-        recordFailure(
-            "constraint_core_no_output_delta_golden",
-            error instanceof Error ? error.message : String(error)
-        );
-    }
-
-    const summary = {
-        total: 4,
-        passed: 4 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Constraint core unification tests failed:", summary);
-    } else {
-        console.log("Constraint core unification tests passed:", summary);
-    }
-    return summary;
-}
-
-function runNounForwardDerivationRegressionTests() {
-    const failures = [];
-    let executed = 0;
-    let passed = 0;
-    let failed = 0;
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-    const runCase = (id, fn) => {
-        const failureCountBefore = failures.length;
-        try {
-            fn();
-        } catch (error) {
-            recordFailure(id, error instanceof Error ? error.message : String(error));
-        }
-        executed += 1;
-        if (failures.length > failureCountBefore) {
-            failed += 1;
-        } else {
-            passed += 1;
-        }
-    };
-    const splitForms = (value = "") => String(value || "")
-        .split(/\s*\/\s*/g)
-        .map((part) => part.trim())
-        .filter(Boolean);
-    const withStubbedNounForwardEnvironment = (run, overrides = {}) => {
-        const originalGetInvalidVerbCharacters = getInvalidVerbCharacters;
-        const originalGetInvalidVerbLetters = getInvalidVerbLetters;
-        const originalGetInvalidVerbStructure = getInvalidVerbStructure;
-        const originalGetNounObjectSlotPlansFromMeta = getNounObjectSlotPlansFromMeta;
-        const originalIsNonactiveTransitiveVerb = isNonactiveTransitiveVerb;
-        const originalIsNonanimateSubject = isNonanimateSubject;
-        const originalGetBaseObjectSlots = getBaseObjectSlots;
-        const originalGetAvailableObjectSlots = getAvailableObjectSlots;
-        const originalResolveDirectionalRuleMode = resolveDirectionalRuleMode;
-        const originalApplyNounForwardDerivation = applyNounForwardDerivation;
-        const originalApplyNonspecificObjectAllomorphy = applyNonspecificObjectAllomorphy;
-        const originalApplyMorphologyRules = applyMorphologyRules;
-        const originalBuildMorphologyMetaOptions = buildMorphologyMetaOptions;
-        const originalBuildPrefixedChain = buildPrefixedChain;
-        try {
-            getInvalidVerbCharacters = overrides.getInvalidVerbCharacters || (() => []);
-            getInvalidVerbLetters = overrides.getInvalidVerbLetters || (() => []);
-            getInvalidVerbStructure = overrides.getInvalidVerbStructure || (() => false);
-            getNounObjectSlotPlansFromMeta = overrides.getNounObjectSlotPlansFromMeta
-                || (() => ({
-                    slotPlans: [
-                        { id: "object", toggleValues: [""] },
-                        { id: "object2", toggleValues: [""] },
-                        { id: "object3", toggleValues: [""] },
-                    ],
-                }));
-            isNonactiveTransitiveVerb = overrides.isNonactiveTransitiveVerb || (() => false);
-            isNonanimateSubject = overrides.isNonanimateSubject || (() => true);
-            getBaseObjectSlots = overrides.getBaseObjectSlots || (() => 0);
-            getAvailableObjectSlots = overrides.getAvailableObjectSlots || (() => 0);
-            resolveDirectionalRuleMode = overrides.resolveDirectionalRuleMode || (() => "");
-            applyNounForwardDerivation = overrides.applyNounForwardDerivation || (() => ({
-                blocked: false,
-                isYawi: false,
-                isWeya: false,
-                suppletiveStemSet: new Set(),
-                stemTargets: [
-                    { verb: "stemA", analysisVerb: "stemA" },
-                    { verb: "stemB", analysisVerb: "stemB" },
-                ],
-            }));
-            applyNonspecificObjectAllomorphy = overrides.applyNonspecificObjectAllomorphy || ((options = {}) => ({
-                verb: options.verb || "",
-                analysisVerb: options.analysisVerb || options.verb || "",
-                objectPrefix: options.objectPrefix || "",
-            }));
-            applyMorphologyRules = overrides.applyMorphologyRules || ((options = {}) => ({
-                subjectPrefix: options.subjectPrefix || "",
-                objectPrefix: options.objectPrefix || "",
-                subjectSuffix: options.subjectSuffix || "",
-                verb: options.verb || "",
-            }));
-            buildMorphologyMetaOptions = overrides.buildMorphologyMetaOptions || (() => ({}));
-            buildPrefixedChain = overrides.buildPrefixedChain || ((options = {}) => (
-                `${options.possessivePrefix || ""}${options.subjectPrefix || ""}${options.objectPrefix || ""}${options.verb || ""}`
-            ));
-            run();
-        } finally {
-            getInvalidVerbCharacters = originalGetInvalidVerbCharacters;
-            getInvalidVerbLetters = originalGetInvalidVerbLetters;
-            getInvalidVerbStructure = originalGetInvalidVerbStructure;
-            getNounObjectSlotPlansFromMeta = originalGetNounObjectSlotPlansFromMeta;
-            isNonactiveTransitiveVerb = originalIsNonactiveTransitiveVerb;
-            isNonanimateSubject = originalIsNonanimateSubject;
-            getBaseObjectSlots = originalGetBaseObjectSlots;
-            getAvailableObjectSlots = originalGetAvailableObjectSlots;
-            resolveDirectionalRuleMode = originalResolveDirectionalRuleMode;
-            applyNounForwardDerivation = originalApplyNounForwardDerivation;
-            applyNonspecificObjectAllomorphy = originalApplyNonspecificObjectAllomorphy;
-            applyMorphologyRules = originalApplyMorphologyRules;
-            buildMorphologyMetaOptions = originalBuildMorphologyMetaOptions;
-            buildPrefixedChain = originalBuildPrefixedChain;
-        }
-    };
-
-    runCase("instrumentivo_uses_all_forward_stems", () => {
-        withStubbedNounForwardEnvironment(() => {
-            const instrumentivo = getInstrumentivoResult({
-                rawVerb: "maka",
-                verbMeta: {
-                    verb: "maka",
-                    analysisVerb: "maka",
-                    directionalPrefix: "",
-                },
-                subjectPrefix: "",
-                subjectSuffix: "",
-                objectPrefix: "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                mode: "posesivo",
-                possessivePrefix: "",
-            });
-            const forms = splitForms(instrumentivo.result);
-            if (instrumentivo.error || !forms.includes("stemA") || !forms.includes("stemB")) {
-                recordFailure(
-                    "instrumentivo_uses_all_forward_stems",
-                    `unexpected forms: ${instrumentivo.result || "∅"}`
-                );
-            }
-        });
-    });
-
-    runCase("calificativo_uses_all_forward_stems", () => {
-        withStubbedNounForwardEnvironment(() => {
-            const calificativo = getCalificativoInstrumentivoResult({
-                rawVerb: "maka",
-                verbMeta: {
-                    verb: "maka",
-                    analysisVerb: "maka",
-                    directionalPrefix: "",
-                },
-                subjectPrefix: "",
-                subjectSuffix: "",
-                objectPrefix: "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                possessivePrefix: "",
-            });
-            const forms = splitForms(calificativo.result);
-            if (calificativo.error || !forms.includes("stemAyut") || !forms.includes("stemByut")) {
-                recordFailure(
-                    "calificativo_uses_all_forward_stems",
-                    `unexpected forms: ${calificativo.result || "∅"}`
-                );
-            }
-        });
-    });
-
-    runCase("locativo_uses_all_forward_stems", () => {
-        withStubbedNounForwardEnvironment(() => {
-            const locativo = getLocativoTemporalResult({
-                rawVerb: "maka",
-                verbMeta: {
-                    verb: "maka",
-                    analysisVerb: "maka",
-                    directionalPrefix: "",
-                },
-                objectPrefix: "",
-                possessivePrefix: "",
-                combinedMode: "active",
-            });
-            const forms = splitForms(locativo.result);
-            if (!forms.includes("stemAn") || !forms.includes("stemBn")) {
-                recordFailure(
-                    "locativo_uses_all_forward_stems",
-                    `unexpected forms: ${locativo.result || "∅"}`
-                );
-            }
-        });
-    });
-
-    runCase("locativo_nonactive_intransitive_impersonal_only", () => {
-        const verbMeta = parseVerbInput("mati");
-        const impersonal = getLocativoTemporalResult({
-            rawVerb: "mati",
-            verbMeta,
-            objectPrefix: "",
-            possessivePrefix: "",
-            combinedMode: "nonactive",
-        });
-        const invalidObject = getLocativoTemporalResult({
-            rawVerb: "mati",
-            verbMeta,
-            objectPrefix: "ta",
-            possessivePrefix: "",
-            combinedMode: "nonactive",
-        });
-        if (impersonal.error || !splitForms(impersonal.result).length) {
-            recordFailure(
-                "locativo_nonactive_intransitive_impersonal_only",
-                `expected impersonal output, got ${impersonal.result || "∅"}`
-            );
-        }
-        if (!invalidObject.error) {
-            recordFailure(
-                "locativo_nonactive_intransitive_impersonal_only",
-                "intransitive nonactive locativo should reject object toggles"
-            );
-        }
-    });
-
-    runCase("derivation_control_keeps_blocked_active_type", () => {
-        const directType = DERIVATION_TYPE.direct || "direct";
-        const causativeType = DERIVATION_TYPE.causative || "causative";
-        const applicativeType = DERIVATION_TYPE.applicative || "applicative";
-        const originalGetElementById = document?.getElementById;
-        const originalQuerySelectorAll = document?.querySelectorAll;
-        const originalQuerySelector = document?.querySelector;
-        const originalGetActiveTenseMode = getActiveTenseMode;
-        const originalGetSelectedTenseTab = getSelectedTenseTab;
-        const originalGetNounTenseOrderForCombinedMode = getNounTenseOrderForCombinedMode;
-        const originalGetCombinedMode = getCombinedMode;
-        const originalGetBlockedNounDerivationTypes = getBlockedNounDerivationTypes;
-        const originalGetActiveDerivationType = getActiveDerivationType;
-        const originalSetActiveDerivationType = setActiveDerivationType;
-        const originalRenderDerivationAntiderivativePanel = renderDerivationAntiderivativePanel;
-        const originalTenseMode = TENSE_MODE;
-        let setActiveCalls = 0;
-        const select = {
-            options: [
-                { value: directType, disabled: false },
-                { value: causativeType, disabled: false },
-                { value: applicativeType, disabled: false },
-            ],
-            disabled: false,
-            value: causativeType,
-        };
-        const container = {
-            classList: { toggle: () => {} },
-            setAttribute: () => {},
-        };
-        try {
-            if (typeof document === "undefined") {
-                recordFailure("derivation_control_keeps_blocked_active_type", "document unavailable");
-                return;
-            }
-            TENSE_MODE = {
-                ...(TENSE_MODE || {}),
-                verbo: (TENSE_MODE && TENSE_MODE.verbo) || "verbo",
-                sustantivo: (TENSE_MODE && TENSE_MODE.sustantivo) || "sustantivo",
-            };
-            document.getElementById = (id) => (id === "derivation-type" ? select : null);
-            document.querySelectorAll = () => [];
-            document.querySelector = () => container;
-            getActiveTenseMode = () => TENSE_MODE.sustantivo;
-            getSelectedTenseTab = () => "instrumentivo";
-            getNounTenseOrderForCombinedMode = () => ["sustantivo-verbal"];
-            getCombinedMode = () => "active";
-            getBlockedNounDerivationTypes = () => new Set([causativeType]);
-            getActiveDerivationType = () => causativeType;
-            setActiveDerivationType = () => {
-                setActiveCalls += 1;
-            };
-            renderDerivationAntiderivativePanel = () => {};
-
-            updateDerivationTypeControl();
-
-            const activeOption = select.options.find((option) => option.value === causativeType);
-            if (setActiveCalls !== 0 || select.value !== causativeType || !activeOption || activeOption.disabled) {
-                recordFailure(
-                    "derivation_control_keeps_blocked_active_type",
-                    `setActiveCalls=${setActiveCalls}, value=${select.value}, disabled=${activeOption ? activeOption.disabled : "missing"}`
-                );
-            }
-        } finally {
-            if (typeof document !== "undefined") {
-                document.getElementById = originalGetElementById;
-                document.querySelectorAll = originalQuerySelectorAll;
-                document.querySelector = originalQuerySelector;
-            }
-            getActiveTenseMode = originalGetActiveTenseMode;
-            getSelectedTenseTab = originalGetSelectedTenseTab;
-            getNounTenseOrderForCombinedMode = originalGetNounTenseOrderForCombinedMode;
-            getCombinedMode = originalGetCombinedMode;
-            getBlockedNounDerivationTypes = originalGetBlockedNounDerivationTypes;
-            getActiveDerivationType = originalGetActiveDerivationType;
-            setActiveDerivationType = originalSetActiveDerivationType;
-            renderDerivationAntiderivativePanel = originalRenderDerivationAntiderivativePanel;
-            TENSE_MODE = originalTenseMode;
-        }
-    });
-
-    runCase("calificativo_marker_echo_collapses_extra_nonspecific", () => {
-        const originalNonspecificSet = NONSPECIFIC_VALENCE_AFFIX_SET;
-        try {
-            NONSPECIFIC_VALENCE_AFFIX_SET = new Set(["ta", "te", "mu"]);
-            const collapsed = collapseCalificativoMarkerEcho({
-                form: "tatatamakaltijka",
-                morphologyObjectPrefix: "ta",
-                indirectObjectMarker: "ta",
-                thirdObjectMarker: "",
-                enable: true,
-            });
-            if (collapsed !== "tatamakaltijka") {
-                recordFailure(
-                    "calificativo_marker_echo_collapses_extra_nonspecific",
-                    `expected tatamakaltijka but got ${collapsed || "∅"}`
-                );
-            }
-            const unchanged = collapseCalificativoMarkerEcho({
-                form: "tamakaltijka",
-                morphologyObjectPrefix: "ta",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                enable: true,
-            });
-            if (unchanged !== "tamakaltijka") {
-                recordFailure(
-                    "calificativo_marker_echo_collapses_extra_nonspecific",
-                    `unexpected non-echo change: ${unchanged || "∅"}`
-                );
-            }
-        } finally {
-            NONSPECIFIC_VALENCE_AFFIX_SET = originalNonspecificSet;
-        }
-    });
-
-    runCase("locativo_possessor_rows_skip_hierarchy_mask", () => {
-        const clean = getLocativoTemporalMaskState({
-            result: { result: "numakayan", error: false },
-            objectPrefix: "nech",
-        });
-        if (clean.shouldMask || clean.isError) {
-            recordFailure(
-                "locativo_possessor_rows_skip_hierarchy_mask",
-                `expected no mask but got shouldMask=${clean.shouldMask ? "true" : "false"}`
-            );
-        }
-        const errored = getLocativoTemporalMaskState({
-            result: { error: true },
-            objectPrefix: "nech",
-        });
-        if (!errored.shouldMask || !errored.isError) {
-            recordFailure(
-                "locativo_possessor_rows_skip_hierarchy_mask",
-                "generation errors must still mask"
-            );
-        }
-    });
-
-    runCase("agentivo_masks_same_subject_possessor", () => {
-        const blocked = getConjugationMaskState({
-            result: { result: "tumiktiani", error: false },
-            subjectPrefix: "ti",
-            subjectSuffix: "t",
-            objectPrefix: "ta",
-            possessivePrefix: "tu",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (!blocked.shouldMask || !blocked.isError) {
-            recordFailure(
-                "agentivo_masks_same_subject_possessor",
-                `expected mask for same subject/possessor but got shouldMask=${blocked.shouldMask ? "true" : "false"}`
-            );
-        }
-        const allowed = getConjugationMaskState({
-            result: { result: "mumiktiani", error: false },
-            subjectPrefix: "ti",
-            subjectSuffix: "t",
-            objectPrefix: "ta",
-            possessivePrefix: "mu",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (allowed.shouldMask || allowed.isError) {
-            recordFailure(
-                "agentivo_masks_same_subject_possessor",
-                `unexpected mask for distinct possessor: shouldMask=${allowed.shouldMask ? "true" : "false"}`
-            );
-        }
-        const blockedAcrossNumber = getConjugationMaskState({
-            result: { result: "tumiktiani", error: false },
-            subjectPrefix: "ni",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "tu",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (!blockedAcrossNumber.shouldMask || !blockedAcrossNumber.isError) {
-            recordFailure(
-                "agentivo_masks_same_subject_possessor",
-                "expected same-person cross-number mask for 1sg subject + 1pl possessor"
-            );
-        }
-        const thirdSingularAllowed = getConjugationMaskState({
-            result: { result: "imiktiani", error: false },
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "i",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (thirdSingularAllowed.shouldMask || thirdSingularAllowed.isError) {
-            recordFailure(
-                "agentivo_masks_same_subject_possessor",
-                "3rd person should be exempt from subject/possessor collision masking"
-            );
-        }
-        const thirdAcrossNumberAllowed = getConjugationMaskState({
-            result: { result: "imiktian", error: false },
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "in",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (thirdAcrossNumberAllowed.shouldMask || thirdAcrossNumberAllowed.isError) {
-            recordFailure(
-                "agentivo_masks_same_subject_possessor",
-                "3rd person cross-number should stay exempt from subject/possessor collision masking"
-            );
-        }
-    });
-
-    runCase("patientivo_masks_same_subject_possessor", () => {
-        const blocked = getConjugationMaskState({
-            result: { result: "tumiktiut", error: false },
-            subjectPrefix: "ti",
-            subjectSuffix: "t",
-            objectPrefix: "ta",
-            possessivePrefix: "tu",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (!blocked.shouldMask || !blocked.isError) {
-            recordFailure(
-                "patientivo_masks_same_subject_possessor",
-                `expected mask for same subject/possessor but got shouldMask=${blocked.shouldMask ? "true" : "false"}`
-            );
-        }
-        const blockedAcrossNumber = getConjugationMaskState({
-            result: { result: "numiktiut", error: false },
-            subjectPrefix: "ni",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "tu",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (!blockedAcrossNumber.shouldMask || !blockedAcrossNumber.isError) {
-            recordFailure(
-                "patientivo_masks_same_subject_possessor",
-                "expected same-person cross-number mask for 1sg subject + 1pl possessor"
-            );
-        }
-        const thirdSingularAllowed = getConjugationMaskState({
-            result: { result: "imiktiut", error: false },
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "i",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (thirdSingularAllowed.shouldMask || thirdSingularAllowed.isError) {
-            recordFailure(
-                "patientivo_masks_same_subject_possessor",
-                "3rd person should be exempt from subject/possessor collision masking"
-            );
-        }
-        const thirdAcrossNumberAllowed = getConjugationMaskState({
-            result: { result: "imiktiut", error: false },
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "ta",
-            possessivePrefix: "in",
-            requireDistinctPossessor: true,
-            enforceInvalidCombo: false,
-        });
-        if (thirdAcrossNumberAllowed.shouldMask || thirdAcrossNumberAllowed.isError) {
-            recordFailure(
-                "patientivo_masks_same_subject_possessor",
-                "3rd person cross-number should stay exempt from subject/possessor collision masking"
-            );
-        }
-    });
-
-    const summary = {
-        total: executed,
-        executed,
-        passed,
-        failed,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Noun forward derivation regression tests failed:", summary);
-    } else {
-        console.log("Noun forward derivation regression tests passed:", summary);
-    }
-    return summary;
-}
-
-function getBasicDataParityScenarioDefinitions() {
-    const tenseModeVerb = TENSE_MODE.verbo || "verbo";
-    const derivationModeActive = DERIVATION_MODE.active || "active";
-    const derivationModeNonactive = DERIVATION_MODE.nonactive || "nonactive";
-    const voiceModeActive = VOICE_MODE.active || "active";
-    const voiceModePassive = VOICE_MODE.passive || VOICE_MODE.active || "active";
-    const derivationTypeDirect = DERIVATION_TYPE.direct || "direct";
-    const derivationTypeCausative = DERIVATION_TYPE.causative || "causative";
-    const derivationTypeApplicative = DERIVATION_TYPE.applicative || "applicative";
-    return [
-        {
-            id: "direct_active_presente",
-            buildOverride: ({ verb, isTransitive }) => ({
-                tenseMode: tenseModeVerb,
-                derivationMode: derivationModeActive,
-                voiceMode: voiceModeActive,
-                derivationType: derivationTypeDirect,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: isTransitive ? "ki" : "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                verb,
-                tense: "presente",
-            }),
-        },
-        {
-            id: "direct_active_preterito",
-            buildOverride: ({ verb, isTransitive }) => ({
-                tenseMode: tenseModeVerb,
-                derivationMode: derivationModeActive,
-                voiceMode: voiceModeActive,
-                derivationType: derivationTypeDirect,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: isTransitive ? "ki" : "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                verb,
-                tense: "preterito",
-            }),
-        },
-        {
-            id: "causative_active_presente",
-            buildOverride: ({ verb, isTransitive }) => ({
-                tenseMode: tenseModeVerb,
-                derivationMode: derivationModeActive,
-                voiceMode: voiceModeActive,
-                derivationType: derivationTypeCausative,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: isTransitive ? "ki" : "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                verb,
-                tense: "presente",
-            }),
-        },
-        {
-            id: "applicative_active_presente",
-            buildOverride: ({ verb, isTransitive }) => ({
-                tenseMode: tenseModeVerb,
-                derivationMode: derivationModeActive,
-                voiceMode: voiceModeActive,
-                derivationType: derivationTypeApplicative,
-                subjectPrefix: "ni",
-                subjectSuffix: "",
-                objectPrefix: isTransitive ? "ki" : "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                verb,
-                tense: "presente",
-            }),
-        },
-        {
-            id: "direct_nonactive_presente",
-            buildOverride: ({ verb }) => ({
-                tenseMode: tenseModeVerb,
-                derivationMode: derivationModeNonactive,
-                voiceMode: voiceModePassive,
-                derivationType: derivationTypeDirect,
-                subjectPrefix: "",
-                subjectSuffix: "",
-                objectPrefix: "",
-                indirectObjectMarker: "",
-                thirdObjectMarker: "",
-                verb,
-                tense: "presente",
-            }),
-        },
-    ];
-}
-
-function loadBasicDataCSVTextForParity(options = {}) {
-    if (typeof options.csvText === "string") {
-        return Promise.resolve(options.csvText);
-    }
-    const sourcePath = options.sourcePath || "data/basic-data.csv";
-    if (typeof fetch !== "function") {
-        return Promise.reject(new Error("fetch unavailable for basic data parity runner"));
-    }
-    return fetch(sourcePath, { cache: "no-store" })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`${sourcePath} (${response.status})`);
-            }
-            return response.text();
-        });
-}
-
-function buildBasicDataVerbVariants(csvText = "") {
-    const entries = parseVerbSuggestionCSV(csvText);
-    const variants = [];
-    entries.forEach((entry) => {
-        if (!entry || !entry.base) {
-            return;
-        }
-        if (entry.intransitive) {
-            variants.push({
-                base: entry.base,
-                verb: entry.base,
-                isTransitive: false,
-                transitivity: "intransitive",
-            });
-        }
-        if (entry.transitive) {
-            variants.push({
-                base: entry.base,
-                verb: `-${entry.base}`,
-                isTransitive: true,
-                transitivity: "transitive",
-            });
-        }
-    });
-    return variants;
-}
-
-function normalizeParityFormValue(value, { normalizeAlternates = true } = {}) {
-    const text = String(value || "")
-        .replace(/\r\n?/g, "\n")
-        .trim();
-    if (!normalizeAlternates || !text.includes("\n")) {
-        return text;
-    }
-    const parts = text
-        .split("\n")
-        .map((part) => part.trim())
-        .filter(Boolean);
-    if (parts.length <= 1) {
-        return text;
-    }
-    return parts.sort().join("\n");
-}
-
-function buildBasicDataParitySnapshotRows({
-    csvText = "",
-    generator = generateWord,
-    scenarios = null,
-    normalizeAlternates = true,
-} = {}) {
-    const resolvedScenarios = Array.isArray(scenarios) && scenarios.length
-        ? scenarios
-        : getBasicDataParityScenarioDefinitions();
-    const variants = buildBasicDataVerbVariants(csvText);
-    const rows = [];
-    variants.forEach((variant) => {
-        resolvedScenarios.forEach((scenario) => {
-            const override = typeof scenario?.buildOverride === "function"
-                ? scenario.buildOverride(variant)
-                : null;
-            const payload = {
-                silent: true,
-                skipValidation: true,
-                override,
-            };
-            let generation = null;
-            let exceptionMessage = "";
-            try {
-                generation = typeof generator === "function" ? generator(payload) : null;
-            } catch (error) {
-                generation = null;
-                exceptionMessage = error instanceof Error ? error.message : String(error);
-            }
-            const rawResult = generation && typeof generation.result === "string"
-                ? generation.result
-                : "";
-            const normalizedResult = normalizeParityFormValue(rawResult, { normalizeAlternates });
-            const hasError = Boolean(generation && generation.error);
-            rows.push({
-                key: [
-                    variant.verb || "",
-                    scenario?.id || "",
-                ].join("|"),
-                entrada: variant.base || "",
-                verb: variant.verb || "",
-                transitivity: variant.transitivity || "",
-                scenarioId: scenario?.id || "",
-                result: rawResult || "",
-                normalizedResult,
-                error: hasError ? "1" : "0",
-                exception: exceptionMessage,
-            });
-        });
-    });
-    return rows;
-}
-
-function indexBasicDataParityRows(rows) {
-    const map = new Map();
-    (Array.isArray(rows) ? rows : []).forEach((row) => {
-        if (!row || !row.key) {
-            return;
-        }
-        map.set(row.key, row);
-    });
-    return map;
-}
-
-function buildBasicDataParityDiff({
-    beforeRows = [],
-    afterRows = [],
-    allowedDiffKeys = [],
-} = {}) {
-    const beforeMap = indexBasicDataParityRows(beforeRows);
-    const afterMap = indexBasicDataParityRows(afterRows);
-    const keys = new Set([...beforeMap.keys(), ...afterMap.keys()]);
-    const allowSet = new Set((Array.isArray(allowedDiffKeys) ? allowedDiffKeys : []).map(String));
-    const mismatches = [];
-    keys.forEach((key) => {
-        const beforeRow = beforeMap.get(key) || null;
-        const afterRow = afterMap.get(key) || null;
-        if (!beforeRow || !afterRow) {
-            mismatches.push({
-                key,
-                type: !beforeRow ? "missing_before" : "missing_after",
-                allowed: allowSet.has(key),
-                before: beforeRow,
-                after: afterRow,
-            });
-            return;
-        }
-        const changedResult = beforeRow.normalizedResult !== afterRow.normalizedResult;
-        const changedError = beforeRow.error !== afterRow.error;
-        const changedException = beforeRow.exception !== afterRow.exception;
-        if (changedResult || changedError || changedException) {
-            mismatches.push({
-                key,
-                type: "changed",
-                allowed: allowSet.has(key),
-                before: beforeRow,
-                after: afterRow,
-            });
-        }
-    });
-    const unexpected = mismatches.filter((item) => !item.allowed);
-    return {
-        totalKeys: keys.size,
-        totalMismatches: mismatches.length,
-        unexpectedMismatches: unexpected.length,
-        mismatches,
-        unexpected,
-    };
-}
-
-function buildBasicDataParitySnapshotCSV(rows) {
-    const header = [
-        "key",
-        "entrada",
-        "verb",
-        "transitivity",
-        "scenarioId",
-        "result",
-        "normalizedResult",
-        "error",
-        "exception",
-    ];
-    const lines = [header.map((value) => escapeCSVValue(value)).join(",")];
-    (Array.isArray(rows) ? rows : []).forEach((row) => {
-        lines.push([
-            row.key,
-            row.entrada,
-            row.verb,
-            row.transitivity,
-            row.scenarioId,
-            row.result,
-            row.normalizedResult,
-            row.error,
-            row.exception,
-        ].map((value) => escapeCSVValue(value)).join(","));
-    });
-    return lines.join("\n");
-}
-
-function buildBasicDataParityMismatchCSV(mismatches) {
-    const header = [
-        "key",
-        "type",
-        "allowed",
-        "before_result",
-        "after_result",
-        "before_error",
-        "after_error",
-        "before_exception",
-        "after_exception",
-    ];
-    const lines = [header.map((value) => escapeCSVValue(value)).join(",")];
-    (Array.isArray(mismatches) ? mismatches : []).forEach((entry) => {
-        const before = entry.before || {};
-        const after = entry.after || {};
-        lines.push([
-            entry.key || "",
-            entry.type || "",
-            entry.allowed ? "1" : "0",
-            before.result || "",
-            after.result || "",
-            before.error || "",
-            after.error || "",
-            before.exception || "",
-            after.exception || "",
-        ].map((value) => escapeCSVValue(value)).join(","));
-    });
-    return lines.join("\n");
-}
-
-let BASIC_DATA_PARITY_BASELINE = null;
-
-function runBasicDataBeforeAfterParity(options = {}) {
-    const hasBeforeRows = Array.isArray(options.beforeRows);
-    const hasAfterRows = Array.isArray(options.afterRows);
-    const needsCSV = !hasBeforeRows || !hasAfterRows;
-    const csvPromise = needsCSV
-        ? loadBasicDataCSVTextForParity(options)
-        : Promise.resolve(typeof options.csvText === "string" ? options.csvText : "");
-    return csvPromise.then((csvText) => {
-        const beforeGenerator = typeof options.beforeGenerator === "function"
-            ? options.beforeGenerator
-            : generateWord;
-        const afterGenerator = typeof options.afterGenerator === "function"
-            ? options.afterGenerator
-            : beforeGenerator;
-        const scenarios = Array.isArray(options.scenarios) && options.scenarios.length
-            ? options.scenarios
-            : getBasicDataParityScenarioDefinitions();
-        const beforeRows = hasBeforeRows
-            ? options.beforeRows
-            : buildBasicDataParitySnapshotRows({
-                csvText,
-                generator: beforeGenerator,
-                scenarios,
-                normalizeAlternates: options.normalizeAlternates !== false,
-            });
-        const afterRows = hasAfterRows
-            ? options.afterRows
-            : buildBasicDataParitySnapshotRows({
-                csvText,
-                generator: afterGenerator,
-                scenarios,
-                normalizeAlternates: options.normalizeAlternates !== false,
-            });
-        const diff = buildBasicDataParityDiff({
-            beforeRows,
-            afterRows,
-            allowedDiffKeys: options.allowedDiffKeys || [],
-        });
-        const summary = {
-            sourcePath: options.sourcePath || "data/basic-data.csv",
-            scenarios: scenarios.map((scenario) => scenario.id),
-            beforeCount: beforeRows.length,
-            afterCount: afterRows.length,
-            totalKeys: diff.totalKeys,
-            totalMismatches: diff.totalMismatches,
-            unexpectedMismatches: diff.unexpectedMismatches,
-            mismatchCSV: buildBasicDataParityMismatchCSV(diff.mismatches),
-            beforeCSV: buildBasicDataParitySnapshotCSV(beforeRows),
-            afterCSV: buildBasicDataParitySnapshotCSV(afterRows),
-            beforeRows,
-            afterRows,
-            mismatches: diff.mismatches,
-        };
-        if (summary.unexpectedMismatches > 0) {
-            console.error("Basic data before/after parity failed:", summary);
-        } else {
-            console.log("Basic data before/after parity passed:", summary);
-        }
-        return summary;
-    });
-}
-
-function summarizeBasicDataParityCounts(summary = null) {
-    return [
-        Number(summary?.unexpectedMismatches || 0),
-        Number(summary?.totalMismatches || 0),
-        Number(summary?.beforeCount || 0),
-        Number(summary?.afterCount || 0),
-    ];
-}
-
-function runBasicDataBeforeAfterParityQuick(options = {}) {
-    return runBasicDataBeforeAfterParity(options).then((summary) => summarizeBasicDataParityCounts(summary));
-}
-
-function captureBasicDataParityBaseline(options = {}) {
-    return runBasicDataBeforeAfterParity(options).then((summary) => {
-        BASIC_DATA_PARITY_BASELINE = {
-            capturedAt: new Date().toISOString(),
-            sourcePath: summary.sourcePath,
-            scenarioIds: Array.isArray(summary.scenarios) ? summary.scenarios.slice() : [],
-            rows: Array.isArray(summary.afterRows) ? summary.afterRows.slice() : [],
-        };
-        const captureSummary = {
-            capturedAt: BASIC_DATA_PARITY_BASELINE.capturedAt,
-            sourcePath: BASIC_DATA_PARITY_BASELINE.sourcePath,
-            scenarioIds: BASIC_DATA_PARITY_BASELINE.scenarioIds.slice(),
-            rowCount: BASIC_DATA_PARITY_BASELINE.rows.length,
-        };
-        console.log("Basic data parity baseline captured:", captureSummary);
-        return captureSummary;
-    });
-}
-
-function runBasicDataParityAgainstBaseline(options = {}) {
-    if (!BASIC_DATA_PARITY_BASELINE || !Array.isArray(BASIC_DATA_PARITY_BASELINE.rows)) {
-        return Promise.reject(new Error("No parity baseline captured. Run captureBasicDataParityBaseline() first."));
-    }
-    const mergedOptions = {
-        ...options,
-        sourcePath: options.sourcePath || BASIC_DATA_PARITY_BASELINE.sourcePath,
-        beforeRows: BASIC_DATA_PARITY_BASELINE.rows,
-    };
-    return runBasicDataBeforeAfterParity(mergedOptions).then((summary) => ({
-        ...summary,
-        baselineCapturedAt: BASIC_DATA_PARITY_BASELINE.capturedAt,
-        baselineRowCount: BASIC_DATA_PARITY_BASELINE.rows.length,
-    }));
-}
-
-function runBasicDataParityAgainstBaselineQuick(options = {}) {
-    return runBasicDataParityAgainstBaseline(options).then((summary) => summarizeBasicDataParityCounts(summary));
-}
-
-function getBasicDataParityBaseline() {
-    if (!BASIC_DATA_PARITY_BASELINE) {
-        return null;
-    }
-    return {
-        capturedAt: BASIC_DATA_PARITY_BASELINE.capturedAt,
-        sourcePath: BASIC_DATA_PARITY_BASELINE.sourcePath,
-        scenarioIds: Array.isArray(BASIC_DATA_PARITY_BASELINE.scenarioIds)
-            ? BASIC_DATA_PARITY_BASELINE.scenarioIds.slice()
-            : [],
-        rowCount: Array.isArray(BASIC_DATA_PARITY_BASELINE.rows)
-            ? BASIC_DATA_PARITY_BASELINE.rows.length
-            : 0,
-    };
-}
-
-function classifyIntransitiveICausativeForRegression(baseVerb) {
-    const base = normalizeRuleBase(baseVerb || "");
-    if (!base || !base.endsWith("i")) {
-        return {
-            base,
-            label: "none",
-            typeOneStems: [],
-            rules: [],
-            causativeTrace: null,
-        };
-    }
-    const options = getCausativeDerivationOptions(base, base, {
-        isTransitive: false,
-        canonicalRuleBase: base,
-        canonicalFullRuleBase: base,
-        allowTypeTwo: false,
-    }) || [];
-    const typeOne = options.filter((entry) => entry && entry.type === "type-one");
-    const additiveStem = `${base}a`;
-    const replaciveStem = `${base.slice(0, -1)}a`;
-    const hasAdditive = typeOne.some((entry) => entry.stem === additiveStem);
-    const hasReplacive = typeOne.some((entry) => entry.stem === replaciveStem);
-    let label = "none";
-    if (hasAdditive && !hasReplacive) {
-        label = "additive";
-    } else if (hasReplacive && !hasAdditive) {
-        label = "replacive";
-    } else if (hasAdditive && hasReplacive) {
-        label = "additive";
-    }
-    const causativeTrace = (typeOne[0] && typeOne[0].causativeTrace)
-        || options.causativeTrace
-        || null;
-    return {
-        base,
-        label,
-        typeOneStems: typeOne.map((entry) => entry.stem),
-        rules: typeOne.map((entry) => entry.rule || ""),
-        causativeTrace,
-    };
-}
-
-function runIntransitiveICausativeRegressionTests(options = {}) {
-    const regressionSet = (
-        DERIVATIONAL_RULES?.causative?.intransitiveEndsWithI?.regressionSet
-        && typeof DERIVATIONAL_RULES.causative.intransitiveEndsWithI.regressionSet === "object"
-    )
-        ? DERIVATIONAL_RULES.causative.intransitiveEndsWithI.regressionSet
-        : {};
-    const categories = ["additive", "replacive", "none"];
-    const failures = [];
-    const rows = [];
-    categories.forEach((expected) => {
-        const verbs = Array.isArray(regressionSet[expected]) ? regressionSet[expected] : [];
-        verbs.forEach((verb) => {
-            const result = classifyIntransitiveICausativeForRegression(verb);
-            const pass = result.label === expected;
-            rows.push({
-                verb,
-                expected,
-                actual: result.label,
-                pass,
-                typeOneStems: result.typeOneStems,
-                rules: result.rules,
-                causativeTrace: result.causativeTrace,
-            });
-            if (!pass) {
-                failures.push({
-                    verb,
-                    expected,
-                    actual: result.label,
-                    typeOneStems: result.typeOneStems,
-                    rules: result.rules,
-                });
-            }
-        });
-    });
-    const summary = {
-        total: rows.length,
-        passed: rows.length - failures.length,
-        failed: failures.length,
-        failures,
-        rows,
-    };
-    if (failures.length) {
-        console.error("Intransitive -i causative regression tests failed:", summary);
-        if (options.throwOnFailure === true) {
-            throw new Error(`Intransitive -i causative regression failed (${failures.length} mismatch(es))`);
-        }
-    } else {
-        console.log("Intransitive -i causative regression tests passed:", summary);
-    }
-    return summary;
-}
-
-function runPretUniversalOverrideTests() {
-    const failures = [];
-    const originalEntries = PRET_UNIVERSAL_VERB_OVERRIDES.slice();
-    const restoreEntries = () => {
-        PRET_UNIVERSAL_VERB_OVERRIDES.splice(0, PRET_UNIVERSAL_VERB_OVERRIDES.length, ...originalEntries);
-    };
-    const setEntries = (entries) => {
-        PRET_UNIVERSAL_VERB_OVERRIDES.splice(0, PRET_UNIVERSAL_VERB_OVERRIDES.length, ...entries);
-    };
-    const recordFailure = (id, message = "") => {
-        failures.push(message ? `${id}: ${message}` : id);
-    };
-
-    try {
-        // pret_override_empty_table_returns_null
-        setEntries([]);
-        if (getPretUniversalVerbOverride("maka", true) !== null) {
-            recordFailure("pret_override_empty_table_returns_null");
-        }
-
-        // pret_override_populated_table_returns_entry
-        const matchingEntry = {
-            verbs: ["maka"],
-            transitivity: "transitive",
-            allowUnpronounceable: true,
-        };
-        setEntries([matchingEntry]);
-        const matched = getPretUniversalVerbOverride("maka", true);
-        if (matched !== matchingEntry) {
-            recordFailure("pret_override_populated_table_returns_entry");
-        }
-
-        // pret_override_nonmatching_returns_null
-        const nonmatchByVerb = getPretUniversalVerbOverride("ilwia", true);
-        const nonmatchByTransitivity = getPretUniversalVerbOverride("maka", false);
-        if (nonmatchByVerb !== null || nonmatchByTransitivity !== null) {
-            recordFailure("pret_override_nonmatching_returns_null");
-        }
-
-        // pret_override_callsite_simple_direct_usage
-        let callCount = 0;
-        const originalGetter = getPretUniversalVerbOverride;
-        try {
-            getPretUniversalVerbOverride = function wrappedPretOverrideGetter(analysisRoot, isTransitive) {
-                callCount += 1;
-                return null;
-            };
-            if (typeof resolvePretUniversalContextBundle === "function") {
-                const context = resolvePretUniversalContextBundle({
-                    verb: "maka",
-                    analysisVerb: "maka",
-                    analysisTarget: "maka",
-                    isTransitive: true,
-                    contextOptions: buildPretContextOptionsFromFlags({
-                        derivationType: DERIVATION_TYPE.direct,
-                    }),
-                }).context;
-                if (!context || callCount < 1) {
-                    recordFailure("pret_override_callsite_simple_direct_usage", "context path did not call override getter");
-                }
-            } else {
-                const analysisRoot = "maka";
-                const verbOverride = getPretUniversalVerbOverride(analysisRoot, true);
-                const allowUnpronounceable = verbOverride?.allowUnpronounceable === true;
-                if (callCount !== 1 || allowUnpronounceable !== false) {
-                    recordFailure("pret_override_callsite_simple_direct_usage");
-                }
-            }
-        } finally {
-            getPretUniversalVerbOverride = originalGetter;
-        }
-    } finally {
-        restoreEntries();
-    }
-
-    const summary = {
-        total: 4,
-        passed: 4 - failures.length,
-        failed: failures.length,
-        failures,
-    };
-    if (failures.length) {
-        console.error("Pret universal override tests failed:", summary);
-    } else {
-        console.log("Pret universal override tests passed:", summary);
-    }
-    return summary;
-}
-
 function shouldExposeDeveloperHooks() {
     if (typeof window === "undefined") {
         return false;
@@ -42077,37 +38254,58 @@ function shouldExposeDeveloperHooks() {
     }
 }
 
-function getDeveloperHookMap() {
-    return {
-        runExactRedupTests,
-        runParsePipelineTests,
-        runRegexEnvelopeLanguageTests,
-        runRegexComposerProjectionTests,
-        runComposerValenceScreenWritebackTests,
-        runComposerDisplayBridgeTests,
-        runGenerateWordOptionNormalizationTests,
-        runRenderOnlyTenseDeprecationTests,
-        runInternalGenerateWordOptionCallerTests,
-        runDirectionalRuleModeContractTests,
-        runApiDriftCleanupTests,
-        runInputPathAndAvailabilityMemoTests,
-        runConstraintMutationAndCoverageTests,
-        runPreloadBootstrapSafetyTests,
-        runGrammarDiagnosticsTransportTests,
-        runConstraintCoreUnificationTests,
-        runNounForwardDerivationRegressionTests,
-        runBasicDataBeforeAfterParity,
-        runBasicDataBeforeAfterParityQuick,
-        captureBasicDataParityBaseline,
-        runBasicDataParityAgainstBaseline,
-        runBasicDataParityAgainstBaselineQuick,
-        getBasicDataParityBaseline,
-        runIntransitiveICausativeRegressionTests,
-        runPretUniversalOverrideTests,
-        traceDerivationalFunction,
-        findDerivationalAntiderivatives,
-        traceDerivationCalculus,
-    };
+const DEVELOPER_HOOK_NAMES = Object.freeze([
+    "runRegexEnvelopeLanguageTests",
+    "runComposerDisplayBridgeTests",
+]);
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260323-dev-checks-5";
+
+function getDeveloperHookMap(windowObject = null) {
+    const scope = windowObject || (typeof window !== "undefined" ? window : null);
+    const hooks = {};
+    if (!scope || typeof scope !== "object") {
+        return hooks;
+    }
+    DEVELOPER_HOOK_NAMES.forEach((name) => {
+        if (typeof scope[name] === "function") {
+            hooks[name] = scope[name];
+        }
+    });
+    return hooks;
+}
+
+let DEV_RUNTIME_CHECKS_LOADING_STATE = "idle";
+function loadDeveloperRuntimeChecksIfEnabled() {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+        return Promise.resolve(false);
+    }
+    if (DEV_RUNTIME_CHECKS_LOADING_STATE !== "idle") {
+        return Promise.resolve(DEV_RUNTIME_CHECKS_LOADING_STATE === "loaded");
+    }
+    const existing = document.querySelector("script[data-dev-runtime-checks=\"true\"]");
+    if (existing) {
+        DEV_RUNTIME_CHECKS_LOADING_STATE = "loaded";
+        return Promise.resolve(true);
+    }
+    DEV_RUNTIME_CHECKS_LOADING_STATE = "loading";
+    return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.defer = true;
+        script.dataset.devRuntimeChecks = "true";
+        script.src = new URL(
+            `./scripts/browser_runtime_checks.js?v=${DEV_RUNTIME_CHECKS_ASSET_VERSION}`,
+            window.location.href
+        ).href;
+        script.addEventListener("load", () => {
+            DEV_RUNTIME_CHECKS_LOADING_STATE = "loaded";
+            resolve(true);
+        });
+        script.addEventListener("error", () => {
+            DEV_RUNTIME_CHECKS_LOADING_STATE = "failed";
+            resolve(false);
+        });
+        document.head.appendChild(script);
+    });
 }
 
 let DEV_HOOKS_MODULE_LOADING_STATE = "idle";
@@ -42123,9 +38321,10 @@ async function installDeveloperHooksIfEnabled() {
     }
     DEV_HOOKS_MODULE_LOADING_STATE = "loading";
     try {
+        await loadDeveloperRuntimeChecksIfEnabled();
         const hooksModule = await import("./scripts/dev_hooks.mjs");
         if (hooksModule && typeof hooksModule.installDeveloperHooks === "function") {
-            hooksModule.installDeveloperHooks(getDeveloperHookMap(), { windowObject: window });
+            hooksModule.installDeveloperHooks(getDeveloperHookMap(window), { windowObject: window });
             DEV_HOOKS_MODULE_LOADING_STATE = "loaded";
             return true;
         }
@@ -42348,7 +38547,7 @@ async function loadStaticBootstrapData() {
 // Auto-generate on load and while typing
 document.addEventListener("DOMContentLoaded", async () => {
     await loadStaticBootstrapData();
-    installDeveloperHooksIfEnabled();
+    await installDeveloperHooksIfEnabled();
     setBrowserClasses();
     initZoomFontLock();
     initUiScaleControl();
@@ -42371,8 +38570,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const verbMirrorContent = getVerbMirrorContent();
     if (verbEl) {
         const initialDisplayValue = isVerbInputModeComposer()
-            ? serializeComposerScreen(verbEl.value || "")
-            : serializeRegexModeInput(verbEl.value || "");
+            ? serializeComposerDisplayValue(verbEl.value || "")
+            : serializeRegexInputValue(verbEl.value || "");
         if (initialDisplayValue && initialDisplayValue !== verbEl.value) {
             verbEl.value = initialDisplayValue;
         }
@@ -42394,7 +38593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 verbEl.dataset.prevValue = verbEl.value;
             }
             if (!isVerbInputModeComposer() && !VERB_COMPOSER_STATE.isApplying) {
-                const legacyValue = serializeRegexModeInput(verbEl.value);
+                const legacyValue = serializeRegexInputValue(verbEl.value);
                 if (legacyValue !== verbEl.value) {
                     verbEl.value = legacyValue;
                     verbEl.dataset.prevValue = legacyValue;

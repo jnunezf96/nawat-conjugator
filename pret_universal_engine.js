@@ -957,7 +957,9 @@ function buildPretUniversalResultFromVariants(
     pluralSuffix = null,
     indirectObjectMarker = "",
     hasDoubleDash = false,
-    isYawi = false
+    isYawi = false,
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = ""
 ) {
     if (!variants || variants.length === 0) {
         return null;
@@ -980,7 +982,16 @@ function buildPretUniversalResultFromVariants(
                 hasDoubleDash,
                 isYawi
             );
-            const form = `${prefix}${base}${resolvedPluralSuffix}`;
+            const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
+                ? resolveOptionalSupportiveOutputVerb({
+                    subjectPrefix: "",
+                    objectPrefix: "",
+                    verb: `${prefix}${base}`,
+                    hasOptionalSupportiveI,
+                    optionalSupportiveLetter,
+                })
+                : `${prefix}${base}`;
+            const form = `${resolvedCore}${resolvedPluralSuffix}`;
             if (!seen.has(form)) {
                 seen.add(form);
                 results.push(form);
@@ -1003,7 +1014,15 @@ function buildPretUniversalResultFromVariants(
             hasDoubleDash,
             isYawi
         );
-        const baseKey = `${prefix}${base}`;
+        const baseKey = typeof resolveOptionalSupportiveOutputVerb === "function"
+            ? resolveOptionalSupportiveOutputVerb({
+                subjectPrefix: "",
+                objectPrefix: "",
+                verb: `${prefix}${base}`,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            })
+            : `${prefix}${base}`;
         let entry = groups.get(baseKey);
         if (!entry) {
             entry = { suffixes: new Set(), order: [] };
@@ -1061,6 +1080,8 @@ function buildNonactivePerfectiveResult({
     baseSubjectPrefix = subjectPrefix,
     baseObjectPrefix = objectPrefix,
     indirectObjectMarker = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
 }) {
     if (tense === "preterito") {
         const variants = [{ base: verb, suffix: "k" }];
@@ -1075,6 +1096,10 @@ function buildNonactivePerfectiveResult({
             baseObjectPrefix,
             null,
             indirectObjectMarker
+            ,
+            false,
+            hasOptionalSupportiveI,
+            optionalSupportiveLetter
         );
     }
     const suffix = subjectSuffix || "";
@@ -1088,7 +1113,16 @@ function buildNonactivePerfectiveResult({
         baseObjectPrefix,
         indirectObjectMarker
     );
-    return `${prefix}${base}${suffix}`;
+    const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
+        ? resolveOptionalSupportiveOutputVerb({
+            subjectPrefix: "",
+            objectPrefix: "",
+            verb: `${prefix}${base}`,
+            hasOptionalSupportiveI,
+            optionalSupportiveLetter,
+        })
+        : `${prefix}${base}`;
+    return `${resolvedCore}${suffix}`;
 }
 
 function getKVClassPolicy({
@@ -1485,6 +1519,7 @@ function buildClassBasedResult({
     hasCompoundMarker = false,
     hasImpersonalTaPrefix = false,
     hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
@@ -1628,7 +1663,9 @@ function buildClassBasedResult({
                 pretPluralSuffix,
                 indirectObjectMarker,
                 hasDoubleDash,
-                isYawi
+                isYawi,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter
             );
         } else {
             const suffix = subjectSuffix || "";
@@ -1655,7 +1692,16 @@ function buildClassBasedResult({
                     hasDoubleDash,
                     isYawi
                 );
-                const form = `${prefix}${baseCore}${suffix}`;
+                const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
+                    ? resolveOptionalSupportiveOutputVerb({
+                        subjectPrefix: "",
+                        objectPrefix: "",
+                        verb: `${prefix}${baseCore}`,
+                        hasOptionalSupportiveI,
+                        optionalSupportiveLetter,
+                    })
+                    : `${prefix}${baseCore}`;
+                const form = `${resolvedCore}${suffix}`;
                 if (!seenForm.has(form)) {
                     seenForm.add(form);
                     forms.push(form);
@@ -1724,6 +1770,7 @@ function buildPretUniversalResultWithProvenance({
     hasCompoundMarker = false,
     hasImpersonalTaPrefix = false,
     hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
     hasNonspecificValence = false,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
@@ -1794,7 +1841,9 @@ function buildPretUniversalResultWithProvenance({
                     null,
                     indirectObjectMarker,
                     hasDoubleDash,
-                    isYawi
+                    isYawi,
+                    hasOptionalSupportiveI,
+                    optionalSupportiveLetter
                 );
                 return {
                     result,
@@ -1838,7 +1887,9 @@ function buildPretUniversalResultWithProvenance({
                     null,
                     indirectObjectMarker,
                     hasDoubleDash,
-                    isYawi
+                    isYawi,
+                    hasOptionalSupportiveI,
+                    optionalSupportiveLetter
                 );
                 return {
                     result,
@@ -1981,7 +2032,9 @@ function buildPretUniversalResultWithProvenance({
         pluralSuffix,
         indirectObjectMarker,
         hasDoubleDash,
-        isYawi
+        isYawi,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter
     );
     return {
         result,
