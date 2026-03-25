@@ -86,15 +86,15 @@
     "mu": { "labelEs": "impersonal", "labelNa": "tamuchiwalis" }
   },
   "nonactivePersonSubLabels": {
-    "nech": { "labelEs": "mí", "labelNa": "naja" },
-    "metz": { "labelEs": "ti", "labelNa": "taja" },
-    "ki": { "labelEs": "él/ella/eso", "labelNa": "yaja" },
-    "tech": { "labelEs": "nosotros", "labelNa": "tejemet" },
-    "metzin": { "labelEs": "ustedes", "labelNa": "anmejemet" },
-    "kin": { "labelEs": "ellos/ellas", "labelNa": "yejemet" },
-    "mu": { "labelEs": "uno mismo", "labelNa": "ajaka isel" },
-    "ta": { "labelEs": "algo", "labelNa": "tajtatka" },
-    "te": { "labelEs": "alguien", "labelNa": "ajaka" }
+    "nech": { "labelEs": "a mí", "labelNa": "naja" },
+    "metz": { "labelEs": "a ti", "labelNa": "taja" },
+    "ki": { "labelEs": "a él/ella/eso", "labelNa": "yaja" },
+    "tech": { "labelEs": "a nosotros", "labelNa": "tejemet" },
+    "metzin": { "labelEs": "a ustedes", "labelNa": "anmejemet" },
+    "kin": { "labelEs": "a ellos/ellas", "labelNa": "yejemet" },
+    "mu": { "labelEs": "a sí mismo", "labelNa": "ajaka isel" },
+    "ta": { "labelEs": "a algo", "labelNa": "tajtatka" },
+    "te": { "labelEs": "a alguien", "labelNa": "ajaka" }
   },
   "nonactivePersonCategoryLabels": {
     "default": { "labelEs": "Paciente", "labelNa": "Taseliani" }

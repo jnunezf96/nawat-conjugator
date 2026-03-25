@@ -4302,6 +4302,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return {
                 sourceClass: "final_wa",
                 stockFamily: "wa",
+                typeOneTargets: ["wa"],
                 typeOneTarget: "wa",
                 typeTwoTarget: null,
                 chain: "final wa -> wa",
@@ -4321,6 +4322,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 return {
                     sourceClass: "final_ewi",
                     stockFamily: "ewi",
+                    typeOneTargets: ["wa"],
                     typeOneTarget: "wa",
                     typeTwoTarget: "witia",
                     chain: "final ewi -> ewa",
@@ -4329,9 +4331,10 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return {
                 sourceClass: "final_wi",
                 stockFamily: "wi",
+                typeOneTargets: ["ua", "wa"],
                 typeOneTarget: "ua",
                 typeTwoTarget: "witia",
-                chain: "final wi -> ua",
+                chain: "final wi -> ua ~ wa",
             };
         }
         if (causativeDescriptorMatches(descriptor, {
@@ -4341,6 +4344,7 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
             return {
                 sourceClass: "final_ani",
                 stockFamily: "ni",
+                typeOneTargets: ["na"],
                 typeOneTarget: "na",
                 typeTwoTarget: null,
                 chain: "final ni -> na",
@@ -4394,6 +4398,9 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 sourceClass: intransitiveTypeOnePolicy.sourceClass,
                 stockFamily: intransitiveTypeOnePolicy.stockFamily || "",
                 chain: intransitiveTypeOnePolicy.chain,
+                typeOneTargets: Array.isArray(intransitiveTypeOnePolicy.typeOneTargets)
+                    ? [...intransitiveTypeOnePolicy.typeOneTargets]
+                    : [],
                 typeOneTarget: intransitiveTypeOnePolicy.typeOneTarget || null,
                 typeTwoTarget: intransitiveTypeOnePolicy.typeTwoTarget || null,
             },
@@ -4879,7 +4886,13 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
                 typeOnePolicy: intransitiveTypeOnePolicy.chain,
             });
         };
-        pushIntransitiveTypeOnePolicyTarget(intransitiveTypeOnePolicy.typeOneTarget);
+        const typeOneTargets = Array.isArray(intransitiveTypeOnePolicy.typeOneTargets)
+            && intransitiveTypeOnePolicy.typeOneTargets.length
+            ? intransitiveTypeOnePolicy.typeOneTargets
+            : [intransitiveTypeOnePolicy.typeOneTarget].filter(Boolean);
+        typeOneTargets.forEach((typeOneTarget) => {
+            pushIntransitiveTypeOnePolicyTarget(typeOneTarget);
+        });
     }
 
     if (
@@ -11129,6 +11142,83 @@ function getNonactivePersonSub(prefix, isNawat = false) {
     return getLocalizedLabel(NONACTIVE_PERSON_SUB_LABELS[prefix], isNawat, "");
 }
 
+function getSubjectSelectionByAgreement(subjectPrefix = "", subjectSuffix = "") {
+    for (const group of SUBJECT_PERSON_GROUPS) {
+        if (!group || typeof group !== "object") {
+            continue;
+        }
+        for (const number of SUBJECT_PERSON_NUMBER_ORDER) {
+            const selection = group[number];
+            if (!selection) {
+                continue;
+            }
+            if (
+                String(selection.subjectPrefix || "") === String(subjectPrefix || "")
+                && String(selection.subjectSuffix || "") === String(subjectSuffix || "")
+            ) {
+                return { group, selection, number };
+            }
+        }
+    }
+    return null;
+}
+
+function getSubjectPersonLabelByAgreement(subjectPrefix = "", subjectSuffix = "", isNawat = false) {
+    const matched = getSubjectSelectionByAgreement(subjectPrefix, subjectSuffix);
+    if (matched) {
+        return getSubjectPersonLabel(matched.group, matched.selection, isNawat);
+    }
+    const info = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    if (!info) {
+        return "";
+    }
+    const personKeyMap = {
+        1: "first",
+        2: "second",
+        3: "third",
+    };
+    const personKey = personKeyMap[info.person] || "";
+    const groupLabel = getLocalizedLabel(
+        PERSON_GROUP_LABELS[personKey],
+        isNawat,
+        `${info.person}a persona`
+    );
+    const numberKey = info.number === "pl" ? "plural" : "singular";
+    const numberLabels = NUMBER_LABELS[numberKey] || {};
+    const numberLabel = isNawat
+        ? (numberLabels.na || numberKey)
+        : (numberLabels.es || numberKey);
+    return [groupLabel, numberLabel].filter(Boolean).join(" ");
+}
+
+function getRetainedObjectSublabel(prefix = "", isNawat = false) {
+    const normalized = String(prefix || "");
+    if (!normalized) {
+        return "";
+    }
+    const dedicatedEs = {
+        ta: "algo",
+        te: "alguien",
+        mu: "sí mismo",
+        nech: "a mí",
+        metz: "a ti",
+        ki: "a él/ella/eso",
+        tech: "a nosotros",
+        metzin: "a ustedes",
+        kin: "a ellos/ellas",
+    };
+    if (isNawat) {
+        const nonactiveLabel = getLocalizedLabel(NONACTIVE_PERSON_SUB_LABELS[normalized], true, "");
+        if (nonactiveLabel) {
+            return nonactiveLabel;
+        }
+    } else if (dedicatedEs[normalized]) {
+        return dedicatedEs[normalized];
+    }
+    const label = getObjectLabelShort(normalized, isNawat);
+    return label || normalized;
+}
+
 function getNonactivePersonCategory(prefix, isNawat = false) {
     const entry = NONACTIVE_PERSON_CATEGORY_LABELS[prefix] || NONACTIVE_PERSON_CATEGORY_LABELS.default;
     return getLocalizedLabel(entry, isNawat, "");
@@ -11152,6 +11242,47 @@ function getNonactivePersonLabel(prefix, options = {}) {
             || getVerbBlockLabel("patient", isNawat, "Paciente");
     }
     return getNonactiveGenericLabel(prefix, isNawat);
+}
+
+function getNonactiveRowLabelModel(prefix, options = {}) {
+    const isNawat = options.isNawat === true;
+    const subjectOverride = options.subjectOverride && typeof options.subjectOverride === "object"
+        ? options.subjectOverride
+        : null;
+    const retainedObjectPrefix = String(options.retainedObjectPrefix || "");
+    if (options.isIntransitive) {
+        return {
+            label: getVerbBlockLabel("eventImpersonal", isNawat, "Evento impersonal"),
+            subLabel: getNonactiveGenericLabel("", isNawat),
+        };
+    }
+    if (options.isDirectGroup) {
+        const patientLabel = getVerbBlockLabel("patient", isNawat, "Paciente");
+        if (subjectOverride) {
+            const personLabel = getSubjectPersonLabelByAgreement(
+                subjectOverride.subjectPrefix || "",
+                subjectOverride.subjectSuffix || "",
+                isNawat
+            );
+            const inverseParticipantLabel = getNonactivePersonSub(prefix, isNawat);
+            const retainedObjectLabel = getRetainedObjectSublabel(retainedObjectPrefix, isNawat);
+            return {
+                label: personLabel || getNonactivePersonCategory(prefix, isNawat) || patientLabel,
+                subLabel: [inverseParticipantLabel, retainedObjectLabel].filter(Boolean).join(" · "),
+            };
+        }
+        return {
+            label: getNonactivePersonCategory(prefix, isNawat) || patientLabel,
+            subLabel: [
+                getNonactivePersonSub(prefix, isNawat),
+                getRetainedObjectSublabel(retainedObjectPrefix, isNawat),
+            ].filter(Boolean).join(" · "),
+        };
+    }
+    return {
+        label: getNonactiveGenericLabel(prefix, isNawat),
+        subLabel: getObjectLabelShort(prefix, isNawat) || getNonactivePersonSub(prefix, isNawat),
+    };
 }
 
 function getNonactiveSlotPrefixes(marker, slot) {
@@ -34422,17 +34553,25 @@ function renderNonactiveConjugationRows({
 
     const isIntransitiveOnly = prefixes.length === 1 && prefixes[0] === "";
     if (forceImpersonal) {
+        const rowLabel = getNonactiveRowLabelModel("", {
+            isIntransitive: true,
+            isNawat,
+        });
         buildNonactiveRow(
-            getNonactivePersonLabel("", { isIntransitive: true, isNawat }),
-            getNonactivePersonSub("", isNawat),
+            rowLabel.label,
+            rowLabel.subLabel,
             ""
         );
         return;
     }
     if (isIntransitiveOnly) {
+        const rowLabel = getNonactiveRowLabelModel("", {
+            isIntransitive: true,
+            isNawat,
+        });
         buildNonactiveRow(
-            getNonactivePersonLabel("", { isIntransitive: true, isNawat }),
-            getNonactivePersonSub("", isNawat),
+            rowLabel.label,
+            rowLabel.subLabel,
             ""
         );
         return;
@@ -34457,9 +34596,15 @@ function renderNonactiveConjugationRows({
                 return;
             }
             objectSelections.forEach((objectPrefix) => {
+                const rowLabel = getNonactiveRowLabelModel(subjectPrefix, {
+                    isDirectGroup: true,
+                    isNawat,
+                    subjectOverride,
+                    retainedObjectPrefix: objectPrefix,
+                });
                 buildNonactiveRow(
-                    getNonactivePersonLabel(subjectPrefix, { isDirectGroup: true, isNawat }),
-                    getNonactivePersonSub(subjectPrefix, isNawat),
+                    rowLabel.label,
+                    rowLabel.subLabel,
                     objectPrefix,
                     subjectOverride
                 );
@@ -34471,9 +34616,10 @@ function renderNonactiveConjugationRows({
         if (!prefix) {
             return;
         }
+        const rowLabel = getNonactiveRowLabelModel(prefix, { isNawat });
         buildNonactiveRow(
-            getNonactivePersonLabel(prefix, { isNawat }),
-            getObjectLabelShort(prefix, isNawat),
+            rowLabel.label,
+            rowLabel.subLabel,
             prefix
         );
     });
