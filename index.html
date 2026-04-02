@@ -310,24 +310,18 @@
                   </div>
                 </div>
                 <div class="verb-block__separator" aria-hidden="true"></div>
-                <div class="verb-block__controls">
-                      <div class="verb-block__composer">
-                      <div class="verb-composer" id="verb-composer">
-                        <div class="verb-composer__grid">
+                <div class="verb-block__controls verb-composer" id="verb-composer">
                           <div
-                            class="verb-composer__slots"
+                            class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
+                            id="composer-slot-stage"
                             role="group"
-                            aria-label="Campos del compositor verbal"
-                          >
-                            <div
-                              class="verb-composer__slots-group verb-composer__slots-group--inputs"
-                              role="group"
-                              aria-label="Grupo de campos de entrada"
-                            >
+                            aria-label="Grupo del compositor verbal"
+                          ></div>
+                          <div class="verb-composer__slot-stash" hidden aria-hidden="true">
                               <div
                                 class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                                 id="composer-slot-a"
-                                data-slot-transitivity="intransitive"
+                                data-composer-slot-shell="intransitive"
                                 role="group"
                                 aria-label="Grupo intransitivo"
                               >
@@ -366,7 +360,7 @@
                                           data-composer-transitivity="intransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-a"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
@@ -378,7 +372,7 @@
                                           data-composer-transitivity="transitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-b"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
@@ -390,7 +384,7 @@
                                           data-composer-transitivity="bitransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-c"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
@@ -507,7 +501,7 @@
                               <div
                                 class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                                 id="composer-slot-b"
-                                data-slot-transitivity="transitive"
+                                data-composer-slot-shell="transitive"
                                 role="group"
                                 aria-label="Grupo transitivo"
                               >
@@ -546,7 +540,7 @@
                                           data-composer-transitivity="intransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-a"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
@@ -558,7 +552,7 @@
                                           data-composer-transitivity="transitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-b"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
@@ -570,7 +564,7 @@
                                           data-composer-transitivity="bitransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-c"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
@@ -689,7 +683,7 @@
                               <div
                                 class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                                 id="composer-slot-c"
-                                data-slot-transitivity="bitransitive"
+                                data-composer-slot-shell="bitransitive"
                                 role="group"
                                 aria-label="Grupo bitransitivo"
                               >
@@ -728,7 +722,7 @@
                                           data-composer-transitivity="intransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-a"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
@@ -740,7 +734,7 @@
                                           data-composer-transitivity="transitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-b"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
@@ -752,7 +746,7 @@
                                           data-composer-transitivity="bitransitive"
                                           role="tab"
                                           aria-selected="false"
-                                          aria-controls="composer-slot-c"
+                                          aria-controls="composer-slot-stage"
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
@@ -873,7 +867,6 @@
                                   </div>
                                 </div>
                               </div>
-                            </div>
                           </div>
                           <select
                             id="composer-transitivity"
@@ -931,8 +924,6 @@
                               <span class="button-label">i/y de apoyo</span>
                             </button>
                           </div>
-                        </div>
-                      </div>
                       <div class="verb-composer__placeholder" id="verb-composer-placeholder" aria-hidden="true">
                         <div class="calc-regex-card">
                           <div class="calc-regex-title">Regex activo</div>
@@ -940,7 +931,6 @@
                             Escribe el patrón directo en la pantalla para buscar o derivar sin menús.
                           </div>
                         </div>
-                      </div>
                     </div>
                   </div>
                   <div class="verb-block__feedback">

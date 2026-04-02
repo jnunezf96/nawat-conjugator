@@ -22430,9 +22430,9 @@ function syncComposerTransitivitySlotButtons() {
     if (transitivitySelect) {
         transitivitySelect.value = VERB_COMPOSER_STATE.transitivity;
     }
-    const slotsWrap = document.querySelector(".verb-composer__slots");
-    if (slotsWrap) {
-        slotsWrap.setAttribute("data-active-transitivity", VERB_COMPOSER_STATE.transitivity);
+    const stagePanel = document.getElementById("composer-slot-stage");
+    if (stagePanel) {
+        stagePanel.setAttribute("data-active-transitivity", VERB_COMPOSER_STATE.transitivity);
     }
     syncComposerSlotPanelVisibility();
     if (!transitivitySlotButtons || !transitivitySlotButtons.length) {
@@ -22449,38 +22449,60 @@ function syncComposerTransitivitySlotButtons() {
 }
 
 function syncComposerSlotPanelVisibility() {
-    const { panels, directionalField } = (() => {
-        const composerPanels = document.querySelectorAll("[data-slot-transitivity]");
-        const composerDirectionalField = document.getElementById("composer-directional-field");
-        return {
-            panels: composerPanels,
-            directionalField: composerDirectionalField,
-        };
-    })();
-    if (!panels.length) {
+    const stagePanel = document.getElementById("composer-slot-stage");
+    const slotShells = Array.from(document.querySelectorAll("[data-composer-slot-shell]"));
+    const directionalField = document.getElementById("composer-directional-field");
+    if (!stagePanel || !slotShells.length) {
         return;
     }
     const activeToken = VERB_COMPOSER_STATE.transitivity;
-    const inputsGroup = document.querySelector(".verb-composer__slots-group--inputs");
-    if (inputsGroup) {
-        inputsGroup.style.setProperty("--composer-slot-columns", "1");
-        inputsGroup.setAttribute("data-slot-columns", "1");
-        inputsGroup.removeAttribute("data-slot-columns-desired");
-        inputsGroup.removeAttribute("data-slot-columns-capacity");
-    }
-    let activeDirectionalHost = null;
-    panels.forEach((panel) => {
-        const token = panel.getAttribute("data-slot-transitivity") || "";
-        const isActive = token === activeToken;
-        panel.classList.toggle("is-hidden-slot", !isActive);
-        panel.classList.toggle("is-active-slot", isActive);
-        panel.hidden = !isActive;
-        panel.setAttribute("aria-hidden", String(!isActive));
-        panel.setAttribute("aria-current", isActive ? "true" : "false");
-        if (isActive) {
-            activeDirectionalHost = panel.querySelector("[data-composer-directional-host]");
+
+    const moveElementChildren = (fromEl, toEl) => {
+        if (!fromEl || !toEl) {
+            return;
         }
+        Array.from(fromEl.children).forEach((child) => {
+            toEl.appendChild(child);
+        });
+    };
+
+    const currentToken = String(stagePanel.dataset.activeTransitivity || "");
+    const currentShell = slotShells.find((shell) => (
+        (shell.getAttribute("data-composer-slot-shell") || "") === currentToken
+    )) || null;
+    const activeShell = slotShells.find((shell) => (
+        (shell.getAttribute("data-composer-slot-shell") || "") === activeToken
+    )) || null;
+
+    if (currentShell && currentShell !== activeShell && stagePanel.children.length) {
+        moveElementChildren(stagePanel, currentShell);
+    }
+    if (activeShell && !stagePanel.children.length) {
+        moveElementChildren(activeShell, stagePanel);
+    }
+
+    slotShells.forEach((shell) => {
+        shell.hidden = true;
+        shell.setAttribute("aria-hidden", "true");
+        shell.setAttribute("aria-current", "false");
     });
+
+    stagePanel.dataset.activeTransitivity = activeToken;
+    stagePanel.setAttribute("data-slot-transitivity", activeToken);
+    stagePanel.classList.add("is-active-slot");
+    stagePanel.hidden = false;
+    stagePanel.setAttribute("aria-hidden", "false");
+    stagePanel.setAttribute("aria-current", "true");
+    stagePanel.setAttribute(
+        "aria-label",
+        activeToken === COMPOSER_TRANSITIVITY.bitransitive
+            ? "Grupo bitransitivo"
+            : (activeToken === COMPOSER_TRANSITIVITY.transitive
+                ? "Grupo transitivo"
+                : "Grupo intransitivo")
+    );
+
+    const activeDirectionalHost = stagePanel.querySelector("[data-composer-directional-host]");
     if (directionalField && activeDirectionalHost && directionalField.parentElement !== activeDirectionalHost) {
         activeDirectionalHost.appendChild(directionalField);
     }
