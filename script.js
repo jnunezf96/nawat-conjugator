@@ -37938,6 +37938,7 @@ function applyForwardStageForGenerate({
         stage,
         noStemMask,
         derivedStems: config?.resultField ? stage[config.resultField] : null,
+        derivedStemSpecs: config?.resultSpecField ? stage[config.resultSpecField] : null,
     };
 }
 
@@ -37960,6 +37961,10 @@ function applyGenerateForwardDerivations({
     const derivedStemPoolByField = {
         causativeAllStems: null,
         applicativeAllStems: null,
+    };
+    const derivedStemSpecPoolByField = {
+        causativeAllStemSpecs: null,
+        applicativeAllStemSpecs: null,
     };
     const selectedForwardMetaByType = {
         [DERIVATION_TYPE.causative]: null,
@@ -38007,6 +38012,9 @@ function applyGenerateForwardDerivations({
         if (config?.resultField) {
             derivedStemPoolByField[config.resultField] = stageResult.derivedStems;
         }
+        if (config?.resultSpecField) {
+            derivedStemSpecPoolByField[config.resultSpecField] = stageResult.derivedStemSpecs;
+        }
         selectedForwardMetaByType[stageType] = stageResult.stage?.selectedForwardMeta || null;
     }
 
@@ -38018,6 +38026,8 @@ function applyGenerateForwardDerivations({
         suppletiveStemSet,
         causativeAllStems: derivedStemPoolByField.causativeAllStems,
         applicativeAllStems: derivedStemPoolByField.applicativeAllStems,
+        causativeAllStemSpecs: derivedStemSpecPoolByField.causativeAllStemSpecs,
+        applicativeAllStemSpecs: derivedStemSpecPoolByField.applicativeAllStemSpecs,
         causativeSelectionMeta: selectedForwardMetaByType[DERIVATION_TYPE.causative] || null,
         applicativeSelectionMeta: selectedForwardMetaByType[DERIVATION_TYPE.applicative] || null,
     };
@@ -38030,6 +38040,8 @@ function resolveStemCollectionPool({
     resolvedDerivationType = "",
     causativeAllStems = null,
     applicativeAllStems = null,
+    causativeAllStemSpecs = null,
+    applicativeAllStemSpecs = null,
 }) {
     if (isNonactive) {
         if (Array.isArray(nonactiveAllStemSpecs) && nonactiveAllStemSpecs.length) {
@@ -38040,6 +38052,13 @@ function resolveStemCollectionPool({
     const forwardConfig = getForwardDerivationConfig(resolvedDerivationType);
     if (!forwardConfig) {
         return null;
+    }
+    const specPool = getDerivedStemPoolSpecValue(forwardConfig.resultSpecField, {
+        causativeAllStemSpecs,
+        applicativeAllStemSpecs,
+    });
+    if (Array.isArray(specPool) && specPool.length) {
+        return specPool;
     }
     return getDerivedStemPoolValue(forwardConfig.resultField, {
         causativeAllStems,
@@ -38698,6 +38717,8 @@ function generateWord(options = {}) {
     } = forwardDerivations);
     let causativeAllStems = forwardDerivations.causativeAllStems;
     let applicativeAllStems = forwardDerivations.applicativeAllStems;
+    let causativeAllStemSpecs = forwardDerivations.causativeAllStemSpecs || null;
+    let applicativeAllStemSpecs = forwardDerivations.applicativeAllStemSpecs || null;
     const forwardStemProvenance = (
         !isNonactive
         && resolvedDerivationType === DERIVATION_TYPE.causative
@@ -39300,6 +39321,8 @@ function generateWord(options = {}) {
         resolvedDerivationType,
         causativeAllStems,
         applicativeAllStems,
+        causativeAllStemSpecs,
+        applicativeAllStemSpecs,
     });
     if (Array.isArray(stemCollectionPool) && stemCollectionPool.length > 1) {
         stemCollectionPool.forEach((stemCandidate) => {

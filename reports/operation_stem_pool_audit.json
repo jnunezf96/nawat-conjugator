@@ -13,27 +13,27 @@
   "pool_families": [
     {
       "id": "pf-01",
-      "name": "causativeAllStems",
+      "name": "causativeAllStems / causativeAllStemSpecs",
       "source": "applySelectedForwardDerivation → runForwardDerivation → applyCausativeDerivation",
       "location": "script.js:20409 / script.js:20427",
-      "element_type": "string[]",
-      "has_spec_parallel": false,
-      "spec_field": null,
+      "element_type": "string[] (causativeAllStems) + MorphStemSpec[] (causativeAllStemSpecs)",
+      "has_spec_parallel": true,
+      "spec_field": "causativeAllStemSpecs",
       "prefixing_applied": "none — raw derivation output stems (verb-only, no source-chain prefix)",
       "morphology_context_encoded": false,
-      "notes": "causativeAllStems contains base-level causative surface stems produced by applyCausativeDerivation. Each string is a derived verb stem (e.g. 'taltia', 'taltis') without subject/object/directional prefix. When consumed by resolveStemCandidateMorphologyResult, the stem is stripped of directional and embedded prefix before applyMorphologyRules is called with baseMorphologyInput."
+      "notes": "causativeAllStems contains base-level causative surface stems produced by applyCausativeDerivation. causativeAllStemSpecs is the parallel MorphStemSpec[] array, now threaded through applyForwardStageForGenerate → applyGenerateForwardDerivations → generateWord → resolveStemCollectionPool. resolveStemCollectionPool prefers the spec array when non-empty. When consumed by resolveStemCandidateMorphologyResult, MorphStemSpec entries are realized via realizeMorphStemSpec; string entries are used directly."
     },
     {
       "id": "pf-02",
-      "name": "applicativeAllStems",
+      "name": "applicativeAllStems / applicativeAllStemSpecs",
       "source": "applySelectedForwardDerivation → runForwardDerivation → applyApplicativeDerivation",
       "location": "script.js:20409 / script.js:20427",
-      "element_type": "string[]",
-      "has_spec_parallel": false,
-      "spec_field": null,
+      "element_type": "string[] (applicativeAllStems) + MorphStemSpec[] (applicativeAllStemSpecs)",
+      "has_spec_parallel": true,
+      "spec_field": "applicativeAllStemSpecs",
       "prefixing_applied": "none — raw derivation output stems",
       "morphology_context_encoded": false,
-      "notes": "Same pattern as causativeAllStems. Raw applicative output stems without prefix or tense context."
+      "notes": "Same pattern as pf-01. applicativeAllStemSpecs now threads through the generate pipeline alongside applicativeAllStems. resolveStemCollectionPool prefers specs when available."
     },
     {
       "id": "pf-03",
@@ -72,9 +72,9 @@
         "applicativeAllStemSpecs"
       ],
       "element_type": "string[] for *AllStems; MorphStemSpec[] for *AllStemSpecs (when derivation engine populates them)",
-      "information_loss": "none at this stage — stems are derivation outputs; the derivation engine may populate spec fields but causativeAllStemSpecs / applicativeAllStemSpecs are not forwarded into resolveStemCollectionPool",
-      "recommended_action": "keep_pool_as_stems",
-      "notes": "The derivation engine (applyCausativeDerivation, applyApplicativeDerivation) produces both stemsKey and stemSpecsKey results. applySelectedForwardDerivation captures both (causativeAllStemSpecs, applicativeAllStemSpecs) but resolveStemCollectionPool does not yet consume the spec fields for forward-derived stems — it reads only the stems array via getDerivedStemPoolValue. This is a latent improvement opportunity: forwarding specs for causative/applicative would make the pool fully spec-first. However it has zero behavior impact today since resolveStemCandidateMorphologyResult handles MorphStemSpec and string identically via realizeMorphStemSpec."
+      "information_loss": "none — both stemsKey and stemSpecsKey results are now forwarded through the full generate pipeline",
+      "recommended_action": "no_change_needed",
+      "notes": "RESOLVED: The derivation engine (applyCausativeDerivation, applyApplicativeDerivation) produces both stemsKey and stemSpecsKey results. applySelectedForwardDerivation captures both; applyForwardStageForGenerate now returns derivedStemSpecs via config.resultSpecField; applyGenerateForwardDerivations threads causativeAllStemSpecs / applicativeAllStemSpecs through; resolveStemCollectionPool prefers them when non-empty. String arrays are retained as fallback."
     },
     {
       "id": "ps-02",
@@ -135,9 +135,9 @@
         "final pool: MorphStemSpec[] | string[] | null"
       ],
       "element_type": "MorphStemSpec[] (preferred) | string[] (fallback) | null (single-stem path)",
-      "information_loss": "causativeAllStemSpecs and applicativeAllStemSpecs are not consumed — only the string arrays are forwarded for forward-derivation tenses. This is the one site where spec information is discarded for causative/applicative pools.",
-      "recommended_action": "promote_to_spec_only",
-      "notes": "The dispatch logic is: nonactive → prefer specs, fallback strings; forward (causative/applicative) → always strings via getDerivedStemPoolValue. The asymmetry is benign today (resolveStemCandidateMorphologyResult handles both) but forwarding causativeAllStemSpecs / applicativeAllStemSpecs here would make the pool uniformly spec-first and remove the realizeMorphStemSpec branch that handles the string case."
+      "information_loss": "none — causativeAllStemSpecs / applicativeAllStemSpecs are now consumed and preferred when non-empty; string arrays remain as fallback",
+      "recommended_action": "no_change_needed",
+      "notes": "RESOLVED: The dispatch logic is now uniformly spec-first for both nonactive and forward (causative/applicative) pools. applyGenerateForwardDerivations now threads causativeAllStemSpecs / applicativeAllStemSpecs through; applyForwardStageForGenerate returns derivedStemSpecs via config.resultSpecField; resolveStemCollectionPool prefers specs over strings for forward derivation types. getDerivedStemPoolSpecValue is called with config.resultSpecField and the spec pool object. String fallback retained for cases where derivation does not produce specs."
     }
   ],
   "necessity_analysis": {
@@ -154,20 +154,18 @@
   },
   "recommendation": {
     "chosen_direction": "keep_current_pool_contract_with_spec_promotion_for_forward_stems",
-    "summary": "Accept per-stem applyMorphologyRules as load-bearing. Make one additive improvement: forward causativeAllStemSpecs / applicativeAllStemSpecs through resolveStemCollectionPool so the pool is uniformly MorphStemSpec[] when specs are available, eliminating the string-only fallback for forward-derived stems.",
+    "summary": "RESOLVED: per-stem applyMorphologyRules accepted as load-bearing. Forward stem spec promotion landed: causativeAllStemSpecs / applicativeAllStemSpecs now thread through applyForwardStageForGenerate → applyGenerateForwardDerivations → generateWord → resolveStemCollectionPool. The pool is uniformly spec-first for both nonactive and forward derivation types when specs are available.",
     "rationale": [
       "Per-stem applyMorphologyRules is structurally necessary — tense, allomorphy, and possessive suffix decisions depend on the specific realized stem and cannot be pre-computed in the derivation layer.",
-      "The pool contract (MorphStemSpec[] preferred, string[] fallback) is sound. The asymmetry between nonactive (spec-first) and causative/applicative (string-only) is the only remaining inconsistency.",
-      "Upgrading causative/applicative to spec-first requires only: (1) applySelectedForwardDerivation already captures causativeAllStemSpecs / applicativeAllStemSpecs; (2) getDerivedStemPoolValue needs a spec-aware variant; (3) resolveStemCollectionPool reads specs for forward-derived tenses the same way it does for nonactive.",
-      "This improvement is additive and behavior-neutral: resolveStemCandidateMorphologyResult already handles MorphStemSpec via realizeMorphStemSpec.",
-      "A richer morphology-candidate contract (option: add_morphology_candidate_shape) is not warranted — it would require passing baseMorphologyInput into the derivation layer, creating upward coupling.",
-      "Splitting into selection-stems vs render-candidates (option: split_selection_vs_render_pool) adds complexity without benefit, since the pool is already correctly sized and ordered."
+      "The pool contract (MorphStemSpec[] preferred, string[] fallback) is now uniform across nonactive and forward (causative/applicative) families.",
+      "applySelectedForwardDerivation already captured causativeAllStemSpecs / applicativeAllStemSpecs in its result; the gap was that the generate pipeline dropped them. That is now fixed.",
+      "getDerivedStemPoolSpecValue is called with config.resultSpecField and a spec-keyed pool object, correctly distinguishing spec lookup from stem lookup.",
+      "String fallback retained for cases where the derivation engine does not populate spec fields.",
+      "resolveStemCandidateMorphologyResult handles both MorphStemSpec (via realizeMorphStemSpec) and raw strings — no change needed there."
     ],
     "next_tranche_scope": [
-      "add getDerivedStemPoolSpecValue or extend getDerivedStemPoolValue to return specs when available",
-      "update resolveStemCollectionPool to prefer causativeAllStemSpecs / applicativeAllStemSpecs (parallel to nonactive path)",
-      "static check + confirm resolveStemCandidateMorphologyResult produces identical output for MorphStemSpec vs string equivalents",
-      "update this audit: mark ps-06 resolveStemCollectionPool as no_change_needed once spec promotion lands"
+      "no further pool architecture work required",
+      "future: upstream derivation redesign if stemCollectionPool construction itself needs to move earlier in the pipeline"
     ]
   }
 }

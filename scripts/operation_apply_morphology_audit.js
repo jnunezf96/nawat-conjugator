@@ -405,7 +405,7 @@ The **normal** return is the correct structured shape. All three **pret/class ea
 
 All pret/class early-return branches consume \`forms[]\` and produce structured \`alternateForms\`. The remaining mixed-boundary classification (amr-07, amr-08a, amr-08b) reflects the zeroed-affix compatibility shim — a design concern for a later pass, not a structural defect.
 
-\`generateWord\` now exposes \`surfaceForms: string[]\` on its return. The zeroed-affix shim can be revisited once a richer \`generateWord\` input contract is in place for pret/class stems. Next design frontier: the \`collectFormsForStem\` mixed-boundary pattern in \`generateWord\` (re-applying morphology per stem inside the output loop).
+\`generateWord\` now exposes \`surfaceForms: string[]\` on its return. The stem pool is uniformly spec-first (forward and nonactive). The morphology-per-stem boundary is isolated in \`resolveStemCandidateMorphologyResult\`. The zeroed-affix shim (amr-07, amr-08a, amr-08b) is the only remaining compatibility concern, deferred until a richer pret/class stem input contract is warranted.
 `;
 
 // ---------------------------------------------------------------------------
