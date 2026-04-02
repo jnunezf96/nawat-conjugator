@@ -2273,6 +2273,78 @@
             })),
             "temuwa"
         );
+        const nemiCausativeNonactiveMetadata = getParsedVerbNonactiveStemMetadata(
+            parseVerbInput("(nemi)"),
+            {
+                derivationType: DERIVATION_TYPE.causative,
+                objectPrefix: "ki",
+            }
+        );
+        collector.equal(
+            "nemi causative nonactive metadata keeps one-to-one derived stems",
+            nemiCausativeNonactiveMetadata?.derivedNonactiveStems || [],
+            ["nemitilu", "nentilu"]
+        );
+        collector.equal(
+            "nemi causative passive keeps one-to-one derived alternants",
+            withSelectedNonactiveSuffix(null, () => getSilentResult({
+                verb: "(nemi)",
+                parsedVerb: parseVerbInput("(nemi)"),
+                tense: "presente",
+                tenseMode: TENSE_MODE.verbo,
+                derivationType: DERIVATION_TYPE.causative,
+                derivationMode: DERIVATION_MODE.nonactive,
+                voiceMode: VOICE_MODE.passive,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "ki",
+            })),
+            "nemitilu / nentilu"
+        );
+        const mawiCausativeNonactiveMetadata = getParsedVerbNonactiveStemMetadata(
+            parseVerbInput("(mawi)"),
+            {
+                derivationType: DERIVATION_TYPE.causative,
+                objectPrefix: "",
+            }
+        );
+        collector.equal(
+            "mawi causative nonactive metadata keeps full one-to-one derived stems",
+            mawiCausativeNonactiveMetadata?.derivedNonactiveStems || [],
+            ["mulu", "mawalu", "mawitilu", "mawtilu"]
+        );
+        collector.equal(
+            "mawi causative active keeps full forward alternants",
+            withSelectedNonactiveSuffix(null, () => getSilentResult({
+                verb: "(mawi)",
+                parsedVerb: parseVerbInput("(mawi)"),
+                tense: "presente",
+                tenseMode: TENSE_MODE.verbo,
+                derivationType: DERIVATION_TYPE.causative,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "ki",
+            })),
+            "kimua / kimawa / kimawitia / kimawtia"
+        );
+        collector.equal(
+            "mawi causative passive keeps full one-to-one derived alternants",
+            withSelectedNonactiveSuffix(null, () => getSilentResult({
+                verb: "(mawi)",
+                parsedVerb: parseVerbInput("(mawi)"),
+                tense: "pasivo",
+                tenseMode: TENSE_MODE.verbo,
+                derivationType: DERIVATION_TYPE.causative,
+                derivationMode: DERIVATION_MODE.nonactive,
+                voiceMode: VOICE_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+            })),
+            "mulu / mawalu / mawitilu / mawtilu"
+        );
         collector.equal(
             "temi patientivo nonactive keeps full wa and uwa families",
             withSelectedNonactiveSuffix(null, () => getSilentResult({
@@ -2665,7 +2737,7 @@
             "tajtil / tajtilti / tajtilin / tajtal / tajtalti / tajtalin / tajtit / tajti / tajtat / tajta"
         );
 
-        const total = 37;
+        const total = 42;
         const summary = summarize("Operation Broughtback", total, collector);
         summary.operation = "Operation Broughtback";
         return summary;
@@ -4687,6 +4759,41 @@
         return summarize("Composer writeback checks", 12, collector);
     }
 
+    function runComposerSlotStageChecks() {
+        const collector = createCollector();
+
+        return withComposerSnapshot(() => {
+            setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: false });
+            const stage = document.getElementById("composer-slot-stage");
+            if (!stage) {
+                collector.failures.push("missing composer slot stage");
+                return summarize("Composer slot-stage checks", 1, collector);
+            }
+
+            const assertStageForTransitivity = (token, expectedStemId) => {
+                const refsBeforeClick = getVerbComposerElements();
+                const button = Array.from(refsBeforeClick.transitivitySlotButtons || []).find((candidate) => (
+                    String(candidate.getAttribute("data-composer-transitivity") || "") === token
+                    && isShown(candidate)
+                ));
+                if (!button || !clickElement(button)) {
+                    collector.failures.push(`missing visible transitivity button for ${token}`);
+                    return;
+                }
+                const refsAfterClick = getVerbComposerElements();
+                const liveStemInput = stage.querySelector('input[id^="composer-stem-"]');
+                collector.equal(`${token} live stage stem`, liveStemInput?.id || "", expectedStemId);
+                collector.equal(`${token} active matrix stem`, refsAfterClick.matrixStemInput?.id || "", expectedStemId);
+            };
+
+            assertStageForTransitivity(COMPOSER_TRANSITIVITY.intransitive, "composer-stem-a");
+            assertStageForTransitivity(COMPOSER_TRANSITIVITY.transitive, "composer-stem-b");
+            assertStageForTransitivity(COMPOSER_TRANSITIVITY.bitransitive, "composer-stem-c");
+
+            return summarize("Composer slot-stage checks", 6, collector);
+        });
+    }
+
     function runComposerPlaceholderChecks() {
         const collector = createCollector();
 
@@ -4909,6 +5016,7 @@
         const results = [
             runVerbModeTranslationChecks(),
             runMovingTargetOutputChecks(),
+            runComposerSlotStageChecks(),
             runComposerPlaceholderChecks(),
             runComposerSupportiveChecks(),
             runComposerShortFormChecks(),

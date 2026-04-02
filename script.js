@@ -22430,10 +22430,6 @@ function syncComposerTransitivitySlotButtons() {
     if (transitivitySelect) {
         transitivitySelect.value = VERB_COMPOSER_STATE.transitivity;
     }
-    const stagePanel = document.getElementById("composer-slot-stage");
-    if (stagePanel) {
-        stagePanel.setAttribute("data-active-transitivity", VERB_COMPOSER_STATE.transitivity);
-    }
     syncComposerSlotPanelVisibility();
     if (!transitivitySlotButtons || !transitivitySlotButtons.length) {
         return;
@@ -37295,19 +37291,31 @@ function resolveDerivedNonactiveSelectionEntry({
     }
     const info = BASIC_DATA_CANONICAL_MAP.get(key);
     const parsedMatch = info ? (info.transitiveParsed || info.intransitiveParsed) : null;
-    const sourceMeta = parsedMatch || parsedVerb;
     const sourceVerb = parsedMatch ? parsedMatch.verb : stem;
     const sourceAnalysisVerb = parsedMatch ? parsedMatch.analysisVerb : stem;
-    const matchSource = getNonactiveDerivationSource(
-        sourceMeta,
-        sourceVerb,
-        sourceAnalysisVerb
-    );
-    const matchBaseVerb = stripBoundSourcePrefixFromNonactiveBase(
-        matchSource.baseVerb || "",
-        matchSource.prefix || "",
-        sourceMeta,
-    );
+    const sourceMeta = parsedMatch || null;
+    const matchSource = parsedMatch
+        ? getNonactiveDerivationSource(
+            sourceMeta,
+            sourceVerb,
+            sourceAnalysisVerb
+        )
+        : {
+            baseVerb: sourceAnalysisVerb || sourceVerb,
+            prefix: "",
+            chain: {
+                baseVerb: sourceAnalysisVerb || sourceVerb,
+                prefix: "",
+                prefixParts: [],
+            },
+        };
+    const matchBaseVerb = parsedMatch
+        ? stripBoundSourcePrefixFromNonactiveBase(
+            matchSource.baseVerb || "",
+            matchSource.prefix || "",
+            sourceMeta,
+        )
+        : normalizeRuleBase(sourceAnalysisVerb || sourceVerb);
     const matchRuleBase = normalizeRuleBase(matchBaseVerb || "");
     const matchIsTransitive = parsedMatch
         ? isNonactiveTransitiveVerb(objectPrefix, parsedMatch)
@@ -37321,10 +37329,10 @@ function resolveDerivedNonactiveSelectionEntry({
             ? parsedMatch.rootPlusYaBase
             : parsedVerb?.rootPlusYaBase,
     });
-    const matchSummary = getVerbValencySummary(sourceMeta);
+    const matchSummary = getVerbValencySummary(parsedMatch || parsedVerb);
     const entry = buildPrefixedNonactiveSelectionEntry({
         selection: matchSelection,
-        prefix: matchSource.prefix || "",
+        prefix: parsedMatch ? (matchSource.prefix || "") : "",
         directionalPrefix: (parsedMatch ? parsedMatch.directionalPrefix : parsedVerb?.directionalPrefix) || "",
         nonactiveObjectSlots: matchSummary.nonactiveObjectSlots,
     });
@@ -43854,7 +43862,7 @@ const DEVELOPER_HOOK_NAMES = Object.freeze([
     "runComposerDisplayBridgeTests",
     "runComposerButtonCombinatorialAudit",
 ]);
-const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260402-dev-checks-114";
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260402-dev-checks-115";
 
 function getDeveloperHookMap(windowObject = null) {
     const scope = windowObject || (typeof window !== "undefined" ? window : null);
