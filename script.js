@@ -5715,8 +5715,13 @@ function buildStructuredPrefixedStemSpec({
     stemSpec = null,
     verb = "",
     subjectPrefix = "",
+    possessivePrefix = "",
     objectPrefix = "",
     output = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+    directionalChainMeta = null,
+    surfaceRuleMeta = null,
 } = {}) {
     const resolvedStemSpec = (
         stemSpec
@@ -5728,14 +5733,30 @@ function buildStructuredPrefixedStemSpec({
     }
     const baseVerb = String(verb || "");
     const normalizedSubjectPrefix = String(subjectPrefix || "");
+    const normalizedPossessivePrefix = String(possessivePrefix || "");
     const normalizedObjectPrefix = String(objectPrefix || "");
-    const expectedOutput = `${normalizedSubjectPrefix}${normalizedObjectPrefix}${baseVerb}`;
+    const expectedOutput = buildOutputPrefixedChain({
+        subjectPrefix: normalizedSubjectPrefix,
+        possessivePrefix: normalizedPossessivePrefix,
+        objectPrefix: normalizedObjectPrefix,
+        verb: baseVerb,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter,
+        directionalChainMeta,
+        surfaceRuleMeta,
+    });
     if (!expectedOutput || expectedOutput !== String(output || "")) {
         return null;
     }
     let nextSpec = resolvedStemSpec;
     if (normalizedObjectPrefix) {
         nextSpec = buildPrependMorphStemSpec(nextSpec, normalizedObjectPrefix, {
+            sourceBase: nextSpec?.sourceBase || baseVerb,
+            sourceSuffix: nextSpec?.sourceSuffix || "",
+        }) || nextSpec;
+    }
+    if (normalizedPossessivePrefix) {
+        nextSpec = buildPrependMorphStemSpec(nextSpec, normalizedPossessivePrefix, {
             sourceBase: nextSpec?.sourceBase || baseVerb,
             sourceSuffix: nextSpec?.sourceSuffix || "",
         }) || nextSpec;
@@ -11930,16 +11951,16 @@ function resolvePlacedNominalStemSpec(nominalSurface, sourceVerb, sourceStemSpec
     const placedVerb = String(nominalSurface?.verb || "");
     const sourceVerbStr = String(sourceVerb || "");
     const placedSourceOuterPrefix = String(nominalSurface?.surfaceRuleMeta?.sourceOuterPrefix || "");
+    const nominalObjectPrefix = String(nominalSurface?.objectPrefix || "");
+    // Effective prefix: object-only, lexical-only, or fused object+lexical.
+    const effectivePrefix = `${nominalObjectPrefix}${placedSourceOuterPrefix}`;
     const resolvedSourceStemSpec = (
         sourceStemSpec && typeof sourceStemSpec === "object" && sourceStemSpec.kind
     ) ? sourceStemSpec : null;
     if (placedVerb === sourceVerbStr) {
         return resolvedSourceStemSpec || buildLiteralMorphStemSpec(placedVerb);
     }
-    if (placedSourceOuterPrefix) {
-        // Include any detached object prefix in the effective strip (fused case).
-        const nominalObjectPrefix = String(nominalSurface?.objectPrefix || "");
-        const effectivePrefix = `${nominalObjectPrefix}${placedSourceOuterPrefix}`;
+    if (effectivePrefix) {
         if (resolvedSourceStemSpec) {
             return buildStripPrefixMorphStemSpec(resolvedSourceStemSpec, effectivePrefix, {
                 sourceBase: resolvedSourceStemSpec.sourceBase || "",
@@ -12595,9 +12616,9 @@ function buildPatientivoTroncoDerivations({
             && typeof stemSpec === "object"
             && stemSpec.kind
         ) ? stemSpec : (
-            stem ? buildLiteralMorphStemSpec(stem, {
-                sourceBase: patientivoSourceModel?.matrixBase || base,
-            }) : null
+            stem === base
+                ? baseStemSpec
+                : (stem ? buildMorphStemSpecFromRoute(base, "", stem) : null)
         );
         if (
             resolvedStemSpec
@@ -12612,9 +12633,7 @@ function buildPatientivoTroncoDerivations({
             }) || resolvedStemSpec;
         }
         if (!resolvedStemSpec && normalizedStem) {
-            resolvedStemSpec = buildLiteralMorphStemSpec(normalizedStem, {
-                sourceBase: patientivoSourceModel?.matrixBase || base,
-            });
+            resolvedStemSpec = buildMorphStemSpecFromRoute(base, "", normalizedStem);
         }
         return {
             stem: normalizedStem,
@@ -12676,9 +12695,7 @@ function buildPatientivoTroncoDerivations({
         const nextEntry = buildPatientivoDerivationEntry({
             sourceModel: patientivoSourceModel,
             sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
-            stemSpec: derivedStem.stemSpec || buildLiteralMorphStemSpec(normalized, {
-                sourceBase: base,
-            }),
+            stemSpec: derivedStem.stemSpec,
             fallbackStem: normalized,
             subjectSuffix: suffix,
             lockNominalMarker: options.lockNominalMarker === true,
@@ -14893,6 +14910,9 @@ function getInstrumentivoResult({
                     subjectPrefix: applied.subjectPrefix,
                     objectPrefix: nominalSurface.objectPrefix,
                     output: core,
+                    hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+                    optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
+                    surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
                 }) || buildLiteralMorphStemSpec(core);
                 entries.push(buildVerbDerivedNominalEntry({
                     kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
@@ -15125,6 +15145,9 @@ function getCalificativoInstrumentivoResult({
                     subjectPrefix: "",
                     objectPrefix: nominalSurface.objectPrefix,
                     output: objectChainForm,
+                    hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
+                    optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
+                    surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
                 }) || buildLiteralMorphStemSpec(objectChainForm);
                 entries.push(buildVerbDerivedNominalEntry({
                     kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
@@ -43746,7 +43769,7 @@ const DEVELOPER_HOOK_NAMES = Object.freeze([
     "runComposerDisplayBridgeTests",
     "runComposerButtonCombinatorialAudit",
 ]);
-const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-110";
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-112";
 
 function getDeveloperHookMap(windowObject = null) {
     const scope = windowObject || (typeof window !== "undefined" ? window : null);

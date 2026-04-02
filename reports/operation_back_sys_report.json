@@ -1,6 +1,6 @@
 {
   "operation": "Operation Back Sys",
-  "generatedAt": "2026-04-02T03:52:11.981Z",
+  "generatedAt": "2026-04-02T04:07:47.936Z",
   "root": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
   "anchors": [
     "1dcf4f6",
@@ -11,7 +11,8 @@
     "f002f6e"
   ],
   "totalsByCategory": {
-    "connected": 28,
+    "connected": 27,
+    "disconnected": 1,
     "intentionally_changed": 2,
     "removed": 3
   },
@@ -510,12 +511,12 @@
       ],
       "historical_authority": "script.js: instrumentivo derivation path",
       "current_authority": "script.js: buildVerbDerivedNominalBuilderContext / getInstrumentivoResult",
-      "current_status": "connected",
-      "status_reason": "Instrumentivo remains reachable through the shared realized noun pipeline.",
-      "reachability": "live",
+      "current_status": "disconnected",
+      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(kwi) instrumentivo",
-        "actual": "atakwiluni / atakwiwaluni",
+        "actual": "takwiluni / takwiwaluni",
         "expected": "atakwiluni / atakwiwaluni"
       },
       "notes": "Uses (a)+ta-(kwi) as the structured instrumentivo probe.",

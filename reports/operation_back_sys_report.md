@@ -1,10 +1,11 @@
 # Operation Back Sys
 
-Generated: 2026-04-02T03:52:11.981Z
+Generated: 2026-04-02T04:07:47.936Z
 
 ## Totals By Category
 
-- connected: 28
+- connected: 27
+- disconnected: 1
 - intentionally_changed: 2
 - removed: 3
 
@@ -47,7 +48,7 @@ Generated: 2026-04-02T03:52:11.981Z
 | patientivo-source-imperfectivo | patientivo imperfectivo | connected | live | b41f16b, f002f6e | Patientivo from imperfective remains reachable through the current realized source path. |
 | patientivo-source-tronco | patientivo tronco-verbal | connected | live | b41f16b, f002f6e | Patientivo from tronco-verbal remains reachable and still emits structured productive families. |
 | noun-sustantivo-verbal | sustantivo-verbal | connected | live | 3aab90f, b0b950f, b41f16b, f002f6e | Sustantivo-verbal remains reachable through the shared realized noun pipeline. |
-| noun-instrumentivo | instrumentivo | connected | live | 3aab90f, b0b950f, b41f16b, f002f6e | Instrumentivo remains reachable through the shared realized noun pipeline. |
+| noun-instrumentivo | instrumentivo | disconnected | latent | 3aab90f, b0b950f, b41f16b, f002f6e | Current authority exists, but the live app no longer reaches the historical behavior. |
 | noun-calificativo-instrumentivo | calificativo-instrumentivo | intentionally_changed | policy_changed | 3aab90f, b0b950f, b41f16b, f002f6e | Calificativo-instrumentivo is still reachable, but its current output deliberately follows the realized pasado-remoto stem object rather than the older string-based source. |
 | noun-locativo-temporal | locativo-temporal | connected | live | 3aab90f, b0b950f, b41f16b, f002f6e | Locativo-temporal remains reachable through the shared realized noun pipeline. |
 
@@ -82,4 +83,4 @@ Generated: 2026-04-02T03:52:11.981Z
 
 ## Best Bringback Candidates
 
-None in this snapshot.
+- noun-instrumentivo: Current authority exists, but the live app no longer reaches the historical behavior.
