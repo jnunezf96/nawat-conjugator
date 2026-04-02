@@ -11563,8 +11563,7 @@ function buildPasadoRemotoStemEntries({
                 });
             });
         if (!provenanceVariants.length) {
-            String(pasadoRemotoOutput?.result || "")
-                .split(" / ")
+            (pasadoRemotoOutput?.forms || [])
                 .map((entry) => normalizeDerivationStemValue(entry))
                 .filter((entry) => entry && entry !== "—")
                 .forEach((surfaceForm) => {
@@ -16116,13 +16115,14 @@ function buildClassBasedResultWithProvenance({
         forceClassBSelection,
         forceClassBOnly,
     });
+    const splitForms = (r) => (r && r !== "—") ? r.split(" / ") : [];
     if (!result || result === "—") {
-        return { result, provenance: null };
+        return { result, forms: [], provenance: null };
     }
     const isBitransitive = Boolean(baseObjectPrefix && (indirectObjectMarker || hasNonspecificValence));
     const classKey = forceClassBOnly ? "B" : (classFilter || null);
     if (!classKey) {
-        return { result, provenance: null };
+        return { result, forms: splitForms(result), provenance: null };
     }
     const markerOptions = buildPretMarkerOptionsFromFlags({
         analysisVerb,
@@ -16173,7 +16173,7 @@ function buildClassBasedResultWithProvenance({
         variants = variantsByClass.get(classKey) || null;
     }
     if (!variants) {
-        return { result, provenance: null };
+        return { result, forms: splitForms(result), provenance: null };
     }
     const provenance = buildClassBasedProvenance({
         verb,
@@ -16186,7 +16186,7 @@ function buildClassBasedResultWithProvenance({
         subjectSuffix,
         suppletiveStemSet,
     });
-    return { result, provenance };
+    return { result, forms: splitForms(result), provenance };
 }
 // === Input Validation ===
 function isRecognizedCurrentRegexValue(rawValue, { allowPartial = false } = {}) {
@@ -36058,15 +36058,21 @@ function applyMorphologyRules({
         const universalOutput = buildPretUniversalResultWithProvenance(
             pretDerivationSharedOptions,
         );
+        const resolvedUniversalForms = (universalOutput.forms || [])
+            .map((f) => resolveOptionalSupportiveOutputText({
+                value: f,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            }))
+            .filter(Boolean);
+        const primaryUniversalVerb = resolvedUniversalForms[0] || "—";
+        resolvedUniversalForms.slice(1).forEach((f) => pushAlternateForm(f, ""));
         return {
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: resolveOptionalSupportiveOutputText({
-                value: universalOutput.result || "—",
-                hasOptionalSupportiveI,
-                optionalSupportiveLetter,
-            }) || "—",
+            verb: primaryUniversalVerb,
+            alternateForms,
             stemProvenance: universalOutput.provenance || null,
         };
     }
@@ -36089,18 +36095,15 @@ function applyMorphologyRules({
                 hasOptionalSupportiveI,
                 optionalSupportiveLetter,
             });
-            const nonactiveResultText = (
-                nonactiveResult && typeof nonactiveResult === "object"
-            ) ? nonactiveResult.text : nonactiveResult;
+            const nonactiveForms = nonactiveResult?.forms || [];
+            const primaryNonactiveVerb = nonactiveForms[0] || "—";
+            nonactiveForms.slice(1).forEach((f) => pushAlternateForm(f, ""));
             return {
                 subjectPrefix: "",
                 objectPrefix: "",
                 subjectSuffix: "",
-                verb: resolveOptionalSupportiveOutputText({
-                    value: nonactiveResultText || "—",
-                    hasOptionalSupportiveI,
-                    optionalSupportiveLetter,
-                }) || "—",
+                verb: primaryNonactiveVerb,
+                alternateForms,
                 stemProvenance: null,
             };
         }
@@ -36113,15 +36116,21 @@ function applyMorphologyRules({
             forceClassBSelection: forceAdjectiveClassB,
             forceClassBOnly: isVerbNonactiveMode,
         });
+        const resolvedClassForms = (classOutput.forms || [])
+            .map((f) => resolveOptionalSupportiveOutputText({
+                value: f,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            }))
+            .filter(Boolean);
+        const primaryClassVerb = resolvedClassForms[0] || "—";
+        resolvedClassForms.slice(1).forEach((f) => pushAlternateForm(f, ""));
         return {
             subjectPrefix: "",
             objectPrefix: "",
             subjectSuffix: "",
-            verb: resolveOptionalSupportiveOutputText({
-                value: classOutput.result || "—",
-                hasOptionalSupportiveI,
-                optionalSupportiveLetter,
-            }) || "—",
+            verb: primaryClassVerb,
+            alternateForms,
             stemProvenance: classOutput.provenance || null,
         };
     }
@@ -36229,10 +36238,6 @@ function applyMorphologyRules({
             return resolveWrapperSourceSubjectSuffix(sourceTenseValue);
         };
         const sourceSubjectSuffix = resolveWrapperSourceSubjectSuffix(activeWrapperSourceTense);
-        const splitWrapperForms = (value = "") => String(value || "")
-            .split(" / ")
-            .map((entry) => entry.trim())
-            .filter(Boolean);
         const baseStemCandidates = [{
             verb,
             analysisVerb,
@@ -36398,7 +36403,7 @@ function applyMorphologyRules({
                 indirectObjectMarker: "",
                 hasDoubleDash: false,
             });
-            const classForms = splitWrapperForms(preteritClassOutput?.result)
+            const classForms = (preteritClassOutput?.forms || [])
                 .map((entry) => normalizeIncorporatedStemToken(entry))
                 .filter((entry) => entry && entry !== "—");
             if (!classForms.length) {
@@ -36462,7 +36467,7 @@ function applyMorphologyRules({
                 forceClassBSelection: adjectiveClassPolicy.forceClassBSelection,
             });
             return selectPreferredActiveAdjectiveForms(
-                splitWrapperForms(classOutput?.result),
+                classOutput?.forms || [],
                 {
                     sourceVerb: sourceAnalysis || sourceVerb,
                     sourceTense: "preterito",
@@ -36797,7 +36802,7 @@ function applyMorphologyRules({
                 forceClassBSelection: adjectiveClassPolicy.forceClassBSelection,
             });
             let candidateForms = selectPreferredActiveAdjectiveForms(
-                splitWrapperForms(classOutput?.result),
+                classOutput?.forms || [],
                 {
                     sourceVerb: sourceAnalysis || sourceVerb,
                     sourceTense: activeWrapperSourceTense,
@@ -37902,7 +37907,7 @@ function buildNoStemMaskResult({
             tense,
         });
     }
-    return { result: "—", isReflexive };
+    return { result: "—", surfaceForms: [], isReflexive };
 }
 
 function applyForwardStageForGenerate({
@@ -38092,6 +38097,126 @@ function applyNonactiveGenerateOverrides({
             : indirectObjectMarker,
         thirdObjectMarker: "",
         isReflexive: overriddenObjectPrefix === "mu",
+    };
+}
+
+function resolveStemCandidateMorphologyResult({
+    stemCandidate,
+    baseMorphologyInput,
+    directionalPrefix,
+    embeddedPrefix,
+    shouldApplyDerivedAllomorphy,
+    isPassiveImpersonalMode,
+    parsedVerb,
+    indirectObjectMarker,
+    thirdObjectMarker,
+    isNominalOutputProfile,
+    tense,
+    possessivePrefix,
+    patientivoOwnership,
+    isYawi,
+}) {
+    const stem = (
+        stemCandidate
+        && typeof stemCandidate === "object"
+        && stemCandidate.kind
+    ) ? realizeMorphStemSpec(stemCandidate, "") : String(stemCandidate || "");
+    if (!stem) {
+        return null;
+    }
+    let stemAnalysis = stripDirectionalPrefixFromStem(stem, directionalPrefix);
+    if (embeddedPrefix && stemAnalysis.startsWith(embeddedPrefix)) {
+        stemAnalysis = stemAnalysis.slice(embeddedPrefix.length);
+    }
+    let stemVerb = stem;
+    let stemAnalysisResolved = stemAnalysis;
+    let stemObjectPrefix = baseMorphologyInput.objectPrefix;
+    if (shouldApplyDerivedAllomorphy) {
+        const derivedAllomorphy = applyObjectAllomorphy({
+            verb: stemVerb,
+            analysisVerb: stemAnalysisResolved,
+            subjectPrefix: baseMorphologyInput.subjectPrefix,
+            subjectSuffix: baseMorphologyInput.subjectSuffix,
+            objectPrefix: stemObjectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            isPassiveImpersonalMode,
+            ...buildObjectAllomorphyMetaOptions(parsedVerb),
+        });
+        stemVerb = derivedAllomorphy.verb;
+        stemAnalysisResolved = derivedAllomorphy.analysisVerb;
+        stemObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
+    }
+    const applied = applyMorphologyRules({
+        ...baseMorphologyInput,
+        verb: stemVerb,
+        analysisVerb: stemAnalysisResolved,
+        analysisExactVerb: stemAnalysisResolved,
+        objectPrefix: stemObjectPrefix,
+    });
+    if (!applied || applied.error || !applied.verb) {
+        return null;
+    }
+    const localSubjectPrefix = applied.subjectPrefix;
+    const localObjectPrefix = applied.objectPrefix;
+    let localSubjectSuffix = applied.subjectSuffix;
+    let localFormSpec = applied.formSpec
+        || (isNominalOutputProfile ? buildLiteralNominalFormSpec(applied.verb, localSubjectSuffix) : null);
+    if (tense === "patientivo" && Boolean(possessivePrefix)) {
+        localSubjectSuffix = adjustPatientivoPossessiveSuffix(
+            localSubjectSuffix,
+            true,
+            patientivoOwnership,
+            { stem: applied.verb }
+        );
+        if (localSubjectSuffix === null) {
+            return null;
+        }
+        if (isNominalOutputProfile) {
+            localFormSpec = withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
+                verb: applied.verb,
+                subjectSuffix: localSubjectSuffix,
+            });
+        }
+    }
+    const isYawiImperative = isYawi && tense === "imperativo" && localSubjectSuffix === "";
+    const localAlternates = (applied.alternateForms || []).map((form) => {
+        const normalizedForm = isNominalOutputProfile
+            ? normalizeNominalFormEntry(form, { subjectSuffix: localSubjectSuffix })
+            : form;
+        const altSuffix = (tense === "patientivo" && Boolean(possessivePrefix))
+            ? adjustPatientivoPossessiveSuffix(
+                form.subjectSuffix ?? localSubjectSuffix,
+                true,
+                patientivoOwnership,
+                { stem: normalizedForm.verb }
+            )
+            : (form.subjectSuffix ?? localSubjectSuffix);
+        if (altSuffix === null) {
+            return null;
+        }
+        const altFormSpec = isNominalOutputProfile
+            ? withNominalFormSpecSuffix(normalizedForm.formSpec || null, altSuffix, {
+                verb: normalizedForm.verb,
+                subjectSuffix: altSuffix,
+            })
+            : normalizedForm.formSpec;
+        return {
+            ...normalizedForm,
+            subjectSuffix: altSuffix,
+            formSpec: altFormSpec,
+        };
+    }).filter(Boolean);
+    return {
+        subjectPrefix: localSubjectPrefix,
+        objectPrefix: localObjectPrefix,
+        subjectSuffix: localSubjectSuffix,
+        verb: applied.verb,
+        formSpec: localFormSpec,
+        alternateForms: localAlternates,
+        directionalChainMeta: applied.directionalChainMeta || null,
+        surfaceRuleMeta: applied.surfaceRuleMeta || null,
+        isYawiImperative,
     };
 }
 
@@ -39153,133 +39278,20 @@ function generateWord(options = {}) {
     // Combine the prefixes, verb, and suffixes into a single word
     let forms = [];
     const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
-    const collectFormsForStem = (stemCandidate) => {
-        const stem = (
-            stemCandidate
-            && typeof stemCandidate === "object"
-            && stemCandidate.kind
-        ) ? realizeMorphStemSpec(stemCandidate, "") : String(stemCandidate || "");
-        if (!stem) {
-            return;
-        }
-        let stemAnalysis = stripDirectionalPrefixFromStem(stem, directionalPrefix);
-        if (embeddedPrefix && stemAnalysis.startsWith(embeddedPrefix)) {
-            stemAnalysis = stemAnalysis.slice(embeddedPrefix.length);
-        }
-        let stemVerb = stem;
-        let stemAnalysisResolved = stemAnalysis;
-        let stemObjectPrefix = baseMorphologyInput.objectPrefix;
-        if (shouldApplyDerivedAllomorphy) {
-            const derivedAllomorphy = applyObjectAllomorphy({
-                verb: stemVerb,
-                analysisVerb: stemAnalysisResolved,
-                subjectPrefix: baseMorphologyInput.subjectPrefix,
-                subjectSuffix: baseMorphologyInput.subjectSuffix,
-                objectPrefix: stemObjectPrefix,
-                indirectObjectMarker,
-                thirdObjectMarker,
-                isPassiveImpersonalMode,
-                ...buildObjectAllomorphyMetaOptions(parsedVerb),
-            });
-            stemVerb = derivedAllomorphy.verb;
-            stemAnalysisResolved = derivedAllomorphy.analysisVerb;
-            stemObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
-        }
-        const applied = applyMorphologyRules({
-            ...baseMorphologyInput,
-            verb: stemVerb,
-            analysisVerb: stemAnalysisResolved,
-            analysisExactVerb: stemAnalysisResolved,
-            objectPrefix: stemObjectPrefix,
-        });
-        if (!applied || applied.error) {
-            return;
-        }
-        if (!applied || !applied.verb) {
-            return;
-        }
-        const localSubjectPrefix = applied.subjectPrefix;
-        const localObjectPrefix = applied.objectPrefix;
-        let localSubjectSuffix = applied.subjectSuffix;
-        let localFormSpec = applied.formSpec
-            || (isNominalOutputProfile ? buildLiteralNominalFormSpec(applied.verb, localSubjectSuffix) : null);
-        if (tense === "patientivo" && Boolean(possessivePrefix)) {
-            localSubjectSuffix = adjustPatientivoPossessiveSuffix(
-                localSubjectSuffix,
-                true,
-                patientivoOwnership,
-                {
-                    stem: applied.verb,
-                }
-            );
-            if (localSubjectSuffix === null) {
-                return;
-            }
-            if (isNominalOutputProfile) {
-                localFormSpec = withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
-                    verb: applied.verb,
-                    subjectSuffix: localSubjectSuffix,
-                });
-            }
-        }
-        const localAlternates = (applied.alternateForms || []).map((form) => (
-            isNominalOutputProfile
-                ? normalizeNominalFormEntry(form, {
-                    subjectSuffix: localSubjectSuffix,
-                })
-                : form
-        ));
-        const isYawiImperative =
-            isYawi && tense === "imperativo" && localSubjectSuffix === "";
-        const baseText = buildWordFromParts({
-            subjectPrefix: localSubjectPrefix,
-            objectPrefix: localObjectPrefix,
-            subjectSuffix: localSubjectSuffix,
-            verb: applied.verb,
-            formSpec: localFormSpec,
-            isYawiImperative,
-            directionalChainMeta: applied.directionalChainMeta || null,
-            surfaceRuleMeta: applied.surfaceRuleMeta || null,
-        });
-        if (baseText && !forms.includes(baseText)) {
-            forms.push(baseText);
-        }
-        localAlternates.forEach((form) => {
-            if (!form || !form.verb) {
-                return;
-            }
-            const altSuffix = (tense === "patientivo" && Boolean(possessivePrefix))
-                ? adjustPatientivoPossessiveSuffix(
-                    form.subjectSuffix ?? localSubjectSuffix,
-                    true,
-                    patientivoOwnership,
-                    {
-                        stem: form.verb,
-                    }
-                )
-                : (form.subjectSuffix ?? localSubjectSuffix);
-            if (altSuffix === null) {
-                return;
-            }
-            const altText = buildWordFromParts({
-                subjectPrefix: localSubjectPrefix,
-                objectPrefix: form.surfaceObjectPrefix ?? localObjectPrefix,
-                subjectSuffix: altSuffix,
-                verb: form.verb,
-                formSpec: isNominalOutputProfile
-                    ? withNominalFormSpecSuffix(form.formSpec || null, altSuffix, {
-                        verb: form.verb,
-                        subjectSuffix: altSuffix,
-                    })
-                    : form.formSpec,
-                isYawiImperative,
-                directionalChainMeta: applied.directionalChainMeta || null,
-                surfaceRuleMeta: form.surfaceRuleMeta || applied.surfaceRuleMeta || null,
-            });
-            if (altText && !forms.includes(altText)) {
-                forms.push(altText);
-            }
-        });
+    const stemMorphologyArgs = {
+        baseMorphologyInput,
+        directionalPrefix,
+        embeddedPrefix,
+        shouldApplyDerivedAllomorphy,
+        isPassiveImpersonalMode,
+        parsedVerb,
+        indirectObjectMarker,
+        thirdObjectMarker,
+        isNominalOutputProfile,
+        tense,
+        possessivePrefix,
+        patientivoOwnership,
+        isYawi,
     };
     const stemCollectionPool = resolveStemCollectionPool({
         isNonactive,
@@ -39290,7 +39302,46 @@ function generateWord(options = {}) {
         applicativeAllStems,
     });
     if (Array.isArray(stemCollectionPool) && stemCollectionPool.length > 1) {
-        stemCollectionPool.forEach((stem) => collectFormsForStem(stem));
+        stemCollectionPool.forEach((stemCandidate) => {
+            const morphResult = resolveStemCandidateMorphologyResult({
+                stemCandidate,
+                ...stemMorphologyArgs,
+            });
+            if (!morphResult) {
+                return;
+            }
+            const baseText = buildWordFromParts({
+                subjectPrefix: morphResult.subjectPrefix,
+                objectPrefix: morphResult.objectPrefix,
+                subjectSuffix: morphResult.subjectSuffix,
+                verb: morphResult.verb,
+                formSpec: morphResult.formSpec,
+                isYawiImperative: morphResult.isYawiImperative,
+                directionalChainMeta: morphResult.directionalChainMeta,
+                surfaceRuleMeta: morphResult.surfaceRuleMeta,
+            });
+            if (baseText && !forms.includes(baseText)) {
+                forms.push(baseText);
+            }
+            morphResult.alternateForms.forEach((form) => {
+                if (!form || !form.verb) {
+                    return;
+                }
+                const altText = buildWordFromParts({
+                    subjectPrefix: morphResult.subjectPrefix,
+                    objectPrefix: form.surfaceObjectPrefix ?? morphResult.objectPrefix,
+                    subjectSuffix: form.subjectSuffix,
+                    verb: form.verb,
+                    formSpec: form.formSpec,
+                    isYawiImperative: morphResult.isYawiImperative,
+                    directionalChainMeta: morphResult.directionalChainMeta,
+                    surfaceRuleMeta: form.surfaceRuleMeta || morphResult.surfaceRuleMeta,
+                });
+                if (altText && !forms.includes(altText)) {
+                    forms.push(altText);
+                }
+            });
+        });
     } else {
         const baseText = buildWord();
         forms.push(baseText);
@@ -39345,7 +39396,7 @@ function generateWord(options = {}) {
         });
     }
 
-    return { result: generatedText, isReflexive, stemProvenance };
+    return { result: generatedText, surfaceForms: forms, isReflexive, stemProvenance };
 }
 
 // === Output Rendering ===
@@ -43109,10 +43160,14 @@ function renderNounConjugations({
                 result: {
                     ...visibleEvaluations[0].result,
                     result: Array.from(new Set(
-                        visibleEvaluations.flatMap((entry) => String(entry.result?.result || "")
-                            .split(/\s*\/\s*/g)
-                            .map((form) => form.trim())
-                            .filter(Boolean))
+                        visibleEvaluations.flatMap((entry) => (
+                            Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length
+                                ? entry.result.surfaceForms
+                                : String(entry.result?.result || "")
+                                    .split(/\s*\/\s*/g)
+                                    .map((form) => form.trim())
+                                    .filter(Boolean)
+                        ))
                     )).join(" / "),
                 },
             })

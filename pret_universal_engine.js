@@ -1238,7 +1238,7 @@ function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
     });
 }
 
-function buildPretUniversalResultFromVariants(
+function buildPretUniversalResultDetailedFromVariants(
     variants,
     subjectPrefix,
     objectPrefix,
@@ -1255,7 +1255,7 @@ function buildPretUniversalResultFromVariants(
     optionalSupportiveLetter = ""
 ) {
     if (!variants || variants.length === 0) {
-        return null;
+        return { result: null, forms: [] };
     }
     const canUseSegments = typeof buildOutputWordSegments === "function"
         && typeof joinOutputWordSegments === "function";
@@ -1318,7 +1318,7 @@ function buildPretUniversalResultFromVariants(
                 results.push(form);
             }
         });
-        return results.join(" / ");
+        return { result: results.join(" / "), forms: results };
     }
     const groups = new Map();
     const order = [];
@@ -1384,7 +1384,41 @@ function buildPretUniversalResultFromVariants(
             results.push(realizeForm(verbCore, suffix));
         });
     });
-    return results.join(" / ");
+    return { result: results.join(" / "), forms: results };
+}
+
+function buildPretUniversalResultFromVariants(
+    variants,
+    subjectPrefix,
+    objectPrefix,
+    subjectSuffix,
+    directionalInputPrefix = "",
+    directionalOutputPrefix = "",
+    baseSubjectPrefix = subjectPrefix,
+    baseObjectPrefix = objectPrefix,
+    pluralSuffix = null,
+    indirectObjectMarker = "",
+    hasDoubleDash = false,
+    isYawi = false,
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = ""
+) {
+    return buildPretUniversalResultDetailedFromVariants(
+        variants,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        pluralSuffix,
+        indirectObjectMarker,
+        hasDoubleDash,
+        isYawi,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter
+    ).result;
 }
 
 function buildNonactivePerfectiveResult({
@@ -1451,10 +1485,14 @@ function buildNonactivePerfectiveResult({
         baseObjectPrefix,
         indirectObjectMarker
     );
-    return buildNonactivePerfectiveWordResult({
+    const wordResult = buildNonactivePerfectiveWordResult({
         verb: `${prefix}${base}`,
         subjectSuffix: suffix,
     });
+    return {
+        ...wordResult,
+        forms: (wordResult.text && wordResult.text !== "—") ? [wordResult.text] : [],
+    };
 }
 
 function getKVClassPolicy({
@@ -2163,7 +2201,7 @@ function buildPretUniversalResultWithProvenance({
         if (context.forceClassAForKWV) {
             if (hasClassAVariants) {
                 blockedReason = "class-b-fallback-to-a-kwv";
-                const result = buildPretUniversalResultFromVariants(
+                const { result: resultKWV, forms: formsKWV } = buildPretUniversalResultDetailedFromVariants(
                     classAVariants,
                     subjectPrefix,
                     objectPrefix,
@@ -2180,7 +2218,8 @@ function buildPretUniversalResultWithProvenance({
                     optionalSupportiveLetter
                 );
                 return {
-                    result,
+                    result: resultKWV,
+                    forms: formsKWV,
                     provenance: buildPretUniversalProvenance({
                         verb,
                         analysisTarget,
@@ -2209,7 +2248,7 @@ function buildPretUniversalResultWithProvenance({
             ) && !isTransitive && !context.isReduplicated;
             if (candidates.has("A") && hasClassAVariants && !isMVEnding && !allowClassBWithA) {
                 blockedReason = "class-b-fallback-to-a";
-                const result = buildPretUniversalResultFromVariants(
+                const { result: resultFallbackA, forms: formsFallbackA } = buildPretUniversalResultDetailedFromVariants(
                     classAVariants,
                     subjectPrefix,
                     objectPrefix,
@@ -2226,7 +2265,8 @@ function buildPretUniversalResultWithProvenance({
                     optionalSupportiveLetter
                 );
                 return {
-                    result,
+                    result: resultFallbackA,
+                    forms: formsFallbackA,
                     provenance: buildPretUniversalProvenance({
                         verb,
                         analysisTarget,
@@ -2270,6 +2310,7 @@ function buildPretUniversalResultWithProvenance({
             });
             return {
                 result: null,
+                forms: [],
                 provenance: buildPretUniversalProvenance({
                     verb,
                     analysisTarget,
@@ -2340,6 +2381,7 @@ function buildPretUniversalResultWithProvenance({
         blockedReason = blockedReason || "no-variants";
         return {
             result: null,
+            forms: [],
             provenance: buildPretUniversalProvenance({
                 verb,
                 analysisTarget,
@@ -2354,7 +2396,7 @@ function buildPretUniversalResultWithProvenance({
             }),
         };
     }
-    const result = buildPretUniversalResultFromVariants(
+    const { result, forms } = buildPretUniversalResultDetailedFromVariants(
         variants,
         subjectPrefix,
         objectPrefix,
@@ -2372,6 +2414,7 @@ function buildPretUniversalResultWithProvenance({
     );
     return {
         result,
+        forms,
         provenance: buildPretUniversalProvenance({
             verb,
             analysisTarget,

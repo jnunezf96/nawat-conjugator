@@ -1,0 +1,186 @@
+{
+  "meta": {
+    "title": "Operation GenerateWord Audit",
+    "date": "2026-04-02",
+    "scope": "generateWord(...) output path and its direct output helpers",
+    "out_of_scope": [
+      "getNounNonactiveRuleBase and noun-side wrappers",
+      "applyMorphologyRules internals",
+      "pret_universal_engine.js",
+      "nonactive rule-base path"
+    ]
+  },
+  "summary": {
+    "total_sites": 11,
+    "layer4_legitimate": 11,
+    "mixed_boundary": 0,
+    "authority_violation": 0,
+    "all_output_routes_through_gate": true,
+    "gate_function": "buildOutputWordText / buildOutputWordSegments",
+    "duplicates_are_string_deduplicated": true,
+    "alternants_joined_as_flat_string": true
+  },
+  "findings": {
+    "gate_coverage": "All realized strings in generateWord are produced by buildWord() or buildWordFromParts(), which route through buildActiveOutputWordText → buildOutputWordText → buildOutputWordSegments. The layer-4 gate has 100% coverage of the output path.",
+    "deduplication": "forms.includes(...) guards are string-equality checks on already-realized output. This is correct at layer 4. Migration to a structured alternant set would only be needed if the return contract changes.",
+    "joining": "forms.join(' / ') is a display formatting decision. ' / ' is a UI separator, not a grammatical separator. No refactor needed.",
+    "resolveStemCandidateMorphologyResult": "RESOLVED: morphology-per-stem work is now isolated in the top-level resolveStemCandidateMorphologyResult helper. The helper calls applyMorphologyRules once per stem and returns a structured bundle; generateWord renders that bundle via buildWordFromParts. The boundary is now explicit and named.",
+    "mixed_boundary_return_contract": "RESOLVED: generateWord now returns { result, surfaceForms: string[], isReflexive, stemProvenance }. surfaceForms is the ordered deduplicated alternant array; result is preserved as compatibility string. Ownership aggregation prefers surfaceForms with a split fallback.",
+    "authority_violations": "None found in the generateWord output path."
+  },
+  "records": [
+    {
+      "id": "gw-01",
+      "function": "buildOutputWordSegments",
+      "location": "script.js:463",
+      "category": "layer4_legitimate",
+      "purpose": "Layer-4 gate. Accepts fully-realized parts and produces a typed segment array via realizeSurfaceChain. Applies the universal m→n rule at the suffix boundary.",
+      "current_inputs": "subjectPrefix, possessivePrefix, objectPrefix, verb, subjectSuffix, hasOptionalSupportiveI, optionalSupportiveLetter, directionalChainMeta, surfaceRuleMeta",
+      "current_output": "Array<{ role, value }> — typed surface segments",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "This IS the layer-4 gate. All other output helpers delegate to it."
+    },
+    {
+      "id": "gw-02",
+      "function": "joinOutputWordSegments",
+      "location": "script.js:509",
+      "category": "layer4_legitimate",
+      "purpose": "Joins typed segments into a flat display string.",
+      "current_inputs": "Array<{ role, value }>",
+      "current_output": "string",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "Pure display join; no grammar logic."
+    },
+    {
+      "id": "gw-03",
+      "function": "buildOutputWordText",
+      "location": "script.js:515",
+      "category": "layer4_legitimate",
+      "purpose": "Thin convenience wrapper: buildOutputWordSegments → joinOutputWordSegments.",
+      "current_inputs": "same as buildOutputWordSegments",
+      "current_output": "string",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "No logic; exists to avoid calling both segment functions at every call site."
+    },
+    {
+      "id": "gw-04",
+      "function": "buildActiveOutputWordText (local closure)",
+      "location": "script.js:38232",
+      "category": "layer4_legitimate",
+      "purpose": "Decides the preposed 'ma ' particle for imperatives and possessive-prefix selection, then delegates to buildOutputWordText.",
+      "current_inputs": "subjectPrefix, objectPrefix, subjectSuffix, verb, directionalChainMeta, surfaceRuleMeta, isYawiImperative",
+      "current_output": "string (via buildOutputWordText)",
+      "grammatical_decision_inside": true,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "The 'ma ' decision is a surface display rule, not a morphological authority. Deciding whether to prepend 'ma ' is the kind of boundary logic that belongs at layer 4. No string is constructed outside buildOutputWordText."
+    },
+    {
+      "id": "gw-05",
+      "function": "buildWord (local closure)",
+      "location": "script.js:38271",
+      "category": "layer4_legitimate",
+      "purpose": "Assembles the primary form for the current state, realizing nominal form specs when needed, then calls buildActiveOutputWordText.",
+      "current_inputs": "overrideVerb (default: verb), overrideSuffix (default: subjectSuffix)",
+      "current_output": "string",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "realizeNominalFormSpec adjusts the form spec — not a string op outside the gate. All output goes through buildActiveOutputWordText."
+    },
+    {
+      "id": "gw-06",
+      "function": "buildWordFromParts (local closure)",
+      "location": "script.js:38289",
+      "category": "layer4_legitimate",
+      "purpose": "Same as buildWord but accepts explicit parts instead of capturing closure state. Used for alternate forms and stem-collection pool iteration.",
+      "current_inputs": "subjectPrefix, objectPrefix, subjectSuffix, verb, formSpec, isYawiImperative, directionalChainMeta, surfaceRuleMeta",
+      "current_output": "string",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "All output goes through buildActiveOutputWordText. No string construction outside the gate."
+    },
+    {
+      "id": "gw-07",
+      "function": "generateWord — forms[] initialization",
+      "location": "script.js:39154",
+      "category": "layer4_legitimate",
+      "purpose": "Mutable string array that accumulates realized surface forms before joining.",
+      "current_inputs": "N/A (declaration)",
+      "current_output": "string[]",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "All strings pushed into forms[] are produced by buildWord() or buildWordFromParts(), both of which route through buildOutputWordText. The array only ever holds final realized output strings."
+    },
+    {
+      "id": "gw-08",
+      "function": "generateWord — forms.includes(baseText/altText)",
+      "location": "script.js:39244, 39279, 39311, 39322, 39328",
+      "category": "layer4_legitimate",
+      "purpose": "Deduplication: prevents the same realized surface string from appearing twice in the alternants list.",
+      "current_inputs": "already-realized surface string",
+      "current_output": "boolean guard",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "Operating on realized output strings for display deduplication. Correct at layer 4. Would only need to change if forms[] were migrated from string[] to a structured alternant array."
+    },
+    {
+      "id": "gw-09",
+      "function": "generateWord — forms.join(' / ')",
+      "location": "script.js:39332",
+      "category": "layer4_legitimate",
+      "purpose": "Final display aggregation: joins multiple realized alternants with ' / ' separator for the output cell.",
+      "current_inputs": "string[]",
+      "current_output": "string (generatedText)",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "Pure display formatting. ' / ' is not a grammatical separator — it is a UI display convention. This is correct at layer 4."
+    },
+    {
+      "id": "gw-10",
+      "function": "resolveStemCandidateMorphologyResult (top-level helper)",
+      "location": "script.js (before generateWord)",
+      "category": "layer4_legitimate",
+      "purpose": "For each stem candidate in the stem-collection pool, resolves the stem, applies derived allomorphy, calls applyMorphologyRules once, applies patientivo/nominal adjustments, and returns a structured morphology bundle. generateWord renders that bundle into surface text via buildWordFromParts.",
+      "current_inputs": "{ stemCandidate, baseMorphologyInput, directionalPrefix, embeddedPrefix, shouldApplyDerivedAllomorphy, isPassiveImpersonalMode, parsedVerb, indirectObjectMarker, thirdObjectMarker, isNominalOutputProfile, tense, possessivePrefix, patientivoOwnership, isYawi }",
+      "current_output": "null | { subjectPrefix, objectPrefix, subjectSuffix, verb, formSpec, alternateForms, directionalChainMeta, surfaceRuleMeta, isYawiImperative }",
+      "grammatical_decision_inside": true,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "Morphology-per-stem work is now isolated in a named top-level helper rather than embedded in the generateWord output loop. applyMorphologyRules is still called once per stem candidate — that is correct because stemCollectionPool carries late-resolved stems whose morphology cannot be pre-applied upstream. The boundary is now explicit: helper computes the morphology bundle, generateWord renders it. No string authority violations; all strings route through buildWordFromParts → buildOutputWordText."
+    },
+    {
+      "id": "gw-11",
+      "function": "generateWord — return { result, surfaceForms, isReflexive, stemProvenance }",
+      "location": "script.js:39353",
+      "category": "layer4_legitimate",
+      "purpose": "Returns the final flat string (result) and the ordered, deduplicated alternant array (surfaceForms). result === surfaceForms.join(' / ') for successful outputs. Masked outputs return surfaceForms: [].",
+      "current_inputs": "generatedText (string), forms (string[]), isReflexive (boolean), stemProvenance (object)",
+      "current_output": "{ result: string, surfaceForms: string[], isReflexive, stemProvenance }",
+      "grammatical_decision_inside": false,
+      "string_ops_outside_gate": false,
+      "recommended_action": "keep_as_is",
+      "notes": "Return contract resolved: surfaceForms exposes structured alternant array without breaking existing result consumers. Ownership aggregation path now prefers surfaceForms with a split fallback for stale records."
+    }
+  ],
+  "refactor_candidates": [],
+  "recommendation": {
+    "next_tranche": "applyMorphologyRules investigation",
+    "rationale": [
+      "The generateWord output path is clean — no authority violations, no mixed-boundary findings.",
+      "surfaceForms: string[] is now exposed on the return; the flat result string is preserved as compatibility.",
+      "resolveStemCandidateMorphologyResult isolates morphology-per-stem work in a named top-level helper; generateWord only renders the returned bundle.",
+      "The remaining open question is the stemCollectionPool construction upstream — but that is a derivation-layer concern, not a generateWord concern."
+    ]
+  }
+}
