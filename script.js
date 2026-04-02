@@ -43769,7 +43769,7 @@ const DEVELOPER_HOOK_NAMES = Object.freeze([
     "runComposerDisplayBridgeTests",
     "runComposerButtonCombinatorialAudit",
 ]);
-const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-112";
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-113";
 
 function getDeveloperHookMap(windowObject = null) {
     const scope = windowObject || (typeof window !== "undefined" ? window : null);

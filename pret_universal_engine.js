@@ -1257,6 +1257,42 @@ function buildPretUniversalResultFromVariants(
     if (!variants || variants.length === 0) {
         return null;
     }
+    const canUseSegments = typeof buildOutputWordSegments === "function"
+        && typeof joinOutputWordSegments === "function";
+    // Realize a verb core + suffix into a surface text string.
+    // When segments are available, buildOutputWordSegments handles the supportive
+    // marker and the universal m→n rule (stem-final "m"→"n" before any suffix).
+    // For the zero-suffix case the m→n rule must be applied explicitly because
+    // buildOutputWordSegments only fires it when subjectSuffix is truthy.
+    const realizeForm = (verbCore, suffix) => {
+        if (canUseSegments) {
+            const segments = buildOutputWordSegments({
+                subjectPrefix: "",
+                objectPrefix: "",
+                verb: verbCore,
+                subjectSuffix: suffix || "",
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            });
+            const text = joinOutputWordSegments(segments);
+            if (!suffix && text.endsWith("m")) {
+                return `${text.slice(0, -1)}n`;
+            }
+            return text;
+        }
+        // String fallback when output-segment helpers are not loaded.
+        const coreRaw = typeof resolveOptionalSupportiveOutputVerb === "function"
+            ? resolveOptionalSupportiveOutputVerb({
+                subjectPrefix: "",
+                objectPrefix: "",
+                verb: verbCore,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            })
+            : verbCore;
+        const core = coreRaw.endsWith("m") ? `${coreRaw.slice(0, -1)}n` : coreRaw;
+        return `${core}${suffix || ""}`;
+    };
     const isPlural = subjectSuffix === "t";
     if (isPlural) {
         const resolvedPluralSuffix = pluralSuffix || "ket";
@@ -1276,20 +1312,7 @@ function buildPretUniversalResultFromVariants(
                 hasDoubleDash,
                 isYawi
             );
-            const resolvedCoreRaw = typeof resolveOptionalSupportiveOutputVerb === "function"
-                ? resolveOptionalSupportiveOutputVerb({
-                    subjectPrefix: "",
-                    objectPrefix: "",
-                    verb: `${prefix}${base}`,
-                    hasOptionalSupportiveI,
-                    optionalSupportiveLetter,
-                })
-                : `${prefix}${base}`;
-            // Universal m→n rule: stem-final "m" always converts to "n"
-            const resolvedCore = resolvedCoreRaw.endsWith("m")
-                ? `${resolvedCoreRaw.slice(0, -1)}n`
-                : resolvedCoreRaw;
-            const form = `${resolvedCore}${resolvedPluralSuffix}`;
+            const form = realizeForm(`${prefix}${base}`, resolvedPluralSuffix);
             if (!seen.has(form)) {
                 seen.add(form);
                 results.push(form);
@@ -1314,20 +1337,12 @@ function buildPretUniversalResultFromVariants(
             hasDoubleDash,
             isYawi
         );
-        const baseKeyRaw = typeof resolveOptionalSupportiveOutputVerb === "function"
-            ? resolveOptionalSupportiveOutputVerb({
-                subjectPrefix: "",
-                objectPrefix: "",
-                verb: `${prefix}${base}`,
-                hasOptionalSupportiveI,
-                optionalSupportiveLetter,
-            })
-            : `${prefix}${base}`;
-        // Universal m→n rule: stem-final "m" always converts to "n"
-        const baseKey = baseKeyRaw.endsWith("m") ? `${baseKeyRaw.slice(0, -1)}n` : baseKeyRaw;
+        const verbCore = `${prefix}${base}`;
+        // Compute the deduplication key using the zero-suffix realized form.
+        const baseKey = realizeForm(verbCore, "");
         let entry = groups.get(baseKey);
         if (!entry) {
-            entry = { suffixes: new Set(), order: [] };
+            entry = { suffixes: new Set(), order: [], verbCore };
             groups.set(baseKey, entry);
             order.push(baseKey);
         }
@@ -1337,23 +1352,24 @@ function buildPretUniversalResultFromVariants(
         }
     });
     const results = [];
-    order.forEach((base) => {
-        const entry = groups.get(base);
+    order.forEach((baseKey) => {
+        const entry = groups.get(baseKey);
+        const { verbCore } = entry;
         const hasEmpty = entry.suffixes.has("");
         const hasKi = entry.suffixes.has("ki");
         let emittedOptional = false;
         let emittedBase = false;
         if (hasEmpty && hasKi) {
-            results.push(`${base}(ki)`);
+            results.push(`${realizeForm(verbCore, "")}(ki)`);
             emittedOptional = true;
         } else if (hasEmpty) {
-            results.push(base);
+            results.push(realizeForm(verbCore, ""));
             emittedBase = true;
         }
         entry.order.forEach((suffix) => {
             if (suffix === "") {
                 if (!emittedOptional && !emittedBase) {
-                    results.push(base);
+                    results.push(realizeForm(verbCore, ""));
                     emittedBase = true;
                 }
                 return;
@@ -1362,10 +1378,10 @@ function buildPretUniversalResultFromVariants(
                 if (emittedOptional) {
                     return;
                 }
-                results.push(`${base}ki`);
+                results.push(realizeForm(verbCore, "ki"));
                 return;
             }
-            results.push(`${base}${suffix}`);
+            results.push(realizeForm(verbCore, suffix));
         });
     });
     return results.join(" / ");
@@ -1422,30 +1438,9 @@ function buildNonactivePerfectiveResult({
             segments: null,
         };
     };
-    if (tense === "preterito") {
-        const variants = [buildPretVariant("", "k", {
-            baseSpec: buildPretLiteralBaseSpec(verb),
-        })].filter(Boolean);
-        return {
-            text: buildPretUniversalResultFromVariants(
-                variants,
-                subjectPrefix,
-                objectPrefix,
-                subjectSuffix,
-                directionalInputPrefix,
-                directionalOutputPrefix,
-                baseSubjectPrefix,
-                baseObjectPrefix,
-                null,
-                indirectObjectMarker,
-                false,
-                hasOptionalSupportiveI,
-                optionalSupportiveLetter
-            ) || "",
-            segments: null,
-        };
-    }
-    const suffix = subjectSuffix || "";
+    const suffix = subjectSuffix === "t"
+        ? (tense === "preterito" ? "ket" : subjectSuffix)
+        : (tense === "preterito" ? "k" : subjectSuffix || "");
     const { prefix, base } = getPretUniversalPrefixForBase(
         verb,
         subjectPrefix,
