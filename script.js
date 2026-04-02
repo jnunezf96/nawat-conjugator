@@ -4792,10 +4792,30 @@ function buildDerivationRuleBaseOptions({
     };
 }
 
+// Strip the directional prefix and any bound/fusion prefixes from a rule base so
+// that phonological rules operate on the bare verb root.  Used by both
+// buildNonactiveRuleSourceContext and the legacy getNonactiveRuleBase wrapper.
+function stripNonactiveRuleBasePrefixes(base, verbMeta) {
+    if (!verbMeta || !base) {
+        return base;
+    }
+    let result = String(base);
+    if (verbMeta.directionalPrefix && result.startsWith(verbMeta.directionalPrefix)) {
+        result = result.slice(verbMeta.directionalPrefix.length);
+    }
+    const fusionPrefixes = Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [];
+    const boundPrefixes = Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : [];
+    const allPrefixes = fusionPrefixes.length
+        ? [...fusionPrefixes, ...boundPrefixes.filter((p) => !fusionPrefixes.includes(p))]
+        : boundPrefixes;
+    return allPrefixes.length ? stripLeadingPrefixes(result, allPrefixes) : result;
+}
+
 function getNonactiveRuleBase(source, verbMeta) {
     if (!source || !verbMeta) {
         return source;
     }
+    // Structural path: same model buildNonactiveRuleSourceContext uses internally.
     const structuralModel = buildDerivationSourceModel(
         verbMeta,
         verbMeta?.sourceRawVerb || verbMeta?.verb || source,
@@ -4811,20 +4831,9 @@ function getNonactiveRuleBase(source, verbMeta) {
     if (canonicalRuleBase) {
         return canonicalRuleBase;
     }
-    let base = getDerivationRuleBase(source, verbMeta);
-    if (verbMeta.directionalPrefix && base.startsWith(verbMeta.directionalPrefix)) {
-        base = base.slice(verbMeta.directionalPrefix.length);
-    }
-    const fusionPrefixes = Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [];
-    const boundPrefixes = Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : [];
-    const allPrefixes = fusionPrefixes.length
-        ? [...fusionPrefixes, ...boundPrefixes.filter((prefix) => !fusionPrefixes.includes(prefix))]
-        : boundPrefixes;
-    if (allPrefixes.length) {
-        base = stripLeadingPrefixes(base, allPrefixes);
-    }
-    const normalized = normalizeRuleBase(base || source);
-    return normalized || base || source;
+    const base = getDerivationRuleBase(source, verbMeta);
+    const stripped = stripNonactiveRuleBasePrefixes(base, verbMeta);
+    return normalizeRuleBase(stripped || source) || stripped || source;
 }
 
 function shouldForceAllNonactiveOptions() {
@@ -5873,7 +5882,9 @@ function getCausativeDerivationOptions(verb, analysisVerb, options = {}) {
     const source = verb || analysisVerb;
     const allowTypeTwo = options.allowTypeTwo !== false;
     const hasLeadingDash = options.hasLeadingDash === true;
-    const rawRuleBase = getCanonicalRuleBaseFromOptions(source, options);
+    const rawRuleBase = options.ruleBase
+        || options.canonicalRuleBase
+        || getCanonicalRuleBaseFromOptions(source, options);
     const ruleBase = normalizeRuleBase(rawRuleBase);
     const rawFullRuleBase = options.canonicalFullRuleBase
         || (options.parsedVerb && options.parsedVerb.canonicalFullRuleBase)
@@ -7248,8 +7259,11 @@ function applyCausativeDerivation({
     }
     const canonicalRuleBase = parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || "";
     const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase || parsedVerb?.canonical?.fullRuleBase || "";
-    const ruleBaseForGate = canonicalRuleBase
-        || getNonactiveRuleBase(analysisVerb || verb || "", parsedVerb);
+    const causativeRuleSource = buildNonactiveRuleSourceContext(verb, analysisVerb, {
+        verbMeta: parsedVerb,
+        parsedVerb,
+    });
+    const ruleBaseForGate = canonicalRuleBase || causativeRuleSource.ruleBase;
     let allowTypeTwoIntransitiveA = false;
     let allowTypeTwoIntransitiveNiUwa = false;
     let allowTypeTwoIntransitiveU = false;
@@ -7361,9 +7375,8 @@ function applyCausativeDerivation({
     }
     suppletiveStemSet = null;
     const causativeSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
-    const ruleBase = canonicalRuleBase
-        || getNonactiveRuleBase(causativeSource.baseVerb, parsedVerb);
-    const fullRuleBase = canonicalFullRuleBase || causativeSource.baseVerb || "";
+    const ruleBase = canonicalRuleBase || causativeRuleSource.ruleBase;
+    const fullRuleBase = canonicalFullRuleBase || causativeRuleSource.matrixBase || causativeSource.baseVerb || "";
     const explicitSlots = Number.isFinite(parsedVerb.totalValenceSlotCount)
         ? Math.max(0, Math.min(MAX_OBJECT_SLOTS, parsedVerb.totalValenceSlotCount))
         : 0;
@@ -7450,7 +7463,9 @@ function applyCausativeDerivation({
 
 function getApplicativeDerivationOptions(verb, analysisVerb, options = {}) {
     const source = verb || analysisVerb;
-    const ruleBase = getCanonicalRuleBaseFromOptions(source, options);
+    const ruleBase = options.ruleBase
+        || options.canonicalRuleBase
+        || getCanonicalRuleBaseFromOptions(source, options);
     const fullRuleBase = options.canonicalFullRuleBase
         || (options.parsedVerb && options.parsedVerb.canonicalFullRuleBase)
         || (options.parsedVerb && options.parsedVerb.canonical && options.parsedVerb.canonical.fullRuleBase)
@@ -7912,10 +7927,13 @@ function applyApplicativeDerivation({
     suppletiveStemSet = null;
     const canonicalRuleBase = parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || "";
     const canonicalFullRuleBase = parsedVerb?.canonicalFullRuleBase || parsedVerb?.canonical?.fullRuleBase || "";
+    const applicativeRuleSource = buildNonactiveRuleSourceContext(verb, analysisVerb, {
+        verbMeta: parsedVerb,
+        parsedVerb,
+    });
     const applicativeSource = getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
-    const ruleBase = canonicalRuleBase
-        || getNonactiveRuleBase(applicativeSource.baseVerb, parsedVerb);
-    const fullRuleBase = canonicalFullRuleBase || applicativeSource.baseVerb || "";
+    const ruleBase = canonicalRuleBase || applicativeRuleSource.ruleBase;
+    const fullRuleBase = canonicalFullRuleBase || applicativeRuleSource.matrixBase || applicativeSource.baseVerb || "";
     const explicitSlots = Number.isFinite(parsedVerb.totalValenceSlotCount)
         ? Math.max(0, Math.min(MAX_OBJECT_SLOTS, parsedVerb.totalValenceSlotCount))
         : 0;
@@ -10287,7 +10305,7 @@ function deriveNonactiveStem(verb, analysisVerb, options = {}) {
     const sourceContext = buildNonactiveRuleSourceContext(verb, analysisVerb, options);
     const source = sourceContext.sourceStem || normalizeDerivationStemValue(verb || analysisVerb || "");
     const analysisSource = sourceContext.analysisStem || source;
-    const ruleBase = sourceContext.ruleBase || getCanonicalRuleBaseFromOptions(source, options);
+    const ruleBase = sourceContext.ruleBase;
     if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
         return source;
     }
@@ -13058,7 +13076,10 @@ function buildNonactiveRuleSourceContext(verb, analysisVerb, options = {}) {
         options.ruleBase
         || options.canonicalRuleBase
         || matrixBase
-        || fallbackRuleBase
+        || normalizeRuleBase(stripNonactiveRuleBasePrefixes(
+            getDerivationRuleBase(fallbackRuleBase || verb || analysisVerb || "", verbMeta),
+            verbMeta,
+        ))
         || sourceStem
     );
     const supportiveLetter = normalizeSupportiveMarkerValue(
@@ -13097,17 +13118,11 @@ function realizeNonactiveDerivationOption(option = {}, sourceContext = null) {
     if (!sourceContext?.chain) {
         const stem = realizeMorphStemSpec(option?.stemSpec, option?.stem || "");
         return stem
-            ? {
-                ...option,
-                stem,
-                stemSpec: option?.stemSpec || buildLiteralMorphStemSpec(stem),
-            }
+            ? { ...option, stem, stemSpec: option?.stemSpec }
             : null;
     }
     const stemSpec = applyNonactiveSourceChainStemSpec(
-        option?.stemSpec || buildLiteralMorphStemSpec(
-            realizeMorphStemSpec(option?.stemSpec, option?.stem || "")
-        ),
+        option?.stemSpec,
         option?.stem || "",
         sourceContext.chain,
         {
@@ -13197,7 +13212,7 @@ function buildNonactiveOptionSpecMap(options) {
         if (!option || !option.suffix || !optionStem) {
             return;
         }
-        const optionSpec = option?.stemSpec || buildLiteralMorphStemSpec(optionStem);
+        const optionSpec = option?.stemSpec;
         const list = map.get(option.suffix) || [];
         if (!list.some((entry) => realizeMorphStemSpec(entry) === optionStem)) {
             list.push(optionSpec);
@@ -13213,7 +13228,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         && typeof options.nonactiveRuleSource === "object"
     ) ? options.nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options);
     const source = sourceContext.sourceStem || normalizeDerivationStemValue(verb || analysisVerb || "");
-    const ruleBase = sourceContext.ruleBase || getCanonicalRuleBaseFromOptions(source, options);
+    const ruleBase = sourceContext.ruleBase;
     if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
         return [];
     }
@@ -13380,10 +13395,10 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         || options.parsedVerb?.optionalSupportiveLetter
         || (options.parsedVerb?.hasOptionalSupportiveI === true ? "i" : "")
     );
-    const push = (suffix, stemOrSpec) => {
-        const stemSpec = (stemOrSpec && typeof stemOrSpec === "object" && stemOrSpec.kind)
-            ? stemOrSpec
-            : buildLiteralMorphStemSpec(stemOrSpec);
+    const push = (suffix, stemSpec) => {
+        if (!stemSpec?.kind) {
+            return;
+        }
         const stem = realizeMorphStemSpec(stemSpec);
         if (!stem) {
             return;
@@ -13401,22 +13416,6 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         }
         seen.add(key);
         results.push({ suffix, stem, stemSpec });
-    };
-    const buildSiblingNonactiveVariantSpec = (stemOrSpec, suffix, from, to) => {
-        const stemSpec = (stemOrSpec && typeof stemOrSpec === "object" && stemOrSpec.kind)
-            ? stemOrSpec
-            : buildLiteralMorphStemSpec(stemOrSpec);
-        const stem = realizeMorphStemSpec(stemSpec);
-        const tail = suffix === "uwa" ? "uwa" : "u";
-        const target = `${from}${tail}`;
-        if (!stem || !stem.endsWith(target)) {
-            return null;
-        }
-        const variantStem = `${stem.slice(0, -target.length)}${to}${tail}`;
-        return buildLiteralMorphStemSpec(variantStem, {
-            sourceBase: stemSpec?.sourceBase || sourceContext.sourceStem || source,
-            sourceSuffix: suffix,
-        });
     };
     const pushWithVariants = (suffix, stemOrSpec) => {
         push(suffix, stemOrSpec);
@@ -13452,7 +13451,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
             allowFinalTaReplacement: allowUFromPlainTa,
         });
     };
-    const buildPlainUT = () => buildLiteralMorphStemSpec(`${source.slice(0, -1)}u`, {
+    const buildPlainUT = () => buildReplaceSuffixMorphStemSpec(source, source.slice(-1), "u", {
         sourceBase: source,
         sourceSuffix: "u",
     });
@@ -13651,9 +13650,7 @@ function resolveNonactiveStemSelection(verb, analysisVerb, options = {}) {
         selectedStemSpecs = getUniqueMorphStemSpecs(
             (fallbackSpecs && fallbackSpecs.length)
                 ? fallbackSpecs
-                : [optionsList[0]?.stemSpec || buildLiteralMorphStemSpec(
-                    realizeMorphStemSpec(optionsList[0]?.stemSpec, optionsList[0]?.stem || "")
-                )]
+                : [optionsList[0]?.stemSpec]
         );
         selectedStems = selectedStemSpecs.map((spec) => realizeMorphStemSpec(spec)).filter(Boolean);
         selectedStemSpec = selectedStemSpecs[0] || null;
@@ -13664,9 +13661,7 @@ function resolveNonactiveStemSelection(verb, analysisVerb, options = {}) {
         selectedRealizedStemSpecs = getUniqueMorphStemSpecs(
             (realizedFallbackSpecs && realizedFallbackSpecs.length)
                 ? realizedFallbackSpecs
-                : [realizedOptionsList[0]?.stemSpec || buildLiteralMorphStemSpec(
-                    realizeMorphStemSpec(realizedOptionsList[0]?.stemSpec, realizedOptionsList[0]?.stem || "")
-                )]
+                : [realizedOptionsList[0]?.stemSpec]
         );
         selectedRealizedStems = selectedRealizedStemSpecs
             .map((spec) => realizeMorphStemSpec(spec))
@@ -13696,21 +13691,13 @@ function resolveNonactiveStemSelection(verb, analysisVerb, options = {}) {
         selectedRealizedStemSpecs = selectedRealizedStemSpec ? [selectedRealizedStemSpec] : [];
     }
     const allStemSpecs = optionsList.length
-        ? getUniqueMorphStemSpecs(optionsList.map((option) => (
-            option?.stemSpec || buildLiteralMorphStemSpec(
-                realizeMorphStemSpec(option?.stemSpec, option?.stem || "")
-            )
-        )))
+        ? getUniqueMorphStemSpecs(optionsList.map((option) => option?.stemSpec))
         : selectedStemSpecs;
     const allStems = allStemSpecs.length
         ? allStemSpecs.map((spec) => realizeMorphStemSpec(spec)).filter(Boolean)
         : (selectedStems.length ? selectedStems : []);
     const allRealizedStemSpecs = realizedOptionsList.length
-        ? getUniqueMorphStemSpecs(realizedOptionsList.map((option) => (
-            option?.stemSpec || buildLiteralMorphStemSpec(
-                realizeMorphStemSpec(option?.stemSpec, option?.stem || "")
-            )
-        )))
+        ? getUniqueMorphStemSpecs(realizedOptionsList.map((option) => option?.stemSpec))
         : selectedRealizedStemSpecs;
     const allRealizedStems = allRealizedStemSpecs.length
         ? allRealizedStemSpecs.map((spec) => realizeMorphStemSpec(spec)).filter(Boolean)
@@ -21336,15 +21323,12 @@ function getSearchNonactiveSuffixPlan(verbMeta) {
     const verb = verbMeta.verb;
     const analysisVerb = verbMeta.analysisVerb || verb;
     const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
-    const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
-    const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
     const options = resolveLiveNonactiveOptions({
         verbMeta,
         verb,
         analysisVerb,
         isTransitive,
         isYawi: verbMeta.isYawi === true,
-        ruleBase: nonactiveRuleBase,
         rootPlusYaBase: verbMeta.rootPlusYaBase,
     });
     if (!options.length) {
@@ -31479,15 +31463,12 @@ function resolveNonactiveSuffixOptionMap({
     analysisVerb = "",
 } = {}) {
     const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
-    const nonactiveSource = getNonactiveDerivationSource(verbMeta, verb, analysisVerb);
-    const nonactiveRuleBase = getNonactiveRuleBase(nonactiveSource.baseVerb, verbMeta);
     const options = resolveLiveNonactiveOptions({
         verbMeta,
         verb,
         analysisVerb,
         isTransitive,
         isYawi: verbMeta?.isYawi === true,
-        ruleBase: nonactiveRuleBase,
         rootPlusYaBase: verbMeta?.rootPlusYaBase,
     });
     return buildNonactiveOptionMap(options);
@@ -37470,10 +37451,11 @@ function applyNonactiveDerivation({
     const forwardDerivationConfig = getForwardDerivationConfig(derivationType);
     const derivedStemPoolByField = { causativeAllStems, applicativeAllStems };
     const shouldUseDerivedRuleBase = !!forwardDerivationConfig;
-    const nonactiveRuleBase = shouldUseDerivedRuleBase
-        ? normalizeRuleBase(nonactiveBaseVerb || "")
-        : getNonactiveRuleBase(nonactiveBaseVerb, parsedVerb);
     const forceAllNonactiveOptions = shouldForceAllNonactiveOptions();
+    // Build the rule-source context first; it derives the rule base via the
+    // structural chain (same model as the old getNonactiveRuleBase call).
+    // For forward-derivation tenses, override the rule base with the normalized
+    // derived verb directly rather than letting the structural model re-derive it.
     const nonactiveRuleSource = buildNonactiveRuleSourceContext(
         verb,
         analysisVerb,
@@ -37482,12 +37464,15 @@ function applyNonactiveDerivation({
             parsedVerb: parsedVerb || effectiveSourceMeta,
             nonactiveSourceChain,
             matrixBase: nonactiveBaseVerb,
-            ruleBase: nonactiveRuleBase,
+            ...(shouldUseDerivedRuleBase && {
+                ruleBase: normalizeRuleBase(nonactiveBaseVerb || ""),
+            }),
             isTransitive: nonactiveIsTransitive,
             isYawi,
             rootPlusYaBase: effectiveSourceMeta?.rootPlusYaBase || parsedVerb?.rootPlusYaBase,
         }
     );
+    const nonactiveRuleBase = nonactiveRuleSource.ruleBase;
     let selection = resolveNonactiveStemSelection(nonactiveBaseVerb, nonactiveBaseVerb, {
         isTransitive: nonactiveIsTransitive,
         isYawi,
@@ -43769,7 +43754,7 @@ const DEVELOPER_HOOK_NAMES = Object.freeze([
     "runComposerDisplayBridgeTests",
     "runComposerButtonCombinatorialAudit",
 ]);
-const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-113";
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260402-dev-checks-114";
 
 function getDeveloperHookMap(windowObject = null) {
     const scope = windowObject || (typeof window !== "undefined" ? window : null);

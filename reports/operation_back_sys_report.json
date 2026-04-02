@@ -1,6 +1,6 @@
 {
   "operation": "Operation Back Sys",
-  "generatedAt": "2026-04-02T04:07:47.936Z",
+  "generatedAt": "2026-04-02T14:26:38.045Z",
   "root": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
   "anchors": [
     "1dcf4f6",
@@ -11,8 +11,8 @@
     "f002f6e"
   ],
   "totalsByCategory": {
-    "connected": 27,
-    "disconnected": 1,
+    "connected": 26,
+    "disconnected": 2,
     "intentionally_changed": 2,
     "removed": 3
   },
@@ -224,9 +224,9 @@
       ],
       "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
       "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection / applyNonactiveDerivation",
-      "current_status": "connected",
-      "status_reason": "The transitive supportive-i nonactive rule still exists and remains reachable through live generation for -([i]jmati).",
-      "reachability": "live",
+      "current_status": "disconnected",
+      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "reachability": "latent",
       "current_probe": {
         "description": "-([i]jmati) current-regex supportive nonactive",
         "actual": {
@@ -236,7 +236,7 @@
             "u",
             "lu"
           ],
-          "liveResult": "ijmachu / ijmatu / ijmatilu"
+          "liveResult": "ijmachu / ijmatiu / ijmatilu"
         },
         "expected": {
           "ruleBase": "jmati",

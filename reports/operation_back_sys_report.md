@@ -1,11 +1,11 @@
 # Operation Back Sys
 
-Generated: 2026-04-02T04:07:47.936Z
+Generated: 2026-04-02T14:26:38.045Z
 
 ## Totals By Category
 
-- connected: 27
-- disconnected: 1
+- connected: 26
+- disconnected: 2
 - intentionally_changed: 2
 - removed: 3
 
@@ -29,7 +29,7 @@ Generated: 2026-04-02T04:07:47.936Z
 | nonactive-family-uwa | uwa | connected | live | 3aab90f, b0b950f, b41f16b, f002f6e | The uwa family still exists and remains reachable in the current nonactive path. |
 | nonactive-family-walu | walu | connected | live | 3aab90f, b0b950f, b41f16b, f002f6e | The walu family still exists and remains reachable in the current nonactive path. |
 | supportive-i-current-regex-nonactive | supportive i | connected | live | b0b950f, b41f16b, f002f6e | The supportive-i nonactive rule still exists and remains reachable through live generation for ([i]jmati). |
-| supportive-i-current-regex-nonactive-transitive | supportive i | connected | live | b0b950f, b41f16b, f002f6e | The transitive supportive-i nonactive rule still exists and remains reachable through live generation for -([i]jmati). |
+| supportive-i-current-regex-nonactive-transitive | supportive i | disconnected | latent | b0b950f, b41f16b, f002f6e | Current authority exists, but the live app no longer reaches the historical behavior. |
 | supportive-i-current-regex-kwi | supportive i | connected | live | b0b950f, b41f16b, f002f6e | The supportive-i nonactive path is still reachable for ([i]kwi), proving the underlying rule is present. |
 | supportive-slash-bound-delay | slash-bound supportive | connected | live | 1dcf4f6, d86215d, b41f16b, f002f6e | The slash-bound supportive-i delay rule still exists and remains reachable through the current helper path. |
 | allomorphy-y-to-sh | y > sh | connected | live | 1dcf4f6, d86215d, f002f6e | The y>sh allomorphy remains reachable in the current preterite route. |
@@ -83,4 +83,5 @@ Generated: 2026-04-02T04:07:47.936Z
 
 ## Best Bringback Candidates
 
+- supportive-i-current-regex-nonactive-transitive: Current authority exists, but the live app no longer reaches the historical behavior.
 - noun-instrumentivo: Current authority exists, but the live app no longer reaches the historical behavior.
