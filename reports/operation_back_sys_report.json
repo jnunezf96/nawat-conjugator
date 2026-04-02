@@ -1,0 +1,829 @@
+{
+  "operation": "Operation Back Sys",
+  "generatedAt": "2026-04-02T00:31:42.408Z",
+  "root": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
+  "anchors": [
+    "1dcf4f6",
+    "3aab90f",
+    "b0b950f",
+    "d86215d",
+    "b41f16b",
+    "f002f6e"
+  ],
+  "totalsByCategory": {
+    "connected": 28,
+    "intentionally_changed": 2,
+    "removed": 3
+  },
+  "totalsBySubsystem": {
+    "morphology": 16,
+    "composer": 3,
+    "derivation": 8,
+    "selection": 3,
+    "ui": 2,
+    "provenance": 1
+  },
+  "records": [
+    {
+      "id": "nonactive-family-lu",
+      "family": "lu",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / nonactive family inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
+      "current_status": "connected",
+      "status_reason": "The lu family still exists in code and remains reachable through live nonactive generation.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-(kwi) nonactive present",
+        "actual": "kwilu / kwiwalu",
+        "expected": "kwilu / kwiwalu"
+      },
+      "notes": "Uses -(kwi) as the transitive visible lu-family probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "nonactive-family-u",
+      "family": "u",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: allowPlainUVariant / raw u-family branch inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
+      "current_status": "connected",
+      "status_reason": "The u family still exists in code and remains reachable through live nonactive generation.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-(iksa) nonactive present",
+        "actual": "iksalu / ikshu",
+        "expected": "iksalu / ikshu"
+      },
+      "notes": "Uses -(iksa) as the recovered sh-branch u-family probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "nonactive-family-wa",
+      "family": "wa",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / wa-family inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions / normalizeVisibleNonactiveDerivationOptions",
+      "current_status": "connected",
+      "status_reason": "The wa family remains reachable and selectable in the current nonactive path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(temi) selected wa",
+        "actual": "temiwa",
+        "expected": "temiwa"
+      },
+      "notes": "Uses (temi) as the intransitive wa-family probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "nonactive-family-luwa",
+      "family": "luwa",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / luwa-family inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions",
+      "current_status": "connected",
+      "status_reason": "The luwa family still exists and remains reachable through current nonactive generation.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(witzi) nonactive present",
+        "actual": "wiluwatz",
+        "expected": "wiluwatz"
+      },
+      "notes": "Uses (witzi) as a live luwa-family witness.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "nonactive-family-uwa",
+      "family": "uwa",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / uwa-family inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions / normalizeVisibleNonactiveDerivationOptions",
+      "current_status": "connected",
+      "status_reason": "The uwa family still exists and remains reachable in the current nonactive path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(temi) selected uwa",
+        "actual": "temuwa",
+        "expected": "temuwa"
+      },
+      "notes": "Uses (temi) as the intransitive uwa-family probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "nonactive-family-walu",
+      "family": "walu",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / walu-family inventory",
+      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
+      "current_status": "connected",
+      "status_reason": "The walu family still exists and remains reachable in the current nonactive path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(mali) selected walu",
+        "actual": "maliwalu",
+        "expected": "maliwalu"
+      },
+      "notes": "Uses (mali) as the visible walu-family probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "supportive-i-current-regex-nonactive",
+      "family": "supportive i",
+      "subsystem": "morphology",
+      "surface_kind": "current-regex-supportive",
+      "anchor_hits": [
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
+      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection / applyNonactiveDerivation",
+      "current_status": "connected",
+      "status_reason": "The supportive-i nonactive rule still exists and remains reachable through live generation for ([i]jmati).",
+      "reachability": "live",
+      "current_probe": {
+        "description": "([i]jmati) current-regex supportive nonactive",
+        "actual": {
+          "ruleBase": "jmati",
+          "optionSuffixes": [
+            "lu",
+            "wa",
+            "wa",
+            "uwa",
+            "walu"
+          ],
+          "liveResult": "ijmatilu / ijmatiwa / ijmachiwa / ijmachuwa / ijmatiwalu"
+        },
+        "expected": {
+          "ruleBase": "jmati",
+          "optionSuffixes": [
+            "lu",
+            "wa",
+            "wa",
+            "uwa",
+            "walu"
+          ],
+          "liveResult": "ijmatilu / ijmatiwa / ijmachiwa / ijmachuwa / ijmatiwalu"
+        }
+      },
+      "notes": "Uses ([i]jmati) as the intransitive current-regex supportive-i nonactive probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "supportive-i-current-regex-nonactive-transitive",
+      "family": "supportive i",
+      "subsystem": "morphology",
+      "surface_kind": "current-regex-supportive",
+      "anchor_hits": [
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
+      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection / applyNonactiveDerivation",
+      "current_status": "connected",
+      "status_reason": "The transitive supportive-i nonactive rule still exists and remains reachable through live generation for -([i]jmati).",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-([i]jmati) current-regex supportive nonactive",
+        "actual": {
+          "ruleBase": "jmati",
+          "optionSuffixes": [
+            "u",
+            "u",
+            "lu"
+          ],
+          "liveResult": "ijmachu / ijmatu / ijmatilu"
+        },
+        "expected": {
+          "ruleBase": "jmati",
+          "optionSuffixes": [
+            "u",
+            "u",
+            "lu"
+          ],
+          "liveResult": "ijmachu / ijmatu / ijmatilu"
+        }
+      },
+      "notes": "Uses -([i]jmati) as the transitive current-regex supportive-i nonactive probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "supportive-i-current-regex-kwi",
+      "family": "supportive i",
+      "subsystem": "morphology",
+      "surface_kind": "current-regex-supportive",
+      "anchor_hits": [
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
+      "current_authority": "script.js: getVisibleNonactiveDerivationOptions / applyNonactiveDerivation",
+      "current_status": "connected",
+      "status_reason": "The supportive-i nonactive path is still reachable for ([i]kwi), proving the underlying rule is present.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "([i]kwi) nonactive present",
+        "actual": "ikwiwa / ikwilu / ikwiwalu",
+        "expected": "ikwiwa / ikwilu / ikwiwalu"
+      },
+      "notes": "([i]kwi) is the connected contrast case for supportive-i nonactive classification.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "supportive-y-composer",
+      "family": "supportive y",
+      "subsystem": "composer",
+      "surface_kind": "composer-supportive",
+      "anchor_hits": [],
+      "historical_authority": "script.js: resolveOptionalSupportiveMarkedSurface / applyComposerSupportiveMarkerToRootPath",
+      "current_authority": "script.js: buildComposerModeBundle / applyComposerSupportiveMarkerToRootPath",
+      "current_status": "connected",
+      "status_reason": "Supportive y remains reachable from composer mode and still surfaces through the live output path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "ta-([y]ankwilia) active output",
+        "actual": "nitayankwilia",
+        "expected": "nitayankwilia"
+      },
+      "notes": "Current-only sanity row. Uses the existing composer supportive-y audit surface.",
+      "current_only_sanity": true
+    },
+    {
+      "id": "supportive-slash-bound-delay",
+      "family": "slash-bound supportive",
+      "subsystem": "morphology",
+      "surface_kind": "helper-path",
+      "anchor_hits": [
+        "1dcf4f6",
+        "d86215d",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "data/static_allomorphy_rules.json: supportive.keepSlashPrefixes",
+      "current_authority": "script.js: shouldDelaySlashSupportiveIAllomorphyForPret",
+      "current_status": "connected",
+      "status_reason": "The slash-bound supportive-i delay rule still exists and remains reachable through the current helper path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "slash-bound supportive i helper",
+        "actual": true,
+        "expected": true
+      },
+      "notes": "Uses the helper path directly because slash-bound supportive-i reachability is policy-level, not a plain surface string.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "allomorphy-y-to-sh",
+      "family": "y > sh",
+      "subsystem": "morphology",
+      "surface_kind": "preterito-allomorphy",
+      "anchor_hits": [
+        "1dcf4f6",
+        "d86215d",
+        "f002f6e"
+      ],
+      "historical_authority": "pret_universal_engine.js: class-A deleted-base y-shift path",
+      "current_authority": "pret_universal_engine.js: buildPretVariant / deleted-base y-shift",
+      "current_status": "connected",
+      "status_reason": "The y>sh allomorphy remains reachable in the current preterite route.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-(piya) active preterito",
+        "actual": "nikpishki / nikpiyak",
+        "expected": "nikpishki / nikpiyak"
+      },
+      "notes": "Uses -(piya) preterite as the live y>sh probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "allomorphy-m-to-n",
+      "family": "m > n",
+      "subsystem": "morphology",
+      "surface_kind": "patientivo-allomorphy",
+      "anchor_hits": [
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: getPatientivoStemFromNonactive / m>n path",
+      "current_authority": "script.js: getPatientivoStemFromNonactive / expandPatientivoNominalMarkerOptions",
+      "current_status": "connected",
+      "status_reason": "The m>n allomorphy remains reachable in the current patientivo nonactive path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(temi) patientivo from nonactive selected uwa",
+        "actual": "tenti / ten / tenin",
+        "expected": "tenti / ten / tenin"
+      },
+      "notes": "Uses (temi) patientivo from nonactive uwa family as the live m>n probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "allomorphy-cluster-onset",
+      "family": "cluster/onset replacements",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-allomorphy",
+      "anchor_hits": [
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: nonactive cluster replacement branch",
+      "current_authority": "script.js: getNonactiveDerivationOptions / buildSiblingNonactiveVariantSpec",
+      "current_status": "connected",
+      "status_reason": "The cluster/onset replacement route still exists and remains reachable in live nonactive generation.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-(ketza) nonactive present",
+        "actual": "ketzalu / kechu",
+        "expected": "ketzalu / kechu"
+      },
+      "notes": "Uses -(ketza) as the current ch-branch onset replacement probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "patientivo-source-nonactive",
+      "family": "patientivo nonactive",
+      "subsystem": "derivation",
+      "surface_kind": "patientivo-source",
+      "anchor_hits": [
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: patientivo nonactive derivation path",
+      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoDerivations",
+      "current_status": "connected",
+      "status_reason": "Patientivo from nonactive remains reachable and still preserves the realized source chain.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(ish-kwi) patientivo nonactive",
+        "actual": "ataishkwil / ataishkwilti / ataishkwilin / ataishkwiwal / ataishkwiwalti / ataishkwiwalin",
+        "expected": "ataishkwil / ataishkwilti / ataishkwilin / ataishkwiwal / ataishkwiwalti / ataishkwiwalin"
+      },
+      "notes": "Uses (a)+ta-(ish-kwi) to prove structural source preservation in patientivo nonactive.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "patientivo-source-perfectivo",
+      "family": "patientivo perfectivo",
+      "subsystem": "derivation",
+      "surface_kind": "patientivo-source",
+      "anchor_hits": [
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: patientivo perfectivo derivation path",
+      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoPerfectivoDerivations",
+      "current_status": "connected",
+      "status_reason": "Patientivo from perfective remains reachable and still uses the current realized source model.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(kwi) patientivo perfectivo",
+        "actual": "atakwijti",
+        "expected": "atakwijti"
+      },
+      "notes": "Uses (a)+ta-(kwi) as the class-sensitive perfective patientivo probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "patientivo-source-imperfectivo",
+      "family": "patientivo imperfectivo",
+      "subsystem": "derivation",
+      "surface_kind": "patientivo-source",
+      "anchor_hits": [
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: patientivo imperfectivo derivation path",
+      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoImperfectivoDerivations",
+      "current_status": "connected",
+      "status_reason": "Patientivo from imperfective remains reachable through the current realized source path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(ish-kwi) patientivo imperfectivo",
+        "actual": "ataishkwit",
+        "expected": "ataishkwit"
+      },
+      "notes": "Uses (a)+ta-(ish-kwi) as the structural imperfective patientivo probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "patientivo-source-tronco",
+      "family": "patientivo tronco-verbal",
+      "subsystem": "derivation",
+      "surface_kind": "patientivo-source",
+      "anchor_hits": [
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: patientivo tronco-verbal derivation path",
+      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoTroncoDerivations",
+      "current_status": "connected",
+      "status_reason": "Patientivo from tronco-verbal remains reachable and still emits structured productive families.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(waki) patientivo tronco-verbal",
+        "actual": "wak / wakti / wakin / wach / wachti / wachin / waj / wajti / wajin / was / wasti / wasin",
+        "expected": "wak / wakti / wakin / wach / wachti / wachin / waj / wajti / wajin / was / wasti / wasin"
+      },
+      "notes": "Uses (waki) as the productive tronco-verbal patientivo probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "noun-sustantivo-verbal",
+      "family": "sustantivo-verbal",
+      "subsystem": "derivation",
+      "surface_kind": "verb-derived-noun",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: sustantivo-verbal derivation path",
+      "current_authority": "script.js: buildSustantivoVerbalStemCandidates / buildVerbDerivedNominalSourceModel",
+      "current_status": "connected",
+      "status_reason": "Sustantivo-verbal remains reachable through the shared realized noun pipeline.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(kwi) sustantivo-verbal",
+        "actual": "atakwilis / atakwis",
+        "expected": "atakwilis / atakwis"
+      },
+      "notes": "Uses (a)+ta-(kwi) as the structured sustantivo-verbal probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "noun-instrumentivo",
+      "family": "instrumentivo",
+      "subsystem": "derivation",
+      "surface_kind": "verb-derived-noun",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: instrumentivo derivation path",
+      "current_authority": "script.js: buildVerbDerivedNominalBuilderContext / getInstrumentivoResult",
+      "current_status": "connected",
+      "status_reason": "Instrumentivo remains reachable through the shared realized noun pipeline.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(kwi) instrumentivo",
+        "actual": "atakwiluni / atakwiwaluni",
+        "expected": "atakwiluni / atakwiwaluni"
+      },
+      "notes": "Uses (a)+ta-(kwi) as the structured instrumentivo probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "noun-calificativo-instrumentivo",
+      "family": "calificativo-instrumentivo",
+      "subsystem": "derivation",
+      "surface_kind": "verb-derived-noun",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: calificativo-instrumentivo derivation path",
+      "current_authority": "script.js: buildPasadoRemotoStemEntries / buildCalificativoInstrumentivoPredicateStemSpec",
+      "current_status": "intentionally_changed",
+      "status_reason": "Calificativo-instrumentivo is still reachable, but its current output deliberately follows the realized pasado-remoto stem object rather than the older string-based source.",
+      "reachability": "policy_changed",
+      "current_probe": {
+        "description": "(miki) calificativo-instrumentivo",
+        "actual": "mikkayut",
+        "expected": "mikkayut",
+        "historical": "mikikayut"
+      },
+      "notes": "This row is intentionally changed: current output uses the true pasado-remoto stem object instead of older string provenance shortcuts.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "noun-locativo-temporal",
+      "family": "locativo-temporal",
+      "subsystem": "derivation",
+      "surface_kind": "verb-derived-noun",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: locativo-temporal derivation path",
+      "current_authority": "script.js: buildVerbDerivedNominalBuilderContext / getLocativoTemporalResult",
+      "current_status": "connected",
+      "status_reason": "Locativo-temporal remains reachable through the shared realized noun pipeline.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(a)+ta-(kwi) locativo-temporal",
+        "actual": "atakwiyan",
+        "expected": "atakwiyan"
+      },
+      "notes": "Uses (a)+ta-(kwi) as the structured locativo-temporal probe.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "selection-visible-nonactive-family-exposure",
+      "family": "visible nonactive family exposure",
+      "subsystem": "selection",
+      "surface_kind": "selection-filter",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: normalizeVisibleNonactiveDerivationOptions",
+      "current_authority": "script.js: normalizeVisibleNonactiveDerivationOptions / getVisibleNonactiveDerivationOptions",
+      "current_status": "connected",
+      "status_reason": "Visible nonactive family exposure remains reachable and selectable in the current UI path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "-(iksa) visible nonactive suffixes",
+        "actual": [
+          "lu:iksalu",
+          "u:ikshu"
+        ],
+        "expected": [
+          "lu:iksalu",
+          "u:ikshu"
+        ]
+      },
+      "notes": "Uses -(iksa) to verify visible family exposure remains live.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "selection-selected-nonactive-suffix-filtering",
+      "family": "selected nonactive suffix filtering",
+      "subsystem": "selection",
+      "surface_kind": "selection-filter",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: getSelectedNonactiveSuffix / patientivo selected-suffix filtering",
+      "current_authority": "script.js: getSelectedNonactiveSuffix / setSelectedNonactiveSuffix / buildPatientivoDerivations",
+      "current_status": "connected",
+      "status_reason": "Selected nonactive suffix filtering remains reachable in the current patientivo path.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "(temi) patientivo selected wa",
+        "actual": "temit / temi",
+        "expected": "temit / temi"
+      },
+      "notes": "Uses (temi) patientivo from nonactive to prove suffix filtering remains live.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "selection-class-filter-reachability",
+      "family": "class filter reachability",
+      "subsystem": "selection",
+      "surface_kind": "selection-state",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: selection-state class filter",
+      "current_authority": "browser_runtime_checks.js: runSelectionStateRealizationChecks",
+      "current_status": "connected",
+      "status_reason": "Class-filter reachability remains live according to the current selection-state audit.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "selection-state authority",
+        "actual": true,
+        "expected": true
+      },
+      "notes": "Current-only sanity row. Delegates to the existing focused browser audit because class-filter behavior is UI-state heavy.",
+      "current_only_sanity": true
+    },
+    {
+      "id": "ui-nonactive-tabs",
+      "family": "nonactive tabs",
+      "subsystem": "ui",
+      "surface_kind": "ui-availability",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / render nonactive tabs",
+      "current_authority": "script.js: NONACTIVE_SUFFIX_ORDER / nonactive-tabs renderer",
+      "current_status": "connected",
+      "status_reason": "Nonactive tab availability remains live according to the current tense-tab audit.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "nonactive tab option map",
+        "actual": [
+          "wa",
+          "uwa"
+        ],
+        "expected": [
+          "wa",
+          "uwa"
+        ]
+      },
+      "notes": "Delegates to the existing tense-tab availability audit.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "ui-noun-suffix-grouping",
+      "family": "noun suffix grouping",
+      "subsystem": "ui",
+      "surface_kind": "display-grouping",
+      "anchor_hits": [
+        "3aab90f",
+        "b0b950f",
+        "b41f16b",
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: formatConjugationDisplay",
+      "current_authority": "script.js: formatConjugationDisplay",
+      "current_status": "intentionally_changed",
+      "status_reason": "Noun suffix grouping is still reachable, but it now deliberately groups -in with the same patientivo family line instead of leaving it on its own line.",
+      "reachability": "policy_changed",
+      "current_probe": {
+        "description": "patientivo grouping authority",
+        "actual": true,
+        "expected": true,
+        "historical": "nemi / nemit\nnen / nenti\nnenin"
+      },
+      "notes": "This row is intentionally changed: current grouping deliberately keeps -in on the same family line.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "provenance-export-source-labeling",
+      "family": "export/provenance source labeling",
+      "subsystem": "provenance",
+      "surface_kind": "export-provenance",
+      "anchor_hits": [
+        "f002f6e"
+      ],
+      "historical_authority": "script.js: buildViewExportCSV / resolveOutputPanelProvenance",
+      "current_authority": "browser_runtime_checks.js: runExportProvenanceRealizationChecks",
+      "current_status": "connected",
+      "status_reason": "Export/provenance source labeling remains live according to the current realization audit.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "export/provenance authority",
+        "actual": true,
+        "expected": true
+      },
+      "notes": "Current-only sanity row. Delegates to the existing export/provenance realization audit.",
+      "current_only_sanity": true
+    },
+    {
+      "id": "composer-supportive-enabled-inputs",
+      "family": "supportive-enabled inputs",
+      "subsystem": "composer",
+      "surface_kind": "composer-bundle",
+      "anchor_hits": [],
+      "historical_authority": "script.js: buildComposerModeBundle / supportive root path",
+      "current_authority": "script.js: buildComposerModeBundle / applyComposerSupportiveMarkerToRootPath",
+      "current_status": "connected",
+      "status_reason": "Composer supportive-enabled inputs remain reachable in the current bundle builder.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "composer supportive-y bundle",
+        "actual": "ta-([y]awi)",
+        "expected": "ta-([y]awi)"
+      },
+      "notes": "Current-only sanity row. Uses the existing supportive-y composer bundle path.",
+      "current_only_sanity": true
+    },
+    {
+      "id": "composer-nonactive-class-exposure",
+      "family": "composer combinations exposing nonactive classes",
+      "subsystem": "composer",
+      "surface_kind": "composer-bundle",
+      "anchor_hits": [],
+      "historical_authority": "script.js: buildComposerModeBundle / nonactive generation path",
+      "current_authority": "script.js: buildComposerModeBundle / getCachedSilentGenerateWord",
+      "current_status": "connected",
+      "status_reason": "Composer combinations can still reach the current nonactive family inventory.",
+      "reachability": "live",
+      "current_probe": {
+        "description": "composer kwi -> nonactive present",
+        "actual": "kwiwa / kwilu / kwiwalu",
+        "expected": "kwiwa / kwilu / kwiwalu"
+      },
+      "notes": "Current-only sanity row. Uses a plain intransitive composer bundle as the live nonactive exposure probe.",
+      "current_only_sanity": true
+    },
+    {
+      "id": "removed-transitive-uwa-from-u-sibling",
+      "family": "u -> uwa sibling",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "b0b950f"
+      ],
+      "historical_authority": "script.js@b0b950f: allowUwaFromU",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "The historical u->uwa sibling branch existed in old code, but no equivalent current authority remains.",
+      "reachability": "absent",
+      "current_probe": {
+        "description": "-(iksa) no longer exposes the historical u->uwa sibling",
+        "liveResult": "iksalu / ikshu",
+        "missingHistoricalForm": "ikshuwa"
+      },
+      "notes": "Uses -(iksa) as the historical u->uwa witness. Current realized output no longer exposes ikshuwa.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "removed-cluster-wa-family",
+      "family": "cluster/shiwa/chiwa wa branches",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "b0b950f"
+      ],
+      "historical_authority": "script.js@b0b950f: allowClusterWa / chiwa / shiwa / iwa branches",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "The historical cluster/shiwa/chiwa wa branches existed in old code, but no equivalent current authority remains.",
+      "reachability": "absent",
+      "current_probe": {
+        "description": "-(iksa) no longer exposes the historical shiwa branch",
+        "liveResult": "iksalu / ikshu",
+        "missingHistoricalForm": "ikshiwa"
+      },
+      "notes": "Uses -(iksa) as the historical shiwa witness. Current realized output no longer exposes ikshiwa.",
+      "current_only_sanity": false
+    },
+    {
+      "id": "removed-tz-sibling-variant",
+      "family": "tz sibling variant",
+      "subsystem": "morphology",
+      "surface_kind": "nonactive-family",
+      "anchor_hits": [
+        "b0b950f"
+      ],
+      "historical_authority": "script.js@b0b950f: allowTzVariant",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "The historical tz sibling variant existed in old code, but no equivalent current authority remains.",
+      "reachability": "absent",
+      "current_probe": {
+        "description": "-(ketza) no longer exposes the historical tz sibling",
+        "liveResult": "ketzalu / kechu",
+        "missingHistoricalForm": "ketzu"
+      },
+      "notes": "Uses -(ketza) as the historical tz-sibling witness. Current realized output no longer exposes ketzu.",
+      "current_only_sanity": false
+    }
+  ]
+}

@@ -1,5 +1,260 @@
 // Preterit/perfective universal runtime (class builders + policy + assembly).
 // Depends on pret_universal_context.js.
+const PRET_STEM_SPEC_KIND = Object.freeze({
+    literal: "literal",
+    transform: "transform",
+});
+
+const PRET_STEM_TRANSFORM_KIND = Object.freeze({
+    append: "append",
+    replaceSuffix: "replace-suffix",
+    perfectiveReplacement: "perfective-replacement",
+    deletionShift: "deletion-shift",
+    coalesceFinalI: "coalesce-final-i",
+});
+
+function buildPretLiteralBaseSpec(base = "") {
+    const normalizedBase = typeof normalizeRuleBase === "function"
+        ? normalizeRuleBase(String(base || "").trim().toLowerCase())
+        : String(base || "").trim().toLowerCase();
+    if (!normalizedBase) {
+        return null;
+    }
+    return Object.freeze({
+        kind: PRET_STEM_SPEC_KIND.literal,
+        surfaceBase: normalizedBase,
+    });
+}
+
+function buildPretTransformBaseSpec({
+    transformKind = "",
+    sourceBase = "",
+    sourceSuffix = "",
+    appendText = "",
+    replacement = "",
+    deletionVariant = "",
+    isTransitive = false,
+} = {}) {
+    const normalizedSourceBase = typeof normalizeRuleBase === "function"
+        ? normalizeRuleBase(String(sourceBase || "").trim().toLowerCase())
+        : String(sourceBase || "").trim().toLowerCase();
+    if (!normalizedSourceBase || !transformKind) {
+        return null;
+    }
+    return Object.freeze({
+        kind: PRET_STEM_SPEC_KIND.transform,
+        transformKind,
+        sourceBase: normalizedSourceBase,
+        sourceSuffix: typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())
+            : String(sourceSuffix || "").trim().toLowerCase(),
+        appendText: typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(appendText || "").trim().toLowerCase())
+            : String(appendText || "").trim().toLowerCase(),
+        replacement: typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(replacement || "").trim().toLowerCase())
+            : String(replacement || "").trim().toLowerCase(),
+        deletionVariant: String(deletionVariant || ""),
+        isTransitive: isTransitive === true,
+    });
+}
+
+function buildPretAppendBaseSpec(sourceBase = "", appendText = "") {
+    return buildPretTransformBaseSpec({
+        transformKind: PRET_STEM_TRANSFORM_KIND.append,
+        sourceBase,
+        appendText,
+    });
+}
+
+function buildPretReplaceSuffixBaseSpec(sourceBase = "", sourceSuffix = "", replacement = "") {
+    return buildPretTransformBaseSpec({
+        transformKind: PRET_STEM_TRANSFORM_KIND.replaceSuffix,
+        sourceBase,
+        sourceSuffix,
+        replacement,
+    });
+}
+
+function buildPretPerfectiveReplacementBaseSpec(sourceBase = "", options = {}) {
+    return buildPretTransformBaseSpec({
+        transformKind: PRET_STEM_TRANSFORM_KIND.perfectiveReplacement,
+        sourceBase,
+        isTransitive: options.isTransitive === true,
+    });
+}
+
+function buildPretDeletionShiftBaseSpec(sourceBase = "", deletionVariant = "", options = {}) {
+    return buildPretTransformBaseSpec({
+        transformKind: PRET_STEM_TRANSFORM_KIND.deletionShift,
+        sourceBase,
+        deletionVariant,
+        isTransitive: options.isTransitive === true,
+    });
+}
+
+function buildPretCoalescedIBaseSpec(sourceBase = "") {
+    return buildPretTransformBaseSpec({
+        transformKind: PRET_STEM_TRANSFORM_KIND.coalesceFinalI,
+        sourceBase,
+    });
+}
+
+function realizePretBaseSpec(spec = null, fallbackBase = "") {
+    if (!spec || typeof spec !== "object") {
+        return typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(fallbackBase || "").trim().toLowerCase())
+            : String(fallbackBase || "").trim().toLowerCase();
+    }
+    if (spec.kind === PRET_STEM_SPEC_KIND.literal) {
+        return typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(spec.surfaceBase || "").trim().toLowerCase())
+            : String(spec.surfaceBase || "").trim().toLowerCase();
+    }
+    if (spec.kind === PRET_STEM_SPEC_KIND.transform) {
+        const sourceBase = typeof normalizeRuleBase === "function"
+            ? normalizeRuleBase(String(spec.sourceBase || fallbackBase || "").trim().toLowerCase())
+            : String(spec.sourceBase || fallbackBase || "").trim().toLowerCase();
+        if (!sourceBase) {
+            return "";
+        }
+        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.append) {
+            return `${sourceBase}${spec.appendText || ""}`;
+        }
+        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.replaceSuffix) {
+            const sourceSuffix = typeof normalizeRuleBase === "function"
+                ? normalizeRuleBase(String(spec.sourceSuffix || "").trim().toLowerCase())
+                : String(spec.sourceSuffix || "").trim().toLowerCase();
+            const replacement = typeof normalizeRuleBase === "function"
+                ? normalizeRuleBase(String(spec.replacement || "").trim().toLowerCase())
+                : String(spec.replacement || "").trim().toLowerCase();
+            if (!sourceSuffix) {
+                return `${sourceBase}${replacement}`;
+            }
+            if (!sourceBase.endsWith(sourceSuffix)) {
+                return `${sourceBase}${replacement}`;
+            }
+            return `${sourceBase.slice(0, -sourceSuffix.length)}${replacement}`;
+        }
+        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.perfectiveReplacement) {
+            if (sourceBase.endsWith("ya")) {
+                const letters = splitVerbLetters(sourceBase);
+                const recent = letters.slice(Math.max(0, letters.length - 6));
+                const hasRecentS = recent.includes("s");
+                const base = sourceBase.slice(0, -2);
+                if (!spec.isTransitive && hasRecentS) {
+                    return base.endsWith("s") ? base : `${base}s`;
+                }
+                return `${base}sh`;
+            }
+            return `${sourceBase.slice(0, -1)}j`;
+        }
+        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.deletionShift) {
+            if (spec.deletionVariant === "kw-to-k") {
+                return sourceBase.endsWith("kw") ? `${sourceBase.slice(0, -2)}k` : "";
+            }
+            if (spec.deletionVariant === "w-keep") {
+                return sourceBase;
+            }
+            if (spec.deletionVariant === "w-to-j") {
+                return sourceBase.endsWith("w") ? `${sourceBase.slice(0, -1)}j` : "";
+            }
+            if (spec.deletionVariant === "m-to-n") {
+                return sourceBase.endsWith("m") ? `${sourceBase.slice(0, -1)}n` : "";
+            }
+            if (spec.deletionVariant === "y-shift") {
+                if (!sourceBase.endsWith("y")) {
+                    return "";
+                }
+                const letters = splitVerbLetters(sourceBase);
+                const recent = letters.slice(Math.max(0, letters.length - 6));
+                const hasRecentS = recent.includes("s");
+                const base = sourceBase.slice(0, -1);
+                if (!spec.isTransitive && hasRecentS) {
+                    return base.endsWith("s") ? base : `${base}s`;
+                }
+                return `${base}sh`;
+            }
+            if (spec.deletionVariant === "identity") {
+                return sourceBase;
+            }
+        }
+        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.coalesceFinalI) {
+            return shouldCoalesceFinalI(sourceBase)
+                ? `${sourceBase.slice(0, -1)}y`
+                : sourceBase;
+        }
+    }
+    return typeof normalizeRuleBase === "function"
+        ? normalizeRuleBase(String(fallbackBase || "").trim().toLowerCase())
+        : String(fallbackBase || "").trim().toLowerCase();
+}
+
+function getPretVariantBase(variant = null) {
+    if (!variant || typeof variant !== "object") {
+        return "";
+    }
+    return realizePretBaseSpec(variant.baseSpec, variant.base || "");
+}
+
+function getPretVariantSuffix(variant = null) {
+    if (!variant || typeof variant !== "object") {
+        return "";
+    }
+    return String(variant.suffix || "");
+}
+
+function buildPretProvenanceVariantEntry(variant = null) {
+    if (!variant || typeof variant !== "object") {
+        return {
+            base: "",
+            suffix: "",
+            baseSpec: null,
+            surfaceStem: "",
+        };
+    }
+    const base = getPretVariantBase(variant);
+    const suffix = getPretVariantSuffix(variant);
+    return {
+        base,
+        suffix,
+        baseSpec: variant.baseSpec || null,
+        surfaceStem: `${base || ""}${suffix || ""}`,
+    };
+}
+
+function buildPretVariant(base = "", suffix = "", options = {}) {
+    const baseSpec = options.baseSpec || buildPretLiteralBaseSpec(base);
+    const realizedBase = getPretVariantBase({
+        base,
+        baseSpec,
+    });
+    if (!realizedBase && !suffix) {
+        return null;
+    }
+    return {
+        base: realizedBase,
+        baseSpec,
+        suffix: String(suffix || ""),
+    };
+}
+
+function addUniquePretVariant(target = [], base = "", suffix = "", options = {}) {
+    const variant = buildPretVariant(base, suffix, options);
+    if (!variant) {
+        return;
+    }
+    const baseValue = getPretVariantBase(variant);
+    const suffixValue = getPretVariantSuffix(variant);
+    const alreadyPresent = (Array.isArray(target) ? target : []).some((entry) => (
+        getPretVariantBase(entry) === baseValue
+        && getPretVariantSuffix(entry) === suffixValue
+    ));
+    if (!alreadyPresent) {
+        target.push(variant);
+    }
+}
+
 function buildPretUniversalClassC(context) {
     const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
     const isAllowedStem = (base) => allowUnpronounceableStems || isSyllableSequencePronounceable(base);
@@ -24,23 +279,27 @@ function buildPretUniversalClassC(context) {
     ) {
         return null;
     }
-    const replaced = getPerfectiveReplacementStem(context.verb, {
+    const replacementBaseSpec = buildPretPerfectiveReplacementBaseSpec(context.verb, {
         isTransitive: context.isTransitive,
     });
+    const replaced = realizePretBaseSpec(replacementBaseSpec, "");
     if (!isAllowedStem(replaced)) {
         return null;
     }
-    return [{ base: replaced, suffix: "" }];
+    return [buildPretVariant("", "", {
+        baseSpec: replacementBaseSpec,
+    })];
 }
 
 function buildPretUniversalClassD(context) {
     const patterns = createPretDescriptorMatcher(context);
     if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vwaI)) {
-        const base = `${context.verb}j`;
+        const baseSpec = buildPretAppendBaseSpec(context.verb, "j");
+        const base = realizePretBaseSpec(baseSpec, "");
         if (!isSyllableSequencePronounceable(base)) {
             return null;
         }
-        return [{ base, suffix: "" }];
+        return [buildPretVariant("", "", { baseSpec })];
     }
     if (context.vowelCount !== 1 || !context.isDerivedMonosyllable) {
         return null;
@@ -49,11 +308,12 @@ function buildPretUniversalClassD(context) {
     if (!monosyllableStemPath) {
         return null;
     }
-    const base = monosyllableStemPath.classDBase;
+    const baseSpec = monosyllableStemPath.classDBaseSpec || buildPretAppendBaseSpec(context.verb, "j");
+    const base = realizePretBaseSpec(baseSpec, monosyllableStemPath.classDBase || "");
     if (!isSyllableSequencePronounceable(base)) {
         return null;
     }
-    return [{ base, suffix: "" }];
+    return [buildPretVariant("", "", { baseSpec })];
 }
 
 function getRootPlusYaSurfaceVerb(context) {
@@ -152,20 +412,28 @@ function buildPretUniversalClassA(context) {
             return null;
         }
         if (context.isWeya && context.rootPlusYaBase) {
-            const base = context.rootPlusYaBase;
+            const baseSpec = buildPretLiteralBaseSpec(context.rootPlusYaBase);
+            const base = realizePretBaseSpec(baseSpec, context.rootPlusYaBase);
             if (!isAllowedStem(base)) {
                 return null;
             }
-            return [{ base, suffix: "ki" }];
+            return [buildPretVariant("", "ki", { baseSpec })];
         }
         const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
-        const stems = getPerfectiveAlternationStems(rootPlusYaVerb, {
-            isTransitive: context.isTransitive,
-            isRootPlusYa: true,
-        });
-        const variants = stems
-            .filter((base) => isAllowedStem(base))
-            .map((base) => ({ base, suffix: "ki" }));
+        const baseSpecs = rootPlusYaVerb
+            ? [buildPretPerfectiveReplacementBaseSpec(rootPlusYaVerb, {
+                isTransitive: context.isTransitive,
+            })].filter(Boolean)
+            : [];
+        const variants = baseSpecs
+            .map((baseSpec) => {
+                const base = realizePretBaseSpec(baseSpec, "");
+                if (!isAllowedStem(base)) {
+                    return null;
+                }
+                return buildPretVariant("", "ki", { baseSpec });
+            })
+            .filter(Boolean);
         return variants.length ? variants : null;
     }
     if (context.vowelCount !== 1) {
@@ -464,50 +732,78 @@ function buildPretUniversalClassA(context) {
     const isShapeItaVerb = context.analysisVerb === "ita";
     if (context.isTransitive && context.isItaVerb && isShapeItaVerb) {
         const variants = [];
-        const itaStem = context.verb.slice(0, -2) + "tz";
+        const itaStemSpec = buildPretReplaceSuffixBaseSpec(context.verb, "ta", "tz");
+        const itaStem = realizePretBaseSpec(itaStemSpec, "");
         if (!isAllowedStem(itaStem)) {
             return null;
         }
         if (allowKiSuffix) {
-            variants.push({ base: itaStem, suffix: "ki" });
+            addUniquePretVariant(variants, "", "ki", { baseSpec: itaStemSpec });
         }
         if (allowZeroSuffix) {
-            variants.push({ base: itaStem, suffix: "" });
+            addUniquePretVariant(variants, "", "", { baseSpec: itaStemSpec });
         }
         return variants.length ? variants : null;
     }
     if (!context.isTransitive && context.verb.endsWith("yya")) {
-        const base = context.verb.slice(0, -2);
+        const baseSpec = buildPretReplaceSuffixBaseSpec(context.verb, "ya", "");
+        const base = realizePretBaseSpec(baseSpec, "");
         if (!isAllowedStem(base)) {
             return null;
         }
-        return [{ base, suffix: "ki" }];
+        return [buildPretVariant("", "ki", { baseSpec })];
     }
-    let deletedStems = context.isCausativeTypeTwo
-        ? [context.verb]
-        : getPerfectiveAlternationStems(context.verb, {
-            isTransitive: context.isTransitive,
-        });
+    const deletedBase = context.verb.slice(0, -1);
+    let deletedVariants = context.isCausativeTypeTwo
+        ? [buildPretVariant("", "", { baseSpec: buildPretLiteralBaseSpec(context.verb) })]
+        : (
+            (deletedBase.endsWith("kw")
+                ? [buildPretDeletionShiftBaseSpec(deletedBase, "kw-to-k", {
+                    isTransitive: context.isTransitive,
+                })]
+                : deletedBase.endsWith("w")
+                    ? [
+                        buildPretDeletionShiftBaseSpec(deletedBase, "w-keep", {
+                            isTransitive: context.isTransitive,
+                        }),
+                        buildPretDeletionShiftBaseSpec(deletedBase, "w-to-j", {
+                            isTransitive: context.isTransitive,
+                        }),
+                    ]
+                    : deletedBase.endsWith("m")
+                        ? [buildPretDeletionShiftBaseSpec(deletedBase, "m-to-n", {
+                            isTransitive: context.isTransitive,
+                        })]
+                        : deletedBase.endsWith("y")
+                            ? [buildPretDeletionShiftBaseSpec(deletedBase, "y-shift", {
+                                isTransitive: context.isTransitive,
+                            })]
+                            : [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
+                                isTransitive: context.isTransitive,
+                            })]
+            ).filter(Boolean).map((baseSpec) => buildPretVariant("", "", { baseSpec }))
+        );
     if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vccawa)) {
-        deletedStems = deletedStems.filter((base) => !base.endsWith("j"));
+        deletedVariants = deletedVariants.filter((variant) => !getPretVariantBase(variant).endsWith("j"));
     }
     if (
         context.isTransitive
         && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.kawa)
         && !(context.isReduplicated || context.hasSlashMarker)
     ) {
-        deletedStems = deletedStems.filter((base) => !base.endsWith("j"));
+        deletedVariants = deletedVariants.filter((variant) => !getPretVariantBase(variant).endsWith("j"));
     }
     const variants = [];
-    deletedStems.forEach((base) => {
+    deletedVariants.forEach((variant) => {
+        const base = getPretVariantBase(variant);
         if (!isAllowedStem(base)) {
             return;
         }
         if (allowKiSuffix) {
-            variants.push({ base, suffix: "ki" });
+            addUniquePretVariant(variants, "", "ki", { baseSpec: variant.baseSpec });
         }
         if (allowZeroSuffix) {
-            variants.push({ base, suffix: "" });
+            addUniquePretVariant(variants, "", "", { baseSpec: variant.baseSpec });
         }
     });
     return variants.length ? variants : null;
@@ -524,30 +820,30 @@ function buildPretUniversalClassB(context) {
             const deletedYaBase = rootPlusYaVerb.endsWith("ya")
                 ? rootPlusYaVerb.slice(0, -2)
                 : (context.rootPlusYaBase || rootPlusYaVerb);
+            const baseSpec = rootPlusYaVerb.endsWith("ya")
+                ? buildPretReplaceSuffixBaseSpec(rootPlusYaVerb, "ya", "")
+                : buildPretLiteralBaseSpec(context.rootPlusYaBase || rootPlusYaVerb);
             if (!deletedYaBase || !isAllowedStem(deletedYaBase)) {
                 return null;
             }
-            return [{ base: deletedYaBase, suffix: "k" }];
+            return [buildPretVariant("", "k", { baseSpec })];
         }
         if (context.isWeya) {
-            return [{ base: context.verb, suffix: "k" }];
+            return [buildPretVariant("", "k", { baseSpec: buildPretLiteralBaseSpec(context.verb) })];
         }
         const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
-        const variants = [{ base: rootPlusYaVerb || context.verb, suffix: "k" }];
+        const variants = [buildPretVariant("", "k", {
+            baseSpec: buildPretLiteralBaseSpec(rootPlusYaVerb || context.verb),
+        })].filter(Boolean);
         const rootPlusYaBase = context.rootPlusYaBase;
         const addRootPlusYaVariant = (candidateBase) => {
             if (!candidateBase || !isAllowedStem(candidateBase)) {
                 return;
             }
-            let base = candidateBase;
-            let suffix = "k";
-            if (shouldCoalesceFinalI(base)) {
-                base = `${base.slice(0, -1)}y`;
-                suffix = "ka";
-            }
-            if (!variants.some((variant) => variant.base === base && variant.suffix === suffix)) {
-                variants.push({ base, suffix });
-            }
+            const baseSpec = shouldCoalesceFinalI(candidateBase)
+                ? buildPretCoalescedIBaseSpec(candidateBase)
+                : buildPretLiteralBaseSpec(candidateBase);
+            addUniquePretVariant(variants, "", shouldCoalesceFinalI(candidateBase) ? "ka" : "k", { baseSpec });
         };
         const isShortRootPlusYaBase = (() => {
             if (!rootPlusYaBase) {
@@ -582,12 +878,12 @@ function buildPretUniversalClassB(context) {
     }
     if (!context.isTransitive && patterns.hasAggregate(PRET_DESCRIPTOR_QUERIES.aggregate.waPattern)) {
         if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cuwa)) {
-            return [{ base: context.verb, suffix: "k" }];
+            return [buildPretVariant("", "k", { baseSpec: buildPretLiteralBaseSpec(context.verb) })];
         }
         if (context.isReduplicated || !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV)) {
             return null;
         }
-        return [{ base: context.verb, suffix: "k" }];
+        return [buildPretVariant("", "k", { baseSpec: buildPretLiteralBaseSpec(context.verb) })];
     }
     if (patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvsV) && !hasRightEdge({ finalForm: "V", finalNucleus: "u" })) {
         if (context.lastNucleus !== "i" || context.isTransitive) {
@@ -600,7 +896,7 @@ function buildPretUniversalClassB(context) {
     if (!isAllowedStem(context.verb)) {
         return null;
     }
-    const variants = [{ base: context.verb, suffix: "k" }];
+    const variants = [buildPretVariant("", "k", { baseSpec: buildPretLiteralBaseSpec(context.verb) })].filter(Boolean);
     const disallowRootPlusYa = context.analysisVerb === "ya"
         && (context.hasSlashMarker || context.hasSuffixSeparator || context.hasLeadingDash);
     const rootPlusYaBase = disallowRootPlusYa
@@ -608,14 +904,11 @@ function buildPretUniversalClassB(context) {
         : (context.rootPlusYaBasePronounceable || "");
     if (rootPlusYaBase) {
         let base = rootPlusYaBase;
-        let suffix = "k";
-        if (shouldCoalesceFinalI(base)) {
-            base = `${base.slice(0, -1)}y`;
-            suffix = "ka";
-        }
-        if (!variants.some((variant) => variant.base === base && variant.suffix === suffix)) {
-            variants.push({ base, suffix });
-        }
+        const suffix = shouldCoalesceFinalI(base) ? "ka" : "k";
+        const baseSpec = shouldCoalesceFinalI(base)
+            ? buildPretCoalescedIBaseSpec(base)
+            : buildPretLiteralBaseSpec(base);
+        addUniquePretVariant(variants, "", suffix, { baseSpec });
     }
     return variants;
 }
@@ -659,7 +952,7 @@ function getPronounceableClassBFallback(context) {
     if (!allowUnpronounceableStems && !isSyllableSequencePronounceable(context.verb)) {
         return null;
     }
-    return [{ base: context.verb, suffix: "k" }];
+    return [buildPretVariant("", "k", { baseSpec: buildPretLiteralBaseSpec(context.verb) })];
 }
 
 function getPretUniversalVariantsByClass(context) {
@@ -935,7 +1228,7 @@ function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
         return variants;
     }
     return variants.map((variant) => {
-        if (!variant || variant.suffix !== "ki") {
+        if (!variant || getPretVariantSuffix(variant) !== "ki") {
             return variant;
         }
         return {
@@ -970,8 +1263,9 @@ function buildPretUniversalResultFromVariants(
         const seen = new Set();
         const results = [];
         variants.forEach((variant) => {
+            const variantBase = getPretVariantBase(variant);
             const { prefix, base } = getPretUniversalPrefixForBase(
-                variant.base,
+                variantBase,
                 subjectPrefix,
                 objectPrefix,
                 directionalInputPrefix,
@@ -982,7 +1276,7 @@ function buildPretUniversalResultFromVariants(
                 hasDoubleDash,
                 isYawi
             );
-            const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
+            const resolvedCoreRaw = typeof resolveOptionalSupportiveOutputVerb === "function"
                 ? resolveOptionalSupportiveOutputVerb({
                     subjectPrefix: "",
                     objectPrefix: "",
@@ -991,6 +1285,10 @@ function buildPretUniversalResultFromVariants(
                     optionalSupportiveLetter,
                 })
                 : `${prefix}${base}`;
+            // Universal m→n rule: stem-final "m" always converts to "n"
+            const resolvedCore = resolvedCoreRaw.endsWith("m")
+                ? `${resolvedCoreRaw.slice(0, -1)}n`
+                : resolvedCoreRaw;
             const form = `${resolvedCore}${resolvedPluralSuffix}`;
             if (!seen.has(form)) {
                 seen.add(form);
@@ -1002,8 +1300,10 @@ function buildPretUniversalResultFromVariants(
     const groups = new Map();
     const order = [];
     variants.forEach((variant) => {
+        const variantBase = getPretVariantBase(variant);
+        const variantSuffix = getPretVariantSuffix(variant);
         const { prefix, base } = getPretUniversalPrefixForBase(
-            variant.base,
+            variantBase,
             subjectPrefix,
             objectPrefix,
             directionalInputPrefix,
@@ -1014,7 +1314,7 @@ function buildPretUniversalResultFromVariants(
             hasDoubleDash,
             isYawi
         );
-        const baseKey = typeof resolveOptionalSupportiveOutputVerb === "function"
+        const baseKeyRaw = typeof resolveOptionalSupportiveOutputVerb === "function"
             ? resolveOptionalSupportiveOutputVerb({
                 subjectPrefix: "",
                 objectPrefix: "",
@@ -1023,15 +1323,17 @@ function buildPretUniversalResultFromVariants(
                 optionalSupportiveLetter,
             })
             : `${prefix}${base}`;
+        // Universal m→n rule: stem-final "m" always converts to "n"
+        const baseKey = baseKeyRaw.endsWith("m") ? `${baseKeyRaw.slice(0, -1)}n` : baseKeyRaw;
         let entry = groups.get(baseKey);
         if (!entry) {
             entry = { suffixes: new Set(), order: [] };
             groups.set(baseKey, entry);
             order.push(baseKey);
         }
-        if (!entry.suffixes.has(variant.suffix)) {
-            entry.suffixes.add(variant.suffix);
-            entry.order.push(variant.suffix);
+        if (!entry.suffixes.has(variantSuffix)) {
+            entry.suffixes.add(variantSuffix);
+            entry.order.push(variantSuffix);
         }
     });
     const results = [];
@@ -1083,24 +1385,65 @@ function buildNonactivePerfectiveResult({
     hasOptionalSupportiveI = false,
     optionalSupportiveLetter = "",
 }) {
+    const buildNonactivePerfectiveWordResult = ({
+        verb: resultVerb = "",
+        subjectSuffix: resultSubjectSuffix = "",
+    } = {}) => {
+        if (typeof buildOutputWordSegments === "function") {
+            const segments = buildOutputWordSegments({
+                subjectPrefix: "",
+                objectPrefix: "",
+                verb: resultVerb,
+                subjectSuffix: resultSubjectSuffix,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            });
+            const text = typeof joinOutputWordSegments === "function"
+                ? joinOutputWordSegments(segments)
+                : (Array.isArray(segments)
+                    ? segments.map((segment) => String(segment?.value || "")).join("")
+                    : "");
+            return {
+                text,
+                segments,
+            };
+        }
+        const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
+            ? resolveOptionalSupportiveOutputVerb({
+                subjectPrefix: "",
+                objectPrefix: "",
+                verb: resultVerb,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter,
+            })
+            : resultVerb;
+        return {
+            text: `${resolvedCore}${resultSubjectSuffix || ""}`,
+            segments: null,
+        };
+    };
     if (tense === "preterito") {
-        const variants = [{ base: verb, suffix: "k" }];
-        return buildPretUniversalResultFromVariants(
-            variants,
-            subjectPrefix,
-            objectPrefix,
-            subjectSuffix,
-            directionalInputPrefix,
-            directionalOutputPrefix,
-            baseSubjectPrefix,
-            baseObjectPrefix,
-            null,
-            indirectObjectMarker
-            ,
-            false,
-            hasOptionalSupportiveI,
-            optionalSupportiveLetter
-        );
+        const variants = [buildPretVariant("", "k", {
+            baseSpec: buildPretLiteralBaseSpec(verb),
+        })].filter(Boolean);
+        return {
+            text: buildPretUniversalResultFromVariants(
+                variants,
+                subjectPrefix,
+                objectPrefix,
+                subjectSuffix,
+                directionalInputPrefix,
+                directionalOutputPrefix,
+                baseSubjectPrefix,
+                baseObjectPrefix,
+                null,
+                indirectObjectMarker,
+                false,
+                hasOptionalSupportiveI,
+                optionalSupportiveLetter
+            ) || "",
+            segments: null,
+        };
     }
     const suffix = subjectSuffix || "";
     const { prefix, base } = getPretUniversalPrefixForBase(
@@ -1113,16 +1456,10 @@ function buildNonactivePerfectiveResult({
         baseObjectPrefix,
         indirectObjectMarker
     );
-    const resolvedCore = typeof resolveOptionalSupportiveOutputVerb === "function"
-        ? resolveOptionalSupportiveOutputVerb({
-            subjectPrefix: "",
-            objectPrefix: "",
-            verb: `${prefix}${base}`,
-            hasOptionalSupportiveI,
-            optionalSupportiveLetter,
-        })
-        : `${prefix}${base}`;
-    return `${resolvedCore}${suffix}`;
+    return buildNonactivePerfectiveWordResult({
+        verb: `${prefix}${base}`,
+        subjectSuffix: suffix,
+    });
 }
 
 function getKVClassPolicy({
@@ -1672,9 +2009,10 @@ function buildClassBasedResult({
             const bases = [];
             const seenBase = new Set();
             variants.forEach((variant) => {
-                if (!seenBase.has(variant.base)) {
-                    seenBase.add(variant.base);
-                    bases.push(variant.base);
+                const variantBase = getPretVariantBase(variant);
+                if (!seenBase.has(variantBase)) {
+                    seenBase.add(variantBase);
+                    bases.push(variantBase);
                 }
             });
             const forms = [];
@@ -1701,7 +2039,11 @@ function buildClassBasedResult({
                         optionalSupportiveLetter,
                     })
                     : `${prefix}${baseCore}`;
-                const form = `${resolvedCore}${suffix}`;
+                // Universal m→n rule: stem-final "m" always converts to "n"
+                const rawCore = resolvedCore.endsWith("m")
+                    ? `${resolvedCore.slice(0, -1)}n`
+                    : resolvedCore;
+                const form = `${rawCore}${suffix}`;
                 if (!seenForm.has(form)) {
                     seenForm.add(form);
                     forms.push(form);
@@ -1743,10 +2085,7 @@ function buildPretUniversalProvenance({
         stemPath: context?.stemPath || null,
         fromRootPlusYa: Boolean(context?.fromRootPlusYa),
         isMonosyllable: Boolean(context?.isMonosyllable),
-        variants: (variants || []).map((variant) => ({
-            base: variant.base,
-            suffix: variant.suffix,
-        })),
+        variants: (variants || []).map((variant) => buildPretProvenanceVariantEntry(variant)),
         subjectSuffix,
         blockedReason,
         usesSuppletiveSet: Boolean(suppletiveStemSet),

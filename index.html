@@ -9,24 +9,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40" />
     <meta name="google-site-verification" content="JM-0cbhFodEemBNgTuA191-_JUoKW4JDu1rOD8Z6MEE" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="theme-color" content="#f6efe2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260325-regex-core-60" />
-    <script src="pret_universal_context.js?v=20260325-regex-core-60" defer></script>
-    <script src="pret_universal_engine.js?v=20260325-regex-core-60" defer></script>
-    <script src="script.js?v=20260325-regex-core-60" defer></script>
+    <link rel="stylesheet" href="style.css?v=20260401-regex-core-247" />
+    <script src="pret_universal_context.js?v=20260401-regex-core-247" defer></script>
+    <script src="pret_universal_engine.js?v=20260401-regex-core-247" defer></script>
+    <script src="script.js?v=20260401-regex-core-247" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
     <main class="app-shell">
       <div class="form-container-word hero-panel hero-panel--entrada" id="container-header">
         <div class="hero-copy hero-copy--entrada">
-          <h1 id="word-heading">Conjugador de verbos náhuat</h1>
+          <h1>Conjugador de verbos náhuat</h1>
         </div>
         <div class="hero-controls">
           <div class="ui-scale-control">
@@ -57,12 +57,10 @@
               >
                 <span class="button-icon" aria-hidden="true">
                   <svg viewBox="0 0 16 16" focusable="false">
-                    <rect x="2.5" y="3" width="11" height="10" rx="2"></rect>
-                    <path d="M5 6.25h6"></path>
-                    <path d="M5 9.75h4.5"></path>
+                    <rect x="3" y="3" width="10" height="10" rx="1.25"></rect>
                   </svg>
                 </span>
-                <span class="button-label" data-ui-label-target>Simple</span>
+                <span class="button-label" data-ui-label-target>Básico</span>
               </button>
               <button
                 type="button"
@@ -74,13 +72,12 @@
               >
                 <span class="button-icon" aria-hidden="true">
                   <svg viewBox="0 0 16 16" focusable="false">
-                    <rect x="2.5" y="2.5" width="4.25" height="4.25" rx="1"></rect>
-                    <rect x="9.25" y="2.5" width="4.25" height="4.25" rx="1"></rect>
-                    <rect x="2.5" y="9.25" width="4.25" height="4.25" rx="1"></rect>
-                    <rect x="9.25" y="9.25" width="4.25" height="4.25" rx="1"></rect>
+                    <path d="M8 2.5 12.5 5v6L8 13.5 3.5 11V5z"></path>
+                    <path d="M3.5 5 8 7.5 12.5 5"></path>
+                    <path d="M8 7.5V13.5"></path>
                   </svg>
                 </span>
-                <span class="button-label" data-ui-label-target>Avanzado</span>
+                <span class="button-label" data-ui-label-target>Científico</span>
               </button>
             </div>
           </div>
@@ -95,7 +92,7 @@
           </label>
         </div>
       </div>
-      <div class="panel-grid calc-grid">
+      <div class="panel-grid">
         <div class="panel-stack">
           <div class="panel-stack-tabs" role="tablist" aria-label="Etapas">
             <button
@@ -164,7 +161,7 @@
             aria-labelledby="panel-stack-tab-inputs"
             autocomplete="off"
           >
-            <div class="form-container panel" id="container-inputs" data-serial-ready="true">
+            <div class="form-container panel" id="container-inputs">
               <div class="panel-block-title">
                 <button
                   type="button"
@@ -193,7 +190,6 @@
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
-                        id="verb-entry-board-tab-general"
                         data-composer-entry-board="general"
                         aria-pressed="true"
                         aria-label="Tablero Verbo puro"
@@ -204,7 +200,6 @@
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
-                        id="verb-entry-board-tab-noun-to-verb"
                         data-composer-entry-board="noun-to-verb"
                         aria-pressed="false"
                         aria-label="Tablero Sustantivo→verbo"
@@ -213,15 +208,6 @@
                         S→V
                       </button>
                     </div>
-                    <button
-                      type="button"
-                      class="calc-input-mode__button calc-input-mode__button--regex button-with-icon"
-                      data-input-mode="regex"
-                      aria-pressed="false"
-                    >
-                      <span class="button-icon button-icon--regex" aria-hidden="true">(.*)</span>
-                      <span class="button-label">Regex</span>
-                    </button>
                   </div>
                   <div class="verb-block__utility-actions">
                     <div class="legend-help">
@@ -235,12 +221,11 @@
                       >
                         <span class="legend-button__icon" aria-hidden="true">
                           <svg viewBox="0 0 16 16" focusable="false">
-                            <rect x="1.5" y="3" width="13" height="10" rx="2"></rect>
-                            <path d="M4 6h1.5"></path>
-                            <path d="M6.75 6h1.5"></path>
-                            <path d="M9.5 6h1.5"></path>
-                            <path d="M4 8.5h7"></path>
-                            <path d="M4 11h4.5"></path>
+                            <rect x="1.75" y="3.25" width="12.5" height="9.5" rx="2"></rect>
+                            <path d="M4 6.4h8"></path>
+                            <path d="M4 8.5h1.2"></path>
+                            <path d="M6 8.5h1.2"></path>
+                            <path d="M8 8.5h4"></path>
                           </svg>
                         </span>
                       </button>
@@ -255,7 +240,7 @@
                         <div class="keyboard-legend-header">
                           <div class="keyboard-legend-title-block">
                             <strong>Atajos</strong>
-                            <span class="keyboard-legend-subtitle">navegacion, modos y edicion</span>
+                            <span class="keyboard-legend-subtitle">navegación, modos y edición</span>
                           </div>
                           <button
                             type="button"
@@ -263,7 +248,7 @@
                             id="keyboard-legend-close"
                             aria-label="Cerrar atajos"
                           >
-                            x
+                            ×
                           </button>
                         </div>
                         <div class="keyboard-legend-list" id="keyboard-legend-list"></div>
@@ -278,8 +263,9 @@
                     >
                       <span class="button-icon" aria-hidden="true">
                         <svg viewBox="0 0 16 16" focusable="false">
-                          <path d="M3 3.5h4.5a2 2 0 0 1 2 2v7H5a2 2 0 0 0-2 2z"></path>
-                          <path d="M13 3.5H8.5a2 2 0 0 0-2 2v7H11a2 2 0 0 1 2 2z"></path>
+                          <rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3"></rect>
+                          <path d="M6.2 6a1.95 1.95 0 1 1 3.6 1.03c-.36.56-.92.86-1.35 1.26-.46.44-.7.87-.7 1.58"></path>
+                          <circle cx="8" cy="11.7" r=".62" fill="currentColor" stroke="none"></circle>
                         </svg>
                       </span>
                       <span class="button-label" data-ui-label-target>Guía regex</span>
@@ -302,17 +288,6 @@
                   <div class="verb-block__display">
                     <div class="verb-block__screen">
                       <div class="verb-input-wrap">
-                        <div class="verb-input-mirror" id="verb-mirror" aria-hidden="true">
-                          <div
-                            class="verb-mirror-content"
-                            id="verb-mirror-content"
-                            contenteditable="false"
-                            role="textbox"
-                            aria-label="Forma canónica"
-                            aria-readonly="true"
-                            spellcheck="false"
-                          ></div>
-                        </div>
                         <input
                           type="text"
                           id="verb"
@@ -320,7 +295,7 @@
                           class="verb-input"
                           inputmode="text"
                           aria-label="Verbo"
-                          placeholder="Escriba verbo aquí"
+                          placeholder="_"
                           autocomplete="off"
                           autocorrect="off"
                           data-lpignore="true"
@@ -328,12 +303,6 @@
                           autocapitalize="none"
                           spellcheck="false"
                         />
-                        <div
-                          class="verb-suggestions"
-                          id="verb-suggestions"
-                          role="listbox"
-                          aria-label="Sugerencias"
-                        ></div>
                       </div>
                   </div>
                   <div class="verb-block__hint-row">
@@ -953,16 +922,11 @@
                               class="verb-chip verb-composer__supportive-i-button button-with-icon"
                               id="verb-key-supportive-i"
                               aria-pressed="false"
-                              aria-label="Aplicar i/y de apoyo opcional. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
-                              title="i/y de apoyo opcional. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
+                              aria-label="Aplicar i/y de apoyo opcional. Regex: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
+                              title="i/y de apoyo opcional. Regex: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
                             >
-                              <span class="button-icon" aria-hidden="true">
-                                <svg viewBox="0 0 16 16" focusable="false">
-                                  <path d="M8 2.5v11"></path>
-                                  <path d="M4.5 6 8 2.5 11.5 6"></path>
-                                  <path d="M4.5 10 8 13.5 11.5 10"></path>
-                                  <circle cx="8" cy="8" r="1.5"></circle>
-                                </svg>
+                              <span class="button-icon button-icon--supportive" aria-hidden="true">
+                                i
                               </span>
                               <span class="button-label">i/y de apoyo</span>
                             </button>
@@ -1031,7 +995,7 @@
               >
                 <span aria-hidden="true">▶</span>
               </button>
-              <div class="panel-block-actions panel-block-actions--output">
+              <div class="panel-block-actions">
                 <button type="button" class="view-export-button panel-action-button" id="view-export-csv">
                   <span class="panel-action-button__icon" aria-hidden="true">
                     <svg viewBox="0 0 16 16" focusable="false">
@@ -1208,46 +1172,37 @@
                   </div>
                   <div class="calc-operator calc-operator--derivation" role="group" aria-label="Derivación">
                     <div class="calc-operator__label" id="derivation-type-label">Derivación</div>
-                    <div class="calc-operator-source calc-operator-source--active">
-                      <div
-                        class="calc-operator-source__label"
-                        id="derivation-source-active-label"
-                        data-ui-label-key="tense-tabs-mode-active"
+                    <div class="calc-operator-grid calc-operator-grid--derivation" role="tablist" aria-label="Derivación activa">
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="direct"
+                        role="tab"
+                        aria-selected="true"
+                        aria-pressed="true"
                       >
-                        Activo
-                      </div>
-                      <div class="calc-operator-grid calc-operator-grid--derivation" role="tablist" aria-label="Derivación activa">
-                        <button
-                          type="button"
-                          class="calc-operator-chip"
-                          data-derivation-type="direct"
-                          role="tab"
-                          aria-selected="true"
-                          aria-pressed="true"
-                        >
-                          Directo
-                        </button>
-                        <button
-                          type="button"
-                          class="calc-operator-chip"
-                          data-derivation-type="causative"
-                          role="tab"
-                          aria-selected="false"
-                          aria-pressed="false"
-                        >
-                          Causativo
-                        </button>
-                        <button
-                          type="button"
-                          class="calc-operator-chip"
-                          data-derivation-type="applicative"
-                          role="tab"
-                          aria-selected="false"
-                          aria-pressed="false"
-                        >
-                          Aplicativo
-                        </button>
-                      </div>
+                        Directo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="causative"
+                        role="tab"
+                        aria-selected="false"
+                        aria-pressed="false"
+                      >
+                        Causativo
+                      </button>
+                      <button
+                        type="button"
+                        class="calc-operator-chip"
+                        data-derivation-type="applicative"
+                        role="tab"
+                        aria-selected="false"
+                        aria-pressed="false"
+                      >
+                        Aplicativo
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1273,7 +1228,7 @@
         </div>
       </div>
       <footer>
-        <p><label id="copyright-label">Copyright © 2026 Jaime Núñez</label></p>
+        <p><span id="copyright-label">Copyright © 2026 Jaime Núñez</span></p>
         <p>Gracias a Sigfredo Olmedo</p>
       </footer>
     </main>
@@ -1281,10 +1236,10 @@
       <div class="tutorial-backdrop" data-tutorial-close></div>
       <div class="tutorial-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
         <div class="tutorial-header">
-          <span class="tutorial-eyebrow">Guía de patrones</span>
-          <h2 id="tutorial-title">Escribe con símbolos</h2>
+          <span class="tutorial-eyebrow">Guía regex</span>
+          <h2 id="tutorial-title">Cómo leer el regex</h2>
           <p class="tutorial-lede">
-            Marca transitividad, compuestos y búsquedas para guiar la conjugación sin menús extra.
+            El regex visible es el lenguaje principal. Lee la forma de izquierda a derecha: piezas externas, luego núcleo intransitivo <code>(...)</code> o transitivo <code>-(...)</code>.
           </p>
           <button type="button" class="tutorial-close" data-tutorial-close aria-label="Cerrar guía">
             ×
@@ -1292,93 +1247,137 @@
         </div>
         <div class="tutorial-body">
           <div class="tutorial-grid">
-            <div class="tutorial-block">
-              <div class="tutorial-block-title">Símbolos clave</div>
+            <div class="tutorial-block tutorial-block--formula">
+              <div class="tutorial-block-title">Fórmula base</div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">/</span>
-                <span class="tutorial-chip-label">separador principal del regex</span>
+                <span class="tutorial-chip">externo + (...) </span>
+                <span class="tutorial-chip-label">si el núcleo es intransitivo</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">externo + -(...) </span>
+                <span class="tutorial-chip-label">si el núcleo es transitivo o bitransitivo</span>
+              </div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">(lex)</span>
+                <span class="tutorial-chip-label">pieza léxica externa; un direccional va sin paréntesis</span>
+              </div>
+            </div>
+            <div class="tutorial-block tutorial-block--symbols">
+              <div class="tutorial-block-title">Símbolos</div>
+              <div class="tutorial-chip-row">
+                <span class="tutorial-chip">+</span>
+                <span class="tutorial-chip-label">une piezas externas entre sí</span>
               </div>
               <div class="tutorial-chip-row">
                 <span class="tutorial-chip">-</span>
-                <span class="tutorial-chip-label">liga externa del objeto o del bloque verbal</span>
+                <span class="tutorial-chip-label">une internamente; delante de <code>(...)</code> marca núcleo transitivo</span>
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">(ta), (te), (mu)</span>
-                <span class="tutorial-chip-label">objeto indefinido gramatical</span>
+                <span class="tutorial-chip">(…)</span>
+                <span class="tutorial-chip-label">núcleo intransitivo</span>
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">(t), (m)</span>
-                <span class="tutorial-chip-label">forma corta de objeto indefinido</span>
+                <span class="tutorial-chip">-(…)</span>
+                <span class="tutorial-chip-label">núcleo transitivo o bitransitivo</span>
               </div>
               <div class="tutorial-chip-row">
-                <span class="tutorial-chip">(i)/(y)</span>
-                <span class="tutorial-chip-label"
-                  >i/y de apoyo opcional dentro del regex</span
-                >
-              </div>
-              <div class="tutorial-chip-row">
-                <span class="tutorial-chip">[wal]/[un]/[ku]/</span>
-                <span class="tutorial-chip-label">direccional; usa [prefijo]/. sin corchetes queda como raíz incorporada.</span>
+                <span class="tutorial-chip">[i] · [y]</span>
+                <span class="tutorial-chip-label">marcadores de apoyo opcionales</span>
               </div>
             </div>
-            <div class="tutorial-block">
-              <div class="tutorial-block-title">Estructuras</div>
+            <div class="tutorial-block tutorial-block--patterns">
+              <div class="tutorial-block-title">Patrones frecuentes</div>
               <div class="tutorial-structure">
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">intransitivo con prefijo</span>
+                  <span class="tutorial-code">núcleo intransitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> matriz <strong>nemi</strong>.</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="(tzin/pewa)">
-                      tzin/pewa
+                    <button type="button" class="tutorial-token" data-example="(nemi)">
+                      (nemi)
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">transitivo con objeto incorporado</span>
+                  <span class="tutorial-code">direccional + intransitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> direccional <strong>wal</strong> + matriz <strong>nemi</strong>.</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="(shuchi-temua)">
-                      -shuchi-temua
+                    <button type="button" class="tutorial-token" data-example="wal+(nemi)">
+                      wal+(nemi)
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">bitransitivo con objeto indefinido interno</span>
+                  <span class="tutorial-code">valencia externa + intransitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> valencia <strong>ta</strong> + matriz <strong>nemi</strong>.</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-(TA-ish/piya)">
-                      -(ta)-ish/piya
+                    <button type="button" class="tutorial-token" data-example="ta+(nemi)">
+                      ta+(nemi)
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">bitransitivo con objeto incorporado interno</span>
+                  <span class="tutorial-code">transitivo con raíz incorporada</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> incorporada <strong>ish</strong> + matriz <strong>mati</strong>.</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="-(kal-ish/piya)">
-                      -kal-ish/piya
+                    <button type="button" class="tutorial-token" data-example="-(ish-mati)">
+                      -(ish-mati)
                     </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">objeto incorporado + objeto indefinido ligado</span>
+                  <span class="tutorial-code">léxico externo + transitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> externa <strong>shuchi</strong> + matriz <strong>kwi</strong>.</span>
                   <span class="tutorial-example-inline">
-                    <button type="button" class="tutorial-token" data-example="(a/T-i)">-a/(t)-i</button>
+                    <button type="button" class="tutorial-token" data-example="(shuchi)-(kwi)">
+                      (shuchi)-(kwi)
+                    </button>
                   </span>
                 </div>
                 <div class="tutorial-structure-line">
-                  <span class="tutorial-code">ti con subclase inline</span>
+                  <span class="tutorial-code">léxico externo + valencia + transitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> externa <strong>a</strong> + valencia <strong>ta</strong> + matriz <strong>kwi</strong>.</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="(a)+ta-(kwi)">
+                      (a)+ta-(kwi)
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">bitransitivo</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> primera <strong>te</strong>, segunda <strong>ta</strong>, matriz <strong>maka</strong>.</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="te+ta-(maka)">
+                      te+ta-(maka)
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">apoyo opcional</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> activa <strong>i/y de apoyo</strong>, valencia <strong>ta</strong>, matriz <strong>yawi</strong>.</span>
+                  <span class="tutorial-example-inline">
+                    <button type="button" class="tutorial-token" data-example="ta-[y]awi">
+                      ta-[y]awi
+                    </button>
+                  </span>
+                </div>
+                <div class="tutorial-structure-line">
+                  <span class="tutorial-code">subclase ti inline</span>
+                  <span class="tutorial-composer-hint"><strong>Compositor:</strong> matriz <strong>michti</strong> + subclase <strong>ti1</strong>.</span>
                   <span class="tutorial-example-inline">
                     <button type="button" class="tutorial-token" data-example="(michti1)">
-                      michti1
+                      (michti1)
                     </button>
                   </span>
                 </div>
               </div>
               <div class="tutorial-note">
-                Usa minúsculas para objeto incorporado léxico y mayúsculas solo para TA/TE/MU/T/M.
+                Orden mental: piezas externas a la izquierda, núcleo al final. Si ves <code>-(...)</code>, el núcleo ya es transitivo.
               </div>
             </div>
           </div>
           <div class="tutorial-footer">
             <div class="tutorial-tip">
-              Tip: escribe un prefijo y mira las sugerencias debajo del verbo.
+              Tip: pulsa cualquier ejemplo para cargarlo directamente, o replica la misma estructura con los botones del compositor.
             </div>
             <button type="button" class="tutorial-close-pill" data-tutorial-close>Entendido</button>
           </div>

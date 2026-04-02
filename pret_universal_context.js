@@ -9,17 +9,12 @@ function getPretUniversalCoreVowelCount(verb) {
 }
 
 function getUniversalReplacementStem(verb, options = {}) {
-    if (verb.endsWith("ya")) {
-        const letters = splitVerbLetters(verb);
-        const recent = letters.slice(Math.max(0, letters.length - 6));
-        const hasRecentS = recent.includes("s");
-        const base = verb.slice(0, -2);
-        if (!options.isTransitive && hasRecentS) {
-            return base.endsWith("s") ? base : base + "s";
-        }
-        return base + "sh";
-    }
-    return verb.slice(0, -1) + "j";
+    const baseSpec = typeof buildPretPerfectiveReplacementBaseSpec === "function"
+        ? buildPretPerfectiveReplacementBaseSpec(verb, options)
+        : null;
+    return typeof realizePretBaseSpec === "function"
+        ? realizePretBaseSpec(baseSpec, "")
+        : "";
 }
 
 function getPerfectiveReplacementStem(verb, options = {}) {
@@ -27,26 +22,25 @@ function getPerfectiveReplacementStem(verb, options = {}) {
 }
 
 function applyPretUniversalDeletionShift(stem, options = {}) {
-    if (stem.endsWith("kw")) {
-        return [stem.slice(0, -2) + "k"];
-    }
-    if (stem.endsWith("w")) {
-        return [stem, stem.slice(0, -1) + "j"];
-    }
-    if (stem.endsWith("m")) {
-        return [stem.slice(0, -1) + "n"];
-    }
-    if (stem.endsWith("y")) {
-        const letters = splitVerbLetters(stem);
-        const recent = letters.slice(Math.max(0, letters.length - 6));
-        const hasRecentS = recent.includes("s");
-        const base = stem.slice(0, -1);
-        if (!options.isTransitive && hasRecentS) {
-            return [base.endsWith("s") ? base : base + "s"];
+    const specs = [];
+    if (typeof buildPretDeletionShiftBaseSpec === "function") {
+        if (stem.endsWith("kw")) {
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "kw-to-k", options));
+        } else if (stem.endsWith("w")) {
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "w-keep", options));
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "w-to-j", options));
+        } else if (stem.endsWith("m")) {
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "m-to-n", options));
+        } else if (stem.endsWith("y")) {
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "y-shift", options));
+        } else {
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "identity", options));
         }
-        return [base + "sh"];
     }
-    return [stem];
+    const realized = specs
+        .map((spec) => (typeof realizePretBaseSpec === "function" ? realizePretBaseSpec(spec, "") : ""))
+        .filter(Boolean);
+    return realized.length ? realized : [stem];
 }
 
 function getPerfectiveAlternationStems(verb, options = {}) {
@@ -69,9 +63,15 @@ function getMonosyllableStemPath(verb) {
     if (!verb) {
         return null;
     }
+    const classDBaseSpec = typeof buildPretAppendBaseSpec === "function"
+        ? buildPretAppendBaseSpec(verb, "j")
+        : null;
     return {
         path: "monosyllable",
-        classDBase: `${verb}j`,
+        classDBase: typeof realizePretBaseSpec === "function"
+            ? realizePretBaseSpec(classDBaseSpec, "")
+            : `${verb}j`,
+        classDBaseSpec,
     };
 }
 

@@ -1,5 +1,5 @@
 {
-  "directionalPrefixes": ["wal", "un", "ku"],
+  "directionalPrefixes": ["wal", "un"],
   "iaUaSuffixes": ["ia", "ua"],
   "anPrefixVowelPrefixes": ["a", "e", "u"],
   "vowels": "aeiu",

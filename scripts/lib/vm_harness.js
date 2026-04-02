@@ -13,11 +13,15 @@ function createFakeElement() {
     toggle: noop,
     contains: () => false,
   };
+  const fakeStyle = {
+    setProperty: noop,
+    removeProperty: noop,
+  };
   return new Proxy(
     {
       value: "",
       checked: false,
-      style: {},
+      style: fakeStyle,
       dataset: {},
       classList: fakeClassList,
       addEventListener: noop,
@@ -29,6 +33,14 @@ function createFakeElement() {
       querySelector: () => null,
       querySelectorAll: () => [],
       closest: () => null,
+      getBoundingClientRect: () => ({
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: 0,
+        height: 0,
+      }),
       focus: noop,
       blur: noop,
       click: noop,
