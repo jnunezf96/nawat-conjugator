@@ -5664,10 +5664,11 @@ function buildVerbDerivedNominalOutputEntry({
         surfaceRuleMeta,
     });
     const placedVerb = String(nominalSurface.verb || "");
+    const sourceVerb = String(verb || "");
     const sourceOuterPrefix = String(nominalSurface.surfaceRuleMeta?.sourceOuterPrefix || "");
     const resolvedStemSpec = (
         placedVerb
-        && placedVerb !== String(verb || "")
+        && placedVerb !== sourceVerb
         && sourceOuterPrefix
         && stemSpec
         && typeof stemSpec === "object"
@@ -5679,7 +5680,18 @@ function buildVerbDerivedNominalOutputEntry({
         })
         : (
             placedVerb
-            && placedVerb !== String(verb || "")
+            && placedVerb !== sourceVerb
+            && sourceOuterPrefix
+            && sourceVerb.startsWith(sourceOuterPrefix)
+            && sourceVerb.slice(sourceOuterPrefix.length) === placedVerb
+        )
+            ? buildStripPrefixMorphStemSpec(sourceVerb, sourceOuterPrefix, {
+                sourceBase: sourceModel?.matrixBase || sourceVerb,
+                sourceSuffix: "",
+            })
+        : (
+            placedVerb
+            && placedVerb !== sourceVerb
         )
             ? buildLiteralMorphStemSpec(placedVerb)
         : stemSpec;
@@ -11143,13 +11155,33 @@ function buildPatientivoDerivations({
     });
     if (allowOriginalTVariant) {
         const nounStem = realizeNonactiveSourceChainStem(nonactiveBaseVerb, nonactiveSourceChain);
+        const nounStemSpec = (() => {
+            const sourceStemSpec = applyNonactiveSourceChainStemSpec(
+                buildLiteralMorphStemSpec(nonactiveBaseVerb, {
+                    sourceBase: patientivoSourceModel.matrixBase || nonactiveBaseVerb,
+                }),
+                nonactiveBaseVerb,
+                nonactiveSourceChain,
+                {
+                    policy: patientivoChainPolicy,
+                },
+            );
+            const realizedSourceStem = normalizeDerivationStemValue(
+                realizeMorphStemSpec(sourceStemSpec, nonactiveBaseVerb)
+            );
+            return realizedSourceStem === nounStem
+                ? sourceStemSpec
+                : buildLiteralMorphStemSpec(nounStem, {
+                    sourceBase: patientivoSourceModel.matrixBase || nonactiveBaseVerb,
+                });
+        })();
         const key = `${nounStem}|t`;
         if (!seen.has(key)) {
             seen.add(key);
             const nextEntry = buildPatientivoDerivationEntry({
                 sourceModel: patientivoSourceModel,
                 sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.nonactive,
-                stemSpec: buildLiteralMorphStemSpec(nounStem),
+                stemSpec: nounStemSpec,
                 fallbackStem: nounStem,
                 subjectSuffix: "t",
                 nominalMarkerPolicy: buildPatientivoNominalMarkerPolicy({
@@ -12466,9 +12498,33 @@ function buildPatientivoTroncoDerivations({
     }
     const results = [];
     const seen = new Set();
-    const baseStemSpec = buildLiteralMorphStemSpec(base, {
-        sourceBase: patientivoSourceModel?.matrixBase || base,
-    });
+    const matrixBaseForStemSpec = normalizeDerivationStemValue(
+        patientivoSourceModel?.matrixBase
+        || patientivoSourceModel?.chain?.baseVerb
+        || base
+    );
+    const sourceChainBaseStemSpec = matrixBaseForStemSpec
+        ? applySourceChainStemSpecByPolicy(
+            buildLiteralMorphStemSpec(matrixBaseForStemSpec, {
+                sourceBase: matrixBaseForStemSpec,
+            }),
+            matrixBaseForStemSpec,
+            patientivoSourceModel?.chain || null,
+            {
+                policy: PATIENTIVO_SOURCE_CHAIN_POLICY,
+            },
+        )
+        : null;
+    const baseStemSpec = (
+        sourceChainBaseStemSpec
+        && normalizeDerivationStemValue(
+            realizeMorphStemSpec(sourceChainBaseStemSpec, matrixBaseForStemSpec || base)
+        ) === base
+    )
+        ? sourceChainBaseStemSpec
+        : buildLiteralMorphStemSpec(base, {
+            sourceBase: matrixBaseForStemSpec || base,
+        });
     const normalizeStem = (stem) => {
         if (endsWithAny(stem, IA_UA_SUFFIXES)) {
             return stem.slice(0, -1);
@@ -14765,6 +14821,28 @@ function getInstrumentivoResult({
                     verb: applied.verb,
                     surfaceRuleMeta: applied.surfaceRuleMeta || null,
                 });
+                const placedSourceOuterPrefix = String(
+                    nominalSurface.surfaceRuleMeta?.sourceOuterPrefix || ""
+                );
+                const placedStemSpec = (
+                    nominalSurface.verb !== applied.verb
+                    && placedSourceOuterPrefix
+                    && stemSpec
+                    && typeof stemSpec === "object"
+                    && stemSpec.kind
+                )
+                    ? buildStripPrefixMorphStemSpec(stemSpec, placedSourceOuterPrefix, {
+                        sourceBase: stemSpec?.sourceBase || "",
+                        sourceSuffix: stemSpec?.sourceSuffix || "",
+                    })
+                    : (
+                        nominalSurface.verb === applied.verb
+                        && stemSpec
+                        && typeof stemSpec === "object"
+                        && stemSpec.kind
+                    )
+                        ? stemSpec
+                        : buildLiteralMorphStemSpec(nominalSurface.verb);
                 const core = buildOutputPrefixedChain({
                     subjectPrefix: applied.subjectPrefix,
                     objectPrefix: nominalSurface.objectPrefix,
@@ -14773,12 +14851,19 @@ function getInstrumentivoResult({
                     optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
                     surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
                 });
+                const coreStemSpec = buildStructuredPrefixedStemSpec({
+                    stemSpec: placedStemSpec,
+                    verb: nominalSurface.verb,
+                    subjectPrefix: applied.subjectPrefix,
+                    objectPrefix: nominalSurface.objectPrefix,
+                    output: core,
+                }) || buildLiteralMorphStemSpec(core);
                 entries.push(buildVerbDerivedNominalEntry({
                     kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
                     sourceModel: nounSourceModel,
                     verb: core,
                     subjectSuffix: applied.subjectSuffix,
-                    stemSpec: buildLiteralMorphStemSpec(core),
+                    stemSpec: coreStemSpec,
                     sourceTense: "presente-habitual",
                     provenance: {
                         nonactiveSuffix: option?.suffix || "",
@@ -14831,12 +14916,34 @@ function getInstrumentivoResult({
             verb: applied.verb,
             surfaceRuleMeta: applied.surfaceRuleMeta || null,
         });
+        const placedSourceOuterPrefix = String(
+            nominalSurface.surfaceRuleMeta?.sourceOuterPrefix || ""
+        );
+        const placedStemSpec = (
+            nominalSurface.verb !== applied.verb
+            && placedSourceOuterPrefix
+            && stemContext.stemSpec
+            && typeof stemContext.stemSpec === "object"
+            && stemContext.stemSpec.kind
+        )
+            ? buildStripPrefixMorphStemSpec(stemContext.stemSpec, placedSourceOuterPrefix, {
+                sourceBase: stemContext.stemSpec?.sourceBase || "",
+                sourceSuffix: stemContext.stemSpec?.sourceSuffix || "",
+            })
+            : (
+                nominalSurface.verb === applied.verb
+                && stemContext.stemSpec
+                && typeof stemContext.stemSpec === "object"
+                && stemContext.stemSpec.kind
+            )
+                ? stemContext.stemSpec
+                : buildLiteralMorphStemSpec(nominalSurface.verb);
         entries.push(buildVerbDerivedNominalEntry({
             kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
             sourceModel: nounSourceModel,
             verb: nominalSurface.verb,
             subjectSuffix: applied.subjectSuffix,
-            stemSpec: buildLiteralMorphStemSpec(nominalSurface.verb),
+            stemSpec: placedStemSpec,
             surfaceObjectPrefix: nominalSurface.objectPrefix,
             runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
             surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
@@ -14974,6 +15081,14 @@ function getCalificativoInstrumentivoResult({
                 return;
             }
             baseForms.forEach((form) => {
+                const baseStemSpec = (
+                    form === predicateStem
+                    && predicateStemSpec
+                    && typeof predicateStemSpec === "object"
+                    && predicateStemSpec.kind
+                )
+                    ? predicateStemSpec
+                    : buildLiteralMorphStemSpec(form);
                 const nominalSurface = resolveNominalSourceOuterSurfacePlacement({
                     sourceModel: nounSourceModel,
                     runtimeObjectPrefix: composedObjectPrefix || stemContext.morphologyObjectPrefix,
@@ -14981,6 +15096,28 @@ function getCalificativoInstrumentivoResult({
                     verb: form,
                     surfaceRuleMeta: null,
                 });
+                const placedSourceOuterPrefix = String(
+                    nominalSurface.surfaceRuleMeta?.sourceOuterPrefix || ""
+                );
+                const placedStemSpec = (
+                    nominalSurface.verb !== form
+                    && placedSourceOuterPrefix
+                    && baseStemSpec
+                    && typeof baseStemSpec === "object"
+                    && baseStemSpec.kind
+                )
+                    ? buildStripPrefixMorphStemSpec(baseStemSpec, placedSourceOuterPrefix, {
+                        sourceBase: baseStemSpec?.sourceBase || "",
+                        sourceSuffix: baseStemSpec?.sourceSuffix || "",
+                    })
+                    : (
+                        nominalSurface.verb === form
+                        && baseStemSpec
+                        && typeof baseStemSpec === "object"
+                        && baseStemSpec.kind
+                    )
+                        ? baseStemSpec
+                        : buildLiteralMorphStemSpec(nominalSurface.verb);
                 const objectChainForm = buildOutputPrefixedChain({
                     objectPrefix: nominalSurface.objectPrefix,
                     verb: nominalSurface.verb,
@@ -14988,12 +15125,19 @@ function getCalificativoInstrumentivoResult({
                     optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
                     surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
                 });
+                const objectChainStemSpec = buildStructuredPrefixedStemSpec({
+                    stemSpec: placedStemSpec,
+                    verb: nominalSurface.verb,
+                    subjectPrefix: "",
+                    objectPrefix: nominalSurface.objectPrefix,
+                    output: objectChainForm,
+                }) || buildLiteralMorphStemSpec(objectChainForm);
                 entries.push(buildVerbDerivedNominalEntry({
                     kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
                     sourceModel: nounSourceModel,
                     verb: objectChainForm,
                     subjectSuffix: "",
-                    stemSpec: buildLiteralMorphStemSpec(objectChainForm),
+                    stemSpec: objectChainStemSpec,
                     trailingSuffix: resolvedPossessivePrefix === "" ? "yut" : "",
                     sourceTense: "pasado-remoto",
                     provenance: {
@@ -15088,10 +15232,13 @@ function getLocativoTemporalResult({
                 ))
                 .filter(Boolean);
         }
-        const nonactiveStems = (nonactiveStemSpecs || [])
-            .map((spec) => realizeMorphStemSpec(spec, ""))
-            .filter(Boolean);
-        if (!nonactiveStems.length) {
+        const nonactiveStemEntries = (nonactiveStemSpecs || [])
+            .map((spec) => ({
+                stemSpec: spec,
+                stem: realizeMorphStemSpec(spec, ""),
+            }))
+            .filter((entry) => Boolean(entry.stem));
+        if (!nonactiveStemEntries.length) {
             return;
         }
         let sourceObjectPrefix = resolvedObjectPrefix;
@@ -15100,14 +15247,14 @@ function getLocativoTemporalResult({
                 subjectPrefix: "",
                 subjectSuffix: "",
                 objectPrefix: resolvedObjectPrefix,
-                analysisVerb: stripDirectionalPrefixFromStem(nonactiveStems[0], directionalPrefix),
+                analysisVerb: stripDirectionalPrefixFromStem(nonactiveStemEntries[0].stem, directionalPrefix),
             });
             sourceObjectPrefix = passive.objectPrefix;
         }
         const locativeObjectPrefix = sourceObjectPrefix === resolvedObjectPrefix
             ? stemContext.morphologyObjectPrefix
             : sourceObjectPrefix;
-        nonactiveStems.forEach((stem) => {
+        nonactiveStemEntries.forEach(({ stemSpec, stem }) => {
             const stemAnalysisLocal = stripDirectionalPrefixFromStem(stem, directionalPrefix);
             const applied = applyMorphologyRules({
                 subjectPrefix: "",
@@ -15136,12 +15283,34 @@ function getLocativoTemporalResult({
                 verb: applied.verb,
                 surfaceRuleMeta: applied.surfaceRuleMeta || null,
             });
+            const placedSourceOuterPrefix = String(
+                nominalSurface.surfaceRuleMeta?.sourceOuterPrefix || ""
+            );
+            const shouldPreservePlacedStemSpec = isNonactive
+                && stemSpec
+                && typeof stemSpec === "object"
+                && stemSpec.kind;
+            const placedStemSpec = (
+                shouldPreservePlacedStemSpec
+                && nominalSurface.verb !== applied.verb
+                && placedSourceOuterPrefix
+            )
+                ? buildStripPrefixMorphStemSpec(stemSpec, placedSourceOuterPrefix, {
+                    sourceBase: stemSpec?.sourceBase || "",
+                    sourceSuffix: stemSpec?.sourceSuffix || "",
+                })
+                : (
+                    shouldPreservePlacedStemSpec
+                    && nominalSurface.verb === applied.verb
+                )
+                    ? stemSpec
+                    : buildLiteralMorphStemSpec(nominalSurface.verb);
             entries.push(buildVerbDerivedNominalEntry({
                 kind: VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
                 sourceModel: nounSourceModel,
                 verb: nominalSurface.verb,
                 subjectSuffix: applied.subjectSuffix,
-                stemSpec: buildLiteralMorphStemSpec(nominalSurface.verb),
+                stemSpec: placedStemSpec,
                 runtimeObjectPrefix: locativeObjectPrefix,
                 surfaceObjectPrefix: nominalSurface.objectPrefix,
                 surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
@@ -43600,7 +43769,7 @@ const DEVELOPER_HOOK_NAMES = Object.freeze([
     "runComposerDisplayBridgeTests",
     "runComposerButtonCombinatorialAudit",
 ]);
-const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-100";
+const DEV_RUNTIME_CHECKS_ASSET_VERSION = "20260401-dev-checks-107";
 
 function getDeveloperHookMap(windowObject = null) {
     const scope = windowObject || (typeof window !== "undefined" ? window : null);
