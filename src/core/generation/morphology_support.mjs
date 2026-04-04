@@ -347,7 +347,7 @@ export function createMorphologySupportApi(targetObject = globalThis) {
             if (useZero) {
                 return "";
             }
-            return "w";
+            return stem && !/[aeiu]$/.test(stem) ? "" : "w";
         }
         if (normalizedSuffix === "t") {
             if (useOrganic) {
@@ -356,7 +356,7 @@ export function createMorphologySupportApi(targetObject = globalThis) {
             if (useZero) {
                 return "";
             }
-            return "w";
+            return stem && !/[aeiu]$/.test(stem) ? "" : "w";
         }
         return normalizedSuffix;
     }

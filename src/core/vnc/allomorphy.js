@@ -5969,7 +5969,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
     const normalizedStem = normalizeDerivationStemValue(stem);
     const routeSourceBase = normalizeDerivationStemValue(sourceStemSpec?.sourceBase || "");
     const routeSourceSuffix = normalizeRuleBase(sourceStemSpec?.sourceSuffix || "");
-    const buildVariantEntry = (stemSpec, fallbackStem, subjectSuffix) => {
+    const buildVariantEntry = (stemSpec, fallbackStem, subjectSuffix, metadata = null) => {
         const resolvedStemSpec = (
             stemSpec
             && typeof stemSpec === "object"
@@ -5985,6 +5985,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
             stem: realizedStem,
             suffix: String(subjectSuffix || ""),
             stemSpec: resolvedStemSpec,
+            ...(metadata && typeof metadata === "object" ? metadata : {}),
         };
     };
     const buildAppendVariant = (sourceSpec, sourceStem, appendText = "") => (
@@ -6121,7 +6122,9 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         if (!isTransitive && recoversDeletedW) {
             const tStemSpec = buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i");
             return [
-                buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t"),
+                buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t", {
+                    blocksAbsolutiveZeroNominalMarker: true,
+                }),
             ].filter(Boolean);
         }
         const tiBaseStem = recoveredBase.stem;
@@ -6129,7 +6132,9 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         const tStemSpec = buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i");
         return [
             buildVariantEntry(tiBaseStemSpec, tiBaseStem, "ti"),
-            buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t"),
+            buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t", {
+                blocksAbsolutiveZeroNominalMarker: true,
+            }),
         ].filter(Boolean);
     };
     switch (suffix) {
@@ -6164,6 +6169,9 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
                     familyBaseEntry.stemSpec,
                     familyBaseEntry.stem,
                     "t",
+                    {
+                        blocksAbsolutiveZeroNominalMarker: true,
+                    },
                 )].filter(Boolean)
                 : [];
         case "walu":
@@ -6287,7 +6295,7 @@ function resolveDefaultPatientivoAllowedSuffixes({
     if (tClassSuffix && tClassSuffix !== normalizedDefaultSuffix) {
         suffixes.push(tClassSuffix);
     }
-    if (normalizedDefaultSuffix !== "") {
+    if (normalizedDefaultSuffix !== "" && normalizedDefaultSuffix !== "t") {
         suffixes.push("");
     }
     const letters = splitVerbLetters(normalizedStem);
@@ -6509,14 +6517,20 @@ function expandPatientivoNominalMarkerOptions(derivations = [], source = "") {
             ? entry.nominalMarkerPolicy.allowedSuffixes.map((value) => String(value ?? ""))
             : null;
         if (explicitAllowedSuffixes && explicitAllowedSuffixes.length) {
-            return Array.from(new Set(explicitAllowedSuffixes));
+            const normalizedExplicitSuffixes = Array.from(new Set(explicitAllowedSuffixes));
+            return entry?.blocksAbsolutiveZeroNominalMarker === true
+                ? normalizedExplicitSuffixes.filter((value) => value !== "")
+                : normalizedExplicitSuffixes;
         }
-        return resolveDefaultPatientivoAllowedSuffixes({
+        const resolvedAllowedSuffixes = resolveDefaultPatientivoAllowedSuffixes({
             sourceType: entry?.sourceType || resolvedSource || PATIENTIVO_DERIVATION_SOURCE_TYPE.nonactive,
             stem: entry?.stem || verb || "",
             defaultSuffix: typeof baseSuffix === "string" ? baseSuffix : "",
             lockNominalMarker: entry?.lockNominalMarker === true,
         });
+        return entry?.blocksAbsolutiveZeroNominalMarker === true
+            ? resolvedAllowedSuffixes.filter((value) => value !== "")
+            : resolvedAllowedSuffixes;
     };
     const pushVariant = (entry, suffix) => {
         const normalizedSuffix = typeof suffix === "string" ? suffix : "";
@@ -6819,6 +6833,7 @@ function buildPatientivoDerivations({
                 }),
                 metadata: {
                     nonactiveSourceSuffix: option.suffix,
+                    blocksAbsolutiveZeroNominalMarker: derived?.blocksAbsolutiveZeroNominalMarker === true,
                 },
             });
             if (nextEntry) {
@@ -7784,38 +7799,7 @@ function buildPatientivoPerfectivoStemEntries({
             forceClassBSelection: false,
             forceClassBOnly: false,
         });
-        const getPatientivoPerfectivoStemFromProvenanceEntry = (entry = null) => {
-            const baseSpec = entry?.baseSpec && typeof entry.baseSpec === "object"
-                ? entry.baseSpec
-                : null;
-            const realizedBase = normalizeDerivationStemValue(
-                entry?.base
-                || (baseSpec ? realizeMorphStemSpec(baseSpec, "") : "")
-            );
-            if (baseSpec || realizedBase) {
-                return {
-                    stemSpec: baseSpec || buildLiteralMorphStemSpec(realizedBase, {
-                        sourceBase: classSource,
-                    }),
-                    fallbackStem: realizedBase || classSource,
-                };
-            }
-            const stemSpec = entry?.stemSpec && typeof entry.stemSpec === "object"
-                ? entry.stemSpec
-                : null;
-            const realizedStem = normalizeDerivationStemValue(
-                entry?.surfaceStem
-                || (stemSpec
-                    ? realizeMorphStemSpec(stemSpec, `${entry?.base || ""}${entry?.suffix || ""}`)
-                    : `${entry?.base || ""}${entry?.suffix || ""}`)
-            );
-            return {
-                stemSpec: stemSpec || buildLiteralMorphStemSpec(realizedStem, {
-                    sourceBase: classSource,
-                }),
-                fallbackStem: realizedStem,
-            };
-        };
+        const getPatientivoPerfectivoStemFromProvenanceEntry = (entry = null) => resolveCalificativoInstrumentivoStemFromProvenanceEntry(entry, classSource);
         (Array.isArray(preteriteOutput?.provenance?.variants) ? preteriteOutput.provenance.variants : [])
             .forEach((entry) => {
                 const resolvedStem = getPatientivoPerfectivoStemFromProvenanceEntry(entry);

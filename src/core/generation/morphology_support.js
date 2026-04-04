@@ -352,7 +352,7 @@ function adjustPatientivoPossessiveSuffix(
         if (useZero) {
             return "";
         }
-        return "w";
+        return stem && !/[aeiu]$/.test(stem) ? "" : "w";
     }
     if (normalizedSuffix === "t") {
         if (useOrganic) {
@@ -361,7 +361,7 @@ function adjustPatientivoPossessiveSuffix(
         if (useZero) {
             return "";
         }
-        return "w";
+        return stem && !/[aeiu]$/.test(stem) ? "" : "w";
     }
     return normalizedSuffix;
 }

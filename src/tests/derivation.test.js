@@ -130,6 +130,111 @@ function run(ctx) {
     s.eq("nonactive derivation passthrough keeps verb", nonactiveFallback.verb, "nemi");
     s.eq("nonactive derivation passthrough keeps null override keys", nonactiveFallback.nonactiveObjectPrefixOverride, null);
 
+    const patientivoFromUwa = ctx.getPatientivoStemFromNonactive("kelunuwa", "uwa", {
+        isTransitive: false,
+        baseInfo: { lastOnset: "n" },
+    });
+    const patientivoTVariant = patientivoFromUwa.find((entry) => entry.suffix === "t");
+    s.ok("patientivo from -uwa exposes base+i+t variant", patientivoTVariant && patientivoTVariant.stem === "keluni");
+    s.ok(
+        "patientivo from -uwa marks base+i+t variant as no absolutive zero class",
+        patientivoTVariant && patientivoTVariant.blocksAbsolutiveZeroNominalMarker === true
+    );
+
+    const patientivoTEntry = ctx.buildPatientivoDerivationEntry({
+        sourceType: "nonactive",
+        stemSpec: patientivoTVariant.stemSpec,
+        fallbackStem: patientivoTVariant.stem,
+        subjectSuffix: patientivoTVariant.suffix,
+        metadata: {
+            blocksAbsolutiveZeroNominalMarker: patientivoTVariant.blocksAbsolutiveZeroNominalMarker === true,
+        },
+    });
+    const expandedPatientivoTEntry = ctx.expandPatientivoNominalMarkerOptions([patientivoTEntry], "nonactive");
+    const expandedPatientivoTSuffixes = expandedPatientivoTEntry.map((entry) => entry.subjectSuffix);
+    s.no(
+        "patientivo from -uwa base+i+t forbids absolutive zero nominal marker",
+        expandedPatientivoTSuffixes.includes("")
+    );
+    s.ok(
+        "patientivo from -uwa base+i+t keeps t-class absolutive marker",
+        expandedPatientivoTSuffixes.includes("t")
+    );
+
+    const patientivoFromWa = ctx.getPatientivoStemFromNonactive("temiwa", "wa", {
+        isTransitive: false,
+    });
+    const patientivoWaTVariant = patientivoFromWa.find((entry) => entry.suffix === "t");
+    s.ok("patientivo from -wa exposes t-class variant", patientivoWaTVariant && patientivoWaTVariant.stem === "temi");
+    s.ok(
+        "patientivo from -wa marks t-class variant as no absolutive zero class",
+        patientivoWaTVariant && patientivoWaTVariant.blocksAbsolutiveZeroNominalMarker === true
+    );
+    const patientivoWaEntry = ctx.buildPatientivoDerivationEntry({
+        sourceType: "nonactive",
+        stemSpec: patientivoWaTVariant.stemSpec,
+        fallbackStem: patientivoWaTVariant.stem,
+        subjectSuffix: patientivoWaTVariant.suffix,
+        metadata: {
+            blocksAbsolutiveZeroNominalMarker: patientivoWaTVariant.blocksAbsolutiveZeroNominalMarker === true,
+        },
+    });
+    const expandedPatientivoWaEntry = ctx.expandPatientivoNominalMarkerOptions([patientivoWaEntry], "nonactive");
+    const expandedPatientivoWaSuffixes = expandedPatientivoWaEntry.map((entry) => entry.subjectSuffix);
+    s.no(
+        "patientivo from -wa t-class forbids absolutive zero nominal marker",
+        expandedPatientivoWaSuffixes.includes("")
+    );
+    s.ok(
+        "patientivo from -wa t-class keeps t marker",
+        expandedPatientivoWaSuffixes.includes("t")
+    );
+    const nonactiveTClassSuffixes = ctx.resolveDefaultPatientivoAllowedSuffixes({
+        sourceType: "nonactive",
+        stem: "temi",
+        defaultSuffix: "t",
+        lockNominalMarker: false,
+    });
+    s.no(
+        "patientivo default suffix resolver forbids absolutive zero for nonactive t-class",
+        nonactiveTClassSuffixes.includes("")
+    );
+
+    const classCPerfectiveProvenance = {
+        baseSpec: ctx.buildPretPerfectiveReplacementBaseSpec("salua", {
+            isTransitive: true,
+        }),
+        surfaceStem: "saluj",
+    };
+    const resolvedClassCPerfectiveStem = ctx.resolveCalificativoInstrumentivoStemFromProvenanceEntry(
+        classCPerfectiveProvenance,
+        "salua"
+    );
+    s.eq(
+        "patientivo perfectivo keeps class c replacive j in provenance stem core",
+        resolvedClassCPerfectiveStem.fallbackStem,
+        "saluj"
+    );
+    const classCPatientivoEntry = ctx.buildPatientivoDerivationEntry({
+        sourceType: "perfectivo",
+        stemSpec: resolvedClassCPerfectiveStem.stemSpec,
+        fallbackStem: resolvedClassCPerfectiveStem.fallbackStem,
+        subjectSuffix: "ti",
+        lockNominalMarker: true,
+        nominalMarkerPolicy: ctx.buildPatientivoNominalMarkerPolicy({
+            sourceType: "perfectivo",
+            defaultSuffix: "ti",
+            allowedSuffixes: ["ti"],
+            adjectiveSuffix: "ti",
+            lockNominalMarker: true,
+        }),
+    });
+    s.eq(
+        "patientivo perfectivo class c builds salujti from provenance stem core",
+        `${classCPatientivoEntry.verb}${classCPatientivoEntry.subjectSuffix}`,
+        "salujti"
+    );
+
     return s;
 }
 

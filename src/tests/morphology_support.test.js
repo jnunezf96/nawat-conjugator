@@ -57,6 +57,21 @@ function run(ctx) {
         ctx.adjustPatientivoPossessiveSuffix("in", true, "zero", {}),
         ""
     );
+    s.eq(
+        "adjustPatientivoPossessiveSuffix zero-ownership still clears t",
+        ctx.adjustPatientivoPossessiveSuffix("t", true, "zero", {}),
+        ""
+    );
+    s.eq(
+        "adjustPatientivoPossessiveSuffix default ownership keeps w after vowel-final t stem",
+        ctx.adjustPatientivoPossessiveSuffix("t", true, undefined, { stem: "temi" }),
+        "w"
+    );
+    s.eq(
+        "adjustPatientivoPossessiveSuffix default ownership drops w after consonant-final in stem",
+        ctx.adjustPatientivoPossessiveSuffix("in", true, undefined, { stem: "ten" }),
+        ""
+    );
 
     return s;
 }
