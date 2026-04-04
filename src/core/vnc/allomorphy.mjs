@@ -6035,12 +6035,14 @@ export function createAllomorphyApi(targetObject = globalThis) {
       const provenanceBase = normalizeDerivationStemValue(entry?.base || (baseSpec ? targetObject.realizePretBaseSpec(baseSpec, "") : ""));
       const provenanceSuffix = String(entry?.suffix || "");
       const provenanceSurfaceStem = normalizeDerivationStemValue(entry?.surfaceStem || `${provenanceBase || ""}${provenanceSuffix}`);
-      let stemCore = provenanceBase || provenanceSurfaceStem || normalizeRuleBase(sourceBase || "");
+      const provenanceSurfaceStemCore = extractPasadoRemotoStemCoreFromSurfaceForm(provenanceSurfaceStem);
+      let stemCore = provenanceSurfaceStemCore || provenanceBase || provenanceSurfaceStem || normalizeRuleBase(sourceBase || "");
       stemCore = normalizeDerivationStemValue(stemCore);
       return {
         provenanceBase,
         provenanceSuffix,
         provenanceSurfaceStem,
+        provenanceSurfaceStemCore,
         stemCore,
         baseSpec
       };
@@ -6720,7 +6722,8 @@ export function createAllomorphyApi(targetObject = globalThis) {
           pasadoRemotoStemCore: normalizedStem
         });
       };
-      if (classCandidates.has("A") || classCandidates.has("B")) {
+      const shouldUseClassABStem = selectedClassKey !== "C" && selectedClassKey !== "D" && (classCandidates.has("A") || classCandidates.has("B"));
+      if (shouldUseClassABStem) {
         const classABStemSpec = buildPatientivoPerfectivoClassABStemSpec(classSource, {
           isTransitive
         });

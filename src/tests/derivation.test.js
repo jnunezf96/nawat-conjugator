@@ -235,6 +235,53 @@ function run(ctx) {
         "salujti"
     );
 
+    const originalResolvePretUniversalContextBundle = ctx.resolvePretUniversalContextBundle;
+    const originalPretContextHasRightEdge = ctx.pretContextHasRightEdge;
+    const originalGetPretUniversalClassCandidates = ctx.getPretUniversalClassCandidates;
+    const originalBuildClassBasedResultWithProvenance = ctx.buildClassBasedResultWithProvenance;
+    const originalIsSyllableSequencePronounceable = ctx.isSyllableSequencePronounceable;
+    try {
+        ctx.resolvePretUniversalContextBundle = () => ({
+            context: {
+                isMonosyllable: false,
+            },
+        });
+        ctx.pretContextHasRightEdge = () => true;
+        ctx.getPretUniversalClassCandidates = () => new Set(["A", "C"]);
+        ctx.buildClassBasedResultWithProvenance = () => ({
+            result: "saluj",
+            provenance: {
+                variants: [
+                    {
+                        base: "salu",
+                        suffix: "",
+                        surfaceStem: "saluj",
+                    },
+                ],
+            },
+        });
+        ctx.isSyllableSequencePronounceable = () => true;
+        const prioritizedClassCDerivations = ctx.buildPatientivoPerfectivoDerivations({
+            verb: "salua",
+            analysisVerb: "salua",
+            sourceRawVerb: "-salua",
+            exactBaseVerb: "salua",
+            isTransitive: true,
+            hasLeadingDash: true,
+        });
+        s.eq(
+            "patientivo perfectivo prefers class c provenance stem over class a/b trim fallback",
+            `${prioritizedClassCDerivations[0].verb}${prioritizedClassCDerivations[0].subjectSuffix}`,
+            "salujti"
+        );
+    } finally {
+        ctx.resolvePretUniversalContextBundle = originalResolvePretUniversalContextBundle;
+        ctx.pretContextHasRightEdge = originalPretContextHasRightEdge;
+        ctx.getPretUniversalClassCandidates = originalGetPretUniversalClassCandidates;
+        ctx.buildClassBasedResultWithProvenance = originalBuildClassBasedResultWithProvenance;
+        ctx.isSyllableSequencePronounceable = originalIsSyllableSequencePronounceable;
+    }
+
     return s;
 }
 
