@@ -3421,7 +3421,6 @@ export function createUiComposerApi(targetObject = globalThis) {
       popover.style.right = "";
       popover.style.top = "";
       popover.style.bottom = "";
-      popover.style.maxHeight = "";
       delete popover.dataset.placement;
     }
     function getComposerViewportDimensions() {
@@ -3450,7 +3449,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       } = getVerbComposerElements();
       const picker = matrixStemAffixPickerBySlot?.[slotKey] || null;
       const popover = matrixStemAffixPopoverBySlot?.[slotKey] || null;
-      if (!picker || !popover || popover.hidden) {
+      if (!picker || !popover || !popover.matches(':popover-open')) {
         return;
       }
       clearComposerMatrixAffixPopoverPosition(popover);
@@ -3463,33 +3462,28 @@ export function createUiComposerApi(targetObject = globalThis) {
       const pickerRect = picker.getBoundingClientRect();
       const composerRect = (picker.closest(".verb-block__controls") || picker.closest("#verb-composer"))?.getBoundingClientRect() || null;
       const topBoundary = Math.max(margin, Math.floor((Number(composerRect?.top) || 0) + margin));
-      const anchorOffset = picker.offsetHeight + gap;
-      popover.style.left = "0px";
+      popover.style.left = `${pickerRect.left}px`;
       popover.style.right = "auto";
-      popover.style.top = `${anchorOffset}px`;
+      popover.style.top = `${pickerRect.bottom + gap}px`;
       popover.style.bottom = "auto";
       const popoverRect = popover.getBoundingClientRect();
       const popoverWidth = Math.ceil(popoverRect.width || 0);
       const popoverHeight = Math.ceil(popoverRect.height || 0);
-      const minLeft = margin - pickerRect.left;
-      const maxLeft = viewportWidth - margin - pickerRect.left - popoverWidth;
-      const desiredLeft = 0;
+      const minLeft = margin;
+      const maxLeft = viewportWidth - margin - popoverWidth;
+      const desiredLeft = pickerRect.left;
       const clampedLeft = Math.min(Math.max(desiredLeft, minLeft), Math.max(minLeft, maxLeft));
       const spaceBelow = Math.max(0, Math.floor(viewportHeight - pickerRect.bottom - gap - margin));
       const spaceAbove = Math.max(0, Math.floor(pickerRect.top - gap - topBoundary));
-      const canFitBelow = popoverHeight <= spaceBelow;
-      const placeAbove = !canFitBelow && spaceAbove > spaceBelow;
-      const availableSpace = placeAbove ? spaceAbove : spaceBelow;
+      const placeAbove = popoverHeight > spaceBelow && spaceAbove > spaceBelow;
       popover.style.left = `${Number.isFinite(clampedLeft) ? clampedLeft : 0}px`;
       if (placeAbove) {
         popover.style.top = "auto";
-        popover.style.bottom = `${anchorOffset}px`;
-        popover.style.maxHeight = `${availableSpace}px`;
+        popover.style.bottom = `${viewportHeight - pickerRect.top + gap}px`;
         popover.dataset.placement = "top";
       } else {
-        popover.style.top = `${anchorOffset}px`;
+        popover.style.top = `${pickerRect.bottom + gap}px`;
         popover.style.bottom = "auto";
-        popover.style.maxHeight = `${availableSpace}px`;
         popover.dataset.placement = "bottom";
       }
     }
@@ -3506,7 +3500,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         matrixStemAffixPopoverBySlot
       } = getVerbComposerElements();
       const popover = matrixStemAffixPopoverBySlot?.[slotKey] || null;
-      if (!popover || popover.hidden) {
+      if (!popover || !popover.matches(':popover-open')) {
         return false;
       }
       const buttons = Array.from(popover.querySelectorAll('button[role="menuitemradio"]:not(:disabled)'));
@@ -3519,9 +3513,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       });
       return true;
     }
-    function setComposerMatrixAffixPopoverOpen(slotKey = "", nextOpen = false, {
-      focusTrigger = false
-    } = {}) {
+    function setComposerMatrixAffixPopoverOpen(slotKey = "", nextOpen = false) {
       const {
         matrixStemAffixPickerBySlot,
         matrixStemAffixTriggerBySlot,
@@ -3542,7 +3534,9 @@ export function createUiComposerApi(targetObject = globalThis) {
           trigger.setAttribute("aria-expanded", String(isOpen));
         }
         if (popover) {
-          popover.hidden = !isOpen;
+          const isCurrentlyOpen = popover.matches(':popover-open');
+          if (isOpen && !isCurrentlyOpen) popover.showPopover();
+          else if (!isOpen && isCurrentlyOpen) popover.hidePopover();
           popover.setAttribute("aria-hidden", String(!isOpen));
           if (!isOpen) {
             clearComposerMatrixAffixPopoverPosition(popover);
@@ -3550,45 +3544,8 @@ export function createUiComposerApi(targetObject = globalThis) {
         }
       });
       ComposerMatrixAffixOpenSlot = activeSlot;
-      const inputsPane = targetObject.document.getElementById("panel-stack-pane-inputs");
-      const inputsContainer = targetObject.document.getElementById("container-inputs");
-      const verbBlock = targetObject.document.getElementById("verb-block");
-      const verbScreen = verbBlock?.querySelector(".verb-block__screen") || null;
-      const overlayActive = Boolean(activeSlot);
-      [inputsPane, inputsContainer, verbBlock, verbScreen].forEach(element => {
-        if (!element) {
-          return;
-        }
-        element.classList.toggle("is-matrix-affix-overlay-active", overlayActive);
-      });
-      COMPOSER_SLOT_KEYS.forEach(candidateSlot => {
-        const slotPanel = targetObject.document.getElementById(`composer-slot-${candidateSlot}`);
-        if (!slotPanel) {
-          return;
-        }
-        slotPanel.classList.toggle("is-matrix-affix-overlay-active", overlayActive && candidateSlot === activeSlot);
-      });
-      syncInputPopupOverlayActiveState();
-      if (focusTrigger && normalizedSlot) {
-        const trigger = matrixStemAffixTriggerBySlot?.[normalizedSlot] || null;
-        if (trigger && typeof trigger.focus === "function") {
-          trigger.focus({
-            preventScroll: true
-          });
-        }
-      }
       if (activeSlot) {
         positionComposerMatrixAffixPopover(activeSlot);
-        if (typeof targetObject.window !== "undefined" && typeof targetObject.window.requestAnimationFrame === "function") {
-          targetObject.window.requestAnimationFrame(() => positionComposerMatrixAffixPopover(activeSlot));
-        }
-        if (typeof targetObject.window !== "undefined" && typeof targetObject.window.setTimeout === "function") {
-          targetObject.window.setTimeout(() => {
-            if (ComposerMatrixAffixOpenSlot === activeSlot) {
-              positionComposerMatrixAffixPopover(activeSlot);
-            }
-          }, 140);
-        }
       }
     }
     function clearComposerMatrixAffixSelection(slotKey = "", stemInput = null) {
@@ -6893,36 +6850,13 @@ export function createUiComposerApi(targetObject = globalThis) {
         if (!picker || !trigger) {
           return;
         }
-        trigger.addEventListener("click", event => {
+        trigger.addEventListener("pointerdown", event => {
           event.preventDefault();
           const shouldOpen = ComposerMatrixAffixOpenSlot !== slotKey;
           setComposerMatrixAffixPopoverOpen(slotKey, shouldOpen);
         });
-        trigger.addEventListener("keydown", event => {
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setComposerMatrixAffixPopoverOpen(slotKey, true);
-            if (typeof targetObject.window !== "undefined" && typeof targetObject.window.requestAnimationFrame === "function") {
-              targetObject.window.requestAnimationFrame(() => {
-                focusComposerMatrixAffixPopoverItem(slotKey);
-              });
-            }
-            return;
-          }
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setComposerMatrixAffixPopoverOpen(slotKey, true);
-            if (typeof targetObject.window !== "undefined" && typeof targetObject.window.requestAnimationFrame === "function") {
-              targetObject.window.requestAnimationFrame(() => {
-                focusComposerMatrixAffixPopoverItem(slotKey, {
-                  last: true
-                });
-              });
-            }
-          }
-        });
       });
-      targetObject.document.addEventListener("click", event => {
+      targetObject.document.addEventListener("pointerdown", event => {
         if (!ComposerMatrixAffixOpenSlot) {
           return;
         }
@@ -6932,21 +6866,6 @@ export function createUiComposerApi(targetObject = globalThis) {
           return;
         }
         setComposerMatrixAffixPopoverOpen(openSlot, false);
-      });
-      targetObject.registerEscapeOverlayHandler({
-        id: "composer-matrix-affix-popover",
-        priority: 35,
-        isOpen: () => Boolean(ComposerMatrixAffixOpenSlot),
-        onEscape: () => {
-          const openSlot = ComposerMatrixAffixOpenSlot;
-          if (!openSlot) {
-            return false;
-          }
-          setComposerMatrixAffixPopoverOpen(openSlot, false, {
-            focusTrigger: true
-          });
-          return true;
-        }
       });
       COMPOSER_SLOT_KEYS.forEach(slotKey => {
         const slotRefs = slots[slotKey] || {};
@@ -6996,12 +6915,16 @@ export function createUiComposerApi(targetObject = globalThis) {
         targetObject.window.addEventListener("resize", () => {
           syncComposerSupportiveITogglePlacement();
           syncComposerSlotPanelVisibility();
-          positionOpenComposerMatrixAffixPopover();
+          if (ComposerMatrixAffixOpenSlot) {
+            setComposerMatrixAffixPopoverOpen(ComposerMatrixAffixOpenSlot, false);
+          }
         }, {
           passive: true
         });
         targetObject.window.addEventListener("scroll", () => {
-          positionOpenComposerMatrixAffixPopover();
+          if (ComposerMatrixAffixOpenSlot) {
+            setComposerMatrixAffixPopoverOpen(ComposerMatrixAffixOpenSlot, false);
+          }
         }, {
           passive: true
         });

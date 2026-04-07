@@ -224,7 +224,7 @@ function changeLanguage() {
         "derivation-type-label": "Tapiwilis",
         "ui-density-label": "Vista",
         "ui-density-simple": "Básico",
-        "ui-density-advanced": "Científico",
+        "ui-density-advanced": "Avanzado",
     };
   
     if (selectedLanguage === "nawat") {
