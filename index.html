@@ -17,9 +17,41 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css?v=20260402-regex-core-261" />
-    <script src="pret_universal_context.js?v=20260402-regex-core-261" defer></script>
-    <script src="pret_universal_engine.js?v=20260402-regex-core-261" defer></script>
-    <script src="script.js?v=20260402-regex-core-262" defer></script>
+    <!-- Phase 1 baseline: keep this ordered legacy script manifest stable while the parallel ESM bootstrap is introduced. -->
+    <script src="src/core/phonology/phonology.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/agreement/agreement.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/agreement/display.js?v=20260403-import-isolate-003" defer></script>
+    <script src="src/core/agreement/combo_validation.js?v=20260403-import-isolate-014" defer></script>
+    <script src="src/core/search/runtime.js?v=20260403-import-isolate-012" defer></script>
+    <script src="src/core/irregulars/irregulars.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/output/surface.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/output/provenance.js?v=20260403-import-isolate-004" defer></script>
+    <script src="src/core/generation/morphology_support.js?v=20260403-import-isolate-013" defer></script>
+    <script src="src/core/parsing/parsing.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/vnc/allomorphy.js?v=20260403-ni-wa-001" defer></script>
+    <script src="src/core/derivation/source_model.js?v=20260403-import-isolate-005" defer></script>
+    <script src="src/core/derivation/forward_runtime.js?v=20260403-import-isolate-006" defer></script>
+    <script src="src/core/derivation/nonactive.js?v=20260403-import-isolate-010" defer></script>
+    <script src="src/core/generation/valency.js?v=20260403-import-isolate-011" defer></script>
+    <script src="src/core/generation/request.js?v=20260403-import-isolate-008" defer></script>
+    <script src="src/core/generation/morphology_engine.js?v=20260403-import-isolate-015" defer></script>
+    <script src="src/core/generation/runtime_support.js?v=20260403-import-isolate-007" defer></script>
+    <script src="src/core/generation/engine.js?v=20260403-import-isolate-009" defer></script>
+    <script src="src/core/nnc/nnc.js?v=20260402-phase5a-001" defer></script>
+    <script src="src/core/vnc/vnc.js?v=20260403-import-isolate-015" defer></script>
+    <script src="src/core/preterit/context.js?v=20260402-regex-core-261" defer></script>
+    <script src="src/core/preterit/engine.js?v=20260402-regex-core-261" defer></script>
+    <script src="src/core/preterit/api.js?v=20260403-import-isolate-002" defer></script>
+    <script src="src/ui/i18n/i18n.js?v=20260402-phase6-001" defer></script>
+    <script src="src/ui/panels/panels.js?v=20260403-ni-wa-001" defer></script>
+    <script src="src/ui/export/export.js?v=20260402-phase6-001" defer></script>
+    <script src="src/ui/state.js?v=20260402-phase6-001" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260402-phase6-001" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260402-phase6-001" defer></script>
+    <script src="script.js?v=20260402-phase6-001" defer></script>
+    <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
+    <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
+    <script src="src/ui/events.js?v=20260403-import-isolate-001" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
@@ -1193,6 +1225,14 @@
                       >
                         Aplicativo
                       </button>
+                    </div>
+                    <div class="causative-subtype-row" id="causative-subtype-row" hidden>
+                      <div class="calc-operator-grid calc-operator-grid--causative-subtype" role="group" aria-label="Tipo causativo">
+                        <button type="button" class="calc-operator-chip calc-operator-chip--sm" data-causative-subtype="all" aria-pressed="true">Ambos</button>
+                        <button type="button" class="calc-operator-chip calc-operator-chip--sm" data-causative-subtype="one" aria-pressed="false">Tipo 1</button>
+                        <button type="button" class="calc-operator-chip calc-operator-chip--sm" data-causative-subtype="two" aria-pressed="false">Tipo 2</button>
+                      </div>
+                      <button type="button" class="causative-report-button" id="causative-report-download" title="Descargar informe de condiciones causativas">Informe ↓</button>
                     </div>
                   </div>
                 </div>

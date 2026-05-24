@@ -1,6 +1,6 @@
 # Operation ApplyMorphologyRules Audit
 
-**Date:** 2026-04-02
+**Date:** 2026-04-03
 **Scope:** `applyMorphologyRules(...)` and its direct authority-bearing helper chain
 **Out of scope:** `generateWord` aggregation, noun derivation, nonactive rule-base, pret engine internals
 

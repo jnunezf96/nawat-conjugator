@@ -1,11 +1,12 @@
 {
   "operation": "Operation Derived Nonactive Collapse Audit",
-  "generated_at": "2026-04-02T20:25:37.565Z",
+  "generated_at": "2026-04-02T20:34:51.737Z",
   "summary": {
     "lexicon_rows_scanned": 2666,
     "cases_evaluated": 5332,
-    "aligned": 4663,
-    "overlaps_source_direct": 434,
+    "aligned": 4775,
+    "exempt_causative_i_to_ia_overlap": 112,
+    "overlaps_source_direct": 322,
     "collapsed_to_source": 0,
     "mismatch": 0,
     "no_forward": 235,
@@ -17,6 +18,7 @@
       "overlapWithSourceReference": [
         "kwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwi",
       "rawInput": "-kwi",
       "derivationType": "applicative",
@@ -51,6 +53,7 @@
       "overlapWithSourceReference": [
         "wilu"
       ],
+      "exemptionRule": null,
       "lexeme": "wi",
       "rawInput": "wi",
       "derivationType": "applicative",
@@ -83,38 +86,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "akilu"
-      ],
-      "lexeme": "aki",
-      "rawInput": "aki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "akia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "akilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "akilu"
-      ],
-      "sourceReferenceStems": [
-        "aku",
-        "akilu"
-      ],
-      "surfaceResult": "akilu",
-      "surfaceForms": [
-        "akilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "sewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sewa",
       "rawInput": "sewa",
       "derivationType": "causative",
@@ -152,6 +126,7 @@
       "overlapWithSourceReference": [
         "sewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sewi",
       "rawInput": "sewi",
       "derivationType": "applicative",
@@ -183,39 +158,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwaltilu"
-      ],
-      "lexeme": "kwalti",
-      "rawInput": "kwalti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwaltia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwaltilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwaltilu"
-      ],
-      "sourceReferenceStems": [
-        "kwaltu",
-        "kwaltiu",
-        "kwaltilu"
-      ],
-      "surfaceResult": "kwaltilu",
-      "surfaceForms": [
-        "kwaltilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwijkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwijkwi",
       "rawInput": "-kwijkwi",
       "derivationType": "applicative",
@@ -248,42 +193,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "welilu"
-      ],
-      "lexeme": "weli",
-      "rawInput": "weli",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "welia",
-        "welitia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "welilu",
-        "welitilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "welilu",
-        "welitilu"
-      ],
-      "sourceReferenceStems": [
-        "welilu",
-        "weliwalu"
-      ],
-      "surfaceResult": "welilu / welitilu",
-      "surfaceForms": [
-        "welilu",
-        "welitilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "iwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "iwi",
       "rawInput": "iwi",
       "derivationType": "applicative",
@@ -317,6 +229,7 @@
       "overlapWithSourceReference": [
         "majkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "majkwi",
       "rawInput": "-majkwi",
       "derivationType": "applicative",
@@ -351,6 +264,7 @@
       "overlapWithSourceReference": [
         "mawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mawi",
       "rawInput": "mawi",
       "derivationType": "applicative",
@@ -382,39 +296,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "maltilu"
-      ],
-      "lexeme": "malti",
-      "rawInput": "malti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "maltia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "maltilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "maltilu"
-      ],
-      "sourceReferenceStems": [
-        "maltu",
-        "maltiu",
-        "maltilu"
-      ],
-      "surfaceResult": "maltilu",
-      "surfaceForms": [
-        "maltilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "minilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mini",
       "rawInput": "-mini",
       "derivationType": "applicative",
@@ -447,39 +331,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "neltilu"
-      ],
-      "lexeme": "nelti",
-      "rawInput": "nelti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "neltia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "neltilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "neltilu"
-      ],
-      "sourceReferenceStems": [
-        "neltu",
-        "neltiu",
-        "neltilu"
-      ],
-      "surfaceResult": "neltilu",
-      "surfaceForms": [
-        "neltilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "patilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pati",
       "rawInput": "pati",
       "derivationType": "causative",
@@ -511,6 +365,7 @@
       "overlapWithSourceReference": [
         "pewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pewa",
       "rawInput": "pewa",
       "derivationType": "causative",
@@ -548,6 +403,7 @@
       "overlapWithSourceReference": [
         "puwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "puwi",
       "rawInput": "puwi",
       "derivationType": "applicative",
@@ -581,6 +437,7 @@
       "overlapWithSourceReference": [
         "tisilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tisi",
       "rawInput": "tisi",
       "derivationType": "causative",
@@ -611,6 +468,7 @@
       "overlapWithSourceReference": [
         "tilu"
       ],
+      "exemptionRule": null,
       "lexeme": "t-i",
       "rawInput": "t-i",
       "derivationType": "causative",
@@ -639,46 +497,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tamilu"
-      ],
-      "lexeme": "tami",
-      "rawInput": "tami",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tamia",
-        "tamitia",
-        "tantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tamilu",
-        "tamitilu",
-        "tantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tamilu",
-        "tamitilu",
-        "tantilu"
-      ],
-      "sourceReferenceStems": [
-        "tamu",
-        "tamilu"
-      ],
-      "surfaceResult": "tamilu / tamitilu / tantilu",
-      "surfaceForms": [
-        "tamilu",
-        "tamitilu",
-        "tantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzakwa",
       "rawInput": "-tzakwa",
       "derivationType": "applicative",
@@ -713,6 +534,7 @@
       "overlapWithSourceReference": [
         "yuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "yuwa",
       "rawInput": "yuwa",
       "derivationType": "causative",
@@ -744,42 +566,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "yulilu"
-      ],
-      "lexeme": "yuli",
-      "rawInput": "yuli",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "yulia",
-        "yulitia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "yulilu",
-        "yulitilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "yulilu",
-        "yulitilu"
-      ],
-      "sourceReferenceStems": [
-        "yulilu",
-        "yuliwalu"
-      ],
-      "surfaceResult": "yulilu / yulitilu",
-      "surfaceForms": [
-        "yulilu",
-        "yulitilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "sawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sawa",
       "rawInput": "sawa",
       "derivationType": "causative",
@@ -817,6 +606,7 @@
       "overlapWithSourceReference": [
         "ichkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ichkwa",
       "rawInput": "-ichkwa",
       "derivationType": "applicative",
@@ -849,39 +639,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ilwiltilu"
-      ],
-      "lexeme": "ilwilti",
-      "rawInput": "ilwilti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ilwiltia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ilwiltilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ilwiltilu"
-      ],
-      "sourceReferenceStems": [
-        "ilwiltu",
-        "ilwiltiu",
-        "ilwiltilu"
-      ],
-      "surfaceResult": "ilwiltilu",
-      "surfaceForms": [
-        "ilwiltilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ishkilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishka",
       "rawInput": "-ishka",
       "derivationType": "applicative",
@@ -916,6 +676,7 @@
       "overlapWithSourceReference": [
         "ishwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishwi",
       "rawInput": "ishwi",
       "derivationType": "applicative",
@@ -947,38 +708,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "aakilu"
-      ],
-      "lexeme": "aaki",
-      "rawInput": "aaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "aakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "aakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "aakilu"
-      ],
-      "sourceReferenceStems": [
-        "aaku",
-        "aakilu"
-      ],
-      "surfaceResult": "aakilu",
-      "surfaceForms": [
-        "aakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ajajkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajajkwi",
       "rawInput": "-ajajkwi",
       "derivationType": "applicative",
@@ -1013,6 +745,7 @@
       "overlapWithSourceReference": [
         "ajkukwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajkukwi",
       "rawInput": "-ajkukwi",
       "derivationType": "applicative",
@@ -1045,110 +778,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ajwelilu"
-      ],
-      "lexeme": "ajweli",
-      "rawInput": "ajweli",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ajwelia",
-        "ajwelitia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ajwelilu",
-        "ajwelitilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ajwelilu",
-        "ajwelitilu"
-      ],
-      "sourceReferenceStems": [
-        "ajwelilu",
-        "ajweliwalu"
-      ],
-      "surfaceResult": "ajwelilu / ajwelitilu",
-      "surfaceForms": [
-        "ajwelilu",
-        "ajwelitilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kawanilu"
-      ],
-      "lexeme": "kawani",
-      "rawInput": "kawani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kawania",
-        "kawantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kawanilu",
-        "kawantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kawanilu",
-        "kawantilu"
-      ],
-      "sourceReferenceStems": [
-        "kawanu",
-        "kawanilu"
-      ],
-      "surfaceResult": "kawanilu / kawantilu",
-      "surfaceForms": [
-        "kawanilu",
-        "kawantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kalanilu"
-      ],
-      "lexeme": "kalani",
-      "rawInput": "kalani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kalania",
-        "kalantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kalanilu",
-        "kalantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kalanilu",
-        "kalantilu"
-      ],
-      "sourceReferenceStems": [
-        "kalanu",
-        "kalanilu"
-      ],
-      "surfaceResult": "kalanilu / kalantilu",
-      "surfaceForms": [
-        "kalanilu",
-        "kalantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kamawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kamawa",
       "rawInput": "kamawa",
       "derivationType": "causative",
@@ -1187,6 +819,7 @@
       "overlapWithSourceReference": [
         "kanawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kanawi",
       "rawInput": "kanawi",
       "derivationType": "applicative",
@@ -1218,76 +851,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kapanilu"
-      ],
-      "lexeme": "kapani",
-      "rawInput": "kapani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kapania",
-        "kapantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kapanilu",
-        "kapantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kapanilu",
-        "kapantilu"
-      ],
-      "sourceReferenceStems": [
-        "kapanu",
-        "kapanilu"
-      ],
-      "surfaceResult": "kapanilu / kapantilu",
-      "surfaceForms": [
-        "kapanilu",
-        "kapantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kashanilu"
-      ],
-      "lexeme": "kashani",
-      "rawInput": "kashani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kashania",
-        "kashantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kashanilu",
-        "kashantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kashanilu",
-        "kashantilu"
-      ],
-      "sourceReferenceStems": [
-        "kashanu",
-        "kashanilu"
-      ],
-      "surfaceResult": "kashanilu / kashantilu",
-      "surfaceForms": [
-        "kashanilu",
-        "kashantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "sepuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sepuwa",
       "rawInput": "sepuwa",
       "derivationType": "causative",
@@ -1321,6 +887,7 @@
       "overlapWithSourceReference": [
         "chayawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chayawi",
       "rawInput": "chayawi",
       "derivationType": "applicative",
@@ -1354,6 +921,7 @@
       "overlapWithSourceReference": [
         "chikawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chikawi",
       "rawInput": "chikawi",
       "derivationType": "applicative",
@@ -1387,6 +955,7 @@
       "overlapWithSourceReference": [
         "chipawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chipawi",
       "rawInput": "chipawi",
       "derivationType": "applicative",
@@ -1420,6 +989,7 @@
       "overlapWithSourceReference": [
         "siyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "siyawi",
       "rawInput": "siyawi",
       "derivationType": "applicative",
@@ -1453,6 +1023,7 @@
       "overlapWithSourceReference": [
         "kuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kuliwi",
       "rawInput": "kuliwi",
       "derivationType": "applicative",
@@ -1484,178 +1055,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kumunilu"
-      ],
-      "lexeme": "kumuni",
-      "rawInput": "kumuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kumunia",
-        "kumuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kumunilu",
-        "kumuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kumunilu",
-        "kumuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kumunu",
-        "kumunilu"
-      ],
-      "surfaceResult": "kumunilu / kumuntilu",
-      "surfaceForms": [
-        "kumunilu",
-        "kumuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kupinilu"
-      ],
-      "lexeme": "kupini",
-      "rawInput": "kupini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kupinia",
-        "kupintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kupinilu",
-        "kupintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kupinilu",
-        "kupintilu"
-      ],
-      "sourceReferenceStems": [
-        "kupinu",
-        "kupinilu"
-      ],
-      "surfaceResult": "kupinilu / kupintilu",
-      "surfaceForms": [
-        "kupinilu",
-        "kupintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kutunilu"
-      ],
-      "lexeme": "kutuni",
-      "rawInput": "kutuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kutunia",
-        "kutuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kutunilu",
-        "kutuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kutunilu",
-        "kutuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kutunu",
-        "kutunilu"
-      ],
-      "surfaceResult": "kutunilu / kutuntilu",
-      "surfaceForms": [
-        "kutunilu",
-        "kutuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kushunilu"
-      ],
-      "lexeme": "kushuni",
-      "rawInput": "kushuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kushunia",
-        "kushuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kushunilu",
-        "kushuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kushunilu",
-        "kushuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kushunu",
-        "kushunilu"
-      ],
-      "surfaceResult": "kushunilu / kushuntilu",
-      "surfaceForms": [
-        "kushunilu",
-        "kushuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kuyunilu"
-      ],
-      "lexeme": "kuyuni",
-      "rawInput": "kuyuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kuyunia",
-        "kuyuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kuyunilu",
-        "kuyuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kuyunilu",
-        "kuyuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kuyunu",
-        "kuyunilu"
-      ],
-      "surfaceResult": "kuyunilu / kuyuntilu",
-      "surfaceForms": [
-        "kuyunilu",
-        "kuyuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwajkwakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwajkwakwa",
       "rawInput": "-kwajkwakwa",
       "derivationType": "applicative",
@@ -1690,6 +1092,7 @@
       "overlapWithSourceReference": [
         "kwajkwawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwajkwawi",
       "rawInput": "kwajkwawi",
       "derivationType": "applicative",
@@ -1721,42 +1124,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwalanilu"
-      ],
-      "lexeme": "kwalani",
-      "rawInput": "kwalani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwalania",
-        "kwalantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwalanilu",
-        "kwalantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwalanilu",
-        "kwalantilu"
-      ],
-      "sourceReferenceStems": [
-        "kwalanu",
-        "kwalanilu"
-      ],
-      "surfaceResult": "kwalanilu / kwalantilu",
-      "surfaceForms": [
-        "kwalanilu",
-        "kwalantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwechawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwechawa",
       "rawInput": "kwechawa",
       "derivationType": "causative",
@@ -1795,6 +1165,7 @@
       "overlapWithSourceReference": [
         "kwechawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwechawi",
       "rawInput": "kwechawi",
       "derivationType": "applicative",
@@ -1828,6 +1199,7 @@
       "overlapWithSourceReference": [
         "kweliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kweliwi",
       "rawInput": "kweliwi",
       "derivationType": "applicative",
@@ -1859,76 +1231,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwemunilu"
-      ],
-      "lexeme": "kwemuni",
-      "rawInput": "kwemuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwemunia",
-        "kwemuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwemunilu",
-        "kwemuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwemunilu",
-        "kwemuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kwemunu",
-        "kwemunilu"
-      ],
-      "surfaceResult": "kwemunilu / kwemuntilu",
-      "surfaceForms": [
-        "kwemunilu",
-        "kwemuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kwepunilu"
-      ],
-      "lexeme": "kwepuni",
-      "rawInput": "kwepuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwepunia",
-        "kwepuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwepunilu",
-        "kwepuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwepunilu",
-        "kwepuntilu"
-      ],
-      "sourceReferenceStems": [
-        "kwepunu",
-        "kwepunilu"
-      ],
-      "surfaceResult": "kwepunilu / kwepuntilu",
-      "surfaceForms": [
-        "kwepunilu",
-        "kwepuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwetawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwetawi",
       "rawInput": "kwetawi",
       "derivationType": "applicative",
@@ -1960,42 +1265,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwetanilu"
-      ],
-      "lexeme": "kwetani",
-      "rawInput": "kwetani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwetania",
-        "kwetantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwetanilu",
-        "kwetantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwetanilu",
-        "kwetantilu"
-      ],
-      "sourceReferenceStems": [
-        "kwetanu",
-        "kwetanilu"
-      ],
-      "surfaceResult": "kwetanilu / kwetantilu",
-      "surfaceForms": [
-        "kwetanilu",
-        "kwetantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ijnekwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijnekwi",
       "rawInput": "-ijnekwi",
       "derivationType": "applicative",
@@ -2030,6 +1302,7 @@
       "overlapWithSourceReference": [
         "ijtanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijtani",
       "rawInput": "-ijtani",
       "derivationType": "applicative",
@@ -2064,6 +1337,7 @@
       "overlapWithSourceReference": [
         "ishwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishwa",
       "rawInput": "ishwa",
       "derivationType": "causative",
@@ -2097,6 +1371,7 @@
       "overlapWithSourceReference": [
         "mayawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mayawi",
       "rawInput": "-mayawi",
       "derivationType": "applicative",
@@ -2130,6 +1405,7 @@
       "overlapWithSourceReference": [
         "mayanalu"
       ],
+      "exemptionRule": null,
       "lexeme": "mayana",
       "rawInput": "mayana",
       "derivationType": "causative",
@@ -2160,6 +1436,7 @@
       "overlapWithSourceReference": [
         "mimikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mimiki",
       "rawInput": "mimiki",
       "derivationType": "causative",
@@ -2190,6 +1467,7 @@
       "overlapWithSourceReference": [
         "mukawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "mu-kawa",
       "rawInput": "mu-kawa",
       "derivationType": "causative",
@@ -2228,6 +1506,7 @@
       "overlapWithSourceReference": [
         "muchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "mu-chiwa",
       "rawInput": "mu-chiwa",
       "derivationType": "causative",
@@ -2266,6 +1545,7 @@
       "overlapWithSourceReference": [
         "pajpatilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pajpati",
       "rawInput": "pajpati",
       "derivationType": "causative",
@@ -2295,42 +1575,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "palanilu"
-      ],
-      "lexeme": "palani",
-      "rawInput": "palani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "palania",
-        "palantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "palanilu",
-        "palantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "palanilu",
-        "palantilu"
-      ],
-      "sourceReferenceStems": [
-        "palanu",
-        "palanilu"
-      ],
-      "surfaceResult": "palanilu / palantilu",
-      "surfaceForms": [
-        "palanilu",
-        "palantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "patawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "patawa",
       "rawInput": "patawa",
       "derivationType": "causative",
@@ -2367,42 +1614,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "patanilu"
-      ],
-      "lexeme": "patani",
-      "rawInput": "patani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "patania",
-        "patantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "patanilu",
-        "patantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "patanilu",
-        "patantilu"
-      ],
-      "sourceReferenceStems": [
-        "patanu",
-        "patanilu"
-      ],
-      "surfaceResult": "patanilu / patantilu",
-      "surfaceForms": [
-        "patanilu",
-        "patantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "patzkilu"
       ],
+      "exemptionRule": null,
       "lexeme": "patzka",
       "rawInput": "-patzka",
       "derivationType": "applicative",
@@ -2435,110 +1649,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "petanilu"
-      ],
-      "lexeme": "petani",
-      "rawInput": "petani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "petania",
-        "petantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "petanilu",
-        "petantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "petanilu",
-        "petantilu"
-      ],
-      "sourceReferenceStems": [
-        "petanu",
-        "petanilu"
-      ],
-      "surfaceResult": "petanilu / petantilu",
-      "surfaceForms": [
-        "petanilu",
-        "petantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "petunilu"
-      ],
-      "lexeme": "petuni",
-      "rawInput": "petuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "petunia",
-        "petuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "petunilu",
-        "petuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "petunilu",
-        "petuntilu"
-      ],
-      "sourceReferenceStems": [
-        "petunu",
-        "petunilu"
-      ],
-      "surfaceResult": "petunilu / petuntilu",
-      "surfaceForms": [
-        "petunilu",
-        "petuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "peshunilu"
-      ],
-      "lexeme": "peshuni",
-      "rawInput": "peshuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "peshunia",
-        "peshuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "peshunilu",
-        "peshuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "peshunilu",
-        "peshuntilu"
-      ],
-      "sourceReferenceStems": [
-        "peshunu",
-        "peshunilu"
-      ],
-      "surfaceResult": "peshunilu / peshuntilu",
-      "surfaceForms": [
-        "peshunilu",
-        "peshuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "peyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "peyawi",
       "rawInput": "peyawi",
       "derivationType": "applicative",
@@ -2570,42 +1683,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pilinilu"
-      ],
-      "lexeme": "pilini",
-      "rawInput": "pilini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pilinia",
-        "pilintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pilinilu",
-        "pilintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pilinilu",
-        "pilintilu"
-      ],
-      "sourceReferenceStems": [
-        "pilinu",
-        "pilinilu"
-      ],
-      "surfaceResult": "pilinilu / pilintilu",
-      "surfaceForms": [
-        "pilinilu",
-        "pilintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "pinawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pinawa",
       "rawInput": "pinawa",
       "derivationType": "causative",
@@ -2644,6 +1724,7 @@
       "overlapWithSourceReference": [
         "pitzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pitzawi",
       "rawInput": "pitzawi",
       "derivationType": "applicative",
@@ -2677,6 +1758,7 @@
       "overlapWithSourceReference": [
         "pitzawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pitzawa",
       "rawInput": "pitzawa",
       "derivationType": "causative",
@@ -2713,42 +1795,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pitzinilu"
-      ],
-      "lexeme": "pitzini",
-      "rawInput": "pitzini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pitzinia",
-        "pitzintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pitzinilu",
-        "pitzintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pitzinilu",
-        "pitzintilu"
-      ],
-      "sourceReferenceStems": [
-        "pitzinu",
-        "pitzinilu"
-      ],
-      "surfaceResult": "pitzinilu / pitzintilu",
-      "surfaceForms": [
-        "pitzinilu",
-        "pitzintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "pishkalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pishka",
       "rawInput": "pishka",
       "derivationType": "causative",
@@ -2779,6 +1828,7 @@
       "overlapWithSourceReference": [
         "puliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "puliwi",
       "rawInput": "puliwi",
       "derivationType": "applicative",
@@ -2810,76 +1860,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pulunilu"
-      ],
-      "lexeme": "puluni",
-      "rawInput": "puluni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pulunia",
-        "puluntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pulunilu",
-        "puluntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pulunilu",
-        "puluntilu"
-      ],
-      "sourceReferenceStems": [
-        "pulunu",
-        "pulunilu"
-      ],
-      "surfaceResult": "pulunilu / puluntilu",
-      "surfaceForms": [
-        "pulunilu",
-        "puluntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "putunilu"
-      ],
-      "lexeme": "putuni",
-      "rawInput": "putuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "putunia",
-        "putuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "putunilu",
-        "putuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "putunilu",
-        "putuntilu"
-      ],
-      "sourceReferenceStems": [
-        "putunu",
-        "putunilu"
-      ],
-      "surfaceResult": "putunilu / putuntilu",
-      "surfaceForms": [
-        "putunilu",
-        "putuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "pushawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pushawi",
       "rawInput": "pushawi",
       "derivationType": "applicative",
@@ -2913,6 +1896,7 @@
       "overlapWithSourceReference": [
         "puyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "puyawi",
       "rawInput": "puyawi",
       "derivationType": "applicative",
@@ -2946,6 +1930,7 @@
       "overlapWithSourceReference": [
         "pusawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pusawi",
       "rawInput": "pusawi",
       "derivationType": "applicative",
@@ -2977,42 +1962,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pusunilu"
-      ],
-      "lexeme": "pusuni",
-      "rawInput": "pusuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pusunia",
-        "pusuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pusunilu",
-        "pusuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pusunilu",
-        "pusuntilu"
-      ],
-      "sourceReferenceStems": [
-        "pusunu",
-        "pusunilu"
-      ],
-      "surfaceResult": "pusunilu / pusuntilu",
-      "surfaceForms": [
-        "pusunilu",
-        "pusuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kiyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kiyawi",
       "rawInput": "kiyawi",
       "derivationType": "applicative",
@@ -3044,76 +1996,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tekwinilu"
-      ],
-      "lexeme": "tekwini",
-      "rawInput": "tekwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tekwinia",
-        "tekwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tekwinilu",
-        "tekwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tekwinilu",
-        "tekwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tekwinu",
-        "tekwinilu"
-      ],
-      "surfaceResult": "tekwinilu / tekwintilu",
-      "surfaceForms": [
-        "tekwinilu",
-        "tekwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "teinilu"
-      ],
-      "lexeme": "teini",
-      "rawInput": "teini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "teinia",
-        "teintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "teinilu",
-        "teintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "teinilu",
-        "teintilu"
-      ],
-      "sourceReferenceStems": [
-        "teinu",
-        "teinilu"
-      ],
-      "surfaceResult": "teinilu / teintilu",
-      "surfaceForms": [
-        "teinilu",
-        "teintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "telawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "telawi",
       "rawInput": "telawi",
       "derivationType": "applicative",
@@ -3147,6 +2032,7 @@
       "overlapWithSourceReference": [
         "tepewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tepewi",
       "rawInput": "tepewi",
       "derivationType": "applicative",
@@ -3180,6 +2066,7 @@
       "overlapWithSourceReference": [
         "tetzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tetzawi",
       "rawInput": "tetzawi",
       "derivationType": "applicative",
@@ -3211,42 +2098,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tilinilu"
-      ],
-      "lexeme": "tilini",
-      "rawInput": "tilini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tilinia",
-        "tilintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tilinilu",
-        "tilintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tilinilu",
-        "tilintilu"
-      ],
-      "sourceReferenceStems": [
-        "tilinu",
-        "tilinilu"
-      ],
-      "surfaceResult": "tilinilu / tilintilu",
-      "surfaceForms": [
-        "tilinilu",
-        "tilintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "titanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "titani",
       "rawInput": "-titani",
       "derivationType": "applicative",
@@ -3281,6 +2135,7 @@
       "overlapWithSourceReference": [
         "takwawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "takwawa",
       "rawInput": "takwawa",
       "derivationType": "causative",
@@ -3317,46 +2172,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tajtamilu"
-      ],
-      "lexeme": "tajtami",
-      "rawInput": "tajtami",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tajtamia",
-        "tajtamitia",
-        "tajtantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tajtamilu",
-        "tajtamitilu",
-        "tajtantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tajtamilu",
-        "tajtamitilu",
-        "tajtantilu"
-      ],
-      "sourceReferenceStems": [
-        "tajtamu",
-        "tajtamilu"
-      ],
-      "surfaceResult": "tajtamilu / tajtamitilu / tajtantilu",
-      "surfaceForms": [
-        "tajtamilu",
-        "tajtamitilu",
-        "tajtantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tanawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tanawi",
       "rawInput": "tanawi",
       "derivationType": "applicative",
@@ -3390,6 +2208,7 @@
       "overlapWithSourceReference": [
         "tanewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tanewi",
       "rawInput": "-tanewi",
       "derivationType": "applicative",
@@ -3421,42 +2240,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tapanilu"
-      ],
-      "lexeme": "tapani",
-      "rawInput": "tapani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tapania",
-        "tapantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tapanilu",
-        "tapantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tapanilu",
-        "tapantilu"
-      ],
-      "sourceReferenceStems": [
-        "tapanu",
-        "tapanilu"
-      ],
-      "surfaceResult": "tapanilu / tapantilu",
-      "surfaceForms": [
-        "tapanilu",
-        "tapantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tapewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapewa",
       "rawInput": "tapewa",
       "derivationType": "causative",
@@ -3495,6 +2281,7 @@
       "overlapWithSourceReference": [
         "tapuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapuwa",
       "rawInput": "tapuwa",
       "derivationType": "causative",
@@ -3528,6 +2315,7 @@
       "overlapWithSourceReference": [
         "tapuwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapuwi",
       "rawInput": "tapuwi",
       "derivationType": "applicative",
@@ -3559,107 +2347,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tatanilu"
-      ],
-      "lexeme": "ta-tani",
-      "rawInput": "ta-tani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatania",
-        "tatantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatanilu",
-        "tatantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatanilu",
-        "tatantilu"
-      ],
-      "sourceReferenceStems": [
-        "tatanu",
-        "tatanilu"
-      ],
-      "surfaceResult": "tatanilu / tatantilu",
-      "surfaceForms": [
-        "tatanilu",
-        "tatantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tatzinilu"
-      ],
-      "lexeme": "tatzini",
-      "rawInput": "tatzini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatzinia",
-        "tatzintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatzinilu",
-        "tatzintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatzinilu",
-        "tatzintilu"
-      ],
-      "sourceReferenceStems": [
-        "tatzinu",
-        "tatzinilu"
-      ],
-      "surfaceResult": "tatzinilu / tatzintilu",
-      "surfaceForms": [
-        "tatzinilu",
-        "tatzintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tasujtilu"
-      ],
-      "lexeme": "tasujti",
-      "rawInput": "tasujti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tasujtia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tasujtilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tasujtilu"
-      ],
-      "sourceReferenceStems": [
-        "tasujtu",
-        "tasujtiu",
-        "tasujtilu"
-      ],
-      "surfaceResult": "tasujtilu",
-      "surfaceForms": [
-        "tasujtilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "temikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "temiki",
       "rawInput": "temiki",
       "derivationType": "causative",
@@ -3690,6 +2380,7 @@
       "overlapWithSourceReference": [
         "tumawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tumawi",
       "rawInput": "tumawi",
       "derivationType": "applicative",
@@ -3721,42 +2412,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tumunilu"
-      ],
-      "lexeme": "tumuni",
-      "rawInput": "tumuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tumunia",
-        "tumuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tumunilu",
-        "tumuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tumunilu",
-        "tumuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tumunu",
-        "tumunilu"
-      ],
-      "surfaceResult": "tumunilu / tumuntilu",
-      "surfaceForms": [
-        "tumunilu",
-        "tumuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tunawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tunawi",
       "rawInput": "tunawi",
       "derivationType": "applicative",
@@ -3790,6 +2448,7 @@
       "overlapWithSourceReference": [
         "tunewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tunewi",
       "rawInput": "tunewi",
       "derivationType": "applicative",
@@ -3821,42 +2480,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tupunilu"
-      ],
-      "lexeme": "tupuni",
-      "rawInput": "tupuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tupunia",
-        "tupuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tupunilu",
-        "tupuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tupunilu",
-        "tupuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tupunu",
-        "tupunilu"
-      ],
-      "surfaceResult": "tupunilu / tupuntilu",
-      "surfaceForms": [
-        "tupunilu",
-        "tupuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tushawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tushawi",
       "rawInput": "tushawi",
       "derivationType": "applicative",
@@ -3890,6 +2516,7 @@
       "overlapWithSourceReference": [
         "tuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tuyawi",
       "rawInput": "tuyawi",
       "derivationType": "applicative",
@@ -3923,6 +2550,7 @@
       "overlapWithSourceReference": [
         "tzajtzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzajtzakwa",
       "rawInput": "-tzajtzakwa",
       "derivationType": "applicative",
@@ -3957,6 +2585,7 @@
       "overlapWithSourceReference": [
         "tzikwewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzikwewa",
       "rawInput": "tzikwewa",
       "derivationType": "causative",
@@ -3993,38 +2622,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tzulakilu"
-      ],
-      "lexeme": "tzulaki",
-      "rawInput": "tzulaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tzulakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tzulakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tzulakilu"
-      ],
-      "sourceReferenceStems": [
-        "tzulaku",
-        "tzulakilu"
-      ],
-      "surfaceResult": "tzulakilu",
-      "surfaceForms": [
-        "tzulakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tzuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzuliwi",
       "rawInput": "tzuliwi",
       "derivationType": "applicative",
@@ -4058,6 +2658,7 @@
       "overlapWithSourceReference": [
         "tzunkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzunkwi",
       "rawInput": "-tzunkwi",
       "derivationType": "applicative",
@@ -4089,76 +2690,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shawanilu"
-      ],
-      "lexeme": "shawani",
-      "rawInput": "shawani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shawania",
-        "shawantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shawanilu",
-        "shawantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shawanilu",
-        "shawantilu"
-      ],
-      "sourceReferenceStems": [
-        "shawanu",
-        "shawanilu"
-      ],
-      "surfaceResult": "shawanilu / shawantilu",
-      "surfaceForms": [
-        "shawanilu",
-        "shawantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "shamanilu"
-      ],
-      "lexeme": "shamani",
-      "rawInput": "shamani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shamania",
-        "shamantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shamanilu",
-        "shamantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shamanilu",
-        "shamantilu"
-      ],
-      "sourceReferenceStems": [
-        "shamanu",
-        "shamanilu"
-      ],
-      "surfaceResult": "shamanilu / shamantilu",
-      "surfaceForms": [
-        "shamanilu",
-        "shamantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "sheliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sheliwi",
       "rawInput": "sheliwi",
       "derivationType": "applicative",
@@ -4192,6 +2726,7 @@
       "overlapWithSourceReference": [
         "shikawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shikawi",
       "rawInput": "shikawi",
       "derivationType": "applicative",
@@ -4225,6 +2760,7 @@
       "overlapWithSourceReference": [
         "shipewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shipewi",
       "rawInput": "shipewi",
       "derivationType": "applicative",
@@ -4256,76 +2792,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shitinilu"
-      ],
-      "lexeme": "shitini",
-      "rawInput": "shitini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shitinia",
-        "shitintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shitinilu",
-        "shitintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shitinilu",
-        "shitintilu"
-      ],
-      "sourceReferenceStems": [
-        "shitinu",
-        "shitinilu"
-      ],
-      "surfaceResult": "shitinilu / shitintilu",
-      "surfaceForms": [
-        "shitinilu",
-        "shitintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "shitunilu"
-      ],
-      "lexeme": "shituni",
-      "rawInput": "shituni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shitunia",
-        "shituntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shitunilu",
-        "shituntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shitunilu",
-        "shituntilu"
-      ],
-      "sourceReferenceStems": [
-        "shitunu",
-        "shitunilu"
-      ],
-      "surfaceResult": "shitunilu / shituntilu",
-      "surfaceForms": [
-        "shitunilu",
-        "shituntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "shupilkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shupilkwi",
       "rawInput": "-shupilkwi",
       "derivationType": "applicative",
@@ -4360,6 +2829,7 @@
       "overlapWithSourceReference": [
         "yulmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yulmiki",
       "rawInput": "yulmiki",
       "derivationType": "causative",
@@ -4388,42 +2858,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "sawanilu"
-      ],
-      "lexeme": "sawani",
-      "rawInput": "sawani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "sawania",
-        "sawantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "sawanilu",
-        "sawantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "sawanilu",
-        "sawantilu"
-      ],
-      "sourceReferenceStems": [
-        "sawanu",
-        "sawanilu"
-      ],
-      "surfaceResult": "sawanilu / sawantilu",
-      "surfaceForms": [
-        "sawanilu",
-        "sawantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "saliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "saliwi",
       "rawInput": "-saliwi",
       "derivationType": "applicative",
@@ -4455,42 +2892,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "sulunilu"
-      ],
-      "lexeme": "suluni",
-      "rawInput": "suluni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "sulunia",
-        "suluntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "sulunilu",
-        "suluntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "sulunilu",
-        "suluntilu"
-      ],
-      "sourceReferenceStems": [
-        "sulunu",
-        "sulunilu"
-      ],
-      "surfaceResult": "sulunilu / suluntilu",
-      "surfaceForms": [
-        "sulunilu",
-        "suluntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "sunewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sunewi",
       "rawInput": "sunewi",
       "derivationType": "applicative",
@@ -4524,6 +2928,7 @@
       "overlapWithSourceReference": [
         "sutawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sutawa",
       "rawInput": "sutawa",
       "derivationType": "causative",
@@ -4562,6 +2967,7 @@
       "overlapWithSourceReference": [
         "ijsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijsiwi",
       "rawInput": "ijsiwi",
       "derivationType": "applicative",
@@ -4595,6 +3001,7 @@
       "overlapWithSourceReference": [
         "ijkwiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijkwiliwi",
       "rawInput": "ijkwiliwi",
       "derivationType": "applicative",
@@ -4628,6 +3035,7 @@
       "overlapWithSourceReference": [
         "ijtakawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijtakawi",
       "rawInput": "ijtakawi",
       "derivationType": "applicative",
@@ -4661,6 +3069,7 @@
       "overlapWithSourceReference": [
         "ishtawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtawi",
       "rawInput": "ishtawi",
       "derivationType": "applicative",
@@ -4694,6 +3103,7 @@
       "overlapWithSourceReference": [
         "istekwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "istekwi",
       "rawInput": "-istekwi",
       "derivationType": "applicative",
@@ -4728,6 +3138,7 @@
       "overlapWithSourceReference": [
         "akatekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "akateki",
       "rawInput": "akateki",
       "derivationType": "causative",
@@ -4758,6 +3169,7 @@
       "overlapWithSourceReference": [
         "ajwayuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajwayuwa",
       "rawInput": "ajwayuwa",
       "derivationType": "causative",
@@ -4791,6 +3203,7 @@
       "overlapWithSourceReference": [
         "amapuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "amapuwa",
       "rawInput": "amapuwa",
       "derivationType": "causative",
@@ -4824,6 +3237,7 @@
       "overlapWithSourceReference": [
         "atunawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "atunawi",
       "rawInput": "atunawi",
       "derivationType": "applicative",
@@ -4855,76 +3269,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ayawelilu"
-      ],
-      "lexeme": "ayaweli",
-      "rawInput": "ayaweli",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ayawelia",
-        "ayawelitia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ayawelilu",
-        "ayawelitilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ayawelilu",
-        "ayawelitilu"
-      ],
-      "sourceReferenceStems": [
-        "ayawelilu",
-        "ayaweliwalu"
-      ],
-      "surfaceResult": "ayawelilu / ayawelitilu",
-      "surfaceForms": [
-        "ayawelilu",
-        "ayawelitilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "asulunilu"
-      ],
-      "lexeme": "asuluni",
-      "rawInput": "asuluni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "asulunia",
-        "asuluntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "asulunilu",
-        "asuluntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "asulunilu",
-        "asuluntilu"
-      ],
-      "sourceReferenceStems": [
-        "asulunu",
-        "asulunilu"
-      ],
-      "surfaceResult": "asulunilu / asuluntilu",
-      "surfaceForms": [
-        "asulunilu",
-        "asuluntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kakchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kakchiwa",
       "rawInput": "kakchiwa",
       "derivationType": "causative",
@@ -4963,6 +3310,7 @@
       "overlapWithSourceReference": [
         "sekmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sekmiki",
       "rawInput": "sekmiki",
       "derivationType": "causative",
@@ -4993,6 +3341,7 @@
       "overlapWithSourceReference": [
         "sewapawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sewapawa",
       "rawInput": "sewapawa",
       "derivationType": "causative",
@@ -5029,42 +3378,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "senmanilu"
-      ],
-      "lexeme": "senmani",
-      "rawInput": "senmani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "senmania",
-        "senmantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "senmanilu",
-        "senmantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "senmanilu",
-        "senmantilu"
-      ],
-      "sourceReferenceStems": [
-        "senmanu",
-        "senmanilu"
-      ],
-      "surfaceResult": "senmanilu / senmantilu",
-      "surfaceForms": [
-        "senmanilu",
-        "senmantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "senkawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "senkawi",
       "rawInput": "senkawi",
       "derivationType": "applicative",
@@ -5098,6 +3414,7 @@
       "overlapWithSourceReference": [
         "sentzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sentzakwa",
       "rawInput": "-sentzakwa",
       "derivationType": "applicative",
@@ -5132,6 +3449,7 @@
       "overlapWithSourceReference": [
         "chichilewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chichilewi",
       "rawInput": "chichilewi",
       "derivationType": "applicative",
@@ -5165,6 +3483,7 @@
       "overlapWithSourceReference": [
         "chichiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chichiliwi",
       "rawInput": "chichiliwi",
       "derivationType": "applicative",
@@ -5198,6 +3517,7 @@
       "overlapWithSourceReference": [
         "kuchijtewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kuchijtewa",
       "rawInput": "kuchijtewa",
       "derivationType": "causative",
@@ -5234,72 +3554,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kuchiwanilu"
-      ],
-      "lexeme": "kuchiwani",
-      "rawInput": "kuchiwani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kuchiwania",
-        "kuchiwantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kuchiwanilu",
-        "kuchiwantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kuchiwanilu",
-        "kuchiwantilu"
-      ],
-      "sourceReferenceStems": [
-        "kuchiwanu",
-        "kuchiwanilu"
-      ],
-      "surfaceResult": "kuchiwanilu / kuchiwantilu",
-      "surfaceForms": [
-        "kuchiwanilu",
-        "kuchiwantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "kukulakilu"
-      ],
-      "lexeme": "kukulaki",
-      "rawInput": "kukulaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kukulakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kukulakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kukulakilu"
-      ],
-      "sourceReferenceStems": [
-        "kukulaku",
-        "kukulakilu"
-      ],
-      "surfaceResult": "kukulakilu",
-      "surfaceForms": [
-        "kukulakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kukuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kukuliwi",
       "rawInput": "kukuliwi",
       "derivationType": "applicative",
@@ -5333,6 +3590,7 @@
       "overlapWithSourceReference": [
         "kupiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kupiliwi",
       "rawInput": "kupiliwi",
       "derivationType": "applicative",
@@ -5366,6 +3624,7 @@
       "overlapWithSourceReference": [
         "kututzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kututzawi",
       "rawInput": "kututzawi",
       "derivationType": "applicative",
@@ -5399,6 +3658,7 @@
       "overlapWithSourceReference": [
         "kusewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kusewi",
       "rawInput": "kusewi",
       "derivationType": "applicative",
@@ -5432,6 +3692,7 @@
       "overlapWithSourceReference": [
         "kwatepewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwatepewi",
       "rawInput": "kwatepewi",
       "derivationType": "applicative",
@@ -5465,6 +3726,7 @@
       "overlapWithSourceReference": [
         "kwekweliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwekweliwi",
       "rawInput": "kwekweliwi",
       "derivationType": "applicative",
@@ -5498,6 +3760,7 @@
       "overlapWithSourceReference": [
         "kwejsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwejsiwi",
       "rawInput": "kwejsiwi",
       "derivationType": "applicative",
@@ -5531,6 +3794,7 @@
       "overlapWithSourceReference": [
         "elimikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "elimiki",
       "rawInput": "elimiki",
       "derivationType": "causative",
@@ -5561,6 +3825,7 @@
       "overlapWithSourceReference": [
         "elmimikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "elmimiki",
       "rawInput": "elmimiki",
       "derivationType": "causative",
@@ -5591,6 +3856,7 @@
       "overlapWithSourceReference": [
         "elmuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "elmuyawi",
       "rawInput": "elmuyawi",
       "derivationType": "applicative",
@@ -5624,6 +3890,7 @@
       "overlapWithSourceReference": [
         "wejweliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "wejweliwi",
       "rawInput": "wejweliwi",
       "derivationType": "applicative",
@@ -5657,6 +3924,7 @@
       "overlapWithSourceReference": [
         "wituliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "wituliwi",
       "rawInput": "wituliwi",
       "derivationType": "applicative",
@@ -5690,6 +3958,7 @@
       "overlapWithSourceReference": [
         "ijsuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijsuliwi",
       "rawInput": "ijsuliwi",
       "derivationType": "applicative",
@@ -5723,6 +3992,7 @@
       "overlapWithSourceReference": [
         "ipantilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ipanti",
       "rawInput": "ipanti",
       "derivationType": "causative",
@@ -5754,6 +4024,7 @@
       "overlapWithSourceReference": [
         "itzminilu"
       ],
+      "exemptionRule": null,
       "lexeme": "itzmini",
       "rawInput": "-itzmini",
       "derivationType": "applicative",
@@ -5788,6 +4059,7 @@
       "overlapWithSourceReference": [
         "ishmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishmiki",
       "rawInput": "ishmiki",
       "derivationType": "causative",
@@ -5818,6 +4090,7 @@
       "overlapWithSourceReference": [
         "ishtzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtzakwa",
       "rawInput": "-ishtzakwa",
       "derivationType": "applicative",
@@ -5852,6 +4125,7 @@
       "overlapWithSourceReference": [
         "ishshuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishshuwa",
       "rawInput": "ishshuwa",
       "derivationType": "causative",
@@ -5885,6 +4159,7 @@
       "overlapWithSourceReference": [
         "masiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "masiwi",
       "rawInput": "masiwi",
       "derivationType": "applicative",
@@ -5918,6 +4193,7 @@
       "overlapWithSourceReference": [
         "maneliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "maneliwi",
       "rawInput": "maneliwi",
       "derivationType": "applicative",
@@ -5951,6 +4227,7 @@
       "overlapWithSourceReference": [
         "masuiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "masuiwi",
       "rawInput": "masuiwi",
       "derivationType": "applicative",
@@ -5984,6 +4261,7 @@
       "overlapWithSourceReference": [
         "milchipawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "milchipawa",
       "rawInput": "milchipawa",
       "derivationType": "causative",
@@ -6022,6 +4300,7 @@
       "overlapWithSourceReference": [
         "mimilawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mimilawi",
       "rawInput": "mimilawi",
       "derivationType": "applicative",
@@ -6055,6 +4334,7 @@
       "overlapWithSourceReference": [
         "mishiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mishiwi",
       "rawInput": "mishiwi",
       "derivationType": "applicative",
@@ -6088,6 +4368,7 @@
       "overlapWithSourceReference": [
         "mutzuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mutzuliwi",
       "rawInput": "mutzuliwi",
       "derivationType": "applicative",
@@ -6121,6 +4402,7 @@
       "overlapWithSourceReference": [
         "nalpanuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "nalpanuwa",
       "rawInput": "nalpanuwa",
       "derivationType": "causative",
@@ -6154,6 +4436,7 @@
       "overlapWithSourceReference": [
         "nekwiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nekwiliwi",
       "rawInput": "nekwiliwi",
       "derivationType": "applicative",
@@ -6187,6 +4470,7 @@
       "overlapWithSourceReference": [
         "neltanawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "neltanawi",
       "rawInput": "neltanawi",
       "derivationType": "applicative",
@@ -6220,6 +4504,7 @@
       "overlapWithSourceReference": [
         "nenpewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nenpewi",
       "rawInput": "nenpewi",
       "derivationType": "applicative",
@@ -6253,6 +4538,7 @@
       "overlapWithSourceReference": [
         "nenkawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nenkawi",
       "rawInput": "nenkawi",
       "derivationType": "applicative",
@@ -6286,6 +4572,7 @@
       "overlapWithSourceReference": [
         "nujnukiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "nujnukiwa",
       "rawInput": "nujnukiwa",
       "derivationType": "causative",
@@ -6322,42 +4609,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "papayinilu"
-      ],
-      "lexeme": "papayini",
-      "rawInput": "papayini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "papayinia",
-        "papayintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "papayinilu",
-        "papayintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "papayinilu",
-        "papayintilu"
-      ],
-      "sourceReferenceStems": [
-        "papayinu",
-        "papayinilu"
-      ],
-      "surfaceResult": "papayinilu / papayintilu",
-      "surfaceForms": [
-        "papayinilu",
-        "papayintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "patiyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "patiyuwa",
       "rawInput": "patiyuwa",
       "derivationType": "causative",
@@ -6391,6 +4645,7 @@
       "overlapWithSourceReference": [
         "patziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "patziwi",
       "rawInput": "patziwi",
       "derivationType": "applicative",
@@ -6422,42 +4677,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pepewanilu"
-      ],
-      "lexeme": "pepewani",
-      "rawInput": "pepewani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pepewania",
-        "pepewantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pepewanilu",
-        "pepewantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pepewanilu",
-        "pepewantilu"
-      ],
-      "sourceReferenceStems": [
-        "pepewanu",
-        "pepewanilu"
-      ],
-      "surfaceResult": "pepewanilu / pepewantilu",
-      "surfaceForms": [
-        "pepewanilu",
-        "pepewantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "petzkawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "petzkawi",
       "rawInput": "petzkawi",
       "derivationType": "applicative",
@@ -6491,6 +4713,7 @@
       "overlapWithSourceReference": [
         "petziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "petziwi",
       "rawInput": "petziwi",
       "derivationType": "applicative",
@@ -6524,6 +4747,7 @@
       "overlapWithSourceReference": [
         "pisiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pisiliwi",
       "rawInput": "pisiliwi",
       "derivationType": "applicative",
@@ -6557,6 +4781,7 @@
       "overlapWithSourceReference": [
         "pijpitzkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pijpitzkwa",
       "rawInput": "-pijpitzkwa",
       "derivationType": "applicative",
@@ -6591,6 +4816,7 @@
       "overlapWithSourceReference": [
         "pipishawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pipishawi",
       "rawInput": "pipishawi",
       "derivationType": "applicative",
@@ -6624,6 +4850,7 @@
       "overlapWithSourceReference": [
         "puchewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "puchewi",
       "rawInput": "puchewi",
       "derivationType": "applicative",
@@ -6657,6 +4884,7 @@
       "overlapWithSourceReference": [
         "pukyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pukyuwa",
       "rawInput": "pukyuwa",
       "derivationType": "causative",
@@ -6688,76 +4916,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pujpuchinilu"
-      ],
-      "lexeme": "pujpuchini",
-      "rawInput": "pujpuchini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pujpuchinia",
-        "pujpuchintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pujpuchinilu",
-        "pujpuchintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pujpuchinilu",
-        "pujpuchintilu"
-      ],
-      "sourceReferenceStems": [
-        "pujpuchinu",
-        "pujpuchinilu"
-      ],
-      "surfaceResult": "pujpuchinilu / pujpuchintilu",
-      "surfaceForms": [
-        "pujpuchinilu",
-        "pujpuchintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "pujpulunilu"
-      ],
-      "lexeme": "pujpuluni",
-      "rawInput": "pujpuluni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pujpulunia",
-        "pujpuluntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pujpulunilu",
-        "pujpuluntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pujpulunilu",
-        "pujpuluntilu"
-      ],
-      "sourceReferenceStems": [
-        "pujpulunu",
-        "pujpulunilu"
-      ],
-      "surfaceResult": "pujpulunilu / pujpuluntilu",
-      "surfaceForms": [
-        "pujpulunilu",
-        "pujpuluntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "pushkawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pushkawi",
       "rawInput": "pushkawi",
       "derivationType": "applicative",
@@ -6791,6 +4952,7 @@
       "overlapWithSourceReference": [
         "puyumikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "puyumiki",
       "rawInput": "puyumiki",
       "derivationType": "causative",
@@ -6821,6 +4983,7 @@
       "overlapWithSourceReference": [
         "kejkeliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kejkeliwi",
       "rawInput": "kejkeliwi",
       "derivationType": "applicative",
@@ -6854,6 +5017,7 @@
       "overlapWithSourceReference": [
         "keshiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "keshiliwi",
       "rawInput": "keshiliwi",
       "derivationType": "applicative",
@@ -6885,42 +5049,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "techiwanilu"
-      ],
-      "lexeme": "techiwani",
-      "rawInput": "techiwani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "techiwania",
-        "techiwantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "techiwanilu",
-        "techiwantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "techiwanilu",
-        "techiwantilu"
-      ],
-      "sourceReferenceStems": [
-        "techiwanu",
-        "techiwanilu"
-      ],
-      "surfaceResult": "techiwanilu / techiwantilu",
-      "surfaceForms": [
-        "techiwanilu",
-        "techiwantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tesiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tesiwi",
       "rawInput": "tesiwi",
       "derivationType": "applicative",
@@ -6952,42 +5083,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tekupinilu"
-      ],
-      "lexeme": "tekupini",
-      "rawInput": "tekupini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tekupinia",
-        "tekupintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tekupinilu",
-        "tekupintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tekupinilu",
-        "tekupintilu"
-      ],
-      "sourceReferenceStems": [
-        "tekupinu",
-        "tekupinilu"
-      ],
-      "surfaceResult": "tekupinilu / tekupintilu",
-      "surfaceForms": [
-        "tekupinilu",
-        "tekupintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tekuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tekuyawi",
       "rawInput": "tekuyawi",
       "derivationType": "applicative",
@@ -7021,6 +5119,7 @@
       "overlapWithSourceReference": [
         "teluchkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "teluchkwi",
       "rawInput": "-teluchkwi",
       "derivationType": "applicative",
@@ -7054,6 +5153,7 @@
       "overlapWithSourceReference": [
         "tentanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tentani",
       "rawInput": "-tentani",
       "derivationType": "applicative",
@@ -7088,6 +5188,7 @@
       "overlapWithSourceReference": [
         "tentzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tentzakwa",
       "rawInput": "-tentzakwa",
       "derivationType": "applicative",
@@ -7122,6 +5223,7 @@
       "overlapWithSourceReference": [
         "tenyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tenyuwa",
       "rawInput": "tenyuwa",
       "derivationType": "causative",
@@ -7155,6 +5257,7 @@
       "overlapWithSourceReference": [
         "tepitzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tepitzawi",
       "rawInput": "tepitzawi",
       "derivationType": "applicative",
@@ -7188,6 +5291,7 @@
       "overlapWithSourceReference": [
         "tewyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tewyuwa",
       "rawInput": "tewyuwa",
       "derivationType": "causative",
@@ -7219,42 +5323,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tesumunilu"
-      ],
-      "lexeme": "tesumuni",
-      "rawInput": "tesumuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tesumunia",
-        "tesumuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tesumunilu",
-        "tesumuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tesumunilu",
-        "tesumuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tesumunu",
-        "tesumunilu"
-      ],
-      "surfaceResult": "tesumunilu / tesumuntilu",
-      "surfaceForms": [
-        "tesumunilu",
-        "tesumuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tiamikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tiamiki",
       "rawInput": "tiamiki",
       "derivationType": "causative",
@@ -7283,42 +5354,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tijtikwinilu"
-      ],
-      "lexeme": "tijtikwini",
-      "rawInput": "tijtikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tijtikwinia",
-        "tijtikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tijtikwinilu",
-        "tijtikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tijtikwinilu",
-        "tijtikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tijtikwinu",
-        "tijtikwinilu"
-      ],
-      "surfaceResult": "tijtikwinilu / tijtikwintilu",
-      "surfaceForms": [
-        "tijtikwinilu",
-        "tijtikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "timaliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "timaliwi",
       "rawInput": "timaliwi",
       "derivationType": "applicative",
@@ -7352,6 +5390,7 @@
       "overlapWithSourceReference": [
         "tititanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tititani",
       "rawInput": "-tititani",
       "derivationType": "applicative",
@@ -7386,6 +5425,7 @@
       "overlapWithSourceReference": [
         "taalawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "taalawi",
       "rawInput": "taalawi",
       "derivationType": "applicative",
@@ -7417,39 +5457,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "takujtilu"
-      ],
-      "lexeme": "takujti",
-      "rawInput": "takujti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "takujtia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "takujtilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "takujtilu"
-      ],
-      "sourceReferenceStems": [
-        "takujtu",
-        "takujtiu",
-        "takujtilu"
-      ],
-      "surfaceResult": "takujtilu",
-      "surfaceForms": [
-        "takujtilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "takwalchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "takwalchiwa",
       "rawInput": "takwalchiwa",
       "derivationType": "causative",
@@ -7486,76 +5496,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "takwepunilu"
-      ],
-      "lexeme": "takwepuni",
-      "rawInput": "takwepuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "takwepunia",
-        "takwepuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "takwepunilu",
-        "takwepuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "takwepunilu",
-        "takwepuntilu"
-      ],
-      "sourceReferenceStems": [
-        "takwepunu",
-        "takwepunilu"
-      ],
-      "surfaceResult": "takwepunilu / takwepuntilu",
-      "surfaceForms": [
-        "takwepunilu",
-        "takwepuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "taijtanilu"
-      ],
-      "lexeme": "taijtani",
-      "rawInput": "taijtani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "taijtania",
-        "taijtantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "taijtanilu",
-        "taijtantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "taijtanilu",
-        "taijtantilu"
-      ],
-      "sourceReferenceStems": [
-        "taijtanu",
-        "taijtanilu"
-      ],
-      "surfaceResult": "taijtanilu / taijtantilu",
-      "surfaceForms": [
-        "taijtanilu",
-        "taijtantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tajtayuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tajtayuwa",
       "rawInput": "tajtayuwa",
       "derivationType": "causative",
@@ -7589,6 +5532,7 @@
       "overlapWithSourceReference": [
         "tawelmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tawelmiki",
       "rawInput": "tawelmiki",
       "derivationType": "causative",
@@ -7619,6 +5563,7 @@
       "overlapWithSourceReference": [
         "tawiltekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tawilteki",
       "rawInput": "tawilteki",
       "derivationType": "causative",
@@ -7647,76 +5592,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "talulinilu"
-      ],
-      "lexeme": "talulini",
-      "rawInput": "talulini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "talulinia",
-        "talulintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "talulinilu",
-        "talulintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "talulinilu",
-        "talulintilu"
-      ],
-      "sourceReferenceStems": [
-        "talulinu",
-        "talulinilu"
-      ],
-      "surfaceResult": "talulinilu / talulintilu",
-      "surfaceForms": [
-        "talulinilu",
-        "talulintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "talputunilu"
-      ],
-      "lexeme": "talputuni",
-      "rawInput": "talputuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "talputunia",
-        "talputuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "talputunilu",
-        "talputuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "talputunilu",
-        "talputuntilu"
-      ],
-      "sourceReferenceStems": [
-        "talputunu",
-        "talputunilu"
-      ],
-      "surfaceResult": "talputunilu / talputuntilu",
-      "surfaceForms": [
-        "talputunilu",
-        "talputuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tamachkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tamachkwi",
       "rawInput": "-tamachkwi",
       "derivationType": "applicative",
@@ -7750,6 +5628,7 @@
       "overlapWithSourceReference": [
         "tamajsewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tamajsewa",
       "rawInput": "tamajsewa",
       "derivationType": "causative",
@@ -7788,6 +5667,7 @@
       "overlapWithSourceReference": [
         "tamuchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tamuchiwa",
       "rawInput": "tamuchiwa",
       "derivationType": "causative",
@@ -7826,6 +5706,7 @@
       "overlapWithSourceReference": [
         "taulkuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "taulkuwa",
       "rawInput": "taulkuwa",
       "derivationType": "causative",
@@ -7859,6 +5740,7 @@
       "overlapWithSourceReference": [
         "tapatawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapatawa",
       "rawInput": "tapatawa",
       "derivationType": "causative",
@@ -7897,6 +5779,7 @@
       "overlapWithSourceReference": [
         "tapayawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapayawi",
       "rawInput": "tapayawi",
       "derivationType": "applicative",
@@ -7928,42 +5811,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tapetanilu"
-      ],
-      "lexeme": "tapetani",
-      "rawInput": "tapetani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tapetania",
-        "tapetantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tapetanilu",
-        "tapetantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tapetanilu",
-        "tapetantilu"
-      ],
-      "sourceReferenceStems": [
-        "tapetanu",
-        "tapetanilu"
-      ],
-      "surfaceResult": "tapetanilu / tapetantilu",
-      "surfaceForms": [
-        "tapetanilu",
-        "tapetantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tapujpuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapujpuwa",
       "rawInput": "tapujpuwa",
       "derivationType": "causative",
@@ -7997,6 +5847,7 @@
       "overlapWithSourceReference": [
         "tapuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapuliwi",
       "rawInput": "tapuliwi",
       "derivationType": "applicative",
@@ -8028,110 +5879,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tatekwinilu"
-      ],
-      "lexeme": "tatekwini",
-      "rawInput": "tatekwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatekwinia",
-        "tatekwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatekwinilu",
-        "tatekwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatekwinilu",
-        "tatekwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tatekwinu",
-        "tatekwinilu"
-      ],
-      "surfaceResult": "tatekwinilu / tatekwintilu",
-      "surfaceForms": [
-        "tatekwinilu",
-        "tatekwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tatatzinilu"
-      ],
-      "lexeme": "tatatzini",
-      "rawInput": "tatatzini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatatzinia",
-        "tatatzintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatatzinilu",
-        "tatatzintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatatzinilu",
-        "tatatzintilu"
-      ],
-      "sourceReferenceStems": [
-        "tatatzinu",
-        "tatatzinilu"
-      ],
-      "surfaceResult": "tatatzinilu / tatatzintilu",
-      "surfaceForms": [
-        "tatatzinilu",
-        "tatatzintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tatupunilu"
-      ],
-      "lexeme": "tatupuni",
-      "rawInput": "tatupuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatupunia",
-        "tatupuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatupunilu",
-        "tatupuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatupunilu",
-        "tatupuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tatupunu",
-        "tatupunilu"
-      ],
-      "surfaceResult": "tatupunilu / tatupuntilu",
-      "surfaceForms": [
-        "tatupunilu",
-        "tatupuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tatziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tatziwi",
       "rawInput": "tatziwi",
       "derivationType": "applicative",
@@ -8165,6 +5915,7 @@
       "overlapWithSourceReference": [
         "tatzuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tatzuliwi",
       "rawInput": "tatzuliwi",
       "derivationType": "applicative",
@@ -8198,6 +5949,7 @@
       "overlapWithSourceReference": [
         "tunalsewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tunalsewi",
       "rawInput": "tunalsewi",
       "derivationType": "applicative",
@@ -8231,6 +5983,7 @@
       "overlapWithSourceReference": [
         "tunalmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tunalmiki",
       "rawInput": "tunalmiki",
       "derivationType": "causative",
@@ -8261,6 +6014,7 @@
       "overlapWithSourceReference": [
         "tzinewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzinewa",
       "rawInput": "tzinewa",
       "derivationType": "causative",
@@ -8297,46 +6051,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tzuntamilu"
-      ],
-      "lexeme": "tzuntami",
-      "rawInput": "tzuntami",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tzuntamia",
-        "tzuntamitia",
-        "tzuntantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tzuntamilu",
-        "tzuntamitilu",
-        "tzuntantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tzuntamilu",
-        "tzuntamitilu",
-        "tzuntantilu"
-      ],
-      "sourceReferenceStems": [
-        "tzuntamu",
-        "tzuntamilu"
-      ],
-      "surfaceResult": "tzuntamilu / tzuntamitilu / tzuntantilu",
-      "surfaceForms": [
-        "tzuntamilu",
-        "tzuntamitilu",
-        "tzuntantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "shakwaliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shakwaliwi",
       "rawInput": "shakwaliwi",
       "derivationType": "applicative",
@@ -8370,6 +6087,7 @@
       "overlapWithSourceReference": [
         "shikalewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shikalewi",
       "rawInput": "shikalewi",
       "derivationType": "applicative",
@@ -8401,42 +6119,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shikupinilu"
-      ],
-      "lexeme": "shikupini",
-      "rawInput": "shikupini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shikupinia",
-        "shikupintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shikupinilu",
-        "shikupintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shikupinilu",
-        "shikupintilu"
-      ],
-      "sourceReferenceStems": [
-        "shikupinu",
-        "shikupinilu"
-      ],
-      "surfaceResult": "shikupinilu / shikupintilu",
-      "surfaceForms": [
-        "shikupinilu",
-        "shikupintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "shiltankwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shiltankwa",
       "rawInput": "-shiltankwa",
       "derivationType": "applicative",
@@ -8471,6 +6156,7 @@
       "overlapWithSourceReference": [
         "shiwyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "shiwyuwa",
       "rawInput": "shiwyuwa",
       "derivationType": "causative",
@@ -8504,6 +6190,7 @@
       "overlapWithSourceReference": [
         "shuchitekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shuchiteki",
       "rawInput": "shuchiteki",
       "derivationType": "causative",
@@ -8534,6 +6221,7 @@
       "overlapWithSourceReference": [
         "shuluchawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shuluchawi",
       "rawInput": "shuluchawi",
       "derivationType": "applicative",
@@ -8565,73 +6253,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shulupijtilu"
-      ],
-      "lexeme": "shulupijti",
-      "rawInput": "shulupijti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shulupijtia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shulupijtilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shulupijtilu"
-      ],
-      "sourceReferenceStems": [
-        "shulupijtu",
-        "shulupijtiu",
-        "shulupijtilu"
-      ],
-      "surfaceResult": "shulupijtilu",
-      "surfaceForms": [
-        "shulupijtilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "shushutanilu"
-      ],
-      "lexeme": "shushutani",
-      "rawInput": "shushutani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shushutania",
-        "shushutantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shushutanilu",
-        "shushutantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shushutanilu",
-        "shushutantilu"
-      ],
-      "sourceReferenceStems": [
-        "shushutanu",
-        "shushutanilu"
-      ],
-      "surfaceResult": "shushutanilu / shushutantilu",
-      "surfaceForms": [
-        "shushutanilu",
-        "shushutantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "yakatzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yakatzakwa",
       "rawInput": "-yakatzakwa",
       "derivationType": "applicative",
@@ -8666,6 +6290,7 @@
       "overlapWithSourceReference": [
         "yelmuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yelmuyawi",
       "rawInput": "yelmuyawi",
       "derivationType": "applicative",
@@ -8699,6 +6324,7 @@
       "overlapWithSourceReference": [
         "yulkwetawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yulkwetawi",
       "rawInput": "yulkwetawi",
       "derivationType": "applicative",
@@ -8732,6 +6358,7 @@
       "overlapWithSourceReference": [
         "sukichiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sukichiwa",
       "rawInput": "sukichiwa",
       "derivationType": "causative",
@@ -8768,39 +6395,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "iknupiltilu"
-      ],
-      "lexeme": "iknupilti",
-      "rawInput": "iknupilti",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "iknupiltia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "iknupiltilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "iknupiltilu"
-      ],
-      "sourceReferenceStems": [
-        "iknupiltu",
-        "iknupiltiu",
-        "iknupiltilu"
-      ],
-      "surfaceResult": "iknupiltilu",
-      "surfaceForms": [
-        "iknupiltilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "itztewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "itztewa",
       "rawInput": "itztewa",
       "derivationType": "causative",
@@ -8839,6 +6436,7 @@
       "overlapWithSourceReference": [
         "itztiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "itztiwi",
       "rawInput": "itztiwi",
       "derivationType": "applicative",
@@ -8872,6 +6470,7 @@
       "overlapWithSourceReference": [
         "ajamashewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajamashewi",
       "rawInput": "ajamashewi",
       "derivationType": "applicative",
@@ -8903,42 +6502,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ajkutzikwinilu"
-      ],
-      "lexeme": "ajkutzikwini",
-      "rawInput": "ajkutzikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ajkutzikwinia",
-        "ajkutzikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ajkutzikwinilu",
-        "ajkutzikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ajkutzikwinilu",
-        "ajkutzikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "ajkutzikwinu",
-        "ajkutzikwinilu"
-      ],
-      "surfaceResult": "ajkutzikwinilu / ajkutzikwintilu",
-      "surfaceForms": [
-        "ajkutzikwinilu",
-        "ajkutzikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "amushpuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "amushpuwa",
       "rawInput": "amushpuwa",
       "derivationType": "causative",
@@ -8972,6 +6538,7 @@
       "overlapWithSourceReference": [
         "apachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "apachiwi",
       "rawInput": "apachiwi",
       "derivationType": "applicative",
@@ -9005,6 +6572,7 @@
       "overlapWithSourceReference": [
         "apismikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "apismiki",
       "rawInput": "apismiki",
       "derivationType": "causative",
@@ -9033,42 +6601,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kaktimanilu"
-      ],
-      "lexeme": "kaktimani",
-      "rawInput": "kaktimani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kaktimania",
-        "kaktimantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kaktimanilu",
-        "kaktimantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kaktimanilu",
-        "kaktimantilu"
-      ],
-      "sourceReferenceStems": [
-        "kaktimanu",
-        "kaktimanilu"
-      ],
-      "surfaceResult": "kaktimanilu / kaktimantilu",
-      "surfaceForms": [
-        "kaktimanilu",
-        "kaktimantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kamapinawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kamapinawa",
       "rawInput": "kamapinawa",
       "derivationType": "causative",
@@ -9107,6 +6642,7 @@
       "overlapWithSourceReference": [
         "kaputzewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kaputzewi",
       "rawInput": "kaputzewi",
       "derivationType": "applicative",
@@ -9140,6 +6676,7 @@
       "overlapWithSourceReference": [
         "kayajsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kayajsiwi",
       "rawInput": "kayajsiwi",
       "derivationType": "applicative",
@@ -9173,6 +6710,7 @@
       "overlapWithSourceReference": [
         "chikuyulyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "chikuyulyuwa",
       "rawInput": "chikuyulyuwa",
       "derivationType": "causative",
@@ -9206,6 +6744,7 @@
       "overlapWithSourceReference": [
         "chinantekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chinanteki",
       "rawInput": "chinanteki",
       "derivationType": "causative",
@@ -9236,6 +6775,7 @@
       "overlapWithSourceReference": [
         "siawmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "siawmiki",
       "rawInput": "siawmiki",
       "derivationType": "causative",
@@ -9266,6 +6806,7 @@
       "overlapWithSourceReference": [
         "kukututzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kukututzawi",
       "rawInput": "kukututzawi",
       "derivationType": "applicative",
@@ -9297,42 +6838,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwasenmanilu"
-      ],
-      "lexeme": "kwasenmani",
-      "rawInput": "kwasenmani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwasenmania",
-        "kwasenmantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwasenmanilu",
-        "kwasenmantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwasenmanilu",
-        "kwasenmantilu"
-      ],
-      "sourceReferenceStems": [
-        "kwasenmanu",
-        "kwasenmanilu"
-      ],
-      "surfaceResult": "kwasenmanilu / kwasenmantilu",
-      "surfaceForms": [
-        "kwasenmanilu",
-        "kwasenmantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwawpitzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwawpitzawi",
       "rawInput": "kwawpitzawi",
       "derivationType": "applicative",
@@ -9366,6 +6874,7 @@
       "overlapWithSourceReference": [
         "kwawtetekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwawteteki",
       "rawInput": "kwawteteki",
       "derivationType": "causative",
@@ -9396,6 +6905,7 @@
       "overlapWithSourceReference": [
         "kwelpachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwelpachiwi",
       "rawInput": "kwelpachiwi",
       "derivationType": "applicative",
@@ -9429,6 +6939,7 @@
       "overlapWithSourceReference": [
         "kwetashiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwetashiwi",
       "rawInput": "kwetashiwi",
       "derivationType": "applicative",
@@ -9460,42 +6971,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "kwitachapanilu"
-      ],
-      "lexeme": "kwitachapani",
-      "rawInput": "kwitachapani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "kwitachapania",
-        "kwitachapantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "kwitachapanilu",
-        "kwitachapantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "kwitachapanilu",
-        "kwitachapantilu"
-      ],
-      "sourceReferenceStems": [
-        "kwitachapanu",
-        "kwitachapanilu"
-      ],
-      "surfaceResult": "kwitachapanilu / kwitachapantilu",
-      "surfaceForms": [
-        "kwitachapanilu",
-        "kwitachapantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kwitashiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwitashiwi",
       "rawInput": "kwitashiwi",
       "derivationType": "applicative",
@@ -9529,6 +7007,7 @@
       "overlapWithSourceReference": [
         "ewtewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ewtewa",
       "rawInput": "ewtewa",
       "derivationType": "causative",
@@ -9567,6 +7046,7 @@
       "overlapWithSourceReference": [
         "ijichtekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijichteki",
       "rawInput": "ijichteki",
       "derivationType": "causative",
@@ -9597,6 +7077,7 @@
       "overlapWithSourceReference": [
         "ijiyumikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijiyumiki",
       "rawInput": "ijiyumiki",
       "derivationType": "causative",
@@ -9627,6 +7108,7 @@
       "overlapWithSourceReference": [
         "ijiyutzakwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijiyutzakwa",
       "rawInput": "-ijiyutzakwa",
       "derivationType": "applicative",
@@ -9661,6 +7143,7 @@
       "overlapWithSourceReference": [
         "ijtesunewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijtesunewi",
       "rawInput": "ijtesunewi",
       "derivationType": "applicative",
@@ -9694,6 +7177,7 @@
       "overlapWithSourceReference": [
         "ilpijtiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ilpijtiwi",
       "rawInput": "ilpijtiwi",
       "derivationType": "applicative",
@@ -9727,6 +7211,7 @@
       "overlapWithSourceReference": [
         "ishmijmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishmijmiki",
       "rawInput": "ishmijmiki",
       "derivationType": "causative",
@@ -9755,42 +7240,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ishpetanilu"
-      ],
-      "lexeme": "ishpetani",
-      "rawInput": "ishpetani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ishpetania",
-        "ishpetantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ishpetanilu",
-        "ishpetantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ishpetanilu",
-        "ishpetantilu"
-      ],
-      "sourceReferenceStems": [
-        "ishpetanu",
-        "ishpetanilu"
-      ],
-      "surfaceResult": "ishpetanilu / ishpetantilu",
-      "surfaceForms": [
-        "ishpetanilu",
-        "ishpetantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ishpuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishpuliwi",
       "rawInput": "ishpuliwi",
       "derivationType": "applicative",
@@ -9824,6 +7276,7 @@
       "overlapWithSourceReference": [
         "ishpuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishpuyawi",
       "rawInput": "ishpuyawi",
       "derivationType": "applicative",
@@ -9857,6 +7310,7 @@
       "overlapWithSourceReference": [
         "ishtalewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtalewi",
       "rawInput": "ishtalewi",
       "derivationType": "applicative",
@@ -9890,6 +7344,7 @@
       "overlapWithSourceReference": [
         "ishtumawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtumawa",
       "rawInput": "ishtumawa",
       "derivationType": "causative",
@@ -9928,6 +7383,7 @@
       "overlapWithSourceReference": [
         "ishtunewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtunewi",
       "rawInput": "ishtunewi",
       "derivationType": "applicative",
@@ -9961,6 +7417,7 @@
       "overlapWithSourceReference": [
         "istalewalu"
       ],
+      "exemptionRule": null,
       "lexeme": "istalewa",
       "rawInput": "istalewa",
       "derivationType": "causative",
@@ -9999,6 +7456,7 @@
       "overlapWithSourceReference": [
         "istalewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "istalewi",
       "rawInput": "istalewi",
       "derivationType": "applicative",
@@ -10032,6 +7490,7 @@
       "overlapWithSourceReference": [
         "mawisyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "mawisyuwa",
       "rawInput": "mawisyuwa",
       "derivationType": "causative",
@@ -10065,6 +7524,7 @@
       "overlapWithSourceReference": [
         "maitzminilu"
       ],
+      "exemptionRule": null,
       "lexeme": "maitzmini",
       "rawInput": "-maitzmini",
       "derivationType": "applicative",
@@ -10099,6 +7559,7 @@
       "overlapWithSourceReference": [
         "mawkamikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mawkamiki",
       "rawInput": "mawkamiki",
       "derivationType": "causative",
@@ -10129,6 +7590,7 @@
       "overlapWithSourceReference": [
         "mayanmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mayanmiki",
       "rawInput": "mayanmiki",
       "derivationType": "causative",
@@ -10159,6 +7621,7 @@
       "overlapWithSourceReference": [
         "masuneliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "masuneliwi",
       "rawInput": "masuneliwi",
       "derivationType": "applicative",
@@ -10192,6 +7655,7 @@
       "overlapWithSourceReference": [
         "mishkiyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mishkiyawi",
       "rawInput": "mishkiyawi",
       "derivationType": "applicative",
@@ -10225,6 +7689,7 @@
       "overlapWithSourceReference": [
         "mishtayuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "mishtayuwa",
       "rawInput": "mishtayuwa",
       "derivationType": "causative",
@@ -10258,6 +7723,7 @@
       "overlapWithSourceReference": [
         "nakasmawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nakasmawi",
       "rawInput": "nakasmawi",
       "derivationType": "applicative",
@@ -10291,6 +7757,7 @@
       "overlapWithSourceReference": [
         "nenpuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nenpuliwi",
       "rawInput": "nenpuliwi",
       "derivationType": "applicative",
@@ -10324,6 +7791,7 @@
       "overlapWithSourceReference": [
         "nunukiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "nunukiwi",
       "rawInput": "nunukiwi",
       "derivationType": "applicative",
@@ -10355,102 +7823,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "panajakilu"
-      ],
-      "lexeme": "panajaki",
-      "rawInput": "panajaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "panajakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "panajakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "panajakilu"
-      ],
-      "sourceReferenceStems": [
-        "panajaku",
-        "panajakilu"
-      ],
-      "surfaceResult": "panajakilu",
-      "surfaceForms": [
-        "panajakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "pankalakilu"
-      ],
-      "lexeme": "pankalaki",
-      "rawInput": "pankalaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pankalakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pankalakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pankalakilu"
-      ],
-      "sourceReferenceStems": [
-        "pankalaku",
-        "pankalakilu"
-      ],
-      "surfaceResult": "pankalakilu",
-      "surfaceForms": [
-        "pankalakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "pantzikwinilu"
-      ],
-      "lexeme": "pantzikwini",
-      "rawInput": "pantzikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pantzikwinia",
-        "pantzikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pantzikwinilu",
-        "pantzikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pantzikwinilu",
-        "pantzikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "pantzikwinu",
-        "pantzikwinilu"
-      ],
-      "surfaceResult": "pantzikwinilu / pantzikwintilu",
-      "surfaceForms": [
-        "pantzikwinilu",
-        "pantzikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "patachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "patachiwi",
       "rawInput": "patachiwi",
       "derivationType": "applicative",
@@ -10482,72 +7857,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "patzkalakilu"
-      ],
-      "lexeme": "patzkalaki",
-      "rawInput": "patzkalaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "patzkalakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "patzkalakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "patzkalakilu"
-      ],
-      "sourceReferenceStems": [
-        "patzkalaku",
-        "patzkalakilu"
-      ],
-      "surfaceResult": "patzkalakilu",
-      "surfaceForms": [
-        "patzkalakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "pitzkuyunilu"
-      ],
-      "lexeme": "pitzkuyuni",
-      "rawInput": "pitzkuyuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pitzkuyunia",
-        "pitzkuyuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pitzkuyunilu",
-        "pitzkuyuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pitzkuyunilu",
-        "pitzkuyuntilu"
-      ],
-      "sourceReferenceStems": [
-        "pitzkuyunu",
-        "pitzkuyunilu"
-      ],
-      "surfaceResult": "pitzkuyunilu / pitzkuyuntilu",
-      "surfaceForms": [
-        "pitzkuyunilu",
-        "pitzkuyuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "pitzuneliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pitzuneliwi",
       "rawInput": "pitzuneliwi",
       "derivationType": "applicative",
@@ -10581,6 +7893,7 @@
       "overlapWithSourceReference": [
         "kechpatzkilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kechpatzka",
       "rawInput": "-kechpatzka",
       "derivationType": "applicative",
@@ -10615,6 +7928,7 @@
       "overlapWithSourceReference": [
         "kekeshiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kekeshiwi",
       "rawInput": "kekeshiwi",
       "derivationType": "applicative",
@@ -10648,6 +7962,7 @@
       "overlapWithSourceReference": [
         "teujsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "teujsiwi",
       "rawInput": "teujsiwi",
       "derivationType": "applicative",
@@ -10681,6 +7996,7 @@
       "overlapWithSourceReference": [
         "teujsiuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "teujsiuwa",
       "rawInput": "teujsiuwa",
       "derivationType": "causative",
@@ -10714,6 +8030,7 @@
       "overlapWithSourceReference": [
         "tepajsuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tepajsuliwi",
       "rawInput": "tepajsuliwi",
       "derivationType": "applicative",
@@ -10747,6 +8064,7 @@
       "overlapWithSourceReference": [
         "tepanchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tepanchiwa",
       "rawInput": "tepanchiwa",
       "derivationType": "causative",
@@ -10783,76 +8101,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tetzmulinilu"
-      ],
-      "lexeme": "tetzmulini",
-      "rawInput": "tetzmulini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tetzmulinia",
-        "tetzmulintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tetzmulinilu",
-        "tetzmulintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tetzmulinilu",
-        "tetzmulintilu"
-      ],
-      "sourceReferenceStems": [
-        "tetzmulinu",
-        "tetzmulinilu"
-      ],
-      "surfaceResult": "tetzmulinilu / tetzmulintilu",
-      "surfaceForms": [
-        "tetzmulinilu",
-        "tetzmulintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "teyukuyanilu"
-      ],
-      "lexeme": "teyukuyani",
-      "rawInput": "teyukuyani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "teyukuyania",
-        "teyukuyantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "teyukuyanilu",
-        "teyukuyantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "teyukuyanilu",
-        "teyukuyantilu"
-      ],
-      "sourceReferenceStems": [
-        "teyukuyanu",
-        "teyukuyanilu"
-      ],
-      "surfaceResult": "teyukuyanilu / teyukuyantilu",
-      "surfaceForms": [
-        "teyukuyanilu",
-        "teyukuyantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "takawapawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "takawapawa",
       "rawInput": "takawapawa",
       "derivationType": "causative",
@@ -10891,6 +8142,7 @@
       "overlapWithSourceReference": [
         "takwajnamikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "takwajnamiki",
       "rawInput": "takwajnamiki",
       "derivationType": "causative",
@@ -10921,6 +8173,7 @@
       "overlapWithSourceReference": [
         "takwalmimikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "takwalmimiki",
       "rawInput": "takwalmimiki",
       "derivationType": "causative",
@@ -10951,6 +8204,7 @@
       "overlapWithSourceReference": [
         "tajtaijtanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tajtaijtani",
       "rawInput": "-tajtaijtani",
       "derivationType": "applicative",
@@ -10983,42 +8237,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tawelpusunilu"
-      ],
-      "lexeme": "tawelpusuni",
-      "rawInput": "tawelpusuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tawelpusunia",
-        "tawelpusuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tawelpusunilu",
-        "tawelpusuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tawelpusunilu",
-        "tawelpusuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tawelpusunu",
-        "tawelpusunilu"
-      ],
-      "surfaceResult": "tawelpusunilu / tawelpusuntilu",
-      "surfaceForms": [
-        "tawelpusunilu",
-        "tawelpusuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "talpachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "talpachiwi",
       "rawInput": "talpachiwi",
       "derivationType": "applicative",
@@ -11052,6 +8273,7 @@
       "overlapWithSourceReference": [
         "tankwitzawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tankwitzawi",
       "rawInput": "tankwitzawi",
       "derivationType": "applicative",
@@ -11085,6 +8307,7 @@
       "overlapWithSourceReference": [
         "tapupuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tapupuyawi",
       "rawInput": "tapupuyawi",
       "derivationType": "applicative",
@@ -11118,6 +8341,7 @@
       "overlapWithSourceReference": [
         "tatalchipawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tatalchipawa",
       "rawInput": "tatalchipawa",
       "derivationType": "causative",
@@ -11154,76 +8378,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tatzkutunilu"
-      ],
-      "lexeme": "tatzkutuni",
-      "rawInput": "tatzkutuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatzkutunia",
-        "tatzkutuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatzkutunilu",
-        "tatzkutuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatzkutunilu",
-        "tatzkutuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tatzkutunu",
-        "tatzkutunilu"
-      ],
-      "surfaceResult": "tatzkutunilu / tatzkutuntilu",
-      "surfaceForms": [
-        "tatzkutunilu",
-        "tatzkutuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tatzmulinilu"
-      ],
-      "lexeme": "tatzmulini",
-      "rawInput": "tatzmulini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tatzmulinia",
-        "tatzmulintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tatzmulinilu",
-        "tatzmulintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tatzmulinilu",
-        "tatzmulintilu"
-      ],
-      "sourceReferenceStems": [
-        "tatzmulinu",
-        "tatzmulinilu"
-      ],
-      "surfaceResult": "tatzmulinilu / tatzmulintilu",
-      "surfaceForms": [
-        "tatzmulinilu",
-        "tatzmulintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tashkalchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tashkalchiwa",
       "rawInput": "tashkalchiwa",
       "derivationType": "causative",
@@ -11262,6 +8419,7 @@
       "overlapWithSourceReference": [
         "tepachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tepachiwi",
       "rawInput": "tepachiwi",
       "derivationType": "applicative",
@@ -11295,6 +8453,7 @@
       "overlapWithSourceReference": [
         "tutultepuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tutultepuwa",
       "rawInput": "tutultepuwa",
       "derivationType": "causative",
@@ -11328,6 +8487,7 @@
       "overlapWithSourceReference": [
         "tzunpiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzunpiliwi",
       "rawInput": "tzunpiliwi",
       "derivationType": "applicative",
@@ -11359,110 +8519,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shittumunilu"
-      ],
-      "lexeme": "shittumuni",
-      "rawInput": "shittumuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shittumunia",
-        "shittumuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shittumunilu",
-        "shittumuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shittumunilu",
-        "shittumuntilu"
-      ],
-      "sourceReferenceStems": [
-        "shittumunu",
-        "shittumunilu"
-      ],
-      "surfaceResult": "shittumunilu / shittumuntilu",
-      "surfaceForms": [
-        "shittumunilu",
-        "shittumuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "shishijkwepunilu"
-      ],
-      "lexeme": "shishijkwepuni",
-      "rawInput": "shishijkwepuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shishijkwepunia",
-        "shishijkwepuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shishijkwepunilu",
-        "shishijkwepuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shishijkwepunilu",
-        "shishijkwepuntilu"
-      ],
-      "sourceReferenceStems": [
-        "shishijkwepunu",
-        "shishijkwepunilu"
-      ],
-      "surfaceResult": "shishijkwepunilu / shishijkwepuntilu",
-      "surfaceForms": [
-        "shishijkwepunilu",
-        "shishijkwepuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "shuchikwepunilu"
-      ],
-      "lexeme": "shuchikwepuni",
-      "rawInput": "shuchikwepuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shuchikwepunia",
-        "shuchikwepuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shuchikwepunilu",
-        "shuchikwepuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shuchikwepunilu",
-        "shuchikwepuntilu"
-      ],
-      "sourceReferenceStems": [
-        "shuchikwepunu",
-        "shuchikwepunilu"
-      ],
-      "surfaceResult": "shuchikwepunilu / shuchikwepuntilu",
-      "surfaceForms": [
-        "shuchikwepunilu",
-        "shuchikwepuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "shushukewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shushukewi",
       "rawInput": "shushukewi",
       "derivationType": "applicative",
@@ -11496,6 +8555,7 @@
       "overlapWithSourceReference": [
         "yayatiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yayatiwi",
       "rawInput": "yayatiwi",
       "derivationType": "applicative",
@@ -11529,6 +8589,7 @@
       "overlapWithSourceReference": [
         "sujsutimanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "sujsutimani",
       "rawInput": "-sujsutimani",
       "derivationType": "applicative",
@@ -11563,6 +8624,7 @@
       "overlapWithSourceReference": [
         "ajwachkiyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajwachkiyawi",
       "rawInput": "ajwachkiyawi",
       "derivationType": "applicative",
@@ -11596,6 +8658,7 @@
       "overlapWithSourceReference": [
         "ajwachtelawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajwachtelawi",
       "rawInput": "ajwachtelawi",
       "derivationType": "applicative",
@@ -11629,6 +8692,7 @@
       "overlapWithSourceReference": [
         "aijiyumikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "aijiyumiki",
       "rawInput": "aijiyumiki",
       "derivationType": "causative",
@@ -11659,6 +8723,7 @@
       "overlapWithSourceReference": [
         "kamanekwiliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kamanekwiliwi",
       "rawInput": "kamanekwiliwi",
       "derivationType": "applicative",
@@ -11692,6 +8757,7 @@
       "overlapWithSourceReference": [
         "kamateliskilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kamateliska",
       "rawInput": "-kamateliska",
       "derivationType": "applicative",
@@ -11726,6 +8792,7 @@
       "overlapWithSourceReference": [
         "kuchpachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kuchpachiwi",
       "rawInput": "kuchpachiwi",
       "derivationType": "applicative",
@@ -11759,6 +8826,7 @@
       "overlapWithSourceReference": [
         "kuchtamelawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kuchtamelawa",
       "rawInput": "kuchtamelawa",
       "derivationType": "causative",
@@ -11797,6 +8865,7 @@
       "overlapWithSourceReference": [
         "kukujpusawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kukujpusawi",
       "rawInput": "kukujpusawi",
       "derivationType": "applicative",
@@ -11830,6 +8899,7 @@
       "overlapWithSourceReference": [
         "kwajkwakwajtimanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwajkwakwajtimani",
       "rawInput": "-kwajkwakwajtimani",
       "derivationType": "applicative",
@@ -11864,6 +8934,7 @@
       "overlapWithSourceReference": [
         "elsiijsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "elsiijsiwi",
       "rawInput": "elsiijsiwi",
       "derivationType": "applicative",
@@ -11897,6 +8968,7 @@
       "overlapWithSourceReference": [
         "wejkapaniwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "wejkapaniwi",
       "rawInput": "wejkapaniwi",
       "derivationType": "applicative",
@@ -11930,6 +9002,7 @@
       "overlapWithSourceReference": [
         "ilakatziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ilakatziwi",
       "rawInput": "ilakatziwi",
       "derivationType": "applicative",
@@ -11963,6 +9036,7 @@
       "overlapWithSourceReference": [
         "ishchichilewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishchichilewi",
       "rawInput": "ishchichilewi",
       "derivationType": "applicative",
@@ -11996,6 +9070,7 @@
       "overlapWithSourceReference": [
         "ishpachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishpachiwi",
       "rawInput": "ishpachiwi",
       "derivationType": "applicative",
@@ -12027,42 +9102,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ishpepetunilu"
-      ],
-      "lexeme": "ishpepetuni",
-      "rawInput": "ishpepetuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ishpepetunia",
-        "ishpepetuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ishpepetunilu",
-        "ishpepetuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ishpepetunilu",
-        "ishpepetuntilu"
-      ],
-      "sourceReferenceStems": [
-        "ishpepetunu",
-        "ishpepetunilu"
-      ],
-      "surfaceResult": "ishpepetunilu / ishpepetuntilu",
-      "surfaceForms": [
-        "ishpepetunilu",
-        "ishpepetuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ishpujpuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishpujpuliwi",
       "rawInput": "ishpujpuliwi",
       "derivationType": "applicative",
@@ -12096,6 +9138,7 @@
       "overlapWithSourceReference": [
         "ishtisewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtisewi",
       "rawInput": "ishtisewi",
       "derivationType": "applicative",
@@ -12129,6 +9172,7 @@
       "overlapWithSourceReference": [
         "ishtajtayuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtajtayuwa",
       "rawInput": "ishtajtayuwa",
       "derivationType": "causative",
@@ -12162,6 +9206,7 @@
       "overlapWithSourceReference": [
         "ishtawelmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtawelmiki",
       "rawInput": "ishtawelmiki",
       "derivationType": "causative",
@@ -12192,6 +9237,7 @@
       "overlapWithSourceReference": [
         "majmaijsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "majmaijsiwi",
       "rawInput": "majmaijsiwi",
       "derivationType": "applicative",
@@ -12225,6 +9271,7 @@
       "overlapWithSourceReference": [
         "malakachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "malakachiwi",
       "rawInput": "malakachiwi",
       "derivationType": "applicative",
@@ -12258,6 +9305,7 @@
       "overlapWithSourceReference": [
         "pakkapuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pakkapuliwi",
       "rawInput": "pakkapuliwi",
       "derivationType": "applicative",
@@ -12291,6 +9339,7 @@
       "overlapWithSourceReference": [
         "ketzalwituliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ketzalwituliwi",
       "rawInput": "ketzalwituliwi",
       "derivationType": "applicative",
@@ -12322,42 +9371,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tewitekunilu"
-      ],
-      "lexeme": "tewitekuni",
-      "rawInput": "tewitekuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tewitekunia",
-        "tewitekuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tewitekunilu",
-        "tewitekuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tewitekunilu",
-        "tewitekuntilu"
-      ],
-      "sourceReferenceStems": [
-        "tewitekunu",
-        "tewitekunilu"
-      ],
-      "surfaceResult": "tewitekunilu / tewitekuntilu",
-      "surfaceForms": [
-        "tewitekunilu",
-        "tewitekuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tentzunyuwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tentzunyuwa",
       "rawInput": "tentzunyuwa",
       "derivationType": "causative",
@@ -12389,76 +9405,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tepantzikwinilu"
-      ],
-      "lexeme": "tepantzikwini",
-      "rawInput": "tepantzikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tepantzikwinia",
-        "tepantzikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tepantzikwinilu",
-        "tepantzikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tepantzikwinilu",
-        "tepantzikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tepantzikwinu",
-        "tepantzikwinilu"
-      ],
-      "surfaceResult": "tepantzikwinilu / tepantzikwintilu",
-      "surfaceForms": [
-        "tepantzikwinilu",
-        "tepantzikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tetamajmakanilu"
-      ],
-      "lexeme": "tetamajmakani",
-      "rawInput": "tetamajmakani",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tetamajmakania",
-        "tetamajmakantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tetamajmakanilu",
-        "tetamajmakantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tetamajmakanilu",
-        "tetamajmakantilu"
-      ],
-      "sourceReferenceStems": [
-        "tetamajmakanu",
-        "tetamajmakanilu"
-      ],
-      "surfaceResult": "tetamajmakanilu / tetamajmakantilu",
-      "surfaceForms": [
-        "tetamajmakanilu",
-        "tetamajmakantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tewyujtiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tewyujtiwi",
       "rawInput": "tewyujtiwi",
       "derivationType": "applicative",
@@ -12492,6 +9441,7 @@
       "overlapWithSourceReference": [
         "takuchmelawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "takuchmelawa",
       "rawInput": "takuchmelawa",
       "derivationType": "causative",
@@ -12530,6 +9480,7 @@
       "overlapWithSourceReference": [
         "taijtakulkawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "taijtakulkawa",
       "rawInput": "taijtakulkawa",
       "derivationType": "causative",
@@ -12568,6 +9519,7 @@
       "overlapWithSourceReference": [
         "taijtakulchiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "taijtakulchiwa",
       "rawInput": "taijtakulchiwa",
       "derivationType": "causative",
@@ -12604,42 +9556,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shishittumunilu"
-      ],
-      "lexeme": "shishittumuni",
-      "rawInput": "shishittumuni",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shishittumunia",
-        "shishittumuntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shishittumunilu",
-        "shishittumuntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shishittumunilu",
-        "shishittumuntilu"
-      ],
-      "sourceReferenceStems": [
-        "shishittumunu",
-        "shishittumunilu"
-      ],
-      "surfaceResult": "shishittumunilu / shishittumuntilu",
-      "surfaceForms": [
-        "shishittumunilu",
-        "shishittumuntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "yekpetziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yekpetziwi",
       "rawInput": "yekpetziwi",
       "derivationType": "applicative",
@@ -12673,6 +9592,7 @@
       "overlapWithSourceReference": [
         "yekshakwaliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yekshakwaliwi",
       "rawInput": "yekshakwaliwi",
       "derivationType": "applicative",
@@ -12706,6 +9626,7 @@
       "overlapWithSourceReference": [
         "yulneijsiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yulneijsiwi",
       "rawInput": "yulneijsiwi",
       "derivationType": "applicative",
@@ -12739,6 +9660,7 @@
       "overlapWithSourceReference": [
         "satepanyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "satepanyawi",
       "rawInput": "satepanyawi",
       "derivationType": "applicative",
@@ -12770,38 +9692,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "aijiyukalakilu"
-      ],
-      "lexeme": "aijiyukalaki",
-      "rawInput": "aijiyukalaki",
-      "derivationType": "causative",
-      "sourceFile": "data/basic-data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "aijiyukalakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "aijiyukalakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "aijiyukalakilu"
-      ],
-      "sourceReferenceStems": [
-        "aijiyukalaku",
-        "aijiyukalakilu"
-      ],
-      "surfaceResult": "aijiyukalakilu",
-      "surfaceForms": [
-        "aijiyukalakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "kuchkamakuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kuchkamakuyawi",
       "rawInput": "kuchkamakuyawi",
       "derivationType": "applicative",
@@ -12835,6 +9728,7 @@
       "overlapWithSourceReference": [
         "ishayutepewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishayutepewi",
       "rawInput": "ishayutepewi",
       "derivationType": "applicative",
@@ -12868,6 +9762,7 @@
       "overlapWithSourceReference": [
         "ishnenpuliwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishnenpuliwi",
       "rawInput": "ishnenpuliwi",
       "derivationType": "applicative",
@@ -12901,6 +9796,7 @@
       "overlapWithSourceReference": [
         "ishteneshewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishteneshewi",
       "rawInput": "ishteneshewi",
       "derivationType": "applicative",
@@ -12934,6 +9830,7 @@
       "overlapWithSourceReference": [
         "ishtapupuyawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishtapupuyawi",
       "rawInput": "ishtapupuyawi",
       "derivationType": "applicative",
@@ -12967,6 +9864,7 @@
       "overlapWithSourceReference": [
         "tawelishnamikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tawelishnamiki",
       "rawInput": "tawelishnamiki",
       "derivationType": "causative",
@@ -12997,6 +9895,7 @@
       "overlapWithSourceReference": [
         "shayakashuluchawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shayakashuluchawi",
       "rawInput": "shayakashuluchawi",
       "derivationType": "applicative",
@@ -13030,6 +9929,7 @@
       "overlapWithSourceReference": [
         "susulukatiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "susulukatiwi",
       "rawInput": "susulukatiwi",
       "derivationType": "applicative",
@@ -13063,6 +9963,7 @@
       "overlapWithSourceReference": [
         "ikshikwetashiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ikshikwetashiwi",
       "rawInput": "ikshikwetashiwi",
       "derivationType": "applicative",
@@ -13096,6 +9997,7 @@
       "overlapWithSourceReference": [
         "ishmalakachiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishmalakachiwi",
       "rawInput": "ishmalakachiwi",
       "derivationType": "applicative",
@@ -13129,6 +10031,7 @@
       "overlapWithSourceReference": [
         "ketzalilakatziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ketzalilakatziwi",
       "rawInput": "ketzalilakatziwi",
       "derivationType": "applicative",
@@ -13162,6 +10065,7 @@
       "overlapWithSourceReference": [
         "machiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "machiwa",
       "rawInput": "machiwa",
       "derivationType": "causative",
@@ -13200,6 +10104,7 @@
       "overlapWithSourceReference": [
         "pawashiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "pawashiwa",
       "rawInput": "pawashiwa",
       "derivationType": "causative",
@@ -13238,6 +10143,7 @@
       "overlapWithSourceReference": [
         "ishajshiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "ishajshiwa",
       "rawInput": "ishajshiwa",
       "derivationType": "causative",
@@ -13276,6 +10182,7 @@
       "overlapWithSourceReference": [
         "kwiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwiwa",
       "rawInput": "kwiwa",
       "derivationType": "causative",
@@ -13313,6 +10220,7 @@
       "overlapWithSourceReference": [
         "sekwiwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "sekwiwa",
       "rawInput": "sekwiwa",
       "derivationType": "causative",
@@ -13351,6 +10259,7 @@
       "overlapWithSourceReference": [
         "chakwanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "chakwani",
       "rawInput": "-chakwani",
       "derivationType": "applicative",
@@ -13385,6 +10294,7 @@
       "overlapWithSourceReference": [
         "ijisiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijisiwi",
       "rawInput": "-ijisiwi",
       "derivationType": "applicative",
@@ -13418,6 +10328,7 @@
       "overlapWithSourceReference": [
         "ijkwanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijkwani",
       "rawInput": "-ijkwani",
       "derivationType": "applicative",
@@ -13452,6 +10363,7 @@
       "overlapWithSourceReference": [
         "makalu"
       ],
+      "exemptionRule": null,
       "lexeme": "maka",
       "rawInput": "-maka",
       "derivationType": "applicative",
@@ -13486,6 +10398,7 @@
       "overlapWithSourceReference": [
         "pishkilu"
       ],
+      "exemptionRule": null,
       "lexeme": "pishka",
       "rawInput": "-pishka",
       "derivationType": "applicative",
@@ -13520,6 +10433,7 @@
       "overlapWithSourceReference": [
         "tajtanilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tajtani",
       "rawInput": "-tajtani",
       "derivationType": "applicative",
@@ -13554,6 +10468,7 @@
       "overlapWithSourceReference": [
         "unilu"
       ],
+      "exemptionRule": null,
       "lexeme": "uni",
       "rawInput": "-uni",
       "derivationType": "applicative",
@@ -13588,6 +10503,7 @@
       "overlapWithSourceReference": [
         "yulkwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yulkwi",
       "rawInput": "-yulkwi",
       "derivationType": "applicative",
@@ -13622,6 +10538,7 @@
       "overlapWithSourceReference": [
         "ajsilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajsi",
       "rawInput": "ajsi",
       "derivationType": "causative",
@@ -13653,6 +10570,7 @@
       "overlapWithSourceReference": [
         "tzawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tzawa",
       "rawInput": "tzawa",
       "derivationType": "causative",
@@ -13690,6 +10608,7 @@
       "overlapWithSourceReference": [
         "ajkewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajkewi",
       "rawInput": "ajkewi",
       "derivationType": "applicative",
@@ -13723,6 +10642,7 @@
       "overlapWithSourceReference": [
         "ajkwechiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajkwechiwi",
       "rawInput": "ajkwechiwi",
       "derivationType": "applicative",
@@ -13756,6 +10676,7 @@
       "overlapWithSourceReference": [
         "ajwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ajwi",
       "rawInput": "ajwi",
       "derivationType": "applicative",
@@ -13788,38 +10709,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "akalakilu"
-      ],
-      "lexeme": "akalaki",
-      "rawInput": "akalaki",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "akalakia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "akalakilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "akalakilu"
-      ],
-      "sourceReferenceStems": [
-        "akalaku",
-        "akalakilu"
-      ],
-      "surfaceResult": "akalakilu",
-      "surfaceForms": [
-        "akalakilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "amesawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "amesawi",
       "rawInput": "amesawi",
       "derivationType": "applicative",
@@ -13853,6 +10745,7 @@
       "overlapWithSourceReference": [
         "atekilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ateki",
       "rawInput": "ateki",
       "derivationType": "causative",
@@ -13881,42 +10774,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "ijtisulunilu"
-      ],
-      "lexeme": "ijtisuluni",
-      "rawInput": "ijtisuluni",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "ijtisulunia",
-        "ijtisuluntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "ijtisulunilu",
-        "ijtisuluntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "ijtisulunilu",
-        "ijtisuluntilu"
-      ],
-      "sourceReferenceStems": [
-        "ijtisulunu",
-        "ijtisulunilu"
-      ],
-      "surfaceResult": "ijtisulunilu / ijtisuluntilu",
-      "surfaceForms": [
-        "ijtisulunilu",
-        "ijtisuluntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "ijyumikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "ijyumiki",
       "rawInput": "ijyumiki",
       "derivationType": "causative",
@@ -13947,6 +10807,7 @@
       "overlapWithSourceReference": [
         "kupewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kupewi",
       "rawInput": "kupewi",
       "derivationType": "applicative",
@@ -13980,6 +10841,7 @@
       "overlapWithSourceReference": [
         "kwechiwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "kwechiwi",
       "rawInput": "kwechiwi",
       "derivationType": "applicative",
@@ -14013,6 +10875,7 @@
       "overlapWithSourceReference": [
         "mijmikilu"
       ],
+      "exemptionRule": null,
       "lexeme": "mijmiki",
       "rawInput": "mijmiki",
       "derivationType": "causative",
@@ -14041,141 +10904,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "pajtilu"
-      ],
-      "lexeme": "pajti",
-      "rawInput": "pajti",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pajtia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pajtilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pajtilu"
-      ],
-      "sourceReferenceStems": [
-        "pajtu",
-        "pajtiu",
-        "pajtilu"
-      ],
-      "surfaceResult": "pajtilu",
-      "surfaceForms": [
-        "pajtilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "pishkilu"
-      ],
-      "lexeme": "pishki",
-      "rawInput": "pishki",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "pishkia",
-        "pishkitia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "pishkilu",
-        "pishkitilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "pishkilu",
-        "pishkitilu"
-      ],
-      "sourceReferenceStems": [
-        "pishku",
-        "pishkilu"
-      ],
-      "surfaceResult": "pishkilu / pishkitilu",
-      "surfaceForms": [
-        "pishkilu",
-        "pishkitilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "puchinilu"
-      ],
-      "lexeme": "puchini",
-      "rawInput": "puchini",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "puchinia",
-        "puchintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "puchinilu",
-        "puchintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "puchinilu",
-        "puchintilu"
-      ],
-      "sourceReferenceStems": [
-        "puchinu",
-        "puchinilu"
-      ],
-      "surfaceResult": "puchinilu / puchintilu",
-      "surfaceForms": [
-        "puchinilu",
-        "puchintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "punilu"
-      ],
-      "lexeme": "puni",
-      "rawInput": "puni",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "punia",
-        "puntia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "punilu",
-        "puntilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "punilu",
-        "puntilu"
-      ],
-      "sourceReferenceStems": [
-        "punu",
-        "punilu"
-      ],
-      "surfaceResult": "punilu / puntilu",
-      "surfaceForms": [
-        "punilu",
-        "puntilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "samawalu"
       ],
+      "exemptionRule": null,
       "lexeme": "samawa",
       "rawInput": "samawa",
       "derivationType": "causative",
@@ -14212,42 +10943,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "shinilu"
-      ],
-      "lexeme": "shini",
-      "rawInput": "shini",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "shinia",
-        "shintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "shinilu",
-        "shintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "shinilu",
-        "shintilu"
-      ],
-      "sourceReferenceStems": [
-        "shinu",
-        "shinilu"
-      ],
-      "surfaceResult": "shinilu / shintilu",
-      "surfaceForms": [
-        "shinilu",
-        "shintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "shipinawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "shipinawi",
       "rawInput": "shipinawi",
       "derivationType": "applicative",
@@ -14279,42 +10977,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "takipinilu"
-      ],
-      "lexeme": "takipini",
-      "rawInput": "takipini",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "takipinia",
-        "takipintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "takipinilu",
-        "takipintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "takipinilu",
-        "takipintilu"
-      ],
-      "sourceReferenceStems": [
-        "takipinu",
-        "takipinilu"
-      ],
-      "surfaceResult": "takipinilu / takipintilu",
-      "surfaceForms": [
-        "takipinilu",
-        "takipintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tatwalu"
       ],
+      "exemptionRule": null,
       "lexeme": "tatwa",
       "rawInput": "tatwa",
       "derivationType": "causative",
@@ -14346,42 +11011,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tawanilu"
-      ],
-      "lexeme": "tawani",
-      "rawInput": "tawani",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tawania",
-        "tawantia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tawanilu",
-        "tawantilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tawanilu",
-        "tawantilu"
-      ],
-      "sourceReferenceStems": [
-        "tawanu",
-        "tawanilu"
-      ],
-      "surfaceResult": "tawanilu / tawantilu",
-      "surfaceForms": [
-        "tawanilu",
-        "tawantilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "tentatziwilu"
       ],
+      "exemptionRule": null,
       "lexeme": "tentatziwi",
       "rawInput": "tentatziwi",
       "derivationType": "applicative",
@@ -14413,76 +11045,9 @@
     {
       "status": "overlaps_source_direct",
       "overlapWithSourceReference": [
-        "tetzikwinilu"
-      ],
-      "lexeme": "tetzikwini",
-      "rawInput": "tetzikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tetzikwinia",
-        "tetzikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tetzikwinilu",
-        "tetzikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tetzikwinilu",
-        "tetzikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tetzikwinu",
-        "tetzikwinilu"
-      ],
-      "surfaceResult": "tetzikwinilu / tetzikwintilu",
-      "surfaceForms": [
-        "tetzikwinilu",
-        "tetzikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
-        "tikwinilu"
-      ],
-      "lexeme": "tikwini",
-      "rawInput": "tikwini",
-      "derivationType": "causative",
-      "sourceFile": "data/data.csv",
-      "transitivity": "intransitive",
-      "targetSlots": 1,
-      "objectPrefix": "ki",
-      "forwardStems": [
-        "tikwinia",
-        "tikwintia"
-      ],
-      "expectedDerivedNonactiveStems": [
-        "tikwinilu",
-        "tikwintilu"
-      ],
-      "actualDerivedNonactiveStems": [
-        "tikwinilu",
-        "tikwintilu"
-      ],
-      "sourceReferenceStems": [
-        "tikwinu",
-        "tikwinilu"
-      ],
-      "surfaceResult": "tikwinilu / tikwintilu",
-      "surfaceForms": [
-        "tikwinilu",
-        "tikwintilu"
-      ]
-    },
-    {
-      "status": "overlaps_source_direct",
-      "overlapWithSourceReference": [
         "wilewilu"
       ],
+      "exemptionRule": null,
       "lexeme": "wilewi",
       "rawInput": "wilewi",
       "derivationType": "applicative",
@@ -14516,6 +11081,7 @@
       "overlapWithSourceReference": [
         "yekawilu"
       ],
+      "exemptionRule": null,
       "lexeme": "yekawi",
       "rawInput": "yekawi",
       "derivationType": "applicative",

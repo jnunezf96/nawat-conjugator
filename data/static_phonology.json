@@ -5,5 +5,29 @@
   "vowels": "aeiu",
   "validConsonants": ["p", "t", "k", "m", "n", "s", "l", "w", "y", "j", "c", "z", "d"],
   "digraphs": ["tz", "sh", "ch", "kw", "nh"],
-  "syllableForms": ["C", "CV", "CVj", "CVl", "V", "Vj", "Vl"]
+  "syllableForms": ["C", "CV", "CVj", "CVl", "V", "Vj", "Vl"],
+  "surfaceAssimilations": [
+    {
+      "id": "m-to-n-before-onset",
+      "description": "Coda [m] assimilates to [n] before any consonant onset or word-finally",
+      "finalChar": "m",
+      "nextCharClass": "consonantOrWordFinal",
+      "replace": "n"
+    },
+    {
+      "id": "kw-coalescence",
+      "description": "Coda [kw] reduces to [k] before any consonant onset or word-finally",
+      "finalChar": "kw",
+      "nextCharClass": "consonantOrWordFinal",
+      "replace": "k"
+    },
+    {
+      "id": "y-shift",
+      "description": "Coda [y] shifts to [sh] before any consonant onset or word-finally; shifts to [s] instead for intransitive stems with [s] in the last five phonemes",
+      "finalChar": "y",
+      "nextCharClass": "consonantOrWordFinal",
+      "replace": "sh",
+      "intransitiveRecentSException": "s"
+    }
+  ]
 }

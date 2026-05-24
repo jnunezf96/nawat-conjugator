@@ -25,14 +25,14 @@ function applyPretUniversalDeletionShift(stem, options = {}) {
     const specs = [];
     if (typeof buildPretDeletionShiftBaseSpec === "function") {
         if (stem.endsWith("kw")) {
-            specs.push(buildPretDeletionShiftBaseSpec(stem, "kw-to-k", options));
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "identity", options));
         } else if (stem.endsWith("w")) {
             specs.push(buildPretDeletionShiftBaseSpec(stem, "w-keep", options));
             specs.push(buildPretDeletionShiftBaseSpec(stem, "w-to-j", options));
         } else if (stem.endsWith("m")) {
-            specs.push(buildPretDeletionShiftBaseSpec(stem, "m-to-n", options));
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "identity", options));
         } else if (stem.endsWith("y")) {
-            specs.push(buildPretDeletionShiftBaseSpec(stem, "y-shift", options));
+            specs.push(buildPretDeletionShiftBaseSpec(stem, "identity", options));
         } else {
             specs.push(buildPretDeletionShiftBaseSpec(stem, "identity", options));
         }

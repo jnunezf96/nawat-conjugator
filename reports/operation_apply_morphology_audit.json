@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Operation ApplyMorphologyRules Audit",
-    "date": "2026-04-02",
+    "date": "2026-04-03",
     "scope": "applyMorphologyRules(...) and its direct authority-bearing helper chain",
     "out_of_scope": [
       "generateWord output aggregation",

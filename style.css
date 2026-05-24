@@ -1261,6 +1261,41 @@ body.is-nonverb-mode .calc-operator-grid--mode {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Causative subtype row (Ambos / Tipo 1 / Tipo 2) */
+.causative-subtype-row {
+  margin-top: var(--layout-gap-tight);
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-gap-tight);
+}
+
+.causative-report-button {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 4px;
+  color: var(--color-text-secondary, #666);
+  cursor: pointer;
+  font-size: calc(var(--font-size-label) - 0.18rem);
+  padding: 2px 8px;
+}
+
+.causative-report-button:hover {
+  background: var(--color-surface-hover, #f0f0f0);
+  color: var(--color-text, #1a1a1a);
+}
+
+.calc-operator-grid--causative-subtype {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Smaller chip variant used inside sub-rows */
+.calc-operator-chip--sm {
+  font-size: calc(var(--font-size-label) - 0.14rem);
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
 .calc-operator-lock-row {
   display: grid;
   gap: var(--layout-gap-tight);

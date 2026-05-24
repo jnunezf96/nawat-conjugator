@@ -1,0 +1,17 @@
+{
+  "name": "nawat-conjugator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/run_tests.js",
+    "test:module": "node scripts/run_tests.js --runtime=module",
+    "test:morphology": "node scripts/operation_apply_morphology_audit.js",
+    "test:regression": "node scripts/run_intransitive_i_causative_regression.js"
+  },
+  "devDependencies": {
+    "@babel/generator": "^7.29.1",
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0"
+  }
+}

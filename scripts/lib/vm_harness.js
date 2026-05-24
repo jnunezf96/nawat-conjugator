@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const { createModuleRuntime: createModuleRuntimeLane } = require("./module_runtime");
 
 const noop = () => {};
 
@@ -102,10 +103,41 @@ function createFakeWindow(document) {
   };
 }
 
+// Load order mirrors index.html: extracted modules first, then preterit, then script.js.
+const PRETERIT_PATHS = [
+  "src/core/phonology/phonology.js",
+  "src/core/agreement/agreement.js",
+  "src/core/agreement/display.js",
+  "src/core/agreement/combo_validation.js",
+  "src/core/search/runtime.js",
+  "src/core/irregulars/irregulars.js",
+  "src/core/output/surface.js",
+  "src/core/output/provenance.js",
+  "src/core/generation/morphology_support.js",
+  "src/core/parsing/parsing.js",
+  "src/core/vnc/allomorphy.js",
+  "src/core/derivation/source_model.js",
+  "src/core/derivation/forward_runtime.js",
+  "src/core/derivation/nonactive.js",
+  "src/core/generation/valency.js",
+  "src/core/generation/request.js",
+  "src/core/generation/morphology_engine.js",
+  "src/core/generation/runtime_support.js",
+  "src/core/generation/engine.js",
+  "src/core/nnc/nnc.js",
+  "src/core/vnc/vnc.js",
+  "src/core/preterit/context.js",
+  "src/core/preterit/engine.js",
+  "src/core/preterit/api.js",
+  "src/ui/state.js",
+  "src/ui/composer/composer.js",
+];
+
 function createVmContext({
   rootDir = process.cwd(),
   scriptPath = path.join(rootDir, "script.js"),
   loadScript = true,
+  loadPreteritModules = true,
   extraGlobals = {},
 } = {}) {
   const fakeElement = createFakeElement();
@@ -132,6 +164,14 @@ function createVmContext({
   context.globalThis = context;
   windowObject.window = windowObject;
   vm.createContext(context);
+  if (loadPreteritModules) {
+    for (const relPath of PRETERIT_PATHS) {
+      const absPath = path.join(rootDir, relPath);
+      if (fs.existsSync(absPath)) {
+        vm.runInContext(fs.readFileSync(absPath, "utf8"), context, { filename: absPath });
+      }
+    }
+  }
   if (loadScript) {
     vm.runInContext(fs.readFileSync(scriptPath, "utf8"), context, { filename: scriptPath });
   }
@@ -139,5 +179,6 @@ function createVmContext({
 }
 
 module.exports = {
+  createModuleRuntime: createModuleRuntimeLane,
   createVmContext,
 };

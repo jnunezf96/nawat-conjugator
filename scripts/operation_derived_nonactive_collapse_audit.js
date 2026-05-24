@@ -166,6 +166,31 @@ function intersectValues(left = [], right = []) {
   return uniqueNonEmpty(left).filter((value) => rightSet.has(value));
 }
 
+function normalizeAuditStem(value = "") {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+}
+
+function shouldExemptCausativeIToIaOverlap(row, derivationType, forwardStems = []) {
+  if (derivationType !== "causative" || row?.isTransitive) {
+    return false;
+  }
+  const base = normalizeAuditStem(
+    row?.parsedVerb?.canonicalRuleBase
+    || row?.parsedVerb?.analysisVerb
+    || row?.lexeme
+    || row?.rawInput,
+  );
+  if (!base || !base.endsWith("i")) {
+    return false;
+  }
+  const expectedIaStem = `${base}a`;
+  return uniqueNonEmpty(forwardStems).some((stem) => (
+    normalizeAuditStem(stem) === expectedIaStem
+  ));
+}
+
 function getDerivedTargetSlots(context, parsedVerb, derivationType) {
   const baseObjectSlots = typeof context.getBaseObjectSlots === "function"
     ? Number(context.getBaseObjectSlots(parsedVerb) || 0)
@@ -317,6 +342,10 @@ function analyzeRow(context, row, derivationType) {
     expectedDerivedNonactiveStems,
     sourceReferenceStems,
   );
+  const exemptCausativeIToIaOverlap = (
+    classification.status === "overlaps_source_direct"
+    && shouldExemptCausativeIToIaOverlap(row, derivationType, forward.stems)
+  );
   const surface = buildPipelineSurface(
     context,
     row,
@@ -326,8 +355,11 @@ function analyzeRow(context, row, derivationType) {
   );
 
   return {
-    status: classification.status,
+    status: exemptCausativeIToIaOverlap ? "aligned" : classification.status,
     overlapWithSourceReference: classification.overlap,
+    exemptionRule: exemptCausativeIToIaOverlap
+      ? "causative_intransitive_i_to_ia"
+      : null,
     lexeme: row.lexeme,
     rawInput: row.rawInput,
     derivationType,
@@ -388,6 +420,7 @@ function buildMarkdownReport(report) {
     `- Lexicon rows scanned: ${summary.lexicon_rows_scanned || 0}`,
     `- Derivation cases evaluated: ${summary.cases_evaluated || 0}`,
     `- Aligned: ${summary.aligned || 0}`,
+    `- Exempted causative i→ia overlaps: ${summary.exempt_causative_i_to_ia_overlap || 0}`,
     `- Overlaps direct source: ${summary.overlaps_source_direct || 0}`,
     `- Collapsed to source: ${summary.collapsed_to_source || 0}`,
     `- Mismatch: ${summary.mismatch || 0}`,
@@ -432,6 +465,9 @@ function main() {
 
   const summary = results.reduce((acc, entry) => {
     acc.cases_evaluated += 1;
+    if (entry.exemptionRule === "causative_intransitive_i_to_ia") {
+      acc.exempt_causative_i_to_ia_overlap += 1;
+    }
     if (entry.status === "aligned") {
       acc.aligned += 1;
     } else if (entry.status === "overlaps_source_direct") {
@@ -450,6 +486,7 @@ function main() {
     lexicon_rows_scanned: rows.length,
     cases_evaluated: 0,
     aligned: 0,
+    exempt_causative_i_to_ia_overlap: 0,
     overlaps_source_direct: 0,
     collapsed_to_source: 0,
     mismatch: 0,
@@ -471,6 +508,7 @@ function main() {
   console.log(`  JSON: ${REPORT_JSON_PATH}`);
   console.log(`  MD: ${REPORT_MD_PATH}`);
   console.log(`  Aligned: ${summary.aligned}`);
+  console.log(`  Exempted causative i→ia overlaps: ${summary.exempt_causative_i_to_ia_overlap}`);
   console.log(`  Overlaps direct source: ${summary.overlaps_source_direct}`);
   console.log(`  Collapsed to source: ${summary.collapsed_to_source}`);
   console.log(`  Mismatch: ${summary.mismatch}`);

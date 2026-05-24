@@ -2141,6 +2141,22 @@
             ["wa", "uwa"]
         );
         collector.equal(
+            "raw nonactive families stay visible for short n+i family",
+            getVisibleNonactiveDerivationOptions("uni", "uni", {
+                isTransitive: false,
+                ruleBase: "uni",
+            }).map((option) => option.suffix),
+            ["wa", "uwa"]
+        );
+        collector.equal(
+            "raw nonactive families stay visible for keluni n+i family",
+            getVisibleNonactiveDerivationOptions("keluni", "keluni", {
+                isTransitive: false,
+                ruleBase: "keluni",
+            }).map((option) => option.suffix),
+            ["wa", "uwa"]
+        );
+        collector.equal(
             "raw nonactive families stay visible for mali walu family",
             getVisibleNonactiveDerivationOptions("mali", "mali", {
                 isTransitive: false,
@@ -2272,6 +2288,32 @@
                 objectPrefix: "",
             })),
             "temuwa"
+        );
+        collector.equal(
+            "keluni nonactive selected wa stays realized",
+            withSelectedNonactiveSuffix("wa", () => getSilentResult({
+                verb: "(keluni)",
+                tense: "presente",
+                derivationMode: DERIVATION_MODE.nonactive,
+                voiceMode: VOICE_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+            })),
+            "keluniwa"
+        );
+        collector.equal(
+            "keluni nonactive selected uwa stays realized",
+            withSelectedNonactiveSuffix("uwa", () => getSilentResult({
+                verb: "(keluni)",
+                tense: "presente",
+                derivationMode: DERIVATION_MODE.nonactive,
+                voiceMode: VOICE_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+            })),
+            "kelunuwa"
         );
         const nemiCausativeNonactiveMetadata = getParsedVerbNonactiveStemMetadata(
             parseVerbInput("(nemi)"),
@@ -2737,7 +2779,7 @@
             "tajtil / tajtilti / tajtilin / tajtal / tajtalti / tajtalin / tajtit / tajti / tajtat / tajta"
         );
 
-        const total = 42;
+        const total = 46;
         const summary = summarize("Operation Broughtback", total, collector);
         summary.operation = "Operation Broughtback";
         return summary;
@@ -4564,6 +4606,9 @@
                 tenseMode: typeof getActiveTenseMode === "function" ? getActiveTenseMode() : "",
                 combinedMode: typeof getCombinedMode === "function" ? getCombinedMode() : "",
                 activeGroup: typeof getActiveConjugationGroup === "function" ? getActiveConjugationGroup() : "",
+                nonactiveSuffix: typeof getSelectedNonactiveSuffix === "function"
+                    ? getSelectedNonactiveSuffix()
+                    : null,
                 selectionState: typeof buildConjugationSelectionState === "function"
                     ? buildConjugationSelectionState()
                     : null,
@@ -4689,12 +4734,30 @@
                 const restoredSelection = buildConjugationSelectionState();
                 collector.equal("snapshot restore tense", restoredSelection.tenseValue, resolvedClassSelection.tenseValue);
                 collector.equal("snapshot restore class", restoredSelection.classFilter, resolvedClassSelection.classFilter);
+
+                if (typeof setSelectedNonactiveSuffix === "function") {
+                    setSelectedNonactiveSuffix("uwa");
+                }
+                setInputValue(verbInput, "(temi)");
+                renderTenseTabs();
+                collector.equal("precondition keeps explicit uwa selection", getSelectedNonactiveSuffix(), "uwa");
+                setInputValue(verbInput, "(keluni)");
+                renderTenseTabs();
+                collector.equal("verb change clears stale nonactive suffix selection", getSelectedNonactiveSuffix(), null);
+                collector.equal(
+                    "verb change restores full keluni nonactive output",
+                    String(generateWord({ skipValidation: true })?.result || ""),
+                    "keluniwa / kelunuwa"
+                );
             } finally {
                 if (typeof setActiveTenseMode === "function" && modeSnapshot.tenseMode) {
                     setActiveTenseMode(modeSnapshot.tenseMode);
                 }
                 if (typeof setCombinedMode === "function" && modeSnapshot.combinedMode) {
                     setCombinedMode(modeSnapshot.combinedMode);
+                }
+                if (typeof setSelectedNonactiveSuffix === "function") {
+                    setSelectedNonactiveSuffix(modeSnapshot.nonactiveSuffix);
                 }
                 if (modeSnapshot.selectionState && typeof applyConjugationSelectionState === "function") {
                     applyConjugationSelectionState(modeSnapshot.selectionState, {
@@ -4705,7 +4768,7 @@
                     setActiveConjugationGroup(modeSnapshot.activeGroup);
                 }
             }
-            return summarize("Selection-state realization checks", 15, collector);
+            return summarize("Selection-state realization checks", 18, collector);
         });
     }
 
