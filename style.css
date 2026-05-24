@@ -1268,6 +1268,10 @@ body.is-nonverb-mode .calc-operator-grid--mode {
   gap: var(--layout-gap-tight);
 }
 
+.causative-subtype-row[hidden] {
+  display: none;
+}
+
 .causative-report-button {
   align-self: flex-start;
   background: none;
