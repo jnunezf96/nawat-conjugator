@@ -1546,6 +1546,17 @@ function resolveNominalCombinationAvailabilityRecord({
     const resolvedPatientivoSource = isPatientivo
         ? (patientivoSource || "nonactive")
         : null;
+    const normalizedProbeSelection = resolveNominalAvailabilityProbeSelection({
+        tenseValue,
+        patientivoSource: resolvedPatientivoSource,
+        verbMeta: context.verbMeta,
+        objectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker,
+    });
+    const resolvedObjectPrefix = normalizedProbeSelection.objectPrefix;
+    const resolvedIndirectObjectMarker = normalizedProbeSelection.indirectObjectMarker;
+    const resolvedThirdObjectMarker = normalizedProbeSelection.thirdObjectMarker;
     const ownershipSelections = (
         isPatientivo
         && possessorPrefix !== ""
@@ -1599,9 +1610,9 @@ function resolveNominalCombinationAvailabilityRecord({
                 override: {
                     subjectPrefix: selection.subjectPrefix,
                     subjectSuffix: subjectSuffixOverride,
-                    objectPrefix,
-                    indirectObjectMarker,
-                    thirdObjectMarker,
+                    objectPrefix: resolvedObjectPrefix,
+                    indirectObjectMarker: resolvedIndirectObjectMarker,
+                    thirdObjectMarker: resolvedThirdObjectMarker,
                     verb,
                     tense: tenseValue,
                     derivationMode: nominalDerivationMode,
@@ -1616,8 +1627,8 @@ function resolveNominalCombinationAvailabilityRecord({
                     subjectPrefix: selection.subjectPrefix,
                     possessivePrefix: possessorPrefix,
                     objectPrefix: composeProjectiveObjectPrefix({
-                        objectPrefix,
-                        markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+                        objectPrefix: resolvedObjectPrefix,
+                        markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
                         subjectPrefix: selection.subjectPrefix,
                     }),
                     verb: "",
@@ -1632,9 +1643,9 @@ function resolveNominalCombinationAvailabilityRecord({
             result,
             subjectPrefix: selection.subjectPrefix,
             subjectSuffix: selection.subjectSuffix,
-            objectPrefix,
+            objectPrefix: resolvedObjectPrefix,
             possessivePrefix: possessorPrefix,
-            indirectObjectMarker,
+            indirectObjectMarker: resolvedIndirectObjectMarker,
             derivationType: context.nounObjectSlotSummary?.derivationType,
             comboObjectPrefix: undefined,
             requireDistinctPossessor: isAgentivo || isPatientivo,
@@ -1642,9 +1653,9 @@ function resolveNominalCombinationAvailabilityRecord({
         });
         const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3
             && !isValidValence4Combo({
-                objectPrefix,
-                indirectObjectMarker,
-                thirdObjectMarker,
+                objectPrefix: resolvedObjectPrefix,
+                indirectObjectMarker: resolvedIndirectObjectMarker,
+                thirdObjectMarker: resolvedThirdObjectMarker,
             });
         const evaluation = buildConjugationEvaluationRecord({
             result,

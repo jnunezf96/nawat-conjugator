@@ -3618,6 +3618,17 @@ function renderNounConjugations({
         const resolvedPatientivoSource = isPatientivo
             ? (patientivoSource || "nonactive")
             : null;
+        const normalizedProbeSelection = resolveNominalAvailabilityProbeSelection({
+            tenseValue: resolvedTense,
+            patientivoSource: resolvedPatientivoSource,
+            verbMeta,
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+        });
+        const resolvedObjectPrefix = normalizedProbeSelection.objectPrefix;
+        const resolvedIndirectObjectMarker = normalizedProbeSelection.indirectObjectMarker;
+        const resolvedThirdObjectMarker = normalizedProbeSelection.thirdObjectMarker;
         const ownershipSelections = (
             isPatientivo
             && possessorPrefix !== ""
@@ -3631,9 +3642,9 @@ function renderNounConjugations({
             selection.subjectSuffix || "",
             number || "",
             possessorPrefix || "",
-            objectPrefix || "",
-            indirectObjectMarker || "",
-            thirdObjectMarker || "",
+            resolvedObjectPrefix || "",
+            resolvedIndirectObjectMarker || "",
+            resolvedThirdObjectMarker || "",
             resolvedPatientivoSource || "",
             ownershipSelections.join(","),
             resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix,
@@ -3663,9 +3674,9 @@ function renderNounConjugations({
                     verbMeta,
                     subjectPrefix: selection.subjectPrefix,
                     subjectSuffix: selection.subjectSuffix,
-                    objectPrefix,
-                    indirectObjectMarker,
-                    thirdObjectMarker,
+                    objectPrefix: resolvedObjectPrefix,
+                    indirectObjectMarker: resolvedIndirectObjectMarker,
+                    thirdObjectMarker: resolvedThirdObjectMarker,
                     mode: instrumentivoMode,
                     possessivePrefix: possessorPrefix,
                 }) || {};
@@ -3675,9 +3686,9 @@ function renderNounConjugations({
                     verbMeta,
                     subjectPrefix: selection.subjectPrefix,
                     subjectSuffix: selection.subjectSuffix,
-                    objectPrefix,
-                    indirectObjectMarker,
-                    thirdObjectMarker,
+                    objectPrefix: resolvedObjectPrefix,
+                    indirectObjectMarker: resolvedIndirectObjectMarker,
+                    thirdObjectMarker: resolvedThirdObjectMarker,
                     possessivePrefix: possessorPrefix,
                 }) || {};
             } else {
@@ -3688,9 +3699,9 @@ function renderNounConjugations({
                     override: {
                         subjectPrefix: selection.subjectPrefix,
                         subjectSuffix: subjectSuffixOverride,
-                        objectPrefix,
-                        indirectObjectMarker,
-                        thirdObjectMarker,
+                        objectPrefix: resolvedObjectPrefix,
+                        indirectObjectMarker: resolvedIndirectObjectMarker,
+                        thirdObjectMarker: resolvedThirdObjectMarker,
                         verb,
                         tense: tenseValue,
                         derivationMode: nominalDerivationMode,
@@ -3705,8 +3716,8 @@ function renderNounConjugations({
                         subjectPrefix: selection.subjectPrefix,
                         possessivePrefix: possessorPrefix,
                         objectPrefix: composeProjectiveObjectPrefix({
-                            objectPrefix,
-                            markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+                            objectPrefix: resolvedObjectPrefix,
+                            markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
                             subjectPrefix: selection.subjectPrefix,
                         }),
                         verb: "",
@@ -3721,9 +3732,9 @@ function renderNounConjugations({
                 result,
                 subjectPrefix: selection.subjectPrefix,
                 subjectSuffix: selection.subjectSuffix,
-                objectPrefix,
+                objectPrefix: resolvedObjectPrefix,
                 possessivePrefix: possessorPrefix,
-                indirectObjectMarker,
+                indirectObjectMarker: resolvedIndirectObjectMarker,
                 derivationType: nounObjectSlotSummary.derivationType,
                 comboObjectPrefix: undefined,
                 requireDistinctPossessor: isAgentivo || isPatientivo,
@@ -3731,35 +3742,44 @@ function renderNounConjugations({
             });
             const valence4Violation = mutableNounObjectSlots.length >= 3
                 && !isValidValence4Combo({
-                    objectPrefix,
-                    indirectObjectMarker,
-                    thirdObjectMarker,
+                    objectPrefix: resolvedObjectPrefix,
+                    indirectObjectMarker: resolvedIndirectObjectMarker,
+                    thirdObjectMarker: resolvedThirdObjectMarker,
                 });
-            return buildConjugationEvaluationRecord({
-                result,
-                maskState,
-                hasValenceStructureError: valence4Violation,
-            });
+            return {
+                ...buildConjugationEvaluationRecord({
+                    result,
+                    maskState,
+                    hasValenceStructureError: valence4Violation,
+                }),
+                normalizedSelection: normalizedProbeSelection,
+            };
         };
         const evaluations = ownershipSelections.map((ownership) => evaluateForOwnership(ownership));
         const visibleEvaluations = evaluations.filter((entry) => entry.hasVisibleResult);
         const evaluation = visibleEvaluations.length
-            ? buildConjugationEvaluationRecord({
-                result: {
-                    ...visibleEvaluations[0].result,
-                    result: Array.from(new Set(
-                        visibleEvaluations.flatMap((entry) => (
-                            Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length
-                                ? entry.result.surfaceForms
-                                : String(entry.result?.result || "")
-                                    .split(/\s*\/\s*/g)
-                                    .map((form) => form.trim())
-                                    .filter(Boolean)
-                        ))
-                    )).join(" / "),
-                },
-            })
-            : (evaluations[0] || buildConjugationEvaluationRecord({ result: {} }));
+            ? {
+                ...buildConjugationEvaluationRecord({
+                    result: {
+                        ...visibleEvaluations[0].result,
+                        result: Array.from(new Set(
+                            visibleEvaluations.flatMap((entry) => (
+                                Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length
+                                    ? entry.result.surfaceForms
+                                    : String(entry.result?.result || "")
+                                        .split(/\s*\/\s*/g)
+                                        .map((form) => form.trim())
+                                        .filter(Boolean)
+                            ))
+                        )).join(" / "),
+                    },
+                }),
+                normalizedSelection: visibleEvaluations[0].normalizedSelection || normalizedProbeSelection,
+            }
+            : (evaluations[0] || {
+                ...buildConjugationEvaluationRecord({ result: {} }),
+                normalizedSelection: normalizedProbeSelection,
+            });
         nounCombinationEvaluationCache.set(cacheKey, evaluation);
         return evaluation;
     };
@@ -4163,9 +4183,28 @@ function renderNounConjugations({
                     useReduplicatedSingularSurface = false,
                 } = subjectEntry;
                 possessorSelections.forEach((possessorPrefix) => {
+                    const evaluation = evaluateNounCombinationState({
+                        selection,
+                        number,
+                        possessorPrefix,
+                        objectPrefix,
+                        indirectObjectMarker,
+                        thirdObjectMarker,
+                        patientivoSource,
+                        patientivoOwnership: activePatientivoOwnership,
+                        patientivoNominalSuffix: activePatientivoNominalSuffix,
+                        useReduplicatedSingularSurface,
+                    });
+                    const normalizedSelection = evaluation.normalizedSelection || {};
+                    const displayObjectPrefix = normalizedSelection.objectPrefix ?? objectPrefix;
+                    const displayIndirectObjectMarker = normalizedSelection.indirectObjectMarker ?? indirectObjectMarker;
+                    const displayThirdObjectMarker = normalizedSelection.thirdObjectMarker ?? thirdObjectMarker;
                     const row = document.createElement("div");
                     row.className = "conjugation-row";
-                    applyConjugationRowClasses(row, objectPrefix);
+                    applyConjugationRowClasses(row, displayObjectPrefix);
+                    row.dataset.objectPrefix = displayObjectPrefix;
+                    row.dataset.indirectObjectPrefix = displayIndirectObjectMarker;
+                    row.dataset.thirdObjectPrefix = displayThirdObjectMarker;
 
                     const label = document.createElement("div");
                     label.className = "conjugation-label";
@@ -4187,7 +4226,11 @@ function renderNounConjugations({
                                 })
                                 : ""
                         );
-                    const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
+                    const objectMarkers = [
+                        displayObjectPrefix,
+                        displayIndirectObjectMarker,
+                        displayThirdObjectMarker,
+                    ].filter(Boolean);
                     const suppressZeroObjectLabel = isPotencialProfileTense(resolvedTense);
                     const isDummyImpersonalRow = combinedMode === COMBINED_MODE.nonactive
                         && isSubjectlessTense
@@ -4206,18 +4249,6 @@ function renderNounConjugations({
 
                     const value = document.createElement("div");
                     value.className = "conjugation-value";
-                    const evaluation = evaluateNounCombinationState({
-                        selection,
-                        number,
-                        possessorPrefix,
-                        objectPrefix,
-                        indirectObjectMarker,
-                        thirdObjectMarker,
-                        patientivoSource,
-                        patientivoOwnership: activePatientivoOwnership,
-                        patientivoNominalSuffix: activePatientivoNominalSuffix,
-                        useReduplicatedSingularSurface,
-                    });
                     personSub.textContent = buildPersonSub({
                         subjectLabel: basePersonSub,
                         possessorLabel,
@@ -4475,4 +4506,3 @@ async function installDeveloperHooksIfEnabled() {
         return false;
     }
 }
-

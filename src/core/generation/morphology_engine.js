@@ -265,6 +265,9 @@ function applyMorphologyRules({
     if (isPatientivoAdjectiveProfile) {
         const patientivoAdjectiveSource = getPatientivoAdjectiveSourceForTense(tense) || "nonactive";
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+            objectPrefix = "ta";
+        }
         if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
             return { error: true };
         }
@@ -319,6 +322,9 @@ function applyMorphologyRules({
         }
     if (tense === "patientivo") {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+            objectPrefix = "ta";
+        }
         if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
             return { error: true };
         }

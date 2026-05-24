@@ -238,6 +238,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       if (isPatientivoAdjectiveProfile) {
         const patientivoAdjectiveSource = targetObject.getPatientivoAdjectiveSourceForTense(tense) || "nonactive";
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+          objectPrefix = "ta";
+        }
         if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
           return {
             error: true
@@ -293,6 +296,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       }
       if (tense === "patientivo") {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        if (patientivoSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+          objectPrefix = "ta";
+        }
         if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
           return {
             error: true

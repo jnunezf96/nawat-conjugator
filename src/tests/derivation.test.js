@@ -200,6 +200,31 @@ function run(ctx) {
         nonactiveTClassSuffixes.includes("")
     );
 
+    const originalNonactiveOptionPronounceability = ctx.isSyllableSequencePronounceable;
+    try {
+        ctx.isSyllableSequencePronounceable = (value) => value === "kinemu";
+        const prefixedNonactiveRuleSource = ctx.buildNonactiveRuleSourceContext("kinemi", "nemi", {
+            parsedVerb: verbMeta,
+            verbMeta,
+            isTransitive: true,
+        });
+        const prefixedNonactiveOptions = ctx.getNonactiveDerivationOptions("kinemi", "nemi", {
+            parsedVerb: verbMeta,
+            verbMeta,
+            isTransitive: true,
+            nonactiveRuleSource: prefixedNonactiveRuleSource,
+        });
+        const realizedPrefixedNonactiveOptions = prefixedNonactiveOptions
+            .map((option) => ctx.realizeNonactiveDerivationOption(option, prefixedNonactiveRuleSource))
+            .filter(Boolean);
+        s.ok(
+            "nonactive derivation options keep source-aware prefixed surfaces",
+            realizedPrefixedNonactiveOptions.some((entry) => entry.suffix === "u" && entry.stem === "kinemu")
+        );
+    } finally {
+        ctx.isSyllableSequencePronounceable = originalNonactiveOptionPronounceability;
+    }
+
     const classCPerfectiveProvenance = {
         baseSpec: ctx.buildPretPerfectiveReplacementBaseSpec("salua", {
             isTransitive: true,
@@ -281,6 +306,155 @@ function run(ctx) {
         ctx.buildClassBasedResultWithProvenance = originalBuildClassBasedResultWithProvenance;
         ctx.isSyllableSequencePronounceable = originalIsSyllableSequencePronounceable;
     }
+
+    const originalResolvePretUniversalContextBundleForPerfectivoGate = ctx.resolvePretUniversalContextBundle;
+    const originalPretContextHasRightEdgeForPerfectivoGate = ctx.pretContextHasRightEdge;
+    const originalGetPretUniversalClassCandidatesForPerfectivoGate = ctx.getPretUniversalClassCandidates;
+    const originalBuildClassBasedResultWithProvenanceForPerfectivoGate = ctx.buildClassBasedResultWithProvenance;
+    const originalPerfectivoGatePronounceability = ctx.isSyllableSequencePronounceable;
+    try {
+        ctx.resolvePretUniversalContextBundle = () => ({
+            context: {
+                isMonosyllable: false,
+            },
+        });
+        ctx.pretContextHasRightEdge = () => true;
+        ctx.getPretUniversalClassCandidates = () => new Set(["A", "C"]);
+        ctx.buildClassBasedResultWithProvenance = () => ({
+            result: "saluj",
+            provenance: {
+                variants: [
+                    {
+                        base: "salu",
+                        suffix: "",
+                        surfaceStem: "saluj",
+                    },
+                ],
+            },
+        });
+        ctx.isSyllableSequencePronounceable = (value) => value === "salujti";
+        const gatedPerfectivoStemEntries = ctx.buildPatientivoPerfectivoStemEntries({
+            verb: "salua",
+            analysisVerb: "salua",
+            sourceRawVerb: "-salua",
+            exactBaseVerb: "salua",
+            isTransitive: true,
+            hasLeadingDash: true,
+        });
+        s.ok(
+            "patientivo perfectivo stem entries keep class c stem when ti surface is the authority",
+            gatedPerfectivoStemEntries.some((entry) => entry.verb === "saluj")
+        );
+        const gatedPerfectivoDerivations = ctx.buildPatientivoPerfectivoDerivations({
+            verb: "salua",
+            analysisVerb: "salua",
+            sourceRawVerb: "-salua",
+            exactBaseVerb: "salua",
+            isTransitive: true,
+            hasLeadingDash: true,
+        });
+        s.eq(
+            "patientivo perfectivo derivations still gate on the surfaced ti form",
+            gatedPerfectivoDerivations.map((entry) => `${entry.verb}${entry.subjectSuffix}`).join(" / "),
+            "salujti"
+        );
+    } finally {
+        ctx.resolvePretUniversalContextBundle = originalResolvePretUniversalContextBundleForPerfectivoGate;
+        ctx.pretContextHasRightEdge = originalPretContextHasRightEdgeForPerfectivoGate;
+        ctx.getPretUniversalClassCandidates = originalGetPretUniversalClassCandidatesForPerfectivoGate;
+        ctx.buildClassBasedResultWithProvenance = originalBuildClassBasedResultWithProvenanceForPerfectivoGate;
+        ctx.isSyllableSequencePronounceable = originalPerfectivoGatePronounceability;
+    }
+
+    const originalPasadoRemotoPronounceability = ctx.isSyllableSequencePronounceable;
+    const originalResolvePretUniversalContextBundleForPasadoRemotoGate = ctx.resolvePretUniversalContextBundle;
+    const originalGetPretUniversalClassCandidatesForPasadoRemotoGate = ctx.getPretUniversalClassCandidates;
+    const originalGetPretUniversalClassOrderForPasadoRemotoGate = ctx.getPretUniversalClassOrder;
+    const originalBuildClassBasedResultWithProvenanceForPasadoRemotoGate = ctx.buildClassBasedResultWithProvenance;
+    try {
+        ctx.isSyllableSequencePronounceable = (value) => value === "takawajka";
+        ctx.resolvePretUniversalContextBundle = () => ({
+            context: {
+                isMonosyllable: false,
+            },
+        });
+        ctx.getPretUniversalClassCandidates = () => new Set(["D"]);
+        ctx.getPretUniversalClassOrder = () => ["D"];
+        ctx.buildClassBasedResultWithProvenance = () => ({
+            provenance: {
+                variants: [
+                    {
+                        base: "waj",
+                        suffix: "",
+                        surfaceStem: "waj",
+                    },
+                ],
+            },
+        });
+        const parsedCalificativoClassD = ctx.parseVerbInput("(taka)-(wa)");
+        const gatedPasadoRemotoStemEntries = ctx.buildPasadoRemotoStemEntries({
+            verb: parsedCalificativoClassD.verb,
+            analysisVerb: parsedCalificativoClassD.analysisVerb,
+            rawAnalysisVerb: parsedCalificativoClassD.rawAnalysisVerb || "",
+            sourceRawVerb: parsedCalificativoClassD.sourceRawVerb || "(taka)-(wa)",
+            isTransitive: true,
+            directionalPrefix: parsedCalificativoClassD.directionalPrefix || "",
+            boundPrefix: parsedCalificativoClassD.hasBoundMarker ? (parsedCalificativoClassD.sourcePrefix || "") : "",
+            boundPrefixes: Array.isArray(parsedCalificativoClassD.boundPrefixes) ? parsedCalificativoClassD.boundPrefixes : [],
+            boundExplicitFlags: Array.isArray(parsedCalificativoClassD.boundExplicitFlags) ? parsedCalificativoClassD.boundExplicitFlags : [],
+            directionalPrefixFromSlash: parsedCalificativoClassD.directionalPrefixFromSlash || "",
+            sourceSplitPrefix: parsedCalificativoClassD.hasBoundMarker ? (parsedCalificativoClassD.sourcePrefix || "") : "",
+            sourcePrefix: parsedCalificativoClassD.sourcePrefix || "",
+            sourceBase: parsedCalificativoClassD.sourceBase || parsedCalificativoClassD.canonicalRuleBase || "",
+            sourceCompositeBase: parsedCalificativoClassD.canonical?.slashCompositeRuleBase || "",
+            hasImpersonalTaPrefix: parsedCalificativoClassD.hasImpersonalTaPrefix === true,
+            hasOptionalSupportiveI: parsedCalificativoClassD.hasOptionalSupportiveI === true,
+            hasSlashMarker: parsedCalificativoClassD.hasSlashMarker === true,
+            hasSuffixSeparator: parsedCalificativoClassD.hasSuffixSeparator === true,
+            hasLeadingDash: parsedCalificativoClassD.hasLeadingDash === true,
+            hasBoundMarker: parsedCalificativoClassD.hasBoundMarker === true,
+            hasCompoundMarker: parsedCalificativoClassD.hasCompoundMarker === true,
+            hasNonspecificValence: parsedCalificativoClassD.hasNonspecificValence === true,
+            exactBaseVerb: parsedCalificativoClassD.exactBaseVerb || parsedCalificativoClassD.sourceBase || parsedCalificativoClassD.analysisVerb || parsedCalificativoClassD.verb,
+            suppletiveStemSet: null,
+            rootPlusYaBase: parsedCalificativoClassD.rootPlusYaBase || "",
+            rootPlusYaBasePronounceable: parsedCalificativoClassD.rootPlusYaBasePronounceable || "",
+            matrixBaseOverride: parsedCalificativoClassD.exactBaseVerb || parsedCalificativoClassD.sourceBase || parsedCalificativoClassD.analysisVerb || parsedCalificativoClassD.verb,
+        });
+        s.eq(
+            "pasado remoto stem entries keep stems when the predicate surface is pronounceable",
+            gatedPasadoRemotoStemEntries.map((entry) => entry.verb).join(" / "),
+            "takawaj"
+        );
+    } finally {
+        ctx.isSyllableSequencePronounceable = originalPasadoRemotoPronounceability;
+        ctx.resolvePretUniversalContextBundle = originalResolvePretUniversalContextBundleForPasadoRemotoGate;
+        ctx.getPretUniversalClassCandidates = originalGetPretUniversalClassCandidatesForPasadoRemotoGate;
+        ctx.getPretUniversalClassOrder = originalGetPretUniversalClassOrderForPasadoRemotoGate;
+        ctx.buildClassBasedResultWithProvenance = originalBuildClassBasedResultWithProvenanceForPasadoRemotoGate;
+    }
+
+    const transitiveLuaTroncoDerivations = ctx.buildPatientivoTroncoDerivations({
+        verb: "-(salua)",
+        analysisVerb: "salua",
+        rawAnalysisVerb: "salua",
+        isTransitive: true,
+        sourceBase: "salua",
+        hasLeadingDash: true,
+    });
+    s.ok(
+        "patientivo tronco transitive l|VV ua keeps the raw stem family",
+        transitiveLuaTroncoDerivations.some((entry) => `${entry?.verb || ""}${entry?.subjectSuffix || ""}` === "sal")
+    );
+    const expandedTransitiveLuaTronco = ctx.expandPatientivoNominalMarkerOptions(
+        transitiveLuaTroncoDerivations,
+        "tronco-verbal"
+    );
+    s.eq(
+        "patientivo tronco transitive l|VV ua expands nominal markers",
+        expandedTransitiveLuaTronco.map((entry) => `${entry?.verb || ""}${entry?.subjectSuffix || ""}`).join(" / "),
+        "sal / salti / salin"
+    );
 
     return s;
 }

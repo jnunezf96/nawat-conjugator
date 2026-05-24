@@ -1046,6 +1046,22 @@ function evaluateVerbStemInputGate(rawValue, parsedVerb = null) {
     };
 }
 
+function getAuthoritativeDerivationalSourceForRawInputGate({
+    tense = "",
+    patientivoSource = "",
+} = {}) {
+    if (tense === "patientivo" && isStrictPatientivoDerivationSource(patientivoSource)) {
+        return patientivoSource;
+    }
+    if (!isPatientivoAdjectiveTense(tense)) {
+        return "";
+    }
+    const adjectiveSource = getPatientivoAdjectiveSourceForTense(tense);
+    return isStrictPatientivoDerivationSource(adjectiveSource)
+        ? adjectiveSource
+        : "";
+}
+
 
 // === Verb Parsing ===
 const DEFAULT_NONSPECIFIC_VALENCE_AFFIXES = Object.freeze([

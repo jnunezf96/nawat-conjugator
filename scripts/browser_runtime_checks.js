@@ -1820,6 +1820,13 @@
             resolvedTroncoCase?.entries?.[0]?.patientivoSourceModel?.derivationModel?.matrixBase || "",
             normalizeRuleBase(resolvedTroncoCase?.entries?.[0]?.patientivoSourceModel?.matrixBase || "")
         );
+        collector.truthy(
+            "patientivo tronco keeps l|VV ua family",
+            buildPatientivoEntriesForAudit("-(salua)", "tronco-verbal").some((entry) => (
+                String(entry?.verb || "") === "sal"
+                && String(entry?.subjectSuffix || "") === ""
+            ))
+        );
 
         const patientivoAdjectiveNonactive = buildPatientivoAdjectiveDerivations(
             buildPatientivoEntriesForAudit("(a)+ta-(kwi)", "nonactive"),
@@ -1975,6 +1982,19 @@
                 },
                 expected: "pil / pilti / pilin",
             },
+            {
+                label: "patientivo tronco keeps transitive l|VV ua family",
+                override: {
+                    verb: "-(salua)",
+                    tense: "patientivo",
+                    derivationMode: DERIVATION_MODE.active,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    patientivoSource: "tronco-verbal",
+                },
+                expected: "tasal / tasalti / tasalin",
+            },
         ];
         outputCases.forEach((testCase) => {
             collector.equal(
@@ -1987,6 +2007,22 @@
                 testCase.expected
             );
         });
+        collector.equal(
+            "patientivo tronco transitive l|VV ua family survives normal validation path",
+            getCachedSilentGenerateWord({
+                silent: true,
+                override: {
+                    verb: "-(salua)",
+                    tense: "patientivo",
+                    derivationMode: DERIVATION_MODE.active,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    patientivoSource: "tronco-verbal",
+                },
+            })?.result || "",
+            "tasal / tasalti / tasalin"
+        );
 
         collector.equal(
             "patientivo formatter keeps -in on the same line as zero and -ti",
@@ -4488,6 +4524,47 @@
                 const locativoValue = locativoRow?.querySelector(".conjugation-value");
                 collector.equal("locativo row diagnostic state", locativoRow?.dataset?.diagnosticState || "", "viable");
                 collector.equal("locativo value diagnostic state", locativoValue?.dataset?.diagnosticState || "", "viable");
+
+                const patientivoContext = buildNounTabRenderContext({
+                    verb: "-(salua)",
+                    tenseValue: "patientivo",
+                });
+                const patientivoProbeSelection = resolveNominalAvailabilityProbeSelection({
+                    tenseValue: "patientivo",
+                    patientivoSource: "tronco-verbal",
+                    verbMeta: patientivoContext?.verbMeta || null,
+                    objectPrefix: "",
+                });
+                collector.equal("patientivo tronco probe normalizes empty object to ta", patientivoProbeSelection.objectPrefix, "ta");
+                const patientivoAvailability = resolveNominalCombinationAvailabilityRecord({
+                    verb: "-(salua)",
+                    tenseValue: "patientivo",
+                    tenseMode: TENSE_MODE.sustantivo,
+                    context: patientivoContext,
+                    selection: { subjectPrefix: "", subjectSuffix: "" },
+                    number: "singular",
+                    possessorPrefix: "",
+                    objectPrefix: "",
+                    indirectObjectMarker: "",
+                    thirdObjectMarker: "",
+                    patientivoSource: "tronco-verbal",
+                    patientivoOwnership: DEFAULT_PATIENTIVO_OWNERSHIP,
+                    patientivoNominalSuffix: null,
+                });
+                collector.equal("patientivo tronco nominal availability stays viable", patientivoAvailability?.availabilityState, CONJUGATION_AVAILABILITY_STATE.viable);
+                if (typeof renderNounConjugations === "function") {
+                    renderNounConjugations({
+                        verb: "-(salua)",
+                        containerId: "all-tense-conjugations",
+                        tenseValue: "patientivo",
+                        modeKey: "noun",
+                    });
+                }
+                const patientivoTroncoRow = document.querySelector("#all-tense-conjugations [data-tense-block$='patientivo-tronco'] .conjugation-row");
+                const patientivoTroncoValue = patientivoTroncoRow?.querySelector(".conjugation-value");
+                collector.truthy("patientivo tronco row renders", patientivoTroncoRow);
+                collector.equal("patientivo tronco row keeps normalized indirect class", patientivoTroncoRow?.classList.contains("conjugation-row--indirect"), true);
+                collector.equal("patientivo tronco value diagnostic state", patientivoTroncoValue?.dataset?.diagnosticState || "", "viable");
             } finally {
                 if (typeof setActiveTenseMode === "function" && modeSnapshot.tenseMode) {
                     setActiveTenseMode(modeSnapshot.tenseMode);
@@ -4499,7 +4576,7 @@
                     setActiveDerivationType(modeSnapshot.derivationType);
                 }
             }
-            return summarize("Toggle/diagnostics realization checks", 9, collector);
+            return summarize("Toggle/diagnostics realization checks", 15, collector);
         });
     }
 

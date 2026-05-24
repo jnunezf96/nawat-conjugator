@@ -880,6 +880,19 @@ export function createParsingApi(targetObject = globalThis) {
         isValid: canUseBaseAsTyped || canUseSupportiveFallback
       };
     }
+    function getAuthoritativeDerivationalSourceForRawInputGate({
+      tense = "",
+      patientivoSource = ""
+    } = {}) {
+      if (tense === "patientivo" && targetObject.isStrictPatientivoDerivationSource(patientivoSource)) {
+        return patientivoSource;
+      }
+      if (!targetObject.isPatientivoAdjectiveTense(tense)) {
+        return "";
+      }
+      const adjectiveSource = targetObject.getPatientivoAdjectiveSourceForTense(tense);
+      return targetObject.isStrictPatientivoDerivationSource(adjectiveSource) ? adjectiveSource : "";
+    }
 
     // === Verb Parsing ===
     const DEFAULT_NONSPECIFIC_VALENCE_AFFIXES = Object.freeze(["ta", "te", "mu", "tajta", "tejte", "t", "mujmu", "m"]);
@@ -3095,6 +3108,7 @@ export function createParsingApi(targetObject = globalThis) {
     api.serializeRegexEnvelope = serializeRegexEnvelope;
     api.serializeRegexCore = serializeRegexCore;
     api.isAllowedPartialRegexEnvelopeValue = isAllowedPartialRegexEnvelopeValue;
+    api.getAuthoritativeDerivationalSourceForRawInputGate = getAuthoritativeDerivationalSourceForRawInputGate;
     api.getStemLeadingSupportiveLetter = getStemLeadingSupportiveLetter;
     api.resolveComposerSupportiveMarkerCandidate = resolveComposerSupportiveMarkerCandidate;
     api.resolveOptionalSupportiveLetter = resolveOptionalSupportiveLetter;

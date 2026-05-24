@@ -765,6 +765,39 @@ function getLocativoTemporalMaskState({
     });
 }
 
+function resolveNominalAvailabilityProbeSelection({
+    tenseValue = "",
+    patientivoSource = null,
+    verbMeta = null,
+    objectPrefix = "",
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+} = {}) {
+    const resolvedObjectPrefix = String(objectPrefix || "");
+    const resolvedIndirectObjectMarker = String(indirectObjectMarker || "");
+    const resolvedThirdObjectMarker = String(thirdObjectMarker || "");
+    let normalizedObjectPrefix = resolvedObjectPrefix;
+    const resolvedPatientivoSource = String(patientivoSource || "");
+    const isPatientivoTroncoProbe = String(tenseValue || "") === "patientivo"
+        && resolvedPatientivoSource === "tronco-verbal";
+    if (isPatientivoTroncoProbe && !normalizedObjectPrefix && verbMeta?.hasImpersonalTaPrefix !== true) {
+        const baseObjectSlots = Number(getBaseObjectSlots(verbMeta));
+        const isTransitiveBase = (
+            Number.isFinite(baseObjectSlots) && baseObjectSlots > 0
+        ) || verbMeta?.isMarkedTransitive === true
+            || verbMeta?.isTaFusion === true;
+        if (isTransitiveBase) {
+            normalizedObjectPrefix = "ta";
+        }
+    }
+    return {
+        objectPrefix: normalizedObjectPrefix,
+        indirectObjectMarker: resolvedIndirectObjectMarker,
+        thirdObjectMarker: resolvedThirdObjectMarker,
+        wasNormalized: normalizedObjectPrefix !== resolvedObjectPrefix,
+    };
+}
+
 function resolveHasNonspecificValence(meta) {
     return Boolean(meta?.hasNonspecificValence || meta?.hasNonactiveNonspecificValence);
 }

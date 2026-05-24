@@ -6501,6 +6501,13 @@ function resolvePatientivoTroncoDerivationalStem(sourceModel = null) {
     };
 }
 
+function shouldBypassPatientivoPronounceabilityGate(entry = null) {
+    const sourceModel = entry?.patientivoSourceModel || entry?.sourceModel || null;
+    const sourceType = String(entry?.sourceType || sourceModel?.sourceType || "");
+    return sourceType === PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal
+        && sourceModel?.isTransitive === true;
+}
+
 function expandPatientivoNominalMarkerOptions(derivations = [], source = "") {
     const normalizedEntries = normalizePatientivoDerivationEntries(derivations, source);
     if (!normalizedEntries.length) {
@@ -6551,7 +6558,9 @@ function expandPatientivoNominalMarkerOptions(derivations = [], source = "") {
             metadata: entry,
         });
         if (!nextEntry || !isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)) {
-            return;
+            if (!shouldBypassPatientivoPronounceabilityGate(nextEntry)) {
+                return;
+            }
         }
         const key = `${nextEntry.verb}|${nextEntry.subjectSuffix}`;
         if (seen.has(key)) {
@@ -6802,18 +6811,7 @@ function buildPatientivoDerivations({
             ) {
                 return;
             }
-            if (derived.suffix === "ti") {
-                const candidate = derivedSurface;
-                if (!isSyllableSequencePronounceable(candidate)) {
-                    return;
-                }
-            }
             const nounStem = derived.stem;
-            const key = `${nounStem}|${derived.suffix}`;
-            if (seen.has(key)) {
-                return;
-            }
-            seen.add(key);
             const nextEntry = buildPatientivoDerivationEntry({
                 sourceModel: patientivoSourceModel,
                 sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.nonactive,
@@ -6837,6 +6835,17 @@ function buildPatientivoDerivations({
                 },
             });
             if (nextEntry) {
+                if (
+                    derived.suffix === "ti"
+                    && !isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)
+                ) {
+                    return;
+                }
+                const key = `${nextEntry.verb}|${nextEntry.subjectSuffix}`;
+                if (seen.has(key)) {
+                    return;
+                }
+                seen.add(key);
                 results.push(nextEntry);
             }
         });
@@ -7224,9 +7233,18 @@ function buildPasadoRemotoStemEntries({
             );
         }
     }
-    return pasadoRemotoStemEntries.filter((entry) => (
-        isSyllableSequencePronounceable(String(entry?.verb || ""))
-    ));
+    return pasadoRemotoStemEntries.filter((entry) => {
+        const predicateStemSpec = buildCalificativoInstrumentivoPredicateStemSpec(
+            entry?.stemSpec || null,
+            entry?.verb || "",
+        );
+        const predicateStem = normalizeDerivationStemValue(
+            realizeMorphStemSpec(predicateStemSpec, `${entry?.verb || ""}ka`)
+        );
+        return isSyllableSequencePronounceable(
+            String(predicateStem || entry?.verb || "")
+        );
+    });
 }
 
 function buildSustantivoVerbalSourceChain(verbMeta, verb, analysisVerb) {
@@ -7834,9 +7852,7 @@ function buildPatientivoPerfectivoStemEntries({
             }
         }
     }
-    return perfectiveStemEntries.filter((entry) => (
-        isSyllableSequencePronounceable(String(entry?.verb || ""))
-    ));
+    return perfectiveStemEntries;
 }
 
 function buildPatientivoPerfectivoDerivations(options = {}) {
@@ -7857,11 +7873,14 @@ function buildPatientivoPerfectivoDerivations(options = {}) {
             }),
             metadata: entry,
         }))
-        .filter((entry) => (
-            entry
-            && 
-            isSyllableSequencePronounceable(`${entry?.verb || ""}${entry?.subjectSuffix || ""}`)
-        ));
+        .filter((entry) => {
+            if (!entry) {
+                return false;
+            }
+            return isSyllableSequencePronounceable(
+                `${entry?.verb || ""}${entry?.subjectSuffix || ""}`
+            );
+        });
 }
 
 function getTClassSuffixForStem(stem) {
@@ -8299,14 +8318,6 @@ function buildPatientivoTroncoDerivations({
         if (!normalized) {
             return;
         }
-        if (!isSyllableSequencePronounceable(`${normalized}${suffix}`)) {
-            return;
-        }
-        const key = `${normalized}|${suffix}`;
-        if (seen.has(key)) {
-            return;
-        }
-        seen.add(key);
         const nextEntry = buildPatientivoDerivationEntry({
             sourceModel: patientivoSourceModel,
             sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
@@ -8321,6 +8332,14 @@ function buildPatientivoTroncoDerivations({
             }),
         });
         if (nextEntry) {
+            if (!shouldBypassPatientivoPronounceabilityGate(nextEntry) && !isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)) {
+                return;
+            }
+            const key = `${nextEntry.verb}|${nextEntry.subjectSuffix}`;
+            if (seen.has(key)) {
+                return;
+            }
+            seen.add(key);
             results.push(nextEntry);
         }
     };
@@ -8416,7 +8435,7 @@ function buildPatientivoTroncoDerivations({
         addRawResult(core, "", {
             stemSpec: buildBaseSuffixTrimSpec("ua", ""),
         });
-        return finalizeSeriesMirroredResults();
+        return results;
     }
     const addWithConsonants = (stem, consonants, stemSpec = null) => {
         consonants.forEach((consonant) => {
@@ -8992,6 +9011,37 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         || options.parsedVerb?.optionalSupportiveLetter
         || (options.parsedVerb?.hasOptionalSupportiveI === true ? "i" : "")
     );
+    const isSourceAwareNonactiveStemPronounceable = (stemSpec, stem, suffix = "") => {
+        const normalizedStem = normalizeDerivationStemValue(stem);
+        if (!normalizedStem) {
+            return false;
+        }
+        if (isSyllableSequencePronounceable(normalizedStem)) {
+            return true;
+        }
+        if (
+            optionalSupportiveLetter
+            && isSyllableSequencePronounceable(`${optionalSupportiveLetter}${normalizedStem}`)
+        ) {
+            return true;
+        }
+        if (!sourceContext?.chain) {
+            return false;
+        }
+        const realizedStemSpec = applyNonactiveSourceChainStemSpec(
+            stemSpec,
+            normalizedStem,
+            sourceContext.chain,
+            {
+                sourceSuffix: suffix,
+                policy: sourceContext.realizationPolicy || FULL_SOURCE_CHAIN_REALIZATION_POLICY,
+            }
+        );
+        const realizedStem = normalizeDerivationStemValue(
+            realizeMorphStemSpec(realizedStemSpec, "")
+        );
+        return Boolean(realizedStem && isSyllableSequencePronounceable(realizedStem));
+    };
     const push = (suffix, stemSpec) => {
         if (!stemSpec?.kind) {
             return;
@@ -9000,11 +9050,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         if (!stem) {
             return;
         }
-        const stemIsPronounceable = isSyllableSequencePronounceable(stem);
-        const supportivePronounceable = !stemIsPronounceable
-            && optionalSupportiveLetter
-            && isSyllableSequencePronounceable(`${optionalSupportiveLetter}${stem}`);
-        if (!stemIsPronounceable && !supportivePronounceable) {
+        if (!isSourceAwareNonactiveStemPronounceable(stemSpec, stem, suffix)) {
             return;
         }
         const key = `${suffix}|${stem}`;

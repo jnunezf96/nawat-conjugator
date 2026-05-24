@@ -110,6 +110,37 @@ function run(ctx) {
         "canReusePreParsedVerb rejects mismatched source raw verb",
         ctx.canReusePreParsedVerb({ parsedVerb: { sourceRawVerb: "(nemi)" }, rawVerb: "(kisa)" })
     );
+    s.eq(
+        "raw-input gate source: patientivo strict perfective source is authoritative",
+        ctx.getAuthoritativeDerivationalSourceForRawInputGate({
+            tense: "patientivo",
+            patientivoSource: "perfectivo",
+        }),
+        "perfectivo"
+    );
+    s.eq(
+        "raw-input gate source: patientivo adjective perfective source is authoritative",
+        ctx.getAuthoritativeDerivationalSourceForRawInputGate({
+            tense: "adjetivo-patientivo-perfectivo",
+        }),
+        "perfectivo"
+    );
+    s.eq(
+        "raw-input gate source: non-strict patientivo source keeps generic gates",
+        ctx.getAuthoritativeDerivationalSourceForRawInputGate({
+            tense: "patientivo",
+            patientivoSource: "nonactive",
+        }),
+        ""
+    );
+    s.eq(
+        "raw-input gate source: finite tense keeps generic gates",
+        ctx.getAuthoritativeDerivationalSourceForRawInputGate({
+            tense: "presente",
+            patientivoSource: "perfectivo",
+        }),
+        ""
+    );
 
     const prefixInputs = ctx.getPrefixInputs({
         override: { objectPrefix: "ki" },

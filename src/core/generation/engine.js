@@ -599,7 +599,16 @@ function executeGenerateWordRequest(request = {}) {
     } else {
         clearError("verb");
     }
-    if (!VOWEL_END_RE.test(validationVerb) && !allowConsonantEnding) {
+    const authoritativeDerivationalRawInputSource = getAuthoritativeDerivationalSourceForRawInputGate({
+        tense,
+        patientivoSource,
+    });
+    const shouldBypassGenericRawInputGates = Boolean(authoritativeDerivationalRawInputSource);
+    if (
+        !VOWEL_END_RE.test(validationVerb)
+        && !allowConsonantEnding
+        && !shouldBypassGenericRawInputGates
+    ) {
         if (skipValidation) {
             return {
                 result: "—",
@@ -614,7 +623,7 @@ function executeGenerateWordRequest(request = {}) {
         clearError("verb");
     }
     const stemGate = evaluateVerbStemInputGate(rawVerb, parsedVerb);
-    if (!stemGate.isValid) {
+    if (!stemGate.isValid && !shouldBypassGenericRawInputGates) {
         if (skipValidation) {
             return {
                 result: "—",
@@ -706,6 +715,17 @@ function executeGenerateWordRequest(request = {}) {
             if (error) return error;
         }
         const isTransitiveVerb = getBaseObjectSlots(parsedVerb) > 0;
+        if (
+            (
+                (tense === "patientivo" && patientivoSource === "tronco-verbal")
+                || (isPatientivoAdjectiveProfile && getPatientivoAdjectiveSourceForTense(tense) === "tronco-verbal")
+            )
+            && isTransitiveVerb
+            && !objectPrefix
+        ) {
+            objectPrefix = "ta";
+            morphologyObjectPrefix = "ta";
+        }
         if (
             resolvedTenseMode === TENSE_MODE.adjetivo
             && isIntransitiveOnlyActiveAdjectiveTense(tense)

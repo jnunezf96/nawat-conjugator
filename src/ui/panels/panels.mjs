@@ -1387,6 +1387,17 @@ export function createUiPanelsApi(targetObject = globalThis) {
       const isAgentivo = tenseValue === "agentivo";
       const isPatientivo = tenseValue === "patientivo";
       const resolvedPatientivoSource = isPatientivo ? patientivoSource || "nonactive" : null;
+      const normalizedProbeSelection = targetObject.resolveNominalAvailabilityProbeSelection({
+        tenseValue,
+        patientivoSource: resolvedPatientivoSource,
+        verbMeta: context.verbMeta,
+        objectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker
+      });
+      const resolvedObjectPrefix = normalizedProbeSelection.objectPrefix;
+      const resolvedIndirectObjectMarker = normalizedProbeSelection.indirectObjectMarker;
+      const resolvedThirdObjectMarker = normalizedProbeSelection.thirdObjectMarker;
       const ownershipSelections = isPatientivo && possessorPrefix !== "" && (patientivoOwnership === null || patientivoOwnership === undefined || patientivoOwnership === "") ? targetObject.PATIENTIVO_OWNERSHIP_OPTIONS.map(entry => entry.id) : [patientivoOwnership || targetObject.DEFAULT_PATIENTIVO_OWNERSHIP];
       const resolvedPatientivoNominalSuffix = targetObject.normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
       const isPossessed = possessorPrefix !== "";
@@ -1427,18 +1438,18 @@ export function createUiPanelsApi(targetObject = globalThis) {
         } else {
           const nominalDerivationMode = targetObject.getNominalDerivationModeForTense(tenseValue);
           result = targetObject.getCachedSilentGenerateWord({
-            silent: true,
-            skipValidation: true,
-            override: {
-              subjectPrefix: selection.subjectPrefix,
-              subjectSuffix: subjectSuffixOverride,
-              objectPrefix,
-              indirectObjectMarker,
-              thirdObjectMarker,
-              verb,
-              tense: tenseValue,
-              derivationMode: nominalDerivationMode,
-              possessivePrefix: possessorPrefix,
+              silent: true,
+              skipValidation: true,
+              override: {
+                subjectPrefix: selection.subjectPrefix,
+                subjectSuffix: subjectSuffixOverride,
+                objectPrefix: resolvedObjectPrefix,
+                indirectObjectMarker: resolvedIndirectObjectMarker,
+                thirdObjectMarker: resolvedThirdObjectMarker,
+                verb,
+                tense: tenseValue,
+                derivationMode: nominalDerivationMode,
+                possessivePrefix: possessorPrefix,
               patientivoOwnership: resolvedPatientivoOwnership,
               patientivoSource: resolvedPatientivoSource,
               patientivoNominalSuffix: resolvedPatientivoNominalSuffix
@@ -1446,15 +1457,15 @@ export function createUiPanelsApi(targetObject = globalThis) {
           }) || {};
           if (useReduplicatedSingularSurface && result?.result) {
             const prefixChain = targetObject.buildPrefixedChain({
-              subjectPrefix: selection.subjectPrefix,
-              possessivePrefix: possessorPrefix,
-              objectPrefix: targetObject.composeProjectiveObjectPrefix({
-                objectPrefix,
-                markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
-                subjectPrefix: selection.subjectPrefix
-              }),
-              verb: ""
-            });
+                subjectPrefix: selection.subjectPrefix,
+                possessivePrefix: possessorPrefix,
+                objectPrefix: targetObject.composeProjectiveObjectPrefix({
+                  objectPrefix: resolvedObjectPrefix,
+                  markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
+                  subjectPrefix: selection.subjectPrefix
+                }),
+                verb: ""
+              });
             result = {
               ...result,
               result: targetObject.reduplicateConjugationDisplay(result.result, {
@@ -1467,18 +1478,18 @@ export function createUiPanelsApi(targetObject = globalThis) {
           result,
           subjectPrefix: selection.subjectPrefix,
           subjectSuffix: selection.subjectSuffix,
-          objectPrefix,
+          objectPrefix: resolvedObjectPrefix,
           possessivePrefix: possessorPrefix,
-          indirectObjectMarker,
+          indirectObjectMarker: resolvedIndirectObjectMarker,
           derivationType: context.nounObjectSlotSummary?.derivationType,
           comboObjectPrefix: undefined,
           requireDistinctPossessor: isAgentivo || isPatientivo,
           enforceInvalidCombo: !useReduplicatedSingularSurface
         });
         const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3 && !targetObject.isValidValence4Combo({
-          objectPrefix,
-          indirectObjectMarker,
-          thirdObjectMarker
+          objectPrefix: resolvedObjectPrefix,
+          indirectObjectMarker: resolvedIndirectObjectMarker,
+          thirdObjectMarker: resolvedThirdObjectMarker
         });
         const evaluation = targetObject.buildConjugationEvaluationRecord({
           result,

@@ -520,7 +520,12 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       } else {
         clearError("verb");
       }
-      if (!targetObject.VOWEL_END_RE.test(validationVerb) && !allowConsonantEnding) {
+      const authoritativeDerivationalRawInputSource = targetObject.getAuthoritativeDerivationalSourceForRawInputGate({
+        tense,
+        patientivoSource
+      });
+      const shouldBypassGenericRawInputGates = Boolean(authoritativeDerivationalRawInputSource);
+      if (!targetObject.VOWEL_END_RE.test(validationVerb) && !allowConsonantEnding && !shouldBypassGenericRawInputGates) {
         if (skipValidation) {
           return {
             result: "—",
@@ -535,7 +540,7 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         clearError("verb");
       }
       const stemGate = targetObject.evaluateVerbStemInputGate(rawVerb, parsedVerb);
-      if (!stemGate.isValid) {
+      if (!stemGate.isValid && !shouldBypassGenericRawInputGates) {
         if (skipValidation) {
           return {
             result: "—",
@@ -612,6 +617,10 @@ export function createGenerationEngineApi(targetObject = globalThis) {
           if (error) return error;
         }
         const isTransitiveVerb = targetObject.getBaseObjectSlots(parsedVerb) > 0;
+        if ((tense === "patientivo" && patientivoSource === "tronco-verbal" || isPatientivoAdjectiveProfile && targetObject.getPatientivoAdjectiveSourceForTense(tense) === "tronco-verbal") && isTransitiveVerb && !objectPrefix) {
+          objectPrefix = "ta";
+          morphologyObjectPrefix = "ta";
+        }
         if (resolvedTenseMode === targetObject.TENSE_MODE.adjetivo && targetObject.isIntransitiveOnlyActiveAdjectiveTense(tense) && isTransitiveVerb) {
           if (skipValidation) {
             return {

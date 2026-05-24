@@ -3196,9 +3196,20 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const isAgentivo = resolvedTense === "agentivo";
         const isPatientivo = resolvedTense === "patientivo";
         const resolvedPatientivoSource = isPatientivo ? patientivoSource || "nonactive" : null;
+        const normalizedProbeSelection = targetObject.resolveNominalAvailabilityProbeSelection({
+          tenseValue: resolvedTense,
+          patientivoSource: resolvedPatientivoSource,
+          verbMeta,
+          objectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker
+        });
+        const resolvedObjectPrefix = normalizedProbeSelection.objectPrefix;
+        const resolvedIndirectObjectMarker = normalizedProbeSelection.indirectObjectMarker;
+        const resolvedThirdObjectMarker = normalizedProbeSelection.thirdObjectMarker;
         const ownershipSelections = isPatientivo && possessorPrefix !== "" && (patientivoOwnership === null || patientivoOwnership === undefined || patientivoOwnership === "") ? targetObject.PATIENTIVO_OWNERSHIP_OPTIONS.map(entry => entry.id) : [patientivoOwnership || targetObject.DEFAULT_PATIENTIVO_OWNERSHIP];
         const resolvedPatientivoNominalSuffix = targetObject.normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
-        const cacheKey = [selection.subjectPrefix || "", selection.subjectSuffix || "", number || "", possessorPrefix || "", objectPrefix || "", indirectObjectMarker || "", thirdObjectMarker || "", resolvedPatientivoSource || "", ownershipSelections.join(","), resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix, useReduplicatedSingularSurface ? "redup" : "plain"].join("|");
+        const cacheKey = [selection.subjectPrefix || "", selection.subjectSuffix || "", number || "", possessorPrefix || "", resolvedObjectPrefix || "", resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || "", resolvedPatientivoSource || "", ownershipSelections.join(","), resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix, useReduplicatedSingularSurface ? "redup" : "plain"].join("|");
         const cached = nounCombinationEvaluationCache.get(cacheKey);
         if (cached) {
           return cached;
@@ -3221,9 +3232,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
               verbMeta,
               subjectPrefix: selection.subjectPrefix,
               subjectSuffix: selection.subjectSuffix,
-              objectPrefix,
-              indirectObjectMarker,
-              thirdObjectMarker,
+              objectPrefix: resolvedObjectPrefix,
+              indirectObjectMarker: resolvedIndirectObjectMarker,
+              thirdObjectMarker: resolvedThirdObjectMarker,
               mode: instrumentivoMode,
               possessivePrefix: possessorPrefix
             }) || {};
@@ -3233,9 +3244,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
               verbMeta,
               subjectPrefix: selection.subjectPrefix,
               subjectSuffix: selection.subjectSuffix,
-              objectPrefix,
-              indirectObjectMarker,
-              thirdObjectMarker,
+              objectPrefix: resolvedObjectPrefix,
+              indirectObjectMarker: resolvedIndirectObjectMarker,
+              thirdObjectMarker: resolvedThirdObjectMarker,
               possessivePrefix: possessorPrefix
             }) || {};
           } else {
@@ -3246,9 +3257,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
               override: {
                 subjectPrefix: selection.subjectPrefix,
                 subjectSuffix: subjectSuffixOverride,
-                objectPrefix,
-                indirectObjectMarker,
-                thirdObjectMarker,
+                objectPrefix: resolvedObjectPrefix,
+                indirectObjectMarker: resolvedIndirectObjectMarker,
+                thirdObjectMarker: resolvedThirdObjectMarker,
                 verb,
                 tense: tenseValue,
                 derivationMode: nominalDerivationMode,
@@ -3263,8 +3274,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
                 subjectPrefix: selection.subjectPrefix,
                 possessivePrefix: possessorPrefix,
                 objectPrefix: targetObject.composeProjectiveObjectPrefix({
-                  objectPrefix,
-                  markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+                  objectPrefix: resolvedObjectPrefix,
+                  markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
                   subjectPrefix: selection.subjectPrefix
                 }),
                 verb: ""
@@ -3277,39 +3288,48 @@ export function createUiRenderingApi(targetObject = globalThis) {
               };
             }
           }
-          const maskState = targetObject.getConjugationMaskState({
-            result,
-            subjectPrefix: selection.subjectPrefix,
-            subjectSuffix: selection.subjectSuffix,
-            objectPrefix,
-            possessivePrefix: possessorPrefix,
-            indirectObjectMarker,
-            derivationType: nounObjectSlotSummary.derivationType,
-            comboObjectPrefix: undefined,
-            requireDistinctPossessor: isAgentivo || isPatientivo,
-            enforceInvalidCombo: !useReduplicatedSingularSurface
-          });
-          const valence4Violation = mutableNounObjectSlots.length >= 3 && !targetObject.isValidValence4Combo({
-            objectPrefix,
-            indirectObjectMarker,
-            thirdObjectMarker
-          });
-          return targetObject.buildConjugationEvaluationRecord({
-            result,
-            maskState,
-            hasValenceStructureError: valence4Violation
-          });
-        };
-        const evaluations = ownershipSelections.map(ownership => evaluateForOwnership(ownership));
-        const visibleEvaluations = evaluations.filter(entry => entry.hasVisibleResult);
-        const evaluation = visibleEvaluations.length ? targetObject.buildConjugationEvaluationRecord({
-          result: {
-            ...visibleEvaluations[0].result,
-            result: Array.from(new Set(visibleEvaluations.flatMap(entry => Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length ? entry.result.surfaceForms : String(entry.result?.result || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(Boolean)))).join(" / ")
-          }
-        }) : evaluations[0] || targetObject.buildConjugationEvaluationRecord({
-          result: {}
-        });
+            const maskState = targetObject.getConjugationMaskState({
+              result,
+              subjectPrefix: selection.subjectPrefix,
+              subjectSuffix: selection.subjectSuffix,
+              objectPrefix: resolvedObjectPrefix,
+              possessivePrefix: possessorPrefix,
+              indirectObjectMarker: resolvedIndirectObjectMarker,
+              derivationType: nounObjectSlotSummary.derivationType,
+              comboObjectPrefix: undefined,
+              requireDistinctPossessor: isAgentivo || isPatientivo,
+              enforceInvalidCombo: !useReduplicatedSingularSurface
+            });
+            const valence4Violation = mutableNounObjectSlots.length >= 3 && !targetObject.isValidValence4Combo({
+              objectPrefix: resolvedObjectPrefix,
+              indirectObjectMarker: resolvedIndirectObjectMarker,
+              thirdObjectMarker: resolvedThirdObjectMarker
+            });
+            return {
+              ...targetObject.buildConjugationEvaluationRecord({
+                result,
+                maskState,
+                hasValenceStructureError: valence4Violation
+              }),
+              normalizedSelection: normalizedProbeSelection
+            };
+          };
+          const evaluations = ownershipSelections.map(ownership => evaluateForOwnership(ownership));
+          const visibleEvaluations = evaluations.filter(entry => entry.hasVisibleResult);
+          const evaluation = visibleEvaluations.length ? {
+            ...targetObject.buildConjugationEvaluationRecord({
+              result: {
+                ...visibleEvaluations[0].result,
+                result: Array.from(new Set(visibleEvaluations.flatMap(entry => Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length ? entry.result.surfaceForms : String(entry.result?.result || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(Boolean)))).join(" / ")
+              }
+            }),
+            normalizedSelection: visibleEvaluations[0].normalizedSelection || normalizedProbeSelection
+          } : evaluations[0] || {
+            ...targetObject.buildConjugationEvaluationRecord({
+              result: {}
+            }),
+            normalizedSelection: normalizedProbeSelection
+          };
         nounCombinationEvaluationCache.set(cacheKey, evaluation);
         return evaluation;
       };
@@ -3708,32 +3728,6 @@ export function createUiRenderingApi(targetObject = globalThis) {
               useReduplicatedSingularSurface = false
             } = subjectEntry;
             possessorSelections.forEach(possessorPrefix => {
-              const row = targetObject.document.createElement("div");
-              row.className = "conjugation-row";
-              targetObject.applyConjugationRowClasses(row, objectPrefix);
-              const label = targetObject.document.createElement("div");
-              label.className = "conjugation-label";
-              const personLabel = targetObject.document.createElement("div");
-              personLabel.className = "person-label";
-              personLabel.textContent = displaySelection ? targetObject.getSubjectPersonLabel(group, displaySelection, isNawat) : "";
-              const personSub = targetObject.document.createElement("div");
-              personSub.className = "person-sub";
-              const basePersonSub = displayPersonSubLabel ? targetObject.getLocalizedLabel(displayPersonSubLabel, isNawat, "") : displaySelection ? targetObject.getSubjectSubLabel(displaySelection, {
-                isNawat,
-                mode: "noun",
-                tenseValue: resolvedTense
-              }) : "";
-              const objectMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(Boolean);
-              const suppressZeroObjectLabel = targetObject.isPotencialProfileTense(resolvedTense);
-              const isDummyImpersonalRow = combinedMode === targetObject.COMBINED_MODE.nonactive && isSubjectlessTense && !selection.subjectPrefix && !selection.subjectSuffix && !possessorPrefix && objectMarkers.length === 0;
-              const objectLabel = objectMarkers.length ? objectMarkers.map(prefix => targetObject.getNounObjectComboLabel(prefix, isNawat)).join(" + ") : suppressZeroObjectLabel ? "" : targetObject.getNounZeroObjectComboLabel(isNawat, {
-                isImpersonalDummy: isDummyImpersonalRow
-              });
-              let possessorLabel = targetObject.getPossessorLabel(possessorPrefix, isNawat);
-              label.appendChild(personLabel);
-              label.appendChild(personSub);
-              const value = targetObject.document.createElement("div");
-              value.className = "conjugation-value";
               const evaluation = evaluateNounCombinationState({
                 selection,
                 number,
@@ -3746,6 +3740,39 @@ export function createUiRenderingApi(targetObject = globalThis) {
                 patientivoNominalSuffix: activePatientivoNominalSuffix,
                 useReduplicatedSingularSurface
               });
+              const normalizedSelection = evaluation.normalizedSelection || {};
+              const displayObjectPrefix = normalizedSelection.objectPrefix ?? objectPrefix;
+              const displayIndirectObjectMarker = normalizedSelection.indirectObjectMarker ?? indirectObjectMarker;
+              const displayThirdObjectMarker = normalizedSelection.thirdObjectMarker ?? thirdObjectMarker;
+              const row = targetObject.document.createElement("div");
+              row.className = "conjugation-row";
+              targetObject.applyConjugationRowClasses(row, displayObjectPrefix);
+              row.dataset.objectPrefix = displayObjectPrefix;
+              row.dataset.indirectObjectPrefix = displayIndirectObjectMarker;
+              row.dataset.thirdObjectPrefix = displayThirdObjectMarker;
+              const label = targetObject.document.createElement("div");
+              label.className = "conjugation-label";
+              const personLabel = targetObject.document.createElement("div");
+              personLabel.className = "person-label";
+              personLabel.textContent = displaySelection ? targetObject.getSubjectPersonLabel(group, displaySelection, isNawat) : "";
+              const personSub = targetObject.document.createElement("div");
+              personSub.className = "person-sub";
+              const basePersonSub = displayPersonSubLabel ? targetObject.getLocalizedLabel(displayPersonSubLabel, isNawat, "") : displaySelection ? targetObject.getSubjectSubLabel(displaySelection, {
+                isNawat,
+                mode: "noun",
+                tenseValue: resolvedTense
+              }) : "";
+              const objectMarkers = [displayObjectPrefix, displayIndirectObjectMarker, displayThirdObjectMarker].filter(Boolean);
+              const suppressZeroObjectLabel = targetObject.isPotencialProfileTense(resolvedTense);
+              const isDummyImpersonalRow = combinedMode === targetObject.COMBINED_MODE.nonactive && isSubjectlessTense && !selection.subjectPrefix && !selection.subjectSuffix && !possessorPrefix && objectMarkers.length === 0;
+              const objectLabel = objectMarkers.length ? objectMarkers.map(prefix => targetObject.getNounObjectComboLabel(prefix, isNawat)).join(" + ") : suppressZeroObjectLabel ? "" : targetObject.getNounZeroObjectComboLabel(isNawat, {
+                isImpersonalDummy: isDummyImpersonalRow
+              });
+              let possessorLabel = targetObject.getPossessorLabel(possessorPrefix, isNawat);
+              label.appendChild(personLabel);
+              label.appendChild(personSub);
+              const value = targetObject.document.createElement("div");
+              value.className = "conjugation-value";
               personSub.textContent = targetObject.buildPersonSub({
                 subjectLabel: basePersonSub,
                 possessorLabel,
