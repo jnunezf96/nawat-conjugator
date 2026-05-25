@@ -4587,6 +4587,33 @@ input[type="submit"]:hover {
   justify-items: start;
 }
 
+.object-toggle--stacked.object-toggle--with-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.object-toggle__label {
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: var(--mode-toggle-height);
+  max-width: 4.6rem;
+  opacity: 0.66;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.object-toggle--stacked.object-toggle--with-label .object-toggle__label {
+  flex-basis: 4.6rem;
+  text-align: right;
+}
+
 .object-toggle--stacked .object-toggle-button {
   width: fit-content;
   text-align: center;
@@ -4655,6 +4682,19 @@ input[type="submit"]:hover {
 }
 
 @container (max-width: 430px) {
+  .object-toggle--stacked.object-toggle--with-label {
+    gap: 4px;
+  }
+
+  .object-toggle__label {
+    font-size: 0.56rem;
+    max-width: 3.4rem;
+  }
+
+  .object-toggle--stacked.object-toggle--with-label .object-toggle__label {
+    flex-basis: 3.4rem;
+  }
+
   .tense-block__label {
     font-size: calc(0.72rem + var(--font-size-adjust));
   }

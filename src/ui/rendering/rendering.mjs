@@ -1699,6 +1699,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       activeId,
       onSelect,
       ariaLabel,
+      visibleLabel = "",
       getTitle,
       getIsDisabled,
       getActiveId,
@@ -1713,6 +1714,15 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }
       toggle.setAttribute("role", "group");
       toggle.setAttribute("aria-label", ariaLabel);
+      const normalizedVisibleLabel = String(visibleLabel || "").trim();
+      if (normalizedVisibleLabel) {
+        toggle.classList.add("object-toggle--with-label");
+        const label = targetObject.document.createElement("span");
+        label.className = "object-toggle__label";
+        label.textContent = normalizedVisibleLabel;
+        label.setAttribute("aria-hidden", "true");
+        toggle.appendChild(label);
+      }
       const buttons = new Map();
       options.forEach(option => {
         const button = targetObject.document.createElement("button");
@@ -2914,6 +2924,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const possessorToggleLabel = targetObject.getToggleLabel("possessor", isNawat, "Poseedor");
       const ownershipToggleLabel = targetObject.getToggleLabel("ownership", isNawat, "Posesion");
       const objectToggleLabel = targetObject.getToggleLabel("object", isNawat, "Objeto");
+      const suffixToggleLabel = targetObject.getToggleLabel("suffix", isNawat, "Sufijo");
       const tenseLabel = targetObject.getLocalizedLabel(targetObject.TENSE_LABELS[resolvedTense], isNawat, resolvedTense);
       const resolvedNounBlockMode = (() => {
         if (isPossessionSplit) {
@@ -3500,6 +3511,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
             options: subjectOptions,
             activeId: activeSubject,
             ariaLabel: subjectToggleLabel,
+            visibleLabel: useSharedPatientivoControls ? subjectToggleLabel : "",
             onSelect: id => {
               setActiveSubject(id);
             },
@@ -3530,6 +3542,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
             options: possessorOptions,
             activeId: activePossessor,
             ariaLabel: possessorToggleLabel,
+            visibleLabel: useSharedPatientivoControls ? possessorToggleLabel : "",
             onSelect: id => {
               setActivePossessor(id);
             },
@@ -3559,6 +3572,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
             options: ownershipToggleOptions,
             activeId: activePatientivoOwnership,
             ariaLabel: ownershipToggleLabel,
+            visibleLabel: useSharedPatientivoControls ? ownershipToggleLabel : "",
             onSelect: id => {
               setActivePatientivoOwnership(id);
             },
@@ -3583,7 +3597,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
           } = buildToggleControl({
             options: patientivoNominalSuffixToggleOptions,
             activeId: activePatientivoNominalSuffix,
-            ariaLabel: targetObject.getToggleLabel("suffix", isNawat, "Sufijo"),
+            ariaLabel: suffixToggleLabel,
+            visibleLabel: useSharedPatientivoControls ? suffixToggleLabel : "",
             onSelect: id => {
               setActivePatientivoNominalSuffix(id);
             },
@@ -3611,6 +3626,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
               options: slotState.options,
               activeId: slotState.activeId,
               ariaLabel: slotAriaLabel,
+              visibleLabel: useSharedPatientivoControls ? slotAriaLabel : "",
               onSelect: id => {
                 setActiveObjectSlot(slotState.id, id);
               },
