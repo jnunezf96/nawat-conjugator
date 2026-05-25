@@ -1,16 +1,14 @@
 {
   "uiLabels": {
     "tense-tabs-mode-verb": { "labelEs": "verbo", "labelNa": "muchiwalis" },
-    "tense-tabs-mode-noun": { "labelEs": "sustantivo", "labelNa": "tukaytil" },
-    "tense-tabs-mode-adjective": { "labelEs": "adjetivo", "labelNa": "adjetivo" },
-    "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "adverbio" },
+    "tense-tabs-mode-noun": { "labelEs": "sustantivo", "labelNa": "tukayit" },
+    "tense-tabs-mode-adjective": { "labelEs": "adjetivo", "labelNa": "inamik tukayit" },
+    "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "inamik muchiwalis" },
     "tense-tabs-mode-active": { "labelEs": "activo", "labelNa": "muchiwa" },
     "tense-tabs-mode-nonactive": { "labelEs": "no activo", "labelNa": "muselia" },
-    "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachalistli" },
-    "ui-density-simple": { "labelEs": "Simple", "labelNa": "Simple" },
-    "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Yekchiwal" },
-    "input-mode-composer": { "labelEs": "Selecciones", "labelNa": "Taketzalis" },
-    "input-mode-regex": { "labelEs": "Regex", "labelNa": "Regex" },
+    "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachiyalis" },
+    "ui-density-simple": { "labelEs": "Simple", "labelNa": "Te uwij" },
+    "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Uwij" },
     "composer-hint-regex-dev": {
       "labelEs": "Regex Dev: escribe el patrón directamente en la pantalla.",
       "labelNa": "Regex Dev: xikijkwilu ne patrun tik pantalla."
@@ -18,10 +16,6 @@
     "composer-hint-define-roots": {
       "labelEs": "Define raíz matriz y raíz incorporada para construir la forma.",
       "labelNa": "Xiknexti raiz matriz wan raiz incorporada para tiktalia ne forma."
-    },
-    "calc-status-enter-verb": {
-      "labelEs": "Ingresa un verbo para generar.",
-      "labelNa": "Xikijkwilu se muchiwalis para tikchiwa."
     },
     "calc-status-no-results": {
       "labelEs": "Sin resultados para esta combinación.",
@@ -57,6 +51,9 @@
   },
   "objectLabels": {
     "intransitive": { "labelEs": "intransitivo", "labelNa": "te taselil" }
+  },
+  "nounObjectLabels": {
+    "intransitive": { "labelEs": "a él/ella/eso", "labelNa": "yaja" }
   },
   "objectRoleLabels": {
     "direct": { "labelEs": "a", "labelNa": "a" },
@@ -105,7 +102,8 @@
     "object": { "labelEs": "Objeto", "labelNa": "Taseliani" },
     "possessor": { "labelEs": "Poseedor", "labelNa": "Tajpiyani" },
     "ownership": { "labelEs": "Posesion", "labelNa": "Tajpiyalis" },
-    "possessorObject": { "labelEs": "Poseedor / Objeto", "labelNa": "Matajpiyani / Museliani" },
+    "suffix": { "labelEs": "Sufijo", "labelNa": "Itamiya" },
+    "controls": { "labelEs": "Controles", "labelNa": "Controles" },
     "intransitive": { "labelEs": "intransitivo", "labelNa": "te taselil" }
   },
   "patientivoOwnershipLabels": {
