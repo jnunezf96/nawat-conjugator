@@ -2,40 +2,46 @@
   "uiLabels": {
     "tense-tabs-mode-verb": { "labelEs": "verbo", "labelNa": "muchiwalis" },
     "tense-tabs-mode-noun": { "labelEs": "sustantivo", "labelNa": "tukayit" },
-    "tense-tabs-mode-adjective": { "labelEs": "adjetivo", "labelNa": "inamik tukayit" },
-    "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "inamik muchiwalis" },
+    "tense-tabs-mode-adjective": { "labelEs": "adjetivo", "labelNa": "tukaynawak" },
+    "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "ayilisnawak" },
     "tense-tabs-mode-active": { "labelEs": "activo", "labelNa": "muchiwa" },
     "tense-tabs-mode-nonactive": { "labelEs": "no activo", "labelNa": "muselia" },
     "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachiyalis" },
     "ui-density-simple": { "labelEs": "Simple", "labelNa": "Te uwij" },
     "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Uwij" },
+    "input-mode-composer": { "labelEs": "Selecciones", "labelNa": "Taketzalis" },
+    "input-mode-regex": { "labelEs": "Regex", "labelNa": "Nawal" },
     "composer-hint-regex-dev": {
       "labelEs": "Regex Dev: escribe el patrón directamente en la pantalla.",
-      "labelNa": "Regex Dev: xikijkwilu ne patrun tik pantalla."
+      "labelNa": "Regex Dev: shikijkwilu ne majmachiyut."
     },
     "composer-hint-define-roots": {
       "labelEs": "Define raíz matriz y raíz incorporada para construir la forma.",
-      "labelNa": "Xiknexti raiz matriz wan raiz incorporada para tiktalia ne forma."
+      "labelNa": "Shiknutza ne inejnelwayu ijtik muchiwalis wan itenpan ipal tiketza ne machiyut."
+    },
+    "calc-status-enter-verb": {
+      "labelEs": "Ingresa un verbo para generar.",
+      "labelNa": "Shikijkwilu se muchiwalis ipal tikiskaltia."
     },
     "calc-status-no-results": {
       "labelEs": "Sin resultados para esta combinación.",
-      "labelNa": "Te onka resultado para ni tajkuilujtik."
+      "labelNa": "Te kanaj tasenpuwalis ipal ini."
     },
     "calc-status-incompatible": {
       "labelEs": "Revisa la combinación: hay formas incompatibles.",
-      "labelNa": "Xikita ni tajkuilujtik: onka formas te mutajtanah."
+      "labelNa": "Shikita ne tasentalilis: te weli musenchiwa."
     },
-    "calc-status-mode-prefix": { "labelEs": "Modo", "labelNa": "Modo" },
-    "calc-status-output-updated": { "labelEs": "salida actualizada.", "labelNa": "kisa yankuik." }
+    "calc-status-mode-prefix": { "labelEs": "Modo", "labelNa": "Ken" },
+    "calc-status-output-updated": { "labelEs": "salida actualizada.", "labelNa": "yankwik tasenpuwalis." }
   },
   "numberLabels": {
     "singular": { "es": "singular", "na": "isel" },
     "plural": { "es": "plural", "na": "imiaka" }
   },
   "personGroupLabels": {
-    "first": { "labelEs": "1a persona", "labelNa": "teikniw 1" },
-    "second": { "labelEs": "2a persona", "labelNa": "teikniw 2" },
-    "third": { "labelEs": "3a persona", "labelNa": "teiknew 3" }
+    "first": { "labelEs": "1a persona", "labelNa": "1 teikniw" },
+    "second": { "labelEs": "2a persona", "labelNa": "2 teiknew" },
+    "third": { "labelEs": "3a persona", "labelNa": "3 teiknew" }
   },
   "personSubLabels": {
     "1sg": { "labelEs": "yo", "labelNa": "naja" },
@@ -51,9 +57,6 @@
   },
   "objectLabels": {
     "intransitive": { "labelEs": "intransitivo", "labelNa": "te taselil" }
-  },
-  "nounObjectLabels": {
-    "intransitive": { "labelEs": "a él/ella/eso", "labelNa": "yaja" }
   },
   "objectRoleLabels": {
     "direct": { "labelEs": "a", "labelNa": "a" },
@@ -89,7 +92,7 @@
     "tech": { "labelEs": "a nosotros", "labelNa": "tejemet" },
     "metzin": { "labelEs": "a ustedes", "labelNa": "anmejemet" },
     "kin": { "labelEs": "a ellos/ellas", "labelNa": "yejemet" },
-    "mu": { "labelEs": "a sí mismo", "labelNa": "ajaka isel" },
+    "mu": { "labelEs": "a sí mismo", "labelNa": "isel" },
     "ta": { "labelEs": "a algo", "labelNa": "tajtatka" },
     "te": { "labelEs": "a alguien", "labelNa": "ajaka" }
   },
@@ -102,19 +105,18 @@
     "object": { "labelEs": "Objeto", "labelNa": "Taseliani" },
     "possessor": { "labelEs": "Poseedor", "labelNa": "Tajpiyani" },
     "ownership": { "labelEs": "Posesion", "labelNa": "Tajpiyalis" },
-    "suffix": { "labelEs": "Sufijo", "labelNa": "Itamiya" },
-    "controls": { "labelEs": "Controles", "labelNa": "Controles" },
+    "possessorObject": { "labelEs": "Poseedor / Objeto", "labelNa": "Tajpiyani / Tajpiyal" },
     "intransitive": { "labelEs": "intransitivo", "labelNa": "te taselil" }
   },
   "patientivoOwnershipLabels": {
-    "w": { "labelEs": "adventicio", "labelNa": "adventicio" },
-    "yu": { "labelEs": "organico", "labelNa": "organico" },
-    "zero": { "labelEs": "cero", "labelNa": "cero" }
+    "w": { "labelEs": "adventicio", "labelNa": "tepal" },
+    "yu": { "labelEs": "organico", "labelNa": "tenakayu" },
+    "zero": { "labelEs": "cero", "labelNa": "te tatka" }
   },
   "placeholderLabels": {
     "conjugations": {
       "labelEs": "Ingresa un verbo para ver las conjugaciones.",
-      "labelNa": "Shikijkwilu se muchiwalis pal tikita sentapuwalis."
+      "labelNa": "Shikijkwilu se muchiwalis ipal tikita tasenpuwalis."
     }
   },
   "nonactivePrefixLabel": { "labelEs": "no activo", "labelNa": "muselia" },
@@ -166,21 +168,21 @@
     "condicional": { "labelEs": "pretérito condicional imperfecto", "labelNa": "ipan muchiwaskia" }
   },
   "tenseDescriptions": {
-    "presente": { "labelEs": "acciones actuales o en progreso", "labelNa": "keman muchiwa ijki ashkan" },
-    "imperativo": { "labelEs": "mandato, exhortación o petición", "labelNa": "keman ne mutuktia wan muchiwaltia ajaka" },
-    "presente-habitual": { "labelEs": "acción repetida o costumbre", "labelNa": "keman muchiwa sejsenpa" },
-    "presente-desiderativo": { "labelEs": "deseo, intención o propósito", "labelNa": "keman kineki muchiwa" },
-    "imperfecto": { "labelEs": "pasado en desarrollo o continuo", "labelNa": "keman muchiwa katka" },
-    "preterito": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman muchiwki wan tea ijkia né" },
-    "pasado-remoto": { "labelEs": "pasado distante con cierre perfectivo", "labelNa": "keman muchiwki ikman" },
-    "perfecto": { "labelEs": "pasado con resultado vigente", "labelNa": "keman muchiwki wan sanuk ijkia né" },
-    "pluscuamperfecto": { "labelEs": "pasado anterior a otro pasado", "labelNa": "keman muchiwki katka" },
-    "condicional-perfecto": { "labelEs": "pasado hipotético o no realizado", "labelNa": "keman te wel muchiwki" },
-    "futuro": { "labelEs": "evento proyectado o esperado", "labelNa": "keman ipan muchiwas" },
-    "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman wel muchiwa" },
+    "presente": { "labelEs": "acciones actuales o en progreso", "labelNa": "keman taya muchiwa iwki ashkan" },
+    "imperativo": { "labelEs": "mandato, exhortación o petición", "labelNa": "keman taya mutuktia ma muchiwa" },
+    "presente-habitual": { "labelEs": "acción repetida o costumbre", "labelNa": "keman taya muchiwa sejsenpa" },
+    "presente-desiderativo": { "labelEs": "deseo, intención o propósito", "labelNa": "keman taya kineki muchiwa" },
+    "imperfecto": { "labelEs": "pasado en desarrollo o continuo", "labelNa": "keman taya muchiwa katka" },
+    "preterito": { "labelEs": "pasado puntual con cierre perfectivo", "labelNa": "keman taya muchiwki wan tea ijkia né" },
+    "pasado-remoto": { "labelEs": "pasado distante con cierre perfectivo", "labelNa": "keman taya muchiwki ikman" },
+    "perfecto": { "labelEs": "pasado con resultado vigente", "labelNa": "keman taya muchiwki wan sanuk ijkia né" },
+    "pluscuamperfecto": { "labelEs": "pasado anterior a otro pasado", "labelNa": "keman taya muchiwki katka" },
+    "condicional-perfecto": { "labelEs": "pasado hipotético o no realizado", "labelNa": "keman taya wel muchiwa katka" },
+    "futuro": { "labelEs": "evento proyectado o esperado", "labelNa": "keman taya san muchiwas" },
+    "condicional": { "labelEs": "posibilidad, duda o cortesía", "labelNa": "keman taya wel muchiwa" },
     "sustantivo-verbal": { "labelEs": "acción tratada como sustantivo (sustantivo derivado del verbo con -lis)", "labelNa": "tajtaysan ne kichiwa kajkajsan" },
-    "potencial": { "labelEs": "adjetivo activo como conjugación verbal en futuro imperfectivo", "labelNa": "potencial" },
-    "potencial-habitual": { "labelEs": "adjetivo no activo como conjugación verbal en presente habitual", "labelNa": "ipan muchiwani" },
+    "potencial": { "labelEs": "adjetivo activo como conjugación verbal en futuro imperfectivo", "labelNa": "ipan wel muchiwas" },
+    "potencial-habitual": { "labelEs": "adjetivo no activo como conjugación verbal en presente habitual", "labelNa": "ipan wel muchiwani" },
     "adjetivo-preterito": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto simple", "labelNa": "ipan muchiwki" },
     "adjetivo-perfecto": { "labelEs": "adjetivo como conjugación verbal en pretérito perfecto compuesto", "labelNa": "ipan muchiwtuk" },
     "adjetivo-preterito-tik": { "labelEs": "adjetivo activo en pretérito con sufijo -tik", "labelNa": "ipan muchiwki -tik" },
@@ -198,20 +200,20 @@
   },
   "preteritoClassDetailByKey": {
     "A": {
-      "label": { "labelEs": "Clase A: -ki / -Ø", "labelNa": "Taputzul A: -ki / -Ø" },
-      "description": { "labelEs": "pérdida de vocal final en perfectivo", "labelNa": "mupulua itamiya wan mumaka -ki" }
+      "label": { "labelEs": "Clase A: -ki / -Ø", "labelNa": "Tasentalil A: -ki / -Ø" },
+      "description": { "labelEs": "pérdida de vocal final en perfectivo", "labelNa": "kisa ne tipan wan mutalia -ki" }
     },
     "B": {
-      "label": { "labelEs": "Clase B: +k", "labelNa": "Taputzul B: +k" },
-      "description": { "labelEs": "conserva vocal y añade -k", "labelNa": "naka itamiya wan mumaka -k" }
+      "label": { "labelEs": "Clase B: +k", "labelNa": "Tasentalil B: +k" },
+      "description": { "labelEs": "conserva vocal y añade -k", "labelNa": "naka ne tipan wan mutalia -k" }
     },
     "C": {
-      "label": { "labelEs": "Clase C: -j", "labelNa": "Taputzul C: -j" },
-      "description": { "labelEs": "alterna la raíz a -j", "labelNa": "mupata itamiya -j" }
+      "label": { "labelEs": "Clase C: -j", "labelNa": "Tasentalil C: -j" },
+      "description": { "labelEs": "alterna la raíz a -j", "labelNa": "kisa ne tipan wan mupata -j" }
     },
     "D": {
-      "label": { "labelEs": "Clase D: +j", "labelNa": "Taputzul D: +j" },
-      "description": { "labelEs": "añade -j al perfectivo", "labelNa": "mumaka -j" }
+      "label": { "labelEs": "Clase D: +j", "labelNa": "Tasentalil D: +j" },
+      "description": { "labelEs": "añade -j al perfectivo", "labelNa": "naka ne tipan wan mutalia -j" }
     }
   }
 }
