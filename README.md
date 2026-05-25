@@ -228,9 +228,14 @@ var _codaReKw = null;
 ## Tests
 
 ```sh
+npm run check:data       # grammar data consistency guard for data/*.json and lexicon CSVs
 npm test                  # all unit suites (src/tests/)
 npm run test:morphology   # morphology audit via vm_harness
 npm run test:regression   # intransitive-i causative regression
 ```
+
+`npm test` runs `check:data` first, then the headless unit suites. The data check keeps tense IDs, labels, display groups, rule references, phonology references, person/object options, and lexicon CSV shape synchronized as the grammar data grows.
+
+Known grammar-data exceptions live in `scripts/grammar_data_allowlist.json`. Current duplicate lexicon keys, cross-file lexicon overlaps, separator rows, and missing lexicon references must stay listed there. Any new unlisted exception fails `check:data`; if an exception is cleaned up, remove it from the allowlist in the same change.
 
 Tests run headlessly via `scripts/lib/vm_harness.js`, which loads the full module stack into a Node.js VM context with a fake DOM. UI modules that depend only on DOM stubs are included; modules that require live browser APIs are excluded.

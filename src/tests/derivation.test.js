@@ -130,6 +130,29 @@ function run(ctx) {
     s.eq("nonactive derivation passthrough keeps verb", nonactiveFallback.verb, "nemi");
     s.eq("nonactive derivation passthrough keeps null override keys", nonactiveFallback.nonactiveObjectPrefixOverride, null);
 
+    const transitiveMatiNonactiveOptions = ctx.getVisibleNonactiveDerivationOptions("mati", "mati", {
+        isTransitive: true,
+        ruleBase: "mati",
+    });
+    const transitiveMatiUStems = transitiveMatiNonactiveOptions
+        .filter((entry) => entry.suffix === "u")
+        .map((entry) => entry.stem);
+    s.ok("transitive mati plain u route replaces final i with u", transitiveMatiUStems.includes("matu"));
+    s.no("transitive mati plain u route does not append u after final i", transitiveMatiUStems.includes("matiu"));
+    s.no(
+        "transitive mati does not expose intransitive-only uwa",
+        transitiveMatiNonactiveOptions.some((entry) => entry.suffix === "uwa")
+    );
+
+    const transitivePetawaNonactiveOptions = ctx.getVisibleNonactiveDerivationOptions("petawa", "petawa", {
+        isTransitive: true,
+        ruleBase: "petawa",
+    });
+    s.no(
+        "transitive wa-final stems do not expose intransitive-only uwa",
+        transitivePetawaNonactiveOptions.some((entry) => entry.suffix === "uwa")
+    );
+
     const patientivoFromUwa = ctx.getPatientivoStemFromNonactive("kelunuwa", "uwa", {
         isTransitive: false,
         baseInfo: { lastOnset: "n" },
@@ -139,6 +162,19 @@ function run(ctx) {
     s.ok(
         "patientivo from -uwa marks base+i+t variant as no absolutive zero class",
         patientivoTVariant && patientivoTVariant.blocksAbsolutiveZeroNominalMarker === true
+    );
+
+    const patientivoFromPassiveMatu = ctx.getPatientivoStemFromNonactive("matu", "u", {
+        isTransitive: true,
+    });
+    const patientivoVowelFinalTVariant = patientivoFromPassiveMatu.find((entry) => entry.suffix === "t");
+    s.ok(
+        "patientivo from passive matu uses mati+t without extra supportive i",
+        patientivoVowelFinalTVariant && patientivoVowelFinalTVariant.stem === "mati"
+    );
+    s.no(
+        "patientivo supportive i does not create ii before t",
+        patientivoFromPassiveMatu.some((entry) => entry.stem === "matii")
     );
 
     const patientivoTEntry = ctx.buildPatientivoDerivationEntry({

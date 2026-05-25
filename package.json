@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node scripts/run_tests.js",
+    "check:data": "node scripts/check_grammar_data.js",
+    "test": "npm run check:data && node scripts/run_tests.js",
     "test:module": "node scripts/run_tests.js --runtime=module",
     "test:morphology": "node scripts/operation_apply_morphology_audit.js",
     "test:regression": "node scripts/run_intransitive_i_causative_regression.js"

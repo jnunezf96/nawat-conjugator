@@ -6129,10 +6129,16 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         }
         const tiBaseStem = recoveredBase.stem;
         const tiBaseStemSpec = recoveredBase.stemSpec;
-        const tStemSpec = buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i");
+        const recoveredLetters = splitVerbLetters(recoveredBase.stem);
+        const recoveredLast = recoveredLetters[recoveredLetters.length - 1] || "";
+        const needsSupportiveI = recoveredLast && isVerbLetterConsonant(recoveredLast);
+        const tStemSpec = needsSupportiveI
+            ? buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i")
+            : recoveredBase.stemSpec;
+        const tStem = needsSupportiveI ? `${recoveredBase.stem}i` : recoveredBase.stem;
         return [
             buildVariantEntry(tiBaseStemSpec, tiBaseStem, "ti"),
-            buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t", {
+            buildVariantEntry(tStemSpec, tStem, "t", {
                 blocksAbsolutiveZeroNominalMarker: true,
             }),
         ].filter(Boolean);
@@ -8884,14 +8890,8 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         endsWithNucleusA,
         endsWithNucleusU,
         isVowelMonosyllable,
-        syllableCount,
     } = info;
     const isTransitive = options.isTransitive === true;
-    const transitiveUwaAllowList = Array.isArray(DERIVATIONAL_RULES?.nonactive?.transitiveUwaAllow)
-        ? DERIVATIONAL_RULES.nonactive.transitiveUwaAllow
-        : [];
-    const allowTransitiveUwa = isTransitive
-        && matchesDerivationRuleBaseList(transitiveUwaAllowList, ruleBase, "");
     const allowChiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "t";
     const allowShiwaVariant = isTransitive && isVerbLetterVowel(last) && prev === "s";
     const allowChiwaOrShiwa = allowChiwaVariant || allowShiwaVariant;
@@ -8948,22 +8948,6 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         && !blockUwaForPenultimateU
         && !blockUwaForPenultimateOnset
         && !blockUwaForCoda;
-    const uwaCandidateTransitive = allowTransitiveUwa
-        && !blockUForWaWi
-        && !blockUwaForPenultimateU
-        && !blockUwaForPenultimateOnset
-        && !blockUwaForCoda;
-    // For (>=)3-syllable transitives ending in -wa, also allow -uwa (e.g. -petawa -> petauwa).
-    // This is separate from the intransitive -uwa candidate so it doesn't interfere with lu/u selection logic.
-    const uwaCandidateTransitiveWa = isTransitive
-        && syllableCount >= 3
-        && ruleBase.endsWith("wa")
-        && lastOnset === "w"
-        && !blockUForWaWi
-        && !blockUwaForPenultimateU
-        && !blockUwaForPenultimateOnset
-        && !blockUwaForCoda;
-
     // -wa is generally intransitive-only, but bare transitive -i also keeps a wa path.
     const allowWaForI = isTransitive && ruleBase === "i";
     const waCandidate = (!isTransitive && (endsWithNucleusI || endsWithNucleusU))
@@ -9094,10 +9078,7 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
             allowFinalTaReplacement: allowUFromPlainTa,
         });
     };
-    const buildPlainUT = () => buildReplaceSuffixMorphStemSpec(source, source.slice(-1), "u", {
-        sourceBase: source,
-        sourceSuffix: "u",
-    });
+    const buildPlainUT = () => buildReplaceSuffixMorphStemSpec(source, source.slice(-1), "u");
     const buildWa = () => buildAppendMorphStemSpec(source, "wa", {
         sourceBase: source,
         sourceSuffix: "wa",
@@ -9179,12 +9160,6 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         }
     }
     if (uwaCandidate) {
-        pushWithVariants("uwa", buildUwa());
-    }
-    if (uwaCandidateTransitiveWa) {
-        pushWithVariants("uwa", buildUwa());
-    }
-    if (uwaCandidateTransitive) {
         pushWithVariants("uwa", buildUwa());
     }
 

@@ -5383,8 +5383,12 @@ export function createAllomorphyApi(targetObject = globalThis) {
         }
         const tiBaseStem = recoveredBase.stem;
         const tiBaseStemSpec = recoveredBase.stemSpec;
-        const tStemSpec = buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i");
-        return [buildVariantEntry(tiBaseStemSpec, tiBaseStem, "ti"), buildVariantEntry(tStemSpec, `${recoveredBase.stem}i`, "t", {
+        const recoveredLetters = targetObject.splitVerbLetters(recoveredBase.stem);
+        const recoveredLast = recoveredLetters[recoveredLetters.length - 1] || "";
+        const needsSupportiveI = recoveredLast && targetObject.isVerbLetterConsonant(recoveredLast);
+        const tStemSpec = needsSupportiveI ? buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i") : recoveredBase.stemSpec;
+        const tStem = needsSupportiveI ? `${recoveredBase.stem}i` : recoveredBase.stem;
+        return [buildVariantEntry(tiBaseStemSpec, tiBaseStem, "ti"), buildVariantEntry(tStemSpec, tStem, "t", {
           blocksAbsolutiveZeroNominalMarker: true
         })].filter(Boolean);
       };
@@ -7644,12 +7648,9 @@ export function createAllomorphyApi(targetObject = globalThis) {
         endsWithNucleusI,
         endsWithNucleusA,
         endsWithNucleusU,
-        isVowelMonosyllable,
-        syllableCount
+        isVowelMonosyllable
       } = info;
       const isTransitive = options.isTransitive === true;
-      const transitiveUwaAllowList = Array.isArray(targetObject.DERIVATIONAL_RULES?.nonactive?.transitiveUwaAllow) ? targetObject.DERIVATIONAL_RULES.nonactive.transitiveUwaAllow : [];
-      const allowTransitiveUwa = isTransitive && targetObject.matchesDerivationRuleBaseList(transitiveUwaAllowList, ruleBase, "");
       const allowChiwaVariant = isTransitive && targetObject.isVerbLetterVowel(last) && prev === "t";
       const allowShiwaVariant = isTransitive && targetObject.isVerbLetterVowel(last) && prev === "s";
       const allowChiwaOrShiwa = allowChiwaVariant || allowShiwaVariant;
@@ -7676,11 +7677,6 @@ export function createAllomorphyApi(targetObject = globalThis) {
       const allowWaluVariant = endsWithNucleusI && (allowINucleusWaluByShape || allowIntransitiveTiWalu) || allowMonosyllableUWalu;
       const uCandidate = isTransitive && !isMonosyllable && (allowUFromKNS || allowUFromM || allowUFromKwI || allowUFromT || allowUFromTz || allowUFromTTa || allowUFromPlainTa) && !blockUForWaWi;
       const uwaCandidate = !isTransitive && (["k", "s", "w"].includes(lastOnset) && (endsWithNucleusA || endsWithNucleusI) || ["w", "m", "n", "tz"].includes(lastOnset) && endsWithNucleusI || allowUwaFromT) && !blockUForWaWi && !blockUwaForPenultimateU && !blockUwaForPenultimateOnset && !blockUwaForCoda;
-      const uwaCandidateTransitive = allowTransitiveUwa && !blockUForWaWi && !blockUwaForPenultimateU && !blockUwaForPenultimateOnset && !blockUwaForCoda;
-      // For (>=)3-syllable transitives ending in -wa, also allow -uwa (e.g. -petawa -> petauwa).
-      // This is separate from the intransitive -uwa candidate so it doesn't interfere with lu/u selection logic.
-      const uwaCandidateTransitiveWa = isTransitive && syllableCount >= 3 && ruleBase.endsWith("wa") && lastOnset === "w" && !blockUForWaWi && !blockUwaForPenultimateU && !blockUwaForPenultimateOnset && !blockUwaForCoda;
-
       // -wa is generally intransitive-only, but bare transitive -i also keeps a wa path.
       const allowWaForI = isTransitive && ruleBase === "i";
       const waCandidate = !isTransitive && (endsWithNucleusI || endsWithNucleusU) || allowWaForI;
@@ -7767,10 +7763,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
           allowFinalTaReplacement: allowUFromPlainTa
         });
       };
-      const buildPlainUT = () => buildReplaceSuffixMorphStemSpec(source, source.slice(-1), "u", {
-        sourceBase: source,
-        sourceSuffix: "u"
-      });
+      const buildPlainUT = () => buildReplaceSuffixMorphStemSpec(source, source.slice(-1), "u");
       const buildWa = () => buildAppendMorphStemSpec(source, "wa", {
         sourceBase: source,
         sourceSuffix: "wa"
@@ -7855,12 +7848,6 @@ export function createAllomorphyApi(targetObject = globalThis) {
         }
       }
       if (uwaCandidate) {
-        pushWithVariants("uwa", buildUwa());
-      }
-      if (uwaCandidateTransitiveWa) {
-        pushWithVariants("uwa", buildUwa());
-      }
-      if (uwaCandidateTransitive) {
         pushWithVariants("uwa", buildUwa());
       }
 
