@@ -34,6 +34,8 @@ export function createUiStateApi(targetObject = globalThis) {
       if (requestedPrefixChain && bareSource.startsWith(requestedPrefixChain)) {
         surfacePrefix = requestedPrefixChain;
         stem = bareSource.slice(requestedPrefixChain.length);
+      } else if (requestedPrefixChain && options.applyMissingPrefixChain === true) {
+        surfacePrefix = requestedPrefixChain;
       }
       const syllables = targetObject.splitVerbSyllables(stem);
       const first = syllables[0];
@@ -53,6 +55,18 @@ export function createUiStateApi(targetObject = globalThis) {
       }
       const deduped = Array.from(new Set(forms.map(form => buildReduplicatedSurfaceForm(form, options)).filter(Boolean)));
       return deduped.join(" / ");
+    }
+    function splitConjugationDisplayForms(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(Boolean);
+    }
+    function buildReduplicatedConjugationResult(result = {}, options = {}) {
+      const source = result && typeof result === "object" ? result : {};
+      const reduplicatedResult = reduplicateConjugationDisplay(source.result || "", options);
+      return {
+        ...source,
+        result: reduplicatedResult,
+        surfaceForms: splitConjugationDisplayForms(reduplicatedResult)
+      };
     }
     function getNominalSubjectSelectionEntries({
       mode = getActiveTenseMode(),
@@ -1022,6 +1036,21 @@ export function createUiStateApi(targetObject = globalThis) {
       }
       if (typeof targetObject.window === "undefined" || typeof targetObject.window.scrollBy !== "function") {
         callback();
+        return;
+      }
+      const isTensePaneAction = isThreeColumnPanelLayout() && anchorSource && typeof anchorSource.closest === "function" && anchorSource.closest("#panel-stack-pane-tense");
+      if (isTensePaneAction) {
+        const outputReservation = captureOutputHeightReservation(anchorSource);
+        applyOutputHeightReservation(outputReservation);
+        try {
+          callback();
+        } catch (error) {
+          releaseOutputHeightReservation(outputReservation, {
+            delayMs: 0
+          });
+          throw error;
+        }
+        releaseOutputHeightReservation(outputReservation);
         return;
       }
       const primaryAnchor = captureViewportAnchor(anchorSource);
@@ -2239,6 +2268,8 @@ export function createUiStateApi(targetObject = globalThis) {
     api.getSubjectCombinationId = getSubjectCombinationId;
     api.buildReduplicatedSurfaceForm = buildReduplicatedSurfaceForm;
     api.reduplicateConjugationDisplay = reduplicateConjugationDisplay;
+    api.splitConjugationDisplayForms = splitConjugationDisplayForms;
+    api.buildReduplicatedConjugationResult = buildReduplicatedConjugationResult;
     api.getNominalSubjectSelectionEntries = getNominalSubjectSelectionEntries;
     api.getPersonGroupLabel = getPersonGroupLabel;
     api.getPersonSubLabel = getPersonSubLabel;

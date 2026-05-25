@@ -3280,12 +3280,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
                 }),
                 verb: ""
               });
-              result = {
-                ...result,
-                result: targetObject.reduplicateConjugationDisplay(result.result, {
-                  prefixChain
-                })
-              };
+                result = targetObject.buildReduplicatedConjugationResult(result, {
+                  prefixChain,
+                  applyMissingPrefixChain: true
+                });
             }
           }
             const maskState = targetObject.getConjugationMaskState({

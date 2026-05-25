@@ -3249,7 +3249,7 @@ function syncComposerMatrixSerialUi() {
             slotRefs.stemInput.dataset.serialType = selectedType;
             slotRefs.stemInput.setAttribute("pattern", serialInputTemplate.pattern);
             slotRefs.stemInput.setAttribute("title", serialInputTemplate.title);
-            slotRefs.stemInput.placeholder = serialInputTemplate.placeholder;
+            slotRefs.stemInput.placeholder = "";
         }
         if (matrixField) {
             matrixField.dataset.serialSlots = String(serialSpec.slotCount);
@@ -3469,9 +3469,13 @@ function syncComposerSerialTypeChips() {
         if (!chipsContainer) {
             return;
         }
-        const visibleOptions = ["ti-become", "ti-have"]
-            .map((value) => getComposerSerialTypeOptionByValue(value))
-            .filter(Boolean);
+        const slotConfig = getComposerSlotConfig(slotKey);
+        const supportsSerialTypeChips = slotConfig?.transitivity === COMPOSER_TRANSITIVITY.intransitive;
+        const visibleOptions = supportsSerialTypeChips
+            ? ["ti-become", "ti-have"]
+                .map((value) => getComposerSerialTypeOptionByValue(value))
+                .filter(Boolean)
+            : [];
         const optionSignature = visibleOptions
             .map((option) => `${option.value}:${getComposerSerialTypeChipLabel(option.value)}`)
             .join("|");
@@ -3510,6 +3514,7 @@ function syncComposerSerialTypeChips() {
         }
         const shouldShow = isComposer
             && !isNounToVerbBoard
+            && supportsSerialTypeChips
             && slotKey === activeSlot
             && shouldShowComposerTiChoiceChips(slotKey, stemInput);
         chipsContainer.hidden = !shouldShow;
@@ -6014,9 +6019,7 @@ function renderVerbComposerFromState() {
                     ? "Sustantivo"
                     : "Verbo";
             }
-            slotRefs.stemInput.placeholder = activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb
-                ? "sustantivo"
-                : "verbo";
+            slotRefs.stemInput.placeholder = "";
             slotRefs.stemInput.value = formatComposerStemForInputDisplay(rawStem, {
                 slotKey,
                 preferSplitFromStem: true,
@@ -7005,6 +7008,49 @@ function buildTenseTabsDomSignature({
     ].join("::");
 }
 
+function setTensePresenceBadges(button, {
+    active = false,
+    nonactive = false,
+} = {}) {
+    if (!button) {
+        return;
+    }
+    const entries = [
+        {
+            key: "active",
+            label: "A",
+            title: active ? "Activo disponible" : "Activo sin resultado",
+            available: active === true,
+        },
+        {
+            key: "nonactive",
+            label: "NA",
+            title: nonactive ? "No activo disponible" : "No activo sin resultado",
+            available: nonactive === true,
+        },
+    ];
+    button.dataset.activePresence = entries[0].available ? "available" : "absent";
+    button.dataset.nonactivePresence = entries[1].available ? "available" : "absent";
+    let row = Array.from(button.children || [])
+        .find((child) => child.classList?.contains("tense-tab-presence"));
+    if (!row) {
+        row = document.createElement("span");
+        row.className = "tense-tab-presence";
+        row.setAttribute("aria-hidden", "false");
+        button.appendChild(row);
+    }
+    row.innerHTML = "";
+    entries.forEach((entry) => {
+        const badge = document.createElement("span");
+        badge.className = `tense-tab-presence__badge ${entry.available ? "is-present" : "is-absent"}`;
+        badge.dataset.presenceMode = entry.key;
+        badge.textContent = entry.label;
+        badge.title = entry.title;
+        badge.setAttribute("aria-label", entry.title);
+        row.appendChild(badge);
+    });
+}
+
 function updateExistingTenseTabsDom({
     container,
     universalContainer = null,
@@ -7047,12 +7093,16 @@ function updateExistingTenseTabsDom({
         const resolvedCombinedMode = buttonCombinedMode === COMBINED_MODE.nonactive
             ? COMBINED_MODE.nonactive
             : COMBINED_MODE.active;
+        let activePresence = false;
+        let nonactivePresence = false;
         const hasOutput = (() => {
             if (!buttonCombinedMode && isNominalMode) {
                 const activeRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active);
                 const nonactiveRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
                 const activeOutput = resolveTenseAvailabilityHasOutput(activeRecord);
                 const nonactiveOutput = resolveTenseAvailabilityHasOutput(nonactiveRecord);
+                activePresence = activeOutput === true;
+                nonactivePresence = nonactiveOutput === true;
                 const availabilityState = activeRecord?.availabilityState || nonactiveRecord?.availabilityState || "";
                 button.dataset.availabilityState = availabilityState;
                 if (activeRecord === null && nonactiveRecord === null) {
@@ -7061,8 +7111,14 @@ function updateExistingTenseTabsDom({
                 return activeOutput === true || nonactiveOutput === true;
             }
             const availabilityRecord = resolveTenseAvailabilityRecord(tenseValue, resolvedCombinedMode);
+            const output = resolveTenseAvailabilityHasOutput(availabilityRecord);
+            if (resolvedCombinedMode === COMBINED_MODE.nonactive) {
+                nonactivePresence = output === true;
+            } else {
+                activePresence = output === true;
+            }
             button.dataset.availabilityState = availabilityRecord?.availabilityState || "";
-            return resolveTenseAvailabilityHasOutput(availabilityRecord);
+            return output;
         })();
         const isActive = activeGroup === CONJUGATION_GROUPS.tense
             && tenseValue === selectedTense
@@ -7073,6 +7129,12 @@ function updateExistingTenseTabsDom({
         button.classList.toggle("is-empty", hasOutput === false || isBlockedNominalTense);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
+        if (isNominalMode) {
+            setTensePresenceBadges(button, {
+                active: activePresence,
+                nonactive: nonactivePresence,
+            });
+        }
         button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
     });
     const universalRoot = universalContainer || container;
@@ -7100,9 +7162,11 @@ function updateExistingTenseTabsDom({
         const tenseValue = button.dataset.tenseValue || "";
         const availabilityRecord = availabilityByTense.get(tenseValue) || null;
         const available = resolveTenseAvailabilityIsAvailable(availabilityRecord) === true;
-        const hasOutput = resolveTenseAvailabilityHasOutput(
-            resolveTenseAvailabilityRecord(tenseValue, currentCombinedMode)
-        );
+        const activeRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active);
+        const nonactiveRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
+        const activePresence = resolveTenseAvailabilityHasOutput(activeRecord) === true;
+        const nonactivePresence = resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+        const hasOutput = activePresence || nonactivePresence;
         button.dataset.availabilityState = availabilityRecord?.availabilityState || "";
         const classKey = PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
         const isUniversalActive = activeGroup === CONJUGATION_GROUPS.universal

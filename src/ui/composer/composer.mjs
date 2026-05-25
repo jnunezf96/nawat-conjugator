@@ -2822,7 +2822,7 @@ export function createUiComposerApi(targetObject = globalThis) {
           slotRefs.stemInput.dataset.serialType = selectedType;
           slotRefs.stemInput.setAttribute("pattern", serialInputTemplate.pattern);
           slotRefs.stemInput.setAttribute("title", serialInputTemplate.title);
-          slotRefs.stemInput.placeholder = serialInputTemplate.placeholder;
+          slotRefs.stemInput.placeholder = "";
         }
         if (matrixField) {
           matrixField.dataset.serialSlots = String(serialSpec.slotCount);
@@ -3029,7 +3029,9 @@ export function createUiComposerApi(targetObject = globalThis) {
         if (!chipsContainer) {
           return;
         }
-        const visibleOptions = ["ti-become", "ti-have"].map(value => getComposerSerialTypeOptionByValue(value)).filter(Boolean);
+        const slotConfig = getComposerSlotConfig(slotKey);
+        const supportsSerialTypeChips = slotConfig?.transitivity === COMPOSER_TRANSITIVITY.intransitive;
+        const visibleOptions = supportsSerialTypeChips ? ["ti-become", "ti-have"].map(value => getComposerSerialTypeOptionByValue(value)).filter(Boolean) : [];
         const optionSignature = visibleOptions.map(option => `${option.value}:${getComposerSerialTypeChipLabel(option.value)}`).join("|");
         if ((chipsContainer.dataset.optionSignature || "") !== optionSignature) {
           chipsContainer.innerHTML = "";
@@ -3061,7 +3063,7 @@ export function createUiComposerApi(targetObject = globalThis) {
           });
           chipsContainer.dataset.optionSignature = optionSignature;
         }
-        const shouldShow = isComposer && !isNounToVerbBoard && slotKey === activeSlot && shouldShowComposerTiChoiceChips(slotKey, stemInput);
+        const shouldShow = isComposer && !isNounToVerbBoard && supportsSerialTypeChips && slotKey === activeSlot && shouldShowComposerTiChoiceChips(slotKey, stemInput);
         chipsContainer.hidden = !shouldShow;
         chipsContainer.setAttribute("aria-hidden", String(!shouldShow));
         const selectedType = COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] || "auto";
@@ -5254,7 +5256,7 @@ export function createUiComposerApi(targetObject = globalThis) {
           if (matrixInputTag) {
             matrixInputTag.textContent = activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb ? "Sustantivo" : "Verbo";
           }
-          slotRefs.stemInput.placeholder = activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb ? "sustantivo" : "verbo";
+          slotRefs.stemInput.placeholder = "";
           slotRefs.stemInput.value = formatComposerStemForInputDisplay(rawStem, {
             slotKey,
             preferSplitFromStem: true,
@@ -6123,6 +6125,44 @@ export function createUiComposerApi(targetObject = globalThis) {
       const universalSignature = shouldShowUniversalTabs ? universalOrder.join(",") : "";
       return [isNawat ? "na" : "es", tenseMode || "", isNonactiveMode ? "nonactive" : "active", sourceScope || "", activeGroup || "", selectedNonactiveSuffix || "", isNominalMode ? "nominal" : "verb", nominalSignature, semanticSignature, groupedSignature, shouldShowUniversalTabs ? "universal:on" : "universal:off", universalSignature].join("::");
     }
+    function setTensePresenceBadges(button, {
+      active = false,
+      nonactive = false
+    } = {}) {
+      if (!button) {
+        return;
+      }
+      const entries = [{
+        key: "active",
+        label: "A",
+        title: active ? "Activo disponible" : "Activo sin resultado",
+        available: active === true
+      }, {
+        key: "nonactive",
+        label: "NA",
+        title: nonactive ? "No activo disponible" : "No activo sin resultado",
+        available: nonactive === true
+      }];
+      button.dataset.activePresence = entries[0].available ? "available" : "absent";
+      button.dataset.nonactivePresence = entries[1].available ? "available" : "absent";
+      let row = Array.from(button.children || []).find(child => child.classList?.contains("tense-tab-presence"));
+      if (!row) {
+        row = targetObject.document.createElement("span");
+        row.className = "tense-tab-presence";
+        row.setAttribute("aria-hidden", "false");
+        button.appendChild(row);
+      }
+      row.innerHTML = "";
+      entries.forEach(entry => {
+        const badge = targetObject.document.createElement("span");
+        badge.className = `tense-tab-presence__badge ${entry.available ? "is-present" : "is-absent"}`;
+        badge.dataset.presenceMode = entry.key;
+        badge.textContent = entry.label;
+        badge.title = entry.title;
+        badge.setAttribute("aria-label", entry.title);
+        row.appendChild(badge);
+      });
+    }
     function updateExistingTenseTabsDom({
       container,
       universalContainer = null,
@@ -6157,12 +6197,16 @@ export function createUiComposerApi(targetObject = globalThis) {
         const tenseValue = button.dataset.tenseValue || "";
         const buttonCombinedMode = button.dataset.combinedMode || "";
         const resolvedCombinedMode = buttonCombinedMode === COMBINED_MODE.nonactive ? COMBINED_MODE.nonactive : COMBINED_MODE.active;
+        let activePresence = false;
+        let nonactivePresence = false;
         const hasOutput = (() => {
           if (!buttonCombinedMode && isNominalMode) {
             const activeRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active);
             const nonactiveRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
             const activeOutput = targetObject.resolveTenseAvailabilityHasOutput(activeRecord);
             const nonactiveOutput = targetObject.resolveTenseAvailabilityHasOutput(nonactiveRecord);
+            activePresence = activeOutput === true;
+            nonactivePresence = nonactiveOutput === true;
             const availabilityState = activeRecord?.availabilityState || nonactiveRecord?.availabilityState || "";
             button.dataset.availabilityState = availabilityState;
             if (activeRecord === null && nonactiveRecord === null) {
@@ -6171,8 +6215,14 @@ export function createUiComposerApi(targetObject = globalThis) {
             return activeOutput === true || nonactiveOutput === true;
           }
           const availabilityRecord = resolveTenseAvailabilityRecord(tenseValue, resolvedCombinedMode);
+          const output = targetObject.resolveTenseAvailabilityHasOutput(availabilityRecord);
+          if (resolvedCombinedMode === COMBINED_MODE.nonactive) {
+            nonactivePresence = output === true;
+          } else {
+            activePresence = output === true;
+          }
           button.dataset.availabilityState = availabilityRecord?.availabilityState || "";
-          return targetObject.resolveTenseAvailabilityHasOutput(availabilityRecord);
+          return output;
         })();
         const isActive = activeGroup === targetObject.CONJUGATION_GROUPS.tense && tenseValue === selectedTense && (!buttonCombinedMode || buttonCombinedMode === currentCombinedMode);
         const isBlockedNominalTense = blockedNominalTenseSet instanceof Set && blockedNominalTenseSet.has(tenseValue);
@@ -6180,6 +6230,12 @@ export function createUiComposerApi(targetObject = globalThis) {
         button.classList.toggle("is-empty", hasOutput === false || isBlockedNominalTense);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
+        if (isNominalMode) {
+          setTensePresenceBadges(button, {
+            active: activePresence,
+            nonactive: nonactivePresence
+          });
+        }
         button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
       });
       const universalRoot = universalContainer || container;
@@ -6203,7 +6259,11 @@ export function createUiComposerApi(targetObject = globalThis) {
         const tenseValue = button.dataset.tenseValue || "";
         const availabilityRecord = availabilityByTense.get(tenseValue) || null;
         const available = targetObject.resolveTenseAvailabilityIsAvailable(availabilityRecord) === true;
-        const hasOutput = targetObject.resolveTenseAvailabilityHasOutput(resolveTenseAvailabilityRecord(tenseValue, currentCombinedMode));
+        const activeRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active);
+        const nonactiveRecord = resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
+        const activePresence = targetObject.resolveTenseAvailabilityHasOutput(activeRecord) === true;
+        const nonactivePresence = targetObject.resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+        const hasOutput = activePresence || nonactivePresence;
         button.dataset.availabilityState = availabilityRecord?.availabilityState || "";
         const classKey = targetObject.PRET_UNIVERSAL_CLASS_BY_TENSE[tenseValue];
         const isUniversalActive = activeGroup === targetObject.CONJUGATION_GROUPS.universal && tenseValue === selectedUniversal && available;

@@ -3722,10 +3722,10 @@ function renderNounConjugations({
                         }),
                         verb: "",
                     });
-                    result = {
-                        ...result,
-                        result: reduplicateConjugationDisplay(result.result, { prefixChain }),
-                    };
+                    result = buildReduplicatedConjugationResult(result, {
+                        prefixChain,
+                        applyMissingPrefixChain: true,
+                    });
                 }
             }
             const maskState = getConjugationMaskState({

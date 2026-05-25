@@ -49,6 +49,26 @@ function run(ctx) {
     ctx.applyDefaultToggleStateOnce(m3, "slot|sg", "verbB", "kin");
     s.eq("applyDefaultToggleStateOnce: different verbKey can overwrite", ctx.getToggleStateValue(m3, "slot|sg"), "kin");
 
+    s.eq(
+        "reduplicated distributive keeps existing 1pl prefix",
+        ctx.reduplicateConjugationDisplay("tichipaknaj", { prefixChain: "ti" }),
+        "tichijchipaknaj"
+    );
+    s.eq(
+        "reduplicated distributive can restore omitted 1pl prefix",
+        ctx.reduplicateConjugationDisplay("chipaknaj", {
+            prefixChain: "ti",
+            applyMissingPrefixChain: true,
+        }),
+        "tichijchipaknaj"
+    );
+    const reduplicatedResult = ctx.buildReduplicatedConjugationResult({
+        result: "tichipaknaj",
+        surfaceForms: ["tichipaknaj"],
+    }, { prefixChain: "ti" });
+    s.eq("reduplicated result updates display string", reduplicatedResult.result, "tichijchipaknaj");
+    s.eq("reduplicated result updates surface forms", reduplicatedResult.surfaceForms, ["tichijchipaknaj"]);
+
     return s;
 }
 

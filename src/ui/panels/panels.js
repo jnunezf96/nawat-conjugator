@@ -1467,6 +1467,49 @@ function buildUnifiedVerbTenseAvailabilityMatrix({
     return matrix;
 }
 
+function setTensePresenceBadges(button, {
+    active = false,
+    nonactive = false,
+} = {}) {
+    if (!button) {
+        return;
+    }
+    const entries = [
+        {
+            key: "active",
+            label: "A",
+            title: active ? "Activo disponible" : "Activo sin resultado",
+            available: active === true,
+        },
+        {
+            key: "nonactive",
+            label: "NA",
+            title: nonactive ? "No activo disponible" : "No activo sin resultado",
+            available: nonactive === true,
+        },
+    ];
+    button.dataset.activePresence = entries[0].available ? "available" : "absent";
+    button.dataset.nonactivePresence = entries[1].available ? "available" : "absent";
+    let row = Array.from(button.children || [])
+        .find((child) => child.classList?.contains("tense-tab-presence"));
+    if (!row) {
+        row = document.createElement("span");
+        row.className = "tense-tab-presence";
+        row.setAttribute("aria-hidden", "false");
+        button.appendChild(row);
+    }
+    row.innerHTML = "";
+    entries.forEach((entry) => {
+        const badge = document.createElement("span");
+        badge.className = `tense-tab-presence__badge ${entry.available ? "is-present" : "is-absent"}`;
+        badge.dataset.presenceMode = entry.key;
+        badge.textContent = entry.label;
+        badge.title = entry.title;
+        badge.setAttribute("aria-label", entry.title);
+        row.appendChild(badge);
+    });
+}
+
 function getSubjectlessNominalSelectionEntry() {
     const thirdSingularSelection = getSubjectPersonSelections().find(({ group, selection, number }) => (
         number === "singular"
@@ -1633,10 +1676,10 @@ function resolveNominalCombinationAvailabilityRecord({
                     }),
                     verb: "",
                 });
-                result = {
-                    ...result,
-                    result: reduplicateConjugationDisplay(result.result, { prefixChain }),
-                };
+                result = buildReduplicatedConjugationResult(result, {
+                    prefixChain,
+                    applyMissingPrefixChain: true,
+                });
             }
         }
         const maskState = getConjugationMaskState({
@@ -2439,37 +2482,47 @@ function renderTenseTabs() {
             button.classList.add("is-active");
         }
         button.setAttribute("aria-selected", String(isActive));
-        const hasOutput = (() => {
-            if ((tenseMode === TENSE_MODE.verbo || isNominalMode) && !resolvedCombinedMode) {
-                const activeRecord = unifiedAvailabilityMatrix instanceof Map
-                    ? (
-                        unifiedAvailabilityMatrix.get(COMBINED_MODE.active)?.get(tenseValue)
-                        ?? resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active)
-                    )
-                    : resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.active);
-                const nonactiveRecord = unifiedAvailabilityMatrix instanceof Map
-                    ? (
-                        unifiedAvailabilityMatrix.get(COMBINED_MODE.nonactive)?.get(tenseValue)
-                        ?? resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive)
-                    )
-                    : resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
-                if (activeRecord === null && nonactiveRecord === null) {
-                    return null;
-                }
-                const activeOutput = resolveTenseAvailabilityHasOutput(activeRecord);
-                const nonactiveOutput = resolveTenseAvailabilityHasOutput(nonactiveRecord);
-                button.dataset.availabilityState = activeRecord?.availabilityState || nonactiveRecord?.availabilityState || "";
-                return activeOutput === true || nonactiveOutput === true;
-            }
-            const availabilityRecord = unifiedAvailabilityMatrix instanceof Map
+        const getAvailabilityRecordForMode = (mode) => {
+            const resolvedMode = mode === COMBINED_MODE.nonactive
+                ? COMBINED_MODE.nonactive
+                : COMBINED_MODE.active;
+            return unifiedAvailabilityMatrix instanceof Map
                 ? (
-                    unifiedAvailabilityMatrix.get(resolvedCombinedMode || currentCombinedMode)?.get(tenseValue)
-                    ?? resolveTenseAvailabilityRecord(tenseValue, resolvedCombinedMode || currentCombinedMode)
+                    unifiedAvailabilityMatrix.get(resolvedMode)?.get(tenseValue)
+                    ?? resolveTenseAvailabilityRecord(tenseValue, resolvedMode)
                 )
-                : resolveTenseAvailabilityRecord(tenseValue, resolvedCombinedMode || currentCombinedMode);
-            button.dataset.availabilityState = availabilityRecord?.availabilityState || "";
+                : resolveTenseAvailabilityRecord(tenseValue, resolvedMode);
+        };
+        let activeRecord = null;
+        let nonactiveRecord = null;
+        let availabilityRecord = null;
+        const hasOutput = (() => {
+            if (tenseMode === TENSE_MODE.verbo || isNominalMode) {
+                activeRecord = getAvailabilityRecordForMode(COMBINED_MODE.active);
+                nonactiveRecord = getAvailabilityRecordForMode(COMBINED_MODE.nonactive);
+                if (!resolvedCombinedMode) {
+                    if (activeRecord === null && nonactiveRecord === null) {
+                        return null;
+                    }
+                    return resolveTenseAvailabilityHasOutput(activeRecord) === true
+                        || resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+                }
+            }
+            const modeForButton = resolvedCombinedMode || currentCombinedMode;
+            availabilityRecord = getAvailabilityRecordForMode(modeForButton);
+            if (modeForButton === COMBINED_MODE.nonactive) {
+                nonactiveRecord = availabilityRecord;
+            } else {
+                activeRecord = availabilityRecord;
+            }
             return resolveTenseAvailabilityHasOutput(availabilityRecord);
         })();
+        const activeOutput = resolveTenseAvailabilityHasOutput(activeRecord) === true;
+        const nonactiveOutput = resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+        button.dataset.availabilityState = activeRecord?.availabilityState
+            || nonactiveRecord?.availabilityState
+            || availabilityRecord?.availabilityState
+            || "";
         const isBlockedNominalTense = blockedNominalTenseSet.has(tenseValue);
         if (hasOutput === false || isBlockedNominalTense) {
             button.classList.add("is-empty");
@@ -2478,6 +2531,12 @@ function renderTenseTabs() {
         label.className = "tense-tab-label";
         label.textContent = getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
         button.appendChild(label);
+        if (isNominalMode) {
+            setTensePresenceBadges(button, {
+                active: activeOutput,
+                nonactive: nonactiveOutput,
+            });
+        }
         button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
         button.addEventListener("click", () => {
             const currentSelectionState = getCurrentResolvedConjugationSelectionState({ tenseMode });
@@ -2499,10 +2558,19 @@ function renderTenseTabs() {
                 tenseMode,
                 availabilityEntries: availability,
             });
-            preserveViewportAnchorPosition(button, () => {
+            const updateSelectedTense = () => {
                 renderTenseTabs();
                 rerenderActiveConjugations(tenseValue);
-            });
+            };
+            if (
+                typeof isThreeColumnPanelLayout === "function"
+                && isThreeColumnPanelLayout()
+                && button.closest?.("#panel-stack-pane-tense")
+            ) {
+                updateSelectedTense();
+                return;
+            }
+            preserveViewportAnchorPosition(button, updateSelectedTense);
         });
         return button;
     };
@@ -2597,8 +2665,9 @@ function renderTenseTabs() {
                     ? unifiedAvailabilityMatrix.get(COMBINED_MODE.nonactive)?.get(tenseValue)
                     : resolveTenseAvailabilityRecord(tenseValue, COMBINED_MODE.nonactive);
                 button.dataset.availabilityState = entry?.availabilityState || "";
-                const hasOutput = resolveTenseAvailabilityHasOutput(activeRecord) === true
-                    || resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+                const activeOutput = resolveTenseAvailabilityHasOutput(activeRecord) === true;
+                const nonactiveOutput = resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+                const hasOutput = activeOutput || nonactiveOutput;
                 if (hasOutput === false) {
                     button.classList.add("is-empty");
                 }
@@ -2614,9 +2683,12 @@ function renderTenseTabs() {
                     button.classList.add("is-active");
                 }
                 const classDetail = getPretUniversalClassDetail(tenseValue);
-                button.textContent = classDetail
+                const label = document.createElement("span");
+                label.className = "tense-tab-label";
+                label.textContent = classDetail
                     ? getLocalizedLabel(classDetail.label, isNawat, tenseValue)
                     : tenseValue;
+                button.appendChild(label);
                 button.setAttribute("aria-selected", String(button.classList.contains("is-active")));
                 button.disabled = endsWithConsonant || !available || hasOutput === false;
                 button.addEventListener("click", () => {

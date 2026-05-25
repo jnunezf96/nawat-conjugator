@@ -683,6 +683,7 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     }
 
     return {
+        NOUN_OBJECT_SLOT_SCHEMA,
         splitSearchInput,
         getRawInputTiCausativeMetadata,
         getSearchParts,

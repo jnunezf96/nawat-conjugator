@@ -39,6 +39,8 @@ function buildReduplicatedSurfaceForm(value = "", options = {}) {
     if (requestedPrefixChain && bareSource.startsWith(requestedPrefixChain)) {
         surfacePrefix = requestedPrefixChain;
         stem = bareSource.slice(requestedPrefixChain.length);
+    } else if (requestedPrefixChain && options.applyMissingPrefixChain === true) {
+        surfacePrefix = requestedPrefixChain;
     }
     const syllables = splitVerbSyllables(stem);
     const first = syllables[0];
@@ -64,6 +66,23 @@ function reduplicateConjugationDisplay(value = "", options = {}) {
         forms.map((form) => buildReduplicatedSurfaceForm(form, options)).filter(Boolean)
     ));
     return deduped.join(" / ");
+}
+
+function splitConjugationDisplayForms(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((form) => form.trim())
+        .filter(Boolean);
+}
+
+function buildReduplicatedConjugationResult(result = {}, options = {}) {
+    const source = result && typeof result === "object" ? result : {};
+    const reduplicatedResult = reduplicateConjugationDisplay(source.result || "", options);
+    return {
+        ...source,
+        result: reduplicatedResult,
+        surfaceForms: splitConjugationDisplayForms(reduplicatedResult),
+    };
 }
 
 function getNominalSubjectSelectionEntries({
@@ -1283,6 +1302,22 @@ function preserveViewportAnchorPosition(anchorSource, callback) {
         || typeof window.scrollBy !== "function"
     ) {
         callback();
+        return;
+    }
+    const isTensePaneAction = isThreeColumnPanelLayout()
+        && anchorSource
+        && typeof anchorSource.closest === "function"
+        && anchorSource.closest("#panel-stack-pane-tense");
+    if (isTensePaneAction) {
+        const outputReservation = captureOutputHeightReservation(anchorSource);
+        applyOutputHeightReservation(outputReservation);
+        try {
+            callback();
+        } catch (error) {
+            releaseOutputHeightReservation(outputReservation, { delayMs: 0 });
+            throw error;
+        }
+        releaseOutputHeightReservation(outputReservation);
         return;
     }
     const primaryAnchor = captureViewportAnchor(anchorSource);

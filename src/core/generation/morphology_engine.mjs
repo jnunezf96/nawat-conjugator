@@ -7,6 +7,336 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
     // Deps (resolved at call time): all globals and functions in global scope from
     // script.js and other extracted modules.
 
+    function buildTroncoActivePatientivoCoreForms({
+      wrapperProfile = "tik",
+      sourceTense = "",
+      sourceCandidates = [],
+      subjectSuffix = "",
+      exactAnalysisVerb = "",
+      isTransitive = false,
+      directionalPrefix = "",
+      boundPrefix = "",
+      boundPrefixes = [],
+      boundExplicitFlags = [],
+      directionalPrefixFromSlash = "",
+      sourceSplitPrefix = "",
+      sourcePrefix = "",
+      sourceBase = "",
+      sourceCompositeBase = "",
+      hasImpersonalTaPrefix = false,
+      hasOptionalSupportiveI = false,
+      hasSlashMarker = false,
+      hasSuffixSeparator = false,
+      hasLeadingDash = false,
+      hasBoundMarker = false,
+      hasCompoundMarker = false
+    } = {}) {
+      if (sourceTense !== "preterito" && sourceTense !== "perfecto") {
+        return [];
+      }
+      const sourceSubjectSuffix = (() => {
+        if (sourceTense === "preterito") {
+          return subjectSuffix === "t" ? "ket" : "k";
+        }
+        const resolved = targetObject.applyTenseSuffixRules(sourceTense, subjectSuffix);
+        return typeof resolved === "string" ? resolved : "";
+      })();
+      const forms = [];
+      const seen = new Set();
+      const addForm = (core = "", suffix = "") => {
+        const normalizedCore = String(core || "").trim();
+        if (!normalizedCore) {
+          return;
+        }
+        const normalizedSuffix = String(suffix || "");
+        const key = `${normalizedCore}|${normalizedSuffix}`;
+        if (seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        forms.push({
+          verb: normalizedCore,
+          subjectSuffix: normalizedSuffix
+        });
+      };
+      const buildEntrySurface = entry => targetObject.buildNominalOutputText({
+        verb: entry?.verb || "",
+        subjectSuffix: entry?.subjectSuffix || ""
+      });
+      const isKStemEntry = entry => targetObject.normalizeRuleBase(entry?.verb || "").endsWith("k");
+      (Array.isArray(sourceCandidates) ? sourceCandidates : []).forEach(candidate => {
+        const sourceVerb = String(candidate?.verb || "").trim();
+        if (!sourceVerb) {
+          return;
+        }
+        const sourceAnalysis = String(candidate?.analysisVerb || "").trim() || (directionalPrefix ? targetObject.stripDirectionalPrefixFromStem(sourceVerb, directionalPrefix) : sourceVerb);
+        const candidateSourceBase = sourceBase || exactAnalysisVerb || sourceAnalysis || sourceVerb;
+        const troncoDerivations = targetObject.buildPatientivoTroncoDerivations({
+          verb: sourceVerb,
+          analysisVerb: sourceAnalysis || sourceVerb,
+          rawAnalysisVerb: sourceAnalysis || sourceVerb,
+          isTransitive,
+          directionalPrefix,
+          boundPrefix,
+          boundPrefixes,
+          boundExplicitFlags,
+          directionalPrefixFromSlash,
+          sourceSplitPrefix,
+          sourcePrefix,
+          sourceBase: candidateSourceBase,
+          sourceCompositeBase,
+          hasImpersonalTaPrefix,
+          hasOptionalSupportiveI,
+          hasSlashMarker,
+          hasSuffixSeparator,
+          hasLeadingDash,
+          hasBoundMarker,
+          hasCompoundMarker
+        });
+        const expandedEntries = targetObject.expandPatientivoNominalMarkerOptions(troncoDerivations, "tronco-verbal");
+        const zeroKEntry = expandedEntries.find(entry => isKStemEntry(entry) && String(entry?.subjectSuffix || "") === "");
+        const tiKEntry = expandedEntries.find(entry => isKStemEntry(entry) && String(entry?.subjectSuffix || "") === "ti");
+        if (sourceTense === "preterito") {
+          const selectedEntry = zeroKEntry || tiKEntry;
+          if (selectedEntry) {
+            const wrapperSuffix = wrapperProfile === "naj" ? subjectSuffix === "t" ? "najket" : "naj" : `ti${sourceSubjectSuffix}`;
+            addForm(selectedEntry.verb || buildEntrySurface(selectedEntry), wrapperSuffix);
+          }
+          return;
+        }
+        if (wrapperProfile === "naj") {
+          const selectedEntry = zeroKEntry || tiKEntry;
+          if (selectedEntry) {
+            addForm(selectedEntry.verb || buildEntrySurface(selectedEntry), `naj${sourceSubjectSuffix}`);
+          }
+          return;
+        }
+        if (tiKEntry) {
+          addForm(buildEntrySurface(tiKEntry), sourceSubjectSuffix);
+          return;
+        }
+        if (zeroKEntry) {
+          addForm(`${zeroKEntry.verb || buildEntrySurface(zeroKEntry)}ti`, sourceSubjectSuffix);
+        }
+      });
+      return forms;
+    }
+
+    function buildPotencialActiveForms({
+      tense = "",
+      verb = "",
+      subjectPrefix = "",
+      objectPrefix = "",
+      subjectSuffix = "",
+      analysisVerb = "",
+      rawAnalysisVerb = "",
+      exactAnalysisVerb = "",
+      isTransitive = false,
+      isYawi = false,
+      isWeya = false,
+      directionalPrefix = "",
+      directionalOutputPrefix = "",
+      baseSubjectPrefix = "",
+      baseObjectPrefix = "",
+      indirectObjectMarker = "",
+      thirdObjectMarker = "",
+      rootPlusYaBase = "",
+      rootPlusYaBasePronounceable = "",
+      suppletiveStemSet = null,
+      hasOptionalSupportiveI = false,
+      optionalSupportiveLetter = "",
+      hasDoubleDash = false,
+      hasSlashMarker = false,
+      hasSuffixSeparator = false,
+      hasLeadingDash = false,
+      hasBoundMarker = false,
+      hasCompoundMarker = false,
+      hasImpersonalTaPrefix = false,
+      hasNonspecificValence = false,
+      derivationType = "",
+      forceTransitiveBase = false,
+      boundPrefix = "",
+      boundPrefixes = [],
+      boundExplicitFlags = [],
+      directionalPrefixFromSlash = "",
+      sourceSplitPrefix = "",
+      sourcePrefix = "",
+      sourceBase = "",
+      sourceCompositeBase = "",
+      alternateForms = []
+    } = {}) {
+      const sourceTense = targetObject.getPotencialActiveSourceTense(tense);
+      const isTroncoNajProfile = targetObject.isPotencialTroncoNajActiveTense(tense);
+      const isTroncoTikProfile = targetObject.isPotencialTroncoActiveTense(tense) && !isTroncoNajProfile;
+      const isTroncoPatientivoCoreProfile = isTroncoTikProfile || isTroncoNajProfile;
+      const wrapperObjectPrefix = baseObjectPrefix || "";
+      const wrapperIndirectObjectMarker = targetObject.composeProjectiveObjectPrefix({
+        objectPrefix: "",
+        markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+        subjectPrefix: baseSubjectPrefix
+      });
+      const sourceSubjectSuffix = (() => {
+        if (sourceTense === "preterito") {
+          return subjectSuffix === "t" ? "ket" : "";
+        }
+        const resolved = targetObject.applyTenseSuffixRules(sourceTense, subjectSuffix);
+        return typeof resolved === "string" ? resolved : "";
+      })();
+      const sourceCandidates = [];
+      const seenCandidates = new Set();
+      const addCandidate = (candidateVerb = "", candidateAnalysis = "") => {
+        const sourceVerb = String(candidateVerb || "").trim();
+        if (!sourceVerb) {
+          return;
+        }
+        const sourceAnalysis = String(candidateAnalysis || "").trim() || (directionalPrefix ? targetObject.stripDirectionalPrefixFromStem(sourceVerb, directionalPrefix) : sourceVerb);
+        const key = `${sourceVerb}|${sourceAnalysis}`;
+        if (seenCandidates.has(key)) {
+          return;
+        }
+        seenCandidates.add(key);
+        sourceCandidates.push({
+          verb: sourceVerb,
+          analysisVerb: sourceAnalysis || sourceVerb
+        });
+      };
+      addCandidate(verb, analysisVerb || verb);
+      (Array.isArray(alternateForms) ? alternateForms : []).forEach(form => {
+        if (!form || !form.verb) {
+          return;
+        }
+        const formVerb = String(form.verb || "").trim();
+        addCandidate(formVerb, directionalPrefix ? targetObject.stripDirectionalPrefixFromStem(formVerb, directionalPrefix) : formVerb);
+      });
+      if (isTroncoPatientivoCoreProfile) {
+        const patientivoTroncoForms = buildTroncoActivePatientivoCoreForms({
+          wrapperProfile: isTroncoNajProfile ? "naj" : "tik",
+          sourceTense,
+          sourceCandidates,
+          subjectSuffix,
+          exactAnalysisVerb: exactAnalysisVerb || rawAnalysisVerb || analysisVerb || verb,
+          isTransitive: (isTransitive || forceTransitiveBase) && !hasImpersonalTaPrefix,
+          directionalPrefix,
+          boundPrefix,
+          boundPrefixes,
+          boundExplicitFlags,
+          directionalPrefixFromSlash,
+          sourceSplitPrefix,
+          sourcePrefix,
+          sourceBase,
+          sourceCompositeBase,
+          hasImpersonalTaPrefix,
+          hasOptionalSupportiveI,
+          hasSlashMarker,
+          hasSuffixSeparator,
+          hasLeadingDash,
+          hasBoundMarker,
+          hasCompoundMarker
+        });
+        if (patientivoTroncoForms.length) {
+          return patientivoTroncoForms;
+        }
+      }
+      const wrapperForms = [];
+      const seenWrapperForms = new Set();
+      const addWrapperForm = (formValue = "") => {
+        const form = String(formValue || "").trim();
+        if (!form || form === "—" || seenWrapperForms.has(form)) {
+          return;
+        }
+        seenWrapperForms.add(form);
+        wrapperForms.push(form);
+      };
+      const inputMatrixRoot = targetObject.normalizeRuleBase(exactAnalysisVerb || analysisVerb || verb);
+      const isAdjectiveMode = targetObject.getActiveTenseMode() === targetObject.TENSE_MODE.adjetivo;
+      sourceCandidates.forEach(candidate => {
+        const candidateMatrix = targetObject.normalizeRuleBase(exactAnalysisVerb || candidate.analysisVerb || candidate.verb);
+        const classPolicy = targetObject.resolveActiveAdjectiveClassPolicy({
+          tenseValue: tense,
+          sourceTense,
+          isAdjectiveMode,
+          hasSlashMarker,
+          hasBoundMarker,
+          inputMatrix: inputMatrixRoot,
+          candidateMatrix
+        });
+        const classOutput = targetObject.buildClassBasedResultWithProvenance({
+          verb: candidate.verb,
+          subjectPrefix,
+          objectPrefix: wrapperObjectPrefix,
+          subjectSuffix: sourceTense === "preterito" ? subjectSuffix : sourceSubjectSuffix,
+          tense: sourceTense,
+          analysisVerb: candidate.analysisVerb || candidate.verb,
+          exactBaseVerb: exactAnalysisVerb || candidate.analysisVerb || candidate.verb,
+          classFilter: classPolicy.classFilter,
+          allowAllClasses: false,
+          isYawi,
+          isWeya,
+          hasSlashMarker,
+          hasSuffixSeparator,
+          hasLeadingDash,
+          hasBoundMarker,
+          hasCompoundMarker,
+          hasImpersonalTaPrefix,
+          hasOptionalSupportiveI,
+          optionalSupportiveLetter,
+          hasNonspecificValence,
+          rootPlusYaBase,
+          rootPlusYaBasePronounceable,
+          derivationType,
+          directionalInputPrefix: directionalPrefix,
+          directionalOutputPrefix,
+          baseSubjectPrefix,
+          baseObjectPrefix: wrapperObjectPrefix,
+          suppletiveStemSet,
+          forceTransitive: forceTransitiveBase,
+          indirectObjectMarker: wrapperIndirectObjectMarker,
+          hasDoubleDash,
+          forceClassBSelection: classPolicy.forceClassBSelection
+        });
+        const candidateForms = targetObject.selectPreferredActiveAdjectiveForms(classOutput?.forms || [], {
+          sourceVerb: candidate.analysisVerb || candidate.verb,
+          sourceTense,
+          selectionMode: classPolicy.preferredFinalYaSurfaceMode,
+          isYawi,
+          isWeya
+        });
+        candidateForms.forEach(form => addWrapperForm(form));
+      });
+      if (!wrapperForms.length) {
+        return [];
+      }
+      const splitTroncoTikForm = (formValue = "") => {
+        const form = String(formValue || "").trim();
+        if (!form) {
+          return {
+            verb: "",
+            subjectSuffix: ""
+          };
+        }
+        if (sourceTense === "perfecto" && form.endsWith("tuk")) {
+          return {
+            verb: form.slice(0, -3),
+            subjectSuffix: sourceSubjectSuffix
+          };
+        }
+        if (sourceTense === "preterito" && form.endsWith("k")) {
+          return {
+            verb: form.slice(0, -1),
+            subjectSuffix: subjectSuffix === "t" ? "ket" : "k"
+          };
+        }
+        return {
+          verb: form,
+          subjectSuffix: sourceTense === "preterito" ? subjectSuffix === "t" ? "ket" : "k" : sourceSubjectSuffix
+        };
+      };
+      return wrapperForms.map(form => isTroncoTikProfile ? splitTroncoTikForm(form) : {
+        verb: form,
+        subjectSuffix: ""
+      }).filter(entry => entry.verb);
+    }
+
     function applyMorphologyRules({
       subjectPrefix,
       objectPrefix,
@@ -537,11 +867,13 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       }));
       if (isPotencialActiveProfile) {
         const potentialForms = targetObject.buildPotencialActiveForms({
+          tense,
           verb,
           subjectPrefix,
           objectPrefix,
           subjectSuffix,
           analysisVerb,
+          rawAnalysisVerb,
           exactAnalysisVerb,
           prefixCheckTarget,
           isTransitive,
@@ -559,7 +891,25 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
           optionalSupportiveLetter,
           markerChain,
           hasDoubleDash,
-          isNounContextFinal
+          isNounContextFinal,
+          hasSlashMarker,
+          hasSuffixSeparator,
+          hasLeadingDash,
+          hasBoundMarker,
+          hasCompoundMarker,
+          hasImpersonalTaPrefix,
+          hasNonspecificValence,
+          derivationType,
+          forceTransitiveBase,
+          boundPrefix,
+          boundPrefixes,
+          boundExplicitFlags,
+          directionalPrefixFromSlash,
+          sourceSplitPrefix: resolvedSourceSplitPrefix,
+          sourcePrefix,
+          sourceBase,
+          sourceCompositeBase: resolvedSourceCompositeBase,
+          alternateForms
         });
         if (!potentialForms.length) {
           return {
@@ -569,6 +919,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         const [primaryPotential, ...alternatePotentials] = potentialForms;
         verb = primaryPotential.verb;
         subjectSuffix = primaryPotential.subjectSuffix;
+        subjectPrefix = targetObject.isPotencialTroncoActiveTense(tense) ? baseSubjectPrefix : "";
+        objectPrefix = "";
+        alternateForms.length = 0;
         alternatePotentials.forEach(entry => {
           pushAlternateForm(entry.verb, entry.subjectSuffix, {
             formSpec: entry.formSpec || null
@@ -1198,6 +1551,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
     }
 
     const api = {};
+    api.buildPotencialActiveForms = buildPotencialActiveForms;
     api.applyMorphologyRules = applyMorphologyRules;
     return api;
 }
