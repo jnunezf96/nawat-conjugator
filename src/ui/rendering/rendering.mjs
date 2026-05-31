@@ -1910,7 +1910,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const selectedCombinedMode = targetObject.getCombinedMode();
       const sourceScope = targetObject.getVerbSourceScope();
       const isSimpleUi = targetObject.getActiveUiDensityMode() === targetObject.UI_DENSITY_MODE.simple;
-      const modesToRender = isSimpleUi ? [targetObject.COMBINED_MODE.active] : targetObject.getActiveTenseMode() !== targetObject.TENSE_MODE.verbo ? [selectedCombinedMode] : sourceScope === targetObject.VERB_SOURCE_SCOPE.active ? [targetObject.COMBINED_MODE.active] : sourceScope === targetObject.VERB_SOURCE_SCOPE.nonactive ? [targetObject.COMBINED_MODE.nonactive] : [targetObject.COMBINED_MODE.active, targetObject.COMBINED_MODE.nonactive];
+      const modesToRender = isSimpleUi ? [targetObject.COMBINED_MODE.active] : sourceScope === targetObject.VERB_SOURCE_SCOPE.active ? [targetObject.COMBINED_MODE.active] : sourceScope === targetObject.VERB_SOURCE_SCOPE.nonactive ? [targetObject.COMBINED_MODE.nonactive] : [targetObject.COMBINED_MODE.active, targetObject.COMBINED_MODE.nonactive];
       const contextByMode = new Map();
       modesToRender.forEach(mode => {
         const modeContext = buildVerbTabRenderContext({
@@ -2699,9 +2699,13 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const isNawat = languageSwitch && languageSwitch.checked;
       const tenseMode = targetObject.getActiveTenseMode();
       const combinedMode = targetObject.getCombinedMode();
-      const showDualVoiceColumns = targetObject.isNominalTenseMode(tenseMode);
-      const modeFilter = showDualVoiceColumns ? null : combinedMode;
-      const allowedNounTenses = showDualVoiceColumns ? targetObject.getTenseOrderForMode(tenseMode) : targetObject.getNounTenseOrderForCombinedMode(combinedMode, tenseMode);
+      const sourceScope = targetObject.getVerbSourceScope();
+      const nominalSourceModeFilter = sourceScope === targetObject.VERB_SOURCE_SCOPE.active ? targetObject.COMBINED_MODE.active : sourceScope === targetObject.VERB_SOURCE_SCOPE.nonactive ? targetObject.COMBINED_MODE.nonactive : null;
+      const isNominalMode = targetObject.isNominalTenseMode(tenseMode);
+      const showDualVoiceColumns = isNominalMode && nominalSourceModeFilter === null;
+      const modeFilter = isNominalMode ? nominalSourceModeFilter : combinedMode;
+      const nominalControlCombinedMode = modeFilter || combinedMode;
+      const allowedNounTenses = isNominalMode ? modeFilter ? targetObject.getNounTenseOrderForCombinedMode(modeFilter, tenseMode) : targetObject.getTenseOrderForMode(tenseMode) : targetObject.getNounTenseOrderForCombinedMode(combinedMode, tenseMode);
       const selectionState = targetObject.getCurrentResolvedConjugationSelectionState({
         tenseMode
       });
@@ -2725,7 +2729,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const isSubjectlessTense = targetObject.isSubjectlessNominalTense(resolvedTense);
       const isPossessionSplit = targetObject.isNounPossessionSplitTense(resolvedTense);
       const isPotencialHabitual = targetObject.isPotencialHabitualTense(resolvedTense);
-      const nominalControlCombinedMode = targetObject.getResolvedNominalCombinedModeForTense(resolvedTense, combinedMode);
+      const resolvedNominalControlCombinedMode = targetObject.getResolvedNominalCombinedModeForTense(resolvedTense, nominalControlCombinedMode);
       const prefixes = Array.from(targetObject.SUSTANTIVO_VERBAL_PREFIXES);
       const groupKey = prefixes.join("|");
       const possessorKey = `${modeKey}|${resolvedTense}|${groupKey}|possessor`;
@@ -2748,7 +2752,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         tenseValue: resolvedTense,
         baseObjectStateKey: objectStateKey,
         isNawat,
-        combinedMode: nominalControlCombinedMode
+        combinedMode: resolvedNominalControlCombinedMode
       });
       const nounObjectSlotStates = nounObjectSlotBundle.slotStates;
       const primaryObjectSlot = nounObjectSlotStates.find(slot => slot.id === "object") || null;
@@ -2759,7 +2763,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       });
       const objectOptionMap = primaryObjectSlot ? primaryObjectSlot.optionMap : new Map(objectOptions.map(entry => [entry.id, entry]));
       const possessorValues = targetObject.POSSESSIVE_PREFIXES.map(entry => entry.value);
-      const visiblePossessorValues = isPotencial || isPatientivoAdjective ? [""] : isPossessionSplit ? showDualVoiceColumns ? possessorValues : combinedMode === targetObject.COMBINED_MODE.nonactive ? [""] : possessorValues : possessorValues;
+      const visiblePossessorValues = isPotencial || isPatientivoAdjective ? [""] : isPossessionSplit ? showDualVoiceColumns ? possessorValues : nominalControlCombinedMode === targetObject.COMBINED_MODE.nonactive ? [""] : possessorValues : possessorValues;
       let activePossessor = targetObject.getToggleStateValue(targetObject.PossessorToggleState, possessorKey);
       if (activePossessor === undefined || !visiblePossessorValues.includes(activePossessor)) {
         if (visiblePossessorValues.includes("")) {

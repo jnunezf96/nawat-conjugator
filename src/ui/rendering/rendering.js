@@ -2196,13 +2196,11 @@ function renderVerbConjugationsCore({
     const isSimpleUi = getActiveUiDensityMode() === UI_DENSITY_MODE.simple;
     const modesToRender = isSimpleUi
         ? [COMBINED_MODE.active]
-        : (getActiveTenseMode() !== TENSE_MODE.verbo
-        ? [selectedCombinedMode]
         : (sourceScope === VERB_SOURCE_SCOPE.active
             ? [COMBINED_MODE.active]
             : (sourceScope === VERB_SOURCE_SCOPE.nonactive
                 ? [COMBINED_MODE.nonactive]
-                : [COMBINED_MODE.active, COMBINED_MODE.nonactive])));
+                : [COMBINED_MODE.active, COMBINED_MODE.nonactive]));
     const contextByMode = new Map();
     modesToRender.forEach((mode) => {
         const modeContext = buildVerbTabRenderContext({
@@ -3053,10 +3051,18 @@ function buildNounTabRenderContext({
     const isNawat = languageSwitch && languageSwitch.checked;
     const tenseMode = getActiveTenseMode();
     const combinedMode = getCombinedMode();
-    const showDualVoiceColumns = isNominalTenseMode(tenseMode);
-    const modeFilter = showDualVoiceColumns ? null : combinedMode;
-    const allowedNounTenses = showDualVoiceColumns
-        ? getTenseOrderForMode(tenseMode)
+    const sourceScope = getVerbSourceScope();
+    const nominalSourceModeFilter = sourceScope === VERB_SOURCE_SCOPE.active
+        ? COMBINED_MODE.active
+        : (sourceScope === VERB_SOURCE_SCOPE.nonactive ? COMBINED_MODE.nonactive : null);
+    const isNominalMode = isNominalTenseMode(tenseMode);
+    const showDualVoiceColumns = isNominalMode && nominalSourceModeFilter === null;
+    const modeFilter = isNominalMode ? nominalSourceModeFilter : combinedMode;
+    const nominalControlCombinedMode = modeFilter || combinedMode;
+    const allowedNounTenses = isNominalMode
+        ? (modeFilter
+            ? getNounTenseOrderForCombinedMode(modeFilter, tenseMode)
+            : getTenseOrderForMode(tenseMode))
         : getNounTenseOrderForCombinedMode(combinedMode, tenseMode);
     const selectionState = getCurrentResolvedConjugationSelectionState({ tenseMode });
     const selectedTense = tenseValue || selectionState.tenseValue;
@@ -3081,9 +3087,9 @@ function buildNounTabRenderContext({
     const isSubjectlessTense = isSubjectlessNominalTense(resolvedTense);
     const isPossessionSplit = isNounPossessionSplitTense(resolvedTense);
     const isPotencialHabitual = isPotencialHabitualTense(resolvedTense);
-    const nominalControlCombinedMode = getResolvedNominalCombinedModeForTense(
+    const resolvedNominalControlCombinedMode = getResolvedNominalCombinedModeForTense(
         resolvedTense,
-        combinedMode,
+        nominalControlCombinedMode,
     );
     const prefixes = Array.from(SUSTANTIVO_VERBAL_PREFIXES);
     const groupKey = prefixes.join("|");
@@ -3108,7 +3114,7 @@ function buildNounTabRenderContext({
         tenseValue: resolvedTense,
         baseObjectStateKey: objectStateKey,
         isNawat,
-        combinedMode: nominalControlCombinedMode,
+        combinedMode: resolvedNominalControlCombinedMode,
     });
     const nounObjectSlotStates = nounObjectSlotBundle.slotStates;
     const primaryObjectSlot = nounObjectSlotStates.find((slot) => slot.id === "object") || null;
@@ -3129,7 +3135,7 @@ function buildNounTabRenderContext({
             showDualVoiceColumns
                 ? possessorValues
                 : (
-                    combinedMode === COMBINED_MODE.nonactive
+                    nominalControlCombinedMode === COMBINED_MODE.nonactive
                 ? [""]
                 : possessorValues
                 )

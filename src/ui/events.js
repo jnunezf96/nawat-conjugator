@@ -218,6 +218,7 @@ async function initializeUiRuntime() {
         initPanelEdgeNavigation();
         initTenseModeTabs();
         initCombinedModeTabs();
+        initVerbSourceScopeControl();
         initDerivationTypeControl();
         initToggleLockControl();
         initViewExport();

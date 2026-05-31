@@ -2027,12 +2027,12 @@
         collector.equal(
             "patientivo formatter keeps -in on the same line as zero and -ti",
             formatConjugationDisplay("akwil / akwilti / akwilin / akwiwal / akwiwalti / akwiwalin"),
-            "akwil / akwilti / akwilin\nakwiwal / akwiwalti / akwiwalin"
+            "akwil/akwilti, akwilin\nakwiwal/akwiwalti, akwiwalin"
         );
         collector.equal(
             "patientivo formatter groups passive impersonal -in with its zero and -ti family",
             formatConjugationDisplay("nemit / nemi / nenti / nen / nenin"),
-            "nemi / nemit\nnen / nenti / nenin"
+            "nemit/nemi\nnenti/nen, nenin"
         );
 
         const ownershipCases = [

@@ -225,6 +225,7 @@ export function createUiEventsApi(targetObject = globalThis) {
             targetObject.initPanelEdgeNavigation();
             targetObject.initTenseModeTabs();
             targetObject.initCombinedModeTabs();
+            targetObject.initVerbSourceScopeControl();
             targetObject.initDerivationTypeControl();
             targetObject.initToggleLockControl();
             targetObject.initViewExport();

@@ -5506,7 +5506,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
       }
       const letters = targetObject.splitVerbLetters(normalizedStem);
       const last = letters[letters.length - 1] || "";
-      if (targetObject.isVerbLetterConsonant(last)) {
+      if (targetObject.isVerbLetterConsonant(last) && last !== "t") {
         suffixes.push("in");
       }
       return Array.from(new Set(suffixes.map(value => String(value ?? ""))));

@@ -333,6 +333,71 @@ function getUiDensityButtons() {
     return Array.from(document.querySelectorAll("[data-ui-density]"));
 }
 
+function getVerbSourceScopeButtons() {
+    return Array.from(document.querySelectorAll("[data-verb-source-scope]"));
+}
+
+function syncVerbSourceScopeControl() {
+    const control = document.getElementById("verb-source-scope-control");
+    const buttons = getVerbSourceScopeButtons();
+    const isAdvanced = getActiveUiDensityMode() === UI_DENSITY_MODE.advanced;
+    const shouldShow = isAdvanced;
+    if (control) {
+        control.hidden = !shouldShow;
+        control.classList.toggle("is-hidden", !shouldShow);
+        control.setAttribute("aria-hidden", String(!shouldShow));
+        control.setAttribute("aria-disabled", String(!shouldShow));
+        control.setAttribute("aria-label", getUiCopyLabel("verb-source-scope-label", "Voz"));
+    }
+    const activeScope = getVerbSourceScope();
+    buttons.forEach((button) => {
+        const buttonScope = button.getAttribute("data-verb-source-scope") || "";
+        const isActive = buttonScope === activeScope;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        button.disabled = !shouldShow;
+        button.setAttribute("aria-disabled", String(!shouldShow));
+    });
+}
+
+function applyVerbSourceScope(scope, anchor = null) {
+    if (
+        scope !== VERB_SOURCE_SCOPE.active
+        && scope !== VERB_SOURCE_SCOPE.nonactive
+        && scope !== VERB_SOURCE_SCOPE.both
+    ) {
+        return;
+    }
+    setVerbSourceScope(scope);
+    const update = () => {
+        updateCombinedModeTabs();
+        syncVerbSourceScopeControl();
+        renderTenseTabs();
+        const verbMeta = getVerbInputMeta();
+        renderActiveConjugations({
+            verb: verbMeta.displayVerb,
+            objectPrefix: getCurrentObjectPrefix(),
+        });
+    };
+    if (anchor) {
+        preserveViewportAnchorPosition(anchor, update);
+        return;
+    }
+    update();
+}
+
+function initVerbSourceScopeControl() {
+    getVerbSourceScopeButtons().forEach((button) => {
+        button.addEventListener("click", () => {
+            if (getActiveUiDensityMode() !== UI_DENSITY_MODE.advanced) {
+                return;
+            }
+            applyVerbSourceScope(button.getAttribute("data-verb-source-scope") || "", button);
+        });
+    });
+    syncVerbSourceScopeControl();
+}
+
 function captureUiDensityGrammarSnapshot() {
     return {
         tenseMode: getActiveTenseMode(),
@@ -463,7 +528,10 @@ function applyUiDensityMode(mode = "", { persist = true } = {}) {
     } else if (leavingSimple && UiDensityGrammarSnapshot) {
         restoreUiDensityGrammarSnapshot(UiDensityGrammarSnapshot);
         UiDensityGrammarSnapshot = null;
+    } else if (leavingSimple && getActiveTenseMode() === TENSE_MODE.verbo) {
+        setVerbSourceScope(VERB_SOURCE_SCOPE.both, { syncCombinedMode: false });
     }
+    syncVerbSourceScopeControl();
     syncComposerSlotChipVisibility();
     scheduleComposerSlotChipVisibilitySync();
     dispatchAppEvent("app:ui-density-changed", {
@@ -1978,9 +2046,6 @@ function renderTenseTabs() {
     const endsWithConsonant = verb !== "" && !VOWEL_END_RE.test(verb) && !isWitzInput;
     const hasVerb = verb !== "" && VOWEL_RE.test(verb);
     const tenseMode = getActiveTenseMode();
-    if (tenseMode === TENSE_MODE.verbo && getVerbSourceScope() !== VERB_SOURCE_SCOPE.both) {
-        setVerbSourceScope(VERB_SOURCE_SCOPE.both, { syncCombinedMode: false });
-    }
     const sourceScope = getVerbSourceScope();
     const nonactiveSuffixOptionMap = tenseMode === TENSE_MODE.verbo
         ? resolveNonactiveSuffixOptionMap({ verbMeta, verb, analysisVerb })
@@ -1998,7 +2063,13 @@ function renderTenseTabs() {
         ? getNounTenseOrderForCombinedMode(COMBINED_MODE.nonactive, tenseMode)
         : [];
     const nounVisibleTenses = isNominalMode
-        ? Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses]))
+        ? (
+            sourceScope === VERB_SOURCE_SCOPE.active
+                ? nounActiveTenses
+                : (sourceScope === VERB_SOURCE_SCOPE.nonactive
+                    ? nounNonactiveTenses
+                    : Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses])))
+        )
         : [];
     const blockedNominalTenseSet = (() => {
         if (tenseMode !== TENSE_MODE.adjetivo || !hasVerb) {
@@ -2411,6 +2482,7 @@ function renderTenseTabs() {
     if (outputControlsContainer) {
         outputControlsContainer.hidden = !shouldShowOutputControls;
     }
+    syncVerbSourceScopeControl();
     if (!shouldShowOutputControls && outputUniversalContainer) {
         outputUniversalContainer.innerHTML = "";
         outputUniversalContainer.hidden = true;

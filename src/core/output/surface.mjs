@@ -410,7 +410,7 @@ export function createOutputSurfaceApi(targetObject = globalThis) {
             }
             familyForms.push(`${base}in`);
             const indices = [];
-            const orderedForms = [];
+            const matchedForms = [];
             familyForms.forEach((familyForm) => {
                 const matchIndex = expandedForms.findIndex((candidate, index) => (
                     !used[index]
@@ -421,15 +421,37 @@ export function createOutputSurfaceApi(targetObject = globalThis) {
                     return;
                 }
                 indices.push(matchIndex);
-                orderedForms.push(expandedForms[matchIndex]);
+                matchedForms.push({
+                    form: expandedForms[matchIndex],
+                    index: matchIndex,
+                    role: familyForm === `${base}in`
+                        ? "patientivo-in"
+                        : (familyForm === base ? "zero" : "absolutive"),
+                });
             });
             if (indices.length <= 1) {
                 return;
             }
             if (!bestFamily || indices.length > bestFamily.indices.length) {
+                const pairForms = matchedForms
+                    .filter((entry) => entry.role === "zero" || entry.role === "absolutive")
+                    .sort((left, right) => left.index - right.index)
+                    .map((entry) => entry.form);
+                const inForm = matchedForms.find((entry) => entry.role === "patientivo-in")?.form || "";
+                const textParts = [];
+                if (pairForms.length) {
+                    textParts.push(pairForms.join("/"));
+                }
+                if (inForm) {
+                    if (textParts.length) {
+                        textParts[textParts.length - 1] = `${textParts[textParts.length - 1]}, ${inForm}`;
+                    } else {
+                        textParts.push(inForm);
+                    }
+                }
                 bestFamily = {
                     indices,
-                    text: orderedForms.join(" / "),
+                    text: textParts.join(" / "),
                 };
             }
         });

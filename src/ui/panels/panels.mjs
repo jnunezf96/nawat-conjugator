@@ -298,6 +298,63 @@ export function createUiPanelsApi(targetObject = globalThis) {
     function getUiDensityButtons() {
       return Array.from(targetObject.document.querySelectorAll("[data-ui-density]"));
     }
+    function getVerbSourceScopeButtons() {
+      return Array.from(targetObject.document.querySelectorAll("[data-verb-source-scope]"));
+    }
+    function syncVerbSourceScopeControl() {
+      const control = targetObject.document.getElementById("verb-source-scope-control");
+      const buttons = getVerbSourceScopeButtons();
+      const isAdvanced = getActiveUiDensityMode() === targetObject.UI_DENSITY_MODE.advanced;
+      const shouldShow = isAdvanced;
+      if (control) {
+        control.hidden = !shouldShow;
+        control.classList.toggle("is-hidden", !shouldShow);
+        control.setAttribute("aria-hidden", String(!shouldShow));
+        control.setAttribute("aria-disabled", String(!shouldShow));
+        control.setAttribute("aria-label", targetObject.getUiCopyLabel("verb-source-scope-label", "Voz"));
+      }
+      const activeScope = targetObject.getVerbSourceScope();
+      buttons.forEach(button => {
+        const buttonScope = button.getAttribute("data-verb-source-scope") || "";
+        const isActive = buttonScope === activeScope;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        button.disabled = !shouldShow;
+        button.setAttribute("aria-disabled", String(!shouldShow));
+      });
+    }
+    function applyVerbSourceScope(scope, anchor = null) {
+      if (scope !== targetObject.VERB_SOURCE_SCOPE.active && scope !== targetObject.VERB_SOURCE_SCOPE.nonactive && scope !== targetObject.VERB_SOURCE_SCOPE.both) {
+        return;
+      }
+      targetObject.setVerbSourceScope(scope);
+      const update = () => {
+        targetObject.updateCombinedModeTabs();
+        syncVerbSourceScopeControl();
+        renderTenseTabs();
+        const verbMeta = targetObject.getVerbInputMeta();
+        targetObject.renderActiveConjugations({
+          verb: verbMeta.displayVerb,
+          objectPrefix: targetObject.getCurrentObjectPrefix()
+        });
+      };
+      if (anchor) {
+        targetObject.preserveViewportAnchorPosition(anchor, update);
+        return;
+      }
+      update();
+    }
+    function initVerbSourceScopeControl() {
+      getVerbSourceScopeButtons().forEach(button => {
+        button.addEventListener("click", () => {
+          if (getActiveUiDensityMode() !== targetObject.UI_DENSITY_MODE.advanced) {
+            return;
+          }
+          applyVerbSourceScope(button.getAttribute("data-verb-source-scope") || "", button);
+        });
+      });
+      syncVerbSourceScopeControl();
+    }
     function captureUiDensityGrammarSnapshot() {
       return {
         tenseMode: targetObject.getActiveTenseMode(),
@@ -419,7 +476,12 @@ export function createUiPanelsApi(targetObject = globalThis) {
       } else if (leavingSimple && targetObject.UiDensityGrammarSnapshot) {
         restoreUiDensityGrammarSnapshot(targetObject.UiDensityGrammarSnapshot);
         targetObject.UiDensityGrammarSnapshot = null;
+      } else if (leavingSimple && targetObject.getActiveTenseMode() === targetObject.TENSE_MODE.verbo) {
+        targetObject.setVerbSourceScope(targetObject.VERB_SOURCE_SCOPE.both, {
+          syncCombinedMode: false
+        });
       }
+      syncVerbSourceScopeControl();
       targetObject.syncComposerSlotChipVisibility();
       targetObject.scheduleComposerSlotChipVisibilitySync();
       targetObject.dispatchAppEvent("app:ui-density-changed", {
@@ -1783,11 +1845,6 @@ export function createUiPanelsApi(targetObject = globalThis) {
       const endsWithConsonant = verb !== "" && !targetObject.VOWEL_END_RE.test(verb) && !isWitzInput;
       const hasVerb = verb !== "" && targetObject.VOWEL_RE.test(verb);
       const tenseMode = targetObject.getActiveTenseMode();
-      if (tenseMode === targetObject.TENSE_MODE.verbo && targetObject.getVerbSourceScope() !== targetObject.VERB_SOURCE_SCOPE.both) {
-        targetObject.setVerbSourceScope(targetObject.VERB_SOURCE_SCOPE.both, {
-          syncCombinedMode: false
-        });
-      }
       const sourceScope = targetObject.getVerbSourceScope();
       const nonactiveSuffixOptionMap = tenseMode === targetObject.TENSE_MODE.verbo ? resolveNonactiveSuffixOptionMap({
         verbMeta,
@@ -1800,7 +1857,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
       const isNominalMode = targetObject.isNominalTenseMode(tenseMode);
       const nounActiveTenses = isNominalMode ? targetObject.getNounTenseOrderForCombinedMode(targetObject.COMBINED_MODE.active, tenseMode) : [];
       const nounNonactiveTenses = isNominalMode ? targetObject.getNounTenseOrderForCombinedMode(targetObject.COMBINED_MODE.nonactive, tenseMode) : [];
-      const nounVisibleTenses = isNominalMode ? Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses])) : [];
+      const nounVisibleTenses = isNominalMode ? sourceScope === targetObject.VERB_SOURCE_SCOPE.active ? nounActiveTenses : sourceScope === targetObject.VERB_SOURCE_SCOPE.nonactive ? nounNonactiveTenses : Array.from(new Set([...nounActiveTenses, ...nounNonactiveTenses])) : [];
       const blockedNominalTenseSet = (() => {
         if (tenseMode !== targetObject.TENSE_MODE.adjetivo || !hasVerb) {
           return new Set();
@@ -2152,6 +2209,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
       if (outputControlsContainer) {
         outputControlsContainer.hidden = !shouldShowOutputControls;
       }
+      syncVerbSourceScopeControl();
       if (!shouldShowOutputControls && outputUniversalContainer) {
         outputUniversalContainer.innerHTML = "";
         outputUniversalContainer.hidden = true;
@@ -2712,6 +2770,10 @@ export function createUiPanelsApi(targetObject = globalThis) {
     api.getActiveUiDensityMode = getActiveUiDensityMode;
     api.filterTenseOrderForUiDensity = filterTenseOrderForUiDensity;
     api.getUiDensityButtons = getUiDensityButtons;
+    api.getVerbSourceScopeButtons = getVerbSourceScopeButtons;
+    api.syncVerbSourceScopeControl = syncVerbSourceScopeControl;
+    api.applyVerbSourceScope = applyVerbSourceScope;
+    api.initVerbSourceScopeControl = initVerbSourceScopeControl;
     api.captureUiDensityGrammarSnapshot = captureUiDensityGrammarSnapshot;
     api.restoreUiDensityGrammarSnapshot = restoreUiDensityGrammarSnapshot;
     api.forceDirectDerivationForSimpleMode = forceDirectDerivationForSimpleMode;

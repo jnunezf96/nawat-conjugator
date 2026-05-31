@@ -917,10 +917,6 @@ function setActiveTenseMode(mode) {
     }
     TenseModeState.mode = mode;
     if (isNominalTenseMode(mode)) {
-        setVerbSourceScope(VERB_SOURCE_SCOPE.active, { syncCombinedMode: false });
-        if (mode === TENSE_MODE.adverbio && getCombinedMode() !== COMBINED_MODE.active) {
-            setCombinedMode(COMBINED_MODE.active);
-        }
         applyResolvedConjugationSelectionState(resolveConjugationSelectionState({
             tenseMode: mode,
             group: CONJUGATION_GROUPS.tense,
@@ -1606,9 +1602,6 @@ function updateVoiceOperatorVisibility() {
 function updateCombinedModeTabs() {
     const isVerbMode = getActiveTenseMode() === TENSE_MODE.verbo;
     const isAdverbioMode = getActiveTenseMode() === TENSE_MODE.adverbio;
-    if ((!isVerbMode || isAdverbioMode) && getCombinedMode() !== COMBINED_MODE.active) {
-        setCombinedMode(COMBINED_MODE.active);
-    }
     const buttons = document.querySelectorAll("[data-combined-mode]");
     if (!buttons.length) {
         return;
@@ -2123,6 +2116,17 @@ function getCalcTenseLabel() {
     return getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
 }
 
+function getCalcSourceScopeLabel() {
+    const scope = getVerbSourceScope();
+    if (scope === VERB_SOURCE_SCOPE.active) {
+        return "activo";
+    }
+    if (scope === VERB_SOURCE_SCOPE.nonactive) {
+        return "no activo";
+    }
+    return "activo + no activo";
+}
+
 function updateCalcSummary() {
     const summaryEl = document.getElementById("calc-summary");
     if (!summaryEl) {
@@ -2142,17 +2146,22 @@ function updateCalcSummary() {
     const voiceLabel = voiceButton?.textContent?.trim()
         || (voice === COMBINED_MODE.nonactive ? "No activo" : "Activo");
     const includeVoiceInSummary = mode === TENSE_MODE.verbo && voice === COMBINED_MODE.nonactive;
-    const derivationLabel = mode === TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
+    const derivationLabel = mode === TENSE_MODE.verbo
+        ? getCalcDerivationLabel().toLowerCase()
+        : "";
     const transitivityLabel = getCalcTransitivityLabel();
     const tenseLabel = getCalcTenseLabel();
+    const sourceScopeLabel = !isSimpleView
+        ? getCalcSourceScopeLabel()
+        : "";
     const parts = (() => {
         if (mode !== TENSE_MODE.verbo) {
-            return [tenseLabel].filter(Boolean);
+            return [tenseLabel, sourceScopeLabel].filter(Boolean);
         }
         if (isSimpleView) {
             return [tenseLabel, transitivityLabel].filter(Boolean);
         }
-        return [tenseLabel, derivationLabel, transitivityLabel, includeVoiceInSummary ? voiceLabel : ""]
+        return [tenseLabel, derivationLabel, transitivityLabel, sourceScopeLabel || (includeVoiceInSummary ? voiceLabel : "")]
             .filter(Boolean);
     })();
     const fallback = mode === TENSE_MODE.verbo

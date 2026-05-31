@@ -6,11 +6,17 @@
     "tense-tabs-mode-adverb": { "labelEs": "adverbio", "labelNa": "ayilisnawak" },
     "tense-tabs-mode-active": { "labelEs": "activo", "labelNa": "muchiwa" },
     "tense-tabs-mode-nonactive": { "labelEs": "no activo", "labelNa": "muselia" },
+    "verb-source-scope-label": { "labelEs": "Voz", "labelNa": "Voz" },
+    "verb-source-scope-active": { "labelEs": "ACT", "labelNa": "ACT" },
+    "verb-source-scope-nonactive": { "labelEs": "NO ACT", "labelNa": "NO ACT" },
+    "verb-source-scope-both": { "labelEs": "TODOS", "labelNa": "TODOS" },
     "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachiyalis" },
     "ui-density-simple": { "labelEs": "Simple", "labelNa": "Te uwij" },
     "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Uwij" },
     "input-mode-composer": { "labelEs": "Selecciones", "labelNa": "Taketzalis" },
     "input-mode-regex": { "labelEs": "Regex", "labelNa": "Nawal" },
+    "composer-transitivity-label": { "labelEs": "Transitividad", "labelNa": "Taselijkayut" },
+    "composer-verbalization-label": { "labelEs": "Verbalización", "labelNa": "Tachiwkayut" },
     "composer-hint-regex-dev": {
       "labelEs": "Regex Dev: escribe el patrón directamente en la pantalla.",
       "labelNa": "Regex Dev: shikijkwilu ne majmachiyut."

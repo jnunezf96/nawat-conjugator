@@ -235,6 +235,26 @@ function run(ctx) {
         "patientivo default suffix resolver forbids absolutive zero for nonactive t-class",
         nonactiveTClassSuffixes.includes("")
     );
+    const tFinalPatientivoSuffixes = ctx.resolveDefaultPatientivoAllowedSuffixes({
+        sourceType: "nonactive",
+        stem: "mat",
+        defaultSuffix: "ti",
+        lockNominalMarker: false,
+    });
+    s.no(
+        "patientivo default suffix resolver omits in marker for t-final stems",
+        tFinalPatientivoSuffixes.includes("in")
+    );
+    const chFinalPatientivoSuffixes = ctx.resolveDefaultPatientivoAllowedSuffixes({
+        sourceType: "nonactive",
+        stem: "mach",
+        defaultSuffix: "ti",
+        lockNominalMarker: false,
+    });
+    s.ok(
+        "patientivo default suffix resolver keeps in marker for non-t consonant stems",
+        chFinalPatientivoSuffixes.includes("in")
+    );
 
     const originalNonactiveOptionPronounceability = ctx.isSyllableSequencePronounceable;
     try {

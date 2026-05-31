@@ -61,6 +61,30 @@ function run(ctx) {
     s.eq("applyMorphologyRules agentivo keeps nemi stem", agentivo.verb, "nemi");
     s.ok("applyMorphologyRules agentivo returns nominal formSpec", agentivo.formSpec && typeof agentivo.formSpec === "object");
 
+    const matiPatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "nonactive",
+        },
+    });
+    s.eq(
+        "patientivo mati ta omits t-final in alternant",
+        matiPatientivo.surfaceForms,
+        ["tamachti", "tamach", "tamachin", "tamachit", "tamatti", "tamat", "tamatit", "tamatil", "tamatilti", "tamatilin"]
+    );
+    s.eq(
+        "patientivo mati ta display groups nominal markers compactly",
+        ctx.formatConjugationDisplay(matiPatientivo.result),
+        "tamachti/tamach, tamachin\ntamachit\ntamatti/tamat\ntamatit\ntamatil/tamatilti, tamatilin"
+    );
+
     const buildSilentAdverbRequest = ({ verb, objectPrefix = "" }) => ({
         options: {
             silent: true,

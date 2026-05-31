@@ -6306,7 +6306,7 @@ function resolveDefaultPatientivoAllowedSuffixes({
     }
     const letters = splitVerbLetters(normalizedStem);
     const last = letters[letters.length - 1] || "";
-    if (isVerbLetterConsonant(last)) {
+    if (isVerbLetterConsonant(last) && last !== "t") {
         suffixes.push("in");
     }
     return Array.from(new Set(suffixes.map((value) => String(value ?? ""))));

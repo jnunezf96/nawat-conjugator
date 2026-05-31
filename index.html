@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260524-tense-presence-002" />
+    <link rel="stylesheet" href="style.css?v=20260531-source-scope-007" />
     <!-- Phase 1 baseline: keep this ordered legacy script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/phonology/phonology.js?v=20260402-phase4-002" defer></script>
     <script src="src/core/agreement/agreement.js?v=20260402-phase4-002" defer></script>
@@ -42,16 +42,16 @@
     <script src="src/core/preterit/context.js?v=20260402-regex-core-261" defer></script>
     <script src="src/core/preterit/engine.js?v=20260402-regex-core-261" defer></script>
     <script src="src/core/preterit/api.js?v=20260403-import-isolate-002" defer></script>
-    <script src="src/ui/i18n/i18n.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/panels/panels.js?v=20260524-tense-presence-002" defer></script>
+    <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
+    <script src="src/ui/panels/panels.js?v=20260531-source-scope-004" defer></script>
     <script src="src/ui/export/export.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/state.js?v=20260524-tense-presence-001" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260524-tense-presence-002" defer></script>
+    <script src="src/ui/state.js?v=20260531-source-scope-004" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260531-source-scope-002" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260525-slot-tabs-009" defer></script>
     <script src="script.js?v=20260402-phase6-001" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
-    <script src="src/ui/events.js?v=20260403-import-isolate-001" defer></script>
+    <script src="src/ui/events.js?v=20260530-source-scope-002" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
@@ -292,12 +292,14 @@
                       id="tutorial-trigger"
                       hidden
                       aria-hidden="true"
+                      aria-label="Abrir guía regex"
+                      title="Abrir guía regex"
                     >
                       <span class="button-icon" aria-hidden="true">
                         <svg viewBox="0 0 16 16" focusable="false">
-                          <rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3"></rect>
-                          <path d="M6.2 6a1.95 1.95 0 1 1 3.6 1.03c-.36.56-.92.86-1.35 1.26-.46.44-.7.87-.7 1.58"></path>
-                          <circle cx="8" cy="11.7" r=".62" fill="currentColor" stroke="none"></circle>
+                          <circle cx="8" cy="8" r="5.65"></circle>
+                          <path d="M6.4 6.55a1.65 1.65 0 1 1 3.1.82c-.26.41-.69.66-1.04 1-.34.33-.46.65-.46 1.15"></path>
+                          <path d="M8 11.28h.01"></path>
                         </svg>
                       </span>
                       <span class="button-label" data-ui-label-target>Guía regex</span>
@@ -499,16 +501,19 @@
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto incorporado</span>
-                                      <input
-                                        type="text"
-                                        id="composer-valence-a-embed-left"
-                                        class="verb-composer__input verb-composer__valence-embed-input"
-                                        placeholder="prefijo del objeto"
-                                        aria-label="Objeto incorporado Slot A"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-valence-a-embed-left"
+                                          class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
+                                          placeholder=""
+                                          aria-label="Objeto incorporado Slot A"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto indefinido</span>
@@ -679,16 +684,19 @@
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto incorporado</span>
-                                      <input
-                                        type="text"
-                                        id="composer-valence-left-1"
-                                        class="verb-composer__input verb-composer__valence-embed-input"
-                                        placeholder="prefijo del objeto"
-                                        aria-label="Objeto incorporado Slot B"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-valence-left-1"
+                                          class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
+                                          placeholder=""
+                                          aria-label="Objeto incorporado Slot B"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto indefinido</span>
@@ -861,16 +869,19 @@
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto incorporado</span>
-                                      <input
-                                        type="text"
-                                        id="composer-valence-left-2"
-                                        class="verb-composer__input verb-composer__valence-embed-input"
-                                        placeholder="prefijo del objeto"
-                                        aria-label="Objeto incorporado Slot C"
-                                        autocomplete="off"
-                                        autocapitalize="none"
-                                        spellcheck="false"
-                                      />
+                                      <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <input
+                                          type="text"
+                                          id="composer-valence-left-2"
+                                          class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
+                                          placeholder=""
+                                          aria-label="Objeto incorporado Slot C"
+                                          autocomplete="off"
+                                          autocapitalize="none"
+                                          spellcheck="false"
+                                        />
+                                      </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Objeto indefinido</span>
@@ -1018,6 +1029,41 @@
                 <span aria-hidden="true">▶</span>
               </button>
               <div class="panel-block-actions">
+                <div
+                  class="verb-source-scope-control is-hidden"
+                  id="verb-source-scope-control"
+                  role="group"
+                  aria-label="Voz visible"
+                  aria-hidden="true"
+                  hidden
+                >
+                  <div class="verb-source-scope-buttons">
+                    <button
+                      type="button"
+                      class="verb-source-scope-button"
+                      id="verb-source-scope-both"
+                      data-verb-source-scope="both"
+                      data-ui-label-key="verb-source-scope-both"
+                      aria-pressed="true"
+                    >TODOS</button>
+                    <button
+                      type="button"
+                      class="verb-source-scope-button"
+                      id="verb-source-scope-active"
+                      data-verb-source-scope="active"
+                      data-ui-label-key="verb-source-scope-active"
+                      aria-pressed="false"
+                    >ACT</button>
+                    <button
+                      type="button"
+                      class="verb-source-scope-button"
+                      id="verb-source-scope-nonactive"
+                      data-verb-source-scope="nonactive"
+                      data-ui-label-key="verb-source-scope-nonactive"
+                      aria-pressed="false"
+                    >NO ACT</button>
+                  </div>
+                </div>
                 <button type="button" class="view-export-button panel-action-button" id="view-export-csv">
                   <span class="panel-action-button__icon" aria-hidden="true">
                     <svg viewBox="0 0 16 16" focusable="false">

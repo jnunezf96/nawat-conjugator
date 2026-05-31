@@ -66,6 +66,12 @@ function run(ctx) {
     const mFinal = ctx.buildSurfaceChainState({ subjectPrefix: "ni", verb: "chinam" });
     s.eq("realize: coda m → n (word-final)", ctx.joinSurfaceChain(ctx.realizeSurfaceChain(mFinal)), "nichinan");
 
+    s.eq(
+        "patientivo display uses compact nominal marker families",
+        ctx.formatConjugationDisplay("tamachti / tamach / tamachin / tamachit / tamatti / tamat / tamatit / tamatil / tamatilti / tamatilin"),
+        "tamachti/tamach, tamachin\ntamachit\ntamatti/tamat\ntamatit\ntamatil/tamatilti, tamatilin"
+    );
+
     // provenance helpers — extracted from surface.js into output/provenance.js
     const provenanceVariant = ctx.buildProvenanceVariantEntry({ base: "nemi", suffix: "j" });
     s.eq("provenance variant builds surface stem", provenanceVariant.surfaceStem, "nemij");

@@ -208,6 +208,9 @@ function changeLanguage() {
         "ui-density-label",
         "ui-density-simple",
         "ui-density-advanced",
+        "verb-source-scope-active",
+        "verb-source-scope-nonactive",
+        "verb-source-scope-both",
     ];
     var keyedLabelElementIds = Array.from(
         document.querySelectorAll("[data-ui-label-key][id]")
@@ -225,6 +228,9 @@ function changeLanguage() {
         "ui-density-label": "Vista",
         "ui-density-simple": "Básico",
         "ui-density-advanced": "Avanzado",
+        "verb-source-scope-active": "ACT",
+        "verb-source-scope-nonactive": "NO ACT",
+        "verb-source-scope-both": "TODOS",
     };
   
     if (selectedLanguage === "nawat") {
@@ -282,4 +288,3 @@ function changeLanguage() {
 if (typeof window !== "undefined") {
     window.changeLanguage = changeLanguage;
 }
-

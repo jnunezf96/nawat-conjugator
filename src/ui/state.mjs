@@ -734,12 +734,6 @@ export function createUiStateApi(targetObject = globalThis) {
       }
       targetObject.TenseModeState.mode = mode;
       if (targetObject.isNominalTenseMode(mode)) {
-        setVerbSourceScope(targetObject.VERB_SOURCE_SCOPE.active, {
-          syncCombinedMode: false
-        });
-        if (mode === targetObject.TENSE_MODE.adverbio && getCombinedMode() !== targetObject.COMBINED_MODE.active) {
-          setCombinedMode(targetObject.COMBINED_MODE.active);
-        }
         applyResolvedConjugationSelectionState(resolveConjugationSelectionState({
           tenseMode: mode,
           group: targetObject.CONJUGATION_GROUPS.tense,
@@ -1322,9 +1316,6 @@ export function createUiStateApi(targetObject = globalThis) {
     function updateCombinedModeTabs() {
       const isVerbMode = getActiveTenseMode() === targetObject.TENSE_MODE.verbo;
       const isAdverbioMode = getActiveTenseMode() === targetObject.TENSE_MODE.adverbio;
-      if ((!isVerbMode || isAdverbioMode) && getCombinedMode() !== targetObject.COMBINED_MODE.active) {
-        setCombinedMode(targetObject.COMBINED_MODE.active);
-      }
       const buttons = targetObject.document.querySelectorAll("[data-combined-mode]");
       if (!buttons.length) {
         return;
@@ -1787,6 +1778,16 @@ export function createUiStateApi(targetObject = globalThis) {
       const tenseValue = selectionState.tenseValue || targetObject.TENSE_ORDER[0] || "";
       return getLocalizedLabel(targetObject.TENSE_LABELS[tenseValue], isNawat, tenseValue);
     }
+    function getCalcSourceScopeLabel() {
+      const scope = targetObject.getVerbSourceScope();
+      if (scope === targetObject.VERB_SOURCE_SCOPE.active) {
+        return "activo";
+      }
+      if (scope === targetObject.VERB_SOURCE_SCOPE.nonactive) {
+        return "no activo";
+      }
+      return "activo + no activo";
+    }
     function updateCalcSummary() {
       const summaryEl = targetObject.document.getElementById("calc-summary");
       if (!summaryEl) {
@@ -1800,17 +1801,18 @@ export function createUiStateApi(targetObject = globalThis) {
       const voiceButton = targetObject.document.querySelector(`[data-combined-mode="${voice}"]`);
       const voiceLabel = voiceButton?.textContent?.trim() || (voice === targetObject.COMBINED_MODE.nonactive ? "No activo" : "Activo");
       const includeVoiceInSummary = mode === targetObject.TENSE_MODE.verbo && voice === targetObject.COMBINED_MODE.nonactive;
-      const derivationLabel = mode === targetObject.TENSE_MODE.verbo ? getCalcDerivationLabel() : "";
+      const derivationLabel = mode === targetObject.TENSE_MODE.verbo ? getCalcDerivationLabel().toLowerCase() : "";
       const transitivityLabel = getCalcTransitivityLabel();
       const tenseLabel = getCalcTenseLabel();
+      const sourceScopeLabel = !isSimpleView ? getCalcSourceScopeLabel() : "";
       const parts = (() => {
         if (mode !== targetObject.TENSE_MODE.verbo) {
-          return [tenseLabel].filter(Boolean);
+          return [tenseLabel, sourceScopeLabel].filter(Boolean);
         }
         if (isSimpleView) {
           return [tenseLabel, transitivityLabel].filter(Boolean);
         }
-        return [tenseLabel, derivationLabel, transitivityLabel, includeVoiceInSummary ? voiceLabel : ""].filter(Boolean);
+        return [tenseLabel, derivationLabel, transitivityLabel, sourceScopeLabel || (includeVoiceInSummary ? voiceLabel : "")].filter(Boolean);
       })();
       const fallback = mode === targetObject.TENSE_MODE.verbo ? isSimpleView ? "Selecciona tiempo" : "Selecciona tiempo y derivación" : "Selecciona tiempo";
       summaryEl.removeAttribute("title");

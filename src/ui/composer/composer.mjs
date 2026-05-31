@@ -846,6 +846,8 @@ export function createUiComposerApi(targetObject = globalThis) {
         transitivitySelect.value = VerbComposerState.transitivity;
       }
       syncComposerSlotPanelVisibility();
+      syncComposerEntryBoardTabsPlacement();
+      syncComposerSlotTabsLabels();
       if (!transitivitySlotButtons || !transitivitySlotButtons.length) {
         return;
       }
@@ -857,6 +859,72 @@ export function createUiComposerApi(targetObject = globalThis) {
         button.setAttribute("aria-selected", String(isActive));
         button.tabIndex = isActive ? 0 : -1;
       });
+    }
+    function getComposerTransitivityTabsLabel() {
+      return getUiCopyLabel("composer-transitivity-label", "Transitividad");
+    }
+    function syncComposerSlotTabsLabel(slotTabs) {
+      if (!slotTabs) {
+        return;
+      }
+      const labelText = getComposerTransitivityTabsLabel();
+      slotTabs.setAttribute("aria-label", labelText);
+      let labelEl = Array.from(slotTabs.children).find(child => child.classList && child.classList.contains("verb-composer__slot-tabs-label")) || null;
+      if (!labelEl) {
+        labelEl = targetObject.document.createElement("span");
+        labelEl.className = "verb-composer__slot-tabs-label";
+        labelEl.setAttribute("aria-hidden", "true");
+        slotTabs.insertBefore(labelEl, slotTabs.firstElementChild || null);
+      }
+      labelEl.textContent = labelText;
+    }
+    function syncComposerSlotTabsLabels(root = targetObject.document) {
+      if (!root || typeof root.querySelectorAll !== "function") {
+        return;
+      }
+      Array.from(root.querySelectorAll(".verb-composer__slot-tabs")).forEach(syncComposerSlotTabsLabel);
+    }
+    function getComposerEntryBoardTabsLabel() {
+      return getUiCopyLabel("composer-verbalization-label", "Verbalización");
+    }
+    function syncComposerEntryBoardTabsLabel(entryBoardTabs) {
+      if (!entryBoardTabs) {
+        return;
+      }
+      const labelText = getComposerEntryBoardTabsLabel();
+      entryBoardTabs.setAttribute("aria-label", labelText);
+      entryBoardTabs.dataset.hasLabel = "true";
+      let labelEl = Array.from(entryBoardTabs.children).find(child => child.classList && child.classList.contains("verb-entry-board-tabs-label")) || null;
+      if (!labelEl) {
+        labelEl = targetObject.document.createElement("span");
+        labelEl.className = "verb-entry-board-tabs-label";
+        labelEl.setAttribute("aria-hidden", "true");
+        entryBoardTabs.insertBefore(labelEl, entryBoardTabs.firstElementChild || null);
+      }
+      labelEl.textContent = labelText;
+    }
+    function syncComposerEntryBoardTabsPlacement() {
+      const stagePanel = targetObject.document.getElementById("composer-slot-stage");
+      const entryBoardTabs = targetObject.document.getElementById("verb-entry-board-tabs");
+      if (!stagePanel || !entryBoardTabs) {
+        return;
+      }
+      if (entryBoardTabs.parentElement !== stagePanel || stagePanel.firstElementChild !== entryBoardTabs) {
+        stagePanel.insertBefore(entryBoardTabs, stagePanel.firstElementChild || null);
+      }
+      syncComposerEntryBoardTabsLabel(entryBoardTabs);
+    }
+    function syncComposerUtilityActionsPlacement() {
+      const utilityActions = targetObject.document.querySelector(".verb-block__utility-actions");
+      const titleToolbar = targetObject.document.querySelector("#container-inputs .panel-block-title .verb-block__top-controls");
+      if (!titleToolbar || !utilityActions) {
+        return;
+      }
+      if (utilityActions.parentElement !== titleToolbar) {
+        titleToolbar.appendChild(utilityActions);
+      }
+      titleToolbar.classList.remove("is-utility-replanted");
+      titleToolbar.removeAttribute("aria-hidden");
     }
     function syncComposerSlotPanelVisibility() {
       const stagePanel = targetObject.document.getElementById("composer-slot-stage");
@@ -874,6 +942,20 @@ export function createUiComposerApi(targetObject = globalThis) {
           toEl.appendChild(child);
         });
       };
+      const moveSlotTabsToPanelRoot = panel => {
+        if (!panel) {
+          return;
+        }
+        const directSlotTabs = Array.from(panel.children).find(child => child.classList && child.classList.contains("verb-composer__slot-tabs")) || null;
+        const slotTabs = directSlotTabs || panel.querySelector(".verb-composer__slot-tabs");
+        if (!slotTabs) {
+          return;
+        }
+        if (slotTabs.parentElement !== panel || panel.firstElementChild !== slotTabs) {
+          panel.insertBefore(slotTabs, panel.firstElementChild || null);
+        }
+        syncComposerSlotTabsLabel(slotTabs);
+      };
       const currentToken = String(stagePanel.dataset.activeTransitivity || "");
       const currentShell = slotShells.find(shell => (shell.getAttribute("data-composer-slot-shell") || "") === currentToken) || null;
       const activeShell = slotShells.find(shell => (shell.getAttribute("data-composer-slot-shell") || "") === activeToken) || null;
@@ -883,6 +965,10 @@ export function createUiComposerApi(targetObject = globalThis) {
       if (activeShell && !stagePanel.children.length) {
         moveElementChildren(activeShell, stagePanel);
       }
+      slotShells.forEach(moveSlotTabsToPanelRoot);
+      moveSlotTabsToPanelRoot(stagePanel);
+      syncComposerEntryBoardTabsPlacement();
+      syncComposerUtilityActionsPlacement();
       slotShells.forEach(shell => {
         shell.hidden = true;
         shell.setAttribute("aria-hidden", "true");
@@ -6970,6 +7056,14 @@ export function createUiComposerApi(targetObject = globalThis) {
       }
       if (supportiveICheckbox) {
         supportiveICheckbox.addEventListener("change", () => onVerbComposerControlChange("supportive"));
+      }
+      const languageSwitch = targetObject.document.getElementById("language");
+      if (languageSwitch && languageSwitch.dataset.composerSlotTabsLabelBound !== "1") {
+        languageSwitch.addEventListener("change", () => {
+          syncComposerSlotTabsLabels();
+          syncComposerEntryBoardTabsLabel(targetObject.document.getElementById("verb-entry-board-tabs"));
+        });
+        languageSwitch.dataset.composerSlotTabsLabelBound = "1";
       }
       if (typeof targetObject.window !== "undefined" && typeof targetObject.window.addEventListener === "function") {
         targetObject.window.addEventListener("resize", () => {
