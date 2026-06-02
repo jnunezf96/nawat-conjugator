@@ -200,6 +200,558 @@ function getLetterSliceText(surface = "", startIndex = 0) {
     return letters.slice(clampedStart).join("");
 }
 
+const NAWAT_PATIENTIVO_BRANCH_OPTIONS = [
+    { id: "nonactive", label: "pasivo/impersonal", sourceScope: "nonactive" },
+    { id: "perfectivo", label: "perfectivo", sourceScope: "active" },
+    { id: "imperfectivo", label: "imperfectivo", sourceScope: "active" },
+    { id: "tronco-verbal", label: "tronco verbal", sourceScope: "active" },
+];
+
+const NAWAT_TRONCO_CONVERSION_ROUTE_SPECS = [
+    { routeKey: "denominal-vi-ti-preterit", line: "-ti", tenseValue: "preterito" },
+    { routeKey: "denominal-vi-ti-perfect", line: "-ti", tenseValue: "perfecto" },
+    { routeKey: "denominal-vt-na-preterit", line: "-na", tenseValue: "preterito" },
+    { routeKey: "denominal-vt-na-perfect", line: "-na", tenseValue: "perfecto" },
+];
+
+function getNawatPatientivoBranchOption(branchId = "") {
+    return NAWAT_PATIENTIVO_BRANCH_OPTIONS.find((option) => option.id === branchId)
+        || NAWAT_PATIENTIVO_BRANCH_OPTIONS[0];
+}
+
+function getNawatPatientivoBranchStateStore() {
+    return typeof getNawatRouteStateStore === "function"
+        ? getNawatRouteStateStore()
+        : null;
+}
+
+function getActiveNawatPatientivoBranch() {
+    return getNawatPatientivoBranchOption(
+        getNawatPatientivoBranchStateStore()?.activePatientivoBranch
+        || window.__NAWAT_ACTIVE_PATIENTIVO_BRANCH__
+        || "tronco-verbal"
+    ).id;
+}
+
+function setActiveNawatPatientivoBranch(branchId = "") {
+    const option = getNawatPatientivoBranchOption(branchId);
+    const store = getNawatPatientivoBranchStateStore();
+    if (store) {
+        store.activePatientivoBranch = option.id;
+    }
+    window.__NAWAT_ACTIVE_PATIENTIVO_BRANCH__ = option.id;
+}
+
+function isPatientivoTroncoRouteProfile(profile = null) {
+    if (typeof isPatientivoTroncoConversionRoute === "function") {
+        return isPatientivoTroncoConversionRoute(profile);
+    }
+    return profile?.routePlacement === "patientivo-tronco-conversion"
+        || (!profile?.routePlacement && Boolean(profile?.verbalizer));
+}
+
+function isAgentiveMannerRouteProfile(profile = null) {
+    if (typeof isAgentiveMannerRoute === "function") {
+        return isAgentiveMannerRoute(profile);
+    }
+    return profile?.routePlacement === "agentivo" || profile?.routePlacement === "agentive-manner";
+}
+
+function getNawatRoutePlacementName(profile = null) {
+    if (typeof getNawatRoutePlacement === "function") {
+        return getNawatRoutePlacement(profile);
+    }
+    if (isPatientivoTroncoRouteProfile(profile)) {
+        return "patientivo-tronco-conversion";
+    }
+    if (isAgentiveMannerRouteProfile(profile)) {
+        return "agentive-manner";
+    }
+    return profile?.routePlacement || "";
+}
+
+function getNawatPatientivoBranchLabel(branchId = "") {
+    const option = getNawatPatientivoBranchOption(branchId);
+    const isNawat = Boolean(document.getElementById("language")?.checked);
+    return typeof getPatientivoSourceTenseLabel === "function"
+        ? getPatientivoSourceTenseLabel(option.id, isNawat)
+        : option.label;
+}
+
+function getNawatGuidanceModeClass(mode = "") {
+    const normalized = String(mode || "").trim().toLowerCase();
+    if (normalized === TENSE_MODE.verbo || normalized === "verb") {
+        return "calc-guidance__chip--mode-verbo";
+    }
+    if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
+        return "calc-guidance__chip--mode-sustantivo";
+    }
+    return "";
+}
+
+function getNawatGuidanceModeMarker(mode = "") {
+    const normalized = String(mode || "").trim().toLowerCase();
+    if (normalized === TENSE_MODE.verbo || normalized === "verb") {
+        return "V";
+    }
+    if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
+        return "S";
+    }
+    return "";
+}
+
+function getNawatTroncoConversionSpec({
+    routeKey = "",
+    line = "",
+    tenseValue = "",
+} = {}) {
+    const normalizedRouteKey = String(routeKey || "").trim();
+    if (normalizedRouteKey) {
+        const byRoute = NAWAT_TRONCO_CONVERSION_ROUTE_SPECS
+            .find((spec) => spec.routeKey === normalizedRouteKey);
+        if (byRoute) {
+            return byRoute;
+        }
+    }
+    const normalizedLine = String(line || "").trim();
+    const normalizedTense = String(tenseValue || "").trim();
+    return NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.find((spec) => (
+        (!normalizedLine || spec.line === normalizedLine)
+        && (!normalizedTense || spec.tenseValue === normalizedTense)
+    )) || NAWAT_TRONCO_CONVERSION_ROUTE_SPECS[0];
+}
+
+function getNawatTroncoTenseShortLabel(tenseValue = "", isNawat = false) {
+    const value = String(tenseValue || "").trim();
+    if (value === "preterito") {
+        return "pret";
+    }
+    if (value === "perfecto") {
+        return "perf";
+    }
+    return getLocalizedLabel(TENSE_LABELS[value], isNawat, value);
+}
+
+function buildNawatTroncoConversionTrack({
+    routeKey = "",
+    line = "",
+    tenseValue = "",
+    stem = "",
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+} = {}) {
+    const spec = getNawatTroncoConversionSpec({ routeKey, line, tenseValue });
+    const profile = typeof getNawatRouteProfile === "function"
+        ? getNawatRouteProfile(spec.routeKey)
+        : null;
+    if (!profile) {
+        return null;
+    }
+    const routeTarget = typeof resolveNawatRouteTarget === "function"
+        ? resolveNawatRouteTarget(profile, {
+            sourceVerb,
+            sourceObjectPrefix,
+            sourceStem: stem,
+        })
+        : null;
+    const finiteSurface = typeof getNawatRouteFiniteSurfaceForm === "function"
+        ? getNawatRouteFiniteSurfaceForm(profile, {
+            sourceVerb,
+            sourceObjectPrefix,
+            routeTarget,
+        })
+        : "";
+    const targetVerb = String(routeTarget?.targetVerb || "").trim();
+    const routeStem = String(routeTarget?.sourceStem || stem || "").trim();
+    const targetInput = targetVerb && typeof formatNawatRouteTargetInputValue === "function"
+        ? formatNawatRouteTargetInputValue(profile, {
+            routeStem,
+            targetVerb,
+        })
+        : (targetVerb && typeof wrapNawatRouteInputValue === "function"
+            ? wrapNawatRouteInputValue(targetVerb)
+            : targetVerb);
+    return {
+        routeKey: spec.routeKey,
+        line: spec.line,
+        tenseValue: spec.tenseValue,
+        targetInput,
+        targetVerb,
+        destination: finiteSurface || profile.surfaceSuffix || spec.routeKey,
+    };
+}
+
+function createNawatRouteInlineSelect({
+    ariaLabel = "",
+    classModifier = "",
+} = {}) {
+    const select = document.createElement("select");
+    select.className = [
+        "calc-guidance__chip-select",
+        classModifier ? `calc-guidance__chip-select--${classModifier}` : "",
+    ].filter(Boolean).join(" ");
+    if (ariaLabel) {
+        select.setAttribute("aria-label", ariaLabel);
+    }
+    return select;
+}
+
+function appendNawatRouteSwitchDivider(container) {
+    const divider = document.createElement("span");
+    divider.className = "calc-guidance__route-switch-divider";
+    divider.setAttribute("aria-hidden", "true");
+    divider.textContent = "›";
+    container.appendChild(divider);
+}
+
+function createNawatTroncoConversionSwitchGroup({
+    routeKey = "",
+    candidates = [],
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    sourceStem = "",
+    line = "",
+    tenseValue = "",
+    isNawat = false,
+    lineStationKey = "verbalizer",
+    tenseStationKey = "finite-tense",
+    stemStationKey = "stem",
+} = {}) {
+    const normalizedCandidates = (Array.isArray(candidates) ? candidates : [])
+        .map((candidate) => {
+            const stem = String(candidate?.stem || "").trim();
+            if (!stem) {
+                return null;
+            }
+            return {
+                stem,
+                sourceVerb: String(candidate?.sourceVerb || sourceVerb || "").trim(),
+                sourceObjectPrefix: String(
+                    candidate?.sourceObjectPrefix != null
+                        ? candidate.sourceObjectPrefix
+                        : sourceObjectPrefix
+                ),
+            };
+        })
+        .filter(Boolean);
+    if (!normalizedCandidates.length || typeof activateNawatRouteStation !== "function") {
+        return null;
+    }
+    const activeSpec = getNawatTroncoConversionSpec({ routeKey, line, tenseValue });
+    let selectedLine = activeSpec.line;
+    let selectedTense = activeSpec.tenseValue;
+    let selectedCandidate = normalizedCandidates.find((candidate) => candidate.stem === sourceStem)
+        || normalizedCandidates[0];
+    const picker = document.createElement("details");
+    picker.className = "calc-guidance__branch-picker calc-guidance__conversion-picker";
+    picker.addEventListener("toggle", () => {
+        if (!picker.open) {
+            return;
+        }
+        document.querySelectorAll(".calc-guidance__branch-picker[open]")
+            .forEach((otherPicker) => {
+                if (otherPicker !== picker) {
+                    otherPicker.removeAttribute("open");
+                }
+            });
+    });
+    const summary = document.createElement("summary");
+    summary.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--mode-sustantivo calc-guidance__route-switch-chip";
+    summary.setAttribute("aria-label", "Elegir conversión nawat");
+    summary.title = "Elegir conversión nawat";
+    const marker = document.createElement("span");
+    marker.className = "calc-guidance__mode-marker calc-guidance__mode-marker--compound";
+    marker.textContent = "S/V";
+    const body = document.createElement("span");
+    body.className = "calc-guidance__route-switch-body";
+    const stemLabel = document.createElement("span");
+    stemLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--stem";
+    const lineLabel = document.createElement("span");
+    lineLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--line";
+    const tenseLabel = document.createElement("span");
+    tenseLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--tense";
+    const caret = document.createElement("span");
+    caret.className = "calc-guidance__picker-caret";
+    caret.setAttribute("aria-hidden", "true");
+    body.append(stemLabel);
+    appendNawatRouteSwitchDivider(body);
+    body.append(lineLabel);
+    appendNawatRouteSwitchDivider(body);
+    body.append(tenseLabel);
+    summary.append(marker, body, caret);
+    const activateSelectedRoute = (stationKey, anchorElement) => {
+        const spec = getNawatTroncoConversionSpec({
+            line: selectedLine,
+            tenseValue: selectedTense,
+        });
+        if (!spec || !selectedCandidate) {
+            return;
+        }
+        activateNawatRouteStation(spec.routeKey, stationKey, {
+            render: true,
+            anchorElement,
+            sourceVerb: selectedCandidate.sourceVerb,
+            sourceObjectPrefix: selectedCandidate.sourceObjectPrefix,
+            sourceStem: selectedCandidate.stem,
+        });
+    };
+    const createTrack = (spec) => buildNawatTroncoConversionTrack({
+        routeKey: spec.routeKey,
+        stem: selectedCandidate.stem,
+        sourceVerb: selectedCandidate.sourceVerb,
+        sourceObjectPrefix: selectedCandidate.sourceObjectPrefix,
+    });
+    const menu = document.createElement("div");
+    menu.className = "calc-guidance__branch-menu calc-guidance__route-switch-menu";
+    menu.setAttribute("role", "menu");
+    const lineOptions = Array.from(new Set(NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.map((spec) => spec.line)));
+    const tenseOptions = Array.from(new Set(NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.map((spec) => spec.tenseValue)));
+    const setMenuOptionState = () => {
+        menu.querySelectorAll(".calc-guidance__route-switch-option").forEach((button) => {
+            const groupName = button.dataset.routeSwitchGroup;
+            let active = false;
+            if (groupName === "stem") {
+                active = button.dataset.routeSwitchValue === selectedCandidate.stem;
+            } else if (groupName === "line") {
+                active = button.dataset.routeSwitchValue === selectedLine;
+            } else if (groupName === "tense") {
+                active = button.dataset.routeSwitchValue === selectedTense;
+            }
+            button.setAttribute("aria-checked", String(active));
+        });
+    };
+    const refreshSummary = () => {
+        stemLabel.textContent = selectedCandidate.stem;
+        lineLabel.textContent = selectedLine;
+        tenseLabel.textContent = getNawatTroncoTenseShortLabel(selectedTense, isNawat);
+        setMenuOptionState();
+    };
+    const appendMenuSection = (labelText, entries, groupName, onSelect) => {
+        const section = document.createElement("div");
+        section.className = "calc-guidance__route-switch-menu-section";
+        const label = document.createElement("div");
+        label.className = "calc-guidance__route-switch-menu-label";
+        label.textContent = labelText;
+        const options = document.createElement("div");
+        options.className = "calc-guidance__route-switch-menu-options";
+        entries.forEach((entry) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "calc-guidance__branch-option calc-guidance__route-switch-option";
+            button.dataset.routeSwitchGroup = groupName;
+            button.dataset.routeSwitchValue = entry.value;
+            button.setAttribute("role", "menuitemradio");
+            button.textContent = entry.label;
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onSelect(entry.value, button);
+                picker.open = false;
+            });
+            options.appendChild(button);
+        });
+        section.append(label, options);
+        menu.appendChild(section);
+    };
+    appendMenuSection(
+        "tronco",
+        normalizedCandidates.map((candidate) => ({
+            value: candidate.stem,
+            label: candidate.stem,
+        })),
+        "stem",
+        (value, button) => {
+            selectedCandidate = normalizedCandidates.find((candidate) => candidate.stem === value)
+                || normalizedCandidates[0];
+            refreshSummary();
+            if (routeKey) {
+                activateSelectedRoute(stemStationKey, button);
+            }
+        }
+    );
+    appendMenuSection(
+        "tipo de verbalización",
+        lineOptions.map((lineOption) => ({
+            value: lineOption,
+            label: lineOption,
+        })),
+        "line",
+        (value, button) => {
+            selectedLine = value;
+            refreshSummary();
+            activateSelectedRoute(lineStationKey, button);
+        }
+    );
+    appendMenuSection(
+        "tiempo",
+        tenseOptions.map((tenseOption) => ({
+            value: tenseOption,
+            label: getNawatTroncoTenseShortLabel(tenseOption, isNawat),
+        })),
+        "tense",
+        (value, button) => {
+            selectedTense = value;
+            refreshSummary();
+            activateSelectedRoute(tenseStationKey, button);
+        }
+    );
+    refreshSummary();
+    picker.append(summary, menu);
+    return picker;
+}
+
+function focusNawatPatientivoBranch({
+    branchId = "tronco-verbal",
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    anchorElement = null,
+} = {}) {
+    const option = getNawatPatientivoBranchOption(branchId);
+    const update = () => {
+        setActiveNawatPatientivoBranch(option.id);
+        if (typeof clearActiveNawatRouteProfile === "function") {
+            clearActiveNawatRouteProfile();
+        }
+        if (typeof setVerbSourceScope === "function" && typeof VERB_SOURCE_SCOPE === "object") {
+            setVerbSourceScope(
+                option.sourceScope === "nonactive"
+                    ? VERB_SOURCE_SCOPE.nonactive
+                    : VERB_SOURCE_SCOPE.active
+            );
+        }
+        setActiveTenseMode(TENSE_MODE.sustantivo);
+        mutateConjugationSelectionState({
+            tenseMode: TENSE_MODE.sustantivo,
+            group: CONJUGATION_GROUPS.tense,
+            tenseValue: "patientivo",
+            classFilter: null,
+        }, {
+            tenseMode: TENSE_MODE.sustantivo,
+            availabilityEntries: [],
+        });
+        if (typeof updateTenseModeTabs === "function") {
+            updateTenseModeTabs();
+        }
+        if (typeof updateCombinedModeTabs === "function") {
+            updateCombinedModeTabs();
+        }
+        if (typeof syncVerbSourceScopeControl === "function") {
+            syncVerbSourceScopeControl();
+        }
+        if (typeof renderTenseTabs === "function") {
+            renderTenseTabs();
+        }
+        const verbMeta = typeof getVerbInputMeta === "function" ? getVerbInputMeta() : {};
+        const routeVerb = sourceVerb
+            || verbMeta.parseInputVerb
+            || verbMeta.regexInputVerb
+            || verbMeta.displayVerb
+            || "";
+        renderActiveConjugations({
+            verb: routeVerb,
+            objectPrefix: sourceObjectPrefix || (typeof getCurrentObjectPrefix === "function" ? getCurrentObjectPrefix() : ""),
+            tense: "patientivo",
+        });
+        requestAnimationFrame(() => {
+            const targetBlock = document.querySelector(`[data-nawat-patientivo-source="${option.id}"]`);
+            if (!targetBlock) {
+                return;
+            }
+            targetBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            targetBlock.classList.add("tense-block--route-focus");
+            window.setTimeout(() => {
+                targetBlock.classList.remove("tense-block--route-focus");
+            }, 900);
+        });
+    };
+    if (anchorElement && typeof preserveViewportAnchorPosition === "function") {
+        preserveViewportAnchorPosition(anchorElement, update);
+        return;
+    }
+    update();
+}
+
+function createNawatPatientivoBranchPicker({
+    activeBranch = getActiveNawatPatientivoBranch(),
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    routeKey = "",
+} = {}) {
+    const activeOption = getNawatPatientivoBranchOption(activeBranch);
+    const picker = document.createElement("details");
+    picker.className = "calc-guidance__branch-picker";
+    picker.addEventListener("toggle", () => {
+        if (!picker.open) {
+            return;
+        }
+        document.querySelectorAll(".calc-guidance__branch-picker[open]")
+            .forEach((otherPicker) => {
+                if (otherPicker !== picker) {
+                    otherPicker.removeAttribute("open");
+                }
+            });
+    });
+
+    const summary = document.createElement("summary");
+    summary.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--mode-sustantivo calc-guidance__branch-summary";
+    summary.setAttribute("aria-label", "Elegir rama patientivo");
+    summary.title = "Elegir rama patientivo";
+    const marker = document.createElement("span");
+    marker.className = "calc-guidance__mode-marker";
+    marker.textContent = "S";
+    const label = document.createElement("span");
+    label.className = "calc-guidance__chip-label";
+    label.textContent = "patientivo";
+    const sublabel = document.createElement("span");
+    sublabel.className = "calc-guidance__chip-sublabel";
+    sublabel.textContent = getNawatPatientivoBranchLabel(activeOption.id);
+    const caret = document.createElement("span");
+    caret.className = "calc-guidance__picker-caret";
+    caret.setAttribute("aria-hidden", "true");
+    summary.append(marker, label, sublabel, caret);
+
+    const menu = document.createElement("div");
+    menu.className = "calc-guidance__branch-menu";
+    menu.setAttribute("role", "menu");
+    NAWAT_PATIENTIVO_BRANCH_OPTIONS.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "calc-guidance__branch-option";
+        button.dataset.patientivoSource = option.id;
+        button.setAttribute("role", "menuitemradio");
+        button.setAttribute("aria-checked", String(option.id === activeOption.id));
+        button.textContent = getNawatPatientivoBranchLabel(option.id);
+        button.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            picker.open = false;
+            if (
+                option.id === "tronco-verbal"
+                && routeKey
+                && typeof activateNawatRouteStation === "function"
+            ) {
+                setActiveNawatPatientivoBranch(option.id);
+                activateNawatRouteStation(routeKey, "stem", {
+                    render: true,
+                    anchorElement: summary,
+                    sourceVerb,
+                    sourceObjectPrefix,
+                });
+                return;
+            }
+            focusNawatPatientivoBranch({
+                branchId: option.id,
+                sourceVerb,
+                sourceObjectPrefix,
+                anchorElement: summary,
+            });
+        });
+        menu.appendChild(button);
+    });
+    picker.append(summary, menu);
+    return picker;
+}
+
 function normalizeDerivationalInputFamilyToken(token = "") {
     const normalizedToken = normalizeDerivationStemValue(token);
     if (/^[aeiu]w[ai]$/.test(normalizedToken)) {
@@ -296,70 +848,347 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
     if (!panel) {
         return;
     }
+    const railBlock = document.getElementById("conversion-rail-block");
     const hidePanel = () => {
         panel.innerHTML = "";
         panel.hidden = true;
         panel.classList.add("is-empty");
+        if (railBlock) {
+            railBlock.hidden = true;
+            railBlock.setAttribute("aria-hidden", "true");
+        }
+    };
+    const getGuidanceModeClass = (mode = "") => {
+        const normalized = String(mode || "").trim().toLowerCase();
+        if (!normalized) {
+            return "";
+        }
+        if (normalized === TENSE_MODE.verbo || normalized === "verb") {
+            return "calc-guidance__chip--mode-verbo";
+        }
+        if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
+            return "calc-guidance__chip--mode-sustantivo";
+        }
+        return "";
+    };
+    const getGuidanceModeMarker = (mode = "") => {
+        const normalized = String(mode || "").trim().toLowerCase();
+        if (normalized === TENSE_MODE.verbo || normalized === "verb") {
+            return "V";
+        }
+        if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
+            return "S";
+        }
+        return "";
+    };
+    const createConversionPicker = ({
+        candidates = [],
+        routeKey = "",
+        sourceStem = "",
+        line = "",
+        tenseValue = "",
+        fallbackSourceVerb = "",
+        fallbackSourceObjectPrefix = "",
+    } = {}) => {
+        return createNawatTroncoConversionSwitchGroup({
+            routeKey,
+            candidates,
+            sourceStem,
+            line,
+            tenseValue,
+            isNawat,
+            fallbackSourceVerb,
+            fallbackSourceObjectPrefix,
+            sourceVerb: fallbackSourceVerb,
+            sourceObjectPrefix: fallbackSourceObjectPrefix,
+        });
+    };
+    const renderEntries = (titleText, entries) => {
+        if (!entries.length) {
+            hidePanel();
+            return;
+        }
+        const chips = document.createElement("div");
+        chips.className = "calc-guidance__chips";
+        let hasVisibleGuidance = false;
+        const appendSeparator = (separatorText = "") => {
+            const separator = document.createElement("span");
+            separator.className = "calc-guidance__separator";
+            separator.textContent = separatorText;
+            chips.appendChild(separator);
+            return separator;
+        };
+        const appendVisibleNode = (node, separatorText = "") => {
+            if (!node) {
+                return;
+            }
+            if (separatorText && hasVisibleGuidance) {
+                appendSeparator(separatorText);
+            }
+            chips.appendChild(node);
+            hasVisibleGuidance = true;
+        };
+        entries.forEach((entry) => {
+            if (entry.type === "conversion-picker") {
+                const picker = createConversionPicker({
+                    candidates: entry.candidates || [],
+                    routeKey: entry.routeKey || "",
+                    sourceStem: entry.sourceStem || "",
+                    line: entry.line || "",
+                    tenseValue: entry.tenseValue || "",
+                    fallbackSourceVerb: entry.sourceVerb || "",
+                    fallbackSourceObjectPrefix: entry.sourceObjectPrefix || "",
+                });
+                appendVisibleNode(picker, entry.separatorBefore || "");
+                return;
+            }
+            if (entry.type === "patientivo-branch-picker") {
+                const picker = createNawatPatientivoBranchPicker({
+                    activeBranch: entry.activeBranch || "tronco-verbal",
+                    sourceVerb: entry.sourceVerb || "",
+                    sourceObjectPrefix: entry.sourceObjectPrefix || "",
+                    routeKey: entry.routeKey || "",
+                });
+                appendVisibleNode(picker, entry.separatorBefore || "");
+                return;
+            }
+            const hasAction = typeof entry.action === "function";
+            const chip = document.createElement(hasAction ? "button" : "div");
+            if (hasAction) {
+                chip.type = "button";
+            }
+            chip.className = [
+                "calc-guidance__chip",
+                entry.active ? "calc-guidance__chip--active" : "",
+                getGuidanceModeClass(entry.mode),
+                entry.depth ? `calc-guidance__chip--depth-${entry.depth}` : "",
+                hasAction ? "calc-guidance__chip--button" : "",
+            ].filter(Boolean).join(" ");
+            const modeMarker = getGuidanceModeMarker(entry.mode);
+            if (modeMarker) {
+                const marker = document.createElement("span");
+                marker.className = "calc-guidance__mode-marker";
+                marker.textContent = modeMarker;
+                chip.appendChild(marker);
+            }
+            const label = document.createElement("span");
+            label.className = "calc-guidance__chip-label";
+            label.textContent = entry.text;
+            chip.appendChild(label);
+            if (hasAction) {
+                chip.addEventListener("click", () => {
+                    entry.action(chip);
+                });
+            }
+            appendVisibleNode(chip, entry.separatorBefore || "");
+        });
+        if (!hasVisibleGuidance) {
+            hidePanel();
+            return;
+        }
+        panel.innerHTML = "";
+        panel.hidden = false;
+        panel.classList.remove("is-empty");
+        if (railBlock) {
+            railBlock.hidden = false;
+            railBlock.removeAttribute("aria-hidden");
+        }
+        if (titleText) {
+            const title = document.createElement("div");
+            title.className = "calc-guidance__title";
+            title.textContent = titleText;
+            panel.appendChild(title);
+        }
+        panel.appendChild(chips);
+    };
+    const getCurrentMovementTenseValue = (mode = getActiveTenseMode()) => {
+        const state = getCurrentResolvedConjugationSelectionState({
+            tenseMode: mode,
+        });
+        return String(
+            state.group === CONJUGATION_GROUPS.universal
+                ? state.universalTenseValue
+                : state.tenseValue
+        ).trim();
+    };
+    const getNawatMovementMode = (mode = getActiveTenseMode()) => (
+        mode === TENSE_MODE.verbo ? TENSE_MODE.verbo : TENSE_MODE.sustantivo
+    );
+    const getMovementTenseLabel = (tenseValue = "") => {
+        const value = String(tenseValue || "").trim();
+        if (!value) {
+            return "";
+        }
+        return getLocalizedLabel(TENSE_LABELS[value], isNawat, value);
+    };
+    const getMovementDerivationEntry = () => {
+        if (getActiveTenseMode() !== TENSE_MODE.verbo) {
+            return null;
+        }
+        if (getCombinedMode() === COMBINED_MODE.nonactive) {
+            return {
+                text: getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo"),
+                mode: TENSE_MODE.verbo,
+            };
+        }
+        const type = getActiveDerivationType();
+        if (type === DERIVATION_TYPE.causative) {
+            return {
+                text: "causativa",
+                mode: TENSE_MODE.verbo,
+            };
+        }
+        if (type === DERIVATION_TYPE.applicative) {
+            return {
+                text: "aplicativa",
+                mode: TENSE_MODE.verbo,
+            };
+        }
+        return null;
+    };
+    const renderCurrentMovementBreadcrumb = () => {
+        const activeMode = getActiveTenseMode();
+        const nawatMode = getNawatMovementMode(activeMode);
+        const tenseValue = getCurrentMovementTenseValue(activeMode);
+        const tenseLabel = getMovementTenseLabel(tenseValue);
+        const entries = [];
+        entries.push({
+            text: resolvedVerb || "entrada",
+            mode: resolvedVerb ? TENSE_MODE.verbo : "",
+            action: typeof setLeftPanelStackMode === "function"
+                ? () => setLeftPanelStackMode("inputs")
+                : null,
+        });
+        const derivationEntry = getMovementDerivationEntry();
+        if (derivationEntry?.text) {
+            entries.push({
+                ...derivationEntry,
+                separatorBefore: "→",
+                action: typeof setLeftPanelStackMode === "function"
+                    ? () => setLeftPanelStackMode("tense")
+                    : null,
+            });
+        }
+        if (tenseLabel) {
+            if (nawatMode === TENSE_MODE.sustantivo && tenseValue === "patientivo") {
+                entries.push({
+                    type: "patientivo-branch-picker",
+                    separatorBefore: "→",
+                    activeBranch: getActiveNawatPatientivoBranch(),
+                    sourceVerb: resolvedVerb,
+                    sourceObjectPrefix: typeof getCurrentObjectPrefix === "function"
+                        ? getCurrentObjectPrefix()
+                        : "",
+                });
+            } else {
+                entries.push({
+                    text: tenseLabel,
+                    separatorBefore: "→",
+                    mode: nawatMode,
+                    active: true,
+                    action: typeof setLeftPanelStackMode === "function"
+                        ? () => setLeftPanelStackMode("output")
+                        : null,
+                });
+            }
+        }
+        renderEntries("ruta nawat", entries);
     };
     const resolvedVerb = String(verb || "");
-    const activeDerivationType = getActiveDerivationType();
-    if (
-        getActiveTenseMode() !== TENSE_MODE.verbo
-        || !resolvedVerb
-        || (
-            activeDerivationType !== DERIVATION_TYPE.causative
-            && activeDerivationType !== DERIVATION_TYPE.applicative
-        )
-        || getCombinedMode() !== COMBINED_MODE.active
-    ) {
-        hidePanel();
-        return;
-    }
-    const provenance = resolveOutputPanelProvenance({
-        verb: resolvedVerb,
-        objectPrefix: getCurrentObjectPrefix(),
-        tenseOverride: getExplainabilitySelectedTense(null),
-    });
-    const activeRow = (provenance && (
-        provenance.rule
-        || provenance.causativeTrace
-        || provenance.guidanceRoute
-    ))
-        ? {
-            rule: provenance.rule,
-            patternType: provenance.patternType,
-            causativeTrace: provenance.causativeTrace,
-            guidanceRoute: provenance.guidanceRoute || null,
-            stem: getProvenancePrimaryStemSurface(provenance),
-        }
+    const isNawat = Boolean(document.getElementById("language")?.checked);
+    const activeRoute = typeof getActiveNawatRouteProfile === "function"
+        ? getActiveNawatRouteProfile()
         : null;
-    const entries = resolveCurrentDerivationalGuidanceEntries(
-        resolvedVerb,
-        activeDerivationType,
-        activeRow,
-    );
-    if (!entries.length) {
-        hidePanel();
-        return;
+    if (activeRoute?.targetMode && activeRoute?.targetTenseValue) {
+        const activeMode = getActiveTenseMode();
+        const targetMode = TENSE_MODE[activeRoute.targetMode] || activeRoute.targetMode;
+        const stationMode = TENSE_MODE[activeRoute.activeStationMode] || activeRoute.activeStationMode || targetMode;
+        const stationTenseValue = activeRoute.activeStationTenseValue || activeRoute.targetTenseValue;
+        const routeSelection = getCurrentResolvedConjugationSelectionState({
+            tenseMode: stationMode,
+        });
+        if (activeMode === stationMode && routeSelection.tenseValue === stationTenseValue) {
+            const stationModels = typeof getNawatRouteStationModels === "function"
+                ? getNawatRouteStationModels(activeRoute, {
+                    sourceVerb: activeRoute.sourceVerb || "",
+                    sourceObjectPrefix: activeRoute.sourceObjectPrefix || "",
+                    routeTarget: activeRoute,
+                })
+                : [];
+            const activeStationKey = activeRoute.activeStationKey || "finite-tense";
+            const surfaceTrailParts = typeof getNawatRouteSurfaceTrailParts === "function"
+                ? getNawatRouteSurfaceTrailParts(activeRoute, {
+                    sourceVerb: activeRoute.sourceVerb || "",
+                    sourceObjectPrefix: activeRoute.sourceObjectPrefix || "",
+                    routeTarget: activeRoute,
+                    stationModels,
+                })
+                : [];
+            const travelToStation = (stationOrPart) => (chip) => {
+                const stationKey = stationOrPart?.stationKey || stationOrPart?.key || "";
+                if (typeof activateNawatRouteStation === "function") {
+                    activateNawatRouteStation(activeRoute.id, stationKey, {
+                        render: true,
+                        anchorElement: chip,
+                    });
+                }
+            };
+            const routeEntries = surfaceTrailParts.length
+                ? surfaceTrailParts.flatMap((part, index) => {
+                    const isTroncoRoute = isPatientivoTroncoRouteProfile(activeRoute);
+                    const entries = [];
+                    if (
+                        isTroncoRoute
+                        && (part.stationKey === "verbalizer" || part.stationKey === "finite-tense")
+                    ) {
+                        return entries;
+                    }
+                    if (part.stationKey === "stem" && isTroncoRoute) {
+                        entries.push({
+                            type: "patientivo-branch-picker",
+                            separatorBefore: index > 0 ? "→" : "",
+                            activeBranch: "tronco-verbal",
+                            sourceVerb: activeRoute.sourceVerb || "",
+                            sourceObjectPrefix: activeRoute.sourceObjectPrefix || "",
+                            routeKey: activeRoute.id || "",
+                        });
+                    }
+                    if (!isTroncoRoute || part.stationKey !== "stem") {
+                        entries.push({
+                            text: part.text,
+                            separatorBefore: entries.length ? "→" : (index > 0 ? "→" : ""),
+                            mode: part.mode || "",
+                            depth: part.depth || 0,
+                            action: travelToStation(part),
+                            active: part.stationKey === activeStationKey,
+                        });
+                    }
+                    if (part.stationKey === "stem" && isTroncoRoute) {
+                        const stem = activeRoute.sourceStem || part.text || "";
+                        if (stem) {
+                            entries.push({
+                                type: "conversion-picker",
+                                separatorBefore: "→",
+                                routeKey: activeRoute.id || "",
+                                sourceStem: stem,
+                                line: activeRoute.verbalizer || "",
+                                tenseValue: activeRoute.targetTenseValue || activeRoute.nawatTenseValue || "",
+                                candidates: [{
+                                    stem,
+                                    sourceVerb: activeRoute.sourceVerb || "",
+                                    sourceObjectPrefix: activeRoute.sourceObjectPrefix || "",
+                                }],
+                            });
+                        }
+                    }
+                    return entries;
+                })
+                : [];
+            renderEntries("ruta nawat", routeEntries);
+            return;
+        }
     }
-    panel.innerHTML = "";
-    panel.hidden = false;
-    panel.classList.remove("is-empty");
-    const title = document.createElement("div");
-    title.className = "calc-guidance__title";
-    title.textContent = "rutas";
-    panel.appendChild(title);
-    const chips = document.createElement("div");
-    chips.className = "calc-guidance__chips";
-    entries.forEach((entry) => {
-        const chip = document.createElement("div");
-        chip.className = entry.active
-            ? "calc-guidance__chip calc-guidance__chip--active"
-            : "calc-guidance__chip";
-        chip.textContent = entry.text;
-        chips.appendChild(chip);
-    });
-    panel.appendChild(chips);
+    renderCurrentMovementBreadcrumb();
 }
 
 function resolveRenderableVerbValue(verb = "") {
@@ -383,9 +1212,23 @@ function resolveRenderableVerbValue(verb = "") {
 }
 
 function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
-    const renderVerb = resolveRenderableVerbValue(verb);
+    let renderVerb = resolveRenderableVerbValue(verb);
+    let renderObjectPrefix = objectPrefix;
     const tenseOverride = onlyTense || tense || "";
     const selectionState = getCurrentResolvedConjugationSelectionState();
+    const activeRoute = typeof getActiveNawatRouteProfile === "function"
+        ? getActiveNawatRouteProfile()
+        : null;
+    if (
+        activeRoute?.targetVerb
+        && activeRoute?.targetMode
+        && activeRoute?.targetTenseValue
+        && getActiveTenseMode() === (TENSE_MODE[activeRoute.targetMode] || activeRoute.targetMode)
+        && selectionState.tenseValue === activeRoute.targetTenseValue
+    ) {
+        renderVerb = activeRoute.activeStationVerb || activeRoute.activeStationInput || activeRoute.targetVerb;
+        renderObjectPrefix = activeRoute.activeStationObjectPrefix || activeRoute.targetObjectPrefix || "";
+    }
     updateTensePanelDescription();
     renderOutputGuidancePanel({ verb: renderVerb });
     const activeTenseMode = getActiveTenseMode();
@@ -410,14 +1253,14 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
     if (selectionState.group === CONJUGATION_GROUPS.universal) {
         renderPretUniversalConjugations({
             verb: renderVerb,
-            objectPrefix,
+            objectPrefix: renderObjectPrefix,
             containerId: "all-tense-conjugations",
             tenseValue: tenseOverride || null,
         });
         updateCalcSummaryAndStatus();
         return;
     }
-    renderAllTenseConjugations({ verb: renderVerb, onlyTense: tenseOverride || null });
+    renderAllTenseConjugations({ verb: renderVerb, objectPrefix: renderObjectPrefix, onlyTense: tenseOverride || null });
     updateCalcSummaryAndStatus();
 }
 
@@ -3617,7 +4460,508 @@ function renderNounConjugations({
         return Array.from(new Set(sources.length ? sources : ["nonactive"]));
     })();
     const nounCombinationEvaluationCache = new Map();
+    const troncoConversionRailCandidateMap = new Map();
     let nounToggleAvailabilityMemo = new Map();
+    const getNawatRoutesForEmbeddedPanel = ({
+        blockId = "",
+        patientivoSource = "",
+    } = {}) => {
+        if (typeof getNawatRouteProfiles !== "function") {
+            return [];
+        }
+        const profiles = getNawatRouteProfiles();
+        if (resolvedTense === "patientivo" && patientivoSource === "tronco-verbal") {
+            return [];
+        }
+        const matchingProfiles = profiles.filter((profile) => profile?.legacyTenseValue === resolvedTense);
+        if (matchingProfiles.length) {
+            return matchingProfiles;
+        }
+        if (resolvedTense === "agentivo" && blockId === "agentivo") {
+            return profiles.filter((profile) => isAgentiveMannerRouteProfile(profile));
+        }
+        return [];
+    };
+    const getEmbeddedNawatRoutePathLabel = ({
+        blockId = "",
+        patientivoSource = "",
+    } = {}) => {
+        const profile = getNawatRoutesForEmbeddedPanel({ blockId, patientivoSource })[0] || null;
+        const placement = getNawatRoutePlacementName(profile);
+        if (placement === "direct-finite") {
+            const targetLabel = profile?.targetTenseValue
+                ? getLocalizedLabel(TENSE_LABELS[profile.targetTenseValue], isNawat, profile.targetTenseValue)
+                : "";
+            return isNawat
+                ? ["muchiwalis", "ipan", targetLabel].filter(Boolean).join(" > ") + " >"
+                : ["verbo", "presente", targetLabel].filter(Boolean).join(" > ") + " >";
+        }
+        if (placement === "patientivo-surface") {
+            const sourceLabel = profile?.patientivoSource
+                ? getPatientivoSourceTenseLabel(profile.patientivoSource, isNawat)
+                : "";
+            return isNawat
+                ? ["muchiwalis", "tachiwal", sourceLabel].filter(Boolean).join(" > ") + " >"
+                : ["verbo", "patientivo", sourceLabel].filter(Boolean).join(" > ") + " >";
+        }
+        if (placement === "nonactive-habitual") {
+            const habitualLabel = getLocalizedLabel(TENSE_LABELS["presente-habitual"], isNawat, "presente habitual");
+            return isNawat
+                ? ["muchiwalis", getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], true, "no activo"), habitualLabel].filter(Boolean).join(" > ") + " >"
+                : ["verbo", "no activo", habitualLabel].filter(Boolean).join(" > ") + " >";
+        }
+        if (placement === "patientivo-tronco-conversion") {
+            return isNawat
+                ? "tukayit > tachiwal > muchiwalis takutunti >"
+                : "sustantivo > patientivo > tronco verbal >";
+        }
+        if (placement === "agentivo" || placement === "agentive-manner") {
+            return isNawat
+                ? "muchiwalis > tachiwani > ken muchiwa >"
+                : "verbo > agentivo > manera >";
+        }
+        if (resolvedTense === "patientivo" && patientivoSource === "tronco-verbal") {
+            return isNawat
+                ? "tukayit > tachiwal > muchiwalis takutunti >"
+                : "sustantivo > patientivo > tronco verbal >";
+        }
+        if (resolvedTense === "agentivo" && blockId === "agentivo") {
+            return isNawat
+                ? "muchiwalis > tachiwani > ken muchiwa >"
+                : "verbo > agentivo > manera >";
+        }
+        return "";
+    };
+    const getNawatRoutePreviewText = (profile) => {
+        const routeVerb = verbMeta?.parseInputVerb || verbMeta?.regexInputVerb || verb;
+        if (!routeVerb || typeof resolveNawatRouteTarget !== "function") {
+            return "";
+        }
+        const target = resolveNawatRouteTarget(profile, {
+            sourceVerb: routeVerb,
+            sourceObjectPrefix: getCurrentObjectPrefix(),
+        });
+        if (!target?.targetVerb && !target?.targetTenseValue) {
+            return "";
+        }
+        const tenseLabel = target.targetTenseValue
+            ? getLocalizedLabel(TENSE_LABELS[target.targetTenseValue], isNawat, target.targetTenseValue)
+            : "";
+        return [target.targetVerb || "", tenseLabel].filter(Boolean).join(" · ");
+    };
+    const getNawatRouteConversionText = (profile, {
+        stationKey = "",
+        stationModels = null,
+        sourceVerb = "",
+        sourceObjectPrefix = "",
+        routeTarget = null,
+    } = {}) => {
+        if (typeof formatNawatRouteSurfaceTrailLabel === "function") {
+            const trailText = formatNawatRouteSurfaceTrailLabel(profile, {
+                sourceVerb,
+                sourceObjectPrefix,
+                routeTarget,
+                stationModels,
+                stacked: true,
+            });
+            if (trailText) {
+                return trailText;
+            }
+        }
+        if (stationKey && typeof formatNawatRouteStationConversionLabel === "function") {
+            return formatNawatRouteStationConversionLabel(profile, stationKey, isNawat, { stationModels });
+        }
+        if (typeof formatNawatRouteConversionLabel === "function") {
+            return formatNawatRouteConversionLabel(profile, isNawat);
+        }
+        return "";
+    };
+    const syncEmbeddedNawatRouteSelection = (routePanel, routeKey = "") => {
+        if (!routePanel) {
+            return;
+        }
+        const activeRoute = typeof getNawatRouteProfile === "function"
+            ? getNawatRouteProfile(routeKey)
+            : null;
+        const activeRouteId = activeRoute?.id || routeKey || "";
+        routePanel.querySelectorAll("[data-nawat-route]").forEach((button) => {
+            const buttonRoute = button.getAttribute("data-nawat-route") || "";
+            const isActive = Boolean(activeRouteId && buttonRoute === activeRouteId);
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
+    };
+    const getNawatRouteBreadcrumbParts = (profile, stationModels = null) => {
+        const stations = Array.isArray(stationModels)
+            ? stationModels
+            : (typeof getNawatRouteStationModels === "function" ? getNawatRouteStationModels(profile) : []);
+        return stations
+            .map((station) => ({
+                ...station,
+                text: typeof formatNawatRouteStationChipText === "function"
+                    ? formatNawatRouteStationChipText(station, isNawat)
+                    : "",
+            }))
+            .filter((station) => station.text);
+    };
+    const appendNawatRouteBreadcrumb = (container, profile, {
+        stationModels = null,
+        activeStationKey = "",
+        onCrumbClick = null,
+    } = {}) => {
+        const trail = document.createElement("span");
+        trail.className = "nawat-route-card__trail";
+        const parts = getNawatRouteBreadcrumbParts(profile, stationModels);
+        parts.forEach((station, index) => {
+            if (index > 0) {
+                const separator = document.createElement("span");
+                separator.className = "nawat-route-card__separator";
+                separator.textContent = "›";
+                trail.appendChild(separator);
+            }
+            const hasAction = typeof onCrumbClick === "function";
+            const crumb = document.createElement(hasAction ? "button" : "span");
+            if (hasAction) {
+                crumb.type = "button";
+            }
+            crumb.className = [
+                "nawat-route-card__crumb",
+                index === parts.length - 1 ? "nawat-route-card__crumb--destination" : "",
+                activeStationKey && station.key === activeStationKey ? "nawat-route-card__crumb--active" : "",
+                hasAction ? "nawat-route-card__crumb--button" : "",
+            ].filter(Boolean).join(" ");
+            crumb.textContent = station.text;
+            crumb.dataset.nawatRouteStation = station.key || "";
+            if (hasAction) {
+                crumb.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    onCrumbClick(station, crumb);
+                });
+            }
+            trail.appendChild(crumb);
+        });
+        container.appendChild(trail);
+    };
+    const TRONCO_INTERMEDIARY_CONSONANTS = new Set(["k", "ch", "s", "sh", "j", "t"]);
+    const stripPatientivoNominalMarker = (surface = "") => {
+        const normalized = typeof normalizeDerivationStemValue === "function"
+            ? normalizeDerivationStemValue(surface)
+            : String(surface || "").trim().toLowerCase();
+        if (!normalized) {
+            return "";
+        }
+        if (normalized.endsWith("ti") && normalized.length > 2) {
+            return normalized.slice(0, -2);
+        }
+        if (normalized.endsWith("in") && normalized.length > 2) {
+            return normalized.slice(0, -2);
+        }
+        if (normalized.endsWith("t") && normalized.length > 1) {
+            return normalized.slice(0, -1);
+        }
+        return normalized;
+    };
+    const hasBareTroncoIntermediaryConsonant = (stem = "") => {
+        const letters = typeof splitVerbLetters === "function"
+            ? splitVerbLetters(stem)
+            : stem.split("");
+        const last = letters[letters.length - 1] || "";
+        return TRONCO_INTERMEDIARY_CONSONANTS.has(last);
+    };
+    const hasTroncoIntermediaryConsonant = (surface = "") => (
+        hasBareTroncoIntermediaryConsonant(stripPatientivoNominalMarker(surface))
+    );
+    const getConjugationSurfaceForms = (result = null) => {
+        if (Array.isArray(result?.surfaceForms) && result.surfaceForms.length) {
+            return result.surfaceForms
+                .map((form) => String(form || "").trim())
+                .filter(Boolean);
+        }
+        return String(result?.result || "")
+            .split(/\s*(?:\/|,|\n)\s*/)
+            .map((form) => form.trim())
+            .filter(Boolean);
+    };
+    const getTroncoConversionStems = (forms = []) => {
+        const stems = [];
+        forms.forEach((form) => {
+            const stem = stripPatientivoNominalMarker(form);
+            if (!stem || !hasBareTroncoIntermediaryConsonant(stem) || stems.includes(stem)) {
+                return;
+            }
+            stems.push(stem);
+        });
+        return stems;
+    };
+    const renderTroncoConversionForms = ({
+        value,
+        evaluation,
+        sourceVerb = "",
+        sourceObjectPrefix = "",
+    } = {}) => {
+        if (!value || evaluation?.shouldMaskRow || typeof activateNawatRouteStation !== "function") {
+            return;
+        }
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => list.indexOf(form) === index);
+        const conversionStems = getTroncoConversionStems(forms);
+        if (!conversionStems.length) {
+            return;
+        }
+        conversionStems.forEach((stem) => {
+            const key = [stem, sourceVerb, sourceObjectPrefix].join("\u0000");
+            if (!troncoConversionRailCandidateMap.has(key)) {
+                troncoConversionRailCandidateMap.set(key, {
+                    stem,
+                    sourceVerb,
+                    sourceObjectPrefix,
+                });
+            }
+        });
+        value.replaceChildren();
+
+        const surfaceText = document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        const surfaceDisplay = forms.join(" / ");
+        const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+            ? formatConjugationDisplay(surfaceDisplay)
+            : surfaceDisplay;
+        groupedSurfaceDisplay
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .forEach((line) => {
+                const lineElement = document.createElement("span");
+                lineElement.className = "conjugation-conversion-surface-line";
+                lineElement.textContent = line;
+                surfaceText.appendChild(lineElement);
+            });
+
+        value.append(surfaceText);
+    };
+    const renderTroncoConversionBreadcrumbRail = () => {
+        const activeRoute = typeof getActiveNawatRouteProfile === "function"
+            ? getActiveNawatRouteProfile()
+            : null;
+        if (activeRoute?.id) {
+            return;
+        }
+        const panel = document.getElementById("calc-guidance");
+        const railBlock = document.getElementById("conversion-rail-block");
+        if (!panel || !railBlock) {
+            return;
+        }
+        const candidates = Array.from(troncoConversionRailCandidateMap.values())
+            .filter((candidate) => candidate?.stem);
+        if (!isPatientivoTense || resolvedTense !== "patientivo" || !candidates.length) {
+            return;
+        }
+        if (getActiveNawatPatientivoBranch() !== "tronco-verbal") {
+            return;
+        }
+        const sourceVerb = candidates.find((candidate) => candidate.sourceVerb)?.sourceVerb
+            || verbMeta?.parseInputVerb
+            || verbMeta?.regexInputVerb
+            || verb
+            || "";
+        const addSeparator = (chips) => {
+            const separator = document.createElement("span");
+            separator.className = "calc-guidance__separator";
+            separator.textContent = "→";
+            chips.appendChild(separator);
+        };
+        const addChip = (chips, {
+            text = "",
+            mode = "",
+        } = {}) => {
+            const chip = document.createElement("div");
+            chip.className = [
+                "calc-guidance__chip",
+                mode === TENSE_MODE.verbo ? "calc-guidance__chip--mode-verbo" : "",
+                mode === TENSE_MODE.sustantivo ? "calc-guidance__chip--mode-sustantivo" : "",
+            ].filter(Boolean).join(" ");
+            const markerText = mode === TENSE_MODE.verbo
+                ? "V"
+                : (mode === TENSE_MODE.sustantivo ? "S" : "");
+            if (markerText) {
+                const marker = document.createElement("span");
+                marker.className = "calc-guidance__mode-marker";
+                marker.textContent = markerText;
+                chip.appendChild(marker);
+            }
+            const label = document.createElement("span");
+            label.className = "calc-guidance__chip-label";
+            label.textContent = text;
+            chip.appendChild(label);
+            chips.appendChild(chip);
+        };
+        panel.innerHTML = "";
+        panel.hidden = false;
+        panel.classList.remove("is-empty");
+        railBlock.hidden = false;
+        railBlock.removeAttribute("aria-hidden");
+        const title = document.createElement("div");
+        title.className = "calc-guidance__title";
+        title.textContent = "ruta nawat";
+        const chips = document.createElement("div");
+        chips.className = "calc-guidance__chips";
+        addChip(chips, { text: sourceVerb, mode: TENSE_MODE.verbo });
+        addSeparator(chips);
+        chips.appendChild(createNawatPatientivoBranchPicker({
+            activeBranch: getActiveNawatPatientivoBranch(),
+            sourceVerb,
+            sourceObjectPrefix: candidates[0]?.sourceObjectPrefix || "",
+        }));
+        addSeparator(chips);
+        const switchGroup = createNawatTroncoConversionSwitchGroup({
+            candidates,
+            sourceVerb,
+            sourceObjectPrefix: candidates[0]?.sourceObjectPrefix || "",
+            sourceStem: candidates[0]?.stem || "",
+            isNawat,
+        });
+        if (switchGroup) {
+            chips.appendChild(switchGroup);
+        }
+        panel.append(title, chips);
+    };
+    const buildEmbeddedNawatRoutePanel = ({
+        blockId = "",
+        patientivoSource = "",
+    } = {}) => {
+        const profiles = getNawatRoutesForEmbeddedPanel({ blockId, patientivoSource });
+        if (!profiles.length) {
+            return null;
+        }
+        const pathText = getEmbeddedNawatRoutePathLabel({ blockId, patientivoSource });
+        if (!pathText) {
+            return null;
+        }
+        const activeRoute = typeof getActiveNawatRouteProfile === "function"
+            ? getActiveNawatRouteProfile()
+            : null;
+        const panel = document.createElement("div");
+        panel.className = "nawat-route-panel nawat-route-panel--embedded";
+        panel.dataset.nawatRouteContext = getNawatRoutePlacementName(profiles[0]) || (
+            resolvedTense === "agentivo"
+                ? "verbo-agentivo-manera"
+                : "sustantivo-patientivo-tronco"
+        );
+
+        const path = document.createElement("div");
+        path.className = "nawat-route-panel__path";
+        path.textContent = pathText || "Nawat";
+        panel.appendChild(path);
+
+        const list = document.createElement("div");
+        list.className = "nawat-route-list nawat-route-list--embedded";
+        profiles.forEach((profile) => {
+            const routeKey = profile.id || profile.legacyTenseValue || "";
+            const card = document.createElement("div");
+            card.className = "nawat-route-card";
+            card.dataset.nawatRoute = routeKey;
+            card.dataset.legacyTenseValue = profile.legacyTenseValue || "";
+            card.setAttribute("role", "group");
+            card.setAttribute("aria-pressed", String(Boolean(routeKey && routeKey === activeRoute?.id)));
+
+            if (routeKey && routeKey === activeRoute?.id) {
+                card.classList.add("is-active");
+            }
+
+            const isActiveRouteCard = Boolean(routeKey && routeKey === activeRoute?.id);
+            const routeVerb = isActiveRouteCard && activeRoute?.sourceVerb
+                ? activeRoute.sourceVerb
+                : (verbMeta?.parseInputVerb || verbMeta?.regexInputVerb || verb);
+            const routeObjectPrefix = isActiveRouteCard
+                ? (activeRoute.sourceObjectPrefix || "")
+                : getCurrentObjectPrefix();
+            const routeTarget = isActiveRouteCard
+                ? activeRoute
+                : (typeof resolveNawatRouteTarget === "function"
+                    ? resolveNawatRouteTarget(profile, {
+                        sourceVerb: routeVerb,
+                        sourceObjectPrefix: routeObjectPrefix,
+                    })
+                    : null);
+            const stationModels = typeof getNawatRouteStationModels === "function"
+                ? getNawatRouteStationModels(profile, {
+                    sourceVerb: routeVerb,
+                    sourceObjectPrefix: routeObjectPrefix,
+                    routeTarget,
+                })
+                : [];
+            const activeStationKey = isActiveRouteCard
+                ? (activeRoute.activeStationKey || "finite-tense")
+                : "";
+            const routeLabelText = typeof formatNawatRouteProfileLabel === "function"
+                ? formatNawatRouteProfileLabel(profile, isNawat)
+                : "";
+            const routeMetaText = typeof formatNawatRouteProfileMetaLabel === "function"
+                ? formatNawatRouteProfileMetaLabel(profile, isNawat)
+                : "";
+            if (routeLabelText) {
+                const routeLabel = document.createElement("div");
+                routeLabel.className = "nawat-route-card__label";
+                routeLabel.textContent = routeLabelText;
+                card.appendChild(routeLabel);
+            }
+            if (routeMetaText) {
+                const routeMeta = document.createElement("div");
+                routeMeta.className = "nawat-route-card__meta";
+                routeMeta.textContent = routeMetaText;
+                card.appendChild(routeMeta);
+            }
+            const conversionButton = document.createElement("button");
+            conversionButton.type = "button";
+            conversionButton.className = "nawat-route-card__conversion";
+            const conversionLabel = document.createElement("span");
+            conversionLabel.className = "nawat-route-card__conversion-label";
+            conversionLabel.textContent = getNawatRouteConversionText(profile, {
+                stationKey: activeStationKey,
+                stationModels,
+                sourceVerb: routeVerb,
+                sourceObjectPrefix: routeObjectPrefix,
+                routeTarget,
+            });
+            conversionButton.appendChild(conversionLabel);
+            const travelToStation = (station = null, anchorElement = conversionButton) => {
+                if (typeof activateNawatRouteStation === "function" && station?.key) {
+                    activateNawatRouteStation(routeKey, station.key, {
+                        render: true,
+                        anchorElement,
+                        sourceVerb: routeVerb,
+                        sourceObjectPrefix: routeObjectPrefix,
+                    });
+                    return;
+                }
+                if (typeof activateNawatRouteProfile === "function") {
+                    activateNawatRouteProfile(routeKey, {
+                        render: true,
+                        anchorElement,
+                        sourceVerb: routeVerb,
+                        sourceObjectPrefix: routeObjectPrefix,
+                    });
+                    return;
+                }
+                syncEmbeddedNawatRouteSelection(panel, routeKey);
+            };
+            conversionButton.addEventListener("click", () => {
+                const destination = stationModels.find((station) => station.key === "finite-tense")
+                    || stationModels[stationModels.length - 1]
+                    || null;
+                travelToStation(destination, conversionButton);
+            });
+            card.appendChild(conversionButton);
+            appendNawatRouteBreadcrumb(card, profile, {
+                stationModels,
+                activeStationKey,
+                onCrumbClick: travelToStation,
+            });
+            list.appendChild(card);
+        });
+        panel.appendChild(list);
+        return panel;
+    };
     const evaluateNounCombinationState = ({
         selection,
         number = "",
@@ -4131,6 +5475,9 @@ function renderNounConjugations({
         const tenseBlock = document.createElement("div");
         tenseBlock.className = "tense-block";
         tenseBlock.dataset.tenseBlock = `${activeObjectPrefix || "intrans"}-${id}`;
+        if (isPatientivoTense && patientivoSource) {
+            tenseBlock.dataset.nawatPatientivoSource = patientivoSource;
+        }
 
         const tenseTitle = document.createElement("div");
         tenseTitle.className = "tense-block__title";
@@ -4153,6 +5500,13 @@ function renderNounConjugations({
             }
         }
         tenseBlock.appendChild(tenseTitle);
+        const embeddedNawatRoutePanel = buildEmbeddedNawatRoutePanel({
+            blockId: id,
+            patientivoSource,
+        });
+        if (embeddedNawatRoutePanel) {
+            tenseBlock.appendChild(embeddedNawatRoutePanel);
+        }
 
         const list = document.createElement("div");
         list.className = "conjugation-list";
@@ -4285,6 +5639,17 @@ function renderNounConjugations({
 
                     row.appendChild(label);
                     row.appendChild(value);
+                    if (patientivoSource === "tronco-verbal") {
+                        renderTroncoConversionForms({
+                            value,
+                            evaluation,
+                            sourceVerb: verbMeta?.parseInputVerb || verbMeta?.regexInputVerb || verb,
+                            sourceObjectPrefix: displayObjectPrefix || "",
+                        });
+                        if (value.classList.contains("conjugation-value--conversion-picker")) {
+                            targetList.closest(".tense-block")?.classList.add("tense-block--has-conversion-menu");
+                        }
+                    }
                     targetList.appendChild(row);
                 });
             });
@@ -4292,10 +5657,12 @@ function renderNounConjugations({
     };
     const renderRows = () => {
         nounCombinationEvaluationCache.clear();
+        troncoConversionRailCandidateMap.clear();
         nounToggleAvailabilityMemo = new Map();
         blocks.forEach((entry) => {
             renderRowsForList(entry.list, entry.patientivoSource);
         });
+        renderTroncoConversionBreadcrumbRail();
         updateNounToggleOptionAvailabilityStyling();
     };
 

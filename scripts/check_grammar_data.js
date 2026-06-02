@@ -355,6 +355,7 @@ function checkRequiredTopLevelKeys(jsonByName) {
         "static_groups.json": ["tenseLinguisticGroups"],
         "static_labels.json": ["uiLabels", "personGroupLabels", "personSubLabels", "objectLabels", "tenseLabels", "tenseDescriptions", "preteritoClassDetailByKey"],
         "static_misc.json": ["nonanimateNounTenses", "subjectPersonNumberOrder", "nonactiveSuffixOrder"],
+        "static_modes.json": ["tenseMode", "tenseModeSystem", "nawatTenseMode", "nawatRouteProfiles"],
         "static_options.json": ["specificValencePrefixes", "nonspecificValencePrefixes", "nonspecificValenceAffixes", "objectPrefixes", "subjectCombinations", "subjectPersonGroups", "possessivePrefixes", "possessorLabels", "possessiveToObjectPrefix", "passiveImpersonalSubjectMap", "sustantivoVerbalTransitivePrefixes", "invalidCombinationKeys"],
         "static_orders.json": ["tenseOrder", "preteritoUniversalOrder"],
         "static_phonology.json": ["directionalPrefixes", "vowels", "validConsonants", "digraphs", "syllableForms", "surfaceAssimilations"],
@@ -369,6 +370,114 @@ function checkRequiredTopLevelKeys(jsonByName) {
             if (!(key in data)) {
                 addError(`data/${fileName} is missing required top-level key "${key}".`);
             }
+        });
+    });
+}
+
+function checkNawatRouteProfiles(jsonByName) {
+    const modes = asObject(jsonByName["static_modes.json"], "data/static_modes.json");
+    const orders = asObject(jsonByName["static_orders.json"], "data/static_orders.json");
+    const routeProfiles = asObject(modes.nawatRouteProfiles, "static_modes.nawatRouteProfiles");
+    const tenseOrder = Array.isArray(orders.tenseOrder) ? orders.tenseOrder : [];
+    const knownTenseSet = new Set([...tenseOrder, ...INTERNAL_TENSE_IDS]);
+    const tenseModeKeys = new Set(Object.keys(asObject(modes.tenseMode, "static_modes.tenseMode")));
+    const nawatModeKeys = new Set(Object.keys(asObject(modes.nawatTenseMode, "static_modes.nawatTenseMode")));
+    const combinedModeKeys = new Set(Object.keys(asObject(modes.combinedMode, "static_modes.combinedMode")));
+    const derivationModeKeys = new Set(Object.keys(asObject(modes.derivationMode, "static_modes.derivationMode")));
+    const voiceModeKeys = new Set(Object.keys(asObject(modes.voiceMode, "static_modes.voiceMode")));
+    const allowedPlacements = new Set([
+        "agentivo",
+        "agentive-manner",
+        "direct-finite",
+        "nonactive-habitual",
+        "patientivo-surface",
+        "patientivo-tronco-conversion",
+    ]);
+    const seenIds = new Map();
+    Object.entries(routeProfiles).forEach(([key, rawProfile]) => {
+        const where = `static_modes.nawatRouteProfiles.${key}`;
+        const profile = asObject(rawProfile, where);
+        const requiredStringKeys = [
+            "id",
+            "legacyTenseValue",
+            "legacyMode",
+            "nawatMode",
+            "nawatTenseValue",
+            "sourceSlot",
+            "sourceCategory",
+            "valency",
+            "finiteTense",
+            "routePlacement",
+        ];
+        requiredStringKeys.forEach((field) => {
+            if (typeof profile[field] !== "string" || !profile[field].trim()) {
+                addError(`${where}.${field} must be a non-empty string.`);
+            }
+        });
+        if (profile.id) {
+            if (seenIds.has(profile.id)) {
+                addError(`${where}.id duplicates ${seenIds.get(profile.id)}.`);
+            } else {
+                seenIds.set(profile.id, where);
+            }
+        }
+        checkLocalizedLabel(profile.nawatLabel, `${where}.nawatLabel`);
+        checkLocalizedLabel(profile.nawatMetaLabel, `${where}.nawatMetaLabel`);
+        if (profile.legacyTenseValue && profile.legacyTenseValue !== key) {
+            addError(`${where}.legacyTenseValue must match its map key.`);
+        }
+        if (profile.legacyTenseValue && !knownTenseSet.has(profile.legacyTenseValue)) {
+            addError(`${where}.legacyTenseValue references unknown tense "${profile.legacyTenseValue}".`);
+        }
+        ["nawatTenseValue", "targetTenseValue"].forEach((field) => {
+            if (profile[field] && !knownTenseSet.has(profile[field])) {
+                addError(`${where}.${field} references unknown tense "${profile[field]}".`);
+            }
+        });
+        ["legacyMode", "targetMode", "sourceMode"].forEach((field) => {
+            if (profile[field] && !tenseModeKeys.has(profile[field])) {
+                addError(`${where}.${field} references unknown tense mode "${profile[field]}".`);
+            }
+        });
+        if (profile.nawatMode && !nawatModeKeys.has(profile.nawatMode)) {
+            addError(`${where}.nawatMode references unknown Nawat mode "${profile.nawatMode}".`);
+        }
+        ["sourceCombinedMode", "targetCombinedMode", "legacyCombinedMode"].forEach((field) => {
+            if (profile[field] && !combinedModeKeys.has(profile[field])) {
+                addError(`${where}.${field} references unknown combined mode "${profile[field]}".`);
+            }
+        });
+        ["derivationMode", "targetDerivationMode", "legacyDerivationMode"].forEach((field) => {
+            if (profile[field] && !derivationModeKeys.has(profile[field])) {
+                addError(`${where}.${field} references unknown derivation mode "${profile[field]}".`);
+            }
+        });
+        ["voiceMode", "targetVoiceMode", "legacyVoiceMode"].forEach((field) => {
+            if (profile[field] && !voiceModeKeys.has(profile[field])) {
+                addError(`${where}.${field} references unknown voice mode "${profile[field]}".`);
+            }
+        });
+        if (profile.routePlacement && !allowedPlacements.has(profile.routePlacement)) {
+            addError(`${where}.routePlacement uses unknown placement "${profile.routePlacement}".`);
+        }
+        if (profile.routePlacement === "patientivo-tronco-conversion" && !profile.verbalizer) {
+            addError(`${where} is a patientivo-tronco-conversion route but has no verbalizer.`);
+        }
+        if (profile.routePlacement === "patientivo-surface" && !profile.patientivoSource) {
+            addError(`${where} is a patientivo-surface route but has no patientivoSource.`);
+        }
+        const stations = asArray(profile.stations, `${where}.stations`);
+        if (!stations.length) {
+            addError(`${where}.stations must contain at least one station.`);
+        }
+        stations.forEach((station, index) => {
+            const stationWhere = `${where}.stations[${index}]`;
+            const stationObject = asObject(station, stationWhere);
+            ["id", "value"].forEach((field) => {
+                if (typeof stationObject[field] !== "string" || !stationObject[field].trim()) {
+                    addError(`${stationWhere}.${field} must be a non-empty string.`);
+                }
+            });
         });
     });
 }
@@ -781,6 +890,7 @@ function main() {
     });
 
     checkRequiredTopLevelKeys(jsonByName);
+    checkNawatRouteProfiles(jsonByName);
     checkTenseReferences(jsonByName);
     checkOptionReferences(jsonByName);
     checkPhonologyReferences(jsonByName);

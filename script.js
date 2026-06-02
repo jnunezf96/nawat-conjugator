@@ -596,6 +596,27 @@ function applyStaticModes(data) {
         });
         return normalized;
     };
+    const normalizeRouteProfileMap = (map) => {
+        if (!map || typeof map !== "object") {
+            return {};
+        }
+        const normalized = {};
+        Object.entries(map).forEach(([key, value]) => {
+            if (!value || typeof value !== "object") {
+                return;
+            }
+            normalized[key] = {
+                ...value,
+                legacyTenseValue: value.legacyTenseValue || key,
+                stations: Array.isArray(value.stations)
+                    ? value.stations
+                        .filter((station) => station && typeof station === "object")
+                        .map((station) => ({ ...station }))
+                    : [],
+            };
+        });
+        return normalized;
+    };
     if (data.voiceMode && typeof data.voiceMode === "object") {
         VOICE_MODE = normalizeModeMap(data.voiceMode);
     }
@@ -610,6 +631,15 @@ function applyStaticModes(data) {
     }
     if (data.tenseMode && typeof data.tenseMode === "object") {
         TENSE_MODE = normalizeModeMap(data.tenseMode);
+    }
+    if (data.tenseModeSystem && typeof data.tenseModeSystem === "object") {
+        TENSE_MODE_SYSTEM = normalizeModeMap(data.tenseModeSystem);
+    }
+    if (data.nawatTenseMode && typeof data.nawatTenseMode === "object") {
+        NAWAT_TENSE_MODE = normalizeModeMap(data.nawatTenseMode);
+    }
+    if (data.nawatRouteProfiles && typeof data.nawatRouteProfiles === "object") {
+        NAWAT_ROUTE_PROFILES = normalizeRouteProfileMap(data.nawatRouteProfiles);
     }
     if (data.conjugationGroups && typeof data.conjugationGroups === "object") {
         CONJUGATION_GROUPS = normalizeModeMap(data.conjugationGroups);
@@ -1044,6 +1074,31 @@ var UI_DENSITY_ADVANCED_TENSES = new Set([
 var OriginalLabels = {};
 var VerbInputState = {
     lastNonSearchValue: "",
+};
+var TENSE_MODE_SYSTEM = {};
+var NAWAT_TENSE_MODE = {};
+var NAWAT_ROUTE_PROFILES = {};
+var NawatRouteState = {
+    activeRoute: "",
+    activePatientivoBranch: "tronco-verbal",
+    sourceVerb: "",
+    sourceObjectPrefix: "",
+    sourceStem: "",
+    sourceMode: "",
+    sourceTenseValue: "",
+    targetMode: "",
+    targetTenseValue: "",
+    targetCombinedMode: "",
+    targetDerivationMode: "",
+    targetVoiceMode: "",
+    targetVerb: "",
+    targetObjectPrefix: "",
+    activeStationKey: "",
+    activeStationInput: "",
+    activeStationVerb: "",
+    activeStationMode: "",
+    activeStationTenseValue: "",
+    activeStationObjectPrefix: "",
 };
 var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
 var VerbInputRefreshTimer = null;

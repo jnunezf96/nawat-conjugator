@@ -1,0 +1,214 @@
+{
+  "record_id": "NAWAT-PROPOSED-TRACK-ALIGNMENT-2026-06-01",
+  "status": "proposed_design_not_as_built",
+  "workspace": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
+  "source_record": "reports/nawat_breadcrumb_railroad_as_built.md",
+  "chain": [
+    "official map",
+    "fixed stations",
+    "road-network study",
+    "proposed track alignment",
+    "engineering design",
+    "conflict review",
+    "construction plan"
+  ],
+  "design_rule": {
+    "begin_convention": "nawat",
+    "end_convention": "nawat",
+    "hidden_compatibility_aliases": ["legacyMode", "legacyTenseValue"],
+    "visible_destination_forbidden": ["Adjetivo", "Adverbio", "Europea"]
+  },
+  "inventory_reconciliation": {
+    "official_scope": {
+      "adjective_circuits_total": 9,
+      "wired": 4,
+      "remaining_for_phase_one": 5
+    },
+    "strict_code_inventory": {
+      "uncovered_entries_if_potencial_is_counted": 6,
+      "reserved_entries": ["potencial"]
+    }
+  },
+  "route_status_manifest": [
+    {
+      "legacy_tense_value": "adjetivo-preterito-tik",
+      "route_id": "denominal-vi-ti-preterit",
+      "status": "wired",
+      "routePlacement": "patientivo-tronco-conversion"
+    },
+    {
+      "legacy_tense_value": "adjetivo-perfecto-tik",
+      "route_id": "denominal-vi-ti-perfect",
+      "status": "wired",
+      "routePlacement": "patientivo-tronco-conversion"
+    },
+    {
+      "legacy_tense_value": "adjetivo-preterito-naj",
+      "route_id": "denominal-vt-na-preterit",
+      "status": "wired",
+      "routePlacement": "patientivo-tronco-conversion"
+    },
+    {
+      "legacy_tense_value": "adjetivo-perfecto-naj",
+      "route_id": "denominal-vt-na-perfect",
+      "status": "wired",
+      "routePlacement": "patientivo-tronco-conversion"
+    },
+    {
+      "legacy_tense_value": "pasado-remoto-adverbio-activo",
+      "route_id": "agentive-manner-adverb",
+      "status": "wired_profile_needs_visible_alignment",
+      "routePlacement": "agentive-manner"
+    },
+    {
+      "legacy_tense_value": "adjetivo-preterito",
+      "route_id": "direct-active-preterit",
+      "status": "proposed",
+      "routePlacement": "direct-finite"
+    },
+    {
+      "legacy_tense_value": "adjetivo-perfecto",
+      "route_id": "direct-active-perfect",
+      "status": "proposed",
+      "routePlacement": "direct-finite"
+    },
+    {
+      "legacy_tense_value": "adjetivo-patientivo-no-activo",
+      "route_id": "patientivo-nonactive-ti",
+      "status": "proposed",
+      "routePlacement": "patientivo-surface"
+    },
+    {
+      "legacy_tense_value": "adjetivo-patientivo-perfectivo",
+      "route_id": "patientivo-perfective-ti",
+      "status": "proposed",
+      "routePlacement": "patientivo-surface"
+    },
+    {
+      "legacy_tense_value": "potencial-habitual",
+      "route_id": "nonactive-habitual-potential",
+      "status": "proposed",
+      "routePlacement": "nonactive-habitual"
+    },
+    {
+      "legacy_tense_value": "potencial",
+      "route_id": "potential-sustantivo-verbal",
+      "status": "reserved",
+      "routePlacement": "reserved-sustantivo-verbal"
+    }
+  ],
+  "proposed_alignments": [
+    {
+      "id": "TRK-PROP-ADJ-001",
+      "route_id": "direct-active-preterit",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-preterito", "visible": false },
+      "centerline": {
+        "id": "CL-direct-preterit",
+        "family": "direct-finite",
+        "source": { "mode": "verbo", "tenseValue": "presente" },
+        "target": { "mode": "verbo", "tenseValue": "preterito" },
+        "stationOrder": ["source-mode", "source-tense", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "intransitive-only", "objectPrefixes": [""] },
+      "construction_required": ["add route profile", "add direct-finite station builder", "add route validation", "add tests"]
+    },
+    {
+      "id": "TRK-PROP-ADJ-002",
+      "route_id": "direct-active-perfect",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-perfecto", "visible": false },
+      "centerline": {
+        "id": "CL-direct-perfect",
+        "family": "direct-finite",
+        "source": { "mode": "verbo", "tenseValue": "presente" },
+        "target": { "mode": "verbo", "tenseValue": "perfecto" },
+        "stationOrder": ["source-mode", "source-tense", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "intransitive-only", "objectPrefixes": [""] },
+      "construction_required": ["add route profile", "add direct-finite station builder", "add route validation", "add tests"]
+    },
+    {
+      "id": "TRK-PROP-ADJ-003",
+      "route_id": "patientivo-nonactive-ti",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-no-activo", "visible": false },
+      "centerline": {
+        "id": "CL-patientivo-nonactive-ti",
+        "family": "patientivo-surface",
+        "source": { "mode": "verbo", "tenseValue": "presente", "scope": "nonactive" },
+        "target": { "mode": "sustantivo", "tenseValue": "patientivo", "patientivoSource": "nonactive" },
+        "generation": {
+          "mode": "sustantivo",
+          "tenseValue": "patientivo",
+          "surfaceProfile": "patientivo-adjectival-ti",
+          "overrides": { "patientivoSource": "nonactive", "patientivoAdjectiveSuffix": "ti" }
+        },
+        "stationOrder": ["source-mode", "source-tense", "patientivo-branch", "surface-profile", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "active-or-nonactive-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
+      "construction_required": ["add route profile", "add patientivo-surface station builder", "add patientivo surface profile", "add tests"]
+    },
+    {
+      "id": "TRK-PROP-ADJ-004",
+      "route_id": "patientivo-perfective-ti",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-perfectivo", "visible": false },
+      "centerline": {
+        "id": "CL-patientivo-perfective-ti",
+        "family": "patientivo-surface",
+        "source": { "mode": "verbo", "tenseValue": "presente", "scope": "active" },
+        "target": { "mode": "sustantivo", "tenseValue": "patientivo", "patientivoSource": "perfectivo" },
+        "generation": {
+          "mode": "sustantivo",
+          "tenseValue": "patientivo",
+          "surfaceProfile": "patientivo-nominal-ti",
+          "overrides": { "patientivoSource": "perfectivo", "patientivoNominalSuffix": "ti" }
+        },
+        "stationOrder": ["source-mode", "source-tense", "patientivo-branch", "surface-profile", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "active-or-nonactive-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
+      "construction_required": ["add route profile", "add patientivo-surface station builder", "add tests"]
+    },
+    {
+      "id": "TRK-PROP-ADJ-005",
+      "route_id": "nonactive-habitual-potential",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "potencial-habitual", "visible": false },
+      "centerline": {
+        "id": "CL-nonactive-habitual",
+        "family": "nonactive-habitual",
+        "source": { "mode": "verbo", "tenseValue": "presente", "scope": "nonactive" },
+        "target": { "mode": "verbo", "tenseValue": "presente-habitual", "scope": "nonactive" },
+        "generation": {
+          "mode": "verbo",
+          "tenseValue": "presente-habitual",
+          "derivationMode": "nonactive",
+          "voiceMode": "active"
+        },
+        "stationOrder": ["source-mode", "nonactive-signal", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "nonactive-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
+      "construction_required": ["add route profile", "add nonactive target state", "preserve route across verb station travel", "add tests"]
+    },
+    {
+      "id": "TRK-PROP-ADV-001",
+      "route_id": "agentive-manner-adverb",
+      "legacyAlias": { "mode": "adverbio", "tenseValue": "pasado-remoto-adverbio-activo", "visible": false },
+      "centerline": {
+        "id": "CL-agentive-manner",
+        "family": "agentive-manner",
+        "source": { "mode": "verbo", "tenseValue": "presente" },
+        "target": { "mode": "sustantivo", "tenseValue": "agentivo", "role": "manner" },
+        "generation": { "surfaceProfile": "preterit-agentive-manner" },
+        "stationOrder": ["source-mode", "source-tense", "manner", "target-mode", "finite-tense"]
+      },
+      "admission": { "valency": "active-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
+      "construction_required": ["retrofit explicit centerline", "add renderer placement from adverb output", "hide European adverb labels"]
+    }
+  ],
+  "reserved_alignments": [
+    {
+      "id": "TRK-RES-ADJ-001",
+      "route_id": "potential-sustantivo-verbal",
+      "legacyAlias": { "mode": "adjetivo", "tenseValue": "potencial", "visible": false },
+      "candidate_centerline": "V presente -> S sustantivo-verbal",
+      "status_reason": "excluded from current four-of-nine adjective scope until inventory authority resolves whether potencial is counted"
+    }
+  ]
+}

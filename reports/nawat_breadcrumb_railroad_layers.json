@@ -1,0 +1,265 @@
+{
+  "record_id": "NAWAT-RAIL-ASBUILT-2026-06-01",
+  "coordinate_system": "NawatRail_UIGrid_v1",
+  "status": "accepted_current_as_built",
+  "workspace": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
+  "scope": {
+    "convention": "nawat_tracks_to_european_adjective_territory",
+    "wired_european_adjective_circuits": 4,
+    "total_european_adjective_circuits": 9,
+    "wired_legacy_tense_values": [
+      "adjetivo-preterito-tik",
+      "adjetivo-perfecto-tik",
+      "adjetivo-preterito-naj",
+      "adjetivo-perfecto-naj"
+    ]
+  },
+  "geometry_model": [
+    "dom_anchor",
+    "css_grid_area",
+    "visible_sequence",
+    "state_transition"
+  ],
+  "layers": [
+    {
+      "id": "LYR-YD",
+      "name": "yards_panels",
+      "features": [
+        {
+          "id": "YD-001",
+          "name": "permanent_nawat_rail_shell",
+          "dom_anchor": "#conversion-rail-block > #calc-guidance",
+          "source": "index.html:1001-1002"
+        },
+        {
+          "id": "YD-002",
+          "name": "desktop_rail_grid_slot",
+          "css_grid_area": "conversion",
+          "source": "style.css:255-307"
+        },
+        {
+          "id": "YD-003",
+          "name": "patientivo_tronco_candidate_yard",
+          "state_store": "troncoConversionRailCandidateMap",
+          "source": "src/ui/rendering/rendering.js:4445-4490"
+        }
+      ]
+    },
+    {
+      "id": "LYR-TRK",
+      "name": "tracks",
+      "features": [
+        {
+          "id": "TRK-RN-001",
+          "name": "ordinary_nawat_movement",
+          "visible_sequence": ["ST-RN-001", "ST-RN-002", "ST-RN-003"],
+          "source": "src/ui/rendering/rendering.js:806-853"
+        },
+        {
+          "id": "TRK-RN-002",
+          "name": "patientivo_branch_movement",
+          "visible_sequence": ["ST-RN-001", "ST-RN-004", "ST-PAT-selected"],
+          "source": "src/ui/rendering/rendering.js:829-839"
+        },
+        {
+          "id": "TRK-RN-003",
+          "name": "patientivo_tronco_conversion_approach",
+          "visible_sequence": ["ST-RN-001", "ST-RN-004", "ST-PAT-004", "SW-RN-002"],
+          "guard": "activePatientivoBranch === 'tronco-verbal'",
+          "source": "src/ui/rendering/rendering.js:4503-4651"
+        },
+        {
+          "id": "TRK-RN-004",
+          "name": "active_conversion_route",
+          "visible_sequence": ["ST-RN-001", "ST-RN-004", "ST-PAT-004", "ST-RN-005", "SW-RN-002", "ST-RN-006", "ST-RN-007"],
+          "source": "src/ui/rendering/rendering.js:893-932"
+        },
+        {
+          "id": "TRK-CONV-001",
+          "name": "denominal_vi_ti_preterit",
+          "route_id": "denominal-vi-ti-preterit",
+          "surface": "-tik",
+          "source": "data/static_modes.json:18-37"
+        },
+        {
+          "id": "TRK-CONV-002",
+          "name": "denominal_vi_ti_perfect",
+          "route_id": "denominal-vi-ti-perfect",
+          "surface": "-tituk",
+          "source": "data/static_modes.json:38-57"
+        },
+        {
+          "id": "TRK-CONV-003",
+          "name": "denominal_vt_na_preterit",
+          "route_id": "denominal-vt-na-preterit",
+          "surface": "-naj",
+          "source": "data/static_modes.json:58-77"
+        },
+        {
+          "id": "TRK-CONV-004",
+          "name": "denominal_vt_na_perfect",
+          "route_id": "denominal-vt-na-perfect",
+          "surface": "-najtuk",
+          "source": "data/static_modes.json:78-97"
+        }
+      ]
+    },
+    {
+      "id": "LYR-ST",
+      "name": "stations",
+      "features": [
+        {
+          "id": "ST-RN-001",
+          "name": "source_entrada",
+          "marker": "V",
+          "source": "src/ui/rendering/rendering.js:812-818"
+        },
+        {
+          "id": "ST-RN-002",
+          "name": "derivation_stop",
+          "marker": "V",
+          "source": "src/ui/rendering/rendering.js:781-805"
+        },
+        {
+          "id": "ST-RN-003",
+          "name": "destination_tense",
+          "marker": "V_or_S",
+          "source": "src/ui/rendering/rendering.js:829-850"
+        },
+        {
+          "id": "ST-RN-004",
+          "name": "patientivo_branch_selector",
+          "marker": "S",
+          "source": "src/ui/rendering/rendering.js:317-394"
+        },
+        {
+          "id": "ST-PAT-001",
+          "name": "pasivo_impersonal",
+          "patientivo_source": "nonactive",
+          "source": "src/ui/rendering/rendering.js:203-208"
+        },
+        {
+          "id": "ST-PAT-002",
+          "name": "perfectivo",
+          "patientivo_source": "perfectivo",
+          "source": "src/ui/rendering/rendering.js:203-208"
+        },
+        {
+          "id": "ST-PAT-003",
+          "name": "imperfectivo",
+          "patientivo_source": "imperfectivo",
+          "source": "src/ui/rendering/rendering.js:203-208"
+        },
+        {
+          "id": "ST-PAT-004",
+          "name": "tronco_verbal",
+          "patientivo_source": "tronco-verbal",
+          "source": "src/ui/rendering/rendering.js:203-208"
+        },
+        {
+          "id": "ST-RN-005",
+          "name": "stem_station",
+          "source": "src/ui/state.js:1424-1436"
+        },
+        {
+          "id": "ST-RN-006",
+          "name": "verbalized_input",
+          "source": "src/ui/state.js:1437-1449"
+        },
+        {
+          "id": "ST-RN-007",
+          "name": "finite_surface",
+          "source": "src/ui/state.js:1463-1470"
+        }
+      ]
+    },
+    {
+      "id": "LYR-SW",
+      "name": "switches",
+      "features": [
+        {
+          "id": "SW-RN-001",
+          "name": "patientivo_branch_switch",
+          "state_transition": "setActiveNawatPatientivoBranch -> renderActiveConjugations(patientivo)",
+          "source": "src/ui/rendering/rendering.js:246-315"
+        },
+        {
+          "id": "SW-RN-002",
+          "name": "conversion_fast_track_switch",
+          "state_transition": "activateNawatRouteStation(route, finite-tense)",
+          "source": "src/ui/rendering/rendering.js:4547-4630"
+        },
+        {
+          "id": "SW-RN-003",
+          "name": "active_station_navigation",
+          "state_transition": "activateNawatRouteStation(route, stationKey)",
+          "source": "src/ui/state.js:1748-1814"
+        }
+      ]
+    },
+    {
+      "id": "LYR-SG",
+      "name": "signals",
+      "features": [
+        {
+          "id": "SG-RN-001",
+          "name": "mode_marker_signal",
+          "values": ["V", "S"],
+          "source": "src/ui/rendering/rendering.js:510-529"
+        },
+        {
+          "id": "SG-RN-002",
+          "name": "patientivo_branch_state",
+          "state": "NawatRouteState.activePatientivoBranch",
+          "source": "script.js:1081-1084"
+        },
+        {
+          "id": "SG-RN-003",
+          "name": "active_chip_style",
+          "source": "style.css:2160-2165"
+        },
+        {
+          "id": "SG-RN-004",
+          "name": "route_focus_signal",
+          "source": "style.css:5302-5305"
+        }
+      ]
+    },
+    {
+      "id": "LYR-BND",
+      "name": "boundaries",
+      "features": [
+        {
+          "id": "BND-RN-001",
+          "name": "candidate_admission_boundary",
+          "rule": "strip -ti, -in, -t; require intermediary consonant k/ch/s/sh/j/t",
+          "source": "src/ui/rendering/rendering.js:4359-4385"
+        },
+        {
+          "id": "BND-RN-002",
+          "name": "european_legacy_generation_boundary",
+          "rule": "visible Nawat routes still use legacyMode/legacyTenseValue as backend metadata",
+          "source": "data/static_modes.json:18-97"
+        },
+        {
+          "id": "BND-RN-003",
+          "name": "particle_unbuilt_boundary",
+          "rule": "particle is a Nawat mode but has no current breadcrumb track",
+          "source": "data/static_modes.json:12-16"
+        },
+        {
+          "id": "BND-RN-004",
+          "name": "european_adjective_scope_boundary",
+          "rule": "current Nawat tracks map only four of nine European-convention adjective circuits",
+          "covered_legacy_tense_values": [
+            "adjetivo-preterito-tik",
+            "adjetivo-perfecto-tik",
+            "adjetivo-preterito-naj",
+            "adjetivo-perfecto-naj"
+          ],
+          "source": "data/static_modes.json:18-97"
+        }
+      ]
+    }
+  ]
+}

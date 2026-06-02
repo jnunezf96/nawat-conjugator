@@ -192,6 +192,67 @@ function run(ctx) {
         verb: "(chipawa)",
     }));
     s.eq("adjetivo perfecto -naj uses patientivo tronco -k core", chipawaPerfectoNaj.surfaceForms, ["chipaknajtuk"]);
+    const pusuniPreteritoTik = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
+        tense: "adjetivo-preterito-tik",
+        verb: "(pusuni)",
+    }));
+    s.eq("pusuni future nawat denominal VI -ti preterit keeps legacy generation", pusuniPreteritoTik.surfaceForms, ["pusuktik"]);
+    const pusuktiVerbPreterito = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: false,
+            override: {
+                tense: "preterito",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "",
+            objectPrefix: "",
+            verb: "pusukti",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq("pusukti lives in verb convention preterite", pusuktiVerbPreterito.surfaceForms, ["pusuktik"]);
+    const pusuniPerfectoTik = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
+        tense: "adjetivo-perfecto-tik",
+        verb: "(pusuni)",
+    }));
+    s.eq("pusuni future nawat denominal VI -ti perfect keeps legacy generation", pusuniPerfectoTik.surfaceForms, ["pusuktituk"]);
+    const pusuniPreteritoNaj = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
+        tense: "adjetivo-preterito-naj",
+        verb: "(pusuni)",
+    }));
+    s.eq("pusuni future nawat denominal VT -na preterit keeps legacy generation", pusuniPreteritoNaj.surfaceForms, ["pusuknaj"]);
+    const pusuniPerfectoNaj = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
+        tense: "adjetivo-perfecto-naj",
+        verb: "(pusuni)",
+    }));
+    s.eq("pusuni future nawat denominal VT -na perfect keeps legacy generation", pusuniPerfectoNaj.surfaceForms, ["pusuknajtuk"]);
+    const segmentedNaPreterit = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuk)-(na)",
+            tense: "preterito",
+            tenseMode: ctx.TENSE_MODE.verbo,
+            derivationMode: ctx.DERIVATION_MODE.active,
+            voiceMode: ctx.VOICE_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("segmented nawat -na verb convention preterite produces -naj", segmentedNaPreterit.surfaceForms, ["pusuknaj"]);
 
     const restoreState = {
         tenseMode: typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : null,
