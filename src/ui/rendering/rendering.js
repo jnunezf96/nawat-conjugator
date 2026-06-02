@@ -5500,13 +5500,6 @@ function renderNounConjugations({
             }
         }
         tenseBlock.appendChild(tenseTitle);
-        const embeddedNawatRoutePanel = buildEmbeddedNawatRoutePanel({
-            blockId: id,
-            patientivoSource,
-        });
-        if (embeddedNawatRoutePanel) {
-            tenseBlock.appendChild(embeddedNawatRoutePanel);
-        }
 
         const list = document.createElement("div");
         list.className = "conjugation-list";

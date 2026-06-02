@@ -4893,13 +4893,6 @@ export function createUiRenderingApi(targetObject = globalThis) {
           }
         }
         tenseBlock.appendChild(tenseTitle);
-        const embeddedNawatRoutePanel = buildEmbeddedNawatRoutePanel({
-          blockId: id,
-          patientivoSource
-        });
-        if (embeddedNawatRoutePanel) {
-          tenseBlock.appendChild(embeddedNawatRoutePanel);
-        }
         const list = targetObject.document.createElement("div");
         list.className = "conjugation-list";
         tenseBlock.appendChild(list);
