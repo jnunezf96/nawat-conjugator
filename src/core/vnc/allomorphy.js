@@ -1422,7 +1422,10 @@ function isNominalMorphProfileTense(tenseValue = "") {
         || isPotencialProfileTense(tenseValue)
         || isPatientivoAdjectiveTense(tenseValue)
         || tenseValue === "agentivo"
-        || tenseValue === "patientivo";
+        || tenseValue === "patientivo"
+        || tenseValue === "instrumentivo"
+        || tenseValue === "calificativo-instrumentivo"
+        || tenseValue === "locativo-temporal";
 }
 
 function buildSurfaceRouteText(sourceBase = "", sourceSuffix = "", outputStem = "") {
@@ -7974,7 +7977,7 @@ function buildPatientivoImperfectivoDerivations({
     const nounStem = nounStemSpec
         ? realizeMorphStemSpec(nounStemSpec, "")
         : realizePatientivoImperfectiveSourceChainStem(baseStem, imperfectiveSourceChain);
-    const subjectSuffix = getTClassSuffixForStem(baseStem);
+    const subjectSuffix = "t";
     const entry = buildPatientivoDerivationEntry({
         sourceModel: patientivoSourceModel,
         sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.imperfectivo,
@@ -8850,16 +8853,16 @@ function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
         && typeof options.nonactiveRuleSource === "object"
     ) ? options.nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options);
     const source = sourceContext.sourceStem || normalizeDerivationStemValue(verb || analysisVerb || "");
-    const ruleBase = sourceContext.ruleBase;
-    if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
-        return [];
-    }
     const suppletiveOptions = getSuppletiveNonactiveOptions({
         verb: source,
         isYawi: options.isYawi === true,
     });
     if (suppletiveOptions) {
         return suppletiveOptions;
+    }
+    const ruleBase = sourceContext.ruleBase;
+    if (!ruleBase || !VOWEL_END_RE.test(ruleBase)) {
+        return [];
     }
 
     const info = getNonactiveBaseInfo(ruleBase);
@@ -9213,6 +9216,22 @@ function resolveNonactiveStemSelection(verb, analysisVerb, options = {}) {
         options.nonactiveRuleSource
         && typeof options.nonactiveRuleSource === "object"
     ) ? options.nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options);
+    const resolveTenseSpecificOption = (option) => {
+        if (!option || typeof option !== "object") {
+            return option;
+        }
+        const preferredStem = options.useNonactiveImperfectiveCore === true
+            ? (option.imperfectiveStem || option.stem)
+            : (option.perfectiveStem || option.stem);
+        if (!preferredStem || preferredStem === option.stem) {
+            return option;
+        }
+        return {
+            ...option,
+            stem: preferredStem,
+            stemSpec: buildLiteralMorphStemSpec(preferredStem),
+        };
+    };
     const optionsList = getVisibleNonactiveDerivationOptions(
         sourceContext.sourceStem || verb || analysisVerb,
         sourceContext.analysisStem || analysisVerb || verb || sourceContext.sourceStem,
@@ -9220,7 +9239,7 @@ function resolveNonactiveStemSelection(verb, analysisVerb, options = {}) {
             ...options,
             nonactiveRuleSource: sourceContext,
         }
-    );
+    ).map(resolveTenseSpecificOption);
     const optionMap = buildNonactiveOptionMap(optionsList);
     const optionSpecMap = buildNonactiveOptionSpecMap(optionsList);
     const realizedOptionsList = normalizeVisibleNonactiveDerivationOptions(

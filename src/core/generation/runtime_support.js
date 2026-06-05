@@ -306,6 +306,7 @@ function resolveStemCandidateMorphologyResult({
             ...normalizedForm,
             subjectSuffix: altSuffix,
             formSpec: altFormSpec,
+            trailingSuffix: normalizedForm.trailingSuffix || "",
         };
     }).filter(Boolean);
     return {
@@ -314,6 +315,7 @@ function resolveStemCandidateMorphologyResult({
         subjectSuffix: localSubjectSuffix,
         verb: applied.verb,
         formSpec: localFormSpec,
+        trailingSuffix: applied.trailingSuffix || "",
         alternateForms: localAlternates,
         directionalChainMeta: applied.directionalChainMeta || null,
         surfaceRuleMeta: applied.surfaceRuleMeta || null,

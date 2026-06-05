@@ -159,6 +159,19 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+function applyVerbEntryInputNow() {
+    const verbEl = document.getElementById("verb");
+    if (!verbEl) {
+        return;
+    }
+    verbEl.dispatchEvent(new Event("input", { bubbles: true }));
+    scheduleVerbInputRefresh(verbEl.value, {
+        immediate: true,
+        source: "manual-entry",
+    });
+    focusVisibleVerbSurfaceAtEnd();
+}
+
 async function loadStaticBootstrapData() {
     const runtimeConfig = (
         typeof globalThis !== "undefined"
@@ -181,6 +194,7 @@ async function loadStaticBootstrapData() {
             "loadStaticPhonology",
             "loadStaticAllomorphyRules",
             "loadStaticModes",
+            "loadStaticNnc",
             "loadStaticMisc",
             "loadStaticSuppletives",
             "loadStaticRedup",
@@ -212,6 +226,9 @@ async function initializeUiRuntime() {
         initUiScaleControl();
         initUiDensityControl();
         initLanguageSwitch();
+        if (typeof initCurriculumMap === "function") {
+            initCurriculumMap();
+        }
         initTutorialPanel();
         initKeyboardLegendPopover();
         initLeftPanelStackTabs();
@@ -282,6 +299,13 @@ async function initializeUiRuntime() {
             });
             verbEl.addEventListener("scroll", () => {
                 renderVerbMirror();
+            });
+        }
+        const verbEntryApplyButton = document.getElementById("verb-entry-apply");
+        if (verbEntryApplyButton) {
+            verbEntryApplyButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                applyVerbEntryInputNow();
             });
         }
         if (verbMirrorContent) {

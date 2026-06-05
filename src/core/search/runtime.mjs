@@ -124,6 +124,43 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
         return null;
     }
 
+    function getOrdinaryNncSearchCandidateInfo(rawValue, options = {}) {
+        const resolver = typeof targetObject.resolveOrdinaryNncFixture === "function"
+            ? targetObject.resolveOrdinaryNncFixture
+            : null;
+        if (!resolver) {
+            return null;
+        }
+        const parts = getSearchParts(rawValue);
+        const trimmedBase = parts.trimmedBase ?? String(parts.base || "").trim();
+        if (!trimmedBase || isComposerTemplateOnlyBaseValue(trimmedBase)) {
+            return null;
+        }
+        const sourceOptions = options && typeof options === "object" ? options : {};
+        const candidate = resolver({
+            ...sourceOptions,
+            stem: trimmedBase,
+        });
+        if (!candidate) {
+            return null;
+        }
+        return {
+            kind: "ordinary-nnc-search-candidate",
+            candidateKind: candidate.kind || "ordinary-nnc-fixture",
+            supported: candidate.supported === true,
+            input: String(rawValue || ""),
+            base: parts.base,
+            trimmedBase,
+            normalizedInput: candidate.normalizedInput || "",
+            fixture: candidate.fixture || null,
+            paradigmSet: candidate.paradigmSet || null,
+        };
+    }
+
+    function isOrdinaryNncSearchCandidate(rawValue, options = {}) {
+        return getOrdinaryNncSearchCandidateInfo(rawValue, options) !== null;
+    }
+
     function isSearchModeInput(rawValue) {
         const info = getSearchQueryInfo(rawValue);
         return !!info;
@@ -693,6 +730,8 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
         getSearchInputBase,
         isComposerTemplateOnlyBaseValue,
         getSearchQueryInfo,
+        getOrdinaryNncSearchCandidateInfo,
+        isOrdinaryNncSearchCandidate,
         isSearchModeInput,
         normalizeConjugationSearchText,
         matchesSearchVariant,

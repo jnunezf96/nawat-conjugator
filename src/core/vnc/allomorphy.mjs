@@ -1159,7 +1159,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
       };
     }
     function isNominalMorphProfileTense(tenseValue = "") {
-      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "patientivo";
+      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
     }
     function buildSurfaceRouteText(sourceBase = "", sourceSuffix = "", outputStem = "") {
       const normalizedSourceSuffix = normalizeDerivationStemValue(sourceSuffix);
@@ -5629,11 +5629,6 @@ export function createAllomorphyApi(targetObject = globalThis) {
       });
       return adjectiveEntries;
     }
-    function shouldBypassPatientivoPronounceabilityGate(entry = null) {
-      const sourceModel = entry?.patientivoSourceModel || entry?.sourceModel || null;
-      const sourceType = String(entry?.sourceType || sourceModel?.sourceType || "");
-      return sourceType === PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal && sourceModel?.isTransitive === true;
-    }
     function resolvePatientivoTroncoDerivationalStem(sourceModel = null) {
       const matrixBase = normalizeDerivationStemValue(sourceModel?.matrixBase || sourceModel?.chain?.baseVerb || "");
       if (!matrixBase) {
@@ -5653,6 +5648,11 @@ export function createAllomorphyApi(targetObject = globalThis) {
         stem: troncoStem,
         stemSpec: troncoStemSpec
       };
+    }
+    function shouldBypassPatientivoPronounceabilityGate(entry = null) {
+      const sourceModel = entry?.patientivoSourceModel || entry?.sourceModel || null;
+      const sourceType = String(entry?.sourceType || sourceModel?.sourceType || "");
+      return sourceType === PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal && sourceModel?.isTransitive === true;
     }
     function expandPatientivoNominalMarkerOptions(derivations = [], source = "") {
       const normalizedEntries = normalizePatientivoDerivationEntries(derivations, source);
@@ -6778,7 +6778,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
           forceClassBSelection: false,
           forceClassBOnly: false
         });
-        const getPatientivoPerfectivoStemFromProvenanceEntry = (entry = null) => targetObject.resolveCalificativoInstrumentivoStemFromProvenanceEntry(entry, classSource);
+        const getPatientivoPerfectivoStemFromProvenanceEntry = (entry = null) => resolveCalificativoInstrumentivoStemFromProvenanceEntry(entry, classSource);
         (Array.isArray(preteriteOutput?.provenance?.variants) ? preteriteOutput.provenance.variants : []).forEach(entry => {
           const resolvedStem = getPatientivoPerfectivoStemFromProvenanceEntry(entry);
           if (!resolvedStem) {
@@ -6905,7 +6905,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
       }
       const nounStemSpec = targetObject.applyPatientivoImperfectiveSourceChainStemSpec(baseStemSpec, baseStem, imperfectiveSourceChain);
       const nounStem = nounStemSpec ? realizeMorphStemSpec(nounStemSpec, "") : targetObject.realizePatientivoImperfectiveSourceChainStem(baseStem, imperfectiveSourceChain);
-      const subjectSuffix = getTClassSuffixForStem(baseStem);
+      const subjectSuffix = "t";
       const entry = buildPatientivoDerivationEntry({
         sourceModel: patientivoSourceModel,
         sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.imperfectivo,
@@ -7169,7 +7169,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
             sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
             defaultSuffix: suffix,
             lockNominalMarker: options.lockNominalMarker === true
-            })
+          })
         });
         if (nextEntry) {
           if (!shouldBypassPatientivoPronounceabilityGate(nextEntry) && !targetObject.isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)) {
@@ -7610,16 +7610,16 @@ export function createAllomorphyApi(targetObject = globalThis) {
     function getNonactiveDerivationOptions(verb, analysisVerb, options = {}) {
       const sourceContext = options.nonactiveRuleSource && typeof options.nonactiveRuleSource === "object" ? options.nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options);
       const source = sourceContext.sourceStem || normalizeDerivationStemValue(verb || analysisVerb || "");
-      const ruleBase = sourceContext.ruleBase;
-      if (!ruleBase || !targetObject.VOWEL_END_RE.test(ruleBase)) {
-        return [];
-      }
       const suppletiveOptions = targetObject.getSuppletiveNonactiveOptions({
         verb: source,
         isYawi: options.isYawi === true
       });
       if (suppletiveOptions) {
         return suppletiveOptions;
+      }
+      const ruleBase = sourceContext.ruleBase;
+      if (!ruleBase || !targetObject.VOWEL_END_RE.test(ruleBase)) {
+        return [];
       }
       const info = getNonactiveBaseInfo(ruleBase);
       const blockReplaciveOnsetForShort = isShortReplaciveOnsetBase(ruleBase);
@@ -7707,7 +7707,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
         }
         const realizedStemSpec = targetObject.applyNonactiveSourceChainStemSpec(stemSpec, normalizedStem, sourceContext.chain, {
           sourceSuffix: suffix,
-          policy: sourceContext.realizationPolicy || FULL_SOURCE_CHAIN_REALIZATION_POLICY
+          policy: sourceContext.realizationPolicy || targetObject.FULL_SOURCE_CHAIN_REALIZATION_POLICY
         });
         const realizedStem = normalizeDerivationStemValue(realizeMorphStemSpec(realizedStemSpec, ""));
         return Boolean(realizedStem && targetObject.isSyllableSequencePronounceable(realizedStem));
@@ -7890,10 +7890,24 @@ export function createAllomorphyApi(targetObject = globalThis) {
         analysisVerb = "";
       }
       const sourceContext = options.nonactiveRuleSource && typeof options.nonactiveRuleSource === "object" ? options.nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options);
+      const resolveTenseSpecificOption = option => {
+        if (!option || typeof option !== "object") {
+          return option;
+        }
+        const preferredStem = options.useNonactiveImperfectiveCore === true ? option.imperfectiveStem || option.stem : option.perfectiveStem || option.stem;
+        if (!preferredStem || preferredStem === option.stem) {
+          return option;
+        }
+        return {
+          ...option,
+          stem: preferredStem,
+          stemSpec: targetObject.buildLiteralMorphStemSpec(preferredStem)
+        };
+      };
       const optionsList = getVisibleNonactiveDerivationOptions(sourceContext.sourceStem || verb || analysisVerb, sourceContext.analysisStem || analysisVerb || verb || sourceContext.sourceStem, {
         ...options,
         nonactiveRuleSource: sourceContext
-      });
+      }).map(resolveTenseSpecificOption);
       const optionMap = buildNonactiveOptionMap(optionsList);
       const optionSpecMap = buildNonactiveOptionSpecMap(optionsList);
       const realizedOptionsList = normalizeVisibleNonactiveDerivationOptions(optionsList.map(option => realizeNonactiveDerivationOption(option, sourceContext)));
@@ -8269,6 +8283,7 @@ export function createAllomorphyApi(targetObject = globalThis) {
     api.normalizePatientivoDerivationEntries = normalizePatientivoDerivationEntries;
     api.buildPatientivoAdjectiveDerivations = buildPatientivoAdjectiveDerivations;
     api.resolvePatientivoTroncoDerivationalStem = resolvePatientivoTroncoDerivationalStem;
+    api.shouldBypassPatientivoPronounceabilityGate = shouldBypassPatientivoPronounceabilityGate;
     api.expandPatientivoNominalMarkerOptions = expandPatientivoNominalMarkerOptions;
     api.normalizePatientivoNominalSuffixSelection = normalizePatientivoNominalSuffixSelection;
     api.getPatientivoNominalSuffixToggleValue = getPatientivoNominalSuffixToggleValue;

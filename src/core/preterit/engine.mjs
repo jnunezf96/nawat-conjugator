@@ -171,6 +171,12 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       }
       return String(variant.suffix || "");
     }
+    function getPretVariantSurfaceRuleMeta(variant = null) {
+      if (!variant || typeof variant !== "object") {
+        return null;
+      }
+      return variant.surfaceRuleMeta && typeof variant.surfaceRuleMeta === "object" ? variant.surfaceRuleMeta : null;
+    }
     function buildPretProvenanceVariantEntry(variant = null) {
       if (!variant || typeof variant !== "object") {
         return {
@@ -186,6 +192,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         base,
         suffix,
         baseSpec: variant.baseSpec || null,
+        surfaceRuleMeta: getPretVariantSurfaceRuleMeta(variant),
         surfaceStem: `${base || ""}${suffix || ""}`
       };
     }
@@ -947,6 +954,17 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     }) {
       return hasDoubleDash && indirectObjectMarker === "ki";
     }
+    function adjustPretNhBeforeVowel(prefix, base) {
+      let adjustedPrefix = prefix || "";
+      const adjustedBase = base || "";
+      if (adjustedPrefix && adjustedBase && targetObject.VOWEL_START_RE?.test(adjustedBase) && adjustedPrefix.endsWith("n") && !adjustedPrefix.endsWith("nh") && adjustedPrefix.length >= 2 && targetObject.VOWEL_RE?.test(adjustedPrefix[adjustedPrefix.length - 2] || "")) {
+        adjustedPrefix = `${adjustedPrefix}h`;
+      }
+      return {
+        prefix: adjustedPrefix,
+        base: adjustedBase
+      };
+    }
     function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
       let adjustedPrefix = prefix || "";
       let adjustedBase = base || "";
@@ -957,10 +975,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (options.dropYAfterWal === true && adjustedBase.startsWith("ya")) {
         adjustedBase = adjustedBase.slice(1);
       }
-      return {
-        prefix: adjustedPrefix,
-        base: adjustedBase
-      };
+      return adjustPretNhBeforeVowel(adjustedPrefix, adjustedBase);
     }
     function adjustPretComposedObjectPrefixContact({
       objectPrefix = "",
@@ -1029,10 +1044,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           suppressBareKBeforeK: true,
           dropYAfterWal: false
         });
-        return {
-          prefix: subjectPrefix + contactAdjusted.prefix,
-          base: contactAdjusted.base
-        };
+        return adjustPretNhBeforeVowel(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
       }
       const isThirdPersonMarker = value => value === "ki" || value === "kin" || value === "k";
       const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
@@ -1044,10 +1056,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
         const objectHead = targetObject.applyIndirectObjectMarker(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
         const directionalizedObjectHead = objectHead.startsWith("k") ? `k${outputDirectional}${objectHead.slice(1)}` : `${outputDirectional}${objectHead}`;
-        return {
-          prefix: `${subjectHead}${directionalizedObjectHead}`,
-          base: dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore
-        };
+        return adjustPretNhBeforeVowel(`${subjectHead}${directionalizedObjectHead}`, dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore);
       }
       if (isShuntlineThirdPersonObject && outputDirectional === "al") {
         const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
@@ -1078,10 +1087,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           allowZeroBitransitiveDrop,
           dropYAfterWal
         });
-        return {
-          prefix: subjectHead + contactAdjusted.prefix,
-          base: contactAdjusted.base
-        };
+        return adjustPretNhBeforeVowel(subjectHead + contactAdjusted.prefix, contactAdjusted.base);
       }
       const contactAdjusted = resolvePretObjectPrefixContact({
         objectPrefix,
@@ -1092,24 +1098,10 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         suppressBareKBeforeK: true,
         dropYAfterWal
       });
-      return {
-        prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
-        base: contactAdjusted.base
-      };
+      return adjustPretNhBeforeVowel(subjectHead + outputDirectional + contactAdjusted.prefix, contactAdjusted.base);
     }
     function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
-      if (!isYawi || tense !== "preterito" || !Array.isArray(variants)) {
-        return variants;
-      }
-      return variants.map(variant => {
-        if (!variant || getPretVariantSuffix(variant) !== "ki") {
-          return variant;
-        }
-        return {
-          ...variant,
-          suffix: ""
-        };
-      });
+      return variants;
     }
     function buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix = "", directionalOutputPrefix = "", baseSubjectPrefix = subjectPrefix, baseObjectPrefix = objectPrefix, pluralSuffix = null, indirectObjectMarker = "", hasDoubleDash = false, isYawi = false, hasOptionalSupportiveI = false, optionalSupportiveLetter = "") {
       if (!variants || variants.length === 0) {
@@ -1124,7 +1116,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       // marker and the universal m→n rule (stem-final "m"→"n" before any suffix).
       // For the zero-suffix case the m→n rule must be applied explicitly because
       // buildOutputWordSegments only fires it when subjectSuffix is truthy.
-      const realizeForm = (verbCore, suffix) => {
+      const realizeForm = (verbCore, suffix, surfaceRuleMeta = null) => {
         if (canUseSegments) {
           const segments = targetObject.buildOutputWordSegments({
             subjectPrefix: "",
@@ -1132,7 +1124,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
             verb: verbCore,
             subjectSuffix: suffix || "",
             hasOptionalSupportiveI,
-            optionalSupportiveLetter
+            optionalSupportiveLetter,
+            surfaceRuleMeta
           });
           const text = targetObject.joinOutputWordSegments(segments);
           if (!suffix && text.endsWith("m")) {
@@ -1158,11 +1151,12 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         const results = [];
         variants.forEach(variant => {
           const variantBase = getPretVariantBase(variant);
+          const surfaceRuleMeta = getPretVariantSurfaceRuleMeta(variant);
           const {
             prefix,
             base
           } = getPretUniversalPrefixForBase(variantBase, subjectPrefix, objectPrefix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, indirectObjectMarker, hasDoubleDash, isYawi);
-          const form = realizeForm(`${prefix}${base}`, resolvedPluralSuffix);
+          const form = realizeForm(`${prefix}${base}`, resolvedPluralSuffix, surfaceRuleMeta);
           if (!seen.has(form)) {
             seen.add(form);
             results.push(form);
@@ -1178,19 +1172,21 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       variants.forEach(variant => {
         const variantBase = getPretVariantBase(variant);
         const variantSuffix = getPretVariantSuffix(variant);
+        const surfaceRuleMeta = getPretVariantSurfaceRuleMeta(variant);
         const {
           prefix,
           base
         } = getPretUniversalPrefixForBase(variantBase, subjectPrefix, objectPrefix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, indirectObjectMarker, hasDoubleDash, isYawi);
         const verbCore = `${prefix}${base}`;
         // Compute the deduplication key using the zero-suffix realized form.
-        const baseKey = realizeForm(verbCore, "");
+        const baseKey = realizeForm(verbCore, "", surfaceRuleMeta);
         let entry = groups.get(baseKey);
         if (!entry) {
           entry = {
             suffixes: new Set(),
             order: [],
-            verbCore
+            verbCore,
+            surfaceRuleMeta
           };
           groups.set(baseKey, entry);
           order.push(baseKey);
@@ -1204,23 +1200,24 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       order.forEach(baseKey => {
         const entry = groups.get(baseKey);
         const {
-          verbCore
+          verbCore,
+          surfaceRuleMeta
         } = entry;
         const hasEmpty = entry.suffixes.has("");
         const hasKi = entry.suffixes.has("ki");
         let emittedOptional = false;
         let emittedBase = false;
         if (hasEmpty && hasKi) {
-          results.push(`${realizeForm(verbCore, "")}(ki)`);
+          results.push(`${realizeForm(verbCore, "", surfaceRuleMeta)}(ki)`);
           emittedOptional = true;
         } else if (hasEmpty) {
-          results.push(realizeForm(verbCore, ""));
+          results.push(realizeForm(verbCore, "", surfaceRuleMeta));
           emittedBase = true;
         }
         entry.order.forEach(suffix => {
           if (suffix === "") {
             if (!emittedOptional && !emittedBase) {
-              results.push(realizeForm(verbCore, ""));
+              results.push(realizeForm(verbCore, "", surfaceRuleMeta));
               emittedBase = true;
             }
             return;
@@ -1229,10 +1226,10 @@ export function createPreteritEngineApi(targetObject = globalThis) {
             if (emittedOptional) {
               return;
             }
-            results.push(realizeForm(verbCore, "ki"));
+            results.push(realizeForm(verbCore, "ki", surfaceRuleMeta));
             return;
           }
-          results.push(realizeForm(verbCore, suffix));
+          results.push(realizeForm(verbCore, suffix, surfaceRuleMeta));
         });
       });
       return {
@@ -2055,6 +2052,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.realizePretBaseSpec = realizePretBaseSpec;
     api.getPretVariantBase = getPretVariantBase;
     api.getPretVariantSuffix = getPretVariantSuffix;
+    api.getPretVariantSurfaceRuleMeta = getPretVariantSurfaceRuleMeta;
     api.buildPretProvenanceVariantEntry = buildPretProvenanceVariantEntry;
     api.buildPretVariant = buildPretVariant;
     api.addUniquePretVariant = addUniquePretVariant;

@@ -6,6 +6,7 @@ export const STATIC_RUNTIME_PATHS = Object.freeze({
     STATIC_RULES_PATH: "data/static_rules.json",
     STATIC_PHONOLOGY_PATH: "data/static_phonology.json",
     STATIC_MODES_PATH: "data/static_modes.json",
+    STATIC_NNC_PATH: "data/static_nnc.json",
     STATIC_MISC_PATH: "data/static_misc.json",
     STATIC_SUPPLETIVES_PATH: "data/static_suppletives.json",
     STATIC_REDUP_PATH: "data/static_redup.json",

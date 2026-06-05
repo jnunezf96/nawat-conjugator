@@ -566,17 +566,21 @@ function resolvePatientivoImperfectiveBaseStemSpec(chain = null) {
         return null;
     }
     const normalizedSourceBase = normalizeRuleBase(chain?.sourceBase || baseVerb);
+    let sourceStemSpec = null;
     if (endsWithAny(baseVerb, IA_UA_SUFFIXES)) {
-        const spec = buildReplaceSuffixMorphStemSpec(baseVerb, "a", "", {
+        sourceStemSpec = buildReplaceSuffixMorphStemSpec(baseVerb, "a", "", {
             sourceBase: normalizedSourceBase,
             sourceSuffix: "a",
         });
-        if (spec) {
-            return spec;
-        }
     }
-    return buildLiteralMorphStemSpec(baseVerb, {
+    const baseStemSpec = sourceStemSpec || buildLiteralMorphStemSpec(baseVerb, {
         sourceBase: normalizedSourceBase,
+    });
+    const baseStem = realizeMorphStemSpec(baseStemSpec, baseVerb);
+    return buildAppendMorphStemSpec(baseStem, "ya", {
+        sourceStemSpec: baseStemSpec,
+        sourceBase: normalizedSourceBase,
+        sourceSuffix: "ya",
     });
 }
 

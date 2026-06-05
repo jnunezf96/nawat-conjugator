@@ -264,9 +264,10 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
         derivationType,
         causativeAllStems,
         applicativeAllStems,
-        isYawi,
-        suppletiveStemSet,
-        preferredNonactiveBaseVerb = "",
+            isYawi,
+            suppletiveStemSet,
+            tense = "",
+            preferredNonactiveBaseVerb = "",
         preferredNonactiveSourceMeta = null,
         preferredNonactiveSourcePrefix = "",
     }) {
@@ -313,6 +314,7 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
         const derivedStemPoolByField = { causativeAllStems, applicativeAllStems };
         const shouldUseDerivedRuleBase = !!forwardDerivationConfig;
         const forceAllNonactiveOptions = targetObject.shouldForceAllNonactiveOptions();
+        const useNonactiveImperfectiveCore = Boolean(tense && !targetObject.isPerfectiveTense(tense));
         const nonactiveRuleSource = targetObject.buildNonactiveRuleSourceContext(
             verb,
             analysisVerb,
@@ -340,6 +342,7 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
             parsedVerb: parsedVerb || effectiveSourceMeta,
             nonactiveSourceChain,
             nonactiveRuleSource,
+            useNonactiveImperfectiveCore,
         });
         let resolvedDirectionalPrefix = directionalPrefix;
         let selectionHasPrefixedStems = false;
@@ -372,6 +375,7 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
                     verbMeta: effectiveSourceMeta || parsedVerb,
                     nonactiveSourceChain,
                     nonactiveRuleSource,
+                    useNonactiveImperfectiveCore,
                 }
             );
             const supportiveSelectedStem = targetObject.normalizeDerivationStemValue(

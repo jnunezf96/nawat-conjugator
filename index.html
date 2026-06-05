@@ -16,10 +16,10 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260531-nawat-source-present-034" />
+    <link rel="stylesheet" href="style.css?v=20260603-route-line-toggles-001" />
     <!-- Phase 1 baseline: keep this ordered legacy script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/phonology/phonology.js?v=20260402-phase4-002" defer></script>
-    <script src="src/core/agreement/agreement.js?v=20260402-phase4-002" defer></script>
+    <script src="src/core/agreement/agreement.js?v=20260402-phase4-004" defer></script>
     <script src="src/core/agreement/display.js?v=20260403-import-isolate-003" defer></script>
     <script src="src/core/agreement/combo_validation.js?v=20260403-import-isolate-014" defer></script>
     <script src="src/core/search/runtime.js?v=20260403-import-isolate-012" defer></script>
@@ -28,8 +28,8 @@
     <script src="src/core/output/provenance.js?v=20260403-import-isolate-004" defer></script>
     <script src="src/core/generation/morphology_support.js?v=20260403-import-isolate-013" defer></script>
     <script src="src/core/parsing/parsing.js?v=20260402-phase4-002" defer></script>
-    <script src="src/core/vnc/allomorphy.js?v=20260404-tronco-lvv-ua-004" defer></script>
-    <script src="src/core/derivation/source_model.js?v=20260403-import-isolate-005" defer></script>
+    <script src="src/core/vnc/allomorphy.js?v=20260602-vs-patientivo-001" defer></script>
+    <script src="src/core/derivation/source_model.js?v=20260602-vs-patientivo-001" defer></script>
     <script src="src/core/derivation/forward_runtime.js?v=20260403-import-isolate-006" defer></script>
     <script src="src/core/derivation/nonactive.js?v=20260403-import-isolate-010" defer></script>
     <script src="src/core/generation/valency.js?v=20260403-import-isolate-011" defer></script>
@@ -40,18 +40,19 @@
     <script src="src/core/nnc/nnc.js?v=20260402-phase5a-001" defer></script>
     <script src="src/core/vnc/vnc.js?v=20260403-import-isolate-015" defer></script>
     <script src="src/core/preterit/context.js?v=20260402-regex-core-261" defer></script>
-    <script src="src/core/preterit/engine.js?v=20260402-regex-core-261" defer></script>
+    <script src="src/core/preterit/engine.js?v=20260402-regex-core-262" defer></script>
     <script src="src/core/preterit/api.js?v=20260403-import-isolate-002" defer></script>
     <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
-    <script src="src/ui/panels/panels.js?v=20260531-source-scope-004" defer></script>
+    <script src="src/ui/panels/panels.js?v=20260603-chip-route-default-001" defer></script>
     <script src="src/ui/export/export.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/state.js?v=20260531-nawat-source-present-009" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260531-nawat-source-present-031" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260525-slot-tabs-009" defer></script>
-    <script src="script.js?v=20260531-nawat-source-present-008" defer></script>
+    <script src="src/ui/state.js?v=20260604-prelocative-entry-003" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260604-prelocative-entry-003" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260604-prelocative-entry-003" defer></script>
+    <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
-    <script src="src/ui/events.js?v=20260530-source-scope-002" defer></script>
+    <script src="src/ui/curriculum/curriculum.js?v=20260604-book-map-002" defer></script>
+    <script src="src/ui/events.js?v=20260603-enter-apply-001" defer></script>
     <title>Conjugador de verbos náhuat</title>
   </head>
   <body>
@@ -124,6 +125,32 @@
           </label>
         </div>
       </div>
+      <section
+        class="book-map"
+        id="book-map"
+        aria-labelledby="book-map-title"
+      >
+        <div class="book-map__header">
+          <div class="book-map__title-block">
+            <span class="book-map__eyebrow">Andrews 1-58 · faltantes</span>
+            <h2 id="book-map-title">Mapa de faltantes</h2>
+          </div>
+          <div class="book-map__totals" id="book-map-totals" aria-live="polite"></div>
+        </div>
+        <div class="book-map__body">
+          <div
+            class="book-map__groups"
+            id="book-map-groups"
+            role="list"
+            aria-label="Grupos con elementos faltantes"
+          ></div>
+          <div
+            class="book-map__detail"
+            id="book-map-detail"
+            aria-live="polite"
+          ></div>
+        </div>
+      </section>
       <div class="panel-grid">
         <div class="panel-stack">
           <div class="panel-stack-tabs" role="tablist" aria-label="Etapas">
@@ -242,6 +269,20 @@
                     </div>
                   </div>
                   <div class="verb-block__utility-actions">
+                    <button
+                      type="button"
+                      class="legend-button verb-entry-apply-button"
+                      id="verb-entry-apply"
+                      aria-label="Aplicar entrada"
+                      title="Aplicar entrada"
+                    >
+                      <span class="legend-button__icon" aria-hidden="true">
+                        <svg viewBox="0 0 16 16" focusable="false">
+                          <path d="M11.5 3.5v3a2 2 0 0 1-2 2H4.75"></path>
+                          <path d="M7.25 5.75 4.5 8.5l2.75 2.75"></path>
+                        </svg>
+                      </span>
+                    </button>
                     <div class="legend-help">
                       <button
                         type="button"
@@ -364,7 +405,7 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="a"
                                   >
-                                    <span class="verb-composer__sub-label">Raíz incorporada</span>
+                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
@@ -373,7 +414,7 @@
                                           id="composer-embed"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz incorporada Slot A"
+                                          aria-label="Elemento incorporado Slot A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -500,7 +541,7 @@
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto incorporado</span>
+                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
                                         <input
@@ -508,7 +549,7 @@
                                           id="composer-valence-a-embed-left"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Objeto incorporado Slot A"
+                                          aria-label="Elemento incorporado Slot A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -516,17 +557,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto indefinido</span>
+                                      <span class="verb-composer__sub-label">Marcador no específico</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-a-chips"
                                         role="group"
-                                        aria-label="Objeto indefinido Slot A"
+                                        aria-label="Marcador no específico Slot A"
                                       ></div>
                                       <select
                                         id="composer-valence-a"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Objeto indefinido Slot A"
+                                        aria-label="Marcador no específico Slot A"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -547,7 +588,7 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="b"
                                   >
-                                    <span class="verb-composer__sub-label">Raíz incorporada</span>
+                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
@@ -556,7 +597,7 @@
                                           id="composer-valence-embed-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz incorporada Slot B"
+                                          aria-label="Elemento incorporado Slot B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -683,7 +724,7 @@
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto incorporado</span>
+                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
                                         <input
@@ -691,7 +732,7 @@
                                           id="composer-valence-left-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Objeto incorporado Slot B"
+                                          aria-label="Elemento incorporado Slot B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -699,17 +740,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto indefinido</span>
+                                      <span class="verb-composer__sub-label">Marcador no específico</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-chips"
                                         role="group"
-                                        aria-label="Objeto indefinido Slot B"
+                                        aria-label="Marcador no específico Slot B"
                                       ></div>
                                       <select
                                         id="composer-valence"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Objeto indefinido Slot B"
+                                        aria-label="Marcador no específico Slot B"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -732,7 +773,7 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="c"
                                   >
-                                    <span class="verb-composer__sub-label">Raíz incorporada</span>
+                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
@@ -741,7 +782,7 @@
                                           id="composer-valence-embed-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz incorporada Slot C"
+                                          aria-label="Elemento incorporado Slot C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -868,7 +909,7 @@
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto incorporado</span>
+                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
                                         <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
                                         <input
@@ -876,7 +917,7 @@
                                           id="composer-valence-left-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Objeto incorporado Slot C"
+                                          aria-label="Elemento incorporado Slot C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -884,17 +925,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Objeto indefinido</span>
+                                      <span class="verb-composer__sub-label">Marcador no específico</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-2-chips"
                                         role="group"
-                                        aria-label="Objeto indefinido Slot C"
+                                        aria-label="Marcador no específico Slot C"
                                       ></div>
                                       <select
                                         id="composer-valence-2"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Objeto indefinido Slot C"
+                                        aria-label="Marcador no específico Slot C"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="te-2">-te</option>
@@ -1287,6 +1328,19 @@
                             data-ui-label-key="tense-tabs-mode-noun"
                           >
                             Sustantivo
+                          </button>
+                          <button
+                            type="button"
+                            class="calc-operator-chip calc-operator-chip--nawat"
+                            data-ordinary-nnc-mode="true"
+                            id="calc-nawat-mode-ordinary-nnc"
+                            role="tab"
+                            aria-selected="false"
+                            aria-pressed="false"
+                            aria-label="Sustantivo ordinario NNC"
+                            title="Sustantivo ordinario NNC"
+                          >
+                            NNC
                           </button>
                           <button
                             type="button"

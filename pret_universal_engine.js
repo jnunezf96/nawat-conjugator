@@ -1045,6 +1045,26 @@ function shouldAllowZeroBitransitiveKiDrop({
     return hasDoubleDash && indirectObjectMarker === "ki";
 }
 
+function adjustPretNhBeforeVowel(prefix, base) {
+    let adjustedPrefix = prefix || "";
+    const adjustedBase = base || "";
+    if (
+        adjustedPrefix
+        && adjustedBase
+        && VOWEL_START_RE.test(adjustedBase)
+        && adjustedPrefix.endsWith("n")
+        && !adjustedPrefix.endsWith("nh")
+        && adjustedPrefix.length >= 2
+        && VOWEL_RE.test(adjustedPrefix[adjustedPrefix.length - 2] || "")
+    ) {
+        adjustedPrefix = `${adjustedPrefix}h`;
+    }
+    return {
+        prefix: adjustedPrefix,
+        base: adjustedBase,
+    };
+}
+
 function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
     let adjustedPrefix = prefix || "";
     let adjustedBase = base || "";
@@ -1055,10 +1075,7 @@ function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", optio
     if (options.dropYAfterWal === true && adjustedBase.startsWith("ya")) {
         adjustedBase = adjustedBase.slice(1);
     }
-    return {
-        prefix: adjustedPrefix,
-        base: adjustedBase,
-    };
+    return adjustPretNhBeforeVowel(adjustedPrefix, adjustedBase);
 }
 
 function adjustPretComposedObjectPrefixContact({
@@ -1143,10 +1160,7 @@ function getPretUniversalPrefixForBase(
             suppressBareKBeforeK: true,
             dropYAfterWal: false,
         });
-        return {
-            prefix: subjectPrefix + contactAdjusted.prefix,
-            base: contactAdjusted.base,
-        };
+        return adjustPretNhBeforeVowel(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
     }
     const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
     const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
@@ -1167,10 +1181,10 @@ function getPretUniversalPrefixForBase(
         const directionalizedObjectHead = objectHead.startsWith("k")
             ? `k${outputDirectional}${objectHead.slice(1)}`
             : `${outputDirectional}${objectHead}`;
-        return {
-            prefix: `${subjectHead}${directionalizedObjectHead}`,
-            base: dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore,
-        };
+        return adjustPretNhBeforeVowel(
+            `${subjectHead}${directionalizedObjectHead}`,
+            dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore
+        );
     }
     if (isShuntlineThirdPersonObject && outputDirectional === "al") {
         const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
@@ -1203,10 +1217,7 @@ function getPretUniversalPrefixForBase(
             allowZeroBitransitiveDrop,
             dropYAfterWal,
         });
-        return {
-            prefix: subjectHead + contactAdjusted.prefix,
-            base: contactAdjusted.base,
-        };
+        return adjustPretNhBeforeVowel(subjectHead + contactAdjusted.prefix, contactAdjusted.base);
     }
     const contactAdjusted = resolvePretObjectPrefixContact({
         objectPrefix,
@@ -1217,10 +1228,7 @@ function getPretUniversalPrefixForBase(
         suppressBareKBeforeK: true,
         dropYAfterWal,
     });
-    return {
-        prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
-        base: contactAdjusted.base,
-    };
+    return adjustPretNhBeforeVowel(subjectHead + outputDirectional + contactAdjusted.prefix, contactAdjusted.base);
 }
 
 function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {

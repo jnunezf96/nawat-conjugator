@@ -49,9 +49,9 @@ function run(ctx) {
     );
     const imperfectiveBaseSpec = ctx.resolvePatientivoImperfectiveBaseStemSpec(imperfectiveChain);
     s.eq(
-        "patientivo imperfective base spec trims final a from -ia stem",
+        "patientivo imperfective base spec preserves imperfective -ya from -ia stem",
         ctx.realizeMorphStemSpec(imperfectiveBaseSpec, ""),
-        "nemi"
+        "nemiya"
     );
 
     const causativeConfig = ctx.getForwardDerivationConfig("causative");

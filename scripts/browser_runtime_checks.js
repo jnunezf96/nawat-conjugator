@@ -4490,6 +4490,9 @@
                 tenseMode: typeof getActiveTenseMode === "function" ? getActiveTenseMode() : "",
                 combinedMode: typeof getCombinedMode === "function" ? getCombinedMode() : "",
                 derivationType: typeof getActiveDerivationType === "function" ? getActiveDerivationType() : "",
+                routeProfile: typeof getActiveNawatRouteProfile === "function"
+                    ? getActiveNawatRouteProfile()
+                    : null,
             };
             try {
                 if (typeof setActiveTenseMode === "function") {
@@ -4565,6 +4568,39 @@
                 collector.truthy("patientivo tronco row renders", patientivoTroncoRow);
                 collector.equal("patientivo tronco row keeps normalized indirect class", patientivoTroncoRow?.classList.contains("conjugation-row--indirect"), true);
                 collector.equal("patientivo tronco value diagnostic state", patientivoTroncoValue?.dataset?.diagnosticState || "", "viable");
+
+                if (typeof activateNawatRouteProfile === "function") {
+                    activateNawatRouteProfile("patientivo-nonactive-t", {
+                        sourceVerb: "(kuchi)",
+                        sourceTenseValue: "presente",
+                        sourceCombinedMode: COMBINED_MODE.nonactive,
+                    });
+                }
+                if (typeof renderNounConjugations === "function") {
+                    renderNounConjugations({
+                        verb: "(kuchi)",
+                        containerId: "all-tense-conjugations",
+                        tenseValue: "patientivo",
+                        modeKey: "noun",
+                    });
+                }
+                const patientivoImperfectiveBlock = document.querySelector('#all-tense-conjugations [data-nawat-patientivo-source="imperfectivo"]');
+                const patientivoImperfectiveOrigin = patientivoImperfectiveBlock?.querySelector(".tense-block__origin-summary, .tense-block__origin-label");
+                const patientivoImperfectiveRows = Array.from(patientivoImperfectiveBlock?.querySelectorAll(".conjugation-row") || []);
+                const patientivoImperfectiveThirdRow = patientivoImperfectiveRows.find((row) => (
+                    String(row.querySelector(".person-label")?.textContent || "").includes("3a persona singular")
+                )) || patientivoImperfectiveRows[0] || null;
+                const patientivoImperfectiveValue = String(
+                    patientivoImperfectiveThirdRow?.querySelector(".conjugation-value")?.textContent || ""
+                ).replace(/\s+/g, " ").trim();
+                collector.truthy("patientivo imperfective block renders after nonactive destination", patientivoImperfectiveBlock);
+                collector.equal(
+                    "patientivo imperfective origin stays active present",
+                    String(patientivoImperfectiveOrigin?.textContent || "").replace(/\s+/g, " ").trim(),
+                    "origen: V · A · presente: kuchi"
+                );
+                collector.equal("patientivo imperfective visible row uses origin source", patientivoImperfectiveValue, "kuchit");
+                collector.equal("patientivo imperfective row rejects stale imperfecto surface", patientivoImperfectiveValue === "kuchiyat", false);
             } finally {
                 if (typeof setActiveTenseMode === "function" && modeSnapshot.tenseMode) {
                     setActiveTenseMode(modeSnapshot.tenseMode);
@@ -4575,8 +4611,13 @@
                 if (typeof setActiveDerivationType === "function" && modeSnapshot.derivationType) {
                     setActiveDerivationType(modeSnapshot.derivationType);
                 }
+                if (typeof setActiveNawatRouteProfile === "function" && modeSnapshot.routeProfile?.id) {
+                    setActiveNawatRouteProfile(modeSnapshot.routeProfile.id, modeSnapshot.routeProfile);
+                } else if (typeof clearActiveNawatRouteProfile === "function") {
+                    clearActiveNawatRouteProfile();
+                }
             }
-            return summarize("Toggle/diagnostics realization checks", 15, collector);
+            return summarize("Toggle/diagnostics realization checks", 19, collector);
         });
     }
 

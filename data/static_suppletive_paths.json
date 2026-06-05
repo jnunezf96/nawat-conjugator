@@ -13,17 +13,24 @@
       "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveKatiNonactive" }]
     },
     {
+      "id": "weya",
+      "match": { "type": "verbInSet", "formsKey": "suppletiveWeyaForms" },
+      "active": { "type": "suppletiveWeya" }
+    },
+    {
       "id": "witzi",
       "match": { "type": "verbInSet", "formsKey": "suppletiveWitziForms" },
       "active": { "type": "suppletiveWitzi" },
-      "activeTenses": ["preterito", "pasado-remoto", "imperativo"],
+      "activeTenses": ["preterito", "pasado-remoto"],
       "tenseSuffixOverrides": {
         "pasado-remoto": { "": "a", "t": "at" }
       },
-      "verbOverrides": {
-        "imperativo": { "valueKey": "suppletiveWitziImperative" }
-      },
-      "nonactive": [{ "suffix": "luwa", "stemKey": "suppletiveWitziNonactive" }],
+      "nonactive": [{
+        "suffix": "luwa",
+        "stemKey": "suppletiveWitziNonactivePerfective",
+        "imperfectiveStemKey": "suppletiveWitziNonactiveImperfective",
+        "perfectiveStemKey": "suppletiveWitziNonactivePerfective"
+      }],
       "nonactiveTenses": ["preterito", "pasado-remoto"]
     },
     {

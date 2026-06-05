@@ -8,24 +8,83 @@
 "use strict";
 
 // === Person & Agreement ===
-function getSubjectPersonInfo(subjectPrefix, subjectSuffix) {
-    if (subjectPrefix === "ni" && subjectSuffix === "") {
-        return { person: 1, number: "sg" };
+function getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
+    const key = `${subjectPrefix}|${subjectSuffix}`;
+    switch (key) {
+        case "ni|":
+            return { person: 1, number: "sg", mode: "imperative" };
+        case "shi|":
+            return { person: 2, number: "sg", mode: "imperative" };
+        case "|":
+            return { person: 3, number: "sg", mode: "imperative" };
+        case "ti|kan":
+            return { person: 1, number: "pl", mode: "imperative" };
+        case "shi|kan":
+            return { person: 2, number: "pl", mode: "imperative" };
+        case "|kan":
+            return { person: 3, number: "pl", mode: "imperative" };
+        default:
+            return null;
     }
-    if (subjectPrefix === "ti" && subjectSuffix === "") {
-        return { person: 2, number: "sg" };
+}
+
+function getNonImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
+    const key = `${subjectPrefix}|${subjectSuffix}`;
+    switch (key) {
+        case "ni|":
+            return { person: 1, number: "sg", mode: "nonimperative" };
+        case "ti|":
+            return { person: 2, number: "sg", mode: "nonimperative" };
+        case "|":
+            return { person: 3, number: "sg", mode: "nonimperative" };
+        case "ti|t":
+            return { person: 1, number: "pl", mode: "nonimperative" };
+        case "an|t":
+            return { person: 2, number: "pl", mode: "nonimperative" };
+        case "|t":
+            return { person: 3, number: "pl", mode: "nonimperative" };
+        default:
+            return null;
     }
-    if (subjectPrefix === "ti" && subjectSuffix === "t") {
-        return { person: 1, number: "pl" };
+}
+
+function isImperativeSubjectIdentityContext(options = {}) {
+    return options?.mode === "imperative" || options?.tense === "imperativo";
+}
+
+function isNonImperativeSubjectIdentityContext(options = {}) {
+    return (
+        options?.mode === "nonimperative"
+        || options?.mode === "non-imperative"
+        || (
+            typeof options?.tense === "string"
+            && options.tense
+            && options.tense !== "imperativo"
+        )
+    );
+}
+
+function stripSubjectIdentityMode(info = null) {
+    return info ? { person: info.person, number: info.number } : null;
+}
+
+function getSubjectPersonInfo(subjectPrefix, subjectSuffix, options = {}) {
+    const imperativeInfo = getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    if (
+        imperativeInfo
+        && (
+            isImperativeSubjectIdentityContext(options)
+            || subjectPrefix === "shi"
+            || subjectSuffix === "kan"
+        )
+    ) {
+        return imperativeInfo;
     }
-    if (subjectPrefix === "an" && subjectSuffix === "t") {
-        return { person: 2, number: "pl" };
-    }
-    if (subjectPrefix === "" && subjectSuffix === "") {
-        return { person: 3, number: "sg" };
-    }
-    if (subjectPrefix === "" && subjectSuffix === "t") {
-        return { person: 3, number: "pl" };
+    const nonImperativeInfo = getNonImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    if (nonImperativeInfo) {
+        return isNonImperativeSubjectIdentityContext(options)
+            ? nonImperativeInfo
+            : stripSubjectIdentityMode(nonImperativeInfo);
     }
     return null;
 }

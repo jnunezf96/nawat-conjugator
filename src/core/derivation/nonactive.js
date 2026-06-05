@@ -270,6 +270,7 @@ function applyNonactiveDerivation({
     applicativeAllStems,
     isYawi,
     suppletiveStemSet,
+    tense = "",
     preferredNonactiveBaseVerb = "",
     preferredNonactiveSourceMeta = null,
     preferredNonactiveSourcePrefix = "",
@@ -317,6 +318,7 @@ function applyNonactiveDerivation({
     const derivedStemPoolByField = { causativeAllStems, applicativeAllStems };
     const shouldUseDerivedRuleBase = !!forwardDerivationConfig;
     const forceAllNonactiveOptions = shouldForceAllNonactiveOptions();
+    const useNonactiveImperfectiveCore = Boolean(tense && !isPerfectiveTense(tense));
     const nonactiveRuleSource = buildNonactiveRuleSourceContext(
         verb,
         analysisVerb,
@@ -344,6 +346,7 @@ function applyNonactiveDerivation({
         parsedVerb: parsedVerb || effectiveSourceMeta,
         nonactiveSourceChain,
         nonactiveRuleSource,
+        useNonactiveImperfectiveCore,
     });
     let resolvedDirectionalPrefix = directionalPrefix;
     let selectionHasPrefixedStems = false;
@@ -376,6 +379,7 @@ function applyNonactiveDerivation({
                 verbMeta: effectiveSourceMeta || parsedVerb,
                 nonactiveSourceChain,
                 nonactiveRuleSource,
+                useNonactiveImperfectiveCore,
             }
         );
         const supportiveSelectedStem = normalizeDerivationStemValue(

@@ -12,11 +12,128 @@ const { createSuite } = require("./runner");
 
 function run(ctx) {
     const s = createSuite("state");
+    const summarizeRouteSourceState = (sourceState) => sourceState && ({
+        version: sourceState.version,
+        routeId: sourceState.routeId,
+        legacyTenseValue: sourceState.legacyTenseValue,
+        routePlacement: sourceState.routePlacement,
+        sourceMode: sourceState.sourceMode,
+        sourceTenseValue: sourceState.sourceTenseValue,
+        sourceState: sourceState.sourceState,
+        sourceSlot: sourceState.sourceSlot,
+        sourceCategory: sourceState.sourceCategory,
+        sourceSurface: sourceState.sourceSurface,
+        sourceInput: sourceState.sourceInput,
+        sourceVerb: sourceState.sourceVerb,
+        verbalizer: sourceState.verbalizer,
+        verbalizerType: sourceState.verbalizerType,
+        targetMode: sourceState.targetMode,
+        targetTense: sourceState.targetTense,
+        targetVerb: sourceState.targetVerb,
+        valency: sourceState.valency,
+        stationKeys: Array.isArray(sourceState.stations)
+            ? sourceState.stations.map((station) => station.key)
+            : [],
+        flags: sourceState.flags,
+    });
 
     // isToggleLockEnabled — ToggleLockState starts disabled
     s.no("toggle lock off by default", ctx.isToggleLockEnabled());
     s.eq("nawat mode scaffold includes particle", ctx.NAWAT_TENSE_MODE.particula, "particula");
     s.eq("european mode scaffold remains available", ctx.TENSE_MODE_SYSTEM.european, "european");
+    s.eq(
+        "ordinary NNC UI state helpers are exported",
+        [
+            typeof ctx.isOrdinaryNncGenerationModeEnabled,
+            typeof ctx.setOrdinaryNncGenerationModeEnabled,
+            typeof ctx.setOrdinaryNncGenerationState,
+            typeof ctx.getOrdinaryNncGenerationState,
+            typeof ctx.buildOrdinaryNncGenerateWordRequest,
+        ],
+        ["function", "function", "function", "function", "function"]
+    );
+    const isOrdinaryNncGenerationModeEnabled = typeof ctx.isOrdinaryNncGenerationModeEnabled === "function"
+        ? () => ctx.isOrdinaryNncGenerationModeEnabled()
+        : () => undefined;
+    const setOrdinaryNncGenerationModeEnabled = typeof ctx.setOrdinaryNncGenerationModeEnabled === "function"
+        ? (enabled, options) => ctx.setOrdinaryNncGenerationModeEnabled(enabled, options)
+        : () => undefined;
+    const setOrdinaryNncGenerationState = typeof ctx.setOrdinaryNncGenerationState === "function"
+        ? (options) => ctx.setOrdinaryNncGenerationState(options)
+        : () => undefined;
+    const getOrdinaryNncGenerationState = typeof ctx.getOrdinaryNncGenerationState === "function"
+        ? () => ctx.getOrdinaryNncGenerationState()
+        : () => undefined;
+    const buildOrdinaryNncGenerateWordRequest = typeof ctx.buildOrdinaryNncGenerateWordRequest === "function"
+        ? (options) => ctx.buildOrdinaryNncGenerateWordRequest(options)
+        : () => ({ options: { override: {} }, prefixInputs: {} });
+    s.no("ordinary NNC UI mode starts disabled", isOrdinaryNncGenerationModeEnabled());
+    s.no(
+        "ordinary NNC override is absent without explicit mode",
+        buildOrdinaryNncGenerateWordRequest({ stem: "kal", explicit: false }).options.override.ordinaryNnc
+    );
+    setOrdinaryNncGenerationModeEnabled(true);
+    setOrdinaryNncGenerationState({ state: "possessive", number: "singular", possessor: "nu" });
+    s.eq(
+        "ordinary NNC UI state records explicit slot selection",
+        getOrdinaryNncGenerationState(),
+        {
+            enabled: true,
+            state: "possessive",
+            number: "singular",
+            possessor: "nu",
+            nounClass: "",
+        }
+    );
+    s.eq(
+        "ordinary NNC UI request builder emits explicit override",
+        buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
+        {
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            verb: "kal",
+            tense: "ordinary-nnc",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            derivationMode: ctx.DERIVATION_MODE.active,
+            voiceMode: ctx.VOICE_MODE.active,
+            possessivePrefix: "nu",
+            ordinaryNnc: {
+                enabled: true,
+                stem: "kal",
+                state: "possessive",
+                number: "singular",
+                possessor: "nu",
+                nounClass: "",
+            },
+        }
+    );
+    setOrdinaryNncGenerationState({ state: "absolutive", number: "plural", possessor: "mu" });
+    s.eq(
+        "ordinary NNC UI state clears possessor outside possessive state and maps plural subject",
+        buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
+        {
+            subjectPrefix: "",
+            subjectSuffix: "t",
+            objectPrefix: "",
+            verb: "kal",
+            tense: "ordinary-nnc",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            derivationMode: ctx.DERIVATION_MODE.active,
+            voiceMode: ctx.VOICE_MODE.active,
+            possessivePrefix: "",
+            ordinaryNnc: {
+                enabled: true,
+                stem: "kal",
+                state: "absolutive",
+                number: "plural",
+                possessor: "",
+                nounClass: "",
+            },
+        }
+    );
+    setOrdinaryNncGenerationModeEnabled(false);
+    s.no("ordinary NNC UI mode can be disabled", isOrdinaryNncGenerationModeEnabled());
     const tiPreteritRoute = ctx.getNawatRouteProfile("adjetivo-preterito-tik");
     s.eq("future nawat route maps legacy -tik preterit id", tiPreteritRoute.id, "denominal-vi-ti-preterit");
     s.eq("future nawat route keeps source slot", tiPreteritRoute.sourceSlot, "noun/inc.root");
@@ -39,6 +156,7 @@ function run(ctx) {
     const tiPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vi-ti-preterit", {
         sourceVerb: "(pusuni)",
     });
+    s.eq("nawat denominal source-state helper is exported", typeof ctx.resolveNawatRouteSourceStateMetadata, "function");
     s.eq("future nawat route verbalizes pusuni with -ti before traveling", tiPreteritTarget.targetVerb, "pusukti");
     s.eq("future nawat route keeps source convention mode", tiPreteritTarget.sourceMode, ctx.TENSE_MODE.verbo);
     s.eq("future nawat route keeps source station", tiPreteritTarget.sourceTenseValue, "presente");
@@ -82,6 +200,49 @@ function run(ctx) {
             routeTarget: tiPreteritTarget,
         }),
         "(pusuni) → pusuk → (pusukti) → pusuktik"
+    );
+    s.eq(
+        "denominal VI -ti route exposes source-state metadata",
+        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
+            sourceVerb: "(pusuni)",
+            routeTarget: tiPreteritTarget,
+            stationModels: tiRouteStations,
+        })),
+        {
+            version: 1,
+            routeId: "denominal-vi-ti-preterit",
+            legacyTenseValue: "adjetivo-preterito-tik",
+            routePlacement: "patientivo-tronco-conversion",
+            sourceMode: ctx.TENSE_MODE.verbo,
+            sourceTenseValue: "presente",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.root",
+            sourceCategory: "noun-or-incorporated-root",
+            sourceSurface: "pusuk",
+            sourceInput: "(pusuni)",
+            sourceVerb: "(pusuni)",
+            verbalizer: "-ti",
+            verbalizerType: "denominal-intransitive",
+            targetMode: ctx.TENSE_MODE.verbo,
+            targetTense: "preterito",
+            targetVerb: "pusukti",
+            valency: "intransitive",
+            stationKeys: ["source-mode", "source-tense", "stem", "verbalizer", "target-mode", "finite-tense"],
+            flags: {
+                denominal: true,
+                patientivoTroncoConversion: true,
+                transitive: false,
+                intransitive: true,
+            },
+        }
+    );
+    s.eq(
+        "denominal source-state metadata leaves VI -ti finite output unchanged",
+        ctx.getNawatRouteFiniteSurfaceForm(tiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: tiPreteritTarget,
+        }),
+        "pusuktik"
     );
     const tiRouteFromTroncoOutputTarget = ctx.resolveNawatRouteTarget("denominal-vi-ti-preterit", {
         sourceVerb: "(pusuni)",
@@ -127,21 +288,161 @@ function run(ctx) {
         }),
         "(pusuni) → pusuk → (pusuk)-(na) → pusuknaj"
     );
-    const agentiveMannerRoute = ctx.getNawatRouteProfile("agentive-manner-adverb");
     s.eq(
-        "future nawat agentive route stays in nawat noun convention",
-        ctx.formatNawatRouteNawatTargetLabel(agentiveMannerRoute, false),
-        "Nawat: Sustantivo > agentivo"
+        "denominal VT -na route exposes source-state metadata",
+        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vt-na-preterit", {
+            sourceVerb: "(pusuni)",
+            routeTarget: naPreteritTarget,
+            stationModels: naRouteStations,
+        })),
+        {
+            version: 1,
+            routeId: "denominal-vt-na-preterit",
+            legacyTenseValue: "adjetivo-preterito-naj",
+            routePlacement: "patientivo-tronco-conversion",
+            sourceMode: ctx.TENSE_MODE.verbo,
+            sourceTenseValue: "presente",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.obj.",
+            sourceCategory: "noun-or-incorporated-object",
+            sourceSurface: "pusuk",
+            sourceInput: "(pusuni)",
+            sourceVerb: "(pusuni)",
+            verbalizer: "-na",
+            verbalizerType: "denominal-transitive",
+            targetMode: ctx.TENSE_MODE.verbo,
+            targetTense: "preterito",
+            targetVerb: "pusukna",
+            valency: "transitive",
+            stationKeys: ["source-mode", "source-tense", "stem", "verbalizer", "target-mode", "finite-tense"],
+            flags: {
+                denominal: true,
+                patientivoTroncoConversion: true,
+                transitive: true,
+                intransitive: false,
+            },
+        }
     );
     s.eq(
-        "future nawat agentive route foregrounds verb to noun conversion",
-        ctx.formatNawatRouteConversionLabel(agentiveMannerRoute, false),
-        "Verbo -> Sustantivo"
+        "denominal source-state metadata leaves VT -na finite output unchanged",
+        ctx.getNawatRouteFiniteSurfaceForm(naPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: naPreteritTarget,
+        }),
+        "pusuknaj"
+    );
+    const iwiPreteritRoute = ctx.getNawatRouteProfile("denominal-vi-iwi-preterit");
+    s.eq("future nawat -iwi route has no european legacy tense", iwiPreteritRoute.legacyTenseValue, "");
+    s.eq("future nawat -iwi route keeps denominal VI verbalizer", iwiPreteritRoute.verbalizer, "-iwi");
+    const iwiPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vi-iwi-preterit", {
+        sourceVerb: "(pusuni)",
+    });
+    const iwiPreteritStations = ctx.getNawatRouteStationModels("denominal-vi-iwi-preterit", {
+        sourceVerb: "(pusuni)",
+        routeTarget: iwiPreteritTarget,
+    });
+    s.eq("future nawat -iwi route verbalizes patientivo tronco stem", iwiPreteritTarget.targetVerb, "pusukiwi");
+    s.eq(
+        "future nawat -iwi preterit follows patientivo tronco trail",
+        ctx.formatNawatRouteSurfaceTrailLabel(iwiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: iwiPreteritTarget,
+            stationModels: iwiPreteritStations,
+        }),
+        "(pusuni) → pusuk → (pusukiwi) → pusukiwik"
     );
     s.eq(
-        "future nawat agentive route keeps the train inside nawat stations",
-        ctx.getNawatRouteStationModels("agentive-manner-adverb", { sourceVerb: "(mati)" }).map((station) => station.key),
-        ["source-mode", "source-tense", "manner", "target-mode", "finite-tense"]
+        "denominal VI -iwi route exposes source-state metadata",
+        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-iwi-preterit", {
+            sourceVerb: "(pusuni)",
+            routeTarget: iwiPreteritTarget,
+            stationModels: iwiPreteritStations,
+        })),
+        {
+            version: 1,
+            routeId: "denominal-vi-iwi-preterit",
+            legacyTenseValue: "",
+            routePlacement: "patientivo-tronco-conversion",
+            sourceMode: ctx.TENSE_MODE.verbo,
+            sourceTenseValue: "presente",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.root",
+            sourceCategory: "noun-or-incorporated-root",
+            sourceSurface: "pusuk",
+            sourceInput: "(pusuni)",
+            sourceVerb: "(pusuni)",
+            verbalizer: "-iwi",
+            verbalizerType: "denominal-intransitive",
+            targetMode: ctx.TENSE_MODE.verbo,
+            targetTense: "preterito",
+            targetVerb: "pusukiwi",
+            valency: "intransitive",
+            stationKeys: ["source-mode", "source-tense", "stem", "verbalizer", "target-mode", "finite-tense"],
+            flags: {
+                denominal: true,
+                patientivoTroncoConversion: true,
+                transitive: false,
+                intransitive: true,
+            },
+        }
+    );
+    s.eq(
+        "denominal source-state metadata leaves VI -iwi finite output unchanged",
+        ctx.getNawatRouteFiniteSurfaceForm(iwiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: iwiPreteritTarget,
+        }),
+        "pusukiwik"
+    );
+    const iwiPerfectRoute = ctx.getNawatRouteProfile("denominal-vi-iwi-perfect");
+    const iwiPerfectTarget = ctx.resolveNawatRouteTarget("denominal-vi-iwi-perfect", {
+        sourceVerb: "(pusuni)",
+    });
+    s.eq(
+        "future nawat -iwi perfect follows patientivo tronco trail",
+        ctx.formatNawatRouteSurfaceTrailLabel(iwiPerfectRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: iwiPerfectTarget,
+        }),
+        "(pusuni) → pusuk → (pusukiwi) → pusukiwtuk"
+    );
+    const awiPreteritRoute = ctx.getNawatRouteProfile("denominal-vi-awi-preterit");
+    const awiPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vi-awi-preterit", {
+        sourceVerb: "(pusuni)",
+    });
+    s.eq("future nawat -awi route verbalizes patientivo tronco stem", awiPreteritTarget.targetVerb, "pusukawi");
+    s.eq(
+        "future nawat -awi preterit follows patientivo tronco trail",
+        ctx.formatNawatRouteSurfaceTrailLabel(awiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: awiPreteritTarget,
+        }),
+        "(pusuni) → pusuk → (pusukawi) → pusukawik"
+    );
+    const awiPerfectRoute = ctx.getNawatRouteProfile("denominal-vi-awi-perfect");
+    const awiPerfectTarget = ctx.resolveNawatRouteTarget("denominal-vi-awi-perfect", {
+        sourceVerb: "(pusuni)",
+    });
+    s.eq(
+        "future nawat -awi perfect follows patientivo tronco trail",
+        ctx.formatNawatRouteSurfaceTrailLabel(awiPerfectRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: awiPerfectTarget,
+        }),
+        "(pusuni) → pusuk → (pusukawi) → pusukawtuk"
+    );
+    s.eq(
+        "agentive manner is no longer a nawat rail route",
+        ctx.getNawatRouteProfile("agentive-manner-adverb"),
+        null
+    );
+    s.no(
+        "agentive manner is absent from the nawat route inventory",
+        ctx.getNawatRouteProfiles().some((profile) => profile.id === "agentive-manner-adverb")
+    );
+    s.ok(
+        "legacy adverb tense remains outside the nawat rail",
+        ctx.getTenseOrderForMode(ctx.TENSE_MODE.adverbio).includes("pasado-remoto-adverbio-activo")
     );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
     s.eq("direct active preterit route resolves legacy tense", directPreteritRoute.legacyTenseValue, "adjetivo-preterito");
@@ -178,6 +479,15 @@ function run(ctx) {
         sourceVerb: "(pusuni)",
         routeTarget: directPreteritTarget,
     });
+    s.eq(
+        "non-denominal direct route source-state metadata is null",
+        ctx.resolveNawatRouteSourceStateMetadata(directPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: directPreteritTarget,
+            stationModels: directPreteritStations,
+        }),
+        null
+    );
     s.eq(
         "direct active preterit route hides redundant source tense and target mode stations",
         directPreteritStations.map((station) => station.key),
@@ -233,15 +543,216 @@ function run(ctx) {
             routeTarget: patientivoNonactiveTarget,
             stationModels: patientivoNonactiveStations,
         }),
-        "(pusuni) → patientivo · pasivo/impersonal → -ti → pusuniti"
+        "(pusuni) → pusuniwa → patientivo · pasivo/impersonal → -ti → pusuniti"
     );
     const patientivoPerfectiveRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti");
+    const patientivoPerfectiveTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveRoute, {
+        sourceVerb: "(pusuni)",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
     s.eq(
-        "patientivo perfective route lands in patientivo -ti surface",
+        "patientivo perfective route rides through the explicit perfective verb surface",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoPerfectiveRoute, {
             sourceVerb: "(pusuni)",
+            sourceTenseValue: "preterito",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: patientivoPerfectiveTarget,
         }),
-        "(pusuni) → patientivo · perfectivo → -ti → pusunti"
+        "(pusuni) → pusunki → patientivo · perfectivo → -ti → pusunti"
+    );
+    const patientivoImperfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-imperfective-t");
+    s.eq(
+        "patientivo noun route defaults to present source tense",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
+            sourceVerb: "(kuchi)",
+        }),
+        "(kuchi) → kuchi → patientivo · imperfectivo → -t → kuchit"
+    );
+    const patientivoImperfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        sourceTenseValue: "imperfecto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "patientivo imperfective noun route rides through the explicit imperfective verb surface",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
+            sourceVerb: "(kuchi)",
+            sourceTenseValue: "imperfecto",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: patientivoImperfectiveNounTarget,
+        }),
+        "(kuchi) → kuchiya → patientivo · imperfectivo → -t → kuchiyat"
+    );
+    const patientivoPerfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti-noun");
+    const patientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "patientivo perfective noun route rides through the explicit perfective verb surface",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoPerfectiveNounRoute, {
+            sourceVerb: "(kuchi)",
+            sourceTenseValue: "preterito",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: patientivoPerfectiveNounTarget,
+        }),
+        "(kuchi) → kuchki → patientivo · perfectivo → -ti → kuchti"
+    );
+    const patientivoNonactiveNounRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
+    const patientivoNonactiveNounTarget = ctx.resolveNawatRouteTarget(patientivoNonactiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+    });
+    s.eq(
+        "patientivo nonactive noun route rides through the explicit nonactive verb surface",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoNonactiveNounRoute, {
+            sourceVerb: "(kuchi)",
+            sourceTenseValue: "preterito",
+            sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+            routeTarget: patientivoNonactiveNounTarget,
+        }),
+        "(kuchi) → kuchiwak → patientivo · pasivo/impersonal → -t → kuchit"
+    );
+    const kuchiVerbNounRouteExpectations = [
+        ["active", "presente", "kuchit"],
+        ["active", "presente-habitual", "kuchinit"],
+        ["active", "presente-desiderativo", "kuchisti"],
+        ["active", "imperfecto", "kuchiyat"],
+        ["active", "preterito", "kuchti"],
+        ["active", "pasado-remoto", "kuchkat"],
+        ["active", "perfecto", "kuchti"],
+        ["active", "pluscuamperfecto", "kuchti"],
+        ["active", "condicional-perfecto", "kuchti"],
+        ["active", "futuro", "kuchisti"],
+        ["active", "condicional", "kuchisti"],
+        ["active", "imperativo", "kuchit"],
+        ["nonactive", "presente", "kuchit"],
+        ["nonactive", "presente-habitual", "kuchiwanit"],
+        ["nonactive", "presente-desiderativo", "kuchiwasti"],
+        ["nonactive", "imperfecto", "kuchiwayat"],
+        ["nonactive", "preterito", "kuchit"],
+        ["nonactive", "pasado-remoto", "kuchiwakat"],
+        ["nonactive", "perfecto", "kuchit"],
+        ["nonactive", "pluscuamperfecto", "kuchit"],
+        ["nonactive", "condicional-perfecto", "kuchit"],
+        ["nonactive", "futuro", "kuchiwasti"],
+        ["nonactive", "condicional", "kuchiwasti"],
+        ["nonactive", "imperativo", "kuchit"],
+    ];
+    kuchiVerbNounRouteExpectations.forEach(([mode, tenseValue, expectedSurface]) => {
+        const sourceCombinedMode = mode === "nonactive"
+            ? ctx.COMBINED_MODE.nonactive
+            : ctx.COMBINED_MODE.active;
+        const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
+            sourceTenseValue: tenseValue,
+            sourceCombinedMode,
+        });
+        const routeProfile = ctx.getNawatRouteProfile(routeKey);
+        const routeTarget = ctx.resolveNawatRouteTarget(routeProfile, {
+            sourceVerb: "(kuchi)",
+            sourceTenseValue: tenseValue,
+            sourceCombinedMode,
+        });
+        s.eq(
+            `kuchi ${mode} ${tenseValue} V→S lands in expected patientivo noun`,
+            ctx.getNawatRouteFiniteSurfaceForm(routeProfile, {
+                sourceVerb: "(kuchi)",
+                routeTarget,
+            }),
+            expectedSurface
+        );
+    });
+    s.eq(
+        "active pasado remoto V→S uses the imperfective patientive track",
+        ctx.resolveNawatVerbNounConversionRouteKeyForSource({
+            sourceTenseValue: "pasado-remoto",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+        }),
+        "patientivo-imperfective-t"
+    );
+    const activeRemotePatientivoSpec = ctx.resolveNawatPatientivoRouteSpec({
+        sourceTenseValue: "pasado-remoto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "active pasado remoto V→S route spec keeps source tense separate from patientivo class",
+        activeRemotePatientivoSpec,
+        {
+            sourceTenseValue: "pasado-remoto",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            patientivoSource: "imperfectivo",
+            routeKey: "patientivo-imperfective-t",
+            suffix: "t",
+            surfaceSuffix: "-t",
+        }
+    );
+    const activeRemotePatientivoRoute = ctx.getNawatRouteProfile(activeRemotePatientivoSpec.routeKey);
+    const activeRemotePatientivoTarget = ctx.resolveNawatRouteTarget(activeRemotePatientivoRoute, {
+        sourceVerb: "(kuchi)",
+        sourceTenseValue: "pasado-remoto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "active pasado remoto V→S trail names the destination as imperfective patientivo",
+        ctx.formatNawatRouteSurfaceTrailLabel(activeRemotePatientivoRoute, {
+            sourceVerb: "(kuchi)",
+            sourceTenseValue: "pasado-remoto",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: activeRemotePatientivoTarget,
+        }),
+        "(kuchi) → kuchka → patientivo · imperfectivo → -t → kuchkat"
+    );
+    const activeRemotePatientivoStations = ctx.getNawatRouteStationModels(activeRemotePatientivoRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: activeRemotePatientivoTarget,
+    });
+    s.eq(
+        "active pasado remoto V→S station model keeps patientivo branch imperfective",
+        activeRemotePatientivoStations.find((station) => station.key === "patientivo-branch")?.patientivoSource,
+        "imperfectivo"
+    );
+    const puluaVerbNounRouteExpectations = [
+        ["", "pulut"],
+        ["ta", "tapulut"],
+    ];
+    puluaVerbNounRouteExpectations.forEach(([sourceObjectPrefix, expectedSurface]) => {
+        const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
+            sourceTenseValue: "presente",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+        });
+        const routeProfile = ctx.getNawatRouteProfile(routeKey);
+        const routeTarget = ctx.resolveNawatRouteTarget(routeProfile, {
+            sourceVerb: "(pulua)",
+            sourceObjectPrefix,
+            sourceTenseValue: "presente",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+        });
+        s.eq(
+            `pulua active present V→S strips final -a before patientivo -t${sourceObjectPrefix ? " with object prefix" : ""}`,
+            ctx.getNawatRouteFiniteSurfaceForm(routeProfile, {
+                sourceVerb: "(pulua)",
+                sourceObjectPrefix,
+                routeTarget,
+            }),
+            expectedSurface
+        );
+    });
+    const puluaNonactivePatientivoRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
+    const puluaNonactivePatientivoTarget = ctx.resolveNawatRouteTarget(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        sourceTenseValue: "presente",
+        sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+    });
+    s.eq(
+        "pulua nonactive V→S deletes -lu before core patientivo nominal family",
+        ctx.getNawatRouteFiniteSurfaceForm(puluaNonactivePatientivoRoute, {
+            sourceVerb: "(pulua)",
+            routeTarget: puluaNonactivePatientivoTarget,
+        }),
+        "pulul"
     );
     const nonactiveHabitualRoute = ctx.getNawatRouteProfile("nonactive-habitual-potential");
     const nonactiveHabitualTarget = ctx.resolveNawatRouteTarget(nonactiveHabitualRoute, { sourceVerb: "(pusuni)" });
@@ -276,12 +787,27 @@ function run(ctx) {
     );
     const routeRestore = {
         tenseMode: ctx.getActiveTenseMode(),
+        europeanMode: ctx.getActiveEuropeanTenseMode(),
+        nawatMode: ctx.getActiveNawatTenseMode(),
         selection: ctx.getCurrentResolvedConjugationSelectionState(),
         combined: ctx.getCombinedMode(),
         sourceScope: ctx.getVerbSourceScope(),
     };
+    ctx.setActiveEuropeanTenseMode(ctx.TENSE_MODE.adjetivo);
+    ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo);
+    s.eq("nawat mode click can render noun output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
+    s.eq("nawat mode click does not move european mode", ctx.getActiveEuropeanTenseMode(), ctx.TENSE_MODE.adjetivo);
+    ctx.setActiveEuropeanTenseMode(ctx.TENSE_MODE.verbo);
+    s.eq("european mode click can render verb output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.verbo);
+    s.eq(
+        "european mode click does not move nawat mode",
+        ctx.getActiveNawatTenseModeForCurrentSelection(),
+        ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo
+    );
     ctx.setActiveTenseMode(ctx.TENSE_MODE.sustantivo);
+    ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo, { syncOutput: false });
     ctx.setActiveNawatRouteProfile("denominal-vt-na-preterit");
+    s.eq("direct nawat route state is not marked as chip travel", ctx.getActiveNawatRouteProfile().activeRouteTravelSource, "");
     s.eq(
         "embedded nawat route stays anchored in sustantivo mode",
         ctx.getActiveNawatTenseModeForCurrentSelection(),
@@ -295,6 +821,7 @@ function run(ctx) {
     });
     s.eq("nawat route activation starts from canonical route id", activatedNawatRoute.id, "denominal-vi-ti-preterit");
     s.eq("nawat route activation stores canonical route state", ctx.getActiveNawatRouteProfile().id, "denominal-vi-ti-preterit");
+    s.eq("nawat route activation is marked as chip travel", ctx.getActiveNawatRouteProfile().activeRouteTravelSource, "chip");
     s.eq("nawat route activation verbalizes before reaching verb convention", activatedNawatRoute.targetVerb, "pusukti");
     s.eq("nawat route activation goes to verb convention", ctx.getActiveTenseMode(), ctx.TENSE_MODE.verbo);
     s.eq("nawat route activation selects ordinary preterite", ctx.getSelectedTenseTab(), "preterito");
@@ -328,13 +855,6 @@ function run(ctx) {
     });
     s.eq("nawat -na route station changes entrada to segmented transitive input", verbalizerNaNawatRoute.activeStationInput, "(pusuk)-(na)");
     s.eq("nawat -na route station renders from segmented transitive input", verbalizerNaNawatRoute.activeStationVerb, "(pusuk)-(na)");
-    const activatedAgentiveRoute = ctx.activateNawatRouteProfile("agentive-manner-adverb", {
-        sourceVerb: "(mati)",
-    });
-    s.eq("nawat agentive route does not travel to european adverb mode", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
-    s.eq("nawat agentive route maps to nawat agentivo", ctx.getSelectedTenseTab(), "agentivo");
-    s.eq("nawat agentive route keeps source verb for noun circuitry", activatedAgentiveRoute.targetVerb, "(mati)");
-    s.eq("active nawat mode marks adverb route as sustantivo circuitry", ctx.getActiveNawatTenseModeForCurrentSelection(), "sustantivo");
     const activatedDirectRoute = ctx.activateNawatRouteProfile("direct-active-preterit", {
         sourceVerb: "(pusuni)",
     });
@@ -362,7 +882,9 @@ function run(ctx) {
     s.eq("nonactive habitual route switches combined mode", ctx.getCombinedMode(), ctx.COMBINED_MODE.nonactive);
     ctx.setCombinedMode(routeRestore.combined);
     ctx.setVerbSourceScope(routeRestore.sourceScope, { syncCombinedMode: false });
-    ctx.setActiveTenseMode(routeRestore.tenseMode);
+    ctx.setActiveEuropeanTenseMode(routeRestore.europeanMode, { syncOutput: false });
+    ctx.setActiveNawatTenseMode(routeRestore.nawatMode, { syncOutput: false });
+    ctx.setActiveTenseMode(routeRestore.tenseMode, { syncConventionState: false });
     ctx.applyResolvedConjugationSelectionState(routeRestore.selection);
 
     // getToggleLockStateKey — pure string key normalization
@@ -371,6 +893,41 @@ function run(ctx) {
     s.eq("key: 3-part key strips tense segment", ctx.getToggleLockStateKey("nemi|present|sg"), "nemi|sg");
     s.eq("key: 4-part key with nonactive strips both tense segments", ctx.getToggleLockStateKey("nemi|nonactive|past|t"), "nemi|t");
     s.eq("key: 3-part key, nonactive at tenseIndex+1 yields stem only", ctx.getToggleLockStateKey("ki|nonactive|t"), "ki");
+
+    const sourceScopeBeforeLock = ctx.getVerbSourceScope();
+    const combinedModeBeforeLock = ctx.getCombinedMode();
+    ctx.setVerbSourceScope(ctx.VERB_SOURCE_SCOPE.active);
+    ctx.setToggleLockEnabled(true, { persist: false, refreshUi: false });
+    ctx.setCombinedMode(ctx.COMBINED_MODE.nonactive);
+    s.eq(
+        "toggle lock pins ACT source scope through combined-mode changes",
+        ctx.getVerbSourceScope(),
+        ctx.VERB_SOURCE_SCOPE.active
+    );
+    ctx.setVerbSourceScope(ctx.VERB_SOURCE_SCOPE.nonactive, { syncCombinedMode: false });
+    s.eq(
+        "toggle lock ignores automatic source scope restores",
+        ctx.getVerbSourceScope(),
+        ctx.VERB_SOURCE_SCOPE.active
+    );
+    ctx.setVerbSourceScope(ctx.VERB_SOURCE_SCOPE.nonactive, { syncLock: true, respectLock: false });
+    s.eq(
+        "manual source scope selection updates the locked choice",
+        ctx.getVerbSourceScope(),
+        ctx.VERB_SOURCE_SCOPE.nonactive
+    );
+    ctx.setToggleLockEnabled(false, { resetToDefaults: true, persist: false, refreshUi: false });
+    s.eq(
+        "unlocking the toggle lock resets source scope to TODOS",
+        ctx.getVerbSourceScope(),
+        ctx.VERB_SOURCE_SCOPE.both
+    );
+    ctx.setCombinedMode(combinedModeBeforeLock);
+    ctx.setVerbSourceScope(sourceScopeBeforeLock, {
+        syncCombinedMode: false,
+        syncLock: false,
+        respectLock: false,
+    });
 
     // getToggleStateValue — reads from an arbitrary Map
     const m1 = new Map([["a|b", "val1"]]);

@@ -57,6 +57,57 @@ function run(ctx) {
     s.ok("preterit API: bundle context exists", bundle.context && typeof bundle.context === "object");
     s.ok("preterit API: bundle summary exists", bundle.summary && typeof bundle.summary === "object");
 
+    const asiSecondPluralPreterite = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "asi",
+            tense: "preterito",
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "preterit 2pl intransitive vowel stem realizes an→anh",
+        asiSecondPluralPreterite.surfaceForms,
+        ["anhasket", "anhasiket"]
+    );
+
+    const asiSecondPluralPerfect = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "asi",
+            tense: "perfecto",
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "perfect 2pl intransitive vowel stem realizes an→anh",
+        asiSecondPluralPerfect.surfaceForms,
+        ["anhastiwit"]
+    );
+
+    const asiSecondPluralRemote = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "asi",
+            tense: "pasado-remoto",
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "remote past 2pl intransitive vowel stem realizes an→anh",
+        asiSecondPluralRemote.surfaceForms,
+        ["anhaskat"]
+    );
+
     return s;
 }
 

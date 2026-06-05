@@ -368,7 +368,7 @@ function applyVerbSourceScope(scope, anchor = null) {
     ) {
         return;
     }
-    setVerbSourceScope(scope);
+    setVerbSourceScope(scope, { syncLock: true, respectLock: false });
     const update = () => {
         updateCombinedModeTabs();
         syncVerbSourceScopeControl();
@@ -489,7 +489,11 @@ function forceSimpleModeGrammarDefaults() {
         setActiveTenseMode(defaultTenseMode);
     }
     if (getVerbSourceScope() !== VERB_SOURCE_SCOPE.active) {
-        setVerbSourceScope(VERB_SOURCE_SCOPE.active);
+        setVerbSourceScope(VERB_SOURCE_SCOPE.active, {
+            syncCombinedMode: false,
+            syncLock: false,
+            respectLock: true,
+        });
     }
     if (getCombinedMode() !== COMBINED_MODE.active) {
         setCombinedMode(COMBINED_MODE.active);
@@ -2611,6 +2615,9 @@ function renderTenseTabs() {
         }
         button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
         button.addEventListener("click", () => {
+            if (typeof clearActiveNawatRouteProfile === "function") {
+                clearActiveNawatRouteProfile();
+            }
             const currentSelectionState = getCurrentResolvedConjugationSelectionState({ tenseMode });
             const wasActive = currentSelectionState.group === CONJUGATION_GROUPS.tense
                 && tenseValue === currentSelectionState.tenseValue

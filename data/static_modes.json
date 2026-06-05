@@ -61,6 +61,94 @@
         { "id": "surface", "value": "-tituk" }
       ]
     },
+    "denominal-vi-iwi-preterit": {
+      "id": "denominal-vi-iwi-preterit",
+      "legacyTenseValue": "",
+      "nawatMode": "verbo",
+      "nawatTenseValue": "preterito",
+      "sourceSlot": "noun/inc.root",
+      "sourceCategory": "noun-or-incorporated-root",
+      "verbalizer": "-iwi",
+      "verbalizerType": "denominal-intransitive",
+      "valency": "intransitive",
+      "finiteTense": "preterito",
+      "surfaceSuffix": "-iwik",
+      "routePlacement": "patientivo-tronco-conversion",
+      "nawatLabel": { "labelEs": "sustantivo patientivo de tronco verbal → verbo pretérito -iwi", "labelNa": "tachiwal takutunti → muchiwalis ipan muchiwki -iwi" },
+      "nawatMetaLabel": { "labelEs": "tronco verbal + -iwi → -iwik", "labelNa": "muchiwalis takutunti + -iwi → -iwik" },
+      "stations": [
+        { "id": "input", "value": "[noun/inc.root]" },
+        { "id": "verbalizer", "value": "-iwi" },
+        { "id": "finite-tense", "value": "preterit" },
+        { "id": "surface", "value": "-iwik" }
+      ]
+    },
+    "denominal-vi-iwi-perfect": {
+      "id": "denominal-vi-iwi-perfect",
+      "legacyTenseValue": "",
+      "nawatMode": "verbo",
+      "nawatTenseValue": "perfecto",
+      "sourceSlot": "noun/inc.root",
+      "sourceCategory": "noun-or-incorporated-root",
+      "verbalizer": "-iwi",
+      "verbalizerType": "denominal-intransitive",
+      "valency": "intransitive",
+      "finiteTense": "perfecto",
+      "surfaceSuffix": "-iwtuk/-ijtuk",
+      "routePlacement": "patientivo-tronco-conversion",
+      "nawatLabel": { "labelEs": "sustantivo patientivo de tronco verbal → verbo perfecto -iwi", "labelNa": "tachiwal takutunti → muchiwalis ipan muchiwtuk -iwi" },
+      "nawatMetaLabel": { "labelEs": "tronco verbal + -iwi → -iwtuk/-ijtuk", "labelNa": "muchiwalis takutunti + -iwi → -iwtuk/-ijtuk" },
+      "stations": [
+        { "id": "input", "value": "[noun/inc.root]" },
+        { "id": "verbalizer", "value": "-iwi" },
+        { "id": "finite-tense", "value": "perfect" },
+        { "id": "surface", "value": "-iwtuk/-ijtuk" }
+      ]
+    },
+    "denominal-vi-awi-preterit": {
+      "id": "denominal-vi-awi-preterit",
+      "legacyTenseValue": "",
+      "nawatMode": "verbo",
+      "nawatTenseValue": "preterito",
+      "sourceSlot": "noun/inc.root",
+      "sourceCategory": "noun-or-incorporated-root",
+      "verbalizer": "-awi",
+      "verbalizerType": "denominal-intransitive",
+      "valency": "intransitive",
+      "finiteTense": "preterito",
+      "surfaceSuffix": "-awik",
+      "routePlacement": "patientivo-tronco-conversion",
+      "nawatLabel": { "labelEs": "sustantivo patientivo de tronco verbal → verbo pretérito -awi", "labelNa": "tachiwal takutunti → muchiwalis ipan muchiwki -awi" },
+      "nawatMetaLabel": { "labelEs": "tronco verbal + -awi → -awik", "labelNa": "muchiwalis takutunti + -awi → -awik" },
+      "stations": [
+        { "id": "input", "value": "[noun/inc.root]" },
+        { "id": "verbalizer", "value": "-awi" },
+        { "id": "finite-tense", "value": "preterit" },
+        { "id": "surface", "value": "-awik" }
+      ]
+    },
+    "denominal-vi-awi-perfect": {
+      "id": "denominal-vi-awi-perfect",
+      "legacyTenseValue": "",
+      "nawatMode": "verbo",
+      "nawatTenseValue": "perfecto",
+      "sourceSlot": "noun/inc.root",
+      "sourceCategory": "noun-or-incorporated-root",
+      "verbalizer": "-awi",
+      "verbalizerType": "denominal-intransitive",
+      "valency": "intransitive",
+      "finiteTense": "perfecto",
+      "surfaceSuffix": "-awtuk/-ajtuk",
+      "routePlacement": "patientivo-tronco-conversion",
+      "nawatLabel": { "labelEs": "sustantivo patientivo de tronco verbal → verbo perfecto -awi", "labelNa": "tachiwal takutunti → muchiwalis ipan muchiwtuk -awi" },
+      "nawatMetaLabel": { "labelEs": "tronco verbal + -awi → -awtuk/-ajtuk", "labelNa": "muchiwalis takutunti + -awi → -awtuk/-ajtuk" },
+      "stations": [
+        { "id": "input", "value": "[noun/inc.root]" },
+        { "id": "verbalizer", "value": "-awi" },
+        { "id": "finite-tense", "value": "perfect" },
+        { "id": "surface", "value": "-awtuk/-ajtuk" }
+      ]
+    },
     "adjetivo-preterito-naj": {
       "id": "denominal-vt-na-preterit",
       "legacyTenseValue": "adjetivo-preterito-naj",
@@ -157,6 +245,90 @@
         { "id": "surface", "value": "perfecto" }
       ]
     },
+    "patientivo-nonactive-t": {
+      "id": "patientivo-nonactive-t",
+      "legacyTenseValue": "",
+      "nawatMode": "sustantivo",
+      "nawatTenseValue": "patientivo",
+      "targetMode": "sustantivo",
+      "targetTenseValue": "patientivo",
+      "targetCombinedMode": "nonactive",
+      "sourceMode": "verbo",
+      "sourceTenseValue": "preterito",
+      "sourceSlot": "verb/patientivo",
+      "sourceCategory": "verb-patientivo-surface",
+      "sourceCombinedMode": "nonactive",
+      "patientivoSource": "nonactive",
+      "patientivoNominalSuffix": "t",
+      "valency": "nonactive-compatible",
+      "finiteTense": "patientivo",
+      "surfaceSuffix": "-t",
+      "routePlacement": "patientivo-surface",
+      "nawatLabel": { "labelEs": "verbo → sustantivo patientivo pasivo/impersonal -t", "labelNa": "muchiwalis → tachiwal te muselia -t" },
+      "nawatMetaLabel": { "labelEs": "patientivo pasivo/impersonal + -t", "labelNa": "tachiwal te muselia + -t" },
+      "stations": [
+        { "id": "input", "value": "[verb]" },
+        { "id": "patientivo-route", "value": "patientivo nonactive" },
+        { "id": "surface-profile", "value": "-t" },
+        { "id": "surface", "value": "patientivo-t" }
+      ]
+    },
+    "patientivo-perfective-ti-noun": {
+      "id": "patientivo-perfective-ti-noun",
+      "legacyTenseValue": "",
+      "nawatMode": "sustantivo",
+      "nawatTenseValue": "patientivo",
+      "targetMode": "sustantivo",
+      "targetTenseValue": "patientivo",
+      "targetCombinedMode": "active",
+      "sourceMode": "verbo",
+      "sourceTenseValue": "preterito",
+      "sourceSlot": "verb/patientivo",
+      "sourceCategory": "verb-patientivo-surface",
+      "sourceCombinedMode": "active",
+      "patientivoSource": "perfectivo",
+      "patientivoNominalSuffix": "ti",
+      "valency": "active-compatible",
+      "finiteTense": "patientivo",
+      "surfaceSuffix": "-ti",
+      "routePlacement": "patientivo-surface",
+      "nawatLabel": { "labelEs": "verbo → sustantivo patientivo perfectivo -ti", "labelNa": "muchiwalis → tachiwal ipan muchiwki -ti" },
+      "nawatMetaLabel": { "labelEs": "patientivo perfectivo + -ti", "labelNa": "tachiwal ipan muchiwki + -ti" },
+      "stations": [
+        { "id": "input", "value": "[verb]" },
+        { "id": "patientivo-route", "value": "patientivo perfective" },
+        { "id": "surface-profile", "value": "-ti" },
+        { "id": "surface", "value": "patientivo-ti" }
+      ]
+    },
+    "patientivo-imperfective-t": {
+      "id": "patientivo-imperfective-t",
+      "legacyTenseValue": "",
+      "nawatMode": "sustantivo",
+      "nawatTenseValue": "patientivo",
+      "targetMode": "sustantivo",
+      "targetTenseValue": "patientivo",
+      "targetCombinedMode": "active",
+      "sourceMode": "verbo",
+      "sourceTenseValue": "imperfecto",
+      "sourceSlot": "verb/patientivo",
+      "sourceCategory": "verb-patientivo-surface",
+      "sourceCombinedMode": "active",
+      "patientivoSource": "imperfectivo",
+      "patientivoNominalSuffix": "t",
+      "valency": "active-compatible",
+      "finiteTense": "patientivo",
+      "surfaceSuffix": "-t",
+      "routePlacement": "patientivo-surface",
+      "nawatLabel": { "labelEs": "verbo → sustantivo patientivo imperfectivo -t", "labelNa": "muchiwalis → tachiwal ipan muchiwaya -t" },
+      "nawatMetaLabel": { "labelEs": "patientivo imperfectivo + -t", "labelNa": "tachiwal ipan muchiwaya + -t" },
+      "stations": [
+        { "id": "input", "value": "[verb]" },
+        { "id": "patientivo-route", "value": "patientivo imperfective" },
+        { "id": "surface-profile", "value": "-t" },
+        { "id": "surface", "value": "patientivo-t" }
+      ]
+    },
     "adjetivo-patientivo-no-activo": {
       "id": "patientivo-nonactive-ti",
       "legacyTenseValue": "adjetivo-patientivo-no-activo",
@@ -239,27 +411,6 @@
         { "id": "nonactive-route", "value": "nonactive" },
         { "id": "finite-tense", "value": "present habitual" },
         { "id": "surface", "value": "presente-habitual" }
-      ]
-    },
-    "pasado-remoto-adverbio-activo": {
-      "id": "agentive-manner-adverb",
-      "legacyTenseValue": "pasado-remoto-adverbio-activo",
-      "legacyMode": "adverbio",
-      "nawatMode": "sustantivo",
-      "nawatTenseValue": "agentivo",
-      "sourceSlot": "verb/agentive",
-      "sourceCategory": "verb-agentive-manner",
-      "valency": "active",
-      "finiteTense": "pasado-remoto-agentivo",
-      "surfaceSuffix": "-ka/-tika",
-      "routePlacement": "agentivo",
-      "nawatLabel": { "labelEs": "verbo → agentivo de manera", "labelNa": "muchiwalis → tachiwani ken muchiwa" },
-      "nawatMetaLabel": { "labelEs": "agentivo + manera → -ka/-tika", "labelNa": "tachiwani + ken muchiwa → -ka/-tika" },
-      "stations": [
-        { "id": "input", "value": "[verb]" },
-        { "id": "nominal-route", "value": "agentivo" },
-        { "id": "finite-tense", "value": "agentive preterit" },
-        { "id": "surface", "value": "-ka/-tika" }
       ]
     }
   },

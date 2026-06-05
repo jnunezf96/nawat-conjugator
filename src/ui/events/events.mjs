@@ -167,6 +167,19 @@ export function createUiEventsApi(targetObject = globalThis) {
         targetObject.__NAWAT_KEYDOWN_BOUND__ = true;
     }
 
+    function applyVerbEntryInputNow() {
+        const verbEl = targetObject.document.getElementById("verb");
+        if (!verbEl) {
+            return;
+        }
+        verbEl.dispatchEvent(new targetObject.Event("input", { bubbles: true }));
+        targetObject.scheduleVerbInputRefresh(verbEl.value, {
+            immediate: true,
+            source: "manual-entry",
+        });
+        targetObject.focusVisibleVerbSurfaceAtEnd();
+    }
+
     async function loadStaticBootstrapData() {
         const runtimeConfig = (
             typeof targetObject !== "undefined"
@@ -189,6 +202,7 @@ export function createUiEventsApi(targetObject = globalThis) {
                 "loadStaticPhonology",
                 "loadStaticAllomorphyRules",
                 "loadStaticModes",
+                "loadStaticNnc",
                 "loadStaticMisc",
                 "loadStaticSuppletives",
                 "loadStaticRedup",
@@ -291,6 +305,13 @@ export function createUiEventsApi(targetObject = globalThis) {
                     targetObject.renderVerbMirror();
                 });
             }
+            const verbEntryApplyButton = documentObject.getElementById("verb-entry-apply");
+            if (verbEntryApplyButton) {
+                verbEntryApplyButton.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    applyVerbEntryInputNow();
+                });
+            }
             if (verbMirrorContent) {
                 verbMirrorContent.addEventListener("beforeinput", targetObject.handleVerbMirrorBeforeInput);
                 verbMirrorContent.addEventListener("paste", (event) => {
@@ -342,6 +363,7 @@ export function createUiEventsApi(targetObject = globalThis) {
 
     return {
         bindGlobalKeydownHandler,
+        applyVerbEntryInputNow,
         loadStaticBootstrapData,
         initializeUiRuntime,
         bindLegacyDomContentLoaded,

@@ -345,8 +345,10 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       tense,
       analysisVerb,
       rawAnalysisVerb,
+      rawVerb = "",
       sourceRawVerb = "",
       analysisExactVerb,
+      verbMeta = null,
       isYawi,
       isWeya,
       directionalPrefix,
@@ -382,6 +384,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       isNounContext = false,
       patientivoSource = "nonactive",
       patientivoNominalSuffix = null,
+      possessivePrefix = "",
+      combinedMode = "",
+      instrumentivoMode = "",
       stemProvenanceSeed = null,
       rootPlusYaBase = "",
       rootPlusYaBasePronounceable = "",
@@ -492,6 +497,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         directionalOutputPrefix
       } = directionalPrefixResult);
       let nounContextPrimaryFormSpec = null;
+      let nounContextPrimaryTrailingSuffix = "";
       const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
       objectPrefix = targetObject.composeProjectiveObjectPrefix({
         objectPrefix,
@@ -512,6 +518,48 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       const nonRedupAnalysis = targetObject.getNonReduplicatedRoot(rawAnalysis);
       const useAnalysisForCounts = Boolean(directionalInputPrefix) || nonRedupAnalysis !== rawAnalysis;
       const analysisTarget = useAnalysisForCounts ? nonRedupAnalysis : rawAnalysis;
+      const resolveVerbDerivedNominalVerbMeta = () => {
+        if (verbMeta && typeof verbMeta === "object") {
+          return verbMeta;
+        }
+        const candidateRawVerb = rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb;
+        return targetObject.parseVerbInput(candidateRawVerb);
+      };
+      const applyVerbDerivedNominalResultToMorphology = nominalResult => {
+        const entries = Array.isArray(nominalResult?.entries) ? targetObject.normalizeVerbDerivedNominalEntries(nominalResult.entries, {
+          kind: nominalResult?.nounDerivationKind || ""
+        }) : [];
+        if (!entries.length) {
+          return false;
+        }
+        const [primaryEntry, ...alternateEntries] = entries;
+        const primaryRealized = targetObject.realizeNominalFormSpec(primaryEntry.formSpec || null, primaryEntry);
+        subjectPrefix = "";
+        objectPrefix = primaryEntry.surfaceObjectPrefix || "";
+        verb = primaryRealized.verb || primaryEntry.verb || "";
+        subjectSuffix = primaryRealized.subjectSuffix ?? primaryEntry.subjectSuffix ?? "";
+        nounContextPrimaryFormSpec = primaryEntry.formSpec || targetObject.buildLiteralNominalFormSpec(verb, subjectSuffix);
+        nounContextPrimaryTrailingSuffix = primaryEntry.trailingSuffix || "";
+        alternateForms.length = 0;
+        alternateEntries.forEach(entry => {
+          const realized = targetObject.realizeNominalFormSpec(entry.formSpec || null, entry);
+          const alternateVerb = realized.verb || entry.verb || "";
+          if (!alternateVerb) {
+            return;
+          }
+          const alternateSuffix = realized.subjectSuffix ?? entry.subjectSuffix ?? "";
+          pushAlternateForm(alternateVerb, alternateSuffix, {
+            formSpec: entry.formSpec || targetObject.buildLiteralNominalFormSpec(alternateVerb, alternateSuffix),
+            trailingSuffix: entry.trailingSuffix || "",
+            surfaceObjectPrefix: entry.surfaceObjectPrefix || "",
+            surfaceRuleMeta: entry.surfaceRuleMeta || null,
+            nounDerivationKind: entry.nounDerivationKind || nominalResult?.nounDerivationKind || "",
+            sourceTense: entry.sourceTense || "",
+            provenance: entry.provenance || null
+          });
+        });
+        return true;
+      };
       if (tense === "imperativo") {
         const isImperativeSecondSingular = baseSubjectPrefix === "ti" && baseSubjectSuffix === "";
         const isImperativeSecondPlural = baseSubjectPrefix === "an" && baseSubjectSuffix === "t";
@@ -739,6 +787,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         hasDoubleDash,
         forceClassBOnly: isVerbNonactiveMode
       };
+      const pretSurfaceRuleMeta = suppletiveStemSet?.surfaceRuleMeta || null;
       if (targetObject.PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         const universalOutput = targetObject.buildPretUniversalResultWithProvenance(pretDerivationSharedOptions);
         const resolvedUniversalForms = (universalOutput.forms || []).map(f => targetObject.resolveOptionalSupportiveOutputText({
@@ -747,13 +796,16 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
           optionalSupportiveLetter
         })).filter(Boolean);
         const primaryUniversalVerb = resolvedUniversalForms[0] || "—";
-        resolvedUniversalForms.slice(1).forEach(f => pushAlternateForm(f, ""));
+        resolvedUniversalForms.slice(1).forEach(f => pushAlternateForm(f, "", {
+          surfaceRuleMeta: pretSurfaceRuleMeta
+        }));
         return {
           subjectPrefix: "",
           objectPrefix: "",
           subjectSuffix: "",
           verb: primaryUniversalVerb,
           alternateForms,
+          surfaceRuleMeta: pretSurfaceRuleMeta,
           stemProvenance: universalOutput.provenance || null
         };
       }
@@ -800,13 +852,16 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
           optionalSupportiveLetter
         })).filter(Boolean);
         const primaryClassVerb = resolvedClassForms[0] || "—";
-        resolvedClassForms.slice(1).forEach(f => pushAlternateForm(f, ""));
+        resolvedClassForms.slice(1).forEach(f => pushAlternateForm(f, "", {
+          surfaceRuleMeta: pretSurfaceRuleMeta
+        }));
         return {
           subjectPrefix: "",
           objectPrefix: "",
           subjectSuffix: "",
           verb: primaryClassVerb,
           alternateForms,
+          surfaceRuleMeta: pretSurfaceRuleMeta,
           stemProvenance: classOutput.provenance || null
         };
       }
@@ -929,129 +984,58 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         });
       }
       if (tense === "calificativo-instrumentivo") {
+        const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
         const calificativoResult = targetObject.getCalificativoInstrumentivoResult({
-          verb,
-          analysisVerb,
-          exactAnalysisVerb,
-          rootPlusYaBase,
-          rootPlusYaBasePronounceable,
-          isYawi,
-          directionalPrefix: directionalInputPrefix,
-          hasSlashMarker,
-          hasSuffixSeparator,
-          hasLeadingDash,
-          hasBoundMarker,
-          hasCompoundMarker,
-          boundPrefix,
-          boundPrefixes,
-          boundExplicitFlags,
-          directionalPrefixFromSlash,
-          sourceSplitPrefix: resolvedSourceSplitPrefix,
-          sourcePrefix,
-          sourceBase,
-          sourceCompositeBase: resolvedSourceCompositeBase,
-          hasImpersonalTaPrefix,
-          hasOptionalSupportiveI,
-          optionalSupportiveLetter
+          rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
+          verbMeta: nominalVerbMeta,
+          subjectPrefix: baseSubjectPrefix,
+          subjectSuffix: baseSubjectSuffix,
+          objectPrefix: baseObjectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          possessivePrefix
         });
-        if (!calificativoResult || calificativoResult.error) {
+        if (!calificativoResult || calificativoResult.error || !applyVerbDerivedNominalResultToMorphology(calificativoResult)) {
           return {
             error: true
           };
-        }
-        verb = calificativoResult.verb;
-        subjectSuffix = calificativoResult.subjectSuffix;
-        if (Array.isArray(calificativoResult.alternateForms) && calificativoResult.alternateForms.length) {
-          alternateForms.length = 0;
-          calificativoResult.alternateForms.forEach(entry => {
-            pushAlternateForm(entry.verb, entry.subjectSuffix, {
-              formSpec: entry.formSpec || null
-            });
-          });
         }
       }
       if (tense === "instrumentivo") {
+        const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
+        const resolvedInstrumentivoMode = instrumentivoMode || (possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo);
         const instrumentivoResult = targetObject.getInstrumentivoResult({
-          verb,
-          analysisVerb,
-          exactAnalysisVerb,
-          rootPlusYaBase,
-          rootPlusYaBasePronounceable,
-          isYawi,
-          directionalPrefix: directionalInputPrefix,
-          hasSlashMarker,
-          hasSuffixSeparator,
-          hasLeadingDash,
-          hasBoundMarker,
-          hasCompoundMarker,
-          boundPrefix,
-          boundPrefixes,
-          boundExplicitFlags,
-          directionalPrefixFromSlash,
-          sourceSplitPrefix: resolvedSourceSplitPrefix,
-          sourcePrefix,
-          sourceBase,
-          sourceCompositeBase: resolvedSourceCompositeBase,
-          hasImpersonalTaPrefix,
-          hasOptionalSupportiveI,
-          optionalSupportiveLetter
+          rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
+          verbMeta: nominalVerbMeta,
+          subjectPrefix: baseSubjectPrefix,
+          subjectSuffix: baseSubjectSuffix,
+          objectPrefix: baseObjectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          mode: resolvedInstrumentivoMode,
+          possessivePrefix
         });
-        if (!instrumentivoResult || instrumentivoResult.error) {
+        if (!instrumentivoResult || instrumentivoResult.error || !applyVerbDerivedNominalResultToMorphology(instrumentivoResult)) {
           return {
             error: true
           };
-        }
-        verb = instrumentivoResult.verb;
-        subjectSuffix = instrumentivoResult.subjectSuffix;
-        if (Array.isArray(instrumentivoResult.alternateForms) && instrumentivoResult.alternateForms.length) {
-          alternateForms.length = 0;
-          instrumentivoResult.alternateForms.forEach(entry => {
-            pushAlternateForm(entry.verb, entry.subjectSuffix, {
-              formSpec: entry.formSpec || null
-            });
-          });
         }
       }
       if (tense === "locativo-temporal") {
+        const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
         const locativoResult = targetObject.getLocativoTemporalResult({
-          verb,
-          analysisVerb,
-          exactAnalysisVerb,
-          rootPlusYaBase,
-          rootPlusYaBasePronounceable,
-          isYawi,
-          directionalPrefix: directionalInputPrefix,
-          hasSlashMarker,
-          hasSuffixSeparator,
-          hasLeadingDash,
-          hasBoundMarker,
-          hasCompoundMarker,
-          boundPrefix,
-          boundPrefixes,
-          boundExplicitFlags,
-          directionalPrefixFromSlash,
-          sourceSplitPrefix: resolvedSourceSplitPrefix,
-          sourcePrefix,
-          sourceBase,
-          sourceCompositeBase: resolvedSourceCompositeBase,
-          hasImpersonalTaPrefix,
-          hasOptionalSupportiveI,
-          optionalSupportiveLetter
+          rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
+          verbMeta: nominalVerbMeta,
+          objectPrefix: baseObjectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          possessivePrefix,
+          combinedMode
         });
-        if (!locativoResult || locativoResult.error) {
+        if (!locativoResult || locativoResult.error || !applyVerbDerivedNominalResultToMorphology(locativoResult)) {
           return {
             error: true
           };
-        }
-        verb = locativoResult.verb;
-        subjectSuffix = locativoResult.subjectSuffix;
-        if (Array.isArray(locativoResult.alternateForms) && locativoResult.alternateForms.length) {
-          alternateForms.length = 0;
-          locativoResult.alternateForms.forEach(entry => {
-            pushAlternateForm(entry.verb, entry.subjectSuffix, {
-              formSpec: entry.formSpec || null
-            });
-          });
         }
       }
       if (tense === "activo-no-finito") {
@@ -1543,6 +1527,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         subjectSuffix,
         verb,
         formSpec: isNounContextFinal ? nounContextPrimaryFormSpec || targetObject.buildLiteralNominalFormSpec(verb, subjectSuffix) : null,
+        trailingSuffix: isNounContextFinal ? nounContextPrimaryTrailingSuffix : "",
         alternateForms: normalizedAlternateForms,
         surfaceRuleMeta,
         directionalChainMeta,

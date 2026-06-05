@@ -27,6 +27,7 @@ const EXPECTED_JSON_FILES = [
     "static_labels.json",
     "static_misc.json",
     "static_modes.json",
+    "static_nnc.json",
     "static_options.json",
     "static_orders.json",
     "static_parse_rules.json",
@@ -58,6 +59,8 @@ const INTERNAL_TENSE_IDS = new Set([
 
 const PRETERIT_CLASS_IDS = new Set(["A", "B", "C", "D"]);
 const VALID_NONACTIVE_SUFFIXES = new Set(["lu", "u", "wa", "luwa", "uwa", "walu"]);
+const STATIC_NNC_ALLOWED_STATES = new Set(["absolutive", "possessive"]);
+const STATIC_NNC_ALLOWED_NUMBERS = new Set(["singular", "plural"]);
 
 const errors = [];
 
@@ -356,6 +359,7 @@ function checkRequiredTopLevelKeys(jsonByName) {
         "static_labels.json": ["uiLabels", "personGroupLabels", "personSubLabels", "objectLabels", "tenseLabels", "tenseDescriptions", "preteritoClassDetailByKey"],
         "static_misc.json": ["nonanimateNounTenses", "subjectPersonNumberOrder", "nonactiveSuffixOrder"],
         "static_modes.json": ["tenseMode", "tenseModeSystem", "nawatTenseMode", "nawatRouteProfiles"],
+        "static_nnc.json": ["ordinaryNncFixtures"],
         "static_options.json": ["specificValencePrefixes", "nonspecificValencePrefixes", "nonspecificValenceAffixes", "objectPrefixes", "subjectCombinations", "subjectPersonGroups", "possessivePrefixes", "possessorLabels", "possessiveToObjectPrefix", "passiveImpersonalSubjectMap", "sustantivoVerbalTransitivePrefixes", "invalidCombinationKeys"],
         "static_orders.json": ["tenseOrder", "preteritoUniversalOrder"],
         "static_phonology.json": ["directionalPrefixes", "vowels", "validConsonants", "digraphs", "syllableForms", "surfaceAssimilations"],
@@ -386,8 +390,6 @@ function checkNawatRouteProfiles(jsonByName) {
     const derivationModeKeys = new Set(Object.keys(asObject(modes.derivationMode, "static_modes.derivationMode")));
     const voiceModeKeys = new Set(Object.keys(asObject(modes.voiceMode, "static_modes.voiceMode")));
     const allowedPlacements = new Set([
-        "agentivo",
-        "agentive-manner",
         "direct-finite",
         "nonactive-habitual",
         "patientivo-surface",
@@ -399,8 +401,6 @@ function checkNawatRouteProfiles(jsonByName) {
         const profile = asObject(rawProfile, where);
         const requiredStringKeys = [
             "id",
-            "legacyTenseValue",
-            "legacyMode",
             "nawatMode",
             "nawatTenseValue",
             "sourceSlot",
@@ -414,6 +414,14 @@ function checkNawatRouteProfiles(jsonByName) {
                 addError(`${where}.${field} must be a non-empty string.`);
             }
         });
+        ["legacyTenseValue", "legacyMode"].forEach((field) => {
+            if (
+                Object.prototype.hasOwnProperty.call(profile, field)
+                && typeof profile[field] !== "string"
+            ) {
+                addError(`${where}.${field} must be a string when present.`);
+            }
+        });
         if (profile.id) {
             if (seenIds.has(profile.id)) {
                 addError(`${where}.id duplicates ${seenIds.get(profile.id)}.`);
@@ -423,6 +431,9 @@ function checkNawatRouteProfiles(jsonByName) {
         }
         checkLocalizedLabel(profile.nawatLabel, `${where}.nawatLabel`);
         checkLocalizedLabel(profile.nawatMetaLabel, `${where}.nawatMetaLabel`);
+        if (profile.legacyTenseValue && !profile.legacyMode) {
+            addError(`${where}.legacyMode must be a non-empty string when legacyTenseValue is set.`);
+        }
         if (profile.legacyTenseValue && profile.legacyTenseValue !== key) {
             addError(`${where}.legacyTenseValue must match its map key.`);
         }
@@ -734,6 +745,172 @@ function checkSuppletivePathReferences(jsonByName) {
     checkUnique(pathIds, "static_suppletive_paths.paths ids");
 }
 
+function getStaticNncPossessorInventory(staticOptions = {}) {
+    return new Set(asArrayForValidation(staticOptions.possessivePrefixes || [])
+        .map((entry) => (isPlainObject(entry) ? String(entry.value || "") : ""))
+        .filter(Boolean));
+}
+
+function asArrayForValidation(value) {
+    return Array.isArray(value) ? value : [];
+}
+
+function isNonEmptyValidationString(value) {
+    return typeof value === "string" && value.trim() !== "";
+}
+
+function collectStaticNncFixtureErrors(staticNnc = {}, staticOptions = {}) {
+    const localErrors = [];
+    const add = (message) => localErrors.push(message);
+    const possessorInventory = getStaticNncPossessorInventory(staticOptions);
+    const data = isPlainObject(staticNnc) ? staticNnc : {};
+    if (!isPlainObject(staticNnc)) {
+        add("data/static_nnc.json must be an object.");
+    }
+    if (!Array.isArray(data.ordinaryNncFixtures)) {
+        add("static_nnc.ordinaryNncFixtures must be an array.");
+        return localErrors;
+    }
+    if (!data.ordinaryNncFixtures.length) {
+        add("static_nnc.ordinaryNncFixtures must contain at least one fixture.");
+    }
+
+    const fixtureKeys = new Map();
+    data.ordinaryNncFixtures.forEach((fixture, index) => {
+        const where = `static_nnc.ordinaryNncFixtures[${index}]`;
+        if (!isPlainObject(fixture)) {
+            add(`${where} must be an object.`);
+            return;
+        }
+        ["id", "stem", "lemma", "nounClass", "animacy"].forEach((field) => {
+            if (!isNonEmptyValidationString(fixture[field])) {
+                add(`${where}.${field} must be a non-empty string.`);
+            } else if (fixture[field] !== fixture[field].trim()) {
+                add(`${where}.${field} must not have leading or trailing whitespace.`);
+            }
+        });
+        const keys = [fixture.id, fixture.stem, fixture.lemma, ...asArrayForValidation(fixture.aliases)]
+            .filter((value) => typeof value !== "undefined" && value !== null);
+        keys.forEach((key) => {
+            if (!isNonEmptyValidationString(key)) {
+                add(`${where} fixture keys must be non-empty strings.`);
+                return;
+            }
+            const normalized = key.trim().toLowerCase();
+            if (fixtureKeys.has(normalized)) {
+                const previousWhere = fixtureKeys.get(normalized);
+                if (previousWhere !== where) {
+                    add(`${where} fixture key "${key}" duplicates ${previousWhere}.`);
+                }
+                return;
+            }
+            fixtureKeys.set(normalized, where);
+        });
+        if (Object.prototype.hasOwnProperty.call(fixture, "aliases") && !Array.isArray(fixture.aliases)) {
+            add(`${where}.aliases must be an array when present.`);
+        }
+        if (Object.prototype.hasOwnProperty.call(fixture, "sourceRefs")) {
+            validateStaticNncStringArray(fixture.sourceRefs, `${where}.sourceRefs`, add);
+        }
+        if (!isPlainObject(fixture.states)) {
+            add(`${where}.states must be an object.`);
+            return;
+        }
+        const stateKeys = Object.keys(fixture.states);
+        if (!stateKeys.length) {
+            add(`${where}.states must contain at least one state.`);
+        }
+        stateKeys.forEach((state) => {
+            const stateWhere = `${where}.states.${state}`;
+            const stateData = fixture.states[state];
+            if (!STATIC_NNC_ALLOWED_STATES.has(state)) {
+                add(`${stateWhere} state "${state}" is not allowed; use absolutive or possessive.`);
+            }
+            if (!isPlainObject(stateData)) {
+                add(`${stateWhere} must be an object.`);
+                return;
+            }
+            if (state === "possessive") {
+                validateStaticNncPossessiveState(stateData, stateWhere, possessorInventory, add);
+                return;
+            }
+            validateStaticNncNumberForms(stateData.numberForms, `${stateWhere}.numberForms`, add);
+        });
+    });
+    return localErrors;
+}
+
+function validateStaticNncStringArray(value, where, add) {
+    if (!Array.isArray(value)) {
+        add(`${where} must be an array.`);
+        return [];
+    }
+    const seen = new Set();
+    value.forEach((entry, index) => {
+        if (!isNonEmptyValidationString(entry)) {
+            add(`${where}[${index}] must be a non-empty string.`);
+            return;
+        }
+        if (seen.has(entry)) {
+            add(`${where} contains duplicate values: "${entry}".`);
+            return;
+        }
+        seen.add(entry);
+    });
+    return value;
+}
+
+function validateStaticNncNumberForms(numberForms, where, add) {
+    if (!isPlainObject(numberForms)) {
+        add(`${where} must be an object.`);
+        return;
+    }
+    Object.entries(numberForms).forEach(([number, cell]) => {
+        if (!STATIC_NNC_ALLOWED_NUMBERS.has(number)) {
+            add(`${where}.${number} number "${number}" is not allowed; use singular or plural.`);
+        }
+        validateStaticNncSurfaceCell(cell, `${where}.${number}`, add);
+    });
+}
+
+function validateStaticNncPossessiveState(stateData, where, possessorInventory, add) {
+    if (!isPlainObject(stateData.numberFormsByPossessor)) {
+        add(`${where}.numberFormsByPossessor must be an object.`);
+        return;
+    }
+    Object.entries(stateData.numberFormsByPossessor).forEach(([number, possessorMap]) => {
+        const numberWhere = `${where}.numberFormsByPossessor.${number}`;
+        if (!STATIC_NNC_ALLOWED_NUMBERS.has(number)) {
+            add(`${numberWhere} number "${number}" is not allowed; use singular or plural.`);
+        }
+        if (!isPlainObject(possessorMap)) {
+            add(`${numberWhere} must be an object.`);
+            return;
+        }
+        Object.entries(possessorMap).forEach(([possessor, cell]) => {
+            if (!possessorInventory.has(possessor)) {
+                add(`${numberWhere}.${possessor} possessor "${possessor}" is not in static_options.possessivePrefixes.`);
+            }
+            validateStaticNncSurfaceCell(cell, `${numberWhere}.${possessor}`, add);
+        });
+    });
+}
+
+function validateStaticNncSurfaceCell(cell, where, add) {
+    if (!isPlainObject(cell)) {
+        add(`${where} must be an object with surfaceForms.`);
+        return;
+    }
+    validateStaticNncStringArray(cell.surfaceForms, `${where}.surfaceForms`, add);
+}
+
+function checkStaticNncFixtureShape(jsonByName) {
+    collectStaticNncFixtureErrors(
+        jsonByName["static_nnc.json"],
+        jsonByName["static_options.json"]
+    ).forEach(addError);
+}
+
 function checkValenceNeutralReferences(jsonByName, lexiconVerbSet, allowlist) {
     const valenceNeutral = asObject(jsonByName["static_valence_neutral.json"], "data/static_valence_neutral.json");
     const missingReferences = {};
@@ -893,6 +1070,7 @@ function main() {
     checkNawatRouteProfiles(jsonByName);
     checkTenseReferences(jsonByName);
     checkOptionReferences(jsonByName);
+    checkStaticNncFixtureShape(jsonByName);
     checkPhonologyReferences(jsonByName);
     checkSuppletivePathReferences(jsonByName);
     checkValenceNeutralReferences(jsonByName, lexiconVerbSet, allowlist);
@@ -912,4 +1090,10 @@ function main() {
     );
 }
 
-main();
+if (require.main === module) {
+    main();
+}
+
+module.exports = {
+    collectStaticNncFixtureErrors,
+};

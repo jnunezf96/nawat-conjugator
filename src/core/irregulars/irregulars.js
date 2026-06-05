@@ -98,14 +98,39 @@ function buildSuppletiveYawiStemSet() {
 }
 
 function buildSuppletiveWitziStemSet() {
-    const base = dropFinalVowel(SUPPLETIVE_WITZI_IMPERFECTIVE);
+    const imperfective = SUPPLETIVE_WITZI_IMPERFECTIVE || "witzi";
+    const base = SUPPLETIVE_WITZI_PERFECTIVE || "witz";
     const variantsByClass = new Map();
     variantsByClass.set("A", [{ base, suffix: "" }]);
     return {
-        imperfective: { verb: SUPPLETIVE_WITZI_IMPERFECTIVE, analysisVerb: SUPPLETIVE_WITZI_IMPERFECTIVE },
+        imperfective: { verb: imperfective, analysisVerb: imperfective },
         variantsByClass,
         pretPluralSuffix: "et",
         pretPluralClasses: new Set(["A"]),
+    };
+}
+
+function buildSuppletiveWeyaStemSet(parsedVerb = null) {
+    const inputVerb = parsedVerb?.rawAnalysisVerb
+        || parsedVerb?.analysisVerb
+        || parsedVerb?.exactBaseVerb
+        || parsedVerb?.verb
+        || getSuppletiveWeyaCanonical();
+    const imperfectiveVerb = SUPPLETIVE_WEYA_FORMS.has(inputVerb)
+        ? inputVerb
+        : getSuppletiveWeyaCanonical();
+    const rootBase = getSuppletiveWeyaRootPlusYaBase();
+    const canonical = getSuppletiveWeyaCanonical();
+    const preserveCodaY = { preserveCodaY: true };
+    const variantsByClass = new Map();
+    variantsByClass.set("A", [
+        { base: rootBase, suffix: "ki", surfaceRuleMeta: preserveCodaY },
+        { base: canonical, suffix: "k", surfaceRuleMeta: preserveCodaY },
+    ]);
+    return {
+        imperfective: { verb: imperfectiveVerb, analysisVerb: imperfectiveVerb },
+        variantsByClass,
+        surfaceRuleMeta: preserveCodaY,
     };
 }
 

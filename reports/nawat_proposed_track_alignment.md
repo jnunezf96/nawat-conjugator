@@ -31,7 +31,7 @@ Proposed phase one covers the remaining five in that nine-circuit scope:
 
 Inventory reconciliation: the code also lists `potencial` in the European adjective tab. Strict code inventory therefore finds six uncovered entries, not five. This design keeps `potencial` as `TRK-RES-ADJ-001`, a reserved spur, until the official nine-circuit count is revised or `potencial` is explicitly classified as a Nawat noun route.
 
-The existing adverb route `pasado-remoto-adverbio-activo` already has a profile as `agentive-manner-adverb`; the proposed work is to give it explicit Nawat geometry and a renderer placement so it does not appear to travel to European `adverbio`.
+`pasado-remoto-adverbio-activo` remains a legacy European adverb output only. It is not a Nawat rail line and must not be connected to the route map.
 
 ## Design Rule
 
@@ -49,7 +49,7 @@ Add explicit geometry to `nawatRouteProfiles` before adding more visible tracks:
 ```json
 {
   "routeConvention": "nawat",
-  "routePlacement": "direct-finite | patientivo-surface | agentive-manner | nonactive-habitual | patientivo-tronco-conversion",
+  "routePlacement": "direct-finite | patientivo-surface | nonactive-habitual | patientivo-tronco-conversion",
   "legacyAlias": {
     "mode": "adjetivo",
     "tenseValue": "adjetivo-preterito",
@@ -124,19 +124,9 @@ The perfective path can probably use existing native patientivo source handling.
 
 This track should not be sent to `S agentivo`. It is better modeled as a Nawat verb-side nonactive habitual route.
 
-### Existing Adverb Track Formalization
+### Removed Adverb Connection
 
-`TRK-PROP-ADV-001`
-
-| Field | Value |
-| --- | --- |
-| Hidden alias | `pasado-remoto-adverbio-activo` |
-| Existing profile | `agentive-manner-adverb` |
-| Route placement | `agentive-manner` |
-| Visible path | `V source -> S agentivo / manera` |
-| Required construction | renderer placement so the route is visible from the adverb output without naming European `adverbio` |
-
-This stays within existing right-of-way if it uses the current `routePlacement: "agentivo"` schema and station model.
+`pasado-remoto-adverbio-activo` is classified as `legacy-only`. No `agentive-manner-adverb` route profile should exist, and no Nawat destination picker should connect `V source` to `S agentivo / manera`.
 
 ### Reserved Spur
 
@@ -158,7 +148,6 @@ The code lists this in the adjective tab, but the current official scope is four
    - `direct-finite`
    - `patientivo-surface`
    - `nonactive-habitual`
-   - `agentive-manner`
    - existing `patientivo-tronco-conversion`
 4. Gate the current patientivo branch/conversion injection behind `routePlacement === "patientivo-tronco-conversion"`.
 5. Preserve active route state across valid `verbo` and `sustantivo` station travel.

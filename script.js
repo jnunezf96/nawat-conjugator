@@ -31,6 +31,12 @@ var COMPOUND_MARKER_RE = /[|~#()\[\]{}\\/?-]/g;
 var COMPOUND_MARKER_SPLIT_RE = /[|~#(){}\\/?-]/;
 var COMPOUND_ALLOWED_RE = /[|~#()\[\]{}\\/?-]/g;
 var DIRECTIONAL_RULES = [];
+var ORDINARY_NNC_FIXTURES = [];
+var STATIC_NNC_PATH = (
+    typeof RUNTIME_PATHS !== "undefined"
+    && RUNTIME_PATHS
+    && RUNTIME_PATHS.STATIC_NNC_PATH
+) || "data/static_nnc.json";
 var SUPPORTIVE_I_KEEP_SLASH_PREFIXES = new Set();
 var SUPPORTIVE_I_KEEP_SLASH_PREFIXES_LOADED = false;
 var PATIENTIVO_PERFECTIVO_ALLOWED_FINALS = new Set();
@@ -605,9 +611,12 @@ function applyStaticModes(data) {
             if (!value || typeof value !== "object") {
                 return;
             }
+            const hasLegacyTenseValue = Object.prototype.hasOwnProperty.call(value, "legacyTenseValue");
             normalized[key] = {
                 ...value,
-                legacyTenseValue: value.legacyTenseValue || key,
+                legacyTenseValue: hasLegacyTenseValue
+                    ? (value.legacyTenseValue || "")
+                    : key,
                 stations: Array.isArray(value.stations)
                     ? value.stations
                         .filter((station) => station && typeof station === "object")
@@ -656,6 +665,12 @@ function applyStaticModes(data) {
     if (!TenseModeState.mode && TENSE_MODE.verbo) {
         TenseModeState.mode = TENSE_MODE.verbo;
     }
+    if (!EuropeanTenseModeState.mode && TENSE_MODE.verbo) {
+        EuropeanTenseModeState.mode = TENSE_MODE.verbo;
+    }
+    if (!NawatTenseModeState.mode && (NAWAT_TENSE_MODE.verbo || TENSE_MODE.verbo)) {
+        NawatTenseModeState.mode = NAWAT_TENSE_MODE.verbo || TENSE_MODE.verbo;
+    }
     if (!ConjugationGroupState.activeGroup && CONJUGATION_GROUPS.tense) {
         ConjugationGroupState.activeGroup = CONJUGATION_GROUPS.tense;
     }
@@ -674,6 +689,31 @@ async function loadStaticModes() {
         return true;
     } catch (error) {
         console.warn("Static modes not loaded.", error);
+        return false;
+    }
+}
+function applyStaticNnc(data) {
+    if (!data || typeof data !== "object") {
+        return;
+    }
+    ORDINARY_NNC_FIXTURES = Array.isArray(data.ordinaryNncFixtures)
+        ? data.ordinaryNncFixtures.map((entry) => ({ ...entry }))
+        : [];
+}
+async function loadStaticNnc() {
+    if (typeof fetch !== "function") {
+        return false;
+    }
+    try {
+        const response = await fetch(STATIC_NNC_PATH, { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error(`Failed to load ${STATIC_NNC_PATH}: ${response.status}`);
+        }
+        const data = await response.json();
+        applyStaticNnc(data);
+        return true;
+    } catch (error) {
+        console.warn("Static NNC fixtures not loaded.", error);
         return false;
     }
 }
@@ -803,6 +843,9 @@ function applyStaticSuppletives(data) {
         if (typeof witziData.imperfective === "string") {
             SUPPLETIVE_WITZI_IMPERFECTIVE = witziData.imperfective;
         }
+        if (typeof witziData.perfective === "string") {
+            SUPPLETIVE_WITZI_PERFECTIVE = witziData.perfective;
+        }
         const witziTenses = witziData.tenses && typeof witziData.tenses === "object"
             ? witziData.tenses
             : {};
@@ -815,8 +858,16 @@ function applyStaticSuppletives(data) {
         const witziNonactive = witziData.nonactive && typeof witziData.nonactive === "object"
             ? witziData.nonactive
             : {};
+        if (typeof witziNonactive.imperfective === "string") {
+            SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE = witziNonactive.imperfective;
+        }
+        if (typeof witziNonactive.perfective === "string") {
+            SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE = witziNonactive.perfective;
+        }
         if (typeof witziNonactive.stem === "string") {
             SUPPLETIVE_WITZI_NONACTIVE = witziNonactive.stem;
+        } else if (SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE) {
+            SUPPLETIVE_WITZI_NONACTIVE = SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE;
         }
         if (Array.isArray(witziNonactive.tenses)) {
             SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set(witziNonactive.tenses);
@@ -887,15 +938,19 @@ function applyStaticSuppletivePaths(data) {
     const valueLookup = {
         suppletiveKatiNonactive: () => SUPPLETIVE_KATI_NONACTIVE,
         suppletiveWitziNonactive: () => SUPPLETIVE_WITZI_NONACTIVE,
+        suppletiveWitziNonactiveImperfective: () => SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE,
+        suppletiveWitziNonactivePerfective: () => SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE || SUPPLETIVE_WITZI_NONACTIVE,
         suppletiveWitziImperative: () => SUPPLETIVE_WITZI_IMPERATIVE,
     };
     const setLookup = {
         suppletiveKatiForms: () => SUPPLETIVE_KATI_FORMS,
+        suppletiveWeyaForms: () => SUPPLETIVE_WEYA_FORMS,
         suppletiveYawiForms: () => SUPPLETIVE_YAWI_FORMS,
         suppletiveWitziForms: () => SUPPLETIVE_WITZI_FORMS,
     };
     const activeBuilders = {
         suppletiveKati: buildSuppletiveKatiStemSet,
+        suppletiveWeya: buildSuppletiveWeyaStemSet,
         suppletiveYawi: buildSuppletiveYawiStemSet,
         suppletiveWitzi: buildSuppletiveWitziStemSet,
     };
@@ -954,12 +1009,18 @@ function applyStaticSuppletivePaths(data) {
         }
         const activeConfig = entry.active || null;
         const active = activeConfig && activeBuilders[activeConfig.type]
-            ? () => activeBuilders[activeConfig.type]()
+            ? (parsedVerb) => activeBuilders[activeConfig.type](parsedVerb)
             : null;
         const nonactiveList = Array.isArray(entry.nonactive)
             ? entry.nonactive.map((item) => ({
                 suffix: item.suffix || "",
                 stem: resolveStem(item),
+                imperfectiveStem: item.imperfectiveStemKey
+                    ? resolveValueKey(item.imperfectiveStemKey)
+                    : (typeof item.imperfectiveStem === "string" ? item.imperfectiveStem : ""),
+                perfectiveStem: item.perfectiveStemKey
+                    ? resolveValueKey(item.perfectiveStemKey)
+                    : (typeof item.perfectiveStem === "string" ? item.perfectiveStem : ""),
             }))
             : null;
         const verbOverrides = entry.verbOverrides && typeof entry.verbOverrides === "object"
@@ -1080,12 +1141,14 @@ var NAWAT_TENSE_MODE = {};
 var NAWAT_ROUTE_PROFILES = {};
 var NawatRouteState = {
     activeRoute: "",
-    activePatientivoBranch: "tronco-verbal",
+    activeRouteTravelSource: "",
+    activePatientivoBranch: "imperfectivo",
     sourceVerb: "",
     sourceObjectPrefix: "",
     sourceStem: "",
     sourceMode: "",
     sourceTenseValue: "",
+    sourceCombinedMode: "",
     targetMode: "",
     targetTenseValue: "",
     targetCombinedMode: "",
@@ -1093,12 +1156,21 @@ var NawatRouteState = {
     targetVoiceMode: "",
     targetVerb: "",
     targetObjectPrefix: "",
+    activePatientivoNominalSuffix: "",
     activeStationKey: "",
     activeStationInput: "",
     activeStationVerb: "",
     activeStationMode: "",
     activeStationTenseValue: "",
     activeStationObjectPrefix: "",
+    activeNawatLineStationKey: "",
+    activeLocativeSourceVerb: "",
+    activeLocativeSourceTenseValue: "",
+    activeLocativeSourceSurface: "",
+    activeLocativePatientivoSurface: "",
+    activeLocativeIncorporatedRoot: "",
+    activeLocativeMatrixRoot: "",
+    activeLocativePrelocativeVerb: "",
 };
 var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
 var VerbInputRefreshTimer = null;
@@ -1162,8 +1234,21 @@ var NonactiveSuffixState = {
 var InstrumentivoModeState = {
     mode: null,
 };
+var EuropeanTenseModeState = {
+    mode: null,
+};
+var NawatTenseModeState = {
+    mode: null,
+};
 var TenseModeState = {
     mode: null,
+};
+var OrdinaryNncGenerationState = {
+    enabled: false,
+    state: "absolutive",
+    number: "singular",
+    possessor: "",
+    nounClass: "",
 };
 var TenseTabsState = {
     selected: null,
@@ -1202,6 +1287,7 @@ var ToggleLockValueState = {
     possessor: new Map(),
     patientivoOwnership: new Map(),
     patientivoNominalSuffix: new Map(),
+    sourceScope: "",
 };
 
 // Toggle lock pure functions extracted to src/ui/state.js
@@ -1227,6 +1313,9 @@ function updateToggleLockControlState() {
 function rerenderAfterToggleLockChange() {
     updateCombinedModeTabs();
     updateTenseModeTabs();
+    if (typeof syncVerbSourceScopeControl === "function") {
+        syncVerbSourceScopeControl();
+    }
     renderTenseTabs();
     const verbMeta = getVerbInputMeta();
     renderActiveConjugations({
@@ -1248,11 +1337,11 @@ function setToggleLockEnabled(
         } else {
             clearToggleLockValueState();
             if (resetToDefaults) {
-                clearAllToggleStateMaps({ resetNonactiveSuffix: true });
+                clearAllToggleStateMaps({ resetNonactiveSuffix: true, resetSourceScope: true });
             }
         }
     } else if (!nextEnabled && resetToDefaults) {
-        clearAllToggleStateMaps({ resetNonactiveSuffix: true });
+        clearAllToggleStateMaps({ resetNonactiveSuffix: true, resetSourceScope: true });
     }
     if (persist) {
         try {

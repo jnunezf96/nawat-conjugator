@@ -700,6 +700,195 @@ function buildCanonicalVerbSpecFromComposerSemantic(semantic = {}) {
     };
 }
 
+function buildCompoundAstMetadata({
+    sourceRawVerb = "",
+    displayVerb = "",
+    displayCore = "",
+    verb = "",
+    analysisVerb = "",
+    matrixStem = "",
+    matrixRuleBase = "",
+    transitivity = "",
+    outerValenceTokens = [],
+    outerLexicalPrefixes = [],
+    structuralOuterPieces = [],
+    coreStructuralPrefixParts = [],
+    embeddedPrefix = "",
+    sourcePrefix = "",
+    sourceBase = "",
+    verbSegment = "",
+    parts = [],
+    hasCompoundMarker = false,
+    hasSlashMarker = false,
+    hasSuffixSeparator = false,
+    hasBoundMarker = false,
+    hasImpersonalTaPrefix = false,
+    hasSpecificValence = false,
+    hasNonspecificValence = false,
+    isMarkedTransitive = false,
+    isTaFusion = false,
+    valenceSlotCount = 0,
+} = {}) {
+    const normalizedOuterPieces = (Array.isArray(structuralOuterPieces) ? structuralOuterPieces : [])
+        .map((piece, index) => ({
+            type: String(piece?.type || ""),
+            value: normalizeRuleBase(piece?.value || ""),
+            index,
+        }))
+        .filter((piece) => piece.type && piece.value);
+    const normalizedCorePieces = (Array.isArray(coreStructuralPrefixParts) ? coreStructuralPrefixParts : [])
+        .map((piece, index) => ({
+            type: String(piece?.type || ""),
+            value: normalizeRuleBase(piece?.value || ""),
+            index,
+        }))
+        .filter((piece) => piece.type && piece.value);
+    const hasCompoundStructure = Boolean(
+        hasCompoundMarker
+        || normalizedCorePieces.some((piece) => piece.type === "adjacent-embed")
+        || normalizedOuterPieces.some((piece) => piece.type === "lexical")
+    );
+    if (!hasCompoundStructure) {
+        return null;
+    }
+    const embeds = [];
+    normalizedOuterPieces.forEach((piece) => {
+        if (piece.type === "directional") {
+            return;
+        }
+        const isLexical = piece.type === "lexical";
+        const role = isLexical
+            ? "outer-lexical"
+            : (hasImpersonalTaPrefix ? "impersonal-valence" : "outer-valence");
+        embeds.push({
+            role,
+            kind: piece.type,
+            value: piece.value,
+            source: "outer",
+            index: piece.index,
+            explicit: !isLexical,
+        });
+    });
+    normalizedCorePieces
+        .filter((piece) => piece.type === "adjacent-embed")
+        .forEach((piece) => {
+            embeds.push({
+                role: "adjacent-core-embed",
+                kind: "lexical",
+                value: piece.value,
+                source: "core",
+                index: piece.index,
+                explicit: false,
+            });
+        });
+    if (!embeds.length) {
+        return null;
+    }
+    return {
+        version: 1,
+        kind: "compound",
+        matrix: {
+            role: "matrix",
+            stem: normalizeRuleBase(matrixStem || sourceBase || ""),
+            ruleBase: normalizeRuleBase(matrixRuleBase || sourceBase || matrixStem || ""),
+        },
+        embeds,
+        source: {
+            rawInput: String(sourceRawVerb || ""),
+            displayVerb: String(displayVerb || ""),
+            displayCore: String(displayCore || ""),
+            verb: String(verb || ""),
+            analysisVerb: String(analysisVerb || ""),
+            embeddedPrefix: String(embeddedPrefix || ""),
+            sourcePrefix: String(sourcePrefix || ""),
+            sourceBase: String(sourceBase || ""),
+            verbSegment: String(verbSegment || ""),
+            parts: Array.isArray(parts) ? parts.filter(Boolean) : [],
+        },
+        valency: {
+            transitivity: String(transitivity || ""),
+            tokens: (Array.isArray(outerValenceTokens) ? outerValenceTokens : []).filter(Boolean),
+            slotCount: Number.isFinite(valenceSlotCount) ? valenceSlotCount : 0,
+            hasSpecific: hasSpecificValence === true,
+            hasNonspecific: hasNonspecificValence === true,
+            isMarkedTransitive: isMarkedTransitive === true,
+            isTaFusion: isTaFusion === true,
+        },
+        flags: {
+            hasCompoundMarker: hasCompoundMarker === true,
+            hasSlashMarker: hasSlashMarker === true,
+            hasSuffixSeparator: hasSuffixSeparator === true,
+            hasBoundMarker: hasBoundMarker === true,
+            hasImpersonalTaPrefix: hasImpersonalTaPrefix === true,
+        },
+        outerPieces: normalizedOuterPieces,
+        corePieces: normalizedCorePieces,
+        lexicalPrefixes: (Array.isArray(outerLexicalPrefixes) ? outerLexicalPrefixes : [])
+            .map((value) => normalizeRuleBase(value))
+            .filter(Boolean),
+    };
+}
+
+function resolveOrdinaryNncParseFixture(value = "") {
+    if (typeof resolveOrdinaryNncFixture !== "function") {
+        return null;
+    }
+    return resolveOrdinaryNncFixture({ stem: value });
+}
+
+function buildOrdinaryNncParseClassification(role = "", value = "") {
+    const normalizedValue = normalizeRuleBase(value);
+    if (!normalizedValue) {
+        return null;
+    }
+    const candidate = resolveOrdinaryNncParseFixture(normalizedValue);
+    if (!candidate || !candidate.fixture) {
+        return null;
+    }
+    return {
+        kind: "ordinary-nnc-fixture-classification",
+        role,
+        value: normalizedValue,
+        normalizedInput: candidate.normalizedInput || normalizedValue,
+        fixture: {
+            id: candidate.fixture.id || "",
+            stem: candidate.fixture.stem || "",
+            lemma: candidate.fixture.lemma || "",
+            nounClass: candidate.fixture.nounClass || "",
+            animacy: candidate.fixture.animacy || "",
+            aliases: Array.isArray(candidate.fixture.aliases) ? [...candidate.fixture.aliases] : [],
+            sourceRefs: Array.isArray(candidate.fixture.sourceRefs) ? [...candidate.fixture.sourceRefs] : [],
+        },
+    };
+}
+
+function buildOrdinaryNncFixtureClassifications({
+    matrixStem = "",
+    lexicalBoundPrefixes = [],
+    compoundAst = null,
+} = {}) {
+    const candidates = [];
+    const seen = new Set();
+    const addCandidate = (role = "", value = "") => {
+        const normalizedValue = normalizeRuleBase(value);
+        const key = `${role}|${normalizedValue}`;
+        if (!role || !normalizedValue || seen.has(key)) {
+            return;
+        }
+        seen.add(key);
+        candidates.push({ role, value: normalizedValue });
+    };
+    addCandidate("matrix", matrixStem);
+    (Array.isArray(lexicalBoundPrefixes) ? lexicalBoundPrefixes : [])
+        .forEach((value) => addCandidate("outer-lexical", value));
+    (Array.isArray(compoundAst?.embeds) ? compoundAst.embeds : [])
+        .filter((entry) => entry?.kind === "lexical" && entry?.role)
+        .forEach((entry) => addCandidate(entry.role, entry.value));
+    return candidates
+        .map((candidate) => buildOrdinaryNncParseClassification(candidate.role, candidate.value))
+        .filter(Boolean);
+}
+
 // Universal downstream builder: derives the full verbMeta from a CanonicalVerbSpec.
 // rawValue and rawParsed are optional and used only for display/provenance fields.
 function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetadata) {
@@ -842,6 +1031,43 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
     const normalizedVerb = isYawi
         ? `${directionalPrefix}${outerValenceTokens.join("")}${embeddedPrefix}${yawiImperfective}`
         : verb;
+    const sourceRawVerb = String(rawValue || "");
+    const displayVerb = tiInputMetadata?.displayVerb || (rawParsed ? rawParsed.regexValue : "") || "";
+    const displayCore = tiInputMetadata?.displayCore || (rawParsed ? rawParsed.coreText : "") || "";
+    const compoundAst = buildCompoundAstMetadata({
+        sourceRawVerb,
+        displayVerb,
+        displayCore,
+        verb: normalizedVerb,
+        analysisVerb: normalizedAnalysisVerb,
+        matrixStem,
+        matrixRuleBase: exactBaseVerb,
+        transitivity,
+        outerValenceTokens,
+        outerLexicalPrefixes,
+        structuralOuterPieces,
+        coreStructuralPrefixParts,
+        embeddedPrefix,
+        sourcePrefix: lexicalSourcePrefix,
+        sourceBase: exactBaseVerb,
+        verbSegment,
+        parts,
+        hasCompoundMarker,
+        hasSlashMarker,
+        hasSuffixSeparator,
+        hasBoundMarker,
+        hasImpersonalTaPrefix: isIntransitiveOuterValenceCompound,
+        hasSpecificValence,
+        hasNonspecificValence,
+        isMarkedTransitive,
+        isTaFusion,
+        valenceSlotCount: baseObjectSlots,
+    });
+    const ordinaryNncFixtureClassifications = buildOrdinaryNncFixtureClassifications({
+        matrixStem: exactBaseVerb,
+        lexicalBoundPrefixes: outerLexicalPrefixes,
+        compoundAst,
+    });
     const canonical = {
         parseLanguage: "current-regex",
         verb: normalizedVerb,
@@ -899,13 +1125,15 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         sourcePrefix: lexicalSourcePrefix,
         sourceBase: exactBaseVerb,
         slashCompositeRuleBase: "",
+        compoundAst,
+        ordinaryNncFixtureClassifications,
     };
     const semanticObjectSlotCount = Number.isFinite(tiInputMetadata?.semanticObjectSlotCount)
         ? Math.max(0, Math.min(MAX_OBJECT_SLOTS, Number(tiInputMetadata.semanticObjectSlotCount) || 0))
         : baseObjectSlots;
     return {
         parseLanguage: "current-regex",
-        sourceRawVerb: String(rawValue || ""),
+        sourceRawVerb,
         verb: normalizedVerb,
         analysisVerb: normalizedAnalysisVerb,
         rawAnalysisVerb,
@@ -941,9 +1169,9 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         indirectObjectMarker,
         structuralOuterPieces,
         coreStructuralPrefixParts,
-        displayVerb: tiInputMetadata?.displayVerb || (rawParsed ? rawParsed.regexValue : "") || "",
-        displayCore: tiInputMetadata?.displayCore || (rawParsed ? rawParsed.coreText : "") || "",
-        coreText: tiInputMetadata?.displayCore || (rawParsed ? rawParsed.coreText : "") || "",
+        displayVerb,
+        displayCore,
+        coreText: displayCore,
         dashPrefix: tiInputMetadata?.dashPrefix || (hasLeadingDash ? "-" : ""),
         hasExternalObjectDash: tiInputMetadata?.hasExternalObjectDash === true,
         semanticObjectSlotCount,
@@ -966,6 +1194,8 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         verbSegment,
         objectToken: directObjectToken,
         canonical,
+        compoundAst,
+        ordinaryNncFixtureClassifications,
         canonicalRuleBase: canonical.ruleBase,
         canonicalFullRuleBase: canonical.fullRuleBase,
         tiCausativeClass,
@@ -1707,6 +1937,8 @@ function buildEmptyParsedVerb(rawValue = "", tiInputMetadata = null) {
         sourcePrefix: "",
         sourceBase: "",
         slashCompositeRuleBase: "",
+        compoundAst: null,
+        ordinaryNncFixtureClassifications: [],
     };
     return {
         parseLanguage: "current-regex",
@@ -1769,6 +2001,8 @@ function buildEmptyParsedVerb(rawValue = "", tiInputMetadata = null) {
         verbSegment: "",
         objectToken: "",
         canonical,
+        compoundAst: null,
+        ordinaryNncFixtureClassifications: [],
         canonicalRuleBase: "",
         canonicalFullRuleBase: "",
         tiCausativeClass,
@@ -2568,8 +2802,11 @@ var SUPPLETIVE_WEYA_ROOT = "";
 var SUPPLETIVE_WEYA_CANONICAL = "";
 var SUPPLETIVE_WITZI_FORMS = new Set();
 var SUPPLETIVE_WITZI_IMPERFECTIVE = "";
+var SUPPLETIVE_WITZI_PERFECTIVE = "";
 var SUPPLETIVE_WITZI_IMPERATIVE = "";
 var SUPPLETIVE_WITZI_NONACTIVE = "";
+var SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE = "";
+var SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE = "";
 var SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set();
 var SUPPLETIVE_STEM_PATHS = [];
 var INTRANSITIVE_ONLY_SUPPLETIVE_IDS = new Set(["yawi", "weya", "kati", "witzi"]);

@@ -26,15 +26,16 @@
     }
   },
   "suppletiveWitzi": {
-    "forms": ["witzi", "witz"],
+    "forms": ["witzi", "wi", "witz"],
     "imperfective": "witzi",
-    "activeTenses": ["preterito", "pasado-remoto", "imperativo"],
+    "perfective": "witz",
+    "activeTenses": ["preterito", "pasado-remoto"],
     "tenses": {
-      "imperativo": { "verb": "wiki" },
       "pasado-remoto": { "suffixOverrides": { "": "a", "t": "at" } }
     },
     "nonactive": {
-      "stem": "wiluwatz",
+      "imperfective": "wiluwatzi",
+      "perfective": "wiluwatz",
       "suffix": "luwa",
       "tenses": ["preterito", "pasado-remoto"]
     }

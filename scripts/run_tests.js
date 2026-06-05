@@ -53,6 +53,7 @@ function applyStaticData(context) {
     applyIfExists(context, "applyStaticDirectionalRules", loadJson("data/static_directional_rules.json") || {});
     applyIfExists(context, "applyStaticAllomorphyRules", loadJson("data/static_allomorphy_rules.json") || {});
     applyIfExists(context, "applyStaticModes", loadJson("data/static_modes.json") || {});
+    applyIfExists(context, "applyStaticNnc", loadJson("data/static_nnc.json") || {});
     applyIfExists(context, "applyStaticMisc", loadJson("data/static_misc.json") || {});
     applyIfExists(context, "applyStaticSuppletives", loadJson("data/static_suppletives.json") || {});
     applyIfExists(context, "applyStaticRedup", loadJson("data/static_redup.json") || {});

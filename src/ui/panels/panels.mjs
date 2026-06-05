@@ -327,7 +327,10 @@ export function createUiPanelsApi(targetObject = globalThis) {
       if (scope !== targetObject.VERB_SOURCE_SCOPE.active && scope !== targetObject.VERB_SOURCE_SCOPE.nonactive && scope !== targetObject.VERB_SOURCE_SCOPE.both) {
         return;
       }
-      targetObject.setVerbSourceScope(scope);
+      targetObject.setVerbSourceScope(scope, {
+        syncLock: true,
+        respectLock: false
+      });
       const update = () => {
         targetObject.updateCombinedModeTabs();
         syncVerbSourceScopeControl();
@@ -436,7 +439,11 @@ export function createUiPanelsApi(targetObject = globalThis) {
         targetObject.setActiveTenseMode(defaultTenseMode);
       }
       if (targetObject.getVerbSourceScope() !== targetObject.VERB_SOURCE_SCOPE.active) {
-        targetObject.setVerbSourceScope(targetObject.VERB_SOURCE_SCOPE.active);
+        targetObject.setVerbSourceScope(targetObject.VERB_SOURCE_SCOPE.active, {
+          syncCombinedMode: false,
+          syncLock: false,
+          respectLock: true
+        });
       }
       if (targetObject.getCombinedMode() !== targetObject.COMBINED_MODE.active) {
         targetObject.setCombinedMode(targetObject.COMBINED_MODE.active);
@@ -1538,18 +1545,18 @@ export function createUiPanelsApi(targetObject = globalThis) {
         } else {
           const nominalDerivationMode = targetObject.getNominalDerivationModeForTense(tenseValue);
           result = targetObject.getCachedSilentGenerateWord({
-              silent: true,
-              skipValidation: true,
-              override: {
-                subjectPrefix: selection.subjectPrefix,
-                subjectSuffix: subjectSuffixOverride,
-                objectPrefix: resolvedObjectPrefix,
-                indirectObjectMarker: resolvedIndirectObjectMarker,
-                thirdObjectMarker: resolvedThirdObjectMarker,
-                verb,
-                tense: tenseValue,
-                derivationMode: nominalDerivationMode,
-                possessivePrefix: possessorPrefix,
+            silent: true,
+            skipValidation: true,
+            override: {
+              subjectPrefix: selection.subjectPrefix,
+              subjectSuffix: subjectSuffixOverride,
+              objectPrefix: resolvedObjectPrefix,
+              indirectObjectMarker: resolvedIndirectObjectMarker,
+              thirdObjectMarker: resolvedThirdObjectMarker,
+              verb,
+              tense: tenseValue,
+              derivationMode: nominalDerivationMode,
+              possessivePrefix: possessorPrefix,
               patientivoOwnership: resolvedPatientivoOwnership,
               patientivoSource: resolvedPatientivoSource,
               patientivoNominalSuffix: resolvedPatientivoNominalSuffix
@@ -1557,19 +1564,19 @@ export function createUiPanelsApi(targetObject = globalThis) {
           }) || {};
           if (useReduplicatedSingularSurface && result?.result) {
             const prefixChain = targetObject.buildPrefixedChain({
-                subjectPrefix: selection.subjectPrefix,
-                possessivePrefix: possessorPrefix,
-                objectPrefix: targetObject.composeProjectiveObjectPrefix({
-                  objectPrefix: resolvedObjectPrefix,
-                  markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
-                  subjectPrefix: selection.subjectPrefix
-                }),
-                verb: ""
-              });
-              result = targetObject.buildReduplicatedConjugationResult(result, {
-                prefixChain,
-                applyMissingPrefixChain: true
-              });
+              subjectPrefix: selection.subjectPrefix,
+              possessivePrefix: possessorPrefix,
+              objectPrefix: targetObject.composeProjectiveObjectPrefix({
+                objectPrefix: resolvedObjectPrefix,
+                markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
+                subjectPrefix: selection.subjectPrefix
+              }),
+              verb: ""
+            });
+            result = targetObject.buildReduplicatedConjugationResult(result, {
+              prefixChain,
+              applyMissingPrefixChain: true
+            });
           }
         }
         const maskState = targetObject.getConjugationMaskState({
@@ -2290,7 +2297,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
               if (activeRecord === null && nonactiveRecord === null) {
                 return null;
               }
-              return targetObject.resolveTenseAvailabilityHasOutput(activeRecord) === true || targetObject.resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+              return resolveTenseAvailabilityHasOutput(activeRecord) === true || resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
             }
           }
           const modeForButton = resolvedCombinedMode || currentCombinedMode;
@@ -2300,10 +2307,10 @@ export function createUiPanelsApi(targetObject = globalThis) {
           } else {
             activeRecord = availabilityRecord;
           }
-          return targetObject.resolveTenseAvailabilityHasOutput(availabilityRecord);
+          return resolveTenseAvailabilityHasOutput(availabilityRecord);
         })();
-        const activeOutput = targetObject.resolveTenseAvailabilityHasOutput(activeRecord) === true;
-        const nonactiveOutput = targetObject.resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
+        const activeOutput = resolveTenseAvailabilityHasOutput(activeRecord) === true;
+        const nonactiveOutput = resolveTenseAvailabilityHasOutput(nonactiveRecord) === true;
         button.dataset.availabilityState = activeRecord?.availabilityState || nonactiveRecord?.availabilityState || availabilityRecord?.availabilityState || "";
         const isBlockedNominalTense = blockedNominalTenseSet.has(tenseValue);
         if (hasOutput === false || isBlockedNominalTense) {
@@ -2321,6 +2328,9 @@ export function createUiPanelsApi(targetObject = globalThis) {
         }
         button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
         button.addEventListener("click", () => {
+          if (typeof targetObject.clearActiveNawatRouteProfile === "function") {
+            targetObject.clearActiveNawatRouteProfile();
+          }
           const currentSelectionState = targetObject.getCurrentResolvedConjugationSelectionState({
             tenseMode
           });
@@ -2804,6 +2814,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
     api.resolveActiveVerbTenseAvailabilityRecord = resolveActiveVerbTenseAvailabilityRecord;
     api.resolveNonactiveVerbTenseAvailabilityRecord = resolveNonactiveVerbTenseAvailabilityRecord;
     api.buildUnifiedVerbTenseAvailabilityMatrix = buildUnifiedVerbTenseAvailabilityMatrix;
+    api.setTensePresenceBadges = setTensePresenceBadges;
     api.getSubjectlessNominalSelectionEntry = getSubjectlessNominalSelectionEntry;
     api.buildNominalAvailabilityObjectSlotModels = buildNominalAvailabilityObjectSlotModels;
     api.resolveNominalCombinationAvailabilityRecord = resolveNominalCombinationAvailabilityRecord;

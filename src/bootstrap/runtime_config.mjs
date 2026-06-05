@@ -16,6 +16,7 @@ export const STATIC_BOOTSTRAP_LOADER_GROUPS = Object.freeze({
         "loadStaticPhonology",
         "loadStaticAllomorphyRules",
         "loadStaticModes",
+        "loadStaticNnc",
         "loadStaticMisc",
         "loadStaticSuppletives",
         "loadStaticRedup",

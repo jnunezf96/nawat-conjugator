@@ -1,6 +1,6 @@
 # Nawat Conjugator
 
-A browser-based conjugation engine for Nawat (Pipil), a Uto-Aztecan language of El Salvador. Given a verb stem and grammatical parameters, the engine generates fully inflected surface forms across all tenses, persons, voices, and valences.
+A browser-based conjugation engine for Nawat (Pipil), a Uto-Aztecan language of El Salvador. Given a verb stem and grammatical parameters, the engine generates inflected surface forms for the implemented tense, person, voice, and valence motors.
 
 ---
 
@@ -70,11 +70,11 @@ The engine supports:
 - **Causative** (Type 1 and Type 2 — TIA/WIA/LIA patterns)
 - **Applicative**
 - **Passive** and **Impersonal** (via nonactive derivation)
-- **Denominal** verbstems
+- Limited **denominal route** surfaces
 
 ### Suppletive stems
 
-Four verbs use suppletive stems: **kati** (to be), **yawi** (to go), **witzi** (to come), **weya** (to pass). Each has distinct forms by tense and derivational context.
+The current Nawat suppletive subset covers **kati** (to be), **yawi** (to go), **witzi** (to come), and **weya** (to pass). Andrews lesson 11 is broader than this subset and remains partially mapped.
 
 ---
 
@@ -112,12 +112,14 @@ Based on the 58-lesson curriculum in `src/lessons/registry.js`:
 
 | Status | Count |
 |---|---|
-| Implemented | 14 |
-| Partially implemented | 15 |
+| Implemented | 10 |
+| Partially implemented | 19 |
 | Not mapped | 26 |
 | Placeholder (no conjugation content) | 3 |
 
-Fully implemented domains include: intransitive and transitive VNC, all preterit classes, optative and admonitive moods, causative (both types), applicative, passive/impersonal, suppletive stems, and core nonactive derivation.
+Strong implemented motor areas include intransitive and transitive VNC form generation, preterit class mechanics, object-prefix/allomorphy handling, causative/applicative stem generation, passive/impersonal/nonactive form generation, and the current Nawat suppletive subset.
+
+Partial Andrews mappings include Classical orthography, sentence-level optative/admonitive constructions, the full irregular VNC taxonomy, full NNC paradigms, compound-source roles, and lesson 54-55 denominal route classes.
 
 Not yet mapped: frequentative verbstems, honorific/pejorative VNCs, cardinal-numeral NNCs, relational NNCs, and most adverbial/clause-level structures.
 

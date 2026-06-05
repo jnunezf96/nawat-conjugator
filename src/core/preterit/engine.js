@@ -204,6 +204,15 @@ function getPretVariantSuffix(variant = null) {
     return String(variant.suffix || "");
 }
 
+function getPretVariantSurfaceRuleMeta(variant = null) {
+    if (!variant || typeof variant !== "object") {
+        return null;
+    }
+    return variant.surfaceRuleMeta && typeof variant.surfaceRuleMeta === "object"
+        ? variant.surfaceRuleMeta
+        : null;
+}
+
 function buildPretProvenanceVariantEntry(variant = null) {
     if (!variant || typeof variant !== "object") {
         return {
@@ -219,6 +228,7 @@ function buildPretProvenanceVariantEntry(variant = null) {
         base,
         suffix,
         baseSpec: variant.baseSpec || null,
+        surfaceRuleMeta: getPretVariantSurfaceRuleMeta(variant),
         surfaceStem: `${base || ""}${suffix || ""}`,
     };
 }
@@ -1045,6 +1055,26 @@ function shouldAllowZeroBitransitiveKiDrop({
     return hasDoubleDash && indirectObjectMarker === "ki";
 }
 
+function adjustPretNhBeforeVowel(prefix, base) {
+    let adjustedPrefix = prefix || "";
+    const adjustedBase = base || "";
+    if (
+        adjustedPrefix
+        && adjustedBase
+        && VOWEL_START_RE.test(adjustedBase)
+        && adjustedPrefix.endsWith("n")
+        && !adjustedPrefix.endsWith("nh")
+        && adjustedPrefix.length >= 2
+        && VOWEL_RE.test(adjustedPrefix[adjustedPrefix.length - 2] || "")
+    ) {
+        adjustedPrefix = `${adjustedPrefix}h`;
+    }
+    return {
+        prefix: adjustedPrefix,
+        base: adjustedBase,
+    };
+}
+
 function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
     let adjustedPrefix = prefix || "";
     let adjustedBase = base || "";
@@ -1055,10 +1085,7 @@ function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", optio
     if (options.dropYAfterWal === true && adjustedBase.startsWith("ya")) {
         adjustedBase = adjustedBase.slice(1);
     }
-    return {
-        prefix: adjustedPrefix,
-        base: adjustedBase,
-    };
+    return adjustPretNhBeforeVowel(adjustedPrefix, adjustedBase);
 }
 
 function adjustPretComposedObjectPrefixContact({
@@ -1143,10 +1170,7 @@ function getPretUniversalPrefixForBase(
             suppressBareKBeforeK: true,
             dropYAfterWal: false,
         });
-        return {
-            prefix: subjectPrefix + contactAdjusted.prefix,
-            base: contactAdjusted.base,
-        };
+        return adjustPretNhBeforeVowel(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
     }
     const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
     const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
@@ -1167,10 +1191,10 @@ function getPretUniversalPrefixForBase(
         const directionalizedObjectHead = objectHead.startsWith("k")
             ? `k${outputDirectional}${objectHead.slice(1)}`
             : `${outputDirectional}${objectHead}`;
-        return {
-            prefix: `${subjectHead}${directionalizedObjectHead}`,
-            base: dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore,
-        };
+        return adjustPretNhBeforeVowel(
+            `${subjectHead}${directionalizedObjectHead}`,
+            dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore
+        );
     }
     if (isShuntlineThirdPersonObject && outputDirectional === "al") {
         const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
@@ -1203,10 +1227,7 @@ function getPretUniversalPrefixForBase(
             allowZeroBitransitiveDrop,
             dropYAfterWal,
         });
-        return {
-            prefix: subjectHead + contactAdjusted.prefix,
-            base: contactAdjusted.base,
-        };
+        return adjustPretNhBeforeVowel(subjectHead + contactAdjusted.prefix, contactAdjusted.base);
     }
     const contactAdjusted = resolvePretObjectPrefixContact({
         objectPrefix,
@@ -1217,25 +1238,11 @@ function getPretUniversalPrefixForBase(
         suppressBareKBeforeK: true,
         dropYAfterWal,
     });
-    return {
-        prefix: subjectHead + outputDirectional + contactAdjusted.prefix,
-        base: contactAdjusted.base,
-    };
+    return adjustPretNhBeforeVowel(subjectHead + outputDirectional + contactAdjusted.prefix, contactAdjusted.base);
 }
 
 function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
-    if (!isYawi || tense !== "preterito" || !Array.isArray(variants)) {
-        return variants;
-    }
-    return variants.map((variant) => {
-        if (!variant || getPretVariantSuffix(variant) !== "ki") {
-            return variant;
-        }
-        return {
-            ...variant,
-            suffix: "",
-        };
-    });
+    return variants;
 }
 
 function buildPretUniversalResultDetailedFromVariants(
@@ -1264,7 +1271,7 @@ function buildPretUniversalResultDetailedFromVariants(
     // marker and the universal m→n rule (stem-final "m"→"n" before any suffix).
     // For the zero-suffix case the m→n rule must be applied explicitly because
     // buildOutputWordSegments only fires it when subjectSuffix is truthy.
-    const realizeForm = (verbCore, suffix) => {
+    const realizeForm = (verbCore, suffix, surfaceRuleMeta = null) => {
         if (canUseSegments) {
             const segments = buildOutputWordSegments({
                 subjectPrefix: "",
@@ -1273,6 +1280,7 @@ function buildPretUniversalResultDetailedFromVariants(
                 subjectSuffix: suffix || "",
                 hasOptionalSupportiveI,
                 optionalSupportiveLetter,
+                surfaceRuleMeta,
             });
             const text = joinOutputWordSegments(segments);
             if (!suffix && text.endsWith("m")) {
@@ -1300,6 +1308,7 @@ function buildPretUniversalResultDetailedFromVariants(
         const results = [];
         variants.forEach((variant) => {
             const variantBase = getPretVariantBase(variant);
+            const surfaceRuleMeta = getPretVariantSurfaceRuleMeta(variant);
             const { prefix, base } = getPretUniversalPrefixForBase(
                 variantBase,
                 subjectPrefix,
@@ -1312,7 +1321,7 @@ function buildPretUniversalResultDetailedFromVariants(
                 hasDoubleDash,
                 isYawi
             );
-            const form = realizeForm(`${prefix}${base}`, resolvedPluralSuffix);
+            const form = realizeForm(`${prefix}${base}`, resolvedPluralSuffix, surfaceRuleMeta);
             if (!seen.has(form)) {
                 seen.add(form);
                 results.push(form);
@@ -1325,6 +1334,7 @@ function buildPretUniversalResultDetailedFromVariants(
     variants.forEach((variant) => {
         const variantBase = getPretVariantBase(variant);
         const variantSuffix = getPretVariantSuffix(variant);
+        const surfaceRuleMeta = getPretVariantSurfaceRuleMeta(variant);
         const { prefix, base } = getPretUniversalPrefixForBase(
             variantBase,
             subjectPrefix,
@@ -1339,10 +1349,10 @@ function buildPretUniversalResultDetailedFromVariants(
         );
         const verbCore = `${prefix}${base}`;
         // Compute the deduplication key using the zero-suffix realized form.
-        const baseKey = realizeForm(verbCore, "");
+        const baseKey = realizeForm(verbCore, "", surfaceRuleMeta);
         let entry = groups.get(baseKey);
         if (!entry) {
-            entry = { suffixes: new Set(), order: [], verbCore };
+            entry = { suffixes: new Set(), order: [], verbCore, surfaceRuleMeta };
             groups.set(baseKey, entry);
             order.push(baseKey);
         }
@@ -1354,22 +1364,22 @@ function buildPretUniversalResultDetailedFromVariants(
     const results = [];
     order.forEach((baseKey) => {
         const entry = groups.get(baseKey);
-        const { verbCore } = entry;
+        const { verbCore, surfaceRuleMeta } = entry;
         const hasEmpty = entry.suffixes.has("");
         const hasKi = entry.suffixes.has("ki");
         let emittedOptional = false;
         let emittedBase = false;
         if (hasEmpty && hasKi) {
-            results.push(`${realizeForm(verbCore, "")}(ki)`);
+            results.push(`${realizeForm(verbCore, "", surfaceRuleMeta)}(ki)`);
             emittedOptional = true;
         } else if (hasEmpty) {
-            results.push(realizeForm(verbCore, ""));
+            results.push(realizeForm(verbCore, "", surfaceRuleMeta));
             emittedBase = true;
         }
         entry.order.forEach((suffix) => {
             if (suffix === "") {
                 if (!emittedOptional && !emittedBase) {
-                    results.push(realizeForm(verbCore, ""));
+                    results.push(realizeForm(verbCore, "", surfaceRuleMeta));
                     emittedBase = true;
                 }
                 return;
@@ -1378,10 +1388,10 @@ function buildPretUniversalResultDetailedFromVariants(
                 if (emittedOptional) {
                     return;
                 }
-                results.push(realizeForm(verbCore, "ki"));
+                results.push(realizeForm(verbCore, "ki", surfaceRuleMeta));
                 return;
             }
-            results.push(realizeForm(verbCore, suffix));
+            results.push(realizeForm(verbCore, suffix, surfaceRuleMeta));
         });
     });
     return { result: results.join(" / "), forms: results };

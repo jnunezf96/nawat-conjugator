@@ -55,12 +55,6 @@
       "routePlacement": "patientivo-tronco-conversion"
     },
     {
-      "legacy_tense_value": "pasado-remoto-adverbio-activo",
-      "route_id": "agentive-manner-adverb",
-      "status": "wired_profile_needs_visible_alignment",
-      "routePlacement": "agentive-manner"
-    },
-    {
       "legacy_tense_value": "adjetivo-preterito",
       "route_id": "direct-active-preterit",
       "status": "proposed",
@@ -185,21 +179,6 @@
       },
       "admission": { "valency": "nonactive-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
       "construction_required": ["add route profile", "add nonactive target state", "preserve route across verb station travel", "add tests"]
-    },
-    {
-      "id": "TRK-PROP-ADV-001",
-      "route_id": "agentive-manner-adverb",
-      "legacyAlias": { "mode": "adverbio", "tenseValue": "pasado-remoto-adverbio-activo", "visible": false },
-      "centerline": {
-        "id": "CL-agentive-manner",
-        "family": "agentive-manner",
-        "source": { "mode": "verbo", "tenseValue": "presente" },
-        "target": { "mode": "sustantivo", "tenseValue": "agentivo", "role": "manner" },
-        "generation": { "surfaceProfile": "preterit-agentive-manner" },
-        "stationOrder": ["source-mode", "source-tense", "manner", "target-mode", "finite-tense"]
-      },
-      "admission": { "valency": "active-compatible", "objectPrefixes": ["", "ta", "te", "mu"] },
-      "construction_required": ["retrofit explicit centerline", "add renderer placement from adverb output", "hide European adverb labels"]
     }
   ],
   "reserved_alignments": [

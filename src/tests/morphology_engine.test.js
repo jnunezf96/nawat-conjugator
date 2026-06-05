@@ -44,6 +44,45 @@ function run(ctx) {
     s.eq("applyMorphologyRules imperative rewrites second person prefix to shi", imperative.subjectPrefix, "shi");
     s.eq("applyMorphologyRules imperative keeps nemi stem", imperative.verb, "nemi");
 
+    const nemiImperativeSecondSingular = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "imperativo",
+            subjectPrefix: "ti",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("generateWord imperative 2sg suppresses ma after shi rewrite", nemiImperativeSecondSingular.surfaceForms, ["shinemi"]);
+
+    const asiImperativeSecondPlural = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "asi",
+            tense: "imperativo",
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq("generateWord imperative 2pl suppresses ma after shi rewrite", asiImperativeSecondPlural.surfaceForms, ["shiasikan"]);
+
+    const nemiImperativeThirdSingular = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "imperativo",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("generateWord imperative 3sg keeps ma", nemiImperativeThirdSingular.surfaceForms, ["ma nemi"]);
+
     const agentivo = ctx.applyMorphologyRules({
         subjectPrefix: "",
         objectPrefix: "",

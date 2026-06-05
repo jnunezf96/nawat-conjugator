@@ -301,6 +301,7 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
                 ...normalizedForm,
                 subjectSuffix: altSuffix,
                 formSpec: altFormSpec,
+                trailingSuffix: normalizedForm.trailingSuffix || "",
             };
         }).filter(Boolean);
         return {
@@ -309,6 +310,7 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
             subjectSuffix: localSubjectSuffix,
             verb: applied.verb,
             formSpec: localFormSpec,
+            trailingSuffix: applied.trailingSuffix || "",
             alternateForms: localAlternates,
             directionalChainMeta: applied.directionalChainMeta || null,
             surfaceRuleMeta: applied.surfaceRuleMeta || null,

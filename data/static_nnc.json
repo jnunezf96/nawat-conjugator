@@ -1,0 +1,190 @@
+{
+  "ordinaryNncFixtures": [
+    {
+      "id": "kal",
+      "stem": "kal",
+      "lemma": "kal",
+      "nounClass": "zero",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "data/static_parse_tests.json:49",
+        "data/basic-data.csv:174"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["kal"]
+            }
+          }
+        },
+        "possessive": {
+          "numberFormsByPossessor": {
+            "singular": {
+              "nu": {
+                "surfaceForms": ["nukal"]
+              },
+              "mu": {
+                "surfaceForms": ["mukal"]
+              },
+              "i": {
+                "surfaceForms": ["ikal"]
+              },
+              "tu": {
+                "surfaceForms": ["tukal"]
+              },
+              "anmu": {
+                "surfaceForms": ["anmukal"]
+              },
+              "in": {
+                "surfaceForms": ["inkal"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "shuchi",
+      "stem": "shuchi",
+      "lemma": "shuchit",
+      "nounClass": "t",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "data/static_parse_tests.json:16",
+        "src/tests/parsing.test.js:91",
+        "user-provided:2026-06-04"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["shuchit"]
+            }
+          }
+        },
+        "possessive": {
+          "numberFormsByPossessor": {
+            "singular": {
+              "nu": {
+                "surfaceForms": ["nushuchiw"]
+              },
+              "mu": {
+                "surfaceForms": ["mushuchiw"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "mistun",
+      "stem": "mistun",
+      "lemma": "mistun",
+      "nounClass": "lexical",
+      "animacy": "animate",
+      "sourceRefs": [
+        "user-provided:2026-06-04"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["mistun"]
+            }
+          }
+        },
+        "possessive": {
+          "numberFormsByPossessor": {
+            "singular": {
+              "nu": {
+                "surfaceForms": ["numistun"]
+              },
+              "mu": {
+                "surfaceForms": ["mumistun"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "a",
+      "stem": "a",
+      "lemma": "at",
+      "nounClass": "t",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "src/tests/parsing.test.js:95"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["at"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "tukayit",
+      "stem": "tukayit",
+      "lemma": "tukayit",
+      "nounClass": "lexical",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "data/static_labels.json:4",
+        "data/static_modes.json:14"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["tukayit"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "machiyut",
+      "stem": "machiyut",
+      "lemma": "machiyut",
+      "nounClass": "lexical",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "data/static_labels.json:29",
+        "data/basic-data.csv:1623"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["machiyut"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "majmachiyut",
+      "stem": "majmachiyut",
+      "lemma": "majmachiyut",
+      "nounClass": "lexical",
+      "animacy": "inanimate",
+      "sourceRefs": [
+        "data/static_labels.json:25"
+      ],
+      "states": {
+        "absolutive": {
+          "numberForms": {
+            "singular": {
+              "surfaceForms": ["majmachiyut"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

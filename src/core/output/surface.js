@@ -237,6 +237,12 @@ function realizeSurfaceChainKwCoalescence(chain = null) {
 
 function realizeSurfaceChainYShift(chain = null) {
     const nextChain = cloneSurfaceChainState(chain);
+    const ruleMeta = nextChain?.surfaceRuleMeta && typeof nextChain.surfaceRuleMeta === "object"
+        ? nextChain.surfaceRuleMeta
+        : {};
+    if (ruleMeta.preserveCodaY === true) {
+        return nextChain;
+    }
     const segments = Array.isArray(nextChain.segments) ? nextChain.segments : [];
     const isTransitive = getSurfaceChainSegmentValue(nextChain, "object") !== "";
     for (let index = 0; index < segments.length; index += 1) {

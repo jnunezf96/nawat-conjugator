@@ -34,6 +34,8 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     var COMPOUND_MARKER_SPLIT_RE = /[|~#(){}\\/?-]/;
     var COMPOUND_ALLOWED_RE = /[|~#()\[\]{}\\/?-]/g;
     var DIRECTIONAL_RULES = [];
+    var ORDINARY_NNC_FIXTURES = [];
+    var STATIC_NNC_PATH = typeof targetObject.RUNTIME_PATHS !== "undefined" && targetObject.RUNTIME_PATHS && targetObject.RUNTIME_PATHS.STATIC_NNC_PATH || "data/static_nnc.json";
     var SUPPORTIVE_I_KEEP_SLASH_PREFIXES = new Set();
     var SUPPORTIVE_I_KEEP_SLASH_PREFIXES_LOADED = false;
     var PATIENTIVO_PERFECTIVO_ALLOWED_FINALS = new Set();
@@ -624,9 +626,10 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
           if (!value || typeof value !== "object") {
             return;
           }
+          const hasLegacyTenseValue = Object.prototype.hasOwnProperty.call(value, "legacyTenseValue");
           normalized[key] = {
             ...value,
-            legacyTenseValue: value.legacyTenseValue || key,
+            legacyTenseValue: hasLegacyTenseValue ? value.legacyTenseValue || "" : key,
             stations: Array.isArray(value.stations) ? value.stations.filter(station => station && typeof station === "object").map(station => ({
               ...station
             })) : []
@@ -673,6 +676,12 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       if (!TenseModeState.mode && targetObject.TENSE_MODE.verbo) {
         TenseModeState.mode = targetObject.TENSE_MODE.verbo;
       }
+      if (!EuropeanTenseModeState.mode && targetObject.TENSE_MODE.verbo) {
+        EuropeanTenseModeState.mode = targetObject.TENSE_MODE.verbo;
+      }
+      if (!NawatTenseModeState.mode && (NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo)) {
+        NawatTenseModeState.mode = NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo;
+      }
       if (!ConjugationGroupState.activeGroup && CONJUGATION_GROUPS.tense) {
         ConjugationGroupState.activeGroup = CONJUGATION_GROUPS.tense;
       }
@@ -693,6 +702,33 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return true;
       } catch (error) {
         console.warn("Static modes not loaded.", error);
+        return false;
+      }
+    }
+    function applyStaticNnc(data) {
+      if (!data || typeof data !== "object") {
+        return;
+      }
+      ORDINARY_NNC_FIXTURES = Array.isArray(data.ordinaryNncFixtures) ? data.ordinaryNncFixtures.map(entry => ({
+        ...entry
+      })) : [];
+    }
+    async function loadStaticNnc() {
+      if (typeof targetObject.fetch !== "function") {
+        return false;
+      }
+      try {
+        const response = await targetObject.fetch(STATIC_NNC_PATH, {
+          cache: "no-store"
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to load ${STATIC_NNC_PATH}: ${response.status}`);
+        }
+        const data = await response.json();
+        applyStaticNnc(data);
+        return true;
+      } catch (error) {
+        console.warn("Static NNC fixtures not loaded.", error);
         return false;
       }
     }
@@ -808,14 +844,25 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         if (typeof witziData.imperfective === "string") {
           targetObject.SUPPLETIVE_WITZI_IMPERFECTIVE = witziData.imperfective;
         }
+        if (typeof witziData.perfective === "string") {
+          targetObject.SUPPLETIVE_WITZI_PERFECTIVE = witziData.perfective;
+        }
         const witziTenses = witziData.tenses && typeof witziData.tenses === "object" ? witziData.tenses : {};
         const witziImperative = witziTenses.imperativo && typeof witziTenses.imperativo === "object" ? witziTenses.imperativo : {};
         if (typeof witziImperative.verb === "string") {
           targetObject.SUPPLETIVE_WITZI_IMPERATIVE = witziImperative.verb;
         }
         const witziNonactive = witziData.nonactive && typeof witziData.nonactive === "object" ? witziData.nonactive : {};
+        if (typeof witziNonactive.imperfective === "string") {
+          targetObject.SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE = witziNonactive.imperfective;
+        }
+        if (typeof witziNonactive.perfective === "string") {
+          targetObject.SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE = witziNonactive.perfective;
+        }
         if (typeof witziNonactive.stem === "string") {
           targetObject.SUPPLETIVE_WITZI_NONACTIVE = witziNonactive.stem;
+        } else if (targetObject.SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE) {
+          targetObject.SUPPLETIVE_WITZI_NONACTIVE = targetObject.SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE;
         }
         if (Array.isArray(witziNonactive.tenses)) {
           targetObject.SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set(witziNonactive.tenses);
@@ -888,15 +935,19 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       const valueLookup = {
         suppletiveKatiNonactive: () => targetObject.SUPPLETIVE_KATI_NONACTIVE,
         suppletiveWitziNonactive: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE,
+        suppletiveWitziNonactiveImperfective: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE,
+        suppletiveWitziNonactivePerfective: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE || targetObject.SUPPLETIVE_WITZI_NONACTIVE,
         suppletiveWitziImperative: () => targetObject.SUPPLETIVE_WITZI_IMPERATIVE
       };
       const setLookup = {
         suppletiveKatiForms: () => targetObject.SUPPLETIVE_KATI_FORMS,
+        suppletiveWeyaForms: () => targetObject.SUPPLETIVE_WEYA_FORMS,
         suppletiveYawiForms: () => targetObject.SUPPLETIVE_YAWI_FORMS,
         suppletiveWitziForms: () => targetObject.SUPPLETIVE_WITZI_FORMS
       };
       const activeBuilders = {
         suppletiveKati: targetObject.buildSuppletiveKatiStemSet,
+        suppletiveWeya: targetObject.buildSuppletiveWeyaStemSet,
         suppletiveYawi: targetObject.buildSuppletiveYawiStemSet,
         suppletiveWitzi: targetObject.buildSuppletiveWitziStemSet
       };
@@ -951,10 +1002,12 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
           match = parsedVerb => Boolean(parsedVerb && parsedVerb.verb === target);
         }
         const activeConfig = entry.active || null;
-        const active = activeConfig && activeBuilders[activeConfig.type] ? () => activeBuilders[activeConfig.type]() : null;
+        const active = activeConfig && activeBuilders[activeConfig.type] ? parsedVerb => activeBuilders[activeConfig.type](parsedVerb) : null;
         const nonactiveList = Array.isArray(entry.nonactive) ? entry.nonactive.map(item => ({
           suffix: item.suffix || "",
-          stem: resolveStem(item)
+          stem: resolveStem(item),
+          imperfectiveStem: item.imperfectiveStemKey ? resolveValueKey(item.imperfectiveStemKey) : typeof item.imperfectiveStem === "string" ? item.imperfectiveStem : "",
+          perfectiveStem: item.perfectiveStemKey ? resolveValueKey(item.perfectiveStemKey) : typeof item.perfectiveStem === "string" ? item.perfectiveStem : ""
         })) : null;
         const verbOverrides = entry.verbOverrides && typeof entry.verbOverrides === "object" ? Object.entries(entry.verbOverrides).reduce((acc, [key, value]) => {
           const resolved = resolveVerbOverride(value);
@@ -1072,12 +1125,14 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     var NAWAT_ROUTE_PROFILES = {};
     var NawatRouteState = {
       activeRoute: "",
-      activePatientivoBranch: "tronco-verbal",
+      activeRouteTravelSource: "",
+      activePatientivoBranch: "imperfectivo",
       sourceVerb: "",
       sourceObjectPrefix: "",
       sourceStem: "",
       sourceMode: "",
       sourceTenseValue: "",
+      sourceCombinedMode: "",
       targetMode: "",
       targetTenseValue: "",
       targetCombinedMode: "",
@@ -1085,12 +1140,21 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       targetVoiceMode: "",
       targetVerb: "",
       targetObjectPrefix: "",
+      activePatientivoNominalSuffix: "",
       activeStationKey: "",
       activeStationInput: "",
       activeStationVerb: "",
       activeStationMode: "",
       activeStationTenseValue: "",
-      activeStationObjectPrefix: ""
+      activeStationObjectPrefix: "",
+      activeNawatLineStationKey: "",
+      activeLocativeSourceVerb: "",
+      activeLocativeSourceTenseValue: "",
+      activeLocativeSourceSurface: "",
+      activeLocativePatientivoSurface: "",
+      activeLocativeIncorporatedRoot: "",
+      activeLocativeMatrixRoot: "",
+      activeLocativePrelocativeVerb: ""
     };
     var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
     var VerbInputRefreshTimer = null;
@@ -1173,8 +1237,21 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     var InstrumentivoModeState = {
       mode: null
     };
+    var EuropeanTenseModeState = {
+      mode: null
+    };
+    var NawatTenseModeState = {
+      mode: null
+    };
     var TenseModeState = {
       mode: null
+    };
+    var OrdinaryNncGenerationState = {
+      enabled: false,
+      state: "absolutive",
+      number: "singular",
+      possessor: "",
+      nounClass: ""
     };
     var TenseTabsState = {
       selected: null
@@ -1212,7 +1289,8 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       subject: new Map(),
       possessor: new Map(),
       patientivoOwnership: new Map(),
-      patientivoNominalSuffix: new Map()
+      patientivoNominalSuffix: new Map(),
+      sourceScope: ""
     };
 
     // Toggle lock pure functions extracted to src/ui/state.js
@@ -1237,6 +1315,9 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     function rerenderAfterToggleLockChange() {
       targetObject.updateCombinedModeTabs();
       targetObject.updateTenseModeTabs();
+      if (typeof targetObject.syncVerbSourceScopeControl === "function") {
+        targetObject.syncVerbSourceScopeControl();
+      }
       targetObject.renderTenseTabs();
       const verbMeta = targetObject.getVerbInputMeta();
       targetObject.renderActiveConjugations({
@@ -1259,13 +1340,15 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
           targetObject.clearToggleLockValueState();
           if (resetToDefaults) {
             targetObject.clearAllToggleStateMaps({
-              resetNonactiveSuffix: true
+              resetNonactiveSuffix: true,
+              resetSourceScope: true
             });
           }
         }
       } else if (!nextEnabled && resetToDefaults) {
         targetObject.clearAllToggleStateMaps({
-          resetNonactiveSuffix: true
+          resetNonactiveSuffix: true,
+          resetSourceScope: true
         });
       }
       if (persist) {
@@ -1837,6 +1920,18 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         get() { return DIRECTIONAL_RULES; },
         set(value) { DIRECTIONAL_RULES = value; },
     });
+    Object.defineProperty(api, "ORDINARY_NNC_FIXTURES", {
+        configurable: true,
+        enumerable: true,
+        get() { return ORDINARY_NNC_FIXTURES; },
+        set(value) { ORDINARY_NNC_FIXTURES = value; },
+    });
+    Object.defineProperty(api, "STATIC_NNC_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_NNC_PATH; },
+        set(value) { STATIC_NNC_PATH = value; },
+    });
     Object.defineProperty(api, "SUPPORTIVE_I_KEEP_SLASH_PREFIXES", {
         configurable: true,
         enumerable: true,
@@ -1986,6 +2081,8 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     api.loadStaticPhonology = loadStaticPhonology;
     api.applyStaticModes = applyStaticModes;
     api.loadStaticModes = loadStaticModes;
+    api.applyStaticNnc = applyStaticNnc;
+    api.loadStaticNnc = loadStaticNnc;
     api.applyStaticMisc = applyStaticMisc;
     api.loadStaticMisc = loadStaticMisc;
     api.applyStaticSuppletives = applyStaticSuppletives;
@@ -2278,11 +2375,29 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         get() { return InstrumentivoModeState; },
         set(value) { InstrumentivoModeState = value; },
     });
+    Object.defineProperty(api, "EuropeanTenseModeState", {
+        configurable: true,
+        enumerable: true,
+        get() { return EuropeanTenseModeState; },
+        set(value) { EuropeanTenseModeState = value; },
+    });
+    Object.defineProperty(api, "NawatTenseModeState", {
+        configurable: true,
+        enumerable: true,
+        get() { return NawatTenseModeState; },
+        set(value) { NawatTenseModeState = value; },
+    });
     Object.defineProperty(api, "TenseModeState", {
         configurable: true,
         enumerable: true,
         get() { return TenseModeState; },
         set(value) { TenseModeState = value; },
+    });
+    Object.defineProperty(api, "OrdinaryNncGenerationState", {
+        configurable: true,
+        enumerable: true,
+        get() { return OrdinaryNncGenerationState; },
+        set(value) { OrdinaryNncGenerationState = value; },
     });
     Object.defineProperty(api, "TenseTabsState", {
         configurable: true,

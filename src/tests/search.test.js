@@ -9,6 +9,26 @@ const { createSuite } = require("./runner");
 
 function run(ctx) {
     const s = createSuite("search");
+    const summarizeOrdinaryNncSearchCandidate = (candidate) => candidate && ({
+        kind: candidate.kind,
+        candidateKind: candidate.candidateKind,
+        supported: candidate.supported,
+        input: candidate.input,
+        base: candidate.base,
+        trimmedBase: candidate.trimmedBase,
+        normalizedInput: candidate.normalizedInput,
+        fixture: candidate.fixture && {
+            id: candidate.fixture.id,
+            stem: candidate.fixture.stem,
+            lemma: candidate.fixture.lemma,
+            nounClass: candidate.fixture.nounClass,
+            animacy: candidate.fixture.animacy,
+        },
+        entries: candidate.paradigmSet && Array.isArray(candidate.paradigmSet.entries)
+            ? candidate.paradigmSet.entries.map((entry) => entry.result)
+            : [],
+        diagnostics: candidate.paradigmSet ? candidate.paradigmSet.diagnostics : [],
+    });
 
     const split = ctx.splitSearchInput("nemi");
     s.eq("splitSearchInput keeps raw base", split.base, "nemi");
@@ -17,6 +37,62 @@ function run(ctx) {
     const parts = ctx.getSearchParts("  nemi  ");
     s.eq("getSearchParts trims base separately", parts.trimmedBase, "nemi");
     s.eq("getSearchInputBase returns base only", ctx.getSearchInputBase("nemi"), "nemi");
+    s.eq("ordinaryNnc: search candidate helper is exported", typeof ctx.getOrdinaryNncSearchCandidateInfo, "function");
+    s.eq("ordinaryNnc: search candidate boolean helper is exported", typeof ctx.isOrdinaryNncSearchCandidate, "function");
+    s.eq(
+        "ordinaryNnc: search candidate detects lemma-backed fixture",
+        summarizeOrdinaryNncSearchCandidate(ctx.getOrdinaryNncSearchCandidateInfo(" shuchit ")),
+        {
+            kind: "ordinary-nnc-search-candidate",
+            candidateKind: "ordinary-nnc-fixture",
+            supported: true,
+            input: " shuchit ",
+            base: " shuchit ",
+            trimmedBase: "shuchit",
+            normalizedInput: "shuchit",
+            fixture: {
+                id: "shuchi",
+                stem: "shuchi",
+                lemma: "shuchit",
+                nounClass: "t",
+                animacy: "inanimate",
+            },
+            entries: ["shuchit", "nushuchiw", "mushuchiw"],
+            diagnostics: [],
+        }
+    );
+    s.eq(
+        "ordinaryNnc: search candidate detects user-provided mistun fixture",
+        summarizeOrdinaryNncSearchCandidate(ctx.getOrdinaryNncSearchCandidateInfo("mistun")),
+        {
+            kind: "ordinary-nnc-search-candidate",
+            candidateKind: "ordinary-nnc-fixture",
+            supported: true,
+            input: "mistun",
+            base: "mistun",
+            trimmedBase: "mistun",
+            normalizedInput: "mistun",
+            fixture: {
+                id: "mistun",
+                stem: "mistun",
+                lemma: "mistun",
+                nounClass: "lexical",
+                animacy: "animate",
+            },
+            entries: ["mistun", "numistun", "mumistun"],
+            diagnostics: [],
+        }
+    );
+    s.eq("ordinaryNnc: unsupported search candidate returns null", ctx.getOrdinaryNncSearchCandidateInfo("unconfigured-nnc"), null);
+    s.eq("ordinaryNnc: boolean helper detects fixtures only", [
+        ctx.isOrdinaryNncSearchCandidate("kal"),
+        ctx.isOrdinaryNncSearchCandidate("shuchit"),
+        ctx.isOrdinaryNncSearchCandidate("unconfigured-nnc"),
+    ], [true, true, false]);
+    s.eq("ordinaryNnc: search input base remains unchanged", ctx.getSearchInputBase(" shuchit "), " shuchit ");
+    s.eq("ordinaryNnc: search parts trimming remains unchanged", ctx.getSearchParts(" shuchit ").trimmedBase, "shuchit");
+    s.eq("ordinaryNnc: search query info remains null", ctx.getSearchQueryInfo("shuchit"), null);
+    s.no("ordinaryNnc: fixture input does not become search mode", ctx.isSearchModeInput("shuchit"));
 
     s.ok("template-only base detects underscore shell", ctx.isComposerTemplateOnlyBaseValue("-_tmpl"));
     s.no("template-only base rejects real verb", ctx.isComposerTemplateOnlyBaseValue("nemi"));
