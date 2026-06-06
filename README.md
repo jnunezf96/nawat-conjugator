@@ -44,10 +44,11 @@ Examples: `ni-ki-chiwa` (I make it), `ti-ki-chiwat` (we make it), `ni-ki-chiwa-k
 
 ### NNC formula
 
-The basic noun form is a **Noun-Noun Complex (NNC)**:
+NNC means **Nominal Nuclear Clause**. It is a nominal predicate clause, not just a noun wordform table.
 
 ```
-[possessor prefix] [stem] [absolutive suffix]
+absolutive state: [subject prefix] [noun stem + absolutive state]
+possessive state:  [subject prefix] [possessor prefix + noun stem/possessive state]
 ```
 
 ### Preterit classes
