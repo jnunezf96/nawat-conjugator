@@ -1992,6 +1992,161 @@ function run(ctx) {
             },
         }
     );
+    s.eq(
+        "lesson-aligned ordinary NNC coverage separates fixture evidence from open-stem structure",
+        (() => {
+            const shuchi = ctx.generateOrdinaryNncParadigm({ stem: "shuchit" });
+            const kalPossessive = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "possessive",
+                possessor: "nu",
+            });
+            const mistunCount = ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                number: "plural",
+                pluralType: "count",
+            });
+            const mistunDistributive = ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                number: "plural",
+                pluralType: "distributive",
+            });
+            const tukayitAbsolutive = ctx.generateOrdinaryNncParadigm({ stem: "tukayit" });
+            const tukayitUnsupportedPossessive = ctx.generateOrdinaryNncParadigm({
+                stem: "tukayit",
+                state: "possessive",
+                possessor: "nu",
+            });
+            const nakaOpen = ctx.generateOrdinaryNncParadigm({
+                stem: "naka",
+                nounClass: "ti",
+            });
+            const tekpanOpen = ctx.generateOrdinaryNncParadigm({
+                stem: "tekpan",
+                nounClass: "in",
+            });
+            const nounClasses = [
+                shuchi,
+                kalPossessive,
+                mistunCount,
+                tukayitAbsolutive,
+                nakaOpen,
+                tekpanOpen,
+            ].map((result) => result.nounClass);
+            return {
+                shuchi: {
+                    sourceKind: shuchi.source?.sourceKind,
+                    nounClass: shuchi.nounClass,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(shuchi.nncBasic.formulaSlots),
+                    connectorClass: shuchi.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                },
+                kal: {
+                    sourceKind: kalPossessive.source?.sourceKind,
+                    nounClass: kalPossessive.nounClass,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(kalPossessive.nncBasic.formulaSlots),
+                    markingAvailable: kalPossessive.nncBasic.categoryProfile.possessiveState.markingAvailable,
+                    possessorPrefix: kalPossessive.nncBasic.categoryProfile.possessiveState.possessorPrefix,
+                },
+                mistun: {
+                    sourceKind: mistunCount.source?.sourceKind,
+                    animacy: mistunCount.animacy,
+                    animacyProfile: mistunCount.nncBasic.categoryProfile.animacy.value,
+                    count: {
+                        result: mistunCount.result,
+                        pluralType: mistunCount.pluralType,
+                        referenceType: mistunCount.nncBasic.categoryProfile.reference.pluralType,
+                    },
+                    distributive: {
+                        result: mistunDistributive.result,
+                        pluralType: mistunDistributive.pluralType,
+                        referenceType: mistunDistributive.nncBasic.categoryProfile.reference.pluralType,
+                    },
+                },
+                tukayit: {
+                    sourceKind: tukayitAbsolutive.source?.sourceKind,
+                    supportedPossessive: tukayitUnsupportedPossessive.supported,
+                    diagnostic: tukayitUnsupportedPossessive.diagnostics[0]?.id,
+                    markingAvailable: tukayitUnsupportedPossessive.nncBasic.categoryProfile.possessiveState.markingAvailable,
+                    markingRequested: tukayitUnsupportedPossessive.nncBasic.categoryProfile.possessiveState.markingRequested,
+                },
+                nakaOpen: {
+                    fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "naka" }),
+                    sourceKind: nakaOpen.source?.sourceKind,
+                    openStem: nakaOpen.openStem,
+                    nounClass: nakaOpen.nounClass,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(nakaOpen.nncBasic.formulaSlots),
+                    connectorClass: nakaOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                },
+                tekpanOpen: {
+                    fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "tekpan" }),
+                    sourceKind: tekpanOpen.source?.sourceKind,
+                    openStem: tekpanOpen.openStem,
+                    nounClass: tekpanOpen.nounClass,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(tekpanOpen.nncBasic.formulaSlots),
+                    connectorClass: tekpanOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                },
+                nounClasses,
+                noPseudoClasses: nounClasses.every((nounClass) => (
+                    ["t", "ti", "in", "zero"].includes(nounClass)
+                )),
+            };
+        })(),
+        {
+            shuchi: {
+                sourceKind: "fixture",
+                nounClass: "t",
+                formulaEcho: "#Ø...Ø(shuchi)t#",
+                connectorClass: "t",
+            },
+            kal: {
+                sourceKind: "fixture",
+                nounClass: "zero",
+                formulaEcho: "#Ø...Ø(kal)Ø#",
+                markingAvailable: true,
+                possessorPrefix: "nu",
+            },
+            mistun: {
+                sourceKind: "fixture",
+                animacy: "animate",
+                animacyProfile: "animate",
+                count: {
+                    result: "mistunmet",
+                    pluralType: "count",
+                    referenceType: "count",
+                },
+                distributive: {
+                    result: "mijmistunmet",
+                    pluralType: "distributive",
+                    referenceType: "distributive",
+                },
+            },
+            tukayit: {
+                sourceKind: "fixture",
+                supportedPossessive: false,
+                diagnostic: "ordinary-nnc-unsupported-possessive-state",
+                markingAvailable: false,
+                markingRequested: true,
+            },
+            nakaOpen: {
+                fixtureProbe: null,
+                sourceKind: "open-stem",
+                openStem: true,
+                nounClass: "ti",
+                formulaEcho: "#Ø...Ø(naka)ti#",
+                connectorClass: "ti",
+            },
+            tekpanOpen: {
+                fixtureProbe: null,
+                sourceKind: "open-stem",
+                openStem: true,
+                nounClass: "in",
+                formulaEcho: "#Ø...Ø(tekpan)in#",
+                connectorClass: "in",
+            },
+            nounClasses: ["t", "zero", "zero", "zero", "ti", "in"],
+            noPseudoClasses: true,
+        }
+    );
     s.eq("ordinary NNC paradigm-set helper is exported", typeof ctx.generateOrdinaryNncParadigmSet, "function");
     s.eq("ordinary NNC read-only fixture probe is exported", typeof ctx.resolveOrdinaryNncFixture, "function");
     s.eq(

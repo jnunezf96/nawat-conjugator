@@ -98,6 +98,17 @@ Control rules:
 - Fixture-fixed class or animacy locks conflicting UI choices.
 - Animate plural controls are reference controls; inanimate plural-like behavior is distributive reference.
 
+## Ordinary NNC Fixture Coverage Boundary
+
+Current fixture-backed coverage is intentionally small:
+
+- `t` class is fixture-backed through examples such as `shuchi`/`shuchit` and `a`/`at`.
+- `zero` class is fixture-backed through examples such as `kal`, `mistun`, `tukayit`, `machiyut`, and `majmachiyut`.
+- Animate and inanimate behavior are both represented by fixtures.
+- Possessive marking and unsupported possessive diagnostics are both represented by fixtures.
+
+Current `ti` and `in` coverage is open-stem structural only. Examples such as `(naka)ti` and `(tekpan)in` prove the slot model and connector placement, but they are not fixture-backed evidence. Do not add static `ti` or `in` ordinary NNC fixtures until Nawat/Pipil forms are confirmed by repo data or user-provided evidence.
+
 ## Open Sections
 
 - Lessons 12-19: NNC basico.
