@@ -11,6 +11,8 @@ This file is reserved for stable grammar summaries extracted by the architecture
 
 Ordinary nominal nuclear clauses (`S`) are the active grammar area.
 
+Current milestone: Ordinary NNC Foundation v1 - Lessons 12-14.
+
 Stable working constraints:
 
 - Formula: `#pers1-pers2(STEM)num1-num2#`.
@@ -19,6 +21,13 @@ Stable working constraints:
 - State belongs to the predicate.
 - No tense slot.
 - Dynamic behavior from input and UI state is preferred over static fixture shortcuts.
+
+Milestone scope:
+
+- Lesson 12 is mostly solved as an engine/UI foundation: `formulaSlots` represents `#pers1-pers2(STEM)num1-num2#`, and connector placement is explicit.
+- Lesson 13 is partially solved: possessive state is represented and unsupported possessive requests remain diagnostic.
+- Lesson 14 is structurally corrected: only `t`, `ti`, `in`, and `zero` are nounstem classes, and class/stem compatibility is enforced.
+- The foundation is structurally stable, but not data-complete.
 
 ## Ordinary NNC Class/Source Contract
 
@@ -102,12 +111,36 @@ Control rules:
 
 Current fixture-backed coverage is intentionally small:
 
-- `t` class is fixture-backed through examples such as `shuchi`/`shuchit` and `a`/`at`.
-- `zero` class is fixture-backed through examples such as `kal`, `mistun`, `tukayit`, `machiyut`, and `majmachiyut`.
+- `t` class: confirmed fixture-backed, through examples such as `shuchi`/`shuchit` and `a`/`at`.
+- `zero` class: confirmed fixture-backed, through examples such as `kal`, `mistun`, `tukayit`, `machiyut`, and `majmachiyut`.
+- `ti` class: no confirmed fixture-backed ordinary noun yet.
+- `in` class: no confirmed fixture-backed ordinary noun yet.
 - Animate and inanimate behavior are both represented by fixtures.
 - Possessive marking and unsupported possessive diagnostics are both represented by fixtures.
 
-Current `ti` and `in` coverage is open-stem structural only. `ti` and `in` require consonant-final stems, so old examples such as `(naka)ti` are invalid because `naka` is vowel-final. Examples such as `(xilun)ti` and `(tekpan)in` prove the slot model and connector placement, but they are not fixture-backed evidence. Do not add static `ti` or `in` ordinary NNC fixtures until Nawat/Pipil forms are confirmed by repo data or user-provided evidence.
+Compatibility rule:
+
+- `(...V)t`
+- `(...C)ti`
+- `(...C)in`
+- `(...C/V)Ø`
+
+Current `ti` and `in` coverage is open-stem structural only. `ti` and `in` require consonant-final stems. Examples such as `(xilun)ti` and `(tekpan)in` prove the slot model and connector placement, but they are not fixture-backed evidence. Do not add static `ti` or `in` ordinary NNC fixtures until Nawat/Pipil forms are confirmed by repo data or user-provided evidence.
+
+Rejected false positives from the local evidence hunt:
+
+- `xilunti`: structural/open-stem only, not fixture evidence.
+- `tekpanin`: structural/open-stem only, not fixture evidence.
+- `naka`/`nakati`: invalid as `ti` because `naka` is vowel-final.
+- `kwalti`, `malti`, `pati`, `ati`, `takamati`: verb/parser data, not ordinary noun fixture evidence.
+
+Current confirmed possessive examples:
+
+- `kal`
+- `shuchi`/`shuchit`
+- `mistun`
+
+The pending row `12-15 · generador NNC data-completo: posesivo y ti/in` remains pending.
 
 ## Open Sections
 

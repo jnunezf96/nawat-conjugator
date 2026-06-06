@@ -130,6 +130,52 @@ Verification:
 - `npm run test:module`: passed, 820/820.
 - `npm run test:regression`: passed, 12/12.
 
+## Milestone: Ordinary NNC Foundation v1 - Lessons 12-14
+
+Date: 2026-06-05
+
+Summary:
+
+- Phases 1-7B establish the working ordinary NNC engine/UI contract for Lessons 12-14.
+- The foundation is structurally stable, but not data-complete.
+- Do not add `ti` or `in` fixtures without evidence-backed Nawat/Pipil forms.
+- Do not treat open-stem structural examples as fixture evidence.
+
+Lesson 12: Absolutive-State NNC Formula
+
+- Mostly solved as an engine/UI foundation.
+- The formula `#pers1-pers2(STEM)num1-num2#` is represented through `formulaSlots`.
+- Connector placement is explicit in metadata and UI rendering.
+
+Lesson 13: Possessive-State NNC Formula
+
+- Partially solved.
+- Possessive state is represented through metadata and UI gating.
+- Unsupported possessive requests remain diagnostic.
+- Full possessive paradigms still require more evidence/data.
+
+Lesson 14: Nounstem Classes
+
+- Strongly improved and structurally corrected.
+- Valid `nounClass` values are only `t`, `ti`, `in`, and `zero`.
+- `lexical` and `open` are not nounstem classes.
+- Class/stem compatibility is `(...V)t`, `(...C)ti`, `(...C)in`, and `(...C/V)Ø`.
+- Fixture-backed `ti` and `in` examples remain missing.
+
+Evidence boundary:
+
+- Fixture-backed classes currently confirmed: `t` and `zero`.
+- Fixture-backed classes not yet confirmed: `ti` and `in`.
+- Confirmed possessive examples: `kal`, `shuchi`/`shuchit`, and `mistun`.
+- Rejected false positives: `xilunti` and `tekpanin` are structural/open-stem only; `naka`/`nakati` is invalid as `ti`; `kwalti`, `malti`, `pati`, `ati`, and `takamati` are verb/parser data.
+- The pending row `12-15 · generador NNC data-completo: posesivo y ti/in` remains pending.
+
+Next safe options:
+
+1. Continue evidence hunt for fixture-backed `ti` and `in`.
+2. Expand possessive-state examples only from confirmed data.
+3. Begin inventory for Lessons 15-19 without editing behavior yet.
+
 ## Merge Rules
 
 - Do not edit the same file from two worktrees at the same time.
