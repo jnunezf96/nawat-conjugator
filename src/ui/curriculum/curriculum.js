@@ -45,8 +45,7 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["NNC", "posesion", "pronombres", "suplementos"],
         next: ["lexico nominal", "generador NNC", "grafo de suplementos"],
         missing: [
-            { lessons: "12-14", label: "clases nominales, animacidad y usos", target: "data/static_nounstems", state: "missing" },
-            { lessons: "12-15", label: "generador NNC absolutivo/posesivo", target: "core/nnc/paradigm", state: "partial" },
+            { lessons: "12-15", label: "generador NNC data-completo: posesivo y ti/in", target: "core/nnc/paradigm + data/static_nnc", state: "partial" },
             { lessons: "15", label: "posesion natural y casos de estado", target: "core/nnc/possession", state: "missing" },
             { lessons: "16", label: "inventario NNC pronominal", target: "data/static_nnc_pronominals", state: "missing" },
             { lessons: "17-19", label: "suplementacion y topico", target: "core/syntax/supplementation", state: "missing" },
@@ -233,7 +232,7 @@ function renderCurriculumTotals(totalsEl, appendices) {
     const missingCounts = getCurriculumMissingStateCounts(missingItems);
     const fragment = document.createDocumentFragment();
     fragment.append(
-        createCurriculumPill(`${missingItems.length} faltantes`, "book-map__pill--strong"),
+        createCurriculumPill(`${missingItems.length} pendientes`, "book-map__pill--strong"),
         createCurriculumMissingStatePill("missing", `${missingCounts.missing || 0} sin mapa`),
         createCurriculumMissingStatePill("partial", `${missingCounts.partial || 0} parciales`),
         createCurriculumMissingStatePill("audit", `${missingCounts.audit || 0} por auditar`),
@@ -271,7 +270,7 @@ function renderCurriculumGroups(groupsEl, detailEl) {
             createCurriculumElement("span", "book-map__group-status", CURRICULUM_MISSING_STATE_META[status]?.label || status)
         );
         const title = createCurriculumElement("span", "book-map__group-title", group.title);
-        const missing = createCurriculumElement("span", "book-map__group-missing", `${missingItems.length} faltantes`);
+        const missing = createCurriculumElement("span", "book-map__group-missing", `${missingItems.length} pendientes`);
         const meter = createCurriculumElement("span", "book-map__meter", "");
         const meterFill = createCurriculumElement("span", "book-map__meter-fill", "");
         meterFill.style.width = `${Math.max(0, Math.min(100, missingPercent))}%`;
@@ -325,7 +324,7 @@ function renderCurriculumDetail(detailEl, group) {
     const summary = createCurriculumElement("div", "book-map__summary", "");
     const missingCounts = getCurriculumMissingStateCounts(missingItems);
     summary.append(
-        createCurriculumPill(`${missingItems.length} faltantes`, "book-map__pill--strong"),
+        createCurriculumPill(`${missingItems.length} pendientes`, "book-map__pill--strong"),
         createCurriculumMissingStatePill("missing", `${missingCounts.missing || 0} sin mapa`),
         createCurriculumMissingStatePill("partial", `${missingCounts.partial || 0} parciales`),
         createCurriculumMissingStatePill("audit", `${missingCounts.audit || 0} por auditar`)
@@ -340,7 +339,7 @@ function createCurriculumMissingList(items) {
     const section = createCurriculumElement("div", "book-map__missing", "");
     const header = createCurriculumElement("div", "book-map__missing-header", "");
     header.append(
-        createCurriculumElement("span", "book-map__missing-title", "Faltantes"),
+        createCurriculumElement("span", "book-map__missing-title", "Pendientes"),
         createCurriculumElement("span", "book-map__missing-count", `${items.length} pistas`)
     );
     const list = createCurriculumElement("div", "book-map__missing-list", "");

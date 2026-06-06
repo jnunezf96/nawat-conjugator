@@ -8,9 +8,9 @@ Do not edit app code from this file alone. Each patch still needs an explicit im
 
 ## Active Target
 
-Ordinary NNC class/source split and minimal UI terminology pass.
+Ordinary NNC Foundation v1 - Lessons 12-14.
 
-Status: implemented and locally tested.
+Status: milestone recorded after Phase 7B.
 
 ## Safe Order Template
 
@@ -41,11 +41,27 @@ Status: implemented and locally tested.
 - `Estado/poseedor` disables unavailable possessor prefixes, keeps `Ø` enabled, and preserves diagnostics for selected unsupported possessive requests.
 - Composer class control is now `Conector num1-num2`; fixture-fixed class/animacy lock conflicting options.
 - Animate plural is labeled as `Referencia plural`, and inanimate reference remains common/distributive.
+- Class/stem compatibility is now enforced: `(...V)t`, `(...C)ti`, `(...C)in`, and `(...C/V)Ø`.
+- `ti` and `in` remain open-stem structural only until evidence-backed Nawat/Pipil fixture forms are confirmed.
+
+## Current Milestone
+
+Milestone: Ordinary NNC Foundation v1 - Lessons 12-14.
+
+Phase 1-7B establishes the working ordinary NNC engine/UI contract for Lessons 12-14:
+
+- Lesson 12 is mostly solved as an engine/UI foundation through `formulaSlots` and explicit connector placement.
+- Lesson 13 is partially solved through possessive-state metadata, UI gating, and diagnostics for unsupported possessive requests.
+- Lesson 14 is structurally corrected through the restricted `nounClass` set and class/stem compatibility.
+
+The foundation is structurally stable, but not data-complete. Do not add `ti` or `in` fixtures without evidence-backed Nawat/Pipil forms, and do not treat open-stem structural examples as fixture evidence.
 
 ## Remaining Small Targets
 
 - Add browser smoke coverage for the S board once a dev server target is established.
 - Expand evidence-backed possessive/allomorphy examples only when the user supplies Nawat/Pipil forms or repo data clearly supports them.
+- Continue evidence hunt for fixture-backed `ti` and `in`.
+- Begin inventory for Lessons 15-19 without editing behavior yet.
 - Consider a later UI distinction between fixture-backed evidence and dynamic preview output, without changing generation semantics.
 - Consider adding a visual slot breakdown if the single formula echo is not enough for teaching, but keep it derived from `formulaSlots`.
 - Consider richer visual treatment for locked fixture metadata if disabled controls are not clear enough in browser review.
