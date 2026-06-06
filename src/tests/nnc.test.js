@@ -169,6 +169,16 @@ function run(ctx) {
     s.eq("direct instrumentivo returns structured entries", directInstrumentivo.entries.length, 2);
     s.eq("direct instrumentivo records derivation kind", directInstrumentivo.nounDerivationKind, "instrumentivo");
     s.eq("direct instrumentivo records source tense", directInstrumentivo.entries[0].sourceTense, "presente-habitual");
+    s.eq(
+        "direct instrumentivo records subject number connector surfaces",
+        directInstrumentivo.subjectNumberConnectors.map((entry) => entry.displaySurface),
+        ["ni"]
+    );
+    s.eq(
+        "direct instrumentivo frames the connector as subject material",
+        directInstrumentivo.subjectNumberConnector.belongsTo,
+        "subject"
+    );
 
     const generatedInstrumentivo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "instrumentivo",
@@ -176,6 +186,27 @@ function run(ctx) {
     }));
     s.eq("generateWord instrumentivo matches direct helper text", generatedInstrumentivo.result, directInstrumentivo.result);
     s.eq("generateWord instrumentivo exposes surface forms", generatedInstrumentivo.surfaceForms, ["nemiwani", "nemuwani"]);
+    s.eq(
+        "generateWord instrumentivo exposes nominal clause connector metadata",
+        {
+            clauseKind: generatedInstrumentivo.nominalClauseFrame.clauseKind,
+            hasTensePosition: generatedInstrumentivo.nominalClauseFrame.hasTensePosition,
+            predicateState: generatedInstrumentivo.nominalClauseFrame.predicate.state,
+            predicateNotTense: generatedInstrumentivo.nominalClauseFrame.predicate.stateSlot.notTense,
+            belongsTo: generatedInstrumentivo.subjectNumberConnector.belongsTo,
+            notNounSuffix: generatedInstrumentivo.subjectNumberConnector.notNounSuffix,
+            notStatePosition: generatedInstrumentivo.subjectNumberConnector.notStatePosition,
+        },
+        {
+            clauseKind: "nominal-nuclear-clause",
+            hasTensePosition: false,
+            predicateState: "absolutive",
+            predicateNotTense: true,
+            belongsTo: "subject",
+            notNounSuffix: true,
+            notStatePosition: true,
+        }
+    );
 
     const mikiMeta = ctx.parseVerbInput("(miki)");
     const directCalificativo = ctx.getCalificativoInstrumentivoResult({

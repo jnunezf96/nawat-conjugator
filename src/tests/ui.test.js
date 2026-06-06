@@ -140,6 +140,14 @@ function run() {
             && rendering.includes('`poseedor ${result.possessor?.prefix || state.possessor || "nu"}`')
             && rendering.includes("personLabel.textContent = `Sujeto ${result.nncBasic?.subject?.affixLabel || getOrdinaryNncSubjectMarkerLabel(rowSubject)}`")
     );
+    s.ok(
+        "shared sustantivo renderer labels subject number connectors",
+        rendering.includes("buildNominalSubjectConnectorSubLabel")
+            && rendering.includes('subjectNumberConnector')
+            && rendering.includes('nominalClauseFrame?.subject?.numberConnector')
+            && rendering.includes('return `conector ${connectorSurface || "Ø"}`;')
+            && rendering.includes("appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel)")
+    );
 
     return s;
 }

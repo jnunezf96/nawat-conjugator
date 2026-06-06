@@ -5422,6 +5422,22 @@ function renderNounConjugations({
     const ownershipToggleLabel = getToggleLabel("ownership", isNawat, "Posesion");
     const objectToggleLabel = getToggleLabel("object", isNawat, "Objeto");
     const suffixToggleLabel = getToggleLabel("suffix", isNawat, "Sufijo");
+    const buildNominalSubjectConnectorSubLabel = ({
+        evaluation = null,
+        selection = null,
+        displaySelection = null,
+    } = {}) => {
+        const connector = evaluation?.result?.subjectNumberConnector
+            || evaluation?.result?.nominalClauseFrame?.subject?.numberConnector
+            || null;
+        const connectorSurface = connector
+            ? String(connector.displaySurface || connector.surface || "Ø")
+            : String((displaySelection || selection || {}).subjectSuffix || "") || "Ø";
+        return `conector ${connectorSurface || "Ø"}`;
+    };
+    const appendNominalSubjectConnectorSubLabel = (baseLabel = "", connectorLabel = "") => (
+        [baseLabel, connectorLabel].filter(Boolean).join(" · ")
+    );
 
     const tenseLabel = getLocalizedLabel(TENSE_LABELS[resolvedTense], isNawat, resolvedTense);
     const resolvedNounBlockMode = (() => {
@@ -7543,8 +7559,13 @@ function renderNounConjugations({
 
                     const value = document.createElement("div");
                     value.className = "conjugation-value";
+                    const subjectConnectorLabel = buildNominalSubjectConnectorSubLabel({
+                        evaluation,
+                        selection: normalizedSelection,
+                        displaySelection,
+                    });
                     personSub.textContent = buildPersonSub({
-                        subjectLabel: basePersonSub,
+                        subjectLabel: appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel),
                         possessorLabel,
                         objectLabel,
                     });

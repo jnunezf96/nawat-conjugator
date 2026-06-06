@@ -78,6 +78,67 @@ function executeOrdinaryNncGenerationRoute({
     };
 }
 
+function buildGeneratedNominalSubjectNumberConnectorMetadata({
+    subjectSuffix = "",
+    nominalKind = "",
+    possessivePrefix = "",
+    source = "generate-word",
+} = {}) {
+    const connector = typeof buildNominalSubjectNumberConnector === "function"
+        ? buildNominalSubjectNumberConnector({
+            subjectSuffix,
+            nominalKind,
+            predicateState: "derived-nominal",
+            source,
+        })
+        : {
+            version: 1,
+            role: "subject-number-connector",
+            slot: "subject.num1-num2",
+            belongsTo: "subject",
+            surface: String(subjectSuffix || ""),
+            displaySurface: String(subjectSuffix || "") || "Ø",
+            nominalKind: String(nominalKind || ""),
+            predicateState: "derived-nominal",
+            source,
+            notNounSuffix: true,
+            notStatePosition: true,
+        };
+    const hasPossessor = Boolean(possessivePrefix);
+    const predicateStateSlot = {
+        role: "predicate-state",
+        slot: "predicate.state",
+        state: hasPossessor ? "possessive" : "absolutive",
+        statePosition: hasPossessor ? "possessor" : "vacant",
+        isVacant: !hasPossessor,
+        hasPossessor,
+        participantRole: hasPossessor ? "possessor" : "",
+        possessorPrefix: possessivePrefix || "",
+        notSubjectConnector: true,
+        notTense: true,
+    };
+    return {
+        subjectNumberConnector: connector,
+        nominalClauseFrame: {
+            version: 1,
+            clauseKind: "nominal-nuclear-clause",
+            predicateKind: String(nominalKind || ""),
+            hasTensePosition: false,
+            tense: null,
+            subject: {
+                numberConnector: connector,
+                numberConnectors: [connector],
+            },
+            predicate: {
+                kind: String(nominalKind || ""),
+                state: predicateStateSlot.state,
+                stateSlot: predicateStateSlot,
+            },
+            stateSlot: predicateStateSlot,
+        },
+    };
+}
+
 function executeGenerateWordRequest(request = {}) {
     let options = request?.options || {};
     if (typeof Event !== "undefined" && options instanceof Event) {
@@ -1297,5 +1358,12 @@ function executeGenerateWordRequest(request = {}) {
         });
     }
 
-    return { result: generatedText, surfaceForms: forms, isReflexive, stemProvenance };
+    const nominalClauseMetadata = isNominalOutputProfile
+        ? buildGeneratedNominalSubjectNumberConnectorMetadata({
+            subjectSuffix,
+            nominalKind: tense,
+            possessivePrefix,
+        })
+        : {};
+    return { result: generatedText, surfaceForms: forms, isReflexive, stemProvenance, ...nominalClauseMetadata };
 }

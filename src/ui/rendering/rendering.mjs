@@ -4790,6 +4790,16 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const ownershipToggleLabel = targetObject.getToggleLabel("ownership", isNawat, "Posesion");
       const objectToggleLabel = targetObject.getToggleLabel("object", isNawat, "Objeto");
       const suffixToggleLabel = targetObject.getToggleLabel("suffix", isNawat, "Sufijo");
+      const buildNominalSubjectConnectorSubLabel = ({
+        evaluation = null,
+        selection = null,
+        displaySelection = null
+      } = {}) => {
+        const connector = evaluation?.result?.subjectNumberConnector || evaluation?.result?.nominalClauseFrame?.subject?.numberConnector || null;
+        const connectorSurface = connector ? String(connector.displaySurface || connector.surface || "Ø") : String((displaySelection || selection || {}).subjectSuffix || "") || "Ø";
+        return `conector ${connectorSurface || "Ø"}`;
+      };
+      const appendNominalSubjectConnectorSubLabel = (baseLabel = "", connectorLabel = "") => [baseLabel, connectorLabel].filter(Boolean).join(" · ");
       const tenseLabel = targetObject.getLocalizedLabel(targetObject.TENSE_LABELS[resolvedTense], isNawat, resolvedTense);
       const resolvedNounBlockMode = (() => {
         if (isPossessionSplit) {
@@ -6560,8 +6570,13 @@ export function createUiRenderingApi(targetObject = globalThis) {
               label.appendChild(personSub);
               const value = targetObject.document.createElement("div");
               value.className = "conjugation-value";
+              const subjectConnectorLabel = buildNominalSubjectConnectorSubLabel({
+                evaluation,
+                selection: normalizedSelection,
+                displaySelection
+              });
               personSub.textContent = targetObject.buildPersonSub({
-                subjectLabel: basePersonSub,
+                subjectLabel: appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel),
                 possessorLabel,
                 objectLabel
               });

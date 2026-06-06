@@ -771,17 +771,65 @@ export function createAllomorphyApi(targetObject = globalThis) {
         lockNominalMarker: resolved.lockNominalMarker
       });
     }
+    function buildNominalSubjectNumberConnector({
+      subjectSuffix = "",
+      nominalKind = "",
+      predicateState = "derived-nominal",
+      source = ""
+    } = {}) {
+      const surface = String(subjectSuffix || "");
+      return Object.freeze({
+        version: 1,
+        role: "subject-number-connector",
+        slot: "subject.num1-num2",
+        belongsTo: "subject",
+        surface,
+        displaySurface: surface || "Ø",
+        nominalKind: String(nominalKind || ""),
+        predicateState: String(predicateState || "derived-nominal"),
+        source: String(source || ""),
+        notNounSuffix: true,
+        notStatePosition: true
+      });
+    }
+    function normalizeNominalSubjectNumberConnector(connector = null, fallback = {}) {
+      if (connector && typeof connector === "object") {
+        return Object.freeze({
+          ...connector,
+          version: connector.version || 1,
+          role: connector.role || "subject-number-connector",
+          slot: connector.slot || "subject.num1-num2",
+          belongsTo: connector.belongsTo || "subject",
+          surface: String(connector.surface ?? fallback.subjectSuffix ?? ""),
+          displaySurface: String(connector.displaySurface || connector.surface || fallback.subjectSuffix || "Ø"),
+          nominalKind: String(connector.nominalKind || fallback.nominalKind || ""),
+          predicateState: String(connector.predicateState || fallback.predicateState || "derived-nominal"),
+          source: String(connector.source || fallback.source || ""),
+          notNounSuffix: connector.notNounSuffix !== false,
+          notStatePosition: connector.notStatePosition !== false
+        });
+      }
+      return buildNominalSubjectNumberConnector(fallback);
+    }
     function buildNominalFormEntry(verb = "", subjectSuffix = "", options = {}) {
       const normalizedVerb = normalizeRuleBase(String(verb || "").trim().toLowerCase());
       const normalizedSuffix = String(subjectSuffix || "");
       const formSpec = options?.formSpec || buildLiteralNominalFormSpec(normalizedVerb, normalizedSuffix, {
         lockNominalMarker: options?.lockNominalMarker === true
       });
+      const nominalKind = String(options?.nounDerivationKind || options?.nominalKind || "");
+      const subjectNumberConnector = normalizeNominalSubjectNumberConnector(options?.subjectNumberConnector || null, {
+        subjectSuffix: normalizedSuffix,
+        nominalKind,
+        predicateState: options?.predicateState || "derived-nominal",
+        source: options?.sourceTense || options?.source || ""
+      });
       return {
         ...options,
         verb: normalizedVerb,
         subjectSuffix: normalizedSuffix,
-        formSpec
+        formSpec,
+        subjectNumberConnector
       };
     }
     function normalizeNominalFormEntry(entry = null, fallback = {}) {
@@ -1151,11 +1199,60 @@ export function createAllomorphyApi(targetObject = globalThis) {
           forms.add(text);
         }
       });
+      const subjectNumberConnectors = [];
+      const seenConnectorKeys = new Set();
+      normalizedEntries.forEach(entry => {
+        const connector = normalizeNominalSubjectNumberConnector(entry?.subjectNumberConnector || null, {
+          subjectSuffix: entry?.subjectSuffix || "",
+          nominalKind: kind || entry?.nounDerivationKind || "",
+          predicateState: "derived-nominal",
+          source: entry?.sourceTense || ""
+        });
+        const key = [connector.surface, connector.nominalKind, connector.predicateState, connector.source].join("|");
+        if (!seenConnectorKeys.has(key)) {
+          seenConnectorKeys.add(key);
+          subjectNumberConnectors.push(connector);
+        }
+      });
+      const primaryConnector = subjectNumberConnectors[0] || null;
+      const nounDerivationKind = kind || normalizedEntries[0]?.nounDerivationKind || "";
+      const hasPossessor = Boolean(possessivePrefix);
+      const predicateStateSlot = Object.freeze({
+        role: "predicate-state",
+        slot: "predicate.state",
+        state: hasPossessor ? "possessive" : "absolutive",
+        statePosition: hasPossessor ? "possessor" : "vacant",
+        isVacant: !hasPossessor,
+        hasPossessor,
+        participantRole: hasPossessor ? "possessor" : "",
+        possessorPrefix: possessivePrefix || "",
+        notSubjectConnector: true,
+        notTense: true
+      });
       return {
         result: Array.from(forms).join(" / "),
         entries: normalizedEntries,
         sourceModel: normalizedEntries[0]?.sourceModel || null,
-        nounDerivationKind: kind || normalizedEntries[0]?.nounDerivationKind || ""
+        nounDerivationKind,
+        subjectNumberConnector: primaryConnector,
+        subjectNumberConnectors,
+        nominalClauseFrame: primaryConnector ? Object.freeze({
+          version: 1,
+          clauseKind: "nominal-nuclear-clause",
+          predicateKind: nounDerivationKind,
+          hasTensePosition: false,
+          tense: null,
+          subject: Object.freeze({
+            numberConnector: primaryConnector,
+            numberConnectors: Object.freeze([...subjectNumberConnectors])
+          }),
+          predicate: Object.freeze({
+            kind: nounDerivationKind,
+            state: predicateStateSlot.state,
+            stateSlot: predicateStateSlot
+          }),
+          stateSlot: predicateStateSlot
+        }) : null
       };
     }
     function isNominalMorphProfileTense(tenseValue = "") {
@@ -8042,6 +8139,8 @@ export function createAllomorphyApi(targetObject = globalThis) {
     api.buildStemNominalFormSpec = buildStemNominalFormSpec;
     api.realizeNominalFormSpec = realizeNominalFormSpec;
     api.withNominalFormSpecSuffix = withNominalFormSpecSuffix;
+    api.buildNominalSubjectNumberConnector = buildNominalSubjectNumberConnector;
+    api.normalizeNominalSubjectNumberConnector = normalizeNominalSubjectNumberConnector;
     api.buildNominalFormEntry = buildNominalFormEntry;
     api.normalizeNominalFormEntry = normalizeNominalFormEntry;
     api.withNominalFormEntrySuffix = withNominalFormEntrySuffix;
