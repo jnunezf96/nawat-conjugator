@@ -8,7 +8,7 @@ Do not edit app code from this file alone. Each patch still needs an explicit im
 
 ## Active Target
 
-Ordinary NNC Lesson 16 pronominal evidence boundary.
+Ordinary NNC Lessons 17-19 supplementation and topic evidence boundary.
 
 Status: boundary recorded; no engine behavior mapped yet.
 
@@ -65,7 +65,8 @@ The foundation is structurally stable, but not data-complete. Do not add `ti` or
 - Do not add Lesson 15 possession metadata, diagnostics, generation, or UI labels until confirmed examples and validation tests are planned.
 - For Lesson 16, gather confirmed Nawat/Pipil pronominal NNC examples before proposing schema, validation, engine metadata, diagnostics, or UI labels.
 - Do not treat pronoun/agreement labels, ordinary person labels, generated/open-stem examples, or Andrews/Classical forms as pronominal NNC fixture evidence.
-- Continue inventory for Lessons 17-19 without editing behavior yet.
+- For Lessons 17-19, gather confirmed Nawat/Pipil clause examples before proposing supplementation/topic schema, parser/search metadata, diagnostics, tests, or UI representation.
+- Do not treat ordinary NNC word generation, VNC rows, pronoun/agreement labels, parser compound examples, UI topic/focus wording, translation labels, or Andrews/Classical examples as supplementation evidence.
 - Consider a later UI distinction between fixture-backed evidence and dynamic preview output, without changing generation semantics.
 - Consider adding a visual slot breakdown if the single formula echo is not enough for teaching, but keep it derived from `formulaSlots`.
 - Consider richer visual treatment for locked fixture metadata if disabled controls are not clear enough in browser review.

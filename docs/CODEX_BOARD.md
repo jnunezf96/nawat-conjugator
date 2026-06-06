@@ -223,6 +223,46 @@ Future path:
 5. Add UI labels/gating only after metadata exists.
 6. Reduce pending counts only after implementation and tests.
 
+## Boundary: Lessons 17-19 Supplementation And Topic Evidence
+
+Date: 2026-06-06
+
+Decision:
+
+- Lessons 17-19 (`suplementacion y topico`) remain pending and evidence-sensitive.
+- No confirmed Nawat/Pipil clause examples showing supplementation or topic relations were found in the repo.
+- Current parser, search, rendering, NNC, and VNC support ordinary word outputs and metadata, not sentence-level supplementation.
+- Roadmap/future syntax markers such as `futureSyntaxLayer: ["pronominal-nnc", "supplementation", "included-referent-clause"]` are placeholders only.
+- Supplementation is treated as clause/sentence-level architecture: a multiple-nucleus or appositional relation between a pronominal head and an adjoined supplement.
+- Possible future roles include supplementary subject, object, and possessor.
+- Possible future relation types include shared-referent and included-referent supplementation.
+- Marked or topic-like supplementation, discontinuity, and agreement mismatch require clause/sentence metadata, not ordinary word generation.
+- VNCs may function structurally as supplements, but current VNC rows and generated outputs are not supplementation evidence by themselves.
+- Do not force supplementation into ordinary NNC `formulaSlots`.
+- Do not make topic a `nounClass`, `sourceKind`, or ordinary NNC reference/plural type.
+- Do not infer supplementation from pronoun/agreement labels, parser compound examples, UI topic/focus wording, translation labels, VNC paradigm rows, or Andrews/Classical forms.
+- Pronominal NNCs are not implemented yet, so future supplementation work must not depend on unimplemented pronominal-NNC behavior.
+
+Future path:
+
+1. Confirm Nawat/Pipil clause examples.
+2. Propose a supplementation/topic example schema.
+3. Design parser/search metadata.
+4. Add diagnostics and tests.
+5. Add UI representation only after metadata exists.
+6. Reduce pending counts only after implementation and tests.
+
+Candidate schema questions to revisit later:
+
+- `principalClause`
+- `supplement`
+- `headRole`: subject, object, possessor, or unknown.
+- `supplementType`: NNC, VNC, sentence, or unknown.
+- `referentRelation`: shared, included, or unknown.
+- `marking`: unmarked, marked, topic-like, or unknown.
+- Discontinuity/spans.
+- Agreement mismatch diagnostics.
+
 ## Merge Rules
 
 - Do not edit the same file from two worktrees at the same time.

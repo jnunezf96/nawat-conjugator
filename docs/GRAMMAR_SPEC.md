@@ -214,6 +214,60 @@ Future implementation order:
 5. Add UI labels/gating only after metadata exists.
 6. Reduce pending counts only after implementation and tests.
 
+## Lessons 17-19 Supplementation And Topic Evidence Boundary
+
+Lessons 17-19 (`suplementacion y topico`) are pending and evidence-sensitive. They are not mapped into engine, parser, search, generation, or UI behavior yet.
+
+Structural frame, using Andrews as analogy only:
+
+- Supplementation is a multiple-nucleus or appositional structure.
+- It relates a pronominal head to an adjoined supplement.
+- Possible supplement roles include subject, object, and possessor.
+- Supplementation may be shared-referent or included-referent.
+- Marked or topic-like supplementation is a clause-level relation.
+- Discontinuous supplementation and agreement mismatch require sentence-level metadata.
+- VNCs can function as supplements structurally.
+- None of these structures should be copied into Nawat/Pipil forms without local evidence.
+
+Current project boundary:
+
+- Supplementation must not be forced into ordinary NNC `formulaSlots`.
+- Topic must not become a `nounClass`, `sourceKind`, or ordinary NNC reference/plural type.
+- Supplementation must not be inferred from a single NNC output, a single VNC output, or an ordinary parser compound example.
+- Supplementation must not be inferred from English/Spanish translation labels alone.
+- Pronominal NNCs are not implemented yet, so supplementation work must not depend on imaginary pronominal-NNC behavior.
+- The proper future home is likely clause/sentence-level metadata, not ordinary word generation.
+
+Evidence boundary:
+
+- No confirmed Nawat/Pipil supplementation or topic fixture data exists yet.
+- `futureSyntaxLayer: ["pronominal-nnc", "supplementation", "included-referent-clause"]` is a roadmap marker only.
+- `naja`, `taja`, `yaja`, `tejemet`, `anmejemet`, and `yejemet` are pronoun/agreement labels only for now.
+- `ajaka`, `tajtatka`, `isel`, and `muchi` are not confirmed supplementation fixtures.
+- Compound/parser examples such as `(shuchi-temua)` are not supplementation evidence.
+- VNC rows in CSV data are verb paradigm evidence, not supplementation evidence unless a clause relation is explicitly shown.
+- UI topic/focus wording and Andrews/Classical examples are structural prompts only, not Nawat/Pipil data.
+
+Future implementation order:
+
+1. Gather confirmed Nawat/Pipil clause examples.
+2. Propose a schema for supplementation/topic examples.
+3. Design parser/search metadata.
+4. Add diagnostics and focused tests.
+5. Add UI representation only after metadata exists.
+6. Reduce pending counts only after implementation and tests.
+
+Candidate future schema questions, not implemented fields:
+
+- `principalClause`
+- `supplement`
+- `headRole`: subject, object, possessor, or unknown.
+- `supplementType`: NNC, VNC, sentence, or unknown.
+- `referentRelation`: shared, included, or unknown.
+- `marking`: unmarked, marked, topic-like, or unknown.
+- Discontinuity/spans.
+- Agreement mismatch diagnostics.
+
 ## Open Sections
 
 - Lessons 12-19: NNC basico.
