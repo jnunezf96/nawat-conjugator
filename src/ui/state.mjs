@@ -2549,6 +2549,60 @@ export function createUiStateApi(targetObject = globalThis) {
     function normalizeOrdinaryNncGenerationNumber(value = "") {
       return String(value || "").trim() === "plural" ? "plural" : "singular";
     }
+    function normalizeOrdinaryNncGenerationPluralType(value = "") {
+      const normalized = String(value || "").trim();
+      if (normalized === "count" || normalized === "distributive") {
+        return normalized;
+      }
+      return "auto";
+    }
+    function normalizeOrdinaryNncGenerationAnimacy(value = "") {
+      const normalized = String(value || "").trim();
+      return normalized === "animate" ? "animate" : "inanimate";
+    }
+    function normalizeOrdinaryNncGenerationNounClass(value = "") {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (!normalized) {
+        return "";
+      }
+      if (normalized === "0" || normalized === "ø" || normalized === "zero") {
+        return "zero";
+      }
+      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+    }
+    function parseOrdinaryNncGenerationAnalogueInput(value = "") {
+      const raw = String(value || "").trim().toLowerCase();
+      const match = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
+      if (!match) {
+        return null;
+      }
+      const stem = String(match[1] || "").trim().toLowerCase().replace(/[()]/g, "");
+      if (!stem) {
+        return null;
+      }
+      const nounClass = normalizeOrdinaryNncGenerationNounClass(match[2] || "zero") || "zero";
+      return {
+        stem,
+        nounClass,
+        connector: nounClass === "zero" ? "" : nounClass,
+        predicateFormula: formatOrdinaryNncGenerationAnalogueInput({
+          stem,
+          nounClass
+        })
+      };
+    }
+    function formatOrdinaryNncGenerationAnalogueInput({
+      stem = "",
+      nounClass = ""
+    } = {}) {
+      const normalizedStem = String(stem || "").trim().toLowerCase().replace(/[()]/g, "");
+      if (!normalizedStem) {
+        return "";
+      }
+      const normalizedClass = normalizeOrdinaryNncGenerationNounClass(nounClass) || "zero";
+      const connector = normalizedClass === "zero" ? "" : normalizedClass;
+      return `(${normalizedStem})${connector}`;
+    }
     function getOrdinaryNncGenerationPossessorValues() {
       if (Array.isArray(targetObject.POSSESSIVE_PREFIXES) && targetObject.POSSESSIVE_PREFIXES.length) {
         return targetObject.POSSESSIVE_PREFIXES.map(entry => String(entry?.value || ""));
@@ -2563,49 +2617,87 @@ export function createUiStateApi(targetObject = globalThis) {
       const values = getOrdinaryNncGenerationPossessorValues();
       return values.includes(normalized) ? normalized : "";
     }
-    function getOrdinaryNncGenerationStateStore() {
-      if (!targetObject.OrdinaryNncGenerationState || typeof targetObject.OrdinaryNncGenerationState !== "object") {
-        targetObject.OrdinaryNncGenerationState = {
-          enabled: false,
-          state: "absolutive",
-          number: "singular",
-          possessor: "",
-          nounClass: ""
-        };
-      }
-      return targetObject.OrdinaryNncGenerationState;
+    function getOrdinaryNncGenerationSubjectEntries() {
+      return Array.isArray(targetObject.SUBJECT_COMBINATIONS) && targetObject.SUBJECT_COMBINATIONS.length ? targetObject.SUBJECT_COMBINATIONS : [{
+        id: "third-person",
+        personSubKey: "3sg",
+        subjectPrefix: "",
+        subjectSuffix: ""
+      }, {
+        id: "3-pl",
+        personSubKey: "3pl",
+        subjectPrefix: "",
+        subjectSuffix: "t"
+      }];
+    }
+    function normalizeOrdinaryNncGenerationSubject({
+      subjectPrefix = "",
+      subjectSuffix = "",
+      subjectKey = "",
+      personSubKey = ""
+    } = {}) {
+      const requestedKey = String(subjectKey || personSubKey || "").trim();
+      const prefix = String(subjectPrefix || "");
+      const suffix = String(subjectSuffix || "");
+      const entries = getOrdinaryNncGenerationSubjectEntries();
+      const entry = entries.find(candidate => requestedKey && (candidate.personSubKey === requestedKey || candidate.id === requestedKey)) || entries.find(candidate => String(candidate.subjectPrefix || "") === prefix && String(candidate.subjectSuffix || "") === suffix) || entries.find(candidate => candidate.personSubKey === "3sg") || entries[0] || null;
+      return {
+        subjectPrefix: String(entry?.subjectPrefix || ""),
+        subjectSuffix: String(entry?.subjectSuffix || ""),
+        subjectKey: String(entry?.personSubKey || "3sg")
+      };
     }
     function getOrdinaryNncGenerationState() {
-      const store = getOrdinaryNncGenerationStateStore();
+      const subject = normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: targetObject.OrdinaryNncGenerationState.subjectPrefix,
+        subjectSuffix: targetObject.OrdinaryNncGenerationState.subjectSuffix,
+        subjectKey: targetObject.OrdinaryNncGenerationState.subjectKey
+      });
       return {
-        enabled: store.enabled === true,
-        state: normalizeOrdinaryNncGenerationStateValue(store.state),
-        number: normalizeOrdinaryNncGenerationNumber(store.number),
-        possessor: normalizeOrdinaryNncGenerationPossessor(store.possessor, store.state),
-        nounClass: String(store.nounClass || "")
+        enabled: targetObject.OrdinaryNncGenerationState.enabled === true,
+        state: normalizeOrdinaryNncGenerationStateValue(targetObject.OrdinaryNncGenerationState.state),
+        number: normalizeOrdinaryNncGenerationNumber(targetObject.OrdinaryNncGenerationState.number),
+        pluralType: normalizeOrdinaryNncGenerationPluralType(targetObject.OrdinaryNncGenerationState.pluralType),
+        subjectPrefix: subject.subjectPrefix,
+        subjectSuffix: subject.subjectSuffix,
+        subjectKey: subject.subjectKey,
+        possessor: normalizeOrdinaryNncGenerationPossessor(targetObject.OrdinaryNncGenerationState.possessor, targetObject.OrdinaryNncGenerationState.state),
+        nounClass: normalizeOrdinaryNncGenerationNounClass(targetObject.OrdinaryNncGenerationState.nounClass),
+        animacy: normalizeOrdinaryNncGenerationAnimacy(targetObject.OrdinaryNncGenerationState.animacy)
       };
     }
     function isOrdinaryNncGenerationModeEnabled() {
       return getOrdinaryNncGenerationState().enabled;
     }
     function setOrdinaryNncGenerationState(options = {}) {
-      const store = getOrdinaryNncGenerationStateStore();
       const source = options && typeof options === "object" ? options : {};
       const current = getOrdinaryNncGenerationState();
       const state = Object.prototype.hasOwnProperty.call(source, "state") ? normalizeOrdinaryNncGenerationStateValue(source.state) : current.state;
       const number = Object.prototype.hasOwnProperty.call(source, "number") ? normalizeOrdinaryNncGenerationNumber(source.number) : current.number;
+      const pluralType = Object.prototype.hasOwnProperty.call(source, "pluralType") ? normalizeOrdinaryNncGenerationPluralType(source.pluralType) : current.pluralType;
+      const subject = normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: Object.prototype.hasOwnProperty.call(source, "subjectPrefix") ? source.subjectPrefix : current.subjectPrefix,
+        subjectSuffix: Object.prototype.hasOwnProperty.call(source, "subjectSuffix") ? source.subjectSuffix : current.subjectSuffix,
+        subjectKey: Object.prototype.hasOwnProperty.call(source, "subjectKey") ? source.subjectKey : Object.prototype.hasOwnProperty.call(source, "personSubKey") ? source.personSubKey : current.subjectKey
+      });
       const possessor = Object.prototype.hasOwnProperty.call(source, "possessor") ? normalizeOrdinaryNncGenerationPossessor(source.possessor, state) : normalizeOrdinaryNncGenerationPossessor(current.possessor, state);
-      store.state = state;
-      store.number = number;
-      store.possessor = possessor;
+      targetObject.OrdinaryNncGenerationState.state = state;
+      targetObject.OrdinaryNncGenerationState.number = number;
+      targetObject.OrdinaryNncGenerationState.pluralType = pluralType;
+      targetObject.OrdinaryNncGenerationState.subjectPrefix = subject.subjectPrefix;
+      targetObject.OrdinaryNncGenerationState.subjectSuffix = subject.subjectSuffix;
+      targetObject.OrdinaryNncGenerationState.subjectKey = subject.subjectKey;
+      targetObject.OrdinaryNncGenerationState.possessor = possessor;
       if (Object.prototype.hasOwnProperty.call(source, "nounClass")) {
-        store.nounClass = String(source.nounClass || "");
+        targetObject.OrdinaryNncGenerationState.nounClass = normalizeOrdinaryNncGenerationNounClass(source.nounClass);
+      }
+      if (Object.prototype.hasOwnProperty.call(source, "animacy")) {
+        targetObject.OrdinaryNncGenerationState.animacy = normalizeOrdinaryNncGenerationAnimacy(source.animacy);
       }
       return getOrdinaryNncGenerationState();
     }
     function setOrdinaryNncGenerationModeEnabled(enabled = false, options = {}) {
-      const store = getOrdinaryNncGenerationStateStore();
-      store.enabled = enabled === true;
+      targetObject.OrdinaryNncGenerationState.enabled = enabled === true;
       if (options && typeof options === "object") {
         setOrdinaryNncGenerationState(options);
       }
@@ -2616,22 +2708,37 @@ export function createUiStateApi(targetObject = globalThis) {
       explicit = isOrdinaryNncGenerationModeEnabled(),
       state = null,
       number = null,
+      pluralType = null,
       possessor = null,
       nounClass = null,
-      subjectPrefix = "",
+      animacy = null,
+      subjectPrefix = null,
       subjectSuffix = null,
+      subjectKey = null,
       silent = true,
       skipValidation = true
     } = {}) {
       const uiState = getOrdinaryNncGenerationState();
+      const analogueInput = parseOrdinaryNncGenerationAnalogueInput(stem);
       const resolvedState = normalizeOrdinaryNncGenerationStateValue(state ?? uiState.state);
       const resolvedNumber = normalizeOrdinaryNncGenerationNumber(number ?? uiState.number);
+      const resolvedPluralType = normalizeOrdinaryNncGenerationPluralType(pluralType ?? uiState.pluralType);
+      const resolvedAnimacy = normalizeOrdinaryNncGenerationAnimacy(animacy ?? uiState.animacy);
+      const nounClassSource = nounClass === null || nounClass === undefined ? analogueInput?.nounClass ?? uiState.nounClass : nounClass;
+      const resolvedNounClass = normalizeOrdinaryNncGenerationNounClass(nounClassSource);
       const resolvedPossessor = normalizeOrdinaryNncGenerationPossessor(possessor ?? uiState.possessor, resolvedState);
-      const resolvedSubjectSuffix = subjectSuffix ?? (resolvedNumber === "plural" ? "t" : "");
-      const normalizedStem = String(stem || "").trim();
+      const resolvedSubject = explicit ? normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: subjectPrefix ?? uiState.subjectPrefix,
+        subjectSuffix: subjectSuffix ?? uiState.subjectSuffix,
+        subjectKey: subjectKey ?? uiState.subjectKey
+      }) : normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: subjectPrefix ?? "",
+        subjectSuffix: subjectSuffix ?? ""
+      });
+      const normalizedStem = analogueInput?.stem || String(stem || "").trim();
       const override = {
-        subjectPrefix: String(subjectPrefix || ""),
-        subjectSuffix: String(resolvedSubjectSuffix || ""),
+        subjectPrefix: resolvedSubject.subjectPrefix,
+        subjectSuffix: resolvedSubject.subjectSuffix,
         objectPrefix: "",
         verb: normalizedStem,
         tense: explicit ? "ordinary-nnc" : getCurrentResolvedConjugationSelectionState({
@@ -2648,8 +2755,13 @@ export function createUiStateApi(targetObject = globalThis) {
           stem: normalizedStem,
           state: resolvedState,
           number: resolvedNumber,
+          pluralType: resolvedPluralType,
+          subjectPrefix: resolvedSubject.subjectPrefix,
+          subjectSuffix: resolvedSubject.subjectSuffix,
+          subjectKey: resolvedSubject.subjectKey,
           possessor: resolvedPossessor,
-          nounClass: nounClass ?? uiState.nounClass
+          nounClass: resolvedNounClass,
+          animacy: resolvedAnimacy
         };
       }
       return {
@@ -3234,9 +3346,12 @@ export function createUiStateApi(targetObject = globalThis) {
       ordinaryNncButtons.forEach(button => {
         const isActive = isOrdinaryNncGenerationModeEnabled();
         button.classList.toggle("is-active", isActive);
-        button.setAttribute("role", "tab");
-        button.setAttribute("aria-selected", String(isActive));
         button.setAttribute("aria-pressed", String(isActive));
+        if (button.getAttribute("role") === "tab") {
+          button.setAttribute("aria-selected", String(isActive));
+        } else {
+          button.removeAttribute("aria-selected");
+        }
       });
       updateNawatRoutePanel();
       updateVoiceOperatorVisibility();
@@ -3277,6 +3392,28 @@ export function createUiStateApi(targetObject = globalThis) {
           clearActiveNawatRouteProfile();
           setOrdinaryNncGenerationModeEnabled(true);
           setActiveNawatTenseMode(targetObject.TENSE_MODE.sustantivo);
+          if (typeof targetObject.syncComposerStateFromVerbInput === "function") {
+            targetObject.syncComposerStateFromVerbInput(targetObject.document.getElementById("verb")?.value || "");
+          }
+          if (typeof targetObject.setVerbInputMode === "function" && typeof targetObject.VERB_INPUT_MODE !== "undefined" && typeof targetObject.isVerbInputModeComposer === "function" && !targetObject.isVerbInputModeComposer()) {
+            targetObject.setVerbInputMode(targetObject.VERB_INPUT_MODE.composer, {
+              syncFromInput: true
+            });
+          }
+          const plainComposerBoard = typeof targetObject.COMPOSER_ENTRY_BOARD !== "undefined" ? targetObject.COMPOSER_ENTRY_BOARD.general || "general" : "general";
+          if (typeof targetObject.setComposerEntryBoard === "function" && typeof targetObject.getComposerEntryBoard === "function" && targetObject.getComposerEntryBoard() !== plainComposerBoard) {
+            targetObject.setComposerEntryBoard(plainComposerBoard, {
+              force: true
+            });
+          } else if (typeof targetObject.renderVerbComposerFromState === "function") {
+            targetObject.renderVerbComposerFromState();
+          }
+          if (typeof targetObject.applyComposerStateToVerbInput === "function") {
+            targetObject.applyComposerStateToVerbInput({
+              triggerGenerate: true,
+              immediateRefresh: true
+            });
+          }
           preserveViewportAnchorPosition(button, () => {
             targetObject.renderTenseTabs();
             const verbMeta = targetObject.getVerbInputMeta();
@@ -4459,10 +4596,21 @@ export function createUiStateApi(targetObject = globalThis) {
     api.setActiveTenseMode = setActiveTenseMode;
     api.setActiveEuropeanTenseMode = setActiveEuropeanTenseMode;
     api.setActiveNawatTenseMode = setActiveNawatTenseMode;
-    api.isOrdinaryNncGenerationModeEnabled = isOrdinaryNncGenerationModeEnabled;
-    api.setOrdinaryNncGenerationModeEnabled = setOrdinaryNncGenerationModeEnabled;
-    api.setOrdinaryNncGenerationState = setOrdinaryNncGenerationState;
+    api.normalizeOrdinaryNncGenerationStateValue = normalizeOrdinaryNncGenerationStateValue;
+    api.normalizeOrdinaryNncGenerationNumber = normalizeOrdinaryNncGenerationNumber;
+    api.normalizeOrdinaryNncGenerationPluralType = normalizeOrdinaryNncGenerationPluralType;
+    api.normalizeOrdinaryNncGenerationAnimacy = normalizeOrdinaryNncGenerationAnimacy;
+    api.normalizeOrdinaryNncGenerationNounClass = normalizeOrdinaryNncGenerationNounClass;
+    api.parseOrdinaryNncGenerationAnalogueInput = parseOrdinaryNncGenerationAnalogueInput;
+    api.formatOrdinaryNncGenerationAnalogueInput = formatOrdinaryNncGenerationAnalogueInput;
+    api.getOrdinaryNncGenerationPossessorValues = getOrdinaryNncGenerationPossessorValues;
+    api.normalizeOrdinaryNncGenerationPossessor = normalizeOrdinaryNncGenerationPossessor;
+    api.getOrdinaryNncGenerationSubjectEntries = getOrdinaryNncGenerationSubjectEntries;
+    api.normalizeOrdinaryNncGenerationSubject = normalizeOrdinaryNncGenerationSubject;
     api.getOrdinaryNncGenerationState = getOrdinaryNncGenerationState;
+    api.isOrdinaryNncGenerationModeEnabled = isOrdinaryNncGenerationModeEnabled;
+    api.setOrdinaryNncGenerationState = setOrdinaryNncGenerationState;
+    api.setOrdinaryNncGenerationModeEnabled = setOrdinaryNncGenerationModeEnabled;
     api.buildOrdinaryNncGenerateWordRequest = buildOrdinaryNncGenerateWordRequest;
     api.getActiveVoiceMode = getActiveVoiceMode;
     api.setActiveVoiceMode = setActiveVoiceMode;

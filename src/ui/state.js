@@ -3151,6 +3151,62 @@ function normalizeOrdinaryNncGenerationNumber(value = "") {
     return String(value || "").trim() === "plural" ? "plural" : "singular";
 }
 
+function normalizeOrdinaryNncGenerationPluralType(value = "") {
+    const normalized = String(value || "").trim();
+    if (normalized === "count" || normalized === "distributive") {
+        return normalized;
+    }
+    return "auto";
+}
+
+function normalizeOrdinaryNncGenerationAnimacy(value = "") {
+    const normalized = String(value || "").trim();
+    return normalized === "animate" ? "animate" : "inanimate";
+}
+
+function normalizeOrdinaryNncGenerationNounClass(value = "") {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (!normalized) {
+        return "";
+    }
+    if (normalized === "0" || normalized === "ø" || normalized === "zero") {
+        return "zero";
+    }
+    return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+}
+
+function parseOrdinaryNncGenerationAnalogueInput(value = "") {
+    const raw = String(value || "").trim().toLowerCase();
+    const match = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
+    if (!match) {
+        return null;
+    }
+    const stem = String(match[1] || "").trim().toLowerCase().replace(/[()]/g, "");
+    if (!stem) {
+        return null;
+    }
+    const nounClass = normalizeOrdinaryNncGenerationNounClass(match[2] || "zero") || "zero";
+    return {
+        stem,
+        nounClass,
+        connector: nounClass === "zero" ? "" : nounClass,
+        predicateFormula: formatOrdinaryNncGenerationAnalogueInput({ stem, nounClass }),
+    };
+}
+
+function formatOrdinaryNncGenerationAnalogueInput({
+    stem = "",
+    nounClass = "",
+} = {}) {
+    const normalizedStem = String(stem || "").trim().toLowerCase().replace(/[()]/g, "");
+    if (!normalizedStem) {
+        return "";
+    }
+    const normalizedClass = normalizeOrdinaryNncGenerationNounClass(nounClass) || "zero";
+    const connector = normalizedClass === "zero" ? "" : normalizedClass;
+    return `(${normalizedStem})${connector}`;
+}
+
 function getOrdinaryNncGenerationPossessorValues() {
     if (Array.isArray(POSSESSIVE_PREFIXES) && POSSESSIVE_PREFIXES.length) {
         return POSSESSIVE_PREFIXES.map((entry) => String(entry?.value || ""));
@@ -3167,16 +3223,58 @@ function normalizeOrdinaryNncGenerationPossessor(value = "", state = "absolutive
     return values.includes(normalized) ? normalized : "";
 }
 
+function getOrdinaryNncGenerationSubjectEntries() {
+    return Array.isArray(SUBJECT_COMBINATIONS) && SUBJECT_COMBINATIONS.length
+        ? SUBJECT_COMBINATIONS
+        : [
+            { id: "third-person", personSubKey: "3sg", subjectPrefix: "", subjectSuffix: "" },
+            { id: "3-pl", personSubKey: "3pl", subjectPrefix: "", subjectSuffix: "t" },
+        ];
+}
+
+function normalizeOrdinaryNncGenerationSubject({
+    subjectPrefix = "",
+    subjectSuffix = "",
+    subjectKey = "",
+    personSubKey = "",
+} = {}) {
+    const requestedKey = String(subjectKey || personSubKey || "").trim();
+    const prefix = String(subjectPrefix || "");
+    const suffix = String(subjectSuffix || "");
+    const entries = getOrdinaryNncGenerationSubjectEntries();
+    const entry = entries.find((candidate) => (
+        requestedKey && (candidate.personSubKey === requestedKey || candidate.id === requestedKey)
+    )) || entries.find((candidate) => (
+        String(candidate.subjectPrefix || "") === prefix
+        && String(candidate.subjectSuffix || "") === suffix
+    )) || entries.find((candidate) => candidate.personSubKey === "3sg") || entries[0] || null;
+    return {
+        subjectPrefix: String(entry?.subjectPrefix || ""),
+        subjectSuffix: String(entry?.subjectSuffix || ""),
+        subjectKey: String(entry?.personSubKey || "3sg"),
+    };
+}
+
 function getOrdinaryNncGenerationState() {
+    const subject = normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: OrdinaryNncGenerationState.subjectPrefix,
+        subjectSuffix: OrdinaryNncGenerationState.subjectSuffix,
+        subjectKey: OrdinaryNncGenerationState.subjectKey,
+    });
     return {
         enabled: OrdinaryNncGenerationState.enabled === true,
         state: normalizeOrdinaryNncGenerationStateValue(OrdinaryNncGenerationState.state),
         number: normalizeOrdinaryNncGenerationNumber(OrdinaryNncGenerationState.number),
+        pluralType: normalizeOrdinaryNncGenerationPluralType(OrdinaryNncGenerationState.pluralType),
+        subjectPrefix: subject.subjectPrefix,
+        subjectSuffix: subject.subjectSuffix,
+        subjectKey: subject.subjectKey,
         possessor: normalizeOrdinaryNncGenerationPossessor(
             OrdinaryNncGenerationState.possessor,
             OrdinaryNncGenerationState.state
         ),
-        nounClass: String(OrdinaryNncGenerationState.nounClass || ""),
+        nounClass: normalizeOrdinaryNncGenerationNounClass(OrdinaryNncGenerationState.nounClass),
+        animacy: normalizeOrdinaryNncGenerationAnimacy(OrdinaryNncGenerationState.animacy),
     };
 }
 
@@ -3193,14 +3291,35 @@ function setOrdinaryNncGenerationState(options = {}) {
     const number = Object.prototype.hasOwnProperty.call(source, "number")
         ? normalizeOrdinaryNncGenerationNumber(source.number)
         : current.number;
+    const pluralType = Object.prototype.hasOwnProperty.call(source, "pluralType")
+        ? normalizeOrdinaryNncGenerationPluralType(source.pluralType)
+        : current.pluralType;
+    const subject = normalizeOrdinaryNncGenerationSubject({
+        subjectPrefix: Object.prototype.hasOwnProperty.call(source, "subjectPrefix")
+            ? source.subjectPrefix
+            : current.subjectPrefix,
+        subjectSuffix: Object.prototype.hasOwnProperty.call(source, "subjectSuffix")
+            ? source.subjectSuffix
+            : current.subjectSuffix,
+        subjectKey: Object.prototype.hasOwnProperty.call(source, "subjectKey")
+            ? source.subjectKey
+            : (Object.prototype.hasOwnProperty.call(source, "personSubKey") ? source.personSubKey : current.subjectKey),
+    });
     const possessor = Object.prototype.hasOwnProperty.call(source, "possessor")
         ? normalizeOrdinaryNncGenerationPossessor(source.possessor, state)
         : normalizeOrdinaryNncGenerationPossessor(current.possessor, state);
     OrdinaryNncGenerationState.state = state;
     OrdinaryNncGenerationState.number = number;
+    OrdinaryNncGenerationState.pluralType = pluralType;
+    OrdinaryNncGenerationState.subjectPrefix = subject.subjectPrefix;
+    OrdinaryNncGenerationState.subjectSuffix = subject.subjectSuffix;
+    OrdinaryNncGenerationState.subjectKey = subject.subjectKey;
     OrdinaryNncGenerationState.possessor = possessor;
     if (Object.prototype.hasOwnProperty.call(source, "nounClass")) {
-        OrdinaryNncGenerationState.nounClass = String(source.nounClass || "");
+        OrdinaryNncGenerationState.nounClass = normalizeOrdinaryNncGenerationNounClass(source.nounClass);
+    }
+    if (Object.prototype.hasOwnProperty.call(source, "animacy")) {
+        OrdinaryNncGenerationState.animacy = normalizeOrdinaryNncGenerationAnimacy(source.animacy);
     }
     return getOrdinaryNncGenerationState();
 }
@@ -3218,25 +3337,44 @@ function buildOrdinaryNncGenerateWordRequest({
     explicit = isOrdinaryNncGenerationModeEnabled(),
     state = null,
     number = null,
+    pluralType = null,
     possessor = null,
     nounClass = null,
-    subjectPrefix = "",
+    animacy = null,
+    subjectPrefix = null,
     subjectSuffix = null,
+    subjectKey = null,
     silent = true,
     skipValidation = true,
 } = {}) {
     const uiState = getOrdinaryNncGenerationState();
+    const analogueInput = parseOrdinaryNncGenerationAnalogueInput(stem);
     const resolvedState = normalizeOrdinaryNncGenerationStateValue(state ?? uiState.state);
     const resolvedNumber = normalizeOrdinaryNncGenerationNumber(number ?? uiState.number);
+    const resolvedPluralType = normalizeOrdinaryNncGenerationPluralType(pluralType ?? uiState.pluralType);
+    const resolvedAnimacy = normalizeOrdinaryNncGenerationAnimacy(animacy ?? uiState.animacy);
+    const nounClassSource = nounClass === null || nounClass === undefined
+        ? (analogueInput?.nounClass ?? uiState.nounClass)
+        : nounClass;
+    const resolvedNounClass = normalizeOrdinaryNncGenerationNounClass(nounClassSource);
     const resolvedPossessor = normalizeOrdinaryNncGenerationPossessor(
         possessor ?? uiState.possessor,
         resolvedState
     );
-    const resolvedSubjectSuffix = subjectSuffix ?? (resolvedNumber === "plural" ? "t" : "");
-    const normalizedStem = String(stem || "").trim();
+    const resolvedSubject = explicit
+        ? normalizeOrdinaryNncGenerationSubject({
+            subjectPrefix: subjectPrefix ?? uiState.subjectPrefix,
+            subjectSuffix: subjectSuffix ?? uiState.subjectSuffix,
+            subjectKey: subjectKey ?? uiState.subjectKey,
+        })
+        : normalizeOrdinaryNncGenerationSubject({
+            subjectPrefix: subjectPrefix ?? "",
+            subjectSuffix: subjectSuffix ?? "",
+        });
+    const normalizedStem = analogueInput?.stem || String(stem || "").trim();
     const override = {
-        subjectPrefix: String(subjectPrefix || ""),
-        subjectSuffix: String(resolvedSubjectSuffix || ""),
+        subjectPrefix: resolvedSubject.subjectPrefix,
+        subjectSuffix: resolvedSubject.subjectSuffix,
         objectPrefix: "",
         verb: normalizedStem,
         tense: explicit ? "ordinary-nnc" : (
@@ -3253,8 +3391,13 @@ function buildOrdinaryNncGenerateWordRequest({
             stem: normalizedStem,
             state: resolvedState,
             number: resolvedNumber,
+            pluralType: resolvedPluralType,
+            subjectPrefix: resolvedSubject.subjectPrefix,
+            subjectSuffix: resolvedSubject.subjectSuffix,
+            subjectKey: resolvedSubject.subjectKey,
             possessor: resolvedPossessor,
-            nounClass: nounClass ?? uiState.nounClass,
+            nounClass: resolvedNounClass,
+            animacy: resolvedAnimacy,
         };
     }
     return {
@@ -3940,9 +4083,12 @@ function updateTenseModeTabs() {
     ordinaryNncButtons.forEach((button) => {
         const isActive = isOrdinaryNncGenerationModeEnabled();
         button.classList.toggle("is-active", isActive);
-        button.setAttribute("role", "tab");
-        button.setAttribute("aria-selected", String(isActive));
         button.setAttribute("aria-pressed", String(isActive));
+        if (button.getAttribute("role") === "tab") {
+            button.setAttribute("aria-selected", String(isActive));
+        } else {
+            button.removeAttribute("aria-selected");
+        }
     });
     updateNawatRoutePanel();
     updateVoiceOperatorVisibility();
@@ -3984,6 +4130,35 @@ function initTenseModeTabs() {
             clearActiveNawatRouteProfile();
             setOrdinaryNncGenerationModeEnabled(true);
             setActiveNawatTenseMode(TENSE_MODE.sustantivo);
+            if (typeof syncComposerStateFromVerbInput === "function") {
+                syncComposerStateFromVerbInput(document.getElementById("verb")?.value || "");
+            }
+            if (
+                typeof setVerbInputMode === "function"
+                && typeof VERB_INPUT_MODE !== "undefined"
+                && typeof isVerbInputModeComposer === "function"
+                && !isVerbInputModeComposer()
+            ) {
+                setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
+            }
+            const plainComposerBoard = typeof COMPOSER_ENTRY_BOARD !== "undefined"
+                ? (COMPOSER_ENTRY_BOARD.general || "general")
+                : "general";
+            if (
+                typeof setComposerEntryBoard === "function"
+                && typeof getComposerEntryBoard === "function"
+                && getComposerEntryBoard() !== plainComposerBoard
+            ) {
+                setComposerEntryBoard(plainComposerBoard, { force: true });
+            } else if (typeof renderVerbComposerFromState === "function") {
+                renderVerbComposerFromState();
+            }
+            if (typeof applyComposerStateToVerbInput === "function") {
+                applyComposerStateToVerbInput({
+                    triggerGenerate: true,
+                    immediateRefresh: true,
+                });
+            }
             preserveViewportAnchorPosition(button, () => {
                 renderTenseTabs();
                 const verbMeta = getVerbInputMeta();

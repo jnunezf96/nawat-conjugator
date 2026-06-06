@@ -49,8 +49,10 @@ function run(ctx) {
             typeof ctx.setOrdinaryNncGenerationState,
             typeof ctx.getOrdinaryNncGenerationState,
             typeof ctx.buildOrdinaryNncGenerateWordRequest,
+            typeof ctx.parseOrdinaryNncGenerationAnalogueInput,
+            typeof ctx.formatOrdinaryNncGenerationAnalogueInput,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function"]
     );
     const isOrdinaryNncGenerationModeEnabled = typeof ctx.isOrdinaryNncGenerationModeEnabled === "function"
         ? () => ctx.isOrdinaryNncGenerationModeEnabled()
@@ -67,10 +69,25 @@ function run(ctx) {
     const buildOrdinaryNncGenerateWordRequest = typeof ctx.buildOrdinaryNncGenerateWordRequest === "function"
         ? (options) => ctx.buildOrdinaryNncGenerateWordRequest(options)
         : () => ({ options: { override: {} }, prefixInputs: {} });
+    s.eq(
+        "ordinary NNC analogue input parser separates stem and connector",
+        ["(siwa)t", "(naka)ti", "(tekpan)in", "(kal)"].map((value) => ctx.parseOrdinaryNncGenerationAnalogueInput(value)),
+        [
+            { stem: "siwa", nounClass: "t", connector: "t", predicateFormula: "(siwa)t" },
+            { stem: "naka", nounClass: "ti", connector: "ti", predicateFormula: "(naka)ti" },
+            { stem: "tekpan", nounClass: "in", connector: "in", predicateFormula: "(tekpan)in" },
+            { stem: "kal", nounClass: "zero", connector: "", predicateFormula: "(kal)" },
+        ]
+    );
+    s.eq(
+        "ordinary NNC analogue formatter keeps the connector outside parentheses",
+        ["t", "ti", "in", "zero"].map((nounClass) => ctx.formatOrdinaryNncGenerationAnalogueInput({ stem: "siwa", nounClass })),
+        ["(siwa)t", "(siwa)ti", "(siwa)in", "(siwa)"]
+    );
     s.no("ordinary NNC UI mode starts disabled", isOrdinaryNncGenerationModeEnabled());
     s.no(
         "ordinary NNC override is absent without explicit mode",
-        buildOrdinaryNncGenerateWordRequest({ stem: "kal", explicit: false }).options.override.ordinaryNnc
+        buildOrdinaryNncGenerateWordRequest({ stem: "xilun", explicit: false }).options.override.ordinaryNnc
     );
     setOrdinaryNncGenerationModeEnabled(true);
     setOrdinaryNncGenerationState({ state: "possessive", number: "singular", possessor: "nu" });
@@ -81,8 +98,13 @@ function run(ctx) {
             enabled: true,
             state: "possessive",
             number: "singular",
+            pluralType: "auto",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            subjectKey: "3sg",
             possessor: "nu",
             nounClass: "",
+            animacy: "inanimate",
         }
     );
     s.eq(
@@ -103,18 +125,23 @@ function run(ctx) {
                 stem: "kal",
                 state: "possessive",
                 number: "singular",
+                pluralType: "auto",
+                subjectPrefix: "",
+                subjectSuffix: "",
+                subjectKey: "3sg",
                 possessor: "nu",
                 nounClass: "",
+                animacy: "inanimate",
             },
         }
     );
     setOrdinaryNncGenerationState({ state: "absolutive", number: "plural", possessor: "mu" });
     s.eq(
-        "ordinary NNC UI state clears possessor outside possessive state and maps plural subject",
+        "ordinary NNC UI state clears possessor outside possessive state without changing subject agreement",
         buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
         {
             subjectPrefix: "",
-            subjectSuffix: "t",
+            subjectSuffix: "",
             objectPrefix: "",
             verb: "kal",
             tense: "ordinary-nnc",
@@ -127,11 +154,82 @@ function run(ctx) {
                 stem: "kal",
                 state: "absolutive",
                 number: "plural",
+                pluralType: "auto",
+                subjectPrefix: "",
+                subjectSuffix: "",
+                subjectKey: "3sg",
                 possessor: "",
                 nounClass: "",
+                animacy: "inanimate",
             },
         }
     );
+    setOrdinaryNncGenerationState({ subjectKey: "2pl", number: "plural", animacy: "animate" });
+    s.eq(
+        "ordinary NNC UI request builder emits explicit NNC subject",
+        buildOrdinaryNncGenerateWordRequest({ stem: "mistun" }).options.override,
+        {
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            objectPrefix: "",
+            verb: "mistun",
+            tense: "ordinary-nnc",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            derivationMode: ctx.DERIVATION_MODE.active,
+            voiceMode: ctx.VOICE_MODE.active,
+            possessivePrefix: "",
+            ordinaryNnc: {
+                enabled: true,
+                stem: "mistun",
+                state: "absolutive",
+                number: "plural",
+                pluralType: "auto",
+                subjectPrefix: "an",
+                subjectSuffix: "t",
+                subjectKey: "2pl",
+                possessor: "",
+                nounClass: "",
+                animacy: "animate",
+            },
+        }
+    );
+    s.eq(
+        "ordinary NNC UI request builder normalizes visible nounstem classes",
+        ["t", "ti", "in", "Ø"].map((nounClass) => (
+            buildOrdinaryNncGenerateWordRequest({ stem: "xilun", nounClass }).options.override.ordinaryNnc.nounClass
+        )),
+        ["t", "ti", "in", "zero"]
+    );
+    setOrdinaryNncGenerationState({ nounClass: "zero" });
+    s.eq(
+        "ordinary NNC UI request builder keeps fixture class unspecified when requested",
+        buildOrdinaryNncGenerateWordRequest({ stem: "mistun", nounClass: "" }).options.override.ordinaryNnc.nounClass,
+        ""
+    );
+    s.eq(
+        "ordinary NNC UI request builder accepts analogue entrada values",
+        (() => {
+            const override = buildOrdinaryNncGenerateWordRequest({
+                stem: "(siwa)t",
+                state: "absolutive",
+                number: "singular",
+                animacy: "inanimate",
+            }).options.override;
+            return {
+                verb: override.verb,
+                tense: override.tense,
+                nounClass: override.ordinaryNnc.nounClass,
+                stem: override.ordinaryNnc.stem,
+            };
+        })(),
+        {
+            verb: "siwa",
+            tense: "ordinary-nnc",
+            nounClass: "t",
+            stem: "siwa",
+        }
+    );
+    setOrdinaryNncGenerationState({ subjectKey: "3sg", subjectPrefix: "", subjectSuffix: "", animacy: "inanimate" });
     setOrdinaryNncGenerationModeEnabled(false);
     s.no("ordinary NNC UI mode can be disabled", isOrdinaryNncGenerationModeEnabled());
     const tiPreteritRoute = ctx.getNawatRouteProfile("adjetivo-preterito-tik");

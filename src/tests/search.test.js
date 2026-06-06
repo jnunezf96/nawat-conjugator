@@ -40,6 +40,11 @@ function run(ctx) {
     s.eq("ordinaryNnc: search candidate helper is exported", typeof ctx.getOrdinaryNncSearchCandidateInfo, "function");
     s.eq("ordinaryNnc: search candidate boolean helper is exported", typeof ctx.isOrdinaryNncSearchCandidate, "function");
     s.eq(
+        "ordinaryNnc: search candidate marks nominal nuclear clause output",
+        ctx.getOrdinaryNncSearchCandidateInfo("kal").outputKind,
+        "nominal-nuclear-clause"
+    );
+    s.eq(
         "ordinaryNnc: search candidate detects lemma-backed fixture",
         summarizeOrdinaryNncSearchCandidate(ctx.getOrdinaryNncSearchCandidateInfo(" shuchit ")),
         {
@@ -57,7 +62,7 @@ function run(ctx) {
                 nounClass: "t",
                 animacy: "inanimate",
             },
-            entries: ["shuchit", "nushuchiw", "mushuchiw"],
+            entries: ["shuchit", "shujshuchit", "nushuchiw", "mushuchiw"],
             diagnostics: [],
         }
     );
@@ -76,10 +81,10 @@ function run(ctx) {
                 id: "mistun",
                 stem: "mistun",
                 lemma: "mistun",
-                nounClass: "lexical",
+                nounClass: "zero",
                 animacy: "animate",
             },
-            entries: ["mistun", "numistun", "mumistun"],
+            entries: ["mistun", "mistunmet", "mijmistunmet", "numistun", "mumistun", "numistun", "mumistun"],
             diagnostics: [],
         }
     );

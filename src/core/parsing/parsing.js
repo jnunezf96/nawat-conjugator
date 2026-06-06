@@ -847,6 +847,8 @@ function buildOrdinaryNncParseClassification(role = "", value = "") {
     }
     return {
         kind: "ordinary-nnc-fixture-classification",
+        outputKind: candidate.outputKind || candidate.clauseKind || "nominal-nuclear-clause",
+        clauseKind: candidate.clauseKind || "nominal-nuclear-clause",
         role,
         value: normalizedValue,
         normalizedInput: candidate.normalizedInput || normalizedValue,

@@ -27,14 +27,19 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         stem: ordinaryNnc.stem ?? verb,
         state,
         subject: {
-          subjectPrefix,
-          subjectSuffix
+          subjectPrefix: ordinaryNnc.subjectPrefix ?? subjectPrefix,
+          subjectSuffix: ordinaryNnc.subjectSuffix ?? subjectSuffix,
+          personSubKey: ordinaryNnc.subjectKey ?? ordinaryNnc.personSubKey ?? ""
         },
         possessor,
         possessivePrefix: possessor,
         number: ordinaryNnc.number ?? "singular",
-        nounClass: ordinaryNnc.nounClass ?? ""
+        pluralType: ordinaryNnc.pluralType ?? "auto",
+        nounClass: ordinaryNnc.nounClass ?? "",
+        animacy: ordinaryNnc.animacy ?? ""
       }) : {
+        outputKind: "nominal-nuclear-clause",
+        clauseKind: "nominal-nuclear-clause",
         supported: false,
         result: "",
         surfaceForms: [],
@@ -43,6 +48,7 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         nounClass: "",
         animacy: "",
         number: ordinaryNnc.number ?? "singular",
+        pluralType: ordinaryNnc.pluralType ?? "",
         subject: null,
         possessor: null,
         diagnostics: [{

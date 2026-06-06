@@ -132,6 +132,8 @@ function getOrdinaryNncSearchCandidateInfo(rawValue, options = {}) {
     }
     return {
         kind: "ordinary-nnc-search-candidate",
+        outputKind: candidate.outputKind || candidate.clauseKind || candidate.paradigmSet?.outputKind || candidate.paradigmSet?.clauseKind || "nominal-nuclear-clause",
+        clauseKind: candidate.clauseKind || candidate.paradigmSet?.clauseKind || "nominal-nuclear-clause",
         candidateKind: candidate.kind || "ordinary-nnc-fixture",
         supported: candidate.supported === true,
         input: String(rawValue || ""),

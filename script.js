@@ -1247,8 +1247,13 @@ var OrdinaryNncGenerationState = {
     enabled: false,
     state: "absolutive",
     number: "singular",
+    pluralType: "auto",
+    subjectPrefix: "",
+    subjectSuffix: "",
+    subjectKey: "3sg",
     possessor: "",
     nounClass: "",
+    animacy: "inanimate",
 };
 var TenseTabsState = {
     selected: null,

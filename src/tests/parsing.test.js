@@ -87,6 +87,11 @@ function run(ctx) {
     s.eq("ordinaryNnc: plain verb has no fixture classifications", summarizeOrdinaryNncClassifications(noCompound), []);
 
     const ordinaryKal = ctx.parseVerbInput("kal");
+    s.eq(
+        "ordinaryNnc: kal classification marks nominal nuclear clause output",
+        ordinaryKal.ordinaryNncFixtureClassifications[0].outputKind,
+        "nominal-nuclear-clause"
+    );
     s.eq("ordinaryNnc: kal keeps verb parse core fields", {
         verb: ordinaryKal.verb,
         analysisVerb: ordinaryKal.analysisVerb,
@@ -152,7 +157,7 @@ function run(ctx) {
             id: "mistun",
             stem: "mistun",
             lemma: "mistun",
-            nounClass: "lexical",
+            nounClass: "zero",
             animacy: "animate",
         },
     }]);

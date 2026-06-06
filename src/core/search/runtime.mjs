@@ -144,11 +144,13 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
         if (!candidate) {
             return null;
         }
-        return {
-            kind: "ordinary-nnc-search-candidate",
-            candidateKind: candidate.kind || "ordinary-nnc-fixture",
-            supported: candidate.supported === true,
-            input: String(rawValue || ""),
+    return {
+      kind: "ordinary-nnc-search-candidate",
+      outputKind: candidate.outputKind || candidate.clauseKind || candidate.paradigmSet?.outputKind || candidate.paradigmSet?.clauseKind || "nominal-nuclear-clause",
+      clauseKind: candidate.clauseKind || candidate.paradigmSet?.clauseKind || "nominal-nuclear-clause",
+      candidateKind: candidate.kind || "ordinary-nnc-fixture",
+      supported: candidate.supported === true,
+      input: String(rawValue || ""),
             base: parts.base,
             trimmedBase,
             normalizedInput: candidate.normalizedInput || "",
