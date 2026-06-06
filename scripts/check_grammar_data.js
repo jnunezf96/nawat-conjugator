@@ -61,6 +61,9 @@ const PRETERIT_CLASS_IDS = new Set(["A", "B", "C", "D"]);
 const VALID_NONACTIVE_SUFFIXES = new Set(["lu", "u", "wa", "luwa", "uwa", "walu"]);
 const STATIC_NNC_ALLOWED_STATES = new Set(["absolutive", "possessive"]);
 const STATIC_NNC_ALLOWED_NUMBERS = new Set(["singular", "plural"]);
+const STATIC_NNC_ALLOWED_PLURAL_TYPES = new Set(["count", "distributive"]);
+const STATIC_NNC_ALLOWED_NOUN_CLASSES = new Set(["t", "ti", "in", "zero"]);
+const STATIC_NNC_ALLOWED_ANIMACIES = new Set(["animate", "inanimate"]);
 
 const errors = [];
 
@@ -789,6 +792,12 @@ function collectStaticNncFixtureErrors(staticNnc = {}, staticOptions = {}) {
                 add(`${where}.${field} must not have leading or trailing whitespace.`);
             }
         });
+        if (isNonEmptyValidationString(fixture.nounClass) && !STATIC_NNC_ALLOWED_NOUN_CLASSES.has(fixture.nounClass)) {
+            add(`${where}.nounClass "${fixture.nounClass}" is not allowed; use t, ti, in, or zero.`);
+        }
+        if (isNonEmptyValidationString(fixture.animacy) && !STATIC_NNC_ALLOWED_ANIMACIES.has(fixture.animacy)) {
+            add(`${where}.animacy "${fixture.animacy}" is not allowed; use animate or inanimate.`);
+        }
         const keys = [fixture.id, fixture.stem, fixture.lemma, ...asArrayForValidation(fixture.aliases)]
             .filter((value) => typeof value !== "undefined" && value !== null);
         keys.forEach((key) => {
@@ -902,6 +911,19 @@ function validateStaticNncSurfaceCell(cell, where, add) {
         return;
     }
     validateStaticNncStringArray(cell.surfaceForms, `${where}.surfaceForms`, add);
+    if (Object.prototype.hasOwnProperty.call(cell, "formsByPluralType")) {
+        if (!isPlainObject(cell.formsByPluralType)) {
+            add(`${where}.formsByPluralType must be an object.`);
+            return;
+        }
+        Object.entries(cell.formsByPluralType).forEach(([pluralType, pluralTypeCell]) => {
+            const pluralTypeWhere = `${where}.formsByPluralType.${pluralType}`;
+            if (!STATIC_NNC_ALLOWED_PLURAL_TYPES.has(pluralType)) {
+                add(`${pluralTypeWhere} plural type "${pluralType}" is not allowed; use count or distributive.`);
+            }
+            validateStaticNncSurfaceCell(pluralTypeCell, pluralTypeWhere, add);
+        });
+    }
 }
 
 function checkStaticNncFixtureShape(jsonByName) {

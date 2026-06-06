@@ -81,7 +81,7 @@
       "id": "mistun",
       "stem": "mistun",
       "lemma": "mistun",
-      "nounClass": "lexical",
+      "nounClass": "zero",
       "animacy": "animate",
       "sourceRefs": [
         "user-provided:2026-06-04"
@@ -131,7 +131,7 @@
       "id": "tukayit",
       "stem": "tukayit",
       "lemma": "tukayit",
-      "nounClass": "lexical",
+      "nounClass": "zero",
       "animacy": "inanimate",
       "sourceRefs": [
         "data/static_labels.json:4",
@@ -151,7 +151,7 @@
       "id": "machiyut",
       "stem": "machiyut",
       "lemma": "machiyut",
-      "nounClass": "lexical",
+      "nounClass": "zero",
       "animacy": "inanimate",
       "sourceRefs": [
         "data/static_labels.json:29",
@@ -171,7 +171,7 @@
       "id": "majmachiyut",
       "stem": "majmachiyut",
       "lemma": "majmachiyut",
-      "nounClass": "lexical",
+      "nounClass": "zero",
       "animacy": "inanimate",
       "sourceRefs": [
         "data/static_labels.json:25"

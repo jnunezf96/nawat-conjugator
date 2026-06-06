@@ -2,55 +2,73 @@
 
 /**
  * Tests for src/core/nnc/nnc.js.
- * These cover the current verb-derived nominal API, not full ordinary NNC paradigms.
+ * These cover verb-derived nominal outputs plus the explicit nominal nuclear clause API.
  */
 
 const { createSuite } = require("./runner");
 
 function run(ctx) {
     const s = createSuite("nnc");
-    const summarizeOrdinaryNnc = (result) => result && ({
-        supported: result.supported,
-        result: result.result,
-        surfaceForms: result.surfaceForms,
-        stem: result.stem,
-        state: result.state,
-        nounClass: result.nounClass,
-        animacy: result.animacy,
-        number: result.number,
-        subject: result.subject,
-        possessor: result.possessor,
-        diagnostics: result.diagnostics,
-    });
-    const summarizeGeneratedOrdinaryNnc = (result) => result && ({
-        generationRoute: result.generationRoute || "",
-        supported: result.supported === true,
-        result: result.result || "",
-        surfaceForms: result.surfaceForms || [],
-        stem: result.stem || "",
-        state: result.state || "",
-        nounClass: result.nounClass || "",
-        animacy: result.animacy || "",
-        number: result.number || "",
-        subjectKey: result.subject ? result.subject.personSubKey : null,
-        possessorPrefix: result.possessor ? result.possessor.prefix : null,
-        diagnostics: result.diagnostics || [],
-        isReflexive: result.isReflexive === true,
-        stemProvenance: result.stemProvenance || null,
-    });
+    const summarizeOrdinaryNnc = (result) => {
+        if (!result) {
+            return result;
+        }
+        const summary = {
+            supported: result.supported,
+            result: result.result,
+            surfaceForms: result.surfaceForms,
+            stem: result.stem,
+            state: result.state,
+            nounClass: result.nounClass,
+            animacy: result.animacy,
+            number: result.number,
+            pluralType: result.pluralType || undefined,
+            subject: result.subject,
+            possessor: result.possessor,
+            diagnostics: result.diagnostics,
+        };
+        return summary;
+    };
+    const summarizeGeneratedOrdinaryNnc = (result) => {
+        if (!result) {
+            return result;
+        }
+        const summary = {
+            generationRoute: result.generationRoute || "",
+            supported: result.supported === true,
+            result: result.result || "",
+            surfaceForms: result.surfaceForms || [],
+            stem: result.stem || "",
+            state: result.state || "",
+            nounClass: result.nounClass || "",
+            animacy: result.animacy || "",
+            number: result.number || "",
+            pluralType: result.pluralType || undefined,
+            subjectKey: result.subject ? result.subject.personSubKey : null,
+            possessorPrefix: result.possessor ? result.possessor.prefix : null,
+            diagnostics: result.diagnostics || [],
+            isReflexive: result.isReflexive === true,
+            stemProvenance: result.stemProvenance || null,
+        };
+        return summary;
+    };
     const summarizeOrdinaryNncSet = (result) => result && ({
         supported: result.supported,
         stem: result.stem,
         nounClass: result.nounClass,
         animacy: result.animacy,
         entries: Array.isArray(result.entries)
-            ? result.entries.map((entry) => ({
-                result: entry.result,
-                surfaceForms: entry.surfaceForms,
-                state: entry.state,
-                number: entry.number,
-                possessor: entry.possessor ? entry.possessor.prefix : null,
-            }))
+            ? result.entries.map((entry) => {
+                const summary = {
+                    result: entry.result,
+                    surfaceForms: entry.surfaceForms,
+                    state: entry.state,
+                    number: entry.number,
+                    pluralType: entry.pluralType || undefined,
+                    possessor: entry.possessor ? entry.possessor.prefix : null,
+                };
+                return summary;
+            })
             : [],
         diagnostics: result.diagnostics,
         source: result.source,
@@ -501,12 +519,226 @@ function run(ctx) {
     });
 
     s.eq("ordinary NNC direct helper is exported", typeof ctx.generateOrdinaryNncParadigm, "function");
+    s.eq("ordinary NNC formula echo helper is exported", typeof ctx.buildOrdinaryNncFormulaEchoFromSlots, "function");
+    s.eq("ordinary NNC clause helper aliases are exported", [
+        typeof ctx.generateOrdinaryNncClause,
+        typeof ctx.generateOrdinaryNncClauseSet,
+    ], ["function", "function"]);
     const kalAbsolutive = ctx.generateOrdinaryNncParadigm({
         stem: "kal",
         state: "absolutive",
         subject: { subjectPrefix: "", subjectSuffix: "" },
         number: "singular",
     });
+    s.eq("ordinary NNC clause alias matches direct helper", ctx.generateOrdinaryNncClause({
+        stem: "kal",
+        state: "absolutive",
+        number: "singular",
+    }).result, "kal");
+    s.eq("ordinary NNC direct helper marks nominal nuclear clause output", kalAbsolutive.clauseKind, "nominal-nuclear-clause");
+    s.eq("ordinary NNC direct helper exposes output kind", kalAbsolutive.outputKind, "nominal-nuclear-clause");
+    s.eq("ordinary NNC direct helper exposes clause frame", kalAbsolutive.clauseFrame, {
+        kind: "nominal-nuclear-clause",
+        formula: "#pers1-pers2(STEM)num1-num2#",
+        formulaSlots: {
+            subjectPerson: {
+                role: "subject-person",
+                slot: "pers1-pers2",
+                prefix: "",
+                suffix: "",
+                displayPrefix: "Ø",
+                displaySuffix: "Ø",
+                label: "3sg",
+            },
+            predicate: {
+                role: "predicate",
+                slot: "STEM",
+                stem: "kal",
+                state: "absolutive",
+            },
+            subjectNumberConnector: {
+                role: "subject-number-connector",
+                slot: "num1-num2",
+                nounClass: "zero",
+                connector: "Ø",
+                surface: "",
+                label: "subject number connector",
+                belongsTo: "subject",
+                referenceNumber: "singular",
+                pluralType: "",
+            },
+        },
+        formulaEcho: "#Ø...Ø(kal)Ø#",
+        predicateFormula: "(kal)",
+        hasTensePosition: false,
+        tense: null,
+        subject: {
+            subjectPrefix: "",
+            subjectSuffix: "",
+            person: 3,
+            number: "singular",
+            personSubKey: "3sg",
+            numberConnector: {
+                role: "subject-number-connector",
+                slot: "subject.num1-num2",
+                belongsTo: "subject",
+                nounStemClass: "zero",
+                classLabel: "Ø",
+                surface: "",
+                displaySurface: "Ø",
+                predicateState: "absolutive",
+                referenceNumber: "singular",
+                pluralType: "",
+                notNounSuffix: true,
+                notStatePosition: true,
+            },
+        },
+        predicate: {
+            state: "absolutive",
+            stateSlot: {
+                role: "predicate-state",
+                slot: "predicate.state",
+                state: "absolutive",
+                statePosition: "vacant",
+                isVacant: true,
+                hasPossessor: false,
+                participantRole: "",
+                possessor: null,
+                notSubjectConnector: true,
+                notTense: true,
+            },
+            formula: "(kal)",
+            stem: "kal",
+            nounClass: "zero",
+            animacy: "inanimate",
+        },
+        stateSlot: {
+            role: "predicate-state",
+            slot: "predicate.state",
+            state: "absolutive",
+            statePosition: "vacant",
+            isVacant: true,
+            hasPossessor: false,
+            participantRole: "",
+            possessor: null,
+            notSubjectConnector: true,
+            notTense: true,
+        },
+        possessor: null,
+        referenceNumber: "singular",
+        surfaceStrategy: "plain",
+    });
+    s.eq(
+        "ordinary NNC clause frame records visible class as subject-number connector metadata",
+        ctx.generateOrdinaryNncParadigm({
+            stem: "xilun",
+            state: "absolutive",
+            number: "singular",
+            nounClass: "ti",
+        }).clauseFrame.subject.numberConnector,
+        {
+            role: "subject-number-connector",
+            slot: "subject.num1-num2",
+            belongsTo: "subject",
+            nounStemClass: "ti",
+            classLabel: "ti",
+            surface: "ti",
+            displaySurface: "ti",
+            predicateState: "absolutive",
+            referenceNumber: "singular",
+            pluralType: "",
+            notNounSuffix: true,
+            notStatePosition: true,
+        }
+    );
+    s.eq(
+        "ordinary NNC formulaSlots map the NNC formula slots before display echo",
+        (() => {
+            const zeroOpen = ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ni", subjectSuffix: "" },
+                number: "singular",
+            });
+            const tOpen = ctx.generateOrdinaryNncParadigm({
+                stem: "siwa",
+                state: "absolutive",
+                nounClass: "t",
+                number: "singular",
+            });
+            return {
+                zeroSlots: zeroOpen.nncBasic.formulaSlots,
+                zeroEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(zeroOpen.nncBasic.formulaSlots),
+                zeroClass: zeroOpen.nounClass,
+                zeroSourceKind: zeroOpen.source.sourceKind,
+                tSlots: tOpen.nncBasic.formulaSlots,
+                tEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(tOpen.nncBasic.formulaSlots),
+            };
+        })(),
+        {
+            zeroSlots: {
+                subjectPerson: {
+                    role: "subject-person",
+                    slot: "pers1-pers2",
+                    prefix: "ni",
+                    suffix: "",
+                    displayPrefix: "ni",
+                    displaySuffix: "Ø",
+                    label: "1sg",
+                },
+                predicate: {
+                    role: "predicate",
+                    slot: "STEM",
+                    stem: "tapiyal",
+                    state: "absolutive",
+                },
+                subjectNumberConnector: {
+                    role: "subject-number-connector",
+                    slot: "num1-num2",
+                    nounClass: "zero",
+                    connector: "Ø",
+                    surface: "",
+                    label: "subject number connector",
+                    belongsTo: "subject",
+                    referenceNumber: "singular",
+                    pluralType: "",
+                },
+            },
+            zeroEcho: "#ni...Ø(tapiyal)Ø#",
+            zeroClass: "zero",
+            zeroSourceKind: "open-stem",
+            tSlots: {
+                subjectPerson: {
+                    role: "subject-person",
+                    slot: "pers1-pers2",
+                    prefix: "",
+                    suffix: "",
+                    displayPrefix: "Ø",
+                    displaySuffix: "Ø",
+                    label: "3sg",
+                },
+                predicate: {
+                    role: "predicate",
+                    slot: "STEM",
+                    stem: "siwa",
+                    state: "absolutive",
+                },
+                subjectNumberConnector: {
+                    role: "subject-number-connector",
+                    slot: "num1-num2",
+                    nounClass: "t",
+                    connector: "t",
+                    surface: "t",
+                    label: "subject number connector",
+                    belongsTo: "subject",
+                    referenceNumber: "singular",
+                    pluralType: "",
+                },
+            },
+            tEcho: "#Ø...Ø(siwa)t#",
+        }
+    );
     s.eq(
         "ordinary NNC fixture generates kal absolutive",
         summarizeOrdinaryNnc(kalAbsolutive),
@@ -524,26 +756,26 @@ function run(ctx) {
             diagnostics: [],
         }
     );
-    const kalPossessive = ctx.generateOrdinaryNncParadigm({
-        stem: "kal",
+    const mistunPossessiveWithSubject = ctx.generateOrdinaryNncParadigm({
+        stem: "mistun",
         state: "possessive",
-        subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+        subject: { subjectPrefix: "ti", subjectSuffix: "" },
         possessor: "nu",
         number: "singular",
     });
     s.eq(
-        "ordinary NNC fixture keeps possessor separate from subject",
-        summarizeOrdinaryNnc(kalPossessive),
+        "ordinary NNC fixture keeps animate possessor separate from subject",
+        summarizeOrdinaryNnc(mistunPossessiveWithSubject),
         {
             supported: true,
-            result: "nukal",
-            surfaceForms: ["nukal"],
-            stem: "kal",
+            result: "tinumistun",
+            surfaceForms: ["tinumistun"],
+            stem: "mistun",
             state: "possessive",
             nounClass: "zero",
-            animacy: "inanimate",
+            animacy: "animate",
             number: "singular",
-            subject: { subjectPrefix: "ti", subjectSuffix: "t", person: 1, number: "plural", personSubKey: "1pl" },
+            subject: { subjectPrefix: "ti", subjectSuffix: "", person: 2, number: "singular", personSubKey: "2sg" },
             possessor: { id: "1s", prefix: "nu", personSubKey: "1sg", number: "singular" },
             diagnostics: [],
         }
@@ -561,29 +793,25 @@ function run(ctx) {
         ["nukal", "mukal", "ikal", "tukal", "anmukal", "inkal"]
     );
     s.eq(
-        "ordinary NNC plural request stays unsupported without fixture data",
+        "ordinary NNC nonanimate plural request derives distributive from third singular",
         summarizeOrdinaryNnc(ctx.generateOrdinaryNncParadigm({
             stem: "kal",
             state: "absolutive",
-            subject: { subjectPrefix: "", subjectSuffix: "t" },
             number: "pl",
         })),
         {
-            supported: false,
-            result: "",
-            surfaceForms: [],
+            supported: true,
+            result: "kajkal",
+            surfaceForms: ["kajkal"],
             stem: "kal",
             state: "absolutive",
             nounClass: "zero",
             animacy: "inanimate",
             number: "plural",
-            subject: { subjectPrefix: "", subjectSuffix: "t", person: 3, number: "plural", personSubKey: "3pl" },
+            pluralType: "distributive",
+            subject: { subjectPrefix: "", subjectSuffix: "", person: 3, number: "singular", personSubKey: "3sg" },
             possessor: null,
-            diagnostics: [{
-                id: "ordinary-nnc-unsupported-number",
-                severity: "unsupported",
-                message: "No ordinary NNC absolutive plural form is configured for stem \"kal\".",
-            }],
+            diagnostics: [],
         }
     );
     s.eq(
@@ -595,22 +823,29 @@ function run(ctx) {
             number: "plural",
         })),
         {
-            supported: false,
-            result: "",
-            surfaceForms: [],
+            supported: true,
+            result: "inkajkal",
+            surfaceForms: ["inkajkal"],
             stem: "kal",
             state: "possessive",
             nounClass: "zero",
             animacy: "inanimate",
             number: "plural",
+            pluralType: "distributive",
             subject: { subjectPrefix: "", subjectSuffix: "", person: 3, number: "singular", personSubKey: "3sg" },
             possessor: { id: "3p", prefix: "in", personSubKey: "3pl", number: "plural" },
-            diagnostics: [{
-                id: "ordinary-nnc-unsupported-number",
-                severity: "unsupported",
-                message: "No ordinary NNC possessive plural form is configured for stem \"kal\".",
-            }],
+            diagnostics: [],
         }
+    );
+    s.eq(
+        "ordinary NNC possessive plural derives nukajkal from nukal",
+        ctx.generateOrdinaryNncParadigm({
+            stem: "kal",
+            state: "possessive",
+            possessor: "nu",
+            number: "plural",
+        }).result,
+        "nukajkal"
     );
     s.eq(
         "ordinary NNC fixture generates shuchi absolutive only from explicit data",
@@ -620,6 +855,32 @@ function run(ctx) {
             number: "singular",
         }).surfaceForms,
         ["shuchit"]
+    );
+    s.eq(
+        "ordinary NNC fixture formulates t-class connector outside the predicate stem",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem: "shuchit",
+                state: "absolutive",
+                number: "singular",
+            });
+            return {
+                result: result.result,
+                stem: result.stem,
+                predicateFormula: result.predicateFormula,
+                connectorSurface: result.clauseFrame.subject.numberConnector.surface,
+                connectorSlot: result.clauseFrame.subject.numberConnector.slot,
+                predicateStem: result.clauseFrame.predicate.stem,
+            };
+        })(),
+        {
+            result: "shuchit",
+            stem: "shuchi",
+            predicateFormula: "(shuchi)t",
+            connectorSurface: "t",
+            connectorSlot: "subject.num1-num2",
+            predicateStem: "shuchi",
+        }
     );
     s.eq(
         "ordinary NNC fixture generates user-provided shuchi singular possessives",
@@ -655,6 +916,198 @@ function run(ctx) {
             }).result,
         ],
         ["mistun", "numistun", "mumistun"]
+    );
+    s.eq(
+        "ordinary NNC animate nouns allow subject persons and both plural types",
+        [
+            ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "absolutive",
+                subject: { subjectPrefix: "ni", subjectSuffix: "" },
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "absolutive",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                number: "plural",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "absolutive",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "distributive",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "possessive",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                possessor: "nu",
+                number: "plural",
+            }).result,
+        ],
+        ["nimistun", "timistunmet", "timijmistunmet", "tinumistun"]
+    );
+    s.eq(
+        "ordinary NNC dynamic open-stem generation returns tapiyal absolutive paradigm",
+        [
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ni", subjectSuffix: "" },
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ti", subjectSuffix: "" },
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "", subjectSuffix: "" },
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "count",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "an", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "count",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "count",
+            }).result,
+        ],
+        ["nitapiyal", "titapiyal", "tapiyal", "titapiyalmet", "antapiyalmet", "tapiyalmet"]
+    );
+    s.eq(
+        "ordinary NNC dynamic open-stem generation returns tapiyal distributive absolutive plural",
+        [
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "distributive",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "an", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "distributive",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "tapiyal",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "distributive",
+            }).result,
+        ],
+        ["titajtapiyalmet", "antajtapiyalmet", "tajtapiyalmet"]
+    );
+    s.eq(
+        "ordinary NNC dynamic open-stem generation returns tapiyal possessive common and distributive",
+        {
+            common: ["nu", "mu", "i", "tu", "anmu", "in"].map((possessor) => (
+                ctx.generateOrdinaryNncParadigm({
+                    stem: "tapiyal",
+                    state: "possessive",
+                    possessor,
+                    number: "singular",
+                    animacy: "animate",
+                }).result
+            )),
+            distributive: ["nu", "mu", "i", "tu", "anmu", "in"].map((possessor) => (
+                ctx.generateOrdinaryNncParadigm({
+                    stem: "tapiyal",
+                    state: "possessive",
+                    possessor,
+                    number: "plural",
+                    pluralType: "distributive",
+                    animacy: "animate",
+                }).result
+            )),
+        },
+        {
+            common: ["nutapiyal", "mutapiyal", "itapiyal", "tutapiyalwan", "anmutapiyalwan", "intajtapiyalwan"],
+            distributive: ["nutapiyal", "mutapiyal", "itapiyal", "tutajtapiyalwan", "anmutajtapiyalwan", "intajtapiyalwan"],
+        }
+    );
+    s.eq(
+        "ordinary NNC tapiyal generation is open-stem dynamic, not fixture-backed",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem: "(tapiyal)",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ni", subjectSuffix: "" },
+                number: "singular",
+            });
+            return {
+                result: result.result,
+                openStem: result.openStem,
+                sourceKind: result.source?.sourceKind || "",
+                fixtureId: result.source?.fixtureId || "",
+            };
+        })(),
+        {
+            result: "nitapiyal",
+            openStem: true,
+            sourceKind: "open-stem",
+            fixtureId: "",
+        }
+    );
+    s.eq(
+        "ordinary NNC rejects count plural for nonanimate nouns",
+        summarizeOrdinaryNnc(ctx.generateOrdinaryNncParadigm({
+            stem: "kal",
+            state: "absolutive",
+            number: "plural",
+            pluralType: "count",
+        })),
+        {
+            supported: false,
+            result: "",
+            surfaceForms: [],
+            stem: "kal",
+            state: "absolutive",
+            nounClass: "zero",
+            animacy: "inanimate",
+            number: "plural",
+            pluralType: "count",
+            subject: { subjectPrefix: "", subjectSuffix: "", person: 3, number: "singular", personSubKey: "3sg" },
+            possessor: null,
+            diagnostics: [{
+                id: "ordinary-nnc-unsupported-plural-type",
+                severity: "unsupported",
+                message: "Nominal nuclear clause fixture \"kal\" is nonanimate; plural count -met is only configured for animate nouns.",
+            }],
+        }
     );
     s.eq(
         "ordinary NNC lexical label fixtures generate explicit absolutives",
@@ -708,7 +1161,7 @@ function run(ctx) {
             surfaceForms: [],
             stem: "tukayit",
             state: "possessive",
-            nounClass: "lexical",
+            nounClass: "zero",
             animacy: "inanimate",
             number: "singular",
             subject: { subjectPrefix: "", subjectSuffix: "", person: 3, number: "singular", personSubKey: "3sg" },
@@ -716,7 +1169,7 @@ function run(ctx) {
             diagnostics: [{
                 id: "ordinary-nnc-unsupported-possessive-state",
                 severity: "unsupported",
-                message: "No ordinary NNC possessive forms are configured for stem \"tukayit\".",
+                message: "No nominal nuclear clause possessive forms are configured for stem \"tukayit\".",
             }],
         }
     );
@@ -743,35 +1196,620 @@ function run(ctx) {
         }
     );
     s.eq(
-        "ordinary NNC unsupported stem returns diagnostic without guessing",
+        "ordinary NNC direct helper accepts fixture-free stems",
         summarizeOrdinaryNnc(ctx.generateOrdinaryNncParadigm({
-            stem: "unconfigured-nnc",
+            stem: "xilun",
             state: "absolutive",
             number: "singular",
         })),
         {
-            supported: false,
-            result: "",
-            surfaceForms: [],
-            stem: "unconfigured-nnc",
+            supported: true,
+            result: "xilun",
+            surfaceForms: ["xilun"],
+            stem: "xilun",
             state: "absolutive",
-            nounClass: "",
-            animacy: "",
+            nounClass: "zero",
+            animacy: "inanimate",
             number: "singular",
             subject: { subjectPrefix: "", subjectSuffix: "", person: 3, number: "singular", personSubKey: "3sg" },
             possessor: null,
-            diagnostics: [{
-                id: "ordinary-nnc-unsupported-stem",
-                severity: "unsupported",
-                message: "No ordinary NNC fixture is configured for stem \"unconfigured-nnc\".",
-            }],
+            diagnostics: [],
+        }
+    );
+    s.eq(
+        "ordinary NNC fixture-free class formulas keep connectors outside the predicate stem",
+        [
+            { stem: "siwa", nounClass: "t" },
+            { stem: "siwat", nounClass: "t" },
+            { stem: "naka", nounClass: "ti" },
+            { stem: "nakati", nounClass: "ti" },
+            { stem: "tekpan", nounClass: "in" },
+            { stem: "tekpanin", nounClass: "in" },
+            { stem: "kal", nounClass: "zero" },
+        ].map((request) => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                ...request,
+                state: "absolutive",
+                number: "singular",
+            });
+            return {
+                input: request.stem,
+                nounClass: result.nounClass,
+                stem: result.stem,
+                result: result.result,
+                predicateFormula: result.predicateFormula,
+                connectorSurface: result.clauseFrame.subject.numberConnector.surface,
+                connectorDisplay: result.clauseFrame.subject.numberConnector.displaySurface,
+            };
+        }),
+        [
+            {
+                input: "siwa",
+                nounClass: "t",
+                stem: "siwa",
+                result: "siwat",
+                predicateFormula: "(siwa)t",
+                connectorSurface: "t",
+                connectorDisplay: "t",
+            },
+            {
+                input: "siwat",
+                nounClass: "t",
+                stem: "siwa",
+                result: "siwat",
+                predicateFormula: "(siwa)t",
+                connectorSurface: "t",
+                connectorDisplay: "t",
+            },
+            {
+                input: "naka",
+                nounClass: "ti",
+                stem: "naka",
+                result: "nakati",
+                predicateFormula: "(naka)ti",
+                connectorSurface: "ti",
+                connectorDisplay: "ti",
+            },
+            {
+                input: "nakati",
+                nounClass: "ti",
+                stem: "naka",
+                result: "nakati",
+                predicateFormula: "(naka)ti",
+                connectorSurface: "ti",
+                connectorDisplay: "ti",
+            },
+            {
+                input: "tekpan",
+                nounClass: "in",
+                stem: "tekpan",
+                result: "tekpanin",
+                predicateFormula: "(tekpan)in",
+                connectorSurface: "in",
+                connectorDisplay: "in",
+            },
+            {
+                input: "tekpanin",
+                nounClass: "in",
+                stem: "tekpan",
+                result: "tekpanin",
+                predicateFormula: "(tekpan)in",
+                connectorSurface: "in",
+                connectorDisplay: "in",
+            },
+            {
+                input: "kal",
+                nounClass: "zero",
+                stem: "kal",
+                result: "kal",
+                predicateFormula: "(kal)",
+                connectorSurface: "",
+                connectorDisplay: "Ø",
+            },
+        ]
+    );
+    s.eq(
+        "ordinary NNC analogue input parses connector outside the predicate stem",
+        ["(siwa)t", "(naka)ti", "(tekpan)in", "(kal)"].map((stem) => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem,
+                state: "absolutive",
+                number: "singular",
+            });
+            return {
+                input: stem,
+                nounClass: result.nounClass,
+                stem: result.stem,
+                result: result.result,
+                predicateFormula: result.predicateFormula,
+            };
+        }),
+        [
+            { input: "(siwa)t", nounClass: "t", stem: "siwa", result: "siwat", predicateFormula: "(siwa)t" },
+            { input: "(naka)ti", nounClass: "ti", stem: "naka", result: "nakati", predicateFormula: "(naka)ti" },
+            { input: "(tekpan)in", nounClass: "in", stem: "tekpan", result: "tekpanin", predicateFormula: "(tekpan)in" },
+            { input: "(kal)", nounClass: "zero", stem: "kal", result: "kal", predicateFormula: "(kal)" },
+        ]
+    );
+    s.eq(
+        "ordinary NNC direct helper marks fixture-free stems as open source",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem: "xilun",
+                state: "possessive",
+                possessor: "nu",
+                number: "singular",
+            });
+            return {
+                result: result.result,
+                openStem: result.openStem,
+                source: result.source,
+            };
+        })(),
+        {
+            result: "nuxilun",
+            openStem: true,
+            source: { fixtureId: "", sourceRefs: [], sourceKind: "open-stem" },
+        }
+    );
+    s.eq(
+        "ordinary NNC direct helper supports explicit animate fixture-free stems",
+        summarizeOrdinaryNnc(ctx.generateOrdinaryNncParadigm({
+            stem: "xilun",
+            state: "absolutive",
+            animacy: "animate",
+            subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+            number: "plural",
+        })),
+        {
+            supported: true,
+            result: "tixilunmet",
+            surfaceForms: ["tixilunmet"],
+            stem: "xilun",
+            state: "absolutive",
+            nounClass: "zero",
+            animacy: "animate",
+            number: "plural",
+            pluralType: "count",
+            subject: { subjectPrefix: "ti", subjectSuffix: "t", person: 1, number: "plural", personSubKey: "1pl" },
+            possessor: null,
+            diagnostics: [],
+        }
+    );
+    s.eq(
+        "ordinary NNC direct helper applies patientivo-style subject and possessive surface rules",
+        [
+            ctx.generateOrdinaryNncParadigm({
+                stem: "awat",
+                state: "possessive",
+                possessor: "in",
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "ishkat",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ni", subjectSuffix: "" },
+                number: "singular",
+            }).result,
+            ctx.generateOrdinaryNncParadigm({
+                stem: "awat",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "an", subjectSuffix: "t" },
+                number: "plural",
+            }).result,
+        ],
+        ["inhawat", "nishkat", "anhawatmet"]
+    );
+    s.eq(
+        "ordinary NNC basico contract labels singular subject slots explicitly",
+        [
+            { subjectPrefix: "ni", subjectSuffix: "" },
+            { subjectPrefix: "ti", subjectSuffix: "" },
+            { subjectPrefix: "", subjectSuffix: "" },
+        ].map((subject) => ctx.generateOrdinaryNncParadigm({
+            stem: "mistun",
+            state: "absolutive",
+            animacy: "animate",
+            subject,
+        }).nncBasic.subject.affixLabel),
+        ["ni...Ø", "ti...Ø", "Ø...Ø"]
+    );
+    s.eq(
+        "ordinary NNC basico contract labels common singular reference",
+        ctx.generateOrdinaryNncParadigm({
+            stem: "mistun",
+            state: "absolutive",
+            animacy: "animate",
+            subject: { subjectPrefix: "ni", subjectSuffix: "" },
+        }).nncBasic.reference,
+        {
+            number: "singular",
+            pluralType: "",
+            label: "referencia comun",
+            countSuffix: "",
+            animateCountSuffix: "met",
+            distributiveReduplication: false,
+            nonanimatePluralIsDistributive: false,
+        }
+    );
+    s.eq(
+        "ordinary NNC direct helper exposes NNC basico engine contract",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "distributive",
+            });
+            const profile = result.nncBasic;
+            return {
+                lessonRange: profile.lessonRange,
+                formula: profile.formula,
+                hasTensePosition: profile.hasTensePosition,
+                stateReplacesValence: profile.stateReplacesValence,
+                sourceKind: profile.sourceKind,
+                subject: {
+                    affixLabel: profile.subject.affixLabel,
+                    personSubKey: profile.subject.personSubKey,
+                    nonanimateThirdOnly: profile.subject.nonanimateThirdOnly,
+                    connectorBelongsTo: profile.subject.numberConnector.belongsTo,
+                    connectorNotNounSuffix: profile.subject.numberConnector.notNounSuffix,
+                },
+                predicate: {
+                    formula: profile.predicate.formula,
+                    stateLabel: profile.predicate.stateLabel,
+                    statePosition: profile.predicate.stateSlot.statePosition,
+                    nounClass: profile.predicate.nounClass,
+                    animacy: profile.predicate.animacy,
+                },
+                reference: profile.reference,
+                futureSyntaxLayer: profile.futureSyntaxLayer,
+            };
+        })(),
+        {
+            lessonRange: "12-19",
+            formula: "#pers1-pers2(STEM)num1-num2#",
+            hasTensePosition: false,
+            stateReplacesValence: true,
+            sourceKind: "fixture",
+            subject: {
+                affixLabel: "ti...t",
+                personSubKey: "1pl",
+                nonanimateThirdOnly: false,
+                connectorBelongsTo: "subject",
+                connectorNotNounSuffix: true,
+            },
+            predicate: {
+                formula: "(mistun)",
+                stateLabel: "predicado absolutivo",
+                statePosition: "vacant",
+                nounClass: "zero",
+                animacy: "animate",
+            },
+            reference: {
+                number: "plural",
+                pluralType: "distributive",
+                label: "distributivo",
+                countSuffix: "",
+                animateCountSuffix: "met",
+                distributiveReduplication: true,
+                nonanimatePluralIsDistributive: false,
+            },
+            futureSyntaxLayer: [
+                "pronominal-nnc",
+                "supplementation",
+                "included-referent-clause",
+            ],
+        }
+    );
+    s.eq(
+        "ordinary NNC basico contract marks nonanimate distributive reference",
+        (() => {
+            const profile = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "absolutive",
+                number: "plural",
+            }).nncBasic;
+            return {
+                subjectAffix: profile.subject.affixLabel,
+                nonanimateThirdOnly: profile.subject.nonanimateThirdOnly,
+                reference: profile.reference,
+            };
+        })(),
+        {
+            subjectAffix: "Ø...Ø",
+            nonanimateThirdOnly: true,
+            reference: {
+                number: "plural",
+                pluralType: "distributive",
+                label: "distributivo",
+                countSuffix: "",
+                animateCountSuffix: "",
+                distributiveReduplication: true,
+                nonanimatePluralIsDistributive: true,
+            },
+        }
+    );
+    s.eq(
+        "ordinary NNC clause frame separates subject connector from vacant absolutive state",
+        (() => {
+            const frame = ctx.generateOrdinaryNncParadigm({
+                stem: "xilun",
+                state: "absolutive",
+                number: "singular",
+            }).clauseFrame;
+            return {
+                formula: frame.formula,
+                hasTensePosition: frame.hasTensePosition,
+                tense: frame.tense,
+                connectorSlot: frame.subject.numberConnector.slot,
+                connectorBelongsTo: frame.subject.numberConnector.belongsTo,
+                connectorNotState: frame.subject.numberConnector.notStatePosition,
+                predicateStateSlot: frame.predicate.stateSlot.slot,
+                predicateStatePosition: frame.predicate.stateSlot.statePosition,
+                predicateStateVacant: frame.predicate.stateSlot.isVacant,
+                predicateStateNotConnector: frame.predicate.stateSlot.notSubjectConnector,
+            };
+        })(),
+        {
+            formula: "#pers1-pers2(STEM)num1-num2#",
+            hasTensePosition: false,
+            tense: null,
+            connectorSlot: "subject.num1-num2",
+            connectorBelongsTo: "subject",
+            connectorNotState: true,
+            predicateStateSlot: "predicate.state",
+            predicateStatePosition: "vacant",
+            predicateStateVacant: true,
+            predicateStateNotConnector: true,
+        }
+    );
+    s.eq(
+        "ordinary NNC clause frame records possessive state as predicate possessor slot",
+        (() => {
+            const frame = ctx.generateOrdinaryNncParadigm({
+                stem: "xilun",
+                state: "possessive",
+                possessor: "nu",
+                number: "singular",
+            }).clauseFrame;
+            return {
+                state: frame.predicate.state,
+                stateSlot: frame.predicate.stateSlot.slot,
+                statePosition: frame.predicate.stateSlot.statePosition,
+                participantRole: frame.predicate.stateSlot.participantRole,
+                possessorPrefix: frame.predicate.stateSlot.possessor.prefix,
+                notTense: frame.predicate.stateSlot.notTense,
+            };
+        })(),
+        {
+            state: "possessive",
+            stateSlot: "predicate.state",
+            statePosition: "possessor",
+            participantRole: "possessor",
+            possessorPrefix: "nu",
+            notTense: true,
+        }
+    );
+    s.eq(
+        "ordinary NNC categoryProfile explains predicate, possession, animacy, and reference categories",
+        (() => {
+            const absolutive = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "absolutive",
+                number: "singular",
+            });
+            const possessive = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "possessive",
+                possessor: "nu",
+                number: "singular",
+            });
+            const unsupportedPossessive = ctx.generateOrdinaryNncParadigm({
+                stem: "tukayit",
+                state: "possessive",
+                possessor: "nu",
+                number: "singular",
+            });
+            const animatePlural = ctx.generateOrdinaryNncParadigm({
+                stem: "mistun",
+                state: "absolutive",
+                number: "plural",
+                pluralType: "count",
+            });
+            const inanimateDistributive = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "absolutive",
+                number: "plural",
+            });
+            return {
+                absolutive: absolutive.nncBasic.categoryProfile,
+                possessive: possessive.nncBasic.categoryProfile,
+                unsupportedPossessive: {
+                    supported: unsupportedPossessive.supported,
+                    profile: unsupportedPossessive.nncBasic.categoryProfile,
+                    diagnostic: unsupportedPossessive.diagnostics[0].id,
+                },
+                animatePlural: animatePlural.nncBasic.categoryProfile,
+                inanimateDistributive: inanimateDistributive.nncBasic.categoryProfile,
+                derivedFromSlots: {
+                    formulaSlot: animatePlural.nncBasic.formulaSlots.subjectNumberConnector.slot,
+                    categoryConnectorSlot: animatePlural.nncBasic.categoryProfile.reference.connectorSlot,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(animatePlural.nncBasic.formulaSlots),
+                },
+            };
+        })(),
+        {
+            absolutive: {
+                predicateState: {
+                    value: "absolutive",
+                    label: "absolutivo",
+                    slot: "predicate.state",
+                    isSupportedState: true,
+                },
+                possessiveState: {
+                    isPossessive: false,
+                    possessorPrefix: "",
+                    markingRequested: false,
+                    markingAvailable: false,
+                },
+                animacy: {
+                    value: "inanimate",
+                    label: "inanimado",
+                    affectsSubjectAgreement: true,
+                    affectsReferencePlural: false,
+                },
+                reference: {
+                    number: "singular",
+                    pluralType: "",
+                    label: "singular",
+                    connectorSlot: "num1-num2",
+                },
+            },
+            possessive: {
+                predicateState: {
+                    value: "possessive",
+                    label: "posesivo",
+                    slot: "predicate.state",
+                    isSupportedState: true,
+                },
+                possessiveState: {
+                    isPossessive: true,
+                    possessorPrefix: "nu",
+                    markingRequested: true,
+                    markingAvailable: true,
+                },
+                animacy: {
+                    value: "inanimate",
+                    label: "inanimado",
+                    affectsSubjectAgreement: true,
+                    affectsReferencePlural: false,
+                },
+                reference: {
+                    number: "singular",
+                    pluralType: "",
+                    label: "singular",
+                    connectorSlot: "num1-num2",
+                },
+            },
+            unsupportedPossessive: {
+                supported: false,
+                profile: {
+                    predicateState: {
+                        value: "possessive",
+                        label: "posesivo",
+                        slot: "predicate.state",
+                        isSupportedState: true,
+                    },
+                    possessiveState: {
+                        isPossessive: true,
+                        possessorPrefix: "nu",
+                        markingRequested: true,
+                        markingAvailable: false,
+                    },
+                    animacy: {
+                        value: "inanimate",
+                        label: "inanimado",
+                        affectsSubjectAgreement: true,
+                        affectsReferencePlural: false,
+                    },
+                    reference: {
+                        number: "singular",
+                        pluralType: "",
+                        label: "singular",
+                        connectorSlot: "num1-num2",
+                    },
+                },
+                diagnostic: "ordinary-nnc-unsupported-possessive-state",
+            },
+            animatePlural: {
+                predicateState: {
+                    value: "absolutive",
+                    label: "absolutivo",
+                    slot: "predicate.state",
+                    isSupportedState: true,
+                },
+                possessiveState: {
+                    isPossessive: false,
+                    possessorPrefix: "",
+                    markingRequested: false,
+                    markingAvailable: false,
+                },
+                animacy: {
+                    value: "animate",
+                    label: "animado",
+                    affectsSubjectAgreement: true,
+                    affectsReferencePlural: true,
+                },
+                reference: {
+                    number: "plural",
+                    pluralType: "count",
+                    label: "plural",
+                    connectorSlot: "num1-num2",
+                },
+            },
+            inanimateDistributive: {
+                predicateState: {
+                    value: "absolutive",
+                    label: "absolutivo",
+                    slot: "predicate.state",
+                    isSupportedState: true,
+                },
+                possessiveState: {
+                    isPossessive: false,
+                    possessorPrefix: "",
+                    markingRequested: false,
+                    markingAvailable: false,
+                },
+                animacy: {
+                    value: "inanimate",
+                    label: "inanimado",
+                    affectsSubjectAgreement: true,
+                    affectsReferencePlural: true,
+                },
+                reference: {
+                    number: "plural",
+                    pluralType: "distributive",
+                    label: "plural",
+                    connectorSlot: "num1-num2",
+                },
+            },
+            derivedFromSlots: {
+                formulaSlot: "num1-num2",
+                categoryConnectorSlot: "num1-num2",
+                formulaEcho: "#Ø...Ø(mistun)Ø#",
+            },
         }
     );
     s.eq("ordinary NNC paradigm-set helper is exported", typeof ctx.generateOrdinaryNncParadigmSet, "function");
     s.eq("ordinary NNC read-only fixture probe is exported", typeof ctx.resolveOrdinaryNncFixture, "function");
+    s.eq(
+        "ordinary NNC paradigm set marks nominal nuclear clause output",
+        ctx.generateOrdinaryNncParadigmSet({ stem: "kal", states: ["absolutive"], numbers: ["singular"] }).clauseKind,
+        "nominal-nuclear-clause"
+    );
+    s.eq(
+        "ordinary NNC paradigm set exposes output kind",
+        ctx.generateOrdinaryNncParadigmSet({ stem: "kal", states: ["absolutive"], numbers: ["singular"] }).outputKind,
+        "nominal-nuclear-clause"
+    );
     const resolveOrdinaryNncFixture = typeof ctx.resolveOrdinaryNncFixture === "function"
         ? (request) => ctx.resolveOrdinaryNncFixture(request)
         : () => undefined;
+    s.eq(
+        "ordinary NNC fixture probe marks nominal nuclear clause output",
+        resolveOrdinaryNncFixture({ stem: "kal" }).clauseKind,
+        "nominal-nuclear-clause"
+    );
+    s.eq(
+        "ordinary NNC fixture probe exposes output kind",
+        resolveOrdinaryNncFixture({ stem: "kal" }).outputKind,
+        "nominal-nuclear-clause"
+    );
     s.eq(
         "ordinary NNC read-only fixture probe resolves supported fixture stem",
         summarizeOrdinaryNncFixtureProbe(resolveOrdinaryNncFixture({
@@ -833,6 +1871,7 @@ function run(ctx) {
                 animacy: "inanimate",
                 entries: [
                     { result: "shuchit", surfaceForms: ["shuchit"], state: "absolutive", number: "singular", possessor: null },
+                    { result: "shujshuchit", surfaceForms: ["shujshuchit"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                     { result: "nushuchiw", surfaceForms: ["nushuchiw"], state: "possessive", number: "singular", possessor: "nu" },
                     { result: "mushuchiw", surfaceForms: ["mushuchiw"], state: "possessive", number: "singular", possessor: "mu" },
                 ],
@@ -861,7 +1900,7 @@ function run(ctx) {
         ctx.generateOrdinaryNncParadigmSet(ordinaryNncProbeRequest)
     );
     s.eq(
-        "ordinary NNC read-only fixture probe preserves unsupported slot diagnostics",
+        "ordinary NNC read-only fixture probe preserves requested possessive plural slots",
         summarizeOrdinaryNncFixtureProbe(resolveOrdinaryNncFixture({
             stem: "shuchi",
             states: ["absolutive", "possessive"],
@@ -889,26 +1928,11 @@ function run(ctx) {
                 animacy: "inanimate",
                 entries: [
                     { result: "shuchit", surfaceForms: ["shuchit"], state: "absolutive", number: "singular", possessor: null },
+                    { result: "shujshuchit", surfaceForms: ["shujshuchit"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                     { result: "nushuchiw", surfaceForms: ["nushuchiw"], state: "possessive", number: "singular", possessor: "nu" },
+                    { result: "nushujshuchiw", surfaceForms: ["nushujshuchiw"], state: "possessive", number: "plural", pluralType: "distributive", possessor: "nu" },
                 ],
-                diagnostics: [
-                    {
-                        id: "ordinary-nnc-unsupported-number",
-                        severity: "unsupported",
-                        message: "No ordinary NNC absolutive plural form is configured for stem \"shuchi\".",
-                        state: "absolutive",
-                        number: "plural",
-                        possessor: null,
-                    },
-                    {
-                        id: "ordinary-nnc-unsupported-number",
-                        severity: "unsupported",
-                        message: "No ordinary NNC possessive plural form is configured for stem \"shuchi\".",
-                        state: "possessive",
-                        number: "plural",
-                        possessor: "nu",
-                    },
-                ],
+                diagnostics: [],
                 source: {
                     fixtureId: "shuchi",
                     sourceRefs: ["data/static_parse_tests.json:16", "src/tests/parsing.test.js:91", "user-provided:2026-06-04"],
@@ -926,6 +1950,7 @@ function run(ctx) {
             animacy: "inanimate",
             entries: [
                 { result: "kal", surfaceForms: ["kal"], state: "absolutive", number: "singular", possessor: null },
+                { result: "kajkal", surfaceForms: ["kajkal"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                 { result: "nukal", surfaceForms: ["nukal"], state: "possessive", number: "singular", possessor: "nu" },
                 { result: "mukal", surfaceForms: ["mukal"], state: "possessive", number: "singular", possessor: "mu" },
                 { result: "ikal", surfaceForms: ["ikal"], state: "possessive", number: "singular", possessor: "i" },
@@ -971,10 +1996,11 @@ function run(ctx) {
             {
                 supported: true,
                 stem: "tukayit",
-                nounClass: "lexical",
+                nounClass: "zero",
                 animacy: "inanimate",
                 entries: [
                     { result: "tukayit", surfaceForms: ["tukayit"], state: "absolutive", number: "singular", possessor: null },
+                    { result: "tujtukayit", surfaceForms: ["tujtukayit"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                 ],
                 diagnostics: [],
                 source: {
@@ -985,10 +2011,11 @@ function run(ctx) {
             {
                 supported: true,
                 stem: "machiyut",
-                nounClass: "lexical",
+                nounClass: "zero",
                 animacy: "inanimate",
                 entries: [
                     { result: "machiyut", surfaceForms: ["machiyut"], state: "absolutive", number: "singular", possessor: null },
+                    { result: "majmachiyut", surfaceForms: ["majmachiyut"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                 ],
                 diagnostics: [],
                 source: {
@@ -999,10 +2026,11 @@ function run(ctx) {
             {
                 supported: true,
                 stem: "majmachiyut",
-                nounClass: "lexical",
+                nounClass: "zero",
                 animacy: "inanimate",
                 entries: [
                     { result: "majmachiyut", surfaceForms: ["majmachiyut"], state: "absolutive", number: "singular", possessor: null },
+                    { result: "majmajmachiyut", surfaceForms: ["majmajmachiyut"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                 ],
                 diagnostics: [],
                 source: {
@@ -1013,7 +2041,7 @@ function run(ctx) {
         ]
     );
     s.eq(
-        "ordinary NNC paradigm-set records requested plural diagnostics without fallback",
+        "ordinary NNC paradigm-set records requested distributive plural without fallback",
         summarizeOrdinaryNncSet(ctx.generateOrdinaryNncParadigmSet({
             stem: "kal",
             states: ["absolutive"],
@@ -1026,15 +2054,9 @@ function run(ctx) {
             animacy: "inanimate",
             entries: [
                 { result: "kal", surfaceForms: ["kal"], state: "absolutive", number: "singular", possessor: null },
+                { result: "kajkal", surfaceForms: ["kajkal"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
             ],
-            diagnostics: [{
-                id: "ordinary-nnc-unsupported-number",
-                severity: "unsupported",
-                message: "No ordinary NNC absolutive plural form is configured for stem \"kal\".",
-                state: "absolutive",
-                number: "plural",
-                possessor: null,
-            }],
+            diagnostics: [],
             source: {
                 fixtureId: "kal",
                 sourceRefs: ["data/static_parse_tests.json:49", "data/basic-data.csv:174"],
@@ -1047,12 +2069,16 @@ function run(ctx) {
         {
             supported: true,
             stem: "mistun",
-            nounClass: "lexical",
+            nounClass: "zero",
             animacy: "animate",
             entries: [
                 { result: "mistun", surfaceForms: ["mistun"], state: "absolutive", number: "singular", possessor: null },
+                { result: "mistunmet", surfaceForms: ["mistunmet"], state: "absolutive", number: "plural", pluralType: "count", possessor: null },
+                { result: "mijmistunmet", surfaceForms: ["mijmistunmet"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
                 { result: "numistun", surfaceForms: ["numistun"], state: "possessive", number: "singular", possessor: "nu" },
                 { result: "mumistun", surfaceForms: ["mumistun"], state: "possessive", number: "singular", possessor: "mu" },
+                { result: "numistun", surfaceForms: ["numistun"], state: "possessive", number: "plural", pluralType: "count", possessor: "nu" },
+                { result: "mumistun", surfaceForms: ["mumistun"], state: "possessive", number: "plural", pluralType: "count", possessor: "mu" },
             ],
             diagnostics: [],
             source: {
@@ -1062,23 +2088,55 @@ function run(ctx) {
         }
     );
     s.eq(
-        "ordinary NNC paradigm-set unsupported stem returns no entries",
-        summarizeOrdinaryNncSet(ctx.generateOrdinaryNncParadigmSet({ stem: "unconfigured-nnc" })),
+        "ordinary NNC paradigm-set accepts fixture-free stems",
+        summarizeOrdinaryNncSet(ctx.generateOrdinaryNncParadigmSet({ stem: "xilun" })),
         {
-            supported: false,
-            stem: "unconfigured-nnc",
-            nounClass: "",
-            animacy: "",
-            entries: [],
-            diagnostics: [{
-                id: "ordinary-nnc-unsupported-stem",
-                severity: "unsupported",
-                message: "No ordinary NNC fixture is configured for stem \"unconfigured-nnc\".",
-                state: "absolutive",
-                number: "singular",
-                possessor: null,
-            }],
-            source: null,
+            supported: true,
+            stem: "xilun",
+            nounClass: "zero",
+            animacy: "inanimate",
+            entries: [
+                { result: "xilun", surfaceForms: ["xilun"], state: "absolutive", number: "singular", possessor: null },
+                { result: "xijxilun", surfaceForms: ["xijxilun"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
+                { result: "nuxilun", surfaceForms: ["nuxilun"], state: "possessive", number: "singular", possessor: "nu" },
+                { result: "muxilun", surfaceForms: ["muxilun"], state: "possessive", number: "singular", possessor: "mu" },
+                { result: "ixilun", surfaceForms: ["ixilun"], state: "possessive", number: "singular", possessor: "i" },
+                { result: "tuxilun", surfaceForms: ["tuxilun"], state: "possessive", number: "singular", possessor: "tu" },
+                { result: "anmuxilun", surfaceForms: ["anmuxilun"], state: "possessive", number: "singular", possessor: "anmu" },
+                { result: "inxilun", surfaceForms: ["inxilun"], state: "possessive", number: "singular", possessor: "in" },
+            ],
+            diagnostics: [],
+            source: {
+                fixtureId: "",
+                sourceRefs: [],
+                sourceKind: "open-stem",
+            },
+        }
+    );
+    s.eq(
+        "ordinary NNC paradigm-set applies possessive nh before vowel cores",
+        summarizeOrdinaryNncSet(ctx.generateOrdinaryNncParadigmSet({ stem: "awat" })),
+        {
+            supported: true,
+            stem: "awat",
+            nounClass: "zero",
+            animacy: "inanimate",
+            entries: [
+                { result: "awat", surfaceForms: ["awat"], state: "absolutive", number: "singular", possessor: null },
+                { result: "ajawat", surfaceForms: ["ajawat"], state: "absolutive", number: "plural", pluralType: "distributive", possessor: null },
+                { result: "nuawat", surfaceForms: ["nuawat"], state: "possessive", number: "singular", possessor: "nu" },
+                { result: "muawat", surfaceForms: ["muawat"], state: "possessive", number: "singular", possessor: "mu" },
+                { result: "iawat", surfaceForms: ["iawat"], state: "possessive", number: "singular", possessor: "i" },
+                { result: "tuawat", surfaceForms: ["tuawat"], state: "possessive", number: "singular", possessor: "tu" },
+                { result: "anmuawat", surfaceForms: ["anmuawat"], state: "possessive", number: "singular", possessor: "anmu" },
+                { result: "inhawat", surfaceForms: ["inhawat"], state: "possessive", number: "singular", possessor: "in" },
+            ],
+            diagnostics: [],
+            source: {
+                fixtureId: "",
+                sourceRefs: [],
+                sourceKind: "open-stem",
+            },
         }
     );
 

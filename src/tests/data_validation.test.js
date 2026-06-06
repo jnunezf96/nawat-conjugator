@@ -76,6 +76,68 @@ function run() {
         }).includes("possessor \"nech\" is not in static_options.possessivePrefixes")
     );
     s.ok(
+        "static NNC validator rejects pseudo noun classes",
+        messages({
+            ordinaryNncFixtures: [{
+                id: "bad",
+                stem: "bad",
+                lemma: "bad",
+                nounClass: "lexical",
+                animacy: "inanimate",
+                states: {
+                    absolutive: {
+                        numberForms: {
+                            singular: { surfaceForms: ["bad"] },
+                        },
+                    },
+                },
+            }],
+        }).includes("nounClass \"lexical\" is not allowed")
+    );
+    s.ok(
+        "static NNC validator rejects unknown animacy values",
+        messages({
+            ordinaryNncFixtures: [{
+                id: "bad",
+                stem: "bad",
+                lemma: "bad",
+                nounClass: "zero",
+                animacy: "abstract",
+                states: {
+                    absolutive: {
+                        numberForms: {
+                            singular: { surfaceForms: ["bad"] },
+                        },
+                    },
+                },
+            }],
+        }).includes("animacy \"abstract\" is not allowed")
+    );
+    s.ok(
+        "static NNC validator rejects unknown plural-type fixture cells",
+        messages({
+            ordinaryNncFixtures: [{
+                id: "bad",
+                stem: "bad",
+                lemma: "bad",
+                nounClass: "zero",
+                animacy: "animate",
+                states: {
+                    absolutive: {
+                        numberForms: {
+                            plural: {
+                                surfaceForms: ["badmet"],
+                                formsByPluralType: {
+                                    collective: { surfaceForms: ["badwan"] },
+                                },
+                            },
+                        },
+                    },
+                },
+            }],
+        }).includes("plural type \"collective\" is not allowed")
+    );
+    s.ok(
         "static NNC validator rejects malformed surface forms",
         messages({
             ordinaryNncFixtures: [{
