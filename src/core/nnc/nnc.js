@@ -43,6 +43,7 @@ const ORDINARY_NNC_DIAGNOSTIC_IDS = Object.freeze({
     unsupportedPluralType: "ordinary-nnc-unsupported-plural-type",
     unsupportedSubject: "ordinary-nnc-unsupported-subject",
     nounClassMismatch: "ordinary-nnc-noun-class-mismatch",
+    classStemIncompatible: "ordinary-nnc-class-stem-incompatible",
 });
 
 function normalizeOrdinaryNncText(value = "") {
@@ -253,6 +254,49 @@ function findOrdinaryNncFixture(stem = "") {
         ].map(normalizeOrdinaryNncText).filter(Boolean);
         return keys.includes(normalizedStem);
     }) || null;
+}
+
+function isOrdinaryNncVowelFinalStem(stem = "") {
+    return /[aeiou]$/i.test(normalizeOrdinaryNncText(stem));
+}
+
+function getOrdinaryNncStemShapeLabel(stem = "") {
+    return isOrdinaryNncVowelFinalStem(stem) ? "vowel-final" : "consonant-final";
+}
+
+function getOrdinaryNncClassStemCompatibility(nounClass = "", stem = "") {
+    const normalizedClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass) || "zero";
+    const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
+    if (!normalizedStem || normalizedClass === "zero") {
+        return {
+            compatible: true,
+            nounClass: normalizedClass,
+            stem: normalizedStem,
+            requiredStemShape: "consonant-or-vowel-final",
+            actualStemShape: normalizedStem ? getOrdinaryNncStemShapeLabel(normalizedStem) : "",
+        };
+    }
+    const vowelFinal = isOrdinaryNncVowelFinalStem(normalizedStem);
+    const requiredStemShape = normalizedClass === "t"
+        ? "vowel-final"
+        : "consonant-final";
+    const compatible = normalizedClass === "t"
+        ? vowelFinal
+        : !vowelFinal;
+    return {
+        compatible,
+        nounClass: normalizedClass,
+        stem: normalizedStem,
+        requiredStemShape,
+        actualStemShape: getOrdinaryNncStemShapeLabel(normalizedStem),
+    };
+}
+
+function buildOrdinaryNncClassStemCompatibilityDiagnostic(compatibility = {}) {
+    return buildOrdinaryNncDiagnostic(
+        ORDINARY_NNC_DIAGNOSTIC_IDS.classStemIncompatible,
+        `Nominal nuclear clause class "${compatibility.nounClass || ""}" requires a ${compatibility.requiredStemShape || "compatible"} stem; "${compatibility.stem || ""}" is ${compatibility.actualStemShape || "not compatible"}.`
+    );
 }
 
 function buildOrdinaryNncSurfaceChainText({
@@ -1002,6 +1046,21 @@ function generateOrdinaryNncParadigm({
     const fixtureClass = String(fixture.nounClass || "");
     const fixtureAnimacy = fixture.animacy || "";
     resolvedSubject = resolveOrdinaryNncClauseSubject(subject, normalizedNumber, fixtureAnimacy);
+    const classStemCompatibility = getOrdinaryNncClassStemCompatibility(fixtureClass, fixture.stem || normalizedStem);
+    if (!classStemCompatibility.compatible) {
+        return buildOrdinaryNncUnsupportedResult({
+            stem: fixture.stem || normalizedStem,
+            state: normalizedState,
+            number: normalizedNumber,
+            pluralType: normalizedNumber === "plural" ? normalizedPluralType : "",
+            subject: resolvedSubject,
+            possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+            nounClass: fixtureClass,
+            animacy: fixtureAnimacy,
+            openStem: isOpenStemFixture,
+            diagnostic: buildOrdinaryNncClassStemCompatibilityDiagnostic(classStemCompatibility),
+        });
+    }
     if (!isOpenStemFixture && requestedNounClass && fixtureClass && requestedNounClass !== fixtureClass) {
         return buildOrdinaryNncUnsupportedResult({
             stem: fixture.stem || normalizedStem,

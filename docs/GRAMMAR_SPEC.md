@@ -24,10 +24,10 @@ Stable working constraints:
 
 `nounClass` is a grammar class only:
 
-- `t`: `(stem)t`
-- `ti`: `(stem)ti`
-- `in`: `(stem)in`
-- `zero`: `(stem)`
+- `t`: vowel-final stem, displayed as `(...V)t`.
+- `ti`: consonant-final stem, displayed as `(...C)ti`.
+- `in`: consonant-final stem, displayed as `(...C)in`.
+- `zero`: consonant-final or vowel-final stem, displayed as `(...C/V)Ø`.
 
 Data status is separate:
 
@@ -107,7 +107,7 @@ Current fixture-backed coverage is intentionally small:
 - Animate and inanimate behavior are both represented by fixtures.
 - Possessive marking and unsupported possessive diagnostics are both represented by fixtures.
 
-Current `ti` and `in` coverage is open-stem structural only. Examples such as `(naka)ti` and `(tekpan)in` prove the slot model and connector placement, but they are not fixture-backed evidence. Do not add static `ti` or `in` ordinary NNC fixtures until Nawat/Pipil forms are confirmed by repo data or user-provided evidence.
+Current `ti` and `in` coverage is open-stem structural only. `ti` and `in` require consonant-final stems, so old examples such as `(naka)ti` are invalid because `naka` is vowel-final. Examples such as `(xilun)ti` and `(tekpan)in` prove the slot model and connector placement, but they are not fixture-backed evidence. Do not add static `ti` or `in` ordinary NNC fixtures until Nawat/Pipil forms are confirmed by repo data or user-provided evidence.
 
 ## Open Sections
 

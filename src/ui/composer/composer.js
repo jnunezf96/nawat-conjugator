@@ -1198,10 +1198,10 @@ function renderComposerOrdinaryNncClassTabs(stagePanel, {
     labelEl.textContent = "Conector num1-num2";
     classTabs.appendChild(labelEl);
     [
-        { id: "t", label: "t", title: "clase t: (stem)t" },
-        { id: "ti", label: "ti", title: "clase ti: (stem)ti" },
-        { id: "in", label: "in", title: "clase in: (stem)in" },
-        { id: "zero", label: "Ø", title: "clase Ø: (stem)" },
+        { id: "t", label: "t", title: "clase t: (...V)t" },
+        { id: "ti", label: "ti", title: "clase ti: (...C)ti" },
+        { id: "in", label: "in", title: "clase in: (...C)in" },
+        { id: "zero", label: "Ø", title: "clase Ø: (...C/V)" },
     ].forEach((entry) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -4781,7 +4781,7 @@ function getVerbRegexPlaceholder() {
         typeof isOrdinaryNncGenerationModeEnabled === "function"
         && isOrdinaryNncGenerationModeEnabled()
     ) {
-        return "(stem)t";
+        return "ej. (siwa)t";
     }
     return "_";
 }

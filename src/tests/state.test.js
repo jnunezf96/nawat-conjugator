@@ -71,18 +71,23 @@ function run(ctx) {
         : () => ({ options: { override: {} }, prefixInputs: {} });
     s.eq(
         "ordinary NNC analogue input parser separates stem and connector",
-        ["(siwa)t", "(naka)ti", "(tekpan)in", "(kal)"].map((value) => ctx.parseOrdinaryNncGenerationAnalogueInput(value)),
+        ["(siwa)t", "(xilun)ti", "(tekpan)in", "(kal)"].map((value) => ctx.parseOrdinaryNncGenerationAnalogueInput(value)),
         [
             { stem: "siwa", nounClass: "t", connector: "t", predicateFormula: "(siwa)t" },
-            { stem: "naka", nounClass: "ti", connector: "ti", predicateFormula: "(naka)ti" },
+            { stem: "xilun", nounClass: "ti", connector: "ti", predicateFormula: "(xilun)ti" },
             { stem: "tekpan", nounClass: "in", connector: "in", predicateFormula: "(tekpan)in" },
             { stem: "kal", nounClass: "zero", connector: "", predicateFormula: "(kal)" },
         ]
     );
     s.eq(
         "ordinary NNC analogue formatter keeps the connector outside parentheses",
-        ["t", "ti", "in", "zero"].map((nounClass) => ctx.formatOrdinaryNncGenerationAnalogueInput({ stem: "siwa", nounClass })),
-        ["(siwa)t", "(siwa)ti", "(siwa)in", "(siwa)"]
+        [
+            { stem: "siwa", nounClass: "t" },
+            { stem: "xilun", nounClass: "ti" },
+            { stem: "tekpan", nounClass: "in" },
+            { stem: "siwa", nounClass: "zero" },
+        ].map((request) => ctx.formatOrdinaryNncGenerationAnalogueInput(request)),
+        ["(siwa)t", "(xilun)ti", "(tekpan)in", "(siwa)"]
     );
     s.no("ordinary NNC UI mode starts disabled", isOrdinaryNncGenerationModeEnabled());
     s.no(

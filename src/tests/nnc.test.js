@@ -1428,8 +1428,8 @@ function run(ctx) {
         [
             { stem: "siwa", nounClass: "t" },
             { stem: "siwat", nounClass: "t" },
-            { stem: "naka", nounClass: "ti" },
-            { stem: "nakati", nounClass: "ti" },
+            { stem: "xilun", nounClass: "ti" },
+            { stem: "xilunti", nounClass: "ti" },
             { stem: "tekpan", nounClass: "in" },
             { stem: "tekpanin", nounClass: "in" },
             { stem: "kal", nounClass: "zero" },
@@ -1469,20 +1469,20 @@ function run(ctx) {
                 connectorDisplay: "t",
             },
             {
-                input: "naka",
+                input: "xilun",
                 nounClass: "ti",
-                stem: "naka",
-                result: "nakati",
-                predicateFormula: "(naka)ti",
+                stem: "xilun",
+                result: "xilunti",
+                predicateFormula: "(xilun)ti",
                 connectorSurface: "ti",
                 connectorDisplay: "ti",
             },
             {
-                input: "nakati",
+                input: "xilunti",
                 nounClass: "ti",
-                stem: "naka",
-                result: "nakati",
-                predicateFormula: "(naka)ti",
+                stem: "xilun",
+                result: "xilunti",
+                predicateFormula: "(xilun)ti",
                 connectorSurface: "ti",
                 connectorDisplay: "ti",
             },
@@ -1517,7 +1517,7 @@ function run(ctx) {
     );
     s.eq(
         "ordinary NNC analogue input parses connector outside the predicate stem",
-        ["(siwa)t", "(naka)ti", "(tekpan)in", "(kal)"].map((stem) => {
+        ["(siwa)t", "(xilun)ti", "(tekpan)in", "(kal)"].map((stem) => {
             const result = ctx.generateOrdinaryNncParadigm({
                 stem,
                 state: "absolutive",
@@ -1533,9 +1533,81 @@ function run(ctx) {
         }),
         [
             { input: "(siwa)t", nounClass: "t", stem: "siwa", result: "siwat", predicateFormula: "(siwa)t" },
-            { input: "(naka)ti", nounClass: "ti", stem: "naka", result: "nakati", predicateFormula: "(naka)ti" },
+            { input: "(xilun)ti", nounClass: "ti", stem: "xilun", result: "xilunti", predicateFormula: "(xilun)ti" },
             { input: "(tekpan)in", nounClass: "in", stem: "tekpan", result: "tekpanin", predicateFormula: "(tekpan)in" },
             { input: "(kal)", nounClass: "zero", stem: "kal", result: "kal", predicateFormula: "(kal)" },
+        ]
+    );
+    s.eq(
+        "ordinary NNC rejects class/stem shape mismatches",
+        [
+            { stem: "naka", nounClass: "ti" },
+            { stem: "nakati", nounClass: "ti" },
+            { stem: "(naka)ti" },
+            { stem: "tekpan", nounClass: "t" },
+            { stem: "siwa", nounClass: "in" },
+        ].map((request) => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                ...request,
+                state: "absolutive",
+                number: "singular",
+            });
+            return {
+                input: request.stem,
+                supported: result.supported,
+                result: result.result,
+                stem: result.stem,
+                nounClass: result.nounClass,
+                diagnostic: result.diagnostics[0]?.id,
+                formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(result.nncBasic.formulaSlots),
+            };
+        }),
+        [
+            {
+                input: "naka",
+                supported: false,
+                result: "",
+                stem: "naka",
+                nounClass: "ti",
+                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                formulaEcho: "#Ø...Ø(naka)ti#",
+            },
+            {
+                input: "nakati",
+                supported: false,
+                result: "",
+                stem: "naka",
+                nounClass: "ti",
+                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                formulaEcho: "#Ø...Ø(naka)ti#",
+            },
+            {
+                input: "(naka)ti",
+                supported: false,
+                result: "",
+                stem: "naka",
+                nounClass: "ti",
+                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                formulaEcho: "#Ø...Ø(naka)ti#",
+            },
+            {
+                input: "tekpan",
+                supported: false,
+                result: "",
+                stem: "tekpan",
+                nounClass: "t",
+                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                formulaEcho: "#Ø...Ø(tekpan)t#",
+            },
+            {
+                input: "siwa",
+                supported: false,
+                result: "",
+                stem: "siwa",
+                nounClass: "in",
+                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                formulaEcho: "#Ø...Ø(siwa)in#",
+            },
         ]
     );
     s.eq(
@@ -2017,8 +2089,8 @@ function run(ctx) {
                 state: "possessive",
                 possessor: "nu",
             });
-            const nakaOpen = ctx.generateOrdinaryNncParadigm({
-                stem: "naka",
+            const xilunTiOpen = ctx.generateOrdinaryNncParadigm({
+                stem: "xilun",
                 nounClass: "ti",
             });
             const tekpanOpen = ctx.generateOrdinaryNncParadigm({
@@ -2030,7 +2102,7 @@ function run(ctx) {
                 kalPossessive,
                 mistunCount,
                 tukayitAbsolutive,
-                nakaOpen,
+                xilunTiOpen,
                 tekpanOpen,
             ].map((result) => result.nounClass);
             return {
@@ -2069,13 +2141,13 @@ function run(ctx) {
                     markingAvailable: tukayitUnsupportedPossessive.nncBasic.categoryProfile.possessiveState.markingAvailable,
                     markingRequested: tukayitUnsupportedPossessive.nncBasic.categoryProfile.possessiveState.markingRequested,
                 },
-                nakaOpen: {
-                    fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "naka" }),
-                    sourceKind: nakaOpen.source?.sourceKind,
-                    openStem: nakaOpen.openStem,
-                    nounClass: nakaOpen.nounClass,
-                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(nakaOpen.nncBasic.formulaSlots),
-                    connectorClass: nakaOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                xilunTiOpen: {
+                    fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "xilun" }),
+                    sourceKind: xilunTiOpen.source?.sourceKind,
+                    openStem: xilunTiOpen.openStem,
+                    nounClass: xilunTiOpen.nounClass,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(xilunTiOpen.nncBasic.formulaSlots),
+                    connectorClass: xilunTiOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
                 },
                 tekpanOpen: {
                     fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "tekpan" }),
@@ -2127,12 +2199,12 @@ function run(ctx) {
                 markingAvailable: false,
                 markingRequested: true,
             },
-            nakaOpen: {
+            xilunTiOpen: {
                 fixtureProbe: null,
                 sourceKind: "open-stem",
                 openStem: true,
                 nounClass: "ti",
-                formulaEcho: "#Ø...Ø(naka)ti#",
+                formulaEcho: "#Ø...Ø(xilun)ti#",
                 connectorClass: "ti",
             },
             tekpanOpen: {

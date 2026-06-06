@@ -1112,19 +1112,19 @@ export function createUiComposerApi(targetObject = globalThis) {
       [{
         id: "t",
         label: "t",
-        title: "clase t: (stem)t"
+        title: "clase t: (...V)t"
       }, {
         id: "ti",
         label: "ti",
-        title: "clase ti: (stem)ti"
+        title: "clase ti: (...C)ti"
       }, {
         id: "in",
         label: "in",
-        title: "clase in: (stem)in"
+        title: "clase in: (...C)in"
       }, {
         id: "zero",
         label: "Ø",
-        title: "clase Ø: (stem)"
+        title: "clase Ø: (...C/V)"
       }].forEach(entry => {
         const button = targetObject.document.createElement("button");
         button.type = "button";
@@ -4210,7 +4210,7 @@ export function createUiComposerApi(targetObject = globalThis) {
     }
     function getVerbRegexPlaceholder() {
       if (typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled()) {
-        return "(stem)t";
+        return "ej. (siwa)t";
       }
       return "_";
     }
