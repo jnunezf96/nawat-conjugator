@@ -198,6 +198,31 @@ Future path:
 4. Add engine metadata/diagnostics.
 5. Add UI labels/gating only after metadata exists.
 
+## Boundary: Lesson 16 Pronominal NNC Evidence
+
+Date: 2026-06-06
+
+Decision:
+
+- Lesson 16 (`inventario NNC pronominal`) remains pending and evidence-sensitive.
+- The repo has a future placeholder for `pronominal-nnc`, but no working pronominal NNC engine or fixture file.
+- `data/static_nnc.json` remains ordinary NNC fixture data only.
+- Pronoun/agreement labels such as `naja`, `taja`, `yaja`, `tejemet`, `anmejemet`, and `yejemet` are not confirmed pronominal NNC fixture outputs.
+- `ajaka`, `tajtatka`, `muchi`, and `isel` are not confirmed pronominal NNC fixtures.
+- Andrews supplies only the structural categories: pronominal NNC family, absolutive-state-only behavior, entitive and quantitive families, and personal/interrogative/indefinite/demonstrative entitive subtypes.
+- Interrogative pronominal NNCs must not be treated as English-style relative pronouns.
+- Ordinary nounstem classes and ordinary NNC `formulaSlots` must not be automatically applied to pronominal NNCs without a design decision and confirmed Nawat/Pipil examples.
+- Future implementation likely needs either a parallel slot model or an explicit `nncKind: "pronominal"` extension of `formulaSlots`.
+
+Future path:
+
+1. Confirm Nawat/Pipil pronominal NNC examples.
+2. Propose a pronominal NNC schema.
+3. Add validation rules.
+4. Add engine metadata/diagnostics.
+5. Add UI labels/gating only after metadata exists.
+6. Reduce pending counts only after implementation and tests.
+
 ## Merge Rules
 
 - Do not edit the same file from two worktrees at the same time.

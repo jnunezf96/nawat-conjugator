@@ -177,6 +177,43 @@ Future implementation order:
 4. Add engine metadata and diagnostics without guessing forms.
 5. Add UI labels/gating only after metadata exists.
 
+## Lesson 16 Pronominal NNC Evidence Boundary
+
+Lesson 16 (`inventario NNC pronominal`) is pending and evidence-sensitive. It is not mapped into engine behavior yet.
+
+Structural frame, using Andrews as analogy only:
+
+- Pronominal NNCs are a special NNC family, not ordinary noun fixtures by default.
+- Pronominal NNCs are absolutive-state only.
+- Broad semantic families to distinguish later are entitive and quantitive.
+- Entitive subtypes include personal, interrogative, indefinite, and demonstrative.
+- Interrogative pronominal NNCs must not be modeled as English-style relative pronouns.
+
+Current project boundary:
+
+- The repo has a future roadmap marker for `pronominal-nnc`, but no working pronominal NNC engine.
+- `data/static_nnc.json` contains ordinary NNC fixtures only.
+- Ordinary NNC `formulaSlots` should not be automatically reused for pronominal NNCs without a design decision.
+- Ordinary nounstem classes `t`, `ti`, `in`, and `zero` should not be assumed for pronominal NNCs without confirmed Nawat/Pipil examples.
+- Pronominal NNCs likely need either a parallel slot model or an explicit `nncKind: "pronominal"` extension of `formulaSlots`.
+- Do not add schema fields or fixture data until confirmed Nawat/Pipil pronominal NNC examples exist.
+
+Evidence boundary:
+
+- `naja`, `taja`, `yaja`, `tejemet`, `anmejemet`, and `yejemet` are pronoun/agreement labels only for now. They are not confirmed pronominal NNC fixture outputs.
+- `ajaka`, `tajtatka`, `muchi`, and `isel` are not confirmed pronominal NNC fixtures.
+- `futureSyntaxLayer: "pronominal-nnc"` is a roadmap marker only.
+- Open-stem examples, generated output, ordinary pronoun labels, subject/object/person labels, and Andrews/Classical forms must not be treated as confirmed Nawat/Pipil pronominal NNC data.
+
+Future implementation order:
+
+1. Gather confirmed Nawat/Pipil pronominal NNC examples.
+2. Propose a pronominal NNC data schema.
+3. Add validation rules.
+4. Add engine metadata and diagnostics without guessing forms.
+5. Add UI labels/gating only after metadata exists.
+6. Reduce pending counts only after implementation and tests.
+
 ## Open Sections
 
 - Lessons 12-19: NNC basico.
