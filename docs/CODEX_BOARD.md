@@ -176,6 +176,28 @@ Next safe options:
 2. Expand possessive-state examples only from confirmed data.
 3. Begin inventory for Lessons 15-19 without editing behavior yet.
 
+## Boundary: Lesson 15 Possession Evidence
+
+Date: 2026-06-06
+
+Decision:
+
+- Lesson 15 (`posesion natural y casos de estado`) remains pending and evidence-sensitive.
+- Current engine behavior supports ordinary possessive state, possessor prefixes, fixture-backed possessive forms, unsupported possessive diagnostics, and `categoryProfile.possessiveState` availability metadata.
+- Current confirmed possessive examples (`kal`, `shuchi`/`shuchit`, `mistun`) prove ordinary possessive forms only. They do not prove natural, inalienable, or obligatory possession.
+- Current absolutive-only fixtures (`tukayit`, `a`/`at`, `machiyut`, `majmachiyut`) prove unsupported possessive diagnostics only. They do not prove Lesson 15 possessive-unavailable classes.
+- No current schema field distinguishes ordinary optional possession, natural possession, required/obligatory possession, possessive-only nouns, absolutive-unavailable nouns, or special state alternation cases.
+- Do not add `naturalPossession`, `requiresPossessor`, `possessionType`, or state-case metadata until confirmed examples and a schema proposal exist.
+- Open-stem examples and Andrews-only analogies are not Lesson 15 evidence.
+
+Future path:
+
+1. Confirm Nawat/Pipil examples.
+2. Propose a possession/state-case schema.
+3. Add validation and tests.
+4. Add engine metadata/diagnostics.
+5. Add UI labels/gating only after metadata exists.
+
 ## Merge Rules
 
 - Do not edit the same file from two worktrees at the same time.

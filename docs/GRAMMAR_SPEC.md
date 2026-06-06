@@ -142,6 +142,41 @@ Current confirmed possessive examples:
 
 The pending row `12-15 · generador NNC data-completo: posesivo y ti/in` remains pending.
 
+## Lesson 15 Possession Evidence Boundary
+
+Lesson 15 (`posesion natural y casos de estado`) is pending and evidence-sensitive. It is not mapped into engine behavior yet.
+
+What the Lessons 12-14 foundation already supports:
+
+- Predicate state values: `absolutive` and `possessive`.
+- Possessor prefixes from the current inventory: `nu`, `mu`, `i`, `tu`, `anmu`, and `in`.
+- Fixture-backed ordinary possessive forms for `kal`, `shuchi`/`shuchit`, and `mistun`.
+- Unsupported possessive diagnostics for fixtures without configured possessive forms, such as `tukayit`, `a`/`at`, `machiyut`, and `majmachiyut`.
+- `categoryProfile.possessiveState` explaining whether possessive marking was requested and whether the requested marking is available.
+
+What Lesson 15 still needs before engine behavior can be changed:
+
+- Lexical/state-case metadata for each confirmed noun.
+- A distinction between ordinary optional possession, natural possession, required possession, possessive-only nouns, absolutive-unavailable nouns, and special state alternation cases.
+- A clear record of whether absolutive state is allowed, blocked, or special for each candidate noun.
+- A clear record of whether possessive state is required, optional, unavailable, or irregular for each candidate noun.
+- Confirmed Nawat/Pipil examples before adding fixtures or generation behavior.
+
+Evidence boundary:
+
+- `kal`, `shuchi`/`shuchit`, and `mistun` confirm ordinary possessive forms only. They do not currently prove natural, inalienable, or obligatory possession.
+- `tukayit`, `a`/`at`, `machiyut`, and `majmachiyut` confirm only that unsupported possessive requests remain diagnostic under the current fixture data. They do not prove possessive-unavailable noun classes in the Lesson 15 sense.
+- Open-stem examples must not be used as Lesson 15 evidence.
+- Andrews may guide the structural categories to ask about, but Nawat/Pipil repo evidence or user-provided forms must decide the actual fixture cells and surfaces.
+
+Future implementation order:
+
+1. Gather confirmed Nawat/Pipil examples.
+2. Propose schema fields for possession/state-case metadata.
+3. Add validation and focused tests.
+4. Add engine metadata and diagnostics without guessing forms.
+5. Add UI labels/gating only after metadata exists.
+
 ## Open Sections
 
 - Lessons 12-19: NNC basico.

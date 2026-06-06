@@ -8,9 +8,9 @@ Do not edit app code from this file alone. Each patch still needs an explicit im
 
 ## Active Target
 
-Ordinary NNC Foundation v1 - Lessons 12-14.
+Ordinary NNC Lesson 15 possession evidence boundary.
 
-Status: milestone recorded after Phase 7B.
+Status: boundary recorded; no engine behavior mapped yet.
 
 ## Safe Order Template
 
@@ -61,7 +61,9 @@ The foundation is structurally stable, but not data-complete. Do not add `ti` or
 - Add browser smoke coverage for the S board once a dev server target is established.
 - Expand evidence-backed possessive/allomorphy examples only when the user supplies Nawat/Pipil forms or repo data clearly supports them.
 - Continue evidence hunt for fixture-backed `ti` and `in`.
-- Begin inventory for Lessons 15-19 without editing behavior yet.
+- For Lesson 15, gather confirmed natural/required possession examples before proposing schema fields such as possession type or state-case availability.
+- Do not add Lesson 15 possession metadata, diagnostics, generation, or UI labels until confirmed examples and validation tests are planned.
+- Continue inventory for Lessons 16-19 without editing behavior yet.
 - Consider a later UI distinction between fixture-backed evidence and dynamic preview output, without changing generation semantics.
 - Consider adding a visual slot breakdown if the single formula echo is not enough for teaching, but keep it derived from `formulaSlots`.
 - Consider richer visual treatment for locked fixture metadata if disabled controls are not clear enough in browser review.
