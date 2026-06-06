@@ -1800,93 +1800,264 @@ export function createUiRenderingApi(targetObject = globalThis) {
         return;
       }
       const isNawat = targetObject.getIsNawat();
-      const normalizedStem = String(stem || "").trim();
+      const analogueInput = typeof targetObject.parseOrdinaryNncGenerationAnalogueInput === "function" ? targetObject.parseOrdinaryNncGenerationAnalogueInput(stem) : null;
+      const normalizedStem = analogueInput?.stem || String(stem || "").trim();
       const {
+        objSection,
         grid
       } = createObjectSectionGrid(container);
-      const block = targetObject.document.createElement("div");
-      block.className = "tense-block";
-      block.dataset.tenseBlock = "ordinary-nnc";
-      const title = targetObject.document.createElement("div");
-      title.className = "tense-block__title";
-      const label = targetObject.document.createElement("span");
-      label.className = "tense-block__label";
-      label.textContent = "Sustantivo ordinario";
-      title.appendChild(label);
       const state = targetObject.getOrdinaryNncGenerationState();
+      const fixtureProbe = normalizedStem && typeof targetObject.resolveOrdinaryNncFixture === "function" ? targetObject.resolveOrdinaryNncFixture({
+        stem: normalizedStem,
+        states: ["absolutive"],
+        numbers: ["singular"]
+      }) : null;
+      const fixtureAnimacy = fixtureProbe?.fixture?.animacy || "";
+      const activeAnimacy = fixtureAnimacy || state.animacy || "inanimate";
+      const isAnimateNnc = activeAnimacy === "animate";
+      const activePluralType = state.pluralType === "auto" ? isAnimateNnc ? "count" : "distributive" : state.pluralType;
+      const normalizeOrdinaryNncUiNounClass = (value = "") => {
+        const normalized = String(value || "").trim().toLowerCase();
+        if (normalized === "0" || normalized === "ø" || normalized === "zero") {
+          return "zero";
+        }
+        return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+      };
+      const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass) || "zero";
+      const requestNounClass = fixtureProbe ? "" : activeNounClass;
+      const nounSubjectOptionById = new Map((typeof targetObject.getSubjectToggleOptions === "function" ? targetObject.getSubjectToggleOptions() : []).map(entry => [entry.id, entry]));
+      const subjectEntries = (Array.isArray(targetObject.SUBJECT_COMBINATIONS) ? targetObject.SUBJECT_COMBINATIONS : []).filter(entry => isAnimateNnc || entry.personSubKey === "3sg");
+      const getOrdinaryNncSubjectMarkerLabel = entry => {
+        const prefix = String(entry?.subjectPrefix || "");
+        const suffix = String(entry?.subjectSuffix || "");
+        return `${prefix || "Ø"}...${suffix || "Ø"}`;
+      };
+      const getSubjectNumber = entry => String(entry?.personSubKey || "").endsWith("pl") ? "plural" : "singular";
+      const getOrdinaryNncNounClassLabel = (value = "") => {
+        const normalized = normalizeOrdinaryNncUiNounClass(value);
+        return normalized === "zero" ? "Ø" : normalized;
+      };
+      const getOrdinaryNncPredicateStateLabel = (stateSlot = null, fallbackState = "") => {
+        const stateValue = stateSlot?.state || fallbackState || "absolutive";
+        return stateValue === "possessive" ? "predicado posesivo" : "predicado absolutivo";
+      };
       const rerender = () => {
         renderActiveConjugations({
           verb: normalizedStem,
           objectPrefix: ""
         });
       };
+      const candidateProbeCache = new Map();
+      const probeOrdinaryNncCandidate = ({
+        candidateState = state.state,
+        candidateNumber = state.number,
+        candidatePluralType = state.pluralType,
+        candidatePossessor = state.possessor,
+        candidateSubject = null
+      } = {}) => {
+        if (!normalizedStem || typeof targetObject.buildOrdinaryNncGenerateWordRequest !== "function" || typeof targetObject.executeGenerateWordRequest !== "function") {
+          return null;
+        }
+        const subjectSource = candidateSubject || {
+          subjectPrefix: state.subjectPrefix || "",
+          subjectSuffix: state.subjectSuffix || "",
+          personSubKey: state.subjectKey || ""
+        };
+        const cacheKey = JSON.stringify({
+          stem: normalizedStem,
+          state: candidateState,
+          number: candidateNumber,
+          pluralType: candidatePluralType,
+          possessor: candidatePossessor || "",
+          nounClass: requestNounClass,
+          animacy: activeAnimacy,
+          subjectPrefix: subjectSource.subjectPrefix || "",
+          subjectSuffix: subjectSource.subjectSuffix || "",
+          subjectKey: subjectSource.personSubKey || subjectSource.subjectKey || ""
+        });
+        if (candidateProbeCache.has(cacheKey)) {
+          return candidateProbeCache.get(cacheKey);
+        }
+        const request = targetObject.buildOrdinaryNncGenerateWordRequest({
+          stem: normalizedStem,
+          explicit: true,
+          state: candidateState,
+          number: candidateNumber,
+          pluralType: candidatePluralType,
+          possessor: candidatePossessor || "",
+          nounClass: requestNounClass,
+          animacy: activeAnimacy,
+          subjectPrefix: subjectSource.subjectPrefix || "",
+          subjectSuffix: subjectSource.subjectSuffix || "",
+          subjectKey: subjectSource.personSubKey || subjectSource.subjectKey || ""
+        });
+        const result = targetObject.executeGenerateWordRequest(request) || {};
+        candidateProbeCache.set(cacheKey, result);
+        return result;
+      };
+      const getPossessorAvailability = (possessorId = "") => {
+        const normalizedPossessor = String(possessorId || "");
+        if (!normalizedPossessor) {
+          return {
+            disabled: false,
+            availabilityState: "available",
+            markingAvailable: true,
+            diagnosticIds: ""
+          };
+        }
+        const candidate = probeOrdinaryNncCandidate({
+          candidateState: "possessive",
+          candidatePossessor: normalizedPossessor
+        });
+        const possessiveProfile = candidate?.nncBasic?.categoryProfile?.possessiveState || null;
+        const markingAvailable = possessiveProfile?.markingAvailable === true && candidate?.supported === true;
+        return {
+          disabled: !markingAvailable,
+          availabilityState: markingAvailable ? "available" : "unavailable",
+          markingAvailable,
+          diagnosticIds: (candidate?.diagnostics || []).map(entry => entry.id).filter(Boolean).join(",")
+        };
+      };
+      const controlsBlock = targetObject.document.createElement("div");
+      controlsBlock.className = "tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls";
+      const controlsTitle = targetObject.document.createElement("div");
+      controlsTitle.className = "tense-block__title";
+      const controlsLabel = targetObject.document.createElement("span");
+      controlsLabel.className = "tense-block__label";
+      controlsLabel.textContent = targetObject.getToggleLabel("controls", isNawat, "Controles");
+      controlsTitle.appendChild(controlsLabel);
       const controls = targetObject.document.createElement("div");
-      controls.className = "tense-block__controls";
-      const stateToggle = buildToggleControl({
-        options: [{
-          id: "absolutive",
-          label: "Abs",
-          title: "absolutivo"
-        }, {
-          id: "possessive",
-          label: "Pos",
-          title: "posesivo"
-        }],
-        activeId: state.state,
-        ariaLabel: "Estado nominal",
+      controls.className = "tense-block__controls tense-block__controls--stacked";
+      const subjectToggle = buildToggleControl({
+        options: (subjectEntries.length ? subjectEntries : [{
+          personSubKey: "3sg",
+          subjectPrefix: "",
+          subjectSuffix: ""
+        }]).map(entry => ({
+          id: entry.personSubKey || "3sg",
+          label: getOrdinaryNncSubjectMarkerLabel(entry),
+          title: nounSubjectOptionById.get(entry.id)?.title || targetObject.getSubjectPersonLabelByAgreement(entry.subjectPrefix || "", entry.subjectSuffix || "", isNawat),
+          entry
+        })),
+        activeId: isAnimateNnc ? state.subjectKey || "3sg" : "3sg",
+        ariaLabel: "Sujeto de la clausula nominal",
+        visibleLabel: "Sujeto",
         onSelect: id => {
+          const selected = subjectEntries.find(entry => entry.personSubKey === id) || subjectEntries[0];
+          if (!selected) {
+            return;
+          }
           targetObject.setOrdinaryNncGenerationState({
-            state: id,
-            possessor: id === "possessive" ? state.possessor || "nu" : ""
+            subjectKey: selected.personSubKey || "3sg",
+            subjectPrefix: selected.subjectPrefix || "",
+            subjectSuffix: selected.subjectSuffix || "",
+            number: isAnimateNnc ? getSubjectNumber(selected) : state.number
           });
           rerender();
         },
         getTitle: entry => entry.title
       });
-      controls.appendChild(stateToggle.toggle);
-      const numberToggle = buildToggleControl({
-        options: [{
-          id: "singular",
-          label: "Sg",
-          title: "singular"
-        }, {
-          id: "plural",
-          label: "Pl",
-          title: "plural"
-        }],
-        activeId: state.number,
-        ariaLabel: "Numero nominal",
+      controls.appendChild(subjectToggle.toggle);
+      const possessorOptions = [{
+        id: "",
+        label: "Ø",
+        title: "predicado absolutivo: poseedor Ø"
+      }, ...targetObject.POSSESSIVE_PREFIXES.map(entry => entry.value).filter(Boolean).map(value => ({
+        id: value,
+        label: value,
+        title: `predicado posesivo: ${targetObject.getPossessorPersonLabel(value, isNawat) || value}`
+      }))].map(entry => {
+        const availability = getPossessorAvailability(entry.id);
+        const isSelectedUnsupported = Boolean(availability.disabled && state.state === "possessive" && (state.possessor || "nu") === entry.id);
+        return {
+          ...entry,
+          ...availability,
+          title: availability.disabled ? `${entry.title}; no disponible para este estado (${availability.diagnosticIds || "sin diagnostico"})` : entry.title,
+          selectedUnsupported: isSelectedUnsupported
+        };
+      });
+      const possessorToggle = buildToggleControl({
+        options: possessorOptions,
+        activeId: state.state === "possessive" ? state.possessor || "nu" : "",
+        ariaLabel: "Estado/poseedor",
+        visibleLabel: "Estado/poseedor",
         onSelect: id => {
           targetObject.setOrdinaryNncGenerationState({
-            number: id
+            state: id ? "possessive" : "absolutive",
+            possessor: id || ""
           });
           rerender();
         },
-        getTitle: entry => entry.title
+        getTitle: entry => entry.title,
+        getIsDisabled: entry => entry.disabled === true
       });
-      controls.appendChild(numberToggle.toggle);
-      if (state.state === "possessive") {
-        const possessorOptions = targetObject.POSSESSIVE_PREFIXES.map(entry => entry.value).filter(Boolean).map(value => ({
-          id: value,
-          label: value,
-          title: targetObject.getPossessorPersonLabel(value, isNawat)
-        }));
-        const possessorToggle = buildToggleControl({
-          options: possessorOptions,
-          activeId: state.possessor || "nu",
-          ariaLabel: "Poseedor",
+      possessorToggle.toggle.dataset.toggleType = "meta";
+      possessorToggle.toggle.dataset.toggleSlot = "possessor";
+      controls.appendChild(possessorToggle.toggle);
+      if (!isAnimateNnc) {
+        const numberToggle = buildToggleControl({
+          options: [{
+            id: "singular",
+            label: "Comun",
+            title: "referencia singular/comun"
+          }, {
+            id: "plural",
+            label: "Distr",
+            title: "referencia distributiva no animada"
+          }],
+          activeId: state.number,
+          ariaLabel: "Referencia de la clausula nominal",
+          visibleLabel: "Referencia",
           onSelect: id => {
             targetObject.setOrdinaryNncGenerationState({
-              state: "possessive",
-              possessor: id
+              number: id,
+              pluralType: id === "plural" ? "distributive" : "auto",
+              subjectKey: "3sg",
+              subjectPrefix: "",
+              subjectSuffix: ""
             });
             rerender();
           },
           getTitle: entry => entry.title
         });
-        controls.appendChild(possessorToggle.toggle);
+        controls.appendChild(numberToggle.toggle);
       }
-      title.appendChild(controls);
+      if (isAnimateNnc && state.number === "plural") {
+        const pluralTypeToggle = buildToggleControl({
+          options: [{
+            id: "count",
+            label: "-met",
+            title: "plural animado comun"
+          }, {
+            id: "distributive",
+            label: "Distr",
+            title: "plural animado distributivo"
+          }],
+          activeId: activePluralType,
+          ariaLabel: "Referencia plural animada de la clausula nominal",
+          visibleLabel: "Referencia plural",
+          onSelect: id => {
+            targetObject.setOrdinaryNncGenerationState({
+              pluralType: id || "auto"
+            });
+            rerender();
+          },
+          getTitle: entry => entry.title
+        });
+        controls.appendChild(pluralTypeToggle.toggle);
+      }
+      controlsBlock.appendChild(controlsTitle);
+      controlsBlock.appendChild(controls);
+      objSection.insertBefore(controlsBlock, grid);
+      const block = targetObject.document.createElement("div");
+      block.className = "tense-block tense-block--ordinary-nnc";
+      block.dataset.tenseBlock = "ordinary-nnc";
+      const title = targetObject.document.createElement("div");
+      title.className = "tense-block__title";
+      const label = targetObject.document.createElement("span");
+      label.className = "tense-block__label";
+      label.textContent = "Clausula nominal";
+      title.appendChild(label);
       block.appendChild(title);
       const list = targetObject.document.createElement("div");
       list.className = "conjugation-list";
@@ -1895,25 +2066,45 @@ export function createUiRenderingApi(targetObject = globalThis) {
       if (!normalizedStem) {
         const placeholder = targetObject.document.createElement("div");
         placeholder.className = "tense-placeholder";
-        placeholder.textContent = targetObject.getPlaceholderLabel("conjugations", isNawat, "Ingresa un sustantivo para ver las formas.");
+        placeholder.textContent = targetObject.getPlaceholderLabel("conjugations", isNawat, "Ingresa una base nominal para ver la clausula.");
         list.appendChild(placeholder);
         return;
       }
       const request = targetObject.buildOrdinaryNncGenerateWordRequest({
-        stem: normalizedStem
+        stem: normalizedStem,
+        nounClass: requestNounClass
       });
       const result = targetObject.executeGenerateWordRequest(request) || {};
       const row = targetObject.document.createElement("div");
       row.className = "conjugation-row";
       row.dataset.generationRoute = result.generationRoute || "";
+      row.dataset.pluralType = result.pluralType || "";
       const rowLabel = targetObject.document.createElement("div");
       rowLabel.className = "conjugation-label";
       const personLabel = targetObject.document.createElement("div");
       personLabel.className = "person-label";
-      personLabel.textContent = state.state === "possessive" ? "Posesivo" : "Absolutivo";
+      const rowSubject = result.subject || {
+        subjectPrefix: state.subjectPrefix || "",
+        subjectSuffix: state.subjectSuffix || ""
+      };
+      personLabel.textContent = `Sujeto ${result.nncBasic?.subject?.affixLabel || getOrdinaryNncSubjectMarkerLabel(rowSubject)}`;
+      personLabel.title = targetObject.getSubjectPersonLabelByAgreement(rowSubject.subjectPrefix || "", rowSubject.subjectSuffix || "", isNawat);
       const personSub = targetObject.document.createElement("div");
       personSub.className = "person-sub";
-      personSub.textContent = [state.number, state.state === "possessive" ? result.possessor?.prefix || state.possessor || "nu" : ""].filter(Boolean).join(" · ");
+      const rowNounClassLabel = getOrdinaryNncNounClassLabel(result.nounClass || activeNounClass);
+      const rowCategoryProfile = result.nncBasic?.categoryProfile || null;
+      const rowStateSlot = result.nncBasic?.predicate?.stateSlot || result.clauseFrame?.predicate?.stateSlot || result.clauseFrame?.stateSlot || null;
+      const rowPredicateFormula = result.nncBasic?.predicate?.formula || result.predicateFormula || result.clauseFrame?.predicate?.formula || "";
+      const rowFormulaSlots = result.nncBasic?.formulaSlots || result.clauseFrame?.formulaSlots || null;
+      const rowFormulaEcho = typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(rowFormulaSlots) : result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "";
+      const rowConnectorSlot = rowFormulaSlots?.subjectNumberConnector || null;
+      const rowConnectorSlotLabel = rowConnectorSlot ? `Conector ${rowConnectorSlot.slot || "num1-num2"}: ${rowConnectorSlot.connector || rowConnectorSlot.surface || "Ø"}` : "";
+      const rowPredicateStateLabel = rowCategoryProfile?.predicateState?.label || (rowStateSlot?.state === "possessive" ? "posesivo" : "absolutivo");
+      const rowAnimacyLabel = rowCategoryProfile?.animacy?.label || (result.animacy === "animate" ? "animado" : "inanimado");
+      const rowReferenceLabel = rowCategoryProfile?.reference?.label || (state.number === "plural" ? "plural" : "singular");
+      const rowPossessiveState = rowCategoryProfile?.possessiveState || null;
+      const rowPossessiveMarkingLabel = rowPossessiveState?.isPossessive ? `Marcacion posesiva: ${rowPossessiveState.markingAvailable ? "disponible" : "no disponible"}` : "";
+      personSub.textContent = [rowFormulaEcho ? `Formula NNC: ${rowFormulaEcho}` : "", rowPredicateFormula, rowNounClassLabel ? `clase ${rowNounClassLabel}` : "", rowConnectorSlotLabel, `Estado del predicado: ${rowPredicateStateLabel}`, `Animacidad: ${rowAnimacyLabel}`, `Referencia: ${rowReferenceLabel}`, rowPossessiveMarkingLabel, state.state === "possessive" ? `poseedor ${result.possessor?.prefix || state.possessor || "nu"}` : ""].filter(Boolean).join(" · ");
       rowLabel.appendChild(personLabel);
       rowLabel.appendChild(personSub);
       const value = targetObject.document.createElement("div");
@@ -3385,6 +3576,16 @@ export function createUiRenderingApi(targetObject = globalThis) {
         button.type = "button";
         button.className = "object-toggle-button";
         button.textContent = option.label;
+        if (option.availabilityState) {
+          button.dataset.availabilityState = option.availabilityState;
+        }
+        if (option.diagnosticIds) {
+          button.dataset.diagnosticIds = option.diagnosticIds;
+        }
+        if (option.selectedUnsupported) {
+          button.dataset.selectedUnsupported = "true";
+          button.classList.add("is-selected-unsupported");
+        }
         const isActive = option.id === activeId;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
@@ -3392,9 +3593,11 @@ export function createUiRenderingApi(targetObject = globalThis) {
         if (title) {
           button.title = title;
         }
-        const isDisabled = typeof getIsDisabled === "function" ? getIsDisabled(option) : false;
+        const isDisabled = option.disabled === true || (typeof getIsDisabled === "function" ? getIsDisabled(option) : false);
         if (isDisabled) {
           button.disabled = true;
+          button.setAttribute("aria-disabled", "true");
+          button.classList.add("is-unavailable");
         }
         button.addEventListener("click", () => {
           const resolvedActiveId = typeof getActiveId === "function" ? getActiveId() : activeId;
@@ -6740,6 +6943,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.resolveCurrentDerivationalGuidanceEntries = resolveCurrentDerivationalGuidanceEntries;
     api.renderOutputGuidancePanel = renderOutputGuidancePanel;
     api.resolveRenderableVerbValue = resolveRenderableVerbValue;
+    api.renderOrdinaryNncConjugations = renderOrdinaryNncConjugations;
     api.renderActiveConjugations = renderActiveConjugations;
     api.renderNonactiveConjugationRows = renderNonactiveConjugationRows;
     api.buildVerbTenseBlock = buildVerbTenseBlock;

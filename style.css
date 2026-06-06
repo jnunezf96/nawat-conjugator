@@ -2951,7 +2951,7 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
 
 .verb-entry-board-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   margin: 0;
   flex: 1 1 0;
@@ -3006,7 +3006,7 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   .verb-entry-board-tabs {
     flex: 1 1 100%;
     min-width: 0;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .calc-input-mode__button--regex {
@@ -3015,8 +3015,61 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   }
 }
 
-.verb-composer[data-entry-board="general"] .verb-composer__matrix-affix-picker {
+.verb-composer[data-entry-board="general"] .verb-composer__matrix-affix-picker,
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__matrix-affix-picker,
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__serial-type-chips {
   display: none;
+}
+
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__slot-tabs:not(.verb-composer__ordinary-nnc-class-tabs),
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__embed-field,
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__bottom-row {
+  display: none;
+}
+
+.verb-composer__ordinary-nnc-class-tabs {
+  grid-template-columns: auto repeat(4, minmax(32px, auto));
+}
+
+.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__top-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.verb-composer__ordinary-nnc-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(97, 122, 148, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.verb-composer__ordinary-nnc-group {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.verb-composer__ordinary-nnc-label {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.verb-composer__ordinary-nnc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.verb-composer__ordinary-nnc-chip {
+  min-height: 22px;
+  padding: 2px 7px;
+  font-size: 0.65rem;
 }
 
 .verb-composer.is-hidden {
@@ -6926,7 +6979,7 @@ input[type="submit"]:hover {
 
 .verb-entry-board-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(54px, 1fr));
+  grid-template-columns: repeat(3, minmax(44px, 1fr));
   gap: 4px;
   width: 100%;
 }
@@ -6963,7 +7016,7 @@ input[type="submit"]:hover {
   }
 
   .verb-entry-board-tabs {
-    grid-template-columns: repeat(2, minmax(54px, 1fr));
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
   }
 
   .verb-block__utility-actions {
@@ -7132,10 +7185,10 @@ input[type="submit"]:hover {
 }
 
 #container-inputs #composer-slot-stage > .verb-entry-board-tabs {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
   align-self: start;
-  justify-self: end;
+  justify-self: start;
   z-index: 3;
 }
 
@@ -7161,6 +7214,11 @@ input[type="submit"]:hover {
 }
 
 #container-inputs #composer-slot-stage > .verb-composer__bottom-row {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+#container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls {
   grid-column: 1 / -1;
   grid-row: 3;
 }
@@ -7222,9 +7280,13 @@ input[type="submit"]:hover {
   border-radius: 8px;
 }
 
+#container-inputs .verb-composer__ordinary-nnc-class-tabs {
+  grid-template-columns: auto repeat(4, minmax(26px, auto));
+}
+
 #container-inputs #composer-slot-stage > .verb-entry-board-tabs {
   flex: 0 0 auto;
-  grid-template-columns: auto minmax(24px, auto) minmax(38px, auto);
+  grid-template-columns: auto minmax(24px, auto) minmax(24px, auto) minmax(38px, auto);
   gap: 4px;
   width: auto;
   padding: 4px;

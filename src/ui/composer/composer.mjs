@@ -986,6 +986,245 @@ export function createUiComposerApi(targetObject = globalThis) {
         activeDirectionalHost.appendChild(directionalField);
       }
     }
+    function setComposerOrdinaryNncState(patch = {}) {
+      const nextPatch = {
+        ...(patch || {})
+      };
+      if (Object.prototype.hasOwnProperty.call(nextPatch, "nounClass")) {
+        const nounClass = normalizeComposerOrdinaryNncNounClass(nextPatch.nounClass) || "zero";
+        setComposerActiveSlotStem(stripComposerOrdinaryNncConnectorFromStem(getComposerActiveStemValue(), nounClass));
+        nextPatch.nounClass = nounClass;
+      }
+      if (typeof targetObject.setOrdinaryNncGenerationState === "function") {
+        targetObject.setOrdinaryNncGenerationState(nextPatch);
+      }
+      applyComposerStateToVerbInput({
+        triggerGenerate: true,
+        immediateRefresh: true
+      });
+      renderVerbComposerFromState();
+    }
+    function appendComposerOrdinaryNncChipGroup(parent, {
+      label = "",
+      options = [],
+      activeId = "",
+      onSelect = () => {},
+      lockedByFixture = false
+    } = {}) {
+      if (!parent) {
+        return;
+      }
+      const group = targetObject.document.createElement("div");
+      group.className = "verb-composer__ordinary-nnc-group";
+      if (lockedByFixture) {
+        group.dataset.lockedByFixture = "true";
+      }
+      const groupLabel = targetObject.document.createElement("span");
+      groupLabel.className = "verb-composer__ordinary-nnc-label";
+      groupLabel.textContent = label;
+      group.appendChild(groupLabel);
+      const chips = targetObject.document.createElement("div");
+      chips.className = "verb-composer__chips verb-composer__ordinary-nnc-chips";
+      chips.setAttribute("role", "group");
+      chips.setAttribute("aria-label", label);
+      options.forEach(entry => {
+        const id = String(entry.id ?? "");
+        const button = targetObject.document.createElement("button");
+        button.type = "button";
+        button.className = "verb-chip verb-composer__ordinary-nnc-chip";
+        button.dataset.ordinaryNncControl = label;
+        button.dataset.ordinaryNncValue = id;
+        button.textContent = entry.label ?? id;
+        button.title = entry.title || "";
+        if (entry.lockedByFixture) {
+          button.dataset.lockedByFixture = "true";
+          button.classList.add("is-locked-by-fixture");
+        }
+        if (entry.disabled) {
+          button.disabled = true;
+          button.setAttribute("aria-disabled", "true");
+        }
+        const isActive = id === activeId;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        button.addEventListener("click", () => {
+          if (button.disabled) {
+            return;
+          }
+          onSelect(id, entry);
+        });
+        chips.appendChild(button);
+      });
+      group.appendChild(chips);
+      parent.appendChild(group);
+    }
+    function getComposerOrdinaryNncFixtureMetadata() {
+      if (typeof targetObject.resolveOrdinaryNncFixture !== "function") {
+        return null;
+      }
+      const rawFallback = typeof targetObject.document !== "undefined" ? targetObject.document.getElementById("verb")?.value || "" : "";
+      const bundle = buildComposerOrdinaryNncInputBundle(VerbComposerState, rawFallback);
+      const probe = bundle.stem ? targetObject.resolveOrdinaryNncFixture({
+        stem: bundle.stem,
+        states: ["absolutive"],
+        numbers: ["singular"]
+      }) : null;
+      const fixture = probe?.fixture || null;
+      if (!fixture) {
+        return null;
+      }
+      return {
+        stem: bundle.stem,
+        fixture,
+        nounClass: normalizeComposerOrdinaryNncNounClass(fixture.nounClass || "") || "",
+        animacy: fixture.animacy === "animate" ? "animate" : "inanimate"
+      };
+    }
+    function renderComposerOrdinaryNncClassTabs(stagePanel, {
+      active = false,
+      activeClass = "zero",
+      fixtureNounClass = ""
+    } = {}) {
+      if (!stagePanel) {
+        return;
+      }
+      let classTabs = targetObject.document.getElementById("composer-ordinary-nnc-class-tabs");
+      if (!active) {
+        classTabs?.remove();
+        return;
+      }
+      if (!classTabs) {
+        classTabs = targetObject.document.createElement("div");
+        classTabs.id = "composer-ordinary-nnc-class-tabs";
+        classTabs.className = "verb-composer__slot-tabs verb-composer__ordinary-nnc-class-tabs";
+        classTabs.setAttribute("role", "tablist");
+      }
+      const fixedClass = normalizeComposerOrdinaryNncNounClass(fixtureNounClass || "") || "";
+      const displayedClass = fixedClass || activeClass;
+      classTabs.dataset.lockedByFixture = fixedClass ? "true" : "false";
+      classTabs.setAttribute("aria-label", "Conector num1-num2 de la clausula nominal");
+      classTabs.innerHTML = "";
+      const labelEl = targetObject.document.createElement("span");
+      labelEl.className = "verb-composer__slot-tabs-label";
+      labelEl.setAttribute("aria-hidden", "true");
+      labelEl.textContent = "Conector num1-num2";
+      classTabs.appendChild(labelEl);
+      [{
+        id: "t",
+        label: "t",
+        title: "clase t: (stem)t"
+      }, {
+        id: "ti",
+        label: "ti",
+        title: "clase ti: (stem)ti"
+      }, {
+        id: "in",
+        label: "in",
+        title: "clase in: (stem)in"
+      }, {
+        id: "zero",
+        label: "Ø",
+        title: "clase Ø: (stem)"
+      }].forEach(entry => {
+        const button = targetObject.document.createElement("button");
+        button.type = "button";
+        button.className = "verb-composer__slot-transitivity verb-composer__slot-tab";
+        button.dataset.ordinaryNncClass = entry.id;
+        button.setAttribute("role", "tab");
+        button.setAttribute("aria-label", `Clase ${entry.label}`);
+        button.title = entry.title;
+        button.textContent = entry.label;
+        const isLockedByFixture = Boolean(fixedClass && entry.id !== fixedClass);
+        const isActive = entry.id === displayedClass;
+        if (isLockedByFixture) {
+          button.disabled = true;
+          button.dataset.lockedByFixture = "true";
+          button.setAttribute("aria-disabled", "true");
+          button.title = `${entry.title}; bloqueado por ficha: conector ${fixedClass === "zero" ? "Ø" : fixedClass}`;
+          button.classList.add("is-locked-by-fixture");
+        }
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+        button.setAttribute("aria-pressed", String(isActive));
+        button.tabIndex = isActive ? 0 : -1;
+        button.addEventListener("click", () => {
+          if (button.disabled) {
+            return;
+          }
+          setComposerOrdinaryNncState({
+            nounClass: entry.id || "zero"
+          });
+        });
+        classTabs.appendChild(button);
+      });
+      const slotTabs = Array.from(stagePanel.children).find(child => child.classList && child.classList.contains("verb-composer__slot-tabs") && child.id !== classTabs.id) || null;
+      const insertionPoint = slotTabs?.nextSibling || stagePanel.firstElementChild?.nextSibling || null;
+      if (classTabs.parentElement !== stagePanel) {
+        stagePanel.insertBefore(classTabs, insertionPoint);
+      }
+    }
+    function renderComposerOrdinaryNncDigitalControls() {
+      const stagePanel = targetObject.document.getElementById("composer-slot-stage");
+      if (!stagePanel) {
+        return;
+      }
+      const active = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
+      let controls = targetObject.document.getElementById("composer-ordinary-nnc-controls");
+      const state = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
+      const fixtureMetadata = active ? getComposerOrdinaryNncFixtureMetadata() : null;
+      const fixtureClass = fixtureMetadata?.nounClass || "";
+      const fixtureAnimacy = fixtureMetadata?.animacy || "";
+      const activeClass = fixtureClass || normalizeComposerOrdinaryNncNounClass(state.nounClass || "zero") || "zero";
+      renderComposerOrdinaryNncClassTabs(stagePanel, {
+        active,
+        activeClass,
+        fixtureNounClass: fixtureClass
+      });
+      if (!active) {
+        controls?.remove();
+        return;
+      }
+      if (!controls) {
+        controls = targetObject.document.createElement("div");
+        controls.id = "composer-ordinary-nnc-controls";
+        controls.className = "verb-composer__ordinary-nnc-controls";
+        controls.setAttribute("role", "group");
+        controls.setAttribute("aria-label", "Controles digitales de clausula nominal");
+      }
+      const topRow = Array.from(stagePanel.children).find(child => child.classList && child.classList.contains("verb-composer__top-row")) || null;
+      const insertionPoint = topRow?.nextSibling || null;
+      if (controls.parentElement !== stagePanel || controls.previousSibling !== topRow) {
+        stagePanel.insertBefore(controls, insertionPoint);
+      }
+      controls.innerHTML = "";
+      const activeAnimacy = fixtureAnimacy || (state.animacy === "animate" ? "animate" : "inanimate");
+      const animacyIsFixed = Boolean(fixtureAnimacy);
+      appendComposerOrdinaryNncChipGroup(controls, {
+        label: animacyIsFixed ? "Animacidad fija" : "Animacidad",
+        activeId: activeAnimacy,
+        options: [{
+          id: "inanimate",
+          label: "No anim",
+          title: animacyIsFixed && fixtureAnimacy !== "inanimate" ? "bloqueado por ficha: animado" : "solo sujeto Ø; plural distributivo",
+          disabled: animacyIsFixed && fixtureAnimacy !== "inanimate",
+          lockedByFixture: animacyIsFixed && fixtureAnimacy !== "inanimate"
+        }, {
+          id: "animate",
+          label: "Anim",
+          title: animacyIsFixed && fixtureAnimacy !== "animate" ? "bloqueado por ficha: inanimado" : "sujeto personal; plural -met o distributivo",
+          disabled: animacyIsFixed && fixtureAnimacy !== "animate",
+          lockedByFixture: animacyIsFixed && fixtureAnimacy !== "animate"
+        }],
+        onSelect: id => setComposerOrdinaryNncState({
+          animacy: id,
+          subjectKey: id === "animate" ? state.subjectKey : "3sg",
+          subjectPrefix: id === "animate" ? state.subjectPrefix : "",
+          subjectSuffix: id === "animate" ? state.subjectSuffix : "",
+          pluralType: "auto"
+        }),
+        lockedByFixture: animacyIsFixed
+      });
+    }
     function transposeComposerSlotTextboxes(fromTransitivity, toTransitivity) {
       const sourceSlot = getComposerSlotKeyForTransitivity(fromTransitivity);
       const targetSlot = getComposerSlotKeyForTransitivity(toTransitivity);
@@ -3970,6 +4209,9 @@ export function createUiComposerApi(targetObject = globalThis) {
       });
     }
     function getVerbRegexPlaceholder() {
+      if (typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled()) {
+        return "(stem)t";
+      }
       return "_";
     }
     function updateVerbInputPlaceholder() {
@@ -4998,10 +5240,85 @@ export function createUiComposerApi(targetObject = globalThis) {
         outerPieces: targetObject.getMovingTargetOuterPieceDescriptors(semantic)
       });
     }
+    function parseComposerOrdinaryNncAnalogueInput(value = "") {
+      if (typeof targetObject.parseOrdinaryNncGenerationAnalogueInput === "function") {
+        return targetObject.parseOrdinaryNncGenerationAnalogueInput(value);
+      }
+      const raw = String(value || "").trim().toLowerCase();
+      const match = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
+      if (!match) {
+        return null;
+      }
+      const stem = normalizeComposerStem(match[1] || "");
+      if (!stem) {
+        return null;
+      }
+      const nounClass = normalizeComposerOrdinaryNncNounClass(match[2] || "zero") || "zero";
+      return {
+        stem,
+        nounClass,
+        connector: nounClass === "zero" ? "" : nounClass
+      };
+    }
+    function normalizeComposerOrdinaryNncNounClass(value = "") {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (normalized === "0" || normalized === "ø" || normalized === "zero") {
+        return "zero";
+      }
+      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+    }
+    function getComposerOrdinaryNncConnectorSurface(nounClass = "") {
+      const normalized = normalizeComposerOrdinaryNncNounClass(nounClass);
+      return normalized === "zero" ? "" : normalized;
+    }
+    function formatComposerOrdinaryNncAnalogueInput({
+      stem = "",
+      nounClass = ""
+    } = {}) {
+      if (typeof targetObject.formatOrdinaryNncGenerationAnalogueInput === "function") {
+        return targetObject.formatOrdinaryNncGenerationAnalogueInput({
+          stem,
+          nounClass
+        });
+      }
+      const normalizedStem = normalizeComposerStem(stem || "");
+      if (!normalizedStem) {
+        return "";
+      }
+      return `(${normalizedStem})${getComposerOrdinaryNncConnectorSurface(nounClass)}`;
+    }
+    function stripComposerOrdinaryNncConnectorFromStem(stem = "", nounClass = "") {
+      const normalizedStem = normalizeComposerStem(stem || "");
+      const connector = getComposerOrdinaryNncConnectorSurface(nounClass);
+      if (!normalizedStem || !connector || normalizedStem.length <= connector.length) {
+        return normalizedStem;
+      }
+      return normalizedStem.endsWith(connector) ? normalizedStem.slice(0, -connector.length) : normalizedStem;
+    }
+    function buildComposerOrdinaryNncInputBundle(state, rawFallback = "") {
+      const parsedFallback = parseComposerOrdinaryNncAnalogueInput(rawFallback);
+      const uiState = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
+      const rawStem = getComposerActiveStemValue(state) || parsedFallback?.stem || normalizeComposerStem(targetObject.getSearchInputBase(rawFallback || ""));
+      const nounClass = normalizeComposerOrdinaryNncNounClass(parsedFallback?.nounClass || uiState.nounClass || "zero") || "zero";
+      const stem = stripComposerOrdinaryNncConnectorFromStem(rawStem, nounClass);
+      const regexValue = formatComposerOrdinaryNncAnalogueInput({
+        stem,
+        nounClass
+      });
+      return {
+        regexValue,
+        stem,
+        nounClass
+      };
+    }
 
     // Current regex is the only visible verb language.
     // Composer edits structural state, then serializes directly to current regex.
     function buildComposerModeBundle(state, rawFallback = "") {
+      const ordinaryNncActive = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
+      if (ordinaryNncActive) {
+        return buildComposerOrdinaryNncInputBundle(state, rawFallback);
+      }
       const fallback = String(rawFallback || "");
       const semantic = buildComposerSemanticState(state);
       const regexValue = serializeComposerSemanticToRegexInput(semantic) || targetObject.serializeRegexInputValue(fallback) || fallback;
@@ -5277,6 +5594,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       } = getVerbComposerElements();
       const isComposer = isVerbInputModeComposer();
       const activeBoard = getComposerEntryBoard();
+      const ordinaryNncActive = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
       const verbInput = targetObject.document.getElementById("verb");
       const verbMirror = getVerbMirror();
       const verbMirrorContent = getVerbMirrorContent();
@@ -5300,7 +5618,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         panel.classList.toggle("is-hidden", !isComposer);
         panel.setAttribute("aria-hidden", String(!isComposer));
         panel.inert = !isComposer;
-        panel.dataset.entryBoard = activeBoard;
+        panel.dataset.entryBoard = ordinaryNncActive ? "ordinary-nnc" : activeBoard;
       }
       if (entryBoardTabsHost) {
         entryBoardTabsHost.hidden = false;
@@ -5323,7 +5641,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       }
       Array.from(entryBoardButtons || []).forEach(button => {
         const board = normalizeComposerEntryBoard(button.getAttribute("data-composer-entry-board") || "");
-        const isActive = isComposer && board === activeBoard;
+        const isActive = isComposer && !ordinaryNncActive && board === activeBoard;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         button.tabIndex = 0;
@@ -5338,8 +5656,12 @@ export function createUiComposerApi(targetObject = globalThis) {
           const rawStem = normalizeComposerStem(VerbComposerState[stateKeys.stem] || "");
           const matrixInputRow = slotRefs.stemInput.closest(".verb-composer__matrix-input-row");
           const matrixInputTag = matrixInputRow ? matrixInputRow.querySelector(".verb-composer__tagged-input-tag") : null;
+          const matrixLabel = slotRefs.matrixField ? slotRefs.matrixField.querySelector(".verb-composer__matrix-head > .verb-composer__sub-label") : null;
+          if (matrixLabel) {
+            matrixLabel.textContent = ordinaryNncActive ? "Tronco predicado" : "Raíz matriz";
+          }
           if (matrixInputTag) {
-            matrixInputTag.textContent = activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb ? "Sustantivo" : "Verbo";
+            matrixInputTag.textContent = ordinaryNncActive ? "NNC" : activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb ? "Sustantivo" : "Verbo";
           }
           slotRefs.stemInput.placeholder = "";
           slotRefs.stemInput.value = formatComposerStemForInputDisplay(rawStem, {
@@ -5380,6 +5702,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       syncComposerMatrixStemAffixSelects();
       syncComposerMatrixSerialUi();
       syncComposerSerialTypeChips();
+      renderComposerOrdinaryNncDigitalControls();
       syncComposerSupportiveITogglePlacement();
       updateVerbComposerHint();
       syncVerbScreenCalculatorState();
@@ -5387,6 +5710,38 @@ export function createUiComposerApi(targetObject = globalThis) {
     }
     function syncComposerStateFromVerbInput(rawValue = "") {
       const baseValue = String(targetObject.getSearchInputBase(rawValue || "") || "").toLowerCase().trim();
+      const ordinaryNncActive = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
+      if (ordinaryNncActive) {
+        const parsedNnc = parseComposerOrdinaryNncAnalogueInput(rawValue);
+        const uiState = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
+        const nounClass = normalizeComposerOrdinaryNncNounClass(parsedNnc?.nounClass || uiState.nounClass || "zero") || "zero";
+        const stem = stripComposerOrdinaryNncConnectorFromStem(parsedNnc?.stem || normalizeComposerStem(baseValue.replace(/[()]/g, "")), nounClass);
+        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
+        VerbComposerState.valenceIntransitive = "";
+        VerbComposerState.valenceIntransitiveEmbed = "";
+        VerbComposerState.valence = "";
+        VerbComposerState.valenceEmbedPrimary = "";
+        VerbComposerState.valenceSecondary = "";
+        VerbComposerState.valenceEmbedSecondary = "";
+        VerbComposerState.slotAEmbed = "";
+        VerbComposerState.slotAStem = stem;
+        VerbComposerState.slotBEmbed = "";
+        VerbComposerState.slotBStem = "";
+        VerbComposerState.slotCEmbed = "";
+        VerbComposerState.slotCStem = "";
+        VerbComposerState.directionalPrefix = "";
+        VerbComposerState.embedPrefix = "";
+        VerbComposerState.supportiveMarker = "";
+        VerbComposerState.syllableMode = getComposerStemSyllableCount(stem) === 1 ? COMPOSER_SYLLABLE_MODE.monosyllable : COMPOSER_SYLLABLE_MODE.multisyllable;
+        VerbComposerState.sourceBase = stem;
+        VerbComposerState.stemManualOverride = true;
+        if (typeof targetObject.setOrdinaryNncGenerationState === "function") {
+          targetObject.setOrdinaryNncGenerationState({
+            nounClass
+          });
+        }
+        return;
+      }
       const next = parseComposerStateFromRegexValue(rawValue);
       const nextTiCausativeClass = targetObject.normalizeTiCausativeClass(targetObject.getRawInputTiCausativeMetadata(rawValue).tiCausativeClass || "");
       VerbComposerState.transitivity = next.transitivity;
@@ -5510,12 +5865,12 @@ export function createUiComposerApi(targetObject = globalThis) {
         routeStore.activeLocativeMatrixRoot = normalizedMatrixRoot;
         routeStore.activeLocativePrelocativeVerb = prelocativeVerbInput;
       }
-      if (targetObject.window) {
+      if (typeof targetObject.window !== "undefined" && targetObject.window) {
         targetObject.window.__NAWAT_ACTIVE_LINE_ID__ = "locative";
       }
-      if (typeof targetObject.setActiveTenseMode === "function" && targetObject.TENSE_MODE?.verbo) {
-        targetObject.setActiveTenseMode(targetObject.TENSE_MODE.verbo, {
-          modeSystem: targetObject.TENSE_MODE_SYSTEM ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
           clearRoute: false
         });
       }
@@ -7026,7 +7381,13 @@ export function createUiComposerApi(targetObject = globalThis) {
               syncFromInput: true
             });
           }
-          setComposerEntryBoard(board);
+          const ordinaryNncWasActive = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
+          if (ordinaryNncWasActive && typeof targetObject.setOrdinaryNncGenerationModeEnabled === "function") {
+            targetObject.setOrdinaryNncGenerationModeEnabled(false);
+          }
+          setComposerEntryBoard(board, {
+            force: ordinaryNncWasActive
+          });
           getComposerPreferredEntryInput()?.focus();
           syncVerbScreenCalculatorState();
         });
@@ -7558,7 +7919,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         return `${raw.length}:${raw}`;
       };
       const encodeFlag = value => value === true ? "1" : "0";
-      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
+      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
       return keyParts.join("|");
     }
     function getCachedSilentGenerateWord(options = {}) {
@@ -8449,6 +8810,11 @@ export function createUiComposerApi(targetObject = globalThis) {
     api.syncComposerEntryBoardTabsPlacement = syncComposerEntryBoardTabsPlacement;
     api.syncComposerUtilityActionsPlacement = syncComposerUtilityActionsPlacement;
     api.syncComposerSlotPanelVisibility = syncComposerSlotPanelVisibility;
+    api.setComposerOrdinaryNncState = setComposerOrdinaryNncState;
+    api.appendComposerOrdinaryNncChipGroup = appendComposerOrdinaryNncChipGroup;
+    api.getComposerOrdinaryNncFixtureMetadata = getComposerOrdinaryNncFixtureMetadata;
+    api.renderComposerOrdinaryNncClassTabs = renderComposerOrdinaryNncClassTabs;
+    api.renderComposerOrdinaryNncDigitalControls = renderComposerOrdinaryNncDigitalControls;
     api.transposeComposerSlotTextboxes = transposeComposerSlotTextboxes;
     api.carryComposerEmbedVisibilityAcrossTransitivity = carryComposerEmbedVisibilityAcrossTransitivity;
     api.syncComposerChipGroupsFromState = syncComposerChipGroupsFromState;
@@ -8646,6 +9012,12 @@ export function createUiComposerApi(targetObject = globalThis) {
     api.getComposerSlotEmbedForRegex = getComposerSlotEmbedForRegex;
     api.buildComposerSemanticState = buildComposerSemanticState;
     api.serializeComposerSemanticToRegexInput = serializeComposerSemanticToRegexInput;
+    api.parseComposerOrdinaryNncAnalogueInput = parseComposerOrdinaryNncAnalogueInput;
+    api.normalizeComposerOrdinaryNncNounClass = normalizeComposerOrdinaryNncNounClass;
+    api.getComposerOrdinaryNncConnectorSurface = getComposerOrdinaryNncConnectorSurface;
+    api.formatComposerOrdinaryNncAnalogueInput = formatComposerOrdinaryNncAnalogueInput;
+    api.stripComposerOrdinaryNncConnectorFromStem = stripComposerOrdinaryNncConnectorFromStem;
+    api.buildComposerOrdinaryNncInputBundle = buildComposerOrdinaryNncInputBundle;
     api.buildComposerModeBundle = buildComposerModeBundle;
     api.resolveVerbInputSource = resolveVerbInputSource;
     api.resolveComposerDirectionalPrefixFromBase = resolveComposerDirectionalPrefixFromBase;
