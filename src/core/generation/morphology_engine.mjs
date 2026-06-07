@@ -1515,6 +1515,13 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       if (isAgentivoTense) {
         const baseSuffix = subjectSuffix;
         subjectSuffix = targetObject.applyAgentivoNumberSuffix(baseSuffix, agentivoNumberSlot);
+        if (subjectSuffix.startsWith("ni")) {
+          verb = `${verb}ni`;
+          subjectSuffix = subjectSuffix.slice(2);
+          if (isNounContextFinal) {
+            nounContextPrimaryFormSpec = targetObject.buildLiteralNominalFormSpec(verb, subjectSuffix);
+          }
+        }
         if (alternateForms.length) {
           alternateForms.forEach(form => {
             if (!form) {
@@ -1522,6 +1529,10 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
             }
             const formSuffix = typeof form.subjectSuffix === "string" ? form.subjectSuffix : baseSuffix;
             form.subjectSuffix = targetObject.applyAgentivoNumberSuffix(formSuffix, agentivoNumberSlot);
+            if (form.subjectSuffix.startsWith("ni")) {
+              form.verb = `${form.verb || verb.slice(0, -2)}ni`;
+              form.subjectSuffix = form.subjectSuffix.slice(2);
+            }
             if (isNounContextFinal) {
               form.formSpec = targetObject.withNominalFormSpecSuffix(form.formSpec || null, form.subjectSuffix, form);
             }

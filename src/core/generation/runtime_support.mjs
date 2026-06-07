@@ -247,15 +247,17 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
       const localSubjectPrefix = applied.subjectPrefix;
       const localObjectPrefix = applied.objectPrefix;
       let localSubjectSuffix = applied.subjectSuffix;
-      if (baseMorphologyInput.customaryPresentPatientivePlural === true && localSubjectSuffix === "t") {
-        localSubjectSuffix = "met";
+      let localVerb = applied.verb;
+      if (baseMorphologyInput.customaryPresentPatientiveNnc === true) {
+        const moveCustomaryPresentNi = localSubjectSuffix === "ni" || localSubjectSuffix === "nit";
+        if (moveCustomaryPresentNi) {
+          localVerb = `${localVerb || ""}ni`;
+          localSubjectSuffix = baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "";
+        }
       }
-      let localFormSpec = applied.formSpec || (isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(applied.verb, localSubjectSuffix) : null);
-      if (isNominalOutputProfile && baseMorphologyInput.customaryPresentPatientivePlural === true) {
-        localFormSpec = targetObject.withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
-          verb: applied.verb,
-          subjectSuffix: localSubjectSuffix
-        });
+      let localFormSpec = applied.formSpec || (isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(localVerb, localSubjectSuffix) : null);
+      if (isNominalOutputProfile && baseMorphologyInput.customaryPresentPatientiveNnc === true) {
+        localFormSpec = targetObject.buildLiteralNominalFormSpec(localVerb, localSubjectSuffix);
       }
       if (tense === "patientivo" && Boolean(possessivePrefix)) {
         localSubjectSuffix = targetObject.adjustPatientivoPossessiveSuffix(localSubjectSuffix, true, patientivoOwnership, {
@@ -277,19 +279,19 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
           subjectSuffix: localSubjectSuffix
         }) : form;
         const rawAltSuffix = form.subjectSuffix ?? localSubjectSuffix;
-        const customaryPluralAltSuffix = baseMorphologyInput.customaryPresentPatientivePlural === true && rawAltSuffix === "t" ? "met" : rawAltSuffix;
+        const moveAltCustomaryPresentNi = baseMorphologyInput.customaryPresentPatientiveNnc === true && (rawAltSuffix === "ni" || rawAltSuffix === "nit");
+        const altVerb = moveAltCustomaryPresentNi ? `${normalizedForm.verb || ""}ni` : normalizedForm.verb;
+        const customaryPluralAltSuffix = moveAltCustomaryPresentNi ? baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "" : rawAltSuffix;
         const altSuffix = tense === "patientivo" && Boolean(possessivePrefix) ? targetObject.adjustPatientivoPossessiveSuffix(customaryPluralAltSuffix, true, patientivoOwnership, {
           stem: normalizedForm.verb
         }) : customaryPluralAltSuffix;
         if (altSuffix === null) {
           return null;
         }
-        const altFormSpec = isNominalOutputProfile ? targetObject.withNominalFormSpecSuffix(normalizedForm.formSpec || null, altSuffix, {
-          verb: normalizedForm.verb,
-          subjectSuffix: altSuffix
-        }) : normalizedForm.formSpec;
+        const altFormSpec = isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(altVerb, altSuffix) : normalizedForm.formSpec;
         return {
           ...normalizedForm,
+          verb: altVerb,
           subjectSuffix: altSuffix,
           formSpec: altFormSpec,
           trailingSuffix: normalizedForm.trailingSuffix || ""
@@ -299,7 +301,7 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
         subjectPrefix: localSubjectPrefix,
         objectPrefix: localObjectPrefix,
         subjectSuffix: localSubjectSuffix,
-        verb: applied.verb,
+        verb: localVerb,
         formSpec: localFormSpec,
         trailingSuffix: applied.trailingSuffix || "",
         alternateForms: localAlternates,

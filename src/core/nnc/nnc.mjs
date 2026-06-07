@@ -1605,6 +1605,7 @@ export function createNncGlobals(targetObject = globalThis) {
       if (mode === targetObject.INSTRUMENTIVO_MODE.absolutivo) {
         const entries = [];
         forwardStemContexts.forEach(stemContext => {
+          const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu" ? "ne" : stemContext.morphologyObjectPrefix;
           const nonactiveSourceChain = targetObject.buildNonactiveSourceChain(verbMeta, stemContext.verb, stemContext.analysisVerb);
           const baseVerb = targetObject.normalizeDerivationStemValue(nonactiveSourceChain?.baseVerb || "");
           const nonactiveRuleBase = targetObject.getNounNonactiveRuleBase(baseVerb, verbMeta);
@@ -1627,7 +1628,7 @@ export function createNncGlobals(targetObject = globalThis) {
             const analysisStem = directionalPrefix && stem.startsWith(directionalPrefix) ? stem.slice(directionalPrefix.length) : targetObject.realizeMorphStemSpec(rawOptionStemSpec, option?.stem || "");
             const applied = targetObject.applyMorphologyRules({
               subjectPrefix,
-              objectPrefix: stemContext.morphologyObjectPrefix,
+              objectPrefix: morphologyObjectPrefix,
               subjectSuffix: commonNumberSuffix,
               verb: stem,
               tense: "presente-habitual",
@@ -1647,7 +1648,7 @@ export function createNncGlobals(targetObject = globalThis) {
             }
             const nominalSurface = targetObject.resolveNominalSourceOuterSurfacePlacement({
               sourceModel: nounSourceModel,
-              runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+              runtimeObjectPrefix: morphologyObjectPrefix,
               objectPrefix: applied.objectPrefix,
               verb: applied.verb,
               surfaceRuleMeta: applied.surfaceRuleMeta || null
@@ -1671,19 +1672,24 @@ export function createNncGlobals(targetObject = globalThis) {
               optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
               surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null
             }) || targetObject.buildLiteralMorphStemSpec(core);
+            const sourceTenseSuffix = String(applied.subjectSuffix || "");
+            const predicateStem = ["ni", "ya"].includes(sourceTenseSuffix) ? `${core}${sourceTenseSuffix}` : core;
+            const predicateStemSpec = ["ni", "ya"].includes(sourceTenseSuffix) ? targetObject.buildAppendMorphStemSpec(core, sourceTenseSuffix, {
+              sourceStemSpec: coreStemSpec
+            }) : coreStemSpec;
             entries.push(targetObject.buildVerbDerivedNominalEntry({
               kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
               sourceModel: nounSourceModel,
-              verb: core,
-              subjectSuffix: applied.subjectSuffix,
-              stemSpec: coreStemSpec,
+              verb: predicateStem,
+              subjectSuffix: "",
+              stemSpec: predicateStemSpec,
               sourceTense: "presente-habitual",
               provenance: {
                 nonactiveSuffix: option?.suffix || "",
                 forward: stemContext.derivationProvenance || null
               },
               metadata: {
-                runtimeObjectPrefix: stemContext.morphologyObjectPrefix
+                runtimeObjectPrefix: morphologyObjectPrefix
               }
             }));
           });
@@ -1701,9 +1707,10 @@ export function createNncGlobals(targetObject = globalThis) {
       const resolvedPossessivePrefix = typeof possessivePrefix === "string" ? possessivePrefix : "";
       const entries = [];
       forwardStemContexts.forEach(stemContext => {
+        const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu" ? "ne" : stemContext.morphologyObjectPrefix;
         const applied = targetObject.applyMorphologyRules({
           subjectPrefix,
-          objectPrefix: stemContext.morphologyObjectPrefix,
+          objectPrefix: morphologyObjectPrefix,
           subjectSuffix: commonNumberSuffix,
           verb: stemContext.verb,
           tense: "imperfecto",
@@ -1723,20 +1730,25 @@ export function createNncGlobals(targetObject = globalThis) {
         }
         const nominalSurface = targetObject.resolveNominalSourceOuterSurfacePlacement({
           sourceModel: nounSourceModel,
-          runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+          runtimeObjectPrefix: morphologyObjectPrefix,
           objectPrefix: applied.objectPrefix,
           verb: applied.verb,
           surfaceRuleMeta: applied.surfaceRuleMeta || null
         });
         const placedStemSpec = targetObject.resolvePlacedNominalStemSpec(nominalSurface, applied.verb, stemContext.stemSpec);
+        const sourceTenseSuffix = String(applied.subjectSuffix || "");
+        const predicateStem = ["ni", "ya"].includes(sourceTenseSuffix) ? `${nominalSurface.verb}${sourceTenseSuffix}` : nominalSurface.verb;
+        const predicateStemSpec = ["ni", "ya"].includes(sourceTenseSuffix) ? targetObject.buildAppendMorphStemSpec(nominalSurface.verb, sourceTenseSuffix, {
+          sourceStemSpec: placedStemSpec
+        }) : placedStemSpec;
         entries.push(targetObject.buildVerbDerivedNominalEntry({
           kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
           sourceModel: nounSourceModel,
-          verb: nominalSurface.verb,
-          subjectSuffix: applied.subjectSuffix,
-          stemSpec: placedStemSpec,
+          verb: predicateStem,
+          subjectSuffix: "",
+          stemSpec: predicateStemSpec,
           surfaceObjectPrefix: nominalSurface.objectPrefix,
-          runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+          runtimeObjectPrefix: morphologyObjectPrefix,
           surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
           sourceTense: "imperfecto",
           provenance: {

@@ -1740,6 +1740,13 @@ function applyMorphologyRules({
     if (isAgentivoTense) {
         const baseSuffix = subjectSuffix;
         subjectSuffix = applyAgentivoNumberSuffix(baseSuffix, agentivoNumberSlot);
+        if (subjectSuffix.startsWith("ni")) {
+            verb = `${verb}ni`;
+            subjectSuffix = subjectSuffix.slice(2);
+            if (isNounContextFinal) {
+                nounContextPrimaryFormSpec = buildLiteralNominalFormSpec(verb, subjectSuffix);
+            }
+        }
         if (alternateForms.length) {
             alternateForms.forEach((form) => {
                 if (!form) {
@@ -1749,6 +1756,10 @@ function applyMorphologyRules({
                     ? form.subjectSuffix
                     : baseSuffix;
                 form.subjectSuffix = applyAgentivoNumberSuffix(formSuffix, agentivoNumberSlot);
+                if (form.subjectSuffix.startsWith("ni")) {
+                    form.verb = `${form.verb || verb.slice(0, -2)}ni`;
+                    form.subjectSuffix = form.subjectSuffix.slice(2);
+                }
                 if (isNounContextFinal) {
                     form.formSpec = withNominalFormSpecSuffix(form.formSpec || null, form.subjectSuffix, form);
                 }

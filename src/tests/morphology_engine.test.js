@@ -139,8 +139,8 @@ function run(ctx) {
         isWeya: false,
         directionalPrefix: "",
     });
-    s.eq("applyMorphologyRules agentivo plural applies niwan suffix", agentivo.subjectSuffix, "niwan");
-    s.eq("applyMorphologyRules agentivo keeps nemi stem", agentivo.verb, "nemi");
+    s.eq("applyMorphologyRules agentivo keeps customary ni inside predicate stem", agentivo.verb, "nemini");
+    s.eq("applyMorphologyRules agentivo plural uses NNC connector without reusing ni", agentivo.subjectSuffix, "wan");
     s.ok("applyMorphologyRules agentivo returns nominal formSpec", agentivo.formSpec && typeof agentivo.formSpec === "object");
     const generatedAgentivo = ctx.generateWord({
         silent: true,
@@ -154,12 +154,19 @@ function run(ctx) {
         },
     });
     s.eq("generateWord agentivo surface remains unchanged", generatedAgentivo.surfaceForms, ["nemini"]);
-    s.eq("generateWord agentivo exposes agentive nominalization profile", summarizeNominalizationProfile(generatedAgentivo.nominalizationProfile), {
+    s.eq("generateWord agentivo formula uses generated predicate stem and vacant connector", {
+        connector: generatedAgentivo.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedAgentivo.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        connector: "Ø",
+        formulaEcho: "#Ø...Ø(nemini)Ø#",
+    });
+    s.eq("generateWord agentivo exposes customary-present agentive nominalization profile", summarizeNominalizationProfile(generatedAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
         outputKind: "verb-derived-nominal",
         nominalKind: "agentivo",
         sourceTense: "presente-habitual",
-        nominalizationKind: "agentive",
+        nominalizationKind: "customary-present-agentive",
         semanticRole: "agent",
         patientiveFamily: "",
         adjectivalFunction: "",
@@ -752,7 +759,66 @@ function run(ctx) {
         {
             forms: ["tinemachunimet", "tinematunimet", "tinematilunimet"],
             connector: "met",
-            formulaEcho: "#ti...Ø(-(mati))met#",
+            formulaEcho: "#ti...Ø(nematiluni)met#",
+        }
+    );
+    const absolutiveInstrumentiveReflexive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "instrumentivo",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews 36.6 absolutive instrumentive maps source reflexive mu to shuntline ne",
+        {
+            forms: absolutiveInstrumentiveReflexive.surfaceForms,
+            sourceTense: absolutiveInstrumentiveReflexive.nominalizationProfile?.source?.sourceTense || "",
+            connector: absolutiveInstrumentiveReflexive.subjectNumberConnector?.displaySurface || "",
+            formulaEcho: absolutiveInstrumentiveReflexive.nuclearClauseShell?.formulaEcho || "",
+        },
+        {
+            forms: ["nemachuni", "nematuni", "nematiluni"],
+            sourceTense: "presente-habitual",
+            connector: "Ø",
+            formulaEcho: "#Ø...Ø(nemachuni)Ø#",
+        }
+    );
+    const possessedInstrumentiveReflexive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "instrumentivo",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq(
+        "Andrews 36.6 possessive instrumentive maps source reflexive mu to shuntline ne",
+        {
+            forms: possessedInstrumentiveReflexive.surfaceForms,
+            sourceTense: possessedInstrumentiveReflexive.nominalizationProfile?.source?.sourceTense || "",
+            predicateState: possessedInstrumentiveReflexive.nominalizationProfile?.predicateState?.value || "",
+            possessorPrefix: possessedInstrumentiveReflexive.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            connector: possessedInstrumentiveReflexive.subjectNumberConnector?.displaySurface || "",
+            formulaEcho: possessedInstrumentiveReflexive.nuclearClauseShell?.formulaEcho || "",
+        },
+        {
+            forms: ["nunematiya"],
+            sourceTense: "imperfecto",
+            predicateState: "possessive",
+            possessorPrefix: "nu",
+            connector: "Ø",
+            formulaEcho: "#Ø...Ø(nematiya)Ø#",
         }
     );
 

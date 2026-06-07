@@ -178,6 +178,17 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const isNominalShell = Boolean(nominalClauseMetadata?.nominalClauseFrame) || resolvedTenseMode === targetObject.TENSE_MODE.sustantivo || resolvedTenseMode === targetObject.TENSE_MODE.adjetivo || resolvedTenseMode === targetObject.TENSE_MODE.adverbio;
       if (isNominalShell) {
         const numberConnector = nominalClauseMetadata?.subjectNumberConnector || nominalClauseMetadata?.nominalClauseFrame?.subject?.numberConnector || null;
+        const nominalPredicateStem = (() => {
+          const stem = String(verb || renderVerb || "");
+          const insideObjectPrefix = String(objectPrefix || "");
+          if (!insideObjectPrefix || stem.startsWith(insideObjectPrefix)) {
+            return stem;
+          }
+          return typeof targetObject.buildOutputPrefixedChain === "function" ? targetObject.buildOutputPrefixedChain({
+            objectPrefix: insideObjectPrefix,
+            verb: stem
+          }) : `${insideObjectPrefix}${stem}`;
+        })();
         return targetObject.buildNuclearClauseShellMetadata({
           clauseKind: "nominal-nuclear-clause",
           formulaSlots: {
@@ -188,7 +199,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
             },
             predicate: {
               slot: "STEM",
-              stem: renderVerb || verb,
+              stem: nominalPredicateStem,
               state: nominalClauseMetadata?.nominalClauseFrame?.predicate?.state || "derived-nominal",
               stateSlot: nominalClauseMetadata?.nominalClauseFrame?.predicate?.stateSlot || null
             },
@@ -1875,6 +1886,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         possessivePrefix,
         actionNounStemUse,
         combinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active,
+        customaryPresentPatientiveNnc: isPotencialHabitualNominalProfile,
         customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputSubjectSuffix === "t",
         instrumentivoMode: possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo,
         derivationType: resolvedDerivationType,
@@ -1887,23 +1899,29 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           error: true
         };
       }
-      if (isPotencialHabitualNominalProfile && inputSubjectSuffix === "t") {
-        const customaryPresentPluralSuffix = "met";
+      if (isPotencialHabitualNominalProfile) {
+        const customaryPresentSubjectSuffix = String(appliedMorphology.subjectSuffix || "");
+        const customaryPresentPluralSuffix = inputSubjectSuffix === "t" ? "met" : "";
+        const shouldMoveCustomaryPresentNi = customaryPresentSubjectSuffix === "ni" || customaryPresentSubjectSuffix === "nit";
+        const customaryPresentVerb = shouldMoveCustomaryPresentNi ? `${appliedMorphology.verb || ""}ni` : appliedMorphology.verb;
+        const customaryPresentConnector = shouldMoveCustomaryPresentNi ? customaryPresentPluralSuffix : customaryPresentSubjectSuffix;
         appliedMorphology = {
           ...appliedMorphology,
-          subjectSuffix: customaryPresentPluralSuffix,
-          formSpec: isNominalOutputProfile ? targetObject.withNominalFormSpecSuffix(appliedMorphology.formSpec || null, customaryPresentPluralSuffix, {
-            verb: appliedMorphology.verb,
-            subjectSuffix: customaryPresentPluralSuffix
-          }) : appliedMorphology.formSpec,
-          alternateForms: (appliedMorphology.alternateForms || []).map(form => ({
-            ...form,
-            subjectSuffix: customaryPresentPluralSuffix,
-            formSpec: isNominalOutputProfile ? targetObject.withNominalFormSpecSuffix(form.formSpec || null, customaryPresentPluralSuffix, {
-              verb: form.verb,
-              subjectSuffix: customaryPresentPluralSuffix
-            }) : form.formSpec
-          }))
+          verb: customaryPresentVerb,
+          subjectSuffix: customaryPresentConnector,
+          formSpec: isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(customaryPresentVerb, customaryPresentConnector) : appliedMorphology.formSpec,
+          alternateForms: (appliedMorphology.alternateForms || []).map(form => {
+            const formSubjectSuffix = String(form.subjectSuffix || "");
+            const moveFormNi = formSubjectSuffix === "ni" || formSubjectSuffix === "nit";
+            const formVerb = moveFormNi ? `${form.verb || ""}ni` : form.verb;
+            const formConnector = moveFormNi ? customaryPresentPluralSuffix : formSubjectSuffix;
+            return {
+              ...form,
+              verb: formVerb,
+              subjectSuffix: formConnector,
+              formSpec: isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(formVerb, formConnector) : form.formSpec
+            };
+          })
         };
       }
       ({

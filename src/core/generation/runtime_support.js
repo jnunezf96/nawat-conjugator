@@ -261,22 +261,24 @@ function resolveStemCandidateMorphologyResult({
     const localSubjectPrefix = applied.subjectPrefix;
     const localObjectPrefix = applied.objectPrefix;
     let localSubjectSuffix = applied.subjectSuffix;
-    if (
-        baseMorphologyInput.customaryPresentPatientivePlural === true
-        && localSubjectSuffix === "t"
-    ) {
-        localSubjectSuffix = "met";
+    let localVerb = applied.verb;
+    if (baseMorphologyInput.customaryPresentPatientiveNnc === true) {
+        const moveCustomaryPresentNi = localSubjectSuffix === "ni"
+            || localSubjectSuffix === "nit";
+        if (moveCustomaryPresentNi) {
+            localVerb = `${localVerb || ""}ni`;
+            localSubjectSuffix = baseMorphologyInput.customaryPresentPatientivePlural === true
+                ? "met"
+                : "";
+        }
     }
     let localFormSpec = applied.formSpec
-        || (isNominalOutputProfile ? buildLiteralNominalFormSpec(applied.verb, localSubjectSuffix) : null);
+        || (isNominalOutputProfile ? buildLiteralNominalFormSpec(localVerb, localSubjectSuffix) : null);
     if (
         isNominalOutputProfile
-        && baseMorphologyInput.customaryPresentPatientivePlural === true
+        && baseMorphologyInput.customaryPresentPatientiveNnc === true
     ) {
-        localFormSpec = withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
-            verb: applied.verb,
-            subjectSuffix: localSubjectSuffix,
-        });
+        localFormSpec = buildLiteralNominalFormSpec(localVerb, localSubjectSuffix);
     }
     if (tense === "patientivo" && Boolean(possessivePrefix)) {
         localSubjectSuffix = adjustPatientivoPossessiveSuffix(
@@ -301,10 +303,14 @@ function resolveStemCandidateMorphologyResult({
             ? normalizeNominalFormEntry(form, { subjectSuffix: localSubjectSuffix })
             : form;
         const rawAltSuffix = (form.subjectSuffix ?? localSubjectSuffix);
-        const customaryPluralAltSuffix = (
-            baseMorphologyInput.customaryPresentPatientivePlural === true
-            && rawAltSuffix === "t"
-        ) ? "met" : rawAltSuffix;
+        const moveAltCustomaryPresentNi = baseMorphologyInput.customaryPresentPatientiveNnc === true
+            && (rawAltSuffix === "ni" || rawAltSuffix === "nit");
+        const altVerb = moveAltCustomaryPresentNi
+            ? `${normalizedForm.verb || ""}ni`
+            : normalizedForm.verb;
+        const customaryPluralAltSuffix = moveAltCustomaryPresentNi
+            ? (baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "")
+            : rawAltSuffix;
         const altSuffix = (tense === "patientivo" && Boolean(possessivePrefix))
             ? adjustPatientivoPossessiveSuffix(
                 customaryPluralAltSuffix,
@@ -317,13 +323,11 @@ function resolveStemCandidateMorphologyResult({
             return null;
         }
         const altFormSpec = isNominalOutputProfile
-            ? withNominalFormSpecSuffix(normalizedForm.formSpec || null, altSuffix, {
-                verb: normalizedForm.verb,
-                subjectSuffix: altSuffix,
-            })
+            ? buildLiteralNominalFormSpec(altVerb, altSuffix)
             : normalizedForm.formSpec;
         return {
             ...normalizedForm,
+            verb: altVerb,
             subjectSuffix: altSuffix,
             formSpec: altFormSpec,
             trailingSuffix: normalizedForm.trailingSuffix || "",
@@ -333,7 +337,7 @@ function resolveStemCandidateMorphologyResult({
         subjectPrefix: localSubjectPrefix,
         objectPrefix: localObjectPrefix,
         subjectSuffix: localSubjectSuffix,
-        verb: applied.verb,
+        verb: localVerb,
         formSpec: localFormSpec,
         trailingSuffix: applied.trailingSuffix || "",
         alternateForms: localAlternates,

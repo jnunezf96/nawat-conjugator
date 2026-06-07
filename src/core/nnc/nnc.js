@@ -1824,6 +1824,9 @@ function getInstrumentivoResult({
     if (mode === INSTRUMENTIVO_MODE.absolutivo) {
         const entries = [];
         forwardStemContexts.forEach((stemContext) => {
+            const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu"
+                ? "ne"
+                : stemContext.morphologyObjectPrefix;
             const nonactiveSourceChain = buildNonactiveSourceChain(
                 verbMeta,
                 stemContext.verb,
@@ -1857,7 +1860,7 @@ function getInstrumentivoResult({
                     : realizeMorphStemSpec(rawOptionStemSpec, option?.stem || "");
                 const applied = applyMorphologyRules({
                     subjectPrefix,
-                    objectPrefix: stemContext.morphologyObjectPrefix,
+                    objectPrefix: morphologyObjectPrefix,
                     subjectSuffix: commonNumberSuffix,
                     verb: stem,
                     tense: "presente-habitual",
@@ -1877,7 +1880,7 @@ function getInstrumentivoResult({
                 }
                 const nominalSurface = resolveNominalSourceOuterSurfacePlacement({
                     sourceModel: nounSourceModel,
-                    runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+                    runtimeObjectPrefix: morphologyObjectPrefix,
                     objectPrefix: applied.objectPrefix,
                     verb: applied.verb,
                     surfaceRuleMeta: applied.surfaceRuleMeta || null,
@@ -1901,19 +1904,26 @@ function getInstrumentivoResult({
                     optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
                     surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
                 }) || buildLiteralMorphStemSpec(core);
+                const sourceTenseSuffix = String(applied.subjectSuffix || "");
+                const predicateStem = ["ni", "ya"].includes(sourceTenseSuffix)
+                    ? `${core}${sourceTenseSuffix}`
+                    : core;
+                const predicateStemSpec = ["ni", "ya"].includes(sourceTenseSuffix)
+                    ? buildAppendMorphStemSpec(core, sourceTenseSuffix, { sourceStemSpec: coreStemSpec })
+                    : coreStemSpec;
                 entries.push(buildVerbDerivedNominalEntry({
                     kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
                     sourceModel: nounSourceModel,
-                    verb: core,
-                    subjectSuffix: applied.subjectSuffix,
-                    stemSpec: coreStemSpec,
+                    verb: predicateStem,
+                    subjectSuffix: "",
+                    stemSpec: predicateStemSpec,
                     sourceTense: "presente-habitual",
                     provenance: {
                         nonactiveSuffix: option?.suffix || "",
                         forward: stemContext.derivationProvenance || null,
                     },
                     metadata: {
-                        runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+                        runtimeObjectPrefix: morphologyObjectPrefix,
                     },
                 }));
             });
@@ -1932,9 +1942,12 @@ function getInstrumentivoResult({
         : "";
     const entries = [];
     forwardStemContexts.forEach((stemContext) => {
+        const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu"
+            ? "ne"
+            : stemContext.morphologyObjectPrefix;
         const applied = applyMorphologyRules({
             subjectPrefix,
-            objectPrefix: stemContext.morphologyObjectPrefix,
+            objectPrefix: morphologyObjectPrefix,
             subjectSuffix: commonNumberSuffix,
             verb: stemContext.verb,
             tense: "imperfecto",
@@ -1954,20 +1967,27 @@ function getInstrumentivoResult({
         }
         const nominalSurface = resolveNominalSourceOuterSurfacePlacement({
             sourceModel: nounSourceModel,
-            runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+            runtimeObjectPrefix: morphologyObjectPrefix,
             objectPrefix: applied.objectPrefix,
             verb: applied.verb,
             surfaceRuleMeta: applied.surfaceRuleMeta || null,
         });
         const placedStemSpec = resolvePlacedNominalStemSpec(nominalSurface, applied.verb, stemContext.stemSpec);
+        const sourceTenseSuffix = String(applied.subjectSuffix || "");
+        const predicateStem = ["ni", "ya"].includes(sourceTenseSuffix)
+            ? `${nominalSurface.verb}${sourceTenseSuffix}`
+            : nominalSurface.verb;
+        const predicateStemSpec = ["ni", "ya"].includes(sourceTenseSuffix)
+            ? buildAppendMorphStemSpec(nominalSurface.verb, sourceTenseSuffix, { sourceStemSpec: placedStemSpec })
+            : placedStemSpec;
         entries.push(buildVerbDerivedNominalEntry({
             kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
             sourceModel: nounSourceModel,
-            verb: nominalSurface.verb,
-            subjectSuffix: applied.subjectSuffix,
-            stemSpec: placedStemSpec,
+            verb: predicateStem,
+            subjectSuffix: "",
+            stemSpec: predicateStemSpec,
             surfaceObjectPrefix: nominalSurface.objectPrefix,
-            runtimeObjectPrefix: stemContext.morphologyObjectPrefix,
+            runtimeObjectPrefix: morphologyObjectPrefix,
             surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
             sourceTense: "imperfecto",
             provenance: {

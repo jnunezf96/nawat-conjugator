@@ -1225,7 +1225,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
     }
     if (kind === "agentivo") {
         return {
-            nominalizationKind: "agentive",
+            nominalizationKind: "customary-present-agentive",
             semanticRole: "agent",
             sourceTense: "presente-habitual",
         };

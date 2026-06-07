@@ -244,9 +244,9 @@ function run(ctx) {
         },
     });
     s.eq(
-        "direct instrumentivo records subject number connector surfaces",
+        "direct instrumentivo keeps source tense morph inside the predicate stem",
         directInstrumentivo.subjectNumberConnectors.map((entry) => entry.displaySurface),
-        ["ni"]
+        ["Ø"]
     );
     s.eq(
         "direct instrumentivo frames the connector as subject material",
@@ -267,13 +267,15 @@ function run(ctx) {
         hasTensePosition: generatedInstrumentivo.nuclearClauseShell?.hasTensePosition,
         generationAllowed: generatedInstrumentivo.nuclearClauseShell?.generationAllowed,
         connector: generatedInstrumentivo.nuclearClauseShell?.slots?.subjectNumberConnector?.displayConnector,
+        formulaEcho: generatedInstrumentivo.nuclearClauseShell?.formulaEcho,
     }, {
         kind: "nuclear-clause-shell",
         clauseKind: "nominal-nuclear-clause",
         formulaType: "NNC",
         hasTensePosition: false,
         generationAllowed: false,
-        connector: "ni",
+        connector: "Ø",
+        formulaEcho: "#Ø...Ø(nemiwani)Ø#",
     });
     s.eq("generateWord instrumentivo exposes derived nominalization profile", summarizeNominalizationProfile(generatedInstrumentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -674,6 +676,13 @@ function run(ctx) {
     }));
     s.eq("generateWord possessed instrumentivo matches direct helper text", generatedPossessedInstrumentivo.result, directPossessedInstrumentivo.result);
     s.eq("generateWord possessed instrumentivo exposes surface form", generatedPossessedInstrumentivo.surfaceForms, ["itapiyaya"]);
+    s.eq("generateWord possessed instrumentivo keeps imperfect ya inside the predicate stem", {
+        connector: generatedPossessedInstrumentivo.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedPossessedInstrumentivo.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        connector: "Ø",
+        formulaEcho: "#Ø...Ø(tapiyaya)Ø#",
+    });
     s.eq("generateWord possessed instrumentivo profile marks possessive predicate state", summarizeNominalizationProfile(generatedPossessedInstrumentivo.nominalizationProfile).predicateState, {
         value: "possessive",
         hasPossessor: true,

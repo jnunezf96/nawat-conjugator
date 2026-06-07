@@ -222,6 +222,16 @@ function buildGeneratedNuclearClauseShellMetadata({
         const numberConnector = nominalClauseMetadata?.subjectNumberConnector
             || nominalClauseMetadata?.nominalClauseFrame?.subject?.numberConnector
             || null;
+        const nominalPredicateStem = (() => {
+            const stem = String(verb || renderVerb || "");
+            const insideObjectPrefix = String(objectPrefix || "");
+            if (!insideObjectPrefix || stem.startsWith(insideObjectPrefix)) {
+                return stem;
+            }
+            return typeof buildOutputPrefixedChain === "function"
+                ? buildOutputPrefixedChain({ objectPrefix: insideObjectPrefix, verb: stem })
+                : `${insideObjectPrefix}${stem}`;
+        })();
         return buildNuclearClauseShellMetadata({
             clauseKind: "nominal-nuclear-clause",
             formulaSlots: {
@@ -232,7 +242,7 @@ function buildGeneratedNuclearClauseShellMetadata({
                 },
                 predicate: {
                     slot: "STEM",
-                    stem: renderVerb || verb,
+                    stem: nominalPredicateStem,
                     state: nominalClauseMetadata?.nominalClauseFrame?.predicate?.state || "derived-nominal",
                     stateSlot: nominalClauseMetadata?.nominalClauseFrame?.predicate?.stateSlot || null,
                 },

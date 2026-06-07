@@ -1034,7 +1034,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       }
       if (kind === "agentivo") {
         return {
-          nominalizationKind: "agentive",
+          nominalizationKind: "customary-present-agentive",
           semanticRole: "agent",
           sourceTense: "presente-habitual"
         };
