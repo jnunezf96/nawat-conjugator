@@ -81,6 +81,37 @@ function run(ctx) {
         fixture: result.fixture,
         paradigmSet: summarizeOrdinaryNncSet(result.paradigmSet),
     });
+    const summarizeNominalizationProfile = (profile) => profile && ({
+        curriculumRef: profile.curriculumRef,
+        outputKind: profile.outputKind,
+        nominalKind: profile.nominalKind,
+        source: {
+            sourceMode: profile.source?.sourceMode || "",
+            sourceTense: profile.source?.sourceTense || "",
+            sourceCategory: profile.source?.sourceCategory || "",
+            matrixBase: profile.source?.matrixBase || "",
+        },
+        role: {
+            nominalizationKind: profile.role?.nominalizationKind || "",
+            semanticRole: profile.role?.semanticRole || "",
+            patientiveFamily: profile.role?.patientiveFamily || "",
+            adjectivalFunction: profile.role?.adjectivalFunction || "",
+        },
+        categoryTransition: profile.categoryTransition,
+        predicateState: {
+            value: profile.predicateState?.value || "",
+            hasPossessor: profile.predicateState?.hasPossessor === true,
+            possessorPrefix: profile.predicateState?.possessorPrefix || "",
+        },
+        boundaries: {
+            nominalizationScope: profile.boundaries?.nominalizationScope || "",
+            isGeneratedSurface: profile.boundaries?.isGeneratedSurface === true,
+            isFullParadigm: profile.boundaries?.isFullParadigm === true,
+            isFunctionalSupplementation: profile.boundaries?.isFunctionalSupplementation === true,
+            isAdjectivalModification: profile.boundaries?.isAdjectivalModification === true,
+            doesNotImplementLessons42_43: profile.boundaries?.doesNotImplementLessons42_43 === true,
+        },
+    });
 
     const buildSilentNounRequest = ({
         tense,
@@ -169,6 +200,41 @@ function run(ctx) {
     s.eq("direct instrumentivo returns structured entries", directInstrumentivo.entries.length, 2);
     s.eq("direct instrumentivo records derivation kind", directInstrumentivo.nounDerivationKind, "instrumentivo");
     s.eq("direct instrumentivo records source tense", directInstrumentivo.entries[0].sourceTense, "presente-habitual");
+    s.eq("direct instrumentivo exposes category-first nominalization profile", summarizeNominalizationProfile(directInstrumentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "instrumentivo",
+        source: {
+            sourceMode: "verbo",
+            sourceTense: "presente-habitual",
+            sourceCategory: "VNC",
+            matrixBase: "nemi",
+        },
+        role: {
+            nominalizationKind: "instrumentive",
+            semanticRole: "instrument",
+            patientiveFamily: "",
+            adjectivalFunction: "",
+        },
+        categoryTransition: {
+            sourceCategory: "VNC",
+            targetCategory: "NNC",
+            process: "structural-nominalization",
+        },
+        predicateState: {
+            value: "absolutive",
+            hasPossessor: false,
+            possessorPrefix: "",
+        },
+        boundaries: {
+            nominalizationScope: "structural-word-output",
+            isGeneratedSurface: true,
+            isFullParadigm: false,
+            isFunctionalSupplementation: false,
+            isAdjectivalModification: false,
+            doesNotImplementLessons42_43: true,
+        },
+    });
     s.eq(
         "direct instrumentivo records subject number connector surfaces",
         directInstrumentivo.subjectNumberConnectors.map((entry) => entry.displaySurface),
@@ -186,6 +252,56 @@ function run(ctx) {
     }));
     s.eq("generateWord instrumentivo matches direct helper text", generatedInstrumentivo.result, directInstrumentivo.result);
     s.eq("generateWord instrumentivo exposes surface forms", generatedInstrumentivo.surfaceForms, ["nemiwani", "nemuwani"]);
+    s.eq("generateWord instrumentivo exposes diagnostic NNC shell metadata", {
+        kind: generatedInstrumentivo.nuclearClauseShell?.kind,
+        clauseKind: generatedInstrumentivo.nuclearClauseShell?.clauseKind,
+        formulaType: generatedInstrumentivo.nuclearClauseShell?.formulaType,
+        hasTensePosition: generatedInstrumentivo.nuclearClauseShell?.hasTensePosition,
+        generationAllowed: generatedInstrumentivo.nuclearClauseShell?.generationAllowed,
+        connector: generatedInstrumentivo.nuclearClauseShell?.slots?.subjectNumberConnector?.displayConnector,
+    }, {
+        kind: "nuclear-clause-shell",
+        clauseKind: "nominal-nuclear-clause",
+        formulaType: "NNC",
+        hasTensePosition: false,
+        generationAllowed: false,
+        connector: "ni",
+    });
+    s.eq("generateWord instrumentivo exposes derived nominalization profile", summarizeNominalizationProfile(generatedInstrumentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "instrumentivo",
+        source: {
+            sourceMode: "verbo",
+            sourceTense: "presente-habitual",
+            sourceCategory: "VNC",
+            matrixBase: "",
+        },
+        role: {
+            nominalizationKind: "instrumentive",
+            semanticRole: "instrument",
+            patientiveFamily: "",
+            adjectivalFunction: "",
+        },
+        categoryTransition: {
+            sourceCategory: "VNC",
+            targetCategory: "NNC",
+            process: "structural-nominalization",
+        },
+        predicateState: {
+            value: "absolutive",
+            hasPossessor: false,
+            possessorPrefix: "",
+        },
+        boundaries: {
+            nominalizationScope: "structural-word-output",
+            isGeneratedSurface: true,
+            isFullParadigm: false,
+            isFunctionalSupplementation: false,
+            isAdjectivalModification: false,
+            doesNotImplementLessons42_43: true,
+        },
+    });
     s.eq(
         "generateWord instrumentivo exposes nominal clause connector metadata",
         {
@@ -219,6 +335,34 @@ function run(ctx) {
     });
     s.eq("direct calificativo-instrumentivo keeps nominal yut suffix", directCalificativo.result, "mikkayut");
     s.eq("direct calificativo-instrumentivo records source tense", directCalificativo.entries[0].sourceTense, "pasado-remoto");
+    s.eq("direct calificativo-instrumentivo exposes quality/result profile", summarizeNominalizationProfile(directCalificativo.nominalizationProfile).role, {
+        nominalizationKind: "quality-result",
+        semanticRole: "quality/result",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+    });
+    const directPossessedCalificativo = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "nu",
+    });
+    s.eq(
+        "Andrews 39.3 possessed characteristic-property keeps Nawat yu matrix and drops only absolutive t",
+        directPossessedCalificativo.result,
+        "numikkayu"
+    );
+    s.eq(
+        "possessed characteristic-property profile marks possessive predicate state",
+        summarizeNominalizationProfile(directPossessedCalificativo.nominalizationProfile).predicateState,
+        {
+            value: "possessive",
+            hasPossessor: true,
+            possessorPrefix: "nu",
+        }
+    );
 
     const generatedCalificativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "calificativo-instrumentivo",
@@ -226,6 +370,17 @@ function run(ctx) {
     }));
     s.eq("generateWord calificativo-instrumentivo matches direct helper text", generatedCalificativo.result, directCalificativo.result);
     s.eq("generateWord calificativo-instrumentivo exposes surface form", generatedCalificativo.surfaceForms, ["mikkayut"]);
+    s.eq("generateWord calificativo-instrumentivo profile keeps source tense", generatedCalificativo.nominalizationProfile.source.sourceTense, "pasado-remoto");
+    const generatedPossessedCalificativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "(miki)",
+        possessivePrefix: "nu",
+    }));
+    s.eq(
+        "generateWord possessed calificativo-instrumentivo keeps Nawat yu matrix",
+        generatedPossessedCalificativo.surfaceForms,
+        ["numikkayu"]
+    );
 
     const directLocativo = ctx.getLocativoTemporalResult({
         rawVerb: "(nemi)",
@@ -236,6 +391,12 @@ function run(ctx) {
     });
     s.eq("direct locativo-temporal keeps trailing n", directLocativo.result, "nemiyan");
     s.eq("direct locativo-temporal records source tense", directLocativo.entries[0].sourceTense, "imperfecto");
+    s.eq("direct locativo-temporal exposes place/time profile", summarizeNominalizationProfile(directLocativo.nominalizationProfile).role, {
+        nominalizationKind: "locative-temporal",
+        semanticRole: "place/time",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+    });
 
     const generatedLocativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "locativo-temporal",
@@ -243,6 +404,82 @@ function run(ctx) {
     }));
     s.eq("generateWord locativo-temporal matches direct helper text", generatedLocativo.result, directLocativo.result);
     s.eq("generateWord locativo-temporal exposes surface form", generatedLocativo.surfaceForms, ["nemiyan"]);
+    s.eq("generateWord locativo-temporal profile keeps source tense", generatedLocativo.nominalizationProfile.source.sourceTense, "imperfecto");
+    s.eq(
+        "generated locativo-temporal carries relational boundary frame without treating it as evidence",
+        {
+            kind: generatedLocativo.relationalNncBoundaryFrame?.kind,
+            lessonRange: generatedLocativo.relationalNncBoundaryFrame?.lessonRange,
+            statusLabel: generatedLocativo.relationalNncBoundaryFrame?.statusLabel,
+            candidateKind: generatedLocativo.relationalNncBoundaryFrame?.candidate?.nominalKind,
+            sourceVnc: generatedLocativo.relationalNncBoundaryFrame?.candidate?.sourceVnc,
+            relationalKind: generatedLocativo.relationalNncBoundaryFrame?.classification?.relationalKind,
+            falsePositiveSource: generatedLocativo.relationalNncBoundaryFrame?.classification?.falsePositiveSource,
+            locativeTemporalNominalIsEvidence: generatedLocativo.relationalNncBoundaryFrame?.boundaries?.locativeTemporalNominalIsEvidence,
+            forms: generatedLocativo.surfaceForms,
+        },
+        {
+            kind: "relational-nnc-boundary-frame",
+            lessonRange: "45-47",
+            statusLabel: "no confirmado",
+            candidateKind: "locativo-temporal",
+            sourceVnc: "nemi",
+            relationalKind: "locative",
+            falsePositiveSource: "locative-temporal-nominal",
+            locativeTemporalNominalIsEvidence: false,
+            forms: ["nemiyan"],
+        }
+    );
+    s.eq(
+        "generated locativo-temporal carries place/gentilic boundary frame without treating it as evidence",
+        {
+            kind: generatedLocativo.placeGentilicNncBoundaryFrame?.kind,
+            lesson: generatedLocativo.placeGentilicNncBoundaryFrame?.lesson,
+            statusLabel: generatedLocativo.placeGentilicNncBoundaryFrame?.statusLabel,
+            candidateKind: generatedLocativo.placeGentilicNncBoundaryFrame?.candidate?.nominalKind,
+            sourceVnc: generatedLocativo.placeGentilicNncBoundaryFrame?.candidate?.sourceVnc,
+            placeGentilicKind: generatedLocativo.placeGentilicNncBoundaryFrame?.classification?.placeGentilicKind,
+            falsePositiveSource: generatedLocativo.placeGentilicNncBoundaryFrame?.classification?.falsePositiveSource,
+            locativeTemporalNominalIsEvidence: generatedLocativo.placeGentilicNncBoundaryFrame?.boundaries?.locativeTemporalNominalIsEvidence,
+            forms: generatedLocativo.surfaceForms,
+        },
+        {
+            kind: "place-gentilic-nnc-boundary-frame",
+            lesson: 48,
+            statusLabel: "no confirmado",
+            candidateKind: "locativo-temporal",
+            sourceVnc: "nemi",
+            placeGentilicKind: "place-name",
+            falsePositiveSource: "locative-temporal-nominal",
+            locativeTemporalNominalIsEvidence: false,
+            forms: ["nemiyan"],
+        }
+    );
+    s.eq(
+        "generated locativo-temporal carries adverbial adjunction boundary frame without treating it as clause evidence",
+        {
+            kind: generatedLocativo.adverbialAdjunctionBoundaryFrame?.kind,
+            lessonRange: generatedLocativo.adverbialAdjunctionBoundaryFrame?.lessonRange,
+            statusLabel: generatedLocativo.adverbialAdjunctionBoundaryFrame?.statusLabel,
+            candidateLabel: generatedLocativo.adverbialAdjunctionBoundaryFrame?.candidate?.label,
+            semanticRelation: generatedLocativo.adverbialAdjunctionBoundaryFrame?.classification?.semanticRelation,
+            adjoinedUnitType: generatedLocativo.adverbialAdjunctionBoundaryFrame?.classification?.adjoinedUnitType,
+            falsePositiveSource: generatedLocativo.adverbialAdjunctionBoundaryFrame?.classification?.falsePositiveSource,
+            singleGeneratedWordIsEvidence: generatedLocativo.adverbialAdjunctionBoundaryFrame?.boundaries?.singleGeneratedWordIsEvidence,
+            forms: generatedLocativo.surfaceForms,
+        },
+        {
+            kind: "adverbial-adjunction-boundary-frame",
+            lessonRange: "49-50",
+            statusLabel: "no confirmada",
+            candidateLabel: "locativo-temporal generado",
+            semanticRelation: "place",
+            adjoinedUnitType: "nnc",
+            falsePositiveSource: "single-generated-word",
+            singleGeneratedWordIsEvidence: false,
+            forms: ["nemiyan"],
+        }
+    );
 
     const piyaMeta = ctx.parseVerbInput("-(piya)");
     const directPossessedInstrumentivo = ctx.getInstrumentivoResult({
@@ -262,6 +499,12 @@ function run(ctx) {
     }));
     s.eq("generateWord possessed instrumentivo matches direct helper text", generatedPossessedInstrumentivo.result, directPossessedInstrumentivo.result);
     s.eq("generateWord possessed instrumentivo exposes surface form", generatedPossessedInstrumentivo.surfaceForms, ["itapiyaya"]);
+    s.eq("generateWord possessed instrumentivo profile marks possessive predicate state", summarizeNominalizationProfile(generatedPossessedInstrumentivo.nominalizationProfile).predicateState, {
+        value: "possessive",
+        hasPossessor: true,
+        possessorPrefix: "i",
+    });
+    s.eq("generateWord possessed instrumentivo profile uses imperfect source", generatedPossessedInstrumentivo.nominalizationProfile.source.sourceTense, "imperfecto");
 
     const unsupportedCalificativo = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "(miki)",
@@ -531,6 +774,34 @@ function run(ctx) {
     ].forEach(({ label, request, expected }) => {
         s.eq(label, summarizeGeneratedOrdinaryNnc(ctx.executeGenerateWordRequest(request)), expected);
     });
+    const generatedKalShell = ctx.executeGenerateWordRequest(
+        buildSilentOrdinaryNncRequest({ stem: "kal" })
+    ).nuclearClauseShell;
+    s.eq(
+        "ordinary NNC opt-in generation exposes diagnostic NNC clause shell",
+        {
+            kind: generatedKalShell?.kind,
+            clauseKind: generatedKalShell?.clauseKind,
+            formulaType: generatedKalShell?.formulaType,
+            formula: generatedKalShell?.formula,
+            formulaEcho: generatedKalShell?.formulaEcho,
+            hasTensePosition: generatedKalShell?.hasTensePosition,
+            generationAllowed: generatedKalShell?.generationAllowed,
+            predicateStem: generatedKalShell?.slots?.predicate?.stem,
+            connector: generatedKalShell?.slots?.subjectNumberConnector?.displayConnector,
+        },
+        {
+            kind: "nuclear-clause-shell",
+            clauseKind: "nominal-nuclear-clause",
+            formulaType: "NNC",
+            formula: "#pers1-pers2(STEM)num1-num2#",
+            formulaEcho: "#Ø...Ø(kal)Ø#",
+            hasTensePosition: false,
+            generationAllowed: false,
+            predicateStem: "kal",
+            connector: "Ø",
+        }
+    );
     const buildOrdinaryNncGenerateWordRequest = typeof ctx.buildOrdinaryNncGenerateWordRequest === "function"
         ? (options) => ctx.buildOrdinaryNncGenerateWordRequest(options)
         : () => ({});
@@ -1726,7 +1997,7 @@ function run(ctx) {
             });
             const profile = result.nncBasic;
             return {
-                lessonRange: profile.lessonRange,
+                curriculumRef: profile.curriculumRef,
                 formula: profile.formula,
                 hasTensePosition: profile.hasTensePosition,
                 stateReplacesValence: profile.stateReplacesValence,
@@ -1750,7 +2021,7 @@ function run(ctx) {
             };
         })(),
         {
-            lessonRange: "12-19",
+            curriculumRef: { source: "Andrews", range: "12-19", role: "curriculum-index" },
             formula: "#pers1-pers2(STEM)num1-num2#",
             hasTensePosition: false,
             stateReplacesValence: true,
@@ -2065,7 +2336,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "lesson-aligned ordinary NNC coverage separates fixture evidence from open-stem structure",
+        "category-first ordinary NNC coverage separates fixture evidence from open-stem structure",
         (() => {
             const shuchi = ctx.generateOrdinaryNncParadigm({ stem: "shuchit" });
             const kalPossessive = ctx.generateOrdinaryNncParadigm({

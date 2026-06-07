@@ -703,8 +703,12 @@ export function createNncModule(targetObject = globalThis) {
       });
       return {
         version: 1,
-        lessonRange: "12-19",
         clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+        curriculumRef: {
+          source: "Andrews",
+          range: "12-19",
+          role: "curriculum-index"
+        },
         formula: "#pers1-pers2(STEM)num1-num2#",
         formulaSlots,
         formulaEcho: buildOrdinaryNncFormulaEchoFromSlots(formulaSlots),
@@ -1675,7 +1679,7 @@ export function createNncModule(targetObject = globalThis) {
               verb: objectChainForm,
               subjectSuffix: "",
               stemSpec: objectChainStemSpec,
-              trailingSuffix: resolvedPossessivePrefix === "" ? "yut" : "",
+              trailingSuffix: resolvedPossessivePrefix === "" ? "yut" : "yu",
               sourceTense: "pasado-remoto",
               provenance: {
                 pasadoRemotoEntry,
@@ -1879,6 +1883,10 @@ export function createNncModule(targetObject = globalThis) {
     api.resolveOrdinaryNncClauseSubject = resolveOrdinaryNncClauseSubject;
     api.resolveOrdinaryNncPossessor = resolveOrdinaryNncPossessor;
     api.findOrdinaryNncFixture = findOrdinaryNncFixture;
+    api.isOrdinaryNncVowelFinalStem = isOrdinaryNncVowelFinalStem;
+    api.getOrdinaryNncStemShapeLabel = getOrdinaryNncStemShapeLabel;
+    api.getOrdinaryNncClassStemCompatibility = getOrdinaryNncClassStemCompatibility;
+    api.buildOrdinaryNncClassStemCompatibilityDiagnostic = buildOrdinaryNncClassStemCompatibilityDiagnostic;
     api.buildOrdinaryNncSurfaceChainText = buildOrdinaryNncSurfaceChainText;
     api.isOrdinaryNncPluralPossessor = isOrdinaryNncPluralPossessor;
     api.buildOrdinaryNncOpenStemPossessiveSurface = buildOrdinaryNncOpenStemPossessiveSurface;

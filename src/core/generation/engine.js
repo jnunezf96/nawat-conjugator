@@ -70,11 +70,837 @@ function executeOrdinaryNncGenerationRoute({
                 message: "Ordinary NNC generation is unavailable.",
             }],
         };
+    const nuclearClauseShell = typeof buildNuclearClauseShellMetadata === "function"
+        ? buildNuclearClauseShellMetadata({
+            clauseKind: "nominal-nuclear-clause",
+            formulaSlots: result.formulaSlots || result.clauseFrame?.formulaSlots || null,
+            formulaEcho: result.formulaEcho || result.clauseFrame?.formulaEcho || "",
+            predicate: {
+                stem: result.stem || ordinaryNnc.stem || verb,
+                state: result.state || state,
+            },
+            predicateState: result.state || state,
+        })
+        : null;
+    const sentenceLayer = typeof buildGeneratedSentenceLayerMetadata === "function"
+        ? buildGeneratedSentenceLayerMetadata({
+            override,
+            tense: result.tense || ordinaryNnc.targetTense || "",
+            nuclearClauseShell,
+            clauseKind: "nominal-nuclear-clause",
+        })
+        : null;
     return {
         ...result,
         generationRoute: "ordinary-nnc",
         isReflexive: false,
         stemProvenance: null,
+        nuclearClauseShell,
+        sentenceLayer,
+    };
+}
+
+function buildGeneratedNuclearClauseShellMetadata({
+    resolvedTenseMode = "",
+    tense = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    verb = "",
+    renderVerb = "",
+    nominalClauseMetadata = null,
+} = {}) {
+    if (typeof buildNuclearClauseShellMetadata !== "function") {
+        return null;
+    }
+    const isNominalShell = Boolean(nominalClauseMetadata?.nominalClauseFrame)
+        || resolvedTenseMode === TENSE_MODE.sustantivo
+        || resolvedTenseMode === TENSE_MODE.adjetivo
+        || resolvedTenseMode === TENSE_MODE.adverbio;
+    if (isNominalShell) {
+        const numberConnector = nominalClauseMetadata?.subjectNumberConnector
+            || nominalClauseMetadata?.nominalClauseFrame?.subject?.numberConnector
+            || null;
+        return buildNuclearClauseShellMetadata({
+            clauseKind: "nominal-nuclear-clause",
+            formulaSlots: {
+                subjectPerson: {
+                    slot: "pers1-pers2",
+                    prefix: subjectPrefix,
+                    suffix: "",
+                },
+                predicate: {
+                    slot: "STEM",
+                    stem: renderVerb || verb,
+                    state: nominalClauseMetadata?.nominalClauseFrame?.predicate?.state || "derived-nominal",
+                    stateSlot: nominalClauseMetadata?.nominalClauseFrame?.predicate?.stateSlot || null,
+                },
+                subjectNumberConnector: {
+                    slot: "num1-num2",
+                    connector: numberConnector
+                        ? String(numberConnector.surface || "")
+                        : String(subjectSuffix || ""),
+                    displayConnector: numberConnector
+                        ? String(numberConnector.displaySurface || numberConnector.surface || "Ø")
+                        : (String(subjectSuffix || "") || "Ø"),
+                    nounClass: numberConnector?.nounClass || "",
+                },
+            },
+            predicateState: nominalClauseMetadata?.nominalClauseFrame?.predicate?.state || "derived-nominal",
+        });
+    }
+    return buildNuclearClauseShellMetadata({
+        clauseKind: "verbal-nuclear-clause",
+        subject: {
+            prefix: subjectPrefix,
+            suffix: subjectSuffix,
+        },
+        object: {
+            prefix: objectPrefix,
+        },
+        predicate: {
+            stem: renderVerb || verb,
+        },
+        tenseValue: tense,
+        tenseLabel: tense,
+    });
+}
+
+function buildGeneratedVncValencyFrameMetadata({
+    resolvedTenseMode = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    baseObjectPrefix = "",
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+    parsedVerb = null,
+    valencySummary = null,
+    targetValency = null,
+    isPassiveImpersonalMode = false,
+    nuclearClauseShell = null,
+} = {}) {
+    if (resolvedTenseMode !== TENSE_MODE.verbo) {
+        return null;
+    }
+    const normalizedObjectPrefix = String(objectPrefix || "");
+    const normalizedBaseObjectPrefix = String(baseObjectPrefix || normalizedObjectPrefix || "");
+    const normalizedIndirect = String(indirectObjectMarker || "");
+    const normalizedThird = String(thirdObjectMarker || "");
+    const selectedObjectMarkers = [normalizedObjectPrefix, normalizedIndirect, normalizedThird].filter(Boolean);
+    const baseObjectSlots = Number.isFinite(valencySummary?.baseObjectSlots)
+        ? valencySummary.baseObjectSlots
+        : (typeof getBaseObjectSlots === "function" ? getBaseObjectSlots(parsedVerb) : selectedObjectMarkers.length);
+    const availableObjectSlots = Number.isFinite(valencySummary?.availableObjectSlots)
+        ? valencySummary.availableObjectSlots
+        : Math.max(0, baseObjectSlots);
+    const resolvedTargetValency = Number.isFinite(targetValency)
+        ? targetValency
+        : Math.max(1, baseObjectSlots + 1);
+    const subjectInfo = typeof getSubjectPersonInfo === "function"
+        ? getSubjectPersonInfo(subjectPrefix, subjectSuffix)
+        : null;
+    const objectInfo = typeof getObjectPersonInfo === "function"
+        ? getObjectPersonInfo(normalizedObjectPrefix)
+        : null;
+    const selectedValency = Math.max(1, 1 + selectedObjectMarkers.length);
+    const isTransitiveFrame = baseObjectSlots > 0 || selectedObjectMarkers.length > 0 || resolvedTargetValency > 1;
+    return {
+        kind: "vnc-valency-frame",
+        version: 1,
+        lessonRange: "5-6",
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        valency: isTransitiveFrame ? "transitive" : "intransitive",
+        valencyLabel: isTransitiveFrame ? "transitiva" : "intransitiva",
+        baseObjectSlots,
+        availableObjectSlots,
+        selectedObjectSlots: selectedObjectMarkers.length,
+        selectedValency,
+        targetValency: resolvedTargetValency,
+        isPassiveImpersonalMode: Boolean(isPassiveImpersonalMode),
+        subject: {
+            slot: "subject",
+            prefix: String(subjectPrefix || ""),
+            suffix: String(subjectSuffix || ""),
+            displayPrefix: String(subjectPrefix || "") || "Ø",
+            displaySuffix: String(subjectSuffix || "") || "Ø",
+            person: subjectInfo?.person ?? null,
+            number: subjectInfo?.number || "",
+        },
+        object: {
+            slot: "object",
+            prefix: normalizedObjectPrefix,
+            basePrefix: normalizedBaseObjectPrefix,
+            displayPrefix: normalizedObjectPrefix || "Ø",
+            displayBasePrefix: normalizedBaseObjectPrefix || "Ø",
+            person: objectInfo?.person ?? null,
+            number: objectInfo?.number || "",
+            isPresent: Boolean(normalizedObjectPrefix),
+            indirectObjectMarker: normalizedIndirect,
+            thirdObjectMarker: normalizedThird,
+        },
+        nuclearClauseFormulaSlots: nuclearClauseShell?.formulaSlots || null,
+        boundaries: {
+            isSentenceEngine: false,
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            objectLabelsAreNotEvidenceForSentenceObjects: true,
+        },
+    };
+}
+
+function buildGeneratedDerivedVoiceFrameMetadata({
+    resolvedTenseMode = "",
+    resolvedDerivationMode = "",
+    resolvedVoiceMode = "",
+    isNonactive = false,
+    isPassiveImpersonalMode = false,
+    sourceValency = null,
+    targetValency = null,
+    valencySummary = null,
+    parsedVerb = null,
+    verb = "",
+    analysisVerb = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    baseObjectPrefix = "",
+    hasPromotableObject = false,
+    preserveSubjectForPassive = false,
+    allowPassiveObject = false,
+} = {}) {
+    if (resolvedTenseMode !== TENSE_MODE.verbo) {
+        return null;
+    }
+    const hasImpersonalPrefix = parsedVerb?.hasImpersonalTaPrefix === true;
+    if (!isNonactive && !isPassiveImpersonalMode && !hasImpersonalPrefix) {
+        return null;
+    }
+    const normalizedObjectPrefix = String(objectPrefix || "");
+    const normalizedBaseObjectPrefix = String(baseObjectPrefix || normalizedObjectPrefix || "");
+    const normalizedSourceValency = Number.isFinite(sourceValency)
+        ? sourceValency
+        : Math.max(1, (Number.isFinite(valencySummary?.baseObjectSlots) ? valencySummary.baseObjectSlots : 0) + 1);
+    const normalizedTargetValency = Number.isFinite(targetValency)
+        ? targetValency
+        : normalizedSourceValency;
+    const isImpersonalFrame = hasImpersonalPrefix || (isPassiveImpersonalMode && !hasPromotableObject);
+    const voiceLabel = hasImpersonalPrefix
+        ? "impersonal ta-"
+        : (isPassiveImpersonalMode ? "pasivo/impersonal" : "no activo");
+    return {
+        kind: "derived-voice-frame",
+        version: 1,
+        lessonRange: "20-23",
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        derivation: {
+            mode: String(resolvedDerivationMode || ""),
+            isNonactive: Boolean(isNonactive),
+            label: isNonactive ? "no activo" : "activo",
+            finalStem: String(verb || ""),
+            analysisStem: String(analysisVerb || verb || ""),
+        },
+        voice: {
+            mode: String(resolvedVoiceMode || ""),
+            label: voiceLabel,
+            isPassiveImpersonalMode: Boolean(isPassiveImpersonalMode),
+            isImpersonalFrame,
+            hasImpersonalTaPrefix: hasImpersonalPrefix,
+            hasPromotableObject: Boolean(hasPromotableObject),
+            preserveSubjectForPassive: Boolean(preserveSubjectForPassive),
+            allowPassiveObject: Boolean(allowPassiveObject),
+        },
+        valency: {
+            sourceValency: normalizedSourceValency,
+            targetValency: normalizedTargetValency,
+            baseObjectSlots: Number.isFinite(valencySummary?.baseObjectSlots) ? valencySummary.baseObjectSlots : null,
+            fusionObjectSlots: Number.isFinite(valencySummary?.fusionObjectSlots) ? valencySummary.fusionObjectSlots : null,
+            availableObjectSlots: Number.isFinite(valencySummary?.availableObjectSlots) ? valencySummary.availableObjectSlots : null,
+            selectedObjectPrefix: normalizedObjectPrefix,
+            baseObjectPrefix: normalizedBaseObjectPrefix,
+            objectClearedByVoice: Boolean(normalizedBaseObjectPrefix && !normalizedObjectPrefix && isPassiveImpersonalMode),
+        },
+        subject: {
+            prefix: String(subjectPrefix || ""),
+            suffix: String(subjectSuffix || ""),
+            displayPrefix: String(subjectPrefix || "") || "Ø",
+            displaySuffix: String(subjectSuffix || "") || "Ø",
+        },
+        boundaries: {
+            isSentenceEngine: false,
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noNewVoiceBehavior: true,
+        },
+    };
+}
+
+function getGeneratedForwardDerivationLabel(derivationType = "") {
+    if (derivationType === DERIVATION_TYPE.causative) {
+        return "causativa";
+    }
+    if (derivationType === DERIVATION_TYPE.applicative) {
+        return "aplicativa";
+    }
+    return String(derivationType || "");
+}
+
+function buildGeneratedForwardDerivationFrameMetadata({
+    resolvedTenseMode = "",
+    resolvedDerivationType = "",
+    derivationValencyDelta = 0,
+    sourceValency = null,
+    forwardDerivations = null,
+    forwardStemProvenance = null,
+    causativeAllStems = null,
+    applicativeAllStems = null,
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+} = {}) {
+    if (resolvedTenseMode !== TENSE_MODE.verbo) {
+        return null;
+    }
+    const config = typeof getForwardDerivationConfig === "function"
+        ? getForwardDerivationConfig(resolvedDerivationType)
+        : null;
+    if (!config) {
+        return null;
+    }
+    const selectedMeta = resolvedDerivationType === DERIVATION_TYPE.causative
+        ? forwardDerivations?.causativeSelectionMeta
+        : forwardDerivations?.applicativeSelectionMeta;
+    const candidateStems = resolvedDerivationType === DERIVATION_TYPE.causative
+        ? causativeAllStems
+        : applicativeAllStems;
+    const normalizedCandidateStems = Array.isArray(candidateStems)
+        ? candidateStems.map((stem) => String(stem || "")).filter(Boolean)
+        : [];
+    const sourceStemForComparison = normalizeDerivationStemValue(renderVerb || "");
+    const derivedCandidateStem = normalizedCandidateStems.find((stem) => (
+        normalizeDerivationStemValue(stem) !== sourceStemForComparison
+    )) || normalizedCandidateStems[0] || "";
+    const selectedStemCandidate = normalizeDerivationStemValue(
+        selectedMeta?.surfaceStem
+        || forwardStemProvenance?.surfaceStem
+        || (selectedMeta?.stemSpec ? realizeMorphStemSpec(selectedMeta.stemSpec, selectedMeta.stem || "") : "")
+        || selectedMeta?.stem
+        || ""
+    );
+    const selectedStem = normalizeDerivationStemValue(
+        (
+            selectedStemCandidate
+            && selectedStemCandidate !== sourceStemForComparison
+        )
+            ? selectedStemCandidate
+            : (
+                derivedCandidateStem
+                || selectedStemCandidate
+                || analysisVerb
+                || verb
+                || ""
+            )
+    );
+    const delta = Number.isFinite(derivationValencyDelta) ? derivationValencyDelta : 0;
+    const derivedValency = Number.isFinite(sourceValency)
+        ? sourceValency
+        : null;
+    const baseValency = Number.isFinite(derivedValency)
+        ? Math.max(1, derivedValency - delta)
+        : null;
+    const lessonRange = resolvedDerivationType === DERIVATION_TYPE.causative
+        ? "24-25"
+        : "26";
+    return {
+        kind: "forward-derivation-frame",
+        version: 1,
+        lessonRange,
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        derivation: {
+            type: resolvedDerivationType,
+            label: getGeneratedForwardDerivationLabel(resolvedDerivationType),
+            valencyDelta: delta,
+            rule: String(selectedMeta?.rule || forwardStemProvenance?.rule || ""),
+            patternType: String(selectedMeta?.patternType || forwardStemProvenance?.patternType || ""),
+            guidanceRouteText: String(
+                selectedMeta?.guidanceRoute?.text
+                || forwardStemProvenance?.guidanceRoute?.text
+                || ""
+            ),
+        },
+        stem: {
+            sourceVerb: String(renderVerb || ""),
+            selectedStem,
+            finalStem: String(verb || ""),
+            analysisStem: String(analysisVerb || verb || ""),
+            candidateStems: normalizedCandidateStems,
+        },
+        valency: {
+            sourceValency: baseValency,
+            derivedValency,
+            delta,
+        },
+        boundaries: {
+            isSentenceEngine: false,
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noNewDerivationBehavior: true,
+        },
+    };
+}
+
+function buildGeneratedCompoundFrameMetadata({
+    resolvedTenseMode = "",
+    parsedVerb = null,
+} = {}) {
+    const compoundAst = parsedVerb?.compoundAst || null;
+    if (resolvedTenseMode !== TENSE_MODE.verbo || !compoundAst || compoundAst.kind !== "compound") {
+        return null;
+    }
+    const embeds = Array.isArray(compoundAst.embeds)
+        ? compoundAst.embeds.map((entry) => ({
+            role: String(entry?.role || ""),
+            kind: String(entry?.kind || ""),
+            value: String(entry?.value || ""),
+            source: String(entry?.source || ""),
+            explicit: entry?.explicit === true,
+        }))
+        : [];
+    if (!embeds.length) {
+        return null;
+    }
+    return {
+        kind: "compound-frame",
+        version: 1,
+        lessonRange: "28,30",
+        source: "parse-compoundAst",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        matrix: {
+            role: "matrix",
+            stem: String(compoundAst.matrix?.stem || ""),
+            ruleBase: String(compoundAst.matrix?.ruleBase || ""),
+        },
+        embeds,
+        sourceInput: {
+            rawInput: String(compoundAst.source?.rawInput || ""),
+            displayVerb: String(compoundAst.source?.displayVerb || ""),
+            displayCore: String(compoundAst.source?.displayCore || ""),
+            verb: String(compoundAst.source?.verb || ""),
+            analysisVerb: String(compoundAst.source?.analysisVerb || ""),
+        },
+        valency: compoundAst.valency && typeof compoundAst.valency === "object"
+            ? { ...compoundAst.valency }
+            : null,
+        flags: compoundAst.flags && typeof compoundAst.flags === "object"
+            ? { ...compoundAst.flags }
+            : {},
+        boundaries: {
+            isSentenceEngine: false,
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            notCompoundNncGeneration: true,
+        },
+    };
+}
+
+function buildGeneratedAdverbialNuclearFrameMetadata({
+    resolvedTenseMode = "",
+    tense = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+    objectPrefix = "",
+    baseObjectPrefix = "",
+} = {}) {
+    if (resolvedTenseMode !== TENSE_MODE.adverbio) {
+        return null;
+    }
+    const knownTenses = typeof getKnownLegacyAdverbioTensesForAdverbialBoundary === "function"
+        ? getKnownLegacyAdverbioTensesForAdverbialBoundary()
+        : ["pasado-remoto-adverbio-activo"];
+    if (!knownTenses.includes(tense)) {
+        return null;
+    }
+    const sourceStem = String(analysisVerb || verb || renderVerb || "");
+    const normalizedObjectPrefix = String(objectPrefix || "");
+    const normalizedBaseObjectPrefix = String(baseObjectPrefix || normalizedObjectPrefix || "");
+    const classification = typeof classifyAdverbialNuclearCandidate === "function"
+        ? classifyAdverbialNuclearCandidate({
+            source: sourceStem,
+            candidate: "",
+            tense,
+            adverbialKind: "manner-surface",
+            falsePositiveSource: "legacy-adverbio-surface",
+        })
+        : null;
+    return {
+        kind: "adverbial-nuclear-frame",
+        version: 1,
+        lesson: 44,
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        adverbial: {
+            kind: "manner-surface",
+            label: "manera",
+            degree: "legacy-adverbio",
+            isFullLesson44Engine: false,
+        },
+        sourceVnc: {
+            stem: sourceStem,
+            finalStem: String(verb || ""),
+            analysisStem: String(analysisVerb || verb || ""),
+            valency: normalizedObjectPrefix || normalizedBaseObjectPrefix ? "transitive" : "intransitive",
+            objectPrefix: normalizedObjectPrefix,
+            baseObjectPrefix: normalizedBaseObjectPrefix,
+        },
+        tense,
+        classification: classification
+            ? {
+                kind: classification.kind,
+                adverbialKind: classification.adverbialKind,
+                hasKnownLegacyAdverbioTense: classification.hasKnownLegacyAdverbioTense === true,
+                confirmed: classification.confirmed === true,
+                generationAllowed: classification.generationAllowed === true,
+                diagnostics: Array.isArray(classification.diagnostics)
+                    ? Array.from(classification.diagnostics)
+                    : [],
+            }
+            : null,
+        boundaries: {
+            isSentenceEngine: false,
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noFullAdverbialClauseEngine: true,
+            legacyAdverbioSurfaceOnly: true,
+        },
+    };
+}
+
+function buildGeneratedRelationalNncBoundaryFrameMetadata({
+    nominalKind = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+    nominalizationProfile = null,
+} = {}) {
+    if (nominalKind !== "locativo-temporal") {
+        return null;
+    }
+    const sourceStem = String(analysisVerb || verb || renderVerb || "");
+    const sourceTense = String(nominalizationProfile?.source?.sourceTense || "imperfecto");
+    const classification = typeof classifyRelationalNncCandidate === "function"
+        ? classifyRelationalNncCandidate({
+            candidate: String(renderVerb || verb || ""),
+            relationalStem: "",
+            relationalKind: "locative",
+            relationalOption: "unknown",
+            governedArgument: "",
+            falsePositiveSource: "locative-temporal-nominal",
+            sourceKind: "generated-verb-derived-nominal",
+        })
+        : null;
+    return {
+        kind: "relational-nnc-boundary-frame",
+        version: 1,
+        lessonRange: "45-47",
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        statusLabel: "no confirmado",
+        candidate: {
+            nominalKind,
+            kindLabel: "locativo-temporal generado",
+            sourceVnc: sourceStem,
+            sourceTense,
+            sourceKind: "generated-verb-derived-nominal",
+        },
+        classification: classification
+            ? {
+                kind: classification.kind,
+                relationalKind: classification.relationalKind,
+                relationalOption: classification.relationalOption,
+                falsePositiveSource: classification.falsePositiveSource,
+                confirmed: classification.confirmed === true,
+                generationAllowed: classification.generationAllowed === true,
+                diagnostics: Array.isArray(classification.diagnostics)
+                    ? Array.from(classification.diagnostics)
+                    : [],
+            }
+            : null,
+        boundaries: {
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noRelationalNncGeneration: true,
+            locativeTemporalNominalIsEvidence: false,
+            noStaticRelationalFixture: true,
+        },
+    };
+}
+
+function buildGeneratedPlaceGentilicNncBoundaryFrameMetadata({
+    nominalKind = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+    nominalizationProfile = null,
+} = {}) {
+    if (nominalKind !== "locativo-temporal") {
+        return null;
+    }
+    const sourceStem = String(analysisVerb || verb || renderVerb || "");
+    const sourceTense = String(nominalizationProfile?.source?.sourceTense || "imperfecto");
+    const classification = typeof classifyPlaceGentilicNncCandidate === "function"
+        ? classifyPlaceGentilicNncCandidate({
+            candidate: String(renderVerb || verb || ""),
+            placeNameSource: "",
+            gentilicSource: "",
+            placeGentilicKind: "place-name",
+            associatedPlace: "",
+            collectivity: "",
+            falsePositiveSource: "locative-temporal-nominal",
+            sourceKind: "generated-verb-derived-nominal",
+        })
+        : null;
+    return {
+        kind: "place-gentilic-nnc-boundary-frame",
+        version: 1,
+        lesson: 48,
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        statusLabel: "no confirmado",
+        candidate: {
+            nominalKind,
+            kindLabel: "locativo-temporal generado",
+            placeGentilicKind: "place-name",
+            sourceVnc: sourceStem,
+            sourceTense,
+            sourceKind: "generated-verb-derived-nominal",
+        },
+        classification: classification
+            ? {
+                kind: classification.kind,
+                placeGentilicKind: classification.placeGentilicKind,
+                falsePositiveSource: classification.falsePositiveSource,
+                confirmed: classification.confirmed === true,
+                generationAllowed: classification.generationAllowed === true,
+                diagnostics: Array.isArray(classification.diagnostics)
+                    ? Array.from(classification.diagnostics)
+                    : [],
+            }
+            : null,
+        boundaries: {
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noPlaceNameNncGeneration: true,
+            noGentilicNncGeneration: true,
+            locativeTemporalNominalIsEvidence: false,
+            noStaticPlaceOrGentilicFixture: true,
+        },
+    };
+}
+
+function buildGeneratedAdverbialAdjunctionBoundaryFrameMetadata({
+    resolvedTenseMode = "",
+    tense = "",
+    nominalKind = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+    sourceTense = "",
+} = {}) {
+    const isLegacyAdverbio = resolvedTenseMode === TENSE_MODE.adverbio
+        && tense === "pasado-remoto-adverbio-activo";
+    const isLocativoTemporal = nominalKind === "locativo-temporal";
+    if (!isLegacyAdverbio && !isLocativoTemporal) {
+        return null;
+    }
+    const sourceStem = String(analysisVerb || verb || renderVerb || "");
+    const semanticRelation = isLegacyAdverbio ? "manner" : "place";
+    const adjoinedUnitType = isLegacyAdverbio ? "vnc" : "nnc";
+    const falsePositiveSource = isLegacyAdverbio
+        ? "legacy-adverbio-surface"
+        : "single-generated-word";
+    const candidateLabel = isLegacyAdverbio
+        ? "adverbio heredado"
+        : "locativo-temporal generado";
+    const classification = typeof classifyAdverbialAdjunctionCandidate === "function"
+        ? classifyAdverbialAdjunctionCandidate({
+            principalClause: "",
+            adjoinedUnit: candidateLabel,
+            candidate: String(renderVerb || verb || ""),
+            semanticRelation,
+            adjoinedUnitType,
+            marking: "",
+            falsePositiveSource,
+        })
+        : null;
+    return {
+        kind: "adverbial-adjunction-boundary-frame",
+        version: 1,
+        lessonRange: "49-50",
+        source: "generate-word",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        statusLabel: "no confirmada",
+        candidate: {
+            label: candidateLabel,
+            sourceVnc: sourceStem,
+            sourceTense: String(sourceTense || tense || ""),
+            semanticRelation,
+            adjoinedUnitType,
+            falsePositiveSource,
+        },
+        classification: classification
+            ? {
+                kind: classification.kind,
+                semanticRelation: classification.semanticRelation,
+                adjoinedUnitType: classification.adjoinedUnitType,
+                falsePositiveSource: classification.falsePositiveSource,
+                confirmed: classification.confirmed === true,
+                generationAllowed: classification.generationAllowed === true,
+                diagnostics: Array.isArray(classification.diagnostics)
+                    ? Array.from(classification.diagnostics)
+                    : [],
+            }
+            : null,
+        boundaries: {
+            isGenerationRule: false,
+            changesSurfaceForms: false,
+            noClauseAdjunctionAst: true,
+            singleGeneratedWordIsEvidence: false,
+            noStaticAdjunctionData: true,
+        },
+    };
+}
+
+const GENERATED_DENOMINAL_ROUTE_PROFILE_BY_TENSE = Object.freeze({
+    "adjetivo-preterito-tik": {
+        routeFamily: "vi-ti",
+        structuralAnalogue: "inceptive-stative-ti-route",
+        routeId: "denominal-vi-ti-preterit",
+        sourceSlot: "noun/inc.root",
+        sourceCategory: "noun-or-incorporated-root",
+        verbalizer: "-ti",
+        verbalizerType: "denominal-intransitive",
+        valency: "intransitive",
+        targetTense: "preterito",
+        surfaceSuffix: "-tik",
+    },
+    "adjetivo-perfecto-tik": {
+        routeFamily: "vi-ti",
+        structuralAnalogue: "inceptive-stative-ti-route",
+        routeId: "denominal-vi-ti-perfect",
+        sourceSlot: "noun/inc.root",
+        sourceCategory: "noun-or-incorporated-root",
+        verbalizer: "-ti",
+        verbalizerType: "denominal-intransitive",
+        valency: "intransitive",
+        targetTense: "perfecto",
+        surfaceSuffix: "-tituk",
+    },
+    "adjetivo-preterito-naj": {
+        routeFamily: "vt-na",
+        structuralAnalogue: "transitive-denominal-route",
+        routeId: "denominal-vt-na-preterit",
+        sourceSlot: "noun/inc.obj.",
+        sourceCategory: "noun-or-incorporated-object",
+        verbalizer: "-na",
+        verbalizerType: "denominal-transitive",
+        valency: "transitive",
+        targetTense: "preterito",
+        surfaceSuffix: "-naj",
+    },
+    "adjetivo-perfecto-naj": {
+        routeFamily: "vt-na",
+        structuralAnalogue: "transitive-denominal-route",
+        routeId: "denominal-vt-na-perfect",
+        sourceSlot: "noun/inc.obj.",
+        sourceCategory: "noun-or-incorporated-object",
+        verbalizer: "-na",
+        verbalizerType: "denominal-transitive",
+        valency: "transitive",
+        targetTense: "perfecto",
+        surfaceSuffix: "-najtuk",
+    },
+});
+
+function resolveGeneratedDenominalRouteProfileSpec(nominalKind = "") {
+    const key = String(nominalKind || "").trim();
+    if (!key) {
+        return null;
+    }
+    if (typeof getNawatRouteProfile === "function") {
+        const profile = getNawatRouteProfile(key);
+        if (
+            profile
+            && typeof profile === "object"
+            && profile.routePlacement === "patientivo-tronco-conversion"
+            && profile.denominalFamily
+        ) {
+            return {
+                ...profile,
+                routeProfileSource: "static-modes",
+            };
+        }
+    }
+    const fallback = GENERATED_DENOMINAL_ROUTE_PROFILE_BY_TENSE[key];
+    return fallback
+        ? {
+            ...fallback,
+            routeProfileSource: "legacy-fallback",
+        }
+        : null;
+}
+
+function buildGeneratedDenominalFamilyProfileMetadata({
+    nominalKind = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
+} = {}) {
+    const spec = resolveGeneratedDenominalRouteProfileSpec(nominalKind);
+    if (!spec) {
+        return null;
+    }
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        outputKind: "denominal-route",
+        routeFamily: spec.denominalFamily || spec.routeFamily || "",
+        structuralAnalogue: spec.structuralAnalogue || "",
+        routeId: spec.id || spec.routeId || "",
+        routePlacement: spec.routePlacement || "patientivo-tronco-conversion",
+        routeProfileSource: spec.routeProfileSource || "legacy-fallback",
+        sourceState: "patientivo-tronco",
+        sourceSlot: spec.sourceSlot,
+        sourceCategory: spec.sourceCategory,
+        sourceSurface: String(renderVerb || analysisVerb || verb || "").trim(),
+        sourceInput: String(verb || analysisVerb || renderVerb || "").trim(),
+        verbalizer: spec.verbalizer,
+        verbalizerType: spec.verbalizerType,
+        valency: spec.valency,
+        targetTense: spec.nawatTenseValue || spec.targetTenseValue || spec.finiteTense || spec.targetTense || "",
+        surfaceSuffix: spec.surfaceSuffix,
+        supportStatus: "current-route-supported",
+        isCompleteLesson54_55: false,
+        boundaries: {
+            noNewSurfaceForms: true,
+            routeBasedOnly: true,
+            suffixFamilyInventoryComplete: false,
+            includedPossessorModeled: false,
+            possessionDenominalModeled: false,
+            temporalDenominalModeled: false,
+            causativeApplicativeFamilyModeled: false,
+        },
     };
 }
 
@@ -83,6 +909,11 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
     nominalKind = "",
     possessivePrefix = "",
     source = "generate-word",
+    sourceTense = "",
+    patientivoSource = "",
+    renderVerb = "",
+    verb = "",
+    analysisVerb = "",
 } = {}) {
     const connector = typeof buildNominalSubjectNumberConnector === "function"
         ? buildNominalSubjectNumberConnector({
@@ -117,8 +948,45 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
         notSubjectConnector: true,
         notTense: true,
     };
+    const nominalizationProfile = typeof buildVerbDerivedNominalizationProfile === "function"
+        ? buildVerbDerivedNominalizationProfile({
+            nominalKind,
+            sourceTense,
+            predicateStateSlot,
+            subjectNumberConnector: connector,
+            patientivoSource,
+        })
+        : null;
     return {
         subjectNumberConnector: connector,
+        nominalizationProfile,
+        relationalNncBoundaryFrame: buildGeneratedRelationalNncBoundaryFrameMetadata({
+            nominalKind,
+            renderVerb,
+            verb,
+            analysisVerb,
+            nominalizationProfile,
+        }),
+        placeGentilicNncBoundaryFrame: buildGeneratedPlaceGentilicNncBoundaryFrameMetadata({
+            nominalKind,
+            renderVerb,
+            verb,
+            analysisVerb,
+            nominalizationProfile,
+        }),
+        denominalFamilyProfile: buildGeneratedDenominalFamilyProfileMetadata({
+            nominalKind,
+            renderVerb,
+            verb,
+            analysisVerb,
+        }),
+        adverbialAdjunctionBoundaryFrame: buildGeneratedAdverbialAdjunctionBoundaryFrameMetadata({
+            nominalKind,
+            renderVerb,
+            verb,
+            analysisVerb,
+            sourceTense,
+        }),
         nominalClauseFrame: {
             version: 1,
             clauseKind: "nominal-nuclear-clause",
@@ -431,6 +1299,15 @@ function executeGenerateWordRequest(request = {}) {
     if (override && Object.prototype.hasOwnProperty.call(override, "thirdObjectMarker")) {
         thirdObjectMarker = override.thirdObjectMarker || "";
     }
+    const sourceSelectedProjectiveObjectPrefix = objectPrefix;
+    const sourceSelectedProjectiveMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker]
+        .filter((marker) => marker === "ta" || marker === "te");
+    const passivePatientivoSelectedProjectiveObjectPrefix = (
+        tense === "patientivo"
+        && normalizeVerbDerivedPatientiveFamily(patientivoSource) === "passive"
+        && sourceSelectedProjectiveMarkers.length > 1
+        && (sourceSelectedProjectiveObjectPrefix === "ta" || sourceSelectedProjectiveObjectPrefix === "te")
+    ) ? sourceSelectedProjectiveObjectPrefix : "";
     ({ objectPrefix, baseObjectPrefix } = applyBoundMarkerPrefixOverrides(
         parsedVerb,
         objectPrefix,
@@ -447,6 +1324,7 @@ function executeGenerateWordRequest(request = {}) {
     }
     ({
         objectPrefix,
+        baseObjectPrefix,
         indirectObjectMarker,
     } = resolveValencePositionPrefixes({
         objectPrefix,
@@ -875,7 +1753,9 @@ function executeGenerateWordRequest(request = {}) {
 
     if (isNounTense) {
         if (isNonanimateNounTense(tense) && !isNonanimateSubject(subjectPrefix, subjectSuffix)) {
-            const message = "Solo 3a persona no animada (singular o plural).";
+            const message = tense === "sustantivo-verbal"
+                ? "Sustantivo verbal solo con 3a persona no animada común."
+                : "Solo 3a persona no animada (singular o plural).";
             const error = returnIfError(message, ["subject-prefix", "subject-suffix"]);
             if (error) return error;
         }
@@ -1161,6 +2041,7 @@ function executeGenerateWordRequest(request = {}) {
         patientivoOwnership: override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP,
         patientivoSource,
         patientivoNominalSuffix,
+        passivePatientivoSelectedProjectiveObjectPrefix,
         possessivePrefix,
         combinedMode: isNonactive ? COMBINED_MODE.nonactive : COMBINED_MODE.active,
         instrumentivoMode: possessivePrefix === ""
@@ -1227,7 +2108,17 @@ function executeGenerateWordRequest(request = {}) {
                 : form.formSpec,
         };
     }).filter((form) => form && form.subjectSuffix !== null);
-    const stemProvenance = appliedMorphology.stemProvenance || null;
+    let stemProvenance = appliedMorphology.stemProvenance || null;
+    const verbstemClassProfile = stemProvenance?.verbstemClassProfile
+        || (typeof buildVncVerbstemClassProfileFromProvenance === "function"
+            ? buildVncVerbstemClassProfileFromProvenance(stemProvenance)
+            : null);
+    if (stemProvenance && verbstemClassProfile && !stemProvenance.verbstemClassProfile) {
+        stemProvenance = {
+            ...stemProvenance,
+            verbstemClassProfile,
+        };
+    }
     let forms = [];
     const embeddedPrefix = getEmbeddedVerbPrefix(parsedVerb);
     const stemMorphologyArgs = {
@@ -1363,7 +2254,113 @@ function executeGenerateWordRequest(request = {}) {
             subjectSuffix,
             nominalKind: tense,
             possessivePrefix,
+            patientivoSource,
+            renderVerb,
+            verb,
+            analysisVerb,
         })
         : {};
-    return { result: generatedText, surfaceForms: forms, isReflexive, stemProvenance, ...nominalClauseMetadata };
+    const nuclearClauseShell = buildGeneratedNuclearClauseShellMetadata({
+        resolvedTenseMode,
+        tense,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        verb,
+        renderVerb,
+        nominalClauseMetadata,
+    });
+    const vncValencyFrame = buildGeneratedVncValencyFrameMetadata({
+        resolvedTenseMode,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        baseObjectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker,
+        parsedVerb,
+        valencySummary,
+        targetValency,
+        isPassiveImpersonalMode,
+        nuclearClauseShell,
+    });
+    const derivedVoiceFrame = buildGeneratedDerivedVoiceFrameMetadata({
+        resolvedTenseMode,
+        resolvedDerivationMode,
+        resolvedVoiceMode,
+        isNonactive,
+        isPassiveImpersonalMode,
+        sourceValency,
+        targetValency,
+        valencySummary,
+        parsedVerb,
+        verb,
+        analysisVerb,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        baseObjectPrefix,
+        hasPromotableObject,
+        preserveSubjectForPassive,
+        allowPassiveObject,
+    });
+    const forwardDerivationFrame = buildGeneratedForwardDerivationFrameMetadata({
+        resolvedTenseMode,
+        resolvedDerivationType,
+        derivationValencyDelta,
+        sourceValency,
+        forwardDerivations,
+        forwardStemProvenance,
+        causativeAllStems,
+        applicativeAllStems,
+        renderVerb,
+        verb,
+        analysisVerb,
+    });
+    const compoundFrame = buildGeneratedCompoundFrameMetadata({
+        resolvedTenseMode,
+        parsedVerb,
+    });
+    const adverbialNuclearFrame = buildGeneratedAdverbialNuclearFrameMetadata({
+        resolvedTenseMode,
+        tense,
+        renderVerb,
+        verb,
+        analysisVerb,
+        objectPrefix,
+        baseObjectPrefix,
+    });
+    const generatedAdverbialAdjunctionBoundaryFrame = buildGeneratedAdverbialAdjunctionBoundaryFrameMetadata({
+        resolvedTenseMode,
+        tense,
+        renderVerb,
+        verb,
+        analysisVerb,
+    });
+    const sentenceLayer = typeof buildGeneratedSentenceLayerMetadata === "function"
+        ? buildGeneratedSentenceLayerMetadata({
+            override,
+            tense,
+            nuclearClauseShell,
+            clauseKind: nuclearClauseShell?.clauseKind || "",
+        })
+        : null;
+    return {
+        result: generatedText,
+        surfaceForms: forms,
+        isReflexive,
+        stemProvenance,
+        verbstemClassProfile,
+        ...nominalClauseMetadata,
+        nuclearClauseShell,
+        vncValencyFrame,
+        derivedVoiceFrame,
+        forwardDerivationFrame,
+        compoundFrame,
+        adverbialNuclearFrame,
+        adverbialAdjunctionBoundaryFrame: generatedAdverbialAdjunctionBoundaryFrame
+            || nominalClauseMetadata?.adverbialAdjunctionBoundaryFrame
+            || null,
+        sentenceLayer,
+    };
 }

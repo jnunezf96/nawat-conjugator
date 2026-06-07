@@ -373,6 +373,829 @@ function getNawatPatientivoTenseOptionLabel(tenseValue = "", isNawat = false) {
         : normalizedTenseValue;
 }
 
+function getVerbDerivedNominalizationProfileLabel(map = {}, value = "", fallback = "") {
+    const normalized = String(value || "").trim();
+    if (!normalized) {
+        return fallback;
+    }
+    return map[normalized] || fallback || normalized;
+}
+
+function buildVerbDerivedNominalizationProfileSubLabels(profile = null, { isNawat = false } = {}) {
+    if (!profile || profile.outputKind !== "verb-derived-nominal") {
+        return [];
+    }
+    const kindLabels = {
+        "action-nominal": "accion/proceso",
+        agentive: "agentivo",
+        patientive: "patientivo",
+        instrumentive: "instrumentivo",
+        "quality-result": "calificativo",
+        "locative-temporal": "locativo-temporal",
+        "patientive-adjectival": "adjetivo patientivo",
+        "adjectival-surface": "adjetivo",
+    };
+    const roleLabels = {
+        "action/process": "accion/proceso",
+        agent: "agente",
+        "patient/result": "paciente/resultado",
+        instrument: "instrumento",
+        "quality/result": "cualidad/resultado",
+        "place/time": "lugar/tiempo",
+        property: "propiedad",
+    };
+    const patientiveFamilyLabels = {
+        nonactive: "no activo",
+        perfectivo: "perfectivo",
+        imperfectivo: "imperfectivo",
+        "tronco-verbal": "tronco verbal",
+    };
+    const adjectivalFunctionLabels = {
+        "predicate-surface": "predicado",
+    };
+    const role = profile.role || {};
+    const source = profile.source || {};
+    const boundaries = profile.boundaries || {};
+    const labels = [];
+    if (boundaries.nominalizationScope === "structural-word-output") {
+        labels.push("Ambito: estructural");
+    }
+    const nominalizationKindLabel = getVerbDerivedNominalizationProfileLabel(
+        kindLabels,
+        role.nominalizationKind || profile.nominalKind,
+        profile.nominalKind || ""
+    );
+    if (nominalizationKindLabel) {
+        labels.push(`Nominalizacion: ${nominalizationKindLabel}`);
+    }
+    const semanticRoleLabel = getVerbDerivedNominalizationProfileLabel(
+        roleLabels,
+        role.semanticRole,
+        ""
+    );
+    if (semanticRoleLabel) {
+        labels.push(`Rol nominal: ${semanticRoleLabel}`);
+    }
+    const sourceTense = String(source.sourceTense || "").trim();
+    if (sourceTense) {
+        labels.push(`Fuente VNC: ${getNawatPatientivoTenseOptionLabel(sourceTense, isNawat)}`);
+    }
+    const patientiveFamilyLabel = getVerbDerivedNominalizationProfileLabel(
+        patientiveFamilyLabels,
+        role.patientiveFamily,
+        ""
+    );
+    if (patientiveFamilyLabel) {
+        labels.push(`Familia patientiva: ${patientiveFamilyLabel}`);
+    }
+    const patientiveFamilyProfile = profile.patientiveFamilyProfile || null;
+    if (patientiveFamilyProfile?.sourcePatternLabel) {
+        labels.push(`Fuente patientiva: ${patientiveFamilyProfile.sourcePatternLabel}`);
+    }
+    if (patientiveFamilyProfile?.sourceFamilyLabel) {
+        labels.push(`Familias Andrews: ${patientiveFamilyProfile.sourceFamilyLabel}`);
+    }
+    if (patientiveFamilyProfile?.sourceFamilyBoundary) {
+        labels.push(`Limite patientivo: ${patientiveFamilyProfile.sourceFamilyBoundary}`);
+    }
+    if (patientiveFamilyProfile?.sourceStageModel?.slot) {
+        labels.push(`Etapa salida: ${patientiveFamilyProfile.sourceStageModel.slot}`);
+    }
+    if (patientiveFamilyProfile && patientiveFamilyProfile.isCompletePatientiveTaxonomy === false) {
+        labels.push("Taxonomia patientiva: parcial");
+    }
+    const adjectivalFunctionLabel = getVerbDerivedNominalizationProfileLabel(
+        adjectivalFunctionLabels,
+        role.adjectivalFunction,
+        ""
+    );
+    if (adjectivalFunctionLabel) {
+        labels.push(`Funcion adjetival: ${adjectivalFunctionLabel}`);
+    }
+    if (adjectivalFunctionLabel && boundaries.doesNotImplementLessons42_43) {
+        labels.push("Modificacion: no modelada");
+    }
+    return labels;
+}
+
+function appendVerbDerivedNominalizationProfileSubLabels(baseLabel = "", profile = null, { isNawat = false } = {}) {
+    return [
+        baseLabel,
+        ...buildVerbDerivedNominalizationProfileSubLabels(profile, { isNawat }),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildDenominalFamilyProfileSubLabels(profile = null) {
+    if (!profile || profile.outputKind !== "denominal-route") {
+        return [];
+    }
+    const familyLabels = {
+        "vi-ti": "VI -ti",
+        "vi-iwi": "VI -iwi",
+        "vi-awi": "VI -awi",
+        "vt-na": "VT -na",
+    };
+    const labels = [];
+    const routeFamily = String(profile.routeFamily || "").trim();
+    if (routeFamily) {
+        labels.push(`Familia denominal: ${familyLabels[routeFamily] || routeFamily}`);
+    }
+    const verbalizer = String(profile.verbalizer || "").trim();
+    if (verbalizer) {
+        labels.push(`Verbalizador denominal: ${verbalizer}`);
+    }
+    if (profile.isCompleteLesson54_55 === false) {
+        labels.push("Cobertura denominal: parcial");
+    }
+    return labels;
+}
+
+function appendDenominalFamilyProfileSubLabels(baseLabel = "", profile = null) {
+    return [
+        baseLabel,
+        ...buildDenominalFamilyProfileSubLabels(profile),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildNawatLinkedGrammarStageSubLabels(stage = null, {
+    nextPreview = null,
+} = {}) {
+    const nextSource = stage?.nextSource && typeof stage.nextSource === "object"
+        ? stage.nextSource
+        : null;
+    if (!nextSource || nextSource.canBecomeSource !== true) {
+        return [];
+    }
+    const sourceVerb = String(nextSource.sourceVerb || stage?.inputValue || stage?.renderVerb || "").trim();
+    if (!sourceVerb) {
+        return [];
+    }
+    const displaySurface = String(nextSource.displaySurface || stage?.surface || "").trim();
+    const candidateRouteCount = Number(nextPreview?.candidateRouteCount || 0);
+    return [
+        `Siguiente fuente: ${sourceVerb}`,
+        displaySurface && displaySurface !== sourceVerb ? `Salida de etapa: ${displaySurface}` : "",
+        Number.isFinite(candidateRouteCount) && candidateRouteCount > 0
+            ? `Continuaciones: ${candidateRouteCount}`
+            : "",
+    ].filter(Boolean);
+}
+
+function getNawatLinkedGrammarCompactRouteLabel(routeOrId = "") {
+    const routeId = String(
+        routeOrId && typeof routeOrId === "object"
+            ? (routeOrId.routeFamily || routeOrId.routeId || routeOrId.id || "")
+            : routeOrId
+    ).trim();
+    if (!routeId) {
+        return "";
+    }
+    return routeId
+        .replace(/^denominal-/, "")
+        .replace(/-preterit$/, "");
+}
+
+function getNawatLinkedGrammarCompactStageLabel(stageKey = "") {
+    const key = String(stageKey || "").trim();
+    const labels = {
+        "source-mode": "fuente",
+        "source-tense": "estado",
+        stem: "tronco",
+        verbalizer: "verbalizador",
+        "target-mode": "destino",
+        "finite-surface": "salida",
+        "finite-tense": "salida",
+    };
+    return labels[key] || key;
+}
+
+function formatNawatLinkedGrammarCompactChoiceLabel(choice = {}) {
+    const routeLabel = getNawatLinkedGrammarCompactRouteLabel(choice.routeFamily || choice.routeId || choice.route || "");
+    const stageLabel = getNawatLinkedGrammarCompactStageLabel(choice.stageKey || choice.stationKey || choice.selection?.stageKey || "");
+    return [routeLabel, stageLabel].filter(Boolean).join(" · ");
+}
+
+function appendNawatLinkedGrammarStageSubLabels(baseLabel = "", stage = null, options = {}) {
+    return [
+        baseLabel,
+        ...buildNawatLinkedGrammarStageSubLabels(stage, options),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildNawatLinkedGrammarSelectionSummarySubLabels(summary = null, {
+    maxRoutes = 3,
+    maxStagesPerRoute = 1,
+    includeCurrentSource = true,
+    includeOptionCount = true,
+    includeDiagnostics = true,
+} = {}) {
+    if (!summary || summary.outputKind !== "linked-grammar-path-selection-summary") {
+        return [];
+    }
+    const labels = [];
+    const currentSourceVerb = String(summary.currentSource?.sourceVerb || summary.initialSource?.sourceVerb || "").trim();
+    if (includeCurrentSource && currentSourceVerb) {
+        labels.push(`Fuente actual: ${currentSourceVerb}`);
+    }
+    const appendableSelectionCount = Number(summary.appendableSelectionCount || 0);
+    if (includeOptionCount && Number.isFinite(appendableSelectionCount) && appendableSelectionCount > 0) {
+        labels.push(`Opciones siguientes: ${appendableSelectionCount}`);
+    }
+    const routeLimit = Math.max(0, Number.isFinite(Number(maxRoutes)) ? Number(maxRoutes) : 0);
+    const stageLimit = Math.max(0, Number.isFinite(Number(maxStagesPerRoute)) ? Number(maxStagesPerRoute) : 0);
+    const nextRoutes = Array.isArray(summary.nextRoutes) ? summary.nextRoutes : [];
+    nextRoutes.slice(0, routeLimit).forEach((route) => {
+        const routeId = String(route?.routeId || "").trim();
+        const appendableStages = Array.isArray(route?.appendableStages) ? route.appendableStages : [];
+        appendableStages.slice(0, stageLimit).forEach((stage) => {
+            const selection = stage?.selection && typeof stage.selection === "object"
+                ? stage.selection
+                : null;
+            const stageKey = String(
+                selection?.stageKey
+                    || stage?.stageKey
+                    || stage?.stationKey
+                    || ""
+            ).trim();
+            const sourceVerb = String(stage?.sourceVerb || stage?.nextSource?.sourceVerb || "").trim();
+            const routeStageLabel = formatNawatLinkedGrammarCompactChoiceLabel({
+                routeId,
+                routeFamily: route?.routeFamily || "",
+                stageKey,
+            });
+            if (routeStageLabel && sourceVerb) {
+                labels.push(`Siguiente salida: ${routeStageLabel} → ${sourceVerb}`);
+                return;
+            }
+            if (routeStageLabel) {
+                labels.push(`Siguiente salida: ${routeStageLabel}`);
+                return;
+            }
+            if (sourceVerb) {
+                labels.push(`Siguiente salida: ${sourceVerb}`);
+            }
+        });
+    });
+    if (includeDiagnostics) {
+        const diagnostics = Array.isArray(summary.diagnostics) ? summary.diagnostics : [];
+        diagnostics.forEach((diagnostic) => {
+            const message = String(diagnostic?.message || diagnostic || "").trim();
+            if (message) {
+                labels.push(`Diagnóstico: ${message}`);
+            }
+        });
+    }
+    return labels.filter(Boolean);
+}
+
+function appendNawatLinkedGrammarSelectionSummarySubLabels(baseLabel = "", summary = null, options = {}) {
+    return [
+        baseLabel,
+        ...buildNawatLinkedGrammarSelectionSummarySubLabels(summary, options),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildNawatLinkedGrammarSelectedPathSubLabels(summary = null) {
+    if (!summary || summary.outputKind !== "linked-grammar-path-selection-summary") {
+        return [];
+    }
+    const selectedSteps = Array.isArray(summary.selectedSteps) ? summary.selectedSteps : [];
+    const selectedLabels = selectedSteps
+        .map((step) => {
+            return formatNawatLinkedGrammarCompactChoiceLabel({
+                routeId: step?.selection?.routeId || step?.route?.routeId || "",
+                routeFamily: step?.route?.routeFamily || "",
+                stageKey: step?.selection?.stageKey || step?.selectedStage?.stationKey || "",
+            });
+        })
+        .filter(Boolean);
+    const labels = [];
+    if (selectedLabels.length) {
+        labels.push(`Trayecto: ${selectedLabels.join(" → ")}`);
+    }
+    labels.push(...buildNawatLinkedGrammarSelectionSummarySubLabels(summary, {
+        maxRoutes: 1,
+        maxStagesPerRoute: 1,
+    }));
+    return labels.filter(Boolean);
+}
+
+function getNawatLinkedGrammarAppendableSelections(summary = null, {
+    maxChoices = 6,
+} = {}) {
+    if (!summary || summary.outputKind !== "linked-grammar-path-selection-summary") {
+        return [];
+    }
+    const limit = Math.max(0, Number.isFinite(Number(maxChoices)) ? Number(maxChoices) : 6);
+    if (!limit) {
+        return [];
+    }
+    const choices = [];
+    const nextRoutes = Array.isArray(summary.nextRoutes) ? summary.nextRoutes : [];
+    for (const route of nextRoutes) {
+        const routeId = String(route?.routeId || "").trim();
+        const appendableStages = Array.isArray(route?.appendableStages) ? route.appendableStages : [];
+        for (const stage of appendableStages) {
+            const selection = stage?.selection && typeof stage.selection === "object"
+                ? stage.selection
+                : {};
+            const selectedRouteId = String(selection.routeId || routeId || "").trim();
+            const selectedStageKey = String(
+                selection.stageKey
+                || stage?.stageKey
+                || stage?.stationKey
+                || ""
+            ).trim();
+            if (!selectedRouteId || !selectedStageKey) {
+                continue;
+            }
+            choices.push({
+                routeId: selectedRouteId,
+                routeFamily: route?.routeFamily || "",
+                stageKey: selectedStageKey,
+                stationKey: stage?.stationKey || "",
+                sourceVerb: String(stage?.sourceVerb || "").trim(),
+                displaySurface: String(stage?.displaySurface || stage?.sourceVerb || "").trim(),
+                sourceObjectPrefix: String(stage?.objectPrefix || "").trim(),
+                selection: {
+                    routeId: selectedRouteId,
+                    stageKey: selectedStageKey,
+                },
+            });
+            if (choices.length >= limit) {
+                return choices;
+            }
+        }
+    }
+    return choices;
+}
+
+function getFirstNawatLinkedGrammarAppendableSelection(summary = null) {
+    return getNawatLinkedGrammarAppendableSelections(summary, { maxChoices: 1 })[0] || null;
+}
+
+function buildNawatLinkedGrammarPathExecutionSubLabels(execution = null) {
+    if (!execution || execution.outputKind !== "linked-grammar-path-chain-execution") {
+        return [];
+    }
+    const steps = Array.isArray(execution.steps) ? execution.steps : [];
+    const executedSteps = steps.filter((step) => step?.status === "executed");
+    const lastGenerated = executedSteps[executedSteps.length - 1]?.generated || null;
+    const finalSurface = String(lastGenerated?.primarySurface || lastGenerated?.result || "").trim();
+    return [
+        executedSteps.length ? `Trayecto generado: ${executedSteps.length}` : "",
+        finalSurface ? `Salida final: ${finalSurface}` : "",
+        execution.stoppedReason ? `Alto: ${execution.stoppedReason}` : "",
+    ].filter(Boolean);
+}
+
+function buildNawatLinkedGrammarPromotedSourceSubLabels(promotedSource = null) {
+    const sourceVerb = String(promotedSource?.sourceVerb || "").trim();
+    if (!sourceVerb) {
+        return [];
+    }
+    const displaySurface = String(promotedSource?.displaySurface || "").trim();
+    const sourceInput = String(promotedSource?.sourceInputDisplay || promotedSource?.sourceInput || "").trim();
+    return [
+        `Fuente: ${sourceVerb}`,
+        displaySurface && displaySurface !== sourceVerb ? `Salida: ${displaySurface}` : "",
+        sourceInput && sourceInput !== sourceVerb ? `Entrada previa: ${sourceInput}` : "",
+    ].filter(Boolean);
+}
+
+function getNawatLinkedGrammarStageRailKey(stage = null) {
+    const stageKey = String(stage?.key || "").trim();
+    const stationKey = String(stage?.stationKey || "").trim();
+    const key = stationKey || stageKey;
+    if (key === "source-mode" || key === "source-tense" || stageKey === "source-mode" || stageKey === "source-tense") {
+        return "source";
+    }
+    if (key === "stem" || stageKey === "stem") {
+        return "tronco";
+    }
+    if (key === "verbalizer" || key === "target-mode" || stageKey === "verbalizer" || stageKey === "target-mode") {
+        return "verbalizer";
+    }
+    if (key === "finite-tense" || stageKey === "finite-surface") {
+        return "finite";
+    }
+    if (key === "patientivo-branch" || key === "surface-profile") {
+        return "patientivo";
+    }
+    return key;
+}
+
+function attachNawatLinkedGrammarStagesToRailStations(stations = [], linkedStages = [], {
+    routeKey = "",
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    activateStation = null,
+    previewNextSource = null,
+    buildSelectionSummary = null,
+    appendSelection = null,
+} = {}) {
+    if (!Array.isArray(stations) || !stations.length || !Array.isArray(linkedStages) || !linkedStages.length) {
+        return Array.isArray(stations) ? stations : [];
+    }
+    const stageByRailKey = new Map();
+    linkedStages.forEach((stage) => {
+        const railKey = getNawatLinkedGrammarStageRailKey(stage);
+        if (!railKey || stageByRailKey.has(railKey)) {
+            return;
+        }
+        const nextPreview = typeof previewNextSource === "function"
+            ? previewNextSource(stage)
+            : null;
+        const linkedLabels = buildNawatLinkedGrammarStageSubLabels(stage, { nextPreview });
+        if (!linkedLabels.length) {
+            return;
+        }
+        const selectionSummary = typeof buildSelectionSummary === "function"
+            ? buildSelectionSummary(stage, { nextPreview })
+            : null;
+        const selectionLabels = buildNawatLinkedGrammarSelectionSummarySubLabels(selectionSummary, {
+            includeCurrentSource: false,
+            includeOptionCount: false,
+            maxRoutes: 1,
+            maxStagesPerRoute: 1,
+        });
+        const firstAppendableChoice = (Array.isArray(selectionSummary?.nextRoutes) ? selectionSummary.nextRoutes : [])
+            .flatMap((route) => (Array.isArray(route?.appendableStages) ? route.appendableStages : []))
+            .find((choice) => choice?.selection?.routeId && choice?.selection?.stageKey) || null;
+        stageByRailKey.set(railKey, {
+            stage,
+            nextPreview,
+            linkedLabels,
+            selectionSummary,
+            selectionLabels,
+            firstAppendableChoice,
+        });
+    });
+    if (!stageByRailKey.size) {
+        return stations;
+    }
+    return stations.map((station) => {
+        const railKey = String(station?.key || "").trim();
+        const entry = stageByRailKey.get(railKey);
+        if (!entry?.stage) {
+            return station;
+        }
+        const { stage, nextPreview, linkedLabels, selectionSummary, selectionLabels, firstAppendableChoice } = entry;
+        const linkedLabel = linkedLabels.join(" · ");
+        const selectionLabel = selectionLabels.join(" · ");
+        const firstAppendableSelection = firstAppendableChoice?.selection || null;
+        const firstAppendableActivation = firstAppendableSelection
+            ? {
+                routeKey: firstAppendableSelection.routeId || "",
+                stationKey: firstAppendableSelection.stageKey || "",
+                sourceVerb: stage.nextSource?.sourceVerb || "",
+                sourceObjectPrefix: stage.nextSource?.objectPrefix || "",
+            }
+            : null;
+        const canAppendSelection = Boolean(firstAppendableActivation)
+            && typeof appendSelection === "function";
+        const stageRouteKey = String(routeKey || stage.nextSource?.routeId || "").trim();
+        const routeStationKey = String(stage.stationKey || stage.key || "").trim();
+        const stageRouteSourceVerb = String(stage.routeContext?.sourceVerb || sourceVerb || "").trim();
+        const stageRouteSourceObjectPrefix = stage.routeContext?.sourceObjectPrefix || sourceObjectPrefix || "";
+        const canActivate = (
+            stageRouteKey
+            && routeStationKey
+            && typeof activateStation === "function"
+        );
+        return {
+            ...station,
+            linkedGrammarPathStage: stage,
+            linkedNextSource: stage.nextSource || null,
+            linkedNextSourcePreview: nextPreview,
+            linkedNextRouteCount: nextPreview?.candidateRouteCount || 0,
+            linkedSelectionSummary: selectionSummary || null,
+            linkedAppendableSelectionCount: selectionSummary?.appendableSelectionCount || 0,
+            linkedAppendableSelection: firstAppendableSelection,
+            linkedAppendableActivation: firstAppendableActivation,
+            linkedAppendableAction: canAppendSelection
+                ? (anchorElement) => appendSelection(firstAppendableSelection, {
+                    anchorElement,
+                    sourceVerb: firstAppendableActivation.sourceVerb,
+                    sourceObjectPrefix: firstAppendableActivation.sourceObjectPrefix,
+                    stage,
+                    selectionSummary,
+                })
+                : null,
+            linkedAppendableChoiceLabel: selectionLabel,
+            linkedNextSourceLabel: linkedLabel,
+            sublabel: [station.sublabel, linkedLabel, selectionLabel].filter(Boolean).join(" · "),
+            action: canActivate
+                ? (anchorElement) => activateStation(stageRouteKey, routeStationKey, {
+                    render: true,
+                    anchorElement,
+                    sourceVerb: stageRouteSourceVerb,
+                    sourceObjectPrefix: stageRouteSourceObjectPrefix,
+                })
+                : station.action,
+        };
+    });
+}
+
+function buildNuclearClauseShellSubLabels(shell = null) {
+    if (!shell || shell.kind !== "nuclear-clause-shell") {
+        return [];
+    }
+    const label = shell.displayLabel || (
+        shell.formulaType && shell.formulaType !== "unknown"
+            ? `Clausula ${shell.formulaType}`
+            : "Clausula nuclear"
+    );
+    const formula = String(shell.formula || "").trim();
+    const formulaEcho = String(shell.formulaEcho || "").trim();
+    const formulaEchoLabel = formulaEcho && shell.formulaType === "VNC"
+        ? `Formula VNC: ${formulaEcho}`
+        : "";
+    return [
+        formula ? `${label}: ${formula}` : label,
+        formulaEchoLabel,
+    ].filter(Boolean);
+}
+
+function appendNuclearClauseShellSubLabels(baseLabel = "", shell = null) {
+    return [
+        baseLabel,
+        ...buildNuclearClauseShellSubLabels(shell),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildVncValencyFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "vnc-valency-frame") {
+        return [];
+    }
+    const labels = [];
+    const valencyLabel = String(frame.valencyLabel || frame.valency || "").trim();
+    if (valencyLabel) {
+        labels.push(`Valencia VNC: ${valencyLabel}`);
+    }
+    const objectDisplay = String(frame.object?.displayPrefix || "").trim();
+    if (objectDisplay) {
+        labels.push(`Objeto VNC: ${objectDisplay}`);
+    }
+    return labels;
+}
+
+function appendVncValencyFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildVncValencyFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildDerivedVoiceFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "derived-voice-frame") {
+        return [];
+    }
+    const labels = [];
+    const voiceLabel = String(frame.voice?.label || "").trim();
+    if (voiceLabel) {
+        labels.push(`Voz derivada: ${voiceLabel}`);
+    }
+    const sourceValency = frame.valency?.sourceValency;
+    const targetValency = frame.valency?.targetValency;
+    if (Number.isFinite(sourceValency) && Number.isFinite(targetValency)) {
+        labels.push(`Valencia derivada: ${sourceValency}->${targetValency}`);
+    }
+    const baseObject = String(frame.valency?.baseObjectPrefix || "").trim();
+    const selectedObject = String(frame.valency?.selectedObjectPrefix || "").trim() || "Ø";
+    if (baseObject && baseObject !== selectedObject) {
+        labels.push(`Objeto base: ${baseObject}->${selectedObject}`);
+    }
+    return labels;
+}
+
+function appendDerivedVoiceFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildDerivedVoiceFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildForwardDerivationFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "forward-derivation-frame") {
+        return [];
+    }
+    const labels = [];
+    const derivationLabel = String(frame.derivation?.label || frame.derivation?.type || "").trim();
+    if (derivationLabel) {
+        labels.push(`Derivacion VNC: ${derivationLabel}`);
+    }
+    const sourceValency = frame.valency?.sourceValency;
+    const derivedValency = frame.valency?.derivedValency;
+    if (Number.isFinite(sourceValency) && Number.isFinite(derivedValency)) {
+        labels.push(`Valencia derivada: ${sourceValency}->${derivedValency}`);
+    }
+    const selectedStem = String(frame.stem?.selectedStem || "").trim();
+    if (selectedStem) {
+        labels.push(`Tronco derivado: ${selectedStem}`);
+    }
+    return labels;
+}
+
+function appendForwardDerivationFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildForwardDerivationFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildCompoundFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "compound-frame") {
+        return [];
+    }
+    const labels = [];
+    const matrixStem = String(frame.matrix?.stem || "").trim();
+    if (matrixStem) {
+        labels.push(`Compuesto VNC: ${matrixStem}`);
+    }
+    const embedValues = (Array.isArray(frame.embeds) ? frame.embeds : [])
+        .map((entry) => {
+            const role = String(entry?.role || "").trim();
+            const value = String(entry?.value || "").trim();
+            return value ? `${role || "embed"} ${value}`.trim() : "";
+        })
+        .filter(Boolean);
+    if (embedValues.length) {
+        labels.push(`Incrustado: ${embedValues.join(", ")}`);
+    }
+    return labels;
+}
+
+function appendCompoundFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildCompoundFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildAdverbialNuclearFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "adverbial-nuclear-frame") {
+        return [];
+    }
+    const labels = [];
+    const adverbialLabel = String(frame.adverbial?.label || "").trim();
+    if (adverbialLabel) {
+        labels.push(`Adverbial nuclear: ${adverbialLabel}`);
+    }
+    const sourceStem = String(frame.sourceVnc?.stem || "").trim();
+    if (sourceStem) {
+        labels.push(`Fuente VNC: ${sourceStem}`);
+    }
+    const sourceValency = String(frame.sourceVnc?.valency || "").trim();
+    if (sourceValency) {
+        labels.push(`Valencia fuente: ${sourceValency === "transitive" ? "transitiva" : "intransitiva"}`);
+    }
+    if (frame.boundaries?.legacyAdverbioSurfaceOnly === true) {
+        labels.push("Alcance: adverbio heredado");
+    }
+    return labels;
+}
+
+function appendAdverbialNuclearFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildAdverbialNuclearFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildRelationalNncBoundaryFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "relational-nnc-boundary-frame") {
+        return [];
+    }
+    const labels = [];
+    const statusLabel = String(frame.statusLabel || "").trim();
+    if (statusLabel) {
+        labels.push(`Relacional NNC: ${statusLabel}`);
+    }
+    const candidateLabel = String(frame.candidate?.kindLabel || frame.candidate?.nominalKind || "").trim();
+    if (candidateLabel) {
+        labels.push(`Candidato: ${candidateLabel}`);
+    }
+    if (frame.boundaries?.locativeTemporalNominalIsEvidence === false) {
+        labels.push("Evidencia relacional: no confirmada");
+    }
+    return labels;
+}
+
+function appendRelationalNncBoundaryFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildRelationalNncBoundaryFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildPlaceGentilicNncBoundaryFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "place-gentilic-nnc-boundary-frame") {
+        return [];
+    }
+    const labels = [];
+    const statusLabel = String(frame.statusLabel || "").trim();
+    if (statusLabel) {
+        labels.push(`Lugar/gentilicio: ${statusLabel}`);
+    }
+    const candidateLabel = String(frame.candidate?.kindLabel || frame.candidate?.nominalKind || "").trim();
+    if (candidateLabel) {
+        labels.push(`Candidato L/G: ${candidateLabel}`);
+    }
+    if (frame.boundaries?.locativeTemporalNominalIsEvidence === false) {
+        labels.push("Evidencia L/G: no confirmada");
+    }
+    return labels;
+}
+
+function appendPlaceGentilicNncBoundaryFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildPlaceGentilicNncBoundaryFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildAdverbialAdjunctionBoundaryFrameSubLabels(frame = null) {
+    if (!frame || frame.kind !== "adverbial-adjunction-boundary-frame") {
+        return [];
+    }
+    const labels = [];
+    const statusLabel = String(frame.statusLabel || "").trim();
+    if (statusLabel) {
+        labels.push(`Adjuncion: ${statusLabel}`);
+    }
+    const candidateLabel = String(frame.candidate?.label || "").trim();
+    if (candidateLabel) {
+        labels.push(`Unidad adjunta: ${candidateLabel}`);
+    }
+    if (frame.boundaries?.singleGeneratedWordIsEvidence === false) {
+        labels.push("Evidencia adjuncion: no confirmada");
+    }
+    return labels;
+}
+
+function appendAdverbialAdjunctionBoundaryFrameSubLabels(baseLabel = "", frame = null) {
+    return [
+        baseLabel,
+        ...buildAdverbialAdjunctionBoundaryFrameSubLabels(frame),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildVncVerbstemClassProfileSubLabels(profile = null) {
+    if (!profile || profile.kind !== "vnc-verbstem-class-profile") {
+        return [];
+    }
+    const classKey = String(profile.classKey || profile.selectedClass || "").trim();
+    if (!classKey) {
+        return [];
+    }
+    const labels = [`Clase de tronco: ${classKey}`];
+    const ruleLabel = String(profile.ruleSummary?.ruleLabel || "").trim();
+    if (ruleLabel && ruleLabel !== "default class rules") {
+        labels.push(`Diagnostico de tronco: ${ruleLabel}`);
+    }
+    return labels;
+}
+
+function appendVncVerbstemClassProfileSubLabels(baseLabel = "", profile = null) {
+    return [
+        baseLabel,
+        ...buildVncVerbstemClassProfileSubLabels(profile),
+    ].filter(Boolean).join(" · ");
+}
+
+function buildSentenceLayerSubLabels(sentenceLayer = null) {
+    if (!sentenceLayer || sentenceLayer.kind !== "sentence-layer-metadata") {
+        return [];
+    }
+    const slots = sentenceLayer.slots || {};
+    const labels = ["Capa oracional: diagnostica"];
+    const polarity = String(slots.polarity?.value || "").trim();
+    const question = String(slots.question?.value || "").trim();
+    const emphasis = String(slots.emphasis?.value || "").trim();
+    const mood = String(slots.mood?.value || "").trim();
+    if (polarity && polarity !== "affirmative") {
+        labels.push(`Negacion: ${polarity}`);
+    }
+    if (question && question !== "none") {
+        labels.push(`Pregunta: ${question}`);
+    }
+    if (emphasis && emphasis !== "none") {
+        labels.push(`Enfasis: ${emphasis}`);
+    }
+    if (mood && mood !== "declarative") {
+        labels.push(`Modo oracional: ${mood}`);
+    }
+    return labels;
+}
+
+function appendSentenceLayerSubLabels(baseLabel = "", sentenceLayer = null) {
+    return [
+        baseLabel,
+        ...buildSentenceLayerSubLabels(sentenceLayer),
+    ].filter(Boolean).join(" · ");
+}
+
 function getDefaultNawatPatientivoSourceTenseValue(patientivoSource = "") {
     return String(patientivoSource || "").trim() === "perfectivo" ? "preterito" : "presente";
 }
@@ -1249,7 +2072,7 @@ function createNawatVerbNounConversionSwitchGroup({
     section.className = "calc-guidance__route-switch-menu-section";
     const sectionLabel = document.createElement("div");
     sectionLabel.className = "calc-guidance__route-switch-menu-label";
-    sectionLabel.textContent = "ruta nawat";
+    sectionLabel.textContent = "salida";
     const options = document.createElement("div");
     options.className = "calc-guidance__route-switch-menu-options";
     profiles.forEach((profile) => {
@@ -1517,6 +2340,12 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
             railBlock.setAttribute("aria-hidden", "true");
         }
     };
+    hidePanel();
+    return;
+    if (!String(verb || "").trim()) {
+        hidePanel();
+        return;
+    }
     const getGuidanceModeClass = (mode = "") => {
         const normalized = String(mode || "").trim().toLowerCase();
         if (!normalized) {
@@ -1715,10 +2544,215 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
         setSelectedLineId(selectedLineId);
         const lineList = document.createElement("div");
         lineList.className = "calc-guidance__lines";
+        const getActiveLinkedPathSummary = () => (
+            lineSelectionStore?.activeLinkedGrammarPathSelectionSummary
+            && lineSelectionStore.activeLinkedGrammarPathSelectionSummary.outputKind === "linked-grammar-path-selection-summary"
+                ? lineSelectionStore.activeLinkedGrammarPathSelectionSummary
+                : null
+        );
+        const getActiveLinkedPathExecution = () => (
+            lineSelectionStore?.activeLinkedGrammarPathExecution
+            && lineSelectionStore.activeLinkedGrammarPathExecution.outputKind === "linked-grammar-path-chain-execution"
+                ? lineSelectionStore.activeLinkedGrammarPathExecution
+                : null
+        );
+        const getActiveLinkedPathPromotedSource = () => (
+            lineSelectionStore?.activeLinkedGrammarPathPromotedSource || null
+        );
+        const createSelectedLinkedPathSummary = () => {
+            const summary = getActiveLinkedPathSummary();
+            const execution = getActiveLinkedPathExecution();
+            const promotedSource = getActiveLinkedPathPromotedSource();
+            const appendableSelections = getNawatLinkedGrammarAppendableSelections(summary, {
+                maxChoices: 6,
+            });
+            const executionSourceOptions = (
+                typeof getNawatLinkedGrammarPathExecutionSourceOptions === "function"
+                    ? getNawatLinkedGrammarPathExecutionSourceOptions(execution)
+                    : []
+            );
+            const labels = [
+                ...buildNawatLinkedGrammarSelectedPathSubLabels(summary),
+                ...buildNawatLinkedGrammarPathExecutionSubLabels(execution),
+                ...buildNawatLinkedGrammarPromotedSourceSubLabels(promotedSource),
+            ];
+            if (!labels.length) {
+                return null;
+            }
+            const summaryRow = document.createElement("div");
+            summaryRow.className = "calc-guidance__linked-path-summary";
+            summaryRow.dataset.linkedPathSelectionCount = String(summary.selectedSteps?.length || 0);
+            const statusGroup = document.createElement("div");
+            statusGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--status";
+            const choiceGroup = document.createElement("div");
+            choiceGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--choices";
+            const actionGroup = document.createElement("div");
+            actionGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--actions";
+            labels.forEach((text, index) => {
+                const chip = document.createElement("div");
+                chip.className = [
+                    "calc-guidance__chip",
+                    "calc-guidance__chip--linked-path",
+                    index === 0 ? "calc-guidance__chip--active" : "",
+                ].filter(Boolean).join(" ");
+                const label = document.createElement("span");
+                label.className = "calc-guidance__chip-label";
+                label.textContent = text;
+                chip.appendChild(label);
+                statusGroup.appendChild(chip);
+            });
+            summaryRow.appendChild(statusGroup);
+            if (
+                summary?.selectedSteps?.length
+                && typeof executeActiveNawatLinkedGrammarPathSelections === "function"
+            ) {
+                const executeButton = document.createElement("button");
+                executeButton.type = "button";
+                executeButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-execute";
+                executeButton.dataset.linkedPathExecute = "true";
+                const executeLabel = document.createElement("span");
+                executeLabel.className = "calc-guidance__chip-label";
+                executeLabel.textContent = "generar trayecto";
+                executeButton.appendChild(executeLabel);
+                executeButton.addEventListener("click", () => {
+                    executeActiveNawatLinkedGrammarPathSelections();
+                    executeButton.dataset.linkedPathExecuted = "true";
+                    renderLineRows(titleText, lines);
+                });
+                actionGroup.appendChild(executeButton);
+            }
+            if (
+                summary?.selectedSteps?.length
+                && typeof removeLastActiveNawatLinkedGrammarPathSelection === "function"
+            ) {
+                const backButton = document.createElement("button");
+                backButton.type = "button";
+                backButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-back";
+                backButton.dataset.linkedPathBack = "true";
+                const backLabel = document.createElement("span");
+                backLabel.className = "calc-guidance__chip-label";
+                backLabel.textContent = "atrás";
+                backButton.appendChild(backLabel);
+                backButton.addEventListener("click", () => {
+                    removeLastActiveNawatLinkedGrammarPathSelection();
+                    backButton.dataset.linkedPathBacktracked = "true";
+                    renderLineRows(titleText, lines);
+                });
+                actionGroup.appendChild(backButton);
+            }
+            if (typeof appendActiveNawatLinkedGrammarPathSelection === "function") {
+                appendableSelections.forEach((appendableSelection, choiceIndex) => {
+                    if (!appendableSelection?.selection) {
+                        return;
+                    }
+                    const appendButton = document.createElement("button");
+                    appendButton.type = "button";
+                    appendButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-choice";
+                    appendButton.dataset.linkedPathAppendSummary = "true";
+                    appendButton.dataset.linkedPathChoiceIndex = String(choiceIndex);
+                    const appendLabel = document.createElement("span");
+                    appendLabel.className = "calc-guidance__chip-label";
+                    appendLabel.textContent = "seguir";
+                    appendButton.appendChild(appendLabel);
+                    const appendSublabelText = [
+                        formatNawatLinkedGrammarCompactChoiceLabel(appendableSelection),
+                        appendableSelection.sourceVerb,
+                    ].filter(Boolean).join(" → ");
+                    if (appendSublabelText) {
+                        const appendSublabel = document.createElement("span");
+                        appendSublabel.className = "calc-guidance__chip-sublabel";
+                        appendSublabel.textContent = appendSublabelText;
+                        appendButton.appendChild(appendSublabel);
+                    }
+                    appendButton.addEventListener("click", () => {
+                        appendActiveNawatLinkedGrammarPathSelection(appendableSelection.selection);
+                        appendButton.dataset.linkedPathAppended = "true";
+                        renderLineRows(titleText, lines);
+                    });
+                    choiceGroup.appendChild(appendButton);
+                });
+            }
+            if (
+                execution?.steps?.length
+                && executionSourceOptions.length > 1
+                && typeof promoteActiveNawatLinkedGrammarPathExecutionStepSource === "function"
+            ) {
+                executionSourceOptions.slice(0, -1).forEach((sourceOption) => {
+                    const stepNumber = Number(sourceOption.fromStepIndex) + 1;
+                    const stepButton = document.createElement("button");
+                    stepButton.type = "button";
+                    stepButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-promote";
+                    stepButton.dataset.linkedPathPromoteStep = String(sourceOption.fromStepIndex);
+                    const stepLabel = document.createElement("span");
+                    stepLabel.className = "calc-guidance__chip-label";
+                    stepLabel.textContent = `usar etapa ${stepNumber}`;
+                    stepButton.appendChild(stepLabel);
+                    const stepSublabelText = sourceOption.sourceVerb || sourceOption.generatedSurface || "";
+                    if (stepSublabelText) {
+                        const stepSublabel = document.createElement("span");
+                        stepSublabel.className = "calc-guidance__chip-sublabel";
+                        stepSublabel.textContent = stepSublabelText;
+                        stepButton.appendChild(stepSublabel);
+                    }
+                    stepButton.addEventListener("click", () => {
+                        promoteActiveNawatLinkedGrammarPathExecutionStepSource(sourceOption.fromStepIndex, {
+                            syncInput: true,
+                        });
+                        stepButton.dataset.linkedPathPromoted = "true";
+                        renderLineRows(titleText, lines);
+                    });
+                    actionGroup.appendChild(stepButton);
+                });
+            }
+            if (
+                execution?.steps?.length
+                && typeof promoteActiveNawatLinkedGrammarPathExecutionFinalSource === "function"
+            ) {
+                const promoteButton = document.createElement("button");
+                promoteButton.type = "button";
+                promoteButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-promote";
+                promoteButton.dataset.linkedPathPromote = "true";
+                const promoteLabel = document.createElement("span");
+                promoteLabel.className = "calc-guidance__chip-label";
+                promoteLabel.textContent = "usar salida";
+                promoteButton.appendChild(promoteLabel);
+                promoteButton.addEventListener("click", () => {
+                    promoteActiveNawatLinkedGrammarPathExecutionFinalSource({
+                        syncInput: true,
+                    });
+                    promoteButton.dataset.linkedPathPromoted = "true";
+                    renderLineRows(titleText, lines);
+                });
+                actionGroup.appendChild(promoteButton);
+            }
+            if (typeof clearActiveNawatLinkedGrammarPathSelections === "function") {
+                const clearButton = document.createElement("button");
+                clearButton.type = "button";
+                clearButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-clear";
+                clearButton.dataset.linkedPathClear = "true";
+                const clearLabel = document.createElement("span");
+                clearLabel.className = "calc-guidance__chip-label";
+                clearLabel.textContent = "borrar";
+                clearButton.appendChild(clearLabel);
+                clearButton.addEventListener("click", () => {
+                    clearActiveNawatLinkedGrammarPathSelections();
+                    clearButton.dataset.linkedPathCleared = "true";
+                    renderLineRows(titleText, lines);
+                });
+                actionGroup.appendChild(clearButton);
+            }
+            if (choiceGroup.childNodes.length) {
+                summaryRow.appendChild(choiceGroup);
+            }
+            if (actionGroup.childNodes.length) {
+                summaryRow.appendChild(actionGroup);
+            }
+            return summaryRow;
+        };
         const lineToggles = document.createElement("div");
         lineToggles.className = "calc-guidance__line-toggles";
         lineToggles.setAttribute("role", "tablist");
-        lineToggles.setAttribute("aria-label", "Líneas de ruta nawat");
+        lineToggles.setAttribute("aria-label", "Líneas de salida");
         lines.forEach((line) => {
             const button = document.createElement("button");
             button.type = "button";
@@ -1749,13 +2783,31 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
                     separator.textContent = "→";
                     track.appendChild(separator);
                 }
-                const chip = document.createElement("div");
+                const hasAction = typeof station.action === "function";
+                const chip = document.createElement(hasAction ? "button" : "div");
+                if (hasAction) {
+                    chip.type = "button";
+                }
                 chip.className = [
                     "calc-guidance__chip",
                     "calc-guidance__chip--station",
+                    hasAction ? "calc-guidance__chip--button" : "",
                     getGuidanceModeClass(station.mode),
                     station.active ? "calc-guidance__chip--active" : "",
                 ].filter(Boolean).join(" ");
+                if (station.linkedNextSource?.sourceVerb) {
+                    chip.dataset.linkedNextSource = station.linkedNextSource.sourceVerb;
+                }
+                if (station.linkedAppendableSelectionCount) {
+                    chip.dataset.linkedAppendableSelectionCount = String(station.linkedAppendableSelectionCount);
+                }
+                const linkedTitle = [
+                    station.linkedNextSourceLabel,
+                    station.linkedAppendableChoiceLabel,
+                ].filter(Boolean).join(" · ");
+                if (linkedTitle) {
+                    chip.title = linkedTitle;
+                }
                 const modeMarker = getGuidanceModeMarker(station.mode);
                 if (modeMarker) {
                     const marker = document.createElement("span");
@@ -1773,7 +2825,44 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
                     sublabel.textContent = station.sublabel;
                     chip.appendChild(sublabel);
                 }
+                if (hasAction) {
+                    chip.addEventListener("click", () => {
+                        station.action(chip);
+                    });
+                }
                 track.appendChild(chip);
+                if (typeof station.linkedAppendableAction === "function") {
+                    const choice = document.createElement("button");
+                    choice.type = "button";
+                    choice.className = [
+                        "calc-guidance__chip",
+                        "calc-guidance__chip--button",
+                        "calc-guidance__chip--linked-choice",
+                        getGuidanceModeClass(station.mode),
+                    ].filter(Boolean).join(" ");
+                    choice.dataset.linkedAppendableRoute = station.linkedAppendableSelection?.routeId || "";
+                    choice.dataset.linkedAppendableStage = station.linkedAppendableSelection?.stageKey || "";
+                    if (station.linkedAppendableChoiceLabel) {
+                        choice.title = station.linkedAppendableChoiceLabel;
+                    }
+                    const choiceLabel = document.createElement("span");
+                    choiceLabel.className = "calc-guidance__chip-label";
+                    choiceLabel.textContent = "seguir";
+                    choice.appendChild(choiceLabel);
+                    if (station.linkedAppendableChoiceLabel) {
+                        const choiceSubLabel = document.createElement("span");
+                        choiceSubLabel.className = "calc-guidance__chip-sublabel";
+                        choiceSubLabel.textContent = station.linkedAppendableChoiceLabel;
+                        choice.appendChild(choiceSubLabel);
+                    }
+                    choice.addEventListener("click", () => {
+                        station.linkedAppendableAction(choice);
+                        choice.dataset.linkedPathAppended = "true";
+                        choice.setAttribute("aria-pressed", "true");
+                        renderLineRows(titleText, lines);
+                    });
+                    track.appendChild(choice);
+                }
             });
             row.appendChild(track);
             lineList.appendChild(row);
@@ -1786,6 +2875,10 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
         }
         panel.appendChild(lineToggles);
         panel.appendChild(lineList);
+        const selectedPathSummary = createSelectedLinkedPathSummary();
+        if (selectedPathSummary) {
+            panel.appendChild(selectedPathSummary);
+        }
     };
     const getCurrentMovementTenseValue = (mode = getActiveTenseMode()) => {
         const state = getCurrentResolvedConjugationSelectionState({
@@ -1840,6 +2933,10 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
     const activeRoute = typeof getActiveNawatRouteProfile === "function"
         ? getActiveNawatRouteProfile()
         : null;
+    if (!resolvedVerb && !activeRoute) {
+        hidePanel();
+        return;
+    }
     const activeMode = getActiveTenseMode();
     const getCurrentRailStationKey = () => {
         const routeStore = typeof getNawatRouteStateStore === "function"
@@ -1928,8 +3025,19 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
             ? String(routeStore?.activeLocativeIncorporatedRoot || "").trim()
             : "";
         const locativeMatrixRoot = hasLocativeContext
-            ? (String(routeStore?.activeLocativeMatrixRoot || "").trim() || "ni")
-            : "ni";
+            ? (String(routeStore?.activeLocativeMatrixRoot || "").trim() || "tajtani")
+            : "tajtani";
+        const activeRouteKey = activeRoute?.id || activeRoute?.legacyTenseValue || "";
+        const activeRouteSourceVerb = String(activeRoute?.sourceVerb || resolvedVerb || "").trim();
+        const activeRouteSourceObjectPrefix = activeRoute?.sourceObjectPrefix || "";
+        const activeRouteTarget = activeRoute && typeof activeRoute === "object" ? activeRoute : null;
+        const linkedStages = activeRouteKey && typeof buildNawatLinkedGrammarPathStages === "function"
+            ? buildNawatLinkedGrammarPathStages(activeRoute, {
+                sourceVerb: activeRouteSourceVerb,
+                sourceObjectPrefix: activeRouteSourceObjectPrefix,
+                routeTarget: activeRouteTarget,
+            })
+            : [];
         const sourceStation = {
             key: "source",
             text: "entrada",
@@ -1995,14 +3103,40 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
             .filter((line) => availableLineIds.has(line.id))
             .map((line) => ({
                 ...line,
-                stations: line.stations.map((station) => ({
-                    ...station,
-                    active: station.key === currentStationKey,
-                })),
+                stations: attachNawatLinkedGrammarStagesToRailStations(
+                    line.stations.map((station) => ({
+                        ...station,
+                        active: station.key === currentStationKey,
+                    })),
+                    linkedStages,
+                    {
+                        routeKey: activeRouteKey,
+                        sourceVerb: activeRouteSourceVerb,
+                        sourceObjectPrefix: activeRouteSourceObjectPrefix,
+                        activateStation: typeof activateNawatRouteStation === "function"
+                            ? activateNawatRouteStation
+                            : null,
+                        previewNextSource: typeof previewNawatLinkedGrammarPathNextSource === "function"
+                            ? previewNawatLinkedGrammarPathNextSource
+                            : null,
+                        buildSelectionSummary: typeof buildNawatLinkedGrammarPathSelectionSummary === "function"
+                            ? (stage) => buildNawatLinkedGrammarPathSelectionSummary({
+                                sourceVerb: stage?.nextSource?.sourceVerb || "",
+                                sourceObjectPrefix: stage?.nextSource?.objectPrefix || "",
+                            })
+                            : null,
+                        appendSelection: typeof appendActiveNawatLinkedGrammarPathSelection === "function"
+                            ? (selection, options = {}) => appendActiveNawatLinkedGrammarPathSelection(selection, {
+                                sourceVerb: options.sourceVerb || "",
+                                sourceObjectPrefix: options.sourceObjectPrefix || "",
+                            })
+                            : null,
+                    }
+                ),
             }));
     };
     const renderNawatLineBoard = () => {
-        renderLineRows("ruta nawat", buildNawatLineModels());
+        renderLineRows("salida dinámica", buildNawatLineModels());
     };
     if (activeRoute?.targetMode && activeRoute?.targetTenseValue) {
         const targetMode = TENSE_MODE[activeRoute.targetMode] || activeRoute.targetMode;
@@ -2044,6 +3178,35 @@ function resolveRenderableVerbValue(verb = "") {
     return isComposerTemplateOnlyBaseValue(baseValue) ? "" : candidate;
 }
 
+function renderOutputSelectionRequiredPlaceholder({
+    containerId = "all-tense-conjugations",
+    titleText = "Salida",
+    message = "",
+} = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        return;
+    }
+    const { grid } = createObjectSectionGrid(container);
+    const block = document.createElement("div");
+    block.className = "tense-block tense-block--selection-required";
+    const title = document.createElement("div");
+    title.className = "tense-block__title";
+    const label = document.createElement("span");
+    label.className = "tense-block__label";
+    label.textContent = titleText;
+    title.appendChild(label);
+    block.appendChild(title);
+    const list = document.createElement("div");
+    list.className = "conjugation-list";
+    const placeholder = document.createElement("div");
+    placeholder.className = "tense-placeholder";
+    placeholder.textContent = message;
+    list.appendChild(placeholder);
+    block.appendChild(list);
+    grid.appendChild(block);
+}
+
 function renderOrdinaryNncConjugations({
     stem,
     containerId = "all-tense-conjugations",
@@ -2063,7 +3226,10 @@ function renderOrdinaryNncConjugations({
         ? resolveOrdinaryNncFixture({ stem: normalizedStem, states: ["absolutive"], numbers: ["singular"] })
         : null;
     const fixtureAnimacy = fixtureProbe?.fixture?.animacy || "";
-    const activeAnimacy = fixtureAnimacy || state.animacy || "inanimate";
+    const selectedAnimacy = fixtureAnimacy || (
+        state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : ""
+    );
+    const activeAnimacy = selectedAnimacy || "inanimate";
     const isAnimateNnc = activeAnimacy === "animate";
     const activePluralType = state.pluralType === "auto"
         ? (isAnimateNnc ? "count" : "distributive")
@@ -2075,7 +3241,7 @@ function renderOrdinaryNncConjugations({
         }
         return ["t", "ti", "in"].includes(normalized) ? normalized : "";
     };
-    const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass) || "zero";
+    const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass);
     const requestNounClass = fixtureProbe ? "" : activeNounClass;
     const nounSubjectOptionById = new Map(
         (typeof getSubjectToggleOptions === "function" ? getSubjectToggleOptions() : [])
@@ -2115,6 +3281,8 @@ function renderOrdinaryNncConjugations({
     } = {}) => {
         if (
             !normalizedStem
+            || (!fixtureProbe && !requestNounClass)
+            || (!fixtureProbe && !selectedAnimacy)
             || typeof buildOrdinaryNncGenerateWordRequest !== "function"
             || typeof executeGenerateWordRequest !== "function"
         ) {
@@ -2333,6 +3501,20 @@ function renderOrdinaryNncConjugations({
         list.appendChild(placeholder);
         return;
     }
+    if (!fixtureProbe && !activeNounClass) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "tense-placeholder";
+        placeholder.textContent = "Selecciona un conector num1-num2 para saber su salida.";
+        list.appendChild(placeholder);
+        return;
+    }
+    if (!fixtureProbe && !selectedAnimacy) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "tense-placeholder";
+        placeholder.textContent = "Selecciona una animacidad para saber su salida.";
+        list.appendChild(placeholder);
+        return;
+    }
     const request = buildOrdinaryNncGenerateWordRequest({
         stem: normalizedStem,
         nounClass: requestNounClass,
@@ -2382,6 +3564,8 @@ function renderOrdinaryNncConjugations({
         ? `Marcacion posesiva: ${rowPossessiveState.markingAvailable ? "disponible" : "no disponible"}`
         : "";
     personSub.textContent = [
+        ...buildNuclearClauseShellSubLabels(result.nuclearClauseShell),
+        ...buildSentenceLayerSubLabels(result.sentenceLayer),
         rowFormulaEcho ? `Formula NNC: ${rowFormulaEcho}` : "",
         rowPredicateFormula,
         rowNounClassLabel ? `clase ${rowNounClassLabel}` : "",
@@ -2415,6 +3599,7 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
     let renderObjectPrefix = objectPrefix;
     const tenseOverride = onlyTense || tense || "";
     const selectionState = getCurrentResolvedConjugationSelectionState();
+    const activeTenseMode = getActiveTenseMode();
     const activeRoute = typeof getActiveNawatRouteProfile === "function"
         ? getActiveNawatRouteProfile()
         : null;
@@ -2428,15 +3613,45 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
         renderVerb = activeRoute.activeStationVerb || activeRoute.activeStationInput || activeRoute.targetVerb;
         renderObjectPrefix = activeRoute.activeStationObjectPrefix || activeRoute.targetObjectPrefix || "";
     }
+    const routeStore = typeof getNawatRouteStateStore === "function"
+        ? getNawatRouteStateStore()
+        : null;
+    const activeLocativePrelocativeVerb = String(routeStore?.activeLocativePrelocativeVerb || "").trim();
+    const activeLocativePromotedObjectPrefix = String(routeStore?.activeLocativePromotedObjectPrefix || "").trim();
+    if (
+        activeTenseMode === TENSE_MODE.verbo
+        && activeLocativePrelocativeVerb
+        && activeLocativePrelocativeVerb === renderVerb
+        && activeLocativePromotedObjectPrefix
+    ) {
+        renderObjectPrefix = activeLocativePromotedObjectPrefix;
+    }
     updateTensePanelDescription();
-    renderOutputGuidancePanel({ verb: renderVerb });
     if (isOrdinaryNncGenerationModeEnabled()) {
+        renderOutputGuidancePanel({ verb: "" });
         clearUnifiedVerbOutputDataset();
         renderOrdinaryNncConjugations({ stem: renderVerb, containerId: "all-tense-conjugations" });
         updateCalcSummaryAndStatus();
         return;
     }
-    const activeTenseMode = getActiveTenseMode();
+    if (
+        activeTenseMode === TENSE_MODE.verbo
+        && typeof isVerbInputModeComposer === "function"
+        && isVerbInputModeComposer()
+        && typeof isComposerTransitivitySelected === "function"
+        && !isComposerTransitivitySelected()
+    ) {
+        renderOutputGuidancePanel({ verb: "" });
+        clearUnifiedVerbOutputDataset();
+        renderOutputSelectionRequiredPlaceholder({
+            message: "Selecciona una transitividad para saber su salida.",
+        });
+        updateCalcSummaryAndStatus();
+        return;
+    }
+    const isPatientivoSalidaMode = activeTenseMode === TENSE_MODE.sustantivo
+        && selectionState.tenseValue === "patientivo";
+    renderOutputGuidancePanel({ verb: isPatientivoSalidaMode ? "" : renderVerb });
     if (activeTenseMode === TENSE_MODE.sustantivo) {
         clearUnifiedVerbOutputDataset();
         renderNounConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
@@ -2674,6 +3889,7 @@ function buildVerbTenseBlock({
     forceDefaultTodosKi = false,
     allowIndirectObjectToggle = false,
     indirectTogglePrefixes = [],
+    preferredObjectPrefix = "",
     grammarState = null,
     grammarUiConfig = null,
 }) {
@@ -2822,12 +4038,18 @@ function buildVerbTenseBlock({
         isNonactiveMode,
         fallbackIds: [getPreferredObjectPrefix(prefixes)],
     });
+    const explicitPreferredObjectPrefix = String(preferredObjectPrefix || "").trim();
+    const hasExplicitPreferredObject = !isIntransitiveGroup
+        && explicitPreferredObjectPrefix
+        && objectOptionMap.has(explicitPreferredObjectPrefix);
     let activeObjectPrefix = isIntransitiveGroup ? "" : defaultObjectPrefix;
     if (shouldSeedAllTensesDefault && !ObjectToggleState.has(objectStateKey)) {
         setToggleStateValue(ObjectToggleState, objectStateKey, "ki", { syncLock: false });
     }
     const storedObjectPrefix = getToggleStateValue(ObjectToggleState, objectStateKey);
-    if (!isIntransitiveGroup && storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
+    if (hasExplicitPreferredObject) {
+        activeObjectPrefix = explicitPreferredObjectPrefix;
+    } else if (!isIntransitiveGroup && storedObjectPrefix !== undefined && objectOptionMap.has(storedObjectPrefix)) {
         activeObjectPrefix = storedObjectPrefix;
     }
     if (isPassiveNonactive && !allowObjectToggle) {
@@ -3182,21 +4404,8 @@ function buildVerbTenseBlock({
     };
     const updateVerbTenseBlockDestination = () => {
         destinationSlot.replaceChildren();
-        const destinationPicker = createVerbTenseBlockDestinationPicker({
-            sourceVerb: verb,
-            sourceObjectPrefix: resolveDestinationSourceObjectPrefix(),
-            sourceTenseValue: tenseValue,
-            sourceCombinedMode: isNonactiveMode ? COMBINED_MODE.nonactive : COMBINED_MODE.active,
-            isNawat,
-        });
-        if (destinationPicker) {
-            destinationSlot.appendChild(destinationPicker);
-            destinationSlot.hidden = false;
-            tenseBlock.classList.add("tense-block--has-destination-menu");
-        } else {
-            destinationSlot.hidden = true;
-            tenseBlock.classList.remove("tense-block--has-destination-menu");
-        }
+        destinationSlot.hidden = true;
+        tenseBlock.classList.remove("tense-block--has-destination-menu");
     };
     tenseTitle.appendChild(titleControls);
     tenseTitle.appendChild(destinationSlot);
@@ -3236,6 +4445,110 @@ function buildVerbTenseBlock({
             form,
             objectSlotCount: getObjectSlotCountForExport(),
         }));
+    };
+
+    const appendVerbToPatientivoRowContinuation = ({
+        value,
+        evaluation,
+        sourceObjectPrefix = "",
+    } = {}) => {
+        if (
+            !value
+            || isNonactiveMode
+            || !verb
+            || !tenseValue
+            || typeof getNawatPatientivoSourceRouteKey !== "function"
+            || typeof getNawatRouteProfile !== "function"
+            || typeof isPatientivoSurfaceRouteProfile !== "function"
+            || typeof resolveNawatRouteTarget !== "function"
+            || typeof getNawatRouteFiniteSurfaceForm !== "function"
+            || typeof activateNawatRouteStation !== "function"
+        ) {
+            return false;
+        }
+        const routeKey = getNawatPatientivoSourceRouteKey({
+            sourceCombinedMode: COMBINED_MODE.active,
+            tenseValue,
+        });
+        const routeProfile = routeKey ? getNawatRouteProfile(routeKey) : null;
+        if (!routeProfile || !isPatientivoSurfaceRouteProfile(routeProfile)) {
+            return false;
+        }
+        const routeTarget = resolveNawatRouteTarget(routeProfile, {
+            sourceVerb: verb,
+            sourceObjectPrefix,
+            sourceTenseValue: tenseValue,
+            sourceCombinedMode: COMBINED_MODE.active,
+        }) || {};
+        const patientivoSurface = getNawatRouteFiniteSurfaceForm(routeProfile, {
+            sourceVerb: verb,
+            sourceObjectPrefix,
+            routeTarget,
+        });
+        if (!patientivoSurface) {
+            return false;
+        }
+        const sourceForms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        const sourceDisplay = sourceForms.length
+            ? sourceForms.join(" / ")
+            : String(evaluation?.result?.result || "").trim();
+        if (!sourceDisplay || sourceDisplay === "—") {
+            return false;
+        }
+        let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
+        if (!actions) {
+            value.replaceChildren();
+            value.classList.add("conjugation-value--conversion-picker");
+            const surfaceText = document.createElement("span");
+            surfaceText.className = "conjugation-conversion-surface";
+            const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+                ? formatConjugationDisplay(sourceDisplay)
+                : sourceDisplay;
+            groupedSurfaceDisplay
+                .split(/\n+/)
+                .map((line) => line.trim())
+                .filter(Boolean)
+                .forEach((line) => {
+                    const lineElement = document.createElement("span");
+                    lineElement.className = "conjugation-conversion-surface-line";
+                    lineElement.textContent = line;
+                    surfaceText.appendChild(lineElement);
+                });
+            actions = document.createElement("span");
+            actions.className = "conjugation-conversion-actions";
+            value.append(surfaceText, actions);
+        }
+        const continueButton = document.createElement("button");
+        continueButton.type = "button";
+        continueButton.className = [
+            "calc-guidance__chip",
+            "calc-guidance__chip--button",
+            "calc-guidance__chip--linked-promote",
+            "calc-guidance__chip--mode-sustantivo",
+        ].join(" ");
+        continueButton.dataset.verbPatientivoContinuation = "true";
+        continueButton.dataset.nawatRouteKey = routeKey;
+        const continueLabel = document.createElement("span");
+        continueLabel.className = "calc-guidance__chip-label";
+        continueLabel.textContent = `→ ${patientivoSurface}`;
+        continueButton.appendChild(continueLabel);
+        const continueSubLabel = document.createElement("span");
+        continueSubLabel.className = "calc-guidance__chip-sublabel";
+        continueSubLabel.textContent = "S patientivo";
+        continueButton.appendChild(continueSubLabel);
+        continueButton.addEventListener("click", () => {
+            activateNawatRouteStation(routeKey, "target-mode", {
+                render: true,
+                anchorElement: continueButton,
+                sourceVerb: verb,
+                sourceObjectPrefix,
+                sourceTenseValue: tenseValue,
+                sourceCombinedMode: COMBINED_MODE.active,
+            });
+        });
+        actions.appendChild(continueButton);
+        return true;
     };
 
     const updateSectionCategory = (prefix) => {
@@ -3723,11 +5036,33 @@ function buildVerbTenseBlock({
                 objectOnlyParts.push(slotLabel);
                 roleParts.push(`${slotModel.roleLabel} ${slotLabel}`.trim());
             });
-            personSub.textContent = useObjectOnlyPersonSub
+            const rowPersonSub = useObjectOnlyPersonSub
                 ? formatActiveValence3PlusPersonSub(basePersonSub, objectOnlyParts, isNawat)
                 : (roleParts.length
                     ? [basePersonSub, ...roleParts].filter(Boolean).join(" · ")
                     : [basePersonSub].filter(Boolean).join(" · "));
+            personSub.textContent = appendSentenceLayerSubLabels(
+                appendVncVerbstemClassProfileSubLabels(
+                    appendCompoundFrameSubLabels(
+                        appendForwardDerivationFrameSubLabels(
+                            appendDerivedVoiceFrameSubLabels(
+                                appendVncValencyFrameSubLabels(
+                                    appendNuclearClauseShellSubLabels(
+                                        rowPersonSub,
+                                        evaluation.result?.nuclearClauseShell
+                                    ),
+                                    evaluation.result?.vncValencyFrame
+                                ),
+                                evaluation.result?.derivedVoiceFrame
+                            ),
+                            evaluation.result?.forwardDerivationFrame
+                        ),
+                        evaluation.result?.compoundFrame
+                    ),
+                    evaluation.result?.verbstemClassProfile || evaluation.result?.stemProvenance?.verbstemClassProfile || null
+                ),
+                evaluation.result?.sentenceLayer
+            );
             const renderedValue = shouldMaskRow
                 ? "—"
                 : formatConjugationDisplay(evaluation.result.result);
@@ -3751,6 +5086,11 @@ function buildVerbTenseBlock({
                 value,
                 evaluation,
                 formattedValue: renderedValue,
+            });
+            appendVerbToPatientivoRowContinuation({
+                value,
+                evaluation,
+                sourceObjectPrefix: displaySlotValues.object || "",
             });
 
             row.appendChild(label);
@@ -4295,6 +5635,7 @@ function renderVerbConjugationsCore({
     modeKey,
     subjectKeyPrefix,
     subjectSubMode,
+    objectPrefix = "",
     includeDiagnostics = false,
 }) {
     const selectedCombinedMode = getCombinedMode();
@@ -4357,6 +5698,7 @@ function renderVerbConjugationsCore({
             forceDefaultTodosKi: modeContext.forceDefaultTodosKi,
             allowIndirectObjectToggle: modeContext.allowIndirectObjectToggle,
             indirectTogglePrefixes: modeContext.indirectTogglePrefixes,
+            preferredObjectPrefix: objectPrefix,
             grammarState: modeContext.grammarState,
             grammarUiConfig: modeContext.grammarUiConfig,
         });
@@ -5013,16 +6355,57 @@ function renderLocativoTemporalConjugations({
                     const possessorLabel = evaluation.result.possessorPrefix
                         ? getPossessorLabel(evaluation.result.possessorPrefix, isNawat)
                         : "";
-                    personSub.textContent = buildPersonSub({
-                        subjectLabel: "",
-                        possessorLabel,
-                        objectLabel,
-                    });
+                    personSub.textContent = appendSentenceLayerSubLabels(
+                        appendNuclearClauseShellSubLabels(
+                            appendAdverbialAdjunctionBoundaryFrameSubLabels(
+                                appendAdverbialNuclearFrameSubLabels(
+                                    appendRelationalNncBoundaryFrameSubLabels(
+                                        appendPlaceGentilicNncBoundaryFrameSubLabels(
+                                            appendDenominalFamilyProfileSubLabels(
+                                                appendVerbDerivedNominalizationProfileSubLabels(buildPersonSub({
+                                                    subjectLabel: "",
+                                                    possessorLabel,
+                                                    objectLabel,
+                                                }), evaluation.result?.nominalizationProfile, { isNawat }),
+                                                evaluation.result?.denominalFamilyProfile
+                                            ),
+                                            evaluation.result?.placeGentilicNncBoundaryFrame
+                                        ),
+                                        evaluation.result?.relationalNncBoundaryFrame
+                                    ),
+                                    evaluation.result?.adverbialNuclearFrame
+                                ),
+                                evaluation.result?.adverbialAdjunctionBoundaryFrame
+                            ),
+                            evaluation.result?.nuclearClauseShell
+                        ),
+                        evaluation.result?.sentenceLayer
+                    );
                     applyConjugationEvaluationPresentation({
                         row,
                         value,
                         evaluation,
                         formattedValue: formatConjugationDisplay(evaluation.result.result),
+                    });
+                    renderPatientivoPrelocativeContinuation({
+                        value,
+                        evaluation,
+                        selection: normalizedSelection,
+                        number,
+                        possessorPrefix,
+                        patientivoSource,
+                        sourceTenseValue: resolvedPatientivoSourceTenseValue,
+                        sourceCombinedMode: resolvedPatientivoSourceCombinedMode,
+                    });
+                    renderPatientivoCompoundEmbedContinuation({
+                        value,
+                        evaluation,
+                        patientivoSource,
+                    });
+                    renderPatientivoNominalCompoundContinuation({
+                        value,
+                        evaluation,
+                        patientivoSource,
                     });
 
                     row.appendChild(label);
@@ -6144,20 +7527,9 @@ function renderNounConjugations({
         if (!entry.originSlot) {
             return;
         }
-        const originText = getPatientivoBlockOriginText(entry);
         entry.originSlot.replaceChildren();
-        const originPicker = createPatientivoBlockOriginPicker(entry, originText);
-        if (originPicker) {
-            entry.originSlot.appendChild(originPicker);
-        } else if (originText) {
-            entry.originSlot.textContent = originText;
-        }
-        if (originPicker) {
-            entry.block?.classList.add("tense-block--has-origin-menu");
-        } else {
-            entry.block?.classList.remove("tense-block--has-origin-menu");
-        }
-        entry.originSlot.hidden = !(originText || originPicker);
+        entry.originSlot.hidden = true;
+        entry.block?.classList.remove("tense-block--has-origin-menu");
     };
     const getTroncoDestinationCandidateKey = (candidate = {}) => (
         [
@@ -6394,14 +7766,459 @@ function renderNounConjugations({
         picker.append(summary, menu);
         return picker;
     };
+    const stripPrelocativePatientivoConnector = (surface = "") => {
+        return typeof stripPatientivoPrelocativeConnector === "function"
+            ? stripPatientivoPrelocativeConnector(surface, {
+                patientivoNominalSuffix: activePatientivoNominalSuffix,
+            })
+            : "";
+    };
+    const resolvePrelocativeObjectFromPatientiveRow = ({
+        selection = {},
+        possessorPrefix = "",
+    } = {}) => {
+        const transfer = typeof resolvePatientivoPrelocativeObjectTransfer === "function"
+            ? resolvePatientivoPrelocativeObjectTransfer({
+                selection,
+                possessorPrefix,
+            })
+            : null;
+        return transfer?.available ? transfer : null;
+    };
+    const buildPrelocativeVerbInput = ({
+        incorporatedRoot = "",
+        matrixRoot = "ni",
+    } = {}) => {
+        return typeof buildPatientivoPrelocativeVerbInput === "function"
+            ? buildPatientivoPrelocativeVerbInput({ incorporatedRoot, matrixRoot })
+            : "";
+    };
+    const getPrelocativeFinitePreviewSurface = ({
+        incorporatedRoot = "",
+        matrixRoot = "ni",
+        objectPrefix = "",
+        prelocativeVerb = "",
+    } = {}) => {
+        const resolvedPrelocativeVerb = prelocativeVerb
+            || buildPrelocativeVerbInput({ incorporatedRoot, matrixRoot });
+        const promotedObjectPrefix = String(objectPrefix || "").trim();
+        if (!resolvedPrelocativeVerb || !promotedObjectPrefix) {
+            return "";
+        }
+        const result = getCachedSilentGenerateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: promotedObjectPrefix,
+                verb: resolvedPrelocativeVerb,
+                tense: "presente",
+                tenseMode: TENSE_MODE.verbo,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+            },
+        }) || {};
+        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length
+            ? String(result.surfaceForms[0] || "").trim()
+            : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        return surface && surface !== "—" ? surface : "";
+    };
+    const resolvePatientivoSurfaceFromEvaluation = (evaluation = {}) => {
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        if (forms.length) {
+            return forms[0];
+        }
+        const fallback = String(evaluation?.result?.result || "")
+            .split(/\s*\/\s*/g)[0]
+            ?.trim();
+        return fallback && fallback !== "—" ? fallback : "";
+    };
+    const ensurePatientivoContinuationDisplay = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (!value) {
+            return null;
+        }
+        let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
+        if (value.classList.contains("conjugation-value--conversion-picker") && actions) {
+            return actions;
+        }
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        const surfaceDisplay = forms.length
+            ? forms.join(" / ")
+            : String(evaluation?.result?.result || "").trim();
+        if (!surfaceDisplay || surfaceDisplay === "—") {
+            return null;
+        }
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+            ? formatConjugationDisplay(surfaceDisplay)
+            : surfaceDisplay;
+        groupedSurfaceDisplay
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .forEach((line) => {
+                const lineElement = document.createElement("span");
+                lineElement.className = "conjugation-conversion-surface-line";
+                lineElement.textContent = line;
+                surfaceText.appendChild(lineElement);
+            });
+        actions = document.createElement("span");
+        actions.className = "conjugation-conversion-actions";
+        value.append(surfaceText, actions);
+        return actions;
+    };
+    const getCompoundEmbedFinitePreviewSurface = ({
+        compoundVerb = "",
+        objectPrefix = "",
+    } = {}) => {
+        if (!compoundVerb) {
+            return "";
+        }
+        const result = getCachedSilentGenerateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix,
+                verb: compoundVerb,
+                tense: "presente",
+                tenseMode: TENSE_MODE.verbo,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+            },
+        }) || {};
+        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length
+            ? String(result.surfaceForms[0] || "").trim()
+            : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        return surface && surface !== "—" ? surface : "";
+    };
+    const getCharacteristicPropertyEmbedFinitePreviewSurface = ({
+        compoundVerb = "",
+        objectPrefix = "ki",
+    } = {}) => getCompoundEmbedFinitePreviewSurface({ compoundVerb, objectPrefix });
+    const getNominalCompoundPreviewSurface = ({
+        ordinaryNncRequest = null,
+    } = {}) => {
+        if (!ordinaryNncRequest || !ordinaryNncRequest.stem) {
+            return "";
+        }
+        const result = getCachedSilentGenerateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+                verb: ordinaryNncRequest.stem,
+                tense: "ordinary-nnc",
+                tenseMode: TENSE_MODE.sustantivo,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+                ordinaryNnc: {
+                    enabled: true,
+                    ...ordinaryNncRequest,
+                },
+            },
+        }) || {};
+        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length
+            ? String(result.surfaceForms[0] || "").trim()
+            : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        return surface && surface !== "—" ? surface : "";
+    };
+    const renderPatientivoNominalCompoundContinuation = ({
+        value,
+        evaluation,
+        patientivoSource = "",
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || patientivoSource === "tronco-verbal"
+            || typeof buildPatientivoNominalCompoundContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const patientivoSurface = resolvePatientivoSurfaceFromEvaluation(evaluation);
+        if (!patientivoSurface) {
+            return false;
+        }
+        const matrixInventory = typeof getPatientivoNominalCompoundMatrixInventory === "function"
+            ? getPatientivoNominalCompoundMatrixInventory()
+            : [{ id: "cal-li", nawatRoot: "kal", nounClass: "zero", animacy: "inanimate" }];
+        const contracts = matrixInventory.map((matrixSpec) => buildPatientivoNominalCompoundContinuationContract({
+            patientivoSurface,
+            sourceSurface: "",
+            patientivoNominalSuffix: activePatientivoNominalSuffix,
+            matrixRoot: matrixSpec.nawatRoot || "kal",
+        })).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyNominalCompoundContinuationContract = (contract) => {
+            if (typeof applyPatientivoNominalCompoundToOrdinaryNncEntry === "function") {
+                applyPatientivoNominalCompoundToOrdinaryNncEntry({
+                    incorporatedRoot: contract.incorporatedRoot,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    nounClass: contract.matrix?.nounClass || "zero",
+                    animacy: contract.matrix?.animacy || "inanimate",
+                    compoundStem: contract.compoundStem,
+                    ordinaryNncInput: contract.ordinaryNncInput,
+                });
+            }
+        };
+        const createNominalCompoundContinuationButton = (contract) => {
+            const incorporatedRoot = contract.incorporatedRoot;
+            const matrixRoot = contract.matrixRoot;
+            const ordinaryNncInput = contract.ordinaryNncInput;
+            const previewSurface = getNominalCompoundPreviewSurface({
+                ordinaryNncRequest: contract.ordinaryNncRequest,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-sustantivo",
+            ].join(" ");
+            continueButton.dataset.patientivoNominalCompoundContinuation = "true";
+            continueButton.dataset.ordinaryNncInput = ordinaryNncInput;
+            continueButton.dataset.nominalCompoundStem = contract.compoundStem;
+            continueButton.dataset.nominalCompoundMatrixRoot = matrixRoot;
+            continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${ordinaryNncInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida patientiva: ${patientivoSurface}`,
+                `raíz incorporada: ${incorporatedRoot}`,
+                `matriz nominal: ${matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 39.6: ${contract.matrix.classicalMatrix}` : "",
+                `S: ${ordinaryNncInput}`,
+                previewSurface ? `salida S: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyNominalCompoundContinuationContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-nominal-compound-continuation]"))
+                .some((button) => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createNominalCompoundContinuationButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPatientivoCompoundEmbedContinuation = ({
+        value,
+        evaluation,
+        patientivoSource = "",
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || patientivoSource === "tronco-verbal"
+            || typeof buildPatientivoCompoundEmbedContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const patientivoSurface = resolvePatientivoSurfaceFromEvaluation(evaluation);
+        if (!patientivoSurface) {
+            return false;
+        }
+        const matrixInventory = typeof getPatientivoCompoundEmbedMatrixInventory === "function"
+            ? getPatientivoCompoundEmbedMatrixInventory()
+            : [{ id: "miqui", nawatRoot: "miki", label: "die/be affected as" }];
+        const contracts = matrixInventory.map((matrixSpec) => buildPatientivoCompoundEmbedContinuationContract({
+            patientivoSurface,
+            sourceSurface: "",
+            patientivoNominalSuffix: activePatientivoNominalSuffix,
+            matrixRoot: matrixSpec.nawatRoot || "miki",
+        })).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyCompoundEmbedContinuationContract = (contract) => {
+            if (typeof applyPatientivoCompoundEmbedRootsToVerbEntry === "function") {
+                applyPatientivoCompoundEmbedRootsToVerbEntry({
+                    incorporatedRoot: contract.incorporatedRoot,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                });
+            }
+        };
+        const createCompoundEmbedContinuationButton = (contract) => {
+            const incorporatedRoot = contract.incorporatedRoot;
+            const matrixRoot = contract.matrixRoot;
+            const compoundVerbInput = contract.compoundVerbInput;
+            const previewSurface = getCompoundEmbedFinitePreviewSurface({
+                compoundVerb: compoundVerbInput,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.patientivoCompoundEmbedContinuation = "true";
+            continueButton.dataset.compoundVerb = compoundVerbInput;
+            continueButton.dataset.compoundMatrixRoot = matrixRoot;
+            continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida patientiva: ${patientivoSurface}`,
+                `raíz incorporada: ${incorporatedRoot}`,
+                `raíz matriz: ${matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 39.6: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${compoundVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyCompoundEmbedContinuationContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-compound-embed-continuation]"))
+                .some((button) => button.dataset.compoundVerb === contract.compoundVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createCompoundEmbedContinuationButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPatientivoCharacteristicPropertyEmbedContinuation = ({
+        value,
+        evaluation,
+        possessorPrefix = "",
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "calificativo-instrumentivo"
+            || typeof buildPatientivoCharacteristicPropertyEmbedContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        if (!forms.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPatientivoCharacteristicPropertyMatrixInventory === "function"
+            ? getPatientivoCharacteristicPropertyMatrixInventory()
+            : [{ id: "chic-a-hu-a", nawatRoot: "chikawa", matrixValency: "transitive" }];
+        const contracts = forms.flatMap((form) => (
+            matrixInventory.map((matrixSpec) => buildPatientivoCharacteristicPropertyEmbedContinuationContract({
+                characteristicSurface: form,
+                sourceSurface: form,
+                possessorPrefix,
+                matrixRoot: matrixSpec.nawatRoot || "chikawa",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyCharacteristicPropertyEmbedContract = (contract) => {
+            if (typeof applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry === "function") {
+                applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry({
+                    incorporatedRoot: contract.incorporatedRoot,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    objectPrefix: contract.objectPrefix || "ki",
+                });
+            }
+        };
+        const createCharacteristicPropertyContinuationButton = (contract) => {
+            const compoundVerbInput = contract.compoundVerbInput;
+            const previewSurface = getCharacteristicPropertyEmbedFinitePreviewSurface({
+                compoundVerb: compoundVerbInput,
+                objectPrefix: contract.objectPrefix || "ki",
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.patientivoCharacteristicPropertyEmbedContinuation = "true";
+            continueButton.dataset.compoundVerb = compoundVerbInput;
+            continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.omittedSuffix = contract.omittedSuffix || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida: ${contract.characteristicSurface}`,
+                `raíz incorporada: ${contract.incorporatedRoot}`,
+                `omite: -${contract.omittedSuffix}`,
+                `raíz matriz: ${contract.matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 39.9: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${compoundVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyCharacteristicPropertyEmbedContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-characteristic-property-embed-continuation]"))
+                .some((button) => button.dataset.compoundVerb === contract.compoundVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createCharacteristicPropertyContinuationButton(contract));
+            }
+        });
+        return true;
+    };
     const createPatientivoPrelocativeDestinationPicker = (entry = {}) => {
         const patientivoSource = String(entry.patientivoSource || "").trim();
         const sourceTenseValue = getPatientivoBlockSourceTenseValue(patientivoSource);
         const sourceCombinedMode = getPatientivoBlockSourceCombinedMode(patientivoSource);
+        const promotedObjectPrefix = activePossessor
+            ? String(POSSESSIVE_TO_OBJECT_PREFIX[activePossessor] || "").trim()
+            : "";
+        const canPromotePossessor = !activePossessor || Boolean(promotedObjectPrefix);
         const canReachPrelocative = (
             patientivoSource === "imperfectivo"
             && sourceCombinedMode === COMBINED_MODE.active
             && NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES.has(sourceTenseValue)
+            && canPromotePossessor
             && verb
         );
         if (!canReachPrelocative) {
@@ -6424,11 +8241,10 @@ function renderNounConjugations({
             sourceTenseValue,
             sourceCombinedMode,
         });
-        const stripPrelocativeAbsolutiveSuffix = (surface = "") => {
-            const normalized = String(surface || "").trim();
-            return normalized.endsWith("t") ? normalized.slice(0, -1) : normalized;
-        };
-        const incorporatedRoot = stripPrelocativeAbsolutiveSuffix(patientivoSurface);
+        const incorporatedRoot = stripPrelocativePatientivoConnector(patientivoSurface);
+        if (!patientivoSurface || !incorporatedRoot) {
+            return null;
+        }
         const matrixRoot = "ni";
         const destinationSummary = document.createElement("span");
         destinationSummary.className = "tense-block__destination-label calc-guidance__conversion-summary-label calc-guidance__conversion-summary-label--flat";
@@ -6448,6 +8264,8 @@ function renderNounConjugations({
                     lineSelectionStore.activeLocativePatientivoSurface = patientivoSurface;
                     lineSelectionStore.activeLocativeIncorporatedRoot = incorporatedRoot;
                     lineSelectionStore.activeLocativeMatrixRoot = matrixRoot;
+                    lineSelectionStore.activeLocativePromotedObjectPrefix = promotedObjectPrefix;
+                    lineSelectionStore.activeLocativeSourcePossessorPrefix = activePossessor || "";
                 }
                 if (typeof window !== "undefined" && window) {
                     window.__NAWAT_ACTIVE_LINE_ID__ = "locative";
@@ -6456,12 +8274,14 @@ function renderNounConjugations({
                     ? applyPrelocativeRootsToVerbEntry({
                         incorporatedRoot,
                         matrixRoot,
+                        objectPrefix: promotedObjectPrefix,
+                        possessorPrefix: activePossessor || "",
                     })
                     : false;
                 if (!appliedToEntrada) {
                     renderActiveConjugations({
                         verb,
-                        objectPrefix: typeof getCurrentObjectPrefix === "function" ? getCurrentObjectPrefix() : "",
+                        objectPrefix: promotedObjectPrefix || (typeof getCurrentObjectPrefix === "function" ? getCurrentObjectPrefix() : ""),
                         tense: "patientivo",
                     });
                 }
@@ -6475,6 +8295,9 @@ function renderNounConjugations({
         const originLabel = sourceSurface
             ? `origen: V · A · ${sourceTenseLabel}: ${sourceSurface}`
             : `origen: V · A · ${sourceTenseLabel}`;
+        const transformLabel = promotedObjectPrefix
+            ? `; poseedor ${activePossessor} > objeto ${promotedObjectPrefix}`
+            : "";
         const button = document.createElement("button");
         button.type = "button";
         button.className = [
@@ -6488,28 +8311,176 @@ function renderNounConjugations({
             "calc-guidance__conversion-station-picker--destination-verbo",
         ].join(" ");
         button.setAttribute("aria-label", `Ir a destino pre-locativo desde ${originLabel}`);
-        button.title = `destino = raíz incorporada: ${incorporatedRoot || "—"}; raíz matriz: ${matrixRoot}; ${originLabel}`;
+        button.title = `destino = raíz incorporada: ${incorporatedRoot || "—"}; raíz matriz: ${matrixRoot}; ${originLabel}${transformLabel}`;
         button.appendChild(destinationSummary);
         button.addEventListener("click", () => {
             focusLocativeLine(button);
         });
         return button;
     };
+    const renderPatientivoPrelocativeContinuation = ({
+        value,
+        evaluation,
+        selection = {},
+        number = "",
+        possessorPrefix = "",
+        patientivoSource = "",
+        sourceTenseValue = "",
+        sourceCombinedMode = "",
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || patientivoSource !== "imperfectivo"
+            || sourceCombinedMode !== COMBINED_MODE.active
+            || !NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES.has(sourceTenseValue)
+        ) {
+            return false;
+        }
+        const sourceObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
+        const sourceSurface = getDirectPatientivoSourceSurface({
+            patientivoSource,
+            objectPrefix: sourceObjectPrefix,
+            sourceTenseValue,
+            sourceCombinedMode,
+        });
+        const patientivoSurface = resolveDirectPatientivoSurface({
+            patientivoSource,
+            objectPrefix: sourceObjectPrefix,
+            patientivoNominalSuffix: activePatientivoNominalSuffix,
+            sourceTenseValue,
+            sourceCombinedMode,
+        });
+        if (typeof buildPatientivoPrelocativeContinuationContract !== "function") {
+            return false;
+        }
+        const matrixInventory = typeof getPatientivoPrelocativeMatrixInventory === "function"
+            ? getPatientivoPrelocativeMatrixInventory()
+            : [{ id: "tla-tlani", nawatRoot: "tajtani", label: "want/request" }];
+        const contracts = matrixInventory.map((matrixSpec) => buildPatientivoPrelocativeContinuationContract({
+            patientivoSurface,
+            sourceSurface,
+            selection,
+            possessorPrefix,
+            patientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            patientivoNominalSuffix: activePatientivoNominalSuffix,
+            matrixRoot: matrixSpec.nawatRoot || "ni",
+        })).filter((entry) => entry?.supported);
+        if (!sourceSurface || !patientivoSurface || !contracts.length) {
+            return false;
+        }
+        const applyPrelocativeContinuationContract = (contract) => {
+            const objectTransfer = contract.objectTransfer;
+            const incorporatedRoot = contract.incorporatedRoot;
+            const matrixRoot = contract.matrixRoot;
+            const routeStore = typeof getNawatRouteStateStore === "function"
+                ? getNawatRouteStateStore()
+                : null;
+            if (routeStore) {
+                routeStore.activeNawatLineId = "locative";
+                routeStore.__NAWAT_ACTIVE_LINE_ID__ = "locative";
+                routeStore.activeNawatLineStationKey = "prelocative";
+                routeStore.activeLocativeSourceVerb = verb;
+                routeStore.activeLocativeSourceTenseValue = sourceTenseValue;
+                routeStore.activeLocativeSourceSurface = sourceSurface;
+                routeStore.activeLocativePatientivoSurface = patientivoSurface;
+                routeStore.activeLocativeIncorporatedRoot = incorporatedRoot;
+                routeStore.activeLocativeMatrixRoot = matrixRoot;
+                routeStore.activeLocativePromotedObjectPrefix = objectTransfer.objectPrefix;
+                routeStore.activeLocativeSourcePossessorPrefix = possessorPrefix || "";
+                routeStore.activeLocativeMatrixSpecId = contract.matrix?.id || "";
+            }
+            if (typeof applyPrelocativeRootsToVerbEntry === "function") {
+                applyPrelocativeRootsToVerbEntry({
+                    incorporatedRoot,
+                    matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    objectPrefix: objectTransfer.objectPrefix,
+                    possessorPrefix: possessorPrefix || "",
+                });
+            }
+        };
+        const createPrelocativeContinuationButton = (contract) => {
+            const objectTransfer = contract.objectTransfer;
+            const incorporatedRoot = contract.incorporatedRoot;
+            const matrixRoot = contract.matrixRoot;
+            const prelocativeVerbInput = contract.prelocativeVerbInput;
+            const previewSurface = getPrelocativeFinitePreviewSurface({
+                incorporatedRoot,
+                matrixRoot,
+                objectPrefix: objectTransfer.objectPrefix,
+                prelocativeVerb: prelocativeVerbInput,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.patientivoPrelocativeContinuation = "true";
+            continueButton.dataset.prelocativeVerb = prelocativeVerbInput;
+            continueButton.dataset.prelocativeObjectPrefix = objectTransfer.objectPrefix;
+            continueButton.dataset.prelocativeMatrixRoot = matrixRoot;
+            continueButton.dataset.prelocativeMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || prelocativeVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida patientiva: ${patientivoSurface}`,
+                `raíz incorporada: ${incorporatedRoot}`,
+                `raíz matriz: ${matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 39.8: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${prelocativeVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+                objectTransfer.label,
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPrelocativeContinuationContract(contract);
+            });
+            return continueButton;
+        };
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        const surfaceDisplay = forms.length
+            ? forms.join(" / ")
+            : String(evaluation?.result?.result || "").trim();
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+            ? formatConjugationDisplay(surfaceDisplay)
+            : surfaceDisplay;
+        groupedSurfaceDisplay
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .forEach((line) => {
+                const lineElement = document.createElement("span");
+                lineElement.className = "conjugation-conversion-surface-line";
+                lineElement.textContent = line;
+                surfaceText.appendChild(lineElement);
+            });
+        const continuationActions = document.createElement("span");
+        continuationActions.className = "conjugation-conversion-actions";
+        contracts.forEach((contract) => {
+            continuationActions.appendChild(createPrelocativeContinuationButton(contract));
+        });
+        value.append(surfaceText, continuationActions);
+        return true;
+    };
     const updatePatientivoBlockDestination = (entry = {}) => {
         if (!entry.destinationSlot) {
             return;
         }
         entry.destinationSlot.replaceChildren();
-        const destinationPicker = createTroncoBlockDestinationPicker(entry)
-            || createPatientivoPrelocativeDestinationPicker(entry);
-        if (destinationPicker) {
-            entry.destinationSlot.appendChild(destinationPicker);
-            entry.destinationSlot.hidden = false;
-            entry.block?.classList.add("tense-block--has-destination-menu");
-        } else {
-            entry.destinationSlot.hidden = true;
-            entry.block?.classList.remove("tense-block--has-destination-menu");
-        }
+        entry.destinationSlot.hidden = true;
+        entry.block?.classList.remove("tense-block--has-destination-menu");
     };
     const updateNounBlockPalettes = () => {
         const signature = resolveNounBlockPaletteSignature();
@@ -6803,7 +8774,36 @@ function renderNounConjugations({
         if (!conversionStems.length) {
             return [];
         }
+        const conversionEntries = [];
+        const seenConversionEntries = new Set();
+        conversionStems.forEach((stem) => {
+            NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.forEach((spec) => {
+                const track = buildNawatTroncoConversionTrack({
+                    routeKey: spec.routeKey,
+                    stem,
+                    sourceVerb,
+                    sourceObjectPrefix,
+                });
+                if (!track?.routeKey || !track.destination) {
+                    return;
+                }
+                const key = [
+                    track.routeKey,
+                    track.targetInput || "",
+                    track.destination || "",
+                ].join("|");
+                if (seenConversionEntries.has(key)) {
+                    return;
+                }
+                seenConversionEntries.add(key);
+                conversionEntries.push({ stem, track });
+            });
+        });
+        if (!conversionEntries.length) {
+            return conversionStems;
+        }
         value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
 
         const surfaceText = document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
@@ -6822,7 +8822,50 @@ function renderNounConjugations({
                 surfaceText.appendChild(lineElement);
             });
 
-        value.append(surfaceText);
+        const conversionActions = document.createElement("span");
+        conversionActions.className = "conjugation-conversion-actions";
+        conversionEntries.forEach(({ stem, track }) => {
+            const routeProfile = typeof getNawatRouteProfile === "function"
+                ? getNawatRouteProfile(track.routeKey)
+                : null;
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.patientivoTroncoConversion = "true";
+            continueButton.dataset.nawatRouteKey = track.routeKey;
+            continueButton.dataset.troncoStem = stem;
+            continueButton.dataset.targetInput = track.targetInput || "";
+            continueButton.dataset.targetSurface = track.destination || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${track.destination || track.targetInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida patientiva: ${forms.join(" / ")}`,
+                `tronco incorporable: ${stem}`,
+                routeProfile?.verbalizer ? `verbalizador: ${routeProfile.verbalizer}` : "",
+                routeProfile?.nawatTenseValue ? `tiempo: ${routeProfile.nawatTenseValue}` : "",
+                track.targetInput ? `V: ${track.targetInput}` : "",
+                track.destination ? `salida V: ${track.destination}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                activateNawatRouteStation(track.routeKey, "finite-tense", {
+                    render: true,
+                    anchorElement: continueButton,
+                    sourceVerb,
+                    sourceObjectPrefix,
+                    sourceStem: stem,
+                });
+            });
+            conversionActions.appendChild(continueButton);
+        });
+
+        value.append(surfaceText, conversionActions);
         return conversionStems;
     };
     const evaluateNounCombinationState = ({
@@ -7564,17 +9607,57 @@ function renderNounConjugations({
                         selection: normalizedSelection,
                         displaySelection,
                     });
-                    personSub.textContent = buildPersonSub({
-                        subjectLabel: appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel),
-                        possessorLabel,
-                        objectLabel,
-                    });
+                    personSub.textContent = appendSentenceLayerSubLabels(
+                        appendNuclearClauseShellSubLabels(
+                            appendAdverbialAdjunctionBoundaryFrameSubLabels(
+                                appendAdverbialNuclearFrameSubLabels(
+                                    appendRelationalNncBoundaryFrameSubLabels(
+                                        appendPlaceGentilicNncBoundaryFrameSubLabels(
+                                            appendDenominalFamilyProfileSubLabels(
+                                                appendVerbDerivedNominalizationProfileSubLabels(buildPersonSub({
+                                                    subjectLabel: appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel),
+                                                    possessorLabel,
+                                                    objectLabel,
+                                                }), evaluation.result?.nominalizationProfile, { isNawat }),
+                                                evaluation.result?.denominalFamilyProfile
+                                            ),
+                                            evaluation.result?.placeGentilicNncBoundaryFrame
+                                        ),
+                                        evaluation.result?.relationalNncBoundaryFrame
+                                    ),
+                                    evaluation.result?.adverbialNuclearFrame
+                                ),
+                                evaluation.result?.adverbialAdjunctionBoundaryFrame
+                            ),
+                            evaluation.result?.nuclearClauseShell
+                        ),
+                        evaluation.result?.sentenceLayer
+                    );
                     applyConjugationEvaluationPresentation({
                         row,
                         value,
                         evaluation,
                         formattedValue: formatConjugationDisplay(evaluation.result.result),
                     });
+                    if (resolvedTense === "patientivo") {
+                        renderPatientivoCompoundEmbedContinuation({
+                            value,
+                            evaluation,
+                            patientivoSource,
+                        });
+                        renderPatientivoNominalCompoundContinuation({
+                            value,
+                            evaluation,
+                            patientivoSource,
+                        });
+                    }
+                    if (resolvedTense === "calificativo-instrumentivo") {
+                        renderPatientivoCharacteristicPropertyEmbedContinuation({
+                            value,
+                            evaluation,
+                            possessorPrefix,
+                        });
+                    }
 
                     row.appendChild(label);
                     row.appendChild(value);
@@ -7724,7 +9807,7 @@ function renderAdverbConjugations({ verb, containerId = "all-tense-conjugations"
     renderNounConjugations({ verb, containerId, tenseValue, modeKey: "adverbio" });
 }
 
-function renderAllTenseConjugations({ verb, onlyTense = null }) {
+function renderAllTenseConjugations({ verb, objectPrefix = "", onlyTense = null }) {
     renderVerbConjugationsCore({
         verb,
         containerId: "all-tense-conjugations",
@@ -7732,6 +9815,7 @@ function renderAllTenseConjugations({ verb, onlyTense = null }) {
         modeKey: "standard",
         subjectKeyPrefix: "standard",
         subjectSubMode: "universal",
+        objectPrefix,
     });
 }
 

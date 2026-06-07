@@ -23,6 +23,58 @@ export const LEGACY_HTML_SHELL_PATH = "index.html";
 
 export const ESM_PRELOAD_PATHS = Object.freeze([
     Object.freeze({
+        legacyScriptPath: "src/core/concepts/concepts.js",
+        esmModulePath: "src/core/concepts/concepts.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/particles/particles.js",
+        esmModulePath: "src/core/particles/particles.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/sentence/sentence.js",
+        esmModulePath: "src/core/sentence/sentence.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/orthography/orthography.js",
+        esmModulePath: "src/core/orthography/orthography.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/clause.js",
+        esmModulePath: "src/core/clause/clause.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/modification/modification.js",
+        esmModulePath: "src/core/clause/modification/modification.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/adverbial/adverbial.js",
+        esmModulePath: "src/core/clause/adverbial/adverbial.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/adjunction/adjunction.js",
+        esmModulePath: "src/core/clause/adjunction/adjunction.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/complement/complement.js",
+        esmModulePath: "src/core/clause/complement/complement.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/clause/conjunction/conjunction.js",
+        esmModulePath: "src/core/clause/conjunction/conjunction.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/comparison/comparison.js",
+        esmModulePath: "src/core/comparison/comparison.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/calendar/calendar.js",
+        esmModulePath: "src/core/calendar/calendar.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/analysis/analysis.js",
+        esmModulePath: "src/core/analysis/analysis.mjs",
+    }),
+    Object.freeze({
         legacyScriptPath: "src/core/agreement/agreement.js",
         esmModulePath: "src/core/agreement/agreement.mjs",
     }),
@@ -45,6 +97,34 @@ export const ESM_PRELOAD_PATHS = Object.freeze([
     Object.freeze({
         legacyScriptPath: "src/core/nnc/nnc.js",
         esmModulePath: "src/core/nnc/nnc.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/compound/compound.js",
+        esmModulePath: "src/core/nnc/compound/compound.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/adjectival/adjectival.js",
+        esmModulePath: "src/core/nnc/adjectival/adjectival.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/nominalization/nominalization.js",
+        esmModulePath: "src/core/nnc/nominalization/nominalization.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/numerals/numerals.js",
+        esmModulePath: "src/core/nnc/numerals/numerals.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/relational/relational.js",
+        esmModulePath: "src/core/nnc/relational/relational.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/place_gentilic/place_gentilic.js",
+        esmModulePath: "src/core/nnc/place_gentilic/place_gentilic.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/nnc/names/names.js",
+        esmModulePath: "src/core/nnc/names/names.mjs",
     }),
     Object.freeze({
         legacyScriptPath: "src/core/output/surface.js",
@@ -87,6 +167,10 @@ export const ESM_PRELOAD_PATHS = Object.freeze([
         esmModulePath: "src/core/derivation/nonactive.mjs",
     }),
     Object.freeze({
+        legacyScriptPath: "src/core/derivation/frequentative/frequentative.js",
+        esmModulePath: "src/core/derivation/frequentative/frequentative.mjs",
+    }),
+    Object.freeze({
         legacyScriptPath: "src/core/generation/morphology_support.js",
         esmModulePath: "src/core/generation/morphology_support.mjs",
     }),
@@ -113,6 +197,14 @@ export const ESM_PRELOAD_PATHS = Object.freeze([
     Object.freeze({
         legacyScriptPath: "src/core/vnc/allomorphy.js",
         esmModulePath: "src/core/vnc/allomorphy.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/vnc/purposive/purposive.js",
+        esmModulePath: "src/core/vnc/purposive/purposive.mjs",
+    }),
+    Object.freeze({
+        legacyScriptPath: "src/core/vnc/honorific_pejorative/honorific_pejorative.js",
+        esmModulePath: "src/core/vnc/honorific_pejorative/honorific_pejorative.mjs",
     }),
     Object.freeze({
         legacyScriptPath: "src/core/vnc/vnc.js",
@@ -161,6 +253,19 @@ export const ESM_PRELOAD_PATHS = Object.freeze([
 ]);
 
 export const LEGACY_BROWSER_SCRIPT_PATHS = Object.freeze([
+    "src/core/concepts/concepts.js",
+    "src/core/particles/particles.js",
+    "src/core/sentence/sentence.js",
+    "src/core/orthography/orthography.js",
+    "src/core/clause/clause.js",
+    "src/core/clause/modification/modification.js",
+    "src/core/clause/adverbial/adverbial.js",
+    "src/core/clause/adjunction/adjunction.js",
+    "src/core/clause/complement/complement.js",
+    "src/core/clause/conjunction/conjunction.js",
+    "src/core/comparison/comparison.js",
+    "src/core/calendar/calendar.js",
+    "src/core/analysis/analysis.js",
     "src/core/phonology/phonology.js",
     "src/core/agreement/agreement.js",
     "src/core/agreement/display.js",
@@ -172,15 +277,25 @@ export const LEGACY_BROWSER_SCRIPT_PATHS = Object.freeze([
     "src/core/generation/morphology_support.js",
     "src/core/parsing/parsing.js",
     "src/core/vnc/allomorphy.js",
+    "src/core/vnc/purposive/purposive.js",
+    "src/core/vnc/honorific_pejorative/honorific_pejorative.js",
     "src/core/derivation/source_model.js",
     "src/core/derivation/forward_runtime.js",
     "src/core/derivation/nonactive.js",
+    "src/core/derivation/frequentative/frequentative.js",
     "src/core/generation/valency.js",
     "src/core/generation/request.js",
     "src/core/generation/morphology_engine.js",
     "src/core/generation/runtime_support.js",
     "src/core/generation/engine.js",
     "src/core/nnc/nnc.js",
+    "src/core/nnc/compound/compound.js",
+    "src/core/nnc/adjectival/adjectival.js",
+    "src/core/nnc/nominalization/nominalization.js",
+    "src/core/nnc/numerals/numerals.js",
+    "src/core/nnc/relational/relational.js",
+    "src/core/nnc/place_gentilic/place_gentilic.js",
+    "src/core/nnc/names/names.js",
     "src/core/vnc/vnc.js",
     "src/core/preterit/context.js",
     "src/core/preterit/engine.js",
@@ -198,6 +313,19 @@ export const LEGACY_BROWSER_SCRIPT_PATHS = Object.freeze([
 ]);
 
 export const LEGACY_VM_SCRIPT_PATHS = Object.freeze([
+    "src/core/concepts/concepts.js",
+    "src/core/particles/particles.js",
+    "src/core/sentence/sentence.js",
+    "src/core/orthography/orthography.js",
+    "src/core/clause/clause.js",
+    "src/core/clause/modification/modification.js",
+    "src/core/clause/adverbial/adverbial.js",
+    "src/core/clause/adjunction/adjunction.js",
+    "src/core/clause/complement/complement.js",
+    "src/core/clause/conjunction/conjunction.js",
+    "src/core/comparison/comparison.js",
+    "src/core/calendar/calendar.js",
+    "src/core/analysis/analysis.js",
     "src/core/phonology/phonology.js",
     "src/core/agreement/agreement.js",
     "src/core/agreement/display.js",
@@ -209,15 +337,25 @@ export const LEGACY_VM_SCRIPT_PATHS = Object.freeze([
     "src/core/generation/morphology_support.js",
     "src/core/parsing/parsing.js",
     "src/core/vnc/allomorphy.js",
+    "src/core/vnc/purposive/purposive.js",
+    "src/core/vnc/honorific_pejorative/honorific_pejorative.js",
     "src/core/derivation/source_model.js",
     "src/core/derivation/forward_runtime.js",
     "src/core/derivation/nonactive.js",
+    "src/core/derivation/frequentative/frequentative.js",
     "src/core/generation/valency.js",
     "src/core/generation/request.js",
     "src/core/generation/morphology_engine.js",
     "src/core/generation/runtime_support.js",
     "src/core/generation/engine.js",
     "src/core/nnc/nnc.js",
+    "src/core/nnc/compound/compound.js",
+    "src/core/nnc/adjectival/adjectival.js",
+    "src/core/nnc/nominalization/nominalization.js",
+    "src/core/nnc/numerals/numerals.js",
+    "src/core/nnc/relational/relational.js",
+    "src/core/nnc/place_gentilic/place_gentilic.js",
+    "src/core/nnc/names/names.js",
     "src/core/vnc/vnc.js",
     "src/core/preterit/context.js",
     "src/core/preterit/engine.js",

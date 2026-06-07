@@ -5,6 +5,9 @@ export function createUiComposerApi(targetObject = globalThis) {
     function getComposerSlotKeyForTransitivity(transitivity) {
       return COMPOSER_SLOT_KEY_BY_TRANSITIVITY[transitivity] || "a";
     }
+    function isComposerTransitivitySelected(state = VerbComposerState) {
+      return COMPOSER_TRANSITIVITY_ORDER.includes(String(state?.transitivity || ""));
+    }
     function getComposerSlotConfig(slotKey) {
       return COMPOSER_SLOT_CONFIG[slotKey] || COMPOSER_SLOT_CONFIG.a;
     }
@@ -275,7 +278,8 @@ export function createUiComposerApi(targetObject = globalThis) {
         screenDisplayVerb: "",
         regexInputVerb: "",
         parseInputVerb: "",
-        inputMode: VERB_INPUT_MODE.composer
+        inputMode: VERB_INPUT_MODE.composer,
+        orthographyClassification: null
       };
     }
     function getParsedVerbForTab(tabId, rawValue, options = {}) {
@@ -305,7 +309,8 @@ export function createUiComposerApi(targetObject = globalThis) {
         screenDisplayVerb: verbInputSource.displayValue,
         regexInputVerb: verbInputSource.regexValue,
         parseInputVerb: verbInputSource.parseValue,
-        inputMode: verbInputSource.mode
+        inputMode: verbInputSource.mode,
+        orthographyClassification: typeof targetObject.classifyOrthographyInput === "function" ? targetObject.classifyOrthographyInput(verbInputSource.parseValue || verbInputSource.rawValue || "") : null
       };
       if (!targetObject.isComposerTemplateOnlyBaseValue(baseValue)) {
         return parsedWithInputSource;
@@ -842,8 +847,9 @@ export function createUiComposerApi(targetObject = globalThis) {
         transitivitySlotButtons,
         transitivitySelect
       } = getVerbComposerElements();
+      const hasSelectedTransitivity = isComposerTransitivitySelected();
       if (transitivitySelect) {
-        transitivitySelect.value = VerbComposerState.transitivity;
+        transitivitySelect.value = hasSelectedTransitivity ? VerbComposerState.transitivity : "";
       }
       syncComposerSlotPanelVisibility();
       syncComposerEntryBoardTabsPlacement();
@@ -851,13 +857,13 @@ export function createUiComposerApi(targetObject = globalThis) {
       if (!transitivitySlotButtons || !transitivitySlotButtons.length) {
         return;
       }
-      transitivitySlotButtons.forEach(button => {
+      transitivitySlotButtons.forEach((button, index) => {
         const token = button.getAttribute("data-composer-transitivity") || "";
-        const isActive = token === VerbComposerState.transitivity;
+        const isActive = hasSelectedTransitivity && token === VerbComposerState.transitivity;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         button.setAttribute("aria-selected", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
+        button.tabIndex = isActive || !hasSelectedTransitivity && index === 0 ? 0 : -1;
       });
     }
     function getComposerTransitivityTabsLabel() {
@@ -933,7 +939,8 @@ export function createUiComposerApi(targetObject = globalThis) {
       if (!stagePanel || !slotShells.length) {
         return;
       }
-      const activeToken = VerbComposerState.transitivity;
+      const selectedToken = isComposerTransitivitySelected() ? VerbComposerState.transitivity : "";
+      const activeToken = selectedToken || COMPOSER_TRANSITIVITY.intransitive;
       const moveElementChildren = (fromEl, toEl) => {
         if (!fromEl || !toEl) {
           return;
@@ -974,13 +981,13 @@ export function createUiComposerApi(targetObject = globalThis) {
         shell.setAttribute("aria-hidden", "true");
         shell.setAttribute("aria-current", "false");
       });
-      stagePanel.dataset.activeTransitivity = activeToken;
-      stagePanel.setAttribute("data-slot-transitivity", activeToken);
+      stagePanel.dataset.activeTransitivity = selectedToken;
+      stagePanel.setAttribute("data-slot-transitivity", selectedToken);
       stagePanel.classList.add("is-active-slot");
       stagePanel.hidden = false;
       stagePanel.setAttribute("aria-hidden", "false");
       stagePanel.setAttribute("aria-current", "true");
-      stagePanel.setAttribute("aria-label", activeToken === COMPOSER_TRANSITIVITY.bitransitive ? "Grupo bitransitivo" : activeToken === COMPOSER_TRANSITIVITY.transitive ? "Grupo transitivo" : "Grupo intransitivo");
+      stagePanel.setAttribute("aria-label", !selectedToken ? "Grupo de transitividad sin seleccionar" : activeToken === COMPOSER_TRANSITIVITY.bitransitive ? "Grupo bitransitivo" : activeToken === COMPOSER_TRANSITIVITY.transitive ? "Grupo transitivo" : "Grupo intransitivo");
       const activeDirectionalHost = stagePanel.querySelector("[data-composer-directional-host]");
       if (directionalField && activeDirectionalHost && directionalField.parentElement !== activeDirectionalHost) {
         activeDirectionalHost.appendChild(directionalField);
@@ -991,7 +998,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         ...(patch || {})
       };
       if (Object.prototype.hasOwnProperty.call(nextPatch, "nounClass")) {
-        const nounClass = normalizeComposerOrdinaryNncNounClass(nextPatch.nounClass) || "zero";
+        const nounClass = normalizeComposerOrdinaryNncNounClass(nextPatch.nounClass);
         setComposerActiveSlotStem(stripComposerOrdinaryNncConnectorFromStem(getComposerActiveStemValue(), nounClass));
         nextPatch.nounClass = nounClass;
       }
@@ -1082,7 +1089,7 @@ export function createUiComposerApi(targetObject = globalThis) {
     }
     function renderComposerOrdinaryNncClassTabs(stagePanel, {
       active = false,
-      activeClass = "zero",
+      activeClass = "",
       fixtureNounClass = ""
     } = {}) {
       if (!stagePanel) {
@@ -1100,7 +1107,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         classTabs.setAttribute("role", "tablist");
       }
       const fixedClass = normalizeComposerOrdinaryNncNounClass(fixtureNounClass || "") || "";
-      const displayedClass = fixedClass || activeClass;
+      const displayedClass = fixedClass || normalizeComposerOrdinaryNncNounClass(activeClass || "");
       classTabs.dataset.lockedByFixture = fixedClass ? "true" : "false";
       classTabs.setAttribute("aria-label", "Conector num1-num2 de la clausula nominal");
       classTabs.innerHTML = "";
@@ -1125,7 +1132,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         id: "zero",
         label: "Ø",
         title: "clase Ø: (...C/V)"
-      }].forEach(entry => {
+      }].forEach((entry, index) => {
         const button = targetObject.document.createElement("button");
         button.type = "button";
         button.className = "verb-composer__slot-transitivity verb-composer__slot-tab";
@@ -1146,7 +1153,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-selected", String(isActive));
         button.setAttribute("aria-pressed", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
+        button.tabIndex = isActive || !displayedClass && !isLockedByFixture && index === 0 ? 0 : -1;
         button.addEventListener("click", () => {
           if (button.disabled) {
             return;
@@ -1174,7 +1181,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       const fixtureMetadata = active ? getComposerOrdinaryNncFixtureMetadata() : null;
       const fixtureClass = fixtureMetadata?.nounClass || "";
       const fixtureAnimacy = fixtureMetadata?.animacy || "";
-      const activeClass = fixtureClass || normalizeComposerOrdinaryNncNounClass(state.nounClass || "zero") || "zero";
+      const activeClass = fixtureClass || normalizeComposerOrdinaryNncNounClass(state.nounClass || "");
       renderComposerOrdinaryNncClassTabs(stagePanel, {
         active,
         activeClass,
@@ -1197,11 +1204,11 @@ export function createUiComposerApi(targetObject = globalThis) {
         stagePanel.insertBefore(controls, insertionPoint);
       }
       controls.innerHTML = "";
-      const activeAnimacy = fixtureAnimacy || (state.animacy === "animate" ? "animate" : "inanimate");
+      const selectedAnimacy = fixtureAnimacy || (state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : "");
       const animacyIsFixed = Boolean(fixtureAnimacy);
       appendComposerOrdinaryNncChipGroup(controls, {
         label: animacyIsFixed ? "Animacidad fija" : "Animacidad",
-        activeId: activeAnimacy,
+        activeId: selectedAnimacy,
         options: [{
           id: "inanimate",
           label: "No anim",
@@ -5299,16 +5306,26 @@ export function createUiComposerApi(targetObject = globalThis) {
       const parsedFallback = parseComposerOrdinaryNncAnalogueInput(rawFallback);
       const uiState = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
       const rawStem = getComposerActiveStemValue(state) || parsedFallback?.stem || normalizeComposerStem(targetObject.getSearchInputBase(rawFallback || ""));
-      const nounClass = normalizeComposerOrdinaryNncNounClass(parsedFallback?.nounClass || uiState.nounClass || "zero") || "zero";
-      const stem = stripComposerOrdinaryNncConnectorFromStem(rawStem, nounClass);
-      const regexValue = formatComposerOrdinaryNncAnalogueInput({
+      const nounClass = normalizeComposerOrdinaryNncNounClass(parsedFallback?.nounClass || uiState.nounClass || "");
+      const stem = nounClass ? stripComposerOrdinaryNncConnectorFromStem(rawStem, nounClass) : rawStem;
+      const fixtureProbe = stem && typeof targetObject.resolveOrdinaryNncFixture === "function" ? targetObject.resolveOrdinaryNncFixture({
+        stem,
+        states: ["absolutive"],
+        numbers: ["singular"]
+      }) : null;
+      const fixtureAnimacy = fixtureProbe?.fixture?.animacy === "animate" ? "animate" : fixtureProbe?.fixture?.animacy === "inanimate" ? "inanimate" : "";
+      const animacy = fixtureAnimacy || (uiState.animacy === "animate" || uiState.animacy === "inanimate" ? uiState.animacy : "");
+      const regexValue = nounClass ? formatComposerOrdinaryNncAnalogueInput({
         stem,
         nounClass
-      });
+      }) : stem;
+      const selectionRequired = !nounClass ? "ordinary-nnc-class" : !animacy ? "ordinary-nnc-animacy" : "";
       return {
         regexValue,
         stem,
-        nounClass
+        nounClass,
+        animacy,
+        selectionRequired
       };
     }
 
@@ -5318,6 +5335,12 @@ export function createUiComposerApi(targetObject = globalThis) {
       const ordinaryNncActive = typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled();
       if (ordinaryNncActive) {
         return buildComposerOrdinaryNncInputBundle(state, rawFallback);
+      }
+      if (!isComposerTransitivitySelected(state)) {
+        return {
+          regexValue: getComposerActiveStemValue(state),
+          selectionRequired: "transitivity"
+        };
       }
       const fallback = String(rawFallback || "");
       const semantic = buildComposerSemanticState(state);
@@ -5338,7 +5361,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       void options;
       const composerDisplayBundle = buildComposerModeBundle(VerbComposerState, raw);
       const directRegexValue = targetObject.serializeRegexInputValue(raw) || raw;
-      const regexValue = directRegexValue || composerDisplayBundle.regexValue || "";
+      const regexValue = composerDisplayBundle.selectionRequired ? composerDisplayBundle.regexValue || "" : directRegexValue || composerDisplayBundle.regexValue || "";
       return {
         mode: VERB_INPUT_MODE.composer,
         source: "composer",
@@ -5676,7 +5699,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         }
       });
       if (transitivitySelect) {
-        transitivitySelect.value = VerbComposerState.transitivity;
+        transitivitySelect.value = isComposerTransitivitySelected() ? VerbComposerState.transitivity : "";
       }
       if (valenceSelectIntransitive) {
         valenceSelectIntransitive.value = VerbComposerState.valenceIntransitive;
@@ -5714,9 +5737,9 @@ export function createUiComposerApi(targetObject = globalThis) {
       if (ordinaryNncActive) {
         const parsedNnc = parseComposerOrdinaryNncAnalogueInput(rawValue);
         const uiState = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
-        const nounClass = normalizeComposerOrdinaryNncNounClass(parsedNnc?.nounClass || uiState.nounClass || "zero") || "zero";
+        const nounClass = normalizeComposerOrdinaryNncNounClass(parsedNnc?.nounClass || uiState.nounClass || "");
         const stem = stripComposerOrdinaryNncConnectorFromStem(parsedNnc?.stem || normalizeComposerStem(baseValue.replace(/[()]/g, "")), nounClass);
-        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
+        VerbComposerState.transitivity = "";
         VerbComposerState.valenceIntransitive = "";
         VerbComposerState.valenceIntransitiveEmbed = "";
         VerbComposerState.valence = "";
@@ -5740,6 +5763,11 @@ export function createUiComposerApi(targetObject = globalThis) {
             nounClass
           });
         }
+        return;
+      }
+      if (!baseValue) {
+        VerbComposerState.sourceBase = "";
+        VerbComposerState.stemManualOverride = false;
         return;
       }
       const next = parseComposerStateFromRegexValue(rawValue);
@@ -5768,11 +5796,6 @@ export function createUiComposerApi(targetObject = globalThis) {
         COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[activeSlot] = nextTiCausativeClass;
       } else if (/ti$/i.test(normalizedActiveStem)) {
         COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[activeSlot] = nextTiCausativeClass === "become" ? "ti-become" : nextTiCausativeClass === "have" ? "ti-have" : "auto";
-      }
-      if (!baseValue) {
-        VerbComposerState.sourceBase = "";
-        VerbComposerState.stemManualOverride = false;
-        return;
       }
       const isPlainSource = /^[a-z]+$/.test(baseValue);
       if (isPlainSource) {
@@ -5809,28 +5832,34 @@ export function createUiComposerApi(targetObject = globalThis) {
     }
     function applyPrelocativeRootsToVerbEntry({
       incorporatedRoot = "",
-      matrixRoot = "ni"
+      matrixRoot = "tajtani",
+      matrixSpecId = "",
+      objectPrefix = "",
+      possessorPrefix = ""
     } = {}) {
       const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
-      const normalizedMatrixRoot = normalizeComposerStem(matrixRoot || "ni");
+      const normalizedMatrixRoot = normalizeComposerStem(matrixRoot || "tajtani");
+      const resolvedMatrixSpecId = String(matrixSpecId || "").trim() || (typeof targetObject.resolvePatientivoPrelocativeMatrixSpec === "function" ? String(targetObject.resolvePatientivoPrelocativeMatrixSpec(normalizedMatrixRoot)?.id || "").trim() : "");
+      const promotedObjectPrefix = String(objectPrefix || "").trim();
+      const sourcePossessorPrefix = String(possessorPrefix || "").trim();
       const verbEl = targetObject.document.getElementById("verb");
       if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
         return false;
       }
       VerbComposerState.mode = VERB_INPUT_MODE.composer;
       VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
-      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
-      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.intransitive;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
       VerbComposerState.valenceIntransitive = "";
       VerbComposerState.valenceIntransitiveEmbed = "";
       VerbComposerState.valence = "";
       VerbComposerState.valenceEmbedPrimary = "";
       VerbComposerState.valenceSecondary = "";
       VerbComposerState.valenceEmbedSecondary = "";
-      VerbComposerState.slotAEmbed = normalizedIncorporatedRoot;
-      VerbComposerState.slotAStem = normalizedMatrixRoot;
-      VerbComposerState.slotBEmbed = "";
-      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotAEmbed = "";
+      VerbComposerState.slotAStem = "";
+      VerbComposerState.slotBEmbed = normalizedIncorporatedRoot;
+      VerbComposerState.slotBStem = normalizedMatrixRoot;
       VerbComposerState.slotCEmbed = "";
       VerbComposerState.slotCStem = "";
       VerbComposerState.directionalPrefix = "";
@@ -5863,7 +5892,10 @@ export function createUiComposerApi(targetObject = globalThis) {
         routeStore.activeNawatLineStationKey = "prelocative";
         routeStore.activeLocativeIncorporatedRoot = normalizedIncorporatedRoot;
         routeStore.activeLocativeMatrixRoot = normalizedMatrixRoot;
+        routeStore.activeLocativeMatrixSpecId = resolvedMatrixSpecId;
         routeStore.activeLocativePrelocativeVerb = prelocativeVerbInput;
+        routeStore.activeLocativePromotedObjectPrefix = promotedObjectPrefix;
+        routeStore.activeLocativeSourcePossessorPrefix = sourcePossessorPrefix;
       }
       if (typeof targetObject.window !== "undefined" && targetObject.window) {
         targetObject.window.__NAWAT_ACTIVE_LINE_ID__ = "locative";
@@ -5887,6 +5919,304 @@ export function createUiComposerApi(targetObject = globalThis) {
         scheduleVerbInputRefresh(verbEl.value, {
           immediate: true,
           source: "prelocative-entry"
+        });
+      }
+      return true;
+    }
+    function applyPatientivoCompoundEmbedRootsToVerbEntry({
+      incorporatedRoot = "",
+      matrixRoot = "miki",
+      matrixSpecId = ""
+    } = {}) {
+      const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
+      const resolvedMatrixSpec = typeof targetObject.resolvePatientivoCompoundEmbedMatrixSpec === "function" ? targetObject.resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot || "miki") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "miki");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.intransitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = normalizedIncorporatedRoot;
+      VerbComposerState.slotAStem = normalizedMatrixRoot;
+      VerbComposerState.slotBEmbed = "";
+      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedIncorporatedRoot;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "a";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      applyComposerStateToVerbInput({
+        triggerGenerate: false
+      });
+      const compoundVerbInput = String(verbEl.value || "").trim() || (typeof targetObject.buildPatientivoCompoundEmbedVerbInput === "function" ? targetObject.buildPatientivoCompoundEmbedVerbInput({
+        incorporatedRoot: normalizedIncorporatedRoot,
+        matrixRoot: normalizedMatrixRoot
+      }) : `(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`);
+      if (verbEl.value !== compoundVerbInput) {
+        verbEl.value = compoundVerbInput;
+      }
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:patientivo-compound-embed-applied", {
+          incorporatedRoot: normalizedIncorporatedRoot,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          compoundVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "patientivo-compound-embed-entry"
+        });
+      }
+      return true;
+    }
+    function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry({
+      incorporatedRoot = "",
+      matrixRoot = "chikawa",
+      matrixSpecId = "",
+      objectPrefix = "ki"
+    } = {}) {
+      const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
+      const resolvedMatrixSpec = typeof targetObject.resolvePatientivoCharacteristicPropertyMatrixSpec === "function" ? targetObject.resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot || "chikawa") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "chikawa");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedObjectPrefix = String(objectPrefix || "ki").trim() || "ki";
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = "";
+      VerbComposerState.slotAStem = "";
+      VerbComposerState.slotBEmbed = normalizedIncorporatedRoot;
+      VerbComposerState.slotBStem = normalizedMatrixRoot;
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedIncorporatedRoot;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "b";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      applyComposerStateToVerbInput({
+        triggerGenerate: false
+      });
+      const compoundVerbInput = String(verbEl.value || "").trim() || (typeof targetObject.buildPatientivoCharacteristicPropertyEmbedVerbInput === "function" ? targetObject.buildPatientivoCharacteristicPropertyEmbedVerbInput({
+        incorporatedRoot: normalizedIncorporatedRoot,
+        matrixRoot: normalizedMatrixRoot
+      }) : `-(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`);
+      if (verbEl.value !== compoundVerbInput) {
+        verbEl.value = compoundVerbInput;
+      }
+      if (typeof targetObject.setCurrentObjectPrefix === "function") {
+        targetObject.setCurrentObjectPrefix(resolvedObjectPrefix);
+      } else {
+        const objectEl = targetObject.document.getElementById("object");
+        if (objectEl) {
+          objectEl.value = resolvedObjectPrefix;
+        }
+      }
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:patientivo-characteristic-property-embed-applied", {
+          incorporatedRoot: normalizedIncorporatedRoot,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          objectPrefix: resolvedObjectPrefix,
+          compoundVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "patientivo-characteristic-property-embed-entry"
+        });
+      }
+      return true;
+    }
+    function applyPatientivoNominalCompoundToOrdinaryNncEntry({
+      incorporatedRoot = "",
+      matrixRoot = "kal",
+      matrixSpecId = "",
+      nounClass = "",
+      animacy = "",
+      ordinaryNncInput = "",
+      compoundStem = ""
+    } = {}) {
+      const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
+      const resolvedMatrixSpec = typeof targetObject.resolvePatientivoNominalCompoundMatrixSpec === "function" ? targetObject.resolvePatientivoNominalCompoundMatrixSpec(matrixRoot || "kal") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "kal");
+      const resolvedCompoundStem = normalizeComposerStem(compoundStem || (typeof targetObject.buildPatientivoNominalCompoundStem === "function" ? targetObject.buildPatientivoNominalCompoundStem({
+        incorporatedRoot: normalizedIncorporatedRoot,
+        matrixRoot: normalizedMatrixRoot
+      }) : `${normalizedIncorporatedRoot}${normalizedMatrixRoot}`));
+      const resolvedNounClass = normalizeComposerOrdinaryNncNounClass(nounClass || resolvedMatrixSpec?.nounClass || "zero") || "zero";
+      const resolvedAnimacy = String(animacy || resolvedMatrixSpec?.animacy || "inanimate").trim();
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !resolvedCompoundStem || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = "";
+      VerbComposerState.lastGeneralTransitivity = "";
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = "";
+      VerbComposerState.slotAStem = resolvedCompoundStem;
+      VerbComposerState.slotBEmbed = "";
+      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = "";
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = resolvedCompoundStem;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = false;
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      if (typeof targetObject.setOrdinaryNncGenerationModeEnabled === "function") {
+        targetObject.setOrdinaryNncGenerationModeEnabled(true, {
+          state: "absolutive",
+          number: "singular",
+          pluralType: "auto",
+          possessor: "",
+          subjectPrefix: "",
+          subjectSuffix: "",
+          subjectKey: "3sg",
+          nounClass: resolvedNounClass,
+          animacy: resolvedAnimacy
+        });
+      }
+      if (typeof targetObject.setActiveNawatTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.sustantivo) {
+        targetObject.setActiveNawatTenseMode(TENSE_MODE.sustantivo);
+      } else if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.sustantivo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.sustantivo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      renderVerbComposerFromState();
+      const formattedInput = ordinaryNncInput || formatComposerOrdinaryNncAnalogueInput({
+        stem: resolvedCompoundStem,
+        nounClass: resolvedNounClass
+      });
+      verbEl.value = formattedInput || resolvedCompoundStem;
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:patientivo-nominal-compound-applied", {
+          incorporatedRoot: normalizedIncorporatedRoot,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          compoundStem: resolvedCompoundStem,
+          ordinaryNncInput: verbEl.value,
+          nounClass: resolvedNounClass,
+          animacy: resolvedAnimacy
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "patientivo-nominal-compound-entry"
         });
       }
       return true;
@@ -5916,12 +6246,10 @@ export function createUiComposerApi(targetObject = globalThis) {
         directionalSelect,
         supportiveICheckbox
       } = getVerbComposerElements();
-      if (transitivitySelect?.value === COMPOSER_TRANSITIVITY.bitransitive) {
-        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.bitransitive;
-      } else if (transitivitySelect?.value === COMPOSER_TRANSITIVITY.transitive) {
-        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
-      } else {
-        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
+      if (COMPOSER_TRANSITIVITY_ORDER.includes(transitivitySelect?.value)) {
+        VerbComposerState.transitivity = transitivitySelect.value;
+      } else if (!isComposerTransitivitySelected()) {
+        VerbComposerState.transitivity = "";
       }
       VerbComposerState.valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(valenceSelectIntransitive?.value || "");
       VerbComposerState.valence = valenceSelect?.value || "";
@@ -6111,7 +6439,7 @@ export function createUiComposerApi(targetObject = globalThis) {
       }
       VerbComposerState.entryBoard = nextBoard;
       if (nextBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
-        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY_ORDER.includes(VerbComposerState.lastNounToVerbTransitivity) ? VerbComposerState.lastNounToVerbTransitivity : COMPOSER_TRANSITIVITY.intransitive;
+        VerbComposerState.transitivity = COMPOSER_TRANSITIVITY_ORDER.includes(VerbComposerState.lastNounToVerbTransitivity) ? VerbComposerState.lastNounToVerbTransitivity : "";
       } else if (currentBoard === COMPOSER_ENTRY_BOARD.nounToVerb && VerbComposerState.lastGeneralTransitivity && COMPOSER_TRANSITIVITY_ORDER.includes(VerbComposerState.lastGeneralTransitivity)) {
         VerbComposerState.transitivity = VerbComposerState.lastGeneralTransitivity;
       }
@@ -6952,12 +7280,12 @@ export function createUiComposerApi(targetObject = globalThis) {
         [COMPOSER_TRANSITIVITY.bitransitive]: "Bitransitivo"
       };
       if (transitivityButton) {
-        const readable = transitivityLabelMap[currentTransitivity] || "Intransitivo";
+        const readable = transitivityLabelMap[currentTransitivity] || "sin seleccionar";
         const transitivityUnavailable = !isComposer;
         transitivityButton.disabled = transitivityUnavailable;
         transitivityButton.setAttribute("aria-disabled", String(transitivityUnavailable));
-        transitivityButton.classList.toggle("is-active", !transitivityUnavailable && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive);
-        transitivityButton.setAttribute("aria-pressed", String(!transitivityUnavailable && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive));
+        transitivityButton.classList.toggle("is-active", !transitivityUnavailable && isComposerTransitivitySelected() && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive);
+        transitivityButton.setAttribute("aria-pressed", String(!transitivityUnavailable && isComposerTransitivitySelected() && currentTransitivity !== COMPOSER_TRANSITIVITY.intransitive));
         transitivityButton.title = transitivityUnavailable ? "Disponible solo en Selecciones" : `Transitividad actual: ${readable}.`;
         transitivityButton.setAttribute("aria-label", transitivityUnavailable ? "Transitividad disponible solo en Selecciones" : `Transitividad actual ${readable}. Cambiar transitividad`);
       }
@@ -7162,14 +7490,14 @@ export function createUiComposerApi(targetObject = globalThis) {
       const {
         transitivitySelect
       } = getVerbComposerElements();
-      const current = transitivitySelect?.value || VerbComposerState.transitivity;
+      const current = COMPOSER_TRANSITIVITY_ORDER.includes(transitivitySelect?.value) ? transitivitySelect.value : VerbComposerState.transitivity;
       const currentIndex = COMPOSER_TRANSITIVITY_ORDER.indexOf(current);
-      if (currentIndex < 0 || !COMPOSER_TRANSITIVITY_ORDER.length) {
+      if (!COMPOSER_TRANSITIVITY_ORDER.length) {
         syncVerbScreenCalculatorState();
         return false;
       }
       const step = direction < 0 ? -1 : 1;
-      const nextIndex = (currentIndex + step + COMPOSER_TRANSITIVITY_ORDER.length) % COMPOSER_TRANSITIVITY_ORDER.length;
+      const nextIndex = currentIndex < 0 ? step < 0 ? COMPOSER_TRANSITIVITY_ORDER.length - 1 : 0 : (currentIndex + step + COMPOSER_TRANSITIVITY_ORDER.length) % COMPOSER_TRANSITIVITY_ORDER.length;
       const next = COMPOSER_TRANSITIVITY_ORDER[nextIndex];
       transposeComposerSlotTextboxes(current, next);
       carryComposerEmbedVisibilityAcrossTransitivity(current, next);
@@ -7478,7 +7806,7 @@ export function createUiComposerApi(targetObject = globalThis) {
             if (!Object.values(COMPOSER_TRANSITIVITY).includes(token)) {
               return;
             }
-            const previousToken = transitivitySelect?.value || VerbComposerState.transitivity;
+            const previousToken = COMPOSER_TRANSITIVITY_ORDER.includes(transitivitySelect?.value) ? transitivitySelect.value : VerbComposerState.transitivity;
             transposeComposerSlotTextboxes(previousToken, token);
             carryComposerEmbedVisibilityAcrossTransitivity(previousToken, token);
             if (transitivitySelect) {
@@ -8562,8 +8890,8 @@ export function createUiComposerApi(targetObject = globalThis) {
       mode: VERB_INPUT_MODE.composer,
       entryBoard: COMPOSER_ENTRY_BOARD.general,
       lastGeneralTransitivity: "",
-      lastNounToVerbTransitivity: COMPOSER_TRANSITIVITY.intransitive,
-      transitivity: COMPOSER_TRANSITIVITY.intransitive,
+      lastNounToVerbTransitivity: "",
+      transitivity: "",
       valenceIntransitive: "",
       valenceIntransitiveEmbed: "",
       valence: "",
@@ -8763,6 +9091,7 @@ export function createUiComposerApi(targetObject = globalThis) {
 
     const api = {};
     api.getComposerSlotKeyForTransitivity = getComposerSlotKeyForTransitivity;
+    api.isComposerTransitivitySelected = isComposerTransitivitySelected;
     api.getComposerSlotConfig = getComposerSlotConfig;
     api.getComposerSlotStateKeys = getComposerSlotStateKeys;
     api.syncComposerActiveStemAndEmbedFromState = syncComposerActiveStemAndEmbedFromState;
@@ -9030,6 +9359,9 @@ export function createUiComposerApi(targetObject = globalThis) {
     api.syncComposerStateFromVerbInput = syncComposerStateFromVerbInput;
     api.applyComposerStateToVerbInput = applyComposerStateToVerbInput;
     api.applyPrelocativeRootsToVerbEntry = applyPrelocativeRootsToVerbEntry;
+    api.applyPatientivoCompoundEmbedRootsToVerbEntry = applyPatientivoCompoundEmbedRootsToVerbEntry;
+    api.applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry = applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry;
+    api.applyPatientivoNominalCompoundToOrdinaryNncEntry = applyPatientivoNominalCompoundToOrdinaryNncEntry;
     api.shouldComposerControlChangeRefreshImmediately = shouldComposerControlChangeRefreshImmediately;
     api.collectComposerStateFromControls = collectComposerStateFromControls;
     api.maybeDeriveComposerStemFromSelectionsSource = maybeDeriveComposerStemFromSelectionsSource;

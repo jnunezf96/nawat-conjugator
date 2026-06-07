@@ -10,13 +10,13 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         label: "1-4",
         title: "Fundamentos",
         focus: "terminologia, sonido, particulas y clausula nuclear",
-        structures: ["ortografia", "particulas", "clausula"],
-        next: ["normalizador ortografico", "inventario de particulas", "esqueleto de clausula"],
+        structures: ["conceptos", "ortografia", "particulas", "clausula"],
+        next: ["glosario visible", "normalizador ortografico", "inventario de particulas", "esqueleto de clausula"],
         missing: [
-            { lessons: "1", label: "glosario de notacion y jerarquia", target: "data/concepts + ui/glossary", state: "missing" },
-            { lessons: "2", label: "fonologia y ortografia clasica", target: "core/orthography + core/phonology", state: "partial" },
-            { lessons: "3", label: "particulas y colocaciones", target: "data/static_particles", state: "missing" },
-            { lessons: "4", label: "formulas VNC/NNC por capas", target: "core/clause + data/static_formulae", state: "missing" },
+            { lessons: "1", label: "glosario de notacion y jerarquia", category: "conceptos", target: "core/concepts + ui/glossary", state: "partial" },
+            { lessons: "2", label: "fonologia y ortografia clasica", category: "sonido/grafia", target: "core/orthography + core/phonology", state: "partial" },
+            { lessons: "3", label: "particulas y colocaciones", category: "particulas", target: "core/particles + data/static_particles", state: "partial" },
+            { lessons: "4", label: "formulas VNC/NNC por capas", category: "clausula", target: "core/clause + data/static_formulae", state: "partial" },
         ],
     },
     {
@@ -28,12 +28,12 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["acuerdo", "VNC", "preterito", "irregulares"],
         next: ["capa de oracion", "matriz de modos", "catalogo irregular"],
         missing: [
-            { lessons: "5-6", label: "explicador de sujeto, objeto y valencia", target: "ui/paradigms + core/agreement", state: "partial" },
-            { lessons: "7", label: "diagnostico de clase de tronco", target: "data/static_verbstem_classes", state: "partial" },
-            { lessons: "8", label: "oracion: negacion, pregunta y enfasis", target: "core/clause + core/sentence", state: "missing" },
-            { lessons: "9-10", label: "optativo/admonitivo como oracion", target: "core/clause/mood + data/static_modes", state: "partial" },
-            { lessons: "11", label: "taxonomia irregular y excepciones", target: "core/irregulars + data/static_irregular_vnc", state: "partial" },
-            { lessons: "A,C", label: "paradigmas explicados por formula", target: "ui/paradigms", state: "partial" },
+            { lessons: "5-6", label: "explicador de sujeto, objeto y valencia", category: "acuerdo/valencia", target: "ui/paradigms + core/agreement", state: "partial" },
+            { lessons: "7", label: "diagnostico de clase de tronco", category: "tronco verbal", target: "data/static_verbstem_classes", state: "partial" },
+            { lessons: "8", label: "oracion: negacion, pregunta y enfasis", category: "oracion", target: "core/sentence + core/clause", state: "partial" },
+            { lessons: "9-10", label: "optativo/admonitivo como oracion", category: "modo/oracion", target: "core/clause/mood + data/static_modes", state: "partial" },
+            { lessons: "11", label: "taxonomia irregular y excepciones", category: "irregulares", target: "core/irregulars + data/static_irregular_vnc", state: "partial" },
+            { lessons: "A,C", label: "paradigmas explicados por formula", category: "paradigmas", target: "ui/paradigms", state: "partial" },
         ],
     },
     {
@@ -45,10 +45,10 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["NNC", "posesion", "pronombres", "suplementos"],
         next: ["lexico nominal", "generador NNC", "grafo de suplementos"],
         missing: [
-            { lessons: "12-15", label: "generador NNC data-completo: posesivo y ti/in", target: "core/nnc/paradigm + data/static_nnc", state: "partial" },
-            { lessons: "15", label: "posesion natural y casos de estado", target: "core/nnc/possession", state: "missing" },
-            { lessons: "16", label: "inventario NNC pronominal", target: "data/static_nnc_pronominals", state: "missing" },
-            { lessons: "17-19", label: "suplementacion y topico", target: "core/syntax/supplementation", state: "missing" },
+            { lessons: "12-15", label: "generador NNC data-completo: posesivo y ti/in", category: "NNC", target: "core/nnc/paradigm + data/static_nnc", state: "partial" },
+            { lessons: "15", label: "posesion natural y casos de estado", category: "posesion", target: "core/nnc/possession", state: "missing" },
+            { lessons: "16", label: "inventario NNC pronominal", category: "pronominal", target: "data/static_nnc_pronominals", state: "missing" },
+            { lessons: "17-19", label: "suplementacion y topico", category: "suplemento/topico", target: "core/syntax/supplementation", state: "missing" },
         ],
     },
     {
@@ -56,14 +56,11 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         range: [20, 27],
         label: "20-27",
         title: "Troncos derivados",
-        focus: "no activo, pasivo, impersonal, objetos, causativo, aplicativo y frecuentativo",
+        focus: "20-26 ya tienen motores; el frecuentativo queda pendiente",
         structures: ["derivacion", "valencia", "voz"],
-        next: ["grafo de fuentes", "frecuentativo", "ranuras de valencia"],
+        next: ["frecuentativo"],
         missing: [
-            { lessons: "20-26", label: "grafo fuente a derivado", target: "core/derivation + ui/valence", state: "partial" },
-            { lessons: "20-23", label: "pasivo, impersonal y ranuras objeto", target: "core/generation/valency", state: "partial" },
-            { lessons: "24-26", label: "auditoria causativo/aplicativo", target: "data/static_derivational_rules", state: "audit" },
-            { lessons: "27", label: "frecuentativo y reduplicacion", target: "core/derivation/frequentative", state: "missing" },
+            { lessons: "27", label: "frecuentativo y reduplicacion", category: "frecuentativo", target: "core/derivation/frequentative", state: "partial" },
         ],
     },
     {
@@ -75,11 +72,11 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["parser", "compuestos", "NNC/VNC"],
         next: ["purposivo", "NNC compuesto", "numeral y honorifico"],
         missing: [
-            { lessons: "28,30", label: "constructor compuesto general", target: "core/parsing + core/compound", state: "partial" },
-            { lessons: "29", label: "VNC purposivo direccional", target: "core/vnc/purposive", state: "missing" },
-            { lessons: "31-32", label: "NNC compuesto y afectivo", target: "core/nnc/compound + data/static_affective_nnc", state: "missing" },
-            { lessons: "33", label: "honorifico/peyorativo", target: "core/vnc/honorific_pejorative", state: "missing" },
-            { lessons: "34,D", label: "numerales vigesimales y NNC", target: "core/nnc/numerals + data/static_numbers", state: "missing" },
+            { lessons: "28,30", label: "constructor compuesto general", category: "compuesto", target: "core/parsing + core/compound", state: "partial" },
+            { lessons: "29", label: "VNC purposivo direccional", category: "purposivo", target: "core/vnc/purposive", state: "partial" },
+            { lessons: "31-32", label: "NNC compuesto y afectivo", category: "compuesto/afectivo", target: "core/nnc/compound + data/static_affective_nnc", state: "partial" },
+            { lessons: "33", label: "honorifico/peyorativo", category: "honorifico", target: "core/vnc/honorific_pejorative", state: "partial" },
+            { lessons: "34,D", label: "numerales vigesimales y NNC", category: "numeral", target: "core/nnc/numerals + data/static_numbers", state: "partial" },
         ],
     },
     {
@@ -91,12 +88,12 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["nominalizacion", "adjetivos", "modificacion"],
         next: ["registro por fuente", "funcion adjetival", "AST de modificacion"],
         missing: [
-            { lessons: "35", label: "nominalizacion VNC y ownerhood", target: "core/nnc/nominalization", state: "missing" },
-            { lessons: "36", label: "agentivo, patientivo, accion e instrumento", target: "data/static_nominalized_vnc_rules", state: "partial" },
-            { lessons: "37", label: "deverbales z/liz y acciones", target: "core/nnc/deverbal", state: "missing" },
-            { lessons: "38-39", label: "familias patientivas", target: "core/nnc/patientive", state: "missing" },
-            { lessons: "40-41", label: "funcion adjetival NNC/VNC", target: "core/nnc/adjectival + ui/adjective", state: "partial" },
-            { lessons: "42-43", label: "AST de modificacion adjetival", target: "core/clause/modification", state: "missing" },
+            { lessons: "35", label: "nominalizacion VNC y ownerhood", category: "nominalizacion", target: "core/nnc/nominalization", state: "partial" },
+            { lessons: "36", label: "agentivo, patientivo, accion e instrumento", category: "rol nominal", target: "data/static_nominalized_vnc_rules", state: "partial" },
+            { lessons: "37", label: "deverbales z/liz y acciones", category: "deverbal", target: "core/nnc/nominalization + evidence", state: "partial" },
+            { lessons: "38-39", label: "familias patientivas", category: "patientivo", target: "core/nnc/nominalization + patientiveFamilyProfile", state: "partial" },
+            { lessons: "40-41", label: "funcion adjetival NNC/VNC", category: "funcion adjetival", target: "core/nnc/adjectival + ui/adjective", state: "partial" },
+            { lessons: "42-43", label: "AST de modificacion adjetival", category: "modificacion", target: "core/clause/modification", state: "partial" },
         ],
     },
     {
@@ -108,12 +105,15 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["relacional", "adverbio", "lugar"],
         next: ["registro relacional", "lugar y gentilicio", "adjuncion adverbial"],
         missing: [
-            { lessons: "44", label: "clausulas adverbiales nucleares", target: "core/clause + data/static_adverbials", state: "partial" },
-            { lessons: "45-47", label: "registro de nounstems relacionales", target: "data/static_relational_nnc", state: "missing" },
-            { lessons: "45-47", label: "opciones relacionales 1-4", target: "core/nnc/relational", state: "missing" },
-            { lessons: "48", label: "lugares y gentilicios", target: "data/static_places + data/static_gentilics", state: "missing" },
-            { lessons: "49-50", label: "adjuncion adverbial recursiva", target: "core/clause/adjunction", state: "missing" },
-            { lessons: "E", label: "calendario y ciclos de nombres", target: "core/calendar + data/static_calendar", state: "missing" },
+            { lessons: "44", label: "clausulas adverbiales nucleares", category: "adverbial", target: "core/clause + data/static_adverbials", state: "partial" },
+            { lessons: "45-47", label: "registro de nounstems relacionales", category: "relacional", target: "data/static_relational_nnc", state: "missing" },
+            { lessons: "45-47", label: "opciones relacionales 1-4", category: "relacional", target: "core/nnc/relational", state: "partial" },
+            { lessons: "48", label: "lugares y gentilicios", category: "lugar/gentilicio", target: "data/static_places + data/static_gentilics", state: "missing" },
+            { lessons: "48", label: "limite lugar/gentilicio", category: "lugar/gentilicio", target: "core/nnc/place_gentilic", state: "partial" },
+            { lessons: "49-50", label: "adjuncion adverbial recursiva", category: "adjuncion", target: "data/static_adverbial_adjunction + clause-adjunction AST", state: "missing" },
+            { lessons: "49-50", label: "limite adjuncion adverbial", category: "adjuncion", target: "core/clause/adjunction", state: "partial" },
+            { lessons: "E", label: "datos de calendario y ciclos", category: "calendario", target: "data/static_calendar", state: "missing" },
+            { lessons: "E", label: "limite calendario", category: "calendario", target: "core/calendar", state: "partial" },
         ],
     },
     {
@@ -125,13 +125,18 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["sintaxis", "denominal", "nombres"],
         next: ["AST de clausulas", "comparacion", "nombres y diagnosticos"],
         missing: [
-            { lessons: "51", label: "complementacion", target: "core/clause/complement", state: "missing" },
-            { lessons: "52", label: "conjuncion y paralelismo", target: "core/clause/conjunction", state: "missing" },
-            { lessons: "53", label: "comparacion y similitud", target: "core/comparison", state: "missing" },
-            { lessons: "54-55", label: "denominal pleno y familias de sufijos", target: "core/derivation/denominal", state: "partial" },
-            { lessons: "56,E", label: "NNC de nombres personales", target: "core/nnc/names + data/static_names", state: "missing" },
-            { lessons: "57-58", label: "diagnosticos textuales e irregulares", target: "core/analysis + core/clause", state: "missing" },
-            { lessons: "F", label: "normalizador de grafia antigua", target: "core/orthography + data/static_old_spellings", state: "missing" },
+            { lessons: "51", label: "datos/AST de complementacion", category: "complemento", target: "data/static_complements + complement AST", state: "missing" },
+            { lessons: "51", label: "limite complementacion", category: "complemento", target: "core/clause/complement", state: "partial" },
+            { lessons: "52", label: "datos/AST de conjuncion", category: "conjuncion", target: "data/static_conjunctions + conjunction AST", state: "missing" },
+            { lessons: "52", label: "limite conjuncion", category: "conjuncion", target: "core/clause/conjunction", state: "partial" },
+            { lessons: "53", label: "datos/AST de comparacion", category: "comparacion", target: "data/static_comparisons + comparison AST", state: "missing" },
+            { lessons: "53", label: "limite comparacion", category: "comparacion", target: "core/comparison", state: "partial" },
+            { lessons: "54-55", label: "denominal pleno y familias de sufijos", category: "denominal", target: "core/derivation/denominal", state: "partial" },
+            { lessons: "56,E", label: "datos de nombres personales", category: "nombres", target: "data/static_names + data/static_calendar", state: "missing" },
+            { lessons: "56,E", label: "limite nombres personales", category: "nombres", target: "core/nnc/names", state: "partial" },
+            { lessons: "57-58", label: "datos/AST de diagnostico textual", category: "diagnostico", target: "data/static_analysis + analysis AST", state: "missing" },
+            { lessons: "57-58", label: "limite diagnostico textual", category: "diagnostico", target: "core/analysis", state: "partial" },
+            { lessons: "F", label: "puente de grafia antigua", category: "sonido/grafia", target: "core/orthography + data/static_old_spellings", state: "partial" },
         ],
     },
 ]);
@@ -153,6 +158,8 @@ const CURRICULUM_MISSING_STATE_META = Object.freeze({
         pillClass: "book-map__pill--audit",
     },
 });
+
+const CURRICULUM_ARCHITECTURE_NOTE = "Indice curricular: no es un motor por leccion. Las filas apuntan a categorias, metadatos, diagnosticos o controles compartidos.";
 
 function getCurriculumLessons() {
     if (typeof LESSON_REGISTRY === "undefined" || !Array.isArray(LESSON_REGISTRY)) {
@@ -220,6 +227,59 @@ function createCurriculumPill(text, className = "") {
 function createCurriculumMissingStatePill(state, text) {
     const meta = CURRICULUM_MISSING_STATE_META[state] || CURRICULUM_MISSING_STATE_META.missing;
     return createCurriculumPill(text || meta.label, meta.pillClass);
+}
+
+function getCurriculumMissingCategory(item = {}) {
+    if (item.category) {
+        return item.category;
+    }
+    const target = String(item.target || "");
+    if (/concept|glossary/.test(target)) {
+        return "conceptos";
+    }
+    if (/orthography|phonology|old_spellings/.test(target)) {
+        return "sonido/grafia";
+    }
+    if (/particles/.test(target)) {
+        return "particulas";
+    }
+    if (/clause|sentence|syntax/.test(target)) {
+        return "clausula";
+    }
+    if (/comparison/.test(target)) {
+        return "comparacion";
+    }
+    if (/calendar/.test(target)) {
+        return "calendario";
+    }
+    if (/analysis/.test(target)) {
+        return "diagnostico";
+    }
+    if (/places|gentilics/.test(target)) {
+        return "lugar/gentilicio";
+    }
+    if (/relational/.test(target)) {
+        return "relacional";
+    }
+    if (/nnc/i.test(target)) {
+        return "NNC";
+    }
+    if (/vnc/i.test(target)) {
+        return "VNC";
+    }
+    if (/derivation|derivational/.test(target)) {
+        return "derivacion";
+    }
+    if (/agreement|valency/.test(target)) {
+        return "acuerdo/valencia";
+    }
+    if (/irregular/.test(target)) {
+        return "irregulares";
+    }
+    if (/paradigms/.test(target)) {
+        return "explicacion";
+    }
+    return "categoria";
 }
 
 function renderCurriculumTotals(totalsEl, appendices) {
@@ -315,8 +375,10 @@ function renderCurriculumDetail(detailEl, group) {
         structureRow.appendChild(createCurriculumPill(structure));
     });
 
+    const architectureNote = createCurriculumElement("p", "book-map__architecture-note", CURRICULUM_ARCHITECTURE_NOTE);
+
     const nextList = createCurriculumElement("div", "book-map__next", "");
-    nextList.appendChild(createCurriculumElement("span", "book-map__next-label", "Rutas"));
+    nextList.appendChild(createCurriculumElement("span", "book-map__next-label", "Categorias"));
     group.next.forEach((item) => {
         nextList.appendChild(createCurriculumPill(item));
     });
@@ -332,7 +394,7 @@ function renderCurriculumDetail(detailEl, group) {
 
     const missingList = createCurriculumMissingList(missingItems);
 
-    detailEl.append(header, focus, structureRow, nextList, summary, missingList);
+    detailEl.append(header, focus, architectureNote, structureRow, nextList, summary, missingList);
 }
 
 function createCurriculumMissingList(items) {
@@ -353,15 +415,24 @@ function createCurriculumMissingList(items) {
 function createCurriculumMissingRow(item) {
     const state = item.state || "missing";
     const meta = CURRICULUM_MISSING_STATE_META[state] || CURRICULUM_MISSING_STATE_META.missing;
+    const target = String(item.target || "");
+    const categoryLabel = getCurriculumMissingCategory(item);
     const row = createCurriculumElement("div", "book-map__missing-row", "");
     row.dataset.state = state;
+    row.dataset.category = categoryLabel;
+    row.dataset.target = target;
+    const category = createCurriculumElement("span", "book-map__missing-category", categoryLabel);
+    category.setAttribute("aria-label", `Categoria compartida: ${categoryLabel}`);
     row.append(
         createCurriculumElement("span", "book-map__missing-lessons", item.lessons || ""),
         createCurriculumElement("span", "book-map__missing-label", item.label || ""),
-        createCurriculumElement("span", "book-map__missing-target", item.target || ""),
+        category,
         createCurriculumElement("span", "book-map__missing-state", meta.shortLabel)
     );
     row.querySelector(".book-map__missing-state").title = meta.label;
+    row.querySelector(".book-map__missing-category").title = target
+        ? `Categoria/metadata; destino tecnico: ${target}`
+        : "Categoria/metadata target, not one engine per lesson";
     return row;
 }
 

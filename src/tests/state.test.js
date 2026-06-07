@@ -36,6 +36,97 @@ function run(ctx) {
             : [],
         flags: sourceState.flags,
     });
+    const summarizeDenominalFamilyProfile = (profile) => profile && ({
+        version: profile.version,
+        curriculumRef: profile.curriculumRef,
+        outputKind: profile.outputKind,
+        routeFamily: profile.routeFamily,
+        structuralAnalogue: profile.structuralAnalogue,
+        routeId: profile.routeId,
+        routeProfileSource: profile.routeProfileSource,
+        sourceState: profile.sourceState,
+        sourceSlot: profile.sourceSlot,
+        sourceCategory: profile.sourceCategory,
+        sourceSurface: profile.sourceSurface,
+        verbalizer: profile.verbalizer,
+        verbalizerType: profile.verbalizerType,
+        valency: profile.valency,
+        targetTense: profile.targetTense,
+        surfaceSuffix: profile.surfaceSuffix,
+        supportStatus: profile.supportStatus,
+        isCompleteLesson54_55: profile.isCompleteLesson54_55,
+        boundaries: profile.boundaries,
+    });
+    const summarizeDenominalFamilyInventory = (entries) => Array.isArray(entries)
+        ? entries.map((entry) => ({
+            outputKind: entry.outputKind,
+            routeFamily: entry.routeFamily,
+            structuralAnalogue: entry.structuralAnalogue,
+            verbalizer: entry.verbalizer,
+            verbalizerType: entry.verbalizerType,
+            valency: entry.valency,
+            routePlacement: entry.routePlacement,
+            routeProfileSource: entry.routeProfileSource,
+            routeIds: entry.routeIds,
+            targetTenses: entry.targetTenses,
+            surfaceSuffixes: entry.surfaceSuffixes,
+            sourceSlots: entry.sourceSlots,
+            supportStatus: entry.supportStatus,
+            isCompleteLesson54_55: entry.isCompleteLesson54_55,
+            noNewSurfaceForms: entry.boundaries?.noNewSurfaceForms === true,
+        }))
+        : [];
+    const summarizeDenominalRoutePreview = (preview) => preview && ({
+        outputKind: preview.outputKind,
+        sourceVerb: preview.sourceVerb,
+        supportStatus: preview.supportStatus,
+        isCompleteLesson54_55: preview.isCompleteLesson54_55,
+        familyCount: Array.isArray(preview.families) ? preview.families.length : 0,
+        routeSurfaces: Array.isArray(preview.routes)
+            ? preview.routes.map((route) => ({
+                routeId: route.routeId,
+                routeFamily: route.routeFamily,
+                routeProfileSource: route.routeProfileSource,
+                sourceSurface: route.sourceSurface,
+                targetVerb: route.targetVerb,
+                targetTense: route.targetTense,
+                surface: route.surface,
+                surfaceTrail: route.surfaceTrail,
+                stageCount: Array.isArray(route.stages) ? route.stages.length : 0,
+                reusableStageCount: Array.isArray(route.stages)
+                    ? route.stages.filter((stage) => stage.nextSource?.canBecomeSource === true).length
+                    : 0,
+                profileSource: route.denominalFamilyProfile?.routeProfileSource || "",
+                noNewSurfaceForms: route.denominalFamilyProfile?.boundaries?.noNewSurfaceForms === true,
+            }))
+            : [],
+        firstRouteStages: Array.isArray(preview.routes?.[0]?.stages)
+            ? preview.routes[0].stages.map((stage) => ({
+                key: stage.key,
+                surface: stage.surface,
+                sourceVerb: stage.nextSource?.sourceVerb || "",
+                routeSourceVerb: stage.routeContext?.sourceVerb || "",
+                routeTargetVerb: stage.routeContext?.targetVerb || "",
+                mode: stage.nextSource?.mode || "",
+                tenseValue: stage.nextSource?.tenseValue || "",
+                canBecomeSource: stage.nextSource?.canBecomeSource === true,
+            }))
+            : [],
+        transitiveRouteStages: Array.isArray(preview.routes)
+            ? (preview.routes.find((route) => route.routeId === "denominal-vt-na-preterit")?.stages || []).map((stage) => ({
+                key: stage.key,
+                surface: stage.surface,
+                sourceVerb: stage.nextSource?.sourceVerb || "",
+                routeSourceVerb: stage.routeContext?.sourceVerb || "",
+                routeTargetVerb: stage.routeContext?.targetVerb || "",
+                objectPrefix: stage.nextSource?.objectPrefix || "",
+                mode: stage.nextSource?.mode || "",
+                tenseValue: stage.nextSource?.tenseValue || "",
+                canBecomeSource: stage.nextSource?.canBecomeSource === true,
+            }))
+            : [],
+        noNewSurfaceForms: preview.boundaries?.noNewSurfaceForms === true,
+    });
 
     // isToggleLockEnabled — ToggleLockState starts disabled
     s.no("toggle lock off by default", ctx.isToggleLockEnabled());
@@ -51,8 +142,9 @@ function run(ctx) {
             typeof ctx.buildOrdinaryNncGenerateWordRequest,
             typeof ctx.parseOrdinaryNncGenerationAnalogueInput,
             typeof ctx.formatOrdinaryNncGenerationAnalogueInput,
+            typeof ctx.getCurrentNuclearClauseShell,
         ],
-        ["function", "function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function"]
     );
     const isOrdinaryNncGenerationModeEnabled = typeof ctx.isOrdinaryNncGenerationModeEnabled === "function"
         ? () => ctx.isOrdinaryNncGenerationModeEnabled()
@@ -80,6 +172,50 @@ function run(ctx) {
         ]
     );
     s.eq(
+        "orthography bridge status is diagnostic and non-generative",
+        ["nemi", "quetza", "xochitl"].map((value) => {
+            const status = ctx.getOrthographyBridgeStatusInfo(value);
+            return status && {
+                severity: status.severity,
+                message: status.message,
+                correspondenceIds: status.correspondenceIds,
+                blocked: status.blocked,
+                generationAllowed: status.generationAllowed,
+            };
+        }),
+        [
+            null,
+            {
+                severity: "info",
+                message: "Ortografia: correspondencia candidata; requiere evidencia Nawat/Pipil.",
+                correspondenceIds: ["same-tz", "qu-k"],
+                blocked: [],
+                generationAllowed: false,
+            },
+            {
+                severity: "warning",
+                message: "Ortografia: correspondencia bloqueada; no genera formas.",
+                correspondenceIds: ["same-ch", "x-sh", "o-u", "tl"],
+                blocked: ["o-u", "tl"],
+                generationAllowed: false,
+            },
+        ]
+    );
+    const currentShell = ctx.getCurrentNuclearClauseShell();
+    s.eq(
+        "current UI exposes a diagnostic nuclear-clause shell",
+        {
+            kind: currentShell?.kind,
+            clauseKind: currentShell?.clauseKind,
+            generationAllowed: currentShell?.generationAllowed,
+        },
+        {
+            kind: "nuclear-clause-shell",
+            clauseKind: "verbal-nuclear-clause",
+            generationAllowed: false,
+        }
+    );
+    s.eq(
         "ordinary NNC analogue formatter keeps the connector outside parentheses",
         [
             { stem: "siwa", nounClass: "t" },
@@ -95,7 +231,13 @@ function run(ctx) {
         buildOrdinaryNncGenerateWordRequest({ stem: "xilun", explicit: false }).options.override.ordinaryNnc
     );
     setOrdinaryNncGenerationModeEnabled(true);
-    setOrdinaryNncGenerationState({ state: "possessive", number: "singular", possessor: "nu" });
+    setOrdinaryNncGenerationState({
+        state: "possessive",
+        number: "singular",
+        possessor: "nu",
+        nounClass: "",
+        animacy: "",
+    });
     s.eq(
         "ordinary NNC UI state records explicit slot selection",
         getOrdinaryNncGenerationState(),
@@ -109,7 +251,7 @@ function run(ctx) {
             subjectKey: "3sg",
             possessor: "nu",
             nounClass: "",
-            animacy: "inanimate",
+            animacy: "",
         }
     );
     s.eq(
@@ -136,11 +278,17 @@ function run(ctx) {
                 subjectKey: "3sg",
                 possessor: "nu",
                 nounClass: "",
-                animacy: "inanimate",
+                animacy: "",
             },
         }
     );
-    setOrdinaryNncGenerationState({ state: "absolutive", number: "plural", possessor: "mu" });
+    setOrdinaryNncGenerationState({
+        state: "absolutive",
+        number: "plural",
+        possessor: "mu",
+        nounClass: "",
+        animacy: "",
+    });
     s.eq(
         "ordinary NNC UI state clears possessor outside possessive state without changing subject agreement",
         buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
@@ -165,7 +313,7 @@ function run(ctx) {
                 subjectKey: "3sg",
                 possessor: "",
                 nounClass: "",
-                animacy: "inanimate",
+                animacy: "",
             },
         }
     );
@@ -241,6 +389,8 @@ function run(ctx) {
     s.eq("future nawat route maps legacy -tik preterit id", tiPreteritRoute.id, "denominal-vi-ti-preterit");
     s.eq("future nawat route keeps source slot", tiPreteritRoute.sourceSlot, "noun/inc.root");
     s.eq("future nawat route keeps denominal VI verbalizer", tiPreteritRoute.verbalizer, "-ti");
+    s.eq("future nawat route keeps configured denominal family", tiPreteritRoute.denominalFamily, "vi-ti");
+    s.eq("future nawat route keeps configured structural analogue", tiPreteritRoute.structuralAnalogue, "inceptive-stative-ti-route");
     s.eq("future nawat route maps to nawat verb mode", tiPreteritRoute.nawatMode, "verbo");
     s.eq(
         "future nawat route stays inside nawat verb convention",
@@ -304,13 +454,14 @@ function run(ctx) {
         }),
         "(pusuni) → pusuk → (pusukti) → pusuktik"
     );
+    const tiPreteritSourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
+        sourceVerb: "(pusuni)",
+        routeTarget: tiPreteritTarget,
+        stationModels: tiRouteStations,
+    });
     s.eq(
         "denominal VI -ti route exposes source-state metadata",
-        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
-            sourceVerb: "(pusuni)",
-            routeTarget: tiPreteritTarget,
-            stationModels: tiRouteStations,
-        })),
+        summarizeRouteSourceState(tiPreteritSourceState),
         {
             version: 1,
             routeId: "denominal-vi-ti-preterit",
@@ -336,6 +487,39 @@ function run(ctx) {
                 patientivoTroncoConversion: true,
                 transitive: false,
                 intransitive: true,
+            },
+        }
+    );
+    s.eq(
+        "denominal VI -ti route classifies current Lesson 54-55 route family without claiming complete coverage",
+        summarizeDenominalFamilyProfile(tiPreteritSourceState.denominalFamilyProfile),
+        {
+            version: 1,
+            curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+            outputKind: "denominal-route",
+            routeFamily: "vi-ti",
+            structuralAnalogue: "inceptive-stative-ti-route",
+            routeId: "denominal-vi-ti-preterit",
+            routeProfileSource: "static-modes",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.root",
+            sourceCategory: "noun-or-incorporated-root",
+            sourceSurface: "pusuk",
+            verbalizer: "-ti",
+            verbalizerType: "denominal-intransitive",
+            valency: "intransitive",
+            targetTense: "preterito",
+            surfaceSuffix: "-tik",
+            supportStatus: "current-route-supported",
+            isCompleteLesson54_55: false,
+            boundaries: {
+                noNewSurfaceForms: true,
+                routeBasedOnly: true,
+                suffixFamilyInventoryComplete: false,
+                includedPossessorModeled: false,
+                possessionDenominalModeled: false,
+                temporalDenominalModeled: false,
+                causativeApplicativeFamilyModeled: false,
             },
         }
     );
@@ -391,13 +575,14 @@ function run(ctx) {
         }),
         "(pusuni) → pusuk → (pusuk)-(na) → pusuknaj"
     );
+    const naPreteritSourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vt-na-preterit", {
+        sourceVerb: "(pusuni)",
+        routeTarget: naPreteritTarget,
+        stationModels: naRouteStations,
+    });
     s.eq(
         "denominal VT -na route exposes source-state metadata",
-        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vt-na-preterit", {
-            sourceVerb: "(pusuni)",
-            routeTarget: naPreteritTarget,
-            stationModels: naRouteStations,
-        })),
+        summarizeRouteSourceState(naPreteritSourceState),
         {
             version: 1,
             routeId: "denominal-vt-na-preterit",
@@ -423,6 +608,39 @@ function run(ctx) {
                 patientivoTroncoConversion: true,
                 transitive: true,
                 intransitive: false,
+            },
+        }
+    );
+    s.eq(
+        "denominal VT -na route classifies current transitive denominal route family",
+        summarizeDenominalFamilyProfile(naPreteritSourceState.denominalFamilyProfile),
+        {
+            version: 1,
+            curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+            outputKind: "denominal-route",
+            routeFamily: "vt-na",
+            structuralAnalogue: "transitive-denominal-route",
+            routeId: "denominal-vt-na-preterit",
+            routeProfileSource: "static-modes",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.obj.",
+            sourceCategory: "noun-or-incorporated-object",
+            sourceSurface: "pusuk",
+            verbalizer: "-na",
+            verbalizerType: "denominal-transitive",
+            valency: "transitive",
+            targetTense: "preterito",
+            surfaceSuffix: "-naj",
+            supportStatus: "current-route-supported",
+            isCompleteLesson54_55: false,
+            boundaries: {
+                noNewSurfaceForms: true,
+                routeBasedOnly: true,
+                suffixFamilyInventoryComplete: false,
+                includedPossessorModeled: false,
+                possessionDenominalModeled: false,
+                temporalDenominalModeled: false,
+                causativeApplicativeFamilyModeled: false,
             },
         }
     );
@@ -454,13 +672,14 @@ function run(ctx) {
         }),
         "(pusuni) → pusuk → (pusukiwi) → pusukiwik"
     );
+    const iwiPreteritSourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-iwi-preterit", {
+        sourceVerb: "(pusuni)",
+        routeTarget: iwiPreteritTarget,
+        stationModels: iwiPreteritStations,
+    });
     s.eq(
         "denominal VI -iwi route exposes source-state metadata",
-        summarizeRouteSourceState(ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-iwi-preterit", {
-            sourceVerb: "(pusuni)",
-            routeTarget: iwiPreteritTarget,
-            stationModels: iwiPreteritStations,
-        })),
+        summarizeRouteSourceState(iwiPreteritSourceState),
         {
             version: 1,
             routeId: "denominal-vi-iwi-preterit",
@@ -486,6 +705,39 @@ function run(ctx) {
                 patientivoTroncoConversion: true,
                 transitive: false,
                 intransitive: true,
+            },
+        }
+    );
+    s.eq(
+        "denominal VI -iwi route classifies current wi-family analogue without adding surfaces",
+        summarizeDenominalFamilyProfile(iwiPreteritSourceState.denominalFamilyProfile),
+        {
+            version: 1,
+            curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+            outputKind: "denominal-route",
+            routeFamily: "vi-iwi",
+            structuralAnalogue: "inceptive-stative-wi-route",
+            routeId: "denominal-vi-iwi-preterit",
+            routeProfileSource: "static-modes",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.root",
+            sourceCategory: "noun-or-incorporated-root",
+            sourceSurface: "pusuk",
+            verbalizer: "-iwi",
+            verbalizerType: "denominal-intransitive",
+            valency: "intransitive",
+            targetTense: "preterito",
+            surfaceSuffix: "-iwik",
+            supportStatus: "current-route-supported",
+            isCompleteLesson54_55: false,
+            boundaries: {
+                noNewSurfaceForms: true,
+                routeBasedOnly: true,
+                suffixFamilyInventoryComplete: false,
+                includedPossessorModeled: false,
+                possessionDenominalModeled: false,
+                temporalDenominalModeled: false,
+                causativeApplicativeFamilyModeled: false,
             },
         }
     );
@@ -522,6 +774,42 @@ function run(ctx) {
         }),
         "(pusuni) → pusuk → (pusukawi) → pusukawik"
     );
+    s.eq(
+        "denominal VI -awi route classifies current wi-family analogue without adding surfaces",
+        summarizeDenominalFamilyProfile(ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-awi-preterit", {
+            sourceVerb: "(pusuni)",
+            routeTarget: awiPreteritTarget,
+        }).denominalFamilyProfile),
+        {
+            version: 1,
+            curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+            outputKind: "denominal-route",
+            routeFamily: "vi-awi",
+            structuralAnalogue: "inceptive-stative-wi-route",
+            routeId: "denominal-vi-awi-preterit",
+            routeProfileSource: "static-modes",
+            sourceState: "patientivo-tronco",
+            sourceSlot: "noun/inc.root",
+            sourceCategory: "noun-or-incorporated-root",
+            sourceSurface: "pusuk",
+            verbalizer: "-awi",
+            verbalizerType: "denominal-intransitive",
+            valency: "intransitive",
+            targetTense: "preterito",
+            surfaceSuffix: "-awik",
+            supportStatus: "current-route-supported",
+            isCompleteLesson54_55: false,
+            boundaries: {
+                noNewSurfaceForms: true,
+                routeBasedOnly: true,
+                suffixFamilyInventoryComplete: false,
+                includedPossessorModeled: false,
+                possessionDenominalModeled: false,
+                temporalDenominalModeled: false,
+                causativeApplicativeFamilyModeled: false,
+            },
+        }
+    );
     const awiPerfectRoute = ctx.getNawatRouteProfile("denominal-vi-awi-perfect");
     const awiPerfectTarget = ctx.resolveNawatRouteTarget("denominal-vi-awi-perfect", {
         sourceVerb: "(pusuni)",
@@ -533,6 +821,1252 @@ function run(ctx) {
             routeTarget: awiPerfectTarget,
         }),
         "(pusuni) → pusuk → (pusukawi) → pusukawtuk"
+    );
+    s.eq(
+        "Lessons 54-55 route-family inventory is data-driven and partial",
+        summarizeDenominalFamilyInventory(ctx.getNawatDenominalRouteFamilyInventory()),
+        [
+            {
+                outputKind: "denominal-route-family-inventory",
+                routeFamily: "vi-ti",
+                structuralAnalogue: "inceptive-stative-ti-route",
+                verbalizer: "-ti",
+                verbalizerType: "denominal-intransitive",
+                valency: "intransitive",
+                routePlacement: "patientivo-tronco-conversion",
+                routeProfileSource: "static-modes",
+                routeIds: ["denominal-vi-ti-preterit", "denominal-vi-ti-perfect"],
+                targetTenses: ["preterito", "perfecto"],
+                surfaceSuffixes: ["-tik", "-tituk"],
+                sourceSlots: ["noun/inc.root"],
+                supportStatus: "current-route-supported-partial",
+                isCompleteLesson54_55: false,
+                noNewSurfaceForms: true,
+            },
+            {
+                outputKind: "denominal-route-family-inventory",
+                routeFamily: "vi-iwi",
+                structuralAnalogue: "inceptive-stative-wi-route",
+                verbalizer: "-iwi",
+                verbalizerType: "denominal-intransitive",
+                valency: "intransitive",
+                routePlacement: "patientivo-tronco-conversion",
+                routeProfileSource: "static-modes",
+                routeIds: ["denominal-vi-iwi-preterit", "denominal-vi-iwi-perfect"],
+                targetTenses: ["preterito", "perfecto"],
+                surfaceSuffixes: ["-iwik", "-iwtuk/-ijtuk"],
+                sourceSlots: ["noun/inc.root"],
+                supportStatus: "current-route-supported-partial",
+                isCompleteLesson54_55: false,
+                noNewSurfaceForms: true,
+            },
+            {
+                outputKind: "denominal-route-family-inventory",
+                routeFamily: "vi-awi",
+                structuralAnalogue: "inceptive-stative-wi-route",
+                verbalizer: "-awi",
+                verbalizerType: "denominal-intransitive",
+                valency: "intransitive",
+                routePlacement: "patientivo-tronco-conversion",
+                routeProfileSource: "static-modes",
+                routeIds: ["denominal-vi-awi-preterit", "denominal-vi-awi-perfect"],
+                targetTenses: ["preterito", "perfecto"],
+                surfaceSuffixes: ["-awik", "-awtuk/-ajtuk"],
+                sourceSlots: ["noun/inc.root"],
+                supportStatus: "current-route-supported-partial",
+                isCompleteLesson54_55: false,
+                noNewSurfaceForms: true,
+            },
+            {
+                outputKind: "denominal-route-family-inventory",
+                routeFamily: "vt-na",
+                structuralAnalogue: "transitive-denominal-route",
+                verbalizer: "-na",
+                verbalizerType: "denominal-transitive",
+                valency: "transitive",
+                routePlacement: "patientivo-tronco-conversion",
+                routeProfileSource: "static-modes",
+                routeIds: ["denominal-vt-na-preterit", "denominal-vt-na-perfect"],
+                targetTenses: ["preterito", "perfecto"],
+                surfaceSuffixes: ["-naj", "-najtuk"],
+                sourceSlots: ["noun/inc.obj."],
+                supportStatus: "current-route-supported-partial",
+                isCompleteLesson54_55: false,
+                noNewSurfaceForms: true,
+            },
+        ]
+    );
+    const denominalRoutePreview = ctx.generateNawatDenominalRouteFamilyPreview({
+        sourceVerb: "(pusuni)",
+    });
+    s.eq(
+        "Lessons 54-55 preview links configured route stages without broadening generation",
+        summarizeDenominalRoutePreview(denominalRoutePreview),
+        {
+            outputKind: "denominal-route-family-preview",
+            sourceVerb: "(pusuni)",
+            supportStatus: "current-route-supported-partial",
+            isCompleteLesson54_55: false,
+            familyCount: 4,
+            routeSurfaces: [
+                {
+                    routeId: "denominal-vi-ti-preterit",
+                    routeFamily: "vi-ti",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukti",
+                    targetTense: "preterito",
+                    surface: "pusuktik",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukti) → pusuktik",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vi-ti-perfect",
+                    routeFamily: "vi-ti",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukti",
+                    targetTense: "perfecto",
+                    surface: "pusuktituk",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukti) → pusuktituk",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vi-iwi-preterit",
+                    routeFamily: "vi-iwi",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukiwi",
+                    targetTense: "preterito",
+                    surface: "pusukiwik",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukiwi) → pusukiwik",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vi-iwi-perfect",
+                    routeFamily: "vi-iwi",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukiwi",
+                    targetTense: "perfecto",
+                    surface: "pusukiwtuk",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukiwi) → pusukiwtuk",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vi-awi-preterit",
+                    routeFamily: "vi-awi",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukawi",
+                    targetTense: "preterito",
+                    surface: "pusukawik",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukawi) → pusukawik",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vi-awi-perfect",
+                    routeFamily: "vi-awi",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukawi",
+                    targetTense: "perfecto",
+                    surface: "pusukawtuk",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukawi) → pusukawtuk",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vt-na-preterit",
+                    routeFamily: "vt-na",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukna",
+                    targetTense: "preterito",
+                    surface: "pusuknaj",
+                    surfaceTrail: "(pusuni) → pusuk → (pusuk)-(na) → pusuknaj",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+                {
+                    routeId: "denominal-vt-na-perfect",
+                    routeFamily: "vt-na",
+                    routeProfileSource: "static-modes",
+                    sourceSurface: "pusuk",
+                    targetVerb: "pusukna",
+                    targetTense: "perfecto",
+                    surface: "pusuknajtuk",
+                    surfaceTrail: "(pusuni) → pusuk → (pusuk)-(na) → pusuknajtuk",
+                    stageCount: 4,
+                    reusableStageCount: 4,
+                    profileSource: "static-modes",
+                    noNewSurfaceForms: true,
+                },
+            ],
+            firstRouteStages: [
+                {
+                    key: "source-mode",
+                    surface: "(pusuni)",
+                    sourceVerb: "(pusuni)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukti",
+                    mode: "verbo",
+                    tenseValue: "presente",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "stem",
+                    surface: "pusuk",
+                    sourceVerb: "pusuk",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukti",
+                    mode: "sustantivo",
+                    tenseValue: "patientivo",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "verbalizer",
+                    surface: "(pusukti)",
+                    sourceVerb: "(pusukti)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukti",
+                    mode: "verbo",
+                    tenseValue: "presente",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "finite-surface",
+                    surface: "pusuktik",
+                    sourceVerb: "(pusukti)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukti",
+                    mode: "verbo",
+                    tenseValue: "preterito",
+                    canBecomeSource: true,
+                },
+            ],
+            transitiveRouteStages: [
+                {
+                    key: "source-mode",
+                    surface: "(pusuni)",
+                    sourceVerb: "(pusuni)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukna",
+                    objectPrefix: "",
+                    mode: "verbo",
+                    tenseValue: "presente",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "stem",
+                    surface: "pusuk",
+                    sourceVerb: "pusuk",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukna",
+                    objectPrefix: "",
+                    mode: "sustantivo",
+                    tenseValue: "patientivo",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "verbalizer",
+                    surface: "(pusuk)-(na)",
+                    sourceVerb: "(pusuk)-(na)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukna",
+                    objectPrefix: "",
+                    mode: "verbo",
+                    tenseValue: "presente",
+                    canBecomeSource: true,
+                },
+                {
+                    key: "finite-surface",
+                    surface: "pusuknaj",
+                    sourceVerb: "(pusuk)-(na)",
+                    routeSourceVerb: "(pusuni)",
+                    routeTargetVerb: "pusukna",
+                    objectPrefix: "",
+                    mode: "verbo",
+                    tenseValue: "preterito",
+                    canBecomeSource: true,
+                },
+            ],
+            noNewSurfaceForms: true,
+        }
+    );
+    const viTiFiniteStageRequest = ctx.buildNawatLinkedGrammarPathStageGenerateWordRequest(
+        denominalRoutePreview.routes[0].stages.find((stage) => stage.key === "finite-surface")
+    );
+    const viTiFiniteStageResult = ctx.executeNawatLinkedGrammarPathStage(
+        denominalRoutePreview.routes[0].stages.find((stage) => stage.key === "finite-surface")
+    );
+    const summarizeLinkedNextSourcePreview = (preview) => preview && ({
+        outputKind: preview.outputKind,
+        selectedStage: preview.selectedStage,
+        nextSource: preview.nextSource,
+        routeContext: preview.routeContext && {
+            routeId: preview.routeContext.routeId,
+            sourceVerb: preview.routeContext.sourceVerb,
+            targetVerb: preview.routeContext.targetVerb,
+        },
+        previewSourceVerb: preview.routePreview?.sourceVerb || "",
+        candidateRouteCount: preview.candidateRouteCount,
+        firstCandidate: Array.isArray(preview.routePreview?.routes)
+            ? {
+                routeId: preview.routePreview.routes[0]?.routeId || "",
+                sourceVerb: preview.routePreview.routes[0]?.sourceVerb || "",
+                targetVerb: preview.routePreview.routes[0]?.targetVerb || "",
+                surface: preview.routePreview.routes[0]?.surface || "",
+                surfaceTrail: preview.routePreview.routes[0]?.surfaceTrail || "",
+            }
+            : null,
+        noNewRouteFamilies: preview.boundaries?.noNewRouteFamilies === true,
+        noNewSurfaceRules: preview.boundaries?.noNewSurfaceRules === true,
+        doesNotMutateState: preview.boundaries?.doesNotMutateState === true,
+    });
+    const viTiVerbalizerNextPreview = ctx.previewNawatLinkedGrammarPathNextSource(
+        denominalRoutePreview.routes[0].stages.find((stage) => stage.key === "verbalizer")
+    );
+    s.eq(
+        "linked denominal stage previews candidate routes for the next source without mutation",
+        summarizeLinkedNextSourcePreview(viTiVerbalizerNextPreview),
+        {
+            outputKind: "linked-grammar-path-next-source-preview",
+            selectedStage: {
+                routeId: "denominal-vi-ti-preterit",
+                stationKey: "verbalizer",
+                sourceVerb: "(pusukti)",
+                displaySurface: "(pusukti)",
+                mode: "verbo",
+                tenseValue: "presente",
+                objectPrefix: "",
+                combinedMode: "active",
+                derivationMode: "active",
+                voiceMode: "active",
+                sourceScope: "active",
+            },
+            nextSource: {
+                canBecomeSource: true,
+                sourceVerb: "(pusukti)",
+                displaySurface: "(pusukti)",
+                mode: "verbo",
+                tenseValue: "presente",
+                objectPrefix: "",
+            },
+            routeContext: {
+                routeId: "denominal-vi-ti-preterit",
+                sourceVerb: "(pusuni)",
+                targetVerb: "pusukti",
+            },
+            previewSourceVerb: "(pusukti)",
+            candidateRouteCount: 8,
+            firstCandidate: {
+                routeId: "denominal-vi-ti-preterit",
+                sourceVerb: "(pusukti)",
+                targetVerb: "pusukti",
+                surface: "pusuktik",
+                surfaceTrail: "(pusukti) → pusuk → pusuktik",
+            },
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesNotMutateState: true,
+        }
+    );
+    const summarizeLinkedPathChainPreview = (preview) => preview && ({
+        outputKind: preview.outputKind,
+        initialSource: preview.initialSource,
+        requestedSelectionCount: preview.requestedSelectionCount,
+        steps: Array.isArray(preview.steps)
+            ? preview.steps.map((step) => ({
+                index: step.index,
+                status: step.status,
+                selection: step.selection,
+                route: step.route,
+                selectedStage: step.selectedStage,
+                nextSource: step.nextSource,
+                routeContext: step.routeContext && {
+                    routeId: step.routeContext.routeId,
+                    sourceVerb: step.routeContext.sourceVerb,
+                    targetVerb: step.routeContext.targetVerb,
+                },
+                candidateRouteCount: step.candidateRouteCount,
+                firstCandidateRouteId: step.candidateRouteIds?.[0] || "",
+            }))
+            : [],
+        stoppedReason: preview.stoppedReason,
+        currentSourceVerb: preview.currentPreview?.sourceVerb || "",
+        candidateRouteCount: preview.candidateRouteCount,
+        firstCurrentCandidate: Array.isArray(preview.currentPreview?.routes)
+            ? {
+                routeId: preview.currentPreview.routes[0]?.routeId || "",
+                targetVerb: preview.currentPreview.routes[0]?.targetVerb || "",
+                surface: preview.currentPreview.routes[0]?.surface || "",
+                surfaceTrail: preview.currentPreview.routes[0]?.surfaceTrail || "",
+            }
+            : null,
+        noNewRouteFamilies: preview.boundaries?.noNewRouteFamilies === true,
+        noNewSurfaceRules: preview.boundaries?.noNewSurfaceRules === true,
+        doesNotExecuteStages: preview.boundaries?.doesNotExecuteStages === true,
+        doesNotMutateState: preview.boundaries?.doesNotMutateState === true,
+    });
+    s.eq(
+        "linked grammar path chain composes selected stages as next sources",
+        summarizeLinkedPathChainPreview(ctx.previewNawatLinkedGrammarPathChain({
+            sourceVerb: "(pusuni)",
+            selections: [
+                { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+                { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+            ],
+        })),
+        {
+            outputKind: "linked-grammar-path-chain-preview",
+            initialSource: {
+                sourceVerb: "(pusuni)",
+                sourceObjectPrefix: "",
+            },
+            requestedSelectionCount: 2,
+            steps: [
+                {
+                    index: 0,
+                    status: "linked",
+                    selection: {
+                        routeId: "denominal-vi-ti-preterit",
+                        stageKey: "verbalizer",
+                    },
+                    route: {
+                        routeId: "denominal-vi-ti-preterit",
+                        routeFamily: "vi-ti",
+                        targetVerb: "pusukti",
+                        surface: "pusuktik",
+                        surfaceTrail: "(pusuni) → pusuk → (pusukti) → pusuktik",
+                    },
+                    selectedStage: {
+                        routeId: "denominal-vi-ti-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusukti)",
+                        displaySurface: "(pusukti)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        combinedMode: "active",
+                        derivationMode: "active",
+                        voiceMode: "active",
+                        sourceScope: "active",
+                    },
+                    nextSource: {
+                        canBecomeSource: true,
+                        sourceVerb: "(pusukti)",
+                        displaySurface: "(pusukti)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                    },
+                    routeContext: {
+                        routeId: "denominal-vi-ti-preterit",
+                        sourceVerb: "(pusuni)",
+                        targetVerb: "pusukti",
+                    },
+                    candidateRouteCount: 8,
+                    firstCandidateRouteId: "denominal-vi-ti-preterit",
+                },
+                {
+                    index: 1,
+                    status: "linked",
+                    selection: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        stageKey: "verbalizer",
+                    },
+                    route: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        routeFamily: "vi-iwi",
+                        targetVerb: "pusuktiiwi",
+                        surface: "pusuktiiwik",
+                        surfaceTrail: "(pusukti) → pusukti → (pusuktiiwi) → pusuktiiwik",
+                    },
+                    selectedStage: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusuktiiwi)",
+                        displaySurface: "(pusuktiiwi)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        combinedMode: "active",
+                        derivationMode: "active",
+                        voiceMode: "active",
+                        sourceScope: "active",
+                    },
+                    nextSource: {
+                        canBecomeSource: true,
+                        sourceVerb: "(pusuktiiwi)",
+                        displaySurface: "(pusuktiiwi)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                    },
+                    routeContext: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        sourceVerb: "(pusukti)",
+                        targetVerb: "pusuktiiwi",
+                    },
+                    candidateRouteCount: 8,
+                    firstCandidateRouteId: "denominal-vi-ti-preterit",
+                },
+            ],
+            stoppedReason: "",
+            currentSourceVerb: "(pusuktiiwi)",
+            candidateRouteCount: 8,
+            firstCurrentCandidate: {
+                routeId: "denominal-vi-ti-preterit",
+                targetVerb: "pusuktiiwiti",
+                surface: "pusuktiiwik",
+                surfaceTrail: "(pusuktiiwi) → pusuktiiwi → (pusuktiiwiti) → pusuktiiwik",
+            },
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesNotExecuteStages: true,
+            doesNotMutateState: true,
+        }
+    );
+    const summarizeLinkedPathSelectionSummary = (summary) => summary && ({
+        outputKind: summary.outputKind,
+        initialSource: summary.initialSource,
+        currentSource: summary.currentSource,
+        requestedSelectionCount: summary.requestedSelectionCount,
+        selectedSteps: Array.isArray(summary.selectedSteps)
+            ? summary.selectedSteps.map((step) => ({
+                index: step.index,
+                status: step.status,
+                routeId: step.route?.routeId || "",
+                stageKey: step.selection?.stageKey || "",
+                nextSourceVerb: step.nextSource?.sourceVerb || "",
+                candidateRouteCount: step.candidateRouteCount,
+            }))
+            : [],
+        nextRouteCount: Array.isArray(summary.nextRoutes) ? summary.nextRoutes.length : 0,
+        firstNextRoute: Array.isArray(summary.nextRoutes)
+            ? {
+                routeId: summary.nextRoutes[0]?.routeId || "",
+                routeFamily: summary.nextRoutes[0]?.routeFamily || "",
+                appendableStageCount: summary.nextRoutes[0]?.appendableStageCount || 0,
+                firstAppendableSelection: summary.nextRoutes[0]?.appendableStages?.[0]?.selection || null,
+                firstAppendableSource: summary.nextRoutes[0]?.appendableStages?.[0]?.sourceVerb || "",
+            }
+            : null,
+        appendableSelectionCount: summary.appendableSelectionCount,
+        noNewRouteFamilies: summary.boundaries?.noNewRouteFamilies === true,
+        noNewSurfaceRules: summary.boundaries?.noNewSurfaceRules === true,
+        doesNotExecuteStages: summary.boundaries?.doesNotExecuteStages === true,
+        doesNotMutateState: summary.boundaries?.doesNotMutateState === true,
+        summaryOnly: summary.boundaries?.summaryOnly === true,
+    });
+    const linkedPathSelectionSummary = ctx.buildNawatLinkedGrammarPathSelectionSummary({
+        sourceVerb: "(pusuni)",
+        selections: [
+            { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+            { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+        ],
+    });
+    s.eq(
+        "linked grammar path selection summary exposes appendable next-stage choices",
+        summarizeLinkedPathSelectionSummary(linkedPathSelectionSummary),
+        {
+            outputKind: "linked-grammar-path-selection-summary",
+            initialSource: {
+                sourceVerb: "(pusuni)",
+                sourceObjectPrefix: "",
+            },
+            currentSource: {
+                sourceVerb: "(pusuktiiwi)",
+                sourceObjectPrefix: "",
+            },
+            requestedSelectionCount: 2,
+            selectedSteps: [
+                {
+                    index: 0,
+                    status: "linked",
+                    routeId: "denominal-vi-ti-preterit",
+                    stageKey: "verbalizer",
+                    nextSourceVerb: "(pusukti)",
+                    candidateRouteCount: 8,
+                },
+                {
+                    index: 1,
+                    status: "linked",
+                    routeId: "denominal-vi-iwi-preterit",
+                    stageKey: "verbalizer",
+                    nextSourceVerb: "(pusuktiiwi)",
+                    candidateRouteCount: 8,
+                },
+            ],
+            nextRouteCount: 8,
+            firstNextRoute: {
+                routeId: "denominal-vi-ti-preterit",
+                routeFamily: "vi-ti",
+                appendableStageCount: 4,
+                firstAppendableSelection: {
+                    routeId: "denominal-vi-ti-preterit",
+                    stageKey: "source-mode",
+                },
+                firstAppendableSource: "(pusuktiiwi)",
+            },
+            appendableSelectionCount: 32,
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesNotExecuteStages: true,
+            doesNotMutateState: true,
+            summaryOnly: true,
+        }
+    );
+    s.eq(
+        "linked grammar path selection summary preserves diagnostics for unresolved choices",
+        summarizeLinkedPathSelectionSummary(ctx.buildNawatLinkedGrammarPathSelectionSummary({
+            sourceVerb: "(pusuni)",
+            selections: [
+                { routeId: "missing-route", stageKey: "verbalizer" },
+            ],
+        })),
+        {
+            outputKind: "linked-grammar-path-selection-summary",
+            initialSource: {
+                sourceVerb: "(pusuni)",
+                sourceObjectPrefix: "",
+            },
+            currentSource: {
+                sourceVerb: "(pusuni)",
+                sourceObjectPrefix: "",
+            },
+            requestedSelectionCount: 1,
+            selectedSteps: [
+                {
+                    index: 0,
+                    status: "unresolved-route",
+                    routeId: "",
+                    stageKey: "verbalizer",
+                    nextSourceVerb: "",
+                    candidateRouteCount: 0,
+                },
+            ],
+            nextRouteCount: 8,
+            firstNextRoute: {
+                routeId: "denominal-vi-ti-preterit",
+                routeFamily: "vi-ti",
+                appendableStageCount: 4,
+                firstAppendableSelection: {
+                    routeId: "denominal-vi-ti-preterit",
+                    stageKey: "source-mode",
+                },
+                firstAppendableSource: "(pusuni)",
+            },
+            appendableSelectionCount: 32,
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesNotExecuteStages: true,
+            doesNotMutateState: true,
+            summaryOnly: true,
+        }
+    );
+    const summarizeLinkedPathSelectionState = (selectionState) => selectionState && ({
+        outputKind: selectionState.outputKind,
+        appended: selectionState.appended === true,
+        appendedSelection: selectionState.appendedSelection || null,
+        activeSelections: selectionState.activeSelections,
+        currentSource: selectionState.summary?.currentSource || null,
+        appendableSelectionCount: selectionState.summary?.appendableSelectionCount || 0,
+        noNewRouteFamilies: selectionState.boundaries?.noNewRouteFamilies === true,
+        noNewSurfaceRules: selectionState.boundaries?.noNewSurfaceRules === true,
+        doesNotExecuteStages: selectionState.boundaries?.doesNotExecuteStages === true,
+        mutatesSelectionStateOnly: selectionState.boundaries?.mutatesSelectionStateOnly === true,
+    });
+    ctx.clearActiveNawatLinkedGrammarPathSelections();
+    ctx.appendActiveNawatLinkedGrammarPathSelection(
+        { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+        { sourceVerb: "(pusuni)" }
+    );
+    const appendedLinkedSelectionState = ctx.appendActiveNawatLinkedGrammarPathSelection(
+        { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" }
+    );
+    s.eq(
+        "linked grammar path selection state appends reusable stages without executing them",
+        summarizeLinkedPathSelectionState(appendedLinkedSelectionState),
+        {
+            outputKind: "linked-grammar-path-selection-state",
+            appended: true,
+            appendedSelection: {
+                routeId: "denominal-vi-iwi-preterit",
+                stageKey: "verbalizer",
+            },
+            activeSelections: [
+                { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+                { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+            ],
+            currentSource: {
+                sourceVerb: "(pusuktiiwi)",
+                sourceObjectPrefix: "",
+            },
+            appendableSelectionCount: 32,
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesNotExecuteStages: true,
+            mutatesSelectionStateOnly: true,
+        }
+    );
+    s.eq(
+        "linked grammar path selection state exposes normalized active selections",
+        ctx.getActiveNawatLinkedGrammarPathSelections(),
+        [
+            { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+            { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+        ]
+    );
+    const backtrackedLinkedSelectionState = ctx.removeLastActiveNawatLinkedGrammarPathSelection();
+    s.eq(
+        "linked grammar path selection state can backtrack the last selected stage without executing",
+        {
+            outputKind: backtrackedLinkedSelectionState.outputKind,
+            removed: backtrackedLinkedSelectionState.removed,
+            removedSelection: backtrackedLinkedSelectionState.removedSelection,
+            activeSelections: backtrackedLinkedSelectionState.activeSelections,
+            currentSource: backtrackedLinkedSelectionState.summary?.currentSource || null,
+            appendableSelectionCount: backtrackedLinkedSelectionState.summary?.appendableSelectionCount || 0,
+            backtracksSelectionStateOnly: backtrackedLinkedSelectionState.boundaries?.backtracksSelectionStateOnly === true,
+            doesNotExecuteStages: backtrackedLinkedSelectionState.boundaries?.doesNotExecuteStages === true,
+        },
+        {
+            outputKind: "linked-grammar-path-selection-backtrack",
+            removed: true,
+            removedSelection: {
+                routeId: "denominal-vi-iwi-preterit",
+                stageKey: "verbalizer",
+            },
+            activeSelections: [
+                { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+            ],
+            currentSource: {
+                sourceVerb: "(pusukti)",
+                sourceObjectPrefix: "",
+            },
+            appendableSelectionCount: 30,
+            backtracksSelectionStateOnly: true,
+            doesNotExecuteStages: true,
+        }
+    );
+    s.eq(
+        "linked grammar path selection state can be cleared",
+        ctx.clearActiveNawatLinkedGrammarPathSelections(),
+        []
+    );
+    const summarizeLinkedPathChainExecution = (execution) => execution && ({
+        outputKind: execution.outputKind,
+        initialSource: execution.initialSource,
+        requestedSelectionCount: execution.requestedSelectionCount,
+        steps: Array.isArray(execution.steps)
+            ? execution.steps.map((step) => ({
+                index: step.index,
+                status: step.status,
+                selection: step.selection,
+                route: step.route,
+                selectedStage: step.selectedStage,
+                routeContext: step.routeContext && {
+                    routeId: step.routeContext.routeId,
+                    sourceVerb: step.routeContext.sourceVerb,
+                    targetVerb: step.routeContext.targetVerb,
+                },
+                generated: step.generated,
+                linkedGrammarPath: step.linkedGrammarPath,
+                nextSource: step.nextSource,
+                candidateRouteCount: step.candidateRouteCount,
+                firstCandidateRouteId: step.candidateRouteIds?.[0] || "",
+            }))
+            : [],
+        stoppedReason: execution.stoppedReason,
+        currentSourceVerb: execution.currentPreview?.sourceVerb || "",
+        candidateRouteCount: execution.candidateRouteCount,
+        noNewRouteFamilies: execution.boundaries?.noNewRouteFamilies === true,
+        noNewSurfaceRules: execution.boundaries?.noNewSurfaceRules === true,
+        doesExecuteStages: execution.boundaries?.doesExecuteStages === true,
+        doesNotMutateState: execution.boundaries?.doesNotMutateState === true,
+    });
+    ctx.clearActiveNawatLinkedGrammarPathSelections();
+    ctx.setActiveNawatLinkedGrammarPathSelections([
+        { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+        { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+    ], { sourceVerb: "(pusuni)" });
+    const activeLinkedPathExecution = ctx.executeActiveNawatLinkedGrammarPathSelections();
+    s.eq(
+        "linked grammar path selection state executes the stored selected chain on request",
+        {
+            outputKind: activeLinkedPathExecution.outputKind,
+            requestedSelectionCount: activeLinkedPathExecution.requestedSelectionCount,
+            stepStatuses: activeLinkedPathExecution.steps.map((step) => step.status),
+            generatedSurfaces: activeLinkedPathExecution.steps.map((step) => step.generated?.primarySurface || ""),
+            storedOutputKind: ctx.getNawatRouteStateStore().activeLinkedGrammarPathExecution?.outputKind || "",
+            doesExecuteStages: activeLinkedPathExecution.boundaries?.doesExecuteStages === true,
+            doesNotMutateState: activeLinkedPathExecution.boundaries?.doesNotMutateState === true,
+        },
+        {
+            outputKind: "linked-grammar-path-chain-execution",
+            requestedSelectionCount: 2,
+            stepStatuses: ["executed", "executed"],
+            generatedSurfaces: ["pusukti", "pusuktiiwi"],
+            storedOutputKind: "linked-grammar-path-chain-execution",
+            doesExecuteStages: true,
+            doesNotMutateState: true,
+        }
+    );
+    s.eq(
+        "linked grammar path execution exposes every generated stage as a promotable source",
+        typeof ctx.getNawatLinkedGrammarPathExecutionSourceOptions === "function"
+            ? ctx.getNawatLinkedGrammarPathExecutionSourceOptions(activeLinkedPathExecution)
+            : [],
+        [
+            {
+                sourceVerb: "pusukti",
+                sourceObjectPrefix: "",
+                displaySurface: "pusukti",
+                sourceInput: "(pusukti)",
+                sourceInputDisplay: "(pusukti)",
+                generatedSurface: "pusukti",
+                routeId: "denominal-vi-ti-preterit",
+                stageKey: "verbalizer",
+                fromStepIndex: 0,
+            },
+            {
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+                displaySurface: "pusuktiiwi",
+                sourceInput: "(pusuktiiwi)",
+                sourceInputDisplay: "(pusuktiiwi)",
+                generatedSurface: "pusuktiiwi",
+                routeId: "denominal-vi-iwi-preterit",
+                stageKey: "verbalizer",
+                fromStepIndex: 1,
+            },
+        ]
+    );
+    const promotedInputSyncCalls = [];
+    const promotedLinkedPathSource = ctx.promoteActiveNawatLinkedGrammarPathExecutionFinalSource({
+        syncInput: true,
+        inputApplier: (sourceVerb, sourceContext) => {
+            promotedInputSyncCalls.push({
+                sourceVerb,
+                sourceContext,
+            });
+        },
+    });
+    s.eq(
+        "linked grammar path selection state can promote the final generated stage as a new source and input",
+        {
+            outputKind: promotedLinkedPathSource.outputKind,
+            promotedSource: promotedLinkedPathSource.promotedSource,
+            inputSync: promotedLinkedPathSource.inputSync,
+            inputSyncCalls: promotedInputSyncCalls,
+            activeSelections: promotedLinkedPathSource.activeSelections,
+            currentSource: promotedLinkedPathSource.summary?.currentSource || null,
+            appendableSelectionCount: promotedLinkedPathSource.summary?.appendableSelectionCount || 0,
+            storedPromotedSource: ctx.getNawatRouteStateStore().activeLinkedGrammarPathPromotedSource || null,
+            promotesGeneratedStageAsSource: promotedLinkedPathSource.boundaries?.promotesGeneratedStageAsSource === true,
+            syncsPromotedSourceInputOnlyWhenRequested: promotedLinkedPathSource.boundaries?.syncsPromotedSourceInputOnlyWhenRequested === true,
+            doesNotExecuteStages: promotedLinkedPathSource.boundaries?.doesNotExecuteStages === true,
+        },
+        {
+            outputKind: "linked-grammar-path-promoted-source",
+            promotedSource: {
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+                displaySurface: "pusuktiiwi",
+                sourceInput: "(pusuktiiwi)",
+                sourceInputDisplay: "(pusuktiiwi)",
+                generatedSurface: "pusuktiiwi",
+                routeId: "denominal-vi-iwi-preterit",
+                stageKey: "verbalizer",
+                fromStepIndex: 1,
+            },
+            inputSync: {
+                applied: true,
+                method: "input-applier",
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+            },
+            inputSyncCalls: [
+                {
+                    sourceVerb: "pusuktiiwi",
+                    sourceContext: {
+                        sourceVerb: "pusuktiiwi",
+                        sourceObjectPrefix: "",
+                        displaySurface: "pusuktiiwi",
+                        sourceInput: "(pusuktiiwi)",
+                        sourceInputDisplay: "(pusuktiiwi)",
+                        generatedSurface: "pusuktiiwi",
+                        fromStepIndex: 1,
+                    },
+                },
+            ],
+            activeSelections: [],
+            currentSource: {
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+            },
+            appendableSelectionCount: 24,
+            storedPromotedSource: {
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+                displaySurface: "pusuktiiwi",
+                sourceInput: "(pusuktiiwi)",
+                sourceInputDisplay: "(pusuktiiwi)",
+                generatedSurface: "pusuktiiwi",
+                routeId: "denominal-vi-iwi-preterit",
+                stageKey: "verbalizer",
+                fromStepIndex: 1,
+            },
+            promotesGeneratedStageAsSource: true,
+            syncsPromotedSourceInputOnlyWhenRequested: true,
+            doesNotExecuteStages: true,
+        }
+    );
+    const continuedPromotedLinkedPath = ctx.appendActiveNawatLinkedGrammarPathSelection({
+        routeId: "denominal-vt-na-preterit",
+        stageKey: "target-mode",
+    });
+    s.eq(
+        "linked grammar path selection state clears stale execution metadata when continuing from a promoted source",
+        {
+            activeSelections: continuedPromotedLinkedPath.activeSelections,
+            storedExecution: ctx.getNawatRouteStateStore().activeLinkedGrammarPathExecution || null,
+            storedPromotedSource: ctx.getNawatRouteStateStore().activeLinkedGrammarPathPromotedSource || null,
+            currentSource: continuedPromotedLinkedPath.summary?.initialSource || null,
+        },
+        {
+            activeSelections: [
+                {
+                    routeId: "denominal-vt-na-preterit",
+                    stageKey: "target-mode",
+                },
+            ],
+            storedExecution: null,
+            storedPromotedSource: null,
+            currentSource: {
+                sourceVerb: "pusuktiiwi",
+                sourceObjectPrefix: "",
+            },
+        }
+    );
+    ctx.clearActiveNawatLinkedGrammarPathSelections();
+    ctx.setActiveNawatLinkedGrammarPathSelections([
+        { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+        { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+    ], { sourceVerb: "(pusuni)" });
+    ctx.executeActiveNawatLinkedGrammarPathSelections();
+    const firstStepInputSyncCalls = [];
+    const promotedFirstStepSource = ctx.promoteActiveNawatLinkedGrammarPathExecutionStepSource(0, {
+        syncInput: true,
+        inputApplier: (sourceVerb, sourceContext) => {
+            firstStepInputSyncCalls.push({
+                sourceVerb,
+                sourceContext,
+            });
+        },
+    });
+    s.eq(
+        "linked grammar path selection state can promote any generated stage as a new source",
+        {
+            outputKind: promotedFirstStepSource.outputKind,
+            promotedSource: promotedFirstStepSource.promotedSource,
+            inputSync: promotedFirstStepSource.inputSync,
+            inputSyncCalls: firstStepInputSyncCalls,
+            currentSource: promotedFirstStepSource.summary?.currentSource || null,
+            promotesSelectedGeneratedStageAsSource: promotedFirstStepSource.boundaries?.promotesSelectedGeneratedStageAsSource === true,
+            doesNotExecuteStages: promotedFirstStepSource.boundaries?.doesNotExecuteStages === true,
+        },
+        {
+            outputKind: "linked-grammar-path-promoted-source",
+            promotedSource: {
+                sourceVerb: "pusukti",
+                sourceObjectPrefix: "",
+                displaySurface: "pusukti",
+                sourceInput: "(pusukti)",
+                sourceInputDisplay: "(pusukti)",
+                generatedSurface: "pusukti",
+                routeId: "denominal-vi-ti-preterit",
+                stageKey: "verbalizer",
+                fromStepIndex: 0,
+            },
+            inputSync: {
+                applied: true,
+                method: "input-applier",
+                sourceVerb: "pusukti",
+                sourceObjectPrefix: "",
+            },
+            inputSyncCalls: [
+                {
+                    sourceVerb: "pusukti",
+                    sourceContext: {
+                        sourceVerb: "pusukti",
+                        sourceObjectPrefix: "",
+                        displaySurface: "pusukti",
+                        sourceInput: "(pusukti)",
+                        sourceInputDisplay: "(pusukti)",
+                        generatedSurface: "pusukti",
+                        fromStepIndex: 0,
+                    },
+                },
+            ],
+            currentSource: {
+                sourceVerb: "pusukti",
+                sourceObjectPrefix: "",
+            },
+            promotesSelectedGeneratedStageAsSource: true,
+            doesNotExecuteStages: true,
+        }
+    );
+    ctx.clearActiveNawatLinkedGrammarPathSelections();
+    s.eq(
+        "linked grammar path chain executes selected stages without mutating state",
+        summarizeLinkedPathChainExecution(ctx.executeNawatLinkedGrammarPathChain({
+            sourceVerb: "(pusuni)",
+            selections: [
+                { routeId: "denominal-vi-ti-preterit", stageKey: "verbalizer" },
+                { routeId: "denominal-vi-iwi-preterit", stageKey: "verbalizer" },
+            ],
+        })),
+        {
+            outputKind: "linked-grammar-path-chain-execution",
+            initialSource: {
+                sourceVerb: "(pusuni)",
+                sourceObjectPrefix: "",
+            },
+            requestedSelectionCount: 2,
+            steps: [
+                {
+                    index: 0,
+                    status: "executed",
+                    selection: {
+                        routeId: "denominal-vi-ti-preterit",
+                        stageKey: "verbalizer",
+                    },
+                    route: {
+                        routeId: "denominal-vi-ti-preterit",
+                        routeFamily: "vi-ti",
+                        targetVerb: "pusukti",
+                        surface: "pusuktik",
+                        surfaceTrail: "(pusuni) → pusuk → (pusukti) → pusuktik",
+                    },
+                    selectedStage: {
+                        routeId: "denominal-vi-ti-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusukti)",
+                        displaySurface: "(pusukti)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        combinedMode: "active",
+                        derivationMode: "active",
+                        voiceMode: "active",
+                        sourceScope: "active",
+                    },
+                    routeContext: {
+                        routeId: "denominal-vi-ti-preterit",
+                        sourceVerb: "(pusuni)",
+                        targetVerb: "pusukti",
+                    },
+                    generated: {
+                        result: "pusukti",
+                        surfaceForms: ["pusukti"],
+                        primarySurface: "pusukti",
+                    },
+                    linkedGrammarPath: {
+                        version: 1,
+                        source: "linked-grammar-path-stage",
+                        routeId: "denominal-vi-ti-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusukti)",
+                        displaySurface: "(pusukti)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        canBecomeSource: true,
+                        doesNotBroadenGeneration: true,
+                    },
+                    nextSource: {
+                        canBecomeSource: true,
+                        sourceVerb: "(pusukti)",
+                        displaySurface: "(pusukti)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                    },
+                    candidateRouteCount: 8,
+                    firstCandidateRouteId: "denominal-vi-ti-preterit",
+                },
+                {
+                    index: 1,
+                    status: "executed",
+                    selection: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        stageKey: "verbalizer",
+                    },
+                    route: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        routeFamily: "vi-iwi",
+                        targetVerb: "pusuktiiwi",
+                        surface: "pusuktiiwik",
+                        surfaceTrail: "(pusukti) → pusukti → (pusuktiiwi) → pusuktiiwik",
+                    },
+                    selectedStage: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusuktiiwi)",
+                        displaySurface: "(pusuktiiwi)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        combinedMode: "active",
+                        derivationMode: "active",
+                        voiceMode: "active",
+                        sourceScope: "active",
+                    },
+                    routeContext: {
+                        routeId: "denominal-vi-iwi-preterit",
+                        sourceVerb: "(pusukti)",
+                        targetVerb: "pusuktiiwi",
+                    },
+                    generated: {
+                        result: "pusuktiiwi",
+                        surfaceForms: ["pusuktiiwi"],
+                        primarySurface: "pusuktiiwi",
+                    },
+                    linkedGrammarPath: {
+                        version: 1,
+                        source: "linked-grammar-path-stage",
+                        routeId: "denominal-vi-iwi-preterit",
+                        stationKey: "verbalizer",
+                        sourceVerb: "(pusuktiiwi)",
+                        displaySurface: "(pusuktiiwi)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                        canBecomeSource: true,
+                        doesNotBroadenGeneration: true,
+                    },
+                    nextSource: {
+                        canBecomeSource: true,
+                        sourceVerb: "(pusuktiiwi)",
+                        displaySurface: "(pusuktiiwi)",
+                        mode: "verbo",
+                        tenseValue: "presente",
+                        objectPrefix: "",
+                    },
+                    candidateRouteCount: 8,
+                    firstCandidateRouteId: "denominal-vi-ti-preterit",
+                },
+            ],
+            stoppedReason: "",
+            currentSourceVerb: "(pusuktiiwi)",
+            candidateRouteCount: 8,
+            noNewRouteFamilies: true,
+            noNewSurfaceRules: true,
+            doesExecuteStages: true,
+            doesNotMutateState: true,
+        }
+    );
+    s.eq(
+        "linked denominal finite stage can become a direct generation source",
+        {
+            linkedStage: viTiFiniteStageRequest.linkedGrammarPathStage,
+            linkedPath: viTiFiniteStageResult.linkedGrammarPath,
+            surfaceForms: viTiFiniteStageResult.surfaceForms,
+        },
+        {
+            linkedStage: {
+                routeId: "denominal-vi-ti-preterit",
+                stationKey: "finite-tense",
+                sourceVerb: "(pusukti)",
+                displaySurface: "pusuktik",
+                mode: "verbo",
+                tenseValue: "preterito",
+                objectPrefix: "",
+                combinedMode: "active",
+                derivationMode: "active",
+                voiceMode: "active",
+                sourceScope: "active",
+            },
+            linkedPath: {
+                version: 1,
+                source: "linked-grammar-path-stage",
+                routeId: "denominal-vi-ti-preterit",
+                stationKey: "finite-tense",
+                sourceVerb: "(pusukti)",
+                displaySurface: "pusuktik",
+                mode: "verbo",
+                tenseValue: "preterito",
+                objectPrefix: "",
+                canBecomeSource: true,
+                doesNotBroadenGeneration: true,
+            },
+            surfaceForms: ["pusuktik"],
+        }
+    );
+    const vtNaVerbalizerStageRequest = ctx.buildNawatLinkedGrammarPathStageGenerateWordRequest(
+        denominalRoutePreview.routes.find((route) => route.routeId === "denominal-vt-na-preterit").stages.find((stage) => stage.key === "verbalizer")
+    );
+    const vtNaVerbalizerStageResult = ctx.executeNawatLinkedGrammarPathStage(
+        denominalRoutePreview.routes.find((route) => route.routeId === "denominal-vt-na-preterit").stages.find((stage) => stage.key === "verbalizer")
+    );
+    s.eq(
+        "linked transitive denominal verbalizer stage can become a direct generation source",
+        {
+            linkedStage: vtNaVerbalizerStageRequest.linkedGrammarPathStage,
+            linkedPath: vtNaVerbalizerStageResult.linkedGrammarPath,
+            surfaceForms: vtNaVerbalizerStageResult.surfaceForms,
+        },
+        {
+            linkedStage: {
+                routeId: "denominal-vt-na-preterit",
+                stationKey: "verbalizer",
+                sourceVerb: "(pusuk)-(na)",
+                displaySurface: "(pusuk)-(na)",
+                mode: "verbo",
+                tenseValue: "presente",
+                objectPrefix: "",
+                combinedMode: "active",
+                derivationMode: "active",
+                voiceMode: "active",
+                sourceScope: "active",
+            },
+            linkedPath: {
+                version: 1,
+                source: "linked-grammar-path-stage",
+                routeId: "denominal-vt-na-preterit",
+                stationKey: "verbalizer",
+                sourceVerb: "(pusuk)-(na)",
+                displaySurface: "(pusuk)-(na)",
+                mode: "verbo",
+                tenseValue: "presente",
+                objectPrefix: "",
+                canBecomeSource: true,
+                doesNotBroadenGeneration: true,
+            },
+            surfaceForms: ["pusukna"],
+        }
     );
     s.eq(
         "agentive manner is no longer a nawat rail route",
@@ -666,11 +2200,11 @@ function run(ctx) {
     );
     const patientivoImperfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-imperfective-t");
     s.eq(
-        "patientivo noun route defaults to present source tense",
+        "patientivo noun route defaults to present source input but uses #3 salida imperfective output",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
             sourceVerb: "(kuchi)",
         }),
-        "(kuchi) → kuchi → patientivo · imperfectivo → -t → kuchit"
+        "(kuchi) → kuchi → patientivo · imperfectivo → -t → kuchiyat"
     );
     const patientivoImperfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoImperfectiveNounRoute, {
         sourceVerb: "(kuchi)",
@@ -689,19 +2223,42 @@ function run(ctx) {
     );
     const patientivoPerfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti-noun");
     const patientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
+        sourceVerb: "(ketza)",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "patientivo perfective noun route rides through #3 salida for an allowed perfective source ending",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoPerfectiveNounRoute, {
+            sourceVerb: "(ketza)",
+            sourceTenseValue: "preterito",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: patientivoPerfectiveNounTarget,
+        }),
+        "(ketza) → ketzki → patientivo · perfectivo → -ti → ketzti"
+    );
+    const blockedPatientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
         sourceVerb: "(kuchi)",
         sourceTenseValue: "preterito",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
     });
     s.eq(
-        "patientivo perfective noun route rides through the explicit perfective verb surface",
+        "patientivo perfective noun route does not reconstruct an invalid ch-ending source statically",
+        ctx.getNawatRouteFiniteSurfaceForm(patientivoPerfectiveNounRoute, {
+            sourceVerb: "(kuchi)",
+            routeTarget: blockedPatientivoPerfectiveNounTarget,
+        }),
+        ""
+    );
+    s.eq(
+        "patientivo perfective noun route trail omits suffix/output when #3 salida blocks the source",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoPerfectiveNounRoute, {
             sourceVerb: "(kuchi)",
             sourceTenseValue: "preterito",
             sourceCombinedMode: ctx.COMBINED_MODE.active,
-            routeTarget: patientivoPerfectiveNounTarget,
+            routeTarget: blockedPatientivoPerfectiveNounTarget,
         }),
-        "(kuchi) → kuchki → patientivo · perfectivo → -ti → kuchti"
+        "(kuchi) → kuchki → patientivo · perfectivo"
     );
     const patientivoNonactiveNounRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
     const patientivoNonactiveNounTarget = ctx.resolveNawatRouteTarget(patientivoNonactiveNounRoute, {
@@ -720,29 +2277,29 @@ function run(ctx) {
         "(kuchi) → kuchiwak → patientivo · pasivo/impersonal → -t → kuchit"
     );
     const kuchiVerbNounRouteExpectations = [
-        ["active", "presente", "kuchit"],
-        ["active", "presente-habitual", "kuchinit"],
-        ["active", "presente-desiderativo", "kuchisti"],
+        ["active", "presente", "kuchiyat"],
+        ["active", "presente-habitual", "kuchiyat"],
+        ["active", "presente-desiderativo", "kuchiyat"],
         ["active", "imperfecto", "kuchiyat"],
-        ["active", "preterito", "kuchti"],
-        ["active", "pasado-remoto", "kuchkat"],
-        ["active", "perfecto", "kuchti"],
-        ["active", "pluscuamperfecto", "kuchti"],
-        ["active", "condicional-perfecto", "kuchti"],
-        ["active", "futuro", "kuchisti"],
-        ["active", "condicional", "kuchisti"],
-        ["active", "imperativo", "kuchit"],
+        ["active", "preterito", ""],
+        ["active", "pasado-remoto", "kuchiyat"],
+        ["active", "perfecto", ""],
+        ["active", "pluscuamperfecto", ""],
+        ["active", "condicional-perfecto", ""],
+        ["active", "futuro", "kuchiyat"],
+        ["active", "condicional", "kuchiyat"],
+        ["active", "imperativo", "kuchiyat"],
         ["nonactive", "presente", "kuchit"],
-        ["nonactive", "presente-habitual", "kuchiwanit"],
-        ["nonactive", "presente-desiderativo", "kuchiwasti"],
-        ["nonactive", "imperfecto", "kuchiwayat"],
+        ["nonactive", "presente-habitual", "kuchit"],
+        ["nonactive", "presente-desiderativo", "kuchit"],
+        ["nonactive", "imperfecto", "kuchit"],
         ["nonactive", "preterito", "kuchit"],
-        ["nonactive", "pasado-remoto", "kuchiwakat"],
+        ["nonactive", "pasado-remoto", "kuchit"],
         ["nonactive", "perfecto", "kuchit"],
         ["nonactive", "pluscuamperfecto", "kuchit"],
         ["nonactive", "condicional-perfecto", "kuchit"],
-        ["nonactive", "futuro", "kuchiwasti"],
-        ["nonactive", "condicional", "kuchiwasti"],
+        ["nonactive", "futuro", "kuchit"],
+        ["nonactive", "condicional", "kuchit"],
         ["nonactive", "imperativo", "kuchit"],
     ];
     kuchiVerbNounRouteExpectations.forEach(([mode, tenseValue, expectedSurface]) => {
@@ -792,6 +2349,24 @@ function run(ctx) {
             surfaceSuffix: "-t",
         }
     );
+    ["passive", "impersonal"].forEach((patientivoSource) => {
+        s.eq(
+            `patientivo ${patientivoSource} route spec stays on nonactive-core route`,
+            ctx.resolveNawatPatientivoRouteSpec({ patientivoSource }),
+            {
+                sourceTenseValue: "preterito",
+                sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+                patientivoSource,
+                routeKey: "patientivo-nonactive-t",
+                suffix: "t",
+                surfaceSuffix: "-t",
+            }
+        );
+        s.ok(
+            `patientivo ${patientivoSource} is nonactive for route selection`,
+            ctx.isNawatRouteNonactiveSource({ patientivoSource })
+        );
+    });
     const activeRemotePatientivoRoute = ctx.getNawatRouteProfile(activeRemotePatientivoSpec.routeKey);
     const activeRemotePatientivoTarget = ctx.resolveNawatRouteTarget(activeRemotePatientivoRoute, {
         sourceVerb: "(kuchi)",
@@ -806,7 +2381,7 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.active,
             routeTarget: activeRemotePatientivoTarget,
         }),
-        "(kuchi) → kuchka → patientivo · imperfectivo → -t → kuchkat"
+        "(kuchi) → kuchka → patientivo · imperfectivo → -t → kuchiyat"
     );
     const activeRemotePatientivoStations = ctx.getNawatRouteStationModels(activeRemotePatientivoRoute, {
         sourceVerb: "(kuchi)",
@@ -818,8 +2393,8 @@ function run(ctx) {
         "imperfectivo"
     );
     const puluaVerbNounRouteExpectations = [
-        ["", "pulut"],
-        ["ta", "tapulut"],
+        ["", "puluyat"],
+        ["ta", "tapuluyat"],
     ];
     puluaVerbNounRouteExpectations.forEach(([sourceObjectPrefix, expectedSurface]) => {
         const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
@@ -834,7 +2409,7 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.active,
         });
         s.eq(
-            `pulua active present V→S strips final -a before patientivo -t${sourceObjectPrefix ? " with object prefix" : ""}`,
+            `pulua active present V→S uses #3 salida imperfective patientivo output${sourceObjectPrefix ? " with object prefix" : ""}`,
             ctx.getNawatRouteFiniteSurfaceForm(routeProfile, {
                 sourceVerb: "(pulua)",
                 sourceObjectPrefix,
@@ -843,6 +2418,32 @@ function run(ctx) {
             expectedSurface
         );
     });
+    const matiTeImperfectivePatientivoTarget = ctx.resolveNawatRouteTarget(patientivoImperfectiveNounRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "te",
+        sourceTenseValue: "imperfecto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+    });
+    s.eq(
+        "active imperfective V→S route asks #3 salida so te maps to ta in patientivo output",
+        ctx.getNawatRouteFiniteSurfaceForm(patientivoImperfectiveNounRoute, {
+            sourceVerb: "-(mati)",
+            sourceObjectPrefix: "te",
+            routeTarget: matiTeImperfectivePatientivoTarget,
+        }),
+        "tamatiyat"
+    );
+    s.eq(
+        "active imperfective V→S trail shows generated #3 salida rather than static te reconstruction",
+        ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
+            sourceVerb: "-(mati)",
+            sourceObjectPrefix: "te",
+            sourceTenseValue: "imperfecto",
+            sourceCombinedMode: ctx.COMBINED_MODE.active,
+            routeTarget: matiTeImperfectivePatientivoTarget,
+        }),
+        "-(mati) → tematiya → patientivo · imperfectivo → -t → tamatiyat"
+    );
     const puluaNonactivePatientivoRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
     const puluaNonactivePatientivoTarget = ctx.resolveNawatRouteTarget(puluaNonactivePatientivoRoute, {
         sourceVerb: "(pulua)",
@@ -850,12 +2451,20 @@ function run(ctx) {
         sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
     });
     s.eq(
-        "pulua nonactive V→S deletes -lu before core patientivo nominal family",
+        "pulua nonactive V→S uses generated #3 patientivo connector instead of static route suffix",
         ctx.getNawatRouteFiniteSurfaceForm(puluaNonactivePatientivoRoute, {
             sourceVerb: "(pulua)",
             routeTarget: puluaNonactivePatientivoTarget,
         }),
-        "pulul"
+        "pululti"
+    );
+    s.eq(
+        "pulua nonactive V→S route trail shows the generated patientivo connector",
+        ctx.formatNawatRouteSurfaceTrailLabel(puluaNonactivePatientivoRoute, {
+            sourceVerb: "(pulua)",
+            routeTarget: puluaNonactivePatientivoTarget,
+        }),
+        "(pulua) → pululu → patientivo · pasivo/impersonal → -ti → pululti"
     );
     const nonactiveHabitualRoute = ctx.getNawatRouteProfile("nonactive-habitual-potential");
     const nonactiveHabitualTarget = ctx.resolveNawatRouteTarget(nonactiveHabitualRoute, { sourceVerb: "(pusuni)" });
@@ -909,6 +2518,7 @@ function run(ctx) {
     );
     ctx.setActiveTenseMode(ctx.TENSE_MODE.sustantivo);
     ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo, { syncOutput: false });
+    s.eq("patientive prelocative matrix state initializes as empty route state", ctx.getNawatRouteStateStore().activeLocativeMatrixSpecId, "");
     ctx.setActiveNawatRouteProfile("denominal-vt-na-preterit");
     s.eq("direct nawat route state is not marked as chip travel", ctx.getActiveNawatRouteProfile().activeRouteTravelSource, "");
     s.eq(
@@ -916,7 +2526,9 @@ function run(ctx) {
         ctx.getActiveNawatTenseModeForCurrentSelection(),
         ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo
     );
+    ctx.getNawatRouteStateStore().activeLocativeMatrixSpecId = "tla-tem-o-a";
     ctx.clearActiveNawatRouteProfile();
+    s.eq("clearing nawat route state also clears patientive prelocative matrix id", ctx.getNawatRouteStateStore().activeLocativeMatrixSpecId, "");
     ctx.setActiveTenseMode(routeRestore.tenseMode);
     ctx.applyResolvedConjugationSelectionState(routeRestore.selection);
     const activatedNawatRoute = ctx.activateNawatRouteProfile("denominal-vi-ti-preterit", {

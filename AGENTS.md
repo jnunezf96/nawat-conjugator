@@ -2,9 +2,11 @@
 
 ## Project Rule
 
-Treat Andrews as grammar architecture: order, roles, slots, boundaries, and dependencies. Do not import Classical Nahuatl surfaces directly into Nawat/Pipil behavior.
+Treat Andrews as the grammar-rule authority for engine architecture: order, roles, slots, boundaries, categories, and dependencies. Do not import Classical Nahuatl surfaces directly into Nawat/Pipil orthography.
 
-Nawat/Pipil evidence in this repo and user-provided forms decide actual forms, allomorphy, and examples.
+Modern Nawat/Pipil orthography decides spelling realization. Repo evidence and user-provided Nawat forms decide Nawat-specific exceptions, lexical examples, and places where the orthographic realization needs confirmation.
+
+Andrews is lesson-per-lesson; the UI and engine are not. Treat lessons as curriculum/status and evidence indexes, then implement reusable grammar categories, metadata, controls, and diagnostics that can serve multiple lessons without becoming one control or module per lesson.
 
 ## Coordination Rule
 

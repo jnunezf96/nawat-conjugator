@@ -178,12 +178,17 @@ function buildPotencialActiveForms({
     const isTroncoTikProfile = isPotencialTroncoActiveTense(tense)
         && !isTroncoNajProfile;
     const isTroncoPatientivoCoreProfile = isTroncoTikProfile || isTroncoNajProfile;
-    const wrapperObjectPrefix = baseObjectPrefix || "";
-    const wrapperIndirectObjectMarker = composeProjectiveObjectPrefix({
-        objectPrefix: "",
-        markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
-        subjectPrefix: baseSubjectPrefix,
-    });
+    const stripsProjectiveObjectForPotentialPatient = tense === "potencial";
+    const wrapperObjectPrefix = stripsProjectiveObjectForPotentialPatient
+        ? ""
+        : (baseObjectPrefix || "");
+    const wrapperIndirectObjectMarker = stripsProjectiveObjectForPotentialPatient
+        ? ""
+        : composeProjectiveObjectPrefix({
+            objectPrefix: "",
+            markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
+            subjectPrefix: baseSubjectPrefix,
+        });
     const sourceSubjectSuffix = (() => {
         if (sourceTense === "preterito") {
             return subjectSuffix === "t" ? "ket" : "";
@@ -193,13 +198,41 @@ function buildPotencialActiveForms({
     })();
     const sourceCandidates = [];
     const seenCandidates = new Set();
+    const stripPotentialPatientProjectivePrefixes = (stem = "", analysisStem = "") => {
+        const objectlessSourceBase = normalizeRuleBase(sourceBase || exactAnalysisVerb || "");
+        if (objectlessSourceBase && objectlessSourceBase !== normalizeRuleBase(stem)) {
+            return objectlessSourceBase;
+        }
+        const analysis = String(analysisStem || "").trim();
+        if (analysis && analysis !== stem) {
+            return analysis;
+        }
+        const prefixes = [
+            baseObjectPrefix,
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+        ].filter((prefix, index, list) => (
+            prefix
+            && list.indexOf(prefix) === index
+        ));
+        return typeof stripLeadingPrefixes === "function"
+            ? stripLeadingPrefixes(stem, prefixes)
+            : stem;
+    };
     const addCandidate = (candidateVerb = "", candidateAnalysis = "") => {
-        const sourceVerb = String(candidateVerb || "").trim();
-        if (!sourceVerb) {
+        const rawSourceVerb = String(candidateVerb || "").trim();
+        if (!rawSourceVerb) {
             return;
         }
         const sourceAnalysis = String(candidateAnalysis || "").trim()
-            || (directionalPrefix ? stripDirectionalPrefixFromStem(sourceVerb, directionalPrefix) : sourceVerb);
+            || (directionalPrefix ? stripDirectionalPrefixFromStem(rawSourceVerb, directionalPrefix) : rawSourceVerb);
+        const sourceVerb = stripsProjectiveObjectForPotentialPatient
+            ? stripPotentialPatientProjectivePrefixes(rawSourceVerb, sourceAnalysis)
+            : rawSourceVerb;
+        if (!sourceVerb) {
+            return;
+        }
         const key = `${sourceVerb}|${sourceAnalysis}`;
         if (seenCandidates.has(key)) {
             return;
@@ -384,6 +417,7 @@ function applyMorphologyRules({
     isNounContext = false,
     patientivoSource = "nonactive",
     patientivoNominalSuffix = null,
+    passivePatientivoSelectedProjectiveObjectPrefix = "",
     possessivePrefix = "",
     combinedMode = "",
     instrumentivoMode = "",
@@ -407,7 +441,9 @@ function applyMorphologyRules({
     const isPotencialNounLikeTense = tense === "potencial";
     const isSustantivoVerbalLikeTense = tense === "sustantivo-verbal" || isPotencialNounLikeTense;
     const agentivoNumberSlot = isAgentivoTense ? baseSubjectSuffix : "";
-    const sustantivoVerbalLikeNumberSlot = isSustantivoVerbalLikeTense ? baseSubjectSuffix : "";
+    const sustantivoVerbalLikeNumberSlot = tense === "sustantivo-verbal"
+        ? ""
+        : (isSustantivoVerbalLikeTense ? baseSubjectSuffix : "");
     const morphologyTense = isAgentivoTense
         ? "presente-habitual"
         : (isPotencialNounLikeTense
@@ -472,6 +508,40 @@ function applyMorphologyRules({
     };
     let suppressPreferredPerfectAlternates = false;
     let suppressSustantivoIEndingSVariant = false;
+    let passivePatientivoKeepsSelectedProjectiveFromDoubleObject = false;
+    const earlyPatientivoFamily = tense === "patientivo"
+        ? (
+            typeof normalizeVerbDerivedPatientiveFamily === "function"
+                ? normalizeVerbDerivedPatientiveFamily(patientivoSource)
+                : String(patientivoSource || "").trim()
+        )
+        : "";
+    if (earlyPatientivoFamily === "passive") {
+        const projectiveObjects = [objectPrefix, indirectObjectMarker, thirdObjectMarker]
+            .filter((marker) => marker === "ta" || marker === "te");
+        const selectedProjective = (
+            passivePatientivoSelectedProjectiveObjectPrefix === "ta"
+            || passivePatientivoSelectedProjectiveObjectPrefix === "te"
+        ) ? passivePatientivoSelectedProjectiveObjectPrefix : "";
+        if (projectiveObjects.length > 1 && selectedProjective) {
+            objectPrefix = selectedProjective;
+            indirectObjectMarker = "";
+            thirdObjectMarker = "";
+            passivePatientivoKeepsSelectedProjectiveFromDoubleObject = true;
+        }
+    }
+    const hasPatientivoShuntlineTa = indirectObjectMarker === "ta" || thirdObjectMarker === "ta";
+    if (
+        (
+            earlyPatientivoFamily === "impersonal"
+            || earlyPatientivoFamily === "perfectivo"
+            || earlyPatientivoFamily === "imperfectivo"
+        )
+        && objectPrefix === "te"
+        && !hasPatientivoShuntlineTa
+    ) {
+        objectPrefix = "ta";
+    }
     const isIntransitiveVerb =
         objectPrefix === ""
         && !isTaFusion
@@ -706,6 +776,35 @@ function applyMorphologyRules({
         }
     if (tense === "patientivo") {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
+        const resolvedPatientivoFamily = typeof normalizeVerbDerivedPatientiveFamily === "function"
+            ? normalizeVerbDerivedPatientiveFamily(patientivoSource)
+            : String(patientivoSource || "").trim();
+        if (resolvedPatientivoFamily === "passive" && !isTransitive) {
+            return { error: true };
+        }
+        if (
+            resolvedPatientivoFamily === "passive"
+            && (objectPrefix === "ta" || objectPrefix === "te")
+            && !indirectObjectMarker
+            && !thirdObjectMarker
+            && !passivePatientivoKeepsSelectedProjectiveFromDoubleObject
+        ) {
+            objectPrefix = "";
+        }
+        if (
+            resolvedPatientivoFamily === "impersonal"
+            && objectPrefix === "te"
+            && !hasPatientivoShuntlineTa
+        ) {
+            objectPrefix = "ta";
+        }
+        if (
+            (resolvedPatientivoFamily === "perfectivo" || resolvedPatientivoFamily === "imperfectivo")
+            && objectPrefix === "te"
+            && !hasPatientivoShuntlineTa
+        ) {
+            objectPrefix = "ta";
+        }
         if (patientivoSource === "tronco-verbal" && isTransitive && !objectPrefix) {
             objectPrefix = "ta";
         }
@@ -764,6 +863,15 @@ function applyMorphologyRules({
             ? patientivoNominalDerivations
             : derivations;
         const resolvedPatientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
+        if (
+            patientivoSource === "tronco-verbal"
+            && resolvedPatientivoNominalSuffix === null
+            && typeof getTClassSuffixForStem === "function"
+        ) {
+            resolvedPatientivoDerivations = resolvedPatientivoDerivations.filter((entry) => (
+                String(entry?.subjectSuffix || "") === getTClassSuffixForStem(entry?.verb || entry?.stem || "")
+            ));
+        }
         if (resolvedPatientivoNominalSuffix !== null) {
             resolvedPatientivoDerivations = resolvedPatientivoDerivations.filter((entry) => (
                 String(entry?.subjectSuffix || "") === resolvedPatientivoNominalSuffix
@@ -783,8 +891,24 @@ function applyMorphologyRules({
                 resolvedPatientivoDerivations,
                 patientivoSource,
             );
+            const shouldAddPassiveTeDeletionAlternate = (
+                resolvedPatientivoFamily === "passive"
+                && passivePatientivoKeepsSelectedProjectiveFromDoubleObject
+                && passivePatientivoSelectedProjectiveObjectPrefix === "te"
+            );
+            const pushPassiveTeDeletionAlternate = (entry, nextSuffix) => {
+                const deletedVerb = String(entry?.verb || "");
+                if (!shouldAddPassiveTeDeletionAlternate || !deletedVerb) {
+                    return;
+                }
+                pushAlternateForm(deletedVerb, nextSuffix, {
+                    formSpec: buildLiteralNominalFormSpec(deletedVerb, nextSuffix),
+                    surfaceObjectPrefix: "",
+                });
+            };
             verb = primary.verb;
             subjectSuffix = applyPatientivoSuffix(primary.subjectSuffix);
+            pushPassiveTeDeletionAlternate(primary, subjectSuffix);
             alternates.forEach((entry) => {
                 const nextSuffix = applyPatientivoSuffix(entry.subjectSuffix);
                 pushAlternateForm(entry.verb, nextSuffix, {
@@ -793,6 +917,7 @@ function applyMorphologyRules({
                         subjectSuffix: nextSuffix,
                     }),
                 });
+                pushPassiveTeDeletionAlternate(entry, nextSuffix);
             });
         }
     }
@@ -1555,7 +1680,7 @@ function applyMorphologyRules({
             .slice(1)
             .map((value) => buildNominalFormEntry(verb, value));
         if (alternateForms.length) {
-            alternateForms.forEach((form) => {
+            alternateForms.forEach((form, index) => {
                 if (!form) {
                     return;
                 }
@@ -1572,6 +1697,7 @@ function applyMorphologyRules({
                         normalizedForm
                     );
                 }
+                alternateForms[index] = normalizedForm;
                 formVariants.slice(1).forEach((value) => {
                     nounAlternatesWithSuffixes.push(
                         isNounContextFinal

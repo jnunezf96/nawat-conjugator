@@ -1154,7 +1154,10 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       activeLocativePatientivoSurface: "",
       activeLocativeIncorporatedRoot: "",
       activeLocativeMatrixRoot: "",
-      activeLocativePrelocativeVerb: ""
+      activeLocativeMatrixSpecId: "",
+      activeLocativePrelocativeVerb: "",
+      activeLocativePromotedObjectPrefix: "",
+      activeLocativeSourcePossessorPrefix: ""
     };
     var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
     var VerbInputRefreshTimer = null;
@@ -1256,7 +1259,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       subjectKey: "3sg",
       possessor: "",
       nounClass: "",
-      animacy: "inanimate"
+      animacy: ""
     };
     var TenseTabsState = {
       selected: null

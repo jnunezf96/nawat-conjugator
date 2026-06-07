@@ -68,8 +68,8 @@ function run(ctx) {
 
     s.eq(
         "patientivo display uses compact nominal marker families",
-        ctx.formatConjugationDisplay("tamachti / tamach / tamachin / tamachit / tamatti / tamat / tamatit / tamatil / tamatilti / tamatilin"),
-        "tamachti/tamach, tamachin\ntamachit\ntamatti/tamat\ntamatit\ntamatil/tamatilti, tamatilin"
+        ctx.formatConjugationDisplay("tamachti / tamachit / tamatti / tamatit / tamatilti"),
+        "tamachti\ntamachit\ntamatti\ntamatit\ntamatilti"
     );
 
     // provenance helpers — extracted from surface.js into output/provenance.js

@@ -53,6 +53,16 @@ function run(ctx) {
         "yu"
     );
     s.eq(
+        "adjustPatientivoPossessiveSuffix default ownership drops ti after consonant-final patientive stem",
+        ctx.adjustPatientivoPossessiveSuffix("ti", true, undefined, { stem: "taketz" }),
+        ""
+    );
+    s.eq(
+        "adjustPatientivoPossessiveSuffix default ownership rejects ti after vowel-final stem",
+        ctx.adjustPatientivoPossessiveSuffix("ti", true, undefined, { stem: "naka" }),
+        null
+    );
+    s.eq(
         "adjustPatientivoPossessiveSuffix zero-ownership clears in",
         ctx.adjustPatientivoPossessiveSuffix("in", true, "zero", {}),
         ""

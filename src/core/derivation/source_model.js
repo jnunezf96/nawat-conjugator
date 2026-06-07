@@ -593,3 +593,773 @@ function applyPatientivoImperfectiveSourceChainStemSpec(stemSpec = null, fallbac
 function realizePatientivoImperfectiveSourceChainStem(stem = "", chain = null) {
     return realizeSourceChainStemByPolicy(stem, chain, PATIENTIVO_IMPERFECTIVE_SOURCE_CHAIN_POLICY);
 }
+
+const PATIENTIVO_PRELOCATIVE_SOURCE_TENSES = Object.freeze([
+    "imperfecto",
+    "pasado-remoto",
+]);
+
+const DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT = "tajtani";
+
+const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "tla-itta",
+        classicalMatrix: "te- ~ tla-(itta)",
+        nawatRoot: "ita",
+        aliases: ["itta"],
+        label: "perceive/see",
+        status: "nawat-data-backed",
+        sourceStates: ["absolutive"],
+        evidence: ["data/data.csv: -ita", "data/basic-data.csv: -itta", "Andrews 39.7"],
+    }),
+    Object.freeze({
+        id: "tla-mati",
+        classicalMatrix: "te- ~ tla-(mati)",
+        nawatRoot: "mati",
+        label: "consider/know",
+        status: "nawat-data-backed",
+        sourceStates: ["absolutive"],
+        evidence: ["data/data.csv: -mati", "Andrews 30.15.2", "Andrews 39.7"],
+    }),
+    Object.freeze({
+        id: "tla-nequi",
+        classicalMatrix: "te- ~ tla-(nequi)",
+        nawatRoot: "neki",
+        aliases: ["nejneki"],
+        label: "want/pretend",
+        status: "nawat-data-backed",
+        sourceStates: ["absolutive"],
+        evidence: ["data/data.csv: -neki", "data/basic-data.csv: -nejneki", "Andrews 30.15.2", "Andrews 39.7"],
+    }),
+    Object.freeze({
+        id: "tla-toca",
+        classicalMatrix: "te- ~ tla-(toca)",
+        nawatRoot: "tuka",
+        label: "consider without foundation",
+        status: "nawat-data-backed",
+        sourceStates: ["absolutive", "possessive"],
+        evidence: ["data/data.csv: -tuka", "Andrews 30.15.2", "Andrews 39.7"],
+    }),
+    Object.freeze({
+        id: "tla-tlani",
+        classicalMatrix: "tla-(tlani)",
+        nawatRoot: "tajtani",
+        label: "want/request",
+        status: "nawat-data-backed",
+        sourceStates: ["absolutive", "possessive"],
+        evidence: ["data/data.csv: -tajtani", "Andrews 39.7", "Andrews 39.8"],
+    }),
+    Object.freeze({
+        id: "tla-ih-tlani",
+        classicalMatrix: "tla-(ih-tlani)",
+        nawatRoot: "tatajtania",
+        label: "request",
+        status: "nawat-data-backed",
+        sourceStates: ["possessive"],
+        evidence: ["data/basic-data.csv: -tatajtania", "Andrews 39.8"],
+    }),
+    Object.freeze({
+        id: "tla-tem-o-a",
+        classicalMatrix: "tla-(tem-o-a)",
+        nawatRoot: "temua",
+        label: "seek",
+        status: "nawat-data-backed",
+        sourceStates: ["possessive"],
+        evidence: ["data/basic-data.csv: -ishtemua/-shuchitemua", "Andrews 39.8"],
+    }),
+]);
+
+const DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT = "miki";
+
+const PATIENTIVO_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "miqui",
+        classicalMatrix: "(miqui)",
+        nawatRoot: "miki",
+        aliases: ["miqui"],
+        label: "die/be affected as",
+        status: "nawat-data-backed",
+        matrixValency: "intransitive",
+        evidence: ["data/data.csv: miki", "Andrews 39.6"],
+    }),
+]);
+
+const DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT = "kal";
+
+const PATIENTIVO_NOMINAL_COMPOUND_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "cal-li",
+        classicalMatrix: "(cal)-li",
+        nawatRoot: "kal",
+        nounClass: "zero",
+        animacy: "inanimate",
+        label: "house/place noun matrix",
+        status: "nawat-data-backed",
+        evidence: ["data/static_nnc.json: kal", "data/basic-data.csv: kal", "Andrews 39.6"],
+    }),
+]);
+
+const PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX = "yut";
+const PATIENTIVO_CHARACTERISTIC_PROPERTY_POSSESSIVE_SUFFIX = "yu";
+const DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT = "chikawa";
+
+const PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "chic-a-hu-a",
+        classicalMatrix: "(chic-a-hu-a)",
+        nawatRoot: "chikawa",
+        label: "strengthen/intensify by the embedded property",
+        status: "nawat-data-backed",
+        matrixValency: "transitive",
+        evidence: ["data/basic-data.csv: -yulchikawa", "data/exact_rules.json: kakchikawa/akchikawa", "Andrews 39.9"],
+    }),
+]);
+
+function getPatientivoPrelocativeMatrixInventory() {
+    return PATIENTIVO_PRELOCATIVE_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function resolvePatientivoPrelocativeMatrixSpec(matrixRoot = DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT;
+    const spec = PATIENTIVO_PRELOCATIVE_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            label: "",
+            status: "unsupported",
+            supported: false,
+            diagnostics: ["patientivo-prelocative-unsupported-matrix"],
+        };
+}
+
+function resolvePatientivoPrelocativeConnectorSuffix(patientivoNominalSuffix = "") {
+    const normalized = typeof normalizePatientivoNominalSuffixSelection === "function"
+        ? normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix)
+        : String(patientivoNominalSuffix || "").trim();
+    return normalized === null ? "t" : normalized;
+}
+
+function getPatientivoCompoundEmbedMatrixInventory() {
+    return PATIENTIVO_COMPOUND_EMBED_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function getPatientivoNominalCompoundMatrixInventory() {
+    return PATIENTIVO_NOMINAL_COMPOUND_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function getPatientivoCharacteristicPropertyMatrixInventory() {
+    return PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT;
+    const spec = PATIENTIVO_COMPOUND_EMBED_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            label: "",
+            status: "unsupported",
+            matrixValency: "",
+            supported: false,
+            diagnostics: ["patientivo-compound-embed-unsupported-matrix"],
+        };
+}
+
+function resolvePatientivoNominalCompoundMatrixSpec(matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT;
+    const spec = PATIENTIVO_NOMINAL_COMPOUND_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            nounClass: "",
+            animacy: "",
+            label: "",
+            status: "unsupported",
+            supported: false,
+            diagnostics: ["patientivo-nominal-compound-unsupported-matrix"],
+        };
+}
+
+function resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot = DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT;
+    const spec = PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            label: "",
+            status: "unsupported",
+            matrixValency: "",
+            supported: false,
+            diagnostics: ["patientivo-characteristic-property-unsupported-matrix"],
+        };
+}
+
+function buildPatientivoCompoundEmbedVerbInput({
+    incorporatedRoot = "",
+    matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT,
+} = {}) {
+    const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
+    const matrixSpec = resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedIncorporatedRoot || !normalizedMatrixRoot) {
+        return "";
+    }
+    const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
+    return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
+}
+
+function buildPatientivoNominalCompoundStem({
+    incorporatedRoot = "",
+    matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT,
+} = {}) {
+    const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
+    const matrixSpec = resolvePatientivoNominalCompoundMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedIncorporatedRoot || !normalizedMatrixRoot) {
+        return "";
+    }
+    return `${normalizedIncorporatedRoot}${normalizedMatrixRoot}`;
+}
+
+function formatPatientivoNominalCompoundOrdinaryNncInput({
+    compoundStem = "",
+    nounClass = "",
+} = {}) {
+    const normalizedStem = String(compoundStem || "").trim();
+    if (!normalizedStem) {
+        return "";
+    }
+    const normalizedClass = String(nounClass || "").trim();
+    const connector = ["t", "ti", "in"].includes(normalizedClass) ? normalizedClass : "";
+    return `(${normalizedStem})${connector}`;
+}
+
+function stripPatientivoCharacteristicPropertySuffix(surface = "", {
+    suffix = PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX,
+    possessivePrefix = "",
+} = {}) {
+    const normalized = String(surface || "").trim();
+    const normalizedSuffix = String(suffix || PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX).trim();
+    if (!normalized) {
+        return "";
+    }
+    if (normalizedSuffix && normalized.length > normalizedSuffix.length && normalized.endsWith(normalizedSuffix)) {
+        return normalized.slice(0, -normalizedSuffix.length);
+    }
+    const normalizedPossessivePrefix = String(possessivePrefix || "").trim();
+    const possessiveSuffix = PATIENTIVO_CHARACTERISTIC_PROPERTY_POSSESSIVE_SUFFIX;
+    if (
+        normalizedPossessivePrefix
+        && normalized.startsWith(normalizedPossessivePrefix)
+        && normalized.length > normalizedPossessivePrefix.length + possessiveSuffix.length
+        && normalized.endsWith(possessiveSuffix)
+    ) {
+        return normalized.slice(normalizedPossessivePrefix.length, -possessiveSuffix.length);
+    }
+    return "";
+}
+
+function resolvePatientivoCharacteristicPropertyEmbedSource({
+    characteristicSurface = "",
+    possessorPrefix = "",
+} = {}) {
+    const normalizedSurface = String(characteristicSurface || "").trim();
+    const absolutiveRoot = stripPatientivoCharacteristicPropertySuffix(normalizedSurface);
+    if (absolutiveRoot) {
+        return {
+            sourceState: "absolutive",
+            sourceRole: "subject",
+            incorporatedRoot: absolutiveRoot,
+            omittedSuffix: PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX,
+            possessorPrefix: "",
+            objectPrefix: "ki",
+            objectTransfer: {
+                sourceState: "absolutive",
+                sourceRole: "subject",
+                objectPrefix: "ki",
+                objectCase: "objective",
+                objectLine: "mainline",
+                diagnostics: [],
+            },
+            diagnostics: [],
+        };
+    }
+    const normalizedPossessor = String(possessorPrefix || "").trim();
+    if (!normalizedPossessor) {
+        return {
+            sourceState: "",
+            sourceRole: "",
+            incorporatedRoot: "",
+            omittedSuffix: PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX,
+            possessorPrefix: "",
+            objectPrefix: "",
+            objectTransfer: null,
+            diagnostics: ["patientivo-characteristic-property-missing-yut-suffix"],
+        };
+    }
+    const map = getPatientivoPrelocativePossessiveObjectMap();
+    const objectPrefix = String(map[normalizedPossessor] || "").trim();
+    if (!objectPrefix) {
+        return {
+            sourceState: "possessive",
+            sourceRole: "possessor",
+            incorporatedRoot: "",
+            omittedSuffix: PATIENTIVO_CHARACTERISTIC_PROPERTY_POSSESSIVE_SUFFIX,
+            possessorPrefix: normalizedPossessor,
+            objectPrefix: "",
+            objectTransfer: null,
+            diagnostics: ["patientivo-characteristic-property-unmapped-possessor"],
+        };
+    }
+    const possessiveRoot = stripPatientivoCharacteristicPropertySuffix(normalizedSurface, {
+        possessivePrefix: normalizedPossessor,
+    });
+    return {
+        sourceState: "possessive",
+        sourceRole: "possessor",
+        incorporatedRoot: possessiveRoot,
+        omittedSuffix: PATIENTIVO_CHARACTERISTIC_PROPERTY_POSSESSIVE_SUFFIX,
+        possessorPrefix: normalizedPossessor,
+        objectPrefix,
+        objectTransfer: {
+            sourceState: "possessive",
+            sourceRole: "possessor",
+            sourcePrefix: normalizedPossessor,
+            objectPrefix,
+            objectCase: "objective",
+            objectLine: "mainline",
+            diagnostics: [],
+        },
+        diagnostics: possessiveRoot ? [] : ["patientivo-characteristic-property-missing-yu-suffix"],
+    };
+}
+
+function buildPatientivoCharacteristicPropertyEmbedVerbInput({
+    incorporatedRoot = "",
+    matrixRoot = DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT,
+} = {}) {
+    const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
+    const matrixSpec = resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedIncorporatedRoot || !normalizedMatrixRoot) {
+        return "";
+    }
+    const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
+    return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
+}
+
+function stripPatientivoPrelocativeConnector(surface = "", {
+    patientivoNominalSuffix = "",
+} = {}) {
+    const normalized = String(surface || "").trim();
+    if (!normalized) {
+        return "";
+    }
+    const suffix = resolvePatientivoPrelocativeConnectorSuffix(patientivoNominalSuffix);
+    if (suffix && normalized.endsWith(suffix)) {
+        return normalized.slice(0, -suffix.length);
+    }
+    return normalized.endsWith("t") ? normalized.slice(0, -1) : normalized;
+}
+
+function buildPatientivoPrelocativeVerbInput({
+    incorporatedRoot = "",
+    matrixRoot = DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT,
+} = {}) {
+    const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
+    const matrixSpec = resolvePatientivoPrelocativeMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedIncorporatedRoot || !normalizedMatrixRoot) {
+        return "";
+    }
+    return `-(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
+}
+
+function isPatientivoPrelocativeMatrixCompatibleWithSourceState(matrixSpec = null, sourceState = "") {
+    if (!matrixSpec || matrixSpec.supported === false) {
+        return false;
+    }
+    const allowedStates = Array.isArray(matrixSpec.sourceStates)
+        ? matrixSpec.sourceStates
+        : [];
+    return !allowedStates.length || allowedStates.includes(String(sourceState || "").trim());
+}
+
+function getPatientivoPrelocativePossessiveObjectMap(explicitMap = null) {
+    if (explicitMap && typeof explicitMap === "object") {
+        return explicitMap;
+    }
+    return typeof POSSESSIVE_TO_OBJECT_PREFIX !== "undefined"
+        ? POSSESSIVE_TO_OBJECT_PREFIX
+        : {};
+}
+
+function getPatientivoPrelocativeSubjectObjectMap(explicitMap = null) {
+    if (explicitMap && typeof explicitMap === "object") {
+        return explicitMap;
+    }
+    const subjectObjectMap = {};
+    const objectSubjectMap = typeof PASSIVE_IMPERSONAL_SUBJECT_MAP !== "undefined"
+        ? PASSIVE_IMPERSONAL_SUBJECT_MAP
+        : {};
+    Object.entries(objectSubjectMap || {}).forEach(([objectPrefix, subject]) => {
+        const key = `${subject?.subjectPrefix || ""}|${subject?.subjectSuffix || ""}`;
+        if (objectPrefix && key && !subjectObjectMap[key]) {
+            subjectObjectMap[key] = objectPrefix;
+        }
+    });
+    if (Object.keys(subjectObjectMap).length) {
+        return subjectObjectMap;
+    }
+    const possessiveMap = getPatientivoPrelocativePossessiveObjectMap();
+    if (typeof getPossessivePrefixForSubject !== "function") {
+        return subjectObjectMap;
+    }
+    [
+        { subjectPrefix: "ni", subjectSuffix: "" },
+        { subjectPrefix: "ti", subjectSuffix: "" },
+        { subjectPrefix: "", subjectSuffix: "" },
+        { subjectPrefix: "ti", subjectSuffix: "t" },
+        { subjectPrefix: "an", subjectSuffix: "t" },
+        { subjectPrefix: "", subjectSuffix: "t" },
+    ].forEach((subject) => {
+        const possessivePrefix = getPossessivePrefixForSubject(subject.subjectPrefix, subject.subjectSuffix);
+        const objectPrefix = possessivePrefix ? String(possessiveMap[possessivePrefix] || "").trim() : "";
+        const key = `${subject.subjectPrefix}|${subject.subjectSuffix}`;
+        if (objectPrefix && !subjectObjectMap[key]) {
+            subjectObjectMap[key] = objectPrefix;
+        }
+    });
+    return subjectObjectMap;
+}
+
+function resolvePatientivoPrelocativeSubjectObjectTransfer({
+    selection = {},
+    subjectToObjectPrefix = null,
+} = {}) {
+    const subjectPrefix = String(selection?.subjectPrefix || "").trim();
+    const subjectSuffix = String(selection?.subjectSuffix || "").trim();
+    const key = `${subjectPrefix}|${subjectSuffix}`;
+    const map = getPatientivoPrelocativeSubjectObjectMap(subjectToObjectPrefix);
+    const objectPrefix = String(map[key] || "").trim();
+    return {
+        available: Boolean(objectPrefix),
+        sourceState: "absolutive",
+        sourceRole: "subject",
+        sourcePrefix: subjectPrefix,
+        sourceSuffix: subjectSuffix,
+        sourceSubject: { subjectPrefix, subjectSuffix },
+        objectPrefix,
+        objectCase: "objective",
+        objectLine: "mainline",
+        label: objectPrefix
+            ? `sujeto NNC > objeto ${objectPrefix}`
+            : "sujeto NNC sin objeto configurado",
+        diagnostics: objectPrefix ? [] : ["patientivo-prelocative-unmapped-subject"],
+    };
+}
+
+function resolvePatientivoPrelocativeObjectTransfer({
+    selection = {},
+    possessorPrefix = "",
+    possessiveToObjectPrefix = null,
+    subjectToObjectPrefix = null,
+} = {}) {
+    const map = getPatientivoPrelocativePossessiveObjectMap(possessiveToObjectPrefix);
+    const normalizedPossessor = String(possessorPrefix || "").trim();
+    if (normalizedPossessor) {
+        const objectPrefix = String(map[normalizedPossessor] || "").trim();
+        return {
+            available: Boolean(objectPrefix),
+            sourceState: "possessive",
+            sourceRole: "possessor",
+            sourcePrefix: normalizedPossessor,
+            objectPrefix,
+            objectCase: "objective",
+            objectLine: "mainline",
+            label: objectPrefix
+                ? `poseedor ${normalizedPossessor} > objeto ${objectPrefix}`
+                : `poseedor ${normalizedPossessor} sin objeto configurado`,
+            diagnostics: objectPrefix ? [] : ["patientivo-prelocative-unmapped-possessor"],
+        };
+    }
+    return resolvePatientivoPrelocativeSubjectObjectTransfer({
+        selection,
+        subjectToObjectPrefix,
+    });
+}
+
+function buildPatientivoCharacteristicPropertyEmbedContinuationContract({
+    characteristicSurface = "",
+    sourceSurface = "",
+    possessorPrefix = "",
+    matrixRoot = DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT,
+} = {}) {
+    const diagnostics = [];
+    const normalizedCharacteristicSurface = String(characteristicSurface || "").trim();
+    const embedSource = resolvePatientivoCharacteristicPropertyEmbedSource({
+        characteristicSurface: normalizedCharacteristicSurface,
+        possessorPrefix,
+    });
+    const incorporatedRoot = embedSource.incorporatedRoot;
+    if (!normalizedCharacteristicSurface) {
+        diagnostics.push("patientivo-characteristic-property-missing-surface");
+    }
+    if (normalizedCharacteristicSurface && !incorporatedRoot) {
+        diagnostics.push(...embedSource.diagnostics);
+    }
+    const matrixSpec = resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const compoundVerbInput = matrixSpec.supported && incorporatedRoot
+        ? buildPatientivoCharacteristicPropertyEmbedVerbInput({
+            incorporatedRoot,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!compoundVerbInput && !matrixSpec.supported) {
+        diagnostics.push("patientivo-characteristic-property-missing-verb-input");
+    }
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "patientivo-characteristic-property-embed-continuation-contract",
+        grammarSource: "Andrews 39.9",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        characteristicSurface: normalizedCharacteristicSurface,
+        sourceState: embedSource.sourceState,
+        sourceRole: embedSource.sourceRole,
+        possessorPrefix: embedSource.possessorPrefix,
+        omittedSuffix: embedSource.omittedSuffix || PATIENTIVO_CHARACTERISTIC_PROPERTY_SUFFIX,
+        incorporatedRoot,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundVerbInput,
+        objectPrefix: embedSource.objectPrefix || "ki",
+        objectTransfer: embedSource.objectTransfer,
+        diagnostics: uniqueDiagnostics,
+    };
+}
+
+function buildPatientivoPrelocativeContinuationContract({
+    patientivoSurface = "",
+    sourceSurface = "",
+    selection = {},
+    possessorPrefix = "",
+    patientivoSource = "",
+    sourceTenseValue = "",
+    sourceCombinedMode = "",
+    patientivoNominalSuffix = "",
+    matrixRoot = DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT,
+    possessiveToObjectPrefix = null,
+    subjectToObjectPrefix = null,
+} = {}) {
+    const diagnostics = [];
+    const normalizedPatientivoSource = String(patientivoSource || "").trim();
+    const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
+    const activeMode = typeof COMBINED_MODE !== "undefined" && COMBINED_MODE?.active
+        ? COMBINED_MODE.active
+        : "active";
+    if (normalizedPatientivoSource !== "imperfectivo") {
+        diagnostics.push("patientivo-prelocative-requires-imperfective-source");
+    }
+    if (normalizedSourceCombinedMode !== activeMode) {
+        diagnostics.push("patientivo-prelocative-requires-active-source");
+    }
+    if (!PATIENTIVO_PRELOCATIVE_SOURCE_TENSES.includes(String(sourceTenseValue || "").trim())) {
+        diagnostics.push("patientivo-prelocative-requires-imperfective-tense");
+    }
+    const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
+        patientivoNominalSuffix,
+    });
+    if (!String(patientivoSurface || "").trim()) {
+        diagnostics.push("patientivo-prelocative-missing-patientivo-surface");
+    }
+    if (!incorporatedRoot) {
+        diagnostics.push("patientivo-prelocative-missing-incorporated-root");
+    }
+    const objectTransfer = resolvePatientivoPrelocativeObjectTransfer({
+        selection,
+        possessorPrefix,
+        possessiveToObjectPrefix,
+        subjectToObjectPrefix,
+    });
+    if (!objectTransfer.available) {
+        diagnostics.push(...objectTransfer.diagnostics);
+    }
+    const matrixSpec = resolvePatientivoPrelocativeMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const matrixSourceCompatible = isPatientivoPrelocativeMatrixCompatibleWithSourceState(matrixSpec, objectTransfer.sourceState);
+    if (matrixSpec.supported && !matrixSourceCompatible) {
+        diagnostics.push("patientivo-prelocative-matrix-source-state-unsupported");
+    }
+    const prelocativeVerbInput = matrixSpec.supported && matrixSourceCompatible
+        ? buildPatientivoPrelocativeVerbInput({
+            incorporatedRoot,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!prelocativeVerbInput) {
+        if (!matrixSpec.supported) {
+            diagnostics.push("patientivo-prelocative-missing-verb-input");
+        }
+    }
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "patientivo-prelocative-continuation-contract",
+        grammarSource: "Andrews 39.7-39.8",
+        supported: uniqueDiagnostics.length === 0,
+        sourceState: objectTransfer.sourceState,
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        incorporatedRoot,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        matrixSourceCompatible,
+        prelocativeVerbInput,
+        objectTransfer,
+        diagnostics: uniqueDiagnostics,
+    };
+}
+
+function buildPatientivoCompoundEmbedContinuationContract({
+    patientivoSurface = "",
+    sourceSurface = "",
+    patientivoNominalSuffix = "",
+    matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT,
+} = {}) {
+    const diagnostics = [];
+    const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
+        patientivoNominalSuffix,
+    });
+    if (!String(patientivoSurface || "").trim()) {
+        diagnostics.push("patientivo-compound-embed-missing-patientivo-surface");
+    }
+    if (!incorporatedRoot) {
+        diagnostics.push("patientivo-compound-embed-missing-incorporated-root");
+    }
+    const matrixSpec = resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const compoundVerbInput = matrixSpec.supported
+        ? buildPatientivoCompoundEmbedVerbInput({
+            incorporatedRoot,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!compoundVerbInput && !matrixSpec.supported) {
+        diagnostics.push("patientivo-compound-embed-missing-verb-input");
+    }
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "patientivo-compound-embed-continuation-contract",
+        grammarSource: "Andrews 39.6",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        incorporatedRoot,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundVerbInput,
+        diagnostics: uniqueDiagnostics,
+    };
+}
+
+function buildPatientivoNominalCompoundContinuationContract({
+    patientivoSurface = "",
+    sourceSurface = "",
+    patientivoNominalSuffix = "",
+    matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT,
+} = {}) {
+    const diagnostics = [];
+    const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
+        patientivoNominalSuffix,
+    });
+    if (!String(patientivoSurface || "").trim()) {
+        diagnostics.push("patientivo-nominal-compound-missing-patientivo-surface");
+    }
+    if (!incorporatedRoot) {
+        diagnostics.push("patientivo-nominal-compound-missing-incorporated-root");
+    }
+    const matrixSpec = resolvePatientivoNominalCompoundMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const compoundStem = matrixSpec.supported
+        ? buildPatientivoNominalCompoundStem({
+            incorporatedRoot,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!compoundStem && !matrixSpec.supported) {
+        diagnostics.push("patientivo-nominal-compound-missing-nnc-input");
+    }
+    const ordinaryNncInput = compoundStem
+        ? formatPatientivoNominalCompoundOrdinaryNncInput({
+            compoundStem,
+            nounClass: matrixSpec.nounClass || "zero",
+        })
+        : "";
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "patientivo-nominal-compound-continuation-contract",
+        grammarSource: "Andrews 39.6",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        incorporatedRoot,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundStem,
+        ordinaryNncInput,
+        ordinaryNncRequest: compoundStem ? {
+            stem: ordinaryNncInput || compoundStem,
+            state: "absolutive",
+            number: "singular",
+            pluralType: "auto",
+            nounClass: matrixSpec.nounClass || "zero",
+            animacy: matrixSpec.animacy || "inanimate",
+        } : null,
+        diagnostics: uniqueDiagnostics,
+    };
+}

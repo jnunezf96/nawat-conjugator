@@ -9,6 +9,49 @@ const { createSuite } = require("./runner");
 
 function run(ctx) {
     const s = createSuite("morphology_engine");
+    const summarizeNominalizationProfile = (profile) => profile && ({
+        curriculumRef: profile.curriculumRef,
+        outputKind: profile.outputKind,
+        nominalKind: profile.nominalKind,
+        sourceTense: profile.source?.sourceTense || "",
+        nominalizationKind: profile.role?.nominalizationKind || "",
+        semanticRole: profile.role?.semanticRole || "",
+        patientiveFamily: profile.role?.patientiveFamily || "",
+        adjectivalFunction: profile.role?.adjectivalFunction || "",
+        categoryTransition: profile.categoryTransition,
+        nominalizationScope: profile.boundaries?.nominalizationScope || "",
+        isFunctionalSupplementation: profile.boundaries?.isFunctionalSupplementation === true,
+        isAdjectivalModification: profile.boundaries?.isAdjectivalModification === true,
+        doesNotImplementLessons42_43: profile.boundaries?.doesNotImplementLessons42_43 === true,
+    });
+    const summarizeDenominalFamilyProfile = (profile) => profile && ({
+        curriculumRef: profile.curriculumRef,
+        outputKind: profile.outputKind,
+        routeFamily: profile.routeFamily,
+        structuralAnalogue: profile.structuralAnalogue,
+        routeId: profile.routeId,
+        routePlacement: profile.routePlacement,
+        routeProfileSource: profile.routeProfileSource,
+        sourceState: profile.sourceState,
+        verbalizer: profile.verbalizer,
+        verbalizerType: profile.verbalizerType,
+        valency: profile.valency,
+        targetTense: profile.targetTense,
+        surfaceSuffix: profile.surfaceSuffix,
+        supportStatus: profile.supportStatus,
+        isCompleteLesson54_55: profile.isCompleteLesson54_55,
+        noNewSurfaceForms: profile.boundaries?.noNewSurfaceForms === true,
+    });
+    s.eq(
+        "runtime exposes shared nominalization metadata helpers",
+        [
+            typeof ctx.getVerbDerivedNominalProfileDefaults,
+            typeof ctx.buildVerbDerivedPatientiveFamilyProfile,
+            typeof ctx.buildVerbDerivedNominalizationProfile,
+            typeof ctx.buildGeneratedNominalSubjectNumberConnectorMetadata,
+        ],
+        ["function", "function", "function", "function"]
+    );
 
     const present = ctx.applyMorphologyRules({
         subjectPrefix: "",
@@ -99,6 +142,194 @@ function run(ctx) {
     s.eq("applyMorphologyRules agentivo plural applies niwan suffix", agentivo.subjectSuffix, "niwan");
     s.eq("applyMorphologyRules agentivo keeps nemi stem", agentivo.verb, "nemi");
     s.ok("applyMorphologyRules agentivo returns nominal formSpec", agentivo.formSpec && typeof agentivo.formSpec === "object");
+    const generatedAgentivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("generateWord agentivo surface remains unchanged", generatedAgentivo.surfaceForms, ["nemini"]);
+    s.eq("generateWord agentivo exposes agentive nominalization profile", summarizeNominalizationProfile(generatedAgentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "agentivo",
+        sourceTense: "presente-habitual",
+        nominalizationKind: "agentive",
+        semanticRole: "agent",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
+
+    const nemiActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action z/liz maps to Nawat s/lis from the future core",
+        {
+            forms: nemiActionNominal.surfaceForms,
+            sourceTense: nemiActionNominal.nominalizationProfile?.source?.sourceTense || "",
+            kind: nemiActionNominal.nominalizationProfile?.role?.nominalizationKind || "",
+            subjectConnector: nemiActionNominal.subjectNumberConnector?.displaySurface || "",
+            shellConnector: nemiActionNominal.nuclearClauseShell?.slots?.subjectNumberConnector?.displayConnector || "",
+            lisRole: nemiActionNominal.subjectNumberConnector?.derivationalSuffixRole || "",
+        },
+        {
+            forms: ["nemilis", "nemis"],
+            sourceTense: "futuro",
+            kind: "action-nominal",
+            subjectConnector: "Ø",
+            shellConnector: "Ø",
+            lisRole: "predicate.action-nominalizer",
+        }
+    );
+    const chukaActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "chuka",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 s action-nominal subtype stays restricted to i-final stems",
+        chukaActionNominal.surfaceForms,
+        ["chukalis"]
+    );
+    const kuawiyaActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "kuawiya",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 ya-stem active-action alternates keep s/lis nominalizer",
+        {
+            forms: kuawiyaActionNominal.surfaceForms,
+            hasBareSourceStem: kuawiyaActionNominal.surfaceForms.includes("kuawiya"),
+            allAlternatesNominalized: kuawiyaActionNominal.surfaceForms.every((form) => /(?:lis|s)$/.test(form)),
+        },
+        {
+            forms: ["kuawilis", "kuawiyalis"],
+            hasBareSourceStem: false,
+            allAlternatesNominalized: true,
+        }
+    );
+    const pluralRequestedActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action NNC remains common-number even if plural is probed",
+        pluralRequestedActionNominal.surfaceForms,
+        ["nemilis", "nemis"]
+    );
+    const invalidActionNominalSubject = ctx.generateWord({
+        silent: true,
+        skipValidation: false,
+        override: {
+            verb: "nemi",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action NNC rejects plural subject connector in validated generation",
+        invalidActionNominalSubject.error,
+        "Sustantivo verbal solo con 3a persona no animada común."
+    );
+    const transitiveActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action transitive NNC keeps the object pronoun",
+        transitiveActionNominal.surfaceForms,
+        ["tamatilis", "tamatis"]
+    );
+    const transitivePotentialPatient = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 potential-patient NNC strips transitive object pronouns even in generation probes",
+        {
+            forms: transitivePotentialPatient.surfaceForms,
+            kind: transitivePotentialPatient.nominalizationProfile?.role?.nominalizationKind || "",
+            semanticRole: transitivePotentialPatient.nominalizationProfile?.role?.semanticRole || "",
+            sourceTense: transitivePotentialPatient.nominalizationProfile?.source?.sourceTense || "",
+        },
+        {
+            forms: ["matilis", "matis"],
+            kind: "potential-patient",
+            semanticRole: "patient/capability",
+            sourceTense: "futuro",
+        }
+    );
+    const firstPersonPotentialPatient = ctx.generateWord({
+        silent: true,
+        skipValidation: false,
+        override: {
+            verb: "mati",
+            tense: "potencial",
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 potential-patient NNC is not limited to third-person common-number subjects",
+        firstPersonPotentialPatient.surfaceForms,
+        ["nimatilis", "nimatis"]
+    );
 
     const matiPatientivo = ctx.generateWord({
         silent: true,
@@ -114,14 +345,643 @@ function run(ctx) {
         },
     });
     s.eq(
-        "patientivo mati ta omits t-final in alternant",
+        "patientivo mati ta keeps Andrews tli-class nonactive outputs without zero/in spillover",
         matiPatientivo.surfaceForms,
-        ["tamachti", "tamach", "tamachin", "tamachit", "tamatti", "tamat", "tamatit", "tamatil", "tamatilti", "tamatilin"]
+        ["tamachti", "tamachit", "tamatti", "tamatit", "tamatilti"]
     );
     s.eq(
         "patientivo mati ta display groups nominal markers compactly",
         ctx.formatConjugationDisplay(matiPatientivo.result),
-        "tamachti/tamach, tamachin\ntamachit\ntamatti/tamat\ntamatit\ntamatil/tamatilti, tamatilin"
+        "tamachti\ntamachit\ntamatti\ntamatit\ntamatilti"
+    );
+    s.eq("generateWord patientivo exposes patientive nominalization profile", summarizeNominalizationProfile(matiPatientivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "patientivo",
+        sourceTense: "",
+        nominalizationKind: "patientive",
+        semanticRole: "patient/result",
+        patientiveFamily: "nonactive",
+        adjectivalFunction: "",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
+    s.eq(
+        "patientivo profile derives Lessons 37.9-39 family metadata separately from generation",
+        {
+            family: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.family,
+            sourcePattern: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourcePattern,
+            sourceFamilyIds: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceFamilyIds,
+            sourceFamilyLabel: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceFamilyLabel,
+            sourceFamilyBoundary: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceFamilyBoundary,
+            sourceTense: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceTense,
+            curriculumRange: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.curriculumRef.range,
+            outputSlot: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceStageModel.slot,
+            generatedOnly: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.isGeneratedSurfaceOnly,
+            completeTaxonomy: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.isCompletePatientiveTaxonomy,
+            noNewSurfaceForms: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.boundaries.noNewSurfaceForms,
+        },
+        {
+            family: "nonactive",
+            sourcePattern: "nonactive-passive-impersonal",
+            sourceFamilyIds: ["passive-core", "impersonal-core"],
+            sourceFamilyLabel: "pasivo + impersonal (no distinguido)",
+            sourceFamilyBoundary: "current-nonactive-branch-does-not-distinguish-passive-vs-impersonal",
+            sourceTense: "",
+            curriculumRange: "37.9-39",
+            outputSlot: "#3 salida",
+            generatedOnly: true,
+            completeTaxonomy: false,
+            noNewSurfaceForms: true,
+        }
+    );
+
+    const patientiveFamilyExamples = [
+        {
+            label: "perfective",
+            verb: "-(ketza)",
+            objectPrefix: "ta",
+            source: "perfectivo",
+            surfaceForms: ["taketzti"],
+            sourcePattern: "perfective-active-stem",
+            sourceFamilyIds: ["perfective-active-core"],
+            sourceFamilyLabel: "perfectivo activo",
+            sourceTense: "preterito",
+        },
+        {
+            label: "imperfective",
+            verb: "-(mati)",
+            objectPrefix: "ta",
+            source: "imperfectivo",
+            surfaceForms: ["tamatiyat"],
+            sourcePattern: "imperfective-active-stem",
+            sourceFamilyIds: ["imperfective-active-core"],
+            sourceFamilyLabel: "imperfectivo activo",
+            sourceTense: "imperfecto",
+        },
+        {
+            label: "root/stock",
+            verb: "(pusuni)",
+            objectPrefix: "",
+            source: "tronco-verbal",
+            surfaceForms: ["pusukti", "pusuchti", "pususti", "pusushti", "pusut"],
+            sourcePattern: "root-or-stock-stem",
+            sourceFamilyIds: ["root-or-stock"],
+            sourceFamilyLabel: "raiz/tronco",
+            sourceTense: "",
+        },
+    ];
+    patientiveFamilyExamples.forEach((example) => {
+        const generated = ctx.generateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                verb: example.verb,
+                tense: "patientivo",
+                derivationMode: ctx.DERIVATION_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: example.objectPrefix,
+                patientivoSource: example.source,
+            },
+        });
+        s.eq(`patientivo ${example.label} family keeps existing surfaces`, generated.surfaceForms, example.surfaceForms);
+        s.eq(`patientivo ${example.label} family profile records source pattern`, {
+            family: generated.nominalizationProfile.patientiveFamilyProfile.family,
+            sourcePattern: generated.nominalizationProfile.patientiveFamilyProfile.sourcePattern,
+            sourceFamilyIds: generated.nominalizationProfile.patientiveFamilyProfile.sourceFamilyIds,
+            sourceFamilyLabel: generated.nominalizationProfile.patientiveFamilyProfile.sourceFamilyLabel,
+            sourceTense: generated.nominalizationProfile.patientiveFamilyProfile.sourceTense,
+            completeTaxonomy: generated.nominalizationProfile.patientiveFamilyProfile.isCompletePatientiveTaxonomy,
+        }, {
+            family: example.source,
+            sourcePattern: example.sourcePattern,
+            sourceFamilyIds: example.sourceFamilyIds,
+            sourceFamilyLabel: example.sourceFamilyLabel,
+            sourceTense: example.sourceTense,
+            completeTaxonomy: false,
+        });
+    });
+    const generatedRootStockDefault = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "tronco-verbal",
+        },
+    });
+    const explicitTroncoStemForRoute = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "tronco-verbal",
+            patientivoNominalSuffix: "",
+        },
+    });
+    const explicitTroncoInClass = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "tronco-verbal",
+            patientivoNominalSuffix: "in",
+        },
+    });
+    const explicitTransitiveTroncoInClass = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(salua)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "tronco-verbal",
+            patientivoNominalSuffix: "in",
+        },
+    });
+    s.eq(
+        "Andrews 39.4 root/stock default output does not advertise zero or in noun-class spillover",
+        generatedRootStockDefault.surfaceForms.some((form) => form.endsWith("in") || !/(?:t|ti)$/.test(form)),
+        false
+    );
+    s.eq(
+        "explicit tronco-verbal stem request remains available for route composition",
+        explicitTroncoStemForRoute.surfaceForms,
+        ["pusuk", "pusuch", "pusus", "pusush"]
+    );
+    s.eq(
+        "explicit tronco-verbal in-class request is rejected for intransitive root/stock patientive",
+        explicitTroncoInClass.error,
+        true
+    );
+    s.eq(
+        "explicit tronco-verbal in-class request is rejected for transitive root/stock patientive",
+        explicitTransitiveTroncoInClass.error,
+        true
+    );
+    [
+        {
+            source: "perfectivo",
+            verb: "-(ketza)",
+            taForms: ["taketzti"],
+        },
+        {
+            source: "imperfectivo",
+            verb: "-(mati)",
+            taForms: ["tamatiyat"],
+        },
+    ].forEach((example) => {
+        const generated = ctx.generateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                verb: example.verb,
+                tense: "patientivo",
+                derivationMode: ctx.DERIVATION_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "te",
+                patientivoSource: example.source,
+            },
+        });
+        s.eq(
+            `Andrews 39 ${example.source} patientivo maps single-object te source to ta pattern`,
+            generated.surfaceForms,
+            example.taForms
+        );
+        s.no(
+            `Andrews 39 ${example.source} patientivo does not retain te as nounstem prefix`,
+            generated.surfaceForms.some((form) => form.startsWith("te"))
+        );
+    });
+    const blockedPerfectiveTCore = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "perfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.1 blocks perfective patientivo when the perfective source core ends in t",
+        blockedPerfectiveTCore.error,
+        true
+    );
+    const blockedPerfectiveChCore = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(kuchi)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "perfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.1 blocks perfective patientivo when the perfective source core ends in ch",
+        blockedPerfectiveChCore.error,
+        true
+    );
+    const possessedPerfectivePatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ketza)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+            patientivoSource: "perfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.1 possessed tli-class patientivo drops Nawat ti connector instead of erroring",
+        possessedPerfectivePatientivo.surfaceForms,
+        ["nutaketz"]
+    );
+
+    const passiveTransitiveZero = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "passive",
+        },
+    });
+    ["ta", "te"].forEach((objectPrefix) => {
+        const generated = ctx.generateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                verb: "-(mati)",
+                tense: "patientivo",
+                derivationMode: ctx.DERIVATION_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix,
+                patientivoSource: "passive",
+            },
+        });
+        const profile = generated.nominalizationProfile.patientiveFamilyProfile;
+        s.eq(
+            `Andrews 37.9 passive patientivo clears single-object ${objectPrefix} from nounstem`,
+            generated.surfaceForms,
+            passiveTransitiveZero.surfaceForms
+        );
+        s.no(
+            `passive patientivo ${objectPrefix} output does not retain nonspecific prefix`,
+            generated.surfaceForms.some((form) => form.startsWith(objectPrefix))
+        );
+        s.eq(`patientivo passive exposes Andrews source core separately for ${objectPrefix}`, {
+            family: profile.family,
+            sourcePattern: profile.sourcePattern,
+            sourceFamilyIds: profile.sourceFamilyIds,
+            sourceFamilyLabel: profile.sourceFamilyLabel,
+            boundary: profile.sourceFamilyBoundary,
+            outputSlot: profile.sourceStageModel.slot,
+        }, {
+            family: "passive",
+            sourcePattern: "passive-core",
+            sourceFamilyIds: ["passive-core"],
+            sourceFamilyLabel: "pasivo",
+            boundary: "realized-through-current-nonactive-builder",
+            outputSlot: "#3 salida",
+        });
+    });
+    const passiveReflexiveSource = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            patientivoSource: "passive",
+        },
+    });
+    s.eq(
+        "Andrews 37.9.2 passive patientivo keeps Nawat reflexive mu in the nounstem",
+        passiveReflexiveSource.surfaceForms,
+        ["mumachti", "mumachit", "mumatti", "mumatit", "mumatilti"]
+    );
+    const passiveDoubleProjectiveTaTe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            indirectObjectMarker: "te",
+            patientivoSource: "passive",
+        },
+    });
+    const passiveDoubleProjectiveTeTa = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "ta",
+            patientivoSource: "passive",
+        },
+    });
+    s.eq(
+        "Andrews 37.9.3 passive patientivo can keep the selected ta projective from a double-object source",
+        passiveDoubleProjectiveTaTe.surfaceForms,
+        ["tamachti", "tamachit", "tamatti", "tamatit", "tamatilti"]
+    );
+    s.eq(
+        "Andrews 37.9.3 passive patientivo can keep selected te and also delete it from a double-object source",
+        passiveDoubleProjectiveTeTa.surfaceForms,
+        [
+            "temachti", "machti",
+            "temachit", "machit",
+            "tematti", "matti",
+            "tematit", "matit",
+            "tematilti", "matilti",
+        ]
+    );
+    const possessedPassivePatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+            patientivoSource: "passive",
+        },
+    });
+    s.eq(
+        "Andrews 37.9 possessed passive patientivo uses generated nounstem state, not route labels",
+        possessedPassivePatientivo.surfaceForms,
+        ["numach", "numachiw", "numat", "numatiw", "numatil"]
+    );
+    const possessedPassiveSelectedTePatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "ta",
+            possessivePrefix: "nu",
+            patientivoSource: "passive",
+        },
+    });
+    s.eq(
+        "Andrews 37.9.3 possessed passive selected-te patientivo includes the deleted-te nounstem",
+        possessedPassiveSelectedTePatientivo.surfaceForms,
+        [
+            "nutemach", "numach",
+            "nutemachiw", "numachiw",
+            "nutemat", "numat",
+            "nutematiw", "numatiw",
+            "nutematil", "numatil",
+        ]
+    );
+    const impersonalTransitiveTa = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "impersonal",
+        },
+    });
+    const impersonalTransitiveProfile = impersonalTransitiveTa.nominalizationProfile.patientiveFamilyProfile;
+    s.eq(
+        "Andrews 38.1 impersonal patientivo keeps transitive ta object inside nounstem",
+        impersonalTransitiveTa.surfaceForms,
+        matiPatientivo.surfaceForms
+    );
+    const impersonalReflexiveSource = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            patientivoSource: "impersonal",
+        },
+    });
+    s.eq(
+        "Andrews 38.1.2 impersonal patientivo keeps Nawat reflexive mu in the nounstem",
+        impersonalReflexiveSource.surfaceForms,
+        ["mumachti", "mumachit", "mumatti", "mumatit", "mumatilti"]
+    );
+    const impersonalTransitiveTe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            patientivoSource: "impersonal",
+        },
+    });
+    s.eq(
+        "Andrews 38.1.4 impersonal patientivo maps single-object te source to ta pattern",
+        impersonalTransitiveTe.surfaceForms,
+        impersonalTransitiveTa.surfaceForms
+    );
+    s.no(
+        "impersonal patientivo te source does not retain te as nounstem prefix",
+        impersonalTransitiveTe.surfaceForms.some((form) => form.startsWith("te"))
+    );
+    const impersonalTransitiveTeWithShuntlineTe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "te",
+            patientivoSource: "impersonal",
+        },
+    });
+    s.eq(
+        "Andrews 38.1.3 impersonal patientivo maps mainline te to ta even with shuntline te present",
+        impersonalTransitiveTeWithShuntlineTe.surfaceForms,
+        ["tetamachti", "tetamachit", "tetamatti", "tetamatit", "tetamatilti"]
+    );
+    const impersonalTransitiveTeWithShuntlineTa = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "ta",
+            patientivoSource: "impersonal",
+        },
+    });
+    s.eq(
+        "Andrews 38.1.3 impersonal patientivo preserves te+tla when shuntline ta already marks the nonhuman patient",
+        impersonalTransitiveTeWithShuntlineTa.surfaceForms,
+        ["tetamachti", "tetamachit", "tetamatti", "tetamatit", "tetamatilti"]
+    );
+    const perfectiveMainlineTeWithShuntlineTe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ketza)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "te",
+            patientivoSource: "perfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.1 patientivo analogy maps mainline te to ta even with shuntline te present",
+        perfectiveMainlineTeWithShuntlineTe.surfaceForms,
+        ["tetaketzti"]
+    );
+    const imperfectiveTeWithShuntlineTa = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "ta",
+            patientivoSource: "imperfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.2 imperfective patientivo preserves te+tla under impersonal analogy when shuntline ta already marks the patient",
+        imperfectiveTeWithShuntlineTa.surfaceForms,
+        ["tetamatiyat"]
+    );
+    s.eq("patientivo impersonal exposes Andrews source core separately", {
+        family: impersonalTransitiveProfile.family,
+        sourcePattern: impersonalTransitiveProfile.sourcePattern,
+        sourceFamilyIds: impersonalTransitiveProfile.sourceFamilyIds,
+        sourceFamilyLabel: impersonalTransitiveProfile.sourceFamilyLabel,
+        boundary: impersonalTransitiveProfile.sourceFamilyBoundary,
+        outputSlot: impersonalTransitiveProfile.sourceStageModel.slot,
+    }, {
+        family: "impersonal",
+        sourcePattern: "impersonal-core",
+        sourceFamilyIds: ["impersonal-core"],
+        sourceFamilyLabel: "impersonal",
+        boundary: "realized-through-current-nonactive-builder",
+        outputSlot: "#3 salida",
+    });
+
+    const passiveFromIntransitive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "passive",
+        },
+    });
+    s.eq(
+        "Andrews 37.9 contract blocks passive patientivo from intransitive ultimate source",
+        passiveFromIntransitive.error,
+        true
+    );
+    const impersonalFromIntransitive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "impersonal",
+        },
+    });
+    s.eq(
+        "Andrews 38.1 contract permits impersonal patientivo from intransitive source",
+        impersonalFromIntransitive.surfaceForms,
+        ["pusunit", "pusunti"]
+    );
+    s.eq(
+        "impersonal intransitive patientivo keeps impersonal-core family metadata",
+        impersonalFromIntransitive.nominalizationProfile.patientiveFamilyProfile.sourceFamilyIds,
+        ["impersonal-core"]
     );
 
     const buildSilentAdverbRequest = ({ verb, objectPrefix = "" }) => ({
@@ -150,6 +1010,54 @@ function run(ctx) {
     const adverbioMatiVi = ctx.executeGenerateWordRequest(buildSilentAdverbRequest({ verb: "(mati)" }));
     s.ok("adverbio mati VI generates", adverbioMatiVi && !adverbioMatiVi.error);
     s.eq("adverbio mati VI uses active preterit adverb forms", adverbioMatiVi.surfaceForms, ["matka", "matika"]);
+    s.eq(
+        "adverbio generated output carries diagnostic Lesson 44 frame without changing forms",
+        {
+            kind: adverbioMatiVi.adverbialNuclearFrame?.kind,
+            lesson: adverbioMatiVi.adverbialNuclearFrame?.lesson,
+            adverbialKind: adverbioMatiVi.adverbialNuclearFrame?.adverbial?.kind,
+            sourceStem: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.stem,
+            sourceValency: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.valency,
+            hasKnownLegacyAdverbioTense: adverbioMatiVi.adverbialNuclearFrame?.classification?.hasKnownLegacyAdverbioTense,
+            changesSurfaceForms: adverbioMatiVi.adverbialNuclearFrame?.boundaries?.changesSurfaceForms,
+            forms: adverbioMatiVi.surfaceForms,
+        },
+        {
+            kind: "adverbial-nuclear-frame",
+            lesson: 44,
+            adverbialKind: "manner-surface",
+            sourceStem: "mati",
+            sourceValency: "intransitive",
+            hasKnownLegacyAdverbioTense: true,
+            changesSurfaceForms: false,
+            forms: ["matka", "matika"],
+        }
+    );
+    s.eq(
+        "adverbio generated output carries diagnostic Lessons 49-50 adjunction boundary frame",
+        {
+            kind: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.kind,
+            lessonRange: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.lessonRange,
+            statusLabel: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.statusLabel,
+            candidateLabel: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.candidate?.label,
+            semanticRelation: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.classification?.semanticRelation,
+            adjoinedUnitType: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.classification?.adjoinedUnitType,
+            falsePositiveSource: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.classification?.falsePositiveSource,
+            singleGeneratedWordIsEvidence: adverbioMatiVi.adverbialAdjunctionBoundaryFrame?.boundaries?.singleGeneratedWordIsEvidence,
+            forms: adverbioMatiVi.surfaceForms,
+        },
+        {
+            kind: "adverbial-adjunction-boundary-frame",
+            lessonRange: "49-50",
+            statusLabel: "no confirmada",
+            candidateLabel: "adverbio heredado",
+            semanticRelation: "manner",
+            adjoinedUnitType: "vnc",
+            falsePositiveSource: "legacy-adverbio-surface",
+            singleGeneratedWordIsEvidence: false,
+            forms: ["matka", "matika"],
+        }
+    );
 
     const adverbioMatiVtTa = ctx.executeGenerateWordRequest(buildSilentAdverbRequest({
         verb: "-(mati)",
@@ -157,6 +1065,21 @@ function run(ctx) {
     }));
     s.ok("adverbio mati VT ta generates", adverbioMatiVtTa && !adverbioMatiVtTa.error);
     s.eq("adverbio mati VT ta does not double-prefix ta", adverbioMatiVtTa.surfaceForms, ["tamatka", "tamatika"]);
+    s.eq(
+        "transitive adverbio frame records source valency only",
+        {
+            sourceValency: adverbioMatiVtTa.adverbialNuclearFrame?.sourceVnc?.valency,
+            objectPrefix: adverbioMatiVtTa.adverbialNuclearFrame?.sourceVnc?.objectPrefix,
+            baseObjectPrefix: adverbioMatiVtTa.adverbialNuclearFrame?.sourceVnc?.baseObjectPrefix,
+            forms: adverbioMatiVtTa.surfaceForms,
+        },
+        {
+            sourceValency: "transitive",
+            objectPrefix: "",
+            baseObjectPrefix: "ta",
+            forms: ["tamatka", "tamatika"],
+        }
+    );
 
     const adverbioMatiVtZero = ctx.executeGenerateWordRequest(buildSilentAdverbRequest({ verb: "-(mati)" }));
     s.eq("adverbio mati VT rejects zero object", adverbioMatiVtZero.error, "Adverbio activo transitivo solo con ta/te/mu.");
@@ -196,6 +1119,21 @@ function run(ctx) {
         verb: "(chipawa)",
     }));
     s.eq("adjetivo preterito -tik uses patientivo tronco -k core", chipawaPreteritoTik.surfaceForms, ["chipaktik"]);
+    s.eq("adjetivo preterito -tik profile marks adjectival surface but not modification", summarizeNominalizationProfile(chipawaPreteritoTik.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "adjetivo-preterito-tik",
+        sourceTense: "preterito",
+        nominalizationKind: "adjectival-surface",
+        semanticRole: "property",
+        patientiveFamily: "",
+        adjectivalFunction: "predicate-surface",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
     const chipawaPerfectoTik = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
         tense: "adjetivo-perfecto-tik",
         verb: "(chipawa)",
@@ -236,6 +1174,42 @@ function run(ctx) {
         verb: "(pusuni)",
     }));
     s.eq("pusuni future nawat denominal VI -ti preterit keeps legacy generation", pusuniPreteritoTik.surfaceForms, ["pusuktik"]);
+    s.eq("pusuni denominal VI -ti preterit exposes route-family metadata without adding surfaces", summarizeDenominalFamilyProfile(pusuniPreteritoTik.denominalFamilyProfile), {
+        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        outputKind: "denominal-route",
+        routeFamily: "vi-ti",
+        structuralAnalogue: "inceptive-stative-ti-route",
+        routeId: "denominal-vi-ti-preterit",
+        routePlacement: "patientivo-tronco-conversion",
+        routeProfileSource: "static-modes",
+        sourceState: "patientivo-tronco",
+        verbalizer: "-ti",
+        verbalizerType: "denominal-intransitive",
+        valency: "intransitive",
+        targetTense: "preterito",
+        surfaceSuffix: "-tik",
+        supportStatus: "current-route-supported",
+        isCompleteLesson54_55: false,
+        noNewSurfaceForms: true,
+    });
+    const viTiRouteProfile = ctx.getNawatRouteProfile("adjetivo-preterito-tik");
+    s.eq("generated VI -ti denominal metadata derives from static route profile", {
+        routeFamily: pusuniPreteritoTik.denominalFamilyProfile.routeFamily,
+        structuralAnalogue: pusuniPreteritoTik.denominalFamilyProfile.structuralAnalogue,
+        routeId: pusuniPreteritoTik.denominalFamilyProfile.routeId,
+        verbalizer: pusuniPreteritoTik.denominalFamilyProfile.verbalizer,
+        valency: pusuniPreteritoTik.denominalFamilyProfile.valency,
+        targetTense: pusuniPreteritoTik.denominalFamilyProfile.targetTense,
+        surfaceSuffix: pusuniPreteritoTik.denominalFamilyProfile.surfaceSuffix,
+    }, {
+        routeFamily: viTiRouteProfile.denominalFamily,
+        structuralAnalogue: viTiRouteProfile.structuralAnalogue,
+        routeId: viTiRouteProfile.id,
+        verbalizer: viTiRouteProfile.verbalizer,
+        valency: viTiRouteProfile.valency,
+        targetTense: viTiRouteProfile.nawatTenseValue,
+        surfaceSuffix: viTiRouteProfile.surfaceSuffix,
+    });
     const pusuktiVerbPreterito = ctx.executeGenerateWordRequest({
         options: {
             silent: true,
@@ -272,11 +1246,44 @@ function run(ctx) {
         verb: "(pusuni)",
     }));
     s.eq("pusuni future nawat denominal VT -na preterit keeps legacy generation", pusuniPreteritoNaj.surfaceForms, ["pusuknaj"]);
+    s.eq("pusuni denominal VT -na preterit exposes route-family metadata without adding surfaces", summarizeDenominalFamilyProfile(pusuniPreteritoNaj.denominalFamilyProfile), {
+        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        outputKind: "denominal-route",
+        routeFamily: "vt-na",
+        structuralAnalogue: "transitive-denominal-route",
+        routeId: "denominal-vt-na-preterit",
+        routePlacement: "patientivo-tronco-conversion",
+        routeProfileSource: "static-modes",
+        sourceState: "patientivo-tronco",
+        verbalizer: "-na",
+        verbalizerType: "denominal-transitive",
+        valency: "transitive",
+        targetTense: "preterito",
+        surfaceSuffix: "-naj",
+        supportStatus: "current-route-supported",
+        isCompleteLesson54_55: false,
+        noNewSurfaceForms: true,
+    });
     const pusuniPerfectoNaj = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
         tense: "adjetivo-perfecto-naj",
         verb: "(pusuni)",
     }));
     s.eq("pusuni future nawat denominal VT -na perfect keeps legacy generation", pusuniPerfectoNaj.surfaceForms, ["pusuknajtuk"]);
+    s.eq("denominal-style adjective profile remains a surface classification only", summarizeNominalizationProfile(pusuniPerfectoNaj.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "adjetivo-perfecto-naj",
+        sourceTense: "perfecto",
+        nominalizationKind: "adjectival-surface",
+        semanticRole: "property",
+        patientiveFamily: "",
+        adjectivalFunction: "predicate-surface",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
     const segmentedNaPreterit = ctx.generateWord({
         silent: true,
         skipValidation: true,

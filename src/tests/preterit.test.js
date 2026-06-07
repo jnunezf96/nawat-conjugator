@@ -56,6 +56,40 @@ function run(ctx) {
     s.eq("preterit API: bundle analysis target = nemi", bundle.analysisTarget, "nemi");
     s.ok("preterit API: bundle context exists", bundle.context && typeof bundle.context === "object");
     s.ok("preterit API: bundle summary exists", bundle.summary && typeof bundle.summary === "object");
+    s.eq(
+        "preterit API: class profile helper rejects missing provenance",
+        ctx.buildVncVerbstemClassProfileFromProvenance(null),
+        null
+    );
+
+    const universalClassA = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "preterito-universal-1",
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "preterit universal output exposes diagnostic verbstem class profile",
+        {
+            classKey: universalClassA.verbstemClassProfile?.classKey,
+            source: universalClassA.verbstemClassProfile?.source,
+            diagnosticOnly: universalClassA.verbstemClassProfile?.diagnosticOnly,
+            doesNotGenerateForms: universalClassA.verbstemClassProfile?.doesNotGenerateForms,
+            fromProvenance: universalClassA.stemProvenance?.verbstemClassProfile?.classKey,
+        },
+        {
+            classKey: "A",
+            source: "preterit-provenance",
+            diagnosticOnly: true,
+            doesNotGenerateForms: true,
+            fromProvenance: "A",
+        }
+    );
 
     const asiSecondPluralPreterite = ctx.generateWord({
         silent: true,

@@ -229,6 +229,303 @@ function run(ctx) {
         "executeGenerateWordRequest computes present nemi output without DOM access",
         executeEngineResult.result.includes("nemi")
     );
+    s.eq(
+        "executeGenerateWordRequest exposes diagnostic VNC clause shell",
+        {
+            kind: executeEngineResult.nuclearClauseShell?.kind,
+            clauseKind: executeEngineResult.nuclearClauseShell?.clauseKind,
+            formulaType: executeEngineResult.nuclearClauseShell?.formulaType,
+            hasTensePosition: executeEngineResult.nuclearClauseShell?.hasTensePosition,
+            generationAllowed: executeEngineResult.nuclearClauseShell?.generationAllowed,
+            predicateStem: executeEngineResult.nuclearClauseShell?.slots?.predicate?.stem,
+            tenseValue: executeEngineResult.nuclearClauseShell?.slots?.tense?.tenseValue,
+            formulaEcho: executeEngineResult.nuclearClauseShell?.formulaEcho,
+            formulaSlotKeys: Object.keys(executeEngineResult.nuclearClauseShell?.formulaSlots || {}),
+            valencyKind: executeEngineResult.vncValencyFrame?.kind,
+            valency: executeEngineResult.vncValencyFrame?.valency,
+            subjectSlot: executeEngineResult.vncValencyFrame?.subject?.slot,
+            objectDisplay: executeEngineResult.vncValencyFrame?.object?.displayPrefix,
+        },
+        {
+            kind: "nuclear-clause-shell",
+            clauseKind: "verbal-nuclear-clause",
+            formulaType: "VNC",
+            hasTensePosition: true,
+            generationAllowed: false,
+            predicateStem: "(nemi)",
+            tenseValue: "presente",
+            formulaEcho: "#Ø-Ø(nemi)-presente#",
+            formulaSlotKeys: ["subjectPerson", "objectPerson", "predicate", "tense"],
+            valencyKind: "vnc-valency-frame",
+            valency: "intransitive",
+            subjectSlot: "subject",
+            objectDisplay: "Ø",
+        }
+    );
+    const transitiveFrameResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                parsedVerb: ctx.parseVerbInput("-maka"),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ni",
+            objectPrefix: "ki",
+            verb: "-maka",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "VNC valency frame explains transitive subject and object slots without changing output",
+        {
+            valency: transitiveFrameResult.vncValencyFrame?.valency,
+            subjectPrefix: transitiveFrameResult.vncValencyFrame?.subject?.prefix,
+            objectPrefix: transitiveFrameResult.vncValencyFrame?.object?.prefix,
+            baseObjectPrefix: transitiveFrameResult.vncValencyFrame?.object?.basePrefix,
+            changesSurfaceForms: transitiveFrameResult.vncValencyFrame?.boundaries?.changesSurfaceForms,
+            forms: transitiveFrameResult.surfaceForms,
+        },
+        {
+            valency: "transitive",
+            subjectPrefix: "ni",
+            objectPrefix: "k",
+            baseObjectPrefix: "ki",
+            changesSurfaceForms: false,
+            forms: ["nikmaka"],
+        }
+    );
+    const passiveFrameResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                derivationMode: ctx.DERIVATION_MODE.nonactive,
+                voiceMode: ctx.VOICE_MODE.passive,
+                parsedVerb: ctx.parseVerbInput("-maka"),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "",
+            objectPrefix: "ki",
+            verb: "-maka",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "derived voice frame explains passive/impersonal valency without changing output",
+        {
+            kind: passiveFrameResult.derivedVoiceFrame?.kind,
+            voiceLabel: passiveFrameResult.derivedVoiceFrame?.voice?.label,
+            sourceValency: passiveFrameResult.derivedVoiceFrame?.valency?.sourceValency,
+            targetValency: passiveFrameResult.derivedVoiceFrame?.valency?.targetValency,
+            baseObjectPrefix: passiveFrameResult.derivedVoiceFrame?.valency?.baseObjectPrefix,
+            selectedObjectPrefix: passiveFrameResult.derivedVoiceFrame?.valency?.selectedObjectPrefix,
+            objectClearedByVoice: passiveFrameResult.derivedVoiceFrame?.valency?.objectClearedByVoice,
+            changesSurfaceForms: passiveFrameResult.derivedVoiceFrame?.boundaries?.changesSurfaceForms,
+            forms: passiveFrameResult.surfaceForms,
+        },
+        {
+            kind: "derived-voice-frame",
+            voiceLabel: "pasivo/impersonal",
+            sourceValency: 2,
+            targetValency: 1,
+            baseObjectPrefix: "ki",
+            selectedObjectPrefix: "",
+            objectClearedByVoice: true,
+            changesSurfaceForms: false,
+            forms: ["makalu", "makilu"],
+        }
+    );
+    const causativeFrameResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                derivationType: ctx.DERIVATION_TYPE.causative,
+                parsedVerb: ctx.parseVerbInput("(nemi)"),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ni",
+            objectPrefix: "",
+            verb: "(nemi)",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "forward derivation frame explains causative stem path without changing output",
+        {
+            kind: causativeFrameResult.forwardDerivationFrame?.kind,
+            lessonRange: causativeFrameResult.forwardDerivationFrame?.lessonRange,
+            derivationType: causativeFrameResult.forwardDerivationFrame?.derivation?.type,
+            derivationLabel: causativeFrameResult.forwardDerivationFrame?.derivation?.label,
+            sourceValency: causativeFrameResult.forwardDerivationFrame?.valency?.sourceValency,
+            derivedValency: causativeFrameResult.forwardDerivationFrame?.valency?.derivedValency,
+            selectedStem: causativeFrameResult.forwardDerivationFrame?.stem?.selectedStem,
+            changesSurfaceForms: causativeFrameResult.forwardDerivationFrame?.boundaries?.changesSurfaceForms,
+            forms: causativeFrameResult.surfaceForms,
+        },
+        {
+            kind: "forward-derivation-frame",
+            lessonRange: "24-25",
+            derivationType: "causative",
+            derivationLabel: "causativa",
+            sourceValency: 1,
+            derivedValency: 2,
+            selectedStem: "nemtia",
+            changesSurfaceForms: false,
+            forms: ["ninemitia", "ninentia"],
+        }
+    );
+    const applicativeFrameResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                derivationType: ctx.DERIVATION_TYPE.applicative,
+                parsedVerb: ctx.parseVerbInput("-maka"),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ni",
+            objectPrefix: "ki",
+            verb: "-maka",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "forward derivation frame explains applicative valency path without changing output",
+        {
+            kind: applicativeFrameResult.forwardDerivationFrame?.kind,
+            lessonRange: applicativeFrameResult.forwardDerivationFrame?.lessonRange,
+            derivationType: applicativeFrameResult.forwardDerivationFrame?.derivation?.type,
+            sourceValency: applicativeFrameResult.forwardDerivationFrame?.valency?.sourceValency,
+            derivedValency: applicativeFrameResult.forwardDerivationFrame?.valency?.derivedValency,
+            selectedStem: applicativeFrameResult.forwardDerivationFrame?.stem?.selectedStem,
+            changesSurfaceForms: applicativeFrameResult.forwardDerivationFrame?.boundaries?.changesSurfaceForms,
+            forms: applicativeFrameResult.surfaceForms,
+        },
+        {
+            kind: "forward-derivation-frame",
+            lessonRange: "26",
+            derivationType: "applicative",
+            sourceValency: 2,
+            derivedValency: 3,
+            selectedStem: "makilia",
+            changesSurfaceForms: false,
+            forms: ["nikmaka", "nikmakilia"],
+        }
+    );
+    const compoundFrameResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                parsedVerb: ctx.parseVerbInput("(shuchi)-(kwi)"),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ni",
+            objectPrefix: "",
+            verb: "(shuchi)-(kwi)",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "compound frame exposes parser compoundAst metadata without changing output",
+        {
+            kind: compoundFrameResult.compoundFrame?.kind,
+            lessonRange: compoundFrameResult.compoundFrame?.lessonRange,
+            matrixStem: compoundFrameResult.compoundFrame?.matrix?.stem,
+            embedRoles: compoundFrameResult.compoundFrame?.embeds?.map((entry) => entry.role),
+            embedValues: compoundFrameResult.compoundFrame?.embeds?.map((entry) => entry.value),
+            rawInput: compoundFrameResult.compoundFrame?.sourceInput?.rawInput,
+            changesSurfaceForms: compoundFrameResult.compoundFrame?.boundaries?.changesSurfaceForms,
+            forms: compoundFrameResult.surfaceForms,
+        },
+        {
+            kind: "compound-frame",
+            lessonRange: "28,30",
+            matrixStem: "kwi",
+            embedRoles: ["outer-lexical"],
+            embedValues: ["shuchi"],
+            rawInput: "(shuchi)-(kwi)",
+            changesSurfaceForms: false,
+            forms: ["nishuchikwi"],
+        }
+    );
+    const sentenceLayerResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "imperativo",
+                parsedVerb: ctx.parseVerbInput("(nemi)"),
+                sentenceLayer: {
+                    enabled: true,
+                    polarity: "negative",
+                    questionType: "yes-no",
+                    moodScope: "command",
+                },
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ti",
+            objectPrefix: "",
+            verb: "(nemi)",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "sentence layer opt-in adds diagnostic metadata without changing VNC output",
+        {
+            forms: sentenceLayerResult.surfaceForms,
+            sentenceKind: sentenceLayerResult.sentenceLayer?.kind,
+            polarity: sentenceLayerResult.sentenceLayer?.slots?.polarity?.value,
+            question: sentenceLayerResult.sentenceLayer?.slots?.question?.value,
+            mood: sentenceLayerResult.sentenceLayer?.slots?.mood?.value,
+            changesFiniteVncOutput: sentenceLayerResult.sentenceLayer?.boundaries?.changesFiniteVncOutput,
+        },
+        {
+            forms: ["shinemi"],
+            sentenceKind: "sentence-layer-metadata",
+            polarity: "negative",
+            question: "yes-no",
+            mood: "command",
+            changesFiniteVncOutput: false,
+        }
+    );
 
     return s;
 }

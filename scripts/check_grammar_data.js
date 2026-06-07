@@ -64,6 +64,12 @@ const STATIC_NNC_ALLOWED_NUMBERS = new Set(["singular", "plural"]);
 const STATIC_NNC_ALLOWED_PLURAL_TYPES = new Set(["count", "distributive"]);
 const STATIC_NNC_ALLOWED_NOUN_CLASSES = new Set(["t", "ti", "in", "zero"]);
 const STATIC_NNC_ALLOWED_ANIMACIES = new Set(["animate", "inanimate"]);
+const STATIC_MODES_DENOMINAL_ROUTE_FAMILIES = new Map([
+    ["vi-ti", { verbalizer: "-ti", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-ti-route" }],
+    ["vi-iwi", { verbalizer: "-iwi", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-wi-route" }],
+    ["vi-awi", { verbalizer: "-awi", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-wi-route" }],
+    ["vt-na", { verbalizer: "-na", verbalizerType: "denominal-transitive", valency: "transitive", structuralAnalogue: "transitive-denominal-route" }],
+]);
 
 const errors = [];
 
@@ -476,6 +482,20 @@ function checkNawatRouteProfiles(jsonByName) {
         }
         if (profile.routePlacement === "patientivo-tronco-conversion" && !profile.verbalizer) {
             addError(`${where} is a patientivo-tronco-conversion route but has no verbalizer.`);
+        }
+        if (profile.routePlacement === "patientivo-tronco-conversion") {
+            if (typeof profile.denominalFamily !== "string" || !profile.denominalFamily.trim()) {
+                addError(`${where}.denominalFamily must be set for patientivo-tronco-conversion routes.`);
+            } else if (!STATIC_MODES_DENOMINAL_ROUTE_FAMILIES.has(profile.denominalFamily)) {
+                addError(`${where}.denominalFamily uses unknown family "${profile.denominalFamily}".`);
+            } else {
+                const expected = STATIC_MODES_DENOMINAL_ROUTE_FAMILIES.get(profile.denominalFamily);
+                ["verbalizer", "verbalizerType", "valency", "structuralAnalogue"].forEach((field) => {
+                    if (profile[field] !== expected[field]) {
+                        addError(`${where}.${field} must be "${expected[field]}" for denominalFamily "${profile.denominalFamily}".`);
+                    }
+                });
+            }
         }
         if (profile.routePlacement === "patientivo-surface" && !profile.patientivoSource) {
             addError(`${where} is a patientivo-surface route but has no patientivoSource.`);

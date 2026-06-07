@@ -1170,7 +1170,10 @@ var NawatRouteState = {
     activeLocativePatientivoSurface: "",
     activeLocativeIncorporatedRoot: "",
     activeLocativeMatrixRoot: "",
+    activeLocativeMatrixSpecId: "",
     activeLocativePrelocativeVerb: "",
+    activeLocativePromotedObjectPrefix: "",
+    activeLocativeSourcePossessorPrefix: "",
 };
 var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
 var VerbInputRefreshTimer = null;
@@ -1253,7 +1256,7 @@ var OrdinaryNncGenerationState = {
     subjectKey: "3sg",
     possessor: "",
     nounClass: "",
-    animacy: "inanimate",
+    animacy: "",
 };
 var TenseTabsState = {
     selected: null,

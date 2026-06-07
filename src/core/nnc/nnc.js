@@ -841,8 +841,12 @@ function buildOrdinaryNncBasicMetadata({
     });
     return {
         version: 1,
-        lessonRange: "12-19",
         clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+        curriculumRef: {
+            source: "Andrews",
+            range: "12-19",
+            role: "curriculum-index",
+        },
         formula: "#pers1-pers2(STEM)num1-num2#",
         formulaSlots,
         formulaEcho: buildOrdinaryNncFormulaEchoFromSlots(formulaSlots),
@@ -1903,7 +1907,7 @@ function getCalificativoInstrumentivoResult({
                     verb: objectChainForm,
                     subjectSuffix: "",
                     stemSpec: objectChainStemSpec,
-                    trailingSuffix: resolvedPossessivePrefix === "" ? "yut" : "",
+                    trailingSuffix: resolvedPossessivePrefix === "" ? "yut" : "yu",
                     sourceTense: "pasado-remoto",
                     provenance: {
                         pasadoRemotoEntry,

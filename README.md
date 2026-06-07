@@ -42,6 +42,15 @@ The basic verb form is a **Verb-Noun Complex (VNC)**:
 
 Examples: `ni-ki-chiwa` (I make it), `ti-ki-chiwat` (we make it), `ni-ki-chiwa-k` (I made it).
 
+The engine also exposes diagnostic VNC formula slots for subject, object, predicate, and tense. These slots power the `Formula VNC` teaching echo; they do not generate forms. Generated VNC rows may also carry a diagnostic `vncValencyFrame` that explains intransitive/transitive frame, subject slot, object slot, and base object prefix before surface allomorphy.
+Nonactive/passive/impersonal rows may also carry diagnostic `derivedVoiceFrame` metadata for derived voice and source-to-target valency; it is explanatory only.
+Causative/applicative rows may carry diagnostic `forwardDerivationFrame` metadata for derived stem and source-to-derived valency; it is also explanatory only.
+Accepted compound VNC inputs may carry diagnostic `compoundFrame` metadata for matrix and embedded pieces; it is derived from parser metadata and does not change output.
+Legacy adverbio rows may carry diagnostic `adverbialNuclearFrame` metadata for Lesson 44 source VNC and manner-surface scope; it does not change output or complete the adverbial clause engine.
+Generated locativo-temporal nominal rows may carry diagnostic `relationalNncBoundaryFrame` metadata to mark the Lessons 45-47 relational boundary; it explicitly says the current row is not confirmed relational-NNC fixture evidence.
+Those same rows may carry diagnostic `placeGentilicNncBoundaryFrame` metadata for Lesson 48; it explicitly separates locative-temporal output from confirmed place-name or gentilic fixture evidence.
+Legacy adverbio and locativo-temporal rows may also carry diagnostic `adverbialAdjunctionBoundaryFrame` metadata for Lessons 49-50; it marks single generated words as not confirmed clause-adjunction evidence.
+
 ### NNC formula
 
 NNC means **Nominal Nuclear Clause**. It is a nominal predicate clause, not just a noun wordform table.
@@ -63,6 +72,10 @@ Preterit formation varies by stem class:
 | D | Monosyllabic, vowel-final | j **appended** after nucleus | `ki` → `kij`, `mu` → `muj` |
 
 The rule is: **j never appears after a consonant onset**. It only appears after a vowel/nucleus — replacing it (Class C) or following it (Class D).
+
+Preterit class provenance also exposes diagnostic `verbstemClassProfile` metadata, which rendering can show as `Clase de tronco`. This is explanatory metadata; the preterit generator remains the source of forms.
+
+Sentence-layer diagnostics for polarity, question, emphasis, and mood can be attached only by explicit override. Rendering may show them as `Capa oracional`; they do not generate sentence particles or change finite VNC output.
 
 ### Derivation
 
@@ -114,15 +127,15 @@ Based on the 58-lesson curriculum in `src/lessons/registry.js`:
 | Status | Count |
 |---|---|
 | Implemented | 10 |
-| Partially implemented | 19 |
-| Not mapped | 26 |
-| Placeholder (no conjugation content) | 3 |
+| Partially implemented | 43 |
+| Not mapped | 5 |
+| Placeholder (no conjugation content) | 0 |
 
 Strong implemented motor areas include intransitive and transitive VNC form generation, preterit class mechanics, object-prefix/allomorphy handling, causative/applicative stem generation, passive/impersonal/nonactive form generation, and the current Nawat suppletive subset.
 
-Partial Andrews mappings include Classical orthography, sentence-level optative/admonitive constructions, the full irregular VNC taxonomy, full NNC paradigms, compound-source roles, and lesson 54-55 denominal route classes.
+Partial Andrews mappings include Classical orthography, sentence-level optative/admonitive constructions, the full irregular VNC taxonomy, full NNC paradigms, compound-source roles, frequentative, purposive/directional boundary metadata, compound/affective NNC boundary metadata, honorific/pejorative VNC boundary metadata, numeral-NNC boundary metadata, nominalization/deverbal/patientive boundary metadata, adjectival NNC function boundary metadata, adjectival-modification boundary metadata, adverbial nuclear-clause boundary metadata, relational-NNC boundary metadata, place/gentilic NNC boundary metadata, calendar-name boundary metadata, adverbial-adjunction boundary metadata, complement/conjunction/comparison boundary metadata, personal-name NNC boundary metadata, textual-analysis boundary metadata, and lesson 54-55 denominal route classes.
 
-Not yet mapped: frequentative verbstems, honorific/pejorative VNCs, cardinal-numeral NNCs, relational NNCs, and most adverbial/clause-level structures.
+Not yet mapped: natural/required possession, pronominal NNCs, supplementation/topic, frequentative generation, purposive generation, compound/affective NNC generation, ownerhood and complete z/liz fixture coverage, complete patientive-family generation, honorific/pejorative VNC generation, numeral-NNC generation, complete adjectival NNC function generation, adjectival-modification AST generation, full adverbial clause generation, relational NNC data/generation, place/gentilic NNC data/generation, calendar-name data/generation, adverbial-adjunction data/AST, complement/conjunction/comparison data/AST, personal-name NNC data/generation, and textual-analysis data/AST.
 
 ---
 

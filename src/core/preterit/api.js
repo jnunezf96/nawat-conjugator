@@ -15,7 +15,7 @@ function buildClassBasedProvenance({
     subjectSuffix,
     suppletiveStemSet,
 }) {
-    return {
+    const provenance = {
         verb,
         analysisTarget,
         tense,
@@ -32,6 +32,72 @@ function buildClassBasedProvenance({
         subjectSuffix,
         blockedReason: null,
         usesSuppletiveSet: Boolean(suppletiveStemSet),
+    };
+    provenance.verbstemClassProfile = buildVncVerbstemClassProfileFromProvenance(provenance, {
+        context,
+        variants,
+        suppletiveStemSet,
+    });
+    return provenance;
+}
+
+function buildVncVerbstemClassProfileFromProvenance(provenance = null, {
+    context = null,
+    variants = null,
+    suppletiveStemSet = null,
+} = {}) {
+    if (!provenance || typeof provenance !== "object" || !provenance.classKey) {
+        return null;
+    }
+    const classKey = String(provenance.classKey || "");
+    const summary = context && typeof buildPretUniversalRuleSummary === "function"
+        ? buildPretUniversalRuleSummary(context)
+        : null;
+    const splitClassList = (value = "") => String(value || "")
+        .split("/")
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+    const profileVariants = Array.isArray(provenance.variants)
+        ? provenance.variants
+        : (Array.isArray(variants)
+            ? variants.map((variant) => buildProvenanceVariantEntry({
+                base: getPretVariantBase(variant),
+                suffix: getPretVariantSuffix(variant),
+                baseSpec: variant?.baseSpec || null,
+            }))
+            : []);
+    return {
+        kind: "vnc-verbstem-class-profile",
+        version: 1,
+        lesson: 7,
+        source: suppletiveStemSet ? "suppletive-preterit-provenance" : "preterit-provenance",
+        diagnosticOnly: true,
+        doesNotGenerateForms: true,
+        selectedClass: classKey,
+        classKey,
+        classLabel: classKey ? `Clase ${classKey}` : "",
+        tense: String(provenance.tense || ""),
+        verb: String(provenance.verb || ""),
+        analysisTarget: String(provenance.analysisTarget || ""),
+        isTransitive: Boolean(provenance.isTransitive),
+        stemPath: provenance.stemPath || "",
+        shape: {
+            fromRootPlusYa: Boolean(provenance.fromRootPlusYa),
+            isMonosyllable: Boolean(provenance.isMonosyllable),
+        },
+        candidates: splitClassList(summary?.classList || classKey),
+        resolvedClasses: splitClassList(summary?.resolvedClassList || classKey),
+        ruleSummary: summary
+            ? {
+                ruleLabel: summary.ruleLabel || "",
+                ruleTier: summary.ruleTier || "",
+                shapeLabel: summary.shapeLabel || "",
+                shapeLabels: Array.isArray(summary.shapeLabels) ? summary.shapeLabels.slice() : [],
+                classList: summary.classList || "",
+                resolvedClassList: summary.resolvedClassList || "",
+            }
+            : null,
+        variants: profileVariants,
     };
 }
 

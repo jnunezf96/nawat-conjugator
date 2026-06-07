@@ -343,7 +343,7 @@ function adjustPatientivoPossessiveSuffix(
         if (useZero) {
             return "";
         }
-        return null;
+        return stem && !/[aeiu]$/.test(stem) ? "" : null;
     }
     if (normalizedSuffix === "in") {
         if (useOrganic) {
