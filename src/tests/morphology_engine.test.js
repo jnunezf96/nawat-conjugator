@@ -212,9 +212,57 @@ function run(ctx) {
         },
     });
     s.eq(
-        "Andrews Lesson 37 s action-nominal subtype stays restricted to i-final stems",
+        "Andrews Lesson 37 ka-final active-action NNC uses the configured replacive imperfective stem",
         chukaActionNominal.surfaceForms,
-        ["chukalis"]
+        ["chukilis"]
+    );
+    const nesiActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nesi",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 si-final active-action NNC uses Nawat shi replacive imperfective stem",
+        nesiActionNominal.surfaceForms,
+        ["neshilis"]
+    );
+    const ajsiActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ajsi)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 transitive si-final active-action NNC uses Nawat shi with the projective object",
+        ajsiActionNominal.surfaceForms,
+        ["taajshilis"]
+    );
+    const teomatiActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(teomati)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 ti-final active-action NNC keeps the configured optional Nawat chi alternate",
+        teomatiActionNominal.surfaceForms,
+        ["tateomatilis", "tateomachilis", "tateomatis"]
     );
     const kuawiyaActionNominal = ctx.generateWord({
         silent: true,
@@ -238,6 +286,28 @@ function run(ctx) {
             forms: ["kuawilis", "kuawiyalis"],
             hasBareSourceStem: false,
             allAlternatesNominalized: true,
+        }
+    );
+    const istayaActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "istaya",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 root-plus-ya active-action NNC deletes ya when configured from the PDF example",
+        {
+            forms: istayaActionNominal.surfaceForms,
+            hasStemVariant: istayaActionNominal.surfaceForms.includes("istayalis"),
+        },
+        {
+            forms: ["istalis"],
+            hasStemVariant: false,
         }
     );
     const pluralRequestedActionNominal = ctx.generateWord({
@@ -288,6 +358,229 @@ function run(ctx) {
         transitiveActionNominal.surfaceForms,
         ["tamatilis", "tamatis"]
     );
+    const reflexiveActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(maka)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action reflexive NNC maps mainline mu to shuntline ne",
+        reflexiveActionNominal.surfaceForms,
+        ["nemakalis"]
+    );
+    const reflexiveProjectiveActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            indirectObjectMarker: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action double-object reflexive NNC drops the projective object and keeps shuntline ne",
+        {
+            forms: reflexiveProjectiveActionNominal.surfaceForms,
+            kind: reflexiveProjectiveActionNominal.nominalizationProfile?.role?.nominalizationKind || "",
+        },
+        {
+            forms: ["nematilis", "nematis"],
+            kind: "action-nominal",
+        }
+    );
+    const reflexiveVowelStemActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(cuepa)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action reflexive NNC keeps ne before a vowel-final source",
+        reflexiveVowelStemActionNominal.surfaceForms,
+        ["necuepalis"]
+    );
+    const reflexiveSupportiveIActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ihmati)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action reflexive NNC allows supportive i to drop after ne",
+        reflexiveSupportiveIActionNominal.surfaceForms,
+        ["neihmatilis", "nehmatilis", "neihmatis", "nehmatis"]
+    );
+    const supportiveIActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ilnamiqui)",
+            tense: "sustantivo-verbal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 active-action NNC drops source supportive i after ta",
+        supportiveIActionNominal.surfaceForms,
+        ["talnamiquilis", "talnamiquis"]
+    );
+    const impersonalActionNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "sustantivo-verbal",
+            tenseMode: "sustantivo",
+            derivationMode: "nonactive",
+            voiceMode: "passive-impersonal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 impersonal-action liz NNC is generated from the nonactive core",
+        {
+            forms: impersonalActionNominal.surfaceForms,
+            sourceMode: impersonalActionNominal.nominalizationProfile?.source?.sourceCombinedMode || "",
+            sourceTense: impersonalActionNominal.nominalizationProfile?.source?.sourceTense || "",
+            kind: impersonalActionNominal.nominalizationProfile?.role?.nominalizationKind || "",
+            semanticRole: impersonalActionNominal.nominalizationProfile?.role?.semanticRole || "",
+        },
+        {
+            forms: ["machulis", "matulis", "matilulis"],
+            sourceMode: "nonactive",
+            sourceTense: "impersonal-core",
+            kind: "impersonal-action-nominal",
+            semanticRole: "general action",
+        }
+    );
+    s.eq(
+        "Andrews Lesson 37 impersonal-action liz NNC does not use the active-action short s subtype",
+        impersonalActionNominal.surfaceForms.some((form) => form.endsWith("s") && !form.endsWith("lis")),
+        false
+    );
+    const passiveActionCharacteristic = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "calificativo-instrumentivo",
+            tenseMode: "sustantivo",
+            derivationMode: "nonactive",
+            voiceMode: "passive-impersonal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 36 passive-action characteristic NNC is generated from the nonactive distant-past core",
+        {
+            forms: passiveActionCharacteristic.surfaceForms,
+            sourceMode: passiveActionCharacteristic.nominalizationProfile?.source?.sourceCombinedMode || "",
+            sourceTense: passiveActionCharacteristic.nominalizationProfile?.source?.sourceTense || "",
+        },
+        {
+            forms: ["machukayut", "matukayut", "matilukayut"],
+            sourceMode: "nonactive",
+            sourceTense: "pasado-remoto",
+        }
+    );
+    const possessedPassiveActionCharacteristic = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "calificativo-instrumentivo",
+            tenseMode: "sustantivo",
+            derivationMode: "nonactive",
+            voiceMode: "passive-impersonal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 36 default possessed passive-action characteristic keeps the restricted yu matrix",
+        possessedPassiveActionCharacteristic.surfaceForms,
+        ["numachukayu", "numatukayu", "numatilukayu"]
+    );
+    const passiveActionGeneralUse = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "calificativo-instrumentivo",
+            tenseMode: "sustantivo",
+            derivationMode: "nonactive",
+            voiceMode: "passive-impersonal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+            actionNounStemUse: "general-use",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 36 possessive passive-action general-use NNC uses the nonactive ka stem without the restricted yu matrix",
+        {
+            forms: passiveActionGeneralUse.surfaceForms,
+            sourceMode: passiveActionGeneralUse.nominalizationProfile?.source?.sourceCombinedMode || "",
+            sourceTense: passiveActionGeneralUse.nominalizationProfile?.source?.sourceTense || "",
+            kind: passiveActionGeneralUse.nominalizationProfile?.role?.nominalizationKind || "",
+            semanticRole: passiveActionGeneralUse.nominalizationProfile?.role?.semanticRole || "",
+        },
+        {
+            forms: ["numachuka", "numatuka", "numatiluka"],
+            sourceMode: "nonactive",
+            sourceTense: "pasado-remoto",
+            kind: "passive-action-nominal",
+            semanticRole: "patient/action",
+        }
+    );
+    const passiveActionGeneralUseWithoutPossessor = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "calificativo-instrumentivo",
+            tenseMode: "sustantivo",
+            derivationMode: "nonactive",
+            voiceMode: "passive-impersonal",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            actionNounStemUse: "general-use",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 36 passive-action general-use NNC is possessive-state only",
+        passiveActionGeneralUseWithoutPossessor.error,
+        true
+    );
     const transitivePotentialPatient = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -329,6 +622,138 @@ function run(ctx) {
         "Andrews Lesson 37 potential-patient NNC is not limited to third-person common-number subjects",
         firstPersonPotentialPatient.surfaceForms,
         ["nimatilis", "nimatis"]
+    );
+    const possessedPotentialPatient = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq(
+        "Andrews Lesson 37 potential-patient NNC preserves possessive state",
+        {
+            forms: possessedPotentialPatient.surfaceForms,
+            predicateState: possessedPotentialPatient.nominalizationProfile?.predicateState?.value || "",
+            possessorPrefix: possessedPotentialPatient.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            kind: possessedPotentialPatient.nominalizationProfile?.role?.nominalizationKind || "",
+        },
+        {
+            forms: ["numatilis", "numatis"],
+            predicateState: "possessive",
+            possessorPrefix: "nu",
+            kind: "potential-patient",
+        }
+    );
+    const customaryPresentPatientiveReflexive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "ti",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews 36.5 customary-present patientive maps source reflexive mu to shuntline ne",
+        {
+            forms: customaryPresentPatientiveReflexive.surfaceForms,
+            kind: customaryPresentPatientiveReflexive.nominalizationProfile?.role?.nominalizationKind || "",
+            family: customaryPresentPatientiveReflexive.nominalizationProfile?.role?.patientiveFamily || "",
+            sourcePattern: customaryPresentPatientiveReflexive.nominalizationProfile?.patientiveFamilyProfile?.sourcePattern || "",
+            sourceTense: customaryPresentPatientiveReflexive.nominalizationProfile?.source?.sourceTense || "",
+        },
+        {
+            forms: ["tinemachuni", "tinematuni", "tinematiluni"],
+            kind: "customary-present-patientive",
+            family: "customary-present-passive",
+            sourcePattern: "customary-present-passive-core",
+            sourceTense: "presente-habitual",
+        }
+    );
+    const customaryPresentPatientiveProjective = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "ti",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq(
+        "Andrews 36.5 customary-present patientive does not keep single projective object pronouns",
+        customaryPresentPatientiveProjective.surfaceForms,
+        ["timachuni", "timatuni", "timatiluni"]
+    );
+    const customaryPresentPatientivePossessiveProbe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "ti",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq(
+        "Andrews 36.5 customary-present patientive cannot enter possessive state",
+        {
+            forms: customaryPresentPatientivePossessiveProbe.surfaceForms,
+            hasPossessiveSurface: customaryPresentPatientivePossessiveProbe.surfaceForms.some((form) => form.startsWith("nu")),
+            predicateState: customaryPresentPatientivePossessiveProbe.nominalizationProfile?.predicateState?.value || "",
+        },
+        {
+            forms: customaryPresentPatientiveReflexive.surfaceForms,
+            hasPossessiveSurface: false,
+            predicateState: "absolutive",
+        }
+    );
+    const customaryPresentPatientivePlural = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "mu",
+        },
+    });
+    s.eq(
+        "Andrews 36.5 customary-present patientive plural uses the NNC plural connector, not finite t",
+        {
+            forms: customaryPresentPatientivePlural.surfaceForms,
+            connector: customaryPresentPatientivePlural.subjectNumberConnector?.displaySurface || "",
+            formulaEcho: customaryPresentPatientivePlural.nuclearClauseShell?.formulaEcho || "",
+        },
+        {
+            forms: ["tinemachunimet", "tinematunimet", "tinematilunimet"],
+            connector: "met",
+            formulaEcho: "#ti...Ø(-(mati))met#",
+        }
     );
 
     const matiPatientivo = ctx.generateWord({
@@ -506,6 +931,20 @@ function run(ctx) {
             patientivoNominalSuffix: "in",
         },
     });
+    const explicitTroncoZeroClass = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(pusuni)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            patientivoSource: "tronco-verbal",
+            patientivoNominalSuffix: "zero",
+        },
+    });
     const explicitTransitiveTroncoInClass = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -536,6 +975,11 @@ function run(ctx) {
         true
     );
     s.eq(
+        "explicit tronco-verbal zero-class request is rejected for root/stock patientive noun output",
+        explicitTroncoZeroClass.error,
+        true
+    );
+    s.eq(
         "explicit tronco-verbal in-class request is rejected for transitive root/stock patientive",
         explicitTransitiveTroncoInClass.error,
         true
@@ -545,11 +989,13 @@ function run(ctx) {
             source: "perfectivo",
             verb: "-(ketza)",
             taForms: ["taketzti"],
+            reflexiveForms: ["neketzti"],
         },
         {
             source: "imperfectivo",
             verb: "-(mati)",
             taForms: ["tamatiyat"],
+            reflexiveForms: ["nematiyat"],
         },
     ].forEach((example) => {
         const generated = ctx.generateWord({
@@ -573,6 +1019,28 @@ function run(ctx) {
         s.no(
             `Andrews 39 ${example.source} patientivo does not retain te as nounstem prefix`,
             generated.surfaceForms.some((form) => form.startsWith("te"))
+        );
+        const reflexiveGenerated = ctx.generateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                verb: example.verb,
+                tense: "patientivo",
+                derivationMode: ctx.DERIVATION_MODE.active,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "mu",
+                patientivoSource: example.source,
+            },
+        });
+        s.eq(
+            `Andrews 39 ${example.source} patientivo maps source reflexive mu to shuntline ne`,
+            reflexiveGenerated.surfaceForms,
+            example.reflexiveForms
+        );
+        s.no(
+            `Andrews 39 ${example.source} patientivo does not keep source reflexive mu as the nounstem prefix`,
+            reflexiveGenerated.surfaceForms.some((form) => form.startsWith("mu"))
         );
     });
     const blockedPerfectiveTCore = ctx.generateWord({
@@ -698,9 +1166,9 @@ function run(ctx) {
         },
     });
     s.eq(
-        "Andrews 37.9.2 passive patientivo keeps Nawat reflexive mu in the nounstem",
+        "Andrews 37.9.2 passive patientivo maps source reflexive mu to shuntline ne",
         passiveReflexiveSource.surfaceForms,
-        ["mumachti", "mumachit", "mumatti", "mumatit", "mumatilti"]
+        ["nemachti", "nemachit", "nematti", "nematit", "nematilti"]
     );
     const passiveDoubleProjectiveTaTe = ctx.generateWord({
         silent: true,
@@ -824,9 +1292,9 @@ function run(ctx) {
         },
     });
     s.eq(
-        "Andrews 38.1.2 impersonal patientivo keeps Nawat reflexive mu in the nounstem",
+        "Andrews 38.1.2 impersonal patientivo maps source reflexive mu to shuntline ne",
         impersonalReflexiveSource.surfaceForms,
-        ["mumachti", "mumachit", "mumatti", "mumatit", "mumatilti"]
+        ["nemachti", "nemachit", "nematti", "nematit", "nematilti"]
     );
     const impersonalTransitiveTe = ctx.generateWord({
         silent: true,

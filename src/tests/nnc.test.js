@@ -122,6 +122,7 @@ function run(ctx) {
         subjectSuffix = "",
         derivationMode = ctx.DERIVATION_MODE.active,
         voiceMode = ctx.VOICE_MODE.active,
+        actionNounStemUse = "",
     }) => ({
         options: {
             silent: true,
@@ -131,6 +132,7 @@ function run(ctx) {
                 tenseMode: ctx.TENSE_MODE.sustantivo,
                 derivationMode,
                 voiceMode,
+                actionNounStemUse,
             },
         },
         prefixInputs: {
@@ -152,6 +154,9 @@ function run(ctx) {
         pluralType = "auto",
         possessor = "",
         animacy = "",
+        nounClass = "",
+        possessionKind = "",
+        stateCase = "",
         subjectPrefix = "",
         subjectSuffix = "",
     }) => ({
@@ -170,6 +175,9 @@ function run(ctx) {
                     pluralType,
                     possessor,
                     animacy,
+                    nounClass,
+                    possessionKind,
+                    stateCase,
                 },
             },
         },
@@ -363,6 +371,75 @@ function run(ctx) {
             possessorPrefix: "nu",
         }
     );
+    const directGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    });
+    s.eq(
+        "Andrews 36.11 explicit possessive active-action general-use stem keeps ka without restricted yu",
+        {
+            result: directGeneralUseActiveAction.result,
+            role: summarizeNominalizationProfile(directGeneralUseActiveAction.nominalizationProfile).role,
+        },
+        {
+            result: "numikka",
+            role: {
+                nominalizationKind: "active-action-nominal",
+                semanticRole: "agent/action",
+                patientiveFamily: "",
+                adjectivalFunction: "",
+            },
+        }
+    );
+    const directGeneralUseActiveActionWithoutPossessor = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "",
+        actionNounStemUse: "general-use",
+    });
+    s.eq(
+        "Andrews 36.11 active-action general-use stem is possessive-state only",
+        directGeneralUseActiveActionWithoutPossessor.error,
+        true
+    );
+    const transitiveMakaMeta = ctx.parseVerbInput("-(maka)");
+    const blockedTransitiveGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "-(maka)",
+        verbMeta: transitiveMakaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "ta",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    });
+    s.eq(
+        "Andrews 36.11 active-action general-use rejects non-reflexive transitive sources",
+        blockedTransitiveGeneralUseActiveAction.error,
+        true
+    );
+    const reflexiveCuepaMeta = ctx.parseVerbInput("-(cuepa)");
+    const reflexiveGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "-(cuepa)",
+        verbMeta: reflexiveCuepaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "mu",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    });
+    s.eq(
+        "Andrews 36.11 active-action reflexive source uses shuntline ne inside the nounstem",
+        reflexiveGeneralUseActiveAction.result,
+        "nunecuepka"
+    );
 
     const generatedCalificativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "calificativo-instrumentivo",
@@ -380,6 +457,104 @@ function run(ctx) {
         "generateWord possessed calificativo-instrumentivo keeps Nawat yu matrix",
         generatedPossessedCalificativo.surfaceForms,
         ["numikkayu"]
+    );
+    const generatedGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "(miki)",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord explicit possessive active-action general-use stem keeps ka without restricted yu",
+        {
+            forms: generatedGeneralUseActiveAction.surfaceForms,
+            role: summarizeNominalizationProfile(generatedGeneralUseActiveAction.nominalizationProfile).role,
+        },
+        {
+            forms: ["numikka"],
+            role: {
+                nominalizationKind: "active-action-nominal",
+                semanticRole: "agent/action",
+                patientiveFamily: "",
+                adjectivalFunction: "",
+            },
+        }
+    );
+    const blockedGeneratedTransitiveGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "-(maka)",
+        objectPrefix: "ta",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord explicit active-action general-use rejects non-reflexive transitive sources",
+        blockedGeneratedTransitiveGeneralUseActiveAction.error,
+        true
+    );
+    const generatedReflexiveGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "-(cuepa)",
+        objectPrefix: "mu",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord explicit active-action reflexive general-use maps mu to shuntline ne",
+        generatedReflexiveGeneralUseActiveAction.surfaceForms,
+        ["nunecuepka"]
+    );
+    const istayaMeta = ctx.parseVerbInput("(istaya)");
+    const rootPlusYaCharacteristic = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(istaya)",
+        verbMeta: istayaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "",
+    });
+    s.eq(
+        "Andrews 36.11 root-plus-ya active-action restricted stem uses the obsolete root plus ka",
+        rootPlusYaCharacteristic.result,
+        "istakayut"
+    );
+    const rootPlusYaPossessedCharacteristic = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(istaya)",
+        verbMeta: istayaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "nu",
+    });
+    s.eq(
+        "Andrews 36.11 root-plus-ya active-action possessed restricted stem keeps obsolete root plus ka before yu",
+        rootPlusYaPossessedCharacteristic.result,
+        "nuistakayu"
+    );
+    const rootPlusYaGeneralUse = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(istaya)",
+        verbMeta: istayaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    });
+    s.eq(
+        "Andrews 36.11 root-plus-ya active-action general-use stem suppresses regular ya variants",
+        rootPlusYaGeneralUse.result,
+        "nuistaka"
+    );
+    const generatedRootPlusYaGeneralUse = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "(istaya)",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord root-plus-ya active-action general-use emits only the obsolete root plus ka form",
+        generatedRootPlusYaGeneralUse.surfaceForms,
+        ["nuistaka"]
     );
 
     const directLocativo = ctx.getLocativoTemporalResult({
@@ -1951,6 +2126,135 @@ function run(ctx) {
             }).result,
         ],
         ["inhawat", "nishkat", "anhawatmet"]
+    );
+    s.eq(
+        "Andrews 39.3.4 organic possession builds a real Nawat -yu possessive NNC",
+        (() => {
+            const direct = ctx.generateOrdinaryNncParadigm({
+                stem: "naka",
+                state: "possessive",
+                possessor: "nu",
+                possessionKind: "organic",
+            });
+            const generated = ctx.executeGenerateWordRequest(buildSilentOrdinaryNncRequest({
+                stem: "naka",
+                state: "possessive",
+                possessor: "nu",
+                possessionKind: "organic",
+            }));
+            return {
+                direct: {
+                    supported: direct.supported,
+                    result: direct.result,
+                    stem: direct.stem,
+                    sourceStem: direct.sourceStem,
+                    nounClass: direct.nounClass,
+                    possessionKind: direct.possessionKind,
+                    source: direct.source,
+                    frame: direct.organicPossessionFrame,
+                    formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(direct.nncBasic.formulaSlots),
+                },
+                generated: {
+                    result: generated.result,
+                    surfaceForms: generated.surfaceForms,
+                    generationRoute: generated.generationRoute,
+                    frame: generated.organicPossessionFrame,
+                },
+            };
+        })(),
+        {
+            direct: {
+                supported: true,
+                result: "nunakayu",
+                stem: "nakayu",
+                sourceStem: "naka",
+                nounClass: "t",
+                possessionKind: "organic",
+                source: {
+                    fixtureId: "",
+                    sourceRefs: ["Andrews 39.3.4"],
+                    sourceKind: "open-stem",
+                    sourceStem: "naka",
+                },
+                frame: {
+                    version: 1,
+                    outputKind: "ordinary-nnc-organic-possession",
+                    lessonRef: "Andrews 39.3.4",
+                    stateCase: "organic-possession",
+                    possessionKind: "organic",
+                    sourceStem: "naka",
+                    matrixStem: "yu",
+                    classicalAnalogue: "(-yo)-tl",
+                    nawatMatrix: "-yu",
+                    predicateStem: "nakayu",
+                    requiredState: "possessive",
+                    possessorPrefix: "nu",
+                    semanticRelation: "integral-part-to-whole",
+                    spellingAuthority: "Nawat/Pipil orthography",
+                    grammarAuthority: "Andrews PDF",
+                },
+                formulaEcho: "#Ø...Ø(nakayu)t#",
+            },
+            generated: {
+                result: "nunakayu",
+                surfaceForms: ["nunakayu"],
+                generationRoute: "ordinary-nnc",
+                frame: {
+                    version: 1,
+                    outputKind: "ordinary-nnc-organic-possession",
+                    lessonRef: "Andrews 39.3.4",
+                    stateCase: "organic-possession",
+                    possessionKind: "organic",
+                    sourceStem: "naka",
+                    matrixStem: "yu",
+                    classicalAnalogue: "(-yo)-tl",
+                    nawatMatrix: "-yu",
+                    predicateStem: "nakayu",
+                    requiredState: "possessive",
+                    possessorPrefix: "nu",
+                    semanticRelation: "integral-part-to-whole",
+                    spellingAuthority: "Nawat/Pipil orthography",
+                    grammarAuthority: "Andrews PDF",
+                },
+            },
+        }
+    );
+    s.eq(
+        "Andrews 39.3.4 organic possession rejects absolutive and missing-possessor requests",
+        [
+            ctx.generateOrdinaryNncParadigm({
+                stem: "naka",
+                state: "absolutive",
+                possessionKind: "organic",
+            }),
+            ctx.generateOrdinaryNncParadigm({
+                stem: "naka",
+                state: "possessive",
+                possessionKind: "organic",
+            }),
+        ].map((result) => ({
+            supported: result.supported,
+            stem: result.stem,
+            possessionKind: result.possessionKind,
+            sourceStem: result.source?.sourceStem,
+            diagnostic: result.diagnostics[0]?.id,
+        })),
+        [
+            {
+                supported: false,
+                stem: "nakayu",
+                possessionKind: "organic",
+                sourceStem: "naka",
+                diagnostic: "ordinary-nnc-organic-possession-requires-possessive-state",
+            },
+            {
+                supported: false,
+                stem: "nakayu",
+                possessionKind: "organic",
+                sourceStem: "naka",
+                diagnostic: "ordinary-nnc-organic-possession-requires-possessor",
+            },
+        ]
     );
     s.eq(
         "ordinary NNC basico contract labels singular subject slots explicitly",

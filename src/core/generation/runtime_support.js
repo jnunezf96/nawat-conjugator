@@ -261,8 +261,23 @@ function resolveStemCandidateMorphologyResult({
     const localSubjectPrefix = applied.subjectPrefix;
     const localObjectPrefix = applied.objectPrefix;
     let localSubjectSuffix = applied.subjectSuffix;
+    if (
+        baseMorphologyInput.customaryPresentPatientivePlural === true
+        && localSubjectSuffix === "t"
+    ) {
+        localSubjectSuffix = "met";
+    }
     let localFormSpec = applied.formSpec
         || (isNominalOutputProfile ? buildLiteralNominalFormSpec(applied.verb, localSubjectSuffix) : null);
+    if (
+        isNominalOutputProfile
+        && baseMorphologyInput.customaryPresentPatientivePlural === true
+    ) {
+        localFormSpec = withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
+            verb: applied.verb,
+            subjectSuffix: localSubjectSuffix,
+        });
+    }
     if (tense === "patientivo" && Boolean(possessivePrefix)) {
         localSubjectSuffix = adjustPatientivoPossessiveSuffix(
             localSubjectSuffix,
@@ -285,14 +300,19 @@ function resolveStemCandidateMorphologyResult({
         const normalizedForm = isNominalOutputProfile
             ? normalizeNominalFormEntry(form, { subjectSuffix: localSubjectSuffix })
             : form;
+        const rawAltSuffix = (form.subjectSuffix ?? localSubjectSuffix);
+        const customaryPluralAltSuffix = (
+            baseMorphologyInput.customaryPresentPatientivePlural === true
+            && rawAltSuffix === "t"
+        ) ? "met" : rawAltSuffix;
         const altSuffix = (tense === "patientivo" && Boolean(possessivePrefix))
             ? adjustPatientivoPossessiveSuffix(
-                form.subjectSuffix ?? localSubjectSuffix,
+                customaryPluralAltSuffix,
                 true,
                 patientivoOwnership,
                 { stem: normalizedForm.verb }
             )
-            : (form.subjectSuffix ?? localSubjectSuffix);
+            : customaryPluralAltSuffix;
         if (altSuffix === null) {
             return null;
         }

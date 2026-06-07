@@ -6791,6 +6791,161 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length ? String(result.surfaceForms[0] || "").trim() : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
         return surface && surface !== "—" ? surface : "";
       };
+      const getActionNominalSurfacesFromEvaluation = (evaluation = {}) => {
+        const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
+        if (forms.length) {
+          return forms;
+        }
+        const fallback = String(evaluation?.result?.result || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(form => form && form !== "—");
+        return fallback.filter((form, index, list) => list.indexOf(form) === index);
+      };
+      const renderActiveActionCompoundEmbedContinuation = ({
+        value,
+        evaluation
+      } = {}) => {
+        if (!value || evaluation?.shouldMaskRow || resolvedTense !== "sustantivo-verbal" || typeof targetObject.buildActiveActionCompoundEmbedContinuationContract !== "function") {
+          return false;
+        }
+        const actionNominalSurfaces = getActionNominalSurfacesFromEvaluation(evaluation);
+        if (!actionNominalSurfaces.length) {
+          return false;
+        }
+        const matrixInventory = typeof targetObject.getActiveActionCompoundEmbedMatrixInventory === "function" ? targetObject.getActiveActionCompoundEmbedMatrixInventory() : [{
+          id: "tzahtzi",
+          nawatRoot: "tzajtzi",
+          label: "shout with the embedded action"
+        }];
+        const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionCompoundEmbedContinuationContract({
+          actionNominalSurface,
+          sourceSurface: actionNominalSurface,
+          matrixRoot: matrixSpec.nawatRoot || "tzajtzi"
+        }))).filter(entry => entry?.supported);
+        if (!contracts.length) {
+          return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({
+          value,
+          evaluation
+        });
+        if (!actions) {
+          return false;
+        }
+        const applyActiveActionCompoundContract = contract => {
+          if (typeof targetObject.applyActiveActionCompoundEmbedRootsToVerbEntry === "function") {
+            targetObject.applyActiveActionCompoundEmbedRootsToVerbEntry({
+              actionNominalSurface: contract.actionNominalSurface,
+              matrixRoot: contract.matrixRoot,
+              matrixSpecId: contract.matrix?.id || ""
+            });
+          }
+        };
+        const createActiveActionCompoundButton = contract => {
+          const compoundVerbInput = contract.compoundVerbInput;
+          const previewSurface = getCompoundEmbedFinitePreviewSurface({
+            compoundVerb: compoundVerbInput
+          });
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo"].join(" ");
+          continueButton.dataset.activeActionCompoundEmbedContinuation = "true";
+          continueButton.dataset.compoundVerb = compoundVerbInput;
+          continueButton.dataset.actionNominalSurface = contract.actionNominalSurface;
+          continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
+          continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
+          continueButton.appendChild(continueLabel);
+          continueButton.title = [`#3 salida: ${contract.actionNominalSurface}`, `incrustado: ${contract.incorporatedRoot}`, `raíz matriz: ${contract.matrixRoot}`, contract.matrix?.classicalMatrix ? `Andrews 37.5.4: ${contract.matrix.classicalMatrix}` : "", `V: ${compoundVerbInput}`, previewSurface ? `salida V: ${previewSurface}` : ""].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            applyActiveActionCompoundContract(contract);
+          });
+          return continueButton;
+        };
+        contracts.forEach(contract => {
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+          if (!alreadyRendered) {
+            actions.appendChild(createActiveActionCompoundButton(contract));
+          }
+        });
+        return true;
+      };
+      const renderActiveActionNominalCompoundContinuation = ({
+        value,
+        evaluation
+      } = {}) => {
+        if (!value || evaluation?.shouldMaskRow || resolvedTense !== "sustantivo-verbal" || typeof targetObject.buildActiveActionNominalCompoundContinuationContract !== "function") {
+          return false;
+        }
+        const actionNominalSurfaces = getActionNominalSurfacesFromEvaluation(evaluation);
+        if (!actionNominalSurfaces.length) {
+          return false;
+        }
+        const matrixInventory = typeof targetObject.getActiveActionNominalCompoundMatrixInventory === "function" ? targetObject.getActiveActionNominalCompoundMatrixInventory() : [{
+          id: "cal-li",
+          nawatRoot: "kal",
+          nounClass: "zero",
+          animacy: "inanimate"
+        }];
+        const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionNominalCompoundContinuationContract({
+          actionNominalSurface,
+          sourceSurface: actionNominalSurface,
+          matrixRoot: matrixSpec.nawatRoot || "kal"
+        }))).filter(entry => entry?.supported);
+        if (!contracts.length) {
+          return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({
+          value,
+          evaluation
+        });
+        if (!actions) {
+          return false;
+        }
+        const applyActiveActionNominalContract = contract => {
+          if (typeof targetObject.applyActiveActionNominalCompoundToOrdinaryNncEntry === "function") {
+            targetObject.applyActiveActionNominalCompoundToOrdinaryNncEntry({
+              actionNominalSurface: contract.actionNominalSurface,
+              matrixRoot: contract.matrixRoot,
+              matrixSpecId: contract.matrix?.id || "",
+              nounClass: contract.matrix?.nounClass || "zero",
+              animacy: contract.matrix?.animacy || "inanimate",
+              compoundStem: contract.compoundStem,
+              ordinaryNncInput: contract.ordinaryNncInput
+            });
+          }
+        };
+        const createActiveActionNominalButton = contract => {
+          const previewSurface = getNominalCompoundPreviewSurface({
+            ordinaryNncRequest: contract.ordinaryNncRequest
+          });
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
+          continueButton.dataset.activeActionNominalCompoundContinuation = "true";
+          continueButton.dataset.ordinaryNncInput = contract.ordinaryNncInput;
+          continueButton.dataset.actionNominalSurface = contract.actionNominalSurface;
+          continueButton.dataset.nominalCompoundStem = contract.compoundStem;
+          continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
+          continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
+          continueButton.appendChild(continueLabel);
+          continueButton.title = [`#3 salida: ${contract.actionNominalSurface}`, `incrustado: ${contract.incorporatedRoot}`, `matriz nominal: ${contract.matrixRoot}`, contract.matrix?.classicalMatrix ? `Andrews 37.5.4: ${contract.matrix.classicalMatrix}` : "", `S: ${contract.ordinaryNncInput}`, previewSurface ? `salida S: ${previewSurface}` : ""].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            applyActiveActionNominalContract(contract);
+          });
+          return continueButton;
+        };
+        contracts.forEach(contract => {
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+          if (!alreadyRendered) {
+            actions.appendChild(createActiveActionNominalButton(contract));
+          }
+        });
+        return true;
+      };
       const renderPatientivoNominalCompoundContinuation = ({
         value,
         evaluation,
@@ -8241,6 +8396,16 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
                   value,
                   evaluation,
                   patientivoSource
+                });
+              }
+              if (resolvedTense === "sustantivo-verbal") {
+                renderActiveActionCompoundEmbedContinuation({
+                  value,
+                  evaluation
+                });
+                renderActiveActionNominalCompoundContinuation({
+                  value,
+                  evaluation
                 });
               }
               if (resolvedTense === "calificativo-instrumentivo") {

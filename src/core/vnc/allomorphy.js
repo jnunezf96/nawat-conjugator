@@ -1065,6 +1065,7 @@ var VERB_DERIVED_PATIENTIVE_FAMILY = Object.freeze({
     perfectivo: "perfectivo",
     imperfectivo: "imperfectivo",
     troncoVerbal: "tronco-verbal",
+    customaryPresent: "customary-present-passive",
     unknown: "unknown",
 });
 
@@ -1087,6 +1088,9 @@ function normalizeVerbDerivedPatientiveFamily(value = "") {
     }
     if (normalized === "tronco-verbal" || normalized === "root-stock" || normalized === "root-or-stock") {
         return VERB_DERIVED_PATIENTIVE_FAMILY.troncoVerbal;
+    }
+    if (normalized === "customary-present-passive" || normalized === "customary-present-patientive") {
+        return VERB_DERIVED_PATIENTIVE_FAMILY.customaryPresent;
     }
     return normalized || "";
 }
@@ -1153,6 +1157,15 @@ function buildVerbDerivedPatientiveFamilyProfile(patientivoSource = "", {
             sourceFamilyLabel: "raiz/tronco",
             sourceFamilyBoundary: "",
             andrewsAnalogue: "root/stock patientive source",
+        },
+        [VERB_DERIVED_PATIENTIVE_FAMILY.customaryPresent]: {
+            label: "presente habitual patientivo",
+            sourcePattern: "customary-present-passive-core",
+            sourcePatternLabel: "nucleo pasivo + presente habitual",
+            sourceFamilyIds: ["passive-customary-present-core"],
+            sourceFamilyLabel: "pasivo habitual reanalizado como NNC",
+            sourceFamilyBoundary: "customary-present-patientive-nnc",
+            andrewsAnalogue: "customary-present patientive NNC",
         },
     };
     const profile = familyProfiles[family] || {
@@ -1248,6 +1261,14 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             sourceTense: "futuro",
         };
     }
+    if (kind === "potencial-habitual") {
+        return {
+            nominalizationKind: "customary-present-patientive",
+            semanticRole: "patient/customary-fitness",
+            patientiveFamily: "customary-present-passive",
+            sourceTense: "presente-habitual",
+        };
+    }
     if (kind === "locativo-temporal") {
         return {
             nominalizationKind: "locative-temporal",
@@ -1299,16 +1320,47 @@ function buildVerbDerivedNominalizationProfile({
 } = {}) {
     const kind = String(nominalKind || "");
     const defaults = getVerbDerivedNominalProfileDefaults(kind, patientivoSource);
+    const isImpersonalActionNominal = kind === "sustantivo-verbal"
+        && String(sourceModel?.combinedMode || "") === "nonactive";
+    const isGeneralUseActionNominal = kind === "calificativo-instrumentivo"
+        && String(sourceModel?.actionNounStemUse || "") === "general-use";
+    const isGeneralUsePassiveActionNominal = isGeneralUseActionNominal
+        && String(sourceModel?.combinedMode || "") === "nonactive";
+    const isGeneralUseActiveActionNominal = isGeneralUseActionNominal
+        && !isGeneralUsePassiveActionNominal;
+    const roleDefaults = isImpersonalActionNominal ? {
+        ...defaults,
+        nominalizationKind: "impersonal-action-nominal",
+        semanticRole: "general action",
+        sourceTense: "impersonal-core",
+    } : (
+        isGeneralUsePassiveActionNominal ? {
+            ...defaults,
+            nominalizationKind: "passive-action-nominal",
+            semanticRole: "patient/action",
+            sourceTense: "pasado-remoto",
+        } : (
+            isGeneralUseActiveActionNominal ? {
+                ...defaults,
+                nominalizationKind: "active-action-nominal",
+                semanticRole: "agent/action",
+                sourceTense: "pasado-remoto",
+            } : defaults
+        )
+    );
     const hasPossessor = predicateStateSlot?.hasPossessor === true;
     const resolvedSourceTense = String(
         sourceTense
         || (kind === "instrumentivo" && hasPossessor ? "imperfecto" : "")
-        || defaults.sourceTense
+        || roleDefaults.sourceTense
         || ""
     );
     const usesPatientiveFamily = kind === "patientivo" || Object.prototype.hasOwnProperty.call(defaults, "patientiveFamily");
+    const patientiveFamilySource = kind === "potencial-habitual"
+        ? (defaults.patientiveFamily || patientivoSource || "")
+        : (patientivoSource || defaults.patientiveFamily || "");
     const resolvedPatientiveFamily = usesPatientiveFamily
-        ? normalizeVerbDerivedPatientiveFamily(patientivoSource || defaults.patientiveFamily || "")
+        ? normalizeVerbDerivedPatientiveFamily(patientiveFamilySource)
         : "";
     const patientiveFamilyProfile = resolvedPatientiveFamily
         ? buildVerbDerivedPatientiveFamilyProfile(resolvedPatientiveFamily, {
@@ -1335,10 +1387,10 @@ function buildVerbDerivedNominalizationProfile({
             sourceCombinedMode: String(sourceModel?.combinedMode || ""),
         }),
         role: Object.freeze({
-            nominalizationKind: defaults.nominalizationKind || kind || "unknown",
-            semanticRole: defaults.semanticRole || "",
+            nominalizationKind: roleDefaults.nominalizationKind || kind || "unknown",
+            semanticRole: roleDefaults.semanticRole || "",
             patientiveFamily: resolvedPatientiveFamily,
-            adjectivalFunction: defaults.adjectivalFunction || "",
+            adjectivalFunction: roleDefaults.adjectivalFunction || "",
         }),
         patientiveFamilyProfile,
         categoryTransition: Object.freeze({
@@ -1389,6 +1441,7 @@ function buildVerbDerivedNominalSourceModel(options = {}, kind = "") {
         directionalPrefix: String(options?.directionalPrefix || ""),
         isTransitive: options?.isTransitive === true,
         combinedMode: String(options?.combinedMode || ""),
+        actionNounStemUse: String(options?.actionNounStemUse || ""),
         runtimeObjectSelection: Object.freeze({
             objectPrefix: String(options?.objectPrefix || ""),
             indirectObjectMarker: String(options?.indirectObjectMarker || ""),
@@ -7810,7 +7863,9 @@ function buildSustantivoVerbalStemCandidates({
     isWeya = false,
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
+    combinedMode = "",
 } = {}) {
+    const isImpersonalActionSource = String(combinedMode || "") === "nonactive";
     const nounSourceModel = buildVerbDerivedNominalSourceModel({
         sourceRawVerb,
         verb,
@@ -7833,6 +7888,7 @@ function buildSustantivoVerbalStemCandidates({
         hasBoundMarker,
         hasCompoundMarker,
         exactBaseVerb: analysisVerb || verb,
+        combinedMode,
     }, VERB_DERIVED_NOMINAL_KIND.sustantivoVerbal);
     const sourceChain = buildSustantivoVerbalSourceChain({
         sourceRawVerb,
@@ -7872,11 +7928,13 @@ function buildSustantivoVerbalStemCandidates({
     const pushCandidate = (stemSpec = null, fallbackStem = "", {
         suppressIEndingSVariant = false,
     } = {}) => {
-        const resolvedStemSpec = applySustantivoVerbalSourceChainStemSpec(
-            stemSpec,
-            fallbackStem,
-            sourceChain,
-        );
+        const resolvedStemSpec = isImpersonalActionSource
+            ? (stemSpec || buildLiteralMorphStemSpec(fallbackStem))
+            : applySustantivoVerbalSourceChainStemSpec(
+                stemSpec,
+                fallbackStem,
+                sourceChain,
+            );
         const realizedStem = resolvedStemSpec
             ? realizeMorphStemSpec(resolvedStemSpec, "")
             : "";
@@ -7894,7 +7952,7 @@ function buildSustantivoVerbalStemCandidates({
             verb: normalizedStem,
             subjectSuffix: "",
             stemSpec: resolvedStemSpec,
-            sourceTense: "futuro",
+            sourceTense: isImpersonalActionSource ? "impersonal-core" : "futuro",
             provenance: {
                 matrixBase: nounSourceModel.matrixBase,
             },
@@ -7905,6 +7963,18 @@ function buildSustantivoVerbalStemCandidates({
             },
         }));
     };
+    if (isImpersonalActionSource) {
+        const impersonalStem = normalizeDerivationStemValue(verb || analysisVerb || "");
+        if (!impersonalStem) {
+            return [];
+        }
+        pushCandidate(buildLiteralMorphStemSpec(impersonalStem, {
+            sourceBase: matrixSourceBase || impersonalStem,
+        }), impersonalStem, {
+            suppressIEndingSVariant: true,
+        });
+        return candidates;
+    }
     const sourceEndsWithYa = matrixSourceBase.endsWith("ya");
     const resolvedFinalYaHostBase = sourceEndsWithYa && isIntransitive
         ? resolveFinalYaImmediateHostBase(matrixSourceBase, {
@@ -7943,14 +8013,90 @@ function buildSustantivoVerbalStemCandidates({
             sourceBase: matrixSourceBase,
         })
         : null;
+    const actionNominalRootPlusYaRules = DERIVATIONAL_RULES?.actionNominal?.sustantivoVerbal?.rootPlusYa || {};
+    const deleteYaOnlyVerbs = Array.isArray(actionNominalRootPlusYaRules.deleteYaOnlyVerbs)
+        ? actionNominalRootPlusYaRules.deleteYaOnlyVerbs
+        : [];
+    const deleteYaOnlySuffixes = Array.isArray(actionNominalRootPlusYaRules.deleteYaOnlySuffixes)
+        ? actionNominalRootPlusYaRules.deleteYaOnlySuffixes
+        : [];
+    const allowStemVariantVerbs = Array.isArray(actionNominalRootPlusYaRules.allowStemVariantVerbs)
+        ? actionNominalRootPlusYaRules.allowStemVariantVerbs
+        : [];
+    const allowStemVariantSuffixes = Array.isArray(actionNominalRootPlusYaRules.allowStemVariantSuffixes)
+        ? actionNominalRootPlusYaRules.allowStemVariantSuffixes
+        : [];
+    const sourceRuleBase = matrixSourceBase || baseStem || "";
+    const sourceFullRuleBase = sourceRawVerb || rawAnalysisVerb || analysisVerb || verb || "";
+    const matchesActionNominalSuffix = (suffixes) => suffixes.some((suffix) => (
+        suffix
+        && (
+            sourceRuleBase.endsWith(suffix)
+            || (sourceFullRuleBase && sourceFullRuleBase.endsWith(suffix))
+        )
+    ));
+    const actionNominalRules = DERIVATIONAL_RULES?.actionNominal?.sustantivoVerbal || {};
+    const replaciveImperfectiveRules = actionNominalRules.replaciveImperfective || {};
+    const finalKaToKiOnly = Array.isArray(replaciveImperfectiveRules.finalKaToKiOnly)
+        ? replaciveImperfectiveRules.finalKaToKiOnly
+        : [];
+    const finalSiToShiOnlySuffixes = Array.isArray(replaciveImperfectiveRules.finalSiToShiOnlySuffixes)
+        ? replaciveImperfectiveRules.finalSiToShiOnlySuffixes
+        : [];
+    const finalTiToChiOptional = Array.isArray(replaciveImperfectiveRules.finalTiToChiOptional)
+        ? replaciveImperfectiveRules.finalTiToChiOptional
+        : [];
+    if (
+        baseStem.endsWith("ka")
+        && matchesDerivationRuleBaseList(finalKaToKiOnly, sourceRuleBase, sourceFullRuleBase)
+    ) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "ka", "ki", {
+            sourceBase: matrixSourceBase,
+        }), `${baseStem.slice(0, -2)}ki`, {
+            suppressIEndingSVariant: true,
+        });
+        return candidates;
+    }
+    if (
+        baseStem.endsWith("si")
+        && matchesActionNominalSuffix(finalSiToShiOnlySuffixes)
+    ) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "si", "shi", {
+            sourceBase: matrixSourceBase,
+        }), `${baseStem.slice(0, -2)}shi`, {
+            suppressIEndingSVariant: true,
+        });
+        return candidates;
+    }
+    const rootPlusYaStemVariantAllowed = matchesDerivationRuleBaseList(
+        allowStemVariantVerbs,
+        sourceRuleBase,
+        sourceFullRuleBase,
+    ) || matchesActionNominalSuffix(allowStemVariantSuffixes);
+    const rootPlusYaDeleteOnly = (
+        matchesDerivationRuleBaseList(deleteYaOnlyVerbs, sourceRuleBase, sourceFullRuleBase)
+        || matchesActionNominalSuffix(deleteYaOnlySuffixes)
+    ) && !rootPlusYaStemVariantAllowed;
     if (shouldPreferDroppedYaAsPrimary && droppedYaStemSpec) {
         pushCandidate(droppedYaStemSpec, droppedSourceYaBase, {
             suppressIEndingSVariant: true,
         });
-        pushCandidate(baseStemSpec, baseStem);
+        if (!rootPlusYaDeleteOnly) {
+            pushCandidate(baseStemSpec, baseStem);
+        }
         return candidates;
     }
     pushCandidate(baseStemSpec, baseStem);
+    if (
+        baseStem.endsWith("ti")
+        && matchesDerivationRuleBaseList(finalTiToChiOptional, sourceRuleBase, sourceFullRuleBase)
+    ) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "ti", "chi", {
+            sourceBase: matrixSourceBase,
+        }), `${baseStem.slice(0, -2)}chi`, {
+            suppressIEndingSVariant: true,
+        });
+    }
     const hasYaEnding = isIntransitive && baseStem.endsWith("ya") && baseStem.length > 2;
     const rootPlusYaBaseResolved = hasYaEnding
         ? (

@@ -329,7 +329,10 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
         const fusionObjectSlots = targetObject.getFusionObjectSlots(verbMeta);
         const resolvedCombinedMode = options.combinedMode || targetObject.getCombinedMode();
         const shouldUseNonactiveSlots = resolvedCombinedMode === targetObject.COMBINED_MODE.nonactive
-            && targetObject.isPotencialHabitualTense(tenseValue);
+            && (
+                targetObject.isPotencialHabitualTense(tenseValue)
+                || tenseValue === "calificativo-instrumentivo"
+            );
         const valency = targetObject.getValencyFromDirectActive(verbMeta);
         const baseObjectSlots = shouldUseNonactiveSlots
             ? Number(valency?.nonactiveSlots || 0)

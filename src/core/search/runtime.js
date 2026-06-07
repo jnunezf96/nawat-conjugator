@@ -333,7 +333,10 @@ function getNominalAvailableObjectSlots(verbMeta, tenseValue = "", options = {})
     const fusionObjectSlots = getFusionObjectSlots(verbMeta);
     const resolvedCombinedMode = options.combinedMode || getCombinedMode();
     const shouldUseNonactiveSlots = resolvedCombinedMode === COMBINED_MODE.nonactive
-        && isPotencialHabitualTense(tenseValue);
+        && (
+            isPotencialHabitualTense(tenseValue)
+            || tenseValue === "calificativo-instrumentivo"
+        );
     const valency = getValencyFromDirectActive(verbMeta);
     const baseObjectSlots = shouldUseNonactiveSlots
         ? Number(valency?.nonactiveSlots || 0)

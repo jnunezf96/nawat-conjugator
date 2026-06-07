@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/vnc/allomorphy.js.
 
-export function createVncAllomorphyApi(targetObject = globalThis) {
+export function createAllomorphyGlobals(targetObject = globalThis) {
     function replaceAnalysisSuffix(verb, analysisVerb, nextAnalysisVerb) {
       if (!analysisVerb || analysisVerb === nextAnalysisVerb) {
         return {
@@ -877,6 +877,7 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
       perfectivo: "perfectivo",
       imperfectivo: "imperfectivo",
       troncoVerbal: "tronco-verbal",
+      customaryPresent: "customary-present-passive",
       unknown: "unknown"
     });
     function normalizeVerbDerivedPatientiveFamily(value = "") {
@@ -898,6 +899,9 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
       }
       if (normalized === "tronco-verbal" || normalized === "root-stock" || normalized === "root-or-stock") {
         return VERB_DERIVED_PATIENTIVE_FAMILY.troncoVerbal;
+      }
+      if (normalized === "customary-present-passive" || normalized === "customary-present-patientive") {
+        return VERB_DERIVED_PATIENTIVE_FAMILY.customaryPresent;
       }
       return normalized || "";
     }
@@ -963,6 +967,15 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
           sourceFamilyLabel: "raiz/tronco",
           sourceFamilyBoundary: "",
           andrewsAnalogue: "root/stock patientive source"
+        },
+        [VERB_DERIVED_PATIENTIVE_FAMILY.customaryPresent]: {
+          label: "presente habitual patientivo",
+          sourcePattern: "customary-present-passive-core",
+          sourcePatternLabel: "nucleo pasivo + presente habitual",
+          sourceFamilyIds: ["passive-customary-present-core"],
+          sourceFamilyLabel: "pasivo habitual reanalizado como NNC",
+          sourceFamilyBoundary: "customary-present-patientive-nnc",
+          andrewsAnalogue: "customary-present patientive NNC"
         }
       };
       const profile = familyProfiles[family] || {
@@ -1055,6 +1068,14 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
           sourceTense: "futuro"
         };
       }
+      if (kind === "potencial-habitual") {
+        return {
+          nominalizationKind: "customary-present-patientive",
+          semanticRole: "patient/customary-fitness",
+          patientiveFamily: "customary-present-passive",
+          sourceTense: "presente-habitual"
+        };
+      }
       if (kind === "locativo-temporal") {
         return {
           nominalizationKind: "locative-temporal",
@@ -1103,10 +1124,31 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
     } = {}) {
       const kind = String(nominalKind || "");
       const defaults = getVerbDerivedNominalProfileDefaults(kind, patientivoSource);
+      const isImpersonalActionNominal = kind === "sustantivo-verbal" && String(sourceModel?.combinedMode || "") === "nonactive";
+      const isGeneralUseActionNominal = kind === "calificativo-instrumentivo" && String(sourceModel?.actionNounStemUse || "") === "general-use";
+      const isGeneralUsePassiveActionNominal = isGeneralUseActionNominal && String(sourceModel?.combinedMode || "") === "nonactive";
+      const isGeneralUseActiveActionNominal = isGeneralUseActionNominal && !isGeneralUsePassiveActionNominal;
+      const roleDefaults = isImpersonalActionNominal ? {
+        ...defaults,
+        nominalizationKind: "impersonal-action-nominal",
+        semanticRole: "general action",
+        sourceTense: "impersonal-core"
+      } : isGeneralUsePassiveActionNominal ? {
+        ...defaults,
+        nominalizationKind: "passive-action-nominal",
+        semanticRole: "patient/action",
+        sourceTense: "pasado-remoto"
+      } : isGeneralUseActiveActionNominal ? {
+        ...defaults,
+        nominalizationKind: "active-action-nominal",
+        semanticRole: "agent/action",
+        sourceTense: "pasado-remoto"
+      } : defaults;
       const hasPossessor = predicateStateSlot?.hasPossessor === true;
-      const resolvedSourceTense = String(sourceTense || (kind === "instrumentivo" && hasPossessor ? "imperfecto" : "") || defaults.sourceTense || "");
+      const resolvedSourceTense = String(sourceTense || (kind === "instrumentivo" && hasPossessor ? "imperfecto" : "") || roleDefaults.sourceTense || "");
       const usesPatientiveFamily = kind === "patientivo" || Object.prototype.hasOwnProperty.call(defaults, "patientiveFamily");
-      const resolvedPatientiveFamily = usesPatientiveFamily ? normalizeVerbDerivedPatientiveFamily(patientivoSource || defaults.patientiveFamily || "") : "";
+      const patientiveFamilySource = kind === "potencial-habitual" ? defaults.patientiveFamily || patientivoSource || "" : patientivoSource || defaults.patientiveFamily || "";
+      const resolvedPatientiveFamily = usesPatientiveFamily ? normalizeVerbDerivedPatientiveFamily(patientiveFamilySource) : "";
       const patientiveFamilyProfile = resolvedPatientiveFamily ? buildVerbDerivedPatientiveFamilyProfile(resolvedPatientiveFamily, {
         nominalKind: kind,
         sourceTense: resolvedSourceTense
@@ -1130,10 +1172,10 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
           sourceCombinedMode: String(sourceModel?.combinedMode || "")
         }),
         role: Object.freeze({
-          nominalizationKind: defaults.nominalizationKind || kind || "unknown",
-          semanticRole: defaults.semanticRole || "",
+          nominalizationKind: roleDefaults.nominalizationKind || kind || "unknown",
+          semanticRole: roleDefaults.semanticRole || "",
           patientiveFamily: resolvedPatientiveFamily,
-          adjectivalFunction: defaults.adjectivalFunction || ""
+          adjectivalFunction: roleDefaults.adjectivalFunction || ""
         }),
         patientiveFamilyProfile,
         categoryTransition: Object.freeze({
@@ -1171,6 +1213,7 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
         directionalPrefix: String(options?.directionalPrefix || ""),
         isTransitive: options?.isTransitive === true,
         combinedMode: String(options?.combinedMode || ""),
+        actionNounStemUse: String(options?.actionNounStemUse || ""),
         runtimeObjectSelection: Object.freeze({
           objectPrefix: String(options?.objectPrefix || ""),
           indirectObjectMarker: String(options?.indirectObjectMarker || ""),
@@ -6789,8 +6832,10 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
       isYawi = false,
       isWeya = false,
       rootPlusYaBase = "",
-      rootPlusYaBasePronounceable = ""
+      rootPlusYaBasePronounceable = "",
+      combinedMode = ""
     } = {}) {
+      const isImpersonalActionSource = String(combinedMode || "") === "nonactive";
       const nounSourceModel = buildVerbDerivedNominalSourceModel({
         sourceRawVerb,
         verb,
@@ -6812,7 +6857,8 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
         hasLeadingDash,
         hasBoundMarker,
         hasCompoundMarker,
-        exactBaseVerb: analysisVerb || verb
+        exactBaseVerb: analysisVerb || verb,
+        combinedMode
       }, VERB_DERIVED_NOMINAL_KIND.sustantivoVerbal);
       const sourceChain = buildSustantivoVerbalSourceChain({
         sourceRawVerb,
@@ -6852,7 +6898,7 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
       const pushCandidate = (stemSpec = null, fallbackStem = "", {
         suppressIEndingSVariant = false
       } = {}) => {
-        const resolvedStemSpec = applySustantivoVerbalSourceChainStemSpec(stemSpec, fallbackStem, sourceChain);
+        const resolvedStemSpec = isImpersonalActionSource ? stemSpec || buildLiteralMorphStemSpec(fallbackStem) : applySustantivoVerbalSourceChainStemSpec(stemSpec, fallbackStem, sourceChain);
         const realizedStem = resolvedStemSpec ? realizeMorphStemSpec(resolvedStemSpec, "") : "";
         const normalizedStem = normalizeDerivationStemValue(realizedStem);
         if (!normalizedStem) {
@@ -6868,7 +6914,7 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
           verb: normalizedStem,
           subjectSuffix: "",
           stemSpec: resolvedStemSpec,
-          sourceTense: "futuro",
+          sourceTense: isImpersonalActionSource ? "impersonal-core" : "futuro",
           provenance: {
             matrixBase: nounSourceModel.matrixBase
           },
@@ -6879,6 +6925,18 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
           }
         }));
       };
+      if (isImpersonalActionSource) {
+        const impersonalStem = normalizeDerivationStemValue(verb || analysisVerb || "");
+        if (!impersonalStem) {
+          return [];
+        }
+        pushCandidate(buildLiteralMorphStemSpec(impersonalStem, {
+          sourceBase: matrixSourceBase || impersonalStem
+        }), impersonalStem, {
+          suppressIEndingSVariant: true
+        });
+        return candidates;
+      }
       const sourceEndsWithYa = matrixSourceBase.endsWith("ya");
       const resolvedFinalYaHostBase = sourceEndsWithYa && isIntransitive ? targetObject.resolveFinalYaImmediateHostBase(matrixSourceBase, {
         isTransitive: false,
@@ -6893,14 +6951,54 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
       const droppedYaStemSpec = droppedSourceYaBase ? buildLiteralMorphStemSpec(droppedSourceYaBase, {
         sourceBase: matrixSourceBase
       }) : null;
+      const actionNominalRootPlusYaRules = targetObject.DERIVATIONAL_RULES?.actionNominal?.sustantivoVerbal?.rootPlusYa || {};
+      const deleteYaOnlyVerbs = Array.isArray(actionNominalRootPlusYaRules.deleteYaOnlyVerbs) ? actionNominalRootPlusYaRules.deleteYaOnlyVerbs : [];
+      const deleteYaOnlySuffixes = Array.isArray(actionNominalRootPlusYaRules.deleteYaOnlySuffixes) ? actionNominalRootPlusYaRules.deleteYaOnlySuffixes : [];
+      const allowStemVariantVerbs = Array.isArray(actionNominalRootPlusYaRules.allowStemVariantVerbs) ? actionNominalRootPlusYaRules.allowStemVariantVerbs : [];
+      const allowStemVariantSuffixes = Array.isArray(actionNominalRootPlusYaRules.allowStemVariantSuffixes) ? actionNominalRootPlusYaRules.allowStemVariantSuffixes : [];
+      const sourceRuleBase = matrixSourceBase || baseStem || "";
+      const sourceFullRuleBase = sourceRawVerb || rawAnalysisVerb || analysisVerb || verb || "";
+      const matchesActionNominalSuffix = suffixes => suffixes.some(suffix => suffix && (sourceRuleBase.endsWith(suffix) || sourceFullRuleBase && sourceFullRuleBase.endsWith(suffix)));
+      const actionNominalRules = targetObject.DERIVATIONAL_RULES?.actionNominal?.sustantivoVerbal || {};
+      const replaciveImperfectiveRules = actionNominalRules.replaciveImperfective || {};
+      const finalKaToKiOnly = Array.isArray(replaciveImperfectiveRules.finalKaToKiOnly) ? replaciveImperfectiveRules.finalKaToKiOnly : [];
+      const finalSiToShiOnlySuffixes = Array.isArray(replaciveImperfectiveRules.finalSiToShiOnlySuffixes) ? replaciveImperfectiveRules.finalSiToShiOnlySuffixes : [];
+      const finalTiToChiOptional = Array.isArray(replaciveImperfectiveRules.finalTiToChiOptional) ? replaciveImperfectiveRules.finalTiToChiOptional : [];
+      if (baseStem.endsWith("ka") && targetObject.matchesDerivationRuleBaseList(finalKaToKiOnly, sourceRuleBase, sourceFullRuleBase)) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "ka", "ki", {
+          sourceBase: matrixSourceBase
+        }), `${baseStem.slice(0, -2)}ki`, {
+          suppressIEndingSVariant: true
+        });
+        return candidates;
+      }
+      if (baseStem.endsWith("si") && matchesActionNominalSuffix(finalSiToShiOnlySuffixes)) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "si", "shi", {
+          sourceBase: matrixSourceBase
+        }), `${baseStem.slice(0, -2)}shi`, {
+          suppressIEndingSVariant: true
+        });
+        return candidates;
+      }
+      const rootPlusYaStemVariantAllowed = targetObject.matchesDerivationRuleBaseList(allowStemVariantVerbs, sourceRuleBase, sourceFullRuleBase) || matchesActionNominalSuffix(allowStemVariantSuffixes);
+      const rootPlusYaDeleteOnly = (targetObject.matchesDerivationRuleBaseList(deleteYaOnlyVerbs, sourceRuleBase, sourceFullRuleBase) || matchesActionNominalSuffix(deleteYaOnlySuffixes)) && !rootPlusYaStemVariantAllowed;
       if (shouldPreferDroppedYaAsPrimary && droppedYaStemSpec) {
         pushCandidate(droppedYaStemSpec, droppedSourceYaBase, {
           suppressIEndingSVariant: true
         });
-        pushCandidate(baseStemSpec, baseStem);
+        if (!rootPlusYaDeleteOnly) {
+          pushCandidate(baseStemSpec, baseStem);
+        }
         return candidates;
       }
       pushCandidate(baseStemSpec, baseStem);
+      if (baseStem.endsWith("ti") && targetObject.matchesDerivationRuleBaseList(finalTiToChiOptional, sourceRuleBase, sourceFullRuleBase)) {
+        pushCandidate(buildReplaceSuffixMorphStemSpec(baseStem, "ti", "chi", {
+          sourceBase: matrixSourceBase
+        }), `${baseStem.slice(0, -2)}chi`, {
+          suppressIEndingSVariant: true
+        });
+      }
       const hasYaEnding = isIntransitive && baseStem.endsWith("ya") && baseStem.length > 2;
       const rootPlusYaBaseResolved = hasYaEnding ? rootPlusYaBase || targetObject.resolveFinalYaImmediateHostBase(baseStem, {
         isTransitive: false,
@@ -8795,8 +8893,8 @@ export function createVncAllomorphyApi(targetObject = globalThis) {
     return api;
 }
 
-export function installVncAllomorphyGlobals(targetObject = globalThis) {
-    const api = createVncAllomorphyApi(targetObject);
+export function installAllomorphyGlobals(targetObject = globalThis) {
+    const api = createAllomorphyGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

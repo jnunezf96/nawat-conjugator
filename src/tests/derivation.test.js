@@ -295,6 +295,141 @@ function run(ctx) {
             nounClass: "zero",
         }
     );
+    const activeActionCompoundEmbedInventory = ctx.getActiveActionCompoundEmbedMatrixInventory();
+    s.eq(
+        "Andrews 37.5.4 active-action compound-embed matrix inventory is explicit",
+        activeActionCompoundEmbedInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            status: entry.status,
+            matrixValency: entry.matrixValency,
+        })),
+        [
+            {
+                id: "tzahtzi",
+                classicalMatrix: "(tzahtzi)",
+                nawatRoot: "tzajtzi",
+                status: "nawat-data-backed",
+                matrixValency: "intransitive",
+            },
+        ]
+    );
+    const activeActionCompoundContract = ctx.buildActiveActionCompoundEmbedContinuationContract({
+        actionNominalSurface: "chukilis",
+        sourceSurface: "chuka",
+        matrixRoot: "tzajtzi",
+    });
+    const parsedActiveActionCompoundInput = ctx.parseVerbInput(activeActionCompoundContract.compoundVerbInput);
+    const generatedActiveActionCompoundSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: activeActionCompoundContract.compoundVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 37.5.4 active-action nounstem can become a verbal compound embed from #3 output",
+        {
+            supported: activeActionCompoundContract.supported,
+            incorporatedRoot: activeActionCompoundContract.incorporatedRoot,
+            compoundVerbInput: activeActionCompoundContract.compoundVerbInput,
+            parsedVerb: parsedActiveActionCompoundInput.verb,
+            isMarkedTransitive: parsedActiveActionCompoundInput.isMarkedTransitive,
+            result: generatedActiveActionCompoundSurface.result,
+        },
+        {
+            supported: true,
+            incorporatedRoot: "chukilis",
+            compoundVerbInput: "(chukilis/tzajtzi)",
+            parsedVerb: "chukilistzajtzi",
+            isMarkedTransitive: false,
+            result: "chukilistzajtzi",
+        }
+    );
+    const activeActionNominalCompoundInventory = ctx.getActiveActionNominalCompoundMatrixInventory();
+    s.eq(
+        "Andrews 37.5.4 active-action nominal-matrix inventory is explicit",
+        activeActionNominalCompoundInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            nounClass: entry.nounClass,
+            animacy: entry.animacy,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "cal-li",
+                classicalMatrix: "(cal)-li",
+                nawatRoot: "kal",
+                nounClass: "zero",
+                animacy: "inanimate",
+                status: "nawat-data-backed",
+            },
+        ]
+    );
+    const activeActionNominalContract = ctx.buildActiveActionNominalCompoundContinuationContract({
+        actionNominalSurface: "chukilis",
+        sourceSurface: "chuka",
+        matrixRoot: "kal",
+    });
+    const generatedActiveActionNominalSurface = ctx.generateOrdinaryNncParadigm(activeActionNominalContract.ordinaryNncRequest);
+    s.eq(
+        "Andrews 37.5.4 active-action nounstem can become an ordinary NNC compound stem from #3 output",
+        {
+            supported: activeActionNominalContract.supported,
+            incorporatedRoot: activeActionNominalContract.incorporatedRoot,
+            compoundStem: activeActionNominalContract.compoundStem,
+            ordinaryNncInput: activeActionNominalContract.ordinaryNncInput,
+            result: generatedActiveActionNominalSurface.result,
+            sourceKind: generatedActiveActionNominalSurface.source.sourceKind,
+            nounClass: generatedActiveActionNominalSurface.nounClass,
+        },
+        {
+            supported: true,
+            incorporatedRoot: "chukilis",
+            compoundStem: "chukiliskal",
+            ordinaryNncInput: "(chukiliskal)",
+            result: "chukiliskal",
+            sourceKind: "open-stem",
+            nounClass: "zero",
+        }
+    );
+    const unsupportedActiveActionCompoundContract = ctx.buildActiveActionCompoundEmbedContinuationContract({
+        actionNominalSurface: "chukilis",
+        sourceSurface: "chuka",
+        matrixRoot: "ni",
+    });
+    s.eq(
+        "Andrews 37.5.4 active-action compound-embed contract rejects unsupported matrices",
+        {
+            supported: unsupportedActiveActionCompoundContract.supported,
+            compoundVerbInput: unsupportedActiveActionCompoundContract.compoundVerbInput,
+            diagnostics: unsupportedActiveActionCompoundContract.diagnostics,
+        },
+        {
+            supported: false,
+            compoundVerbInput: "",
+            diagnostics: [
+                "active-action-compound-embed-unsupported-matrix",
+                "active-action-compound-embed-missing-verb-input",
+            ],
+        }
+    );
     const characteristicMatrixInventory = ctx.getPatientivoCharacteristicPropertyMatrixInventory();
     s.eq(
         "Andrews 39.9 characteristic-property matrix inventory is data-backed",

@@ -107,6 +107,20 @@
         "wiStockFormativeU": {}
       }
     },
+    "actionNominal": {
+      "sustantivoVerbal": {
+        "replaciveImperfective": {
+          "finalKaToKiOnly": ["chuka"],
+          "finalSiToShiOnlySuffixes": ["ajsi", "nesi"],
+          "finalTiToChiOptional": ["teomati"]
+        },
+        "rootPlusYa": {
+          "deleteYaOnlyVerbs": ["istaya", "kwaistaya"],
+          "deleteYaOnlySuffixes": ["tiya"],
+          "allowStemVariantSuffixes": ["wiya"]
+        }
+      }
+    },
     "applicative": {
       "exceptions": {
         "maka": {

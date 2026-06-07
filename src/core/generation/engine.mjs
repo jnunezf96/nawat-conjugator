@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/generation/engine.js.
 
-export function createGenerationEngineApi(targetObject = globalThis) {
+export function createGenerationEngineGlobals(targetObject = globalThis) {
     const GENERATE_WORD_NOOP = () => {};
     function resolveGenerateWordUiHook(uiHooks = null, key = "") {
       const hook = uiHooks && typeof uiHooks === "object" ? uiHooks[key] : null;
@@ -10,8 +10,85 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       const ordinaryNnc = override?.ordinaryNnc;
       return ordinaryNnc === true || ordinaryNnc && typeof ordinaryNnc === "object" && ordinaryNnc.enabled === true;
     }
+    function isAdjectivalNncGenerationOptIn(override = null) {
+      const adjectivalNnc = override?.adjectivalNnc;
+      return adjectivalNnc === true || adjectivalNnc && typeof adjectivalNnc === "object" && adjectivalNnc.enabled === true;
+    }
     function getOrdinaryNncGenerationOptions(override = null) {
       return override?.ordinaryNnc && typeof override.ordinaryNnc === "object" ? override.ordinaryNnc : {};
+    }
+    function getAdjectivalNncGenerationOptions(override = null) {
+      return override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : {};
+    }
+    function executeAdjectivalNncGenerationRoute({
+      override = null,
+      verb = "",
+      subjectPrefix = "",
+      subjectSuffix = ""
+    } = {}) {
+      const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+      const shouldUseRootPlusYaRoute = typeof targetObject.shouldGenerateRootPlusYaAdjectivalNnc === "function" && targetObject.shouldGenerateRootPlusYaAdjectivalNnc(adjectivalNnc);
+      const result = shouldUseRootPlusYaRoute && typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
+        stem: adjectivalNnc.stem ?? verb,
+        state: adjectivalNnc.state ?? "absolutive",
+        subject: {
+          subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+          subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+          personSubKey: adjectivalNnc.subjectKey ?? adjectivalNnc.personSubKey ?? ""
+        },
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : typeof targetObject.generateAdjectivalNncFunctionOutput === "function" ? targetObject.generateAdjectivalNncFunctionOutput({
+        stem: adjectivalNnc.stem ?? verb,
+        state: adjectivalNnc.state ?? "absolutive",
+        subject: {
+          subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+          subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+          personSubKey: adjectivalNnc.subjectKey ?? adjectivalNnc.personSubKey ?? ""
+        },
+        number: adjectivalNnc.number ?? "singular",
+        pluralType: adjectivalNnc.pluralType ?? "auto",
+        nounClass: adjectivalNnc.nounClass ?? "",
+        animacy: adjectivalNnc.animacy ?? "",
+        role: adjectivalNnc.role ?? "modifier-candidate"
+      }) : {
+        outputKind: "adjectival-nnc-function",
+        clauseKind: "nominal-nuclear-clause",
+        supported: false,
+        result: "",
+        surfaceForms: [],
+        stem: String(adjectivalNnc.stem ?? verb ?? ""),
+        state: adjectivalNnc.state ?? "absolutive",
+        generationRoute: "adjectival-nnc",
+        diagnostics: [{
+          id: "adjectival-nnc-unavailable",
+          severity: "error",
+          message: "Adjectival NNC function generation is unavailable."
+        }]
+      };
+      const nuclearClauseShell = typeof targetObject.buildNuclearClauseShellMetadata === "function" ? targetObject.buildNuclearClauseShellMetadata({
+        clauseKind: "nominal-nuclear-clause",
+        formulaSlots: result.adjectivalNncFunctionFrame?.sourceFormulaSlots || result.nncBasic?.formulaSlots || result.clauseFrame?.formulaSlots || null,
+        formulaEcho: result.adjectivalNncFunctionFrame?.sourceFormulaEcho || result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "",
+        predicate: {
+          stem: result.stem || adjectivalNnc.stem || verb,
+          state: result.state || "absolutive"
+        },
+        predicateState: result.state || "absolutive"
+      }) : null;
+      const sentenceLayer = typeof targetObject.buildGeneratedSentenceLayerMetadata === "function" ? targetObject.buildGeneratedSentenceLayerMetadata({
+        override,
+        tense: result.tense || adjectivalNnc.targetTense || "",
+        nuclearClauseShell,
+        clauseKind: "nominal-nuclear-clause"
+      }) : null;
+      return {
+        ...result,
+        generationRoute: "adjectival-nnc",
+        isReflexive: false,
+        stemProvenance: null,
+        nuclearClauseShell,
+        sentenceLayer
+      };
     }
     function executeOrdinaryNncGenerationRoute({
       override = null,
@@ -36,7 +113,10 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         number: ordinaryNnc.number ?? "singular",
         pluralType: ordinaryNnc.pluralType ?? "auto",
         nounClass: ordinaryNnc.nounClass ?? "",
-        animacy: ordinaryNnc.animacy ?? ""
+        animacy: ordinaryNnc.animacy ?? "",
+        possessionKind: ordinaryNnc.possessionKind ?? "",
+        stateCase: ordinaryNnc.stateCase ?? "",
+        possessionType: ordinaryNnc.possessionType ?? ""
       }) : {
         outputKind: "nominal-nuclear-clause",
         clauseKind: "nominal-nuclear-clause",
@@ -779,6 +859,8 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       possessivePrefix = "",
       source = "generate-word",
       sourceTense = "",
+      sourceCombinedMode = "",
+      actionNounStemUse = "",
       patientivoSource = "",
       renderVerb = "",
       verb = "",
@@ -818,6 +900,13 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       const nominalizationProfile = typeof targetObject.buildVerbDerivedNominalizationProfile === "function" ? targetObject.buildVerbDerivedNominalizationProfile({
         nominalKind,
         sourceTense,
+        sourceModel: sourceCombinedMode || actionNounStemUse ? {
+          matrixBase: analysisVerb || verb || renderVerb || "",
+          sourceRawVerb: renderVerb || verb || analysisVerb || "",
+          analysisVerb: analysisVerb || verb || "",
+          combinedMode: sourceCombinedMode,
+          actionNounStemUse
+        } : null,
         predicateStateSlot,
         subjectNumberConnector: connector,
         patientivoSource
@@ -893,6 +982,7 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       let verb = prefixInputs.verb || "";
       let subjectSuffix = prefixInputs.subjectSuffix || "";
       let possessivePrefix = prefixInputs.possessivePrefix || "";
+      const inputSubjectSuffix = subjectSuffix;
       const liveInput = request?.liveInput && typeof request.liveInput === "object" ? request.liveInput : {};
       const hasVerbInput = liveInput.hasVerbInput === true;
       const verbInputValue = String(liveInput.verbInputValue || "");
@@ -905,7 +995,8 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       const onComplete = resolveGenerateWordUiHook(request?.uiHooks, "onComplete");
       const patientivoOwnership = override?.patientivoOwnership ?? targetObject.DEFAULT_PATIENTIVO_OWNERSHIP;
       const patientivoSource = override?.patientivoSource ?? "nonactive";
-      const patientivoNominalSuffix = targetObject.normalizePatientivoNominalSuffixSelection(override?.patientivoNominalSuffix);
+      const patientivoNominalSuffix = override?.patientivoNominalSuffix ?? null;
+      const actionNounStemUse = String(override?.actionNounStemUse || "");
       let searchQuery = "";
       let hasSearchQuery = false;
       let hasSearchSeparator = false;
@@ -943,10 +1034,18 @@ export function createGenerationEngineApi(targetObject = globalThis) {
           possessivePrefix
         });
       }
+      if (isAdjectivalNncGenerationOptIn(override)) {
+        return executeAdjectivalNncGenerationRoute({
+          override,
+          verb,
+          subjectPrefix,
+          subjectSuffix
+        });
+      }
       const isTroncoNajActiveWrapperTense = targetObject.isPotencialTroncoNajActiveTense(tense);
       const isPatientivoAdjectiveProfile = targetObject.isPatientivoAdjectiveTense(tense);
       const isNominalOutputProfile = targetObject.isNominalMorphProfileTense(tense);
-      if (targetObject.isPotencialProfileTense(tense)) {
+      if (targetObject.isPotencialProfileTense(tense) && tense !== "potencial") {
         possessivePrefix = "";
       }
       if (isPatientivoAdjectiveProfile) {
@@ -1103,6 +1202,27 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       parsedVerb.tiCausativeClass = parsedVerb.tiCausativeClass || rawVerbTiMetadata.tiCausativeClass || targetObject.normalizeTiCausativeClass(targetObject.getComposerActiveTiCausativeClass()) || "";
       verb = parsedVerb.verb;
       const renderVerb = parsedVerb.displayVerb;
+      const rootPlusYaAdjectivalSource = typeof targetObject.resolveRootPlusYaAdjectivalNncSource === "function" ? targetObject.resolveRootPlusYaAdjectivalNncSource(parsedVerb) : {
+        supported: parsedVerb.isRootPlusYa === true && parsedVerb.isWeya !== true && parsedVerb.hasSlashMarker !== true
+      };
+      if (tense === "adjetivo-preterito" && resolvedTenseMode === targetObject.TENSE_MODE.adjetivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.active && rootPlusYaAdjectivalSource.supported === true) {
+        return executeAdjectivalNncGenerationRoute({
+          override: {
+            ...override,
+            adjectivalNnc: {
+              ...(override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : {}),
+              enabled: true,
+              stem: rawVerb || renderVerb || verb,
+              state: "absolutive",
+              formation: "root-plus-ya-obsolete-preterit",
+              role: "predicate-surface"
+            }
+          },
+          verb: rawVerb || renderVerb || verb,
+          subjectPrefix,
+          subjectSuffix
+        });
+      }
       let analysisVerb = parsedVerb.analysisVerb;
       const analysisExactVerb = parsedVerb.exactBaseVerb || parsedVerb.analysisVerb || parsedVerb.verb;
       let indirectObjectMarker = parsedVerb.indirectObjectMarker;
@@ -1178,7 +1298,9 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       }
       const isPotencialHabitualNominalProfile = targetObject.isPotencialHabitualTense(tense) && resolvedTenseMode === targetObject.TENSE_MODE.adjetivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
       const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile;
-      const isPassiveImpersonalMode = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedVoiceMode === targetObject.VOICE_MODE.passive || isPotencialHabitualNominalNonactive;
+      const isSustantivoVerbalImpersonalActionProfile = tense === "sustantivo-verbal" && resolvedTenseMode === targetObject.TENSE_MODE.sustantivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
+      const isCalificativoInstrumentivoPassiveActionProfile = tense === "calificativo-instrumentivo" && resolvedTenseMode === targetObject.TENSE_MODE.sustantivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
+      const isPassiveImpersonalMode = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedVoiceMode === targetObject.VOICE_MODE.passive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile;
       const targetValency = isPassiveImpersonalMode ? Math.max(0, sourceValency - 1) : sourceValency;
       let preserveSubjectForPassive = preservePassiveSubject;
       const valencySummary = targetObject.getVerbValencySummary(parsedVerb);
@@ -1219,7 +1341,7 @@ export function createGenerationEngineApi(targetObject = globalThis) {
           nextVerbInputValue
         });
       }
-      const isNonactive = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive || isPotencialHabitualNominalNonactive;
+      const isNonactive = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile;
       if (isNonactive && targetObject.PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = targetObject.getCurrentResolvedConjugationSelectionState({
           tenseMode: resolvedTenseMode
@@ -1692,6 +1814,9 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       if (isWitziNonactive && tense === "preterito" && subjectSuffix === "t") {
         subjectSuffix = "et";
       }
+      if (isPotencialHabitualNominalProfile && sourceSelectedProjectiveObjectPrefix === "mu") {
+        morphologyObjectPrefix = "ne";
+      }
       const skipPretClass = isWitziNonactive && targetObject.SUPPLETIVE_WITZI_NONACTIVE_TENSES.has(tense);
       const isUnderlyingTransitive = !isNonactive ? resolvedDerivationType === targetObject.DERIVATION_TYPE.causative || parsedVerb.isMarkedTransitive || parsedVerb.isTaFusion : Boolean(morphologyObjectPrefix || indirectObjectMarker || thirdObjectMarker || parsedVerb.isTaFusion);
       const forceTransitiveBase = parsedVerb.isTaFusion || isUnderlyingTransitive;
@@ -1748,7 +1873,9 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         patientivoNominalSuffix,
         passivePatientivoSelectedProjectiveObjectPrefix,
         possessivePrefix,
+        actionNounStemUse,
         combinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active,
+        customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputSubjectSuffix === "t",
         instrumentivoMode: possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo,
         derivationType: resolvedDerivationType,
         isNonactiveMode: isNonactive,
@@ -1758,6 +1885,25 @@ export function createGenerationEngineApi(targetObject = globalThis) {
       if (appliedMorphology?.error) {
         return {
           error: true
+        };
+      }
+      if (isPotencialHabitualNominalProfile && inputSubjectSuffix === "t") {
+        const customaryPresentPluralSuffix = "met";
+        appliedMorphology = {
+          ...appliedMorphology,
+          subjectSuffix: customaryPresentPluralSuffix,
+          formSpec: isNominalOutputProfile ? targetObject.withNominalFormSpecSuffix(appliedMorphology.formSpec || null, customaryPresentPluralSuffix, {
+            verb: appliedMorphology.verb,
+            subjectSuffix: customaryPresentPluralSuffix
+          }) : appliedMorphology.formSpec,
+          alternateForms: (appliedMorphology.alternateForms || []).map(form => ({
+            ...form,
+            subjectSuffix: customaryPresentPluralSuffix,
+            formSpec: isNominalOutputProfile ? targetObject.withNominalFormSpecSuffix(form.formSpec || null, customaryPresentPluralSuffix, {
+              verb: form.verb,
+              subjectSuffix: customaryPresentPluralSuffix
+            }) : form.formSpec
+          }))
         };
       }
       ({
@@ -1936,6 +2082,8 @@ export function createGenerationEngineApi(targetObject = globalThis) {
         nominalKind: tense,
         possessivePrefix,
         patientivoSource,
+        sourceCombinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : "",
+        actionNounStemUse,
         renderVerb,
         verb,
         analysisVerb
@@ -2049,7 +2197,10 @@ export function createGenerationEngineApi(targetObject = globalThis) {
     });
     api.resolveGenerateWordUiHook = resolveGenerateWordUiHook;
     api.isOrdinaryNncGenerationOptIn = isOrdinaryNncGenerationOptIn;
+    api.isAdjectivalNncGenerationOptIn = isAdjectivalNncGenerationOptIn;
     api.getOrdinaryNncGenerationOptions = getOrdinaryNncGenerationOptions;
+    api.getAdjectivalNncGenerationOptions = getAdjectivalNncGenerationOptions;
+    api.executeAdjectivalNncGenerationRoute = executeAdjectivalNncGenerationRoute;
     api.executeOrdinaryNncGenerationRoute = executeOrdinaryNncGenerationRoute;
     api.buildGeneratedNuclearClauseShellMetadata = buildGeneratedNuclearClauseShellMetadata;
     api.buildGeneratedVncValencyFrameMetadata = buildGeneratedVncValencyFrameMetadata;
@@ -2074,7 +2225,7 @@ export function createGenerationEngineApi(targetObject = globalThis) {
 }
 
 export function installGenerationEngineGlobals(targetObject = globalThis) {
-    const api = createGenerationEngineApi(targetObject);
+    const api = createGenerationEngineGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

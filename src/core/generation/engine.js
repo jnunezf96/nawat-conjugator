@@ -18,10 +18,108 @@ function isOrdinaryNncGenerationOptIn(override = null) {
         || (ordinaryNnc && typeof ordinaryNnc === "object" && ordinaryNnc.enabled === true);
 }
 
+function isAdjectivalNncGenerationOptIn(override = null) {
+    const adjectivalNnc = override?.adjectivalNnc;
+    return adjectivalNnc === true
+        || (adjectivalNnc && typeof adjectivalNnc === "object" && adjectivalNnc.enabled === true);
+}
+
 function getOrdinaryNncGenerationOptions(override = null) {
     return override?.ordinaryNnc && typeof override.ordinaryNnc === "object"
         ? override.ordinaryNnc
         : {};
+}
+
+function getAdjectivalNncGenerationOptions(override = null) {
+    return override?.adjectivalNnc && typeof override.adjectivalNnc === "object"
+        ? override.adjectivalNnc
+        : {};
+}
+
+function executeAdjectivalNncGenerationRoute({
+    override = null,
+    verb = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+} = {}) {
+    const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    const shouldUseRootPlusYaRoute = typeof shouldGenerateRootPlusYaAdjectivalNnc === "function"
+        && shouldGenerateRootPlusYaAdjectivalNnc(adjectivalNnc);
+    const result = shouldUseRootPlusYaRoute && typeof generateRootPlusYaAdjectivalNncOutput === "function"
+        ? generateRootPlusYaAdjectivalNncOutput({
+            stem: adjectivalNnc.stem ?? verb,
+            state: adjectivalNnc.state ?? "absolutive",
+            subject: {
+                subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+                subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+                personSubKey: adjectivalNnc.subjectKey ?? adjectivalNnc.personSubKey ?? "",
+            },
+            role: adjectivalNnc.role ?? "predicate-surface",
+        })
+        : typeof generateAdjectivalNncFunctionOutput === "function"
+        ? generateAdjectivalNncFunctionOutput({
+            stem: adjectivalNnc.stem ?? verb,
+            state: adjectivalNnc.state ?? "absolutive",
+            subject: {
+                subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+                subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+                personSubKey: adjectivalNnc.subjectKey ?? adjectivalNnc.personSubKey ?? "",
+            },
+            number: adjectivalNnc.number ?? "singular",
+            pluralType: adjectivalNnc.pluralType ?? "auto",
+            nounClass: adjectivalNnc.nounClass ?? "",
+            animacy: adjectivalNnc.animacy ?? "",
+            role: adjectivalNnc.role ?? "modifier-candidate",
+        })
+        : {
+            outputKind: "adjectival-nnc-function",
+            clauseKind: "nominal-nuclear-clause",
+            supported: false,
+            result: "",
+            surfaceForms: [],
+            stem: String(adjectivalNnc.stem ?? verb ?? ""),
+            state: adjectivalNnc.state ?? "absolutive",
+            generationRoute: "adjectival-nnc",
+            diagnostics: [{
+                id: "adjectival-nnc-unavailable",
+                severity: "error",
+                message: "Adjectival NNC function generation is unavailable.",
+            }],
+        };
+    const nuclearClauseShell = typeof buildNuclearClauseShellMetadata === "function"
+        ? buildNuclearClauseShellMetadata({
+            clauseKind: "nominal-nuclear-clause",
+            formulaSlots: result.adjectivalNncFunctionFrame?.sourceFormulaSlots
+                || result.nncBasic?.formulaSlots
+                || result.clauseFrame?.formulaSlots
+                || null,
+            formulaEcho: result.adjectivalNncFunctionFrame?.sourceFormulaEcho
+                || result.nncBasic?.formulaEcho
+                || result.clauseFrame?.formulaEcho
+                || "",
+            predicate: {
+                stem: result.stem || adjectivalNnc.stem || verb,
+                state: result.state || "absolutive",
+            },
+            predicateState: result.state || "absolutive",
+        })
+        : null;
+    const sentenceLayer = typeof buildGeneratedSentenceLayerMetadata === "function"
+        ? buildGeneratedSentenceLayerMetadata({
+            override,
+            tense: result.tense || adjectivalNnc.targetTense || "",
+            nuclearClauseShell,
+            clauseKind: "nominal-nuclear-clause",
+        })
+        : null;
+    return {
+        ...result,
+        generationRoute: "adjectival-nnc",
+        isReflexive: false,
+        stemProvenance: null,
+        nuclearClauseShell,
+        sentenceLayer,
+    };
 }
 
 function executeOrdinaryNncGenerationRoute({
@@ -49,6 +147,9 @@ function executeOrdinaryNncGenerationRoute({
             pluralType: ordinaryNnc.pluralType ?? "auto",
             nounClass: ordinaryNnc.nounClass ?? "",
             animacy: ordinaryNnc.animacy ?? "",
+            possessionKind: ordinaryNnc.possessionKind ?? "",
+            stateCase: ordinaryNnc.stateCase ?? "",
+            possessionType: ordinaryNnc.possessionType ?? "",
         })
         : {
             outputKind: "nominal-nuclear-clause",
@@ -910,6 +1011,8 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
     possessivePrefix = "",
     source = "generate-word",
     sourceTense = "",
+    sourceCombinedMode = "",
+    actionNounStemUse = "",
     patientivoSource = "",
     renderVerb = "",
     verb = "",
@@ -952,6 +1055,13 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
         ? buildVerbDerivedNominalizationProfile({
             nominalKind,
             sourceTense,
+            sourceModel: (sourceCombinedMode || actionNounStemUse) ? {
+                matrixBase: analysisVerb || verb || renderVerb || "",
+                sourceRawVerb: renderVerb || verb || analysisVerb || "",
+                analysisVerb: analysisVerb || verb || "",
+                combinedMode: sourceCombinedMode,
+                actionNounStemUse,
+            } : null,
             predicateStateSlot,
             subjectNumberConnector: connector,
             patientivoSource,
@@ -1039,6 +1149,7 @@ function executeGenerateWordRequest(request = {}) {
     let verb = prefixInputs.verb || "";
     let subjectSuffix = prefixInputs.subjectSuffix || "";
     let possessivePrefix = prefixInputs.possessivePrefix || "";
+    const inputSubjectSuffix = subjectSuffix;
     const liveInput = request?.liveInput && typeof request.liveInput === "object"
         ? request.liveInput
         : {};
@@ -1053,9 +1164,8 @@ function executeGenerateWordRequest(request = {}) {
     const onComplete = resolveGenerateWordUiHook(request?.uiHooks, "onComplete");
     const patientivoOwnership = override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP;
     const patientivoSource = override?.patientivoSource ?? "nonactive";
-    const patientivoNominalSuffix = normalizePatientivoNominalSuffixSelection(
-        override?.patientivoNominalSuffix
-    );
+    const patientivoNominalSuffix = override?.patientivoNominalSuffix ?? null;
+    const actionNounStemUse = String(override?.actionNounStemUse || "");
     let searchQuery = "";
     let hasSearchQuery = false;
     let hasSearchSeparator = false;
@@ -1095,10 +1205,18 @@ function executeGenerateWordRequest(request = {}) {
             possessivePrefix,
         });
     }
+    if (isAdjectivalNncGenerationOptIn(override)) {
+        return executeAdjectivalNncGenerationRoute({
+            override,
+            verb,
+            subjectPrefix,
+            subjectSuffix,
+        });
+    }
     const isTroncoNajActiveWrapperTense = isPotencialTroncoNajActiveTense(tense);
     const isPatientivoAdjectiveProfile = isPatientivoAdjectiveTense(tense);
     const isNominalOutputProfile = isNominalMorphProfileTense(tense);
-    if (isPotencialProfileTense(tense)) {
+    if (isPotencialProfileTense(tense) && tense !== "potencial") {
         possessivePrefix = "";
     }
     if (isPatientivoAdjectiveProfile) {
@@ -1289,6 +1407,36 @@ function executeGenerateWordRequest(request = {}) {
         || "";
     verb = parsedVerb.verb;
     const renderVerb = parsedVerb.displayVerb;
+    const rootPlusYaAdjectivalSource = typeof resolveRootPlusYaAdjectivalNncSource === "function"
+        ? resolveRootPlusYaAdjectivalNncSource(parsedVerb)
+        : {
+            supported: parsedVerb.isRootPlusYa === true
+                && parsedVerb.isWeya !== true
+                && parsedVerb.hasSlashMarker !== true,
+        };
+    if (
+        tense === "adjetivo-preterito"
+        && resolvedTenseMode === TENSE_MODE.adjetivo
+        && resolvedDerivationMode === DERIVATION_MODE.active
+        && rootPlusYaAdjectivalSource.supported === true
+    ) {
+        return executeAdjectivalNncGenerationRoute({
+            override: {
+                ...override,
+                adjectivalNnc: {
+                    ...(override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : {}),
+                    enabled: true,
+                    stem: rawVerb || renderVerb || verb,
+                    state: "absolutive",
+                    formation: "root-plus-ya-obsolete-preterit",
+                    role: "predicate-surface",
+                },
+            },
+            verb: rawVerb || renderVerb || verb,
+            subjectPrefix,
+            subjectSuffix,
+        });
+    }
     let analysisVerb = parsedVerb.analysisVerb;
     const analysisExactVerb = parsedVerb.exactBaseVerb || parsedVerb.analysisVerb || parsedVerb.verb;
     let indirectObjectMarker = parsedVerb.indirectObjectMarker;
@@ -1382,9 +1530,17 @@ function executeGenerateWordRequest(request = {}) {
         && resolvedTenseMode === TENSE_MODE.adjetivo
         && resolvedDerivationMode === DERIVATION_MODE.nonactive;
     const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile;
+    const isSustantivoVerbalImpersonalActionProfile = tense === "sustantivo-verbal"
+        && resolvedTenseMode === TENSE_MODE.sustantivo
+        && resolvedDerivationMode === DERIVATION_MODE.nonactive;
+    const isCalificativoInstrumentivoPassiveActionProfile = tense === "calificativo-instrumentivo"
+        && resolvedTenseMode === TENSE_MODE.sustantivo
+        && resolvedDerivationMode === DERIVATION_MODE.nonactive;
     const isPassiveImpersonalMode =
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedVoiceMode === VOICE_MODE.passive)
-        || isPotencialHabitualNominalNonactive;
+        || isPotencialHabitualNominalNonactive
+        || isSustantivoVerbalImpersonalActionProfile
+        || isCalificativoInstrumentivoPassiveActionProfile;
     const targetValency = isPassiveImpersonalMode ? Math.max(0, sourceValency - 1) : sourceValency;
     let preserveSubjectForPassive = preservePassiveSubject;
     const valencySummary = getVerbValencySummary(parsedVerb);
@@ -1434,7 +1590,9 @@ function executeGenerateWordRequest(request = {}) {
 
     const isNonactive =
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedDerivationMode === DERIVATION_MODE.nonactive)
-        || isPotencialHabitualNominalNonactive;
+        || isPotencialHabitualNominalNonactive
+        || isSustantivoVerbalImpersonalActionProfile
+        || isCalificativoInstrumentivoPassiveActionProfile;
     if (isNonactive && PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = getCurrentResolvedConjugationSelectionState({ tenseMode: resolvedTenseMode }).tenseValue;
     }
@@ -1973,6 +2131,12 @@ function executeGenerateWordRequest(request = {}) {
     if (isWitziNonactive && tense === "preterito" && subjectSuffix === "t") {
         subjectSuffix = "et";
     }
+    if (
+        isPotencialHabitualNominalProfile
+        && sourceSelectedProjectiveObjectPrefix === "mu"
+    ) {
+        morphologyObjectPrefix = "ne";
+    }
     const skipPretClass = isWitziNonactive && SUPPLETIVE_WITZI_NONACTIVE_TENSES.has(tense);
     const isUnderlyingTransitive = !isNonactive
         ? (resolvedDerivationType === DERIVATION_TYPE.causative || parsedVerb.isMarkedTransitive || parsedVerb.isTaFusion)
@@ -2043,7 +2207,10 @@ function executeGenerateWordRequest(request = {}) {
         patientivoNominalSuffix,
         passivePatientivoSelectedProjectiveObjectPrefix,
         possessivePrefix,
+        actionNounStemUse,
         combinedMode: isNonactive ? COMBINED_MODE.nonactive : COMBINED_MODE.active,
+        customaryPresentPatientiveNnc: isPotencialHabitualNominalProfile,
+        customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputSubjectSuffix === "t",
         instrumentivoMode: possessivePrefix === ""
             ? INSTRUMENTIVO_MODE.absolutivo
             : INSTRUMENTIVO_MODE.posesivo,
@@ -2054,6 +2221,40 @@ function executeGenerateWordRequest(request = {}) {
     appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     if (appliedMorphology?.error) {
         return { error: true };
+    }
+    if (isPotencialHabitualNominalProfile) {
+        const customaryPresentSubjectSuffix = String(appliedMorphology.subjectSuffix || "");
+        const customaryPresentPluralSuffix = inputSubjectSuffix === "t" ? "met" : "";
+        const shouldMoveCustomaryPresentNi = customaryPresentSubjectSuffix === "ni"
+            || customaryPresentSubjectSuffix === "nit";
+        const customaryPresentVerb = shouldMoveCustomaryPresentNi
+            ? `${appliedMorphology.verb || ""}ni`
+            : appliedMorphology.verb;
+        const customaryPresentConnector = shouldMoveCustomaryPresentNi
+            ? customaryPresentPluralSuffix
+            : customaryPresentSubjectSuffix;
+        appliedMorphology = {
+            ...appliedMorphology,
+            verb: customaryPresentVerb,
+            subjectSuffix: customaryPresentConnector,
+            formSpec: isNominalOutputProfile
+                ? buildLiteralNominalFormSpec(customaryPresentVerb, customaryPresentConnector)
+                : appliedMorphology.formSpec,
+            alternateForms: (appliedMorphology.alternateForms || []).map((form) => {
+                const formSubjectSuffix = String(form.subjectSuffix || "");
+                const moveFormNi = formSubjectSuffix === "ni" || formSubjectSuffix === "nit";
+                const formVerb = moveFormNi ? `${form.verb || ""}ni` : form.verb;
+                const formConnector = moveFormNi ? customaryPresentPluralSuffix : formSubjectSuffix;
+                return {
+                    ...form,
+                    verb: formVerb,
+                    subjectSuffix: formConnector,
+                    formSpec: isNominalOutputProfile
+                        ? buildLiteralNominalFormSpec(formVerb, formConnector)
+                        : form.formSpec,
+                };
+            }),
+        };
     }
     ({ subjectPrefix, objectPrefix, subjectSuffix, verb } = appliedMorphology);
     const isPatientivoPossessed = tense === "patientivo" && Boolean(possessivePrefix);
@@ -2255,6 +2456,8 @@ function executeGenerateWordRequest(request = {}) {
             nominalKind: tense,
             possessivePrefix,
             patientivoSource,
+            sourceCombinedMode: isNonactive ? COMBINED_MODE.nonactive : "",
+            actionNounStemUse,
             renderVerb,
             verb,
             analysisVerb,

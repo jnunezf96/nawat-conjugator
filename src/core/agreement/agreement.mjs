@@ -1246,6 +1246,7 @@ function buildVerbDerivedNominalBuilderContext({
     objectPrefix = "",
     indirectObjectMarker = "",
     thirdObjectMarker = "",
+    actionNounStemUse = "",
     combinedMode = "",
     requireNonanimateSubject = false,
 } = {}) {
@@ -1295,6 +1296,7 @@ function buildVerbDerivedNominalBuilderContext({
         objectPrefix: resolvedObjectPrefix,
         indirectObjectMarker: resolvedIndirectObjectMarker,
         thirdObjectMarker: resolvedThirdObjectMarker,
+        actionNounStemUse,
         combinedMode,
     }, kind);
     const nounForwardDerivation = applyNounForwardDerivation({

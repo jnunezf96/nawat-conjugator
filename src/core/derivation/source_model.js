@@ -715,6 +715,36 @@ const PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS = Object.freeze([
     }),
 ]);
 
+const DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT = "tzajtzi";
+
+const ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "tzahtzi",
+        classicalMatrix: "(tzahtzi)",
+        nawatRoot: "tzajtzi",
+        aliases: ["tzahtzi"],
+        label: "shout with the embedded action",
+        status: "nawat-data-backed",
+        matrixValency: "intransitive",
+        evidence: ["data/data.csv: tzajtzi", "data/basic-data.csv: tzajtzi", "Andrews 37.5.4"],
+    }),
+]);
+
+const DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT = "kal";
+
+const ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS = Object.freeze([
+    Object.freeze({
+        id: "cal-li",
+        classicalMatrix: "(cal)-li",
+        nawatRoot: "kal",
+        nounClass: "zero",
+        animacy: "inanimate",
+        label: "house/place noun matrix",
+        status: "nawat-data-backed",
+        evidence: ["data/static_nnc.json: kal", "data/basic-data.csv: kal", "Andrews 37.5.4"],
+    }),
+]);
+
 function getPatientivoPrelocativeMatrixInventory() {
     return PATIENTIVO_PRELOCATIVE_MATRIX_SPECS.map((entry) => ({ ...entry }));
 }
@@ -756,6 +786,14 @@ function getPatientivoNominalCompoundMatrixInventory() {
 
 function getPatientivoCharacteristicPropertyMatrixInventory() {
     return PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function getActiveActionCompoundEmbedMatrixInventory() {
+    return ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_SPECS.map((entry) => ({ ...entry }));
+}
+
+function getActiveActionNominalCompoundMatrixInventory() {
+    return ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS.map((entry) => ({ ...entry }));
 }
 
 function resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT) {
@@ -819,6 +857,49 @@ function resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot = DEFAULT_
             matrixValency: "",
             supported: false,
             diagnostics: ["patientivo-characteristic-property-unsupported-matrix"],
+        };
+}
+
+function resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT;
+    const spec = ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            label: "",
+            status: "unsupported",
+            matrixValency: "",
+            supported: false,
+            diagnostics: ["active-action-compound-embed-unsupported-matrix"],
+        };
+}
+
+function resolveActiveActionNominalCompoundMatrixSpec(matrixRoot = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT) {
+    const normalizedRoot = String(matrixRoot || DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT).trim().toLowerCase()
+        || DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT;
+    const spec = ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS.find((entry) => (
+        entry.nawatRoot === normalizedRoot
+        || (Array.isArray(entry.aliases) && entry.aliases.includes(normalizedRoot))
+    ));
+    return spec
+        ? { ...spec, supported: true, diagnostics: [] }
+        : {
+            id: "",
+            classicalMatrix: "",
+            nawatRoot: normalizedRoot,
+            nounClass: "",
+            animacy: "",
+            label: "",
+            status: "unsupported",
+            supported: false,
+            diagnostics: ["active-action-nominal-compound-unsupported-matrix"],
         };
 }
 
@@ -974,6 +1055,43 @@ function buildPatientivoCharacteristicPropertyEmbedVerbInput({
     }
     const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
     return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
+}
+
+function buildActiveActionCompoundEmbedVerbInput({
+    actionNominalSurface = "",
+    matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT,
+} = {}) {
+    const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+    const matrixSpec = resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedActionNominalSurface || !normalizedMatrixRoot) {
+        return "";
+    }
+    const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
+    return `${transitiveMarker}(${normalizedActionNominalSurface}/${normalizedMatrixRoot})`;
+}
+
+function buildActiveActionNominalCompoundStem({
+    actionNominalSurface = "",
+    matrixRoot = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT,
+} = {}) {
+    const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+    const matrixSpec = resolveActiveActionNominalCompoundMatrixSpec(matrixRoot);
+    const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+    if (!normalizedActionNominalSurface || !normalizedMatrixRoot) {
+        return "";
+    }
+    return `${normalizedActionNominalSurface}${normalizedMatrixRoot}`;
+}
+
+function formatActiveActionNominalCompoundOrdinaryNncInput({
+    compoundStem = "",
+    nounClass = "",
+} = {}) {
+    return formatPatientivoNominalCompoundOrdinaryNncInput({
+        compoundStem,
+        nounClass,
+    });
 }
 
 function stripPatientivoPrelocativeConnector(surface = "", {
@@ -1348,6 +1466,101 @@ function buildPatientivoNominalCompoundContinuationContract({
         sourceSurface: String(sourceSurface || "").trim(),
         patientivoSurface: String(patientivoSurface || "").trim(),
         incorporatedRoot,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundStem,
+        ordinaryNncInput,
+        ordinaryNncRequest: compoundStem ? {
+            stem: ordinaryNncInput || compoundStem,
+            state: "absolutive",
+            number: "singular",
+            pluralType: "auto",
+            nounClass: matrixSpec.nounClass || "zero",
+            animacy: matrixSpec.animacy || "inanimate",
+        } : null,
+        diagnostics: uniqueDiagnostics,
+    };
+}
+
+function buildActiveActionCompoundEmbedContinuationContract({
+    actionNominalSurface = "",
+    sourceSurface = "",
+    matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT,
+} = {}) {
+    const diagnostics = [];
+    const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+    if (!normalizedActionNominalSurface) {
+        diagnostics.push("active-action-compound-embed-missing-action-nominal-surface");
+    }
+    const matrixSpec = resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const compoundVerbInput = matrixSpec.supported && normalizedActionNominalSurface
+        ? buildActiveActionCompoundEmbedVerbInput({
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!compoundVerbInput && !matrixSpec.supported) {
+        diagnostics.push("active-action-compound-embed-missing-verb-input");
+    }
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "active-action-compound-embed-continuation-contract",
+        grammarSource: "Andrews 37.5.4",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        actionNominalSurface: normalizedActionNominalSurface,
+        incorporatedRoot: normalizedActionNominalSurface,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundVerbInput,
+        diagnostics: uniqueDiagnostics,
+    };
+}
+
+function buildActiveActionNominalCompoundContinuationContract({
+    actionNominalSurface = "",
+    sourceSurface = "",
+    matrixRoot = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT,
+} = {}) {
+    const diagnostics = [];
+    const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+    if (!normalizedActionNominalSurface) {
+        diagnostics.push("active-action-nominal-compound-missing-action-nominal-surface");
+    }
+    const matrixSpec = resolveActiveActionNominalCompoundMatrixSpec(matrixRoot);
+    if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+    }
+    const compoundStem = matrixSpec.supported && normalizedActionNominalSurface
+        ? buildActiveActionNominalCompoundStem({
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: matrixSpec.nawatRoot,
+        })
+        : "";
+    if (!compoundStem && !matrixSpec.supported) {
+        diagnostics.push("active-action-nominal-compound-missing-nnc-input");
+    }
+    const ordinaryNncInput = compoundStem
+        ? formatActiveActionNominalCompoundOrdinaryNncInput({
+            compoundStem,
+            nounClass: matrixSpec.nounClass || "zero",
+        })
+        : "";
+    const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
+        item && list.indexOf(item) === index
+    ));
+    return {
+        outputKind: "active-action-nominal-compound-continuation-contract",
+        grammarSource: "Andrews 37.5.4",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        actionNominalSurface: normalizedActionNominalSurface,
+        incorporatedRoot: normalizedActionNominalSurface,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundStem,

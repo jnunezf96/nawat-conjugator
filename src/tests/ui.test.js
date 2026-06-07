@@ -486,6 +486,49 @@ function run(ctx = {}) {
             && !nominalCompoundComposer.includes("activeLocativeMatrixRoot")
             && !nominalCompoundComposer.includes("__NAWAT_ACTIVE_LINE_ID__")
     );
+    const activeActionCompoundComposerStart = composer.indexOf("function applyActiveActionCompoundEmbedRootsToVerbEntry");
+    const activeActionCompoundComposerEnd = composer.indexOf("function applyActiveActionNominalCompoundToOrdinaryNncEntry", activeActionCompoundComposerStart);
+    const activeActionCompoundComposer = activeActionCompoundComposerStart >= 0 && activeActionCompoundComposerEnd > activeActionCompoundComposerStart
+        ? composer.slice(activeActionCompoundComposerStart, activeActionCompoundComposerEnd)
+        : "";
+    s.ok(
+        "active-action sustantivo verbal output has real Andrews 37.5.4 verbal continuation from #3 salida",
+        rendering.includes("renderActiveActionCompoundEmbedContinuation")
+            && rendering.includes("buildActiveActionCompoundEmbedContinuationContract")
+            && rendering.includes("getActiveActionCompoundEmbedMatrixInventory")
+            && rendering.includes("dataset.activeActionCompoundEmbedContinuation = \"true\"")
+            && rendering.includes("dataset.actionNominalSurface = contract.actionNominalSurface")
+            && rendering.includes("applyActiveActionCompoundEmbedRootsToVerbEntry")
+            && rendering.includes("resolvedTense === \"sustantivo-verbal\"")
+            && rendering.includes("continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`")
+            && activeActionCompoundComposer.includes("function applyActiveActionCompoundEmbedRootsToVerbEntry")
+            && activeActionCompoundComposer.includes("VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive")
+            && activeActionCompoundComposer.includes("VerbComposerState.slotAEmbed = normalizedActionNominalSurface")
+            && activeActionCompoundComposer.includes("VerbComposerState.slotAStem = normalizedMatrixRoot")
+            && activeActionCompoundComposer.includes("clearRoute: true")
+            && activeActionCompoundComposer.includes("active-action-compound-embed-entry")
+    );
+    const activeActionNominalComposerStart = composer.indexOf("function applyActiveActionNominalCompoundToOrdinaryNncEntry");
+    const activeActionNominalComposerEnd = composer.indexOf("function shouldComposerControlChangeRefreshImmediately", activeActionNominalComposerStart);
+    const activeActionNominalComposer = activeActionNominalComposerStart >= 0 && activeActionNominalComposerEnd > activeActionNominalComposerStart
+        ? composer.slice(activeActionNominalComposerStart, activeActionNominalComposerEnd)
+        : "";
+    s.ok(
+        "active-action sustantivo verbal output has real Andrews 37.5.4 nominal continuation from #3 salida",
+        rendering.includes("renderActiveActionNominalCompoundContinuation")
+            && rendering.includes("buildActiveActionNominalCompoundContinuationContract")
+            && rendering.includes("getActiveActionNominalCompoundMatrixInventory")
+            && rendering.includes("dataset.activeActionNominalCompoundContinuation = \"true\"")
+            && rendering.includes("dataset.ordinaryNncInput = contract.ordinaryNncInput")
+            && rendering.includes("applyActiveActionNominalCompoundToOrdinaryNncEntry")
+            && rendering.includes("getNominalCompoundPreviewSurface")
+            && rendering.includes("continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`")
+            && activeActionNominalComposer.includes("function applyActiveActionNominalCompoundToOrdinaryNncEntry")
+            && activeActionNominalComposer.includes("setOrdinaryNncGenerationModeEnabled(true")
+            && activeActionNominalComposer.includes("setActiveNawatTenseMode(TENSE_MODE.sustantivo)")
+            && activeActionNominalComposer.includes("formatComposerOrdinaryNncAnalogueInput")
+            && activeActionNominalComposer.includes("active-action-nominal-compound-entry")
+    );
     const characteristicComposerStart = composer.indexOf("function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry");
     const characteristicComposerEnd = composer.indexOf("function applyPatientivoNominalCompoundToOrdinaryNncEntry", characteristicComposerStart);
     const characteristicComposer = characteristicComposerStart >= 0 && characteristicComposerEnd > characteristicComposerStart

@@ -7084,6 +7084,227 @@ function applyPatientivoNominalCompoundToOrdinaryNncEntry({
     return true;
 }
 
+function applyActiveActionCompoundEmbedRootsToVerbEntry({
+    actionNominalSurface = "",
+    matrixRoot = "tzajtzi",
+    matrixSpecId = "",
+} = {}) {
+    const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
+    const resolvedMatrixSpec = typeof resolveActiveActionCompoundEmbedMatrixSpec === "function"
+        ? resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot || "tzajtzi")
+        : null;
+    const normalizedMatrixRoot = normalizeComposerStem(
+        resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : (matrixRoot || "tzajtzi")
+    );
+    const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+    const verbEl = document.getElementById("verb");
+    if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !verbEl) {
+        return false;
+    }
+    VerbComposerState.mode = VERB_INPUT_MODE.composer;
+    VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+    VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive;
+    VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.intransitive;
+    VerbComposerState.valenceIntransitive = "";
+    VerbComposerState.valenceIntransitiveEmbed = "";
+    VerbComposerState.valence = "";
+    VerbComposerState.valenceEmbedPrimary = "";
+    VerbComposerState.valenceSecondary = "";
+    VerbComposerState.valenceEmbedSecondary = "";
+    VerbComposerState.slotAEmbed = normalizedActionNominalSurface;
+    VerbComposerState.slotAStem = normalizedMatrixRoot;
+    VerbComposerState.slotBEmbed = "";
+    VerbComposerState.slotBStem = "";
+    VerbComposerState.slotCEmbed = "";
+    VerbComposerState.slotCStem = "";
+    VerbComposerState.directionalPrefix = "";
+    VerbComposerState.embedPrefix = normalizedActionNominalSurface;
+    VerbComposerState.supportiveMarker = "";
+    VerbComposerState.stem = normalizedMatrixRoot;
+    VerbComposerState.sourceBase = "";
+    VerbComposerState.stemManualOverride = true;
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "a";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+            delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+    });
+    renderVerbComposerFromState();
+    applyComposerStateToVerbInput({ triggerGenerate: false });
+    const compoundVerbInput = String(verbEl.value || "").trim()
+        || (
+            typeof buildActiveActionCompoundEmbedVerbInput === "function"
+                ? buildActiveActionCompoundEmbedVerbInput({
+                    actionNominalSurface: normalizedActionNominalSurface,
+                    matrixRoot: normalizedMatrixRoot,
+                })
+                : `(${normalizedActionNominalSurface}/${normalizedMatrixRoot})`
+        );
+    if (verbEl.value !== compoundVerbInput) {
+        verbEl.value = compoundVerbInput;
+    }
+    if (typeof setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        setActiveTenseMode(TENSE_MODE.verbo, {
+            modeSystem: typeof TENSE_MODE_SYSTEM !== "undefined"
+                ? (TENSE_MODE_SYSTEM.nawat || "nawat")
+                : "nawat",
+            clearRoute: true,
+        });
+    }
+    if (typeof updateTenseModeTabs === "function") {
+        updateTenseModeTabs();
+    }
+    if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:active-action-compound-embed-applied", {
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: normalizedMatrixRoot,
+            matrixSpecId: resolvedMatrixSpecId,
+            compoundVerbInput,
+        });
+    }
+    const applyButton = document.getElementById("verb-entry-apply");
+    if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+    } else {
+        verbEl.dispatchEvent(new Event("input", { bubbles: true }));
+        scheduleVerbInputRefresh(verbEl.value, {
+            immediate: true,
+            source: "active-action-compound-embed-entry",
+        });
+    }
+    return true;
+}
+
+function applyActiveActionNominalCompoundToOrdinaryNncEntry({
+    actionNominalSurface = "",
+    matrixRoot = "kal",
+    matrixSpecId = "",
+    nounClass = "",
+    animacy = "",
+    ordinaryNncInput = "",
+    compoundStem = "",
+} = {}) {
+    const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
+    const resolvedMatrixSpec = typeof resolveActiveActionNominalCompoundMatrixSpec === "function"
+        ? resolveActiveActionNominalCompoundMatrixSpec(matrixRoot || "kal")
+        : null;
+    const normalizedMatrixRoot = normalizeComposerStem(
+        resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : (matrixRoot || "kal")
+    );
+    const resolvedCompoundStem = normalizeComposerStem(
+        compoundStem
+        || (
+            typeof buildActiveActionNominalCompoundStem === "function"
+                ? buildActiveActionNominalCompoundStem({
+                    actionNominalSurface: normalizedActionNominalSurface,
+                    matrixRoot: normalizedMatrixRoot,
+                })
+                : `${normalizedActionNominalSurface}${normalizedMatrixRoot}`
+        )
+    );
+    const resolvedNounClass = normalizeComposerOrdinaryNncNounClass(
+        nounClass || resolvedMatrixSpec?.nounClass || "zero"
+    ) || "zero";
+    const resolvedAnimacy = String(animacy || resolvedMatrixSpec?.animacy || "inanimate").trim();
+    const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+    const verbEl = document.getElementById("verb");
+    if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !resolvedCompoundStem || !verbEl) {
+        return false;
+    }
+    VerbComposerState.mode = VERB_INPUT_MODE.composer;
+    VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+    VerbComposerState.transitivity = "";
+    VerbComposerState.lastGeneralTransitivity = "";
+    VerbComposerState.valenceIntransitive = "";
+    VerbComposerState.valenceIntransitiveEmbed = "";
+    VerbComposerState.valence = "";
+    VerbComposerState.valenceEmbedPrimary = "";
+    VerbComposerState.valenceSecondary = "";
+    VerbComposerState.valenceEmbedSecondary = "";
+    VerbComposerState.slotAEmbed = "";
+    VerbComposerState.slotAStem = resolvedCompoundStem;
+    VerbComposerState.slotBEmbed = "";
+    VerbComposerState.slotBStem = "";
+    VerbComposerState.slotCEmbed = "";
+    VerbComposerState.slotCStem = "";
+    VerbComposerState.directionalPrefix = "";
+    VerbComposerState.embedPrefix = "";
+    VerbComposerState.supportiveMarker = "";
+    VerbComposerState.stem = resolvedCompoundStem;
+    VerbComposerState.sourceBase = "";
+    VerbComposerState.stemManualOverride = true;
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        ComposerEmbedOpenState[slotKey] = false;
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+            delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+    });
+    if (typeof setOrdinaryNncGenerationModeEnabled === "function") {
+        setOrdinaryNncGenerationModeEnabled(true, {
+            state: "absolutive",
+            number: "singular",
+            pluralType: "auto",
+            possessor: "",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            subjectKey: "3sg",
+            nounClass: resolvedNounClass,
+            animacy: resolvedAnimacy,
+        });
+    }
+    if (typeof setActiveNawatTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.sustantivo) {
+        setActiveNawatTenseMode(TENSE_MODE.sustantivo);
+    } else if (typeof setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.sustantivo) {
+        setActiveTenseMode(TENSE_MODE.sustantivo, {
+            modeSystem: typeof TENSE_MODE_SYSTEM !== "undefined"
+                ? (TENSE_MODE_SYSTEM.nawat || "nawat")
+                : "nawat",
+            clearRoute: true,
+        });
+    }
+    renderVerbComposerFromState();
+    const formattedInput = ordinaryNncInput
+        || formatComposerOrdinaryNncAnalogueInput({
+            stem: resolvedCompoundStem,
+            nounClass: resolvedNounClass,
+        });
+    verbEl.value = formattedInput || resolvedCompoundStem;
+    if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:active-action-nominal-compound-applied", {
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: normalizedMatrixRoot,
+            matrixSpecId: resolvedMatrixSpecId,
+            compoundStem: resolvedCompoundStem,
+            ordinaryNncInput: verbEl.value,
+            nounClass: resolvedNounClass,
+            animacy: resolvedAnimacy,
+        });
+    }
+    const applyButton = document.getElementById("verb-entry-apply");
+    if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+    } else {
+        verbEl.dispatchEvent(new Event("input", { bubbles: true }));
+        scheduleVerbInputRefresh(verbEl.value, {
+            immediate: true,
+            source: "active-action-nominal-compound-entry",
+        });
+    }
+    return true;
+}
+
 function shouldComposerControlChangeRefreshImmediately(source = "") {
     const normalizedSource = String(source || "").trim().toLowerCase();
     if (!normalizedSource) {
