@@ -16,8 +16,9 @@ function run(ctx) {
             typeof ctx.classifyAdverbialNuclearCandidate,
             typeof ctx.classifyAdverbialNuclearFalsePositive,
             typeof ctx.getAdverbialNuclearAntiConflationRules,
+            typeof ctx.buildAdverbialNuclearClauseFrame,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildAdverbialNuclearBoundaryMetadata();
@@ -42,7 +43,8 @@ function run(ctx) {
             knownLegacyAdverbioTenses: ["pasado-remoto-adverbio-activo"],
             boundaries: {
                 hasLegacyAdverbioSurface: true,
-                hasAdverbialNuclearClauseEngine: false,
+                hasAdverbialNuclearClauseFrame: true,
+                hasFullAdverbialNuclearClauseEngine: false,
                 hasAdverbialNncGeneration: false,
                 hasAdverbialVncGeneration: false,
                 hasStaticAdverbialData: false,
@@ -57,6 +59,107 @@ function run(ctx) {
                 "adverbialDegree",
                 "evidenceSource",
             ],
+        }
+    );
+
+    s.eq(
+        "Andrews 44.1-44.2 adverbial nuclear clause frame preserves generated VNC adverbio output",
+        ctx.buildAdverbialNuclearClauseFrame({
+            source: "mati",
+            sourceStem: "mati",
+            finalStem: "mati",
+            analysisStem: "mati",
+            sourceClauseKind: "vnc",
+            sourceValency: "intransitive",
+            adverbialKind: "vnc-adverbial",
+            adverbialDegree: "first-degree",
+            semanticDomain: "manner",
+            tense: "pasado-remoto-adverbio-activo",
+            legacyTense: "pasado-remoto-adverbio-activo",
+            surfaceForms: ["matka", "matika"],
+            evidenceSource: "test-generated-output-contract",
+        }),
+        {
+            kind: "adverbial-nuclear-clause-frame",
+            version: 1,
+            lesson: 44,
+            structuralSource: "Andrews 44.1-44.4",
+            targetAuthority: "Nawat/Pipil generated output supplied to this frame",
+            supported: true,
+            confirmed: false,
+            source: {
+                raw: "mati",
+                clauseKind: "vnc",
+                adverbialKind: "vnc-adverbial",
+                stem: "mati",
+                finalStem: "mati",
+                analysisStem: "mati",
+                valency: "intransitive",
+                objectPrefix: "",
+                baseObjectPrefix: "",
+                tense: "pasado-remoto-adverbio-activo",
+            },
+            adverbialization: {
+                degree: "first-degree",
+                semanticDomain: "manner",
+                subjectPronoun: {
+                    kind: "adverbialized-subject-pronoun",
+                    lessonRef: "Andrews 44.2",
+                    degree: "first-degree",
+                    sourceClauseKind: "vnc",
+                    locus: "subject-pronoun",
+                    num1: {
+                        changesSoundedFillerToSilent: false,
+                        description: "first-degree adverbialization has no required subject-pronoun shape change",
+                    },
+                    constraints: {
+                        vncAllowsOnlyFirstDegree: true,
+                        possessiveNncAllowsOnlyFirstDegree: true,
+                        absolutiveNncIsIdiosyncratic: true,
+                    },
+                },
+                lexicalized: false,
+                legacyRoute: true,
+            },
+            output: {
+                surfaceForms: ["matka", "matika"],
+                primarySurface: "matka",
+                preservesGeneratedSurface: true,
+            },
+            generationContract: {
+                routeGeneratesSurface: true,
+                frameGeneratesSurface: false,
+                changesSurfaceForms: false,
+                newWordGenerationAllowed: false,
+            },
+            evidenceSource: "test-generated-output-contract",
+            diagnostics: [],
+            boundary: ctx.buildAdverbialNuclearBoundaryMetadata(),
+        }
+    );
+
+    s.eq(
+        "Andrews 44.2 blocks second-degree adverbialization on VNC source frames",
+        (() => {
+            const frame = ctx.buildAdverbialNuclearClauseFrame({
+                source: "mati",
+                surfaceForms: ["matka"],
+                sourceClauseKind: "vnc",
+                adverbialDegree: "second-degree",
+                semanticDomain: "manner",
+            });
+            return {
+                supported: frame.supported,
+                degree: frame.adverbialization.degree,
+                num1Changes: frame.adverbialization.subjectPronoun.num1.changesSoundedFillerToSilent,
+                diagnostics: frame.diagnostics,
+            };
+        })(),
+        {
+            supported: false,
+            degree: "second-degree",
+            num1Changes: true,
+            diagnostics: ["adverbial-nuclear-source-permits-first-degree-only"],
         }
     );
 
@@ -112,6 +215,7 @@ function run(ctx) {
         ctx.getAdverbialNuclearAntiConflationRules(),
         [
             "adverbial nuclear-clause boundary metadata is not generation",
+            "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms",
             "legacy adverbio word output is not a full Lesson 44 engine",
             "adverb translations are not Nawat/Pipil adverbial-clause evidence",
             "particle-looking labels are not particle or adverbial NNC fixture evidence",

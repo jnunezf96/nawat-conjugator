@@ -24,6 +24,18 @@ function run(ctx) {
         isAdjectivalModification: profile.boundaries?.isAdjectivalModification === true,
         doesNotImplementLessons42_43: profile.boundaries?.doesNotImplementLessons42_43 === true,
     });
+    const summarizePossessorSourceFrame = (frame) => frame && ({
+        grammarSource: frame.grammarSource || "",
+        possessorOrigin: frame.possessorOrigin || "",
+        sourceSubjectRelation: frame.sourceSubjectRelation || "",
+        contrastNominalKind: frame.contrastNominalKind || "",
+        notSourceSubjectTransform: frame.notSourceSubjectTransform === true,
+        notExternalPossessorImport: frame.notExternalPossessorImport === true,
+        sourceSubject: frame.sourceSubject ? {
+            prefix: frame.sourceSubject.prefix || "",
+            suffix: frame.sourceSubject.suffix || "",
+        } : null,
+    });
     const summarizeDenominalFamilyProfile = (profile) => profile && ({
         curriculumRef: profile.curriculumRef,
         outputKind: profile.outputKind,
@@ -175,6 +187,341 @@ function run(ctx) {
         isFunctionalSupplementation: false,
         isAdjectivalModification: false,
         doesNotImplementLessons42_43: true,
+    });
+    const generatedPresentAgentivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-presente",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 36.7 present-agentive NNC reanalyzes the present predicate as the nounstem", generatedPresentAgentivo.surfaceForms, ["nemi"]);
+    s.eq("Andrews 36.7 present-agentive formula uses the generated present predicate and vacant connector", {
+        connector: generatedPresentAgentivo.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedPresentAgentivo.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        connector: "Ø",
+        formulaEcho: "#Ø...Ø(nemi)Ø#",
+    });
+    s.eq("Andrews 36.7 present-agentive profile stays distinct from customary-present agentive", summarizeNominalizationProfile(generatedPresentAgentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "agentivo-presente",
+        sourceTense: "presente",
+        nominalizationKind: "present-agentive",
+        semanticRole: "agent",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
+    const generatedPresentAgentivoPlural = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-presente",
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 36.7 present-agentive plural keeps the present source number connector", {
+        forms: generatedPresentAgentivoPlural.surfaceForms,
+        connector: generatedPresentAgentivoPlural.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedPresentAgentivoPlural.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tinemit"],
+        connector: "t",
+        formulaEcho: "#ti...Ø(nemi)t#",
+    });
+    const generatedPresentAgentivoTransitive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-presente",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq("Andrews 36.7 present-agentive transitive source keeps the generated object inside the nounstem", {
+        forms: generatedPresentAgentivoTransitive.surfaceForms,
+        formulaEcho: generatedPresentAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tamati"],
+        formulaEcho: "#Ø...Ø(tamati)Ø#",
+    });
+    const generatedPresentAgentivoPossessiveProbe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-presente",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq("Andrews 36.7 present-agentive is absolutive-only even when a possessive probe is supplied", {
+        forms: generatedPresentAgentivoPossessiveProbe.surfaceForms,
+        predicateState: generatedPresentAgentivoPossessiveProbe.nominalizationProfile?.predicateState?.value || "",
+        formulaEcho: generatedPresentAgentivoPossessiveProbe.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nemi"],
+        predicateState: "absolutive",
+        formulaEcho: "#Ø...Ø(nemi)Ø#",
+    });
+    const generatedPreteritAgentivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-preterito",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 35.3 preterit-agentive restricted NNC reanalyzes the preterit predicate as the nounstem", {
+        forms: generatedPreteritAgentivo.surfaceForms,
+        connector: generatedPreteritAgentivo.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedPreteritAgentivo.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nenki", "nemik"],
+        connector: "ki",
+        formulaEcho: "#Ø...Ø(nen)ki#",
+    });
+    s.eq("Andrews 35 preterit-agentive profile stays distinct from customary, present, and future agentives", summarizeNominalizationProfile(generatedPreteritAgentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "agentivo-preterito",
+        sourceTense: "preterito",
+        nominalizationKind: "preterit-agentive",
+        semanticRole: "agent",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
+    const generatedPreteritAgentivoPlural = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-preterito",
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 35.3 preterit-agentive plural exposes the preterit NNC connector", {
+        forms: generatedPreteritAgentivoPlural.surfaceForms,
+        connector: generatedPreteritAgentivoPlural.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedPreteritAgentivoPlural.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tinenket", "tinemiket"],
+        connector: "ket",
+        formulaEcho: "#ti...Ø(nen)ket#",
+    });
+    const generatedPreteritAgentivoTransitive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-preterito",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq("Andrews 35.3 preterit-agentive transitive source keeps the projective object inside the nounstem", {
+        forms: generatedPreteritAgentivoTransitive.surfaceForms,
+        formulaEcho: generatedPreteritAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tamatki", "tamatik"],
+        formulaEcho: "#Ø...Ø(tamat)ki#",
+    });
+    const generatedPreteritAgentivoPossessive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-preterito",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq("Andrews 35.5-35.6 preterit-agentive general-use possessive adds Nawat ka matrix before possessive connector", {
+        forms: generatedPreteritAgentivoPossessive.surfaceForms,
+        connector: generatedPreteritAgentivoPossessive.subjectNumberConnector?.displaySurface || "",
+        predicateState: generatedPreteritAgentivoPossessive.nominalizationProfile?.predicateState?.value || "",
+        formulaEcho: generatedPreteritAgentivoPossessive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nutamatkaw", "nutamatikaw"],
+        connector: "w",
+        predicateState: "possessive",
+        formulaEcho: "#Ø...Ø(tamatka)w#",
+    });
+    const generatedPreteritAgentivoReflexivePossessive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-preterito",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "mu",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq("Andrews 35.5 preterit-agentive general-use reflexive source maps mainline mu to shuntline ne", {
+        forms: generatedPreteritAgentivoReflexivePossessive.surfaceForms,
+        formulaEcho: generatedPreteritAgentivoReflexivePossessive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nunematkaw", "nunematikaw"],
+        formulaEcho: "#Ø...Ø(nematka)w#",
+    });
+    const generatedPreteritAgentivoMikiPossessive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "(miki)",
+            tense: "agentivo-preterito",
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq("Andrews 36.12 preterit-agentive keeps the source subject as NNC subject and imports an external possessor", {
+        forms: generatedPreteritAgentivoMikiPossessive.surfaceForms,
+        predicateState: generatedPreteritAgentivoMikiPossessive.nominalizationProfile?.predicateState?.value || "",
+        formulaEcho: generatedPreteritAgentivoMikiPossessive.nuclearClauseShell?.formulaEcho || "",
+        possessorSourceFrame: summarizePossessorSourceFrame(generatedPreteritAgentivoMikiPossessive.nominalizationProfile?.possessorSourceFrame),
+    }, {
+        forms: ["ninumikikaw"],
+        predicateState: "possessive",
+        formulaEcho: "#ni...Ø(mikika)w#",
+        possessorSourceFrame: {
+            grammarSource: "Andrews 36.12",
+            possessorOrigin: "external",
+            sourceSubjectRelation: "retained-as-nnc-subject",
+            contrastNominalKind: "calificativo-instrumentivo",
+            notSourceSubjectTransform: true,
+            notExternalPossessorImport: false,
+            sourceSubject: null,
+        },
+    });
+    const generatedFutureAgentivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-futuro",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 36.8 future-agentive restricted NNC keeps future s inside the nounstem and adds ki connector", {
+        forms: generatedFutureAgentivo.surfaceForms,
+        connector: generatedFutureAgentivo.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedFutureAgentivo.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nemiski"],
+        connector: "ki",
+        formulaEcho: "#Ø...Ø(nemis)ki#",
+    });
+    s.eq("Andrews 36.8 future-agentive profile stays distinct from customary and present agentive", summarizeNominalizationProfile(generatedFutureAgentivo.nominalizationProfile), {
+        curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
+        outputKind: "verb-derived-nominal",
+        nominalKind: "agentivo-futuro",
+        sourceTense: "futuro",
+        nominalizationKind: "future-agentive",
+        semanticRole: "agent",
+        patientiveFamily: "",
+        adjectivalFunction: "",
+        categoryTransition: { sourceCategory: "VNC", targetCategory: "NNC", process: "structural-nominalization" },
+        nominalizationScope: "structural-word-output",
+        isFunctionalSupplementation: false,
+        isAdjectivalModification: false,
+        doesNotImplementLessons42_43: true,
+    });
+    const generatedFutureAgentivoPlural = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "nemi",
+            tense: "agentivo-futuro",
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "",
+        },
+    });
+    s.eq("Andrews 36.8 future-agentive restricted plural keeps future s and exposes ket connector", {
+        forms: generatedFutureAgentivoPlural.surfaceForms,
+        connector: generatedFutureAgentivoPlural.subjectNumberConnector?.displaySurface || "",
+        formulaEcho: generatedFutureAgentivoPlural.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tinemisket"],
+        connector: "ket",
+        formulaEcho: "#ti...Ø(nemis)ket#",
+    });
+    const generatedFutureAgentivoTransitive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-futuro",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+        },
+    });
+    s.eq("Andrews 36.8 future-agentive restricted transitive source keeps projective object inside the nounstem", {
+        forms: generatedFutureAgentivoTransitive.surfaceForms,
+        formulaEcho: generatedFutureAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["tamatiski"],
+        formulaEcho: "#Ø...Ø(tamatis)ki#",
+    });
+    const generatedFutureAgentivoPossessive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "agentivo-futuro",
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            possessivePrefix: "nu",
+        },
+    });
+    s.eq("Andrews 36.8 future-agentive general-use possessive adds Nawat ka matrix before possessive connector", {
+        forms: generatedFutureAgentivoPossessive.surfaceForms,
+        connector: generatedFutureAgentivoPossessive.subjectNumberConnector?.displaySurface || "",
+        predicateState: generatedFutureAgentivoPossessive.nominalizationProfile?.predicateState?.value || "",
+        formulaEcho: generatedFutureAgentivoPossessive.nuclearClauseShell?.formulaEcho || "",
+    }, {
+        forms: ["nutamatiskaw"],
+        connector: "w",
+        predicateState: "possessive",
+        formulaEcho: "#Ø...Ø(tamatiska)w#",
     });
 
     const nemiActionNominal = ctx.generateWord({
@@ -568,7 +915,7 @@ function run(ctx) {
             semanticRole: "patient/action",
         }
     );
-    const passiveActionGeneralUseWithoutPossessor = ctx.generateWord({
+    const passiveActionGeneralUseFromSourceSubject = ctx.generateWord({
         silent: true,
         skipValidation: true,
         override: {
@@ -577,16 +924,39 @@ function run(ctx) {
             tenseMode: "sustantivo",
             derivationMode: "nonactive",
             voiceMode: "passive-impersonal",
-            subjectPrefix: "",
-            subjectSuffix: "",
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
             objectPrefix: "ta",
             actionNounStemUse: "general-use",
         },
     });
     s.eq(
-        "Andrews Lesson 36 passive-action general-use NNC is possessive-state only",
-        passiveActionGeneralUseWithoutPossessor.error,
-        true
+        "Andrews Lesson 36 passive-action general-use derives possessor from the source VNC subject",
+        {
+            forms: passiveActionGeneralUseFromSourceSubject.surfaceForms,
+            predicateState: passiveActionGeneralUseFromSourceSubject.nominalizationProfile?.predicateState?.value || "",
+            possessorPrefix: passiveActionGeneralUseFromSourceSubject.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            sourceMode: passiveActionGeneralUseFromSourceSubject.nominalizationProfile?.source?.sourceCombinedMode || "",
+        },
+        {
+            forms: ["tumachuka", "tumatuka", "tumatiluka"],
+            predicateState: "possessive",
+            possessorPrefix: "tu",
+            sourceMode: "nonactive",
+        }
+    );
+    s.eq(
+        "Andrews 36.10/36.12 passive-action records source subject as transformed possessor",
+        summarizePossessorSourceFrame(passiveActionGeneralUseFromSourceSubject.nominalizationProfile?.possessorSourceFrame),
+        {
+            grammarSource: "Andrews 36.10/36.12",
+            possessorOrigin: "source-vnc-subject",
+            sourceSubjectRelation: "transformed-to-possessor",
+            contrastNominalKind: "agentivo-preterito",
+            notSourceSubjectTransform: false,
+            notExternalPossessorImport: true,
+            sourceSubject: { prefix: "ti", suffix: "t" },
+        }
     );
     const transitivePotentialPatient = ctx.generateWord({
         silent: true,
@@ -707,6 +1077,46 @@ function run(ctx) {
         customaryPresentPatientiveProjective.surfaceForms,
         ["timachuni", "timatuni", "timatiluni"]
     );
+    const customaryPresentPatientiveDoubleProjectiveTa = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            indirectObjectMarker: "te",
+        },
+    });
+    const customaryPresentPatientiveDoubleProjectiveTe = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "potencial-habitual",
+            tenseMode: ctx.TENSE_MODE.adjetivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            voiceMode: ctx.VOICE_MODE.passive,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "te",
+            indirectObjectMarker: "ta",
+        },
+    });
+    s.eq(
+        "Andrews 36.5 customary-present patientive keeps selected ta from double-projective source",
+        customaryPresentPatientiveDoubleProjectiveTa.surfaceForms,
+        ["tamachuni", "tamatuni", "tamatiluni"]
+    );
+    s.eq(
+        "Andrews 36.5 customary-present patientive keeps selected te from double-projective source",
+        customaryPresentPatientiveDoubleProjectiveTe.surfaceForms,
+        ["temachuni", "tematuni", "tematiluni"]
+    );
     const customaryPresentPatientivePossessiveProbe = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -819,6 +1229,35 @@ function run(ctx) {
             possessorPrefix: "nu",
             connector: "Ø",
             formulaEcho: "#Ø...Ø(nematiya)Ø#",
+        }
+    );
+    const generatedInstrumentiveSourceSubjectPossessive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "instrumentivo",
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            objectPrefix: "ta",
+            possessivePrefix: "",
+            instrumentivoMode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        },
+    });
+    s.eq(
+        "Andrews 36.6 generated possessive instrumentive transforms source subject into possessor",
+        {
+            forms: generatedInstrumentiveSourceSubjectPossessive.surfaceForms,
+            predicateState: generatedInstrumentiveSourceSubjectPossessive.nominalizationProfile?.predicateState?.value || "",
+            possessorPrefix: generatedInstrumentiveSourceSubjectPossessive.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            formulaEcho: generatedInstrumentiveSourceSubjectPossessive.nuclearClauseShell?.formulaEcho || "",
+        },
+        {
+            forms: ["tutamatiya"],
+            predicateState: "possessive",
+            possessorPrefix: "tu",
+            formulaEcho: "#Ø...Ø(tamatiya)Ø#",
         }
     );
 
@@ -1218,6 +1657,104 @@ function run(ctx) {
             outputSlot: "#3 salida",
         });
     });
+    s.eq(
+        "Andrews 41.2 patientive compound-source output preserves the underlying compound source when surfaces match",
+        (() => {
+            const generateCompoundPatientive = (patientivoSource) => ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: "-(tal/chiwa)",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tense: "patientivo",
+                        tenseMode: ctx.TENSE_MODE.sustantivo,
+                        derivationMode: ctx.DERIVATION_MODE.nonactive,
+                        voiceMode: ctx.VOICE_MODE.passive,
+                        patientivoSource,
+                    },
+                },
+            });
+            const passive = generateCompoundPatientive("passive");
+            const impersonal = generateCompoundPatientive("impersonal");
+            const summarize = (generated) => ({
+                surfaceForms: generated.surfaceForms,
+                compoundFrame: {
+                    kind: generated.compoundFrame?.kind || "",
+                    matrixStem: generated.compoundFrame?.matrix?.stem || "",
+                    embedValues: generated.compoundFrame?.embeds?.map((entry) => entry.value) || [],
+                    rawInput: generated.compoundFrame?.sourceInput?.rawInput || "",
+                },
+                patientiveCompoundSourceFrame: {
+                    kind: generated.patientiveCompoundSourceFrame?.kind || "",
+                    lessonRef: generated.patientiveCompoundSourceFrame?.lessonRef || "",
+                    outputKind: generated.patientiveCompoundSourceFrame?.outputKind || "",
+                    patientiveFamily: generated.patientiveCompoundSourceFrame?.patientiveFamily || "",
+                    sourcePattern: generated.patientiveCompoundSourceFrame?.sourcePattern || "",
+                    sourceMatrixStem: generated.patientiveCompoundSourceFrame?.sourceCompoundFrame?.matrix?.stem || "",
+                    sourceEmbedValues: generated.patientiveCompoundSourceFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.value) || [],
+                    sourceRawInput: generated.patientiveCompoundSourceFrame?.sourceCompoundFrame?.sourceInput?.rawInput || "",
+                    cannotInferFromSurfaceAlone: generated.patientiveCompoundSourceFrame?.cannotInferFromSurfaceAlone,
+                    changesSurfaceForms: generated.patientiveCompoundSourceFrame?.boundaries?.changesSurfaceForms,
+                },
+            });
+            return {
+                sameSurface: passive.surfaceForms.join("/") === impersonal.surfaceForms.join("/"),
+                passive: summarize(passive),
+                impersonal: summarize(impersonal),
+            };
+        })(),
+        {
+            sameSurface: true,
+            passive: {
+                surfaceForms: ["talchiwalti"],
+                compoundFrame: {
+                    kind: "compound-frame",
+                    matrixStem: "chiwa",
+                    embedValues: ["tal"],
+                    rawInput: "-(tal/chiwa)",
+                },
+                patientiveCompoundSourceFrame: {
+                    kind: "patientive-compound-source-frame",
+                    lessonRef: "Andrews 41.2.3",
+                    outputKind: "patientive-nnc-compound-source",
+                    patientiveFamily: "passive",
+                    sourcePattern: "passive-core",
+                    sourceMatrixStem: "chiwa",
+                    sourceEmbedValues: ["tal"],
+                    sourceRawInput: "-(tal/chiwa)",
+                    cannotInferFromSurfaceAlone: true,
+                    changesSurfaceForms: false,
+                },
+            },
+            impersonal: {
+                surfaceForms: ["talchiwalti"],
+                compoundFrame: {
+                    kind: "compound-frame",
+                    matrixStem: "chiwa",
+                    embedValues: ["tal"],
+                    rawInput: "-(tal/chiwa)",
+                },
+                patientiveCompoundSourceFrame: {
+                    kind: "patientive-compound-source-frame",
+                    lessonRef: "Andrews 41.2.3",
+                    outputKind: "patientive-nnc-compound-source",
+                    patientiveFamily: "impersonal",
+                    sourcePattern: "impersonal-core",
+                    sourceMatrixStem: "chiwa",
+                    sourceEmbedValues: ["tal"],
+                    sourceRawInput: "-(tal/chiwa)",
+                    cannotInferFromSurfaceAlone: true,
+                    changesSurfaceForms: false,
+                },
+            },
+        }
+    );
     const passiveReflexiveSource = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -1552,6 +2089,11 @@ function run(ctx) {
             adverbialKind: adverbioMatiVi.adverbialNuclearFrame?.adverbial?.kind,
             sourceStem: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.stem,
             sourceValency: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.valency,
+            clauseFrameKind: adverbioMatiVi.adverbialNuclearClauseFrame?.kind,
+            clauseFrameDegree: adverbioMatiVi.adverbialNuclearClauseFrame?.adverbialization?.degree,
+            clauseFrameDomain: adverbioMatiVi.adverbialNuclearClauseFrame?.adverbialization?.semanticDomain,
+            clauseFrameSubjectNum1Changes: adverbioMatiVi.adverbialNuclearClauseFrame?.adverbialization?.subjectPronoun?.num1?.changesSoundedFillerToSilent,
+            clauseFrameChangesSurfaceForms: adverbioMatiVi.adverbialNuclearClauseFrame?.generationContract?.changesSurfaceForms,
             hasKnownLegacyAdverbioTense: adverbioMatiVi.adverbialNuclearFrame?.classification?.hasKnownLegacyAdverbioTense,
             changesSurfaceForms: adverbioMatiVi.adverbialNuclearFrame?.boundaries?.changesSurfaceForms,
             forms: adverbioMatiVi.surfaceForms,
@@ -1562,6 +2104,11 @@ function run(ctx) {
             adverbialKind: "manner-surface",
             sourceStem: "mati",
             sourceValency: "intransitive",
+            clauseFrameKind: "adverbial-nuclear-clause-frame",
+            clauseFrameDegree: "first-degree",
+            clauseFrameDomain: "manner",
+            clauseFrameSubjectNum1Changes: false,
+            clauseFrameChangesSurfaceForms: false,
             hasKnownLegacyAdverbioTense: true,
             changesSurfaceForms: false,
             forms: ["matka", "matika"],

@@ -1230,6 +1230,27 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             sourceTense: "presente-habitual",
         };
     }
+    if (kind === "agentivo-presente") {
+        return {
+            nominalizationKind: "present-agentive",
+            semanticRole: "agent",
+            sourceTense: "presente",
+        };
+    }
+    if (kind === "agentivo-preterito") {
+        return {
+            nominalizationKind: "preterit-agentive",
+            semanticRole: "agent",
+            sourceTense: "preterito",
+        };
+    }
+    if (kind === "agentivo-futuro") {
+        return {
+            nominalizationKind: "future-agentive",
+            semanticRole: "agent",
+            sourceTense: "futuro",
+        };
+    }
     if (kind === "patientivo") {
         return {
             nominalizationKind: "patientive",
@@ -1309,6 +1330,51 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
     };
 }
 
+function buildVerbDerivedNominalPossessorSourceFrame({
+    nominalKind = "",
+    sourceModel = null,
+    predicateStateSlot = null,
+    isGeneralUseActionNominal = false,
+    isGeneralUsePassiveActionNominal = false,
+} = {}) {
+    const kind = String(nominalKind || "");
+    const hasPossessor = predicateStateSlot?.hasPossessor === true;
+    const possessorPrefix = String(predicateStateSlot?.possessorPrefix || "");
+    if (!hasPossessor || !possessorPrefix) {
+        return null;
+    }
+    if (kind === "agentivo-preterito") {
+        return Object.freeze({
+            version: 1,
+            grammarSource: "Andrews 36.12",
+            possessorOrigin: "external",
+            sourceSubjectRelation: "retained-as-nnc-subject",
+            contrastNominalKind: "calificativo-instrumentivo",
+            notSourceSubjectTransform: true,
+            notExternalPossessorImport: false,
+        });
+    }
+    if (kind === "calificativo-instrumentivo" && isGeneralUseActionNominal) {
+        const sourceSubject = Object.freeze({
+            prefix: String(sourceModel?.sourceSubjectPrefix || ""),
+            suffix: String(sourceModel?.sourceSubjectSuffix || ""),
+        });
+        return Object.freeze({
+            version: 1,
+            grammarSource: isGeneralUsePassiveActionNominal
+                ? "Andrews 36.10/36.12"
+                : "Andrews 36.11/36.12",
+            possessorOrigin: "source-vnc-subject",
+            sourceSubjectRelation: "transformed-to-possessor",
+            contrastNominalKind: "agentivo-preterito",
+            notSourceSubjectTransform: false,
+            notExternalPossessorImport: true,
+            sourceSubject,
+        });
+    }
+    return null;
+}
+
 function buildVerbDerivedNominalizationProfile({
     nominalKind = "",
     sourceModel = null,
@@ -1368,6 +1434,13 @@ function buildVerbDerivedNominalizationProfile({
             sourceTense: resolvedSourceTense,
         })
         : null;
+    const possessorSourceFrame = buildVerbDerivedNominalPossessorSourceFrame({
+        nominalKind: kind,
+        sourceModel,
+        predicateStateSlot,
+        isGeneralUseActionNominal,
+        isGeneralUsePassiveActionNominal,
+    });
     return Object.freeze({
         version: 1,
         outputKind: "verb-derived-nominal",
@@ -1404,6 +1477,7 @@ function buildVerbDerivedNominalizationProfile({
             hasPossessor,
             possessorPrefix: String(predicateStateSlot?.possessorPrefix || ""),
         }),
+        possessorSourceFrame,
         subjectConnector: subjectNumberConnector || null,
         boundaries: Object.freeze({
             nominalizationScope: "structural-word-output",
@@ -1442,6 +1516,8 @@ function buildVerbDerivedNominalSourceModel(options = {}, kind = "") {
         isTransitive: options?.isTransitive === true,
         combinedMode: String(options?.combinedMode || ""),
         actionNounStemUse: String(options?.actionNounStemUse || ""),
+        sourceSubjectPrefix: String(options?.sourceSubjectPrefix || ""),
+        sourceSubjectSuffix: String(options?.sourceSubjectSuffix || ""),
         runtimeObjectSelection: Object.freeze({
             objectPrefix: String(options?.objectPrefix || ""),
             indirectObjectMarker: String(options?.indirectObjectMarker || ""),
@@ -1906,6 +1982,9 @@ function isNominalMorphProfileTense(tenseValue = "") {
         || isPotencialProfileTense(tenseValue)
         || isPatientivoAdjectiveTense(tenseValue)
         || tenseValue === "agentivo"
+        || tenseValue === "agentivo-presente"
+        || tenseValue === "agentivo-preterito"
+        || tenseValue === "agentivo-futuro"
         || tenseValue === "patientivo"
         || tenseValue === "instrumentivo"
         || tenseValue === "calificativo-instrumentivo"
@@ -7166,6 +7245,7 @@ function buildPatientivoDerivationInput({
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
     blockPerfectivoClassC = false,
+    preserveProjectiveObjectPrefix = "",
 }) {
     return {
         verb,
@@ -7197,6 +7277,7 @@ function buildPatientivoDerivationInput({
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
         blockPerfectivoClassC,
+        preserveProjectiveObjectPrefix,
     };
 }
 
@@ -7206,6 +7287,7 @@ function buildPatientivoDerivations({
     rawAnalysisVerb = "",
     sourceRawVerb = "",
     isTransitive,
+    preserveProjectiveObjectPrefix = "",
     directionalPrefix = "",
     boundPrefix = "",
     boundPrefixes = [],
@@ -7227,19 +7309,29 @@ function buildPatientivoDerivations({
     rootPlusYaBase = "",
     rootPlusYaBasePronounceable = "",
 }) {
+    const preservedProjectiveObjectPrefix = (
+        preserveProjectiveObjectPrefix === "ta"
+        || preserveProjectiveObjectPrefix === "te"
+    ) ? preserveProjectiveObjectPrefix : "";
+    const patientivoBoundPrefixes = preservedProjectiveObjectPrefix
+        ? [preservedProjectiveObjectPrefix, ...boundPrefixes]
+        : boundPrefixes;
+    const patientivoBoundExplicitFlags = preservedProjectiveObjectPrefix
+        ? [true, ...boundExplicitFlags]
+        : boundExplicitFlags;
     const patientivoSourceModel = buildPatientivoSourceModel({
         sourceRawVerb,
         verb,
         analysisVerb,
         rawAnalysisVerb,
         isTransitive,
-        objectPrefix: "",
+        objectPrefix: preserveProjectiveObjectPrefix,
         directionalPrefix,
         isYawi,
         hasImpersonalTaPrefix,
         boundPrefix,
-        boundPrefixes,
-        boundExplicitFlags,
+        boundPrefixes: patientivoBoundPrefixes,
+        boundExplicitFlags: patientivoBoundExplicitFlags,
         directionalPrefixFromSlash,
         sourceSplitPrefix,
         sourcePrefix,

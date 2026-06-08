@@ -16,6 +16,31 @@ const ADVERBIAL_NUCLEAR_KIND = Object.freeze({
     unknown: "unknown",
 });
 
+const ADVERBIAL_NUCLEAR_DEGREE = Object.freeze({
+    firstDegree: "first-degree",
+    secondDegree: "second-degree",
+    lexicalized: "lexicalized",
+    legacy: "legacy-adverbio",
+    unknown: "unknown",
+});
+
+const ADVERBIAL_NUCLEAR_DOMAIN = Object.freeze({
+    manner: "manner",
+    place: "place",
+    direction: "direction",
+    time: "time",
+    duration: "duration",
+    degree: "degree",
+    unknown: "unknown",
+});
+
+const ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND = Object.freeze({
+    vnc: "vnc",
+    nncAbsolutive: "nnc-absolutive",
+    nncPossessive: "nnc-possessive",
+    unknown: "unknown",
+});
+
 const ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE = Object.freeze({
     legacyAdverbioSurface: "legacy-adverbio-surface",
     adverbTranslation: "adverb-translation",
@@ -29,6 +54,7 @@ const ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE = Object.freeze({
 
 const ADVERBIAL_NUCLEAR_ANTI_CONFLATION_RULES = Object.freeze([
     "adverbial nuclear-clause boundary metadata is not generation",
+    "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms",
     "legacy adverbio word output is not a full Lesson 44 engine",
     "adverb translations are not Nawat/Pipil adverbial-clause evidence",
     "particle-looking labels are not particle or adverbial NNC fixture evidence",
@@ -68,6 +94,30 @@ function normalizeAdverbialNuclearKind(value = "") {
     );
 }
 
+function normalizeAdverbialNuclearDegree(value = "") {
+    return normalizeAdverbialNuclearEnum(
+        value,
+        Object.values(ADVERBIAL_NUCLEAR_DEGREE),
+        ADVERBIAL_NUCLEAR_DEGREE.unknown
+    );
+}
+
+function normalizeAdverbialNuclearDomain(value = "") {
+    return normalizeAdverbialNuclearEnum(
+        value,
+        Object.values(ADVERBIAL_NUCLEAR_DOMAIN),
+        ADVERBIAL_NUCLEAR_DOMAIN.unknown
+    );
+}
+
+function normalizeAdverbialNuclearSourceClauseKind(value = "") {
+    return normalizeAdverbialNuclearEnum(
+        value,
+        Object.values(ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND),
+        ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.unknown
+    );
+}
+
 function normalizeAdverbialNuclearFalsePositiveSource(value = "") {
     return normalizeAdverbialNuclearEnum(
         value,
@@ -102,7 +152,8 @@ function buildAdverbialNuclearBoundaryMetadata() {
         structuralQuestions: getAdverbialNuclearStructuralQuestions(),
         boundaries: {
             hasLegacyAdverbioSurface: true,
-            hasAdverbialNuclearClauseEngine: false,
+            hasAdverbialNuclearClauseFrame: true,
+            hasFullAdverbialNuclearClauseEngine: false,
             hasAdverbialNncGeneration: false,
             hasAdverbialVncGeneration: false,
             hasStaticAdverbialData: false,
@@ -112,6 +163,125 @@ function buildAdverbialNuclearBoundaryMetadata() {
             treatsLegacyAdverbioSurfaceAsFullLesson44Evidence: false,
         },
         antiConflationRules: getAdverbialNuclearAntiConflationRules(),
+    };
+}
+
+function buildAdverbializedSubjectPronounFrame({
+    sourceClauseKind = ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.unknown,
+    adverbialDegree = ADVERBIAL_NUCLEAR_DEGREE.unknown,
+} = {}) {
+    const normalizedSourceKind = normalizeAdverbialNuclearSourceClauseKind(sourceClauseKind);
+    const normalizedDegree = normalizeAdverbialNuclearDegree(adverbialDegree);
+    const secondDegree = normalizedDegree === ADVERBIAL_NUCLEAR_DEGREE.secondDegree;
+    return {
+        kind: "adverbialized-subject-pronoun",
+        lessonRef: "Andrews 44.2",
+        degree: normalizedDegree,
+        sourceClauseKind: normalizedSourceKind,
+        locus: "subject-pronoun",
+        num1: {
+            changesSoundedFillerToSilent: secondDegree,
+            description: secondDegree
+                ? "second-degree adverbialization replaces a sounded num1 filler with a silent one"
+                : "first-degree adverbialization has no required subject-pronoun shape change",
+        },
+        constraints: {
+            vncAllowsOnlyFirstDegree: true,
+            possessiveNncAllowsOnlyFirstDegree: true,
+            absolutiveNncIsIdiosyncratic: true,
+        },
+    };
+}
+
+function buildAdverbialNuclearClauseFrame({
+    source = "",
+    surfaceForms = [],
+    sourceClauseKind = ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.vnc,
+    adverbialKind = ADVERBIAL_NUCLEAR_KIND.vncAdverbial,
+    adverbialDegree = ADVERBIAL_NUCLEAR_DEGREE.firstDegree,
+    semanticDomain = ADVERBIAL_NUCLEAR_DOMAIN.manner,
+    tense = "",
+    sourceStem = "",
+    finalStem = "",
+    analysisStem = "",
+    sourceValency = "",
+    objectPrefix = "",
+    baseObjectPrefix = "",
+    evidenceSource = "",
+    legacyTense = "",
+} = {}) {
+    const normalizedSourceKind = normalizeAdverbialNuclearSourceClauseKind(sourceClauseKind);
+    const normalizedKind = normalizeAdverbialNuclearKind(adverbialKind);
+    const normalizedDegree = normalizeAdverbialNuclearDegree(adverbialDegree);
+    const normalizedDomain = normalizeAdverbialNuclearDomain(semanticDomain);
+    const forms = Array.isArray(surfaceForms)
+        ? surfaceForms.map((form) => String(form || "").trim()).filter(Boolean)
+        : [String(surfaceForms || "").trim()].filter(Boolean);
+    const sourceText = String(source || sourceStem || analysisStem || finalStem || "").trim();
+    const diagnostics = [];
+    if (!sourceText) {
+        diagnostics.push("adverbial-nuclear-requires-source");
+    }
+    if (!forms.length) {
+        diagnostics.push("adverbial-nuclear-requires-generated-surface");
+    }
+    if (
+        (normalizedSourceKind === ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.vnc
+            || normalizedSourceKind === ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.nncPossessive)
+        && normalizedDegree === ADVERBIAL_NUCLEAR_DEGREE.secondDegree
+    ) {
+        diagnostics.push("adverbial-nuclear-source-permits-first-degree-only");
+    }
+    if (normalizedDomain === ADVERBIAL_NUCLEAR_DOMAIN.unknown) {
+        diagnostics.push("adverbial-nuclear-semantic-domain-unconfirmed");
+    }
+    const supported = Boolean(sourceText && forms.length)
+        && !diagnostics.includes("adverbial-nuclear-source-permits-first-degree-only");
+    const subjectPronoun = buildAdverbializedSubjectPronounFrame({
+        sourceClauseKind: normalizedSourceKind,
+        adverbialDegree: normalizedDegree,
+    });
+    return {
+        kind: "adverbial-nuclear-clause-frame",
+        version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
+        lesson: 44,
+        structuralSource: "Andrews 44.1-44.4",
+        targetAuthority: "Nawat/Pipil generated output supplied to this frame",
+        supported,
+        confirmed: false,
+        source: {
+            raw: sourceText,
+            clauseKind: normalizedSourceKind,
+            adverbialKind: normalizedKind,
+            stem: String(sourceStem || sourceText),
+            finalStem: String(finalStem || sourceStem || sourceText),
+            analysisStem: String(analysisStem || sourceStem || sourceText),
+            valency: String(sourceValency || ""),
+            objectPrefix: String(objectPrefix || ""),
+            baseObjectPrefix: String(baseObjectPrefix || objectPrefix || ""),
+            tense: String(tense || legacyTense || ""),
+        },
+        adverbialization: {
+            degree: normalizedDegree,
+            semanticDomain: normalizedDomain,
+            subjectPronoun,
+            lexicalized: normalizedDegree === ADVERBIAL_NUCLEAR_DEGREE.lexicalized,
+            legacyRoute: Boolean(legacyTense),
+        },
+        output: {
+            surfaceForms: forms,
+            primarySurface: forms[0] || "",
+            preservesGeneratedSurface: true,
+        },
+        generationContract: {
+            routeGeneratesSurface: Boolean(legacyTense),
+            frameGeneratesSurface: false,
+            changesSurfaceForms: false,
+            newWordGenerationAllowed: false,
+        },
+        evidenceSource: String(evidenceSource || ""),
+        diagnostics,
+        boundary: buildAdverbialNuclearBoundaryMetadata(),
     };
 }
 

@@ -262,6 +262,19 @@ function resolveStemCandidateMorphologyResult({
     const localObjectPrefix = applied.objectPrefix;
     let localSubjectSuffix = applied.subjectSuffix;
     let localVerb = applied.verb;
+    const customaryPresentPatientiveSelectedProjectiveObjectPrefix = (
+        baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix === "ta"
+        || baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix === "te"
+    ) ? baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix : "";
+    const keepSelectedCustomaryPresentPatientiveProjectiveStem = (stemValue = "") => {
+        const normalizedStem = String(stemValue || "");
+        if (!customaryPresentPatientiveSelectedProjectiveObjectPrefix || !normalizedStem) {
+            return normalizedStem;
+        }
+        return normalizedStem.startsWith(customaryPresentPatientiveSelectedProjectiveObjectPrefix)
+            ? normalizedStem
+            : `${customaryPresentPatientiveSelectedProjectiveObjectPrefix}${normalizedStem}`;
+    };
     if (baseMorphologyInput.customaryPresentPatientiveNnc === true) {
         const moveCustomaryPresentNi = localSubjectSuffix === "ni"
             || localSubjectSuffix === "nit";
@@ -271,6 +284,7 @@ function resolveStemCandidateMorphologyResult({
                 ? "met"
                 : "";
         }
+        localVerb = keepSelectedCustomaryPresentPatientiveProjectiveStem(localVerb);
     }
     let localFormSpec = applied.formSpec
         || (isNominalOutputProfile ? buildLiteralNominalFormSpec(localVerb, localSubjectSuffix) : null);
@@ -308,6 +322,9 @@ function resolveStemCandidateMorphologyResult({
         const altVerb = moveAltCustomaryPresentNi
             ? `${normalizedForm.verb || ""}ni`
             : normalizedForm.verb;
+        const resolvedAltVerb = baseMorphologyInput.customaryPresentPatientiveNnc === true
+            ? keepSelectedCustomaryPresentPatientiveProjectiveStem(altVerb)
+            : altVerb;
         const customaryPluralAltSuffix = moveAltCustomaryPresentNi
             ? (baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "")
             : rawAltSuffix;
@@ -323,11 +340,11 @@ function resolveStemCandidateMorphologyResult({
             return null;
         }
         const altFormSpec = isNominalOutputProfile
-            ? buildLiteralNominalFormSpec(altVerb, altSuffix)
+            ? buildLiteralNominalFormSpec(resolvedAltVerb, altSuffix)
             : normalizedForm.formSpec;
         return {
             ...normalizedForm,
-            verb: altVerb,
+            verb: resolvedAltVerb,
             subjectSuffix: altSuffix,
             formSpec: altFormSpec,
             trailingSuffix: normalizedForm.trailingSuffix || "",

@@ -4054,7 +4054,7 @@ export function createUiStateApi(targetObject = globalThis) {
     }
     function getTenseOrderForMode(mode) {
       if (mode === targetObject.TENSE_MODE.sustantivo) {
-        return ["sustantivo-verbal", "agentivo", "patientivo", "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
+        return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
       }
       if (mode === targetObject.TENSE_MODE.adjetivo) {
         return targetObject.ADJECTIVE_TAB_TENSE_ORDER;
@@ -4062,7 +4062,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (mode === targetObject.TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
       }
-      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.ACTIVE_ADJECTIVE_TENSE_SET.has(tense) && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "pasado-remoto-adverbio-activo" && tense !== "agentivo" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal");
+      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.ACTIVE_ADJECTIVE_TENSE_SET.has(tense) && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "pasado-remoto-adverbio-activo" && tense !== "agentivo" && tense !== "agentivo-presente" && tense !== "agentivo-preterito" && tense !== "agentivo-futuro" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal");
     }
     function isNounPossessionSplitTense(tenseValue) {
       return tenseValue === "instrumentivo";

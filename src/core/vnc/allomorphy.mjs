@@ -1039,6 +1039,27 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           sourceTense: "presente-habitual"
         };
       }
+      if (kind === "agentivo-presente") {
+        return {
+          nominalizationKind: "present-agentive",
+          semanticRole: "agent",
+          sourceTense: "presente"
+        };
+      }
+      if (kind === "agentivo-preterito") {
+        return {
+          nominalizationKind: "preterit-agentive",
+          semanticRole: "agent",
+          sourceTense: "preterito"
+        };
+      }
+      if (kind === "agentivo-futuro") {
+        return {
+          nominalizationKind: "future-agentive",
+          semanticRole: "agent",
+          sourceTense: "futuro"
+        };
+      }
       if (kind === "patientivo") {
         return {
           nominalizationKind: "patientive",
@@ -1113,6 +1134,48 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         sourceTense: ""
       };
     }
+    function buildVerbDerivedNominalPossessorSourceFrame({
+      nominalKind = "",
+      sourceModel = null,
+      predicateStateSlot = null,
+      isGeneralUseActionNominal = false,
+      isGeneralUsePassiveActionNominal = false
+    } = {}) {
+      const kind = String(nominalKind || "");
+      const hasPossessor = predicateStateSlot?.hasPossessor === true;
+      const possessorPrefix = String(predicateStateSlot?.possessorPrefix || "");
+      if (!hasPossessor || !possessorPrefix) {
+        return null;
+      }
+      if (kind === "agentivo-preterito") {
+        return Object.freeze({
+          version: 1,
+          grammarSource: "Andrews 36.12",
+          possessorOrigin: "external",
+          sourceSubjectRelation: "retained-as-nnc-subject",
+          contrastNominalKind: "calificativo-instrumentivo",
+          notSourceSubjectTransform: true,
+          notExternalPossessorImport: false
+        });
+      }
+      if (kind === "calificativo-instrumentivo" && isGeneralUseActionNominal) {
+        const sourceSubject = Object.freeze({
+          prefix: String(sourceModel?.sourceSubjectPrefix || ""),
+          suffix: String(sourceModel?.sourceSubjectSuffix || "")
+        });
+        return Object.freeze({
+          version: 1,
+          grammarSource: isGeneralUsePassiveActionNominal ? "Andrews 36.10/36.12" : "Andrews 36.11/36.12",
+          possessorOrigin: "source-vnc-subject",
+          sourceSubjectRelation: "transformed-to-possessor",
+          contrastNominalKind: "agentivo-preterito",
+          notSourceSubjectTransform: false,
+          notExternalPossessorImport: true,
+          sourceSubject
+        });
+      }
+      return null;
+    }
     function buildVerbDerivedNominalizationProfile({
       nominalKind = "",
       sourceModel = null,
@@ -1153,6 +1216,13 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         nominalKind: kind,
         sourceTense: resolvedSourceTense
       }) : null;
+      const possessorSourceFrame = buildVerbDerivedNominalPossessorSourceFrame({
+        nominalKind: kind,
+        sourceModel,
+        predicateStateSlot,
+        isGeneralUseActionNominal,
+        isGeneralUsePassiveActionNominal
+      });
       return Object.freeze({
         version: 1,
         outputKind: "verb-derived-nominal",
@@ -1189,6 +1259,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           hasPossessor,
           possessorPrefix: String(predicateStateSlot?.possessorPrefix || "")
         }),
+        possessorSourceFrame,
         subjectConnector: subjectNumberConnector || null,
         boundaries: Object.freeze({
           nominalizationScope: "structural-word-output",
@@ -1214,6 +1285,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         isTransitive: options?.isTransitive === true,
         combinedMode: String(options?.combinedMode || ""),
         actionNounStemUse: String(options?.actionNounStemUse || ""),
+        sourceSubjectPrefix: String(options?.sourceSubjectPrefix || ""),
+        sourceSubjectSuffix: String(options?.sourceSubjectSuffix || ""),
         runtimeObjectSelection: Object.freeze({
           objectPrefix: String(options?.objectPrefix || ""),
           indirectObjectMarker: String(options?.indirectObjectMarker || ""),
@@ -1603,7 +1676,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       };
     }
     function isNominalMorphProfileTense(tenseValue = "") {
-      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
+      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "agentivo-presente" || tenseValue === "agentivo-preterito" || tenseValue === "agentivo-futuro" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
     }
     function buildSurfaceRouteText(sourceBase = "", sourceSuffix = "", outputStem = "") {
       const normalizedSourceSuffix = normalizeDerivationStemValue(sourceSuffix);
@@ -6250,7 +6323,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       suppletiveStemSet = null,
       rootPlusYaBase = "",
       rootPlusYaBasePronounceable = "",
-      blockPerfectivoClassC = false
+      blockPerfectivoClassC = false,
+      preserveProjectiveObjectPrefix = ""
     }) {
       return {
         verb,
@@ -6281,7 +6355,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         suppletiveStemSet,
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
-        blockPerfectivoClassC
+        blockPerfectivoClassC,
+        preserveProjectiveObjectPrefix
       };
     }
     function buildPatientivoDerivations({
@@ -6290,6 +6365,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       rawAnalysisVerb = "",
       sourceRawVerb = "",
       isTransitive,
+      preserveProjectiveObjectPrefix = "",
       directionalPrefix = "",
       boundPrefix = "",
       boundPrefixes = [],
@@ -6311,19 +6387,22 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       rootPlusYaBase = "",
       rootPlusYaBasePronounceable = ""
     }) {
+      const preservedProjectiveObjectPrefix = preserveProjectiveObjectPrefix === "ta" || preserveProjectiveObjectPrefix === "te" ? preserveProjectiveObjectPrefix : "";
+      const patientivoBoundPrefixes = preservedProjectiveObjectPrefix ? [preservedProjectiveObjectPrefix, ...boundPrefixes] : boundPrefixes;
+      const patientivoBoundExplicitFlags = preservedProjectiveObjectPrefix ? [true, ...boundExplicitFlags] : boundExplicitFlags;
       const patientivoSourceModel = buildPatientivoSourceModel({
         sourceRawVerb,
         verb,
         analysisVerb,
         rawAnalysisVerb,
         isTransitive,
-        objectPrefix: "",
+        objectPrefix: preserveProjectiveObjectPrefix,
         directionalPrefix,
         isYawi,
         hasImpersonalTaPrefix,
         boundPrefix,
-        boundPrefixes,
-        boundExplicitFlags,
+        boundPrefixes: patientivoBoundPrefixes,
+        boundExplicitFlags: patientivoBoundExplicitFlags,
         directionalPrefixFromSlash,
         sourceSplitPrefix,
         sourcePrefix,
@@ -8613,6 +8692,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     api.normalizeVerbDerivedPatientiveFamily = normalizeVerbDerivedPatientiveFamily;
     api.buildVerbDerivedPatientiveFamilyProfile = buildVerbDerivedPatientiveFamilyProfile;
     api.getVerbDerivedNominalProfileDefaults = getVerbDerivedNominalProfileDefaults;
+    api.buildVerbDerivedNominalPossessorSourceFrame = buildVerbDerivedNominalPossessorSourceFrame;
     api.buildVerbDerivedNominalizationProfile = buildVerbDerivedNominalizationProfile;
     api.buildVerbDerivedNominalSourceModel = buildVerbDerivedNominalSourceModel;
     api.buildVerbDerivedNominalSourceModelFromRawVerb = buildVerbDerivedNominalSourceModelFromRawVerb;

@@ -24,11 +24,45 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       override = null,
       verb = "",
       subjectPrefix = "",
-      subjectSuffix = ""
+      subjectSuffix = "",
+      objectPrefix = ""
     } = {}) {
       const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+      const shouldUseIntensifiedRoute = typeof targetObject.shouldGenerateIntensifiedAdjectivalNnc === "function" && targetObject.shouldGenerateIntensifiedAdjectivalNnc(adjectivalNnc);
+      const shouldUseVncRoute = typeof targetObject.shouldGenerateVncAdjectivalNnc === "function" && targetObject.shouldGenerateVncAdjectivalNnc(adjectivalNnc);
+      const shouldUsePatientiveRoute = typeof targetObject.shouldGeneratePatientiveAdjectivalNnc === "function" && targetObject.shouldGeneratePatientiveAdjectivalNnc(adjectivalNnc);
+      const shouldUseNominalizedVncRoute = typeof targetObject.shouldGenerateNominalizedVncAdjectivalNnc === "function" && targetObject.shouldGenerateNominalizedVncAdjectivalNnc(adjectivalNnc);
       const shouldUseRootPlusYaRoute = typeof targetObject.shouldGenerateRootPlusYaAdjectivalNnc === "function" && targetObject.shouldGenerateRootPlusYaAdjectivalNnc(adjectivalNnc);
-      const result = shouldUseRootPlusYaRoute && typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
+      const result = shouldUseIntensifiedRoute && typeof targetObject.buildIntensifiedAdjectivalNncOutput === "function" ? targetObject.buildIntensifiedAdjectivalNncOutput({
+        sourceSurface: adjectivalNnc.sourceSurface ?? adjectivalNnc.surface ?? adjectivalNnc.stem ?? verb,
+        sourceFormulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
+        sourceFormulaEcho: adjectivalNnc.sourceFormulaEcho || adjectivalNnc.formulaEcho || "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseVncRoute && typeof targetObject.buildVncAdjectivalNncFunctionOutput === "function" ? targetObject.buildVncAdjectivalNncFunctionOutput({
+        vncSurface: adjectivalNnc.vncSurface ?? adjectivalNnc.surface ?? adjectivalNnc.stem ?? verb,
+        sourceVerb: adjectivalNnc.sourceVerb ?? verb,
+        sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
+        sourceCombinedMode: adjectivalNnc.sourceCombinedMode ?? "",
+        sourceVoiceMode: adjectivalNnc.sourceVoiceMode ?? "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseNominalizedVncRoute && typeof targetObject.buildNominalizedVncAdjectivalNncFunctionOutput === "function" ? targetObject.buildNominalizedVncAdjectivalNncFunctionOutput({
+        nominalizedSurface: adjectivalNnc.nominalizedSurface ?? adjectivalNnc.surface ?? adjectivalNnc.stem ?? verb,
+        state: adjectivalNnc.state ?? "absolutive",
+        nominalizationProfile: adjectivalNnc.nominalizationProfile || null,
+        formulaSlots: adjectivalNnc.formulaSlots || null,
+        formulaEcho: adjectivalNnc.formulaEcho || "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUsePatientiveRoute && typeof targetObject.buildPatientivoAdjectivalNncFunctionOutput === "function" ? targetObject.buildPatientivoAdjectivalNncFunctionOutput({
+        patientivoSurface: adjectivalNnc.patientivoSurface ?? adjectivalNnc.surface ?? adjectivalNnc.stem ?? verb,
+        state: adjectivalNnc.state ?? "absolutive",
+        patientivoSource: adjectivalNnc.patientivoSource ?? "",
+        sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
+        sourceCombinedMode: adjectivalNnc.sourceCombinedMode ?? "",
+        nominalizationProfile: adjectivalNnc.nominalizationProfile || null,
+        formulaSlots: adjectivalNnc.formulaSlots || null,
+        formulaEcho: adjectivalNnc.formulaEcho || "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseRootPlusYaRoute && typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
         stem: adjectivalNnc.stem ?? verb,
         state: adjectivalNnc.state ?? "absolutive",
         subject: {
@@ -65,21 +99,31 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           message: "Adjectival NNC function generation is unavailable."
         }]
       };
+      const resultClauseKind = result.clauseKind || "nominal-nuclear-clause";
+      const isVerbalAdjectivalFunction = resultClauseKind === "verbal-nuclear-clause";
       const nuclearClauseShell = typeof targetObject.buildNuclearClauseShellMetadata === "function" ? targetObject.buildNuclearClauseShellMetadata({
-        clauseKind: "nominal-nuclear-clause",
+        clauseKind: resultClauseKind,
         formulaSlots: result.adjectivalNncFunctionFrame?.sourceFormulaSlots || result.nncBasic?.formulaSlots || result.clauseFrame?.formulaSlots || null,
         formulaEcho: result.adjectivalNncFunctionFrame?.sourceFormulaEcho || result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "",
+        subject: {
+          subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+          subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix
+        },
+        object: {
+          objectPrefix: adjectivalNnc.objectPrefix ?? objectPrefix
+        },
         predicate: {
           stem: result.stem || adjectivalNnc.stem || verb,
-          state: result.state || "absolutive"
+          state: result.state || (isVerbalAdjectivalFunction ? "" : "absolutive")
         },
-        predicateState: result.state || "absolutive"
+        predicateState: result.state || (isVerbalAdjectivalFunction ? "" : "absolutive"),
+        tenseValue: isVerbalAdjectivalFunction ? adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? result.tense ?? "" : ""
       }) : null;
       const sentenceLayer = typeof targetObject.buildGeneratedSentenceLayerMetadata === "function" ? targetObject.buildGeneratedSentenceLayerMetadata({
         override,
         tense: result.tense || adjectivalNnc.targetTense || "",
         nuclearClauseShell,
-        clauseKind: "nominal-nuclear-clause"
+        clauseKind: resultClauseKind
       }) : null;
       return {
         ...result,
@@ -464,7 +508,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       parsedVerb = null
     } = {}) {
       const compoundAst = parsedVerb?.compoundAst || null;
-      if (resolvedTenseMode !== targetObject.TENSE_MODE.verbo || !compoundAst || compoundAst.kind !== "compound") {
+      const allowsCompoundFrame = resolvedTenseMode === targetObject.TENSE_MODE.verbo || resolvedTenseMode === targetObject.TENSE_MODE.sustantivo || resolvedTenseMode === targetObject.TENSE_MODE.adjetivo;
+      if (!allowsCompoundFrame || !compoundAst || compoundAst.kind !== "compound") {
         return null;
       }
       const embeds = Array.isArray(compoundAst.embeds) ? compoundAst.embeds.map(entry => ({
@@ -511,6 +556,137 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         }
       };
     }
+    function buildGeneratedPatientiveCompoundSourceFrameMetadata({
+      resolvedTenseMode = "",
+      compoundFrame = null,
+      nominalizationProfile = null,
+      nuclearClauseShell = null,
+      surfaceForms = []
+    } = {}) {
+      const patientiveFamilyProfile = nominalizationProfile?.patientiveFamilyProfile || null;
+      if (resolvedTenseMode !== targetObject.TENSE_MODE.sustantivo || !compoundFrame || compoundFrame.kind !== "compound-frame" || nominalizationProfile?.nominalKind !== "patientivo" || !patientiveFamilyProfile) {
+        return null;
+      }
+      const forms = Array.isArray(surfaceForms) ? surfaceForms.map(form => String(form || "")).filter(Boolean) : [];
+      const family = String(patientiveFamilyProfile.family || "");
+      return {
+        kind: "patientive-compound-source-frame",
+        version: 1,
+        lessonRef: "Andrews 41.2.3",
+        relatedLessonRefs: ["Andrews 39.6", "Andrews 39.7", "Andrews 39.8"],
+        outputKind: "patientive-nnc-compound-source",
+        sourceCategory: "compound-verbstem",
+        nominalizationKind: "patientive",
+        patientiveFamily: family,
+        sourcePattern: String(patientiveFamilyProfile.sourcePattern || ""),
+        sourceFamilyIds: Array.isArray(patientiveFamilyProfile.sourceFamilyIds) ? Array.from(patientiveFamilyProfile.sourceFamilyIds) : [],
+        generatedSurfacePreserved: true,
+        surfaceForms: forms,
+        sourceFormulaEcho: String(nuclearClauseShell?.formulaEcho || ""),
+        sourceFormulaSlots: nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object" ? {
+          ...nuclearClauseShell.slots
+        } : null,
+        sourceCompoundFrame: {
+          kind: compoundFrame.kind,
+          lessonRange: compoundFrame.lessonRange,
+          matrix: compoundFrame.matrix && typeof compoundFrame.matrix === "object" ? {
+            ...compoundFrame.matrix
+          } : null,
+          embeds: Array.isArray(compoundFrame.embeds) ? compoundFrame.embeds.map(entry => ({
+            ...entry
+          })) : [],
+          sourceInput: compoundFrame.sourceInput && typeof compoundFrame.sourceInput === "object" ? {
+            ...compoundFrame.sourceInput
+          } : null,
+          valency: compoundFrame.valency && typeof compoundFrame.valency === "object" ? {
+            ...compoundFrame.valency
+          } : null,
+          flags: compoundFrame.flags && typeof compoundFrame.flags === "object" ? {
+            ...compoundFrame.flags
+          } : {}
+        },
+        compoundPatientiveSource: {
+          relation: family ? `${family}-patientive-from-compound-source` : "patientive-from-compound-source",
+          evidence: "patientiveFamilyProfile + compoundAst",
+          sourceRoleClass: family === "passive" ? "passive-patientive-compound-source" : family === "impersonal" ? "impersonal-patientive-compound-source" : "patientive-compound-source"
+        },
+        cannotInferFromSurfaceAlone: true,
+        spellingAuthority: "Nawat/Pipil orthography",
+        grammarAuthority: "Andrews PDF",
+        boundaries: {
+          isSentenceEngine: false,
+          isGenerationRule: false,
+          changesSurfaceForms: false,
+          noNewSurfaceForms: true,
+          noFixtureEvidence: true,
+          doesNotResolveAllCompoundSemantics: true
+        }
+      };
+    }
+    function buildGeneratedAdjectivalCompoundSourceFrameMetadata({
+      resolvedTenseMode = "",
+      compoundFrame = null,
+      nominalizationProfile = null,
+      nuclearClauseShell = null,
+      surfaceForms = []
+    } = {}) {
+      if (resolvedTenseMode !== targetObject.TENSE_MODE.adjetivo || !compoundFrame || compoundFrame.kind !== "compound-frame") {
+        return null;
+      }
+      const nominalizationKind = String(nominalizationProfile?.role?.nominalizationKind || "");
+      const adjectivalFunction = String(nominalizationProfile?.role?.adjectivalFunction || "");
+      const isAdjectivalPredicateSurface = adjectivalFunction === "predicate-surface" || nominalizationKind === "adjectival-surface" || nominalizationKind === "patientive-adjectival";
+      if (!isAdjectivalPredicateSurface) {
+        return null;
+      }
+      const forms = Array.isArray(surfaceForms) ? surfaceForms.map(form => String(form || "")).filter(Boolean) : [];
+      return {
+        kind: "adjectival-compound-source-frame",
+        version: 1,
+        lessonRef: "Andrews 41.2",
+        outputKind: "adjectival-nnc-compound-source",
+        sourceCategory: "compound-verbstem",
+        functionKind: "compound-source-adjectival",
+        nominalizationKind: nominalizationKind || "adjectival-surface",
+        adjectivalFunction: adjectivalFunction || "predicate-surface",
+        generatedSurfacePreserved: true,
+        surfaceForms: forms,
+        sourceFormulaEcho: String(nuclearClauseShell?.formulaEcho || ""),
+        sourceFormulaSlots: nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object" ? {
+          ...nuclearClauseShell.slots
+        } : null,
+        sourceCompoundFrame: {
+          kind: compoundFrame.kind,
+          lessonRange: compoundFrame.lessonRange,
+          matrix: compoundFrame.matrix && typeof compoundFrame.matrix === "object" ? {
+            ...compoundFrame.matrix
+          } : null,
+          embeds: Array.isArray(compoundFrame.embeds) ? compoundFrame.embeds.map(entry => ({
+            ...entry
+          })) : [],
+          sourceInput: compoundFrame.sourceInput && typeof compoundFrame.sourceInput === "object" ? {
+            ...compoundFrame.sourceInput
+          } : null,
+          valency: compoundFrame.valency && typeof compoundFrame.valency === "object" ? {
+            ...compoundFrame.valency
+          } : null,
+          flags: compoundFrame.flags && typeof compoundFrame.flags === "object" ? {
+            ...compoundFrame.flags
+          } : {}
+        },
+        hasModificationAst: false,
+        spellingAuthority: "Nawat/Pipil orthography",
+        grammarAuthority: "Andrews PDF",
+        boundaries: {
+          isSentenceEngine: false,
+          isGenerationRule: false,
+          changesSurfaceForms: false,
+          noNewSurfaceForms: true,
+          noModificationAst: true,
+          doesNotImplementLessons42_43: true
+        }
+      };
+    }
     function buildGeneratedAdverbialNuclearFrameMetadata({
       resolvedTenseMode = "",
       tense = "",
@@ -518,7 +694,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       verb = "",
       analysisVerb = "",
       objectPrefix = "",
-      baseObjectPrefix = ""
+      baseObjectPrefix = "",
+      surfaceForms = []
     } = {}) {
       if (resolvedTenseMode !== targetObject.TENSE_MODE.adverbio) {
         return null;
@@ -530,6 +707,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const sourceStem = String(analysisVerb || verb || renderVerb || "");
       const normalizedObjectPrefix = String(objectPrefix || "");
       const normalizedBaseObjectPrefix = String(baseObjectPrefix || normalizedObjectPrefix || "");
+      const sourceValency = normalizedObjectPrefix || normalizedBaseObjectPrefix ? "transitive" : "intransitive";
       const classification = typeof targetObject.classifyAdverbialNuclearCandidate === "function" ? targetObject.classifyAdverbialNuclearCandidate({
         source: sourceStem,
         candidate: "",
@@ -537,24 +715,43 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         adverbialKind: "manner-surface",
         falsePositiveSource: "legacy-adverbio-surface"
       }) : null;
+      const clauseFrame = typeof targetObject.buildAdverbialNuclearClauseFrame === "function" ? targetObject.buildAdverbialNuclearClauseFrame({
+        source: sourceStem,
+        surfaceForms,
+        sourceClauseKind: "vnc",
+        adverbialKind: "vnc-adverbial",
+        adverbialDegree: "first-degree",
+        semanticDomain: "manner",
+        tense,
+        legacyTense: tense,
+        sourceStem,
+        finalStem: String(verb || ""),
+        analysisStem: String(analysisVerb || verb || ""),
+        sourceValency,
+        objectPrefix: normalizedObjectPrefix,
+        baseObjectPrefix: normalizedBaseObjectPrefix,
+        evidenceSource: "generated legacy adverbio route"
+      }) : null;
       return {
         kind: "adverbial-nuclear-frame",
         version: 1,
         lesson: 44,
         source: "generate-word",
-        diagnosticOnly: true,
+        diagnosticOnly: false,
         doesNotGenerateForms: true,
+        adverbialNuclearClauseFrame: clauseFrame,
         adverbial: {
           kind: "manner-surface",
           label: "manera",
-          degree: "legacy-adverbio",
+          degree: "first-degree",
+          legacyDegreeLabel: "legacy-adverbio",
           isFullLesson44Engine: false
         },
         sourceVnc: {
           stem: sourceStem,
           finalStem: String(verb || ""),
           analysisStem: String(analysisVerb || verb || ""),
-          valency: normalizedObjectPrefix || normalizedBaseObjectPrefix ? "transitive" : "intransitive",
+          valency: sourceValency,
           objectPrefix: normalizedObjectPrefix,
           baseObjectPrefix: normalizedBaseObjectPrefix
         },
@@ -571,6 +768,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           isSentenceEngine: false,
           isGenerationRule: false,
           changesSurfaceForms: false,
+          hasAdverbialNuclearClauseFrame: Boolean(clauseFrame),
           noFullAdverbialClauseEngine: true,
           legacyAdverbioSurfaceOnly: true
         }
@@ -875,7 +1073,10 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       patientivoSource = "",
       renderVerb = "",
       verb = "",
-      analysisVerb = ""
+      analysisVerb = "",
+      subjectPrefix = "",
+      sourceSubjectPrefix = "",
+      sourceSubjectSuffix = ""
     } = {}) {
       const connector = typeof targetObject.buildNominalSubjectNumberConnector === "function" ? targetObject.buildNominalSubjectNumberConnector({
         subjectSuffix,
@@ -916,7 +1117,9 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           sourceRawVerb: renderVerb || verb || analysisVerb || "",
           analysisVerb: analysisVerb || verb || "",
           combinedMode: sourceCombinedMode,
-          actionNounStemUse
+          actionNounStemUse,
+          sourceSubjectPrefix: sourceSubjectPrefix || subjectPrefix,
+          sourceSubjectSuffix
         } : null,
         predicateStateSlot,
         subjectNumberConnector: connector,
@@ -993,6 +1196,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       let verb = prefixInputs.verb || "";
       let subjectSuffix = prefixInputs.subjectSuffix || "";
       let possessivePrefix = prefixInputs.possessivePrefix || "";
+      const inputSubjectPrefix = subjectPrefix;
       const inputSubjectSuffix = subjectSuffix;
       const liveInput = request?.liveInput && typeof request.liveInput === "object" ? request.liveInput : {};
       const hasVerbInput = liveInput.hasVerbInput === true;
@@ -1050,13 +1254,27 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           override,
           verb,
           subjectPrefix,
-          subjectSuffix
+          subjectSuffix,
+          objectPrefix
         });
       }
       const isTroncoNajActiveWrapperTense = targetObject.isPotencialTroncoNajActiveTense(tense);
       const isPatientivoAdjectiveProfile = targetObject.isPatientivoAdjectiveTense(tense);
       const isNominalOutputProfile = targetObject.isNominalMorphProfileTense(tense);
+      const isPresentAgentivoNominalProfile = tense === "agentivo-presente";
+      const isPreteritAgentivoNominalProfile = tense === "agentivo-preterito";
+      const isFutureAgentivoNominalProfile = tense === "agentivo-futuro";
       if (targetObject.isPotencialProfileTense(tense) && tense !== "potencial") {
+        possessivePrefix = "";
+      }
+      const overrideInstrumentivoMode = override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo ? targetObject.INSTRUMENTIVO_MODE.posesivo : override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.absolutivo ? targetObject.INSTRUMENTIVO_MODE.absolutivo : "";
+      if (tense === "instrumentivo" && overrideInstrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo && !possessivePrefix && typeof targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject === "function") {
+        possessivePrefix = targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
+      }
+      if (tense === "calificativo-instrumentivo" && actionNounStemUse === "general-use" && !possessivePrefix && typeof targetObject.resolveNawatPossessorPrefixFromSourceSubject === "function") {
+        possessivePrefix = targetObject.resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
+      }
+      if (isPresentAgentivoNominalProfile) {
         possessivePrefix = "";
       }
       if (isPatientivoAdjectiveProfile) {
@@ -1106,7 +1324,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         surfaceRuleMeta = null,
         isYawiImperative = false
       } = {}) => {
-        const usePossessivePrefix = tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
+        const usePossessivePrefix = tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "agentivo-presente" || tense === "agentivo-preterito" || tense === "agentivo-futuro" || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
         const preposedParticle = tense === "imperativo" ? isYawiImperative ? "ma " : targetObject.getSubjectPersonInfo(subjectPrefixValue, subjectSuffixValue)?.person === 2 ? "" : "ma " : "";
         const outputTextOptions = {
           preposedParticle,
@@ -1231,7 +1449,27 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           },
           verb: rawVerb || renderVerb || verb,
           subjectPrefix,
-          subjectSuffix
+          subjectSuffix,
+          objectPrefix
+        });
+      }
+      if (tense === "adjetivo-preterito" && resolvedTenseMode === targetObject.TENSE_MODE.adjetivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.active && rootPlusYaAdjectivalSource.diagnosticId === "adjectival-nnc-root-plus-ya-exception") {
+        return executeAdjectivalNncGenerationRoute({
+          override: {
+            ...override,
+            adjectivalNnc: {
+              ...(override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : {}),
+              enabled: true,
+              stem: rawVerb || renderVerb || verb,
+              state: "absolutive",
+              formation: "root-plus-ya-obsolete-preterit",
+              role: "predicate-surface"
+            }
+          },
+          verb: rawVerb || renderVerb || verb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix
         });
       }
       let analysisVerb = parsedVerb.analysisVerb;
@@ -1247,6 +1485,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const sourceSelectedProjectiveObjectPrefix = objectPrefix;
       const sourceSelectedProjectiveMarkers = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(marker => marker === "ta" || marker === "te");
       const passivePatientivoSelectedProjectiveObjectPrefix = tense === "patientivo" && targetObject.normalizeVerbDerivedPatientiveFamily(patientivoSource) === "passive" && sourceSelectedProjectiveMarkers.length > 1 && (sourceSelectedProjectiveObjectPrefix === "ta" || sourceSelectedProjectiveObjectPrefix === "te") ? sourceSelectedProjectiveObjectPrefix : "";
+      const customaryPresentPatientiveSelectedProjectiveObjectPrefix = sourceSelectedProjectiveMarkers.length > 1 && (sourceSelectedProjectiveObjectPrefix === "ta" || sourceSelectedProjectiveObjectPrefix === "te") ? sourceSelectedProjectiveObjectPrefix : "";
       ({
         objectPrefix,
         baseObjectPrefix
@@ -1630,7 +1869,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       objectPrefix = reflexiveUpdate.objectPrefix;
       isReflexive = reflexiveUpdate.isReflexive;
       const isCalificativoInstrumentivo = tense === "calificativo-instrumentivo";
-      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
+      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || isPresentAgentivoNominalProfile || isPreteritAgentivoNominalProfile || isFutureAgentivoNominalProfile || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
       const invalidComboObjectPrefix = targetObject.resolveComboValidationObjectPrefix({
         objectPrefix,
         indirectObjectMarker,
@@ -1643,7 +1882,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       }
       clearError("object-prefix");
       if (isNounTense) {
-        if (targetObject.isNonanimateNounTense(tense) && !targetObject.isNonanimateSubject(subjectPrefix, subjectSuffix)) {
+        const sourceSubjectMapsToPossessor = tense === "calificativo-instrumentivo" && actionNounStemUse === "general-use";
+        if (targetObject.isNonanimateNounTense(tense) && !sourceSubjectMapsToPossessor && !targetObject.isNonanimateSubject(subjectPrefix, subjectSuffix)) {
           const message = tense === "sustantivo-verbal" ? "Sustantivo verbal solo con 3a persona no animada común." : "Solo 3a persona no animada (singular o plural).";
           const error = returnIfError(message, ["subject-prefix", "subject-suffix"]);
           if (error) return error;
@@ -1888,7 +2128,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         combinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active,
         customaryPresentPatientiveNnc: isPotencialHabitualNominalProfile,
         customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputSubjectSuffix === "t",
-        instrumentivoMode: possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo,
+        customaryPresentPatientiveSelectedProjectiveObjectPrefix,
+        instrumentivoMode: overrideInstrumentivoMode || (possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo),
         derivationType: resolvedDerivationType,
         isNonactiveMode: isNonactive,
         stemProvenanceSeed: forwardStemProvenance
@@ -1902,8 +2143,15 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       if (isPotencialHabitualNominalProfile) {
         const customaryPresentSubjectSuffix = String(appliedMorphology.subjectSuffix || "");
         const customaryPresentPluralSuffix = inputSubjectSuffix === "t" ? "met" : "";
+        const keepSelectedProjectiveInPatientiveStem = (stem = "") => {
+          const normalizedStem = String(stem || "");
+          if (!customaryPresentPatientiveSelectedProjectiveObjectPrefix || !normalizedStem) {
+            return normalizedStem;
+          }
+          return normalizedStem.startsWith(customaryPresentPatientiveSelectedProjectiveObjectPrefix) ? normalizedStem : `${customaryPresentPatientiveSelectedProjectiveObjectPrefix}${normalizedStem}`;
+        };
         const shouldMoveCustomaryPresentNi = customaryPresentSubjectSuffix === "ni" || customaryPresentSubjectSuffix === "nit";
-        const customaryPresentVerb = shouldMoveCustomaryPresentNi ? `${appliedMorphology.verb || ""}ni` : appliedMorphology.verb;
+        const customaryPresentVerb = keepSelectedProjectiveInPatientiveStem(shouldMoveCustomaryPresentNi ? `${appliedMorphology.verb || ""}ni` : appliedMorphology.verb);
         const customaryPresentConnector = shouldMoveCustomaryPresentNi ? customaryPresentPluralSuffix : customaryPresentSubjectSuffix;
         appliedMorphology = {
           ...appliedMorphology,
@@ -1913,7 +2161,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           alternateForms: (appliedMorphology.alternateForms || []).map(form => {
             const formSubjectSuffix = String(form.subjectSuffix || "");
             const moveFormNi = formSubjectSuffix === "ni" || formSubjectSuffix === "nit";
-            const formVerb = moveFormNi ? `${form.verb || ""}ni` : form.verb;
+            const formVerb = keepSelectedProjectiveInPatientiveStem(moveFormNi ? `${form.verb || ""}ni` : form.verb);
             const formConnector = moveFormNi ? customaryPresentPluralSuffix : formSubjectSuffix;
             return {
               ...form,
@@ -2104,7 +2352,9 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         actionNounStemUse,
         renderVerb,
         verb,
-        analysisVerb
+        analysisVerb,
+        sourceSubjectPrefix: inputSubjectPrefix,
+        sourceSubjectSuffix: inputSubjectSuffix
       }) : {};
       const nuclearClauseShell = buildGeneratedNuclearClauseShellMetadata({
         resolvedTenseMode,
@@ -2167,6 +2417,20 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         resolvedTenseMode,
         parsedVerb
       });
+      const patientiveCompoundSourceFrame = buildGeneratedPatientiveCompoundSourceFrameMetadata({
+        resolvedTenseMode,
+        compoundFrame,
+        nominalizationProfile: nominalClauseMetadata?.nominalizationProfile || null,
+        nuclearClauseShell,
+        surfaceForms: forms
+      });
+      const adjectivalCompoundSourceFrame = buildGeneratedAdjectivalCompoundSourceFrameMetadata({
+        resolvedTenseMode,
+        compoundFrame,
+        nominalizationProfile: nominalClauseMetadata?.nominalizationProfile || null,
+        nuclearClauseShell,
+        surfaceForms: forms
+      });
       const adverbialNuclearFrame = buildGeneratedAdverbialNuclearFrameMetadata({
         resolvedTenseMode,
         tense,
@@ -2174,7 +2438,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         verb,
         analysisVerb,
         objectPrefix,
-        baseObjectPrefix
+        baseObjectPrefix,
+        surfaceForms: forms
       });
       const generatedAdverbialAdjunctionBoundaryFrame = buildGeneratedAdverbialAdjunctionBoundaryFrameMetadata({
         resolvedTenseMode,
@@ -2201,7 +2466,10 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         derivedVoiceFrame,
         forwardDerivationFrame,
         compoundFrame,
+        patientiveCompoundSourceFrame,
+        adjectivalCompoundSourceFrame,
         adverbialNuclearFrame,
+        adverbialNuclearClauseFrame: adverbialNuclearFrame?.adverbialNuclearClauseFrame || null,
         adverbialAdjunctionBoundaryFrame: generatedAdverbialAdjunctionBoundaryFrame || nominalClauseMetadata?.adverbialAdjunctionBoundaryFrame || null,
         sentenceLayer
       };
@@ -2226,6 +2494,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
     api.getGeneratedForwardDerivationLabel = getGeneratedForwardDerivationLabel;
     api.buildGeneratedForwardDerivationFrameMetadata = buildGeneratedForwardDerivationFrameMetadata;
     api.buildGeneratedCompoundFrameMetadata = buildGeneratedCompoundFrameMetadata;
+    api.buildGeneratedPatientiveCompoundSourceFrameMetadata = buildGeneratedPatientiveCompoundSourceFrameMetadata;
+    api.buildGeneratedAdjectivalCompoundSourceFrameMetadata = buildGeneratedAdjectivalCompoundSourceFrameMetadata;
     api.buildGeneratedAdverbialNuclearFrameMetadata = buildGeneratedAdverbialNuclearFrameMetadata;
     api.buildGeneratedRelationalNncBoundaryFrameMetadata = buildGeneratedRelationalNncBoundaryFrameMetadata;
     api.buildGeneratedPlaceGentilicNncBoundaryFrameMetadata = buildGeneratedPlaceGentilicNncBoundaryFrameMetadata;

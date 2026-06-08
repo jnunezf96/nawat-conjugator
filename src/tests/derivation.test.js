@@ -295,6 +295,59 @@ function run(ctx) {
             nounClass: "zero",
         }
     );
+    s.eq(
+        "Andrews 39.6 patientive compound contracts expose embed/matrix formation frames",
+        {
+            verbal: {
+                grammarSource: compoundEmbedContract.formationFrame.grammarSource,
+                compoundStemType: compoundEmbedContract.formationFrame.compoundStemType,
+                embedRole: compoundEmbedContract.formationFrame.embed.role,
+                embedRoot: compoundEmbedContract.formationFrame.embed.root,
+                matrixType: compoundEmbedContract.formationFrame.matrix.type,
+                matrixRoot: compoundEmbedContract.formationFrame.matrix.root,
+                outputKind: compoundEmbedContract.formationFrame.output.kind,
+                verbInput: compoundEmbedContract.formationFrame.output.verbInput,
+                createsFixture: compoundEmbedContract.formationFrame.evidencePolicy.createsOrdinaryNncFixture,
+            },
+            nominal: {
+                grammarSource: nominalCompoundContract.formationFrame.grammarSource,
+                compoundStemType: nominalCompoundContract.formationFrame.compoundStemType,
+                embedRole: nominalCompoundContract.formationFrame.embed.role,
+                embedRoot: nominalCompoundContract.formationFrame.embed.root,
+                matrixType: nominalCompoundContract.formationFrame.matrix.type,
+                matrixRoot: nominalCompoundContract.formationFrame.matrix.root,
+                outputKind: nominalCompoundContract.formationFrame.output.kind,
+                ordinaryNncInput: nominalCompoundContract.formationFrame.output.ordinaryNncInput,
+                sourceKind: nominalCompoundContract.formationFrame.output.sourceKind,
+                createsFixture: nominalCompoundContract.formationFrame.evidencePolicy.createsOrdinaryNncFixture,
+            },
+        },
+        {
+            verbal: {
+                grammarSource: "Andrews 39.6",
+                compoundStemType: "verbal",
+                embedRole: "compound-embed",
+                embedRoot: "tamatiya",
+                matrixType: "verbal",
+                matrixRoot: "miki",
+                outputKind: "compound-vnc-input",
+                verbInput: "(tamatiya/miki)",
+                createsFixture: false,
+            },
+            nominal: {
+                grammarSource: "Andrews 39.6",
+                compoundStemType: "nominal",
+                embedRole: "compound-embed",
+                embedRoot: "tamatiya",
+                matrixType: "nominal",
+                matrixRoot: "kal",
+                outputKind: "ordinary-nnc-compound-input",
+                ordinaryNncInput: "(tamatiyakal)",
+                sourceKind: "open-stem",
+                createsFixture: false,
+            },
+        }
+    );
     const activeActionCompoundEmbedInventory = ctx.getActiveActionCompoundEmbedMatrixInventory();
     s.eq(
         "Andrews 37.5.4 active-action compound-embed matrix inventory is explicit",
@@ -407,6 +460,901 @@ function run(ctx) {
             result: "chukiliskal",
             sourceKind: "open-stem",
             nounClass: "zero",
+        }
+    );
+    const customaryAgentiveNominalInventory = ctx.getCustomaryAgentiveNominalCompoundMatrixInventory();
+    s.eq(
+        "Andrews 36.3 customary-present agentive nominal-matrix inventory is explicit",
+        customaryAgentiveNominalInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            grammarSource: entry.grammarSource,
+            nounClass: entry.nounClass,
+            animacy: entry.animacy,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "cal-li",
+                classicalMatrix: "(cal)-li",
+                nawatRoot: "kal",
+                grammarSource: "Andrews 36.3",
+                nounClass: "zero",
+                animacy: "inanimate",
+                status: "nawat-data-backed",
+            },
+        ]
+    );
+    const customaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        matrixRoot: "kal",
+    });
+    const generatedCustomaryAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(
+        customaryAgentiveNominalContract.ordinaryNncRequest
+    );
+    s.eq(
+        "Andrews 36.3 fully nominalized customary-present agentive stem can become an ordinary NNC compound stem from #3 output",
+        {
+            supported: customaryAgentiveNominalContract.supported,
+            customaryAgentiveStem: customaryAgentiveNominalContract.customaryAgentiveStem,
+            incorporatedRoot: customaryAgentiveNominalContract.incorporatedRoot,
+            compoundStem: customaryAgentiveNominalContract.compoundStem,
+            ordinaryNncInput: customaryAgentiveNominalContract.ordinaryNncInput,
+            result: generatedCustomaryAgentiveNominalSurface.result,
+            sourceKind: generatedCustomaryAgentiveNominalSurface.source.sourceKind,
+            nounClass: generatedCustomaryAgentiveNominalSurface.nounClass,
+        },
+        {
+            supported: true,
+            customaryAgentiveStem: "nemini",
+            incorporatedRoot: "nemini",
+            compoundStem: "neminikal",
+            ordinaryNncInput: "(neminikal)",
+            result: "neminikal",
+            sourceKind: "open-stem",
+            nounClass: "zero",
+        }
+    );
+    const customaryAgentiveCompoundInventory = ctx.getCustomaryAgentiveCompoundEmbedMatrixInventory();
+    s.eq(
+        "Andrews 36.3 customary-present agentive compound-embed matrix inventory is explicit",
+        customaryAgentiveCompoundInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            grammarSource: entry.grammarSource,
+            status: entry.status,
+            matrixValency: entry.matrixValency,
+            objectPrefix: entry.objectPrefix,
+        })),
+        [
+            {
+                id: "toca-incorporated-complement",
+                classicalMatrix: "(toca)",
+                nawatRoot: "tuka",
+                grammarSource: "Andrews 36.3",
+                status: "andrews-authoritative-nawat-data-backed",
+                matrixValency: "transitive",
+                objectPrefix: "ki",
+            },
+        ]
+    );
+    const customaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        matrixRoot: "tuka",
+    });
+    const parsedCustomaryAgentiveCompoundInput = ctx.parseVerbInput(customaryAgentiveCompoundContract.compoundVerbInput);
+    const generatedCustomaryAgentiveCompoundSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: customaryAgentiveCompoundContract.compoundVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: customaryAgentiveCompoundContract.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 36.3 fully nominalized customary-present agentive stem can become a transitive VNC compound embed from #3 output",
+        {
+            supported: customaryAgentiveCompoundContract.supported,
+            customaryAgentiveStem: customaryAgentiveCompoundContract.customaryAgentiveStem,
+            incorporatedRoot: customaryAgentiveCompoundContract.incorporatedRoot,
+            compoundVerbInput: customaryAgentiveCompoundContract.compoundVerbInput,
+            objectPrefix: customaryAgentiveCompoundContract.objectPrefix,
+            parsedVerb: parsedCustomaryAgentiveCompoundInput.verb,
+            isMarkedTransitive: parsedCustomaryAgentiveCompoundInput.isMarkedTransitive,
+            result: generatedCustomaryAgentiveCompoundSurface.result,
+        },
+        {
+            supported: true,
+            customaryAgentiveStem: "nemini",
+            incorporatedRoot: "nemini",
+            compoundVerbInput: "-(nemini/tuka)",
+            objectPrefix: "ki",
+            parsedVerb: "neminituka",
+            isMarkedTransitive: true,
+            result: "kineminituka",
+        }
+    );
+    const unsupportedCustomaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
+        customaryAgentiveStem: "nemini",
+        matrixRoot: "kal",
+    });
+    s.eq(
+        "Andrews 36.3 customary-present agentive compound embed rejects non-verbal matrices",
+        {
+            supported: unsupportedCustomaryAgentiveCompoundContract.supported,
+            compoundVerbInput: unsupportedCustomaryAgentiveCompoundContract.compoundVerbInput,
+            diagnostics: unsupportedCustomaryAgentiveCompoundContract.diagnostics,
+        },
+        {
+            supported: false,
+            compoundVerbInput: "",
+            diagnostics: [
+                "customary-agentive-compound-embed-unsupported-matrix",
+                "customary-agentive-compound-embed-missing-verb-input",
+            ],
+        }
+    );
+    const unsupportedCustomaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
+        customaryAgentiveStem: "nemini",
+        matrixRoot: "tzajtzi",
+    });
+    s.eq(
+        "Andrews 36.3 customary-present agentive nominal compound rejects non-nominal matrices",
+        {
+            supported: unsupportedCustomaryAgentiveNominalContract.supported,
+            compoundStem: unsupportedCustomaryAgentiveNominalContract.compoundStem,
+            ordinaryNncInput: unsupportedCustomaryAgentiveNominalContract.ordinaryNncInput,
+            diagnostics: unsupportedCustomaryAgentiveNominalContract.diagnostics,
+        },
+        {
+            supported: false,
+            compoundStem: "",
+            ordinaryNncInput: "",
+            diagnostics: [
+                "customary-agentive-nominal-compound-unsupported-matrix",
+                "customary-agentive-nominal-compound-missing-nnc-input",
+            ],
+        }
+    );
+    const preteritAgentiveCompoundInventory = ctx.getPreteritAgentiveCompoundEmbedMatrixInventory();
+    s.eq(
+        "Andrews 35.7 preterit-agentive compound-embed matrix inventory is explicit",
+        preteritAgentiveCompoundInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            grammarSource: entry.grammarSource,
+            status: entry.status,
+            matrixValency: entry.matrixValency,
+        })),
+        [
+            {
+                id: "tzahtzi",
+                classicalMatrix: "(tzahtzi)",
+                nawatRoot: "tzajtzi",
+                grammarSource: "Andrews 35.7",
+                status: "nawat-data-backed",
+                matrixValency: "intransitive",
+            },
+        ]
+    );
+    const preteritAgentiveCompoundContract = ctx.buildPreteritAgentiveCompoundEmbedContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "tzajtzi",
+    });
+    const parsedPreteritAgentiveCompoundInput = ctx.parseVerbInput(preteritAgentiveCompoundContract.compoundVerbInput);
+    const generatedPreteritAgentiveCompoundSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveCompoundContract.compoundVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.7 preterit-agentive general-use stem can become a verbal compound embed from #3 output",
+        {
+            supported: preteritAgentiveCompoundContract.supported,
+            preteritAgentiveStem: preteritAgentiveCompoundContract.preteritAgentiveStem,
+            incorporatedRoot: preteritAgentiveCompoundContract.incorporatedRoot,
+            compoundVerbInput: preteritAgentiveCompoundContract.compoundVerbInput,
+            parsedVerb: parsedPreteritAgentiveCompoundInput.verb,
+            result: generatedPreteritAgentiveCompoundSurface.result,
+        },
+        {
+            supported: true,
+            preteritAgentiveStem: "tamatka",
+            incorporatedRoot: "tamatka",
+            compoundVerbInput: "(tamatka/tzajtzi)",
+            parsedVerb: "tamatkatzajtzi",
+            result: "tamatkatzajtzi",
+        }
+    );
+    const preteritAgentiveNominalInventory = ctx.getPreteritAgentiveNominalCompoundMatrixInventory();
+    s.eq(
+        "Andrews 35.7 preterit-agentive nominal-matrix inventory is explicit",
+        preteritAgentiveNominalInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            grammarSource: entry.grammarSource,
+            nounClass: entry.nounClass,
+            animacy: entry.animacy,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "cal-li",
+                classicalMatrix: "(cal)-li",
+                nawatRoot: "kal",
+                grammarSource: "Andrews 35.7",
+                nounClass: "zero",
+                animacy: "inanimate",
+                status: "nawat-data-backed",
+            },
+        ]
+    );
+    const preteritAgentiveNominalContract = ctx.buildPreteritAgentiveNominalCompoundContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "kal",
+    });
+    const generatedPreteritAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(preteritAgentiveNominalContract.ordinaryNncRequest);
+    s.eq(
+        "Andrews 35.7 preterit-agentive general-use stem can become an ordinary NNC compound stem from #3 output",
+        {
+            supported: preteritAgentiveNominalContract.supported,
+            preteritAgentiveStem: preteritAgentiveNominalContract.preteritAgentiveStem,
+            incorporatedRoot: preteritAgentiveNominalContract.incorporatedRoot,
+            compoundStem: preteritAgentiveNominalContract.compoundStem,
+            ordinaryNncInput: preteritAgentiveNominalContract.ordinaryNncInput,
+            result: generatedPreteritAgentiveNominalSurface.result,
+            sourceKind: generatedPreteritAgentiveNominalSurface.source.sourceKind,
+            nounClass: generatedPreteritAgentiveNominalSurface.nounClass,
+        },
+        {
+            supported: true,
+            preteritAgentiveStem: "tamatka",
+            incorporatedRoot: "tamatka",
+            compoundStem: "tamatkakal",
+            ordinaryNncInput: "(tamatkakal)",
+            result: "tamatkakal",
+            sourceKind: "open-stem",
+            nounClass: "zero",
+        }
+    );
+    const preteritAgentiveOwnerhoodInventory = ctx.getPreteritAgentiveOwnerhoodMatrixInventory();
+    s.eq(
+        "Andrews 35.9-35.10 preterit-agentive ownerhood matrices use Nawat orthography",
+        preteritAgentiveOwnerhoodInventory.map((entry) => ({
+            id: entry.id,
+            classicalMatrix: entry.classicalMatrix,
+            nawatRoot: entry.nawatRoot,
+            surfaceMatrix: entry.surfaceMatrix,
+            ownerhoodKind: entry.ownerhoodKind,
+            grammarSource: entry.grammarSource,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "tla-hua-ownerhood",
+                classicalMatrix: "*tla-(-hua)",
+                nawatRoot: "wa",
+                surfaceMatrix: "waj",
+                ownerhoodKind: "ownerhood",
+                grammarSource: "Andrews 35.9",
+                status: "andrews-authoritative-nawat-matrix-evidence",
+            },
+            {
+                id: "tla-yo-a-abundant-ownerhood",
+                classicalMatrix: "*tla-(-yo-a)",
+                nawatRoot: "yua",
+                surfaceMatrix: "yuj",
+                ownerhoodKind: "abundant-ownerhood",
+                grammarSource: "Andrews 35.10",
+                status: "andrews-authoritative-nawat-matrix-evidence",
+            },
+        ]
+    );
+    const preteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "wa",
+    });
+    const generatedPreteritAgentiveOwnerhoodSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveOwnerhoodContract.ownerhoodVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "pasado-remoto",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.9 preterit-agentive general-use stem can feed the ownerhood VNC matrix",
+        {
+            supported: preteritAgentiveOwnerhoodContract.supported,
+            preteritAgentiveStem: preteritAgentiveOwnerhoodContract.preteritAgentiveStem,
+            incorporatedRoot: preteritAgentiveOwnerhoodContract.incorporatedRoot,
+            matrixRoot: preteritAgentiveOwnerhoodContract.matrixRoot,
+            surfaceMatrix: preteritAgentiveOwnerhoodContract.surfaceMatrix,
+            ownerhoodKind: preteritAgentiveOwnerhoodContract.ownerhoodKind,
+            ownerhoodVerbInput: preteritAgentiveOwnerhoodContract.ownerhoodVerbInput,
+            result: generatedPreteritAgentiveOwnerhoodSurface.result,
+        },
+        {
+            supported: true,
+            preteritAgentiveStem: "tamatka",
+            incorporatedRoot: "tamatka",
+            matrixRoot: "wa",
+            surfaceMatrix: "waj",
+            ownerhoodKind: "ownerhood",
+            ownerhoodVerbInput: "(tamatka)-(wa)",
+            result: "tamatkawajka",
+        }
+    );
+    const preteritAgentiveAbundantOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "yua",
+    });
+    const generatedPreteritAgentiveAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveAbundantOwnerhoodContract.ownerhoodVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "pasado-remoto",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.10 preterit-agentive general-use stem can feed the abundant-ownerhood VNC matrix",
+        {
+            supported: preteritAgentiveAbundantOwnerhoodContract.supported,
+            matrixRoot: preteritAgentiveAbundantOwnerhoodContract.matrixRoot,
+            surfaceMatrix: preteritAgentiveAbundantOwnerhoodContract.surfaceMatrix,
+            ownerhoodKind: preteritAgentiveAbundantOwnerhoodContract.ownerhoodKind,
+            ownerhoodVerbInput: preteritAgentiveAbundantOwnerhoodContract.ownerhoodVerbInput,
+            result: generatedPreteritAgentiveAbundantOwnerhoodSurface.result,
+        },
+        {
+            supported: true,
+            matrixRoot: "yua",
+            surfaceMatrix: "yuj",
+            ownerhoodKind: "abundant-ownerhood",
+            ownerhoodVerbInput: "(tamatka)-(yua)",
+            result: "tamatkayujka",
+        }
+    );
+    const unsupportedPreteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "e",
+    });
+    s.eq(
+        "Andrews 35.9 preterit-agentive ownerhood rejects non-authorized ownerhood matrices for this path",
+        {
+            supported: unsupportedPreteritAgentiveOwnerhoodContract.supported,
+            ownerhoodVerbInput: unsupportedPreteritAgentiveOwnerhoodContract.ownerhoodVerbInput,
+            diagnostics: unsupportedPreteritAgentiveOwnerhoodContract.diagnostics,
+        },
+        {
+            supported: false,
+            ownerhoodVerbInput: "",
+            diagnostics: [
+                "preterit-agentive-ownerhood-unsupported-matrix",
+                "preterit-agentive-ownerhood-missing-verb-input",
+            ],
+        }
+    );
+    const preteritAgentiveComplementInventory = ctx.getPreteritAgentiveComplementMatrixInventory();
+    s.eq(
+        "Andrews 35.12 preterit-agentive incorporated-complement matrices are Nawat data-backed",
+        preteritAgentiveComplementInventory.map((entry) => ({
+            id: entry.id,
+            nawatRoot: entry.nawatRoot,
+            objectPrefix: entry.objectPrefix,
+            grammarSource: entry.grammarSource,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "te-tlalia",
+                nawatRoot: "talia",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+            {
+                id: "te-cahua",
+                nawatRoot: "kawa",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+            {
+                id: "te-pehpena",
+                nawatRoot: "pejpena",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+            {
+                id: "te-tla-mati",
+                nawatRoot: "mati",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+            {
+                id: "te-toca",
+                nawatRoot: "tuka",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+            {
+                id: "te-nehnequi",
+                nawatRoot: "nejneki",
+                objectPrefix: "ki",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+        ]
+    );
+    const preteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "mati",
+    });
+    const generatedPreteritAgentiveComplementSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveComplementContract.complementVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: preteritAgentiveComplementContract.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.12 preterit-agentive general-use stem can feed incorporated-complement VNC matrices",
+        {
+            supported: preteritAgentiveComplementContract.supported,
+            preteritAgentiveStem: preteritAgentiveComplementContract.preteritAgentiveStem,
+            incorporatedRoot: preteritAgentiveComplementContract.incorporatedRoot,
+            matrixRoot: preteritAgentiveComplementContract.matrixRoot,
+            objectPrefix: preteritAgentiveComplementContract.objectPrefix,
+            complementVerbInput: preteritAgentiveComplementContract.complementVerbInput,
+            result: generatedPreteritAgentiveComplementSurface.result,
+        },
+        {
+            supported: true,
+            preteritAgentiveStem: "tamatka",
+            incorporatedRoot: "tamatka",
+            matrixRoot: "mati",
+            objectPrefix: "ki",
+            complementVerbInput: "-(tamatka/mati)",
+            result: "kitamatkamati",
+        }
+    );
+    const preteritAgentiveComplementTaliaContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "talia",
+    });
+    const generatedPreteritAgentiveComplementTaliaSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveComplementTaliaContract.complementVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: preteritAgentiveComplementTaliaContract.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.12 incorporated-complement continuation can use talia as a Nawat matrix",
+        {
+            supported: preteritAgentiveComplementTaliaContract.supported,
+            complementVerbInput: preteritAgentiveComplementTaliaContract.complementVerbInput,
+            result: generatedPreteritAgentiveComplementTaliaSurface.result,
+        },
+        {
+            supported: true,
+            complementVerbInput: "-(tamatka/talia)",
+            result: "kitamatkatalia",
+        }
+    );
+    const unsupportedPreteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "tzajtzi",
+    });
+    s.eq(
+        "Andrews 35.12 preterit-agentive complement rejects non-complement matrices",
+        {
+            supported: unsupportedPreteritAgentiveComplementContract.supported,
+            complementVerbInput: unsupportedPreteritAgentiveComplementContract.complementVerbInput,
+            diagnostics: unsupportedPreteritAgentiveComplementContract.diagnostics,
+        },
+        {
+            supported: false,
+            complementVerbInput: "",
+            diagnostics: [
+                "preterit-agentive-complement-unsupported-matrix",
+                "preterit-agentive-complement-missing-verb-input",
+            ],
+        }
+    );
+    const preteritAgentiveAdverbialInventory = ctx.getPreteritAgentiveAdverbialMatrixInventory();
+    s.eq(
+        "Andrews 35.12 preterit-agentive adverbial-manner matrix inventory is Nawat data-backed",
+        preteritAgentiveAdverbialInventory.map((entry) => ({
+            id: entry.id,
+            nawatRoot: entry.nawatRoot,
+            matrixValency: entry.matrixValency,
+            adverbialFocus: entry.adverbialFocus,
+            grammarSource: entry.grammarSource,
+            status: entry.status,
+        })),
+        [
+            {
+                id: "nemi-adverbial-manner",
+                nawatRoot: "nemi",
+                matrixValency: "intransitive",
+                adverbialFocus: "subject",
+                grammarSource: "Andrews 35.12",
+                status: "andrews-authoritative-nawat-data-backed",
+            },
+        ]
+    );
+    const preteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "nemi",
+    });
+    const generatedPreteritAgentiveAdverbialSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: preteritAgentiveAdverbialContract.adverbialVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: preteritAgentiveAdverbialContract.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.12 preterit-agentive general-use stem can feed an adverbial-manner VNC matrix",
+        {
+            supported: preteritAgentiveAdverbialContract.supported,
+            preteritAgentiveStem: preteritAgentiveAdverbialContract.preteritAgentiveStem,
+            incorporatedRoot: preteritAgentiveAdverbialContract.incorporatedRoot,
+            matrixRoot: preteritAgentiveAdverbialContract.matrixRoot,
+            adverbialFocus: preteritAgentiveAdverbialContract.adverbialFocus,
+            objectPrefix: preteritAgentiveAdverbialContract.objectPrefix,
+            adverbialVerbInput: preteritAgentiveAdverbialContract.adverbialVerbInput,
+            result: generatedPreteritAgentiveAdverbialSurface.result,
+        },
+        {
+            supported: true,
+            preteritAgentiveStem: "tamatka",
+            incorporatedRoot: "tamatka",
+            matrixRoot: "nemi",
+            adverbialFocus: "subject",
+            objectPrefix: "",
+            adverbialVerbInput: "(tamatka/nemi)",
+            result: "tamatkanemi",
+        }
+    );
+    const unsupportedPreteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "tzajtzi",
+    });
+    s.eq(
+        "Andrews 35.12 preterit-agentive adverbial rejects non-adverbial matrices",
+        {
+            supported: unsupportedPreteritAgentiveAdverbialContract.supported,
+            adverbialVerbInput: unsupportedPreteritAgentiveAdverbialContract.adverbialVerbInput,
+            diagnostics: unsupportedPreteritAgentiveAdverbialContract.diagnostics,
+        },
+        {
+            supported: false,
+            adverbialVerbInput: "",
+            diagnostics: [
+                "preterit-agentive-adverbial-unsupported-matrix",
+                "preterit-agentive-adverbial-missing-verb-input",
+            ],
+        }
+    );
+    const ordinaryNounOwnerhoodInventory = ctx.getOrdinaryNounOwnerhoodMatrixInventory();
+    s.eq(
+        "Andrews 35.9-35.10 ordinary noun ownerhood matrices keep class compatibility explicit",
+        ordinaryNounOwnerhoodInventory.map((entry) => ({
+            id: entry.id,
+            nawatRoot: entry.nawatRoot,
+            surfaceMatrix: entry.surfaceMatrix,
+            ownerhoodKind: entry.ownerhoodKind,
+            defaultForNounClasses: entry.defaultForNounClasses,
+        })),
+        [
+            {
+                id: "tla-e-ownerhood",
+                nawatRoot: "e",
+                surfaceMatrix: "ej",
+                ownerhoodKind: "ownerhood",
+                defaultForNounClasses: ["t"],
+            },
+            {
+                id: "tla-hua-ownerhood",
+                nawatRoot: "wa",
+                surfaceMatrix: "waj",
+                ownerhoodKind: "ownerhood",
+                defaultForNounClasses: ["in", "zero"],
+            },
+            {
+                id: "tla-yo-a-abundant-ownerhood",
+                nawatRoot: "yua",
+                surfaceMatrix: "yuj",
+                ownerhoodKind: "abundant-ownerhood",
+                defaultForNounClasses: ["t", "ti", "in", "zero"],
+            },
+        ]
+    );
+    const ordinaryTClassOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "shuchi",
+        nounClass: "t",
+        sourceSurface: "shuchit",
+        sourceKind: "fixture",
+    });
+    const generatedOrdinaryTClassOwnerhoodSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: ordinaryTClassOwnerhoodContract.ownerhoodVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "pasado-remoto",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.9 ordinary t-class nouns feed the e/ej ownerhood matrix from #3 output",
+        {
+            supported: ordinaryTClassOwnerhoodContract.supported,
+            evidenceStatus: ordinaryTClassOwnerhoodContract.evidenceStatus,
+            nounStem: ordinaryTClassOwnerhoodContract.nounStem,
+            nounClass: ordinaryTClassOwnerhoodContract.nounClass,
+            matrixRoot: ordinaryTClassOwnerhoodContract.matrixRoot,
+            surfaceMatrix: ordinaryTClassOwnerhoodContract.surfaceMatrix,
+            ownerhoodVerbInput: ordinaryTClassOwnerhoodContract.ownerhoodVerbInput,
+            result: generatedOrdinaryTClassOwnerhoodSurface.result,
+        },
+        {
+            supported: true,
+            evidenceStatus: "source-fixture-backed",
+            nounStem: "shuchi",
+            nounClass: "t",
+            matrixRoot: "e",
+            surfaceMatrix: "ej",
+            ownerhoodVerbInput: "(shuchi)-(e)",
+            result: "shuchiejka",
+        }
+    );
+    const ordinaryZeroClassOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "kal",
+        nounClass: "zero",
+        sourceSurface: "kal",
+        sourceKind: "fixture",
+    });
+    const generatedOrdinaryZeroClassOwnerhoodSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: ordinaryZeroClassOwnerhoodContract.ownerhoodVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "pasado-remoto",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.9 ordinary zero-class nouns feed the wa/waj ownerhood matrix from #3 output",
+        {
+            supported: ordinaryZeroClassOwnerhoodContract.supported,
+            nounStem: ordinaryZeroClassOwnerhoodContract.nounStem,
+            nounClass: ordinaryZeroClassOwnerhoodContract.nounClass,
+            matrixRoot: ordinaryZeroClassOwnerhoodContract.matrixRoot,
+            surfaceMatrix: ordinaryZeroClassOwnerhoodContract.surfaceMatrix,
+            ownerhoodVerbInput: ordinaryZeroClassOwnerhoodContract.ownerhoodVerbInput,
+            result: generatedOrdinaryZeroClassOwnerhoodSurface.result,
+        },
+        {
+            supported: true,
+            nounStem: "kal",
+            nounClass: "zero",
+            matrixRoot: "wa",
+            surfaceMatrix: "waj",
+            ownerhoodVerbInput: "(kal)-(wa)",
+            result: "kalwajka",
+        }
+    );
+    const ordinaryAbundantOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "shuchi",
+        nounClass: "t",
+        sourceSurface: "shuchit",
+        sourceKind: "fixture",
+        ownerhoodKind: "abundant-ownerhood",
+    });
+    const generatedOrdinaryAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: ordinaryAbundantOwnerhoodContract.ownerhoodVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "",
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "pasado-remoto",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 35.10 ordinary nouns feed the yua/yuj abundant-ownerhood matrix from #3 output",
+        {
+            supported: ordinaryAbundantOwnerhoodContract.supported,
+            matrixRoot: ordinaryAbundantOwnerhoodContract.matrixRoot,
+            surfaceMatrix: ordinaryAbundantOwnerhoodContract.surfaceMatrix,
+            ownerhoodKind: ordinaryAbundantOwnerhoodContract.ownerhoodKind,
+            ownerhoodVerbInput: ordinaryAbundantOwnerhoodContract.ownerhoodVerbInput,
+            result: generatedOrdinaryAbundantOwnerhoodSurface.result,
+        },
+        {
+            supported: true,
+            matrixRoot: "yua",
+            surfaceMatrix: "yuj",
+            ownerhoodKind: "abundant-ownerhood",
+            ownerhoodVerbInput: "(shuchi)-(yua)",
+            result: "shuchiyujka",
+        }
+    );
+    const ambiguousTiOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "xilun",
+        nounClass: "ti",
+        sourceSurface: "xilunti",
+        sourceKind: "open-stem",
+    });
+    const mismatchedZeroOwnerhoodInput = ctx.buildOrdinaryNounOwnerhoodVerbInput({
+        nounStem: "kal",
+        nounClass: "zero",
+        matrixRoot: "e",
+    });
+    s.eq(
+        "Andrews 35.9 ordinary ti-class ownerhood remains diagnostic without a confirmed subclass route",
+        {
+            supported: ambiguousTiOwnerhoodContract.supported,
+            evidenceStatus: ambiguousTiOwnerhoodContract.evidenceStatus,
+            ownerhoodVerbInput: ambiguousTiOwnerhoodContract.ownerhoodVerbInput,
+            diagnostics: ambiguousTiOwnerhoodContract.diagnostics,
+            mismatchedZeroOwnerhoodInput,
+        },
+        {
+            supported: false,
+            evidenceStatus: "structural-open-stem",
+            ownerhoodVerbInput: "",
+            diagnostics: [
+                "ordinary-noun-ownerhood-ambiguous-ti-class",
+                "ordinary-noun-ownerhood-unsupported-matrix",
+                "ordinary-noun-ownerhood-missing-verb-input",
+            ],
+            mismatchedZeroOwnerhoodInput: "",
         }
     );
     const unsupportedActiveActionCompoundContract = ctx.buildActiveActionCompoundEmbedContinuationContract({
@@ -547,6 +1495,57 @@ function run(ctx) {
             compoundVerbInput: "-(mikka/chikawa)",
             objectPrefix: "nech",
             result: "nechmikkachikawa",
+        }
+    );
+    s.eq(
+        "Andrews 39.9 characteristic-property contract exposes matrix-omission formation frame",
+        {
+            absolutive: {
+                grammarSource: characteristicContract.formationFrame.grammarSource,
+                sourceState: characteristicContract.formationFrame.sourceState,
+                omittedClassicalMatrix: characteristicContract.formationFrame.omittedMatrix.classical,
+                omittedNawatMatrix: characteristicContract.formationFrame.omittedMatrix.nawat,
+                incorporatedRole: characteristicContract.formationFrame.incorporated.role,
+                incorporatedRoot: characteristicContract.formationFrame.incorporated.root,
+                outsideObjectOriginRole: characteristicContract.formationFrame.outsideObject.originRole,
+                outsideObjectPrefix: characteristicContract.formationFrame.outsideObject.prefix,
+                doesNotPreserveYoMatrix: characteristicContract.formationFrame.valencePolicy.doesNotPreserveYoMatrix,
+            },
+            possessive: {
+                grammarSource: possessedCharacteristicContract.formationFrame.grammarSource,
+                sourceState: possessedCharacteristicContract.formationFrame.sourceState,
+                omittedClassicalMatrix: possessedCharacteristicContract.formationFrame.omittedMatrix.classical,
+                omittedNawatMatrix: possessedCharacteristicContract.formationFrame.omittedMatrix.nawat,
+                incorporatedRole: possessedCharacteristicContract.formationFrame.incorporated.role,
+                incorporatedRoot: possessedCharacteristicContract.formationFrame.incorporated.root,
+                outsideObjectOriginRole: possessedCharacteristicContract.formationFrame.outsideObject.originRole,
+                outsideObjectPrefix: possessedCharacteristicContract.formationFrame.outsideObject.prefix,
+                possessorBecomesOutsideObject: possessedCharacteristicContract.formationFrame.valencePolicy.possessorBecomesOutsideObject,
+            },
+        },
+        {
+            absolutive: {
+                grammarSource: "Andrews 39.9",
+                sourceState: "absolutive",
+                omittedClassicalMatrix: "(-yo)-tl",
+                omittedNawatMatrix: "yut",
+                incorporatedRole: "incorporated-object",
+                incorporatedRoot: "mikka",
+                outsideObjectOriginRole: "matrix-default-object",
+                outsideObjectPrefix: "ki",
+                doesNotPreserveYoMatrix: true,
+            },
+            possessive: {
+                grammarSource: "Andrews 39.9",
+                sourceState: "possessive",
+                omittedClassicalMatrix: "(-yo)-tl",
+                omittedNawatMatrix: "yu",
+                incorporatedRole: "incorporated-object",
+                incorporatedRoot: "mikka",
+                outsideObjectOriginRole: "possessor",
+                outsideObjectPrefix: "nech",
+                possessorBecomesOutsideObject: true,
+            },
         }
     );
     const yulCharacteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
@@ -801,6 +1800,108 @@ function run(ctx) {
             },
         ]
     );
+    const perfectivePatientivoComplementContract = ctx.buildPatientivoPrelocativeContinuationContract({
+        patientivoSurface: "taketzti",
+        sourceSurface: "taketz",
+        selection: {
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+        },
+        patientivoSource: "perfectivo",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+        patientivoNominalSuffix: "ti",
+        matrixRoot: "tajtani",
+    });
+    const generatedPerfectivePatientivoComplement = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: perfectivePatientivoComplementContract.prelocativeVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: perfectivePatientivoComplementContract.objectTransfer.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 39.7 incorporated-complement contract accepts perfective patientive nounstems",
+        {
+            supported: perfectivePatientivoComplementContract.supported,
+            patientivoSource: perfectivePatientivoComplementContract.patientivoSource,
+            incorporatedRoot: perfectivePatientivoComplementContract.incorporatedRoot,
+            prelocativeVerbInput: perfectivePatientivoComplementContract.prelocativeVerbInput,
+            result: generatedPerfectivePatientivoComplement.result,
+        },
+        {
+            supported: true,
+            patientivoSource: "perfectivo",
+            incorporatedRoot: "taketz",
+            prelocativeVerbInput: "-(taketz/tajtani)",
+            result: "nechtaketztajtani",
+        }
+    );
+    const nonactivePatientivoComplementContract = ctx.buildPatientivoPrelocativeContinuationContract({
+        patientivoSurface: "machti",
+        sourceSurface: "machti",
+        selection: {
+            subjectPrefix: "ni",
+            subjectSuffix: "",
+        },
+        patientivoSource: "nonactive",
+        sourceTenseValue: "presente",
+        sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+        patientivoNominalSuffix: "ti",
+        matrixRoot: "tajtani",
+    });
+    const generatedNonactivePatientivoComplement = ctx.executeGenerateWordRequest({
+        prefixInputs: {
+            verb: nonactivePatientivoComplementContract.prelocativeVerbInput,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: nonactivePatientivoComplementContract.objectTransfer.objectPrefix,
+            possessivePrefix: "",
+        },
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                combinedMode: ctx.COMBINED_MODE.active,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+    });
+    s.eq(
+        "Andrews 39.7 incorporated-complement contract accepts nonactive patientive nounstems",
+        {
+            supported: nonactivePatientivoComplementContract.supported,
+            patientivoSource: nonactivePatientivoComplementContract.patientivoSource,
+            sourceCombinedMode: nonactivePatientivoComplementContract.sourceCombinedMode,
+            incorporatedRoot: nonactivePatientivoComplementContract.incorporatedRoot,
+            prelocativeVerbInput: nonactivePatientivoComplementContract.prelocativeVerbInput,
+            result: generatedNonactivePatientivoComplement.result,
+        },
+        {
+            supported: true,
+            patientivoSource: "nonactive",
+            sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+            incorporatedRoot: "mach",
+            prelocativeVerbInput: "-(mach/tajtani)",
+            result: "nechmachtajtani",
+        }
+    );
     const possessiveMatiContract = ctx.buildPatientivoPrelocativeContinuationContract({
         patientivoSurface: "tamatiyat",
         sourceSurface: "mutamatiyat",
@@ -981,6 +2082,49 @@ function run(ctx) {
             result: "metztamatiyatemua",
         }
     );
+    s.eq(
+        "Andrews 39.7-39.8 prelocative contract exposes incorporated-role and valence policy",
+        {
+            absolutive: {
+                grammarSource: absolutiveTlaniContract.formationFrame.grammarSource,
+                sourceState: absolutiveTlaniContract.formationFrame.sourceState,
+                incorporatedRole: absolutiveTlaniContract.formationFrame.incorporated.role,
+                outsideObjectOriginRole: absolutiveTlaniContract.formationFrame.outsideObject.originRole,
+                outsideObjectPrefix: absolutiveTlaniContract.formationFrame.outsideObject.prefix,
+                absolutiveSubjectBecomesObject: absolutiveTlaniContract.formationFrame.valencePolicy.absolutiveSubjectBecomesObject,
+                preservesSourceValence: absolutiveTlaniContract.formationFrame.valencePolicy.preservesSourceValence,
+            },
+            possessive: {
+                grammarSource: seekMatrixContract.formationFrame.grammarSource,
+                sourceState: seekMatrixContract.formationFrame.sourceState,
+                incorporatedRole: seekMatrixContract.formationFrame.incorporated.role,
+                outsideObjectOriginRole: seekMatrixContract.formationFrame.outsideObject.originRole,
+                outsideObjectPrefix: seekMatrixContract.formationFrame.outsideObject.prefix,
+                possessorBecomesObjectWithoutApplicativeSuffix: seekMatrixContract.formationFrame.valencePolicy.possessorBecomesObjectWithoutApplicativeSuffix,
+                preservesSourceValence: seekMatrixContract.formationFrame.valencePolicy.preservesSourceValence,
+            },
+        },
+        {
+            absolutive: {
+                grammarSource: "Andrews 39.7",
+                sourceState: "absolutive",
+                incorporatedRole: "object-complement",
+                outsideObjectOriginRole: "subject",
+                outsideObjectPrefix: "nech",
+                absolutiveSubjectBecomesObject: true,
+                preservesSourceValence: false,
+            },
+            possessive: {
+                grammarSource: "Andrews 39.8",
+                sourceState: "possessive",
+                incorporatedRole: "incorporated-object",
+                outsideObjectOriginRole: "possessor",
+                outsideObjectPrefix: "metz",
+                possessorBecomesObjectWithoutApplicativeSuffix: true,
+                preservesSourceValence: true,
+            },
+        }
+    );
     const unsupportedPrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
         patientivoSurface: "tamatiyat",
         possessorPrefix: "bad",
@@ -999,8 +2143,6 @@ function run(ctx) {
         {
             supported: false,
             diagnostics: [
-                "patientivo-prelocative-requires-imperfective-source",
-                "patientivo-prelocative-requires-imperfective-tense",
                 "patientivo-prelocative-unmapped-possessor",
                 "patientivo-prelocative-unsupported-matrix",
                 "patientivo-prelocative-missing-verb-input",

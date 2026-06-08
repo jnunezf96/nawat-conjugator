@@ -46,6 +46,9 @@
           "tenses": [
             "sustantivo-verbal",
             "agentivo",
+            "agentivo-presente",
+            "agentivo-preterito",
+            "agentivo-futuro",
             "patientivo",
             "instrumentivo",
             "calificativo-instrumentivo",

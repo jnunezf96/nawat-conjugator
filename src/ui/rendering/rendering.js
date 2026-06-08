@@ -253,11 +253,6 @@ const NAWAT_PATIENTIVO_SOURCE_TENSE_OPTIONS = [
     { sourceCombinedMode: "nonactive", tenseValue: "imperativo" },
 ];
 
-const NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES = new Set([
-    "imperfecto",
-    "pasado-remoto",
-]);
-
 const NAWAT_PATIENTIVO_SOURCE_TENSE_MENU_GROUPS = [
     { label: "imperativo", tenseValues: ["imperativo"] },
     { label: "presente", tenseValues: ["presente", "presente-habitual", "presente-desiderativo"] },
@@ -1050,6 +1045,15 @@ function buildAdverbialNuclearFrameSubLabels(frame = null) {
     if (sourceValency) {
         labels.push(`Valencia fuente: ${sourceValency === "transitive" ? "transitiva" : "intransitiva"}`);
     }
+    const clauseFrame = frame.adverbialNuclearClauseFrame || null;
+    const degree = String(clauseFrame?.adverbialization?.degree || "").trim();
+    if (degree) {
+        labels.push(`Grado: ${degree === "first-degree" ? "primer grado" : degree === "second-degree" ? "segundo grado" : degree}`);
+    }
+    const domain = String(clauseFrame?.adverbialization?.semanticDomain || "").trim();
+    if (domain) {
+        labels.push(`Dominio: ${domain === "manner" ? "manera" : domain}`);
+    }
     if (frame.boundaries?.legacyAdverbioSurfaceOnly === true) {
         labels.push("Alcance: adverbio heredado");
     }
@@ -1323,342 +1327,6 @@ function formatNawatVerbNounConversionHierarchyLabel(profile = null, isNawat = f
     ].filter(Boolean).join(" · ");
 }
 
-function getNawatVerbNounEuropeanDestinationLabel(profile = null, isNawat = false) {
-    if (!profile || typeof profile !== "object") {
-        return "";
-    }
-    const legacyMode = profile.legacyMode || "";
-    const legacyTenseValue = profile.legacyTenseValue || "";
-    const modeLabel = typeof getEuropeanConventionModeLabel === "function"
-        ? getEuropeanConventionModeLabel(legacyMode)
-        : legacyMode;
-    const tenseLabel = legacyTenseValue && typeof getLocalizedLabel === "function"
-        ? getLocalizedLabel(TENSE_LABELS[legacyTenseValue], isNawat, legacyTenseValue)
-        : legacyTenseValue;
-    return [modeLabel, tenseLabel].filter(Boolean).join(" · ");
-}
-
-function getNawatVerbNounRouteMenuLabel(profile = null, isNawat = false) {
-    if (!profile || typeof profile !== "object") {
-        return "";
-    }
-    if (isPatientivoSurfaceRouteProfile(profile)) {
-        const branchId = profile.patientivoSource || "nonactive";
-        return [
-            "S",
-            getNawatPatientivoBranchClassLabel(branchId),
-            isNawat ? "tachiwal" : "patientivo",
-            getNawatPatientivoBranchLabel(branchId),
-        ].filter(Boolean).join(" · ");
-    }
-    return getNawatVerbNounConversionLabel(profile, isNawat);
-}
-
-function createNawatRoutePickerMenuSection(section = {}) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "calc-guidance__route-switch-menu-section";
-    const label = document.createElement("div");
-    label.className = "calc-guidance__route-switch-menu-label";
-    label.textContent = section.label || "";
-    const options = document.createElement("div");
-    options.className = "calc-guidance__route-switch-menu-options";
-    (section.options || []).forEach((entry) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = [
-            "calc-guidance__branch-option",
-            "calc-guidance__route-switch-option",
-            entry.active ? "calc-guidance__route-switch-option--active" : "",
-        ].filter(Boolean).join(" ");
-        button.setAttribute("role", "menuitemradio");
-        button.setAttribute("aria-checked", String(Boolean(entry.active)));
-        button.textContent = entry.label || "";
-        button.title = entry.title || entry.label || "";
-        button.addEventListener("click", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (typeof entry.action === "function") {
-                entry.action(button);
-            }
-        });
-        options.appendChild(button);
-    });
-    wrapper.append(label, options);
-    return wrapper;
-}
-
-function createNawatConversionStationPicker({
-    className = "",
-    summaryClassName = "",
-    ariaLabel = "",
-    title = "",
-    summaryNodes = [],
-    sections = [],
-} = {}) {
-    const picker = document.createElement("details");
-    picker.className = [
-        "calc-guidance__branch-picker",
-        "calc-guidance__conversion-station-picker",
-        className,
-    ].filter(Boolean).join(" ");
-    picker.addEventListener("toggle", () => {
-        if (!picker.open) {
-            return;
-        }
-        document.querySelectorAll(".calc-guidance__branch-picker[open]")
-            .forEach((otherPicker) => {
-                if (otherPicker !== picker) {
-                    otherPicker.removeAttribute("open");
-                }
-            });
-    });
-    const summary = document.createElement("summary");
-    summary.className = [
-        "calc-guidance__chip",
-        "calc-guidance__chip--button",
-        "calc-guidance__conversion-station-summary",
-        summaryClassName,
-    ].filter(Boolean).join(" ");
-    if (ariaLabel) {
-        summary.setAttribute("aria-label", ariaLabel);
-    }
-    if (title) {
-        summary.title = title;
-    }
-    summaryNodes.forEach((node) => {
-        if (node) {
-            summary.appendChild(node);
-        }
-    });
-    const caret = document.createElement("span");
-    caret.className = "calc-guidance__picker-caret";
-    caret.setAttribute("aria-hidden", "true");
-    summary.appendChild(caret);
-    const menu = document.createElement("div");
-    menu.className = "calc-guidance__branch-menu calc-guidance__route-switch-menu";
-    menu.setAttribute("role", "menu");
-    sections
-        .filter((section) => section && Array.isArray(section.options) && section.options.length)
-        .forEach((section) => {
-            menu.appendChild(createNawatRoutePickerMenuSection(section));
-        });
-    picker.append(summary, menu);
-    return picker;
-}
-
-function createNawatPatientivoVerbNounConversionPicker({
-    profiles = [],
-    activeProfile = null,
-    hierarchyParts = {},
-    hierarchyLabel = "",
-    sourceVerb = "",
-    sourceObjectPrefix = "",
-    sourceTenseValue = "",
-    sourceCombinedMode = "",
-    isNawat = false,
-} = {}) {
-    const activeSurfaceSpec = typeof getNawatRoutePatientivoSurfaceSpec === "function"
-        ? getNawatRoutePatientivoSurfaceSpec(activeProfile, {
-            sourceTenseValue,
-            sourceCombinedMode,
-        })
-        : null;
-    const activeSourceTenseValue = activeSurfaceSpec?.sourceTenseValue
-        || sourceTenseValue
-        || activeProfile?.sourceTenseValue
-        || "";
-    const activeSourceCombinedMode = activeSurfaceSpec?.sourceCombinedMode
-        || sourceCombinedMode
-        || activeProfile?.sourceCombinedMode
-        || activeProfile?.combinedMode
-        || "";
-    const normalizedActiveCombinedMode = String(activeSourceCombinedMode || "").trim();
-    const activeRouteKey = activeSurfaceSpec?.routeKey || activeProfile?.id || activeProfile?.legacyTenseValue || "";
-    const routeVerb = String(sourceVerb || "").trim();
-    const wrapper = document.createElement("span");
-    wrapper.className = "calc-guidance__patientivo-conversion-picker";
-
-    const activityLabel = document.createElement("span");
-    activityLabel.className = "calc-guidance__conversion-summary-code";
-    activityLabel.textContent = hierarchyParts.classCode || getNawatPatientivoSourceClassCode(activeSourceCombinedMode);
-    const activityOptions = [
-        { sourceCombinedMode: "active", label: "A" },
-        { sourceCombinedMode: "nonactive", label: "NA" },
-    ].map((option) => {
-        const optionCombinedMode = String(option.sourceCombinedMode || "").trim();
-        const optionRouteKey = getNawatPatientivoSourceRouteKey({
-            sourceCombinedMode: optionCombinedMode,
-            tenseValue: activeSourceTenseValue,
-        });
-        return {
-            label: option.label,
-            title: optionCombinedMode === "nonactive" ? "NA no activo" : "A activo",
-            active: optionCombinedMode === normalizedActiveCombinedMode,
-            action: (button) => {
-                activateNawatRouteStation(optionRouteKey, "source-mode", {
-                    render: true,
-                    anchorElement: button,
-                    sourceVerb: routeVerb,
-                    sourceObjectPrefix,
-                    sourceTenseValue: activeSourceTenseValue,
-                    sourceCombinedMode: optionCombinedMode,
-                });
-            },
-        };
-    });
-    const activityPicker = createNawatConversionStationPicker({
-        className: "calc-guidance__conversion-station-picker--activity",
-        summaryClassName: "calc-guidance__chip--mode-verbo",
-        ariaLabel: `Elegir actividad para patientivo: ${activityLabel.textContent}`.trim(),
-        title: hierarchyLabel,
-        summaryNodes: [activityLabel],
-        sections: [
-            {
-                label: "actividad",
-                options: activityOptions,
-            },
-        ],
-    });
-
-    const tenseLabel = document.createElement("span");
-    tenseLabel.className = "calc-guidance__conversion-summary-label";
-    tenseLabel.textContent = getNawatPatientivoTenseOptionLabel(activeSourceTenseValue, isNawat);
-    const sourceTenseValues = Array.from(new Set(
-        NAWAT_PATIENTIVO_SOURCE_TENSE_OPTIONS
-            .map((option) => String(option.tenseValue || "").trim())
-            .filter(Boolean)
-    ));
-    const createTenseOption = (tenseValue) => {
-        const label = getNawatPatientivoTenseOptionLabel(tenseValue, isNawat);
-        const optionRouteKey = getNawatPatientivoSourceRouteKey({
-            sourceCombinedMode: normalizedActiveCombinedMode,
-            tenseValue,
-        });
-        return {
-            label,
-            title: getNawatPatientivoSourceTenseOptionLabel({
-                sourceCombinedMode: normalizedActiveCombinedMode,
-                tenseValue,
-            }, isNawat),
-            active: tenseValue === activeSourceTenseValue && optionRouteKey === activeRouteKey,
-            action: (button) => {
-                activateNawatRouteStation(optionRouteKey, "source-tense", {
-                    render: true,
-                    anchorElement: button,
-                    sourceVerb: routeVerb,
-                    sourceObjectPrefix,
-                    sourceTenseValue: tenseValue,
-                    sourceCombinedMode: normalizedActiveCombinedMode,
-                });
-            },
-        };
-    };
-    const tenseSections = NAWAT_PATIENTIVO_SOURCE_TENSE_MENU_GROUPS
-        .map((group) => ({
-            label: group.label,
-            options: group.tenseValues
-                .filter((tenseValue) => sourceTenseValues.includes(tenseValue))
-                .map(createTenseOption),
-        }))
-        .filter((section) => section.options.length);
-    const tensePicker = createNawatConversionStationPicker({
-        className: "calc-guidance__conversion-station-picker--tense",
-        summaryClassName: "calc-guidance__chip--mode-verbo",
-        ariaLabel: `Elegir tiempo verbal para patientivo: ${activityLabel.textContent} ${tenseLabel.textContent}`.trim(),
-        title: hierarchyLabel,
-        summaryNodes: [tenseLabel],
-        sections: tenseSections,
-    });
-
-    const destinationActivity = document.createElement("span");
-    destinationActivity.className = "calc-guidance__conversion-summary-code";
-    destinationActivity.textContent = hierarchyParts.classCode
-        || getNawatPatientivoSourceClassCode(normalizedActiveCombinedMode);
-    const destinationLabelText = hierarchyParts.label || (isNawat ? "tachiwal" : "patientivo");
-    const destinationBranchLabel = hierarchyParts.sublabel || "";
-    const destinationSuffix = hierarchyParts.suffix || activeSurfaceSpec?.surfaceSuffix || "";
-    const destinationComponentLabel = ["S", destinationActivity.textContent, destinationLabelText, destinationBranchLabel, destinationSuffix]
-        .filter(Boolean)
-        .join(" · ");
-    const destinationSummary = document.createElement("span");
-    destinationSummary.className = "calc-guidance__conversion-summary-label calc-guidance__conversion-summary-label--flat";
-    destinationSummary.textContent = destinationComponentLabel;
-    const destinationOptions = profiles
-        .filter((profile) => isPatientivoSurfaceRouteProfile(profile))
-        .map((profile) => {
-            const routeKeyForProfile = profile.id || profile.legacyTenseValue || "";
-            const profileSource = profile.patientivoSource || "nonactive";
-            const optionSourceCombinedMode = profileSource === "nonactive" ? "nonactive" : "active";
-            const optionSourceTenseValue = profileSource === activeSurfaceSpec?.patientivoSource
-                ? activeSourceTenseValue
-                : getDefaultNawatPatientivoSourceTenseValue(profileSource);
-            const optionParts = getNawatVerbNounConversionHierarchyParts(profile, isNawat, {
-                sourceTenseValue: optionSourceTenseValue,
-                sourceCombinedMode: optionSourceCombinedMode,
-            });
-            const routeLabel = [
-                "S",
-                optionParts.classCode,
-                optionParts.label || (isNawat ? "tachiwal" : "patientivo"),
-                optionParts.sublabel,
-                optionParts.suffix,
-            ].filter(Boolean).join(" · ");
-            return {
-                label: routeLabel,
-                title: routeLabel,
-                active: routeKeyForProfile === activeRouteKey,
-                action: (button) => {
-                    activateNawatRouteStation(routeKeyForProfile, "target-mode", {
-                        render: true,
-                        anchorElement: button,
-                        sourceVerb: routeVerb,
-                        sourceObjectPrefix,
-                        sourceTenseValue: optionSourceTenseValue,
-                        sourceCombinedMode: optionSourceCombinedMode,
-                    });
-                },
-            };
-        });
-    const destinationPicker = createNawatConversionStationPicker({
-        className: "calc-guidance__conversion-station-picker--destination",
-        summaryClassName: "calc-guidance__chip--mode-sustantivo",
-        ariaLabel: `Elegir destino resultado sustantivo: ${destinationComponentLabel}`.trim(),
-        title: `destino = resultado final de esta ubicación: ${destinationComponentLabel}`.trim(),
-        summaryNodes: [destinationSummary],
-        sections: [
-            {
-                label: "destino · resultado",
-                options: destinationOptions,
-            },
-        ],
-    });
-
-    wrapper.append(activityPicker, tensePicker, destinationPicker);
-    return wrapper;
-}
-
-function getNawatGuidanceModeClass(mode = "") {
-    const normalized = String(mode || "").trim().toLowerCase();
-    if (normalized === TENSE_MODE.verbo || normalized === "verb") {
-        return "calc-guidance__chip--mode-verbo";
-    }
-    if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
-        return "calc-guidance__chip--mode-sustantivo";
-    }
-    return "";
-}
-
-function getNawatGuidanceModeMarker(mode = "") {
-    const normalized = String(mode || "").trim().toLowerCase();
-    if (normalized === TENSE_MODE.verbo || normalized === "verb") {
-        return "V";
-    }
-    if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
-        return "S";
-    }
-    return "";
-}
-
 function getNawatTroncoConversionSpec({
     routeKey = "",
     line = "",
@@ -1738,500 +1406,6 @@ function buildNawatTroncoConversionTrack({
         targetVerb,
         destination: finiteSurface || profile.surfaceSuffix || spec.routeKey,
     };
-}
-
-function createNawatRouteInlineSelect({
-    ariaLabel = "",
-    classModifier = "",
-} = {}) {
-    const select = document.createElement("select");
-    select.className = [
-        "calc-guidance__chip-select",
-        classModifier ? `calc-guidance__chip-select--${classModifier}` : "",
-    ].filter(Boolean).join(" ");
-    if (ariaLabel) {
-        select.setAttribute("aria-label", ariaLabel);
-    }
-    return select;
-}
-
-function appendNawatRouteSwitchDivider(container) {
-    const divider = document.createElement("span");
-    divider.className = "calc-guidance__route-switch-divider";
-    divider.setAttribute("aria-hidden", "true");
-    divider.textContent = "›";
-    container.appendChild(divider);
-}
-
-function createNawatRouteComponentDivider() {
-    const divider = document.createElement("span");
-    divider.className = "calc-guidance__route-switch-divider";
-    divider.setAttribute("aria-hidden", "true");
-    divider.textContent = " · ";
-    return divider;
-}
-
-function createNawatTroncoConversionSwitchGroup({
-    routeKey = "",
-    candidates = [],
-    sourceVerb = "",
-    sourceObjectPrefix = "",
-    sourceStem = "",
-    line = "",
-    tenseValue = "",
-    isNawat = false,
-    lineStationKey = "verbalizer",
-    tenseStationKey = "finite-tense",
-    stemStationKey = "stem",
-} = {}) {
-    const normalizedCandidates = (Array.isArray(candidates) ? candidates : [])
-        .map((candidate) => {
-            const stem = String(candidate?.stem || "").trim();
-            if (!stem) {
-                return null;
-            }
-            return {
-                stem,
-                sourceVerb: String(candidate?.sourceVerb || sourceVerb || "").trim(),
-                sourceObjectPrefix: String(
-                    candidate?.sourceObjectPrefix != null
-                        ? candidate.sourceObjectPrefix
-                        : sourceObjectPrefix
-                ),
-            };
-        })
-        .filter(Boolean);
-    if (!normalizedCandidates.length || typeof activateNawatRouteStation !== "function") {
-        return null;
-    }
-    const activeSpec = getNawatTroncoConversionSpec({ routeKey, line, tenseValue });
-    let selectedLine = activeSpec.line;
-    let selectedTense = activeSpec.tenseValue;
-    let selectedCandidate = normalizedCandidates.find((candidate) => candidate.stem === sourceStem)
-        || normalizedCandidates[0];
-    const picker = document.createElement("details");
-    picker.className = "calc-guidance__branch-picker calc-guidance__conversion-picker";
-    picker.addEventListener("toggle", () => {
-        if (!picker.open) {
-            return;
-        }
-        document.querySelectorAll(".calc-guidance__branch-picker[open]")
-            .forEach((otherPicker) => {
-                if (otherPicker !== picker) {
-                    otherPicker.removeAttribute("open");
-                }
-            });
-    });
-    const summary = document.createElement("summary");
-    summary.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--mode-sustantivo calc-guidance__route-switch-chip";
-    summary.setAttribute("aria-label", "Elegir conversión nawat");
-    summary.title = "Elegir conversión nawat";
-    const marker = document.createElement("span");
-    marker.className = "calc-guidance__mode-marker calc-guidance__mode-marker--compound";
-    marker.textContent = "S→V";
-    const body = document.createElement("span");
-    body.className = "calc-guidance__route-switch-body";
-    const stemLabel = document.createElement("span");
-    stemLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--stem";
-    const lineLabel = document.createElement("span");
-    lineLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--line";
-    const tenseLabel = document.createElement("span");
-    tenseLabel.className = "calc-guidance__route-switch-value calc-guidance__route-switch-value--tense";
-    const caret = document.createElement("span");
-    caret.className = "calc-guidance__picker-caret";
-    caret.setAttribute("aria-hidden", "true");
-    body.append(stemLabel);
-    appendNawatRouteSwitchDivider(body);
-    body.append(lineLabel);
-    appendNawatRouteSwitchDivider(body);
-    body.append(tenseLabel);
-    summary.append(marker, body, caret);
-    const activateSelectedRoute = (stationKey, anchorElement) => {
-        const spec = getNawatTroncoConversionSpec({
-            line: selectedLine,
-            tenseValue: selectedTense,
-        });
-        if (!spec || !selectedCandidate) {
-            return;
-        }
-        activateNawatRouteStation(spec.routeKey, stationKey, {
-            render: true,
-            anchorElement,
-            sourceVerb: selectedCandidate.sourceVerb,
-            sourceObjectPrefix: selectedCandidate.sourceObjectPrefix,
-            sourceStem: selectedCandidate.stem,
-        });
-    };
-    const createTrack = (spec) => buildNawatTroncoConversionTrack({
-        routeKey: spec.routeKey,
-        stem: selectedCandidate.stem,
-        sourceVerb: selectedCandidate.sourceVerb,
-        sourceObjectPrefix: selectedCandidate.sourceObjectPrefix,
-    });
-    const menu = document.createElement("div");
-    menu.className = "calc-guidance__branch-menu calc-guidance__route-switch-menu";
-    menu.setAttribute("role", "menu");
-    const lineOptions = Array.from(new Set(NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.map((spec) => spec.line)));
-    const tenseOptions = Array.from(new Set(NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.map((spec) => spec.tenseValue)));
-    const setMenuOptionState = () => {
-        menu.querySelectorAll(".calc-guidance__route-switch-option").forEach((button) => {
-            const groupName = button.dataset.routeSwitchGroup;
-            let active = false;
-            if (groupName === "stem") {
-                active = button.dataset.routeSwitchValue === selectedCandidate.stem;
-            } else if (groupName === "line") {
-                active = button.dataset.routeSwitchValue === selectedLine;
-            } else if (groupName === "tense") {
-                active = button.dataset.routeSwitchValue === selectedTense;
-            }
-            button.setAttribute("aria-checked", String(active));
-        });
-    };
-    const refreshSummary = () => {
-        stemLabel.textContent = selectedCandidate.stem;
-        lineLabel.textContent = selectedLine;
-        tenseLabel.textContent = getNawatTroncoTenseShortLabel(selectedTense, isNawat);
-        setMenuOptionState();
-    };
-    const appendMenuSection = (labelText, entries, groupName, onSelect) => {
-        const section = document.createElement("div");
-        section.className = "calc-guidance__route-switch-menu-section";
-        const label = document.createElement("div");
-        label.className = "calc-guidance__route-switch-menu-label";
-        label.textContent = labelText;
-        const options = document.createElement("div");
-        options.className = "calc-guidance__route-switch-menu-options";
-        entries.forEach((entry) => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "calc-guidance__branch-option calc-guidance__route-switch-option";
-            button.dataset.routeSwitchGroup = groupName;
-            button.dataset.routeSwitchValue = entry.value;
-            button.setAttribute("role", "menuitemradio");
-            button.textContent = entry.label;
-            button.addEventListener("click", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onSelect(entry.value, button);
-                picker.open = false;
-            });
-            options.appendChild(button);
-        });
-        section.append(label, options);
-        menu.appendChild(section);
-    };
-    appendMenuSection(
-        "tronco",
-        normalizedCandidates.map((candidate) => ({
-            value: candidate.stem,
-            label: candidate.stem,
-        })),
-        "stem",
-        (value, button) => {
-            selectedCandidate = normalizedCandidates.find((candidate) => candidate.stem === value)
-                || normalizedCandidates[0];
-            refreshSummary();
-            if (routeKey) {
-                activateSelectedRoute(stemStationKey, button);
-            }
-        }
-    );
-    appendMenuSection(
-        "tipo de verbalización",
-        lineOptions.map((lineOption) => ({
-            value: lineOption,
-            label: lineOption,
-        })),
-        "line",
-        (value, button) => {
-            selectedLine = value;
-            refreshSummary();
-            activateSelectedRoute(lineStationKey, button);
-        }
-    );
-    appendMenuSection(
-        "tiempo",
-        tenseOptions.map((tenseOption) => ({
-            value: tenseOption,
-            label: getNawatTroncoTenseShortLabel(tenseOption, isNawat),
-        })),
-        "tense",
-        (value, button) => {
-            selectedTense = value;
-            refreshSummary();
-            activateSelectedRoute(tenseStationKey, button);
-        }
-    );
-    refreshSummary();
-    picker.append(summary, menu);
-    return picker;
-}
-
-function createNawatVerbNounConversionSwitchGroup({
-    routeKey = "",
-    sourceVerb = "",
-    sourceObjectPrefix = "",
-    sourceTenseValue = "",
-    sourceCombinedMode = "",
-    isNawat = false,
-} = {}) {
-    const profiles = getNawatVerbNounConversionProfiles();
-    const routeVerb = String(sourceVerb || "").trim();
-    if (!profiles.length || !routeVerb || typeof activateNawatRouteStation !== "function") {
-        return null;
-    }
-    const inferredRouteKey = routeKey || (
-        typeof resolveNawatVerbNounConversionRouteKeyForSource === "function"
-            ? resolveNawatVerbNounConversionRouteKeyForSource({
-                sourceTenseValue,
-                sourceCombinedMode,
-            })
-            : ""
-    );
-    const activeProfile = profiles.find((profile) => profile.id === inferredRouteKey || profile.legacyTenseValue === inferredRouteKey)
-        || profiles[0];
-    const picker = document.createElement("details");
-    picker.className = "calc-guidance__branch-picker calc-guidance__conversion-picker calc-guidance__verb-noun-picker";
-    picker.addEventListener("toggle", () => {
-        if (!picker.open) {
-            return;
-        }
-        document.querySelectorAll(".calc-guidance__branch-picker[open]")
-            .forEach((otherPicker) => {
-                if (otherPicker !== picker) {
-                    otherPicker.removeAttribute("open");
-                }
-            });
-    });
-    const isPatientivoConversion = isPatientivoSurfaceRouteProfile(activeProfile);
-    const effectiveSourceTenseValue = isPatientivoConversion && !String(sourceTenseValue || "").trim()
-        ? "presente"
-        : sourceTenseValue;
-    const summary = document.createElement("summary");
-    summary.className = [
-        "calc-guidance__chip",
-        "calc-guidance__chip--button",
-        "calc-guidance__chip--mode-verbo",
-        "calc-guidance__route-switch-chip",
-    ].filter(Boolean).join(" ");
-    const hierarchyParts = getNawatVerbNounConversionHierarchyParts(activeProfile, isNawat, {
-        sourceTenseValue: effectiveSourceTenseValue,
-        sourceCombinedMode,
-    });
-    const hierarchyLabel = formatNawatVerbNounConversionHierarchyLabel(activeProfile, isNawat, {
-        includeSuffix: true,
-        sourceTenseValue: effectiveSourceTenseValue,
-        sourceCombinedMode,
-    });
-    if (isPatientivoConversion) {
-        return createNawatPatientivoVerbNounConversionPicker({
-            profiles,
-            activeProfile,
-            hierarchyParts,
-            hierarchyLabel,
-            sourceVerb: routeVerb,
-            sourceObjectPrefix,
-            sourceTenseValue: effectiveSourceTenseValue,
-            sourceCombinedMode,
-            isNawat,
-        });
-    }
-    summary.setAttribute("aria-label", `Elegir conversión verbo a sustantivo: ${hierarchyLabel}`);
-    summary.title = hierarchyLabel;
-    const caret = document.createElement("span");
-    caret.className = "calc-guidance__picker-caret";
-    caret.setAttribute("aria-hidden", "true");
-    const marker = document.createElement("span");
-    marker.className = "calc-guidance__mode-marker calc-guidance__mode-marker--compound";
-    marker.textContent = "V→S";
-    const label = document.createElement("span");
-    label.className = "calc-guidance__chip-label";
-    label.textContent = hierarchyParts.label || getNawatVerbNounConversionLabel(activeProfile, isNawat);
-    const classLabel = hierarchyParts.classCode ? document.createElement("span") : null;
-    if (classLabel) {
-        classLabel.className = "calc-guidance__chip-sublabel calc-guidance__chip-sublabel--code";
-        classLabel.textContent = hierarchyParts.classCode;
-    }
-    const sublabel = hierarchyParts.sublabel ? document.createElement("span") : null;
-    if (sublabel) {
-        sublabel.className = "calc-guidance__chip-sublabel";
-        sublabel.textContent = hierarchyParts.sublabel;
-    }
-    summary.append(marker, label);
-    if (classLabel) {
-        summary.appendChild(classLabel);
-    }
-    if (sublabel) {
-        summary.appendChild(sublabel);
-    }
-    summary.appendChild(caret);
-    const menu = document.createElement("div");
-    menu.className = "calc-guidance__branch-menu calc-guidance__route-switch-menu";
-    menu.setAttribute("role", "menu");
-    const section = document.createElement("div");
-    section.className = "calc-guidance__route-switch-menu-section";
-    const sectionLabel = document.createElement("div");
-    sectionLabel.className = "calc-guidance__route-switch-menu-label";
-    sectionLabel.textContent = "salida";
-    const options = document.createElement("div");
-    options.className = "calc-guidance__route-switch-menu-options";
-    profiles.forEach((profile) => {
-        const option = document.createElement("button");
-        option.type = "button";
-        option.className = "calc-guidance__branch-option calc-guidance__route-switch-option";
-        option.dataset.routeSwitchGroup = "verb-noun-route";
-        option.dataset.routeSwitchValue = profile.id || profile.legacyTenseValue || "";
-        option.setAttribute("role", "menuitemradio");
-        option.setAttribute("aria-checked", String(profile.id === activeProfile.id));
-        const routeMenuLabel = getNawatVerbNounRouteMenuLabel(profile, isNawat);
-        option.textContent = routeMenuLabel;
-        option.title = routeMenuLabel;
-        option.addEventListener("click", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            activateNawatRouteStation(profile.id || profile.legacyTenseValue || "", "finite-tense", {
-                render: true,
-                anchorElement: option,
-                sourceVerb: routeVerb,
-                sourceObjectPrefix,
-                sourceTenseValue,
-                sourceCombinedMode,
-            });
-            picker.open = false;
-        });
-        options.appendChild(option);
-    });
-    section.append(sectionLabel, options);
-    menu.appendChild(section);
-    picker.append(summary, menu);
-    return picker;
-}
-
-function createVerbTenseBlockDestinationPicker({
-    sourceVerb = "",
-    sourceObjectPrefix = "",
-    sourceTenseValue = "",
-    sourceCombinedMode = "",
-    isNawat = false,
-} = {}) {
-    const routeVerb = String(sourceVerb || "").trim();
-    const normalizedTenseValue = String(sourceTenseValue || "").trim();
-    const normalizedCombinedMode = String(sourceCombinedMode || "").trim() || COMBINED_MODE.active;
-    if (
-        !routeVerb
-        || !normalizedTenseValue
-        || typeof activateNawatRouteStation !== "function"
-        || typeof resolveNawatRouteTarget !== "function"
-        || typeof getNawatRouteFiniteSurfaceForm !== "function"
-    ) {
-        return null;
-    }
-    const profiles = getNawatVerbNounConversionProfiles();
-    if (!profiles.length) {
-        return null;
-    }
-    const patientivoRouteKey = getNawatPatientivoSourceRouteKey({
-        sourceCombinedMode: normalizedCombinedMode,
-        tenseValue: normalizedTenseValue,
-    });
-    const destinationProfiles = profiles.filter((profile) => {
-        const profileRouteKey = profile.id || profile.legacyTenseValue || "";
-        if (isPatientivoSurfaceRouteProfile(profile)) {
-            return profileRouteKey === patientivoRouteKey;
-        }
-        return false;
-    });
-    if (!destinationProfiles.length) {
-        return null;
-    }
-    const resolveDestination = (profile) => {
-        const routeTarget = resolveNawatRouteTarget(profile, {
-            sourceVerb: routeVerb,
-            sourceObjectPrefix,
-            sourceTenseValue: normalizedTenseValue,
-            sourceCombinedMode: normalizedCombinedMode,
-        }) || {};
-        const surface = getNawatRouteFiniteSurfaceForm(profile, {
-            sourceVerb: routeVerb,
-            sourceObjectPrefix,
-            routeTarget,
-        });
-        const hierarchyParts = getNawatVerbNounConversionHierarchyParts(profile, isNawat, {
-            sourceTenseValue: normalizedTenseValue,
-            sourceCombinedMode: normalizedCombinedMode,
-        });
-        return {
-            routeKey: profile.id || profile.legacyTenseValue || "",
-            routeTarget,
-            surface,
-            label: getNawatVerbNounRouteMenuLabel(profile, isNawat),
-            hierarchyParts,
-        };
-    };
-    const destinations = destinationProfiles
-        .map((profile) => ({ profile, ...resolveDestination(profile) }))
-        .filter((entry) => entry.routeKey);
-    if (!destinations.length) {
-        return null;
-    }
-    const activeDestination = destinations.find((entry) => entry.routeKey === patientivoRouteKey)
-        || destinations[0];
-    const activity = document.createElement("span");
-    activity.className = "calc-guidance__conversion-summary-code";
-    activity.textContent = activeDestination.hierarchyParts?.classCode
-        || getNawatPatientivoSourceClassCode(normalizedCombinedMode);
-    const destinationLabelText = activeDestination.hierarchyParts?.label
-        || (isNawat ? "tachiwal" : "patientivo");
-    const destinationComponentLabel = [
-        "S",
-        activity.textContent,
-        destinationLabelText,
-        activeDestination.hierarchyParts?.sublabel || "",
-        activeDestination.hierarchyParts?.suffix || "",
-    ]
-        .filter(Boolean)
-        .join(" · ");
-    const destinationSummaryText = activeDestination.surface
-        ? `destino: ${destinationComponentLabel}: ${activeDestination.surface}`
-        : `destino: ${destinationComponentLabel}`;
-    const destinationSummary = document.createElement("span");
-    destinationSummary.className = "tense-block__destination-label calc-guidance__conversion-summary-label calc-guidance__conversion-summary-label--flat";
-    destinationSummary.textContent = destinationSummaryText;
-    const optionLabels = destinations.map((entry) => {
-        const optionLabel = entry.surface
-            ? `${entry.label}: ${entry.surface}`
-            : entry.label;
-        return {
-            label: optionLabel,
-            title: optionLabel,
-            active: entry.routeKey === activeDestination.routeKey,
-            action: (button) => {
-                activateNawatRouteStation(entry.routeKey, "target-mode", {
-                    render: true,
-                    anchorElement: button,
-                    sourceVerb: routeVerb,
-                    sourceObjectPrefix,
-                    sourceTenseValue: normalizedTenseValue,
-                    sourceCombinedMode: normalizedCombinedMode,
-                });
-            },
-        };
-    });
-    return createNawatConversionStationPicker({
-        className: "tense-block__destination-picker calc-guidance__conversion-station-picker--destination",
-        summaryClassName: "tense-block__destination-summary calc-guidance__chip--mode-sustantivo",
-        ariaLabel: `Elegir destino resultado desde ${normalizedTenseValue}: ${destinationComponentLabel}`.trim(),
-        title: activeDestination.surface
-            ? `destino = resultado final: ${destinationComponentLabel}: ${activeDestination.surface}`
-            : `destino = resultado final: ${destinationComponentLabel}`,
-        summaryNodes: [destinationSummary],
-        sections: [
-            {
-                label: "destino · resultado",
-                options: optionLabels,
-            },
-        ],
-    });
 }
 
 function normalizeDerivationalInputFamilyToken(token = "") {
@@ -2330,834 +1504,10 @@ function renderOutputGuidancePanel({ verb = "" } = {}) {
     if (!panel) {
         return;
     }
-    const railBlock = document.getElementById("conversion-rail-block");
-    const hidePanel = () => {
-        panel.innerHTML = "";
-        panel.hidden = true;
-        panel.classList.add("is-empty");
-        if (railBlock) {
-            railBlock.hidden = true;
-            railBlock.setAttribute("aria-hidden", "true");
-        }
-    };
-    hidePanel();
-    return;
-    if (!String(verb || "").trim()) {
-        hidePanel();
-        return;
-    }
-    const getGuidanceModeClass = (mode = "") => {
-        const normalized = String(mode || "").trim().toLowerCase();
-        if (!normalized) {
-            return "";
-        }
-        if (normalized === TENSE_MODE.verbo || normalized === "verb") {
-            return "calc-guidance__chip--mode-verbo";
-        }
-        if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
-            return "calc-guidance__chip--mode-sustantivo";
-        }
-        return "";
-    };
-    const getGuidanceModeMarker = (mode = "") => {
-        const normalized = String(mode || "").trim().toLowerCase();
-        if (normalized === TENSE_MODE.verbo || normalized === "verb") {
-            return "V";
-        }
-        if (normalized === TENSE_MODE.sustantivo || normalized === "noun") {
-            return "S";
-        }
-        return "";
-    };
-    const createConversionPicker = ({
-        candidates = [],
-        routeKey = "",
-        sourceStem = "",
-        line = "",
-        tenseValue = "",
-        fallbackSourceVerb = "",
-        fallbackSourceObjectPrefix = "",
-    } = {}) => {
-        return createNawatTroncoConversionSwitchGroup({
-            routeKey,
-            candidates,
-            sourceStem,
-            line,
-            tenseValue,
-            isNawat,
-            fallbackSourceVerb,
-            fallbackSourceObjectPrefix,
-            sourceVerb: fallbackSourceVerb,
-            sourceObjectPrefix: fallbackSourceObjectPrefix,
-        });
-    };
-    const renderEntries = (titleText, entries) => {
-        if (!entries.length) {
-            hidePanel();
-            return;
-        }
-        const chips = document.createElement("div");
-        chips.className = "calc-guidance__chips";
-        let hasVisibleGuidance = false;
-        const appendSeparator = (separatorText = "") => {
-            const separator = document.createElement("span");
-            separator.className = "calc-guidance__separator";
-            separator.textContent = separatorText;
-            chips.appendChild(separator);
-            return separator;
-        };
-        const appendVisibleNode = (node, separatorText = "") => {
-            if (!node) {
-                return;
-            }
-            if (separatorText && hasVisibleGuidance) {
-                appendSeparator(separatorText);
-            }
-            chips.appendChild(node);
-            hasVisibleGuidance = true;
-        };
-        entries.forEach((entry) => {
-            if (entry.type === "conversion-picker") {
-                const picker = createConversionPicker({
-                    candidates: entry.candidates || [],
-                    routeKey: entry.routeKey || "",
-                    sourceStem: entry.sourceStem || "",
-                    line: entry.line || "",
-                    tenseValue: entry.tenseValue || "",
-                    fallbackSourceVerb: entry.sourceVerb || "",
-                    fallbackSourceObjectPrefix: entry.sourceObjectPrefix || "",
-                });
-                appendVisibleNode(picker, entry.separatorBefore || "");
-                return;
-            }
-            if (entry.type === "verb-noun-conversion-picker") {
-                const picker = createNawatVerbNounConversionSwitchGroup({
-                    routeKey: entry.routeKey || "",
-                    sourceVerb: entry.sourceVerb || "",
-                    sourceObjectPrefix: entry.sourceObjectPrefix || "",
-                    sourceTenseValue: entry.sourceTenseValue || "",
-                    sourceCombinedMode: entry.sourceCombinedMode || "",
-                    isNawat,
-                });
-                appendVisibleNode(picker, entry.separatorBefore || "");
-                return;
-            }
-            const hasAction = typeof entry.action === "function";
-            const chip = document.createElement(hasAction ? "button" : "div");
-            if (hasAction) {
-                chip.type = "button";
-            }
-            chip.className = [
-                "calc-guidance__chip",
-                entry.active ? "calc-guidance__chip--active" : "",
-                getGuidanceModeClass(entry.mode),
-                entry.depth ? `calc-guidance__chip--depth-${entry.depth}` : "",
-                hasAction ? "calc-guidance__chip--button" : "",
-            ].filter(Boolean).join(" ");
-            const modeMarker = getGuidanceModeMarker(entry.mode);
-            if (modeMarker) {
-                const marker = document.createElement("span");
-                marker.className = "calc-guidance__mode-marker";
-                marker.textContent = modeMarker;
-                chip.appendChild(marker);
-            }
-            const label = document.createElement("span");
-            label.className = "calc-guidance__chip-label";
-            label.textContent = entry.text;
-            chip.appendChild(label);
-            if (entry.classCode) {
-                const classLabel = document.createElement("span");
-                classLabel.className = "calc-guidance__chip-sublabel calc-guidance__chip-sublabel--code";
-                classLabel.textContent = entry.classCode;
-                chip.appendChild(classLabel);
-            }
-            if (entry.sublabel) {
-                const sublabel = document.createElement("span");
-                sublabel.className = "calc-guidance__chip-sublabel";
-                sublabel.textContent = entry.sublabel;
-                chip.appendChild(sublabel);
-            }
-            if (hasAction) {
-                chip.addEventListener("click", () => {
-                    entry.action(chip);
-                });
-            }
-            appendVisibleNode(chip, entry.separatorBefore || "");
-        });
-        if (!hasVisibleGuidance) {
-            hidePanel();
-            return;
-        }
-        panel.innerHTML = "";
-        panel.hidden = false;
-        panel.classList.remove("is-empty");
-        if (railBlock) {
-            railBlock.hidden = false;
-            railBlock.removeAttribute("aria-hidden");
-        }
-        if (titleText) {
-            const title = document.createElement("div");
-            title.className = "calc-guidance__title";
-            title.textContent = titleText;
-            panel.appendChild(title);
-        }
-        panel.appendChild(chips);
-    };
-    const renderLineRows = (titleText, lines) => {
-        if (!Array.isArray(lines) || !lines.length) {
-            hidePanel();
-            return;
-        }
-        panel.innerHTML = "";
-        panel.hidden = false;
-        panel.classList.remove("is-empty");
-        if (railBlock) {
-            railBlock.hidden = false;
-            railBlock.removeAttribute("aria-hidden");
-        }
-        const getLineSelectionStore = () => (
-            typeof getNawatRouteStateStore === "function"
-                ? getNawatRouteStateStore()
-                : (typeof window !== "undefined" ? window : null)
-        );
-        const lineSelectionStore = getLineSelectionStore();
-        const availableLineIds = new Set(lines.map((line) => line.id).filter(Boolean));
-        const storedLineId = String(lineSelectionStore?.activeNawatLineId || lineSelectionStore?.__NAWAT_ACTIVE_LINE_ID__ || "").trim();
-        const focusedLine = lines.find((line) => (
-            (line.stations || []).some((station) => station.active && station.key !== "source")
-        )) || lines.find((line) => (
-            (line.stations || []).some((station) => station.active)
-        )) || lines[0];
-        const selectedLineId = storedLineId && availableLineIds.has(storedLineId)
-            ? storedLineId
-            : (focusedLine?.id || lines[0]?.id || "");
-        const selectedLine = lines.find((line) => line.id === selectedLineId) || lines[0];
-        const setSelectedLineId = (lineId = "") => {
-            if (lineSelectionStore) {
-                lineSelectionStore.activeNawatLineId = lineId;
-                lineSelectionStore.__NAWAT_ACTIVE_LINE_ID__ = lineId;
-            }
-            if (typeof window !== "undefined" && window) {
-                window.__NAWAT_ACTIVE_LINE_ID__ = lineId;
-            }
-        };
-        setSelectedLineId(selectedLineId);
-        const lineList = document.createElement("div");
-        lineList.className = "calc-guidance__lines";
-        const getActiveLinkedPathSummary = () => (
-            lineSelectionStore?.activeLinkedGrammarPathSelectionSummary
-            && lineSelectionStore.activeLinkedGrammarPathSelectionSummary.outputKind === "linked-grammar-path-selection-summary"
-                ? lineSelectionStore.activeLinkedGrammarPathSelectionSummary
-                : null
-        );
-        const getActiveLinkedPathExecution = () => (
-            lineSelectionStore?.activeLinkedGrammarPathExecution
-            && lineSelectionStore.activeLinkedGrammarPathExecution.outputKind === "linked-grammar-path-chain-execution"
-                ? lineSelectionStore.activeLinkedGrammarPathExecution
-                : null
-        );
-        const getActiveLinkedPathPromotedSource = () => (
-            lineSelectionStore?.activeLinkedGrammarPathPromotedSource || null
-        );
-        const createSelectedLinkedPathSummary = () => {
-            const summary = getActiveLinkedPathSummary();
-            const execution = getActiveLinkedPathExecution();
-            const promotedSource = getActiveLinkedPathPromotedSource();
-            const appendableSelections = getNawatLinkedGrammarAppendableSelections(summary, {
-                maxChoices: 6,
-            });
-            const executionSourceOptions = (
-                typeof getNawatLinkedGrammarPathExecutionSourceOptions === "function"
-                    ? getNawatLinkedGrammarPathExecutionSourceOptions(execution)
-                    : []
-            );
-            const labels = [
-                ...buildNawatLinkedGrammarSelectedPathSubLabels(summary),
-                ...buildNawatLinkedGrammarPathExecutionSubLabels(execution),
-                ...buildNawatLinkedGrammarPromotedSourceSubLabels(promotedSource),
-            ];
-            if (!labels.length) {
-                return null;
-            }
-            const summaryRow = document.createElement("div");
-            summaryRow.className = "calc-guidance__linked-path-summary";
-            summaryRow.dataset.linkedPathSelectionCount = String(summary.selectedSteps?.length || 0);
-            const statusGroup = document.createElement("div");
-            statusGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--status";
-            const choiceGroup = document.createElement("div");
-            choiceGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--choices";
-            const actionGroup = document.createElement("div");
-            actionGroup.className = "calc-guidance__linked-path-group calc-guidance__linked-path-group--actions";
-            labels.forEach((text, index) => {
-                const chip = document.createElement("div");
-                chip.className = [
-                    "calc-guidance__chip",
-                    "calc-guidance__chip--linked-path",
-                    index === 0 ? "calc-guidance__chip--active" : "",
-                ].filter(Boolean).join(" ");
-                const label = document.createElement("span");
-                label.className = "calc-guidance__chip-label";
-                label.textContent = text;
-                chip.appendChild(label);
-                statusGroup.appendChild(chip);
-            });
-            summaryRow.appendChild(statusGroup);
-            if (
-                summary?.selectedSteps?.length
-                && typeof executeActiveNawatLinkedGrammarPathSelections === "function"
-            ) {
-                const executeButton = document.createElement("button");
-                executeButton.type = "button";
-                executeButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-execute";
-                executeButton.dataset.linkedPathExecute = "true";
-                const executeLabel = document.createElement("span");
-                executeLabel.className = "calc-guidance__chip-label";
-                executeLabel.textContent = "generar trayecto";
-                executeButton.appendChild(executeLabel);
-                executeButton.addEventListener("click", () => {
-                    executeActiveNawatLinkedGrammarPathSelections();
-                    executeButton.dataset.linkedPathExecuted = "true";
-                    renderLineRows(titleText, lines);
-                });
-                actionGroup.appendChild(executeButton);
-            }
-            if (
-                summary?.selectedSteps?.length
-                && typeof removeLastActiveNawatLinkedGrammarPathSelection === "function"
-            ) {
-                const backButton = document.createElement("button");
-                backButton.type = "button";
-                backButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-back";
-                backButton.dataset.linkedPathBack = "true";
-                const backLabel = document.createElement("span");
-                backLabel.className = "calc-guidance__chip-label";
-                backLabel.textContent = "atrás";
-                backButton.appendChild(backLabel);
-                backButton.addEventListener("click", () => {
-                    removeLastActiveNawatLinkedGrammarPathSelection();
-                    backButton.dataset.linkedPathBacktracked = "true";
-                    renderLineRows(titleText, lines);
-                });
-                actionGroup.appendChild(backButton);
-            }
-            if (typeof appendActiveNawatLinkedGrammarPathSelection === "function") {
-                appendableSelections.forEach((appendableSelection, choiceIndex) => {
-                    if (!appendableSelection?.selection) {
-                        return;
-                    }
-                    const appendButton = document.createElement("button");
-                    appendButton.type = "button";
-                    appendButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-choice";
-                    appendButton.dataset.linkedPathAppendSummary = "true";
-                    appendButton.dataset.linkedPathChoiceIndex = String(choiceIndex);
-                    const appendLabel = document.createElement("span");
-                    appendLabel.className = "calc-guidance__chip-label";
-                    appendLabel.textContent = "seguir";
-                    appendButton.appendChild(appendLabel);
-                    const appendSublabelText = [
-                        formatNawatLinkedGrammarCompactChoiceLabel(appendableSelection),
-                        appendableSelection.sourceVerb,
-                    ].filter(Boolean).join(" → ");
-                    if (appendSublabelText) {
-                        const appendSublabel = document.createElement("span");
-                        appendSublabel.className = "calc-guidance__chip-sublabel";
-                        appendSublabel.textContent = appendSublabelText;
-                        appendButton.appendChild(appendSublabel);
-                    }
-                    appendButton.addEventListener("click", () => {
-                        appendActiveNawatLinkedGrammarPathSelection(appendableSelection.selection);
-                        appendButton.dataset.linkedPathAppended = "true";
-                        renderLineRows(titleText, lines);
-                    });
-                    choiceGroup.appendChild(appendButton);
-                });
-            }
-            if (
-                execution?.steps?.length
-                && executionSourceOptions.length > 1
-                && typeof promoteActiveNawatLinkedGrammarPathExecutionStepSource === "function"
-            ) {
-                executionSourceOptions.slice(0, -1).forEach((sourceOption) => {
-                    const stepNumber = Number(sourceOption.fromStepIndex) + 1;
-                    const stepButton = document.createElement("button");
-                    stepButton.type = "button";
-                    stepButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-promote";
-                    stepButton.dataset.linkedPathPromoteStep = String(sourceOption.fromStepIndex);
-                    const stepLabel = document.createElement("span");
-                    stepLabel.className = "calc-guidance__chip-label";
-                    stepLabel.textContent = `usar etapa ${stepNumber}`;
-                    stepButton.appendChild(stepLabel);
-                    const stepSublabelText = sourceOption.sourceVerb || sourceOption.generatedSurface || "";
-                    if (stepSublabelText) {
-                        const stepSublabel = document.createElement("span");
-                        stepSublabel.className = "calc-guidance__chip-sublabel";
-                        stepSublabel.textContent = stepSublabelText;
-                        stepButton.appendChild(stepSublabel);
-                    }
-                    stepButton.addEventListener("click", () => {
-                        promoteActiveNawatLinkedGrammarPathExecutionStepSource(sourceOption.fromStepIndex, {
-                            syncInput: true,
-                        });
-                        stepButton.dataset.linkedPathPromoted = "true";
-                        renderLineRows(titleText, lines);
-                    });
-                    actionGroup.appendChild(stepButton);
-                });
-            }
-            if (
-                execution?.steps?.length
-                && typeof promoteActiveNawatLinkedGrammarPathExecutionFinalSource === "function"
-            ) {
-                const promoteButton = document.createElement("button");
-                promoteButton.type = "button";
-                promoteButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-promote";
-                promoteButton.dataset.linkedPathPromote = "true";
-                const promoteLabel = document.createElement("span");
-                promoteLabel.className = "calc-guidance__chip-label";
-                promoteLabel.textContent = "usar salida";
-                promoteButton.appendChild(promoteLabel);
-                promoteButton.addEventListener("click", () => {
-                    promoteActiveNawatLinkedGrammarPathExecutionFinalSource({
-                        syncInput: true,
-                    });
-                    promoteButton.dataset.linkedPathPromoted = "true";
-                    renderLineRows(titleText, lines);
-                });
-                actionGroup.appendChild(promoteButton);
-            }
-            if (typeof clearActiveNawatLinkedGrammarPathSelections === "function") {
-                const clearButton = document.createElement("button");
-                clearButton.type = "button";
-                clearButton.className = "calc-guidance__chip calc-guidance__chip--button calc-guidance__chip--linked-clear";
-                clearButton.dataset.linkedPathClear = "true";
-                const clearLabel = document.createElement("span");
-                clearLabel.className = "calc-guidance__chip-label";
-                clearLabel.textContent = "borrar";
-                clearButton.appendChild(clearLabel);
-                clearButton.addEventListener("click", () => {
-                    clearActiveNawatLinkedGrammarPathSelections();
-                    clearButton.dataset.linkedPathCleared = "true";
-                    renderLineRows(titleText, lines);
-                });
-                actionGroup.appendChild(clearButton);
-            }
-            if (choiceGroup.childNodes.length) {
-                summaryRow.appendChild(choiceGroup);
-            }
-            if (actionGroup.childNodes.length) {
-                summaryRow.appendChild(actionGroup);
-            }
-            return summaryRow;
-        };
-        const lineToggles = document.createElement("div");
-        lineToggles.className = "calc-guidance__line-toggles";
-        lineToggles.setAttribute("role", "tablist");
-        lineToggles.setAttribute("aria-label", "Líneas de salida");
-        lines.forEach((line) => {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = [
-                "calc-guidance__line-toggle",
-                line.id === selectedLineId ? "calc-guidance__line-toggle--active" : "",
-            ].filter(Boolean).join(" ");
-            button.dataset.nawatLineToggle = line.id || "";
-            button.setAttribute("role", "tab");
-            button.setAttribute("aria-selected", String(line.id === selectedLineId));
-            button.textContent = line.label || "";
-            button.addEventListener("click", () => {
-                setSelectedLineId(line.id || "");
-                renderLineRows(titleText, lines);
-            });
-            lineToggles.appendChild(button);
-        });
-        if (selectedLine) {
-            const row = document.createElement("div");
-            row.className = "calc-guidance__line calc-guidance__line--selected";
-            row.dataset.nawatLineId = selectedLine.id || "";
-            const track = document.createElement("div");
-            track.className = "calc-guidance__line-track";
-            (selectedLine.stations || []).forEach((station, index) => {
-                if (index > 0) {
-                    const separator = document.createElement("span");
-                    separator.className = "calc-guidance__separator calc-guidance__line-separator";
-                    separator.textContent = "→";
-                    track.appendChild(separator);
-                }
-                const hasAction = typeof station.action === "function";
-                const chip = document.createElement(hasAction ? "button" : "div");
-                if (hasAction) {
-                    chip.type = "button";
-                }
-                chip.className = [
-                    "calc-guidance__chip",
-                    "calc-guidance__chip--station",
-                    hasAction ? "calc-guidance__chip--button" : "",
-                    getGuidanceModeClass(station.mode),
-                    station.active ? "calc-guidance__chip--active" : "",
-                ].filter(Boolean).join(" ");
-                if (station.linkedNextSource?.sourceVerb) {
-                    chip.dataset.linkedNextSource = station.linkedNextSource.sourceVerb;
-                }
-                if (station.linkedAppendableSelectionCount) {
-                    chip.dataset.linkedAppendableSelectionCount = String(station.linkedAppendableSelectionCount);
-                }
-                const linkedTitle = [
-                    station.linkedNextSourceLabel,
-                    station.linkedAppendableChoiceLabel,
-                ].filter(Boolean).join(" · ");
-                if (linkedTitle) {
-                    chip.title = linkedTitle;
-                }
-                const modeMarker = getGuidanceModeMarker(station.mode);
-                if (modeMarker) {
-                    const marker = document.createElement("span");
-                    marker.className = "calc-guidance__mode-marker";
-                    marker.textContent = modeMarker;
-                    chip.appendChild(marker);
-                }
-                const label = document.createElement("span");
-                label.className = "calc-guidance__chip-label";
-                label.textContent = station.text || "";
-                chip.appendChild(label);
-                if (station.sublabel) {
-                    const sublabel = document.createElement("span");
-                    sublabel.className = "calc-guidance__chip-sublabel";
-                    sublabel.textContent = station.sublabel;
-                    chip.appendChild(sublabel);
-                }
-                if (hasAction) {
-                    chip.addEventListener("click", () => {
-                        station.action(chip);
-                    });
-                }
-                track.appendChild(chip);
-                if (typeof station.linkedAppendableAction === "function") {
-                    const choice = document.createElement("button");
-                    choice.type = "button";
-                    choice.className = [
-                        "calc-guidance__chip",
-                        "calc-guidance__chip--button",
-                        "calc-guidance__chip--linked-choice",
-                        getGuidanceModeClass(station.mode),
-                    ].filter(Boolean).join(" ");
-                    choice.dataset.linkedAppendableRoute = station.linkedAppendableSelection?.routeId || "";
-                    choice.dataset.linkedAppendableStage = station.linkedAppendableSelection?.stageKey || "";
-                    if (station.linkedAppendableChoiceLabel) {
-                        choice.title = station.linkedAppendableChoiceLabel;
-                    }
-                    const choiceLabel = document.createElement("span");
-                    choiceLabel.className = "calc-guidance__chip-label";
-                    choiceLabel.textContent = "seguir";
-                    choice.appendChild(choiceLabel);
-                    if (station.linkedAppendableChoiceLabel) {
-                        const choiceSubLabel = document.createElement("span");
-                        choiceSubLabel.className = "calc-guidance__chip-sublabel";
-                        choiceSubLabel.textContent = station.linkedAppendableChoiceLabel;
-                        choice.appendChild(choiceSubLabel);
-                    }
-                    choice.addEventListener("click", () => {
-                        station.linkedAppendableAction(choice);
-                        choice.dataset.linkedPathAppended = "true";
-                        choice.setAttribute("aria-pressed", "true");
-                        renderLineRows(titleText, lines);
-                    });
-                    track.appendChild(choice);
-                }
-            });
-            row.appendChild(track);
-            lineList.appendChild(row);
-        }
-        if (titleText) {
-            const title = document.createElement("div");
-            title.className = "calc-guidance__title";
-            title.textContent = titleText;
-            panel.appendChild(title);
-        }
-        panel.appendChild(lineToggles);
-        panel.appendChild(lineList);
-        const selectedPathSummary = createSelectedLinkedPathSummary();
-        if (selectedPathSummary) {
-            panel.appendChild(selectedPathSummary);
-        }
-    };
-    const getCurrentMovementTenseValue = (mode = getActiveTenseMode()) => {
-        const state = getCurrentResolvedConjugationSelectionState({
-            tenseMode: mode,
-        });
-        return String(
-            state.group === CONJUGATION_GROUPS.universal
-                ? state.universalTenseValue
-                : state.tenseValue
-        ).trim();
-    };
-    const getNawatMovementMode = (mode = getActiveTenseMode()) => (
-        mode === TENSE_MODE.verbo ? TENSE_MODE.verbo : TENSE_MODE.sustantivo
-    );
-    const getMovementTenseLabel = (tenseValue = "") => {
-        const value = String(tenseValue || "").trim();
-        if (!value) {
-            return "";
-        }
-        return getLocalizedLabel(TENSE_LABELS[value], isNawat, value);
-    };
-    const getMovementDerivationEntry = () => {
-        if (getActiveTenseMode() !== TENSE_MODE.verbo) {
-            return null;
-        }
-        if (getCombinedMode() === COMBINED_MODE.nonactive) {
-            return {
-                text: getLocalizedLabel(UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo"),
-                mode: TENSE_MODE.verbo,
-            };
-        }
-        const type = getActiveDerivationType();
-        if (type === DERIVATION_TYPE.causative) {
-            return {
-                text: "causativa",
-                mode: TENSE_MODE.verbo,
-            };
-        }
-        if (type === DERIVATION_TYPE.applicative) {
-            return {
-                text: "aplicativa",
-                mode: TENSE_MODE.verbo,
-            };
-        }
-        return null;
-    };
-    const renderCurrentMovementBreadcrumb = () => {
-        renderNawatLineBoard();
-    };
-    const resolvedVerb = String(verb || "");
-    const isNawat = Boolean(document.getElementById("language")?.checked);
-    const activeRoute = typeof getActiveNawatRouteProfile === "function"
-        ? getActiveNawatRouteProfile()
-        : null;
-    if (!resolvedVerb && !activeRoute) {
-        hidePanel();
-        return;
-    }
-    const activeMode = getActiveTenseMode();
-    const getCurrentRailStationKey = () => {
-        const routeStore = typeof getNawatRouteStateStore === "function"
-            ? getNawatRouteStateStore()
-            : null;
-        const activeLineId = String(routeStore?.activeNawatLineId || routeStore?.__NAWAT_ACTIVE_LINE_ID__ || "").trim();
-        const activeLineStationKey = String(routeStore?.activeNawatLineStationKey || "").trim();
-        const activeLocativeSourceVerb = String(routeStore?.activeLocativeSourceVerb || "").trim();
-        const activeLocativePrelocativeVerb = String(routeStore?.activeLocativePrelocativeVerb || "").trim();
-        if (
-            activeLineId === "locative"
-            && activeLineStationKey
-            && (
-                (activeLocativeSourceVerb && activeLocativeSourceVerb === resolvedVerb)
-                || (activeLocativePrelocativeVerb && activeLocativePrelocativeVerb === resolvedVerb)
-            )
-        ) {
-            return activeLineStationKey;
-        }
-        const activeStationKey = String(activeRoute?.activeStationKey || "").trim();
-        if (activeRoute && isPatientivoTroncoRouteProfile(activeRoute)) {
-            if (activeStationKey === "stem") {
-                return "tronco";
-            }
-            if (activeStationKey === "verbalizer" || activeStationKey === "target-mode") {
-                return "verbalizer";
-            }
-            if (activeStationKey === "finite-tense") {
-                return "finite";
-            }
-            return "source";
-        }
-        if (activeRoute && isPatientivoSurfaceRouteProfile(activeRoute)) {
-            if (activeStationKey === "source-mode" || activeStationKey === "source-tense") {
-                return "source";
-            }
-            return "patientivo";
-        }
-        const currentMode = getActiveTenseMode();
-        const currentTenseValue = getCurrentMovementTenseValue(currentMode);
-        if (getNawatMovementMode(currentMode) === TENSE_MODE.sustantivo) {
-            if (currentTenseValue === "patientivo") {
-                const branchId = typeof getActiveNawatPatientivoBranch === "function"
-                    ? getActiveNawatPatientivoBranch()
-                    : "";
-                return branchId === "tronco-verbal" ? "tronco" : "patientivo";
-            }
-            if (currentTenseValue === "locativo-temporal") {
-                return "locative";
-            }
-        }
-        return "source";
-    };
-    const getAvailableLineIdsForStation = (stationKey = "") => {
-        switch (stationKey) {
-            case "tronco":
-            case "verbalizer":
-            case "finite":
-                return ["tronco-verbalization"];
-            case "prelocative":
-            case "incorporated-root":
-            case "matrix-root":
-            case "locative":
-                return ["locative"];
-            case "source":
-            case "patientivo":
-            default:
-                return ["tronco-verbalization", "locative"];
-        }
-    };
-    const buildNawatLineModels = () => {
-        const currentStationKey = getCurrentRailStationKey();
-        const routeStore = typeof getNawatRouteStateStore === "function"
-            ? getNawatRouteStateStore()
-            : null;
-        const activeLocativeSourceVerb = String(routeStore?.activeLocativeSourceVerb || "").trim();
-        const activeLocativePrelocativeVerb = String(routeStore?.activeLocativePrelocativeVerb || "").trim();
-        const hasLocativeContext = (
-            (activeLocativeSourceVerb && activeLocativeSourceVerb === resolvedVerb)
-            || (activeLocativePrelocativeVerb && activeLocativePrelocativeVerb === resolvedVerb)
-        );
-        const locativePatientivoSurface = hasLocativeContext
-            ? String(routeStore?.activeLocativePatientivoSurface || "").trim()
-            : "";
-        const locativeIncorporatedRoot = hasLocativeContext
-            ? String(routeStore?.activeLocativeIncorporatedRoot || "").trim()
-            : "";
-        const locativeMatrixRoot = hasLocativeContext
-            ? (String(routeStore?.activeLocativeMatrixRoot || "").trim() || "tajtani")
-            : "tajtani";
-        const activeRouteKey = activeRoute?.id || activeRoute?.legacyTenseValue || "";
-        const activeRouteSourceVerb = String(activeRoute?.sourceVerb || resolvedVerb || "").trim();
-        const activeRouteSourceObjectPrefix = activeRoute?.sourceObjectPrefix || "";
-        const activeRouteTarget = activeRoute && typeof activeRoute === "object" ? activeRoute : null;
-        const linkedStages = activeRouteKey && typeof buildNawatLinkedGrammarPathStages === "function"
-            ? buildNawatLinkedGrammarPathStages(activeRoute, {
-                sourceVerb: activeRouteSourceVerb,
-                sourceObjectPrefix: activeRouteSourceObjectPrefix,
-                routeTarget: activeRouteTarget,
-            })
-            : [];
-        const sourceStation = {
-            key: "source",
-            text: "entrada",
-            sublabel: resolvedVerb || "",
-            mode: TENSE_MODE.verbo,
-        };
-        const lineSpecs = [
-            {
-                id: "tronco-verbalization",
-                label: "tronco verbalización",
-                stations: [
-                    sourceStation,
-                    { key: "patientivo", text: "patientivo", mode: TENSE_MODE.sustantivo },
-                    { key: "tronco", text: "tronco", mode: TENSE_MODE.sustantivo },
-                    { key: "verbalizer", text: "-ti/-na/-iwi/-awi", mode: TENSE_MODE.verbo },
-                    { key: "finite", text: "finito", sublabel: "pret/perf", mode: TENSE_MODE.verbo },
-                ],
-            },
-            {
-                id: "locative",
-                label: "locativo",
-                stations: [
-                    sourceStation,
-                    {
-                        key: "patientivo",
-                        text: "patientivo",
-                        sublabel: locativePatientivoSurface
-                            ? `pretérito imperfecto / pasado remoto: ${locativePatientivoSurface}`
-                            : "pretérito imperfecto / pasado remoto",
-                        mode: TENSE_MODE.sustantivo,
-                    },
-                    {
-                        key: "incorporated-root",
-                        text: "raíz incorporada",
-                        sublabel: locativeIncorporatedRoot,
-                        mode: TENSE_MODE.sustantivo,
-                    },
-                    {
-                        key: "matrix-root",
-                        text: "raíz matriz",
-                        sublabel: locativeMatrixRoot,
-                        mode: TENSE_MODE.verbo,
-                    },
-                    {
-                        key: "prelocative",
-                        text: "pre-locativo",
-                        sublabel: locativeIncorporatedRoot
-                            ? `${locativeIncorporatedRoot} + ${locativeMatrixRoot}`
-                            : "V con raíz incorporada",
-                        mode: TENSE_MODE.verbo,
-                    },
-                    {
-                        key: "locative",
-                        text: "locativo",
-                        sublabel: "patientivo de V pre-locativo · pretérito perfecto simple",
-                        mode: TENSE_MODE.sustantivo,
-                    },
-                ],
-            },
-        ];
-        const availableLineIds = new Set(getAvailableLineIdsForStation(currentStationKey));
-        return lineSpecs
-            .filter((line) => availableLineIds.has(line.id))
-            .map((line) => ({
-                ...line,
-                stations: attachNawatLinkedGrammarStagesToRailStations(
-                    line.stations.map((station) => ({
-                        ...station,
-                        active: station.key === currentStationKey,
-                    })),
-                    linkedStages,
-                    {
-                        routeKey: activeRouteKey,
-                        sourceVerb: activeRouteSourceVerb,
-                        sourceObjectPrefix: activeRouteSourceObjectPrefix,
-                        activateStation: typeof activateNawatRouteStation === "function"
-                            ? activateNawatRouteStation
-                            : null,
-                        previewNextSource: typeof previewNawatLinkedGrammarPathNextSource === "function"
-                            ? previewNawatLinkedGrammarPathNextSource
-                            : null,
-                        buildSelectionSummary: typeof buildNawatLinkedGrammarPathSelectionSummary === "function"
-                            ? (stage) => buildNawatLinkedGrammarPathSelectionSummary({
-                                sourceVerb: stage?.nextSource?.sourceVerb || "",
-                                sourceObjectPrefix: stage?.nextSource?.objectPrefix || "",
-                            })
-                            : null,
-                        appendSelection: typeof appendActiveNawatLinkedGrammarPathSelection === "function"
-                            ? (selection, options = {}) => appendActiveNawatLinkedGrammarPathSelection(selection, {
-                                sourceVerb: options.sourceVerb || "",
-                                sourceObjectPrefix: options.sourceObjectPrefix || "",
-                            })
-                            : null,
-                    }
-                ),
-            }));
-    };
-    const renderNawatLineBoard = () => {
-        renderLineRows("salida dinámica", buildNawatLineModels());
-    };
-    if (activeRoute?.targetMode && activeRoute?.targetTenseValue) {
-        const targetMode = TENSE_MODE[activeRoute.targetMode] || activeRoute.targetMode;
-        const stationMode = TENSE_MODE[activeRoute.activeStationMode] || activeRoute.activeStationMode || targetMode;
-        const stationTenseValue = activeRoute.activeStationTenseValue || activeRoute.targetTenseValue;
-        const routeSelection = getCurrentResolvedConjugationSelectionState({
-            tenseMode: stationMode,
-        });
-        const routeSelectionTenseValue = String(
-            routeSelection.group === CONJUGATION_GROUPS.universal
-                ? routeSelection.universalTenseValue
-                : routeSelection.tenseValue
-        ).trim();
-        if (activeMode === stationMode && routeSelectionTenseValue === stationTenseValue) {
-            renderNawatLineBoard();
-            return;
-        }
-    }
-    renderCurrentMovementBreadcrumb();
+    panel.innerHTML = "";
+    panel.hidden = true;
+    panel.classList.add("is-empty");
 }
-
 function resolveRenderableVerbValue(verb = "") {
     const explicitVerb = String(verb || "").trim();
     if (explicitVerb) {
@@ -3589,6 +1939,113 @@ function renderOrdinaryNncConjugations({
         row.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.impossible;
         row.dataset.diagnosticIds = (result.diagnostics || []).map((entry) => entry.id).filter(Boolean).join(",");
     }
+    const renderOrdinaryNncOwnerhoodContinuations = () => {
+        if (
+            result.supported !== true
+            || typeof buildOrdinaryNounOwnerhoodContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const nounStem = String(result.stem || result.nncBasic?.predicate?.stem || "").trim();
+        const nounClass = String(result.nounClass || activeNounClass || "").trim();
+        if (!nounStem || !nounClass) {
+            return false;
+        }
+        const matrixInventory = typeof getOrdinaryNounOwnerhoodMatrixInventory === "function"
+            ? getOrdinaryNounOwnerhoodMatrixInventory()
+            : [];
+        const contracts = matrixInventory.map((matrixSpec) => buildOrdinaryNounOwnerhoodContinuationContract({
+            nounStem,
+            nounClass,
+            sourceSurface: result.result || "",
+            sourceKind: result.source?.sourceKind || "",
+            matrixRoot: matrixSpec.nawatRoot || "",
+            ownerhoodKind: matrixSpec.ownerhoodKind || "ownerhood",
+        })).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const surfaceDisplay = String(result.result || "").trim();
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        surfaceText.textContent = formatConjugationDisplay(surfaceDisplay);
+        const actions = document.createElement("span");
+        actions.className = "conjugation-conversion-actions";
+        const getOwnerhoodPreviewSurface = (ownerhoodVerbInput = "") => {
+            if (!ownerhoodVerbInput || typeof getCachedSilentGenerateWord !== "function") {
+                return "";
+            }
+            const preview = getCachedSilentGenerateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    verb: ownerhoodVerbInput,
+                    tense: "pasado-remoto",
+                    tenseMode: TENSE_MODE.verbo,
+                    derivationMode: DERIVATION_MODE.active,
+                    voiceMode: VOICE_MODE.active,
+                },
+            }) || {};
+            const surface = Array.isArray(preview.surfaceForms) && preview.surfaceForms.length
+                ? String(preview.surfaceForms[0] || "").trim()
+                : String(preview.result || "").split(/\s*\/\s*/g)[0]?.trim();
+            return surface && surface !== "—" ? surface : "";
+        };
+        const applyOrdinaryNounOwnerhoodContract = (contract) => {
+            if (typeof applyOrdinaryNounOwnerhoodRootsToVerbEntry === "function") {
+                applyOrdinaryNounOwnerhoodRootsToVerbEntry({
+                    nounStem: contract.nounStem,
+                    nounClass: contract.nounClass,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    ownerhoodVerbInput: contract.ownerhoodVerbInput,
+                });
+            }
+        };
+        contracts.forEach((contract) => {
+            const previewSurface = getOwnerhoodPreviewSurface(contract.ownerhoodVerbInput);
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.ordinaryNncOwnerhoodContinuation = "true";
+            continueButton.dataset.ownerhoodVerbInput = contract.ownerhoodVerbInput;
+            continueButton.dataset.nounStem = contract.nounStem;
+            continueButton.dataset.ownerhoodMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.ownerhoodMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.ownerhoodKind = contract.ownerhoodKind || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || contract.ownerhoodVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida NNC: ${contract.sourceSurface || surfaceDisplay}`,
+                `raiz nominal: ${contract.nounStem}`,
+                `clase: ${contract.nounClass}`,
+                `matriz de posesión: ${contract.matrixRoot}`,
+                contract.ownerhoodKind ? `tipo: ${contract.ownerhoodKind}` : "",
+                contract.matrix?.classicalMatrix ? `${contract.grammarSource}: ${contract.matrix.classicalMatrix}` : "",
+                `V pretérito: ${contract.ownerhoodVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyOrdinaryNounOwnerhoodContract(contract);
+            });
+            actions.appendChild(continueButton);
+        });
+        value.append(surfaceText, actions);
+        return true;
+    };
+    renderOrdinaryNncOwnerhoodContinuations();
     row.appendChild(rowLabel);
     row.appendChild(value);
     list.appendChild(row);
@@ -6949,53 +5406,6 @@ function renderNounConjugations({
             ownership: showOwnershipToggle ? (activePatientivoOwnership || "") : "",
         });
     };
-    const resolveActiveVerbNounRouteSurfaceOverride = ({
-        patientivoSource = "",
-        selection = {},
-        number = "",
-        possessorPrefix = "",
-        objectPrefix = "",
-        indirectObjectMarker = "",
-        thirdObjectMarker = "",
-        sourceTenseValue = "",
-        sourceCombinedMode = "",
-    } = {}) => {
-        if (resolvedTense !== "patientivo" || typeof getActiveNawatRouteProfile !== "function") {
-            return "";
-        }
-        if (
-            selection?.subjectPrefix
-            || selection?.subjectSuffix
-            || (number && number !== "singular")
-            || possessorPrefix
-            || indirectObjectMarker
-            || thirdObjectMarker
-        ) {
-            return "";
-        }
-        const activeRoute = getActiveNawatRouteProfile();
-        const expectedSourceTenseValue = sourceTenseValue || getDefaultPatientivoSourceTenseValue(patientivoSource);
-        const expectedSourceCombinedMode = sourceCombinedMode || getPatientivoSourceCombinedModeForBranch(patientivoSource);
-        const activeSourceTenseValue = activeRoute?.sourceTenseValue || getDefaultPatientivoSourceTenseValue(patientivoSource);
-        const activeSourceCombinedMode = activeRoute?.sourceCombinedMode || getPatientivoSourceCombinedModeForBranch(patientivoSource);
-        if (
-            !activeRoute
-            || activeRoute.activeRouteTravelSource !== "chip"
-            || !isPatientivoSurfaceRouteProfile(activeRoute)
-            || (activeRoute.patientivoSource || "nonactive") !== (patientivoSource || "nonactive")
-            || (activeRoute.sourceObjectPrefix || "") !== (objectPrefix || "")
-            || activeSourceTenseValue !== expectedSourceTenseValue
-            || activeSourceCombinedMode !== expectedSourceCombinedMode
-            || typeof getNawatRouteFiniteSurfaceForm !== "function"
-        ) {
-            return "";
-        }
-        return getNawatRouteFiniteSurfaceForm(activeRoute, {
-            sourceVerb: activeRoute.sourceVerb || verb,
-            sourceObjectPrefix: activeRoute.sourceObjectPrefix || "",
-            routeTarget: activeRoute,
-        });
-    };
     const getDefaultPatientivoSourceTenseValue = (patientivoSource = "") => (
         patientivoSource === "perfectivo" ? "preterito" : "presente"
     );
@@ -7036,142 +5446,6 @@ function renderNounConjugations({
             sourceTenseValue: tenseValue,
             patientivoSource,
         }).routeKey;
-    };
-    const replacePatientivoRouteSuffix = (surface = "", routeSuffix = "", requestedSuffix = null) => {
-        const normalizedRequested = normalizePatientivoNominalSuffixSelection(requestedSuffix);
-        if (normalizedRequested === null) {
-            return surface;
-        }
-        const normalizedSurface = String(surface || "").trim();
-        const normalizedRouteSuffix = String(routeSuffix || "").replace(/^-+/, "");
-        const base = normalizedRouteSuffix && normalizedSurface.endsWith(normalizedRouteSuffix)
-            ? normalizedSurface.slice(0, -normalizedRouteSuffix.length)
-            : normalizedSurface;
-        return `${base}${normalizedRequested || ""}`;
-    };
-    const resolveDirectPatientivoSurfaceOverride = ({
-        patientivoSource = "",
-        selection = {},
-        number = "",
-        possessorPrefix = "",
-        objectPrefix = "",
-        indirectObjectMarker = "",
-        thirdObjectMarker = "",
-        patientivoNominalSuffix = null,
-        sourceTenseValue = "",
-        sourceCombinedMode = "",
-    } = {}) => {
-        if (
-            resolvedTense !== "patientivo"
-            || !patientivoSource
-            || patientivoSource === "tronco-verbal"
-            || selection?.subjectPrefix
-            || selection?.subjectSuffix
-            || (number && number !== "singular")
-            || possessorPrefix
-            || indirectObjectMarker
-            || thirdObjectMarker
-        ) {
-            return "";
-        }
-        return resolveDirectPatientivoSurface({
-            patientivoSource,
-            objectPrefix,
-            patientivoNominalSuffix,
-            sourceTenseValue,
-            sourceCombinedMode,
-        });
-    };
-    const resolveDirectPatientivoSurface = ({
-        patientivoSource = "",
-        objectPrefix = "",
-        patientivoNominalSuffix = null,
-        sourceTenseValue = "",
-        sourceCombinedMode = "",
-    } = {}) => {
-        if (!patientivoSource || patientivoSource === "tronco-verbal") {
-            return "";
-        }
-        const selectedSourceCombinedMode = sourceCombinedMode || getPatientivoSourceCombinedModeForBranch(patientivoSource);
-        const selectedSourceTenseValue = sourceTenseValue || getDefaultPatientivoSourceTenseValue(patientivoSource);
-        const routeKey = getPatientivoSourceRouteKey({
-            patientivoSource,
-            sourceTenseValue: selectedSourceTenseValue,
-            sourceCombinedMode: selectedSourceCombinedMode,
-        });
-        const routeProfile = typeof getNawatRouteProfile === "function"
-            ? getNawatRouteProfile(routeKey)
-            : null;
-        const routeVerb = verbMeta?.parseInputVerb || verbMeta?.regexInputVerb || verb;
-        if (
-            routeProfile
-            && routeVerb
-            && typeof getNawatRouteFiniteSurfaceForm === "function"
-            && typeof getNawatRoutePatientivoSurfaceSpec === "function"
-        ) {
-            const routeTarget = {
-                ...routeProfile,
-                sourceVerb: routeVerb,
-                sourceObjectPrefix: objectPrefix || "",
-                sourceTenseValue: selectedSourceTenseValue,
-                sourceCombinedMode: selectedSourceCombinedMode,
-            };
-            const routeSurface = getNawatRouteFiniteSurfaceForm(routeProfile, {
-                sourceVerb: routeVerb,
-                sourceObjectPrefix: objectPrefix || "",
-                routeTarget,
-            });
-            if (routeSurface) {
-                const surfaceSpec = getNawatRoutePatientivoSurfaceSpec(routeProfile, {
-                    sourceTenseValue: selectedSourceTenseValue,
-                    sourceCombinedMode: selectedSourceCombinedMode,
-                });
-                return replacePatientivoRouteSuffix(
-                    routeSurface,
-                    surfaceSpec?.suffix || "",
-                    patientivoNominalSuffix
-                );
-            }
-        }
-        const normalizedSuffix = normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
-        const suffix = normalizedSuffix === null ? "t" : normalizedSuffix;
-        const isNonactiveSource = selectedSourceCombinedMode === COMBINED_MODE.nonactive;
-        const sourceResult = getCachedSilentGenerateWord({
-            silent: true,
-            skipValidation: true,
-            override: {
-                subjectPrefix: "",
-                subjectSuffix: "",
-                objectPrefix,
-                verb,
-                tense: selectedSourceTenseValue,
-                derivationMode: isNonactiveSource ? DERIVATION_MODE.nonactive : DERIVATION_MODE.active,
-                voiceMode: isNonactiveSource ? VOICE_MODE.passive : VOICE_MODE.active,
-            },
-        }) || {};
-        const sourceSurface = Array.isArray(sourceResult.surfaceForms) && sourceResult.surfaceForms.length
-            ? String(sourceResult.surfaceForms[0] || "").trim()
-            : String(sourceResult.result || "").split(/\s*\/\s*/g)[0]?.trim();
-        if (!sourceSurface || sourceSurface === "—") {
-            return "";
-        }
-        const stripActiveIaUaFinalA = (surface = "") => {
-            const normalized = String(surface || "").trim();
-            if (
-                normalized
-                && Array.isArray(IA_UA_SUFFIXES)
-                && typeof endsWithAny === "function"
-                && endsWithAny(normalized, IA_UA_SUFFIXES)
-                && normalized.endsWith("a")
-            ) {
-                return normalized.slice(0, -1);
-            }
-            return normalized;
-        };
-        const stem = isNonactiveSource
-            ? (sourceSurface.endsWith("wa") ? sourceSurface.slice(0, -2) : sourceSurface)
-            : stripActiveIaUaFinalA(sourceSurface);
-        return `${stem}${suffix}`;
     };
     const getDirectPatientivoSourceTenseValue = (patientivoSource = "", sourceTenseValue = "") => (
         sourceTenseValue || getDefaultPatientivoSourceTenseValue(patientivoSource)
@@ -7398,131 +5672,6 @@ function renderNounConjugations({
         }
         update();
     };
-    const createPatientivoBlockOriginPicker = (entry = {}, originText = "") => {
-        const patientivoSource = entry.patientivoSource || "";
-        const routeVerb = verbMeta?.parseInputVerb || verbMeta?.regexInputVerb || verb;
-        const sourceObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
-        const options = getPatientivoBlockSourceTenseOptions(patientivoSource);
-        if (!options.length || !routeVerb || typeof setActiveNawatRouteProfile !== "function") {
-            return null;
-        }
-        const activeSourceTenseValue = getPatientivoBlockSourceTenseValue(patientivoSource);
-        const activeSourceCombinedMode = getPatientivoBlockSourceCombinedMode(patientivoSource);
-        const createActivityOption = (sourceCombinedMode = "") => {
-            const routeSpec = getNawatPatientivoRouteSpec({
-                sourceTenseValue: activeSourceTenseValue,
-                sourceCombinedMode,
-            });
-            const routeProfile = typeof getNawatRouteProfile === "function"
-                ? getNawatRouteProfile(routeSpec.routeKey)
-                : null;
-            if (!routeProfile || !isPatientivoSurfaceRouteProfile(routeProfile)) {
-                return null;
-            }
-            const optionPatientivoSource = routeSpec.patientivoSource || patientivoSource;
-            const optionObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(optionPatientivoSource);
-            const label = ["V", getNawatPatientivoSourceClassCode(routeSpec.sourceCombinedMode || sourceCombinedMode)]
-                .filter(Boolean)
-                .join(" · ");
-            const sourceSurface = getDirectPatientivoSourceSurface({
-                patientivoSource: optionPatientivoSource,
-                objectPrefix: optionObjectPrefix,
-                sourceTenseValue: routeSpec.sourceTenseValue || activeSourceTenseValue,
-                sourceCombinedMode: routeSpec.sourceCombinedMode || sourceCombinedMode,
-            });
-            return {
-                label,
-                title: sourceSurface
-                    ? `origen = actividad inicial: ${label}: ${sourceSurface}`
-                    : `origen = actividad inicial: ${label}`,
-                active: (routeSpec.sourceCombinedMode || sourceCombinedMode) === activeSourceCombinedMode,
-                action: (button) => {
-                    activatePatientivoOriginInNoun({
-                        routeKey: routeSpec.routeKey,
-                        patientivoSource: optionPatientivoSource,
-                        anchorElement: button,
-                        sourceVerb: routeVerb,
-                        sourceObjectPrefix: optionObjectPrefix,
-                        sourceTenseValue: routeSpec.sourceTenseValue || activeSourceTenseValue,
-                        sourceCombinedMode: routeSpec.sourceCombinedMode || sourceCombinedMode,
-                    });
-                },
-            };
-        };
-        const activityOptions = [COMBINED_MODE.active, COMBINED_MODE.nonactive]
-            .map(createActivityOption)
-            .filter(Boolean);
-        const optionSections = [
-            {
-                label: "origen · actividad",
-                options: activityOptions,
-            },
-            ...NAWAT_PATIENTIVO_SOURCE_TENSE_MENU_GROUPS
-            .map((group) => ({
-                label: `origen · ${group.label}`,
-                options: group.tenseValues
-                    .map((tenseValue) => options.find((option) => option.tenseValue === tenseValue))
-                    .filter(Boolean)
-                    .map((option) => {
-                        const sourceSurface = getDirectPatientivoSourceSurface({
-                            patientivoSource,
-                            objectPrefix: sourceObjectPrefix,
-                            sourceTenseValue: option.tenseValue,
-                            sourceCombinedMode: option.sourceCombinedMode,
-                        });
-                        const previewObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
-                        const targetSurface = resolveDirectPatientivoSurface({
-                            patientivoSource,
-                            objectPrefix: previewObjectPrefix,
-                            patientivoNominalSuffix: activePatientivoNominalSuffix,
-                            sourceTenseValue: option.tenseValue,
-                            sourceCombinedMode: option.sourceCombinedMode,
-                        });
-                        const tenseLabel = getNawatPatientivoTenseOptionLabel(option.tenseValue, isNawat);
-                        const label = sourceSurface
-                            ? `${tenseLabel}: ${sourceSurface}`
-                            : tenseLabel;
-                        const title = targetSurface
-                            ? `origen = componentes iniciales: ${label} -> resultado actual: ${targetSurface}`
-                            : `origen = componentes iniciales: ${label}`;
-                        const routeKey = getPatientivoSourceRouteKey({
-                            patientivoSource,
-                            sourceTenseValue: option.tenseValue,
-                            sourceCombinedMode: option.sourceCombinedMode,
-                        });
-                        return {
-                            label,
-                            title,
-                            active: option.tenseValue === activeSourceTenseValue
-                                && option.sourceCombinedMode === activeSourceCombinedMode,
-                            action: (button) => {
-                                activatePatientivoOriginInNoun({
-                                    routeKey,
-                                    patientivoSource,
-                                    anchorElement: button,
-                                    sourceVerb: routeVerb,
-                                    sourceObjectPrefix,
-                                    sourceTenseValue: option.tenseValue,
-                                    sourceCombinedMode: option.sourceCombinedMode,
-                                });
-                            },
-                        };
-                    }),
-            }))
-            .filter((section) => section.options.length),
-        ].filter((section) => section.options.length);
-        const labelNode = document.createElement("span");
-        labelNode.className = "tense-block__origin-label";
-        labelNode.textContent = originText;
-        return createNawatConversionStationPicker({
-            className: "tense-block__origin-picker calc-guidance__conversion-station-picker--source",
-            summaryClassName: "tense-block__origin-summary calc-guidance__chip--mode-verbo",
-            ariaLabel: `Elegir origen componentes patientivo: ${originText}`,
-            title: `origen = componentes iniciales de esta ubicación: ${originText}`,
-            summaryNodes: [labelNode],
-            sections: optionSections,
-        });
-    };
     const updatePatientivoBlockOrigin = (entry = {}) => {
         if (!entry.originSlot) {
             return;
@@ -7575,196 +5724,6 @@ function renderNounConjugations({
             }
         });
         return Array.from(lineSpecs.values());
-    };
-    const createTroncoBlockDestinationPicker = (entry = {}) => {
-        if (
-            entry.patientivoSource !== "tronco-verbal"
-            || typeof activateNawatRouteStation !== "function"
-        ) {
-            return null;
-        }
-        const candidates = getUniqueTroncoDestinationCandidates(entry.destinationCandidates);
-        if (!candidates.length) {
-            return null;
-        }
-        const currentActiveRoute = typeof getActiveNawatRouteProfile === "function"
-            ? getActiveNawatRouteProfile()
-            : null;
-        const activeTroncoRoute = currentActiveRoute && isPatientivoTroncoRouteProfile(currentActiveRoute)
-            ? currentActiveRoute
-            : null;
-        const activeSpec = getNawatTroncoConversionSpec({
-            routeKey: activeTroncoRoute?.id || "",
-            line: activeTroncoRoute?.verbalizer || "",
-            tenseValue: activeTroncoRoute?.targetTenseValue || activeTroncoRoute?.nawatTenseValue || "",
-        });
-        const activeStem = String(activeTroncoRoute?.sourceStem || "").trim();
-        const lineSpecs = getTroncoDestinationLineSpecs();
-        const tenseOptions = Array.from(new Set(NAWAT_TRONCO_CONVERSION_ROUTE_SPECS.map((spec) => spec.tenseValue)))
-            .filter(Boolean);
-        let selectedCandidate = candidates.find((candidate) => candidate.stem === activeStem) || candidates[0];
-        let selectedLine = activeSpec.line || lineSpecs[0]?.line || "-ti";
-        let selectedTense = activeSpec.tenseValue || tenseOptions[0] || "preterito";
-        let selectedStation = activeTroncoRoute?.activeStationKey === "finite-tense"
-            ? "finite-tense"
-            : "verbalizer";
-        const destinationSummary = document.createElement("span");
-        destinationSummary.className = "tense-block__destination-label calc-guidance__conversion-summary-label calc-guidance__conversion-summary-label--flat";
-        const picker = document.createElement("details");
-        picker.className = [
-            "calc-guidance__branch-picker",
-            "calc-guidance__conversion-station-picker",
-            "tense-block__destination-picker",
-            "calc-guidance__conversion-station-picker--destination",
-            "calc-guidance__conversion-station-picker--destination-verbo",
-        ].join(" ");
-        picker.addEventListener("toggle", () => {
-            if (!picker.open) {
-                return;
-            }
-            document.querySelectorAll(".calc-guidance__branch-picker[open]")
-                .forEach((otherPicker) => {
-                    if (otherPicker !== picker) {
-                        otherPicker.removeAttribute("open");
-                    }
-                });
-        });
-        const summary = document.createElement("summary");
-        summary.className = [
-            "calc-guidance__chip",
-            "calc-guidance__chip--button",
-            "calc-guidance__conversion-station-summary",
-            "tense-block__destination-summary",
-            "calc-guidance__chip--mode-verbo",
-        ].join(" ");
-        summary.setAttribute("aria-label", "Elegir destino desde tronco verbal");
-        summary.title = "destino = resultado final de esta ubicación: V · verbalizador → finito";
-        const caret = document.createElement("span");
-        caret.className = "calc-guidance__picker-caret";
-        caret.setAttribute("aria-hidden", "true");
-        summary.append(destinationSummary, caret);
-        const menu = document.createElement("div");
-        menu.className = "calc-guidance__branch-menu calc-guidance__route-switch-menu";
-        menu.setAttribute("role", "menu");
-        const getSelectedSpec = () => getNawatTroncoConversionSpec({
-            line: selectedLine,
-            tenseValue: selectedTense,
-        });
-        const getStationLabel = () => (
-            selectedStation === "finite-tense"
-                ? `finito ${getNawatTroncoTenseShortLabel(selectedTense, isNawat)}`
-                : "verbalizador"
-        );
-        const refreshSummary = () => {
-            destinationSummary.textContent = [
-                "destino: V",
-                selectedCandidate?.stem ? `${selectedCandidate.stem} → ${selectedLine}` : selectedLine,
-                getStationLabel(),
-            ].filter(Boolean).join(" · ");
-            menu.querySelectorAll(".calc-guidance__route-switch-option").forEach((button) => {
-                const group = button.dataset.troncoDestinationGroup || "";
-                const value = button.dataset.troncoDestinationValue || "";
-                const active = (
-                    (group === "station" && value === selectedStation)
-                    || (group === "stem" && value === selectedCandidate?.stem)
-                    || (group === "line" && value === selectedLine)
-                    || (group === "tense" && value === selectedTense)
-                );
-                button.setAttribute("aria-checked", String(active));
-                button.classList.toggle("calc-guidance__route-switch-option--active", active);
-            });
-        };
-        const activateSelected = (button) => {
-            const spec = getSelectedSpec();
-            activateNawatRouteStation(spec.routeKey, selectedStation, {
-                render: true,
-                anchorElement: button,
-                sourceVerb: selectedCandidate.sourceVerb,
-                sourceObjectPrefix: selectedCandidate.sourceObjectPrefix,
-                sourceStem: selectedCandidate.stem,
-            });
-        };
-        const appendSection = (labelText, options) => {
-            const section = document.createElement("div");
-            section.className = "calc-guidance__route-switch-menu-section";
-            const label = document.createElement("div");
-            label.className = "calc-guidance__route-switch-menu-label";
-            label.textContent = labelText;
-            const optionList = document.createElement("div");
-            optionList.className = "calc-guidance__route-switch-menu-options";
-            options.forEach((option) => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "calc-guidance__branch-option calc-guidance__route-switch-option";
-                button.dataset.troncoDestinationGroup = option.group;
-                button.dataset.troncoDestinationValue = option.value;
-                button.setAttribute("role", "menuitemradio");
-                button.textContent = option.label;
-                button.title = option.title || option.label;
-                button.addEventListener("click", (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    option.apply();
-                    refreshSummary();
-                    activateSelected(button);
-                    picker.open = false;
-                });
-                optionList.appendChild(button);
-            });
-            section.append(label, optionList);
-            menu.appendChild(section);
-        };
-        appendSection("destino · estación", [
-            {
-                group: "station",
-                value: "verbalizer",
-                label: "verbalizador",
-                title: "destino = siguiente estación verbalizadora",
-                apply: () => {
-                    selectedStation = "verbalizer";
-                },
-            },
-            {
-                group: "station",
-                value: "finite-tense",
-                label: "finito",
-                title: "destino = estación finita",
-                apply: () => {
-                    selectedStation = "finite-tense";
-                },
-            },
-        ]);
-        appendSection("tronco", candidates.map((candidate) => ({
-            group: "stem",
-            value: candidate.stem,
-            label: candidate.stem,
-            title: `tronco: ${candidate.stem}`,
-            apply: () => {
-                selectedCandidate = candidate;
-            },
-        })));
-        appendSection("tipo de verbalización", lineSpecs.map((spec) => ({
-            group: "line",
-            value: spec.line,
-            label: spec.line,
-            title: `verbalizador: ${spec.line}`,
-            apply: () => {
-                selectedLine = spec.line;
-            },
-        })));
-        appendSection("tiempo", tenseOptions.map((tenseValue) => ({
-            group: "tense",
-            value: tenseValue,
-            label: getNawatTroncoTenseShortLabel(tenseValue, isNawat),
-            title: `tiempo: ${getNawatTroncoTenseShortLabel(tenseValue, isNawat)}`,
-            apply: () => {
-                selectedTense = tenseValue;
-                selectedStation = "finite-tense";
-            },
-        })));
-        refreshSummary();
-        picker.append(summary, menu);
-        return picker;
     };
     const stripPrelocativePatientivoConnector = (surface = "") => {
         return typeof stripPatientivoPrelocativeConnector === "function"
@@ -7834,6 +5793,30 @@ function renderNounConjugations({
             .split(/\s*\/\s*/g)[0]
             ?.trim();
         return fallback && fallback !== "—" ? fallback : "";
+    };
+    const resolvePatientivoSourceSurfaceForContinuation = ({
+        evaluation = {},
+        patientivoSource = "",
+        objectPrefix = "",
+        sourceTenseValue = "",
+        sourceCombinedMode = "",
+    } = {}) => {
+        const profileSource = evaluation?.result?.nominalizationProfile?.source || {};
+        const profileSurface = String(
+            profileSource.sourceSurface
+            || profileSource.surface
+            || profileSource.generatedSurface
+            || ""
+        ).trim();
+        if (profileSurface && profileSurface !== "—") {
+            return profileSurface;
+        }
+        return getDirectPatientivoSourceSurface({
+            patientivoSource,
+            objectPrefix,
+            sourceTenseValue,
+            sourceCombinedMode,
+        });
     };
     const ensurePatientivoContinuationDisplay = ({
         value,
@@ -7906,6 +5889,31 @@ function renderNounConjugations({
         compoundVerb = "",
         objectPrefix = "ki",
     } = {}) => getCompoundEmbedFinitePreviewSurface({ compoundVerb, objectPrefix });
+    const getPreteritAgentiveOwnerhoodPreviewSurface = ({
+        ownerhoodVerbInput = "",
+    } = {}) => {
+        if (!ownerhoodVerbInput) {
+            return "";
+        }
+        const result = getCachedSilentGenerateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+                verb: ownerhoodVerbInput,
+                tense: "pasado-remoto",
+                tenseMode: TENSE_MODE.verbo,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+            },
+        }) || {};
+        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length
+            ? String(result.surfaceForms[0] || "").trim()
+            : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        return surface && surface !== "—" ? surface : "";
+    };
     const getNominalCompoundPreviewSurface = ({
         ordinaryNncRequest = null,
     } = {}) => {
@@ -7946,6 +5954,93 @@ function renderNounConjugations({
             .map((form) => form.trim())
             .filter((form) => form && form !== "—");
         return fallback.filter((form, index, list) => list.indexOf(form) === index);
+    };
+    const getCustomaryAgentiveStemsFromEvaluation = (evaluation = {}) => {
+        const result = evaluation?.result || {};
+        if (result?.nominalizationProfile?.nominalKind !== "agentivo") {
+            return [];
+        }
+        const slots = result?.nuclearClauseShell?.slots || {};
+        const subjectPrefix = String(slots.subject?.prefix || "").trim();
+        const predicateStem = String(slots.predicate?.stem || "").trim();
+        const connector = String(slots.subjectNumberConnector?.connector || "").trim();
+        const stems = [];
+        const addStem = (stem = "") => {
+            const normalized = String(stem || "").trim();
+            if (normalized && !stems.includes(normalized)) {
+                stems.push(normalized);
+            }
+        };
+        addStem(predicateStem);
+        getConjugationSurfaceForms(result).forEach((surfaceForm) => {
+            let core = String(surfaceForm || "").trim();
+            if (!core || core === "—") {
+                return;
+            }
+            if (subjectPrefix && core.startsWith(subjectPrefix)) {
+                core = core.slice(subjectPrefix.length);
+            }
+            if (connector && core.length > connector.length && core.endsWith(connector)) {
+                core = core.slice(0, -connector.length);
+            }
+            addStem(core);
+        });
+        return stems;
+    };
+    const getPreteritAgentiveGeneralUseStemsFromEvaluation = (evaluation = {}) => {
+        const result = evaluation?.result || {};
+        if (result?.nominalizationProfile?.nominalKind !== "agentivo-preterito") {
+            return [];
+        }
+        const slots = result?.nuclearClauseShell?.slots || {};
+        const subjectPrefix = String(slots.subject?.prefix || "").trim();
+        const predicateStem = String(slots.predicate?.stem || "").trim();
+        const predicateState = String(slots.predicate?.state || result?.nominalizationProfile?.predicateState?.value || "").trim();
+        const possessorPrefix = String(
+            slots.predicate?.stateSlot?.possessorPrefix
+            || result?.nominalizationProfile?.predicateState?.possessorPrefix
+            || ""
+        ).trim();
+        const stems = [];
+        const addStem = (stem = "") => {
+            const normalized = String(stem || "").trim();
+            if (normalized && !stems.includes(normalized)) {
+                stems.push(normalized);
+            }
+        };
+        if (predicateStem) {
+            addStem(predicateState === "possessive" || predicateStem.endsWith("ka")
+                ? predicateStem
+                : `${predicateStem}ka`);
+        }
+        getConjugationSurfaceForms(result).forEach((surfaceForm) => {
+            let core = String(surfaceForm || "").trim();
+            if (!core || core === "—") {
+                return;
+            }
+            if (subjectPrefix && core.startsWith(subjectPrefix)) {
+                core = core.slice(subjectPrefix.length);
+            }
+            if (possessorPrefix && core.startsWith(possessorPrefix)) {
+                core = core.slice(possessorPrefix.length);
+            }
+            if (predicateState === "possessive") {
+                for (const connector of ["wan", "w"]) {
+                    if (core.length > connector.length && core.endsWith(connector)) {
+                        addStem(core.slice(0, -connector.length));
+                        return;
+                    }
+                }
+                return;
+            }
+            for (const connector of ["ket", "ki", "k"]) {
+                if (core.length > connector.length && core.endsWith(connector)) {
+                    addStem(`${core.slice(0, -connector.length)}ka`);
+                    return;
+                }
+            }
+        });
+        return stems;
     };
     const renderActiveActionCompoundEmbedContinuation = ({
         value,
@@ -8123,6 +6218,643 @@ function renderNounConjugations({
         });
         return true;
     };
+    const renderCustomaryAgentiveNominalCompoundContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo"
+            || typeof buildCustomaryAgentiveNominalCompoundContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const customaryAgentiveStems = getCustomaryAgentiveStemsFromEvaluation(evaluation);
+        if (!customaryAgentiveStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getCustomaryAgentiveNominalCompoundMatrixInventory === "function"
+            ? getCustomaryAgentiveNominalCompoundMatrixInventory()
+            : [{ id: "cal-li", nawatRoot: "kal", nounClass: "zero", animacy: "inanimate" }];
+        const contracts = customaryAgentiveStems.flatMap((customaryAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildCustomaryAgentiveNominalCompoundContinuationContract({
+                customaryAgentiveStem,
+                sourceSurface: customaryAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "kal",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyCustomaryAgentiveNominalContract = (contract) => {
+            if (typeof applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry === "function") {
+                applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry({
+                    customaryAgentiveStem: contract.customaryAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    nounClass: contract.matrix?.nounClass || "zero",
+                    animacy: contract.matrix?.animacy || "inanimate",
+                    compoundStem: contract.compoundStem,
+                    ordinaryNncInput: contract.ordinaryNncInput,
+                });
+            }
+        };
+        const createCustomaryAgentiveNominalButton = (contract) => {
+            const previewSurface = getNominalCompoundPreviewSurface({
+                ordinaryNncRequest: contract.ordinaryNncRequest,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-sustantivo",
+            ].join(" ");
+            continueButton.dataset.customaryAgentiveNominalCompoundContinuation = "true";
+            continueButton.dataset.ordinaryNncInput = contract.ordinaryNncInput;
+            continueButton.dataset.customaryAgentiveStem = contract.customaryAgentiveStem;
+            continueButton.dataset.nominalCompoundStem = contract.compoundStem;
+            continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva habitual: ${contract.sourceSurface || contract.customaryAgentiveStem}`,
+                `nominalizado completo: ${contract.customaryAgentiveStem}`,
+                `matriz nominal: ${contract.matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 36.3: ${contract.matrix.classicalMatrix}` : "",
+                `S: ${contract.ordinaryNncInput}`,
+                previewSurface ? `salida S: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyCustomaryAgentiveNominalContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-nominal-compound-continuation]"))
+                .some((button) => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createCustomaryAgentiveNominalButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderCustomaryAgentiveCompoundEmbedContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo"
+            || typeof buildCustomaryAgentiveCompoundEmbedContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const customaryAgentiveStems = getCustomaryAgentiveStemsFromEvaluation(evaluation);
+        if (!customaryAgentiveStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getCustomaryAgentiveCompoundEmbedMatrixInventory === "function"
+            ? getCustomaryAgentiveCompoundEmbedMatrixInventory()
+            : [{
+                id: "toca-incorporated-complement",
+                nawatRoot: "tuka",
+                objectPrefix: "ki",
+                label: "consider as the embedded fully nominalized customary-agentive entity",
+            }];
+        const contracts = customaryAgentiveStems.flatMap((customaryAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildCustomaryAgentiveCompoundEmbedContinuationContract({
+                customaryAgentiveStem,
+                sourceSurface: customaryAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "tuka",
+                objectPrefix: matrixSpec.objectPrefix || "ki",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyCustomaryAgentiveCompoundEmbedContract = (contract) => {
+            if (typeof applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry === "function") {
+                applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry({
+                    customaryAgentiveStem: contract.customaryAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    objectPrefix: contract.objectPrefix,
+                    compoundVerbInput: contract.compoundVerbInput,
+                });
+            }
+        };
+        const createCustomaryAgentiveCompoundEmbedButton = (contract) => {
+            const compoundVerbInput = contract.compoundVerbInput;
+            const previewSurface = getCompoundEmbedFinitePreviewSurface({
+                compoundVerb: compoundVerbInput,
+                objectPrefix: contract.objectPrefix,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.customaryAgentiveCompoundEmbedContinuation = "true";
+            continueButton.dataset.compoundVerb = compoundVerbInput;
+            continueButton.dataset.customaryAgentiveStem = contract.customaryAgentiveStem;
+            continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva habitual: ${contract.sourceSurface || contract.customaryAgentiveStem}`,
+                `nominalizado completo: ${contract.customaryAgentiveStem}`,
+                `raíz matriz: ${contract.matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 36.3: ${contract.matrix.classicalMatrix}` : "",
+                contract.objectPrefix ? `objeto: ${contract.objectPrefix}` : "",
+                `V: ${compoundVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyCustomaryAgentiveCompoundEmbedContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-compound-embed-continuation]"))
+                .some((button) => button.dataset.compoundVerb === contract.compoundVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createCustomaryAgentiveCompoundEmbedButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPreteritAgentiveCompoundEmbedContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo-preterito"
+            || typeof buildPreteritAgentiveCompoundEmbedContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const generalUseStems = getPreteritAgentiveGeneralUseStemsFromEvaluation(evaluation);
+        if (!generalUseStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPreteritAgentiveCompoundEmbedMatrixInventory === "function"
+            ? getPreteritAgentiveCompoundEmbedMatrixInventory()
+            : [{ id: "tzahtzi", nawatRoot: "tzajtzi", label: "shout with the embedded preterit-agentive stem" }];
+        const contracts = generalUseStems.flatMap((preteritAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildPreteritAgentiveCompoundEmbedContinuationContract({
+                preteritAgentiveStem,
+                sourceSurface: preteritAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "tzajtzi",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyPreteritAgentiveCompoundContract = (contract) => {
+            if (typeof applyActiveActionCompoundEmbedRootsToVerbEntry === "function") {
+                applyActiveActionCompoundEmbedRootsToVerbEntry({
+                    actionNominalSurface: contract.preteritAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                });
+            }
+        };
+        const createPreteritAgentiveCompoundButton = (contract) => {
+            const compoundVerbInput = contract.compoundVerbInput;
+            const previewSurface = getCompoundEmbedFinitePreviewSurface({
+                compoundVerb: compoundVerbInput,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.preteritAgentiveCompoundEmbedContinuation = "true";
+            continueButton.dataset.compoundVerb = compoundVerbInput;
+            continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
+            continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva pretérita: ${contract.sourceSurface || contract.preteritAgentiveStem}`,
+                `uso general: ${contract.preteritAgentiveStem}`,
+                `raíz matriz: ${contract.matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 35.7: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${compoundVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPreteritAgentiveCompoundContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-compound-embed-continuation]"))
+                .some((button) => button.dataset.compoundVerb === contract.compoundVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createPreteritAgentiveCompoundButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPreteritAgentiveNominalCompoundContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo-preterito"
+            || typeof buildPreteritAgentiveNominalCompoundContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const generalUseStems = getPreteritAgentiveGeneralUseStemsFromEvaluation(evaluation);
+        if (!generalUseStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPreteritAgentiveNominalCompoundMatrixInventory === "function"
+            ? getPreteritAgentiveNominalCompoundMatrixInventory()
+            : [{ id: "cal-li", nawatRoot: "kal", nounClass: "zero", animacy: "inanimate" }];
+        const contracts = generalUseStems.flatMap((preteritAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildPreteritAgentiveNominalCompoundContinuationContract({
+                preteritAgentiveStem,
+                sourceSurface: preteritAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "kal",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyPreteritAgentiveNominalContract = (contract) => {
+            if (typeof applyActiveActionNominalCompoundToOrdinaryNncEntry === "function") {
+                applyActiveActionNominalCompoundToOrdinaryNncEntry({
+                    actionNominalSurface: contract.preteritAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    nounClass: contract.matrix?.nounClass || "zero",
+                    animacy: contract.matrix?.animacy || "inanimate",
+                    compoundStem: contract.compoundStem,
+                    ordinaryNncInput: contract.ordinaryNncInput,
+                });
+            }
+        };
+        const createPreteritAgentiveNominalButton = (contract) => {
+            const previewSurface = getNominalCompoundPreviewSurface({
+                ordinaryNncRequest: contract.ordinaryNncRequest,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-sustantivo",
+            ].join(" ");
+            continueButton.dataset.preteritAgentiveNominalCompoundContinuation = "true";
+            continueButton.dataset.ordinaryNncInput = contract.ordinaryNncInput;
+            continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
+            continueButton.dataset.nominalCompoundStem = contract.compoundStem;
+            continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva pretérita: ${contract.sourceSurface || contract.preteritAgentiveStem}`,
+                `uso general: ${contract.preteritAgentiveStem}`,
+                `matriz nominal: ${contract.matrixRoot}`,
+                contract.matrix?.classicalMatrix ? `Andrews 35.7: ${contract.matrix.classicalMatrix}` : "",
+                `S: ${contract.ordinaryNncInput}`,
+                previewSurface ? `salida S: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPreteritAgentiveNominalContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-nominal-compound-continuation]"))
+                .some((button) => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createPreteritAgentiveNominalButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPreteritAgentiveOwnerhoodContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo-preterito"
+            || typeof buildPreteritAgentiveOwnerhoodContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const generalUseStems = getPreteritAgentiveGeneralUseStemsFromEvaluation(evaluation);
+        if (!generalUseStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPreteritAgentiveOwnerhoodMatrixInventory === "function"
+            ? getPreteritAgentiveOwnerhoodMatrixInventory()
+            : [{ id: "tla-hua-ownerhood", nawatRoot: "wa", surfaceMatrix: "waj", ownerhoodKind: "ownerhood" }];
+        const contracts = generalUseStems.flatMap((preteritAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildPreteritAgentiveOwnerhoodContinuationContract({
+                preteritAgentiveStem,
+                sourceSurface: preteritAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "wa",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyPreteritAgentiveOwnerhoodContract = (contract) => {
+            if (typeof applyPreteritAgentiveOwnerhoodRootsToVerbEntry === "function") {
+                applyPreteritAgentiveOwnerhoodRootsToVerbEntry({
+                    preteritAgentiveStem: contract.preteritAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    ownerhoodVerbInput: contract.ownerhoodVerbInput,
+                });
+            }
+        };
+        const createPreteritAgentiveOwnerhoodButton = (contract) => {
+            const ownerhoodVerbInput = contract.ownerhoodVerbInput;
+            const previewSurface = getPreteritAgentiveOwnerhoodPreviewSurface({
+                ownerhoodVerbInput,
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.preteritAgentiveOwnerhoodContinuation = "true";
+            continueButton.dataset.ownerhoodVerbInput = ownerhoodVerbInput;
+            continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
+            continueButton.dataset.ownerhoodMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.ownerhoodMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.ownerhoodKind = contract.ownerhoodKind || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || ownerhoodVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva pretérita: ${contract.sourceSurface || contract.preteritAgentiveStem}`,
+                `uso general: ${contract.preteritAgentiveStem}`,
+                `matriz de posesión: ${contract.matrixRoot}`,
+                contract.ownerhoodKind ? `tipo: ${contract.ownerhoodKind}` : "",
+                contract.matrix?.classicalMatrix ? `${contract.grammarSource}: ${contract.matrix.classicalMatrix}` : "",
+                `V pretérito: ${ownerhoodVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPreteritAgentiveOwnerhoodContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-ownerhood-continuation]"))
+                .some((button) => button.dataset.ownerhoodVerbInput === contract.ownerhoodVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createPreteritAgentiveOwnerhoodButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPreteritAgentiveComplementContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo-preterito"
+            || typeof buildPreteritAgentiveComplementContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const generalUseStems = getPreteritAgentiveGeneralUseStemsFromEvaluation(evaluation);
+        if (!generalUseStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPreteritAgentiveComplementMatrixInventory === "function"
+            ? getPreteritAgentiveComplementMatrixInventory()
+            : [{ id: "te-tla-mati", nawatRoot: "mati", objectPrefix: "ki" }];
+        const contracts = generalUseStems.flatMap((preteritAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildPreteritAgentiveComplementContinuationContract({
+                preteritAgentiveStem,
+                sourceSurface: preteritAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "mati",
+                objectPrefix: matrixSpec.objectPrefix || "ki",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyPreteritAgentiveComplementContract = (contract) => {
+            if (typeof applyPreteritAgentiveComplementRootsToVerbEntry === "function") {
+                applyPreteritAgentiveComplementRootsToVerbEntry({
+                    preteritAgentiveStem: contract.preteritAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    objectPrefix: contract.objectPrefix || "ki",
+                    complementVerbInput: contract.complementVerbInput,
+                });
+            }
+        };
+        const createPreteritAgentiveComplementButton = (contract) => {
+            const complementVerbInput = contract.complementVerbInput;
+            const previewSurface = getCompoundEmbedFinitePreviewSurface({
+                compoundVerb: complementVerbInput,
+                objectPrefix: contract.objectPrefix || "ki",
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.preteritAgentiveComplementContinuation = "true";
+            continueButton.dataset.complementVerbInput = complementVerbInput;
+            continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
+            continueButton.dataset.complementMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.complementMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.objectPrefix = contract.objectPrefix || "ki";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || complementVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva pretérita: ${contract.sourceSurface || contract.preteritAgentiveStem}`,
+                `uso general: ${contract.preteritAgentiveStem}`,
+                `matriz de complemento: ${contract.matrixRoot}`,
+                `objeto: ${contract.objectPrefix || "ki"}`,
+                contract.matrix?.classicalMatrix ? `Andrews 35.12: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${complementVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPreteritAgentiveComplementContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-complement-continuation]"))
+                .some((button) => button.dataset.complementVerbInput === contract.complementVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createPreteritAgentiveComplementButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPreteritAgentiveAdverbialContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || resolvedTense !== "agentivo-preterito"
+            || typeof buildPreteritAgentiveAdverbialContinuationContract !== "function"
+        ) {
+            return false;
+        }
+        const generalUseStems = getPreteritAgentiveGeneralUseStemsFromEvaluation(evaluation);
+        if (!generalUseStems.length) {
+            return false;
+        }
+        const matrixInventory = typeof getPreteritAgentiveAdverbialMatrixInventory === "function"
+            ? getPreteritAgentiveAdverbialMatrixInventory()
+            : [{ id: "nemi-adverbial-manner", nawatRoot: "nemi", objectPrefix: "", matrixValency: "intransitive" }];
+        const contracts = generalUseStems.flatMap((preteritAgentiveStem) => (
+            matrixInventory.map((matrixSpec) => buildPreteritAgentiveAdverbialContinuationContract({
+                preteritAgentiveStem,
+                sourceSurface: preteritAgentiveStem,
+                matrixRoot: matrixSpec.nawatRoot || "nemi",
+                objectPrefix: matrixSpec.objectPrefix || "",
+            }))
+        )).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const applyPreteritAgentiveAdverbialContract = (contract) => {
+            if (typeof applyPreteritAgentiveAdverbialRootsToVerbEntry === "function") {
+                applyPreteritAgentiveAdverbialRootsToVerbEntry({
+                    preteritAgentiveStem: contract.preteritAgentiveStem,
+                    matrixRoot: contract.matrixRoot,
+                    matrixSpecId: contract.matrix?.id || "",
+                    objectPrefix: contract.objectPrefix || "",
+                    adverbialVerbInput: contract.adverbialVerbInput,
+                });
+            }
+        };
+        const createPreteritAgentiveAdverbialButton = (contract) => {
+            const adverbialVerbInput = contract.adverbialVerbInput;
+            const previewSurface = getCompoundEmbedFinitePreviewSurface({
+                compoundVerb: adverbialVerbInput,
+                objectPrefix: contract.objectPrefix || "",
+            });
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-verbo",
+            ].join(" ");
+            continueButton.dataset.preteritAgentiveAdverbialContinuation = "true";
+            continueButton.dataset.adverbialVerbInput = adverbialVerbInput;
+            continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
+            continueButton.dataset.adverbialMatrixRoot = contract.matrixRoot;
+            continueButton.dataset.adverbialMatrixId = contract.matrix?.id || "";
+            continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${previewSurface || adverbialVerbInput}`;
+            continueButton.appendChild(continueLabel);
+            continueButton.title = [
+                `#3 salida agentiva pretérita: ${contract.sourceSurface || contract.preteritAgentiveStem}`,
+                `uso general: ${contract.preteritAgentiveStem}`,
+                `matriz adverbial: ${contract.matrixRoot}`,
+                contract.adverbialFocus ? `foco: ${contract.adverbialFocus}` : "",
+                contract.objectPrefix ? `objeto: ${contract.objectPrefix}` : "",
+                contract.matrix?.classicalMatrix ? `Andrews 35.12: ${contract.matrix.classicalMatrix}` : "",
+                `V: ${adverbialVerbInput}`,
+                previewSurface ? `salida V: ${previewSurface}` : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                applyPreteritAgentiveAdverbialContract(contract);
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-adverbial-continuation]"))
+                .some((button) => button.dataset.adverbialVerbInput === contract.adverbialVerbInput);
+            if (!alreadyRendered) {
+                actions.appendChild(createPreteritAgentiveAdverbialButton(contract));
+            }
+        });
+        return true;
+    };
     const renderPatientivoNominalCompoundContinuation = ({
         value,
         evaluation,
@@ -8211,6 +6943,167 @@ function renderNounConjugations({
                 .some((button) => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
             if (!alreadyRendered) {
                 actions.appendChild(createNominalCompoundContinuationButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderPatientivoAdjectivalFunctionContinuation = ({
+        value,
+        evaluation,
+        patientivoSource = "",
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || typeof buildPatientivoAdjectivalNncFunctionOutput !== "function"
+        ) {
+            return false;
+        }
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        if (!forms.length) {
+            return false;
+        }
+        const contracts = forms.map((form) => buildPatientivoAdjectivalNncFunctionOutput({
+            patientivoSurface: form,
+            patientivoSource,
+            nominalizationProfile: evaluation?.result?.nominalizationProfile || null,
+            formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
+            formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || "",
+        })).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const createAdjectivalFunctionButton = (contract) => {
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-adjetivo",
+            ].join(" ");
+            continueButton.dataset.patientivoAdjectivalFunctionContinuation = "true";
+            continueButton.dataset.targetSurface = contract.result || "";
+            continueButton.dataset.adjectivalFunction = contract.adjectivalNncFunctionFrame?.functionKind || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${contract.result}`;
+            continueButton.appendChild(continueLabel);
+            const continueSubLabel = document.createElement("span");
+            continueSubLabel.className = "calc-guidance__chip-sublabel";
+            continueSubLabel.textContent = "Adj NNC";
+            continueButton.appendChild(continueSubLabel);
+            continueButton.title = [
+                `#3 salida patientiva: ${contract.result}`,
+                "Andrews 40.4: NNC patientiva en funcion adjetival",
+                contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "",
+                contract.adjectivalNncFunctionFrame?.patientivoSource
+                    ? `fuente patientiva: ${contract.adjectivalNncFunctionFrame.patientivoSource}`
+                    : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                if (typeof applyAdjectivalNncFunctionToVerbEntry === "function") {
+                    applyAdjectivalNncFunctionToVerbEntry({
+                        surface: contract.result,
+                        formation: "patientive-adjectival",
+                        formulaEcho: contract.formulaEcho || "",
+                        patientivoSource: contract.adjectivalNncFunctionFrame?.patientivoSource || "",
+                    });
+                }
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-adjectival-function-continuation]"))
+                .some((button) => button.dataset.targetSurface === contract.result);
+            if (!alreadyRendered) {
+                actions.appendChild(createAdjectivalFunctionButton(contract));
+            }
+        });
+        return true;
+    };
+    const renderNominalizedVncAdjectivalFunctionContinuation = ({
+        value,
+        evaluation,
+    } = {}) => {
+        if (
+            !value
+            || evaluation?.shouldMaskRow
+            || typeof buildNominalizedVncAdjectivalNncFunctionOutput !== "function"
+        ) {
+            return false;
+        }
+        const nominalizationProfile = evaluation?.result?.nominalizationProfile || null;
+        const forms = getConjugationSurfaceForms(evaluation?.result)
+            .filter((form, index, list) => form && list.indexOf(form) === index);
+        if (!forms.length || !nominalizationProfile) {
+            return false;
+        }
+        const predicateState = nominalizationProfile?.predicateState?.value || "absolutive";
+        const contracts = forms.map((form) => buildNominalizedVncAdjectivalNncFunctionOutput({
+            nominalizedSurface: form,
+            state: predicateState,
+            nominalizationProfile,
+            formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
+            formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || "",
+        })).filter((entry) => entry?.supported);
+        if (!contracts.length) {
+            return false;
+        }
+        const actions = ensurePatientivoContinuationDisplay({ value, evaluation });
+        if (!actions) {
+            return false;
+        }
+        const createNominalizedVncAdjectivalButton = (contract) => {
+            const continueButton = document.createElement("button");
+            continueButton.type = "button";
+            continueButton.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-adjetivo",
+            ].join(" ");
+            continueButton.dataset.nominalizedVncAdjectivalFunctionContinuation = "true";
+            continueButton.dataset.targetSurface = contract.result || "";
+            continueButton.dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || "";
+            const continueLabel = document.createElement("span");
+            continueLabel.className = "calc-guidance__chip-label";
+            continueLabel.textContent = `→ ${contract.result}`;
+            continueButton.appendChild(continueLabel);
+            const continueSubLabel = document.createElement("span");
+            continueSubLabel.className = "calc-guidance__chip-sublabel";
+            continueSubLabel.textContent = "Adj NNC";
+            continueButton.appendChild(continueSubLabel);
+            continueButton.title = [
+                `#3 salida nominalizada: ${contract.result}`,
+                `${contract.adjectivalNncFunctionFrame?.lessonRef}: NNC nominalizada en funcion adjetival`,
+                contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "",
+                contract.adjectivalNncFunctionFrame?.nominalizationKind
+                    ? `nominalizacion: ${contract.adjectivalNncFunctionFrame.nominalizationKind}`
+                    : "",
+            ].filter(Boolean).join("; ");
+            continueButton.addEventListener("click", () => {
+                if (typeof applyAdjectivalNncFunctionToVerbEntry === "function") {
+                    applyAdjectivalNncFunctionToVerbEntry({
+                        surface: contract.result,
+                        formation: "nominalized-vnc-adjectival",
+                        formulaEcho: contract.formulaEcho || "",
+                        nominalizedVncKind: contract.adjectivalNncFunctionFrame?.nominalizationKind || "",
+                    });
+                }
+            });
+            return continueButton;
+        };
+        contracts.forEach((contract) => {
+            const alreadyRendered = Array.from(actions.querySelectorAll("[data-nominalized-vnc-adjectival-function-continuation]"))
+                .some((button) => button.dataset.targetSurface === contract.result);
+            if (!alreadyRendered) {
+                actions.appendChild(createNominalizedVncAdjectivalButton(contract));
             }
         });
         return true;
@@ -8394,118 +7287,6 @@ function renderNounConjugations({
         });
         return true;
     };
-    const createPatientivoPrelocativeDestinationPicker = (entry = {}) => {
-        const patientivoSource = String(entry.patientivoSource || "").trim();
-        const sourceTenseValue = getPatientivoBlockSourceTenseValue(patientivoSource);
-        const sourceCombinedMode = getPatientivoBlockSourceCombinedMode(patientivoSource);
-        const promotedObjectPrefix = activePossessor
-            ? String(POSSESSIVE_TO_OBJECT_PREFIX[activePossessor] || "").trim()
-            : "";
-        const canPromotePossessor = !activePossessor || Boolean(promotedObjectPrefix);
-        const canReachPrelocative = (
-            patientivoSource === "imperfectivo"
-            && sourceCombinedMode === COMBINED_MODE.active
-            && NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES.has(sourceTenseValue)
-            && canPromotePossessor
-            && verb
-        );
-        if (!canReachPrelocative) {
-            return null;
-        }
-        const sourceTenseLabel = sourceTenseValue && typeof getLocalizedLabel === "function"
-            ? getLocalizedLabel(TENSE_LABELS[sourceTenseValue], isNawat, sourceTenseValue)
-            : sourceTenseValue;
-        const sourceObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
-        const sourceSurface = getDirectPatientivoSourceSurface({
-            patientivoSource,
-            objectPrefix: sourceObjectPrefix,
-            sourceTenseValue,
-            sourceCombinedMode,
-        });
-        const patientivoSurface = resolveDirectPatientivoSurface({
-            patientivoSource,
-            objectPrefix: sourceObjectPrefix,
-            patientivoNominalSuffix: activePatientivoNominalSuffix,
-            sourceTenseValue,
-            sourceCombinedMode,
-        });
-        const incorporatedRoot = stripPrelocativePatientivoConnector(patientivoSurface);
-        if (!patientivoSurface || !incorporatedRoot) {
-            return null;
-        }
-        const matrixRoot = "ni";
-        const destinationSummary = document.createElement("span");
-        destinationSummary.className = "tense-block__destination-label calc-guidance__conversion-summary-label calc-guidance__conversion-summary-label--flat";
-        destinationSummary.textContent = "destino: V · pre-locativo";
-        const focusLocativeLine = (button) => {
-            const update = () => {
-                const lineSelectionStore = typeof getNawatRouteStateStore === "function"
-                    ? getNawatRouteStateStore()
-                    : null;
-                if (lineSelectionStore) {
-                    lineSelectionStore.activeNawatLineId = "locative";
-                    lineSelectionStore.__NAWAT_ACTIVE_LINE_ID__ = "locative";
-                    lineSelectionStore.activeNawatLineStationKey = "prelocative";
-                    lineSelectionStore.activeLocativeSourceVerb = verb;
-                    lineSelectionStore.activeLocativeSourceTenseValue = sourceTenseValue;
-                    lineSelectionStore.activeLocativeSourceSurface = sourceSurface;
-                    lineSelectionStore.activeLocativePatientivoSurface = patientivoSurface;
-                    lineSelectionStore.activeLocativeIncorporatedRoot = incorporatedRoot;
-                    lineSelectionStore.activeLocativeMatrixRoot = matrixRoot;
-                    lineSelectionStore.activeLocativePromotedObjectPrefix = promotedObjectPrefix;
-                    lineSelectionStore.activeLocativeSourcePossessorPrefix = activePossessor || "";
-                }
-                if (typeof window !== "undefined" && window) {
-                    window.__NAWAT_ACTIVE_LINE_ID__ = "locative";
-                }
-                const appliedToEntrada = typeof applyPrelocativeRootsToVerbEntry === "function"
-                    ? applyPrelocativeRootsToVerbEntry({
-                        incorporatedRoot,
-                        matrixRoot,
-                        objectPrefix: promotedObjectPrefix,
-                        possessorPrefix: activePossessor || "",
-                    })
-                    : false;
-                if (!appliedToEntrada) {
-                    renderActiveConjugations({
-                        verb,
-                        objectPrefix: promotedObjectPrefix || (typeof getCurrentObjectPrefix === "function" ? getCurrentObjectPrefix() : ""),
-                        tense: "patientivo",
-                    });
-                }
-            };
-            if (button && typeof preserveViewportAnchorPosition === "function") {
-                preserveViewportAnchorPosition(button, update);
-                return;
-            }
-            update();
-        };
-        const originLabel = sourceSurface
-            ? `origen: V · A · ${sourceTenseLabel}: ${sourceSurface}`
-            : `origen: V · A · ${sourceTenseLabel}`;
-        const transformLabel = promotedObjectPrefix
-            ? `; poseedor ${activePossessor} > objeto ${promotedObjectPrefix}`
-            : "";
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = [
-            "calc-guidance__chip",
-            "calc-guidance__chip--button",
-            "calc-guidance__conversion-station-summary",
-            "tense-block__destination-summary",
-            "calc-guidance__chip--mode-verbo",
-            "tense-block__destination-picker",
-            "calc-guidance__conversion-station-picker--destination",
-            "calc-guidance__conversion-station-picker--destination-verbo",
-        ].join(" ");
-        button.setAttribute("aria-label", `Ir a destino pre-locativo desde ${originLabel}`);
-        button.title = `destino = raíz incorporada: ${incorporatedRoot || "—"}; raíz matriz: ${matrixRoot}; ${originLabel}${transformLabel}`;
-        button.appendChild(destinationSummary);
-        button.addEventListener("click", () => {
-            focusLocativeLine(button);
-        });
-        return button;
-    };
     const renderPatientivoPrelocativeContinuation = ({
         value,
         evaluation,
@@ -8519,26 +7300,19 @@ function renderNounConjugations({
         if (
             !value
             || evaluation?.shouldMaskRow
-            || patientivoSource !== "imperfectivo"
-            || sourceCombinedMode !== COMBINED_MODE.active
-            || !NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES.has(sourceTenseValue)
+            || patientivoSource === "tronco-verbal"
         ) {
             return false;
         }
         const sourceObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
-        const sourceSurface = getDirectPatientivoSourceSurface({
+        const sourceSurface = resolvePatientivoSourceSurfaceForContinuation({
+            evaluation,
             patientivoSource,
             objectPrefix: sourceObjectPrefix,
             sourceTenseValue,
             sourceCombinedMode,
         });
-        const patientivoSurface = resolveDirectPatientivoSurface({
-            patientivoSource,
-            objectPrefix: sourceObjectPrefix,
-            patientivoNominalSuffix: activePatientivoNominalSuffix,
-            sourceTenseValue,
-            sourceCombinedMode,
-        });
+        const patientivoSurface = resolvePatientivoSurfaceFromEvaluation(evaluation);
         if (typeof buildPatientivoPrelocativeContinuationContract !== "function") {
             return false;
         }
@@ -9066,6 +7840,8 @@ function renderNounConjugations({
         patientivoSource = null,
         patientivoOwnership = activePatientivoOwnership,
         patientivoNominalSuffix = activePatientivoNominalSuffix,
+        instrumentivoMode = "",
+        actionNounStemUse = "",
         useReduplicatedSingularSurface = false,
     }) => {
         const isAgentivo = resolvedTense === "agentivo";
@@ -9111,6 +7887,9 @@ function renderNounConjugations({
             resolvedPatientivoSourceCombinedMode,
             ownershipSelections.join(","),
             resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix,
+            resolvedNominalControlCombinedMode || "",
+            instrumentivoMode || "",
+            actionNounStemUse || "",
             useReduplicatedSingularSurface ? "redup" : "plain",
         ].join("|");
         const cached = nounCombinationEvaluationCache.get(cacheKey);
@@ -9129,9 +7908,10 @@ function renderNounConjugations({
         const evaluateForOwnership = (resolvedPatientivoOwnership) => {
             let result = {};
             if (isInstrumentivo) {
-                const instrumentivoMode = possessorPrefix === ""
+                const resolvedInstrumentivoMode = instrumentivoMode
+                    || (possessorPrefix === ""
                     ? INSTRUMENTIVO_MODE.absolutivo
-                    : INSTRUMENTIVO_MODE.posesivo;
+                    : INSTRUMENTIVO_MODE.posesivo);
                 result = getInstrumentivoResult({
                     rawVerb: verb,
                     verbMeta,
@@ -9140,7 +7920,7 @@ function renderNounConjugations({
                     objectPrefix: resolvedObjectPrefix,
                     indirectObjectMarker: resolvedIndirectObjectMarker,
                     thirdObjectMarker: resolvedThirdObjectMarker,
-                    mode: instrumentivoMode,
+                    mode: resolvedInstrumentivoMode,
                     possessivePrefix: possessorPrefix,
                 }) || {};
             } else if (isCalificativoInstrumentivo) {
@@ -9153,6 +7933,8 @@ function renderNounConjugations({
                     indirectObjectMarker: resolvedIndirectObjectMarker,
                     thirdObjectMarker: resolvedThirdObjectMarker,
                     possessivePrefix: possessorPrefix,
+                    actionNounStemUse,
+                    combinedMode: resolvedNominalControlCombinedMode,
                 }) || {};
             } else {
                 const nominalDerivationMode = getNominalDerivationModeForTense(tenseValue);
@@ -9174,44 +7956,6 @@ function renderNounConjugations({
                         patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
                     },
                 }) || {};
-                const routeSurfaceOverride = resolveActiveVerbNounRouteSurfaceOverride({
-                    patientivoSource: resolvedPatientivoSource,
-                    selection,
-                    number,
-                    possessorPrefix,
-                    objectPrefix: resolvedObjectPrefix,
-                    indirectObjectMarker: resolvedIndirectObjectMarker,
-                    thirdObjectMarker: resolvedThirdObjectMarker,
-                    sourceTenseValue: resolvedPatientivoSourceTenseValue,
-                    sourceCombinedMode: resolvedPatientivoSourceCombinedMode,
-                });
-                if (routeSurfaceOverride) {
-                    result = {
-                        ...result,
-                        result: routeSurfaceOverride,
-                        surfaceForms: [routeSurfaceOverride],
-                    };
-                } else {
-                    const presentSurfaceOverride = resolveDirectPatientivoSurfaceOverride({
-                        patientivoSource: resolvedPatientivoSource,
-                        selection,
-                        number,
-                        possessorPrefix,
-                        objectPrefix: resolvedObjectPrefix,
-                        indirectObjectMarker: resolvedIndirectObjectMarker,
-                        thirdObjectMarker: resolvedThirdObjectMarker,
-                        patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
-                        sourceTenseValue: resolvedPatientivoSourceTenseValue,
-                        sourceCombinedMode: resolvedPatientivoSourceCombinedMode,
-                    });
-                    if (presentSurfaceOverride) {
-                        result = {
-                            ...result,
-                            result: presentSurfaceOverride,
-                            surfaceForms: [presentSurfaceOverride],
-                        };
-                    }
-                }
                 if (useReduplicatedSingularSurface && result?.result) {
                     const prefixChain = buildPrefixedChain({
                         subjectPrefix: selection.subjectPrefix,
@@ -9283,6 +8027,198 @@ function renderNounConjugations({
             });
         nounCombinationEvaluationCache.set(cacheKey, evaluation);
         return evaluation;
+    };
+    const renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation = ({
+        row = null,
+        value,
+        selection,
+        number,
+        possessorPrefix = "",
+        objectPrefix = "",
+        indirectObjectMarker = "",
+        thirdObjectMarker = "",
+        evaluation = null,
+    } = {}) => {
+        if (
+            resolvedTense !== "calificativo-instrumentivo"
+            || !value
+            || possessorPrefix
+            || typeof resolveNawatPossessorPrefixFromSourceSubject !== "function"
+        ) {
+            return false;
+        }
+        const derivedPossessorPrefix = resolveNawatPossessorPrefixFromSourceSubject(
+            selection?.subjectPrefix || "",
+            selection?.subjectSuffix || ""
+        );
+        if (!derivedPossessorPrefix) {
+            return false;
+        }
+        const generalUseEvaluation = evaluateNounCombinationState({
+            selection,
+            number,
+            possessorPrefix: "",
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            actionNounStemUse: "general-use",
+        });
+        if (
+            generalUseEvaluation?.shouldMaskRow
+            || !generalUseEvaluation?.result?.result
+            || generalUseEvaluation.result.result === evaluation?.result?.result
+        ) {
+            return false;
+        }
+        let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
+        if (!actions) {
+            const forms = getConjugationSurfaceForms(evaluation?.result)
+                .filter((form, index, list) => form && list.indexOf(form) === index);
+            const sourceSurface = forms.length
+                ? forms.join(" / ")
+                : String(evaluation?.result?.result || "").trim();
+            value.replaceChildren();
+            value.classList.remove("conjugation-error", "conjugation-reflexive");
+            value.classList.add("conjugation-value--conversion-picker");
+            if (sourceSurface && sourceSurface !== "—") {
+                const surfaceText = document.createElement("span");
+                surfaceText.className = "conjugation-conversion-surface";
+                const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+                    ? formatConjugationDisplay(sourceSurface)
+                    : sourceSurface;
+                groupedSurfaceDisplay
+                    .split(/\n+/)
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                    .forEach((line) => {
+                        const lineElement = document.createElement("span");
+                        lineElement.className = "conjugation-conversion-surface-line";
+                        lineElement.textContent = line;
+                        surfaceText.appendChild(lineElement);
+                    });
+                value.appendChild(surfaceText);
+            }
+            actions = document.createElement("span");
+            actions.className = "conjugation-conversion-actions";
+            value.appendChild(actions);
+        }
+        const alreadyRendered = Array.from(actions.querySelectorAll("[data-action-noun-source-subject-possessor]"))
+            .some((button) => button.dataset.targetSurface === generalUseEvaluation.result.result);
+        if (alreadyRendered) {
+            return true;
+        }
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = [
+            "calc-guidance__chip",
+            "calc-guidance__chip--button",
+            "calc-guidance__chip--linked-promote",
+            "calc-guidance__chip--mode-sustantivo",
+        ].join(" ");
+        action.dataset.actionNounSourceSubjectPossessor = derivedPossessorPrefix;
+        action.dataset.actionNounStemUse = "general-use";
+        action.dataset.targetSurface = generalUseEvaluation.result.result || "";
+        const label = document.createElement("span");
+        label.className = "calc-guidance__chip-label";
+        label.textContent = `→ ${generalUseEvaluation.result.result}`;
+        action.appendChild(label);
+        action.title = [
+            "Andrews 36.10-36.11: sujeto fuente → poseedor",
+            `poseedor: ${derivedPossessorPrefix}`,
+            `uso general: ${generalUseEvaluation.result.result}`,
+        ].join("; ");
+        actions.appendChild(action);
+        if (row) {
+            row.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.viable;
+            row.dataset.diagnosticState = CONJUGATION_AVAILABILITY_STATE.viable;
+            row.dataset.diagnosticIds = "";
+        }
+        value.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.viable;
+        value.dataset.diagnosticState = CONJUGATION_AVAILABILITY_STATE.viable;
+        value.dataset.diagnosticIds = "";
+        return true;
+    };
+    const renderInstrumentivoSourceSubjectPossessiveContinuation = ({
+        value,
+        selection,
+        number,
+        objectPrefix = "",
+        indirectObjectMarker = "",
+        thirdObjectMarker = "",
+        evaluation = null,
+    } = {}) => {
+        if (
+            resolvedTense !== "instrumentivo"
+            || !value
+            || evaluation?.shouldMaskRow
+            || typeof resolveInstrumentivoPossessorPrefixFromSourceSubject !== "function"
+        ) {
+            return;
+        }
+        const possessivePrefix = resolveInstrumentivoPossessorPrefixFromSourceSubject(
+            selection?.subjectPrefix || "",
+            selection?.subjectSuffix || ""
+        );
+        if (!possessivePrefix) {
+            return;
+        }
+        const possessiveEvaluation = evaluateNounCombinationState({
+            selection,
+            number,
+            possessorPrefix: "",
+            objectPrefix,
+            indirectObjectMarker,
+            thirdObjectMarker,
+            instrumentivoMode: INSTRUMENTIVO_MODE.posesivo,
+        });
+        if (
+            possessiveEvaluation?.shouldMaskRow
+            || !possessiveEvaluation?.result?.result
+            || possessiveEvaluation.result.result === evaluation?.result?.result
+        ) {
+            return;
+        }
+        const forms = getConjugationSurfaceForms(evaluation?.result);
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        const groupedSurfaceDisplay = typeof formatConjugationDisplay === "function"
+            ? formatConjugationDisplay(forms.join(" / ") || evaluation?.result?.result || "")
+            : (forms.join(" / ") || evaluation?.result?.result || "");
+        groupedSurfaceDisplay
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .forEach((line) => {
+                const lineElement = document.createElement("span");
+                lineElement.className = "conjugation-conversion-surface-line";
+                lineElement.textContent = line;
+                surfaceText.appendChild(lineElement);
+            });
+        const actions = document.createElement("span");
+        actions.className = "conjugation-conversion-actions";
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = [
+            "calc-guidance__chip",
+            "calc-guidance__chip--button",
+            "calc-guidance__chip--linked-promote",
+            "calc-guidance__chip--mode-sustantivo",
+        ].join(" ");
+        action.dataset.instrumentivoSourceSubjectPossessor = possessivePrefix;
+        action.dataset.targetSurface = possessiveEvaluation.result.result || "";
+        const label = document.createElement("span");
+        label.className = "calc-guidance__chip-label";
+        label.textContent = `→ ${possessiveEvaluation.result.result}`;
+        action.appendChild(label);
+        action.title = [
+            "Andrews 36.6: sujeto fuente → poseedor",
+            `poseedor: ${possessivePrefix}`,
+            `salida posesiva: ${possessiveEvaluation.result.result}`,
+        ].join("; ");
+        actions.appendChild(action);
+        value.append(surfaceText, actions);
     };
     const resolveNounToggleAvailabilityState = ({
         subjectSelections,
@@ -9828,6 +8764,11 @@ function renderNounConjugations({
                         formattedValue: formatConjugationDisplay(evaluation.result.result),
                     });
                     if (resolvedTense === "patientivo") {
+                        renderPatientivoAdjectivalFunctionContinuation({
+                            value,
+                            evaluation,
+                            patientivoSource,
+                        });
                         renderPatientivoCompoundEmbedContinuation({
                             value,
                             evaluation,
@@ -9849,11 +8790,79 @@ function renderNounConjugations({
                             evaluation,
                         });
                     }
+                    if (resolvedTense === "agentivo") {
+                        renderNominalizedVncAdjectivalFunctionContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderCustomaryAgentiveCompoundEmbedContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderCustomaryAgentiveNominalCompoundContinuation({
+                            value,
+                            evaluation,
+                        });
+                    }
+                    if (resolvedTense === "agentivo-preterito") {
+                        renderNominalizedVncAdjectivalFunctionContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderPreteritAgentiveCompoundEmbedContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderPreteritAgentiveNominalCompoundContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderPreteritAgentiveOwnerhoodContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderPreteritAgentiveComplementContinuation({
+                            value,
+                            evaluation,
+                        });
+                        renderPreteritAgentiveAdverbialContinuation({
+                            value,
+                            evaluation,
+                        });
+                    }
                     if (resolvedTense === "calificativo-instrumentivo") {
                         renderPatientivoCharacteristicPropertyEmbedContinuation({
                             value,
                             evaluation,
                             possessorPrefix,
+                        });
+                        renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation({
+                            row,
+                            value,
+                            selection,
+                            number,
+                            possessorPrefix,
+                            objectPrefix: displayObjectPrefix || "",
+                            indirectObjectMarker: displayIndirectObjectMarker || "",
+                            thirdObjectMarker: displayThirdObjectMarker || "",
+                            evaluation,
+                        });
+                    }
+                    if (resolvedTense === "instrumentivo" && !possessorPrefix) {
+                        renderInstrumentivoSourceSubjectPossessiveContinuation({
+                            value,
+                            selection,
+                            number,
+                            objectPrefix: displayObjectPrefix || "",
+                            indirectObjectMarker: displayIndirectObjectMarker || "",
+                            thirdObjectMarker: displayThirdObjectMarker || "",
+                            evaluation,
+                        });
+                    }
+                    if (resolvedTense === "potencial" || resolvedTense === "potencial-habitual") {
+                        renderNominalizedVncAdjectivalFunctionContinuation({
+                            value,
+                            evaluation,
                         });
                     }
 

@@ -1224,6 +1224,8 @@ function buildVerbDerivedNominalBuilderContext({
         thirdObjectMarker: resolvedThirdObjectMarker,
         actionNounStemUse,
         combinedMode,
+        sourceSubjectPrefix: subjectPrefix,
+        sourceSubjectSuffix: subjectSuffix,
     }, kind);
     const nounForwardDerivation = applyNounForwardDerivation({
         verbMeta,

@@ -1,133 +1,211 @@
+// Native wrapper generated from src/core/vnc/vnc.js.
+
 export function createVncFacadeApi(targetObject = globalThis) {
+    // Shared agreement combo validation extracted to src/core/agreement/combo_validation.js
+    // Shared morphology support extracted to src/core/generation/morphology_support.js
+    // Shared morphology engine extracted to src/core/generation/morphology_engine.js
+
+    function resolveAdjectivalNncFunctionOverrideFromInput(verbInput = null) {
+      const dataset = verbInput?.dataset || {};
+      const currentSurface = String(verbInput?.value || "").trim();
+      const targetSurface = String(dataset.adjectivalNncFunctionSurface || "").trim();
+      if (!currentSurface || !targetSurface || currentSurface !== targetSurface) {
+        return null;
+      }
+      const formation = String(dataset.adjectivalNncFormation || "").trim();
+      const nominalizedVncKind = String(dataset.nominalizedVncKind || "").trim();
+      const patientivoSource = String(dataset.patientivoSource || "").trim();
+      const formulaEcho = String(dataset.adjectivalNncFormulaEcho || "").trim();
+      const adjectivalNnc = {
+        enabled: true,
+        stem: targetSurface,
+        surface: targetSurface,
+        state: "absolutive",
+        role: "predicate-surface"
+      };
+      if (formation) {
+        adjectivalNnc.formation = formation;
+      }
+      if (formation === "patientive-adjectival") {
+        adjectivalNnc.patientivoSurface = targetSurface;
+        adjectivalNnc.patientivoSource = patientivoSource;
+      }
+      if (formation === "nominalized-vnc-adjectival") {
+        adjectivalNnc.nominalizedSurface = targetSurface;
+        adjectivalNnc.nominalizationProfile = {
+          role: {
+            nominalizationKind: nominalizedVncKind
+          },
+          predicateState: {
+            value: "absolutive"
+          }
+        };
+      }
+      if (formulaEcho) {
+        adjectivalNnc.formulaEcho = formulaEcho;
+      }
+      return {
+        verb: targetSurface,
+        tense: "adjectival-nnc",
+        tenseMode: targetObject.TENSE_MODE.adjetivo,
+        derivationMode: targetObject.DERIVATION_MODE.active,
+        voiceMode: targetObject.VOICE_MODE.active,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "",
+        adjectivalNnc
+      };
+    }
     function generateWord(options = {}) {
-        if (typeof Event !== "undefined" && options instanceof Event) {
-            options = {};
+      if (typeof targetObject.Event !== "undefined" && options instanceof targetObject.Event) {
+        options = {};
+      }
+      options = targetObject.sanitizeGenerateWordOptions(options);
+      const silent = options.silent === true;
+      const subjectPrefixInput = targetObject.document.getElementById("subject-prefix");
+      const subjectSuffixInput = targetObject.document.getElementById("subject-suffix");
+      const verbInput = targetObject.document.getElementById("verb");
+      const inputAdjectivalOverride = options.override ? null : resolveAdjectivalNncFunctionOverrideFromInput(verbInput);
+      const override = options.override || inputAdjectivalOverride;
+      if (inputAdjectivalOverride) {
+        options = {
+          ...options,
+          override
+        };
+      }
+      const verbInputSource = targetObject.resolveVerbInputSource(verbInput?.value || "");
+      const prefixInputs = targetObject.getPrefixInputs({
+        override,
+        subjectPrefixInput,
+        subjectSuffixInput,
+        verbInput,
+        verbInputSource
+      });
+      return targetObject.executeGenerateWordRequest({
+        options,
+        prefixInputs,
+        liveInput: {
+          hasVerbInput: Boolean(verbInput),
+          verbInputValue: verbInput?.value || ""
+        },
+        uiHooks: {
+          clearError: id => {
+            if (silent) {
+              return;
+            }
+            const el = targetObject.document.getElementById(id);
+            if (el) {
+              el.classList.remove("error");
+            }
+            if (id === "verb" && verbInput) {
+              verbInput.classList.remove("error");
+            }
+          },
+          setError: id => {
+            if (silent) {
+              return;
+            }
+            const el = targetObject.document.getElementById(id);
+            if (el) {
+              el.classList.add("error");
+            }
+            if (id === "verb" && verbInput) {
+              verbInput.classList.add("error");
+            }
+          },
+          onSearchQueryOnly: ({
+            verbInputValue: currentValue
+          }) => {
+            targetObject.updateVerbRuleHint({
+              verb: ""
+            });
+            targetObject.updateVerbDisambiguation("");
+            targetObject.maybeAutoScrollToConjugationRow(currentValue, {
+              allowSwitch: false
+            });
+          },
+          onValidationError: ({
+            tense,
+            baseObjectPrefix
+          }) => {
+            targetObject.updateVerbRuleHint({
+              verb: ""
+            });
+            targetObject.updateVerbDisambiguation("");
+            targetObject.renderAllOutputs({
+              verb: targetObject.getVerbInputMeta().displayVerb,
+              objectPrefix: baseObjectPrefix,
+              tense
+            });
+          },
+          onVerbInputSync: ({
+            nextVerbInputValue
+          }) => {
+            if (!verbInput) {
+              return;
+            }
+            verbInput.value = nextVerbInputValue;
+            verbInput.dataset.prevValue = nextVerbInputValue;
+            targetObject.renderVerbMirror();
+          },
+          onVerbAnalysisResolved: ({
+            verb,
+            analysisVerb,
+            analysisExactVerb,
+            morphologyObjectPrefix,
+            forceTransitiveBase,
+            isYawi,
+            isWeya,
+            resolvedDerivationType,
+            parsedVerb,
+            renderVerb
+          }) => {
+            targetObject.updateVerbRuleHint({
+              verb,
+              analysisVerb,
+              exactBaseVerb: analysisExactVerb,
+              objectPrefix: morphologyObjectPrefix,
+              forceTransitive: forceTransitiveBase,
+              isYawi,
+              isWeya,
+              ...targetObject.buildMorphologyMetaOptions(parsedVerb),
+              derivationType: resolvedDerivationType
+            });
+            targetObject.updateVerbDisambiguation(verbInput ? verbInput.value : renderVerb);
+          },
+          onComplete: ({
+            generatedText,
+            parsedVerb,
+            stemProvenance,
+            tense,
+            renderVerb,
+            baseObjectPrefix
+          }) => {
+            targetObject.rememberScreenCalculatorAnsState({
+              generatedText,
+              parsedVerb,
+              stemProvenance,
+              tense
+            });
+            targetObject.renderAllOutputs({
+              verb: renderVerb,
+              objectPrefix: baseObjectPrefix,
+              tense
+            });
+          }
         }
-        options = targetObject.sanitizeGenerateWordOptions(options);
-        const silent = options.silent === true;
-        const override = options.override || null;
-        const documentObject = targetObject.document;
-        const subjectPrefixInput = documentObject.getElementById("subject-prefix");
-        const subjectSuffixInput = documentObject.getElementById("subject-suffix");
-        const verbInput = documentObject.getElementById("verb");
-        const verbInputSource = targetObject.resolveVerbInputSource(verbInput?.value || "");
-        const prefixInputs = targetObject.getPrefixInputs({
-            override,
-            subjectPrefixInput,
-            subjectSuffixInput,
-            verbInput,
-            verbInputSource,
-        });
-        return targetObject.executeGenerateWordRequest({
-            options,
-            prefixInputs,
-            liveInput: {
-                hasVerbInput: Boolean(verbInput),
-                verbInputValue: verbInput?.value || "",
-            },
-            uiHooks: {
-                clearError: (id) => {
-                    if (silent) {
-                        return;
-                    }
-                    const el = documentObject.getElementById(id);
-                    if (el) {
-                        el.classList.remove("error");
-                    }
-                    if (id === "verb" && verbInput) {
-                        verbInput.classList.remove("error");
-                    }
-                },
-                setError: (id) => {
-                    if (silent) {
-                        return;
-                    }
-                    const el = documentObject.getElementById(id);
-                    if (el) {
-                        el.classList.add("error");
-                    }
-                    if (id === "verb" && verbInput) {
-                        verbInput.classList.add("error");
-                    }
-                },
-                onSearchQueryOnly: ({ verbInputValue: currentValue }) => {
-                    targetObject.updateVerbRuleHint({ verb: "" });
-                    targetObject.updateVerbDisambiguation("");
-                    targetObject.maybeAutoScrollToConjugationRow(currentValue, { allowSwitch: false });
-                },
-                onValidationError: ({ tense, baseObjectPrefix }) => {
-                    targetObject.updateVerbRuleHint({ verb: "" });
-                    targetObject.updateVerbDisambiguation("");
-                    targetObject.renderAllOutputs({
-                        verb: targetObject.getVerbInputMeta().displayVerb,
-                        objectPrefix: baseObjectPrefix,
-                        tense,
-                    });
-                },
-                onVerbInputSync: ({ nextVerbInputValue }) => {
-                    if (!verbInput) {
-                        return;
-                    }
-                    verbInput.value = nextVerbInputValue;
-                    verbInput.dataset.prevValue = nextVerbInputValue;
-                    targetObject.renderVerbMirror();
-                },
-                onVerbAnalysisResolved: ({
-                    verb,
-                    analysisVerb,
-                    analysisExactVerb,
-                    morphologyObjectPrefix,
-                    forceTransitiveBase,
-                    isYawi,
-                    isWeya,
-                    resolvedDerivationType,
-                    parsedVerb,
-                    renderVerb,
-                }) => {
-                    targetObject.updateVerbRuleHint({
-                        verb,
-                        analysisVerb,
-                        exactBaseVerb: analysisExactVerb,
-                        objectPrefix: morphologyObjectPrefix,
-                        forceTransitive: forceTransitiveBase,
-                        isYawi,
-                        isWeya,
-                        ...targetObject.buildMorphologyMetaOptions(parsedVerb),
-                        derivationType: resolvedDerivationType,
-                    });
-                    targetObject.updateVerbDisambiguation(verbInput ? verbInput.value : renderVerb);
-                },
-                onComplete: ({
-                    generatedText,
-                    parsedVerb,
-                    stemProvenance,
-                    tense,
-                    renderVerb,
-                    baseObjectPrefix,
-                }) => {
-                    targetObject.rememberScreenCalculatorAnsState({
-                        generatedText,
-                        parsedVerb,
-                        stemProvenance,
-                        tense,
-                    });
-                    targetObject.renderAllOutputs({
-                        verb: renderVerb,
-                        objectPrefix: baseObjectPrefix,
-                        tense,
-                    });
-                },
-            },
-        });
+      });
     }
 
-    return { generateWord };
+    const api = {};
+    api.resolveAdjectivalNncFunctionOverrideFromInput = resolveAdjectivalNncFunctionOverrideFromInput;
+    api.generateWord = generateWord;
+    return api;
 }
 
 export function installVncFacadeGlobals(targetObject = globalThis) {
     const api = createVncFacadeApi(targetObject);
-    Object.keys(api).forEach((key) => {
-        targetObject[key] = api[key];
-    });
+    Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

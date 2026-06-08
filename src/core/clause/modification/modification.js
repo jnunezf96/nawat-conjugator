@@ -15,6 +15,30 @@ const ADJECTIVAL_MODIFICATION_RELATION = Object.freeze({
     unknown: "unknown",
 });
 
+const ADJECTIVAL_MODIFICATION_ORDER = Object.freeze({
+    headModifier: "head-modifier",
+    headMarkedModifier: "head-marked-modifier",
+    modifierHeadPreposed: "modifier-head-preposed",
+    markedModifierHeadAdjoined: "marked-modifier-head-adjoined",
+    discontinuous: "discontinuous",
+    unknown: "unknown",
+});
+
+const ADJECTIVAL_MODIFICATION_SCOPE = Object.freeze({
+    standalone: "standalone",
+    adjoinedUnit: "adjoined-unit",
+    principalUnit: "principal-unit",
+    unknown: "unknown",
+});
+
+const ADJECTIVAL_MODIFICATION_LINK_ROLE = Object.freeze({
+    sharedSubject: "shared-subject",
+    vncSubject: "vnc-subject",
+    vncObject: "vnc-object",
+    possessor: "possessor",
+    unknown: "unknown",
+});
+
 const ADJECTIVAL_MODIFICATION_FALSE_POSITIVE_SOURCE = Object.freeze({
     adjectiveModeOutput: "adjective-mode-output",
     nominalizationProfile: "nominalization-profile",
@@ -27,6 +51,7 @@ const ADJECTIVAL_MODIFICATION_FALSE_POSITIVE_SOURCE = Object.freeze({
 
 const ADJECTIVAL_MODIFICATION_ANTI_CONFLATION_RULES = Object.freeze([
     "adjectival modification boundary metadata is not generation",
+    "modificationAst composes existing clause outputs; it does not create new Nawat word forms",
     "adjetivo route output is not a clause-level modification AST",
     "nominalizationProfile is not adjectival modification syntax",
     "ordinary NNC formulaSlots are not modifier/head relation metadata",
@@ -70,6 +95,30 @@ function normalizeAdjectivalModificationRelation(value = "") {
     );
 }
 
+function normalizeAdjectivalModificationOrder(value = "") {
+    return normalizeAdjectivalModificationEnum(
+        value,
+        Object.values(ADJECTIVAL_MODIFICATION_ORDER),
+        ADJECTIVAL_MODIFICATION_ORDER.unknown
+    );
+}
+
+function normalizeAdjectivalModificationScope(value = "") {
+    return normalizeAdjectivalModificationEnum(
+        value,
+        Object.values(ADJECTIVAL_MODIFICATION_SCOPE),
+        ADJECTIVAL_MODIFICATION_SCOPE.unknown
+    );
+}
+
+function normalizeAdjectivalModificationLinkRole(value = "") {
+    return normalizeAdjectivalModificationEnum(
+        value,
+        Object.values(ADJECTIVAL_MODIFICATION_LINK_ROLE),
+        ADJECTIVAL_MODIFICATION_LINK_ROLE.unknown
+    );
+}
+
 function normalizeAdjectivalModificationFalsePositiveSource(value = "") {
     return normalizeAdjectivalModificationEnum(
         value,
@@ -100,7 +149,7 @@ function buildAdjectivalModificationBoundaryMetadata() {
         boundaries: {
             hasAdjectiveLikeWordOutputs: true,
             hasNominalizationProfileMetadata: true,
-            hasModificationAst: false,
+            hasModificationAst: true,
             hasConfirmedClauseExamples: false,
             changesAdjectiveGeneration: false,
             changesNncGeneration: false,
@@ -108,6 +157,193 @@ function buildAdjectivalModificationBoundaryMetadata() {
             treatsSingleGeneratedWordAsModificationEvidence: false,
         },
         antiConflationRules: getAdjectivalModificationAntiConflationRules(),
+    };
+}
+
+function getAdjectivalModificationSurface(input = "", fallback = "") {
+    if (typeof input === "string") {
+        return String(input || fallback || "").trim();
+    }
+    if (!input || typeof input !== "object") {
+        return String(fallback || "").trim();
+    }
+    const surfaceForms = Array.isArray(input.surfaceForms) ? input.surfaceForms : [];
+    return String(
+        input.result
+        || input.surface
+        || input.surfaceDisplay
+        || surfaceForms[0]
+        || input.word
+        || fallback
+        || ""
+    ).trim();
+}
+
+function getAdjectivalModificationFormulaSlots(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    return input.formulaSlots
+        || input.clauseFrame?.formulaSlots
+        || input.nncBasic?.formulaSlots
+        || input.nuclearClauseShell?.formulaSlots
+        || input.adjectivalNncFunctionFrame?.sourceFormulaSlots
+        || null;
+}
+
+function getAdjectivalModificationFormulaEcho(input = null) {
+    if (!input || typeof input !== "object") {
+        return "";
+    }
+    return String(
+        input.formulaEcho
+        || input.clauseFrame?.formulaEcho
+        || input.nncBasic?.formulaEcho
+        || input.nuclearClauseShell?.formulaEcho
+        || input.adjectivalNncFunctionFrame?.sourceFormulaEcho
+        || ""
+    );
+}
+
+function buildAdjectivalModificationClauseNode(input = "", role = "unknown", fallbackSurface = "") {
+    const surface = getAdjectivalModificationSurface(input, fallbackSurface);
+    const formulaSlots = getAdjectivalModificationFormulaSlots(input);
+    return {
+        kind: "adjectival-modification-clause-node",
+        role: String(role || "unknown"),
+        surface,
+        clauseKind: typeof input === "object" && input
+            ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown")
+            : "unknown",
+        formulaSlots,
+        formulaEcho: getAdjectivalModificationFormulaEcho(input),
+        sourceOutputKind: typeof input === "object" && input ? String(input.outputKind || "") : "",
+        preservesSurface: true,
+    };
+}
+
+function buildAdjectivalModificationSurfaceSequence({
+    headSurface = "",
+    modifierSurface = "",
+    order = ADJECTIVAL_MODIFICATION_ORDER.headModifier,
+    marker = "",
+} = {}) {
+    const head = String(headSurface || "").trim();
+    const modifier = String(modifierSurface || "").trim();
+    const markerText = String(marker || "").trim();
+    switch (order) {
+        case ADJECTIVAL_MODIFICATION_ORDER.headMarkedModifier:
+            return [head, markerText, modifier].filter(Boolean);
+        case ADJECTIVAL_MODIFICATION_ORDER.modifierHeadPreposed:
+            return [modifier, head].filter(Boolean);
+        case ADJECTIVAL_MODIFICATION_ORDER.markedModifierHeadAdjoined:
+            return [markerText, modifier, head].filter(Boolean);
+        case ADJECTIVAL_MODIFICATION_ORDER.discontinuous:
+            return [head, "...", modifier].filter(Boolean);
+        case ADJECTIVAL_MODIFICATION_ORDER.headModifier:
+        default:
+            return [head, modifier].filter(Boolean);
+    }
+}
+
+function buildAdjectivalModificationAst({
+    head = "",
+    modifier = "",
+    headSurface = "",
+    modifierSurface = "",
+    order = ADJECTIVAL_MODIFICATION_ORDER.headModifier,
+    marker = "",
+    scope = ADJECTIVAL_MODIFICATION_SCOPE.standalone,
+    relation = ADJECTIVAL_MODIFICATION_RELATION.attributiveModifier,
+    linkRole = ADJECTIVAL_MODIFICATION_LINK_ROLE.sharedSubject,
+    evidenceSource = "",
+    confirmed = false,
+} = {}) {
+    const normalizedOrder = normalizeAdjectivalModificationOrder(order);
+    const normalizedScope = normalizeAdjectivalModificationScope(scope);
+    const normalizedRelation = normalizeAdjectivalModificationRelation(relation);
+    const normalizedLinkRole = normalizeAdjectivalModificationLinkRole(linkRole);
+    const headNode = buildAdjectivalModificationClauseNode(head, "head", headSurface);
+    const modifierNode = buildAdjectivalModificationClauseNode(modifier, "modifier", modifierSurface);
+    const markerText = String(marker || "").trim();
+    const diagnostics = [];
+    if (!headNode.surface) {
+        diagnostics.push("adjectival-modification-requires-head-surface");
+    }
+    if (!modifierNode.surface) {
+        diagnostics.push("adjectival-modification-requires-modifier-surface");
+    }
+    if (normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.unknown) {
+        diagnostics.push("adjectival-modification-unknown-order");
+    }
+    if (
+        (normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.headMarkedModifier
+            || normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.markedModifierHeadAdjoined)
+        && !markerText
+    ) {
+        diagnostics.push("adjectival-modification-marked-order-requires-marker");
+    }
+    if (
+        normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.markedModifierHeadAdjoined
+        && normalizedScope === ADJECTIVAL_MODIFICATION_SCOPE.standalone
+    ) {
+        diagnostics.push("adjectival-modification-marked-preposed-unit-requires-adjoined-scope");
+    }
+    if (normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.modifierHeadPreposed) {
+        diagnostics.push("adjectival-modification-preposed-modifier-is-not-topic");
+    }
+    if (!String(evidenceSource || "").trim()) {
+        diagnostics.push("adjectival-modification-needs-nawat-clause-evidence");
+    }
+    const supported = Boolean(headNode.surface && modifierNode.surface && normalizedOrder !== ADJECTIVAL_MODIFICATION_ORDER.unknown);
+    const surfaceSequence = supported
+        ? buildAdjectivalModificationSurfaceSequence({
+            headSurface: headNode.surface,
+            modifierSurface: modifierNode.surface,
+            order: normalizedOrder,
+            marker: markerText,
+        })
+        : [];
+    return {
+        kind: "adjectival-modification-ast",
+        version: ADJECTIVAL_MODIFICATION_BOUNDARY_VERSION,
+        lessons: [42, 43],
+        structuralSource: "Andrews Lessons 42-43",
+        targetAuthority: "Nawat/Pipil generated outputs supplied to this builder",
+        supported,
+        confirmed: confirmed === true && Boolean(String(evidenceSource || "").trim()),
+        relation: normalizedRelation,
+        order: normalizedOrder,
+        scope: normalizedScope,
+        marker: markerText,
+        head: headNode,
+        modifier: modifierNode,
+        link: {
+            role: normalizedLinkRole,
+            mechanism: "shared-referent affixal pronoun alignment",
+            requiresAgreementEvidence: true,
+        },
+        transformations: {
+            isPreposed: normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.modifierHeadPreposed
+                || normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.markedModifierHeadAdjoined,
+            isMarked: Boolean(markerText),
+            isDiscontinuous: normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.discontinuous,
+            isTopic: false,
+        },
+        ambiguity: {
+            withSupplementation: normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.headModifier
+                || normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.headMarkedModifier
+                || normalizedOrder === ADJECTIVAL_MODIFICATION_ORDER.modifierHeadPreposed,
+            diagnostics: ["adjectival-modification-supplementation-ambiguity-possible"],
+        },
+        surfaceSequence,
+        surface: surfaceSequence.join(" "),
+        evidenceSource: String(evidenceSource || ""),
+        changesNawatSurfaceForms: false,
+        newWordGenerationAllowed: false,
+        generationAllowed: false,
+        diagnostics,
+        boundary: buildAdjectivalModificationBoundaryMetadata(),
     };
 }
 

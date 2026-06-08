@@ -2081,6 +2081,15 @@ function run(ctx) {
         "legacy adverb tense remains outside the nawat rail",
         ctx.getTenseOrderForMode(ctx.TENSE_MODE.adverbio).includes("pasado-remoto-adverbio-activo")
     );
+    s.ok(
+        "present/preterit/future agentive NNC routes are exposed only in sustantivo mode",
+        ctx.getTenseOrderForMode(ctx.TENSE_MODE.sustantivo).includes("agentivo-presente")
+            && ctx.getTenseOrderForMode(ctx.TENSE_MODE.sustantivo).includes("agentivo-preterito")
+            && ctx.getTenseOrderForMode(ctx.TENSE_MODE.sustantivo).includes("agentivo-futuro")
+            && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-presente")
+            && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-preterito")
+            && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-futuro")
+    );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
     s.eq("direct active preterit route resolves legacy tense", directPreteritRoute.legacyTenseValue, "adjetivo-preterito");
     s.ok(

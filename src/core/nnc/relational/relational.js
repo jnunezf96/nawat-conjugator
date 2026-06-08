@@ -37,6 +37,36 @@ const RELATIONAL_NNC_FALSE_POSITIVE_SOURCE = Object.freeze({
     unknown: "unknown",
 });
 
+const RELATIONAL_NNC_OPTION_GROUP = Object.freeze({
+    optionOneOnly: "option-one-only",
+    optionTwoOnly: "option-two-only",
+    optionsOneTwo: "options-one-two",
+    optionsOneThree: "options-one-three",
+    optionsOneTwoThree: "options-one-two-three",
+    unknown: "unknown",
+});
+
+const RELATIONAL_NNC_STEM_POSITION = Object.freeze({
+    simplePredicateStem: "simple-stem-predicate",
+    integratedMatrix: "integrated-matrix",
+    linkedMatrix: "linked-matrix",
+    compoundEmbed: "compound-embed",
+    unknown: "unknown",
+});
+
+const RELATIONAL_NNC_SOURCE_STATE = Object.freeze({
+    absolutive: "absolutive",
+    possessive: "possessive",
+    unknown: "unknown",
+});
+
+const RELATIONAL_NNC_SOURCE_VOICE = Object.freeze({
+    active: "active",
+    passive: "passive",
+    impersonal: "impersonal",
+    unknown: "unknown",
+});
+
 const RELATIONAL_NNC_ANTI_CONFLATION_RULES = Object.freeze([
     "relational NNC boundary metadata is not generation",
     "ordinary NNC fixtures are not relational NNC fixture evidence",
@@ -109,6 +139,106 @@ function normalizeRelationalNncFalsePositiveSource(value = "") {
     );
 }
 
+function normalizeRelationalNncOptionGroup(value = "") {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+    const aliases = {
+        "1": RELATIONAL_NNC_OPTION_GROUP.optionOneOnly,
+        "one-only": RELATIONAL_NNC_OPTION_GROUP.optionOneOnly,
+        "option-1-only": RELATIONAL_NNC_OPTION_GROUP.optionOneOnly,
+        "2": RELATIONAL_NNC_OPTION_GROUP.optionTwoOnly,
+        "two-only": RELATIONAL_NNC_OPTION_GROUP.optionTwoOnly,
+        "option-2-only": RELATIONAL_NNC_OPTION_GROUP.optionTwoOnly,
+        "1-2": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwo,
+        "one-two": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwo,
+        "options-1-2": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwo,
+        "1-3": RELATIONAL_NNC_OPTION_GROUP.optionsOneThree,
+        "one-three": RELATIONAL_NNC_OPTION_GROUP.optionsOneThree,
+        "options-1-3": RELATIONAL_NNC_OPTION_GROUP.optionsOneThree,
+        "1-2-3": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwoThree,
+        "one-two-three": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwoThree,
+        "options-1-2-3": RELATIONAL_NNC_OPTION_GROUP.optionsOneTwoThree,
+    };
+    return aliases[normalized] || normalizeRelationalNncEnum(
+        normalized,
+        Object.values(RELATIONAL_NNC_OPTION_GROUP),
+        RELATIONAL_NNC_OPTION_GROUP.unknown
+    );
+}
+
+function normalizeRelationalNncStemPosition(value = "") {
+    return normalizeRelationalNncEnum(
+        value,
+        Object.values(RELATIONAL_NNC_STEM_POSITION),
+        RELATIONAL_NNC_STEM_POSITION.unknown
+    );
+}
+
+function normalizeRelationalNncSourceState(value = "") {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+    const aliases = {
+        absolute: RELATIONAL_NNC_SOURCE_STATE.absolutive,
+        absolutive: RELATIONAL_NNC_SOURCE_STATE.absolutive,
+        absolutivo: RELATIONAL_NNC_SOURCE_STATE.absolutive,
+        possessive: RELATIONAL_NNC_SOURCE_STATE.possessive,
+        possessed: RELATIONAL_NNC_SOURCE_STATE.possessive,
+        posesivo: RELATIONAL_NNC_SOURCE_STATE.possessive,
+    };
+    return aliases[normalized] || normalizeRelationalNncEnum(
+        normalized,
+        Object.values(RELATIONAL_NNC_SOURCE_STATE),
+        RELATIONAL_NNC_SOURCE_STATE.unknown
+    );
+}
+
+function normalizeRelationalNncSourceVoice(value = "") {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+    const aliases = {
+        active: RELATIONAL_NNC_SOURCE_VOICE.active,
+        activa: RELATIONAL_NNC_SOURCE_VOICE.active,
+        activo: RELATIONAL_NNC_SOURCE_VOICE.active,
+        passive: RELATIONAL_NNC_SOURCE_VOICE.passive,
+        pasiva: RELATIONAL_NNC_SOURCE_VOICE.passive,
+        pasivo: RELATIONAL_NNC_SOURCE_VOICE.passive,
+        impersonal: RELATIONAL_NNC_SOURCE_VOICE.impersonal,
+    };
+    return aliases[normalized] || normalizeRelationalNncEnum(
+        normalized,
+        Object.values(RELATIONAL_NNC_SOURCE_VOICE),
+        RELATIONAL_NNC_SOURCE_VOICE.unknown
+    );
+}
+
+function getRelationalNncAllowedStatesForOption(relationalOption = "") {
+    const normalizedOption = normalizeRelationalNncOption(relationalOption);
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionOne) {
+        return [RELATIONAL_NNC_SOURCE_STATE.possessive];
+    }
+    if (
+        normalizedOption === RELATIONAL_NNC_OPTION.optionTwo
+        || normalizedOption === RELATIONAL_NNC_OPTION.optionThree
+    ) {
+        return [RELATIONAL_NNC_SOURCE_STATE.absolutive, RELATIONAL_NNC_SOURCE_STATE.possessive];
+    }
+    return [RELATIONAL_NNC_SOURCE_STATE.unknown];
+}
+
+function getDefaultRelationalNncStemPosition(relationalOption = "") {
+    const normalizedOption = normalizeRelationalNncOption(relationalOption);
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionOne) {
+        return RELATIONAL_NNC_STEM_POSITION.simplePredicateStem;
+    }
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionTwo) {
+        return RELATIONAL_NNC_STEM_POSITION.integratedMatrix;
+    }
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionThree) {
+        return RELATIONAL_NNC_STEM_POSITION.linkedMatrix;
+    }
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionFour) {
+        return RELATIONAL_NNC_STEM_POSITION.compoundEmbed;
+    }
+    return RELATIONAL_NNC_STEM_POSITION.unknown;
+}
+
 function getRelationalNncAntiConflationRules() {
     return Array.from(RELATIONAL_NNC_ANTI_CONFLATION_RULES);
 }
@@ -130,6 +260,7 @@ function buildRelationalNncBoundaryMetadata() {
         structuralQuestions: getRelationalNncStructuralQuestions(),
         boundaries: {
             hasOrdinaryNncGeneration: true,
+            hasRelationalNncUsageFrame: true,
             hasRelationalNncGeneration: false,
             hasStaticRelationalData: false,
             hasConfirmedFixtureData: false,
@@ -194,5 +325,123 @@ function classifyRelationalNncFalsePositive(source = "") {
         generationAllowed: false,
         diagnostics: ["relational-nnc-false-positive-source"],
         antiConflationRules: getRelationalNncAntiConflationRules(),
+    };
+}
+
+function buildRelationalNncUsageFrame({
+    candidate = "",
+    relationalStem = "",
+    relationalKind = "",
+    relationalOption = "",
+    optionGroup = "",
+    stemPosition = "",
+    sourceState = "",
+    governedArgument = "",
+    evidenceSource = "",
+    sourceKind = "",
+    sourceVoice = "",
+    sourceTense = "",
+    sourceSubject = "",
+    possessorPrefix = "",
+    matrixStem = "",
+    embeddedStem = "",
+    connective = "",
+    translationLabel = "",
+} = {}) {
+    const normalizedOption = normalizeRelationalNncOption(relationalOption);
+    const normalizedKind = normalizeRelationalNncKind(relationalKind);
+    const normalizedOptionGroup = normalizeRelationalNncOptionGroup(optionGroup);
+    const normalizedSourceState = normalizeRelationalNncSourceState(sourceState);
+    const normalizedSourceVoice = normalizeRelationalNncSourceVoice(sourceVoice);
+    const defaultStemPosition = getDefaultRelationalNncStemPosition(normalizedOption);
+    const normalizedStemPosition = normalizeRelationalNncStemPosition(stemPosition) === RELATIONAL_NNC_STEM_POSITION.unknown
+        ? defaultStemPosition
+        : normalizeRelationalNncStemPosition(stemPosition);
+    const allowedStates = getRelationalNncAllowedStatesForOption(normalizedOption);
+    const diagnostics = ["relational-nnc-usage-frame-non-generative"];
+    let supported = true;
+
+    if (
+        normalizedSourceState !== RELATIONAL_NNC_SOURCE_STATE.unknown
+        && !allowedStates.includes(normalizedSourceState)
+    ) {
+        supported = false;
+        if (normalizedOption === RELATIONAL_NNC_OPTION.optionOne) {
+            diagnostics.push("relational-nnc-option-one-requires-possessive-state");
+        } else {
+            diagnostics.push("relational-nnc-source-state-not-allowed-for-option");
+        }
+    }
+
+    if (normalizedOption === RELATIONAL_NNC_OPTION.optionOne) {
+        diagnostics.push("relational-nnc-option-one-supplementary-possessor-only");
+    }
+
+    if (
+        normalizedOption === RELATIONAL_NNC_OPTION.optionTwo
+        && normalizedSourceVoice === RELATIONAL_NNC_SOURCE_VOICE.impersonal
+        && normalizedSourceState === RELATIONAL_NNC_SOURCE_STATE.possessive
+    ) {
+        supported = false;
+        diagnostics.push("relational-nnc-impersonal-source-requires-absolutive-state");
+    }
+
+    if (String(translationLabel || "").trim()) {
+        diagnostics.push("relational-nnc-translation-label-is-not-morphology");
+    }
+
+    const sourceSubjectText = String(sourceSubject || "").trim();
+    const sourceMapping = {
+        sourceVoice: normalizedSourceVoice,
+        sourceTense: String(sourceTense || ""),
+        sourceSubject: sourceSubjectText,
+        possessorPrefix: String(possessorPrefix || ""),
+        possessorFromSourceSubject:
+            normalizedOption === RELATIONAL_NNC_OPTION.optionTwo
+            && normalizedSourceVoice !== RELATIONAL_NNC_SOURCE_VOICE.impersonal
+            && Boolean(sourceSubjectText),
+        stateRule:
+            normalizedOption === RELATIONAL_NNC_OPTION.optionTwo
+            && normalizedSourceVoice === RELATIONAL_NNC_SOURCE_VOICE.impersonal
+                ? "impersonal-source-absolutive-only"
+                : "",
+    };
+
+    return {
+        kind: "relational-nnc-usage-frame",
+        version: RELATIONAL_NNC_BOUNDARY_VERSION,
+        lessonRange: "45-47",
+        structuralSource: "Andrews Lessons 45.2-46",
+        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        candidate: String(candidate || ""),
+        relationalStem: String(relationalStem || ""),
+        relationalKind: normalizedKind,
+        relationalOption: normalizedOption,
+        optionGroup: normalizedOptionGroup,
+        stemPosition: normalizedStemPosition,
+        sourceState: normalizedSourceState,
+        allowedStates,
+        governedArgument: String(governedArgument || ""),
+        matrixStem: String(matrixStem || ""),
+        embeddedStem: String(embeddedStem || ""),
+        connective: String(connective || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceKind: String(sourceKind || ""),
+        sourceMapping,
+        supplementaryPossessorOnly: normalizedOption === RELATIONAL_NNC_OPTION.optionOne,
+        supported,
+        generationAllowed: false,
+        generationContract: {
+            frameGeneratesSurface: false,
+            changesSurfaceForms: false,
+            newWordGenerationAllowed: false,
+        },
+        translationWarning: {
+            labelsAreMorphology: false,
+            translationLabel: String(translationLabel || ""),
+            warning: "preposition and conjunction labels are translation-only unless Nawat/Pipil morphology is evidenced",
+        },
+        diagnostics,
+        boundary: buildRelationalNncBoundaryMetadata(),
     };
 }

@@ -280,7 +280,7 @@ export const LESSON_REGISTRY = [
         status: "partially-implemented",
         engineDependencies: ["core/nnc", "core/nnc/nominalization", "core/derivation"],
         exampleVerbs: [],
-        notes: "Generated nominal surfaces and diagnostic nominalization boundary metadata exist; ownerhood/general-use stem generation remains incomplete",
+        notes: "Generated nominal surfaces and diagnostic nominalization boundary metadata exist; preterit-agentive general-use, ownerhood, adverbial, incorporated-complement, and ordinary nounstem ownerhood continuations are partial",
     },
     {
         id: 36,
@@ -288,7 +288,7 @@ export const LESSON_REGISTRY = [
         status: "partially-implemented",
         engineDependencies: ["core/nnc", "core/nnc/nominalization", "core/derivation"],
         exampleVerbs: [],
-        notes: "Agentive, patientive, instrumentive, and action-like nominal surfaces are partial with category metadata",
+        notes: "Agentive, patientive, instrumentive, and action-like nominal surfaces are partial with category metadata; first Andrews 36.3 customary-agentive nominal/VNC compound continuations reach #3 salida",
     },
     {
         id: 37,

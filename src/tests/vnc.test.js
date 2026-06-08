@@ -189,6 +189,15 @@ function run(ctx) {
     const resetNominalSubject = ctx.resetSubjectForNounTenses("agentivo", {}, "ni", "t");
     s.eq("resetSubjectForNounTenses clears nominal subject prefix", resetNominalSubject.subjectPrefix, "");
     s.eq("resetSubjectForNounTenses clears nominal subject suffix", resetNominalSubject.subjectSuffix, "");
+    const resetPresentAgentivoSubject = ctx.resetSubjectForNounTenses("agentivo-presente", {}, "ni", "t");
+    s.eq("resetSubjectForNounTenses clears present-agentive subject prefix", resetPresentAgentivoSubject.subjectPrefix, "");
+    s.eq("resetSubjectForNounTenses clears present-agentive subject suffix", resetPresentAgentivoSubject.subjectSuffix, "");
+    const resetPreteritAgentivoSubject = ctx.resetSubjectForNounTenses("agentivo-preterito", {}, "ni", "t");
+    s.eq("resetSubjectForNounTenses clears preterit-agentive subject prefix", resetPreteritAgentivoSubject.subjectPrefix, "");
+    s.eq("resetSubjectForNounTenses clears preterit-agentive subject suffix", resetPreteritAgentivoSubject.subjectSuffix, "");
+    const resetFutureAgentivoSubject = ctx.resetSubjectForNounTenses("agentivo-futuro", {}, "ni", "t");
+    s.eq("resetSubjectForNounTenses clears future-agentive subject prefix", resetFutureAgentivoSubject.subjectPrefix, "");
+    s.eq("resetSubjectForNounTenses clears future-agentive subject suffix", resetFutureAgentivoSubject.subjectSuffix, "");
 
     let clearedTarget = "";
     const reflexiveSwitch = ctx.applyReflexiveAutoSwitch({

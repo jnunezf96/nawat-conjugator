@@ -447,7 +447,6 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
     function realizePatientivoImperfectiveSourceChainStem(stem = "", chain = null) {
       return realizeSourceChainStemByPolicy(stem, chain, PATIENTIVO_IMPERFECTIVE_SOURCE_CHAIN_POLICY);
     }
-    const PATIENTIVO_PRELOCATIVE_SOURCE_TENSES = Object.freeze(["imperfecto", "pasado-remoto"]);
     const DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT = "tajtani";
     const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([Object.freeze({
       id: "tla-itta",
@@ -564,6 +563,156 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       status: "nawat-data-backed",
       evidence: ["data/static_nnc.json: kal", "data/basic-data.csv: kal", "Andrews 37.5.4"]
     })]);
+    const DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT;
+    const DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT;
+    const DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT = "tuka";
+    const DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT;
+    const DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT = "wa";
+    const DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT = "mati";
+    const DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT = "nemi";
+    const CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([Object.freeze({
+      id: "toca-incorporated-complement",
+      classicalMatrix: "(toca)",
+      nawatRoot: "tuka",
+      grammarSource: "Andrews 36.3",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "consider as the embedded fully nominalized customary-agentive entity",
+      evidence: ["Andrews 36.3: fully nominalized customary-present agentive stems can fill compound embed position", "data/basic-data.csv/data.csv: -tuka"]
+    })]);
+    const PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS = Object.freeze([Object.freeze({
+      id: "tla-hua-ownerhood",
+      classicalMatrix: "*tla-(-hua)",
+      nawatRoot: "wa",
+      surfaceMatrix: "waj",
+      ownerhoodKind: "ownerhood",
+      grammarSource: "Andrews 35.9",
+      status: "andrews-authoritative-nawat-matrix-evidence",
+      matrixValency: "transitive",
+      label: "ownerhood matrix",
+      evidence: ["Andrews 35.9: general-use preterit-agentive stems incorporate into *tla-(-hua)", "data/basic-data.csv: ashkawajkati"]
+    }), Object.freeze({
+      id: "tla-yo-a-abundant-ownerhood",
+      classicalMatrix: "*tla-(-yo-a)",
+      nawatRoot: "yua",
+      surfaceMatrix: "yuj",
+      ownerhoodKind: "abundant-ownerhood",
+      grammarSource: "Andrews 35.10",
+      status: "andrews-authoritative-nawat-matrix-evidence",
+      matrixValency: "transitive",
+      label: "abundant ownerhood matrix",
+      evidence: ["Andrews 35.10: abundant ownerhood uses *tla-(-yo-a)", "data/basic-data.csv: shuchiyua/shuchiyuj"]
+    })]);
+    const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([Object.freeze({
+      id: "te-tlalia",
+      classicalMatrix: "te-(tlal-i-a)",
+      nawatRoot: "talia",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "establish as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv: -talia"]
+    }), Object.freeze({
+      id: "te-cahua",
+      classicalMatrix: "te-(cahua)",
+      nawatRoot: "kawa",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "leave as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv/data.csv: -kawa"]
+    }), Object.freeze({
+      id: "te-pehpena",
+      classicalMatrix: "te-(peh-pena)",
+      nawatRoot: "pejpena",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "choose as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv/data.csv: -pejpena"]
+    }), Object.freeze({
+      id: "te-tla-mati",
+      classicalMatrix: "te- ~ tla-(mati)",
+      nawatRoot: "mati",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "consider as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv/data.csv: -mati"]
+    }), Object.freeze({
+      id: "te-toca",
+      classicalMatrix: "te- ~ tla-(toca)",
+      nawatRoot: "tuka",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "treat as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv/data.csv: -tuka"]
+    }), Object.freeze({
+      id: "te-nehnequi",
+      classicalMatrix: "te- ~ tla-(neh-nequi)",
+      nawatRoot: "nejneki",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "transitive",
+      objectPrefix: "ki",
+      label: "pretend as the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: incorporated-complement VNC", "data/basic-data.csv: -nejneki"]
+    })]);
+    const PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS = Object.freeze([Object.freeze({
+      id: "nemi-adverbial-manner",
+      classicalMatrix: "(nemi)",
+      nawatRoot: "nemi",
+      grammarSource: "Andrews 35.12",
+      status: "andrews-authoritative-nawat-data-backed",
+      matrixValency: "intransitive",
+      adverbialFocus: "subject",
+      label: "live/go in the manner of the embedded preterit-agentive entity",
+      evidence: ["Andrews 35.12: preterit-agentive nounstem as incorporated adverb of manner", "data/basic-data.csv: tamatkanemi"]
+    })]);
+    const ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS = Object.freeze([Object.freeze({
+      id: "tla-e-ownerhood",
+      classicalMatrix: "*tla-(-e)",
+      nawatRoot: "e",
+      surfaceMatrix: "ej",
+      ownerhoodKind: "ownerhood",
+      grammarSource: "Andrews 35.9",
+      status: "andrews-authoritative-nawat-orthography",
+      matrixValency: "transitive",
+      defaultForNounClasses: ["t"],
+      label: "ownerhood matrix for compatible t-class nouns",
+      evidence: ["Andrews 35.9: *tla-(-e) incorporates tli-class nounstems", "Nawat preterit engine: (tupil)-(e) -> tupilejka"]
+    }), Object.freeze({
+      id: "tla-hua-ownerhood",
+      classicalMatrix: "*tla-(-hua)",
+      nawatRoot: "wa",
+      surfaceMatrix: "waj",
+      ownerhoodKind: "ownerhood",
+      grammarSource: "Andrews 35.9",
+      status: "andrews-authoritative-nawat-orthography",
+      matrixValency: "transitive",
+      defaultForNounClasses: ["in", "zero"],
+      label: "ownerhood matrix for compatible in/zero-class nouns",
+      evidence: ["Andrews 35.9: *tla-(-hua) incorporates in and zero nounstems", "data/basic-data.csv: ashkawajkati"]
+    }), Object.freeze({
+      id: "tla-yo-a-abundant-ownerhood",
+      classicalMatrix: "*tla-(-yo-a)",
+      nawatRoot: "yua",
+      surfaceMatrix: "yuj",
+      ownerhoodKind: "abundant-ownerhood",
+      grammarSource: "Andrews 35.10",
+      status: "andrews-authoritative-nawat-orthography",
+      matrixValency: "transitive",
+      defaultForNounClasses: ["t", "ti", "in", "zero"],
+      label: "abundant ownerhood matrix",
+      evidence: ["Andrews 35.10: abundant ownerhood uses *tla-(-yo-a)", "data/basic-data.csv: shuchiyua/shuchiyuj"]
+    })]);
     function getPatientivoPrelocativeMatrixInventory() {
       return PATIENTIVO_PRELOCATIVE_MATRIX_SPECS.map(entry => ({
         ...entry
@@ -612,6 +761,49 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
     }
     function getActiveActionNominalCompoundMatrixInventory() {
       return ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS.map(entry => ({
+        ...entry
+      }));
+    }
+    function getPreteritAgentiveCompoundEmbedMatrixInventory() {
+      return ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_SPECS.map(entry => ({
+        ...entry,
+        grammarSource: "Andrews 35.7"
+      }));
+    }
+    function getPreteritAgentiveNominalCompoundMatrixInventory() {
+      return ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS.map(entry => ({
+        ...entry,
+        grammarSource: "Andrews 35.7"
+      }));
+    }
+    function getCustomaryAgentiveCompoundEmbedMatrixInventory() {
+      return CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS.map(entry => ({
+        ...entry
+      }));
+    }
+    function getCustomaryAgentiveNominalCompoundMatrixInventory() {
+      return ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS.map(entry => ({
+        ...entry,
+        grammarSource: "Andrews 36.3"
+      }));
+    }
+    function getPreteritAgentiveOwnerhoodMatrixInventory() {
+      return PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS.map(entry => ({
+        ...entry
+      }));
+    }
+    function getPreteritAgentiveComplementMatrixInventory() {
+      return PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS.map(entry => ({
+        ...entry
+      }));
+    }
+    function getPreteritAgentiveAdverbialMatrixInventory() {
+      return PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS.map(entry => ({
+        ...entry
+      }));
+    }
+    function getOrdinaryNounOwnerhoodMatrixInventory() {
+      return ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS.map(entry => ({
         ...entry
       }));
     }
@@ -707,6 +899,174 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics: ["active-action-nominal-compound-unsupported-matrix"]
       };
     }
+    function resolvePreteritAgentiveCompoundEmbedMatrixSpec(matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT) {
+      const resolved = resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot);
+      return resolved.supported ? {
+        ...resolved,
+        grammarSource: "Andrews 35.7"
+      } : {
+        ...resolved,
+        diagnostics: (resolved.diagnostics || []).map(diagnostic => diagnostic === "active-action-compound-embed-unsupported-matrix" ? "preterit-agentive-compound-embed-unsupported-matrix" : diagnostic)
+      };
+    }
+    function resolvePreteritAgentiveNominalCompoundMatrixSpec(matrixRoot = DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT) {
+      const resolved = resolveActiveActionNominalCompoundMatrixSpec(matrixRoot);
+      return resolved.supported ? {
+        ...resolved,
+        grammarSource: "Andrews 35.7"
+      } : {
+        ...resolved,
+        diagnostics: (resolved.diagnostics || []).map(diagnostic => diagnostic === "active-action-nominal-compound-unsupported-matrix" ? "preterit-agentive-nominal-compound-unsupported-matrix" : diagnostic)
+      };
+    }
+    function resolveCustomaryAgentiveCompoundEmbedMatrixSpec(matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT) {
+      const normalizedRoot = String(matrixRoot || DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT).trim().toLowerCase() || DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT;
+      const spec = CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS.find(entry => entry.nawatRoot === normalizedRoot || entry.id === normalizedRoot || entry.classicalMatrix === normalizedRoot);
+      return spec ? {
+        ...spec,
+        supported: true,
+        diagnostics: []
+      } : {
+        id: "",
+        classicalMatrix: "",
+        nawatRoot: normalizedRoot,
+        grammarSource: "",
+        status: "unsupported",
+        matrixValency: "",
+        objectPrefix: "",
+        label: "",
+        supported: false,
+        diagnostics: ["customary-agentive-compound-embed-unsupported-matrix"]
+      };
+    }
+    function resolveCustomaryAgentiveNominalCompoundMatrixSpec(matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT) {
+      const resolved = resolveActiveActionNominalCompoundMatrixSpec(matrixRoot);
+      return resolved.supported ? {
+        ...resolved,
+        grammarSource: "Andrews 36.3"
+      } : {
+        ...resolved,
+        diagnostics: (resolved.diagnostics || []).map(diagnostic => diagnostic === "active-action-nominal-compound-unsupported-matrix" ? "customary-agentive-nominal-compound-unsupported-matrix" : diagnostic)
+      };
+    }
+    function resolvePreteritAgentiveOwnerhoodMatrixSpec(matrixRoot = DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT) {
+      const normalizedRoot = String(matrixRoot || DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT).trim().toLowerCase() || DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT;
+      const spec = PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS.find(entry => entry.nawatRoot === normalizedRoot || entry.surfaceMatrix === normalizedRoot || entry.id === normalizedRoot);
+      return spec ? {
+        ...spec,
+        supported: true,
+        diagnostics: []
+      } : {
+        id: "",
+        classicalMatrix: "",
+        nawatRoot: normalizedRoot,
+        surfaceMatrix: "",
+        ownerhoodKind: "",
+        grammarSource: "",
+        status: "unsupported",
+        matrixValency: "",
+        label: "",
+        supported: false,
+        diagnostics: ["preterit-agentive-ownerhood-unsupported-matrix"]
+      };
+    }
+    function resolvePreteritAgentiveComplementMatrixSpec(matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT) {
+      const normalizedRoot = String(matrixRoot || DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT).trim().toLowerCase() || DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT;
+      const spec = PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS.find(entry => entry.nawatRoot === normalizedRoot || entry.id === normalizedRoot || entry.classicalMatrix === normalizedRoot);
+      return spec ? {
+        ...spec,
+        supported: true,
+        diagnostics: []
+      } : {
+        id: "",
+        classicalMatrix: "",
+        nawatRoot: normalizedRoot,
+        grammarSource: "",
+        status: "unsupported",
+        matrixValency: "",
+        objectPrefix: "",
+        label: "",
+        supported: false,
+        diagnostics: ["preterit-agentive-complement-unsupported-matrix"]
+      };
+    }
+    function resolvePreteritAgentiveAdverbialMatrixSpec(matrixRoot = DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT) {
+      const normalizedRoot = String(matrixRoot || DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT).trim().toLowerCase() || DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT;
+      const spec = PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS.find(entry => entry.nawatRoot === normalizedRoot || entry.id === normalizedRoot || entry.classicalMatrix === normalizedRoot);
+      return spec ? {
+        ...spec,
+        supported: true,
+        diagnostics: []
+      } : {
+        id: "",
+        classicalMatrix: "",
+        nawatRoot: normalizedRoot,
+        grammarSource: "",
+        status: "unsupported",
+        matrixValency: "",
+        adverbialFocus: "",
+        label: "",
+        supported: false,
+        diagnostics: ["preterit-agentive-adverbial-unsupported-matrix"]
+      };
+    }
+    function normalizeOrdinaryNounOwnerhoodNounClass(nounClass = "") {
+      const normalized = String(nounClass || "").trim().toLowerCase();
+      if (normalized === "0" || normalized === "ø") {
+        return "zero";
+      }
+      return ["t", "ti", "in", "zero"].includes(normalized) ? normalized : "";
+    }
+    function resolveOrdinaryNounOwnerhoodMatrixSpec(matrixRoot = "") {
+      const normalizedRoot = String(matrixRoot || "").trim().toLowerCase();
+      const spec = ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS.find(entry => entry.nawatRoot === normalizedRoot || entry.surfaceMatrix === normalizedRoot || entry.id === normalizedRoot);
+      return spec ? {
+        ...spec,
+        supported: true,
+        diagnostics: []
+      } : {
+        id: "",
+        classicalMatrix: "",
+        nawatRoot: normalizedRoot,
+        surfaceMatrix: "",
+        ownerhoodKind: "",
+        grammarSource: "",
+        status: "unsupported",
+        matrixValency: "",
+        defaultForNounClasses: [],
+        label: "",
+        supported: false,
+        diagnostics: ["ordinary-noun-ownerhood-unsupported-matrix"]
+      };
+    }
+    function resolveOrdinaryNounOwnerhoodDefaultMatrixRoot({
+      nounClass = "",
+      ownerhoodKind = "ownerhood"
+    } = {}) {
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const normalizedKind = String(ownerhoodKind || "ownerhood").trim();
+      if (normalizedKind === "abundant-ownerhood") {
+        return "yua";
+      }
+      if (normalizedClass === "t") {
+        return "e";
+      }
+      if (normalizedClass === "in" || normalizedClass === "zero") {
+        return "wa";
+      }
+      return "";
+    }
+    function isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass(matrixSpec = null, nounClass = "") {
+      if (!matrixSpec || matrixSpec.supported === false) {
+        return false;
+      }
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      if (!normalizedClass) {
+        return false;
+      }
+      const defaultClasses = Array.isArray(matrixSpec.defaultForNounClasses) ? matrixSpec.defaultForNounClasses : [];
+      return defaultClasses.includes(normalizedClass);
+    }
     function buildPatientivoCompoundEmbedVerbInput({
       incorporatedRoot = "",
       matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT
@@ -719,6 +1079,47 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
+    }
+    function resolvePatientivoCompoundEmbedFormationFrame({
+      matrixSpec = null,
+      incorporatedRoot = "",
+      patientivoSurface = "",
+      sourceSurface = "",
+      compoundVerbInput = ""
+    } = {}) {
+      return {
+        kind: "patientivo-compound-embed-formation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.6",
+        compoundStemType: "verbal",
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        embed: {
+          role: "compound-embed",
+          root: String(incorporatedRoot || "").trim(),
+          source: "generated-patientive-nounstem",
+          insideStem: true
+        },
+        matrix: {
+          role: "compound-matrix",
+          type: "verbal",
+          id: String(matrixSpec?.id || "").trim(),
+          root: matrixSpec?.supported ? matrixSpec.nawatRoot : "",
+          classicalMatrix: String(matrixSpec?.classicalMatrix || ""),
+          valency: String(matrixSpec?.matrixValency || "")
+        },
+        output: {
+          kind: "compound-vnc-input",
+          verbInput: String(compoundVerbInput || "").trim()
+        },
+        evidencePolicy: {
+          matrixRequiresNawatData: true,
+          matrixDataBacked: Boolean(matrixSpec?.supported),
+          patientiveSurfaceComesFromSalida: true,
+          createsOrdinaryNncFixture: false,
+          copiesClassicalSurface: false
+        }
+      };
     }
     function buildPatientivoNominalCompoundStem({
       incorporatedRoot = "",
@@ -850,6 +1251,58 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
     }
+    function resolvePatientivoCharacteristicPropertyFormationFrame({
+      embedSource = null,
+      matrixSpec = null,
+      characteristicSurface = "",
+      sourceSurface = "",
+      compoundVerbInput = ""
+    } = {}) {
+      const sourceState = String(embedSource?.sourceState || "").trim();
+      const omittedSuffix = String(embedSource?.omittedSuffix || "").trim();
+      const objectPrefix = String(embedSource?.objectPrefix || "").trim();
+      return {
+        kind: "patientivo-characteristic-property-formation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.9",
+        sourceState,
+        sourceSurface: String(sourceSurface || "").trim(),
+        characteristicSurface: String(characteristicSurface || "").trim(),
+        omittedMatrix: {
+          classical: "(-yo)-tl",
+          nawat: omittedSuffix,
+          omissionScope: "matrix-only",
+          leavesEmbedMeaning: true
+        },
+        incorporated: {
+          role: "incorporated-object",
+          root: String(embedSource?.incorporatedRoot || "").trim(),
+          source: "generated-characteristic-property-nounstem",
+          insideVerbStem: true
+        },
+        outsideObject: {
+          role: objectPrefix ? "matrix-object" : "",
+          originRole: sourceState === "possessive" ? "possessor" : "matrix-default-object",
+          originPrefix: String(embedSource?.possessorPrefix || "").trim(),
+          prefix: objectPrefix,
+          line: String(embedSource?.objectTransfer?.objectLine || "mainline").trim(),
+          case: String(embedSource?.objectTransfer?.objectCase || "objective").trim()
+        },
+        matrix: {
+          id: String(matrixSpec?.id || "").trim(),
+          root: matrixSpec?.supported ? matrixSpec.nawatRoot : "",
+          classicalMatrix: String(matrixSpec?.classicalMatrix || ""),
+          valency: String(matrixSpec?.matrixValency || "")
+        },
+        valencePolicy: {
+          hasObjectInsideVerbStem: Boolean(embedSource?.incorporatedRoot),
+          hasObjectOutsideVerbStem: Boolean(objectPrefix),
+          possessorBecomesOutsideObject: sourceState === "possessive" && Boolean(objectPrefix),
+          doesNotPreserveYoMatrix: true
+        },
+        verbInput: String(compoundVerbInput || "").trim()
+      };
+    }
     function buildActiveActionCompoundEmbedVerbInput({
       actionNominalSurface = "",
       matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT
@@ -875,6 +1328,129 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       return `${normalizedActionNominalSurface}${normalizedMatrixRoot}`;
     }
+    function buildPreteritAgentiveCompoundEmbedVerbInput({
+      preteritAgentiveStem = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT
+    } = {}) {
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const matrixSpec = resolvePreteritAgentiveCompoundEmbedMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
+      return `${transitiveMarker}(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+    }
+    function buildPreteritAgentiveNominalCompoundStem({
+      preteritAgentiveStem = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
+    } = {}) {
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const matrixSpec = resolvePreteritAgentiveNominalCompoundMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      return `${normalizedPreteritAgentiveStem}${normalizedMatrixRoot}`;
+    }
+    function buildCustomaryAgentiveNominalCompoundStem({
+      customaryAgentiveStem = "",
+      matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
+    } = {}) {
+      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      const matrixSpec = resolveCustomaryAgentiveNominalCompoundMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedCustomaryAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      return `${normalizedCustomaryAgentiveStem}${normalizedMatrixRoot}`;
+    }
+    function buildCustomaryAgentiveCompoundEmbedVerbInput({
+      customaryAgentiveStem = "",
+      matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT
+    } = {}) {
+      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      const matrixSpec = resolveCustomaryAgentiveCompoundEmbedMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedCustomaryAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
+      return `${transitiveMarker}(${normalizedCustomaryAgentiveStem}/${normalizedMatrixRoot})`;
+    }
+    function formatPreteritAgentiveNominalCompoundOrdinaryNncInput({
+      compoundStem = "",
+      nounClass = ""
+    } = {}) {
+      return formatPatientivoNominalCompoundOrdinaryNncInput({
+        compoundStem,
+        nounClass
+      });
+    }
+    function formatCustomaryAgentiveNominalCompoundOrdinaryNncInput({
+      compoundStem = "",
+      nounClass = ""
+    } = {}) {
+      return formatPatientivoNominalCompoundOrdinaryNncInput({
+        compoundStem,
+        nounClass
+      });
+    }
+    function buildPreteritAgentiveOwnerhoodVerbInput({
+      preteritAgentiveStem = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT
+    } = {}) {
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const matrixSpec = resolvePreteritAgentiveOwnerhoodMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      return `(${normalizedPreteritAgentiveStem})-(${normalizedMatrixRoot})`;
+    }
+    function buildPreteritAgentiveComplementVerbInput({
+      preteritAgentiveStem = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT
+    } = {}) {
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const matrixSpec = resolvePreteritAgentiveComplementMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      return `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+    }
+    function buildPreteritAgentiveAdverbialVerbInput({
+      preteritAgentiveStem = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT
+    } = {}) {
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const matrixSpec = resolvePreteritAgentiveAdverbialMatrixSpec(matrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot) {
+        return "";
+      }
+      return matrixSpec.matrixValency === "transitive" ? `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})` : `(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+    }
+    function buildOrdinaryNounOwnerhoodVerbInput({
+      nounStem = "",
+      nounClass = "",
+      matrixRoot = "",
+      ownerhoodKind = "ownerhood"
+    } = {}) {
+      const normalizedNounStem = String(nounStem || "").trim();
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const resolvedMatrixRoot = String(matrixRoot || "").trim() || resolveOrdinaryNounOwnerhoodDefaultMatrixRoot({
+        nounClass: normalizedClass,
+        ownerhoodKind
+      });
+      const matrixSpec = resolveOrdinaryNounOwnerhoodMatrixSpec(resolvedMatrixRoot);
+      const normalizedMatrixRoot = matrixSpec.supported ? matrixSpec.nawatRoot : "";
+      if (!normalizedNounStem || !normalizedMatrixRoot || !isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass(matrixSpec, normalizedClass)) {
+        return "";
+      }
+      return `(${normalizedNounStem})-(${normalizedMatrixRoot})`;
+    }
     function formatActiveActionNominalCompoundOrdinaryNncInput({
       compoundStem = "",
       nounClass = ""
@@ -883,6 +1459,52 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         compoundStem,
         nounClass
       });
+    }
+    function resolvePatientivoNominalCompoundFormationFrame({
+      matrixSpec = null,
+      incorporatedRoot = "",
+      patientivoSurface = "",
+      sourceSurface = "",
+      compoundStem = "",
+      ordinaryNncInput = ""
+    } = {}) {
+      return {
+        kind: "patientivo-nominal-compound-formation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.6",
+        compoundStemType: "nominal",
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        embed: {
+          role: "compound-embed",
+          root: String(incorporatedRoot || "").trim(),
+          source: "generated-patientive-nounstem",
+          insideStem: true
+        },
+        matrix: {
+          role: "compound-matrix",
+          type: "nominal",
+          id: String(matrixSpec?.id || "").trim(),
+          root: matrixSpec?.supported ? matrixSpec.nawatRoot : "",
+          classicalMatrix: String(matrixSpec?.classicalMatrix || ""),
+          nounClass: String(matrixSpec?.nounClass || ""),
+          animacy: String(matrixSpec?.animacy || "")
+        },
+        output: {
+          kind: "ordinary-nnc-compound-input",
+          compoundStem: String(compoundStem || "").trim(),
+          ordinaryNncInput: String(ordinaryNncInput || "").trim(),
+          sourceKind: "open-stem",
+          fixtureBacked: false
+        },
+        evidencePolicy: {
+          matrixRequiresNawatData: true,
+          matrixDataBacked: Boolean(matrixSpec?.supported),
+          patientiveSurfaceComesFromSalida: true,
+          createsOrdinaryNncFixture: false,
+          copiesClassicalSurface: false
+        }
+      };
     }
     function stripPatientivoPrelocativeConnector(surface = "", {
       patientivoNominalSuffix = ""
@@ -915,6 +1537,60 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       const allowedStates = Array.isArray(matrixSpec.sourceStates) ? matrixSpec.sourceStates : [];
       return !allowedStates.length || allowedStates.includes(String(sourceState || "").trim());
+    }
+    function resolvePatientivoPrelocativeFormationFrame({
+      matrixSpec = null,
+      objectTransfer = null,
+      incorporatedRoot = "",
+      patientivoSurface = "",
+      sourceSurface = "",
+      prelocativeVerbInput = ""
+    } = {}) {
+      const sourceState = String(objectTransfer?.sourceState || "").trim();
+      const matrixId = String(matrixSpec?.id || "").trim();
+      const isPossessive = sourceState === "possessive";
+      const isStrictIncorporatedObjectMatrix = matrixId === "tla-ih-tlani" || matrixId === "tla-tem-o-a";
+      const isRareTlaniIncorporatedObjectMatrix = matrixId === "tla-tlani" && isPossessive;
+      const lessonRef = isPossessive && (isStrictIncorporatedObjectMatrix || isRareTlaniIncorporatedObjectMatrix) ? "Andrews 39.8" : "Andrews 39.7";
+      const incorporatedRole = isPossessive && (isStrictIncorporatedObjectMatrix || isRareTlaniIncorporatedObjectMatrix) ? "incorporated-object" : "object-complement";
+      const outsideObjectOriginRole = isPossessive ? "possessor" : "subject";
+      return {
+        kind: "patientivo-prelocative-formation-frame",
+        version: 1,
+        grammarSource: lessonRef,
+        sourceState,
+        sourceSurface: String(sourceSurface || "").trim(),
+        patientivoSurface: String(patientivoSurface || "").trim(),
+        incorporated: {
+          role: incorporatedRole,
+          root: String(incorporatedRoot || "").trim(),
+          source: "generated-patientive-nounstem",
+          insideVerbStem: true
+        },
+        outsideObject: {
+          role: "matrix-object",
+          originRole: outsideObjectOriginRole,
+          originPrefix: String(objectTransfer?.sourcePrefix || "").trim(),
+          originSuffix: String(objectTransfer?.sourceSuffix || "").trim(),
+          prefix: String(objectTransfer?.objectPrefix || "").trim(),
+          line: String(objectTransfer?.objectLine || "mainline").trim(),
+          case: String(objectTransfer?.objectCase || "objective").trim()
+        },
+        valencePolicy: {
+          preservesSourceValence: isPossessive,
+          possessorBecomesObjectWithoutApplicativeSuffix: isPossessive,
+          absolutiveSubjectBecomesObject: sourceState === "absolutive",
+          hasObjectInsideVerbStem: Boolean(incorporatedRoot),
+          hasObjectOutsideVerbStem: Boolean(objectTransfer?.objectPrefix)
+        },
+        matrix: {
+          id: matrixId,
+          root: matrixSpec?.supported ? matrixSpec.nawatRoot : "",
+          classicalMatrix: String(matrixSpec?.classicalMatrix || ""),
+          sourceCompatible: isPatientivoPrelocativeMatrixCompatibleWithSourceState(matrixSpec, sourceState)
+        },
+        verbInput: String(prelocativeVerbInput || "").trim()
+      };
     }
     function getPatientivoPrelocativePossessiveObjectMap(explicitMap = null) {
       if (explicitMap && typeof explicitMap === "object") {
@@ -1053,6 +1729,13 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("patientivo-characteristic-property-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const formationFrame = resolvePatientivoCharacteristicPropertyFormationFrame({
+        embedSource,
+        matrixSpec,
+        characteristicSurface: normalizedCharacteristicSurface,
+        sourceSurface,
+        compoundVerbInput
+      });
       return {
         outputKind: "patientivo-characteristic-property-embed-continuation-contract",
         grammarSource: "Andrews 39.9",
@@ -1069,6 +1752,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         compoundVerbInput,
         objectPrefix: embedSource.objectPrefix || "ki",
         objectTransfer: embedSource.objectTransfer,
+        formationFrame,
         diagnostics: uniqueDiagnostics
       };
     }
@@ -1088,16 +1772,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       const diagnostics = [];
       const normalizedPatientivoSource = String(patientivoSource || "").trim();
       const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
-      const activeMode = typeof targetObject.COMBINED_MODE !== "undefined" && targetObject.COMBINED_MODE?.active ? targetObject.COMBINED_MODE.active : "active";
-      if (normalizedPatientivoSource !== "imperfectivo") {
-        diagnostics.push("patientivo-prelocative-requires-imperfective-source");
-      }
-      if (normalizedSourceCombinedMode !== activeMode) {
-        diagnostics.push("patientivo-prelocative-requires-active-source");
-      }
-      if (!PATIENTIVO_PRELOCATIVE_SOURCE_TENSES.includes(String(sourceTenseValue || "").trim())) {
-        diagnostics.push("patientivo-prelocative-requires-imperfective-tense");
-      }
+      const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
       const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
         patientivoNominalSuffix
       });
@@ -1134,10 +1809,21 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         }
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const formationFrame = resolvePatientivoPrelocativeFormationFrame({
+        matrixSpec,
+        objectTransfer,
+        incorporatedRoot,
+        patientivoSurface,
+        sourceSurface,
+        prelocativeVerbInput
+      });
       return {
         outputKind: "patientivo-prelocative-continuation-contract",
         grammarSource: "Andrews 39.7-39.8",
         supported: uniqueDiagnostics.length === 0,
+        patientivoSource: normalizedPatientivoSource,
+        sourceTenseValue: normalizedSourceTenseValue,
+        sourceCombinedMode: normalizedSourceCombinedMode,
         sourceState: objectTransfer.sourceState,
         sourceSurface: String(sourceSurface || "").trim(),
         patientivoSurface: String(patientivoSurface || "").trim(),
@@ -1147,6 +1833,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         matrixSourceCompatible,
         prelocativeVerbInput,
         objectTransfer,
+        formationFrame,
         diagnostics: uniqueDiagnostics
       };
     }
@@ -1178,6 +1865,13 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("patientivo-compound-embed-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const formationFrame = resolvePatientivoCompoundEmbedFormationFrame({
+        matrixSpec,
+        incorporatedRoot,
+        patientivoSurface,
+        sourceSurface,
+        compoundVerbInput
+      });
       return {
         outputKind: "patientivo-compound-embed-continuation-contract",
         grammarSource: "Andrews 39.6",
@@ -1188,6 +1882,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
+        formationFrame,
         diagnostics: uniqueDiagnostics
       };
     }
@@ -1223,6 +1918,14 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const formationFrame = resolvePatientivoNominalCompoundFormationFrame({
+        matrixSpec,
+        incorporatedRoot,
+        patientivoSurface,
+        sourceSurface,
+        compoundStem,
+        ordinaryNncInput
+      });
       return {
         outputKind: "patientivo-nominal-compound-continuation-contract",
         grammarSource: "Andrews 39.6",
@@ -1242,6 +1945,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           nounClass: matrixSpec.nounClass || "zero",
           animacy: matrixSpec.animacy || "inanimate"
         } : null,
+        formationFrame,
         diagnostics: uniqueDiagnostics
       };
     }
@@ -1328,6 +2032,388 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics: uniqueDiagnostics
       };
     }
+    function buildPreteritAgentiveCompoundEmbedContinuationContract({
+      preteritAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT
+    } = {}) {
+      const diagnostics = [];
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!normalizedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-compound-embed-missing-general-use-stem");
+      }
+      const matrixSpec = resolvePreteritAgentiveCompoundEmbedMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const compoundVerbInput = matrixSpec.supported && normalizedPreteritAgentiveStem ? buildPreteritAgentiveCompoundEmbedVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!compoundVerbInput && !matrixSpec.supported) {
+        diagnostics.push("preterit-agentive-compound-embed-missing-verb-input");
+      }
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "preterit-agentive-compound-embed-continuation-contract",
+        grammarSource: "Andrews 35.7",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        incorporatedRoot: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundVerbInput,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildPreteritAgentiveNominalCompoundContinuationContract({
+      preteritAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
+    } = {}) {
+      const diagnostics = [];
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!normalizedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-nominal-compound-missing-general-use-stem");
+      }
+      const matrixSpec = resolvePreteritAgentiveNominalCompoundMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const compoundStem = matrixSpec.supported && normalizedPreteritAgentiveStem ? buildPreteritAgentiveNominalCompoundStem({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!compoundStem && !matrixSpec.supported) {
+        diagnostics.push("preterit-agentive-nominal-compound-missing-nnc-input");
+      }
+      const ordinaryNncInput = compoundStem ? formatPreteritAgentiveNominalCompoundOrdinaryNncInput({
+        compoundStem,
+        nounClass: matrixSpec.nounClass || "zero"
+      }) : "";
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "preterit-agentive-nominal-compound-continuation-contract",
+        grammarSource: "Andrews 35.7",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        incorporatedRoot: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundStem,
+        ordinaryNncInput,
+        ordinaryNncRequest: compoundStem ? {
+          stem: ordinaryNncInput || compoundStem,
+          state: "absolutive",
+          number: "singular",
+          pluralType: "auto",
+          nounClass: matrixSpec.nounClass || "zero",
+          animacy: matrixSpec.animacy || "inanimate"
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildCustomaryAgentiveNominalCompoundContinuationContract({
+      customaryAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
+    } = {}) {
+      const diagnostics = [];
+      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      if (!normalizedCustomaryAgentiveStem) {
+        diagnostics.push("customary-agentive-nominal-compound-missing-fully-nominalized-stem");
+      }
+      const matrixSpec = resolveCustomaryAgentiveNominalCompoundMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const compoundStem = matrixSpec.supported && normalizedCustomaryAgentiveStem ? buildCustomaryAgentiveNominalCompoundStem({
+        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!compoundStem && !matrixSpec.supported) {
+        diagnostics.push("customary-agentive-nominal-compound-missing-nnc-input");
+      }
+      const ordinaryNncInput = compoundStem ? formatCustomaryAgentiveNominalCompoundOrdinaryNncInput({
+        compoundStem,
+        nounClass: matrixSpec.nounClass || "zero"
+      }) : "";
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "customary-agentive-nominal-compound-continuation-contract",
+        grammarSource: "Andrews 36.3",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        incorporatedRoot: normalizedCustomaryAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        compoundStem,
+        ordinaryNncInput,
+        ordinaryNncRequest: compoundStem ? {
+          stem: ordinaryNncInput || compoundStem,
+          state: "absolutive",
+          number: "singular",
+          pluralType: "auto",
+          nounClass: matrixSpec.nounClass || "zero",
+          animacy: matrixSpec.animacy || "inanimate"
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildCustomaryAgentiveCompoundEmbedContinuationContract({
+      customaryAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT,
+      objectPrefix = ""
+    } = {}) {
+      const diagnostics = [];
+      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      if (!normalizedCustomaryAgentiveStem) {
+        diagnostics.push("customary-agentive-compound-embed-missing-fully-nominalized-stem");
+      }
+      const matrixSpec = resolveCustomaryAgentiveCompoundEmbedMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const compoundVerbInput = matrixSpec.supported && normalizedCustomaryAgentiveStem ? buildCustomaryAgentiveCompoundEmbedVerbInput({
+        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!compoundVerbInput && !matrixSpec.supported) {
+        diagnostics.push("customary-agentive-compound-embed-missing-verb-input");
+      }
+      const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki" : "";
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "customary-agentive-compound-embed-continuation-contract",
+        grammarSource: matrixSpec.grammarSource || "Andrews 36.3",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        incorporatedRoot: normalizedCustomaryAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        objectPrefix: resolvedObjectPrefix,
+        compoundVerbInput,
+        compoundRequest: compoundVerbInput ? {
+          verb: compoundVerbInput,
+          tense: "presente",
+          tenseMode: "verbo",
+          derivationMode: "active",
+          voiceMode: "active",
+          objectPrefix: resolvedObjectPrefix
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildPreteritAgentiveOwnerhoodContinuationContract({
+      preteritAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT
+    } = {}) {
+      const diagnostics = [];
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!normalizedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-ownerhood-missing-general-use-stem");
+      }
+      const matrixSpec = resolvePreteritAgentiveOwnerhoodMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const ownerhoodVerbInput = matrixSpec.supported && normalizedPreteritAgentiveStem ? buildPreteritAgentiveOwnerhoodVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!ownerhoodVerbInput && !matrixSpec.supported) {
+        diagnostics.push("preterit-agentive-ownerhood-missing-verb-input");
+      }
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "preterit-agentive-ownerhood-continuation-contract",
+        grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        incorporatedRoot: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        surfaceMatrix: matrixSpec.surfaceMatrix || "",
+        ownerhoodKind: matrixSpec.ownerhoodKind || "",
+        matrix: matrixSpec,
+        ownerhoodVerbInput,
+        ownerhoodRequest: ownerhoodVerbInput ? {
+          verb: ownerhoodVerbInput,
+          tense: "pasado-remoto",
+          tenseMode: "verbo",
+          derivationMode: "active",
+          voiceMode: "active"
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildPreteritAgentiveComplementContinuationContract({
+      preteritAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT,
+      objectPrefix = ""
+    } = {}) {
+      const diagnostics = [];
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!normalizedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-complement-missing-general-use-stem");
+      }
+      const matrixSpec = resolvePreteritAgentiveComplementMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const complementVerbInput = matrixSpec.supported && normalizedPreteritAgentiveStem ? buildPreteritAgentiveComplementVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!complementVerbInput && !matrixSpec.supported) {
+        diagnostics.push("preterit-agentive-complement-missing-verb-input");
+      }
+      const resolvedObjectPrefix = String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki";
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "preterit-agentive-complement-continuation-contract",
+        grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        incorporatedRoot: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        objectPrefix: resolvedObjectPrefix,
+        complementVerbInput,
+        complementRequest: complementVerbInput ? {
+          verb: complementVerbInput,
+          tense: "presente",
+          tenseMode: "verbo",
+          derivationMode: "active",
+          voiceMode: "active",
+          objectPrefix: resolvedObjectPrefix
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildPreteritAgentiveAdverbialContinuationContract({
+      preteritAgentiveStem = "",
+      sourceSurface = "",
+      matrixRoot = DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT,
+      objectPrefix = ""
+    } = {}) {
+      const diagnostics = [];
+      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!normalizedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-adverbial-missing-general-use-stem");
+      }
+      const matrixSpec = resolvePreteritAgentiveAdverbialMatrixSpec(matrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const adverbialVerbInput = matrixSpec.supported && normalizedPreteritAgentiveStem ? buildPreteritAgentiveAdverbialVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.nawatRoot
+      }) : "";
+      if (!adverbialVerbInput && !matrixSpec.supported) {
+        diagnostics.push("preterit-agentive-adverbial-missing-verb-input");
+      }
+      const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || "ki").trim() || "ki" : "";
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "preterit-agentive-adverbial-continuation-contract",
+        grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        incorporatedRoot: normalizedPreteritAgentiveStem,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
+        matrix: matrixSpec,
+        adverbialFocus: matrixSpec.adverbialFocus || "",
+        objectPrefix: resolvedObjectPrefix,
+        adverbialVerbInput,
+        adverbialRequest: adverbialVerbInput ? {
+          verb: adverbialVerbInput,
+          tense: "presente",
+          tenseMode: "verbo",
+          derivationMode: "active",
+          voiceMode: "active",
+          objectPrefix: resolvedObjectPrefix
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
+    function buildOrdinaryNounOwnerhoodContinuationContract({
+      nounStem = "",
+      nounClass = "",
+      sourceSurface = "",
+      sourceKind = "",
+      matrixRoot = "",
+      ownerhoodKind = "ownerhood"
+    } = {}) {
+      const diagnostics = [];
+      const normalizedNounStem = String(nounStem || "").trim();
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const normalizedKind = String(ownerhoodKind || "ownerhood").trim();
+      if (!normalizedNounStem) {
+        diagnostics.push("ordinary-noun-ownerhood-missing-noun-stem");
+      }
+      if (!normalizedClass) {
+        diagnostics.push("ordinary-noun-ownerhood-unsupported-noun-class");
+      }
+      const resolvedMatrixRoot = String(matrixRoot || "").trim() || resolveOrdinaryNounOwnerhoodDefaultMatrixRoot({
+        nounClass: normalizedClass,
+        ownerhoodKind: normalizedKind
+      });
+      if (!resolvedMatrixRoot && normalizedClass === "ti" && normalizedKind !== "abundant-ownerhood") {
+        diagnostics.push("ordinary-noun-ownerhood-ambiguous-ti-class");
+      }
+      const matrixSpec = resolveOrdinaryNounOwnerhoodMatrixSpec(resolvedMatrixRoot);
+      if (!matrixSpec.supported) {
+        diagnostics.push(...matrixSpec.diagnostics);
+      }
+      const classIsAllowed = isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass(matrixSpec, normalizedClass);
+      if (matrixSpec.supported && !classIsAllowed) {
+        diagnostics.push("ordinary-noun-ownerhood-class-matrix-mismatch");
+      }
+      const ownerhoodVerbInput = matrixSpec.supported && classIsAllowed && normalizedNounStem ? buildOrdinaryNounOwnerhoodVerbInput({
+        nounStem: normalizedNounStem,
+        nounClass: normalizedClass,
+        matrixRoot: matrixSpec.nawatRoot,
+        ownerhoodKind: normalizedKind
+      }) : "";
+      if (!ownerhoodVerbInput && (!matrixSpec.supported || !classIsAllowed)) {
+        diagnostics.push("ordinary-noun-ownerhood-missing-verb-input");
+      }
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      return {
+        outputKind: "ordinary-noun-ownerhood-continuation-contract",
+        grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
+        supported: uniqueDiagnostics.length === 0,
+        sourceSurface: String(sourceSurface || "").trim(),
+        sourceKind: String(sourceKind || "").trim(),
+        evidenceStatus: String(sourceKind || "").trim() === "fixture" ? "source-fixture-backed" : "structural-open-stem",
+        nounStem: normalizedNounStem,
+        incorporatedRoot: normalizedNounStem,
+        nounClass: normalizedClass,
+        matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : resolvedMatrixRoot,
+        surfaceMatrix: matrixSpec.surfaceMatrix || "",
+        ownerhoodKind: matrixSpec.ownerhoodKind || normalizedKind,
+        matrix: matrixSpec,
+        ownerhoodVerbInput,
+        ownerhoodRequest: ownerhoodVerbInput ? {
+          verb: ownerhoodVerbInput,
+          tense: "pasado-remoto",
+          tenseMode: "verbo",
+          derivationMode: "active",
+          voiceMode: "active"
+        } : null,
+        diagnostics: uniqueDiagnostics
+      };
+    }
 
     const api = {};
     api.buildNonactiveSourceChain = buildNonactiveSourceChain;
@@ -1378,11 +2464,6 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
     api.resolvePatientivoImperfectiveBaseStemSpec = resolvePatientivoImperfectiveBaseStemSpec;
     api.applyPatientivoImperfectiveSourceChainStemSpec = applyPatientivoImperfectiveSourceChainStemSpec;
     api.realizePatientivoImperfectiveSourceChainStem = realizePatientivoImperfectiveSourceChainStem;
-    Object.defineProperty(api, "PATIENTIVO_PRELOCATIVE_SOURCE_TENSES", {
-        configurable: true,
-        enumerable: true,
-        get() { return PATIENTIVO_PRELOCATIVE_SOURCE_TENSES; },
-    });
     Object.defineProperty(api, "DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT", {
         configurable: true,
         enumerable: true,
@@ -1453,6 +2534,66 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         enumerable: true,
         get() { return ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS; },
     });
+    Object.defineProperty(api, "DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT", {
+        configurable: true,
+        enumerable: true,
+        get() { return DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT; },
+    });
+    Object.defineProperty(api, "CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS; },
+    });
+    Object.defineProperty(api, "PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS; },
+    });
+    Object.defineProperty(api, "PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS; },
+    });
+    Object.defineProperty(api, "PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS; },
+    });
+    Object.defineProperty(api, "ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS; },
+    });
     api.getPatientivoPrelocativeMatrixInventory = getPatientivoPrelocativeMatrixInventory;
     api.resolvePatientivoPrelocativeMatrixSpec = resolvePatientivoPrelocativeMatrixSpec;
     api.resolvePatientivoPrelocativeConnectorSuffix = resolvePatientivoPrelocativeConnectorSuffix;
@@ -1461,23 +2602,56 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
     api.getPatientivoCharacteristicPropertyMatrixInventory = getPatientivoCharacteristicPropertyMatrixInventory;
     api.getActiveActionCompoundEmbedMatrixInventory = getActiveActionCompoundEmbedMatrixInventory;
     api.getActiveActionNominalCompoundMatrixInventory = getActiveActionNominalCompoundMatrixInventory;
+    api.getPreteritAgentiveCompoundEmbedMatrixInventory = getPreteritAgentiveCompoundEmbedMatrixInventory;
+    api.getPreteritAgentiveNominalCompoundMatrixInventory = getPreteritAgentiveNominalCompoundMatrixInventory;
+    api.getCustomaryAgentiveCompoundEmbedMatrixInventory = getCustomaryAgentiveCompoundEmbedMatrixInventory;
+    api.getCustomaryAgentiveNominalCompoundMatrixInventory = getCustomaryAgentiveNominalCompoundMatrixInventory;
+    api.getPreteritAgentiveOwnerhoodMatrixInventory = getPreteritAgentiveOwnerhoodMatrixInventory;
+    api.getPreteritAgentiveComplementMatrixInventory = getPreteritAgentiveComplementMatrixInventory;
+    api.getPreteritAgentiveAdverbialMatrixInventory = getPreteritAgentiveAdverbialMatrixInventory;
+    api.getOrdinaryNounOwnerhoodMatrixInventory = getOrdinaryNounOwnerhoodMatrixInventory;
     api.resolvePatientivoCompoundEmbedMatrixSpec = resolvePatientivoCompoundEmbedMatrixSpec;
     api.resolvePatientivoNominalCompoundMatrixSpec = resolvePatientivoNominalCompoundMatrixSpec;
     api.resolvePatientivoCharacteristicPropertyMatrixSpec = resolvePatientivoCharacteristicPropertyMatrixSpec;
     api.resolveActiveActionCompoundEmbedMatrixSpec = resolveActiveActionCompoundEmbedMatrixSpec;
     api.resolveActiveActionNominalCompoundMatrixSpec = resolveActiveActionNominalCompoundMatrixSpec;
+    api.resolvePreteritAgentiveCompoundEmbedMatrixSpec = resolvePreteritAgentiveCompoundEmbedMatrixSpec;
+    api.resolvePreteritAgentiveNominalCompoundMatrixSpec = resolvePreteritAgentiveNominalCompoundMatrixSpec;
+    api.resolveCustomaryAgentiveCompoundEmbedMatrixSpec = resolveCustomaryAgentiveCompoundEmbedMatrixSpec;
+    api.resolveCustomaryAgentiveNominalCompoundMatrixSpec = resolveCustomaryAgentiveNominalCompoundMatrixSpec;
+    api.resolvePreteritAgentiveOwnerhoodMatrixSpec = resolvePreteritAgentiveOwnerhoodMatrixSpec;
+    api.resolvePreteritAgentiveComplementMatrixSpec = resolvePreteritAgentiveComplementMatrixSpec;
+    api.resolvePreteritAgentiveAdverbialMatrixSpec = resolvePreteritAgentiveAdverbialMatrixSpec;
+    api.normalizeOrdinaryNounOwnerhoodNounClass = normalizeOrdinaryNounOwnerhoodNounClass;
+    api.resolveOrdinaryNounOwnerhoodMatrixSpec = resolveOrdinaryNounOwnerhoodMatrixSpec;
+    api.resolveOrdinaryNounOwnerhoodDefaultMatrixRoot = resolveOrdinaryNounOwnerhoodDefaultMatrixRoot;
+    api.isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass = isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass;
     api.buildPatientivoCompoundEmbedVerbInput = buildPatientivoCompoundEmbedVerbInput;
+    api.resolvePatientivoCompoundEmbedFormationFrame = resolvePatientivoCompoundEmbedFormationFrame;
     api.buildPatientivoNominalCompoundStem = buildPatientivoNominalCompoundStem;
     api.formatPatientivoNominalCompoundOrdinaryNncInput = formatPatientivoNominalCompoundOrdinaryNncInput;
     api.stripPatientivoCharacteristicPropertySuffix = stripPatientivoCharacteristicPropertySuffix;
     api.resolvePatientivoCharacteristicPropertyEmbedSource = resolvePatientivoCharacteristicPropertyEmbedSource;
     api.buildPatientivoCharacteristicPropertyEmbedVerbInput = buildPatientivoCharacteristicPropertyEmbedVerbInput;
+    api.resolvePatientivoCharacteristicPropertyFormationFrame = resolvePatientivoCharacteristicPropertyFormationFrame;
     api.buildActiveActionCompoundEmbedVerbInput = buildActiveActionCompoundEmbedVerbInput;
     api.buildActiveActionNominalCompoundStem = buildActiveActionNominalCompoundStem;
+    api.buildPreteritAgentiveCompoundEmbedVerbInput = buildPreteritAgentiveCompoundEmbedVerbInput;
+    api.buildPreteritAgentiveNominalCompoundStem = buildPreteritAgentiveNominalCompoundStem;
+    api.buildCustomaryAgentiveNominalCompoundStem = buildCustomaryAgentiveNominalCompoundStem;
+    api.buildCustomaryAgentiveCompoundEmbedVerbInput = buildCustomaryAgentiveCompoundEmbedVerbInput;
+    api.formatPreteritAgentiveNominalCompoundOrdinaryNncInput = formatPreteritAgentiveNominalCompoundOrdinaryNncInput;
+    api.formatCustomaryAgentiveNominalCompoundOrdinaryNncInput = formatCustomaryAgentiveNominalCompoundOrdinaryNncInput;
+    api.buildPreteritAgentiveOwnerhoodVerbInput = buildPreteritAgentiveOwnerhoodVerbInput;
+    api.buildPreteritAgentiveComplementVerbInput = buildPreteritAgentiveComplementVerbInput;
+    api.buildPreteritAgentiveAdverbialVerbInput = buildPreteritAgentiveAdverbialVerbInput;
+    api.buildOrdinaryNounOwnerhoodVerbInput = buildOrdinaryNounOwnerhoodVerbInput;
     api.formatActiveActionNominalCompoundOrdinaryNncInput = formatActiveActionNominalCompoundOrdinaryNncInput;
+    api.resolvePatientivoNominalCompoundFormationFrame = resolvePatientivoNominalCompoundFormationFrame;
     api.stripPatientivoPrelocativeConnector = stripPatientivoPrelocativeConnector;
     api.buildPatientivoPrelocativeVerbInput = buildPatientivoPrelocativeVerbInput;
     api.isPatientivoPrelocativeMatrixCompatibleWithSourceState = isPatientivoPrelocativeMatrixCompatibleWithSourceState;
+    api.resolvePatientivoPrelocativeFormationFrame = resolvePatientivoPrelocativeFormationFrame;
     api.getPatientivoPrelocativePossessiveObjectMap = getPatientivoPrelocativePossessiveObjectMap;
     api.getPatientivoPrelocativeSubjectObjectMap = getPatientivoPrelocativeSubjectObjectMap;
     api.resolvePatientivoPrelocativeSubjectObjectTransfer = resolvePatientivoPrelocativeSubjectObjectTransfer;
@@ -1488,6 +2662,14 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
     api.buildPatientivoNominalCompoundContinuationContract = buildPatientivoNominalCompoundContinuationContract;
     api.buildActiveActionCompoundEmbedContinuationContract = buildActiveActionCompoundEmbedContinuationContract;
     api.buildActiveActionNominalCompoundContinuationContract = buildActiveActionNominalCompoundContinuationContract;
+    api.buildPreteritAgentiveCompoundEmbedContinuationContract = buildPreteritAgentiveCompoundEmbedContinuationContract;
+    api.buildPreteritAgentiveNominalCompoundContinuationContract = buildPreteritAgentiveNominalCompoundContinuationContract;
+    api.buildCustomaryAgentiveNominalCompoundContinuationContract = buildCustomaryAgentiveNominalCompoundContinuationContract;
+    api.buildCustomaryAgentiveCompoundEmbedContinuationContract = buildCustomaryAgentiveCompoundEmbedContinuationContract;
+    api.buildPreteritAgentiveOwnerhoodContinuationContract = buildPreteritAgentiveOwnerhoodContinuationContract;
+    api.buildPreteritAgentiveComplementContinuationContract = buildPreteritAgentiveComplementContinuationContract;
+    api.buildPreteritAgentiveAdverbialContinuationContract = buildPreteritAgentiveAdverbialContinuationContract;
+    api.buildOrdinaryNounOwnerhoodContinuationContract = buildOrdinaryNounOwnerhoodContinuationContract;
     return api;
 }
 

@@ -166,6 +166,9 @@ function resetSubjectForNounTenses(tense, override, subjectPrefix, subjectSuffix
     if (tense === "sustantivo-verbal"
         || isPotencialProfileTense(tense)
         || tense === "agentivo"
+        || tense === "agentivo-presente"
+        || tense === "agentivo-preterito"
+        || tense === "agentivo-futuro"
         || tense === "patientivo") {
         if (!Object.prototype.hasOwnProperty.call(override || {}, "subjectPrefix")) {
             subjectPrefix = "";

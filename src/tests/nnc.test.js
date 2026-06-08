@@ -112,6 +112,18 @@ function run(ctx) {
             doesNotImplementLessons42_43: profile.boundaries?.doesNotImplementLessons42_43 === true,
         },
     });
+    const summarizePossessorSourceFrame = (frame) => frame && ({
+        grammarSource: frame.grammarSource || "",
+        possessorOrigin: frame.possessorOrigin || "",
+        sourceSubjectRelation: frame.sourceSubjectRelation || "",
+        contrastNominalKind: frame.contrastNominalKind || "",
+        notSourceSubjectTransform: frame.notSourceSubjectTransform === true,
+        notExternalPossessorImport: frame.notExternalPossessorImport === true,
+        sourceSubject: frame.sourceSubject ? {
+            prefix: frame.sourceSubject.prefix || "",
+            suffix: frame.sourceSubject.suffix || "",
+        } : null,
+    });
 
     const buildSilentNounRequest = ({
         tense,
@@ -398,18 +410,55 @@ function run(ctx) {
             },
         }
     );
-    const directGeneralUseActiveActionWithoutPossessor = ctx.getCalificativoInstrumentivoResult({
+    const directGeneralUseActiveActionSourceSubjectPossessors = [
+        { subjectPrefix: "ni", subjectSuffix: "", result: "numikka", possessor: "nu", grammarSource: "Andrews 36.11" },
+        { subjectPrefix: "ti", subjectSuffix: "", result: "mumikka", possessor: "mu", grammarSource: "Andrews 36.11" },
+        { subjectPrefix: "", subjectSuffix: "", result: "imikka", possessor: "i", grammarSource: "Andrews 36.11" },
+        { subjectPrefix: "ti", subjectSuffix: "t", result: "tumikka", possessor: "tu", grammarSource: "Andrews 36.11" },
+        { subjectPrefix: "an", subjectSuffix: "t", result: "anmumikka", possessor: "anmu", grammarSource: "Andrews 36.11" },
+        { subjectPrefix: "", subjectSuffix: "t", result: "inmikka", possessor: "in", grammarSource: "Andrews 36.11" },
+    ].map((example) => {
+        const result = ctx.getCalificativoInstrumentivoResult({
+            rawVerb: "(miki)",
+            verbMeta: mikiMeta,
+            subjectPrefix: example.subjectPrefix,
+            subjectSuffix: example.subjectSuffix,
+            objectPrefix: "",
+            possessivePrefix: "",
+            actionNounStemUse: "general-use",
+        });
+        return {
+            subject: `${example.subjectPrefix || "Ø"}...${example.subjectSuffix || "Ø"}`,
+            result: result.result,
+            possessorPrefix: result.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            grammarSource: result.actionNounSourceSubjectPossessor?.grammarSource || "",
+            derivedFromSourceSubject: result.actionNounSourceSubjectPossessor?.derivedFromSourceSubject === true,
+        };
+    });
+    s.eq(
+        "Andrews 36.11 active-action general-use derives possessor from the source VNC subject",
+        directGeneralUseActiveActionSourceSubjectPossessors,
+        [
+            { subject: "ni...Ø", result: "numikka", possessorPrefix: "nu", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+            { subject: "ti...Ø", result: "mumikka", possessorPrefix: "mu", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+            { subject: "Ø...Ø", result: "imikka", possessorPrefix: "i", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+            { subject: "ti...t", result: "tumikka", possessorPrefix: "tu", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+            { subject: "an...t", result: "anmumikka", possessorPrefix: "anmu", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+            { subject: "Ø...t", result: "inmikka", possessorPrefix: "in", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
+        ]
+    );
+    const directGeneralUseActiveActionWithoutMappableSourceSubject = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "(miki)",
         verbMeta: mikiMeta,
-        subjectPrefix: "",
+        subjectPrefix: "an",
         subjectSuffix: "",
         objectPrefix: "",
         possessivePrefix: "",
         actionNounStemUse: "general-use",
     });
     s.eq(
-        "Andrews 36.11 active-action general-use stem is possessive-state only",
-        directGeneralUseActiveActionWithoutPossessor.error,
+        "Andrews 36.11 active-action general-use remains possessive-state only when no source-subject possessor is mappable",
+        directGeneralUseActiveActionWithoutMappableSourceSubject.error,
         true
     );
     const transitiveMakaMeta = ctx.parseVerbInput("-(maka)");
@@ -480,6 +529,41 @@ function run(ctx) {
                 patientiveFamily: "",
                 adjectivalFunction: "",
             },
+        }
+    );
+    const generatedSourceSubjectGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "(miki)",
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord active-action general-use derives possessor from source subject before output",
+        {
+            forms: generatedSourceSubjectGeneralUseActiveAction.surfaceForms,
+            predicateState: generatedSourceSubjectGeneralUseActiveAction.nominalizationProfile?.predicateState?.value || "",
+            possessorPrefix: generatedSourceSubjectGeneralUseActiveAction.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            formulaEcho: generatedSourceSubjectGeneralUseActiveAction.nuclearClauseShell?.formulaEcho || "",
+        },
+        {
+            forms: ["tumikka"],
+            predicateState: "possessive",
+            possessorPrefix: "tu",
+            formulaEcho: "#Ø...Ø(mikka)Ø#",
+        }
+    );
+    s.eq(
+        "Andrews 36.12 active-action records source subject as transformed possessor, not an external import",
+        summarizePossessorSourceFrame(generatedSourceSubjectGeneralUseActiveAction.nominalizationProfile?.possessorSourceFrame),
+        {
+            grammarSource: "Andrews 36.11/36.12",
+            possessorOrigin: "source-vnc-subject",
+            sourceSubjectRelation: "transformed-to-possessor",
+            contrastNominalKind: "agentivo-preterito",
+            notSourceSubjectTransform: false,
+            notExternalPossessorImport: true,
+            sourceSubject: { prefix: "ti", suffix: "t" },
         }
     );
     const blockedGeneratedTransitiveGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
@@ -689,6 +773,42 @@ function run(ctx) {
         possessorPrefix: "i",
     });
     s.eq("generateWord possessed instrumentivo profile uses imperfect source", generatedPossessedInstrumentivo.nominalizationProfile.source.sourceTense, "imperfecto");
+    const directSourceSubjectInstrumentivePossessors = [
+        { subjectPrefix: "ni", subjectSuffix: "", form: "nutapiyaya", possessor: "nu" },
+        { subjectPrefix: "ti", subjectSuffix: "", form: "mutapiyaya", possessor: "mu" },
+        { subjectPrefix: "", subjectSuffix: "", form: "itapiyaya", possessor: "i" },
+        { subjectPrefix: "ti", subjectSuffix: "t", form: "tutapiyaya", possessor: "tu" },
+        { subjectPrefix: "an", subjectSuffix: "t", form: "anmutapiyaya", possessor: "anmu" },
+        { subjectPrefix: "", subjectSuffix: "t", form: "intapiyaya", possessor: "in" },
+    ].map((example) => {
+        const result = ctx.getInstrumentivoResult({
+            rawVerb: "-(piya)",
+            verbMeta: piyaMeta,
+            subjectPrefix: example.subjectPrefix,
+            subjectSuffix: example.subjectSuffix,
+            objectPrefix: "ta",
+            mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+            possessivePrefix: "",
+        });
+        return {
+            subject: `${example.subjectPrefix || "Ø"}...${example.subjectSuffix || "Ø"}`,
+            result: result.result,
+            possessorPrefix: result.nominalizationProfile?.predicateState?.possessorPrefix || "",
+            derivedFromSourceSubject: result.instrumentivoSourceSubjectPossessor?.derivedFromSourceSubject === true,
+        };
+    });
+    s.eq(
+        "Andrews 36.6 direct possessive instrumentive derives possessor from the source VNC subject",
+        directSourceSubjectInstrumentivePossessors,
+        [
+            { subject: "ni...Ø", result: "nutapiyaya", possessorPrefix: "nu", derivedFromSourceSubject: true },
+            { subject: "ti...Ø", result: "mutapiyaya", possessorPrefix: "mu", derivedFromSourceSubject: true },
+            { subject: "Ø...Ø", result: "itapiyaya", possessorPrefix: "i", derivedFromSourceSubject: true },
+            { subject: "ti...t", result: "tutapiyaya", possessorPrefix: "tu", derivedFromSourceSubject: true },
+            { subject: "an...t", result: "anmutapiyaya", possessorPrefix: "anmu", derivedFromSourceSubject: true },
+            { subject: "Ø...t", result: "intapiyaya", possessorPrefix: "in", derivedFromSourceSubject: true },
+        ]
+    );
 
     const unsupportedCalificativo = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "(miki)",

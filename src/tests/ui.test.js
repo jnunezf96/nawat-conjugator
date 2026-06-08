@@ -11,6 +11,7 @@ function run(ctx = {}) {
     const rendering = fs.readFileSync(path.resolve(__dirname, "..", "ui", "rendering", "rendering.js"), "utf8");
     const composer = fs.readFileSync(path.resolve(__dirname, "..", "ui", "composer", "composer.js"), "utf8");
     const state = fs.readFileSync(path.resolve(__dirname, "..", "ui", "state.js"), "utf8");
+    const vncFacade = fs.readFileSync(path.resolve(__dirname, "..", "core", "vnc", "vnc.js"), "utf8");
     const concepts = fs.readFileSync(path.resolve(__dirname, "..", "core", "concepts", "concepts.js"), "utf8");
     const nncCompound = fs.readFileSync(path.resolve(__dirname, "..", "core", "nnc", "compound", "compound.js"), "utf8");
     const nncAdjectival = fs.readFileSync(path.resolve(__dirname, "..", "core", "nnc", "adjectival", "adjectival.js"), "utf8");
@@ -381,6 +382,22 @@ function run(ctx = {}) {
             && rendering.includes("appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel)")
     );
     s.ok(
+        "ordinary NNC #3 salida offers dynamic ownerhood continuations",
+        rendering.includes("renderOrdinaryNncOwnerhoodContinuations")
+            && rendering.includes("buildOrdinaryNounOwnerhoodContinuationContract")
+            && rendering.includes("getOrdinaryNounOwnerhoodMatrixInventory")
+            && rendering.includes('continueButton.dataset.ordinaryNncOwnerhoodContinuation = "true"')
+            && rendering.includes("dataset.ownerhoodVerbInput")
+            && rendering.includes("getOwnerhoodPreviewSurface")
+            && rendering.includes("applyOrdinaryNounOwnerhoodRootsToVerbEntry")
+            && rendering.includes("matriz de posesión:")
+            && rendering.includes("V pretérito:")
+            && composer.includes("function applyOrdinaryNounOwnerhoodRootsToVerbEntry")
+            && composer.includes("resolveOrdinaryNounOwnerhoodMatrixSpec")
+            && composer.includes("buildOrdinaryNounOwnerhoodVerbInput")
+            && composer.includes("ordinary-noun-ownerhood-entry")
+    );
+    s.ok(
         "shared sustantivo renderer exposes verb-derived nominalization metadata",
         rendering.includes("buildVerbDerivedNominalizationProfileSubLabels")
             && rendering.includes('profile.outputKind !== "verb-derived-nominal"')
@@ -403,9 +420,19 @@ function run(ctx = {}) {
         rendering.includes("renderPatientivoPrelocativeContinuation")
             && rendering.includes("dataset.patientivoPrelocativeContinuation = \"true\"")
             && rendering.includes("continueLabel.textContent = `→ ${previewSurface || prelocativeVerbInput}`")
+            && rendering.includes("const patientivoSurface = resolvePatientivoSurfaceFromEvaluation(evaluation)")
+            && rendering.includes("resolvePatientivoSourceSurfaceForContinuation")
+            && !rendering.includes("resolveDirectPatientivoSurfaceOverride")
+            && !rendering.includes("resolveDirectPatientivoSurface =")
+            && !rendering.includes("replacePatientivoRouteSuffix")
+            && !rendering.includes("resolveActiveVerbNounRouteSurfaceOverride")
+            && !rendering.includes("routeSurfaceOverride")
             && rendering.includes("buildPatientivoPrelocativeContinuationContract")
             && rendering.includes("getPatientivoPrelocativeMatrixInventory")
             && rendering.includes("conjugation-conversion-actions")
+            && rendering.includes('patientivoSource === "tronco-verbal"')
+            && !rendering.includes('patientivoSource !== "imperfectivo"')
+            && !rendering.includes("NAWAT_PRELOCATIVE_PATIENTIVO_SOURCE_TENSES")
             && rendering.includes("dataset.prelocativeMatrixRoot = matrixRoot")
             && rendering.includes("dataset.prelocativeMatrixId = contract.matrix?.id || \"\"")
             && rendering.includes("getPrelocativeFinitePreviewSurface")
@@ -438,6 +465,41 @@ function run(ctx = {}) {
             && rendering.includes("sourceStem: stem")
             && rendering.includes("value.append(surfaceText, conversionActions)")
             && rendering.includes("entry.destinationSlot.hidden = true")
+    );
+    s.ok(
+        "Andrews 40.4 patientive adjectival NNC function is exposed dynamically in #3 salida",
+        rendering.includes("renderPatientivoAdjectivalFunctionContinuation")
+            && rendering.includes("buildPatientivoAdjectivalNncFunctionOutput")
+            && rendering.includes("dataset.patientivoAdjectivalFunctionContinuation = \"true\"")
+            && rendering.includes("calc-guidance__chip--mode-adjetivo")
+            && rendering.includes("continueSubLabel.textContent = \"Adj NNC\"")
+            && rendering.includes("Andrews 40.4: NNC patientiva en funcion adjetival")
+            && rendering.includes("applyAdjectivalNncFunctionToVerbEntry({")
+            && rendering.includes('formation: "patientive-adjectival"')
+            && rendering.includes("renderPatientivoAdjectivalFunctionContinuation({")
+    );
+    s.ok(
+        "Andrews 40.5-40.8 nominalized VNC adjectival function is exposed dynamically in #3 salida",
+        rendering.includes("renderNominalizedVncAdjectivalFunctionContinuation")
+            && rendering.includes("buildNominalizedVncAdjectivalNncFunctionOutput")
+            && rendering.includes("dataset.nominalizedVncAdjectivalFunctionContinuation = \"true\"")
+            && rendering.includes("dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || \"\"")
+            && rendering.includes("#3 salida nominalizada:")
+            && rendering.includes("NNC nominalizada en funcion adjetival")
+            && rendering.includes('formation: "nominalized-vnc-adjectival"')
+            && rendering.includes("renderNominalizedVncAdjectivalFunctionContinuation({")
+            && rendering.includes('resolvedTense === "potencial" || resolvedTense === "potencial-habitual"')
+    );
+    s.ok(
+        "adjectival NNC continuations apply an explicit generation contract instead of only switching labels",
+        composer.includes("function applyAdjectivalNncFunctionToVerbEntry")
+            && composer.includes("verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface")
+            && composer.includes('source: "adjectival-nnc-function-entry"')
+            && composer.includes("clearAdjectivalNncFunctionEntryState(verbInput)")
+            && vncFacade.includes("resolveAdjectivalNncFunctionOverrideFromInput")
+            && vncFacade.includes('tense: "adjectival-nnc"')
+            && vncFacade.includes("adjectivalNnc")
+            && composer.includes("override.adjectivalNnc?.nominalizedSurface")
     );
     const compoundEmbedComposerStart = composer.indexOf("function applyPatientivoCompoundEmbedRootsToVerbEntry");
     const compoundEmbedComposerEnd = composer.indexOf("function shouldComposerControlChangeRefreshImmediately", compoundEmbedComposerStart);
@@ -529,6 +591,76 @@ function run(ctx = {}) {
             && activeActionNominalComposer.includes("formatComposerOrdinaryNncAnalogueInput")
             && activeActionNominalComposer.includes("active-action-nominal-compound-entry")
     );
+    s.ok(
+        "customary-present agentivo output has real Andrews 36.3 nominal and VNC continuations from #3 salida",
+        rendering.includes("getCustomaryAgentiveStemsFromEvaluation")
+            && rendering.includes('result?.nominalizationProfile?.nominalKind !== "agentivo"')
+            && rendering.includes("renderCustomaryAgentiveCompoundEmbedContinuation")
+            && rendering.includes("buildCustomaryAgentiveCompoundEmbedContinuationContract")
+            && rendering.includes("getCustomaryAgentiveCompoundEmbedMatrixInventory")
+            && rendering.includes('continueButton.dataset.customaryAgentiveCompoundEmbedContinuation = "true"')
+            && rendering.includes("dataset.compoundVerb = compoundVerbInput")
+            && rendering.includes("applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry")
+            && rendering.includes("renderCustomaryAgentiveNominalCompoundContinuation")
+            && rendering.includes("buildCustomaryAgentiveNominalCompoundContinuationContract")
+            && rendering.includes("getCustomaryAgentiveNominalCompoundMatrixInventory")
+            && rendering.includes('continueButton.dataset.customaryAgentiveNominalCompoundContinuation = "true"')
+            && rendering.includes("dataset.customaryAgentiveStem = contract.customaryAgentiveStem")
+            && rendering.includes("applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry")
+            && rendering.includes('resolvedTense === "agentivo"')
+            && rendering.includes("Andrews 36.3:")
+            && composer.includes("function applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry")
+            && composer.includes("VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive")
+            && composer.includes("VerbComposerState.slotBEmbed = normalizedCustomaryAgentiveStem")
+            && composer.includes("customary-agentive-compound-embed-entry")
+            && composer.includes("function applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry")
+            && composer.includes("customaryAgentiveStem")
+            && composer.includes("applyActiveActionNominalCompoundToOrdinaryNncEntry({")
+    );
+    s.ok(
+        "preterit-agentive output has real Andrews 35.7/35.9/35.10 continuations from #3 salida",
+        rendering.includes("getPreteritAgentiveGeneralUseStemsFromEvaluation")
+            && rendering.includes('result?.nominalizationProfile?.nominalKind !== "agentivo-preterito"')
+            && rendering.includes("renderPreteritAgentiveCompoundEmbedContinuation")
+            && rendering.includes("buildPreteritAgentiveCompoundEmbedContinuationContract")
+            && rendering.includes("getPreteritAgentiveCompoundEmbedMatrixInventory")
+            && rendering.includes('continueButton.dataset.preteritAgentiveCompoundEmbedContinuation = "true"')
+            && rendering.includes("applyActiveActionCompoundEmbedRootsToVerbEntry")
+            && rendering.includes("renderPreteritAgentiveNominalCompoundContinuation")
+            && rendering.includes("buildPreteritAgentiveNominalCompoundContinuationContract")
+            && rendering.includes("getPreteritAgentiveNominalCompoundMatrixInventory")
+            && rendering.includes('continueButton.dataset.preteritAgentiveNominalCompoundContinuation = "true"')
+            && rendering.includes("applyActiveActionNominalCompoundToOrdinaryNncEntry")
+            && rendering.includes("renderPreteritAgentiveOwnerhoodContinuation")
+            && rendering.includes("buildPreteritAgentiveOwnerhoodContinuationContract")
+            && rendering.includes("getPreteritAgentiveOwnerhoodMatrixInventory")
+            && rendering.includes("getPreteritAgentiveOwnerhoodPreviewSurface")
+            && rendering.includes('continueButton.dataset.preteritAgentiveOwnerhoodContinuation = "true"')
+            && rendering.includes("applyPreteritAgentiveOwnerhoodRootsToVerbEntry")
+            && rendering.includes("renderPreteritAgentiveComplementContinuation")
+            && rendering.includes("buildPreteritAgentiveComplementContinuationContract")
+            && rendering.includes("getPreteritAgentiveComplementMatrixInventory")
+            && rendering.includes('continueButton.dataset.preteritAgentiveComplementContinuation = "true"')
+            && rendering.includes("applyPreteritAgentiveComplementRootsToVerbEntry")
+            && rendering.includes("renderPreteritAgentiveAdverbialContinuation")
+            && rendering.includes("buildPreteritAgentiveAdverbialContinuationContract")
+            && rendering.includes("getPreteritAgentiveAdverbialMatrixInventory")
+            && rendering.includes('continueButton.dataset.preteritAgentiveAdverbialContinuation = "true"')
+            && rendering.includes("applyPreteritAgentiveAdverbialRootsToVerbEntry")
+            && rendering.includes('resolvedTense === "agentivo-preterito"')
+            && rendering.includes("uso general:")
+            && rendering.includes("Andrews 35.7:")
+            && rendering.includes("matriz de posesión:")
+            && rendering.includes("matriz de complemento:")
+            && rendering.includes("matriz adverbial:")
+            && composer.includes("function applyPreteritAgentiveOwnerhoodRootsToVerbEntry")
+            && composer.includes("function applyPreteritAgentiveComplementRootsToVerbEntry")
+            && composer.includes("function applyPreteritAgentiveAdverbialRootsToVerbEntry")
+            && composer.includes("preterit-agentive-adverbial-entry")
+            && composer.includes("preterit-agentive-complement-entry")
+            && composer.includes("setSelectedTenseTab(\"pasado-remoto\")")
+            && composer.includes("preterit-agentive-ownerhood-entry")
+    );
     const characteristicComposerStart = composer.indexOf("function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry");
     const characteristicComposerEnd = composer.indexOf("function applyPatientivoNominalCompoundToOrdinaryNncEntry", characteristicComposerStart);
     const characteristicComposer = characteristicComposerStart >= 0 && characteristicComposerEnd > characteristicComposerStart
@@ -553,7 +685,19 @@ function run(ctx = {}) {
             && characteristicComposer.includes("patientivo-characteristic-property-embed-entry")
     );
     s.ok(
-        "patientivo salida hides the route rail because continuations live in generated rows",
+        "calificativo general-use source-subject possessor lives in #3 salida rows",
+        rendering.includes("renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation")
+            && rendering.includes("resolveNawatPossessorPrefixFromSourceSubject")
+            && rendering.includes('actionNounStemUse: "general-use"')
+            && rendering.includes("combinedMode: resolvedNominalControlCombinedMode")
+            && rendering.includes('action.dataset.actionNounSourceSubjectPossessor = derivedPossessorPrefix')
+            && rendering.includes('action.dataset.targetSurface = generalUseEvaluation.result.result || ""')
+            && rendering.includes("Andrews 36.10-36.11: sujeto fuente")
+            && rendering.includes("renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation({")
+            && rendering.includes("row.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.viable")
+    );
+    s.ok(
+        "patientivo salida hides separate output guidance because continuations live in generated rows",
         rendering.includes("const isPatientivoSalidaMode = activeTenseMode === TENSE_MODE.sustantivo")
             && rendering.includes('selectionState.tenseValue === "patientivo"')
             && rendering.includes('renderOutputGuidancePanel({ verb: isPatientivoSalidaMode ? "" : renderVerb });')
@@ -601,6 +745,7 @@ function run(ctx = {}) {
             && verbDestinationBody.includes("tense-block--has-destination-menu")
             && !verbDestinationBody.includes("createVerbTenseBlockDestinationPicker({")
             && !verbDestinationBody.includes("destinationSlot.appendChild(destinationPicker)")
+            && !rendering.includes("function createVerbTenseBlockDestinationPicker")
     );
     s.ok(
         "active verb renderer preserves an explicit promoted object prefix into regular tense blocks",
@@ -629,20 +774,35 @@ function run(ctx = {}) {
         ? rendering.slice(guidancePanelStart, guidancePanelEnd)
         : "";
     s.ok(
-        "output route rail is dormant because continuations belong in #3 salida rows",
-        guidancePanelBody.includes("hidePanel();")
-            && guidancePanelBody.includes("hidePanel();\n    return;")
+        "separate output guidance code is removed because continuations belong in #3 salida rows",
+        guidancePanelBody.includes('document.getElementById("calc-guidance")')
+            && guidancePanelBody.includes("panel.hidden = true")
+            && !guidancePanelBody.includes("conversion-rail-block")
+            && !guidancePanelBody.includes("renderLineRows")
+            && !guidancePanelBody.includes("salida dinámica")
+            && !html.includes('id="conversion-rail-block"')
+            && !html.includes('id="calc-guidance"')
+            && !rendering.includes("const createPatientivoBlockOriginPicker")
+            && !rendering.includes("const createTroncoBlockDestinationPicker")
+            && !rendering.includes("const createPatientivoPrelocativeDestinationPicker")
+            && !rendering.includes("function createNawatRoutePickerMenuSection")
+            && !rendering.includes("function createNawatConversionStationPicker")
+            && !rendering.includes("function createNawatPatientivoVerbNounConversionPicker")
+            && !rendering.includes("function createNawatTroncoConversionSwitchGroup")
+            && !rendering.includes("function createNawatVerbNounConversionSwitchGroup")
+            && !css.includes(".calc-guidance__route-switch-chip")
+            && !css.includes(".calc-guidance__conversion-station-picker")
+            && !css.includes(".calc-guidance__branch-picker")
             && rendering.includes('renderOutputGuidancePanel({ verb: "" });')
             && rendering.includes('message: "Selecciona una transitividad para saber su salida."')
     );
     s.ok(
-        "Nawat linked stages stay as row-action plumbing, not a separate route rail",
+        "Nawat linked stages stay as helper plumbing, not a separate output rail",
         rendering.includes("buildNawatLinkedGrammarStageSubLabels")
             && rendering.includes("getNawatLinkedGrammarCompactRouteLabel")
             && rendering.includes("formatNawatLinkedGrammarCompactChoiceLabel")
             && rendering.includes("buildNawatLinkedGrammarSelectionSummarySubLabels")
             && rendering.includes("attachNawatLinkedGrammarStagesToRailStations")
-            && rendering.includes("buildNawatLinkedGrammarPathStages(activeRoute")
             && rendering.includes("linkedNextSource")
             && rendering.includes("Siguiente fuente:")
             && rendering.includes("Salida de etapa:")
@@ -650,47 +810,33 @@ function run(ctx = {}) {
             && rendering.includes("Opciones siguientes:")
             && rendering.includes("Siguiente salida:")
             && html.indexOf('class="output-meta-strip"') >= 0
-            && html.indexOf('id="conversion-rail-block"') > html.indexOf('class="output-meta-strip"')
-            && html.includes('aria-label="Trayecto de salida"')
-            && rendering.includes("previewNawatLinkedGrammarPathNextSource")
-            && rendering.includes("buildSelectionSummary")
+            && !rendering.includes("buildNawatLineModels")
+            && !rendering.includes("renderNawatLineBoard")
+            && !rendering.includes("calc-guidance__line-toggles")
+            && !rendering.includes("salida dinámica")
             && rendering.includes("linkedAppendableChoiceLabel")
             && rendering.includes("linkedAppendableSelectionCount")
             && rendering.includes("linkedAppendableActivation")
             && rendering.includes("linkedAppendableAction")
-            && rendering.includes("appendActiveNawatLinkedGrammarPathSelection")
-            && rendering.includes("choice.dataset.linkedPathAppended")
-            && rendering.includes("calc-guidance__linked-path-summary")
-            && rendering.includes("calc-guidance__linked-path-group--status")
-            && rendering.includes("calc-guidance__linked-path-group--choices")
-            && rendering.includes("calc-guidance__linked-path-group--actions")
             && rendering.includes("buildNawatLinkedGrammarSelectedPathSubLabels")
             && rendering.includes("buildNawatLinkedGrammarPathExecutionSubLabels")
             && rendering.includes("buildNawatLinkedGrammarPromotedSourceSubLabels")
             && rendering.includes("getNawatLinkedGrammarAppendableSelections")
             && rendering.includes("getFirstNawatLinkedGrammarAppendableSelection")
-            && rendering.includes("getNawatLinkedGrammarPathExecutionSourceOptions")
-            && rendering.includes("executeActiveNawatLinkedGrammarPathSelections")
-            && rendering.includes("promoteActiveNawatLinkedGrammarPathExecutionStepSource")
-            && rendering.includes("promoteActiveNawatLinkedGrammarPathExecutionFinalSource")
-            && rendering.includes("removeLastActiveNawatLinkedGrammarPathSelection")
-            && rendering.includes("clearActiveNawatLinkedGrammarPathSelections")
-            && rendering.includes("generar trayecto")
-            && rendering.includes("usar salida")
-            && rendering.includes("usar etapa")
-            && rendering.includes("atrás")
-            && rendering.includes("borrar")
-            && rendering.includes("syncInput: true")
-            && rendering.includes("linkedPathAppendSummary")
-            && rendering.includes("linkedPathChoiceIndex")
-            && rendering.includes("linkedPathPromoteStep")
-            && rendering.includes("linkedPathBack")
-            && rendering.includes("linkedPathClear")
+            && html.indexOf('id="conversion-rail-block"') === -1
+            && !html.includes('aria-label="Trayecto de salida"')
+            && !css.includes(".calc-guidance__line")
+            && !css.includes(".calc-guidance__linked-path-group")
             && rendering.includes("renderPatientivoCompoundEmbedContinuation({")
             && rendering.includes("renderPatientivoNominalCompoundContinuation({")
             && rendering.includes("renderPatientivoCharacteristicPropertyEmbedContinuation({")
-            && css.includes(".calc-guidance__linked-path-group")
-            && css.includes(".calc-guidance__linked-path-group--choices")
+    );
+    s.ok(
+        "instrumentive source-subject possessive output lives in #3 salida rows",
+        rendering.includes("renderInstrumentivoSourceSubjectPossessiveContinuation")
+            && rendering.includes("instrumentivoSourceSubjectPossessor")
+            && rendering.includes("INSTRUMENTIVO_MODE.posesivo")
+            && rendering.includes("Andrews 36.6: sujeto fuente")
     );
     s.ok(
         "shared adverbio renderer exposes Lesson 44 diagnostic metadata",
@@ -1275,7 +1421,7 @@ function run(ctx = {}) {
         linkedAppendActionStations[0].linkedAppendableAction("choice-node");
     }
     s.eq(
-        "linked rail append action stores selected next route without activating the current station",
+        "linked stage append action stores selected next route without activating the current station",
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? linkedAppendActionCalls.map(([selection, options]) => ({
                 selection,
@@ -1298,8 +1444,8 @@ function run(ctx = {}) {
             ]
             : []
     );
-    const linkedRailActionCalls = [];
-    const linkedRailActionStations = typeof ctx.attachNawatLinkedGrammarStagesToRailStations === "function"
+    const linkedStageActionCalls = [];
+    const linkedStageActionStations = typeof ctx.attachNawatLinkedGrammarStagesToRailStations === "function"
         ? ctx.attachNawatLinkedGrammarStagesToRailStations(
             [
                 { key: "finite", text: "finito" },
@@ -1325,19 +1471,19 @@ function run(ctx = {}) {
             {
                 routeKey: "denominal-vi-ti-preterit",
                 activateStation: (...args) => {
-                    linkedRailActionCalls.push(args);
+                    linkedStageActionCalls.push(args);
                     return { ok: true };
                 },
             }
         )
         : [];
-    if (linkedRailActionStations[0]?.action) {
-        linkedRailActionStations[0].action("anchor-node");
+    if (linkedStageActionStations[0]?.action) {
+        linkedStageActionStations[0].action("anchor-node");
     }
     s.eq(
-        "linked rail stage action preserves original route source while exposing next source",
+        "linked stage action preserves original route source while exposing next source",
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? linkedRailActionCalls.map(([routeKey, stationKey, options]) => ({
+            ? linkedStageActionCalls.map(([routeKey, stationKey, options]) => ({
                 routeKey,
                 stationKey,
                 sourceVerb: options.sourceVerb,
@@ -1462,6 +1608,12 @@ function run(ctx = {}) {
                     stem: "mati",
                     valency: "transitive",
                 },
+                adverbialNuclearClauseFrame: {
+                    adverbialization: {
+                        degree: "first-degree",
+                        semanticDomain: "manner",
+                    },
+                },
                 boundaries: { legacyAdverbioSurfaceOnly: true },
             })
             : ["rendering-runtime-not-loaded"],
@@ -1470,6 +1622,8 @@ function run(ctx = {}) {
                 "Adverbial nuclear: manera",
                 "Fuente VNC: mati",
                 "Valencia fuente: transitiva",
+                "Grado: primer grado",
+                "Dominio: manera",
                 "Alcance: adverbio heredado",
             ]
             : ["rendering-runtime-not-loaded"]

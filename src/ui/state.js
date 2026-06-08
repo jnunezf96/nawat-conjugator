@@ -4899,6 +4899,9 @@ function getTenseOrderForMode(mode) {
         return [
             "sustantivo-verbal",
             "agentivo",
+            "agentivo-presente",
+            "agentivo-preterito",
+            "agentivo-futuro",
             "patientivo",
             "instrumentivo",
             "calificativo-instrumentivo",
@@ -4919,6 +4922,9 @@ function getTenseOrderForMode(mode) {
         && !PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense)
         && tense !== "pasado-remoto-adverbio-activo"
         && tense !== "agentivo"
+        && tense !== "agentivo-presente"
+        && tense !== "agentivo-preterito"
+        && tense !== "agentivo-futuro"
         && tense !== "patientivo"
         && tense !== "instrumentivo"
         && tense !== "calificativo-instrumentivo"

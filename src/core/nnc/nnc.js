@@ -1784,6 +1784,34 @@ function resolveOrdinaryNncFixture(request = {}) {
     };
 }
 
+function resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix = "", subjectSuffix = "") {
+    const prefix = String(subjectPrefix || "");
+    const suffix = String(subjectSuffix || "");
+    if (prefix === "ni" && suffix === "") {
+        return "nu";
+    }
+    if (prefix === "ti" && suffix === "") {
+        return "mu";
+    }
+    if (prefix === "" && suffix === "") {
+        return "i";
+    }
+    if (prefix === "ti" && suffix === "t") {
+        return "tu";
+    }
+    if (prefix === "an" && suffix === "t") {
+        return "anmu";
+    }
+    if (prefix === "" && suffix === "t") {
+        return "in";
+    }
+    return "";
+}
+
+function resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix = "", subjectSuffix = "") {
+    return resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
+}
+
 function getInstrumentivoResult({
     rawVerb,
     verbMeta,
@@ -1937,9 +1965,15 @@ function getInstrumentivoResult({
         return result;
     }
 
-    const resolvedPossessivePrefix = typeof possessivePrefix === "string"
+    const explicitPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
         : "";
+    const sourceSubjectPossessivePrefix = resolveInstrumentivoPossessorPrefixFromSourceSubject(
+        subjectPrefix,
+        subjectSuffix
+    );
+    const resolvedPossessivePrefix = explicitPossessivePrefix
+        || (mode === INSTRUMENTIVO_MODE.posesivo ? sourceSubjectPossessivePrefix : "");
     const entries = [];
     forwardStemContexts.forEach((stemContext) => {
         const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu"
@@ -2004,7 +2038,17 @@ function getInstrumentivoResult({
     if (!result.result) {
         return { error: true };
     }
-    return result;
+    return {
+        ...result,
+        instrumentivoSourceSubjectPossessor: mode === INSTRUMENTIVO_MODE.posesivo ? {
+            grammarSource: "Andrews 36.6",
+            sourceSubjectPrefix: subjectPrefix || "",
+            sourceSubjectSuffix: subjectSuffix || "",
+            possessivePrefix: resolvedPossessivePrefix,
+            explicitPossessivePrefix,
+            derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
+        } : null,
+    };
 }
 
 function getCalificativoInstrumentivoResult({
@@ -2031,7 +2075,7 @@ function getCalificativoInstrumentivoResult({
         thirdObjectMarker,
         actionNounStemUse: resolvedActionNounStemUse,
         combinedMode,
-        requireNonanimateSubject: true,
+        requireNonanimateSubject: resolvedActionNounStemUse !== "general-use",
     });
     if (context.error) {
         return { error: true };
@@ -2045,10 +2089,14 @@ function getCalificativoInstrumentivoResult({
         indirectObjectMarker: resolvedIndirectObjectMarker,
         thirdObjectMarker: resolvedThirdObjectMarker,
     } = context;
-    const resolvedPossessivePrefix = typeof possessivePrefix === "string"
+    const explicitPossessivePrefix = typeof possessivePrefix === "string"
         ? possessivePrefix
         : "";
     const useGeneralActionStem = resolvedActionNounStemUse === "general-use";
+    const sourceSubjectPossessivePrefix = useGeneralActionStem
+        ? resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix)
+        : "";
+    const resolvedPossessivePrefix = explicitPossessivePrefix || sourceSubjectPossessivePrefix;
     if (useGeneralActionStem && !resolvedPossessivePrefix) {
         return { error: true };
     }
@@ -2219,7 +2267,17 @@ function getCalificativoInstrumentivoResult({
     if (!result.result) {
         return { error: true };
     }
-    return result;
+    return {
+        ...result,
+        actionNounSourceSubjectPossessor: useGeneralActionStem ? {
+            grammarSource: isActiveActionSource ? "Andrews 36.11" : "Andrews 36.10",
+            sourceSubjectPrefix: subjectPrefix || "",
+            sourceSubjectSuffix: subjectSuffix || "",
+            possessivePrefix: resolvedPossessivePrefix,
+            explicitPossessivePrefix,
+            derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
+        } : null,
+    };
 }
 
 function getLocativoTemporalResult({

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/composer/composer.js.
 
-export function createUiComposerApi(targetObject = globalThis) {
+export function createUiComposerGlobals(targetObject = globalThis) {
     // === Verb Composer ===
     function getComposerSlotKeyForTransitivity(transitivity) {
       return COMPOSER_SLOT_KEY_BY_TRANSITIVITY[transitivity] || "a";
@@ -5830,6 +5830,53 @@ export function createUiComposerApi(targetObject = globalThis) {
         VerbComposerState.isApplying = false;
       }
     }
+    function clearAdjectivalNncFunctionEntryState(verbEl = targetObject.document.getElementById("verb")) {
+      if (!verbEl?.dataset) {
+        return;
+      }
+      delete verbEl.dataset.adjectivalNncFunctionSurface;
+      delete verbEl.dataset.adjectivalNncFormation;
+      delete verbEl.dataset.adjectivalNncFormulaEcho;
+      delete verbEl.dataset.patientivoSource;
+      delete verbEl.dataset.nominalizedVncKind;
+    }
+    function applyAdjectivalNncFunctionToVerbEntry({
+      surface = "",
+      formation = "",
+      formulaEcho = "",
+      patientivoSource = "",
+      nominalizedVncKind = ""
+    } = {}) {
+      const verbEl = targetObject.document.getElementById("verb");
+      const normalizedSurface = String(surface || "").trim();
+      if (!verbEl || !normalizedSurface) {
+        return;
+      }
+      verbEl.value = normalizedSurface;
+      verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface;
+      verbEl.dataset.adjectivalNncFormation = String(formation || "").trim();
+      verbEl.dataset.adjectivalNncFormulaEcho = String(formulaEcho || "").trim();
+      verbEl.dataset.patientivoSource = String(patientivoSource || "").trim();
+      verbEl.dataset.nominalizedVncKind = String(nominalizedVncKind || "").trim();
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.adjetivo, {
+          clearRoute: true
+        });
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:adjectival-nnc-function-applied", {
+          surface: normalizedSurface,
+          formation: String(formation || "").trim(),
+          formulaEcho: String(formulaEcho || "").trim(),
+          patientivoSource: String(patientivoSource || "").trim(),
+          nominalizedVncKind: String(nominalizedVncKind || "").trim()
+        });
+      }
+      scheduleVerbInputRefresh(verbEl.value, {
+        immediate: true,
+        source: "adjectival-nnc-function-entry"
+      });
+    }
     function applyPrelocativeRootsToVerbEntry({
       incorporatedRoot = "",
       matrixRoot = "tajtani",
@@ -6310,6 +6357,383 @@ export function createUiComposerApi(targetObject = globalThis) {
       }
       return true;
     }
+    function applyPreteritAgentiveOwnerhoodRootsToVerbEntry({
+      preteritAgentiveStem = "",
+      matrixRoot = "wa",
+      matrixSpecId = "",
+      ownerhoodVerbInput = ""
+    } = {}) {
+      const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
+      const resolvedMatrixSpec = typeof targetObject.resolvePreteritAgentiveOwnerhoodMatrixSpec === "function" ? targetObject.resolvePreteritAgentiveOwnerhoodMatrixSpec(matrixRoot || "wa") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "wa");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedOwnerhoodVerbInput = String(ownerhoodVerbInput || "").trim() || (typeof targetObject.buildPreteritAgentiveOwnerhoodVerbInput === "function" ? targetObject.buildPreteritAgentiveOwnerhoodVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: normalizedMatrixRoot
+      }) : `(${normalizedPreteritAgentiveStem})-(${normalizedMatrixRoot})`);
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedOwnerhoodVerbInput || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = normalizedPreteritAgentiveStem;
+      VerbComposerState.slotAStem = normalizedMatrixRoot;
+      VerbComposerState.slotBEmbed = "";
+      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedPreteritAgentiveStem;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "a";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      verbEl.value = resolvedOwnerhoodVerbInput;
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.setSelectedTenseTab === "function") {
+        targetObject.setSelectedTenseTab("pasado-remoto");
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:preterit-agentive-ownerhood-applied", {
+          preteritAgentiveStem: normalizedPreteritAgentiveStem,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          ownerhoodVerbInput: resolvedOwnerhoodVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "preterit-agentive-ownerhood-entry"
+        });
+      }
+      return true;
+    }
+    function applyPreteritAgentiveComplementRootsToVerbEntry({
+      preteritAgentiveStem = "",
+      matrixRoot = "mati",
+      matrixSpecId = "",
+      objectPrefix = "ki",
+      complementVerbInput = ""
+    } = {}) {
+      const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
+      const resolvedMatrixSpec = typeof targetObject.resolvePreteritAgentiveComplementMatrixSpec === "function" ? targetObject.resolvePreteritAgentiveComplementMatrixSpec(matrixRoot || "mati") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "mati");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedObjectPrefix = String(objectPrefix || resolvedMatrixSpec?.objectPrefix || "ki").trim() || "ki";
+      const resolvedComplementVerbInput = String(complementVerbInput || "").trim() || (typeof targetObject.buildPreteritAgentiveComplementVerbInput === "function" ? targetObject.buildPreteritAgentiveComplementVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: normalizedMatrixRoot
+      }) : `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`);
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedComplementVerbInput || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = "";
+      VerbComposerState.slotAStem = "";
+      VerbComposerState.slotBEmbed = normalizedPreteritAgentiveStem;
+      VerbComposerState.slotBStem = normalizedMatrixRoot;
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedPreteritAgentiveStem;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "b";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      verbEl.value = resolvedComplementVerbInput;
+      if (typeof targetObject.setCurrentObjectPrefix === "function") {
+        targetObject.setCurrentObjectPrefix(resolvedObjectPrefix);
+      } else {
+        const objectEl = targetObject.document.getElementById("object");
+        if (objectEl) {
+          objectEl.value = resolvedObjectPrefix;
+        }
+      }
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.setSelectedTenseTab === "function") {
+        targetObject.setSelectedTenseTab("presente");
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:preterit-agentive-complement-applied", {
+          preteritAgentiveStem: normalizedPreteritAgentiveStem,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          objectPrefix: resolvedObjectPrefix,
+          complementVerbInput: resolvedComplementVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "preterit-agentive-complement-entry"
+        });
+      }
+      return true;
+    }
+    function applyPreteritAgentiveAdverbialRootsToVerbEntry({
+      preteritAgentiveStem = "",
+      matrixRoot = "nemi",
+      matrixSpecId = "",
+      objectPrefix = "",
+      adverbialVerbInput = ""
+    } = {}) {
+      const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
+      const resolvedMatrixSpec = typeof targetObject.resolvePreteritAgentiveAdverbialMatrixSpec === "function" ? targetObject.resolvePreteritAgentiveAdverbialMatrixSpec(matrixRoot || "nemi") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "nemi");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedObjectPrefix = resolvedMatrixSpec?.matrixValency === "transitive" ? String(objectPrefix || "ki").trim() || "ki" : "";
+      const resolvedAdverbialVerbInput = String(adverbialVerbInput || "").trim() || (typeof targetObject.buildPreteritAgentiveAdverbialVerbInput === "function" ? targetObject.buildPreteritAgentiveAdverbialVerbInput({
+        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        matrixRoot: normalizedMatrixRoot
+      }) : `(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`);
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedAdverbialVerbInput || !verbEl) {
+        return false;
+      }
+      const isTransitiveMatrix = resolvedMatrixSpec?.matrixValency === "transitive";
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = isTransitiveMatrix ? COMPOSER_TRANSITIVITY.transitive : COMPOSER_TRANSITIVITY.intransitive;
+      VerbComposerState.lastGeneralTransitivity = VerbComposerState.transitivity;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = normalizedPreteritAgentiveStem;
+      VerbComposerState.slotAStem = normalizedMatrixRoot;
+      VerbComposerState.slotBEmbed = "";
+      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedPreteritAgentiveStem;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "a";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      verbEl.value = resolvedAdverbialVerbInput;
+      if (typeof targetObject.setCurrentObjectPrefix === "function") {
+        targetObject.setCurrentObjectPrefix(resolvedObjectPrefix);
+      } else {
+        const objectEl = targetObject.document.getElementById("object");
+        if (objectEl) {
+          objectEl.value = resolvedObjectPrefix;
+        }
+      }
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.setSelectedTenseTab === "function") {
+        targetObject.setSelectedTenseTab("presente");
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:preterit-agentive-adverbial-applied", {
+          preteritAgentiveStem: normalizedPreteritAgentiveStem,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          objectPrefix: resolvedObjectPrefix,
+          adverbialVerbInput: resolvedAdverbialVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "preterit-agentive-adverbial-entry"
+        });
+      }
+      return true;
+    }
+    function applyOrdinaryNounOwnerhoodRootsToVerbEntry({
+      nounStem = "",
+      nounClass = "",
+      matrixRoot = "wa",
+      matrixSpecId = "",
+      ownerhoodVerbInput = ""
+    } = {}) {
+      const normalizedNounStem = normalizeComposerEmbedValue(nounStem);
+      const resolvedMatrixSpec = typeof targetObject.resolveOrdinaryNounOwnerhoodMatrixSpec === "function" ? targetObject.resolveOrdinaryNounOwnerhoodMatrixSpec(matrixRoot || "wa") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "wa");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedOwnerhoodVerbInput = String(ownerhoodVerbInput || "").trim() || (typeof targetObject.buildOrdinaryNounOwnerhoodVerbInput === "function" ? targetObject.buildOrdinaryNounOwnerhoodVerbInput({
+        nounStem: normalizedNounStem,
+        nounClass,
+        matrixRoot: normalizedMatrixRoot
+      }) : `(${normalizedNounStem})-(${normalizedMatrixRoot})`);
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedNounStem || !normalizedMatrixRoot || !resolvedOwnerhoodVerbInput || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = normalizedNounStem;
+      VerbComposerState.slotAStem = normalizedMatrixRoot;
+      VerbComposerState.slotBEmbed = "";
+      VerbComposerState.slotBStem = "";
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedNounStem;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "a";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      verbEl.value = resolvedOwnerhoodVerbInput;
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.setSelectedTenseTab === "function") {
+        targetObject.setSelectedTenseTab("pasado-remoto");
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:ordinary-noun-ownerhood-applied", {
+          nounStem: normalizedNounStem,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          ownerhoodVerbInput: resolvedOwnerhoodVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "ordinary-noun-ownerhood-entry"
+        });
+      }
+      return true;
+    }
     function applyActiveActionNominalCompoundToOrdinaryNncEntry({
       actionNominalSurface = "",
       matrixRoot = "kal",
@@ -6415,6 +6839,124 @@ export function createUiComposerApi(targetObject = globalThis) {
         scheduleVerbInputRefresh(verbEl.value, {
           immediate: true,
           source: "active-action-nominal-compound-entry"
+        });
+      }
+      return true;
+    }
+    function applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry({
+      customaryAgentiveStem = "",
+      matrixRoot = "kal",
+      matrixSpecId = "",
+      nounClass = "",
+      animacy = "",
+      ordinaryNncInput = "",
+      compoundStem = ""
+    } = {}) {
+      return applyActiveActionNominalCompoundToOrdinaryNncEntry({
+        actionNominalSurface: customaryAgentiveStem,
+        matrixRoot,
+        matrixSpecId,
+        nounClass,
+        animacy,
+        ordinaryNncInput,
+        compoundStem
+      });
+    }
+    function applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry({
+      customaryAgentiveStem = "",
+      matrixRoot = "tuka",
+      matrixSpecId = "",
+      objectPrefix = "ki",
+      compoundVerbInput = ""
+    } = {}) {
+      const normalizedCustomaryAgentiveStem = normalizeComposerEmbedValue(customaryAgentiveStem);
+      const resolvedMatrixSpec = typeof targetObject.resolveCustomaryAgentiveCompoundEmbedMatrixSpec === "function" ? targetObject.resolveCustomaryAgentiveCompoundEmbedMatrixSpec(matrixRoot || "tuka") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "tuka");
+      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const resolvedObjectPrefix = String(objectPrefix || resolvedMatrixSpec?.objectPrefix || "ki").trim() || "ki";
+      const resolvedCompoundVerbInput = String(compoundVerbInput || "").trim() || (typeof targetObject.buildCustomaryAgentiveCompoundEmbedVerbInput === "function" ? targetObject.buildCustomaryAgentiveCompoundEmbedVerbInput({
+        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        matrixRoot: normalizedMatrixRoot
+      }) : `-(${normalizedCustomaryAgentiveStem}/${normalizedMatrixRoot})`);
+      const verbEl = targetObject.document.getElementById("verb");
+      if (!normalizedCustomaryAgentiveStem || !normalizedMatrixRoot || !resolvedCompoundVerbInput || !verbEl) {
+        return false;
+      }
+      VerbComposerState.mode = VERB_INPUT_MODE.composer;
+      VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
+      VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.lastGeneralTransitivity = COMPOSER_TRANSITIVITY.transitive;
+      VerbComposerState.valenceIntransitive = "";
+      VerbComposerState.valenceIntransitiveEmbed = "";
+      VerbComposerState.valence = "";
+      VerbComposerState.valenceEmbedPrimary = "";
+      VerbComposerState.valenceSecondary = "";
+      VerbComposerState.valenceEmbedSecondary = "";
+      VerbComposerState.slotAEmbed = "";
+      VerbComposerState.slotAStem = "";
+      VerbComposerState.slotBEmbed = normalizedCustomaryAgentiveStem;
+      VerbComposerState.slotBStem = normalizedMatrixRoot;
+      VerbComposerState.slotCEmbed = "";
+      VerbComposerState.slotCStem = "";
+      VerbComposerState.directionalPrefix = "";
+      VerbComposerState.embedPrefix = normalizedCustomaryAgentiveStem;
+      VerbComposerState.supportiveMarker = "";
+      VerbComposerState.stem = normalizedMatrixRoot;
+      VerbComposerState.sourceBase = "";
+      VerbComposerState.stemManualOverride = true;
+      COMPOSER_SLOT_KEYS.forEach(slotKey => {
+        ComposerEmbedOpenState[slotKey] = slotKey === "b";
+        ComposerEmbedPreviewState[slotKey] = false;
+        COMPOSER_SERIAL_SLOT_TYPE_BY_SLOT[slotKey] = "auto";
+        COMPOSER_TEMPLATE_SURFACE_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TEMPLATE_SUFFIX_BY_SLOT[slotKey] = "";
+        COMPOSER_NOUN_TO_VERB_TI_CAUSATIVE_CLASS_BY_SLOT[slotKey] = "";
+        const stemInput = getVerbComposerElements().slots?.[slotKey]?.stemInput || null;
+        if (stemInput?.dataset?.dropdownTemplateSuffix) {
+          delete stemInput.dataset.dropdownTemplateSuffix;
+        }
+      });
+      renderVerbComposerFromState();
+      verbEl.value = resolvedCompoundVerbInput;
+      if (typeof targetObject.setCurrentObjectPrefix === "function") {
+        targetObject.setCurrentObjectPrefix(resolvedObjectPrefix);
+      } else {
+        const objectEl = targetObject.document.getElementById("object");
+        if (objectEl) {
+          objectEl.value = resolvedObjectPrefix;
+        }
+      }
+      if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.verbo) {
+        targetObject.setActiveTenseMode(TENSE_MODE.verbo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || "nawat" : "nawat",
+          clearRoute: true
+        });
+      }
+      if (typeof targetObject.setSelectedTenseTab === "function") {
+        targetObject.setSelectedTenseTab("presente");
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
+      if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:customary-agentive-compound-embed-applied", {
+          customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+          matrixRoot: normalizedMatrixRoot,
+          matrixSpecId: resolvedMatrixSpecId,
+          objectPrefix: resolvedObjectPrefix,
+          compoundVerbInput: resolvedCompoundVerbInput
+        });
+      }
+      const applyButton = targetObject.document.getElementById("verb-entry-apply");
+      if (applyButton && typeof applyButton.click === "function") {
+        applyButton.click();
+      } else {
+        verbEl.dispatchEvent(new targetObject.Event("input", {
+          bubbles: true
+        }));
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "customary-agentive-compound-embed-entry"
         });
       }
       return true;
@@ -8385,6 +8927,9 @@ export function createUiComposerApi(targetObject = globalThis) {
       const previousContext = targetObject.VerbRenderContext;
       targetObject.VerbRenderContext = refreshSource;
       try {
+        if (refreshSource === "typing") {
+          clearAdjectivalNncFunctionEntryState(verbInput);
+        }
         if (refreshSource !== "typing") {
           cancelDeferredToggleAvailabilityPass();
         }
@@ -8445,7 +8990,7 @@ export function createUiComposerApi(targetObject = globalThis) {
         return `${raw.length}:${raw}`;
       };
       const encodeFlag = value => value === true ? "1" : "0";
-      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
+      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(override.adjectivalNnc?.surface), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
       return keyParts.join("|");
     }
     function getCachedSilentGenerateWord(options = {}) {
@@ -9556,12 +10101,20 @@ export function createUiComposerApi(targetObject = globalThis) {
     api.renderVerbComposerFromState = renderVerbComposerFromState;
     api.syncComposerStateFromVerbInput = syncComposerStateFromVerbInput;
     api.applyComposerStateToVerbInput = applyComposerStateToVerbInput;
+    api.clearAdjectivalNncFunctionEntryState = clearAdjectivalNncFunctionEntryState;
+    api.applyAdjectivalNncFunctionToVerbEntry = applyAdjectivalNncFunctionToVerbEntry;
     api.applyPrelocativeRootsToVerbEntry = applyPrelocativeRootsToVerbEntry;
     api.applyPatientivoCompoundEmbedRootsToVerbEntry = applyPatientivoCompoundEmbedRootsToVerbEntry;
     api.applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry = applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry;
     api.applyPatientivoNominalCompoundToOrdinaryNncEntry = applyPatientivoNominalCompoundToOrdinaryNncEntry;
     api.applyActiveActionCompoundEmbedRootsToVerbEntry = applyActiveActionCompoundEmbedRootsToVerbEntry;
+    api.applyPreteritAgentiveOwnerhoodRootsToVerbEntry = applyPreteritAgentiveOwnerhoodRootsToVerbEntry;
+    api.applyPreteritAgentiveComplementRootsToVerbEntry = applyPreteritAgentiveComplementRootsToVerbEntry;
+    api.applyPreteritAgentiveAdverbialRootsToVerbEntry = applyPreteritAgentiveAdverbialRootsToVerbEntry;
+    api.applyOrdinaryNounOwnerhoodRootsToVerbEntry = applyOrdinaryNounOwnerhoodRootsToVerbEntry;
     api.applyActiveActionNominalCompoundToOrdinaryNncEntry = applyActiveActionNominalCompoundToOrdinaryNncEntry;
+    api.applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry = applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry;
+    api.applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry = applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry;
     api.shouldComposerControlChangeRefreshImmediately = shouldComposerControlChangeRefreshImmediately;
     api.collectComposerStateFromControls = collectComposerStateFromControls;
     api.maybeDeriveComposerStemFromSelectionsSource = maybeDeriveComposerStemFromSelectionsSource;
@@ -10457,7 +11010,7 @@ export function createUiComposerApi(targetObject = globalThis) {
 }
 
 export function installUiComposerGlobals(targetObject = globalThis) {
-    const api = createUiComposerApi(targetObject);
+    const api = createUiComposerGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }
