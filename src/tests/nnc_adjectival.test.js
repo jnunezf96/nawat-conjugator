@@ -22,11 +22,19 @@ function run(ctx) {
             typeof ctx.shouldGeneratePatientiveAdjectivalNnc,
             typeof ctx.buildVncAdjectivalNncFunctionOutput,
             typeof ctx.shouldGenerateVncAdjectivalNnc,
+            typeof ctx.buildCompoundSourceAdjectivalNncFunctionOutput,
+            typeof ctx.shouldGenerateCompoundSourceAdjectivalNnc,
+            typeof ctx.buildDenominalCompoundAdjectivalNncFunctionOutput,
+            typeof ctx.shouldGenerateDenominalCompoundAdjectivalNnc,
             typeof ctx.buildNominalizedVncAdjectivalNncFunctionOutput,
             typeof ctx.shouldGenerateNominalizedVncAdjectivalNnc,
             typeof ctx.resolveAdjectivalNncSourceFormationFrame,
         ],
         [
+            "function",
+            "function",
+            "function",
+            "function",
             "function",
             "function",
             "function",
@@ -487,6 +495,214 @@ function run(ctx) {
         }
     );
     s.eq(
+        "VNC adjectival function UI promotion preserves generated VNC source contract",
+        (() => {
+            const direct = ctx.buildVncAdjectivalNncFunctionOutput({
+                vncSurface: "nemi",
+                sourceVerb: "(nemi)",
+                sourceTenseValue: "presente",
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceVoiceMode: ctx.VOICE_MODE.active,
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "vnc-adjectival",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: direct.result,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override,
+                },
+            });
+            const summary = {
+                datasetAuthorityRef: verbEl.dataset.grammarAuthorityRef,
+                entryRouteFamily: entryContract?.routeFamily || "",
+                overrideFormation: override?.adjectivalNnc?.formation || "",
+                overrideVncSurface: override?.adjectivalNnc?.vncSurface || "",
+                overrideSourceVerb: override?.adjectivalNnc?.sourceVerb || "",
+                overrideSourceTenseValue: override?.adjectivalNnc?.sourceTenseValue || "",
+                overrideSourceCombinedMode: override?.adjectivalNnc?.sourceCombinedMode || "",
+                routedSurface: routed.surface,
+                routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
+                routedSourceTenseValue: routed.adjectivalNncFunctionFrame?.sourceTenseValue || "",
+                routedSourceCombinedMode: routed.adjectivalNncFunctionFrame?.sourceCombinedMode || "",
+                routedInflectionSourceTenseValue: routed.grammarFrame?.inflectionFrame?.sourceTenseValue || "",
+                routedSourceCategory: routed.grammarFrame?.routeContract?.sourceContract?.sourceCategory || "",
+                routedDoesNotCreateNncStem: routed.adjectivalNncFunctionFrame?.doesNotCreateNncStem === true,
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode, { syncConventionState: false });
+            }
+            return summary;
+        })(),
+        {
+            datasetAuthorityRef: "Andrews 40.3",
+            entryRouteFamily: "adjectival-nnc",
+            overrideFormation: "vnc-adjectival",
+            overrideVncSurface: "nemi",
+            overrideSourceVerb: "(nemi)",
+            overrideSourceTenseValue: "presente",
+            overrideSourceCombinedMode: ctx.COMBINED_MODE.active,
+            routedSurface: "nemi",
+            routedFunctionKind: "vnc-adjectival",
+            routedSourceTenseValue: "presente",
+            routedSourceCombinedMode: ctx.COMBINED_MODE.active,
+            routedInflectionSourceTenseValue: "presente",
+            routedSourceCategory: "verbal-nuclear-clause",
+            routedDoesNotCreateNncStem: true,
+        }
+    );
+    s.eq(
+        "ordinary absolutive NNC adjectival function UI promotion preserves source stem instead of double-generating",
+        (() => {
+            const direct = ctx.generateAdjectivalNncFunctionOutput({
+                stem: "shuchi",
+                nounClass: "t",
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "ordinary-absolutive",
+                formulaEcho: direct.formulaEcho || "",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: direct.result,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override,
+                },
+            });
+            const summary = {
+                datasetAuthorityRef: verbEl.dataset.grammarAuthorityRef,
+                entryRouteFamily: entryContract?.routeFamily || "",
+                overrideFormation: override?.adjectivalNnc?.formation || "",
+                overrideStem: override?.adjectivalNnc?.stem || "",
+                overrideSourceStem: override?.adjectivalNnc?.sourceStem || "",
+                overrideNounClass: override?.adjectivalNnc?.nounClass || "",
+                overrideNumber: override?.adjectivalNnc?.number || "",
+                routedSurface: routed.surface,
+                routedResult: routed.result,
+                routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
+                routedSourceFormulaEcho: routed.adjectivalNncFunctionFrame?.sourceFormulaEcho || "",
+                routedSourceStem: routed.grammarFrame?.stemFrame?.sourceStem || "",
+                doubledSurfaceBlocked: routed.surface !== "shuchitt",
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode, { syncConventionState: false });
+            }
+            return summary;
+        })(),
+        {
+            datasetAuthorityRef: "Andrews 40.1",
+            entryRouteFamily: "adjectival-nnc",
+            overrideFormation: "ordinary-absolutive",
+            overrideStem: "shuchi",
+            overrideSourceStem: "shuchi",
+            overrideNounClass: "t",
+            overrideNumber: "singular",
+            routedSurface: "shuchit",
+            routedResult: "shuchit",
+            routedFunctionKind: "modifier-candidate",
+            routedSourceFormulaEcho: "#Ø...Ø(shuchi)t#",
+            routedSourceStem: "shuchi",
+            doubledSurfaceBlocked: true,
+        }
+    );
+    s.eq(
+        "adjectival NNC function UI promotion clears stale nawat route stations",
+        (() => {
+            const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSurface: "tamachti",
+                patientivoSource: "nonactive",
+                formulaEcho: "#Ø...Ø(tamach)ti#",
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (typeof ctx.setActiveNawatRouteProfile === "function") {
+                ctx.setActiveNawatRouteProfile("denominal-vi-ti-preterit", {
+                    activeRouteTravelSource: "chip",
+                    targetMode: ctx.TENSE_MODE?.adjetivo || "adjetivo",
+                    targetTenseValue: "potencial",
+                    targetVerb: "stale-route-target",
+                    activeStationKey: "finite-tense",
+                    activeStationInput: "stale-route-target",
+                    activeStationVerb: "stale-route-target",
+                });
+            }
+            ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "patientive-adjectival",
+                formulaEcho: direct.formulaEcho || "",
+                patientivoSource: direct.adjectivalNncFunctionFrame?.patientivoSource || "",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const summary = {
+                activeMode: typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "",
+                activeRouteId: typeof ctx.getActiveNawatRouteProfile === "function"
+                    ? (ctx.getActiveNawatRouteProfile()?.id || "")
+                    : "",
+                datasetSurface: verbEl.dataset.adjectivalNncFunctionSurface || "",
+                datasetRouteFamily: verbEl.dataset.grammarRouteFamily || "",
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (typeof ctx.clearActiveNawatRouteProfile === "function") {
+                ctx.clearActiveNawatRouteProfile();
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode, { syncConventionState: false });
+            }
+            return summary;
+        })(),
+        {
+            activeMode: ctx.TENSE_MODE.adjetivo,
+            activeRouteId: "",
+            datasetSurface: "tamachti",
+            datasetRouteFamily: "adjectival-nnc",
+        }
+    );
+    s.eq(
         "adjectival NNC function UI promotion reads LCM result-frame surface before clicked surface",
         (() => {
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
@@ -652,6 +868,57 @@ function run(ctx) {
         }
     );
     s.eq(
+        "adjectival NNC function override rejects stale dataset surface after empty result frame",
+        (() => {
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            verbEl.value = "stale-dataset-surface";
+            const frame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "blocked",
+                    andrewsRefs: ["Andrews 40.4"],
+                    supported: false,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "adjectival-nnc",
+                    routeStage: "result-frame-gate",
+                    generationAllowed: false,
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "adjectival-nnc-function",
+                    generationRoute: "adjectival-nnc",
+                }),
+            });
+            verbEl.dataset.adjectivalNncFunctionContract = JSON.stringify({
+                surface: "",
+                grammarFrame: frame,
+            });
+            verbEl.dataset.adjectivalNncFunctionSurface = "stale-dataset-surface";
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const summary = {
+                overrideBuilt: Boolean(override),
+                datasetSurface: verbEl.dataset.adjectivalNncFunctionSurface || "",
+                resultFrameSurface: frame.resultFrame.surface || "",
+                resultFrameForms: frame.resultFrame.surfaceForms || [],
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            return summary;
+        })(),
+        {
+            overrideBuilt: false,
+            datasetSurface: "stale-dataset-surface",
+            resultFrameSurface: "",
+            resultFrameForms: [],
+        }
+    );
+    s.eq(
         "adjectival NNC generation routes read override LCM result-frame surface before legacy surface fields",
         (() => {
             const grammarFrame = ctx.buildGrammarFrame({
@@ -718,6 +985,84 @@ function run(ctx) {
             frameSurface: "frame-patientive-a",
             frameSurfaceForms: ["frame-patientive-a"],
             routeFamily: "adjectival-nnc",
+        }
+    );
+    s.eq(
+        "adjectival NNC generation routes suppress legacy override surfaces for empty result frame",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "blocked",
+                    andrewsRefs: ["Andrews 40.4"],
+                    supported: false,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "adjectival-nnc",
+                    routeStage: "execute",
+                    generationAllowed: false,
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "adjectival-nnc-function",
+                    generationRoute: "adjectival-nnc",
+                }),
+            });
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: "legacy-input-surface",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tense: "adjectival-nnc",
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        adjectivalNnc: {
+                            enabled: true,
+                            formation: "patientive-adjectival",
+                            stem: "legacy-stem",
+                            surface: "legacy-surface",
+                            patientivoSurface: "legacy-patientive-surface",
+                            patientivoSource: "nonactive",
+                            grammarFrame,
+                            frames: grammarFrame,
+                            state: "absolutive",
+                            role: "predicate-surface",
+                        },
+                    },
+                },
+            });
+            return {
+                ok: routed.ok,
+                surface: routed.surface,
+                surfaceForms: routed.surfaceForms,
+                frameOk: routed.grammarFrame?.resultFrame?.ok,
+                frameSurface: routed.grammarFrame?.resultFrame?.surface || "",
+                frameSurfaceForms: routed.grammarFrame?.resultFrame?.surfaceForms || [],
+                sourceSurface: routed.grammarFrame?.routeContract?.sourceContract?.sourceSurface || "",
+                sourceEvidenceStatus: routed.grammarFrame?.authorityFrame?.sourceEvidence?.status || "",
+                selectedStageEvidence: routed.grammarFrame?.authorityFrame?.sourceEvidence
+                    ?.boundaries?.sourceEvidenceFromSelectedGeneratedStage === true,
+            };
+        })(),
+        {
+            ok: false,
+            surface: "",
+            surfaceForms: [],
+            frameOk: false,
+            frameSurface: "",
+            frameSurfaceForms: [],
+            sourceSurface: "",
+            sourceEvidenceStatus: "blocked",
+            selectedStageEvidence: false,
         }
     );
     s.eq(
@@ -792,6 +1137,69 @@ function run(ctx) {
             surfaceForms: ["top-adjective-a", "top-adjective-b", "top-adjective-surface"],
             frameSurface: "top-adjective-a",
             frameSurfaceForms: ["top-adjective-a", "top-adjective-b", "top-adjective-surface"],
+        }
+    );
+    s.eq(
+        "adjectival NNC grammar contract suppresses stale source metadata for empty LCM result frames",
+        (() => {
+            const emptyFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "adjectival-nnc-function",
+                    generationRoute: "adjectival-nnc",
+                }),
+            });
+            const emptyRouted = ctx.attachAdjectivalNncGrammarContract({
+                result: "stale-result",
+                surface: "stale-surface",
+                surfaceForms: ["stale-a / stale-b"],
+                stem: "stale-output-stem",
+                frames: emptyFrame,
+                supported: false,
+                outputKind: "adjectival-nnc-function",
+                clauseKind: "verbal-nuclear-clause",
+                generationRoute: "adjectival-nnc",
+                adjectivalNncFunctionFrame: {
+                    lessonRef: "Andrews 40.3",
+                    sourceClauseKind: "verbal-nuclear-clause",
+                    patientivoSurface: "stale-patientivo-source",
+                    nominalizedSurface: "stale-nominalized-source",
+                    vncSurface: "stale-vnc-source",
+                    sourcePredicateStem: "stale-source-predicate",
+                },
+            });
+            const legacyRouted = ctx.attachAdjectivalNncGrammarContract({
+                result: "legacy-result",
+                stem: "legacy-output-stem",
+                supported: true,
+                outputKind: "adjectival-nnc-function",
+                generationRoute: "adjectival-nnc",
+                adjectivalNncFunctionFrame: {
+                    patientivoSurface: "legacy-patientivo-source",
+                    nominalizedSurface: "legacy-nominalized-source",
+                    sourcePredicateStem: "legacy-source-predicate",
+                },
+            });
+            return {
+                emptySourceInput: emptyRouted.grammarFrame.resultFrame.sourceInput || "",
+                emptyStem: emptyRouted.grammarFrame.stemFrame.stem || "",
+                emptySourceStem: emptyRouted.grammarFrame.stemFrame.sourceStem || "",
+                emptySurfaceForms: emptyRouted.grammarFrame.resultFrame.surfaceForms || [],
+                legacySourceInput: legacyRouted.grammarFrame.resultFrame.sourceInput || "",
+                legacyStem: legacyRouted.grammarFrame.stemFrame.stem || "",
+                legacySourceStem: legacyRouted.grammarFrame.stemFrame.sourceStem || "",
+            };
+        })(),
+        {
+            emptySourceInput: "",
+            emptyStem: "",
+            emptySourceStem: "",
+            emptySurfaceForms: [],
+            legacySourceInput: "legacy-patientivo-source",
+            legacyStem: "legacy-output-stem",
+            legacySourceStem: "legacy-patientivo-source",
         }
     );
     s.eq(
@@ -948,6 +1356,34 @@ function run(ctx) {
         "Andrews 40.3 VNC adjectival route requires a generated VNC surface",
         ctx.buildVncAdjectivalNncFunctionOutput({}).diagnostics.map((item) => item.id),
         ["adjectival-nnc-requires-vnc-surface"]
+    );
+    s.eq(
+        "Andrews 40.3 VNC adjectival route blocks at result/diagnostic layer without generated VNC output",
+        (() => {
+            const blocked = ctx.buildVncAdjectivalNncFunctionOutput({});
+            return {
+                supported: blocked.supported,
+                result: blocked.result,
+                generationAllowed: blocked.grammarFrame?.routeContract?.generationAllowed,
+                unitKind: blocked.grammarFrame?.unitFrame?.unitKind || "",
+                resultOk: blocked.grammarFrame?.resultFrame?.ok,
+                sourceInput: blocked.grammarFrame?.resultFrame?.sourceInput || "",
+                diagnosticStatus: blocked.grammarFrame?.diagnosticFrame?.status || "",
+                diagnosticIds: (blocked.grammarFrame?.diagnosticFrame?.diagnostics || [])
+                    .map((entry) => entry.id)
+                    .filter(Boolean),
+            };
+        })(),
+        {
+            supported: false,
+            result: "",
+            generationAllowed: false,
+            unitKind: "verbal-nuclear-clause",
+            resultOk: false,
+            sourceInput: "",
+            diagnosticStatus: "blocked",
+            diagnosticIds: ["adjectival-nnc-requires-vnc-surface"],
+        }
     );
     s.eq(
         "Andrews 40.5-40.8 nominalized VNC predicates can re-route as adjectival NNC functions",
@@ -1235,6 +1671,328 @@ function run(ctx) {
         }
     );
     s.eq(
+        "Andrews 41.2 compound-source adjectival route preserves generated surface as an executable contract",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: "(a/miki)",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tense: "adjetivo-preterito",
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                    },
+                },
+            });
+            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+                sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
+                nominalizationKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
+                formulaSlots: generated.adjectivalCompoundSourceFrame?.sourceFormulaSlots || null,
+                formulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+            });
+            const blocked = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+            });
+            return {
+                direct: {
+                    supported: direct.supported,
+                    result: direct.result,
+                    outputKind: direct.outputKind,
+                    formulaEcho: direct.formulaEcho,
+                    lessonRef: direct.adjectivalNncFunctionFrame?.lessonRef || "",
+                    functionKind: direct.adjectivalNncFunctionFrame?.functionKind || "",
+                    sourceCategory: direct.adjectivalNncFunctionFrame?.sourceCategory || "",
+                    sourceMatrixStem: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.matrix?.stem || "",
+                    sourceEmbedRoles: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+                    generatedSurfacePreserved: direct.adjectivalNncFunctionFrame?.generatedSurfacePreserved,
+                    hasModificationAst: direct.adjectivalNncFunctionFrame?.hasModificationAst,
+                    routeFamily: direct.grammarFrame?.routeContract?.routeFamily || "",
+                    resultOk: direct.grammarFrame?.resultFrame?.ok,
+                },
+                blocked: blocked.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            direct: {
+                supported: true,
+                result: "amikik",
+                outputKind: "adjectival-nnc-compound-source",
+                formulaEcho: "#Ø...Ø(amikik)Ø#",
+                lessonRef: "Andrews 41.2",
+                functionKind: "compound-source-adjectival",
+                sourceCategory: "compound-verbstem",
+                sourceMatrixStem: "miki",
+                sourceEmbedRoles: ["adjacent-core-embed"],
+                generatedSurfacePreserved: true,
+                hasModificationAst: false,
+                routeFamily: "adjectival-nnc",
+                resultOk: true,
+            },
+            blocked: ["adjectival-nnc-requires-compound-source-frame"],
+        }
+    );
+    s.eq(
+        "Andrews 41.2 compound-source UI promotion keeps compound source roles through execution",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: "(a/miki)",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tense: "adjetivo-preterito",
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                    },
+                },
+            });
+            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+                sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
+                nominalizationKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
+                formulaSlots: generated.adjectivalCompoundSourceFrame?.sourceFormulaSlots || null,
+                formulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "compound-source-adjectival",
+                formulaEcho: direct.formulaEcho || "",
+                sourceFormulaSlots: generated.adjectivalCompoundSourceFrame?.sourceFormulaSlots || null,
+                sourceFormulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+                sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
+                nominalizedVncKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: direct.result,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override,
+                },
+            });
+            const summary = {
+                entrySurface: entryContract?.surface || "",
+                entrySourceMatrix: entryContract?.sourceCompoundFrame?.matrix?.stem || "",
+                overrideFormation: override?.adjectivalNnc?.formation || "",
+                overrideCompoundSurface: override?.adjectivalNnc?.compoundSourceSurface || "",
+                overrideSourceMatrix: override?.adjectivalNnc?.sourceCompoundFrame?.matrix?.stem || "",
+                overrideFormulaEcho: override?.adjectivalNnc?.sourceFormulaEcho || "",
+                routedResult: routed.result,
+                routedFormulaEcho: routed.formulaEcho,
+                routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
+                routedSourceMatrix: routed.adjectivalNncFunctionFrame?.sourceCompoundFrame?.matrix?.stem || "",
+                routedEmbedRoles: routed.adjectivalNncFunctionFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode);
+            }
+            return summary;
+        })(),
+        {
+            entrySurface: "amikik",
+            entrySourceMatrix: "miki",
+            overrideFormation: "compound-source-adjectival",
+            overrideCompoundSurface: "amikik",
+            overrideSourceMatrix: "miki",
+            overrideFormulaEcho: "#Ø...Ø(amikik)Ø#",
+            routedResult: "amikik",
+            routedFormulaEcho: "#Ø...Ø(amikik)Ø#",
+            routedFunctionKind: "compound-source-adjectival",
+            routedSourceMatrix: "miki",
+            routedEmbedRoles: ["adjacent-core-embed"],
+        }
+    );
+    s.eq(
+        "Andrews 41.3 denominal compound nounstem source preserves generated tiya surface as an executable contract",
+        (() => {
+            const generated = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "(xilo/tzon/tiya)" });
+            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: generated.result,
+                sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
+                formulaSlots: generated.formulaSlots || null,
+                formulaEcho: generated.formulaEcho || "",
+            });
+            const blocked = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: generated.result,
+            });
+            return {
+                generated: {
+                    supported: generated.supported,
+                    result: generated.result,
+                    formulaEcho: generated.formulaEcho,
+                    sourceFormationSubtype: generated.rootPlusYaAdjectivalNncFrame?.sourceFormationSubtype || "",
+                    sourceFrameKind: generated.denominalCompoundSourceFrame?.kind || "",
+                    sourceFrameLesson: generated.denominalCompoundSourceFrame?.lessonRef || "",
+                    operationSuffix: generated.denominalCompoundSourceFrame?.operation?.suffix || "",
+                    operationNawatSuffix: generated.denominalCompoundSourceFrame?.operation?.nawatInputSuffix || "",
+                    matrixStem: generated.denominalCompoundSourceFrame?.matrix?.stem || "",
+                    embedRoles: generated.denominalCompoundSourceFrame?.embeds?.map((entry) => entry.role) || [],
+                    embedValues: generated.denominalCompoundSourceFrame?.embeds?.map((entry) => entry.value) || [],
+                    rawInput: generated.denominalCompoundSourceFrame?.sourceInput?.rawInput || "",
+                },
+                direct: {
+                    supported: direct.supported,
+                    result: direct.result,
+                    outputKind: direct.outputKind,
+                    formulaEcho: direct.formulaEcho,
+                    lessonRef: direct.adjectivalNncFunctionFrame?.lessonRef || "",
+                    functionKind: direct.adjectivalNncFunctionFrame?.functionKind || "",
+                    sourceCategory: direct.adjectivalNncFunctionFrame?.sourceCategory || "",
+                    nominalizationKind: direct.adjectivalNncFunctionFrame?.nominalizationKind || "",
+                    operationSuffix: direct.adjectivalNncFunctionFrame?.operation?.suffix || "",
+                    sourceMatrixStem: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.matrix?.stem || "",
+                    generatedSurfacePreserved: direct.adjectivalNncFunctionFrame?.generatedSurfacePreserved,
+                    hasModificationAst: direct.adjectivalNncFunctionFrame?.hasModificationAst,
+                    routeFamily: direct.grammarFrame?.routeContract?.routeFamily || "",
+                    resultOk: direct.grammarFrame?.resultFrame?.ok,
+                },
+                blocked: blocked.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            generated: {
+                supported: true,
+                result: "xilotzontik",
+                formulaEcho: "#Ø...Ø(xilotzonti)k#",
+                sourceFormationSubtype: "segmented-denominal-tiya",
+                sourceFrameKind: "denominal-compound-nounstem-frame",
+                sourceFrameLesson: "Andrews 41.3",
+                operationSuffix: "ti",
+                operationNawatSuffix: "tiya",
+                matrixStem: "tzon",
+                embedRoles: ["adjacent-compound-noun-embed"],
+                embedValues: ["xilo"],
+                rawInput: "(xilo/tzon/tiya)",
+            },
+            direct: {
+                supported: true,
+                result: "xilotzontik",
+                outputKind: "adjectival-nnc-denominal-compound-source",
+                formulaEcho: "#Ø...Ø(xilotzonti)k#",
+                lessonRef: "Andrews 41.3",
+                functionKind: "denominal-compound-adjectival",
+                sourceCategory: "compound-nounstem",
+                nominalizationKind: "preterit-agentive",
+                operationSuffix: "ti",
+                sourceMatrixStem: "tzon",
+                generatedSurfacePreserved: true,
+                hasModificationAst: false,
+                routeFamily: "adjectival-nnc",
+                resultOk: true,
+            },
+            blocked: ["adjectival-nnc-requires-denominal-compound-frame"],
+        }
+    );
+    s.eq(
+        "Andrews 41.3 denominal compound UI promotion keeps compound nounstem roles through execution",
+        (() => {
+            const generated = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "(xilo/tzon/tiya)" });
+            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: generated.result,
+                sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
+                formulaSlots: generated.formulaSlots || null,
+                formulaEcho: generated.formulaEcho || "",
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "denominal-compound-adjectival",
+                formulaEcho: direct.formulaEcho || "",
+                sourceFormulaSlots: generated.formulaSlots || null,
+                sourceFormulaEcho: generated.formulaEcho || "",
+                sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
+                nominalizedVncKind: "preterit-agentive",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: direct.result,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override,
+                },
+            });
+            const summary = {
+                entrySurface: entryContract?.surface || "",
+                entrySourceMatrix: entryContract?.sourceDenominalCompoundFrame?.matrix?.stem || "",
+                overrideFormation: override?.adjectivalNnc?.formation || "",
+                overrideDenominalSurface: override?.adjectivalNnc?.denominalCompoundSurface || "",
+                overrideSourceMatrix: override?.adjectivalNnc?.sourceDenominalCompoundFrame?.matrix?.stem || "",
+                overrideFormulaEcho: override?.adjectivalNnc?.sourceFormulaEcho || "",
+                routedResult: routed.result,
+                routedFormulaEcho: routed.formulaEcho,
+                routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
+                routedSourceMatrix: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.matrix?.stem || "",
+                routedEmbedRoles: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode);
+            }
+            return summary;
+        })(),
+        {
+            entrySurface: "xilotzontik",
+            entrySourceMatrix: "tzon",
+            overrideFormation: "denominal-compound-adjectival",
+            overrideDenominalSurface: "xilotzontik",
+            overrideSourceMatrix: "tzon",
+            overrideFormulaEcho: "#Ø...Ø(xilotzonti)k#",
+            routedResult: "xilotzontik",
+            routedFormulaEcho: "#Ø...Ø(xilotzonti)k#",
+            routedFunctionKind: "denominal-compound-adjectival",
+            routedSourceMatrix: "tzon",
+            routedEmbedRoles: ["adjacent-compound-noun-embed"],
+        }
+    );
+    s.eq(
         "Andrews 40.9 root-plus-ya adjectival NNC generates obsolete-preterit surface, not a label",
         (() => {
             const direct = ctx.generateRootPlusYaAdjectivalNncOutput({
@@ -1300,6 +2058,162 @@ function run(ctx) {
                 generationRoute: "adjectival-nnc",
                 outputKind: "adjectival-nnc-root-plus-ya",
                 formulaEcho: "#Ø...Ø(ista)k#",
+            },
+        }
+    );
+    s.eq(
+        "adjectival NNC formula echo reads LCM result-frame slot surfaces before stale slot text",
+        ctx.buildAdjectivalNncFormulaEchoFromSlots({
+            subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+            predicate: {
+                stem: "stale-predicate",
+                surface: "stale-surface",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surfaceForms: ["frame-predicate"],
+                    }),
+                }),
+            },
+            subjectNumberConnector: {
+                connector: "stale-connector",
+                surface: "stale-surface",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surface: "frame-connector",
+                    }),
+                }),
+            },
+        }),
+        "#Ø...Ø(frame-predicate)frame-connector#"
+    );
+    s.eq(
+        "adjectival NNC formula echo stops before stale slot text after an empty result frame",
+        {
+            emptyPredicate: ctx.buildAdjectivalNncFormulaEchoFromSlots({
+                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicate: {
+                    stem: "stale-predicate",
+                    surface: "stale-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            surface: "",
+                            surfaceForms: [],
+                        }),
+                    }),
+                },
+                subjectNumberConnector: {
+                    connector: "stale-connector",
+                    surface: "stale-surface",
+                },
+            }),
+            emptyConnector: ctx.buildAdjectivalNncFormulaEchoFromSlots({
+                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicate: { stem: "frame-safe-predicate" },
+                subjectNumberConnector: {
+                    connector: "stale-connector",
+                    surface: "stale-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            surface: "",
+                            surfaceForms: [],
+                        }),
+                    }),
+                },
+            }),
+        },
+        {
+            emptyPredicate: "",
+            emptyConnector: "#Ø...Ø(frame-safe-predicate)Ø#",
+        }
+    );
+    s.eq(
+        "intensified adjectival NNC route reads source formula slots from LCM result frames",
+        (() => {
+            const framedSlots = directFormulaSlots("stale-predicate", "t");
+            framedSlots.predicate.frames = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    surface: "yekti",
+                }),
+            });
+            framedSlots.subjectNumberConnector.frames = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    surface: "k",
+                }),
+            });
+            const emptyPredicateSlots = directFormulaSlots("stale-predicate", "t");
+            emptyPredicateSlots.predicate.frames = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                }),
+            });
+            const emptyConnectorSlots = directFormulaSlots("stale-predicate", "t");
+            emptyConnectorSlots.predicate.frames = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    surface: "yekti",
+                }),
+            });
+            emptyConnectorSlots.subjectNumberConnector.frames = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                }),
+            });
+            const framed = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: "legacy-source-surface",
+                sourceFormulaSlots: framedSlots,
+                sourceFormulaEcho: "#Ø...Ø(stale-predicate)t#",
+            });
+            const emptyPredicate = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: "legacy-source-surface",
+                sourceFormulaSlots: emptyPredicateSlots,
+            });
+            const emptyConnector = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: "legacy-source-surface",
+                sourceFormulaSlots: emptyConnectorSlots,
+            });
+            return {
+                framed: {
+                    result: framed.result,
+                    surfaceForms: framed.surfaceForms,
+                    sourceStem: framed.adjectivalNncFunctionFrame?.sourcePredicateStem || "",
+                    formulaEcho: framed.formulaEcho,
+                },
+                emptyPredicate: {
+                    supported: emptyPredicate.supported,
+                    diagnostics: emptyPredicate.diagnostics.map((diagnostic) => diagnostic.id),
+                    sourceStem: emptyPredicate.adjectivalNncFunctionFrame?.sourcePredicateStem || "",
+                },
+                emptyConnector: {
+                    result: emptyConnector.result,
+                    surfaceForms: emptyConnector.surfaceForms,
+                    formulaEcho: emptyConnector.formulaEcho,
+                    sourceStem: emptyConnector.adjectivalNncFunctionFrame?.sourcePredicateStem || "",
+                },
+            };
+        })(),
+        {
+            framed: {
+                result: "yejyektik",
+                surfaceForms: ["yejyektik"],
+                sourceStem: "yekti",
+                formulaEcho: "#Ø...Ø(yejyekti)k#",
+            },
+            emptyPredicate: {
+                supported: false,
+                diagnostics: ["adjectival-nnc-requires-formula-slots"],
+                sourceStem: "",
+            },
+            emptyConnector: {
+                result: "yejyekti",
+                surfaceForms: ["yejyekti"],
+                formulaEcho: "#Ø...Ø(yejyekti)Ø#",
+                sourceStem: "yekti",
             },
         }
     );
@@ -1852,6 +2766,77 @@ function run(ctx) {
                 shellFormulaEcho: "#Ø...Ø(yejyekti)k#",
                 shellFormulaType: "NNC",
             },
+        }
+    );
+    s.eq(
+        "Andrews 41.1 intensified adjectival UI promotion reuses source formula slots without double reduplication",
+        (() => {
+            const source = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "yektiya" });
+            const direct = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: source.result,
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho,
+            });
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const verbEl = ctx.document.getElementById("verb");
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: direct.result,
+                formation: "intensified-adjectival",
+                formulaEcho: source.formulaEcho || "",
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho || "",
+                grammarFrame: direct.grammarFrame,
+                refresh: false,
+            });
+            const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+            const routed = ctx.executeGenerateWordRequest({
+                prefixInputs: {
+                    verb: direct.result,
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override,
+                },
+            });
+            const summary = {
+                entrySurface: entryContract?.surface || "",
+                entrySourceFormulaEcho: entryContract?.sourceFormulaEcho || "",
+                overrideFormation: override?.adjectivalNnc?.formation || "",
+                overrideTargetSurface: override?.verb || "",
+                overrideSourceFormulaEcho: override?.adjectivalNnc?.sourceFormulaEcho || "",
+                overrideSourcePredicateStem: override?.adjectivalNnc?.sourceFormulaSlots?.predicate?.stem || "",
+                routedResult: routed.result,
+                routedFormulaEcho: routed.formulaEcho,
+                routedSourceStem: routed.adjectivalNncFunctionFrame?.sourcePredicateStem || "",
+                routedIntensifiedStem: routed.adjectivalNncFunctionFrame?.intensifiedStem || "",
+            };
+            if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode);
+            }
+            return summary;
+        })(),
+        {
+            entrySurface: "yejyektik",
+            entrySourceFormulaEcho: "#Ø...Ø(yekti)k#",
+            overrideFormation: "intensified-adjectival",
+            overrideTargetSurface: "yejyektik",
+            overrideSourceFormulaEcho: "#Ø...Ø(yekti)k#",
+            overrideSourcePredicateStem: "yekti",
+            routedResult: "yejyektik",
+            routedFormulaEcho: "#Ø...Ø(yejyekti)k#",
+            routedSourceStem: "yekti",
+            routedIntensifiedStem: "yejyekti",
         }
     );
     s.eq(

@@ -1,6 +1,6 @@
 # Andrews PDF Digest
 
-Source: `/Users/jaimenunez/Documents/Nahuat World/Classical/Linguistics/[Andrews] Introduction to Classical Nahuatl.pdf`
+Source: `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf`
 
 Extraction check: local PDF read with bundled Python/pypdf on 2026-06-08. The PDF has 693 pages. The lesson/page sequence below follows the printed Contents: Lessons 1-58, Appendices A-G, and Index.
 

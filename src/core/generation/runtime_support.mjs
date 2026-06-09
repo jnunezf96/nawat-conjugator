@@ -116,7 +116,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
         forms.push(...result.surfaceForms);
       }
-      if (result?.surface) {
+      if (!hasResultFrame && result?.surface) {
         forms.push(result.surface);
       }
       if (!hasResultFrame && result?.result) {

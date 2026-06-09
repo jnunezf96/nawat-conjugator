@@ -654,6 +654,40 @@ function run(ctx) {
             forms: ["nikmaka", "nikmakilia"],
         }
     );
+    s.eq(
+        "forward derivation frame stops at empty provenance result frames before stale surfaceStem",
+        (() => {
+            const blockedProvenance = {
+                surfaceStem: "stale-forward-surface-stem",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                        outputKind: "output-provenance",
+                    }),
+                }),
+            };
+            const frame = ctx.buildGeneratedForwardDerivationFrameMetadata({
+                resolvedTenseMode: ctx.TENSE_MODE?.verbo || "verbo",
+                resolvedDerivationType: ctx.DERIVATION_TYPE.causative,
+                derivationValencyDelta: 1,
+                sourceValency: 2,
+                forwardStemProvenance: blockedProvenance,
+                renderVerb: "nemi",
+                verb: "analysis-fallback",
+                analysisVerb: "analysis-fallback",
+            });
+            return {
+                selectedStem: frame?.stem?.selectedStem || "",
+                candidateStems: frame?.stem?.candidateStems || [],
+            };
+        })(),
+        {
+            selectedStem: "analysisfallback",
+            candidateStems: [],
+        }
+    );
     const compoundFrameResult = ctx.executeGenerateWordRequest({
         options: {
             silent: true,

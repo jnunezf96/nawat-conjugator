@@ -202,6 +202,59 @@ function run(ctx) {
         }
     );
     s.eq(
+        "conjugation presentation infers LCM failed layer from blocked frame status",
+        (() => {
+            const plainDiagnostic = {
+                id: "plain-route-blocked",
+                severity: "error",
+                message: "Route blocked without explicit layer.",
+            };
+            const grammarFrame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "blocked",
+                    andrewsRefs: ["Andrews Lesson 4"],
+                    supported: true,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "vnc",
+                    routeStage: "classify-route",
+                    generationAllowed: false,
+                    blockingDiagnostics: [plainDiagnostic],
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    outputKind: "vnc",
+                }),
+                diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                    status: "blocked",
+                    diagnostics: [plainDiagnostic],
+                }),
+            });
+            const evaluation = ctx.buildConjugationEvaluationRecord({
+                result: {
+                    frames: grammarFrame,
+                    diagnostics: [plainDiagnostic],
+                },
+            });
+            const row = { dataset: {} };
+            ctx.applyConjugationEvaluationPresentation({
+                row,
+                value: null,
+                evaluation,
+            });
+            return {
+                diagnosticId: row.dataset.lcmDiagnosticId,
+                failedLayer: row.dataset.lcmFailedLayer,
+                contractLayer: row.dataset.lcmContractLayer,
+            };
+        })(),
+        {
+            diagnosticId: "plain-route-blocked",
+            failedLayer: "route",
+            contractLayer: "routeContract",
+        }
+    );
+    s.eq(
         "conjugation evaluation treats contract surface as renderable",
         (() => {
             const result = ctx.buildOutputWordResult({ subjectPrefix: "ni", verb: "nemi" });
@@ -253,6 +306,32 @@ function run(ctx) {
             hasRenderableResult: true,
             hasVisibleResult: true,
             availabilityState: ctx.CONJUGATION_AVAILABILITY_STATE.viable,
+        }
+    );
+    s.eq(
+        "conjugation renderable surface reader stops at empty LCM result frames before legacy surfaces",
+        (() => {
+            const result = {
+                result: "stale-visible-result",
+                surface: "top-visible-surface",
+                surfaceForms: ["stale-visible-a / stale-visible-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                        outputKind: "blocked-vnc",
+                    }),
+                }),
+            };
+            return {
+                forms: ctx.getConjugationRenderableSurfaceForms(result),
+                surface: ctx.getConjugationRenderableSurface(result),
+            };
+        })(),
+        {
+            forms: [],
+            surface: "",
         }
     );
     s.eq(

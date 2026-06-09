@@ -883,6 +883,41 @@ export function createNncGlobals(targetObject = globalThis) {
         }
       };
     }
+    function getOrdinaryNncFormulaSlotResultFrame(slot = null) {
+      if (!slot || typeof slot !== "object") {
+        return null;
+      }
+      const grammarFrame = slot.grammarFrame && typeof slot.grammarFrame === "object" ? slot.grammarFrame : slot.frames && typeof slot.frames === "object" ? slot.frames : null;
+      return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+    }
+    function getOrdinaryNncFormulaSlotFramedSurface(slot = null) {
+      const resultFrame = getOrdinaryNncFormulaSlotResultFrame(slot);
+      if (!resultFrame) {
+        return null;
+      }
+      const forms = [];
+      if (Array.isArray(resultFrame.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+      }
+      if (resultFrame.surface) {
+        forms.push(resultFrame.surface);
+      }
+      return forms.flatMap(entry => splitVerbDerivedNominalSurfaceText(entry))[0] || "";
+    }
+    function resolveOrdinaryNncFormulaSlotText(slot = null, fields = []) {
+      const framedSurface = getOrdinaryNncFormulaSlotFramedSurface(slot);
+      if (framedSurface !== null) {
+        return framedSurface;
+      }
+      const source = slot && typeof slot === "object" ? slot : {};
+      for (const field of fields) {
+        const value = normalizeVerbDerivedNominalSurfaceValue(source[field]);
+        if (value) {
+          return value;
+        }
+      }
+      return "";
+    }
     function buildOrdinaryNncFormulaEchoFromSlots(formulaSlots = null) {
       if (!formulaSlots || typeof formulaSlots !== "object") {
         return "";
@@ -890,13 +925,13 @@ export function createNncGlobals(targetObject = globalThis) {
       const subject = formulaSlots.subjectPerson || {};
       const predicate = formulaSlots.predicate || {};
       const numberConnector = formulaSlots.subjectNumberConnector || {};
-      const stem = String(predicate.stem || "").trim();
+      const stem = resolveOrdinaryNncFormulaSlotText(predicate, ["stem", "surface"]);
       if (!stem) {
         return "";
       }
       const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
       const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
-      const connector = String(numberConnector.connector || numberConnector.surface || "Ø") || "Ø";
+      const connector = resolveOrdinaryNncFormulaSlotText(numberConnector, ["connector", "surface"]) || "Ø";
       return `#${prefix}...${suffix}(${stem})${connector}#`;
     }
     function buildOrdinaryNncPredicateStateFrame({
@@ -2527,6 +2562,9 @@ export function createNncGlobals(targetObject = globalThis) {
     api.buildOrdinaryNncSubjectNumberConnector = buildOrdinaryNncSubjectNumberConnector;
     api.getOrdinaryNncSubjectAffixLabel = getOrdinaryNncSubjectAffixLabel;
     api.buildOrdinaryNncFormulaSlots = buildOrdinaryNncFormulaSlots;
+    api.getOrdinaryNncFormulaSlotResultFrame = getOrdinaryNncFormulaSlotResultFrame;
+    api.getOrdinaryNncFormulaSlotFramedSurface = getOrdinaryNncFormulaSlotFramedSurface;
+    api.resolveOrdinaryNncFormulaSlotText = resolveOrdinaryNncFormulaSlotText;
     api.buildOrdinaryNncFormulaEchoFromSlots = buildOrdinaryNncFormulaEchoFromSlots;
     api.buildOrdinaryNncPredicateStateFrame = buildOrdinaryNncPredicateStateFrame;
     api.getOrdinaryNncPredicateStateCategoryLabel = getOrdinaryNncPredicateStateCategoryLabel;

@@ -161,10 +161,10 @@ function run(ctx) {
 	            diagnostics: ["adverbial-nuclear-source-permits-first-degree-only"],
 	        }
 	    );
-	    s.eq(
-	        "adverbial nuclear clause frame reads LCM result-frame surfaces before stale legacy surfaces",
-	        (() => {
-	            const sourceFrame = ctx.buildGrammarFrame({
+    s.eq(
+        "adverbial nuclear clause frame reads LCM result-frame surfaces before stale legacy surfaces",
+        (() => {
+            const sourceFrame = ctx.buildGrammarFrame({
 	                resultFrame: ctx.buildGrammarResultFrame({
 	                    ok: true,
 	                    surface: "frame-matika",
@@ -200,6 +200,64 @@ function run(ctx) {
             outputSurfaceForms: ["frame-matka", "frame-matika"],
             contractSurfaceForms: ["frame-matka", "frame-matika"],
             contractSourceInput: "frame-source",
+        }
+    );
+    s.eq(
+        "adverbial nuclear clause frame suppresses stale source aliases for an empty LCM result frame",
+        (() => {
+            const sourceFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    sourceInput: "",
+                    outputKind: "vnc",
+                    generationRoute: "adverbio",
+                }),
+            });
+            const frame = ctx.buildAdverbialNuclearClauseFrame({
+                source: "legacy-source",
+                sourceStem: "legacy-stem",
+                finalStem: "legacy-final",
+                analysisStem: "legacy-analysis",
+                result: {
+                    result: "legacy-result",
+                    surface: "legacy-surface",
+                    surfaceForms: ["legacy-a / legacy-b"],
+                    frames: sourceFrame,
+                },
+                surfaceForms: ["direct-stale-a / direct-stale-b"],
+                surface: "direct-stale-surface",
+                sourceClauseKind: "vnc",
+                adverbialKind: "vnc-adverbial",
+                adverbialDegree: "first-degree",
+                semanticDomain: "manner",
+            });
+            return {
+                sourceRaw: frame.source.raw,
+                sourceStem: frame.source.stem,
+                finalStem: frame.source.finalStem,
+                analysisStem: frame.source.analysisStem,
+                outputSurfaceForms: frame.output.surfaceForms,
+                contractSurfaceForms: frame.frames.resultFrame.surfaceForms,
+                contractSourceInput: frame.frames.resultFrame.sourceInput,
+                supported: frame.supported,
+                diagnostics: frame.diagnostics,
+            };
+        })(),
+        {
+            sourceRaw: "",
+            sourceStem: "",
+            finalStem: "",
+            analysisStem: "",
+            outputSurfaceForms: [],
+            contractSurfaceForms: [],
+            contractSourceInput: "",
+            supported: false,
+            diagnostics: [
+                "adverbial-nuclear-requires-source",
+                "adverbial-nuclear-requires-generated-surface",
+            ],
         }
     );
 

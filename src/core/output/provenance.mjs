@@ -67,16 +67,16 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
       if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
         candidates.push(...node.surfaceForms);
       }
-      if (node.surface) {
+      if (!hasResultFrame && node.surface) {
         candidates.push(node.surface);
       }
-      if (node.surfaceStem) {
+      if (!hasResultFrame && node.surfaceStem) {
         candidates.push(node.surfaceStem);
       }
       if (!hasResultFrame && node.result) {
         candidates.push(node.result);
       }
-      if (fallbackSurface) {
+      if (!hasResultFrame && fallbackSurface) {
         candidates.push(fallbackSurface);
       }
       return candidates.flatMap(entry => splitOutputProvenanceContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
@@ -200,6 +200,10 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
       const variants = Array.isArray(provenance?.variants) ? provenance.variants : [];
       const primaryVariant = variants[0] || null;
       if (primaryVariant) {
+        const primaryResultFrame = getOutputProvenanceResultFrame(primaryVariant);
+        if (primaryResultFrame) {
+          return getOutputProvenancePrimarySurface(primaryVariant);
+        }
         const framedSurface = getOutputProvenancePrimarySurface(primaryVariant);
         if (framedSurface) {
           return framedSurface;
@@ -208,6 +212,10 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
         if (resolvedSurface) {
           return resolvedSurface;
         }
+      }
+      const provenanceResultFrame = getOutputProvenanceResultFrame(provenance);
+      if (provenanceResultFrame) {
+        return getOutputProvenancePrimarySurface(provenance);
       }
       if (provenance?.stemSpec) {
         return targetObject.normalizeDerivationStemValue(targetObject.realizeMorphStemSpec(provenance.stemSpec, ""));

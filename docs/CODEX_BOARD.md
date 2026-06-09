@@ -2,7 +2,7 @@
 
 ## Source Of Truth
 
-- Grammar book: `/Users/jaimenunez/Documents/Nahuat World/Classical/Linguistics/[Andrews] Introduction to Classical Nahuatl.pdf`
+- Grammar book: `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf`
 - Grammar digest: `docs/ANDREWS_PDF_DIGEST.md`
 - Grammar section digest: `docs/ANDREWS_SECTION_DIGEST.md`
 - Grammar layer LCM: `docs/ANDREWS_LAYER_LCM.md`
@@ -624,6 +624,84 @@ Verification:
 - `npm run check:data`: passed.
 - `node scripts/run_tests.js`: passed, 1575/1575.
 - `node scripts/run_tests.js --runtime=module`: passed, 1575/1575.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Andrews 55 Explicit Source Result Frame Boundary v1
+
+Date: 2026-06-08
+
+Decision:
+
+- Andrews 55 explicit denominal source-evidence builders now read canonical result-frame surfaces before legacy source aliases.
+- `buildNawatDenominalAndrewsTemporalTiaSourceEvidence()`, `buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence()`, and `buildNawatDenominalAndrewsRelationalCompoundSourceEvidence()` now preserve framed source surfaces and treat an empty `resultFrame` as authoritative.
+- Stale `sourceStem`, `sourceSurface`, top-level `surface`, or legacy `result` aliases no longer revive source evidence for these source-limited route previews when a result frame exists but has no surface.
+- This phase adds no generated Nawat surfaces, no Classical examples, and no new grammar license. It only keeps explicit Andrews 55 source previews aligned with the LCM frame reader order before finite route requests are built.
+
+PDF verification:
+
+- Verified the local Andrews PDF with pypdf before the patch: §55.1 says temporal intransitive `tia` uses an NNC source formed on a compound nounstem whose matrix signifies a time segment and whose embed is a numeral nounstem; §55.4 says some adverbialized NNC nounstems form single-object applicative verbstems by `huia`; §55.5 says compound nounstems with a relational nounstem matrix, or possessive-state predicates built on relational stems, can form `o-a` and `huia` verbstems.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1661/1661.
+- `node scripts/run_tests.js state module_wrapper_parity --runtime=module`: passed, 1661/1661.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Path Execution Source Result Frame Boundary v1
+
+Date: 2026-06-08
+
+Decision:
+
+- Linked grammar path execution source promotion now treats an empty generated `resultFrame` as authoritative.
+- `getNawatLinkedGrammarPathExecutionSourceOptions()` continues to preserve generated result-frame surfaces before legacy generated result text, but no longer falls back to stale `nextSource` or `selectedStage` fields when the generated step carries a result frame with no surface.
+- Final-source and selected-step promotion inherit this guard because they consume the shared execution source-option reader.
+- This phase adds no generated forms, no new route families, and no Classical examples. It only prevents linked-route source promotion from bypassing the generated result contract.
+
+PDF verification:
+
+- Verified the local Andrews PDF with pypdf before the patch: §54.2 says the inceptive/stative suffixes create intransitive verbstems from a source nounstem with the meaning "to become/become like" what the source signifies; §54.3 distinguishes included-possessor `ti` sources from ordinary §54.2.1 `ti`; §55.6 describes chained denominal `i-hui/a-hui > o-a` source/result pairs, with the denominal nounstem base as the focus.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1662/1662.
+- `node scripts/run_tests.js state module_wrapper_parity --runtime=module`: passed, 1662/1662.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Route Source-State Station Result Frame Boundary v1
+
+Date: 2026-06-08
+
+Decision:
+
+- Static Nawat route source-state metadata now reads stem-station surfaces through the frame-aware station surface reader before using legacy station or target fields.
+- `resolveNawatRouteSourceStateMetadata()` preserves framed stem-station surfaces in both `sourceSurface` and the nested denominal family profile.
+- If the stem station carries an empty `resultFrame`, source-state metadata no longer falls back to stale station `inputValue`/`surface`, route-target `sourceStem`, or explicit `sourceStem`.
+- This phase adds no generated forms, no new route families, and no Classical examples. It only keeps route preview/source-state metadata aligned with the canonical station/result frame boundary.
+
+PDF verification:
+
+- Verified the local Andrews PDF with pypdf before the patch: §54.2 says inceptive/stative suffixes create intransitive verbstems from source nounstems with the meaning "to become/become like" what the source signifies; §54.3 distinguishes included-possessor `ti` from ordinary §54.2.1 `ti`; §55.1 limits temporal `tia` to compound nounstem sources with time-segment matrix and numeral embed; §55.6 describes denominal `i-hui/a-hui > o-a` source/result pairs.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1664/1664.
+- `node scripts/run_tests.js state module_wrapper_parity --runtime=module`: passed, 1664/1664.
+- `npm run check:data`: passed.
 - `npm run test:regression`: passed, 12/12.
 - `git diff --check`: passed.
 
@@ -3378,6 +3456,2505 @@ Verification:
 - `npm run check:data`: passed.
 - `npm run test:regression`: passed, 12/12.
 - `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Path Appendable State ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Linked grammar path selection summaries now build appendable stage `sourceVerb` and `displaySurface` through the same frame-first stage helpers used by stage generation.
+- Appendable choice construction no longer copies `stage.nextSource.sourceVerb` or `stage.nextSource.displaySurface` directly when an empty `grammarFrame.resultFrame` is present.
+- Empty framed `nextSource` objects are filtered out of appendable choices instead of becoming stale route options.
+- Focused state tests now cover direct source/display helper suppression for empty framed linked-stage `nextSource` objects.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.1 wording that denominal verbstems derive from nounstems by verbstem-forming suffixes before preserving linked-path state source/result boundaries.
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create intransitive verbstems before keeping appendable route choices tied to framed route outputs.
+- Verified local Andrews PDF Lesson 55.1 wording that another denominal `tia` suffix is intransitive before blocking stale appendable choices for empty frames.
+- Verified local Andrews PDF Lesson 55.2 wording that `tla` can attach to nounstems to create causative verbstems before keeping appendable choices structural instead of free output fallbacks.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state ui vnc nnc_adjectival grammar_frame module_wrapper_parity`: passed, 1651/1651.
+- `node scripts/run_tests.js state ui vnc nnc_adjectival grammar_frame module_wrapper_parity --runtime=module`: passed, 1651/1651.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM UI Dataset Failed-Layer Inference v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Route dataset projection now infers `grammarDiagnosticLayer` / `grammarDiagnosticContractLayer` from blocked frame status when diagnostics do not carry explicit layer metadata.
+- Agreement row presentation now infers `data-lcm-failed-layer` / `data-lcm-contract-layer` from the same frame status fallback when sparse diagnostics are present.
+- Inference order is authority unsupported, route generation blocked, then result-frame output blocked.
+- The visible LCM labels and exported/dataset metadata now agree for sparse blocked diagnostics instead of leaving failed-layer fields blank.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 4.2 wording that verbal and nominal nuclear clauses are distinct kinds of nuclear clauses before treating route failure as a structural layer, not only an output absence.
+- Verified local Andrews PDF Lesson 40.3 wording that NNCs and VNCs can function as adjectives before keeping adjectival route controls tied to framed category/status metadata.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/core/agreement/agreement.js`: passed.
+- `node --check src/core/agreement/agreement.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/agreement.test.js`: passed.
+- `node scripts/run_tests.js ui agreement state grammar_frame module_wrapper_parity`: passed, 1653/1653.
+- `node scripts/run_tests.js ui agreement state grammar_frame module_wrapper_parity --runtime=module`: passed, 1653/1653.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Output Provenance ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Output surface readers were audited and already treated `grammarFrame.resultFrame` as the authoritative surface boundary, including empty-frame suppression.
+- Output provenance primary-stem resolution now also treats an existing `grammarFrame.resultFrame` as authoritative.
+- `getProvenancePrimaryStemSurface()` no longer falls through from an empty framed variant or top-level provenance record to stale `surfaceStem`, `stemSpec`, base/suffix, or fallback surface fields.
+- Focused surface tests now cover empty framed provenance suppression for both top-level records and primary variants.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 2 wording that orthography represents Nahuatl phonemes before keeping output surfaces separated from grammar-source structure.
+- Verified local Andrews PDF Lesson 7.1 wording that the verbstem is the locus for VNC lexical meaning before keeping provenance as stem/source metadata.
+- Verified local Andrews PDF Lesson 24.1 wording on causative verbstem derivation before preserving causative provenance as a source contract, not a stale output fallback.
+
+Verification:
+
+- `node --check src/core/output/provenance.js`: passed.
+- `node --check src/core/output/provenance.mjs`: passed.
+- `node --check src/tests/surface.test.js`: passed.
+- `node scripts/run_tests.js surface grammar_frame module_wrapper_parity`: passed, 1655/1655.
+- `node scripts/run_tests.js surface grammar_frame module_wrapper_parity --runtime=module`: passed, 1655/1655.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Adjectival Override Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Adjectival NNC generation override surface resolution now treats an existing override `grammarFrame.resultFrame` as authoritative even when it is empty.
+- `resolveAdjectivalNncGenerationSurface()` no longer falls through from an empty framed override to stale `surface`, `patientivoSurface`, `nominalizedSurface`, `vncSurface`, `stem`, or input fallback values.
+- `buildGenerateWordOverrideSourceEvidence()` now suppresses legacy adjectival source-surface aliases when the mirrored source frame has an empty result frame.
+- Empty framed adjectival overrides remain blocked at the result/source-evidence layer instead of being revived as selected generated-stage evidence.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 40.4 wording that potential-patient and patientive nounstems create NNCs that often can be translated as adjectives before preserving the patientive adjectival route as a framed source/output contract.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival vnc grammar_frame module_wrapper_parity`: passed, 1656/1656.
+- `node scripts/run_tests.js nnc_adjectival vnc grammar_frame module_wrapper_parity --runtime=module`: passed, 1656/1656.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Patientive Continuation Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Patientive pre-locative continuation rendering now reads nested nominalization source surfaces through the shared frame-first UI surface reader.
+- `resolvePatientivoSourceSurfaceForContinuation()` now uses `getPrimaryConjugationSurface(profileSource)` before any source aliases.
+- Legacy `sourceSurface`, `surface`, and `generatedSurface` aliases remain available only when the nested profile source has no `grammarFrame.resultFrame`.
+- An empty framed nominalization source no longer revives stale profile aliases as continuation source material.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 40.4 wording that potential-patient and patientive nounstems create NNCs that often can be translated as adjectives before keeping patientive continuation source material tied to framed source/output contracts.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui nnc_adjectival state grammar_frame module_wrapper_parity`: passed, 1656/1656.
+- `node scripts/run_tests.js ui nnc_adjectival state grammar_frame module_wrapper_parity --runtime=module`: passed, 1656/1656.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Derivation Continuation Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Derivation continuation contracts now resolve source material through an existing `grammarFrame.resultFrame` before direct source aliases.
+- `getDerivationContinuationContractSourceInput()` now reads `resultFrame.surfaceForms` and `resultFrame.surface`, then stops when a result frame exists.
+- Legacy `surfaceForms`, `surface`, `result`, `sourceSurface`, `patientivoSurface`, `characteristicSurface`, action/agentive stems, and noun-stem aliases remain available only for unframed continuation records.
+- `attachDerivationContinuationGrammarContract()` now writes the frame-first source value into both `resultFrame.sourceInput` and `routeContract.sourceContract.sourceSurface`.
+- Empty framed continuation sources no longer revive stale source aliases into continuation metadata.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 39 heading/opening wording for deverbal nounstems and the Lesson 39.8 wording that patientive nounstems may function as incorporated objects before preserving continuation source material as framed source/output evidence.
+
+Verification:
+
+- `node --check src/core/derivation/source_model.js`: passed.
+- `node --check src/core/derivation/source_model.mjs`: passed.
+- `node --check src/tests/derivation.test.js`: passed.
+- `node scripts/run_tests.js derivation state ui grammar_frame module_wrapper_parity`: passed, 1658/1658.
+- `node scripts/run_tests.js derivation state ui grammar_frame module_wrapper_parity --runtime=module`: passed, 1658/1658.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Possession Ti Source Evidence ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews 54.4 possession-`ti` source evidence now treats an ordinary NNC source `grammarFrame.resultFrame` as an authoritative generation boundary.
+- `buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutput()` now rejects a supported-looking NNC source when it carries an empty result frame.
+- Predicate-stem aliases from `formulaSlots`, `nncBasic`, or top-level `stem` no longer revive a blocked/empty generated NNC as denominal possession-`ti` route evidence.
+- The possession-`ti` preview route now remains absent for empty framed ordinary NNC sources instead of routing from stale local aliases.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.4 wording that the intransitive suffix `ti` of possession creates a denominal intransitive verbstem meaning to have or possess what is signified by the source nounstem, and that its focus is the nounstem source.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state derivation ui grammar_frame module_wrapper_parity`: passed, 1659/1659.
+- `node scripts/run_tests.js state derivation ui grammar_frame module_wrapper_parity --runtime=module`: passed, 1659/1659.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Patientivo Prelocative Direct Source Fallback Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Patientive pre-locative continuation source rendering now treats an existing nested nominalization source `grammarFrame.resultFrame` as the full source boundary.
+- `resolvePatientivoSourceSurfaceForContinuation()` still preserves frame-provided source surfaces first, but if the nested profile source has an empty result frame it now returns an empty source instead of calling `getDirectPatientivoSourceSurface()`.
+- Legacy `sourceSurface`, `surface`, `generatedSurface`, and direct patientive source regeneration remain available only when the nested profile source has no result frame contract.
+- This keeps mirrored source/output material from inverting the LCM boundary: an empty frame stays empty instead of being revived by older source aliases or direct preview generation.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 39.8 wording that a patientive nounstem can serve as an incorporated object in a compound verbstem, and that a possessor pronoun from the source NNC predicate can transform into a verb object pronoun, before preserving this continuation route as framed source/output evidence.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1664/1664.
+- `node scripts/run_tests.js ui module_wrapper_parity --runtime=module`: passed, 1664/1664.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Stage Source/Display ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Linked grammar path stage source helpers now treat the stage's own `grammarFrame.resultFrame` as an authoritative boundary before legacy stage fields.
+- `getNawatLinkedGrammarPathStageSourceVerb()` and `getNawatLinkedGrammarStageSourceVerb()` preserve a framed stage surface when no explicit next-source verb is present, but an empty stage result frame now suppresses stale `sourceVerb`, `inputValue`, `renderVerb`, `displaySurface`, and next-source aliases.
+- Successful finite stages still keep source identity and generated display separate: `nextSource.sourceVerb` can remain the source label while the stage result frame supplies the generated display surface.
+- Linked selection summary labels and appendable choice extraction now route appendable stage source/display reads through the same frame-aware helpers, and empty framed appendable stages are skipped instead of shown as viable next steps.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.1 wording that denominal verbstems derive from nounstems by verbstem-forming suffixes before preserving linked source/result stage boundaries.
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create verbstems from source nounstems before keeping source identity separate from generated display output.
+- Verified local Andrews PDF Lesson 55.6 wording that i-hui/a-hui sources can feed o-a denominal formations before keeping chained linked-path stages frame-bound.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1669/1669.
+- `node scripts/run_tests.js state ui module_wrapper_parity --runtime=module`: passed, 1669/1669.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Promoted Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Promoted linked grammar path source controls now read `grammarFrame.resultFrame` before legacy source aliases.
+- `applyNawatLinkedGrammarPathSourceInput()` now syncs a framed promoted source surface into the route input and treats an empty promoted-source result frame as missing source material instead of applying stale `sourceVerb`, `inputValue`, or `displaySurface`.
+- `buildNawatLinkedGrammarPromotedSourceSubLabels()` now renders promoted-source labels from the LCM result frame first and emits no labels for empty framed promoted sources.
+- Legacy promoted-source fields remain available only for unframed source objects.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.1 wording that denominal verbstems derive from nounstems by verbstem-forming suffixes before preserving promoted linked-stage source boundaries.
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create verbstems from source nounstems before treating promoted source input as source evidence, not a free legacy fallback.
+- Verified local Andrews PDF Lesson 55.6 wording that i-hui/a-hui sources can feed o-a denominal formations before keeping promoted chained-stage sources tied to framed outputs.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1673/1673.
+- `node scripts/run_tests.js state ui module_wrapper_parity --runtime=module`: passed, 1673/1673.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Adjectival Function Target ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Adjectival NNC function tab rendering now resolves its target surface through a frame-aware helper.
+- `resolveAdjectivalNncFunctionTargetSurface()` reads `override.adjectivalNnc.grammarFrame.resultFrame` / `frames.resultFrame` before any legacy override text.
+- If the adjectival-function override carries an empty result frame, rendering stops instead of falling back to stale `override.verb` or serialized adjectival surface text.
+- The legacy `override.verb` fallback remains available only for unframed override objects.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 40.3 wording that NNCs and VNCs can function as adjectives before keeping adjectival-function rendering tied to the generated/result contract.
+- Verified local Andrews PDF Lesson 40.4 wording that potential-patient and patientive nounstems create NNCs often translated as adjectives before blocking stale adjectival-function fallback surfaces.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1675/1675.
+- `node scripts/run_tests.js ui module_wrapper_parity --runtime=module`: passed, 1675/1675.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Orthography Label ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Shared LCM grammar-frame sublabels now treat `resultFrame` as the authoritative output boundary before rendering Nawat realization labels.
+- `buildGrammarFrameSubLabels()` still reads result-frame surfaces first, but when a result frame exists and is empty it no longer falls through to `orthographyFrame.surface`, `orthographyFrame.surfaceForms`, `orthographyFrame.nawatRuleSpelling`, or the generic "pendiente" label.
+- Orthography-only metadata that has no result frame can still show orthography realization labels.
+- Blocked framed routes now show status, route, Andrews evidence, failed layer, and diagnostics without displaying a stale Nawat realization.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 2.1 wording that spelling generally represents phonemes before preserving orthography as a spelling/realization layer rather than an output license after the result layer blocks.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1677/1677.
+- `node scripts/run_tests.js ui module_wrapper_parity --runtime=module`: passed, 1677/1677.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Composition Surface Fallback ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Composition surface helpers now treat input `resultFrame`s as authoritative before fallback surface parameters.
+- `getAdjectivalModificationSurface()`, `getAdverbialAdjunctionSurface()`, `getComplementClauseSurface()`, and `getConjunctionClauseSurface()` still preserve framed result surfaces first, but an empty input result frame now returns an empty surface instead of reviving fallback or stale legacy text.
+- Legacy `surface`, `surfaceForms`, `surfaceDisplay`, `output.surface`, `result`, `word`, and fallback parameters remain available only for unframed composition inputs.
+- The AST builders for modification, adjunction, complementation, and conjunction inherit this boundary because they construct their clause/conjunct nodes through these helpers.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 42.1-42.2 wording that adjectival modification is a structure of modification with head and modifier clauses before preserving composition inputs as supplied/framed clause-unit surfaces.
+- Verified local Andrews PDF Lesson 49.1 and 50.1 wording that adverbial modification is a structure with a principal clause and adjoined modifier clause/unit before blocking fallback surfaces for empty framed adjunction inputs.
+- Verified local Andrews PDF Lesson 51.1 wording that complementation is a double-nucleus structure with an adjoined NNC complement before preserving complement surfaces as framed input evidence.
+- Verified local Andrews PDF Lesson 52.1-52.2 wording that conjunction composes conjuncts through marked or unmarked structure before keeping conjunct surfaces frame-bound.
+
+Verification:
+
+- `node --check src/core/clause/modification/modification.js`: passed.
+- `node --check src/core/clause/modification/modification.mjs`: passed.
+- `node --check src/core/clause/adjunction/adjunction.js`: passed.
+- `node --check src/core/clause/adjunction/adjunction.mjs`: passed.
+- `node --check src/core/clause/complement/complement.js`: passed.
+- `node --check src/core/clause/complement/complement.mjs`: passed.
+- `node --check src/core/clause/conjunction/conjunction.js`: passed.
+- `node --check src/core/clause/conjunction/conjunction.mjs`: passed.
+- `node --check src/tests/modification.test.js`: passed.
+- `node --check src/tests/adjunction.test.js`: passed.
+- `node --check src/tests/complement.test.js`: passed.
+- `node --check src/tests/conjunction.test.js`: passed.
+- `node scripts/run_tests.js modification adjunction complement conjunction module_wrapper_parity`: passed, 1681/1681.
+- `node scripts/run_tests.js modification adjunction complement conjunction module_wrapper_parity --runtime=module`: passed, 1681/1681.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Nuclear Shell Slot ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Nominal nuclear-clause shell slot readers now treat framed predicate and subject-number connector inputs as authoritative.
+- `buildNominalNuclearClauseShell()` preserves structural `stem`, `connector`, `surface`, and display aliases only when the slot object has no `grammarFrame.resultFrame` / `frames.resultFrame`.
+- If a predicate or connector slot has an empty result frame, the shell leaves that slot empty (`∅` / `Ø` for display) instead of reviving stale `stem`, `surface`, `displaySurface`, or fallback predicate text.
+- Framed slot surfaces remain preserved when present, so shell metadata can echo generated/result contracts without bypassing the LCM result layer.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 4.1 wording that nuclear clauses are morphosyntactic constructs that obligatorily contain subject and predicate before keeping this as shell metadata, not word generation.
+- Verified local Andrews PDF Lesson 4.4 wording that an NNC predicate consists of State plus Stem, while subject person/number is outside the predicate, before keeping predicate and connector slots frame-bound.
+- Verified local Andrews PDF Lesson 4.5 wording that the stem problem is taken up later for VNCs/NNCs before preserving shell slots as structural metadata rather than free surface fallbacks.
+
+Verification:
+
+- `node --check src/core/clause/clause.js`: passed.
+- `node --check src/core/clause/clause.mjs`: passed.
+- `node --check src/tests/clause.test.js`: passed.
+- `node scripts/run_tests.js clause grammar_frame module_wrapper_parity`: passed, 1683/1683.
+- `node scripts/run_tests.js clause grammar_frame module_wrapper_parity --runtime=module`: passed, 1683/1683.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Agentive Continuation Stem ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Agentive continuation renderers now treat an existing row `resultFrame` as the boundary for continuation source stems.
+- `getCustomaryAgentiveStemsFromEvaluation()` and `getPreteritAgentiveGeneralUseStemsFromEvaluation()` now read `getConjugationSurfaceForms(result)` once and stop when the result has an empty frame.
+- When a result frame exists with surfaces, continuation stems are derived from those framed surfaces; shell predicate stems are used only for unframed legacy results.
+- Empty framed agentive rows can no longer create nominal, VNC, ownerhood, complement, or adverbial continuation chips from stale `nuclearClauseShell.slots.predicate.stem` metadata.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 35.5 wording that the general-use preterit-agentive nounstem occurs as an embed in nominal and verbal compound stems before keeping preterit-agentive continuation source stems tied to framed output.
+- Verified local Andrews PDF Lesson 35.9 and 35.10 wording that preterit-agentive ownerhood/abundant-ownerhood use incorporated-object compound sources before blocking stale shell-stem continuation chips.
+- Verified local Andrews PDF Lesson 36.3 wording that a fully nominal NNC can be built on a customary-present-predicate-as-nounstem before preserving customary-agentive continuation source stems as generated/result evidence.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1684/1684.
+- `node scripts/run_tests.js ui module_wrapper_parity --runtime=module`: passed, 1684/1684.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Execution Next-Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Linked grammar path execution source promotion now treats `nextSource` and `selectedStage` result frames as authoritative when generated output is absent or unframed.
+- `getNawatLinkedGrammarPathExecutionSourceOptions()` preserves framed generated surfaces first, then framed next-source/stage surfaces, and only uses legacy `sourceVerb` / `displaySurface` fields for unframed objects.
+- Empty framed `nextSource` or `selectedStage` objects now suppress stale promotion options instead of falling through to old linked-stage text.
+- Focused state tests now cover framed next-source preservation and empty-framed next-source suppression in execution source options.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create intransitive verbstems from source nounstems meaning "to become/become like" the source entity before preserving linked next-source identity as framed route evidence.
+- Verified local Andrews PDF Lesson 55.6 wording that denominal `i-hui/a-hui > o-a` pairs use a nounstem base as the source and produce paired intransitive/transitive verbstems before blocking stale linked source promotion.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1686/1686.
+- `node scripts/run_tests.js state module_wrapper_parity --runtime=module`: passed, 1686/1686.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM NNC Formula Echo Slot ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Ordinary and adjectival NNC formula echo helpers now treat framed predicate and subject-number connector slot objects as authoritative.
+- `buildOrdinaryNncFormulaEchoFromSlots()` and `buildAdjectivalNncFormulaEchoFromSlots()` preserve framed slot surfaces before legacy `stem`, `connector`, or `surface` aliases.
+- If a predicate slot has an empty result frame, the formula echo stops instead of displaying a stale predicate stem.
+- If a connector slot has an empty result frame, the formula echo uses the neutral display connector `Ø` instead of reviving stale connector text.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 4.4 wording that NNC formulas split subject person/number around the predicate and that the NNC predicate consists of State plus Stem before keeping formula echoes structural.
+- Verified local Andrews PDF Lesson 4.5 wording that the stem problem is handled later for VNCs/NNCs before treating formula slot text as metadata, not a free output fallback.
+- Verified local Andrews PDF Lesson 12.3 wording warning that the NNC subject number connector should not be treated as state because State belongs to the predicate before keeping connector text outside the predicate slot.
+
+Verification:
+
+- `node --check src/core/nnc/nnc.js`: passed.
+- `node --check src/core/nnc/nnc.mjs`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/tests/nnc.test.js`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js nnc nnc_adjectival clause grammar_frame module_wrapper_parity`: passed, 1690/1690.
+- `node scripts/run_tests.js nnc nnc_adjectival clause grammar_frame module_wrapper_parity --runtime=module`: passed, 1690/1690.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM VNC Allomorphy Orthography ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- VNC allomorphy metadata contracts now treat an existing `resultFrame` as authoritative for the attached orthography subframe.
+- `attachVncAllomorphyGrammarContract()` preserves framed surface forms in both `resultFrame` output and `grammarFrame.orthographyFrame`.
+- If a VNC allomorphy contract has an empty result frame, nested `options.orthographyFrame.surface` and `options.orthographyFrame.surfaceForms` can no longer revive stale output text.
+- Unframed legacy contracts can still use orthography-frame surface aliases, preserving existing metadata-only paths that do not have a canonical result frame yet.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 37.1 wording that deverbal nounstems are derived from a VNC core before keeping VNC allomorphy as a source-contract/output metadata layer.
+- Verified local Andrews PDF Lesson 38.1 wording that impersonal patientive nounstems have an impersonal VNC core as source before keeping patientive allomorphy surfaces tied to generated result contracts.
+- Verified local Andrews PDF Lesson 39.1 wording that perfective patientive nounstems use a perfective active verbstem as source and are modeled after passive or impersonal formations before blocking stale orthography fallbacks.
+
+Verification:
+
+- `node --check src/core/vnc/allomorphy.js`: passed.
+- `node --check src/core/vnc/allomorphy.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine vnc grammar_frame module_wrapper_parity`: passed, 1690/1690.
+- `node scripts/run_tests.js morphology_engine vnc grammar_frame module_wrapper_parity --runtime=module`: passed, 1690/1690.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Shared GrammarFrame Orthography Order Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- The shared `GRAMMAR_FRAME_KEYS` and `GRAMMAR_FRAME_LAYER_ORDER` now put `orthographyFrame` / `orthography` immediately after authority and before unit metadata.
+- `buildGrammarMetadataContractFrame()` now treats an inbound `resultFrame` as the surface boundary for provided orthography subframes.
+- If a metadata record has an inbound empty result frame, stale `options.orthographyFrame.surface`, `options.orthographyFrame.surfaceForms`, and top-level `surfaceForms` are suppressed instead of reviving output text.
+- Metadata records without an inbound result frame can still carry orthography-only metadata, preserving diagnostic bridge paths that do not generate word surfaces.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Preface wording that grammar should describe Nahuatl as a system operating from within its own structuring principles and rules before aligning the shared frame order to the LCM contract rather than module names.
+- Verified local Andrews PDF Lesson 2 title and wording on pronunciation/orthography and spelling conventions before placing orthography immediately after authority in the shared frame layer order.
+- Verified local Andrews PDF Lesson 4.1 wording that nuclear clauses are morphosyntactic constructs before keeping unit metadata after the authority and orthography layers.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/tests/grammar_frame.test.js`: passed.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity`: passed, 1691/1691.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity --runtime=module`: passed, 1691/1691.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Promoted Source GeneratedSurface Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- `applyNawatLinkedGrammarPathSourceInput()` now treats a promoted source result frame as authoritative for `sourceContext.generatedSurface`.
+- When a promoted source has framed generated output, the source context carries the framed surface instead of stale `generatedSurface` metadata.
+- When a promoted source has no result frame, legacy `generatedSurface` metadata remains available for old unframed paths.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative `ti` creates denominal intransitive stems before keeping linked promoted-source input context tied to generated route evidence.
+- Verified local Andrews PDF Lesson 55.6 wording that denominal `i-hui/a-hui > o-a` pairs use nounstem-based intransitive/transitive source relationships before keeping linked source promotion frame-bound.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1691/1691.
+- `node scripts/run_tests.js state module_wrapper_parity --runtime=module`: passed, 1691/1691.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Stage SourceVerb ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Linked-stage source helpers now treat a stage-level result frame as authoritative for the stage source verb.
+- `getNawatLinkedGrammarPathStageSourceVerb()` and `getNawatLinkedGrammarStageSourceVerb()` no longer prefer stale `nextSource.sourceVerb` when the stage itself has a nonempty result frame.
+- Empty stage result frames still suppress legacy stage and next-source fields.
+- Existing next-source result-frame behavior remains unchanged: if `nextSource` has its own result frame, it is still read first.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create denominal intransitive stems before keeping linked stage source identity tied to generated route output.
+- Verified local Andrews PDF Lesson 55.6 wording that `i-hui/a-hui > o-a` denominal pairs use a source relationship between intransitive and transitive verbstems before keeping stage source promotion frame-bound.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1691/1691.
+- `node scripts/run_tests.js state ui module_wrapper_parity --runtime=module`: passed, 1691/1691.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Subject Connector ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Generated nominal nuclear-clause shell metadata now resolves `subjectNumberConnector` through frame-only result evidence before legacy connector fields.
+- `resolveGenerateWordNominalConnectorSurface()` preserves framed connector surfaces; `resolveGenerateWordNominalConnectorDisplaySurface()` preserves framed display surfaces and only uses legacy display aliases when the connector has no result frame.
+- Empty connector result frames now suppress stale `surface`, `displaySurface`, and `displayConnector` values, leaving the neutral `Ø` display where the NNC formula requires a visible connector label.
+- Patientivo route state suffix discovery now reads the subject-number connector through `getStateSubjectNumberConnectorSurface()`, so empty connector frames cannot leak stale suffix text.
+- Sustantivo renderer connector labels now use `resolveNominalSubjectConnectorSurface()`, preserving framed connector output and blocking stale display text for empty frames.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 4.4/4.5 wording that an NNC predicate consists of State plus Stem and that NNC formulas carry subject person and number around the predicate.
+- Verified local Andrews PDF Lesson 5.3 wording that `num1` is the locus of a number-connector morph mediating between predicate and `num2`.
+- Verified local Andrews PDF Lesson 12.3 wording that the NNC subject's `num1` number-connector must not be treated as predicate State.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine state ui module_wrapper_parity`: passed, 1694/1694.
+- `node scripts/run_tests.js morphology_engine state ui module_wrapper_parity --runtime=module`: passed, 1694/1694.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Intensified Adjectival Slot ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Intensified adjectival NNC generation now reads source formula-slot predicate and subject-number connector surfaces through the frame-aware adjectival formula-slot resolver.
+- `buildIntensifiedAdjectivalNncOutput()` preserves framed source predicate and connector surfaces before legacy `stem`, `connector`, or `surface` text.
+- Empty source predicate result frames now block intensified generation instead of reviving stale predicate stems.
+- Empty source connector result frames now suppress stale connector text and produce the zero connector display for the intensified NNC formula.
+- `buildIntensifiedAdjectivalNncFormulaSlots()` no longer carries the source predicate result frame into the newly generated intensified predicate slot; the generated predicate uses the intensified stem while keeping the source stem as metadata.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 41.1 wording that some adjectival NNCs are built on intensified stems.
+- Verified local Andrews PDF Lesson 41.1 wording that adjectival stems with verbal/deverbal source may be intensified by long-vowelled reduplication before keeping intensified generation dependent on generated source formula-slot evidence.
+- Verified local Andrews PDF Lesson 41.1 examples that intensified NNC formulas keep the intensified stem inside the NNC predicate slot before preventing a source predicate frame from overriding the generated intensified predicate slot.
+
+Verification:
+
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival grammar_frame module_wrapper_parity`: passed, 1695/1695.
+- `node scripts/run_tests.js nnc_adjectival grammar_frame module_wrapper_parity --runtime=module`: passed, 1695/1695.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM GenerateWord SourceInput ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- `resolveGenerateWordFrameSourceInput()` now treats an existing generated `resultFrame` as the boundary before legacy `result.stem` or fallback `verb` text.
+- Framed generated source surfaces are still preserved from `resultFrame.surfaceForms` / `resultFrame.surface`.
+- Empty generated result frames now suppress stale generated stems and fallback verb text in `grammarFrame.resultFrame.sourceInput`.
+- Explicit `renderVerb` remains available as user/input evidence, so this phase blocks stale generated-output fallbacks without erasing real source-input context.
+- Unframed legacy paths can still use `result.stem` or `verb`, preserving old metadata paths that do not yet carry canonical frames.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Preface wording that Nahuatl grammar should be treated as a system operating from within its own structuring principles before separating source input from generated output.
+- Verified local Andrews PDF Lesson 4.1 wording that nuclear clauses are morphosyntactic constructs formed from a stem and inflectional affixes in a rigid structure before keeping source input as structural metadata.
+- Verified local Andrews PDF Lesson 5.5/7 opening wording that the STEM position is the locus of lexical meaning and must be described structurally before blocking empty output frames from reviving stale generated stems as output/source surfaces.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine grammar_frame module_wrapper_parity`: passed, 1696/1696.
+- `node scripts/run_tests.js morphology_engine grammar_frame module_wrapper_parity --runtime=module`: passed, 1696/1696.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Adjectival GrammarFrame Source Metadata ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Adjectival NNC grammar-frame construction now treats an existing output `resultFrame` as the boundary for source/stem metadata aliases.
+- `buildAdjectivalNncGrammarFrame()` preserves ordinary unframed source aliases, but an empty framed result now suppresses stale `patientivoSurface`, `nominalizedSurface`, `vncSurface`, top-level `stem`, and `sourcePredicateStem` in `resultFrame.sourceInput` and `stemFrame`.
+- `getAdjectivalNncResultFramePayload()` centralizes the result-frame boundary used by the adjectival surface reader and grammar-frame metadata writer.
+- Empty framed adjectival contracts no longer carry stale source text into diagnostics or route metadata while showing no generated surface.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 40.3 wording that NNCs and VNCs can function as adjectives and that only their predicate is translated as the English-adjective equivalent before keeping adjectival source metadata separate from output.
+- Verified local Andrews PDF Lesson 40.4 wording that potential-patient and patientive nounstems form NNCs often translated as adjectives before preserving patientive source aliases only when not contradicted by an empty result frame.
+- Verified local Andrews PDF Lesson 40.5 wording that predicates of nominalized VNCs can be translated as adjectives before suppressing stale nominalized-source aliases for blocked framed contracts.
+
+Verification:
+
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival grammar_frame module_wrapper_parity`: passed, 1697/1697.
+- `node scripts/run_tests.js nnc_adjectival grammar_frame module_wrapper_parity --runtime=module`: passed, 1697/1697.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Adjectival Override Dataset ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Adjectival NNC function input overrides now treat a serialized entry contract's `resultFrame` as authoritative before fallback dataset surfaces.
+- `resolveAdjectivalNncFunctionOverrideFromInput()` still accepts legacy `data-adjectival-nnc-function-surface` when no framed contract is present, but an empty framed result now blocks stale dataset text from rebuilding an `adjectivalNnc` override.
+- `hasAdjectivalNncFunctionEntryContractResultFrame()` centralizes the override-side result-frame boundary in the VNC facade.
+- This keeps clicked adjectival-function controls aligned with the generated contract instead of letting old HTML dataset state route a blocked result into a default potential/combo path.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 40 heading and §40.3 wording that NNCs and VNCs can function as adjectives before keeping adjectival-function control routing tied to an actual adjectival NNC/VNC result.
+- Verified local Andrews PDF §40.4 wording that patientive and potential-patient nounstems can serve as adjectival predicates before blocking stale patientive-adjectival dataset surfaces when the generated `resultFrame` is empty.
+
+Verification:
+
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1698/1698.
+- `node scripts/run_tests.js --runtime=module`: passed, 1698/1698.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Ordinary NNC Row Connector Display Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Ordinary NNC row sublabels now resolve the displayed subject-number connector through the shared frame-first connector reader.
+- `rowConnectorSlotLabel` in `src/ui/rendering/rendering.js` uses `resolveNominalSubjectConnectorSurface()` before legacy `connector` / `surface` slot text.
+- Empty connector `resultFrame`s now display the neutral `Ø` label instead of reviving stale formula-slot connector text in ordinary NNC rows.
+- This keeps the row-level visible NNC formula explanation aligned with the same subject connector contract already used by generated nominal shells and shared sustantivo renderer labels.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF §4.5 wording that nuclear-clause formulas define the subject/predicate slot layout before keeping row labels tied to formula-slot structure.
+- Verified local Andrews PDF §5.3 wording that `num1` is a subject-side morphic filler position before routing connector display through the subject-number connector contract.
+- Verified local Andrews PDF §12.3 wording that the NNC subject `num1` subposition is a number-connector locus and belongs to the subject, not the predicate state.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1698/1698.
+- `node scripts/run_tests.js --runtime=module`: passed, 1698/1698.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Route Surface-Trail Source-Tense Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Static Nawat route surface-trail rendering now treats a source-tense station `resultFrame` as authoritative before legacy station surface text or generated source-surface fallback.
+- `getNawatRouteSurfaceTrailParts()` still preserves legacy source-tense station surfaces when no frame exists, but an empty framed source-tense station now contributes no stale source step to the trail.
+- Framed source-tense station surfaces are preserved in the route trail before legacy station fields.
+- This keeps route-preview/user-action trails aligned with the digital grammar ability-map contract: the next visible move must come from the station result frame or stop at that layer.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.1 wording that verbstems may be derived from nounstems by verbstem-forming suffixes before keeping route source/target trail steps structurally bounded.
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create intransitive verbstems from nounstem sources before preserving source-tense station output as framed evidence.
+- Verified local Andrews PDF Lesson 55.1 and §55.2 wording for denominal `tia` and `tla` suffix routes before blocking stale source-tense station text from reviving unsupported route-preview steps.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1700/1700.
+- `node scripts/run_tests.js --runtime=module`: passed, 1700/1700.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Linked Stage Dash Source Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Linked grammar stage sublabel rendering now normalizes the legacy no-output marker `—` before treating stage surface text as a next source.
+- `getNawatLinkedGrammarStageSourceVerb()` already preferred framed `nextSource` and stage result surfaces; the unframed final fallback now stops when the only remaining stage surface is `—`.
+- Dash-only linked stage controls no longer advertise `Siguiente fuente: —` as an available next move.
+- This keeps linked route controls aligned with the grammar ability-map contract: unsupported or empty generation must expose a blocked layer, not a fake source string.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF Lesson 54.1 wording that verbstems may be derived from nounstems by verbstem-forming suffixes before keeping linked route moves source-bound.
+- Verified local Andrews PDF Lesson 54.2 wording that inceptive/stative suffixes create intransitive verbstems from nounstem sources before preventing no-output markers from becoming next-source evidence.
+- Verified local Andrews PDF Lesson 55.1 and §55.2 wording for denominal suffix routes before keeping unavailable linked stage surfaces out of the next-move map.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1701/1701.
+- `node scripts/run_tests.js --runtime=module`: passed, 1701/1701.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Adverbial Nuclear Source ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Adverbial nuclear clause frames now treat an inbound `resultFrame` as authoritative for source metadata as well as output surfaces.
+- `getAdverbialNuclearContractSourceText()` now reads `resultFrame.sourceInput` first and stops there when a result frame exists.
+- Empty framed adverbial results no longer revive stale `source`, `sourceStem`, `analysisStem`, `finalStem`, legacy `surface`, or legacy `result` aliases.
+- `buildAdverbialNuclearClauseFrame()` now suppresses stale source stem/final/analysis metadata when the source result frame is empty.
+- The shared metadata contract builder no longer stringifies object-valued `node.source` / `node.target` as `[object Object]` for `resultFrame.sourceInput`.
+- This keeps Lesson 44 adverbial ability-map entries tied to framed generated evidence instead of legacy adverbio labels.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF §44.1 wording that adverbial modifiers are nuclear clauses or adjoined clauses and that adverbial VNCs/NNCs result from transformation of nuclear clauses.
+- Verified local Andrews PDF §44.2 wording that adverbialization has degrees and that VNCs and possessive-state NNCs permit only first-degree adverbialization before keeping the source/output boundary explicit.
+
+Verification:
+
+- `node --check src/core/clause/adverbial/adverbial.js`: passed.
+- `node --check src/core/clause/adverbial/adverbial.mjs`: passed.
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/tests/adverbial.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1702/1702.
+- `node scripts/run_tests.js --runtime=module`: passed, 1702/1702.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Shared Surface Reader Explicit ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Shared surface-form readers now express the LCM result-frame boundary directly in code instead of relying only on an earlier return.
+- `normalizeGrammarFrameSurfaceForms()`, `getGenerateRuntimeSurfaceForms()`, `getConjugationRenderableSurfaceForms()`, and `getConjugationSurfaceForms()` now gate top-level legacy `surface` reads behind `!hasResultFrame`, matching the existing guards for `surfaceForms` and `result`.
+- Empty `resultFrame`s continue to stop generation/runtime/agreement/rendering display paths before stale `surface`, `surfaceForms`, or `result` aliases can revive a blocked form.
+- Focused tests now cover empty-frame suppression for generate-word contract readers, runtime support readers, agreement renderable surfaces, and shared UI renderer surfaces.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF §4.1 wording that, except for particles, Nahuatl vocables are morphosyntactic constructs called nuclear clauses before preserving result output as a structural contract layer.
+- Verified local Andrews PDF §4.3-§4.5 headings/wording on nuclear-clause formulas before keeping surface realization tied to formula/result slots.
+- Verified local Andrews PDF Lesson 5 wording that the STEM position is the locus for lexical meaning before keeping stale lexical/source aliases outside the authoritative result-frame path.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/core/generation/runtime_support.js`: passed.
+- `node --check src/core/generation/runtime_support.mjs`: passed.
+- `node --check src/core/agreement/agreement.js`: passed.
+- `node --check src/core/agreement/agreement.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node --check src/tests/agreement.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine agreement ui vnc module_wrapper_parity`: passed, 1705/1705.
+- `node scripts/run_tests.js morphology_engine agreement ui vnc module_wrapper_parity --runtime=module`: passed, 1705/1705.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Morphology Application Explicit ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Morphology-application surface reading now expresses the LCM result-frame boundary directly in code.
+- `getMorphologyApplicationSurfaceForms()` now gates top-level legacy `surface` behind `!hasResultFrame`, matching the existing guards for `surfaceForms`, `result`, and fallback surface input.
+- `getMorphologyApplicationSourceSurfaceForms()` inherits the boundary because it consumes `getMorphologyApplicationSurfaceForms()` first and stops when any `resultFrame` exists.
+- Empty morphology-application result frames no longer revive stale `surface`, `surfaceForms`, `result`, legacy `forms`, or fallback surface material.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified local Andrews PDF §4.1 wording that Nahuatl vocables are morphosyntactic nuclear-clause constructs before keeping morphology output tied to a structural result layer.
+- Verified local Andrews PDF §4.3-§4.5 wording on nuclear-clause formulas before keeping morphology surface realization tied to result slots.
+- Verified local Andrews PDF Lesson 5 wording that the STEM position is the locus for lexical meaning before preventing stale stem/output aliases from replacing an empty result frame.
+
+Verification:
+
+- `node --check src/core/generation/morphology_engine.js`: passed.
+- `node --check src/core/generation/morphology_engine.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine module_wrapper_parity`: passed, 1706/1706.
+- `node scripts/run_tests.js morphology_engine module_wrapper_parity --runtime=module`: passed, 1706/1706.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Fixed Andrews PDF Source Switch v1
+
+Date: 2026-06-09
+
+Decision:
+
+- The repo source-of-truth references now point to the fixed re-OCR Andrews PDF at `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf`.
+- `docs/CODEX_BOARD.md`, `docs/ANDREWS_PDF_DIGEST.md`, and `docs/ANDREWS_SECTION_DIGEST.md` no longer point to the older local PDF path.
+- Future Andrews wording checks should use the fixed re-OCR PDF path above.
+
+PDF verification:
+
+- Verified the fixed PDF exists and has 693 pages.
+- Verified pypdf extraction for Lesson 4 nuclear clauses, Lesson 5 predicate/STEM wording, Lesson 44 adverbial nuclear clauses, and Lessons 54-55 denominal route pages before switching source references.
+
+Verification:
+
+- `rg` confirmed the old `[Andrews] Introduction to Classical Nahuatl.pdf` source path was removed from docs source-reference lines.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Metadata Output Explicit ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Shared grammar metadata, output-surface, and output-provenance readers now express the LCM result-frame boundary directly in code.
+- `getGrammarResultContractSurfaceForms()` and `getGrammarMetadataContractSurfaceForms()` gate top-level and nested output `surface` reads behind `!hasResultFrame`.
+- `getOutputSurfaceSurfaceForms()` gates top-level `surface` and fallback surface behind `!hasResultFrame`.
+- `getOutputProvenanceSurfaceForms()` gates top-level `surface`, `surfaceStem`, and fallback surface behind `!hasResultFrame`.
+- Empty result frames remain authoritative and cannot be revived by stale metadata/output/provenance aliases.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §4.1 wording that Nahuatl vocables are morphosyntactic nuclear-clause constructs before keeping metadata/output surfaces tied to a structural result layer.
+- Verified the fixed re-OCR Andrews PDF §4.3-§4.5 wording on nuclear-clause formulas before keeping surface realization tied to result slots.
+- Verified the fixed re-OCR Andrews PDF Lesson 5 wording that the STEM position is the organizing center of the predicate before preventing stale stem/output aliases from replacing an empty result frame.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/core/output/surface.js`: passed.
+- `node --check src/core/output/surface.mjs`: passed.
+- `node --check src/core/output/provenance.js`: passed.
+- `node --check src/core/output/provenance.mjs`: passed.
+- `node --check src/tests/grammar_frame.test.js`: passed.
+- `node scripts/run_tests.js grammar_frame surface module_wrapper_parity`: passed, 1706/1706.
+- `node scripts/run_tests.js grammar_frame surface module_wrapper_parity --runtime=module`: passed, 1706/1706.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Grammar Result Contract Explicit Surface Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- `getGrammarResultContractSurfaceForms()` now gates top-level contract `surface` behind `!hasResultFrame`, matching the already guarded `surfaceForms` and legacy `result` reads.
+- Empty `grammarFrame.resultFrame`s remain authoritative in the shared `buildGrammarResultContract()` path and cannot be revived by stale top-level `surface`, `surfaceForms`, or `result` aliases.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §4.1 wording that Nahuatl vocables are morphosyntactic nuclear-clause constructs before keeping result output tied to a structural layer.
+- Verified the fixed re-OCR Andrews PDF §4.3-§4.5 wording on nuclear-clause formulas before keeping shared result surfaces tied to result slots.
+- Verified the fixed re-OCR Andrews PDF Lesson 5 wording that the STEM position is the organizing center of the predicate before preventing stale output aliases from replacing an empty result frame.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/tests/grammar_frame.test.js`: passed.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity`: passed, 1707/1707.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity --runtime=module`: passed, 1707/1707.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Forward Derivation Provenance Stem Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Forward-derivation diagnostic metadata now resolves selected stem candidates through a frame-aware provenance reader.
+- `resolveForwardDerivationMetadataStemSurface()` preserves framed provenance surfaces first and treats an empty provenance `resultFrame` as authoritative before legacy `surfaceStem`, `stemSpec`, or `stem` aliases.
+- `buildGeneratedForwardDerivationFrameMetadata()` now uses this reader for both selection metadata and forward-stem provenance, so stale provenance `surfaceStem` cannot become a displayed derived-stem label after an empty result frame.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §24.1 wording on stem-final vowel and valence before keeping causative stem metadata separated from output fallback.
+- Verified the fixed re-OCR Andrews PDF Lesson 26 §26.1 wording that applicative verbstems are derived stems before keeping applicative stem metadata tied to provenance evidence.
+- Verified the fixed re-OCR Andrews PDF Lesson 5 §5.5 wording that the STEM position is the locus for lexical meaning before preventing stale provenance aliases from replacing an empty result frame.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/tests/vnc.test.js`: passed.
+- `node scripts/run_tests.js vnc surface morphology_engine module_wrapper_parity`: passed, 1708/1708.
+- `node scripts/run_tests.js vnc surface morphology_engine module_wrapper_parity --runtime=module`: passed, 1708/1708.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM VNC Allomorphy Source/Target ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- VNC allomorphy metadata contracts now treat an existing `resultFrame` as authoritative for source/stem/target metadata as well as output surfaces.
+- `getVncAllomorphyContractSourceInput()` preserves `resultFrame.sourceInput` or the framed result surface, then stops when a result frame exists.
+- `attachVncAllomorphyGrammarContract()` now writes frame-bound source input into `resultFrame.sourceInput`, suppresses stale `sourceStem`, `stem`, `outputStem`, and `sourceSuffix` aliases in `stemFrame` when the result frame is empty, and overwrites stale target-contract output aliases with the framed surface.
+- Empty VNC allomorphy result frames can no longer revive stale source, stem, selected-output, target-output, or suffix text into grammar-frame metadata.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF Lesson 37.1 wording that deverbal nounstems are derived from VNC cores before keeping allomorphy source metadata tied to the framed source/result layer.
+- Verified the fixed re-OCR Andrews PDF Lesson 38.1 wording that impersonal patientive nounstems use an impersonal VNC core as source before preserving patientive source contracts as framed evidence.
+- Verified the fixed re-OCR Andrews PDF Lesson 39.1 wording that perfective patientive nounstems use a perfective active verbstem as source before blocking stale allomorphy target/output aliases.
+
+Verification:
+
+- `node --check src/core/vnc/allomorphy.js`: passed.
+- `node --check src/core/vnc/allomorphy.mjs`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js morphology_engine vnc grammar_frame module_wrapper_parity`: passed, 1708/1708.
+- `node scripts/run_tests.js morphology_engine vnc grammar_frame module_wrapper_parity --runtime=module`: passed, 1708/1708.
+- `node scripts/run_tests.js`: passed, 1708/1708.
+- `node scripts/run_tests.js --runtime=module`: passed, 1708/1708.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM View Export ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- View-export row normalization now resolves visible form text through the LCM result-frame reader before legacy export text.
+- `normalizeUnifiedVerbOutputEntry()` now reads `grammarFrame.resultFrame.surfaceForms`, `grammarFrame.resultFrame.surface`, top-level/nested contract surfaces, then legacy result text only when no result frame exists.
+- Empty framed export rows now produce a blank exported form instead of reviving stale `form`, nested `surface`, `surfaceForms`, or `result` aliases.
+- Legacy rows without grammar frames keep their existing `form` export behavior.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF Lesson 4.1 wording that Nahuatl vocables are nuclear-clause morphosyntactic constructs made of stem plus affixes in a rigid structure before keeping exported forms tied to the result-frame layer.
+- Verified the fixed re-OCR Andrews PDF Lesson 4.2 wording that VNCs and NNCs are distinct nuclear-clause kinds before preserving export metadata as route/result evidence, not a stale text fallback.
+
+Verification:
+
+- `node --check src/ui/export/export.js`: passed.
+- `node --check src/ui/export/export.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1709/1709.
+- `node scripts/run_tests.js ui module_wrapper_parity --runtime=module`: passed, 1709/1709.
+- `node scripts/run_tests.js`: passed, 1709/1709.
+- `node scripts/run_tests.js --runtime=module`: passed, 1709/1709.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Shared Metadata SourceInput ResultFrame Boundary v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Shared grammar metadata contracts now treat an inbound `resultFrame` as authoritative for source-input metadata.
+- `buildGrammarMetadataContractFrame()` preserves `resultFrame.sourceInput` or the framed result surface before legacy source aliases.
+- If an inbound result frame exists but is empty, stale `options.sourceInput`, `candidate`, `sourceName`, object-valued source fields, primitive `source`/`target`, and provided source-contract `sourceInput` / `sourceSurface` no longer revive source material in `resultFrame` or `routeContract.sourceContract`.
+- Metadata routes without an inbound result frame keep their legacy diagnostic/source-input behavior.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF Lesson 4.1 wording that nuclear clauses are morphosyntactic constructs with ordered stem/affix structure before keeping metadata source input separate from blocked result output.
+- Verified the fixed re-OCR Andrews PDF Lesson 4.2 wording that VNC and NNC kinds are structural categories before preventing stale route metadata from bypassing the result-frame layer.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/tests/grammar_frame.test.js`: passed.
+- `node scripts/run_tests.js grammar_frame ui module_wrapper_parity`: passed, 1709/1709.
+- `node scripts/run_tests.js grammar_frame ui module_wrapper_parity --runtime=module`: passed, 1709/1709.
+- `node scripts/run_tests.js`: passed, 1709/1709.
+- `node scripts/run_tests.js --runtime=module`: passed, 1709/1709.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: LCM Generic Diagnostic Layer Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Shared grammar diagnostic normalization now infers and preserves `failedLayer` plus `contractLayer` for raw or string diagnostics.
+- The inferencer maps Andrews/evidence authority diagnostics to `authority/authorityFrame`, output/result diagnostics to `output/resultFrame`, agreement/state diagnostics to `agreement/participantFrame`, inflection diagnostics to `inflection/inflectionFrame`, stem/root/source diagnostics to `stem/stemFrame`, nuclear-clause diagnostics to `nuclear-clause/clauseFrame`, and morph-boundary diagnostics to `morph-boundary/morphBoundaryFrame`.
+- Explicit diagnostic layer fields remain authoritative; route wrappers can still assign their own route contract layer when they own the blocked route boundary.
+- This phase adds no Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF Lesson 4 §§4.1-4.5 wording on nuclear-clause structure and formula slots before treating diagnostics as contract-layer events rather than free text.
+- Verified the fixed re-OCR Andrews PDF Lesson 5 wording that the STEM position is a structural layer before routing stem/source diagnostics to the stem frame.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/tests/grammar_frame.test.js`: passed.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity`: passed, 1710/1710.
+- `node scripts/run_tests.js grammar_frame module_wrapper_parity --runtime=module`: passed, 1710/1710.
+- `node scripts/run_tests.js`: passed, 1710/1710.
+- `node scripts/run_tests.js --runtime=module`: passed, 1710/1710.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.1 Executable Ti Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.1 `ti` is now executable rule contract `andrews-54-2-1-ti`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is an absolutive-state NNC predicate source stem, operation is denominal verbstem suffixation with Nawat `ti`, and output is an intransitive VNC stem contract.
+- The executable route generates a Nawat route stem from supplied Nawat/Pipil source evidence (`pusuk` -> `pusukti`) and records the Andrews §54.2.1 Class A/B source-final class contract without importing Classical surface spellings.
+- Non-absolutive or possessive sources are blocked before generation with `failedLayer: agreement` and `contractLayer: participantFrame`, so the route reports the Andrews state boundary rather than a generic empty-output failure.
+- Denominal route previews, requests, executions, activations, grammar frames, and linked UI chips now carry `executableRuleId` and a summarized executable rule contract.
+- Linked denominal Andrews chips expose `data-executable-rule-id` and the `calc-guidance__chip--andrews-rule-executable` class; `index.html` cache-busters now point at the updated state/rendering/CSS assets.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.1 wording that verbstems can be derived from nounstems by verbstem-forming suffixes before encoding the rule as a route contract.
+- Verified the fixed re-OCR Andrews PDF §54.2 wording that `ti`, `hui`, `ya`, `a`, and `hua` form intransitive verbstems from nounstems before scoping this phase to the `ti` intransitive contract.
+- Verified the fixed re-OCR Andrews PDF §54.2.1 wording that `ti` attaches directly to an absolutive-state NNC predicate and that source-final consonant sources are Class A while vowel-final sources can be Class A or B.
+- Verified the fixed re-OCR Andrews PDF §54.3-§54.4 possession-state `ti` paths as distinct contracts before blocking possessive sources from the §54.2.1 absolutive rule.
+
+Verification:
+
+- `node --check src/core/grammar/frame.js`: passed.
+- `node --check src/core/grammar/frame.mjs`: passed.
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity`: passed, 1711/1711.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity --runtime=module`: passed, 1711/1711.
+- `node scripts/run_tests.js`: passed, 1711/1711.
+- `node scripts/run_tests.js --runtime=module`: passed, 1711/1711.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- Browser verification: file URL was blocked by Browser policy, then the app loaded through `http://127.0.0.1:4173/index.html`; no console errors were reported and the executable-rule chip CSS selector was present.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.2 Executable Hui Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.2 `hui` is now executable rule contract `andrews-54-2-2-hui`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is an absolutive-state NNC predicate source stem, operation is denominal verbstem suffixation with Classical `hui` converted to Nawat/Pipil `wi`, and output is an intransitive VNC stem contract.
+- The executable route generates a Nawat route stem from supplied Nawat/Pipil source evidence (`pusuk` -> `pusukwi`) and records the Andrews §54.2.2 source-final class contract: consonant-final sources produce Class A, vowel-final sources produce Class B.
+- Non-absolutive or possessive sources are blocked before generation with `failedLayer: agreement` and `contractLayer: participantFrame`, so the route reports the Andrews state boundary rather than a generic empty-output failure.
+- The §54.2.2 inventory contract now reports executable-rule support and route-surface generation instead of `not-generated`; coverage counts now leave this contract out of the unmodeled list.
+- Denominal route previews, requests, executions, activations, grammar frames, and linked UI chips carry `executableRuleId: andrews-54-2-2-hui` when they use this rule.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2 wording that `ti`, `hui`, `ya`, `a`, and `hua` form intransitive inceptive/stative verbstems from nounstems before scoping this phase to `hui`.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording that `hui` is less prolific than `ti`, attaches directly to the absolutive-state predicate of a source NNC, and forms Class A stems for consonant-final sources but Class B stems for vowel-final sources.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording that many `hui` stems form a causative counterpart with `lia`; this phase keeps the generated `hui/wi` source evidence available for the existing `hui-lia` source guard.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity`: passed, 1712/1712.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity --runtime=module`: passed, 1712/1712.
+- `node scripts/run_tests.js`: passed, 1712/1712.
+- `node scripts/run_tests.js --runtime=module`: passed, 1712/1712.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- Browser verification: the app loaded through `http://127.0.0.1:4173/index.html`; no console errors were reported and the executable-rule chip CSS selector was present.
+
+## Completed Phase: Andrews 54.2.3 Executable Root-Plus-Ya Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.3 root-plus-`ya` is now executable rule contract `andrews-54-2-3-ya`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a Nawat nounroot or nounstem treated as root rank, operation is denominal verbstem suffixation with `ya`, and output is an intransitive VNC stem contract.
+- The executable route generates a Nawat route stem from supplied Nawat/Pipil source evidence (`shuchi` -> `shuchiya`) and records the Andrews §54.2.3 Class A/B contract for denominal `ya` verbstems.
+- Generated `ti` or `hui/wi` verbstem sources are blocked at `stem/stemFrame` for this direct root-plus-`ya` rule, because Andrews treats those as the separate deverbal `ti-ya` and `hui-ya` contracts.
+- Possessive-state sources are blocked before generation with `failedLayer: agreement` and `contractLayer: participantFrame`.
+- The §54.2.3 root-plus-`ya` inventory contract now reports executable-rule support and route-surface generation instead of `not-generated`; coverage counts now leave this contract out of the unmodeled list.
+- Denominal route previews, requests, executions, activations, grammar frames, and linked UI chips carry `executableRuleId: andrews-54-2-3-ya` when they use this rule.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `ya` may form denominal or deverbal verbstems before scoping this phase to the denominal root-plus-`ya` path.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that denominal `ya` attaches directly to a nounroot or nounstem downgraded to root rank and produces a "root-plus-ya" verbstem.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that denominal `ya` verbstems can belong to Class A, Class B, or either, and that `ya`-deleting `lia` causatives are a following contract.
+- Verified the fixed re-OCR Andrews PDF §54.2.3.b wording that `ti` and `hui` sources form separate deverbal `ti-ya` and `hui-ya` paths before blocking those as direct root-plus-`ya` inputs.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity`: passed, 1713/1713.
+- `node scripts/run_tests.js state ui grammar_frame module_wrapper_parity --runtime=module`: passed, 1713/1713.
+- `node scripts/run_tests.js`: passed, 1713/1713.
+- `node scripts/run_tests.js --runtime=module`: passed, 1713/1713.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- Browser verification: the app loaded through `http://127.0.0.1:4173/index.html`; no console errors were reported and the executable-rule chip CSS selector was present.
+
+## Completed Phase: Andrews 54.2.3 Executable Ti-Ya Deverbal Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.3 deverbal `ti-ya` is now executable rule contract `andrews-54-2-3-ti-ya`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `ti` VNC source, operation is deverbal `ya` suffixation after the `ti` source, and output is an intransitive VNC stem contract.
+- The executable route generates a Nawat route stem only from bounded generated-`ti` source evidence (`pusukti` -> `pusuktiya`) and records the Andrews §54.2.3 Class A/B contract for deverbal `ti-ya` stems.
+- Direct noun/root previews no longer fabricate `ti-ya` output; without generated `ti` source evidence, the route is blocked at `authority/authorityFrame` instead of producing `(source-ti-ya)` from the bare source.
+- Supplied non-`ti` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`, and possessive-state sources remain blocked at `agreement/participantFrame`.
+- The §54.2.3 `ti-ya` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+- Generated §54.2.1 `ti` stages can satisfy the `ti-ya` source requirement, and generated `ti-ya` stages still provide `ya`-source evidence for the existing `ya`-deleting `lia` continuation guard.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `ya` forms deverbal verbstems from denominal verbstems formed by `ti` and `hui`.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording "With a ti verbstem as source" before requiring generated `ti` source evidence for this executable route.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `ti-ya` stems can belong to Class A or Class B and form causatives by deleting `ya` and adding `lia`.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1714/1714.
+- `node scripts/run_tests.js --runtime=module`: passed, 1714/1714.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- Browser verification: the app loaded through `http://127.0.0.1:4173/index.html`; no console errors were reported.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.3 Executable Hui-Ya Deverbal Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.3 deverbal `hui-ya` is now executable rule contract `andrews-54-2-3-hui-ya`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `hui` VNC source, operation is deverbal `ya` suffixation after the Nawat `wi` source, and output is an intransitive VNC stem contract.
+- The executable route generates a Nawat route stem only from bounded generated-`hui/wi` source evidence (`pusukwi` -> `pusukwiya`) and records the Andrews §54.2.3 Class B contract for deverbal `hui-ya` stems.
+- Direct noun/root previews no longer fabricate `hui-ya` output; without generated `hui` source evidence, the route is blocked at `authority/authorityFrame` instead of producing `(source-hui-ya)` from the bare source.
+- Supplied non-`wi` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`, and possessive-state sources remain blocked at `agreement/participantFrame`.
+- The §54.2.3 `hui-ya` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+- Generated §54.2.2 `hui/wi` stages can satisfy the `hui-ya` source requirement, and generated `hui-ya` stages still provide `ya`-source evidence for the existing `ya`-deleting `lia` continuation guard.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `ya` forms deverbal verbstems from denominal verbstems formed by `ti` and `hui`.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording "With a hui verbstem as source" before requiring generated `hui/wi` source evidence for this executable route.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `hui-ya` stems belong to Class B and form causatives by deleting `ya` and adding `lia`.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1715/1715.
+- `node scripts/run_tests.js --runtime=module`: passed, 1715/1715.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- Browser verification: attempted through `http://127.0.0.1:4173/index.html`; the local server served `index.html`, but the in-app Browser tab crashed before DOM/console inspection.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.3 Executable Ya-Lia Causative/Applicative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.3 `ya-lia` is now executable rule contract `andrews-54-2-3-ya-lia`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `ya` VNC source, operation deletes source-final `ya` and adds Nawat `lia`, and output is a single-object causative-or-applicative VNC stem contract.
+- The executable route generates a Nawat route stem only from bounded generated-`ya` source evidence (`pusukya` -> `pusuklia`); direct noun/root previews now block at `authority/authorityFrame` instead of fabricating `(source-lia)` from a bare source.
+- Supplied non-`ya` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`, and possessive-state sources remain blocked at `agreement/participantFrame`.
+- Generated §54.2.3 `ya`, `ti-ya`, and `hui-ya` stages can satisfy the `ya-lia` source requirement and provide finite-generation requests with required object-prefix controls.
+- The §54.2.3 `ya-lia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording: denominal `ya` causatives are formed by deleting `ya` before adding `lia`.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `lia` can also create applicative verbstems in this family.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording that `ti-ya` and `hui-ya` stems also form causatives by deleting `ya` and adding `lia`.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state module_wrapper_parity`: passed, 1716/1716.
+- `node scripts/run_tests.js`: passed, 1716/1716.
+- `node scripts/run_tests.js --runtime=module`: passed, 1716/1716.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.2 Executable Hui-Lia Causative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.2 `hui-lia` is now executable rule contract `andrews-54-2-2-hui-lia`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `hui/wi` VNC source, operation adds Nawat `lia`, and output is a single-object causative VNC stem contract.
+- The executable route generates a Nawat route stem only from bounded generated-`hui/wi` source evidence (`pusukwi` -> `pusukwilia`); direct noun/root previews now block at `authority/authorityFrame` instead of fabricating `(source-wi-lia)` from a bare source.
+- Supplied non-`wi` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`, and possessive-state sources remain blocked at `agreement/participantFrame`.
+- Generated §54.2.2 `hui/wi` stages can satisfy the `hui-lia` source requirement and provide finite-generation requests with required object-prefix controls.
+- The §54.2.2 `hui-lia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording that `hui` attaches directly to the absolutive-state predicate of a source NNC.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording that many `hui` verbstems form a causative counterpart by adding `lia`, with cross-reference to §25.5.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 example `tla-(xo-xo-hui-lia)` as a causative counterpart of a `hui` verbstem before routing Nawat `wi` + `lia`.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1717/1717.
+- `node scripts/run_tests.js`: passed, 1717/1717.
+- `node scripts/run_tests.js --runtime=module`: passed, 1717/1717.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.4 Executable Limited A Inceptive/Stative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.4 limited inceptive/stative `a` is now executable rule contract `andrews-54-2-4-a`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is an absolutive Nawat nounstem source, operation adds Nawat `a`, and output is an intransitive Class C VNC stem contract.
+- The executable route generates a Nawat route stem from a bounded nounstem source (`tlawi` -> `tlawia`) and keeps the `limitedUse` route boundary visible for UI/diagnostics.
+- Possessive-state sources are blocked at `agreement/participantFrame`; generated VNC/source-category continuations are blocked at `stem/stemFrame` instead of being treated as valid §54.2.4 nounstem inputs.
+- The §54.2.4 `a` inventory contract now reports executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.4 wording that the inceptive/stative suffix `a` is of limited use and has a meaning similar to `ya`.
+- Verified the fixed re-OCR Andrews PDF §54.2.4 wording that this `a` is not the causative `a`.
+- Verified the fixed re-OCR Andrews PDF §54.2.4 wording that the verbstem created belongs to Class C.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1718/1718.
+- `node scripts/run_tests.js`: passed, 1718/1718.
+- `node scripts/run_tests.js --runtime=module`: passed, 1718/1718.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.5 Executable Hua Inceptive/Stative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.5 `hua` is now executable rule contract `andrews-54-2-5-hua`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a confirmed deverbal `(-yo)-tl` nounstem source realized as a Nawat/Pipil `yu`-matrix source, operation adds Nawat `wa`, and output is an intransitive Class A VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms the §39.3 deverbal `(-yo)-tl` source; a valid `yu` source can route `tukayu` -> `tukayuwa`.
+- Possessive-state sources are blocked at `agreement/participantFrame`, and non-`yu` source stems are blocked at `morph-boundary/morphBoundaryFrame`.
+- The §54.2.5 `hua` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.5 wording on PDF page 589: `hua` is added to deverbal nounstems ending in `(-yo)-tl-`.
+- Verified the same page says the result forms intransitive verbstems with an English sense usually like becoming filled or covered with the embedded nounstem.
+- Verified the same page says these `hua` stems are susceptible to confusion with §55.3 but belong to Class A.
+
+Verification:
+
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1719/1719.
+- `node scripts/run_tests.js`: passed, 1719/1719.
+- `node scripts/run_tests.js --runtime=module`: passed, 1719/1719.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.3 Executable Included-Possessor Ti Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.3 included-possessor `ti` is now executable rule contract `andrews-54-3-included-possessor-ti`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a confirmed possessive-state NNC predicate surface, operation adds Nawat `ti`, and output is an intransitive Class A VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms a possessive-state NNC predicate; a valid generated/source-evidenced possessive predicate can route `nukal` -> `nukalti`.
+- Absolutive/plain NNC predicate sources are blocked at `agreement/participantFrame`; missing possessive predicate surface is blocked at `stem/stemFrame`.
+- The §54.3 route preserves the Andrews boundary that the possessor remains inside the derived verbstem and is not transformed into a VNC object. Finite requests remain intransitive and require an explicit tense request.
+- The §54.3 inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.3 wording on PDF page 590: the predicate of a possessive-state NNC can attach `ti`.
+- Verified the same page says the possessor pronoun is included inside the derived verbstem and its possessive-case feature is not transformed into an objective-case feature.
+- Verified the same page says all four presented included-possessor verbstem types belong to Class A.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1720/1720.
+- `node scripts/run_tests.js`: passed, 1720/1720.
+- `node scripts/run_tests.js --runtime=module`: passed, 1720/1720.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.2.1/54.4 Executable Ti-Lia Causative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.1/§54.4 `ti-lia` is now executable rule contract `andrews-54-2-54-4-ti-lia`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `ti` VNC stem source, operation adds Nawat `lia`, and output is a single-object causative Class C VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms a generated `ti` verbstem source; a valid generated `ti` source can route `pusukti` -> `pusuktilia`.
+- Supplied non-`ti` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`, and original possessive-state NNC predicates are blocked at `agreement/participantFrame` because the source must be the generated `ti` VNC stem, not the pre-`ti` NNC predicate.
+- The §54.2.1/§54.4 `ti-lia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.1 wording on PDF page 584: an intransitive inceptive/stative verbstem formed with `ti` can be converted into a single-object causative by adding `lia`.
+- Verified the same page warns not to confuse this `lia` with the applicative suffix.
+- Verified the fixed re-OCR Andrews PDF §54.4 wording on PDF page 593: a single-object causative verbstem can be derived from a `ti`-of-possession verbstem by means of `lia`, with comparison to §54.2.1.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1721/1721.
+- `node scripts/run_tests.js`: passed, 1721/1721.
+- `node scripts/run_tests.js --runtime=module`: passed, 1721/1721.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.5 Executable Ti-A Single-Object Causative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.5 `ti-a` is now executable rule contract `andrews-54-5-ti-a`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `ti` VNC stem source, operation adds Nawat `a`, and output is a single-object first-type causative Class C VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms a generated `ti` verbstem source; a valid generated `ti` source can route `pusukti` -> `pusuktia`.
+- Supplied non-`ti` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`.
+- Possessive-state sources are explicitly blocked at `agreement/participantFrame` for this contract because Andrews §54.5 moves possessive-state sources into double-object `ti-a` formations; the current executable route models only the single-object generated-`ti` path.
+- The §54.5 `ti-a` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.5 wording on PDF page 594: first-type causative verbstems are formed with suffix `a` for both kinds of `ti` stems, and resultant causative stems end in `ti-a`.
+- Verified the same page says the NNC underlying the `ti` verbstem may be in the absolutive or possessive state, and when the source NNC is absolutive there are two possible single-object formations.
+- Verified the fixed re-OCR Andrews PDF §54.5.1 wording on PDF page 596: inceptive/stative `ti` sources for this first-type causative must be stems formed according to §54.2.1, and the resulting single-object causative verbstems belong to Class C.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1722/1722.
+- `node scripts/run_tests.js`: passed, 1722/1722.
+- `node scripts/run_tests.js --runtime=module`: passed, 1722/1722.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 54.6 Executable T-Ia Applicative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.6 `t-ia` is now executable rule contract `andrews-54-6-t-ia`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated intransitive `ti` VNC stem source, operation deletes final `i` from the `ti` source stem and adds Nawat `ia`, and output is an applicative Class C VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms a generated `ti` verbstem source; a valid generated `ti` source can route `pusukti` through replacive `pusukt` to `pusuktia` with segmented input `(pusukt)-(ia)`.
+- Supplied non-`ti` source verbstems are blocked at `morph-boundary/morphBoundaryFrame`.
+- Original possessive-state NNC predicates are blocked at `agreement/participantFrame`; generated `ti`-of-possession sources remain eligible because Andrews says §54.6 can apply to either inceptive/stative `ti` or `ti`-of-possession stems.
+- The §54.6 `t-ia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.6 wording on PDF page 599: a few intransitive `ti` verbstems of either the inceptive/stative or `ti`-of-possession kind can form an applicative stem by adding `ia`.
+- Verified the same page says the `ia` suffix is attached to a replacive stem that lacks final `/i/`.
+- Verified the same page says `t-ia` must be distinguished from `ti-a/tia`, and that the applicative stem belongs to Class C.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1723/1723.
+- `node scripts/run_tests.js`: passed, 1723/1723.
+- `node scripts/run_tests.js --runtime=module`: passed, 1723/1723.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 55.1 Executable Temporal Tia Intransitive Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.1 temporal `tia` is now executable rule contract `andrews-55-1-temporal-tia`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a confirmed compound-temporal nounstem with a time-segment matrix and numeral embed, operation adds Nawat `tia`, and output is an intransitive VNC stem contract.
+- Direct noun/root previews now block at `authority/authorityFrame` unless source evidence explicitly confirms the compound-temporal source; a valid source can route `seilwi` -> `seilwitia`.
+- Explicit `locativo-temporal` output rows still do not become source evidence automatically; they block at `authority/authorityFrame` unless the caller provides temporal compound classification.
+- Missing confirmed source surface is blocked at `stem/stemFrame`, and possessive-state predicates are blocked at `agreement/participantFrame`.
+- The §55.1 `tia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.1 wording on PDF page 600: temporal `tia` looks transitive but is in fact intransitive and is different from prior `/tia:/` formations.
+- Verified the same page says the NNC source is built on a compound nounstem whose matrix signifies a time segment and whose embed is a numeral nounstem.
+- Verified the same page gives the meaning as spending the named number of time periods in a place or being that number of time periods old.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1724/1724.
+- `node scripts/run_tests.js`: passed, 1724/1724.
+- `node scripts/run_tests.js --runtime=module`: passed, 1724/1724.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 55.2 Executable Causative Tla Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.2 causative `tla` is now executable rule contract `andrews-55-2-causative-tla`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is an absolutive nounstem source, operation adds Nawat/Pipil `ta` from Classical `tla`, and output is a causative Class A VNC stem contract.
+- Direct nounstem previews can route `pusuk` -> `pusukta` with segmented transitive input `(pusuk)-(ta)` and object-prefix-required finite requests.
+- Possessive-state predicate sources are blocked at `agreement/participantFrame`; generated VNC sources are blocked at `stem/stemFrame` so mirrored continuation state does not feed back as a nounstem.
+- The separate §55.2 applicative counterpart and the note on intransitive `tla` remain unmodeled; this phase implements only the main causative `tla` paragraph.
+- The §55.2 causative `tla` inventory contract now reports executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.2 wording on PDF page 600: causative `tla` may attach to a nounstem to create a causative verbstem with the sense of causing something or someone to be, be treated as, be considered as, or be characterized as the source nounstem entity.
+- Verified the same page says the derived verbstem belongs to Class A.
+- Verified PDF page 601 says the applicative formation for such stems changes `tla` to `ti` before `lia`, and the note describes a distinct intransitive `tla`; both remain separate unmodeled follow-up contracts.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1725/1725.
+- `npm run check:data`: passed.
+- `node scripts/run_tests.js`: passed, 1725/1725.
+- `node scripts/run_tests.js --runtime=module`: passed, 1725/1725.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 55.2 Executable Tla-Ti-Lia Applicative Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.2 applicative counterpart for causative `tla` stems is now executable rule contract `andrews-55-2-tla-ti-lia-applicative`, not just denominal inventory metadata.
+- The rule contract carries authority, input, operation, output, `generate()`, and `diagnose()` metadata: input is a generated causative `tla` VNC stem source, operation replaces Nawat/Pipil `ta` corresponding to Classical `tla` with `ti` before adding `lia`, and output is an applicative VNC stem contract.
+- Direct nounstem previews now block at `authority/authorityFrame` unless source evidence explicitly confirms the generated causative `tla` source; a valid causative source can route `pusukta` through `pusuk` to `pusuktilia` with segmented input `(pusukti)-(lia)`.
+- Original nounstem sources are blocked at `agreement/participantFrame`; non-`ta` generated sources are blocked at `morph-boundary/morphBoundaryFrame`.
+- The separate §55.2 note on intransitive `tla` remains unmodeled; this phase implements only the applicative counterpart of the main causative `tla` paragraph.
+- The §55.2 `tla-ti-lia` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.2 wording on PDF page 601: the applicative formation for causative `tla` verbstems changes `tla` to `ti` before adding `lia`.
+- Verified the same page gives `te+te-(tla-zo-h-ti-lia)` as the applicative example of the preceding causative `tla` family.
+- Verified the fixed re-OCR Andrews PDF §26.7 wording on PDF page 231 for the applicative cross-reference: source stems ending in consonant plus `/a/` use a replacive imperfective stem replacing final `/a/` with `[i]`; §55.2 supplies the specific `tla -> ti-lia` rule used here.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1726/1726.
+- `npm run check:data`: passed.
+- `node scripts/run_tests.js`: passed, 1726/1726.
+- `node scripts/run_tests.js --runtime=module`: passed, 1726/1726.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 55.2 Executable Intransitive Tla Note Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.2 note intransitive `tla` is now executable rule contract `andrews-55-2-intransitive-tla`, not just denominal inventory metadata.
+- Because Andrews says this `tla` is even less productive than causative `tla`, the route is source-evidence-gated: direct nounstem previews block at `authority/authorityFrame` unless evidence confirms a very limited intransitive `tla` source.
+- A confirmed absolutive nounstem source can route Nawat/Pipil `ilwi` -> `ilwita` with target input `(ilwita)`. Possessive-state sources block at `agreement/participantFrame`; generated VNC sources block at `stem/stemFrame`; missing source stems block at `stem/stemFrame`.
+- Generated intransitive `tla` targets now provide bounded source evidence for the note's `ti-a` and `ti-lia` continuations, recording that source `tla` is replaced by `ti` before `a` or `lia`.
+- The §55.2 intransitive `tla` inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.2 note wording on PDF page 601: this is a distinct verbstem-forming `tla`, it creates intransitive verbstems, and it means "to be(come)".
+- Verified the same note says this intransitive `tla` is even less productive than causative `tla`, with examples including `(ilhui-tla)`, `(xo-tla)`, and `(tla-tla)`.
+- Verified the same note says causative/applicative forms derived from the intransitive stem change verbstem-forming `tla` to `ti` before causative suffix `a` or applicative suffix `lia`.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1727/1727.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1727/1727.
+- `node scripts/run_tests.js --runtime=module`: passed, 1727/1727.
+
+## Completed Phase: Andrews 55.2 Executable Intransitive Tla Continuation Rule Contracts v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.2 note intransitive `tla` continuations are now executable rule contracts, not just source-evidence labels.
+- `andrews-55-2-intransitive-tla-ti-a` routes a generated intransitive `tla` source through `tla -> ti` before causative `a`, e.g. source evidence for `pusukta` routes to `pusuktia` with segmented input `(pusukti)-(a)`.
+- `andrews-55-2-intransitive-tla-ti-lia` routes the same generated intransitive `tla` source through `tla -> ti` before applicative `lia`, e.g. `pusukta` routes to `pusuktilia` with segmented input `(pusukti)-(lia)`.
+- Direct nounstem previews now block both continuation routes at `authority/authorityFrame` unless generated intransitive `tla` verbstem source evidence is present. Original-source state blocks at `agreement/participantFrame`; wrong route categories block at `stem/stemFrame`; non-`ta` generated sources block at `morph-boundary/morphBoundaryFrame`; missing source verbstems block at `stem/stemFrame`.
+- The §55.2 note continuation inventory contracts now report source-evidence-gated executable-rule support; coverage counts now leave both contracts out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.2 note wording on PDF page 601 with bundled `pypdf`: the example `(tla-tla)` says the causative stem derived from this intransitive stem changes verbstem-forming `tla` to `ti` before causative suffix `a`.
+- Verified the same note gives the applicative continuation with `ti-lia`, so both `ti-a` and `ti-lia` are source-evidence continuations of the distinct intransitive `tla` stem, not productive direct nounstem routes.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1728/1728.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1728/1728.
+- `node scripts/run_tests.js --runtime=module`: passed, 1728/1728.
+
+## Completed Phase: Andrews 55.3 Executable Intransitive O-A and Huia Rule Contracts v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.3 `o-a` and `huia` are now executable rule contracts, not just denominal inventory labels.
+- `andrews-55-3-o-a` routes an absolutive Nawat/Pipil nounstem source through Classical `o-a` converted to Nawat/Pipil `ua`, e.g. `pusuk -> pusukua` with input `(pusukua)`, and records Class C intransitive output. The `a` is explicitly not treated as a causative suffix.
+- `andrews-55-3-huia` routes an absolutive Nawat/Pipil nounstem source through Classical `huia` converted to Nawat/Pipil `wia`, e.g. `pusuk -> pusukwia` with segmented applicative input `(pusuk)-(wia)`, Class C output, and object-prefix-required finite requests.
+- Possessive-state sources are blocked at `agreement/participantFrame`; generated VNC or unrelated route sources are blocked at `stem/stemFrame`; missing source stems are blocked at `stem/stemFrame`.
+- The §55.3 `o-a`/`huia` inventory contract now reports executable-rule support; coverage counts now leave this contract out of the unmodeled list. Generated `o-a` targets still provide bounded source evidence for the separate §55.3 note 2 applicative continuations, which remain a separate target.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.3 wording on PDF page 601 with bundled `pypdf`: the `o-a` suffixal cluster forms denominal verbstems, the type treated there is intransitive, and its `a` suffix is not causative.
+- Verified the same page says the intransitive `o-a` verbstem has a single-object counterpart formed with applicative `hu-ia`, spelled solid as `huia`, and that both stems belong to Class C.
+- Verified PDF pages 601-603 describe the `o-a` and `huia` meaning groups and say the `o-a` formation is not very productive; this phase preserves that as a bounded Andrews route, not lexical evidence.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1729/1729.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1729/1729.
+- `node scripts/run_tests.js --runtime=module`: passed, 1729/1729.
+
+## Completed Phase: Andrews 55.3 Note 2 Executable O-A Applicative Continuation Rule Contracts v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.3 note 2 `i-l-huia` / `a-l-huia` applicative continuations are now executable source-evidence-gated rule contracts, not direct nounstem routes.
+- `andrews-55-3-o-a-i-l-huia` requires generated intransitive `o-a` source evidence and routes a Nawat/Pipil `ua`-final source through the hypothetical `i-hui` path to `ilwia`, e.g. generated source evidence for `pusukua` routes to `pusukilwia` with segmented input `(pusuk)-(ilwia)`.
+- `andrews-55-3-o-a-a-l-huia` requires the same generated intransitive `o-a` source evidence and routes through the hypothetical `a-hui` path to `alwia`, e.g. `pusukalwia` with segmented input `(pusuk)-(alwia)`.
+- Direct previews without generated intransitive `o-a` source evidence now block at `authority/authorityFrame`; original nounstem state blocks at `agreement/participantFrame`; unrelated source categories block at `stem/stemFrame`; non-`ua` sources block at `morph-boundary/morphBoundaryFrame`; missing source verbstems block at `stem/stemFrame`.
+- Generated §55.3 `o-a` route targets provide bounded source evidence for these continuations, recording that the source `o-a` bypasses a transitive `o-a` step and uses the hypothetical `i-hui/a-hui` bridge.
+- The §55.3 note 2 inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.3 note 2 wording on PDF page 603 with bundled `pypdf`: instead of the ordinary `o-a > huia` formation, certain intransitive denominal `o-a` verbstems imitate §55.6, invent a hypothetical `i-hui/a-hui` stem, lack a transitive `o-a` step, and go straight to a single-object applicative stem ending in `i-l-huia/a-l-huia`.
+- Verified the same note gives the `tepon-az-o-a > te-(tepon-ac-i-l-huia)` example; no Classical surface was imported as a Nawat lexical fixture.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1730/1730.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1730/1730.
+- `node scripts/run_tests.js --runtime=module`: passed, 1730/1730.
+
+## Completed Phase: Andrews 55.4 Executable Adverbial Huia Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.4 adverbial `huia` is now executable rule contract `andrews-55-4-adverbial-huia`, not just source-evidence metadata.
+- The rule requires confirmed adverbial nounstem evidence from the Lesson 44 adverbialized NNC domain before generating a single-object applicative VNC stem.
+- A confirmed adverbial source can route Nawat/Pipil `achpa` through Classical `huia` converted to Nawat/Pipil `wia`, yielding `achpawia` with segmented input `(achpa)-(wia)` and object-prefix-required finite requests.
+- Direct source-stem previews without adverbial source evidence now block at `authority/authorityFrame`; non-adverbial source state blocks at `agreement/participantFrame`; possessive-state sources block at `agreement/participantFrame`; wrong source categories block at `stem/stemFrame`; missing source stems block at `stem/stemFrame`.
+- The explicit adverbial source preview remains the live website route into this contract and continues to mark that legacy `adverbio` word output is not automatic source evidence.
+- The §55.4 inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.4 wording on PDF page 604 with bundled `pypdf`: some nounstems occurring in Lesson 44 adverbialized NNCs can form single-object applicative verbstems by suffix `huia`.
+- Verified the same section says the derived verbstem means acting on someone or something in the manner indicated by the nounstem; no Classical example was imported as a Nawat lexical fixture.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1731/1731.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1731/1731.
+- `node scripts/run_tests.js --runtime=module`: passed, 1731/1731.
+
+## Completed Phase: Andrews 55.5 Executable Relational O-A and Huia Rule Contracts v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.5 relational compound `o-a` and `huia` routes are now executable source-evidence-gated rule contracts, not just route metadata.
+- `andrews-55-5-relational-o-a` requires confirmed compound relational nounstem or possessive-state relational predicate evidence and routes Classical `o-a` through Nawat/Pipil `ua`, e.g. `kalpan -> kalpanua` with segmented input `(kalpan)-(ua)`. The contract records Andrews' boundary that `o-a` stems are usually transitive but can exceptionally be intransitive.
+- `andrews-55-5-relational-huia` requires the same source evidence and routes Classical `huia` through Nawat/Pipil `wia`, e.g. `kalpan -> kalpanwia` with segmented input `(kalpan)-(wia)` and single-object applicative valency.
+- Direct source-stem previews without relational source evidence now block at `authority/authorityFrame`; wrong source state blocks at `agreement/participantFrame`; wrong source category blocks at `stem/stemFrame`; missing source stems block at `stem/stemFrame`.
+- Explicit relational source previews remain the live website route into these contracts and keep the boundary that relational NNC metadata alone is not automatic source evidence.
+- The §55.5 inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave this contract out of the unmodeled list.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.5 wording on PDF page 604 with bundled `pypdf`: certain compound nounstems whose matrix is a relational nounstem can form verbstems by `o-a` and `huia`.
+- Verified the same section says `o-a` verbstems are usually transitive but may exceptionally be intransitive, and that `huia` stems are single-object applicative.
+- Verified the same section allows the source to be a possessive-state predicate built on a relational stem; no Classical examples were imported as Nawat lexical fixtures.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui morphology_engine module_wrapper_parity`: passed, 1732/1732.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1732/1732.
+- `node scripts/run_tests.js --runtime=module`: passed, 1732/1732.
+
+## Completed Phase: Andrews 55.6 Executable I-Hui/A-Hui to O-A Rule Contracts v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.6 `i-hui` and `a-hui` source routes are now executable nounstem-to-Class-B intransitive rule contracts, converting Classical `i-hui/a-hui` to Nawat/Pipil `iwi/awi`.
+- Andrews §55.6 causative `o-a` is now executable rule contract `andrews-55-6-o-a`; it is blocked unless generated `i-hui/a-hui` source evidence supplies the `iwi/awi` verbstem.
+- Direct `o-a` previews from a bare nounstem now stop at `authority/authorityFrame` instead of fabricating `pusukua`; source-state, source-category, missing-verbstem, and non-`iwi/awi` boundary failures produce layer-specific diagnostics.
+- Generated §55.6 `i-hui/a-hui` routes and linked `vi-iwi/vi-awi` verbalizer stages now carry source verbstem evidence so the staged causative `o-a` continuation can generate `(pusuk)-(ua)` only after the source route exists.
+- UI route chips now expose `data-i-hui-a-hui-source-required` / `is-i-hui-a-hui-source` styling for this Andrews source gate.
+- The §55.6 inventory contract now reports source-evidence-gated executable-rule support; coverage counts now leave only §55.7 as unmodeled.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.6 wording on PDF page 605 with bundled `pypdf`: another denominal `o-a` type is transitive and obtained from a deverbal intransitive source formed with `i-hui` or `a-hui`.
+- Verified the same section says a nounstem is the base for `i-hui/a-hui`; the source stem means “to become/become like” the nounstem entity and is synonymous with §54.2.1 `ti`.
+- Verified the same page states `i-hui/a-hui` stems belong to Class B, corresponding causative `o-a` stems mean making someone or something become like the source nounstem entity, and `o-a` stems belong to Class C. No Classical examples were imported as Nawat lexical fixtures.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state`: passed, 1733/1733.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1733/1733.
+- `node scripts/run_tests.js --runtime=module`: passed, 1733/1733.
+
+## Completed Phase: Andrews 55.7 Executable Transitive I-A Rule Contract v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §55.7 transitive `i-a` is now executable rule contract `andrews-55-7-i-a`, not an unmodeled route label.
+- The rule converts Classical `i-a` to Nawat/Pipil `ia`, generates a transitive VNC stem only from an absolutive nounstem source with an Andrews-supported source-final pattern, and keeps finite generation object-prefix-gated.
+- Majority/attested finals from Andrews (`k`, `l`, `n`, with Classical `[c]` and `/k/` both represented as Nawat `k`) can route, e.g. `pusuk -> pusukia` with segmented input `(pusuk)-(ia)`.
+- Unsupported source states/categories block at `agreement/participantFrame` or `stem/stemFrame`; unlisted source finals now block at `morph-boundary/morphBoundaryFrame` unless explicit source-final evidence is supplied.
+- The existing §55.7 warnings remain live: `w` finals may actually be §55.3 `huia`, the `i` in apparent `i-a` can belong to the nounstem, and apparent `i-a` can have an `i-hui` source without following §55.6 `o-a`.
+- The Lessons 54-55 Andrews inventory now has zero unmodeled Andrews contracts; `vt-na` remains explicitly Nawat-only, outside Andrews suffix coverage.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §55.7 wording on PDF pages 606-607 with bundled `pypdf`: this rule creates a few denominal transitive verbstems by adding causative `a` to a stocklike base consisting of nounstem plus `i`, with no intransitive counterpart.
+- Verified the same section says the majority of nounstems in the formation end in Classical `[c]` or `/l/`, with examples also under `/k/` and `/n/`.
+- Verified note 1 warns that `w`-final nounstems can instead be apparent `huia` by `/w/ + /w/`; note 2 says the `i` can be part of the source nounstem; note 3 says apparent `i-a` can have an `i-hui` source and need not follow the §55.6 `o-a` path. No Classical examples were imported as Nawat lexical fixtures.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node --check src/tests/morphology_engine.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1734/1734.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1734/1734.
+- `node scripts/run_tests.js --runtime=module`: passed, 1734/1734.
+
+## Completed Phase: Andrews 40 Adjectival Function Promotion Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- §40.4 patientive and §40.5-40.8 nominalized-VNC adjectival continuation chips now clear stale Nawat route-station state before switching into `adjetivo` mode.
+- `renderActiveConjugations()` now detects a live adjectival-NNC function entry and prevents any stale active route from replacing the promoted surface with the default `potencial`/`intrans-potencial` render path.
+- The promoted block is rendered as `data-tense-block="adjetivo-nnc-funcion"` with a dedicated `tense-block--adjectival-nnc-function` class and Andrews function metadata, so the UI presents the Andrews function contract rather than a generic empty potential block.
+- CSS now gives the adjectival-function block a distinct but restrained treatment without changing generated surfaces or importing Classical examples.
+- `index.html` cache-busts the updated stylesheet, rendering script, and composer script for the Andrews 40 adjectival-function route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §40.3 wording on PDF page 412 with bundled `pypdf`: almost any absolutive-state NNC or any VNC can function as an adjective, while modification structures are left to Lessons 42-43.
+- Verified the fixed re-OCR Andrews PDF §40.4 wording on PDF pages 412-413 with bundled `pypdf`: potential-patient and patientive nounstems create NNCs that often can be translated as adjectives, with patientive NNCs linking an explicit subject pronoun to an entity class identified by resultant process/activity impact.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/ui/composer/composer.js`: passed.
+- `node --check src/ui/composer/composer.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js`: passed, 1735/1735.
+- `node scripts/run_tests.js --runtime=module`: passed, 1735/1735.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 40.3 VNC Adjectival Function Row Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §40.3 VNC-as-adjective is now exposed as a live generated-row continuation, not only as a direct builder or metadata label.
+- Active and nonactive generated VNC rows now offer an `Adj VNC` chip only when the row has a concrete generated VNC surface.
+- The chip creates an explicit `vnc-adjectival` adjectival-function entry contract, preserves the generated VNC surface, and switches to the dedicated `data-tense-block="adjetivo-nnc-funcion"` output instead of falling into a generic potential block.
+- The generated contract records the source VNC tense/mode/voice in the route and inflection frames, so the promoted result mirrors the LCM layer contract rather than losing source context.
+- Missing VNC surface remains blocked at the result/diagnostic layer with `adjectival-nnc-requires-vnc-surface`; no Classical example surface was imported as Nawat lexical evidence.
+- `index.html` cache-busts the updated engine, adjectival NNC, VNC facade, renderer, composer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §40.3 wording on PDF page 412 with bundled `pypdf`: almost any absolutive-state NNC or any VNC can function as an adjective, and modification structures are left to Lessons 42-43.
+- Verified that §40.3 treats VNC adjective behavior by translation/function of the predicate, not by creating an ordinary NNC stem.
+
+Verification:
+
+- Browser verification on `http://127.0.0.1:8765/index.html`: generated VNC rows exposed `data-vnc-adjectival-function-continuation="true"` chips; clicking the `nemi` chip rendered `data-tense-block="adjetivo-nnc-funcion"` with output `nemi` and no stale `intrans-potencial` no-output block.
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity`: passed, 1738/1738.
+- `node scripts/run_tests.js`: passed, 1738/1738.
+- `node scripts/run_tests.js --runtime=module`: passed, 1738/1738.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 40.1/40.3 Ordinary NNC Adjectival Function Row Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §40.1/§40.3 ordinary absolutive NNC-as-adjective is now exposed as a live generated-row continuation from the ordinary `NNC/S` output.
+- Supported ordinary NNC rows now offer an `Adj NNC` chip only when the row is generated in absolutive predicate state and has a concrete Nawat/Pipil NNC surface.
+- The chip creates an explicit `ordinary-absolutive` adjectival-function entry contract, preserves the generated NNC surface, and switches into the dedicated `data-tense-block="adjetivo-nnc-funcion"` route instead of reusing a stale verb route or generic empty output.
+- The VNC facade now reconstructs the original ordinary NNC source stem, subject, connector class, number, and plural metadata from the mirrored LCM formula slots before execution, so promoted `shuchit` routes from source stem `shuchi` instead of double-generating `shuchitt`.
+- Missing or unsupported ordinary NNC generation remains blocked by the existing ordinary/adjectival NNC diagnostics; possessive-state NNCs are not offered this chip because Andrews says adjectival NNCs occur as a rule in the absolutive state.
+- No Classical example surface was imported as Nawat lexical evidence.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §40.1 wording on PDF page 410 with bundled `pypdf`: adjective labels a syntactical class, an adjectival nuclear clause is a nominal nuclear clause in adjectival function, and as a rule it occurs only in the absolutive state.
+- Verified the fixed re-OCR Andrews PDF §40.3 wording on PDF page 412 with bundled `pypdf`: almost any absolutive-state NNC or any VNC can function as an adjective, and only the predicate is translated as the English adjective equivalent.
+
+Verification:
+
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity`: passed, 1740/1740.
+- `node scripts/run_tests.js`: passed, 1740/1740.
+- `node scripts/run_tests.js --runtime=module`: passed, 1740/1740.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+
+## Completed Phase: Andrews 41.1 Intensified Adjectival Function Row Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §41.1 reduplicative intensification is now exposed as a live generated-row continuation from supported generated adjectival NNC outputs, not only as a direct engine builder.
+- `adjetivo-preterito` rows with a root-plus-`ya` adjectival NNC source formula now offer an `Intensifica` chip only when the generated output has concrete source formula slots.
+- The chip builds an explicit `intensified-adjectival` route contract from the source `#3 salida` formula slots, records the source formula echo, and promotes the intensified surface into the dedicated `data-tense-block="adjetivo-nnc-funcion"` block instead of falling into the generic `potencial`/`intrans-potencial` no-output block.
+- The VNC facade now carries entry-contract `sourceFormulaSlots` and `sourceFormulaEcho` into the override so execution reduplicates the original source predicate once; `yektik` from `#Ø...Ø(yekti)k#` promotes to `yejyektik`, not to a second-generation intensified stem.
+- The continuation helper is gated to Andrews-supported generated adjectival NNC source kinds currently represented by the engine (`adjectival-nnc-root-plus-ya`, patientive-function, and nominalized-VNC-function outputs), and this phase wires the live chip for the `adjetivo-preterito` root-plus-`ya` row. Ordinary NNC rows without verbal/deverbal adjectival-source evidence are not newly licensed by this phase.
+- No Classical example surface was imported as Nawat lexical evidence, and the route still records that §41.1 intensification is not Lesson 27 frequentative generation.
+- `index.html` cache-busts the updated VNC facade, renderer, composer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §41.1 wording on PDF page 421 with bundled `pypdf`: some adjectival NNCs are built on intensified stems, and when an adjectival stem has a verbal source through nominalization or deverbalization it may be intensified by the long-vowelled reduplication of §27.2.2, not §14.3.
+- Verified the same local PDF pages 421-423 show the intensified stem inside the NNC predicate formula and list separate compound/affective/metaphor routes that are not implemented by this reduplicative chip.
+
+Verification:
+
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/ui/composer/composer.js`: passed.
+- `node --check src/ui/composer/composer.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity`: passed, 1742/1742.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity --runtime=module`: passed, 1742/1742.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1742/1742.
+- `node scripts/run_tests.js --runtime=module`: passed, 1742/1742.
+
+## Completed Phase: Andrews 41.2 Compound-Source Adjectival Function Row Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §41.2 compound-source adjectival NNC behavior is now an executable adjectival-function route, not only generated-output metadata.
+- Generated `adjetivo-preterito` rows that already carry a parsed compound verbstem source frame now offer an `Adj comp` continuation chip.
+- The chip builds an explicit `compound-source-adjectival` contract from the generated surface, source NNC formula, and parsed compound source roles, then promotes the result into the dedicated `data-tense-block="adjetivo-nnc-funcion"` block.
+- The route preserves the generated Nawat/Pipil surface and does not invent a new modifier/head AST, compound nounstem fixture, or Classical example surface.
+- Unsupported direct requests now block before generation unless they have both a generated surface and a parsed `compound-frame`; missing compound source evidence reports `adjectival-nnc-requires-compound-source-frame`.
+- The VNC facade and composer now preserve `sourceCompoundFrame` through entry-contract serialization and route execution so identical surfaces can keep their matrix/embed source roles.
+- `index.html` cache-busts the updated engine, adjectival NNC, VNC facade, renderer, composer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §41.2 wording on PDF page 424 with bundled `pypdf`: the matrix verbstem in compound verbstems with a nominal embed may be converted into a matrix nounstem by reanalysis or derivation, and an NNC built on that resultant compound nounstem can function as an adjective.
+- Verified §41.2.1 on PDF pages 424-425 describes incorporated-adverb compound verbstems as frequent sources and distinguishes the possessive-state supplementation subtype and same-kind-entity subtype.
+- Verified §41.2.2-§41.2.3 on PDF page 426 describe incorporated-complement and incorporated-object compound verbstem sources and state that compound-stemmed patientive NNC source roles can require underlying compound-source knowledge, not surface shape alone.
+
+Verification:
+
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/ui/composer/composer.js`: passed.
+- `node --check src/ui/composer/composer.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity`: passed, 1745/1745.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity --runtime=module`: passed, 1745/1745.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1745/1745.
+- `node scripts/run_tests.js --runtime=module`: passed, 1745/1745.
+
+## Completed Phase: Andrews 41.3 Denominal Compound Adjectival Function Row Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §41.3 denominal verbstems from compound nounstems are now an executable adjectival-function route, not only source-pattern metadata.
+- Segmented denominal `tiya` inputs with at least two nounstem source parts before `tiya` now expose a `denominalCompoundSourceFrame` on the generated Andrews 40.9 `adjetivo-preterito` output; the frame records the compound nounstem matrix, embeds, `ti` operation, and `preterit-agentive-adjectival` result class.
+- Generated rows carrying that frame now offer an `Adj denom` continuation chip. The chip builds an explicit `denominal-compound-adjectival` contract, preserves the generated Nawat/Pipil surface, and promotes into `data-tense-block="adjetivo-nnc-funcion"`.
+- The route blocks before generation unless it has both a generated preterit-agentive NNC surface and a parsed `denominal-compound-nounstem-frame`; missing source evidence reports `adjectival-nnc-requires-denominal-compound-frame`.
+- The VNC facade and composer preserve `sourceDenominalCompoundFrame` through entry-contract serialization and route execution so identical surfaces keep their underlying compound nounstem source roles.
+- No Classical example surface was imported as Nawat lexical evidence; the implemented example path uses the user-supplied segmented Nawat input `(xilo/tzon/tiya)` and Nawat `k` orthography (`xilotzontik`), not Andrews' Classical `c` spelling.
+- `index.html` cache-busts the updated engine, adjectival NNC, VNC facade, renderer, composer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §41.3 wording on PDF page 426 with bundled `pypdf`: a compound nounstem can source a derived verbstem created with the verbstem-forming suffix `ti`, and the frequent use of those verbstems is in adjectival preterit-agentive NNCs formed according to §40.8.1.
+- Verified the same page gives compound nounstem source examples; these were used only to confirm role structure, not as imported Nawat lexical fixtures.
+- Verified the fixed re-OCR Andrews PDF §54.2 wording on PDF page 581 with bundled `pypdf`: `ti`, `hui`, `ya`, `a`, and `hua` are verbstem-forming suffixes expressing inception/entry/state, and `ti-ya` is a possible sequence; current spelling realization remains Nawat/Pipil.
+
+Verification:
+
+- `node --check src/core/nnc/adjectival/adjectival.js`: passed.
+- `node --check src/core/nnc/adjectival/adjectival.mjs`: passed.
+- `node --check src/core/generation/engine.js`: passed.
+- `node --check src/core/generation/engine.mjs`: passed.
+- `node --check src/core/vnc/vnc.js`: passed.
+- `node --check src/core/vnc/vnc.mjs`: passed.
+- `node --check src/ui/composer/composer.js`: passed.
+- `node --check src/ui/composer/composer.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/nnc_adjectival.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity`: passed, 1748/1748.
+- `node scripts/run_tests.js nnc_adjectival ui module_wrapper_parity --runtime=module`: passed, 1748/1748.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- `node scripts/run_tests.js`: passed, 1748/1748.
+- `node scripts/run_tests.js --runtime=module`: passed, 1748/1748.
+
+## Completed Phase: Andrews 54.2.1 Ordinary NNC Inceptive Ti Continuation Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.1 inceptive/stative `ti` is now exposed as a live ordinary-NNC row continuation from generated absolutive NNC outputs.
+- `buildNawatDenominalAndrewsInceptiveTiSourceEvidenceFromOrdinaryNncOutput()` accepts only supported ordinary NNC outputs with a concrete absolutive-state predicate surface and predicate stem. Possessive-state sources and empty/stale result frames are rejected before route preview.
+- `previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput()` converts that NNC source evidence into the existing executable `54.2.1-inceptive-stative-ti` route contract, preserving Nawat/Pipil spelling and avoiding any new lexical fixture evidence.
+- Ordinary NNC `#3 salida` rows now show an Andrews denominal `→ (stemti)` continuation chip labeled `Andrews 54.2.1 · Clase ... · NNC abs · presente`; clicking it disables ordinary NNC mode, restores the plain verb composer board, and routes to VNC present generation instead of leaving the input in the ordinary-NNC block.
+- Rendering now labels absolutive generated NNC evidence distinctly from possessive-state and possession-`ti` predicate-stem evidence, and `style.css` includes a dedicated `is-absolutive-source` visual marker.
+- `index.html` cache-busts the updated state, renderer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2 wording on PDF page 582 with bundled `pypdf`: `ti`, `hui`, `ya`, `a`, and `hua` are verbstem-forming suffixes expressing inception, entry, or state, and the resulting stems are intransitive.
+- Verified the fixed re-OCR Andrews PDF §54.2.1 wording on PDF page 582: the inceptive/stative suffix `ti` attaches directly to an NNC's absolutive-state predicate to form an intransitive verbstem.
+- Verified the fixed re-OCR Andrews PDF continuation on PDF page 583: derived or compound nounstems can serve as sources, and `ti` target class depends on source-final type.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1751/1751.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1751/1751.
+- `node scripts/run_tests.js`: passed, 1751/1751.
+- `node scripts/run_tests.js --runtime=module`: passed, 1751/1751.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html`: generated ordinary NNC `kal`, saw the `54.2.1-inceptive-stative-ti` chip targeting `(kalti)`, clicked it, confirmed ordinary NNC mode turned off and VNC present output generated `nikalti`, `tikalti`, `kalti`, etc.; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.2 Ordinary NNC Inceptive Hui/Wi Continuation Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.2 inceptive/stative `hui` is now exposed as a live ordinary-NNC row continuation from generated absolutive NNC outputs.
+- `buildNawatDenominalAndrewsInceptiveHuiSourceEvidenceFromOrdinaryNncOutput()` accepts only supported ordinary NNC outputs with a concrete absolutive-state predicate surface and predicate stem. Possessive-state sources and empty/stale result frames are rejected before route preview.
+- `previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput()` converts that NNC source evidence into the existing executable `54.2.2-inceptive-stative-hui` route contract, preserving the Nawat/Pipil spelling bridge (`hui -> wi`) and avoiding any new lexical fixture evidence.
+- Ordinary NNC `#3 salida` rows now show an Andrews denominal `→ (stemwi)` continuation chip labeled `Andrews 54.2.2 · Clase ... · NNC abs · presente`; clicking it reuses the existing activation path that disables ordinary NNC mode, restores the plain verb composer board, and routes to VNC present generation.
+- The route records Andrews' source-final class rule: consonant-final sources produce Class A targets and vowel-final sources produce Class B targets.
+- `index.html` cache-busts the updated state, renderer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2 wording on PDF page 582 with bundled `pypdf`: `ti`, `hui`, `ya`, `a`, and `hua` are verbstem-forming suffixes expressing inception, entry, or state, and the resulting stems are intransitive.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording on PDF page 585: `hui` is less prolific than `ti`, but like `ti` it attaches directly to the absolutive-state predicate of a source NNC.
+- Verified the fixed re-OCR Andrews PDF §54.2.2 class wording on PDF page 585: consonant-final sources form Class A `hui` verbstems and vowel-final sources form Class B `hui` verbstems.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1753/1753.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1753/1753.
+- `node scripts/run_tests.js`: passed, 1753/1753.
+- `node scripts/run_tests.js --runtime=module`: passed, 1753/1753.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html`: generated ordinary NNC `kal`, saw the `54.2.2-inceptive-stative-hui` chip targeting `(kalwi)`, clicked it, confirmed ordinary NNC mode turned off and VNC present output generated `nikalwi`, `tikalwi`, `kalwi`, etc.; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.3 Ordinary NNC Root-Plus-Ya Continuation Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.3 root-plus-`ya` is now exposed as a live ordinary-NNC row continuation from generated absolutive NNC outputs.
+- `buildNawatDenominalAndrewsRootPlusYaSourceEvidenceFromOrdinaryNncOutput()` accepts only supported ordinary absolutive NNC outputs with a concrete predicate surface and predicate stem, then marks the predicate stem as a nounstem downgraded to root rank. Possessive-state sources and empty/stale result frames are rejected before route preview.
+- `previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput()` converts that NNC source evidence into the existing executable `54.2.3-inceptive-stative-ya` / `andrews-54-2-3-ya` contract without creating lexical fixture evidence or importing Classical example surfaces.
+- Ordinary NNC `#3 salida` rows now show an Andrews denominal `→ (stemya)` continuation chip labeled `Andrews 54.2.3 · Clase A/B · NNC raiz · presente`; clicking it disables ordinary NNC mode, restores the plain verb composer board, and routes to VNC present generation.
+- The renderer now labels this source evidence as `Fuente Andrews: NNC en rango raiz` so root-rank source use is distinct from absolutive `ti`/`hui` and possession-`ti` continuations.
+- `index.html` cache-busts the updated state, renderer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording on PDF page 585 with bundled `pypdf`: `ya` can form denominal or deverbal verbstems.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording on PDF page 585 that denominal `ya` attaches to a nounroot or to a nounstem treated at root rank, producing a root-plus-`ya` verbstem.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording on PDF page 585 that the source root or stem-as-root may be unattested; the implementation still requires a concrete generated Nawat/Pipil NNC predicate before routing.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1756/1756.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1756/1756.
+- `node scripts/run_tests.js`: passed, 1756/1756.
+- `node scripts/run_tests.js --runtime=module`: passed, 1756/1756.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html`: generated ordinary NNC `kal`, saw the `54.2.3-inceptive-stative-ya` chip targeting `(kalya)`, clicked it, confirmed ordinary NNC mode turned off and VNC present output generated `nikalya`, `tikalya`, `kalya`, etc.; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.3 Ya-Lia Next-Source UI Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Selecting a generated §54.2.3 root-plus-`ya` route now stores active Andrews route context for the generated VNC target.
+- That active context exposes `54.2.3-ya-lia-causative` as the next source-gated route only when the generated `ya` target supplies bounded source evidence.
+- The live VNC output row now shows one disabled `→ (stem)-(lia)` chip at the object-prefix layer plus explicit `mu`/`ta`/`te` object-prefix choice chips.
+- Clicking an object-prefix choice routes to the existing `andrews-54-2-3-ya-lia` executable contract and VNC generator with the selected object prefix.
+- The route deletes final `ya` before `lia`, keeps Nawat/Pipil spelling realization, and creates no lexical fixture evidence or Classical example surface.
+- `index.html` cache-busts the updated renderer, state, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording on PDF page 586 with bundled `pypdf`: denominal `ya` causative stems are formed by deleting `ya` before adding `lia`.
+- Verified the fixed re-OCR Andrews PDF §54.2.3 continuation on PDF page 587: `ti-ya` and `hui-ya` deverbal sources also form causatives by deleting `ya` and adding `lia`, while some `lia` instances have applicative meaning. Current UI scope is the generated root-plus-`ya` next-source path.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1757/1757.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1757/1757.
+- `node scripts/run_tests.js`: passed, 1757/1757.
+- `node scripts/run_tests.js --runtime=module`: passed, 1757/1757.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=ya-lia-008`: generated ordinary NNC `kal`, clicked `→ (kalya)`, confirmed the VNC output showed one disabled `→ (kal)-(lia)` object-pending chip and live `mu`/`ta`/`te` object-prefix choices, clicked `ta → (kal)-(lia)`, and confirmed `(kal)-(lia)` generated `kallia` without `La generacion no produjo una forma.`.
+
+## Completed Phase: Andrews 54.2.4 Ordinary NNC Limited A Continuation Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.4 limited inceptive/stative `a` is now exposed as a live ordinary-NNC row continuation from generated absolutive NNC outputs.
+- `buildNawatDenominalAndrewsInceptiveASourceEvidenceFromOrdinaryNncOutput()` accepts only supported ordinary absolutive NNC outputs with a concrete predicate surface and predicate stem. Possessive-state outputs and empty/stale result frames are rejected before route preview.
+- `previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput()` converts that source evidence into the existing executable `54.2.4-inceptive-stative-a` / `andrews-54-2-4-a` contract without creating lexical fixture evidence or importing Classical example surfaces.
+- Ordinary NNC `#3 salida` rows now show an Andrews denominal `→ (stema)` continuation chip labeled `Andrews 54.2.4 · Clase C · NNC abs · uso limitado · presente`; clicking it disables ordinary NNC mode, restores the plain verb composer board, and routes to VNC present generation.
+- The chip marks `limitedUse` and `notCausativeA`, because Andrews distinguishes this intransitive Class C-looking `a` stem from causative `a`.
+- `index.html` cache-busts the updated state, renderer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.4 wording on PDF page 588 with bundled `pypdf`: the inceptive/stative suffix `a` has limited use and a meaning similar to `ya`.
+- Verified the fixed re-OCR Andrews PDF §54.2.4 wording on PDF page 588: this `a` is not the causative `a`, and its target verbstem belongs to Class C even though the stem remains intransitive.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1759/1759.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1759/1759.
+- `node scripts/run_tests.js`: passed, 1759/1759.
+- `node scripts/run_tests.js --runtime=module`: passed, 1759/1759.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews5424-a-001`: generated ordinary NNC `kal`, saw the `54.2.4-inceptive-stative-a` chip targeting `(kala)` with `uso limitado`, clicked it, confirmed ordinary NNC mode turned off and VNC present output generated `nikala`/`kala`; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.5 Characteristic-Property Hua Continuation Route v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.2.5 `hua -> wa` is now exposed as a live `calificativo-instrumentivo` row continuation only when a generated characteristic-property output supplies the required absolutive `-yut` source evidence.
+- `buildNawatDenominalAndrewsHuaSourceEvidenceRecordsFromCharacteristicPropertyOutput()` accepts generated `calificativo-instrumentivo` quality/result rows, strips only the absolutive `t` connector from Nawat `-yut` surfaces, and supplies bounded `deverbal-yu-nounstem` evidence to the existing executable `andrews-54-2-5-hua` contract.
+- Possessive `-yu` rows, arbitrary `yu` strings, stale empty result frames, and non-characteristic outputs are not treated as §54.2.5 source evidence.
+- Generated `#3 salida` rows now show an Andrews denominal `→ (stemyuwa)` continuation chip labeled `Andrews 54.2.5 · Clase A · fuente -yu(t) · no 55.3 o-a · presente`; clicking it routes into VNC present generation through the existing finite request/activation path.
+- The chip marks `notOaFormation`, because Andrews distinguishes §54.2.5 `hua` Class A stems from the §55.3 `o-a` family.
+- `index.html` cache-busts the updated state, renderer, and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.5 wording on PDF page 589 with bundled `pypdf`: `hua` is added to deverbal nounstems ending in `(-yo)-tl-`.
+- Verified the fixed re-OCR Andrews PDF §54.2.5 wording on PDF page 589: the resulting stems are intransitive, usually translate as becoming filled/covered with the embedded nounstem, are often misspelled `a`, can be confused with §55.3 formations, and belong to Class A rather than §55.3 Class C.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1761/1761.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1761/1761.
+- `node scripts/run_tests.js`: passed, 1761/1761.
+- `node scripts/run_tests.js --runtime=module`: passed, 1761/1761.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews5425-hua-001`: generated `calificativo-instrumentivo` output for `(miki)`, saw the `54.2.5-inceptive-stative-hua` chip targeting `(mikkayuwa)` with `fuente -yu(t)` and `no 55.3 o-a`, clicked it, confirmed VNC present output generated `nimikkayuwa`/`mikkayuwa`; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.3 Included-Possessor Ti Live Route UI v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Andrews §54.3 included-possessor `ti` is now explicitly marked as a live generated possessive-NNC continuation in the ordinary NNC output row UI.
+- The existing executable `andrews-54-3-included-possessor-ti` route remains source-gated by generated possessive-state NNC predicate evidence; this phase does not add any Classical example surface or lexical fixture evidence.
+- The live chip now labels the source as `NNC posesivo` with `poseedor interno` and carries datasets for `possessorIncludedInsideVerbstem` and `possessiveCaseNotObject`, matching Andrews' boundary that the possessor pronoun remains inside the derived verbstem and is not transformed into a VNC object.
+- The route still activates through the finite VNC request path, so a generated source such as `nukal` targets `(nukalti)` and renders the present intransitive VNC output rather than falling into a generic empty-generation block.
+- `index.html` cache-busts the updated renderer and stylesheet assets for this route.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.3 wording on PDF page 590 with bundled `pypdf`: the predicate of a possessive-state NNC can attach `ti`.
+- Verified the same page says the possessor pronoun is included inside the derived verbstem and its possessive-case feature is not transformed into objective-case.
+- Verified the same page says the presented included-possessor verbstem types belong to Class A.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1762/1762.
+- `node scripts/run_tests.js --runtime=module ui module_wrapper_parity`: passed, 1762/1762.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews543-included-possessor-live-002`: generated ordinary NNC `kal`, selected possessor `nu` to produce `nukal`, saw the `54.3-included-possessor-ti` chip targeting `(nukalti)` with `NNC posesivo` and `poseedor interno`, clicked it, confirmed VNC present output generated `ninukalti`/`nukalti`; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.2 Hui-Lia Live Object-Prefix Route UI v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Generated §54.2.2 `hui -> wi` VNC stages now expose the §54.2.2 `hui-lia -> wi-lia` causative continuation as a live next-source route when that generated `hui/wi` stage supplies source evidence.
+- The disabled parent route chip and the actual clickable object-prefix choices now preserve the Andrews source-evidence layer: `sourceEvidenceRequired`, `huiSourceRequired`, `sourceEvidenceSatisfied`, route identity, and executable rule id stay visible on the buttons the user can press.
+- Object-prefix choices (`mu`, `ta`, `te`) route `(stemwi)-(lia)` into the finite VNC generation path instead of falling through to `La generacion no produjo una forma.`
+- This phase changes only UI route evidence propagation and cache-busting. It does not add Classical lexical examples, fixture evidence, or new Andrews contracts.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.2 wording on PDF page 585 with bundled `pypdf`: `hui` is less prolific than `ti`, attaches directly to the absolutive-state predicate of a source NNC, and uses source-final class rules where consonant-final sources form Class A and vowel-final sources form Class B.
+- Verified the same §54.2.2 wording says many `hui` verbstems form a causative counterpart by adding `lia`, with cross-reference to §25.5.
+- Verified the same §54.2.2 example structure `tla-(xo-xo-hui-lia)` as rule-shape evidence only; no Classical example surface was imported as Nawat lexical evidence.
+
+Verification:
+
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js ui module_wrapper_parity`: passed, 1762/1762.
+- `node scripts/run_tests.js --runtime=module ui module_wrapper_parity`: passed, 1762/1762.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews5422-hui-lia-live-001`: generated ordinary NNC `kal`, clicked the `54.2.2-inceptive-stative-hui` chip to reach `(kalwi)`, saw the source-satisfied `54.2.2-hui-lia-causative` object choices with `huiSourceRequired`, clicked `ta -> (kalwi)-(lia)`, and confirmed VNC present output including `nikalwilia`/`kalwilia`; no `La generacion no produjo una forma.` message appeared.
+
+## Completed Phase: Andrews 54.2.3/54.6 All Ti-Hui Next-Source Live Routes UI v1
+
+Date: 2026-06-09
+
+Decision:
+
+- Generated §54.2.1 `ti` and §54.2.2 `hui -> wi` VNC stages now expose all source-satisfied Andrews next-source routes in the live output row instead of truncating the route list to four preview targets.
+- This makes the already-executable §54.6 `t-ia` applicative reachable from a generated `ti` source, including its object-prefix choices, instead of being hidden behind the previous route cap.
+- The same live next-source surface keeps §54.2.3 `ti-ya` and `hui-ya` reachable from generated `ti`/`hui` sources, and those generated `ti-ya`/`hui-ya` outputs still expose the following `ya-lia` source-evidence route.
+- Bounded source-evidence records now explicitly mark `sourceEvidenceSupportsTiYaDeverbal` and `sourceEvidenceSupportsHuiYaDeverbal` for generated `ti`/`hui` sources. This documents the engine contract edge without adding lexical fixtures or importing Classical example surfaces.
+- The renderer change applies to denominal Andrews route continuations generally: if a route is finite-available after its source guards pass, the UI can show it; object-prefix-required routes still block at the object layer until the user picks `mu`, `ta`, or `te`.
+
+PDF verification:
+
+- Verified the fixed re-OCR Andrews PDF §54.2.3 wording with bundled `pypdf`: `ya` forms deverbal stems from denominal `ti` and `hui` verbstems; with a `ti` verbstem source, `ti-ya` belongs to Class A or B; with a `hui` verbstem source, `hui-ya` belongs to Class B; and both form causatives by deleting `ya` and adding `lia`.
+- Verified the fixed re-OCR Andrews PDF §54.5 wording: first-type causative stems formed with `a` exist for inceptive/stative and possession `ti` stems, single-object causative stems belong to Class C, and possessive-state double-object formations remain a separate unmodeled path.
+- Verified the fixed re-OCR Andrews PDF §54.6 wording: a few intransitive `ti` verbstems of either the inceptive/stative or `ti`-of-possession kind can form an applicative stem by adding `ia` to a replacive stem lacking final `/i/`, producing `t-ia` and Class C stems.
+
+Verification:
+
+- `node --check src/ui/state.js`: passed.
+- `node --check src/ui/state.mjs`: passed.
+- `node --check src/ui/rendering/rendering.js`: passed.
+- `node --check src/ui/rendering/rendering.mjs`: passed.
+- `node --check src/tests/state.test.js`: passed.
+- `node --check src/tests/ui.test.js`: passed.
+- `node scripts/run_tests.js state ui module_wrapper_parity`: passed, 1762/1762.
+- `node scripts/run_tests.js --runtime=module state ui module_wrapper_parity`: passed, 1762/1762.
+- `npm run check:data`: passed.
+- `npm run test:regression`: passed, 12/12.
+- `git diff --check`: passed.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews546-all-next-routes-001`: generated ordinary NNC `kal`, clicked `54.2.1-inceptive-stative-ti` to reach `(kalti)`, confirmed §54.6 `t-ia` parent and object-prefix choices were visible with `tiSourceRequired` and source evidence satisfied, clicked `ta -> (kalt)-(ia)`, and confirmed VNC present output including `nikaltia`; no `La generacion no produjo una forma.` message appeared.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews5423-ti-ya-live-001`: generated `kal -> (kalti)`, clicked the source-satisfied §54.2.3 `ti-ya` route, confirmed output including `nikaltiya`, and confirmed the next §54.2.3 `ya-lia` object choices appeared with `yaSourceRequired`; no generic no-output message appeared.
+- Browser verification at `http://127.0.0.1:8765/index.html?verify=andrews5423-hui-ya-live-001`: generated `kal -> (kalwi)`, clicked the source-satisfied §54.2.3 `hui-ya` route, confirmed output including `nikalwiya`, and confirmed the next §54.2.3 `ya-lia` object choices appeared with `yaSourceRequired`; no generic no-output message appeared.
 
 ## Merge Rules
 

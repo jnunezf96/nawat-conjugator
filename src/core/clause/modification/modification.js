@@ -168,6 +168,9 @@ function getAdjectivalModificationSurface(input = "", fallback = "") {
         return String(fallback || "").trim();
     }
     const surface = getAdjectivalModificationSurfaceForms(input)[0];
+    if (getAdjectivalModificationResultFrame(input)?.resultFrame) {
+        return String(surface || "").trim();
+    }
     return String(surface || fallback || "").trim();
 }
 

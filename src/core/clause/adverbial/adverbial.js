@@ -269,12 +269,14 @@ function getAdverbialNuclearContractSourceText({
         result,
         output,
     });
+    if (frameResult) {
+        return normalizeAdverbialNuclearSurfaceValue(frameResult.sourceInput || "");
+    }
     return String(
         source
         || sourceStem
         || analysisStem
         || finalStem
-        || frameResult?.sourceInput
         || result?.sourceInput
         || output?.sourceInput
         || result?.source
@@ -386,6 +388,12 @@ function buildAdverbialNuclearClauseFrame({
         grammarFrame,
         frames,
     });
+    const hasResultFrame = Boolean(getAdverbialNuclearResultFrame({
+        grammarFrame,
+        frames,
+        result,
+        output,
+    }));
     const diagnostics = [];
     if (!sourceText) {
         diagnostics.push("adverbial-nuclear-requires-source");
@@ -421,9 +429,9 @@ function buildAdverbialNuclearClauseFrame({
             raw: sourceText,
             clauseKind: normalizedSourceKind,
             adverbialKind: normalizedKind,
-            stem: String(sourceStem || sourceText),
-            finalStem: String(finalStem || sourceStem || sourceText),
-            analysisStem: String(analysisStem || sourceStem || sourceText),
+            stem: String(hasResultFrame ? sourceText : (sourceStem || sourceText)),
+            finalStem: String(hasResultFrame ? sourceText : (finalStem || sourceStem || sourceText)),
+            analysisStem: String(hasResultFrame ? sourceText : (analysisStem || sourceStem || sourceText)),
             valency: String(sourceValency || ""),
             objectPrefix: String(objectPrefix || ""),
             baseObjectPrefix: String(baseObjectPrefix || objectPrefix || ""),

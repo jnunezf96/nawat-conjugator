@@ -1636,6 +1636,71 @@ function run(ctx) {
         }
     );
     s.eq(
+        "ordinary NNC formula echo reads LCM result-frame slot surfaces before stale slot text",
+        ctx.buildOrdinaryNncFormulaEchoFromSlots({
+            subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+            predicate: {
+                stem: "stale-predicate",
+                surface: "stale-surface",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surfaceForms: ["frame-predicate"],
+                    }),
+                }),
+            },
+            subjectNumberConnector: {
+                connector: "stale-connector",
+                surface: "stale-surface",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surface: "frame-connector",
+                    }),
+                }),
+            },
+        }),
+        "#Ø...Ø(frame-predicate)frame-connector#"
+    );
+    s.eq(
+        "ordinary NNC formula echo stops before stale slot text after an empty result frame",
+        {
+            emptyPredicate: ctx.buildOrdinaryNncFormulaEchoFromSlots({
+                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicate: {
+                    stem: "stale-predicate",
+                    surface: "stale-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            surface: "",
+                            surfaceForms: [],
+                        }),
+                    }),
+                },
+                subjectNumberConnector: {
+                    connector: "stale-connector",
+                    surface: "stale-surface",
+                },
+            }),
+            emptyConnector: ctx.buildOrdinaryNncFormulaEchoFromSlots({
+                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicate: { stem: "frame-safe-predicate" },
+                subjectNumberConnector: {
+                    connector: "stale-connector",
+                    surface: "stale-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            surface: "",
+                            surfaceForms: [],
+                        }),
+                    }),
+                },
+            }),
+        },
+        {
+            emptyPredicate: "",
+            emptyConnector: "#Ø...Ø(frame-safe-predicate)Ø#",
+        }
+    );
+    s.eq(
         "ordinary NNC fixture generates kal absolutive",
         summarizeOrdinaryNnc(kalAbsolutive),
         {

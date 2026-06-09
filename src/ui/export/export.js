@@ -32,6 +32,89 @@ function normalizeUnifiedVerbOutputBooleanText(value = "") {
     return text === "true" || text === "false" ? text : "";
 }
 
+function normalizeUnifiedVerbOutputSurfaceValue(value = "") {
+    if (typeof normalizeGrammarSurfaceValue === "function") {
+        return normalizeGrammarSurfaceValue(value);
+    }
+    const text = String(value || "").trim();
+    return text === "—" ? "" : text;
+}
+
+function splitUnifiedVerbOutputSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeUnifiedVerbOutputSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getUnifiedVerbOutputGrammarFrame(source = {}) {
+    const entry = source && typeof source === "object" ? source : {};
+    const nestedResult = entry.result && typeof entry.result === "object" ? entry.result : null;
+    return (
+        (entry.grammarFrame && typeof entry.grammarFrame === "object" ? entry.grammarFrame : null)
+        || (entry.frames && typeof entry.frames === "object" ? entry.frames : null)
+        || (nestedResult?.grammarFrame && typeof nestedResult.grammarFrame === "object" ? nestedResult.grammarFrame : null)
+        || (nestedResult?.frames && typeof nestedResult.frames === "object" ? nestedResult.frames : null)
+    );
+}
+
+function getUnifiedVerbOutputResultFrame(source = {}) {
+    const grammarFrame = getUnifiedVerbOutputGrammarFrame(source);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function getUnifiedVerbOutputSurfaceForms(source = {}) {
+    const entry = source && typeof source === "object" ? source : {};
+    const nestedResult = entry.result && typeof entry.result === "object" ? entry.result : null;
+    const frameResult = getUnifiedVerbOutputResultFrame(entry);
+    const hasResultFrame = Boolean(frameResult);
+    const forms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+    }
+    if (hasResultFrame) {
+        return forms
+            .flatMap((entryValue) => splitUnifiedVerbOutputSurfaceText(entryValue))
+            .filter((entryValue, index, list) => entryValue && list.indexOf(entryValue) === index);
+    }
+    if (Array.isArray(entry.surfaceForms)) {
+        forms.push(...entry.surfaceForms);
+    }
+    if (entry.surface) {
+        forms.push(entry.surface);
+    }
+    if (Array.isArray(nestedResult?.surfaceForms)) {
+        forms.push(...nestedResult.surfaceForms);
+    }
+    if (nestedResult?.surface) {
+        forms.push(nestedResult.surface);
+    }
+    if (typeof entry.result === "string") {
+        forms.push(entry.result);
+    } else if (nestedResult?.result) {
+        forms.push(nestedResult.result);
+    }
+    return forms
+        .flatMap((entryValue) => splitUnifiedVerbOutputSurfaceText(entryValue))
+        .filter((entryValue, index, list) => entryValue && list.indexOf(entryValue) === index);
+}
+
+function getUnifiedVerbOutputForm(source = {}, defaults = {}) {
+    const forms = getUnifiedVerbOutputSurfaceForms(source);
+    if (forms.length) {
+        return forms.join(" / ");
+    }
+    if (getUnifiedVerbOutputResultFrame(source)) {
+        return "";
+    }
+    return normalizeUnifiedVerbOutputSurfaceValue(source.form || defaults.form || "");
+}
+
 function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
     const src = source && typeof source === "object" ? source : {};
     const fallback = defaults && typeof defaults === "object" ? defaults : {};
@@ -104,7 +187,7 @@ function normalizeUnifiedVerbOutputEntry(entry = {}, defaults = {}) {
         object: getZeroObjectDisplayValue(source.object || ""),
         object2: getZeroObjectDisplayValue(source.object2 || ""),
         object3: getZeroObjectDisplayValue(source.object3 || ""),
-        form: String(source.form || ""),
+        form: getUnifiedVerbOutputForm(source, defaults),
         objectSlotCount: normalizeUnifiedVerbOutputObjectSlotCount(
             source.objectSlotCount ?? defaults.objectSlotCount ?? 0
         ),

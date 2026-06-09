@@ -396,6 +396,9 @@ function run(ctx = {}) {
             && rendering.includes("buildOrdinaryNncFormulaEchoFromSlots(rowFormulaSlots)")
             && rendering.includes("Formula NNC:")
             && rendering.includes("rowConnectorSlotLabel")
+            && rendering.includes("const rowConnectorSurface = rowConnectorSlot")
+            && rendering.includes("resolveNominalSubjectConnectorSurface(")
+            && rendering.includes("rowConnectorSlot,")
             && rendering.includes('"num1-num2"')
             && rendering.includes("rowPredicateFormula")
             && rendering.includes("result.nncBasic?.predicate?.formula || result.predicateFormula")
@@ -407,10 +410,63 @@ function run(ctx = {}) {
     s.ok(
         "shared sustantivo renderer labels subject number connectors",
         rendering.includes("buildNominalSubjectConnectorSubLabel")
+            && rendering.includes("resolveNominalSubjectConnectorSurface")
             && rendering.includes('subjectNumberConnector')
             && rendering.includes('nominalClauseFrame?.subject?.numberConnector')
             && rendering.includes('return `conector ${connectorSurface || "Ø"}`;')
             && rendering.includes("appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel)")
+    );
+    s.eq(
+        "shared renderer subject-number connector labels read LCM result frames before legacy display fields",
+        (() => {
+            if (typeof ctx.resolveNominalSubjectConnectorSurface !== "function") {
+                return {
+                    framed: "rendering-runtime-not-loaded",
+                    empty: "rendering-runtime-not-loaded",
+                    legacy: "rendering-runtime-not-loaded",
+                };
+            }
+            const framedConnector = {
+                surface: "legacy-connector",
+                displaySurface: "legacy-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-connector",
+                    }),
+                }),
+            };
+            const emptyConnector = {
+                surface: "legacy-connector",
+                displaySurface: "legacy-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            };
+            return {
+                framed: ctx.resolveNominalSubjectConnectorSurface(framedConnector, "fallback-connector"),
+                empty: ctx.resolveNominalSubjectConnectorSurface(emptyConnector, "fallback-connector"),
+                legacy: ctx.resolveNominalSubjectConnectorSurface({
+                    surface: "legacy-connector",
+                    displaySurface: "legacy-display",
+                }, "fallback-connector"),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                framed: "frame-connector",
+                empty: "",
+                legacy: "legacy-display",
+            }
+            : {
+                framed: "rendering-runtime-not-loaded",
+                empty: "rendering-runtime-not-loaded",
+                legacy: "rendering-runtime-not-loaded",
+            }
     );
     s.ok(
         "generated output panes render explicit no-output text instead of blank dash placeholders",
@@ -438,6 +494,7 @@ function run(ctx = {}) {
             && css.includes(".conjugation-continuation-group__header")
             && css.includes(".conjugation-continuation-group__chips")
             && css.includes(".calc-guidance__chip--mode-adjetivo")
+            && css.includes(".tense-block--adjectival-nnc-function")
             && css.includes(".conjugation-conversion-actions .calc-guidance__chip")
             && css.includes("@container (max-width: 360px)")
     );
@@ -482,6 +539,9 @@ function run(ctx = {}) {
             && rendering.includes("continueLabel.textContent = `→ ${previewSurface || prelocativeVerbInput}`")
             && rendering.includes("const patientivoSurface = resolvePatientivoSurfaceFromEvaluation(evaluation)")
             && rendering.includes("resolvePatientivoSourceSurfaceForContinuation")
+            && rendering.includes("const profileSurface = getPrimaryConjugationSurface(profileSource)")
+            && rendering.includes("if (hasConjugationResultFrame(profileSource))")
+            && rendering.includes("return \"\";")
             && !rendering.includes("resolveDirectPatientivoSurfaceOverride")
             && !rendering.includes("resolveDirectPatientivoSurface =")
             && !rendering.includes("replacePatientivoRouteSuffix")
@@ -548,6 +608,208 @@ function run(ctx = {}) {
             && !rendering.includes("button.dataset.targetSurface === contract.result")
     );
     s.ok(
+        "Andrews 40.3 VNC adjectival function is exposed dynamically in generated VNC rows",
+        rendering.includes("const appendVncAdjectivalFunctionRowContinuation = ({")
+            && rendering.includes("buildVncAdjectivalNncFunctionOutput")
+            && rendering.includes('continueButton.dataset.vncAdjectivalFunctionContinuation = "true"')
+            && rendering.includes('calc-guidance__chip--vnc-adjectival-function')
+            && rendering.includes('continueSubLabel.textContent = "Adj VNC"')
+            && rendering.includes("`#3 salida VNC: ${targetSurface}`,")
+            && rendering.includes("Andrews 40.3: VNC en funcion adjetival")
+            && rendering.includes("no crea tronco NNC")
+            && rendering.includes("sourceTenseValue: tenseValue")
+            && rendering.includes("sourceCombinedMode,")
+            && rendering.includes("sourceVoiceMode,")
+            && rendering.includes("formation: \"vnc-adjectival\"")
+            && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
+            && rendering.includes("appendVncAdjectivalFunctionRowContinuation({")
+            && rendering.includes("afterRowRendered: ({ value, evaluation, prefix }) => {")
+            && css.includes(".calc-guidance__chip--vnc-adjectival-function")
+    );
+    s.ok(
+        "Andrews 40.1/40.3 ordinary NNC adjectival function is exposed dynamically in generated ordinary NNC rows",
+        rendering.includes("const renderOrdinaryNncAdjectivalFunctionContinuation = () => {")
+            && rendering.includes("generateAdjectivalNncFunctionOutput({")
+            && rendering.includes('continueButton.dataset.ordinaryNncAdjectivalFunctionContinuation = "true"')
+            && rendering.includes('calc-guidance__chip--ordinary-nnc-adjectival-function')
+            && rendering.includes('continueSubLabel.textContent = "Adj NNC"')
+            && rendering.includes("`#3 salida NNC: ${targetSurface}`,")
+            && rendering.includes("Andrews 40.1/40.3: NNC absolutiva en funcion adjetival")
+            && rendering.includes("no crea modificacion Lessons 42-43")
+            && rendering.includes('formation: "ordinary-absolutive"')
+            && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
+            && rendering.includes("renderOrdinaryNncAdjectivalFunctionContinuation();")
+            && css.includes(".calc-guidance__chip--ordinary-nnc-adjectival-function")
+    );
+    s.ok(
+        "Andrews 54.2.1 ordinary NNC rows expose absolutive inceptive ti route continuations",
+        rendering.includes("const renderOrdinaryNncInceptiveTiContinuations = () => {")
+            && state.includes("function buildNawatDenominalAndrewsInceptiveTiSourceEvidenceFromOrdinaryNncOutput")
+            && state.includes("function previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput")
+            && state.includes('contractId: "54.2.1-inceptive-stative-ti"')
+            && state.includes('sourceCategory: "absolutive-state-nnc-predicate"')
+            && state.includes("inceptiveTiSourceRequiresAbsolutivePredicate")
+            && rendering.includes("previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput(result)")
+            && rendering.includes('"is-absolutive-source"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceSatisfied = "true"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
+            && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
+            && rendering.includes('continueSubLabel.textContent = [')
+            && rendering.includes('"NNC abs"')
+            && rendering.includes("ti se adjunta al predicado absolutivo")
+            && state.includes("setOrdinaryNncGenerationModeEnabled(false)")
+            && state.includes("setComposerEntryBoard(plainComposerBoard, { force: ordinaryNncWasActive })")
+            && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
+            && rendering.includes("renderOrdinaryNncInceptiveTiContinuations();")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-absolutive-source")
+    );
+    s.ok(
+        "Andrews 54.2.2 ordinary NNC rows expose absolutive inceptive hui/wi route continuations",
+        rendering.includes("const renderOrdinaryNncInceptiveHuiContinuations = () => {")
+            && state.includes("function buildNawatDenominalAndrewsInceptiveHuiSourceEvidenceFromOrdinaryNncOutput")
+            && state.includes("function previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput")
+            && state.includes('contractId: "54.2.2-inceptive-stative-hui"')
+            && state.includes("inceptiveHuiSourceRequiresAbsolutivePredicate")
+            && rendering.includes("previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput(result)")
+            && rendering.includes('"is-absolutive-source"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceSatisfied = "true"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
+            && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
+            && rendering.includes('"NNC abs"')
+            && rendering.includes("hui/wi se adjunta al predicado absolutivo")
+            && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
+            && rendering.includes("renderOrdinaryNncInceptiveHuiContinuations();")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-absolutive-source")
+    );
+    s.ok(
+        "Andrews 54.2.3 ordinary NNC rows expose root-plus-ya route continuations",
+        rendering.includes("const renderOrdinaryNncRootPlusYaContinuations = () => {")
+            && state.includes("function buildNawatDenominalAndrewsRootPlusYaSourceEvidenceFromOrdinaryNncOutput")
+            && state.includes("function previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput")
+            && state.includes('contractId: "54.2.3-inceptive-stative-ya"')
+            && state.includes("sourceNounstemDowngradedToRootRank")
+            && rendering.includes("previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput(result)")
+            && rendering.includes('"is-root-source"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceSatisfied = "true"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
+            && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
+            && rendering.includes('"NNC raiz"')
+            && rendering.includes("ya se adjunta al tronco nominal en rango raiz")
+            && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
+            && rendering.includes("renderOrdinaryNncRootPlusYaContinuations();")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-root-source")
+    );
+    s.ok(
+        "Andrews 54.2.4 ordinary NNC rows expose limited inceptive a route continuations",
+        rendering.includes("const renderOrdinaryNncInceptiveAContinuations = () => {")
+            && state.includes("function buildNawatDenominalAndrewsInceptiveASourceEvidenceFromOrdinaryNncOutput")
+            && state.includes("function previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput")
+            && state.includes('contractId: "54.2.4-inceptive-stative-a"')
+            && state.includes("inceptiveASourceRequiresAbsolutiveNounstem")
+            && state.includes("targetLooksTransitiveButIsIntransitive")
+            && rendering.includes("previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput(result)")
+            && rendering.includes('"is-limited-use"')
+            && rendering.includes('continueButton.dataset.limitedUse = "true"')
+            && rendering.includes('continueButton.dataset.notCausativeA = "true"')
+            && rendering.includes('"uso limitado"')
+            && rendering.includes("a inceptiva/estativa se adjunta al tronco nominal")
+            && rendering.includes("no es a causativa")
+            && rendering.includes("Clase C intransitiva")
+            && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
+            && rendering.includes("renderOrdinaryNncInceptiveAContinuations();")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-limited-use")
+    );
+    s.ok(
+        "Andrews 54.2.5 generated characteristic-property rows expose deverbal yu hua/wa route continuations",
+        rendering.includes("const renderCalificativoInstrumentivoHuaContinuations = ({")
+            && state.includes("function buildNawatDenominalAndrewsHuaSourceEvidenceRecordsFromCharacteristicPropertyOutput")
+            && state.includes("function previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput")
+            && state.includes('contractId: "54.2.5-inceptive-stative-hua"')
+            && state.includes("sourceEvidenceFromGeneratedCharacteristicPropertyNnc")
+            && state.includes("absolutiveConnectorTStrippedForSourceStem")
+            && rendering.includes("previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(evaluation?.result)")
+            && rendering.includes('continueButton.dataset.huaDeverbalYuContinuation = "true"')
+            && rendering.includes('continueButton.dataset.sourceEvidenceFromCharacteristicProperty = "true"')
+            && rendering.includes('"is-deverbal-yu-source"')
+            && rendering.includes('"fuente -yu(t)"')
+            && rendering.includes('"no 55.3 o-a"')
+            && rendering.includes("hua/wa no es la formacion o-a de 55.3")
+            && rendering.includes("renderCalificativoInstrumentivoHuaContinuations({")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-deverbal-yu-source")
+    );
+    s.ok(
+        "Andrews 54.3 generated possessive NNC rows expose included-possessor ti route continuations",
+        rendering.includes("const renderOrdinaryNncIncludedPossessorContinuations = () => {")
+            && state.includes("function previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput")
+            && state.includes('contractId: "54.3-included-possessor-ti"')
+            && state.includes("possessorIncludedInsideVerbstem")
+            && state.includes("possessiveCaseNotTransformedToObjective")
+            && rendering.includes("previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput(result)")
+            && rendering.includes('"is-included-possessor-source"')
+            && rendering.includes('continueButton.dataset.possessorIncludedInsideVerbstem = "true"')
+            && rendering.includes('continueButton.dataset.possessiveCaseNotObject = "true"')
+            && rendering.includes('"NNC posesivo"')
+            && rendering.includes('"poseedor interno"')
+            && rendering.includes("el poseedor queda dentro del tronco")
+            && rendering.includes("no se convierte en objeto")
+            && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
+            && rendering.includes("renderOrdinaryNncIncludedPossessorContinuations();")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-included-possessor-source")
+    );
+    s.ok(
+        "Andrews 41.1 intensified adjectival function is exposed from supported generated adjectival NNC formula slots",
+        rendering.includes("const renderIntensifiedAdjectivalFunctionContinuation = ({")
+            && rendering.includes("buildIntensifiedAdjectivalNncOutput({")
+            && rendering.includes('continueButton.dataset.intensifiedAdjectivalFunctionContinuation = "true"')
+            && rendering.includes("continueButton.dataset.sourceFormulaEcho = sourceFormulaEcho")
+            && rendering.includes('calc-guidance__chip--intensified-adjectival-function')
+            && rendering.includes('continueSubLabel.textContent = "Intensifica"')
+            && rendering.includes("Andrews 41.1: intensificacion adjetival por reduplicacion")
+            && rendering.includes('formation: "intensified-adjectival"')
+            && rendering.includes("sourceFormulaSlots,")
+            && rendering.includes("renderIntensifiedAdjectivalFunctionContinuation({")
+            && vncFacade.includes('if (formation === "intensified-adjectival")')
+            && vncFacade.includes("adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots")
+            && composer.includes("sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === \"object\" ? sourceFormulaSlots : null")
+            && composer.includes("encodeValue(override.adjectivalNnc?.sourceFormulaEcho)")
+            && css.includes(".calc-guidance__chip--intensified-adjectival-function")
+    );
+    s.ok(
+        "Andrews 41.2 compound-source adjectival function is exposed from generated compound-source rows",
+        rendering.includes("const renderCompoundSourceAdjectivalFunctionContinuation = ({")
+            && rendering.includes("buildCompoundSourceAdjectivalNncFunctionOutput({")
+            && rendering.includes('continueButton.dataset.compoundSourceAdjectivalFunctionContinuation = "true"')
+            && rendering.includes("continueButton.dataset.sourceCompoundMatrix = sourceCompoundFrame?.matrix?.stem || \"\"")
+            && rendering.includes('calc-guidance__chip--compound-source-adjectival-function')
+            && rendering.includes('continueSubLabel.textContent = "Adj comp"')
+            && rendering.includes("Andrews 41.2: NNC adjetival desde verbo compuesto con embed nominal")
+            && rendering.includes('formation: "compound-source-adjectival"')
+            && rendering.includes("sourceCompoundFrame,")
+            && vncFacade.includes('if (formation === "compound-source-adjectival")')
+            && vncFacade.includes("adjectivalNnc.sourceCompoundFrame = entrySourceCompoundFrame")
+            && composer.includes("sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === \"object\" ? sourceCompoundFrame : null")
+            && composer.includes("encodeValue(JSON.stringify(override.adjectivalNnc?.sourceCompoundFrame || override.adjectivalNnc?.compoundFrame || \"\"))")
+            && css.includes(".calc-guidance__chip--compound-source-adjectival-function")
+    );
+    s.ok(
+        "Andrews 41.3 denominal compound adjectival function is exposed from generated tiya compound-source rows",
+        rendering.includes("const renderDenominalCompoundAdjectivalFunctionContinuation = ({")
+            && rendering.includes("buildDenominalCompoundAdjectivalNncFunctionOutput({")
+            && rendering.includes('continueButton.dataset.denominalCompoundAdjectivalFunctionContinuation = "true"')
+            && rendering.includes("continueButton.dataset.sourceCompoundMatrix = denominalCompoundFrame?.matrix?.stem || \"\"")
+            && rendering.includes('calc-guidance__chip--denominal-compound-adjectival-function')
+            && rendering.includes('continueSubLabel.textContent = "Adj denom"')
+            && rendering.includes("Andrews 41.3: NNC adjetival desde verbo denominal ti de sustantivo compuesto")
+            && rendering.includes('formation: "denominal-compound-adjectival"')
+            && rendering.includes("sourceDenominalCompoundFrame: denominalCompoundFrame")
+            && rendering.includes("renderDenominalCompoundAdjectivalFunctionContinuation({")
+            && vncFacade.includes('if (formation === "denominal-compound-adjectival")')
+            && vncFacade.includes("adjectivalNnc.sourceDenominalCompoundFrame = entrySourceDenominalCompoundFrame")
+            && composer.includes("sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === \"object\" ? sourceDenominalCompoundFrame : null")
+            && composer.includes("encodeValue(JSON.stringify(override.adjectivalNnc?.sourceDenominalCompoundFrame || override.adjectivalNnc?.denominalCompoundFrame || \"\"))")
+            && css.includes(".calc-guidance__chip--denominal-compound-adjectival-function")
+    );
+    s.ok(
         "Andrews 40.5-40.8 nominalized VNC adjectival function is exposed dynamically in #3 salida",
         rendering.includes("renderNominalizedVncAdjectivalFunctionContinuation")
             && rendering.includes("buildNominalizedVncAdjectivalNncFunctionOutput")
@@ -569,6 +831,7 @@ function run(ctx = {}) {
             && composer.includes("verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface")
             && composer.includes("verbEl.dataset.adjectivalNncFunctionContract = serializedContract")
             && composer.includes("verbEl.dataset.grammarRouteFamily = entryContract.routeFamily || \"\"")
+            && composer.includes("clearActiveNawatRouteProfile()")
             && composer.includes('source: "adjectival-nnc-function-entry"')
             && composer.includes("grammarFrame: frame || null")
             && composer.includes("getAdjectivalNncFunctionOverrideSurface(override)")
@@ -576,6 +839,12 @@ function run(ctx = {}) {
             && vncFacade.includes("parseAdjectivalNncFunctionEntryContract")
             && vncFacade.includes("adjectivalNnc.grammarFrame = entryGrammarFrame")
             && vncFacade.includes("adjectivalNnc.entryRouteContract = entryRouteContract")
+            && vncFacade.includes('if (formation === "ordinary-absolutive")')
+            && vncFacade.includes("adjectivalNnc.sourceStem = sourceStem")
+            && vncFacade.includes("adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot)")
+            && vncFacade.includes('if (formation === "vnc-adjectival")')
+            && vncFacade.includes("adjectivalNnc.vncSurface = targetSurface")
+            && vncFacade.includes("adjectivalNnc.sourceTenseValue")
             && vncFacade.includes("resolveAdjectivalNncFunctionOverrideFromInput")
             && vncFacade.includes('tense: "adjectival-nnc"')
             && vncFacade.includes("adjectivalNnc")
@@ -586,8 +855,12 @@ function run(ctx = {}) {
     s.ok(
         "applied adjectival NNC function entries render their explicit contract block instead of the default potential tab",
         rendering.includes("function renderAdjectivalNncFunctionConjugations")
+            && rendering.includes("const adjectivalFunctionOverride = activeTenseMode === TENSE_MODE.adjetivo")
+            && rendering.includes("!adjectivalFunctionOverride")
             && rendering.includes("resolveAdjectivalNncFunctionOverrideFromInput(verbInput)")
             && rendering.includes('tenseBlock.dataset.tenseBlock = "adjetivo-nnc-funcion"')
+            && rendering.includes('tenseBlock.className = "tense-block tense-block--adjectival-nnc-function"')
+            && rendering.includes("tenseBlock.dataset.andrewsFunctionBlock")
             && rendering.includes("applyGrammarFrameRouteDataset(tenseBlock, result)")
             && rendering.includes('applyTenseBlockComboPalette(tenseBlock, "adjetivo|nnc-funcion")')
             && rendering.includes("renderAdjectivalNncFunctionConjugations({ verb, containerId })")
@@ -708,6 +981,29 @@ function run(ctx = {}) {
             && composer.includes("function applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry")
             && composer.includes("customaryAgentiveStem")
             && composer.includes("applyActiveActionNominalCompoundToOrdinaryNncEntry({")
+    );
+    const customaryAgentiveStemReaderStart = rendering.indexOf("const getCustomaryAgentiveStemsFromEvaluation");
+    const customaryAgentiveStemReaderEnd = rendering.indexOf("const getPreteritAgentiveGeneralUseStemsFromEvaluation", customaryAgentiveStemReaderStart);
+    const customaryAgentiveStemReader = customaryAgentiveStemReaderStart >= 0 && customaryAgentiveStemReaderEnd > customaryAgentiveStemReaderStart
+        ? rendering.slice(customaryAgentiveStemReaderStart, customaryAgentiveStemReaderEnd)
+        : "";
+    const preteritAgentiveStemReaderStart = rendering.indexOf("const getPreteritAgentiveGeneralUseStemsFromEvaluation");
+    const preteritAgentiveStemReaderEnd = rendering.indexOf("const renderActiveActionCompoundEmbedContinuation", preteritAgentiveStemReaderStart);
+    const preteritAgentiveStemReader = preteritAgentiveStemReaderStart >= 0 && preteritAgentiveStemReaderEnd > preteritAgentiveStemReaderStart
+        ? rendering.slice(preteritAgentiveStemReaderStart, preteritAgentiveStemReaderEnd)
+        : "";
+    s.ok(
+        "agentive continuation stem readers stop at empty LCM result frames before shell stem fallbacks",
+        customaryAgentiveStemReader.includes("const surfaceForms = getConjugationSurfaceForms(result);")
+            && customaryAgentiveStemReader.includes("const hasResultFrame = hasConjugationResultFrame(result);")
+            && customaryAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
+            && customaryAgentiveStemReader.includes("if (!hasResultFrame) {\n            addStem(predicateStem);")
+            && customaryAgentiveStemReader.includes("surfaceForms.forEach((surfaceForm)")
+            && preteritAgentiveStemReader.includes("const surfaceForms = getConjugationSurfaceForms(result);")
+            && preteritAgentiveStemReader.includes("const hasResultFrame = hasConjugationResultFrame(result);")
+            && preteritAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
+            && preteritAgentiveStemReader.includes("if (!hasResultFrame && predicateStem)")
+            && preteritAgentiveStemReader.includes("surfaceForms.forEach((surfaceForm)")
     );
     s.ok(
         "preterit-agentive output has real Andrews 35.7/35.9/35.10 continuations from #3 salida",
@@ -857,7 +1153,8 @@ function run(ctx = {}) {
         "patientivo salida hides separate output guidance because continuations live in generated rows",
         rendering.includes("const isPatientivoSalidaMode = activeTenseMode === TENSE_MODE.sustantivo")
             && rendering.includes('selectionState.tenseValue === "patientivo"')
-            && rendering.includes('renderOutputGuidancePanel({ verb: isPatientivoSalidaMode ? "" : renderVerb });')
+            && rendering.includes("const guidanceVerb = adjectivalFunctionOverride")
+            && rendering.includes('renderOutputGuidancePanel({ verb: isPatientivoSalidaMode ? "" : guidanceVerb });')
             && rendering.includes("renderPatientivoCompoundEmbedContinuation({")
     );
     const patientivoDestinationStart = rendering.indexOf("const updatePatientivoBlockDestination = (entry = {}) => {");
@@ -952,17 +1249,76 @@ function run(ctx = {}) {
             && rendering.includes("Contrato Andrews: no confirmado")
             && rendering.includes("Cobertura denominal: parcial")
             && rendering.includes("renderDenominalAndrewsContractRouteContinuation")
+            && rendering.includes("renderDenominalAndrewsContractRouteContinuationForValue")
+            && rendering.includes("ensureDenominalAndrewsRouteContinuationDisplay")
+            && rendering.includes("activeDenominalAndrewsContinuationRendered")
             && rendering.includes("denominalAndrewsContractRouteContinuation")
+            && rendering.includes("previewActiveNawatDenominalAndrewsContractRouteNextSource")
             && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget")
+            && rendering.includes("executableRuleId")
+            && rendering.includes("calc-guidance__chip--andrews-rule-executable")
+            && state.includes("getNawatDenominalAndrewsExecutableRuleContract")
+            && state.includes("executeNawatDenominalAndrewsExecutableRuleContract")
+            && state.includes("setActiveNawatDenominalAndrewsContractRouteContext")
+            && state.includes("getActiveNawatDenominalAndrewsContractRouteContext")
+            && state.includes("previewActiveNawatDenominalAndrewsContractRouteNextSource")
+            && state.includes("andrews-54-2-2-hui")
+            && state.includes("andrews-54-2-2-hui-lia")
+            && state.includes("andrews-54-2-3-ya")
+            && state.includes("andrews-54-2-3-ti-ya")
+            && state.includes("andrews-54-2-3-hui-ya")
+            && state.includes("andrews-54-2-3-ya-lia")
+            && state.includes("andrews-54-2-4-a")
+            && state.includes("andrews-54-2-5-hua")
+            && state.includes("andrews-54-3-included-possessor-ti")
+            && state.includes("andrews-54-2-54-4-ti-lia")
+            && state.includes("andrews-54-5-ti-a")
+            && state.includes("andrews-54-6-t-ia")
+            && state.includes("andrews-55-1-temporal-tia")
+            && state.includes("andrews-55-2-causative-tla")
+            && state.includes("andrews-55-2-tla-ti-lia-applicative")
+            && state.includes("andrews-55-2-intransitive-tla")
+            && state.includes("andrews-55-2-intransitive-tla-ti-a")
+            && state.includes("andrews-55-2-intransitive-tla-ti-lia")
+            && state.includes("andrews-55-3-o-a")
+            && state.includes("andrews-55-3-huia")
+            && state.includes("andrews-55-3-o-a-i-l-huia")
+            && state.includes("andrews-55-3-o-a-a-l-huia")
+            && state.includes("andrews-55-4-adverbial-huia")
+            && state.includes("andrews-55-5-relational-o-a")
+            && state.includes("andrews-55-5-relational-huia")
+            && state.includes("andrews-55-6-i-hui")
+            && state.includes("andrews-55-6-a-hui")
+            && state.includes("andrews-55-6-o-a")
+            && state.includes("andrews-55-7-i-a")
             && rendering.includes("finiteGenerationRequiresObjectPrefix")
             && rendering.includes("objectPrefixRequired")
+            && rendering.includes("denominalAndrewsObjectPrefixChoice")
+            && rendering.includes('typeof prefix === "object" ? prefix?.value')
+            && rendering.includes("objectPrefixMissing")
+            && rendering.includes("is-object-prefix-required")
+            && rendering.includes("calc-guidance__chip--object-prefix-choice")
+            && rendering.includes("objeto pendiente")
+            && rendering.includes("objeto VNC seleccionado explicitamente")
+            && rendering.includes('objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : ""')
+            && rendering.includes('objectButton.dataset.tiSourceRequired = "true"')
+            && rendering.includes('objectButton.dataset.huiSourceRequired = "true"')
+            && rendering.includes('objectButton.dataset.yaSourceRequired = "true"')
+            && rendering.includes('objectButton.dataset.tlaIntransitiveSourceRequired = "true"')
+            && rendering.includes('objectButton.dataset.intransitiveOaSourceRequired = "true"')
+            && rendering.includes('objectButton.dataset.iHuiAHuiSourceRequired = "true"')
             && rendering.includes("sourceEvidenceRequired")
             && rendering.includes("sourceEvidenceSatisfied")
+            && state.includes("sourceEvidenceSupportsTiYaDeverbal")
+            && state.includes("sourceEvidenceSupportsHuiYaDeverbal")
+            && !rendering.includes("routes.slice(0, 4).forEach")
+            && rendering.includes("routes.forEach((route) => {")
             && rendering.includes("tiSourceRequired")
             && rendering.includes("huiSourceRequired")
             && rendering.includes("yaSourceRequired")
             && rendering.includes("tlaIntransitiveSourceRequired")
             && rendering.includes("intransitiveOaSourceRequired")
+            && rendering.includes("iHuiAHuiSourceRequired")
             && rendering.includes("temporalSourceRequired")
             && rendering.includes("adverbialSourceRequired")
             && rendering.includes("relationalCompoundSourceRequired")
@@ -973,6 +1329,7 @@ function run(ctx = {}) {
             && rendering.includes("traditionalSpellingAmbiguous")
             && rendering.includes("is-traditional-spelling-ambiguous")
             && rendering.includes("buildNawatDenominalSourceEvidenceSubLabels")
+            && rendering.includes("Fuente Andrews: NNC absolutivo generado")
             && rendering.includes("Fuente Andrews: compuesto temporal confirmado")
             && rendering.includes("andrewsRouteWarning")
             && rendering.includes("andrewsRouteNote")
@@ -981,6 +1338,7 @@ function run(ctx = {}) {
             && rendering.includes("Fuente Andrews: tronco adverbial confirmado")
             && rendering.includes("Fuente Andrews: relacional confirmado")
             && css.includes(".calc-guidance__chip--denominal-andrews")
+            && css.includes(".calc-guidance__chip--andrews-rule-executable")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-unavailable")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-warning")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-note")
@@ -994,11 +1352,14 @@ function run(ctx = {}) {
             && css.includes(".calc-guidance__chip--denominal-andrews.is-temporal-source")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-adverbial-source")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-relational-source")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-absolutive-source")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-source-final-pattern")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-source-final-minority")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-source-final-needs-confirmation")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-source-final-class-contract")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-traditional-spelling-ambiguous")
+            && css.includes(".calc-guidance__chip--denominal-andrews.is-object-prefix-required")
+            && css.includes(".calc-guidance__chip--object-prefix-choice")
     );
     const guidancePanelStart = rendering.indexOf("function renderOutputGuidancePanel({ verb = \"\" } = {}) {");
     const guidancePanelEnd = rendering.indexOf("function resolveRenderableVerbValue", guidancePanelStart);
@@ -1230,7 +1591,7 @@ function run(ctx = {}) {
                 verbalizer: "-iwi",
                 andrewsContractCoverage: {
                     unmodeledContractCount: 23,
-                    targetUnmodeledContractCount: 1,
+                    targetUnmodeledContractCount: 0,
                     nawatOnlyRouteFamilies: ["vt-na"],
                 },
                 isCompleteLesson54_55: false,
@@ -1240,7 +1601,7 @@ function run(ctx = {}) {
             ? [
                 "Familia denominal: VI -iwi",
                 "Verbalizador denominal: -iwi",
-                "Contratos Andrews pendientes: 24",
+                "Contratos Andrews pendientes: 23",
                 "Rutas Nawat sin contrato Andrews: vt-na",
                 "Cobertura denominal: parcial",
             ]
@@ -1532,6 +1893,50 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
+        "shared renderer marks Andrews source evidence from generated absolutive NNC outputs",
+        typeof ctx.buildNawatDenominalSourceEvidenceSubLabels === "function"
+            ? ctx.buildNawatDenominalSourceEvidenceSubLabels({
+                inceptiveTiSource: true,
+                sourceCategory: "absolutive-state-nnc-predicate",
+                sourceSurface: "shuchit",
+                sourceBaseStem: "shuchi",
+                boundaries: {
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                },
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                "Fuente Andrews: NNC absolutivo generado",
+                "Base Andrews: shuchi",
+                "Fuente Nawat: shuchit",
+                "Evidencia: salida NNC",
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer marks Andrews source evidence from generated NNC nounstems downgraded to root rank",
+        typeof ctx.buildNawatDenominalSourceEvidenceSubLabels === "function"
+            ? ctx.buildNawatDenominalSourceEvidenceSubLabels({
+                rootPlusYaSource: true,
+                sourceCategory: "nounstem-as-root",
+                sourceSurface: "shuchit",
+                sourceBaseStem: "shuchi",
+                boundaries: {
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                },
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                "Fuente Andrews: NNC en rango raiz",
+                "Base Andrews: shuchi",
+                "Fuente Nawat: shuchit",
+                "Evidencia: salida NNC",
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
         "shared renderer formats linked grammar stage next-source labels",
         typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
             ? ctx.buildNawatLinkedGrammarStageSubLabels({
@@ -1549,6 +1954,22 @@ function run(ctx = {}) {
                 "Siguiente fuente: (pusukti)",
                 "Salida de etapa: pusuktik",
             ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer suppresses dash-only linked grammar stage source labels",
+        typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
+            ? ctx.buildNawatLinkedGrammarStageSubLabels({
+                surface: "—",
+                inputValue: "—",
+                renderVerb: "—",
+                nextSource: {
+                    canBecomeSource: true,
+                },
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? []
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -1597,6 +2018,64 @@ function run(ctx = {}) {
                             surfaceForms: [],
                         }),
                     }),
+                },
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? []
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer reads linked grammar stage labels from stage LCM result frames before legacy fields",
+        typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.buildNawatLinkedGrammarStageSubLabels({
+                surface: "legacy-stage-surface",
+                sourceVerb: "legacy-stage-source",
+                inputValue: "legacy-input",
+                renderVerb: "legacy-render",
+                displaySurface: "legacy-stage-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["frame-stage-source"],
+                    }),
+                }),
+                nextSource: {
+                    canBecomeSource: true,
+                    sourceVerb: "legacy-next-source",
+                    displaySurface: "legacy-next-display",
+                },
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                "Siguiente fuente: frame-stage-source",
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer suppresses linked grammar stage labels for an empty stage LCM result frame",
+        typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.buildNawatLinkedGrammarStageSubLabels({
+                surface: "legacy-stage-surface",
+                sourceVerb: "legacy-stage-source",
+                inputValue: "legacy-input",
+                renderVerb: "legacy-render",
+                displaySurface: "legacy-stage-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surfaceForms: [],
+                    }),
+                }),
+                nextSource: {
+                    canBecomeSource: true,
+                    sourceVerb: "legacy-next-source",
+                    displaySurface: "legacy-next-display",
                 },
             })
             : ["rendering-runtime-not-loaded"],
@@ -1765,6 +2244,84 @@ function run(ctx = {}) {
             ]
             : []
     );
+    const framedLinkedSelectionSummary = typeof ctx.buildGrammarFrame === "function"
+        && typeof ctx.buildGrammarResultFrame === "function"
+        ? {
+            outputKind: "linked-grammar-path-selection-summary",
+            currentSource: {
+                sourceVerb: "(pusukti)",
+            },
+            appendableSelectionCount: 2,
+            nextRoutes: [
+                {
+                    routeId: "denominal-vi-ti-preterit",
+                    appendableStages: [
+                        {
+                            stageKey: "source-mode",
+                            sourceVerb: "legacy-stage-source",
+                            displaySurface: "legacy-stage-display",
+                            frames: ctx.buildGrammarFrame({
+                                resultFrame: ctx.buildGrammarResultFrame({
+                                    ok: true,
+                                    surfaceForms: ["frame-appendable-source"],
+                                }),
+                            }),
+                            selection: {
+                                routeId: "denominal-vi-ti-preterit",
+                                stageKey: "source-mode",
+                            },
+                        },
+                        {
+                            stageKey: "target-mode",
+                            sourceVerb: "stale-empty-stage-source",
+                            displaySurface: "stale-empty-stage-display",
+                            frames: ctx.buildGrammarFrame({
+                                resultFrame: ctx.buildGrammarResultFrame({
+                                    ok: false,
+                                    surfaceForms: [],
+                                }),
+                            }),
+                            selection: {
+                                routeId: "denominal-vi-ti-preterit",
+                                stageKey: "target-mode",
+                            },
+                        },
+                    ],
+                },
+            ],
+        }
+        : null;
+    s.eq(
+        "shared renderer reads appendable linked path choices from stage LCM result frames",
+        typeof ctx.getNawatLinkedGrammarAppendableSelections === "function"
+            && typeof ctx.buildNawatLinkedGrammarSelectionSummarySubLabels === "function"
+            && framedLinkedSelectionSummary
+            ? {
+                labels: ctx.buildNawatLinkedGrammarSelectionSummarySubLabels(framedLinkedSelectionSummary),
+                choices: ctx.getNawatLinkedGrammarAppendableSelections(framedLinkedSelectionSummary).map((choice) => ({
+                    stageKey: choice.stageKey,
+                    sourceVerb: choice.sourceVerb,
+                    displaySurface: choice.displaySurface,
+                })),
+            }
+            : null,
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                labels: [
+                    "Fuente actual: (pusukti)",
+                    "Opciones siguientes: 2",
+                    "Siguiente salida: vi-ti · fuente → frame-appendable-source",
+                ],
+                choices: [
+                    {
+                        stageKey: "source-mode",
+                        sourceVerb: "frame-appendable-source",
+                        displaySurface: "frame-appendable-source",
+                    },
+                ],
+            }
+            : null
+    );
     s.eq(
         "shared renderer appends linked grammar path selection summaries without executing routes",
         typeof ctx.appendNawatLinkedGrammarSelectionSummarySubLabels === "function"
@@ -1883,6 +2440,95 @@ function run(ctx = {}) {
                 "Salida: pusuktiiwi",
             ]
             : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer reads promoted linked path sources from LCM result frames",
+        typeof ctx.buildNawatLinkedGrammarPromotedSourceSubLabels === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.buildNawatLinkedGrammarPromotedSourceSubLabels({
+                sourceVerb: "legacy-promoted-source",
+                displaySurface: "legacy-promoted-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["frame-promoted-source"],
+                    }),
+                }),
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                "Fuente: frame-promoted-source",
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer suppresses promoted linked path source labels for an empty LCM result frame",
+        typeof ctx.buildNawatLinkedGrammarPromotedSourceSubLabels === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.buildNawatLinkedGrammarPromotedSourceSubLabels({
+                sourceVerb: "legacy-promoted-source",
+                displaySurface: "legacy-promoted-display",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surfaceForms: [],
+                    }),
+                }),
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? []
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "adjectival NNC function target resolver reads LCM result frames before override verb",
+        typeof ctx.resolveAdjectivalNncFunctionTargetSurface === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.resolveAdjectivalNncFunctionTargetSurface({
+                verb: "legacy-override-verb",
+                adjectivalNnc: {
+                    enabled: true,
+                    surface: "legacy-adjectival-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: true,
+                            surfaceForms: ["frame-adjectival-target"],
+                        }),
+                    }),
+                },
+            })
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? "frame-adjectival-target"
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "adjectival NNC function target resolver suppresses override verb for an empty LCM result frame",
+        typeof ctx.resolveAdjectivalNncFunctionTargetSurface === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? ctx.resolveAdjectivalNncFunctionTargetSurface({
+                verb: "legacy-override-verb",
+                adjectivalNnc: {
+                    enabled: true,
+                    surface: "legacy-adjectival-surface",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: false,
+                            surface: "",
+                            surfaceForms: [],
+                        }),
+                    }),
+                },
+            })
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? ""
+            : "rendering-runtime-not-loaded"
     );
     s.eq(
         "shared renderer attaches linked stage metadata to output stations",
@@ -2393,12 +3039,11 @@ function run(ctx = {}) {
                 "Estado LCM: bloqueado",
                 "Ruta LCM: comparison / classify-boundary",
                 "Generacion LCM: no autorizada",
-	                "Andrews: Andrews Lesson 53",
-	                "Evidencia: diagnostic-only",
-	                "Realizacion Nawat: pendiente",
-	                "Falla LCM: authority / authorityFrame",
-	                "Diagnostico LCM: comparison-needs-nawat-clause-evidence",
-	            ]
+                "Andrews: Andrews Lesson 53",
+                "Evidencia: diagnostic-only",
+                "Falla LCM: authority / authorityFrame",
+                "Diagnostico LCM: comparison-needs-nawat-clause-evidence",
+            ]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2427,6 +3072,53 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
+        "shared renderer suppresses orthography realization labels for empty LCM result frames",
+        typeof ctx.buildGrammarFrameSubLabels === "function"
+            ? ctx.buildGrammarFrameSubLabels(ctx.buildGrammarFrame({
+                orthographyFrame: {
+                    surface: "stale-orthography-surface",
+                    surfaceForms: ["stale-orthography-a"],
+                    nawatRuleSpelling: "stale-rule-spelling",
+                    noClassicalSurfaceImport: true,
+                },
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "blocked-vnc",
+                }),
+            }), {
+                includeResult: false,
+                includeRoute: false,
+                includeAuthority: false,
+                includeDiagnostics: false,
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? []
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer still labels orthography-only realization when no result frame exists",
+        typeof ctx.buildGrammarFrameSubLabels === "function"
+            ? ctx.buildGrammarFrameSubLabels({
+                routeContract: {},
+                orthographyFrame: {
+                    surface: "orthography-only-surface",
+                    noClassicalSurfaceImport: true,
+                },
+            }, {
+                includeResult: false,
+                includeRoute: false,
+                includeAuthority: false,
+                includeDiagnostics: false,
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? ["Realizacion Nawat: orthography-only-surface"]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
         "shared renderer reads LCM result-frame surface forms before legacy result text",
         typeof ctx.getConjugationSurfaceForms === "function"
             ? ctx.getConjugationSurfaceForms({
@@ -2444,6 +3136,26 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? ["frame-a", "frame-b", "frame-surface"]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer stops at empty LCM result frames before legacy result text",
+        typeof ctx.getConjugationSurfaceForms === "function"
+            ? ctx.getConjugationSurfaceForms({
+                result: "legacy-form",
+                surface: "legacy-surface",
+                surfaceForms: ["stale-render-a / stale-render-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            })
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? []
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2573,6 +3285,66 @@ function run(ctx = {}) {
                 resultOk: "false",
             }
             : { routeFamily: "export-runtime-not-loaded" }
+    );
+    s.eq(
+        "view export form reads LCM result frames before legacy form text",
+        typeof ctx.normalizeUnifiedVerbOutputEntry === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? (() => {
+                const framed = ctx.normalizeUnifiedVerbOutputEntry({
+                    block: "Intransitivo",
+                    person: "1sg",
+                    form: "stale export form",
+                    result: {
+                        result: "stale nested result",
+                        surface: "stale nested surface",
+                        surfaceForms: ["stale nested a / stale nested b"],
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: true,
+                                surface: "frame export surface",
+                                surfaceForms: ["frame export a / frame export b"],
+                            }),
+                        }),
+                    },
+                });
+                const emptyFramed = ctx.normalizeUnifiedVerbOutputEntry({
+                    block: "Intransitivo",
+                    person: "1sg",
+                    form: "stale empty export form",
+                    result: {
+                        result: "stale empty nested result",
+                        surface: "stale empty nested surface",
+                        surfaceForms: ["stale empty nested a / stale empty nested b"],
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: false,
+                                surface: "",
+                                surfaceForms: [],
+                            }),
+                        }),
+                    },
+                });
+                const legacy = ctx.normalizeUnifiedVerbOutputEntry({
+                    block: "Intransitivo",
+                    person: "1sg",
+                    form: "legacy export form",
+                });
+                return {
+                    framed: framed.form,
+                    emptyFramed: emptyFramed.form,
+                    legacy: legacy.form,
+                };
+            })()
+            : { framed: "export-runtime-not-loaded" },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                framed: "frame export a / frame export b / frame export surface",
+                emptyFramed: "",
+                legacy: "legacy export form",
+            }
+            : { framed: "export-runtime-not-loaded" }
     );
     s.eq(
         "view export CSV includes LCM route and diagnostic columns",
@@ -2824,6 +3596,53 @@ function run(ctx = {}) {
                 routeFamily: "adjectival-nnc-function",
             }
             : { returned: false }
+    );
+    s.eq(
+        "shared route dataset infers LCM failed layer from blocked frame status",
+        typeof ctx.applyGrammarFrameRouteDataset === "function"
+            ? (() => {
+                const element = { dataset: {} };
+                const frame = ctx.buildGrammarFrame({
+                    authorityFrame: ctx.buildGrammarAuthorityFrame({
+                        evidenceStatus: "blocked",
+                        andrewsRefs: ["Andrews Lesson 4"],
+                        supported: true,
+                    }),
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "vnc",
+                        routeStage: "classify-route",
+                        generationAllowed: false,
+                    }),
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        outputKind: "vnc",
+                    }),
+                    diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                        status: "blocked",
+                        diagnostics: [{
+                            id: "plain-route-blocked",
+                            severity: "error",
+                            message: "Route blocked without explicit layer.",
+                        }],
+                    }),
+                });
+                ctx.applyGrammarFrameRouteDataset(element, { frames: frame });
+                return {
+                    diagnosticId: element.dataset.grammarDiagnosticId,
+                    diagnosticLayer: element.dataset.grammarDiagnosticLayer,
+                    diagnosticContractLayer: element.dataset.grammarDiagnosticContractLayer,
+                    resultOk: element.dataset.grammarResultOk,
+                };
+            })()
+            : { diagnosticLayer: "rendering-runtime-not-loaded" },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                diagnosticId: "plain-route-blocked",
+                diagnosticLayer: "route",
+                diagnosticContractLayer: "routeContract",
+                resultOk: "false",
+            }
+            : { diagnosticLayer: "rendering-runtime-not-loaded" }
     );
     s.eq(
         "shared renderer formats opt-in sentence-layer labels",

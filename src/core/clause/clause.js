@@ -80,6 +80,60 @@ function buildClauseParticipantSlot({
     };
 }
 
+function getNuclearClauseShellResultFrame(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const grammarFrame = input.grammarFrame && typeof input.grammarFrame === "object"
+        ? input.grammarFrame
+        : (input.frames && typeof input.frames === "object" ? input.frames : null);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function normalizeNuclearClauseShellSurface(value = "") {
+    const surface = String(value || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
+function splitNuclearClauseShellSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeNuclearClauseShellSurface(entry))
+        .filter(Boolean);
+}
+
+function getNuclearClauseShellFramedSurface(input = null) {
+    const resultFrame = getNuclearClauseShellResultFrame(input);
+    if (!resultFrame) {
+        return null;
+    }
+    const forms = [];
+    if (Array.isArray(resultFrame.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame.surface) {
+        forms.push(resultFrame.surface);
+    }
+    return forms.flatMap((entry) => splitNuclearClauseShellSurfaceText(entry))[0] || "";
+}
+
+function resolveNuclearClauseShellText(input = null, fields = [], fallback = "") {
+    const framedSurface = getNuclearClauseShellFramedSurface(input);
+    if (framedSurface !== null) {
+        return framedSurface;
+    }
+    const source = input && typeof input === "object" ? input : {};
+    for (const field of fields) {
+        const value = normalizeNuclearClauseShellSurface(source[field]);
+        if (value) {
+            return value;
+        }
+    }
+    return normalizeNuclearClauseShellSurface(fallback);
+}
+
 function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     if (!formulaSlots || typeof formulaSlots !== "object") {
         return "";
@@ -184,7 +238,11 @@ function buildNominalNuclearClauseShell({
         suffix: subjectSource.suffix || subjectSource.subjectSuffix || "",
         label: subjectSource.label || "",
     });
-    const predicateStem = predicateSource.stem || predicateSource.surface || predicate?.stem || "";
+    const predicateStem = resolveNuclearClauseShellText(
+        predicateSource,
+        ["stem", "surface"],
+        predicate?.stem || ""
+    );
     const predicateSlot = {
         slot: predicateSource.slot || "STEM",
         role: "nominal-predicate",
@@ -196,8 +254,12 @@ function buildNominalNuclearClauseShell({
     const connectorSlot = {
         slot: connectorSource.slot || "num1-num2",
         role: "subject-number-connector",
-        connector: connectorSource.connector || connectorSource.surface || "",
-        displayConnector: connectorSource.displayConnector || connectorSource.displaySurface || connectorSource.connector || "Ø",
+        connector: resolveNuclearClauseShellText(connectorSource, ["connector", "surface"], ""),
+        displayConnector: resolveNuclearClauseShellText(
+            connectorSource,
+            ["displayConnector", "displaySurface", "connector"],
+            "Ø"
+        ) || "Ø",
         nounClass: connectorSource.nounClass || "",
         notLexicalSuffix: true,
         notTense: true,

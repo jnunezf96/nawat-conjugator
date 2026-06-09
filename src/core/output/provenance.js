@@ -89,16 +89,16 @@ function getOutputProvenanceSurfaceForms(record = null, fallbackSurface = "", op
     if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
         candidates.push(...node.surfaceForms);
     }
-    if (node.surface) {
+    if (!hasResultFrame && node.surface) {
         candidates.push(node.surface);
     }
-    if (node.surfaceStem) {
+    if (!hasResultFrame && node.surfaceStem) {
         candidates.push(node.surfaceStem);
     }
     if (!hasResultFrame && node.result) {
         candidates.push(node.result);
     }
-    if (fallbackSurface) {
+    if (!hasResultFrame && fallbackSurface) {
         candidates.push(fallbackSurface);
     }
     return candidates
@@ -248,6 +248,10 @@ function getProvenancePrimaryStemSurface(provenance = null) {
     const variants = Array.isArray(provenance?.variants) ? provenance.variants : [];
     const primaryVariant = variants[0] || null;
     if (primaryVariant) {
+        const primaryResultFrame = getOutputProvenanceResultFrame(primaryVariant);
+        if (primaryResultFrame) {
+            return getOutputProvenancePrimarySurface(primaryVariant);
+        }
         const framedSurface = getOutputProvenancePrimarySurface(primaryVariant);
         if (framedSurface) {
             return framedSurface;
@@ -264,6 +268,10 @@ function getProvenancePrimaryStemSurface(provenance = null) {
         if (resolvedSurface) {
             return resolvedSurface;
         }
+    }
+    const provenanceResultFrame = getOutputProvenanceResultFrame(provenance);
+    if (provenanceResultFrame) {
+        return getOutputProvenancePrimarySurface(provenance);
     }
     if (provenance?.stemSpec) {
         return normalizeDerivationStemValue(realizeMorphStemSpec(provenance.stemSpec, ""));

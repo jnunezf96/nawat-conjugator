@@ -97,7 +97,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
         forms.push(...output.surfaceForms);
       }
-      if (output.surface) {
+      if (!hasResultFrame && output.surface) {
         forms.push(output.surface);
       }
       if (!hasResultFrame && output.result) {

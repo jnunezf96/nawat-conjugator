@@ -115,6 +115,189 @@ function run(ctx) {
         }
     );
     s.eq(
+        "generation contract readers stop at empty LCM result frames before legacy surfaces",
+        (() => {
+            const result = {
+                result: "stale-generate-result",
+                surface: "stale-generate-surface",
+                surfaceForms: ["stale-generate-a / stale-generate-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                        outputKind: "blocked-vnc",
+                    }),
+                }),
+            };
+            const runtimeWrapped = ctx.attachGenerateRuntimeBlockedContract({ ...result }, {
+                routeFamily: "test-runtime-route",
+                routeStage: "test-empty-surface-reader",
+                renderVerb: "frame",
+            });
+            return {
+                generateSurface: ctx.resolveGenerateWordContractSurface(result),
+                generateForms: ctx.normalizeGrammarFrameSurfaceForms(result),
+                runtimeSurface: ctx.resolveGenerateRuntimeContractSurface(result),
+                runtimeForms: ctx.getGenerateRuntimeSurfaceForms(result),
+                runtimeWrappedSurface: runtimeWrapped.surface,
+                runtimeWrappedFrameForms: runtimeWrapped.frames.resultFrame.surfaceForms,
+            };
+        })(),
+        {
+            generateSurface: "",
+            generateForms: [],
+            runtimeSurface: "",
+            runtimeForms: [],
+            runtimeWrappedSurface: "",
+            runtimeWrappedFrameForms: [],
+        }
+    );
+    s.eq(
+        "generateWord frame source input stops at empty LCM result frames before stale stem or verb fallback",
+        (() => {
+            const framed = {
+                stem: "legacy-stem",
+                result: "legacy-result",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["frame-source-input"],
+                    }),
+                }),
+            };
+            const emptyFramed = {
+                stem: "legacy-stem",
+                result: "legacy-result",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            };
+            const emptyFrame = ctx.buildGenerateWordGrammarFrame({
+                result: emptyFramed,
+                resolvedTenseMode: ctx.TENSE_MODE?.verbo || "verbo",
+                tense: "test-empty-frame",
+                routeFamily: "test-source-input",
+                verb: "legacy-verb",
+            });
+            const explicitFrame = ctx.buildGenerateWordGrammarFrame({
+                result: emptyFramed,
+                resolvedTenseMode: ctx.TENSE_MODE?.verbo || "verbo",
+                tense: "test-empty-frame",
+                routeFamily: "test-source-input",
+                renderVerb: "explicit-render-input",
+                verb: "legacy-verb",
+            });
+            return {
+                framed: ctx.resolveGenerateWordFrameSourceInput({
+                    result: framed,
+                    verb: "legacy-verb",
+                }),
+                empty: ctx.resolveGenerateWordFrameSourceInput({
+                    result: emptyFramed,
+                    verb: "legacy-verb",
+                }),
+                explicit: ctx.resolveGenerateWordFrameSourceInput({
+                    result: emptyFramed,
+                    renderVerb: "explicit-render-input",
+                    verb: "legacy-verb",
+                }),
+                legacy: ctx.resolveGenerateWordFrameSourceInput({
+                    result: { stem: "legacy-stem" },
+                    verb: "legacy-verb",
+                }),
+                emptyFrameSourceInput: emptyFrame?.resultFrame?.sourceInput || "",
+                explicitFrameSourceInput: explicitFrame?.resultFrame?.sourceInput || "",
+            };
+        })(),
+        {
+            framed: "frame-source-input",
+            empty: "",
+            explicit: "explicit-render-input",
+            legacy: "legacy-stem",
+            emptyFrameSourceInput: "",
+            explicitFrameSourceInput: "explicit-render-input",
+        }
+    );
+    s.eq(
+        "generateWord nominal connector shell reads LCM result frames before legacy connector fields",
+        (() => {
+            const framedConnector = {
+                surface: "legacy-connector",
+                displaySurface: "legacy-display",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-connector",
+                    }),
+                }),
+            };
+            const emptyConnector = {
+                surface: "legacy-connector",
+                displaySurface: "legacy-display",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            };
+            const framedShell = ctx.buildGeneratedNuclearClauseShellMetadata({
+                resolvedTenseMode: "sustantivo",
+                subjectSuffix: "fallback-connector",
+                verb: "nemi",
+                nominalClauseMetadata: {
+                    subjectNumberConnector: framedConnector,
+                    nominalClauseFrame: { predicate: { state: "derived-nominal" } },
+                },
+            });
+            const emptyShell = ctx.buildGeneratedNuclearClauseShellMetadata({
+                resolvedTenseMode: "sustantivo",
+                subjectSuffix: "fallback-connector",
+                verb: "nemi",
+                nominalClauseMetadata: {
+                    subjectNumberConnector: emptyConnector,
+                    nominalClauseFrame: { predicate: { state: "derived-nominal" } },
+                },
+            });
+            return {
+                directFramed: ctx.resolveGenerateWordNominalConnectorSurface(framedConnector, "fallback-connector"),
+                directFramedDisplay: ctx.resolveGenerateWordNominalConnectorDisplaySurface(framedConnector, "fallback-connector"),
+                directEmpty: ctx.resolveGenerateWordNominalConnectorSurface(emptyConnector, "fallback-connector"),
+                directEmptyDisplay: ctx.resolveGenerateWordNominalConnectorDisplaySurface(emptyConnector, "fallback-connector"),
+                directLegacy: ctx.resolveGenerateWordNominalConnectorSurface({
+                    surface: "legacy-connector",
+                    displaySurface: "legacy-display",
+                }, "fallback-connector"),
+                directLegacyDisplay: ctx.resolveGenerateWordNominalConnectorDisplaySurface({
+                    surface: "legacy-connector",
+                    displaySurface: "legacy-display",
+                }, "fallback-connector"),
+                framedShellConnector: framedShell?.slots?.subjectNumberConnector?.connector || "",
+                framedShellDisplay: framedShell?.slots?.subjectNumberConnector?.displayConnector || "",
+                emptyShellConnector: emptyShell?.slots?.subjectNumberConnector?.connector || "",
+                emptyShellDisplay: emptyShell?.slots?.subjectNumberConnector?.displayConnector || "",
+            };
+        })(),
+        {
+            directFramed: "frame-connector",
+            directFramedDisplay: "frame-connector",
+            directEmpty: "",
+            directEmptyDisplay: "",
+            directLegacy: "legacy-connector",
+            directLegacyDisplay: "legacy-display",
+            framedShellConnector: "frame-connector",
+            framedShellDisplay: "frame-connector",
+            emptyShellConnector: "",
+            emptyShellDisplay: "Ø",
+        }
+    );
+    s.eq(
         "morphology source reader keeps preterit source forms frame-first",
         (() => {
             const output = {
@@ -132,6 +315,33 @@ function run(ctx) {
             return ctx.getMorphologyApplicationSourceSurfaceForms(output);
         })(),
         ["frame-preterit-a", "frame-preterit-b", "frame-preterit-surface"]
+    );
+    s.eq(
+        "morphology source reader stops at empty LCM result frames before stale aliases",
+        (() => {
+            const output = {
+                result: "stale-morph-result",
+                surface: "stale-morph-surface",
+                surfaceForms: ["stale-morph-a / stale-morph-b"],
+                forms: ["legacy-preterit-form"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                        outputKind: "blocked-morphology",
+                    }),
+                }),
+            };
+            return {
+                surfaceForms: ctx.getMorphologyApplicationSurfaceForms(output, "fallback-morph-surface"),
+                sourceSurfaceForms: ctx.getMorphologyApplicationSourceSurfaceForms(output),
+            };
+        })(),
+        {
+            surfaceForms: [],
+            sourceSurfaceForms: [],
+        }
     );
     s.eq(
         "morphology source reader keeps legacy forms for metadata-only frames",
@@ -2253,18 +2463,72 @@ function run(ctx) {
     const framedAllomorphyContract = ctx.attachVncAllomorphyGrammarContract({
         result: "stale-allomorphy-result",
         outputSurface: "staleallomorphy",
+        selectedOutputSurface: "stale-selected-allomorphy",
+        sourceStem: "stale-source-stem",
+        stem: "stale-stem",
+        outputStem: "stale-output-stem",
+        sourceSuffix: "stale-source-suffix",
         frames: ctx.buildGrammarFrame({
             resultFrame: ctx.buildGrammarResultFrame({
                 ok: true,
                 surfaceForms: ["frame-allomorph-a / frame-allomorph-b"],
                 outputKind: "vnc-allomorphy-contract",
                 generationRoute: "test-frame-reader",
+                sourceInput: "frame-source-input",
             }),
         }),
     }, {
         metadataKind: "vnc-allomorphy-contract",
         routeStage: "test-frame-reader",
         supported: true,
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            surface: "stale-orthography-surface",
+            surfaceForms: ["stale-orthography-a / stale-orthography-b"],
+        },
+        targetContract: {
+            metadataKind: "vnc-allomorphy-contract",
+            outputSurface: "stale-target-output",
+            selectedOutputSurface: "stale-target-selected",
+            surface: "stale-target-surface",
+            surfaceForms: ["stale-target-form"],
+        },
+    });
+    const emptyFramedAllomorphyContract = ctx.attachVncAllomorphyGrammarContract({
+        result: "stale-empty-allomorphy-result",
+        outputSurface: "staleemptyallomorphy",
+        surface: "stale-empty-surface",
+        selectedOutputSurface: "stale-empty-selected",
+        sourceStem: "stale-empty-source-stem",
+        stem: "stale-empty-stem",
+        outputStem: "stale-empty-output-stem",
+        sourceSuffix: "stale-empty-source-suffix",
+        frames: ctx.buildGrammarFrame({
+            resultFrame: ctx.buildGrammarResultFrame({
+                ok: false,
+                surfaceForms: [],
+                outputKind: "vnc-allomorphy-contract",
+                generationRoute: "test-empty-frame-reader",
+            }),
+        }),
+    }, {
+        metadataKind: "vnc-allomorphy-contract",
+        routeStage: "test-empty-frame-reader",
+        supported: false,
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            surface: "stale-empty-orthography-surface",
+            surfaceForms: ["stale-empty-orthography-a / stale-empty-orthography-b"],
+        },
+        targetContract: {
+            metadataKind: "vnc-allomorphy-contract",
+            outputSurface: "stale-empty-target-output",
+            selectedOutputSurface: "stale-empty-target-selected",
+            surface: "stale-empty-target-surface",
+            surfaceForms: ["stale-empty-target-form"],
+        },
     });
     s.eq(
         "patientive allomorphy contracts suppress stale aliases when result frame exists",
@@ -2275,6 +2539,24 @@ function run(ctx) {
             rootStock: rootStockFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
             sourceStage: sourceStageFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
             framed: framedAllomorphyContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            framedSurface: framedAllomorphyContract.surface || "",
+            framedOrthography: framedAllomorphyContract.grammarFrame?.orthographyFrame?.surfaceForms || [],
+            framedOrthographySurface: framedAllomorphyContract.grammarFrame?.orthographyFrame?.surface || "",
+            framedSourceInput: framedAllomorphyContract.grammarFrame?.resultFrame?.sourceInput || "",
+            framedStemSource: framedAllomorphyContract.grammarFrame?.stemFrame?.sourceStem || "",
+            framedStemTarget: framedAllomorphyContract.grammarFrame?.stemFrame?.targetStem || "",
+            framedStemSuffix: framedAllomorphyContract.grammarFrame?.stemFrame?.sourceSuffix || "",
+            framedTargetOutput: framedAllomorphyContract.grammarFrame?.routeContract?.targetContract?.outputSurface || "",
+            emptyFramed: emptyFramedAllomorphyContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            emptyFramedTopLevelForms: emptyFramedAllomorphyContract.surfaceForms || [],
+            emptyFramedOrthography: emptyFramedAllomorphyContract.grammarFrame?.orthographyFrame?.surfaceForms || [],
+            emptyFramedSurface: emptyFramedAllomorphyContract.surface || "",
+            emptyFramedOrthographySurface: emptyFramedAllomorphyContract.grammarFrame?.orthographyFrame?.surface || "",
+            emptyFramedSourceInput: emptyFramedAllomorphyContract.grammarFrame?.resultFrame?.sourceInput || "",
+            emptyFramedStemSource: emptyFramedAllomorphyContract.grammarFrame?.stemFrame?.sourceStem || "",
+            emptyFramedStemTarget: emptyFramedAllomorphyContract.grammarFrame?.stemFrame?.targetStem || "",
+            emptyFramedStemSuffix: emptyFramedAllomorphyContract.grammarFrame?.stemFrame?.sourceSuffix || "",
+            emptyFramedTargetOutput: emptyFramedAllomorphyContract.grammarFrame?.routeContract?.targetContract?.outputSurface || "",
         },
         {
             nonactive: ["luwa"],
@@ -2283,6 +2565,24 @@ function run(ctx) {
             rootStock: ["matti"],
             sourceStage: ["tamatiyat"],
             framed: ["frame-allomorph-a", "frame-allomorph-b"],
+            framedSurface: "frame-allomorph-a",
+            framedOrthography: ["frame-allomorph-a", "frame-allomorph-b"],
+            framedOrthographySurface: "frame-allomorph-a",
+            framedSourceInput: "frame-source-input",
+            framedStemSource: "frame-source-input",
+            framedStemTarget: "frame-allomorph-a",
+            framedStemSuffix: "",
+            framedTargetOutput: "frame-allomorph-a",
+            emptyFramed: [],
+            emptyFramedTopLevelForms: [],
+            emptyFramedOrthography: [],
+            emptyFramedSurface: "",
+            emptyFramedOrthographySurface: "",
+            emptyFramedSourceInput: "",
+            emptyFramedStemSource: "",
+            emptyFramedStemTarget: "",
+            emptyFramedStemSuffix: "",
+            emptyFramedTargetOutput: "",
         }
     );
     const blockedPerfectiveTCore = ctx.generateWord({
@@ -3254,10 +3554,10 @@ function run(ctx) {
         sourceStem: "pusuk",
         contractCount: 26,
         routeCount: 31,
-        finiteRouteRequestCount: 13,
+        finiteRouteRequestCount: 11,
         finiteRouteObjectPrefixRequiredCount: 3,
-        finiteRouteStemClassContractCount: 11,
-        finiteRouteSourceEvidenceRequiredCount: 18,
+        finiteRouteStemClassContractCount: 10,
+        finiteRouteSourceEvidenceRequiredCount: 20,
         doesNotGenerateFiniteVnc: true,
         noFixtureEvidence: true,
         targets: [
@@ -3278,24 +3578,24 @@ function run(ctx) {
                 routeTemplateId: "ti-ya",
                 classicalSuffixSequence: "ti-ya",
                 nawatSurfaceSuffix: "tiya",
-                targetVerbStem: "pusuktiya",
-                targetInputValue: "(pusukti)-(ya)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "A/B",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "54.2.3-hui-ya-deverbal",
                 routeTemplateId: "hui-ya",
                 classicalSuffixSequence: "hui-ya",
                 nawatSurfaceSuffix: "wiya",
-                targetVerbStem: "pusukwiya",
-                targetInputValue: "(pusukwi)-(ya)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "B",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "54.4-possession-ti",
@@ -3326,48 +3626,48 @@ function run(ctx) {
                 routeTemplateId: "tla-ti-lia",
                 classicalSuffixSequence: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.2-intransitive-tla",
                 routeTemplateId: "intransitive-tla",
                 classicalSuffixSequence: "tla",
                 nawatSurfaceSuffix: "ta",
-                targetVerbStem: "pusukta",
-                targetInputValue: "(pusukta)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
-                finiteGenerationRequiresSourceEvidence: false,
+                finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.2-intransitive-tla-ti-a-causative",
                 routeTemplateId: "intransitive-tla-ti-a",
                 classicalSuffixSequence: "ti-a",
                 nawatSurfaceSuffix: "tia",
-                targetVerbStem: "pusuktia",
-                targetInputValue: "(pusukti)-(a)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.2-intransitive-tla-ti-lia-applicative",
                 routeTemplateId: "intransitive-tla-ti-lia",
                 classicalSuffixSequence: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.3-intransitive-o-a-applicative-huia",
@@ -3398,24 +3698,24 @@ function run(ctx) {
                 routeTemplateId: "o-a-i-l-huia",
                 classicalSuffixSequence: "i-l-huia",
                 nawatSurfaceSuffix: "ilwia",
-                targetVerbStem: "pusukilwia",
-                targetInputValue: "(pusuk)-(ilwia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
                 routeTemplateId: "o-a-a-l-huia",
                 classicalSuffixSequence: "a-l-huia",
                 nawatSurfaceSuffix: "alwia",
-                targetVerbStem: "pusukalwia",
-                targetInputValue: "(pusuk)-(alwia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: true,
+                routeTargetGenerated: false,
             },
             {
                 contractId: "55.7-transitive-i-a",

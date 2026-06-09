@@ -266,6 +266,9 @@ function getConjunctionClauseSurface(input = "", fallback = "") {
         return String(fallback || "").trim();
     }
     const surface = getConjunctionClauseSurfaceForms(input)[0];
+    if (getConjunctionClauseResultFrame(input)?.resultFrame) {
+        return String(surface || "").trim();
+    }
     return String(surface || fallback || "").trim();
 }
 

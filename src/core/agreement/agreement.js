@@ -611,7 +611,7 @@ function getConjugationRenderableSurfaceForms(result = null) {
     if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
         forms.push(...result.surfaceForms);
     }
-    if (result?.surface) {
+    if (!hasResultFrame && result?.surface) {
         forms.push(result.surface);
     }
     if (!hasResultFrame && result?.result) {
@@ -971,6 +971,10 @@ function applyConjugationEvaluationPresentation({
                 || String(entry.failedLayer || entry.contractLayer || "").trim()
             )
         )) || {};
+    const frameStatusDiagnostic = buildConjugationFrameStatusDiagnostic(evaluation?.result);
+    const datasetLayerDiagnostic = String(primaryDiagnostic.failedLayer || primaryDiagnostic.contractLayer || "").trim()
+        ? primaryDiagnostic
+        : (frameStatusDiagnostic || {});
     if (row) {
         row.dataset.availabilityState = availabilityState;
         row.dataset.diagnosticState = availabilityState;
@@ -984,8 +988,8 @@ function applyConjugationEvaluationPresentation({
             row.dataset.lcmDiagnosticStatus = String(diagnosticFrame.status || "");
         }
         row.dataset.lcmDiagnosticId = String(primaryDiagnostic.id || primaryDiagnostic.code || "").trim();
-        row.dataset.lcmFailedLayer = String(primaryDiagnostic.failedLayer || "").trim();
-        row.dataset.lcmContractLayer = String(primaryDiagnostic.contractLayer || "").trim();
+        row.dataset.lcmFailedLayer = String(datasetLayerDiagnostic.failedLayer || "").trim();
+        row.dataset.lcmContractLayer = String(datasetLayerDiagnostic.contractLayer || "").trim();
     }
     if (!value) {
         return;

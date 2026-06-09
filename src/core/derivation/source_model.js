@@ -109,9 +109,72 @@ function getDerivationContinuationContractTargetInput(record = null) {
     ).trim();
 }
 
+function normalizeDerivationContinuationContractSurface(value = "") {
+    if (typeof normalizeGrammarSurfaceValue === "function") {
+        return normalizeGrammarSurfaceValue(value);
+    }
+    const text = String(value || "").trim();
+    return text === "—" ? "" : text;
+}
+
+function splitDerivationContinuationContractSurface(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeDerivationContinuationContractSurface(entry))
+        .filter(Boolean);
+}
+
+function getDerivationContinuationContractGrammarFrame(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    return (
+        (source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : null)
+        || (source.frames && typeof source.frames === "object" ? source.frames : null)
+    );
+}
+
+function getDerivationContinuationContractResultFrame(record = null) {
+    const grammarFrame = getDerivationContinuationContractGrammarFrame(record);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
 function getDerivationContinuationContractSourceInput(record = null) {
     const source = record && typeof record === "object" ? record : {};
-    return String(
+    const resultFrame = getDerivationContinuationContractResultFrame(source);
+    const framedForms = [];
+    if (Array.isArray(resultFrame?.surfaceForms)) {
+        framedForms.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame?.surface) {
+        framedForms.push(resultFrame.surface);
+    }
+    const normalizedFrameForms = framedForms
+        .flatMap((entry) => splitDerivationContinuationContractSurface(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    if (normalizedFrameForms.length) {
+        return normalizedFrameForms[0];
+    }
+    if (resultFrame) {
+        return "";
+    }
+    const contractForms = [];
+    if (Array.isArray(source.surfaceForms)) {
+        contractForms.push(...source.surfaceForms);
+    }
+    if (source.surface) {
+        contractForms.push(source.surface);
+    }
+    if (source.result) {
+        contractForms.push(source.result);
+    }
+    const normalizedContractForms = contractForms
+        .flatMap((entry) => splitDerivationContinuationContractSurface(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    if (normalizedContractForms.length) {
+        return normalizedContractForms[0];
+    }
+    return normalizeDerivationContinuationContractSurface(
         source.sourceSurface
         || source.patientivoSurface
         || source.characteristicSurface
@@ -120,7 +183,7 @@ function getDerivationContinuationContractSourceInput(record = null) {
         || source.customaryAgentiveStem
         || source.nounStem
         || ""
-    ).trim();
+    );
 }
 
 function getDerivationContinuationContractAndrewsRefs(record = null) {
@@ -202,6 +265,7 @@ function attachDerivationContinuationGrammarContract(record = null) {
     const outputKind = String(record.outputKind || "derivation-continuation-contract").trim();
     const supported = record.supported === true;
     const sourceInput = getDerivationContinuationContractSourceInput(record);
+    const sourceSurface = sourceInput;
     const targetInput = getDerivationContinuationContractTargetInput(record);
     const legacyDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
     const routeStage = supported ? "preview-continuation" : "blocked";
@@ -231,7 +295,7 @@ function attachDerivationContinuationGrammarContract(record = null) {
         sourceContract: {
             unitKind: "generated-source-output",
             sourceInput,
-            sourceSurface: String(record.sourceSurface || "").trim(),
+            sourceSurface,
             patientivoSurface: String(record.patientivoSurface || "").trim(),
             sourceState: String(record.sourceState || "").trim(),
             sourceKind: String(record.sourceKind || "").trim(),

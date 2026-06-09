@@ -26,6 +26,9 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       if (framedSurface) {
         return framedSurface;
       }
+      if (getGenerateWordResultFramePayload(source)) {
+        return "";
+      }
       const fieldNames = Array.isArray(fields) ? fields : [fields];
       for (const fieldName of fieldNames) {
         const value = normalizeGenerateWordContractSurface(source[fieldName]);
@@ -59,12 +62,57 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const surfaceForms = normalizeGrammarFrameSurfaceForms(result);
       return normalizeGenerateWordContractSurface(surfaceForms[0] || frameResult?.surface || (!hasResultFrame ? result?.surface || result?.result : "") || "");
     }
+    function resolveGenerateWordResultFrameSurface(result = null) {
+      const frameResult = getGenerateWordResultFramePayload(result);
+      if (!frameResult) {
+        return "";
+      }
+      const frameForms = [];
+      if (Array.isArray(frameResult.surfaceForms)) {
+        frameForms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult.surface) {
+        frameForms.push(frameResult.surface);
+      }
+      return frameForms.flatMap(entry => splitGenerateWordContractSurfaceText(entry)).find(Boolean) || "";
+    }
+    function resolveGenerateWordNominalConnectorSurface(connector = null, fallbackSurface = "") {
+      const framedSurface = resolveGenerateWordResultFrameSurface(connector);
+      if (framedSurface) {
+        return framedSurface;
+      }
+      if (getGenerateWordResultFramePayload(connector)) {
+        return "";
+      }
+      return normalizeGenerateWordContractSurface(connector?.surface || fallbackSurface || "");
+    }
+    function resolveGenerateWordNominalConnectorDisplaySurface(connector = null, fallbackSurface = "") {
+      const framedSurface = resolveGenerateWordResultFrameSurface(connector);
+      if (framedSurface) {
+        return framedSurface;
+      }
+      if (getGenerateWordResultFramePayload(connector)) {
+        return "";
+      }
+      return normalizeGenerateWordContractSurface(connector?.displaySurface || connector?.displayConnector || connector?.surface || fallbackSurface || "");
+    }
     function resolveGenerateWordFrameSourceInput({
       result = null,
       renderVerb = "",
       verb = ""
     } = {}) {
-      return normalizeGenerateWordContractSurface(renderVerb) || resolveGenerateWordContractSurface(result) || normalizeGenerateWordContractSurface(result?.stem) || normalizeGenerateWordContractSurface(verb);
+      const explicitRenderInput = normalizeGenerateWordContractSurface(renderVerb);
+      if (explicitRenderInput) {
+        return explicitRenderInput;
+      }
+      const framedSurface = resolveGenerateWordContractSurface(result);
+      if (framedSurface) {
+        return framedSurface;
+      }
+      if (getGenerateWordResultFramePayload(result)) {
+        return "";
+      }
+      return normalizeGenerateWordContractSurface(result?.stem) || normalizeGenerateWordContractSurface(verb);
     }
     function buildGenerateWordDiagnosticEntry({
       id = "generate-word-route-blocked",
@@ -161,7 +209,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
         surfaceForms.push(...result.surfaceForms);
       }
-      if (result?.surface) {
+      if (!hasResultFrame && result?.surface) {
         surfaceForms.push(result.surface);
       }
       if (!hasResultFrame && result?.result) {
@@ -253,11 +301,11 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const routeContract = sourceFrame?.routeContract && typeof sourceFrame.routeContract === "object" ? sourceFrame.routeContract : {};
       const sourceContract = routeContract.sourceContract && typeof routeContract.sourceContract === "object" ? routeContract.sourceContract : {};
       const targetContract = routeContract.targetContract && typeof routeContract.targetContract === "object" ? routeContract.targetContract : {};
-      const resultFrame = sourceFrame?.resultFrame && typeof sourceFrame.resultFrame === "object" ? sourceFrame.resultFrame : {};
-      const sourceSurface = normalizeGenerateWordContractSurface((Array.isArray(resultFrame.surfaceForms) ? resultFrame.surfaceForms[0] : "") || resultFrame.surface || adjectivalNnc.surface || adjectivalNnc.patientivoSurface || adjectivalNnc.nominalizedSurface || adjectivalNnc.vncSurface || "");
+      const resultFrame = sourceFrame?.resultFrame && typeof sourceFrame.resultFrame === "object" ? sourceFrame.resultFrame : null;
+      const sourceSurface = normalizeGenerateWordContractSurface((Array.isArray(resultFrame?.surfaceForms) ? resultFrame.surfaceForms[0] : "") || resultFrame?.surface || (!resultFrame ? adjectivalNnc.surface || adjectivalNnc.patientivoSurface || adjectivalNnc.nominalizedSurface || adjectivalNnc.vncSurface : "") || "");
       const hasEntryContract = Boolean(entryRouteContract);
       const hasSourceFrame = Boolean(sourceFrame);
-      const sourceGenerated = resultFrame.ok === true || routeContract.generationAllowed === true || entryRouteContract?.generationAllowed === true;
+      const sourceGenerated = resultFrame?.ok === true || routeContract.generationAllowed === true || entryRouteContract?.generationAllowed === true;
       if (!hasEntryContract && !hasSourceFrame && !adjectivalNnc.sourceEvidenceStatus && !adjectivalNnc.sourceRouteFamily) {
         return null;
       }
@@ -272,7 +320,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         evidenceSource: String(adjectivalNnc.sourceEvidenceSource || "linked-promoted grammar frame").trim(),
         sourceRouteFamily,
         sourceRouteStage,
-        sourceOutputKind: String(resultFrame.outputKind || targetContract.outputKind || "").trim(),
+        sourceOutputKind: String(resultFrame?.outputKind || targetContract.outputKind || "").trim(),
         sourceUnitKind: String(sourceFrame?.unitFrame?.unitKind || sourceContract.unitKind || "").trim(),
         sourceSurface,
         sourceCategory: String(sourceContract.sourceCategory || adjectivalNnc.sourceCategory || "").trim(),
@@ -289,7 +337,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
       const sourceFrame = getGenerateWordOverrideSourceGrammarFrame(override);
       const entryRouteContract = adjectivalNnc.entryRouteContract && typeof adjectivalNnc.entryRouteContract === "object" ? adjectivalNnc.entryRouteContract : null;
-      [result, result?.grammarFrame?.authorityFrame, result?.frames?.authorityFrame, result?.adjectivalNncFunctionFrame, result?.rootPlusYaAdjectivalNncFrame, result?.nominalizationProfile, result?.denominalFamilyProfile, result?.patientiveSourceStageFrame, result?.formationFrame, result?.adverbialNuclearFrame, result?.relationalNncBoundaryFrame, result?.placeGentilicNncBoundaryFrame, result?.adverbialAdjunctionBoundaryFrame, result?.sentenceLayer, adjectivalNnc, entryRouteContract, sourceFrame?.authorityFrame].forEach(entry => {
+      [result, result?.grammarFrame?.authorityFrame, result?.frames?.authorityFrame, result?.adjectivalNncFunctionFrame, result?.rootPlusYaAdjectivalNncFrame, result?.denominalCompoundSourceFrame, result?.nominalizationProfile, result?.denominalFamilyProfile, result?.patientiveSourceStageFrame, result?.formationFrame, result?.adverbialNuclearFrame, result?.relationalNncBoundaryFrame, result?.placeGentilicNncBoundaryFrame, result?.adverbialAdjunctionBoundaryFrame, result?.sentenceLayer, adjectivalNnc, entryRouteContract, sourceFrame?.authorityFrame].forEach(entry => {
         collectGrammarFrameRefsFromObject(entry, refs);
       });
       return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
@@ -335,6 +383,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const activeNuclearShell = nuclearClauseShell || output.nuclearClauseShell || null;
       const formulaSlots = activeNuclearShell?.formulaSlots || output.formulaSlots || null;
       const formulaEcho = activeNuclearShell?.formulaEcho || output.formulaEcho || "";
+      const adjectivalFunctionFrame = output.adjectivalNncFunctionFrame && typeof output.adjectivalNncFunctionFrame === "object" ? output.adjectivalNncFunctionFrame : {};
       const frameSourceInput = resolveGenerateWordFrameSourceInput({
         result: output,
         renderVerb,
@@ -351,7 +400,13 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           sourceRouteFamily: sourceEvidence?.sourceRouteFamily || "",
           sourceRouteStage: sourceEvidence?.sourceRouteStage || "",
           sourceOutputKind: sourceEvidence?.sourceOutputKind || "",
-          sourceSurface: sourceEvidence?.sourceSurface || ""
+          sourceSurface: sourceEvidence?.sourceSurface || "",
+          sourceCategory: adjectivalFunctionFrame.sourceCategory || "",
+          sourceClauseKind: adjectivalFunctionFrame.sourceClauseKind || output.clauseKind || "",
+          sourceVerb: adjectivalFunctionFrame.sourceVerb || "",
+          sourceTenseValue: adjectivalFunctionFrame.sourceTenseValue || "",
+          sourceCombinedMode: adjectivalFunctionFrame.sourceCombinedMode || "",
+          sourceVoiceMode: adjectivalFunctionFrame.sourceVoiceMode || ""
         },
         targetContract: {
           outputKind: output.outputKind || "",
@@ -425,7 +480,10 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
           derivationMode: resolvedDerivationMode,
           derivationType: resolvedDerivationType,
           voiceMode: resolvedVoiceMode,
-          state: output.state || ""
+          state: output.state || "",
+          sourceTenseValue: adjectivalFunctionFrame.sourceTenseValue || "",
+          sourceCombinedMode: adjectivalFunctionFrame.sourceCombinedMode || "",
+          sourceVoiceMode: adjectivalFunctionFrame.sourceVoiceMode || ""
         },
         routeContract,
         astFrame: resolveGrammarFrameAstFrame(output),
@@ -572,9 +630,12 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
       const shouldUseIntensifiedRoute = typeof targetObject.shouldGenerateIntensifiedAdjectivalNnc === "function" && targetObject.shouldGenerateIntensifiedAdjectivalNnc(adjectivalNnc);
       const shouldUseVncRoute = typeof targetObject.shouldGenerateVncAdjectivalNnc === "function" && targetObject.shouldGenerateVncAdjectivalNnc(adjectivalNnc);
+      const shouldUseCompoundSourceRoute = typeof targetObject.shouldGenerateCompoundSourceAdjectivalNnc === "function" && targetObject.shouldGenerateCompoundSourceAdjectivalNnc(adjectivalNnc);
+      const shouldUseDenominalCompoundRoute = typeof targetObject.shouldGenerateDenominalCompoundAdjectivalNnc === "function" && targetObject.shouldGenerateDenominalCompoundAdjectivalNnc(adjectivalNnc);
       const shouldUsePatientiveRoute = typeof targetObject.shouldGeneratePatientiveAdjectivalNnc === "function" && targetObject.shouldGeneratePatientiveAdjectivalNnc(adjectivalNnc);
       const shouldUseNominalizedVncRoute = typeof targetObject.shouldGenerateNominalizedVncAdjectivalNnc === "function" && targetObject.shouldGenerateNominalizedVncAdjectivalNnc(adjectivalNnc);
       const shouldUseRootPlusYaRoute = typeof targetObject.shouldGenerateRootPlusYaAdjectivalNnc === "function" && targetObject.shouldGenerateRootPlusYaAdjectivalNnc(adjectivalNnc);
+      const shouldUseOrdinaryAbsolutiveRoute = String(adjectivalNnc.formation || "").trim() === "ordinary-absolutive";
       const result = shouldUseIntensifiedRoute && typeof targetObject.buildIntensifiedAdjectivalNncOutput === "function" ? targetObject.buildIntensifiedAdjectivalNncOutput({
         sourceSurface: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["sourceSurface", "surface", "stem"], verb),
         sourceFormulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
@@ -586,6 +647,22 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
         sourceCombinedMode: adjectivalNnc.sourceCombinedMode ?? "",
         sourceVoiceMode: adjectivalNnc.sourceVoiceMode ?? "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseCompoundSourceRoute && typeof targetObject.buildCompoundSourceAdjectivalNncFunctionOutput === "function" ? targetObject.buildCompoundSourceAdjectivalNncFunctionOutput({
+        compoundSourceSurface: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["compoundSourceSurface", "nominalizedSurface", "surface", "stem"], verb),
+        state: adjectivalNnc.state ?? "absolutive",
+        sourceCompoundFrame: adjectivalNnc.sourceCompoundFrame || adjectivalNnc.compoundFrame || null,
+        nominalizationKind: adjectivalNnc.nominalizedVncKind || adjectivalNnc.nominalizationProfile?.role?.nominalizationKind || "",
+        nominalizationProfile: adjectivalNnc.nominalizationProfile || null,
+        formulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
+        formulaEcho: adjectivalNnc.sourceFormulaEcho || adjectivalNnc.formulaEcho || "",
+        role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseDenominalCompoundRoute && typeof targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput === "function" ? targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput({
+        denominalCompoundSurface: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["denominalCompoundSurface", "nominalizedSurface", "surface", "stem"], verb),
+        state: adjectivalNnc.state ?? "absolutive",
+        sourceDenominalCompoundFrame: adjectivalNnc.sourceDenominalCompoundFrame || adjectivalNnc.denominalCompoundFrame || null,
+        formulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
+        formulaEcho: adjectivalNnc.sourceFormulaEcho || adjectivalNnc.formulaEcho || "",
         role: adjectivalNnc.role ?? "predicate-surface"
       }) : shouldUseNominalizedVncRoute && typeof targetObject.buildNominalizedVncAdjectivalNncFunctionOutput === "function" ? targetObject.buildNominalizedVncAdjectivalNncFunctionOutput({
         nominalizedSurface: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["nominalizedSurface", "surface", "stem"], verb),
@@ -604,6 +681,19 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         formulaSlots: adjectivalNnc.formulaSlots || null,
         formulaEcho: adjectivalNnc.formulaEcho || "",
         role: adjectivalNnc.role ?? "predicate-surface"
+      }) : shouldUseOrdinaryAbsolutiveRoute && typeof targetObject.generateAdjectivalNncFunctionOutput === "function" ? targetObject.generateAdjectivalNncFunctionOutput({
+        stem: String(adjectivalNnc.sourceStem || adjectivalNnc.predicateStem || adjectivalNnc.stem || verb || "").trim(),
+        state: adjectivalNnc.state ?? "absolutive",
+        subject: {
+          subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+          subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+          personSubKey: adjectivalNnc.subjectKey ?? adjectivalNnc.personSubKey ?? ""
+        },
+        number: adjectivalNnc.number ?? "singular",
+        pluralType: adjectivalNnc.pluralType ?? "auto",
+        nounClass: adjectivalNnc.nounClass ?? "",
+        animacy: adjectivalNnc.animacy ?? "",
+        role: adjectivalNnc.role ?? "modifier-candidate"
       }) : shouldUseRootPlusYaRoute && typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
         stem: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["stem", "surface"], verb),
         state: adjectivalNnc.state ?? "absolutive",
@@ -667,10 +757,12 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
         nuclearClauseShell,
         clauseKind: resultClauseKind
       }) : null;
+      const adjectivalSourceStem = String(result.sourceStem || result.adjectivalNncFunctionFrame?.sourceFormulaSlots?.predicate?.stem || result.adjectivalNncFunctionFrame?.sourcePredicateStem || "").trim();
       const resultPayload = {
         ...result,
         generationRoute: "adjectival-nnc",
         isReflexive: false,
+        sourceStem: adjectivalSourceStem,
         stemProvenance: null,
         nuclearClauseShell,
         sentenceLayer
@@ -812,6 +904,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const isNominalShell = Boolean(nominalClauseMetadata?.nominalClauseFrame) || resolvedTenseMode === targetObject.TENSE_MODE.sustantivo || resolvedTenseMode === targetObject.TENSE_MODE.adjetivo || resolvedTenseMode === targetObject.TENSE_MODE.adverbio;
       if (isNominalShell) {
         const numberConnector = nominalClauseMetadata?.subjectNumberConnector || nominalClauseMetadata?.nominalClauseFrame?.subject?.numberConnector || null;
+        const connectorSurface = numberConnector ? resolveGenerateWordNominalConnectorSurface(numberConnector, subjectSuffix) : normalizeGenerateWordContractSurface(subjectSuffix);
+        const connectorDisplaySurface = numberConnector ? resolveGenerateWordNominalConnectorDisplaySurface(numberConnector, subjectSuffix) : normalizeGenerateWordContractSurface(subjectSuffix);
         const nominalPredicateStem = (() => {
           const stem = String(verb || renderVerb || "");
           const insideObjectPrefix = String(objectPrefix || "");
@@ -839,8 +933,8 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
             },
             subjectNumberConnector: {
               slot: "num1-num2",
-              connector: numberConnector ? String(numberConnector.surface || "") : String(subjectSuffix || ""),
-              displayConnector: numberConnector ? String(numberConnector.displaySurface || numberConnector.surface || "Ø") : String(subjectSuffix || "") || "Ø",
+              connector: connectorSurface,
+              displayConnector: connectorDisplaySurface || "Ø",
               nounClass: numberConnector?.nounClass || ""
             }
           },
@@ -1027,6 +1121,22 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       }
       return String(derivationType || "");
     }
+    function resolveForwardDerivationMetadataStemSurface(record = null) {
+      if (!record || typeof record !== "object") {
+        return "";
+      }
+      if (typeof targetObject.getProvenancePrimaryStemSurface === "function") {
+        const framedSurface = targetObject.getProvenancePrimaryStemSurface(record);
+        if (framedSurface) {
+          return framedSurface;
+        }
+      }
+      const grammarFrame = (record.grammarFrame && typeof record.grammarFrame === "object" ? record.grammarFrame : null) || (record.frames && typeof record.frames === "object" ? record.frames : null);
+      if (grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object") {
+        return "";
+      }
+      return targetObject.normalizeDerivationStemValue(record.surfaceStem || (record.stemSpec ? targetObject.realizeMorphStemSpec(record.stemSpec, record.stem || "") : "") || record.stem || "");
+    }
     function buildGeneratedForwardDerivationFrameMetadata({
       resolvedTenseMode = "",
       resolvedDerivationType = "",
@@ -1052,7 +1162,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const normalizedCandidateStems = Array.isArray(candidateStems) ? candidateStems.map(stem => String(stem || "")).filter(Boolean) : [];
       const sourceStemForComparison = targetObject.normalizeDerivationStemValue(renderVerb || "");
       const derivedCandidateStem = normalizedCandidateStems.find(stem => targetObject.normalizeDerivationStemValue(stem) !== sourceStemForComparison) || normalizedCandidateStems[0] || "";
-      const selectedStemCandidate = targetObject.normalizeDerivationStemValue(selectedMeta?.surfaceStem || forwardStemProvenance?.surfaceStem || (selectedMeta?.stemSpec ? targetObject.realizeMorphStemSpec(selectedMeta.stemSpec, selectedMeta.stem || "") : "") || selectedMeta?.stem || "");
+      const selectedStemCandidate = targetObject.normalizeDerivationStemValue(resolveForwardDerivationMetadataStemSurface(selectedMeta) || resolveForwardDerivationMetadataStemSurface(forwardStemProvenance) || "");
       const selectedStem = targetObject.normalizeDerivationStemValue(selectedStemCandidate && selectedStemCandidate !== sourceStemForComparison ? selectedStemCandidate : derivedCandidateStem || selectedStemCandidate || analysisVerb || verb || "");
       const delta = Number.isFinite(derivationValencyDelta) ? derivationValencyDelta : 0;
       const derivedValency = Number.isFinite(sourceValency) ? sourceValency : null;
@@ -3376,6 +3486,9 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
     api.getGenerateWordResultFrame = getGenerateWordResultFrame;
     api.getGenerateWordResultFramePayload = getGenerateWordResultFramePayload;
     api.resolveGenerateWordContractSurface = resolveGenerateWordContractSurface;
+    api.resolveGenerateWordResultFrameSurface = resolveGenerateWordResultFrameSurface;
+    api.resolveGenerateWordNominalConnectorSurface = resolveGenerateWordNominalConnectorSurface;
+    api.resolveGenerateWordNominalConnectorDisplaySurface = resolveGenerateWordNominalConnectorDisplaySurface;
     api.resolveGenerateWordFrameSourceInput = resolveGenerateWordFrameSourceInput;
     api.buildGenerateWordDiagnosticEntry = buildGenerateWordDiagnosticEntry;
     api.getGenerateWordFailedLayerContract = getGenerateWordFailedLayerContract;
@@ -3401,6 +3514,7 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
     api.buildGeneratedVncValencyFrameMetadata = buildGeneratedVncValencyFrameMetadata;
     api.buildGeneratedDerivedVoiceFrameMetadata = buildGeneratedDerivedVoiceFrameMetadata;
     api.getGeneratedForwardDerivationLabel = getGeneratedForwardDerivationLabel;
+    api.resolveForwardDerivationMetadataStemSurface = resolveForwardDerivationMetadataStemSurface;
     api.buildGeneratedForwardDerivationFrameMetadata = buildGeneratedForwardDerivationFrameMetadata;
     api.buildGeneratedCompoundFrameMetadata = buildGeneratedCompoundFrameMetadata;
     api.buildGeneratedPatientiveCompoundSourceFrameMetadata = buildGeneratedPatientiveCompoundSourceFrameMetadata;

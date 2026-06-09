@@ -6756,6 +6756,10 @@ function buildAdjectivalNncFunctionEntryContract({
     surface = "",
     formation = "",
     formulaEcho = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    sourceCompoundFrame = null,
+    sourceDenominalCompoundFrame = null,
     patientivoSource = "",
     nominalizedVncKind = "",
     grammarFrame = null,
@@ -6783,6 +6787,10 @@ function buildAdjectivalNncFunctionEntryContract({
         frames: frame || null,
         formation: String(formation || "").trim(),
         formulaEcho: String(formulaEcho || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === "object" ? sourceCompoundFrame : null,
+        sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === "object" ? sourceDenominalCompoundFrame : null,
         patientivoSource: String(patientivoSource || "").trim(),
         nominalizedVncKind: String(nominalizedVncKind || "").trim(),
         authorityRefs,
@@ -6812,6 +6820,10 @@ function applyAdjectivalNncFunctionToVerbEntry({
     surface = "",
     formation = "",
     formulaEcho = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    sourceCompoundFrame = null,
+    sourceDenominalCompoundFrame = null,
     patientivoSource = "",
     nominalizedVncKind = "",
     grammarFrame = null,
@@ -6826,6 +6838,10 @@ function applyAdjectivalNncFunctionToVerbEntry({
         surface: normalizedSurface,
         formation,
         formulaEcho,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        sourceCompoundFrame,
+        sourceDenominalCompoundFrame,
         patientivoSource,
         nominalizedVncKind,
         grammarFrame,
@@ -6848,6 +6864,9 @@ function applyAdjectivalNncFunctionToVerbEntry({
     verbEl.dataset.grammarGenerationAllowed = String(entryContract.generationAllowed === true);
     verbEl.dataset.grammarDiagnosticStatus = entryContract.diagnosticStatus || "";
     verbEl.dataset.grammarResultOk = String(entryContract.resultOk === true);
+    if (typeof clearActiveNawatRouteProfile === "function") {
+        clearActiveNawatRouteProfile();
+    }
     if (typeof setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
         setActiveTenseMode(TENSE_MODE.adjetivo, { clearRoute: true });
     }
@@ -10399,6 +10418,10 @@ function buildSilentGenerationCacheKey(options = {}) {
         encodeValue(getAdjectivalNncFunctionOverrideSurface(override)),
         encodeValue(override.adjectivalNnc?.state),
         encodeValue(override.adjectivalNnc?.formation),
+        encodeValue(override.adjectivalNnc?.formulaEcho),
+        encodeValue(override.adjectivalNnc?.sourceFormulaEcho),
+        encodeValue(JSON.stringify(override.adjectivalNnc?.sourceCompoundFrame || override.adjectivalNnc?.compoundFrame || "")),
+        encodeValue(JSON.stringify(override.adjectivalNnc?.sourceDenominalCompoundFrame || override.adjectivalNnc?.denominalCompoundFrame || "")),
         encodeValue(override.adjectivalNnc?.patientivoSurface),
         encodeValue(override.adjectivalNnc?.patientivoSource),
         encodeValue(override.adjectivalNnc?.nominalizedSurface),

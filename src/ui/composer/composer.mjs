@@ -5907,6 +5907,10 @@ export function createUiComposerGlobals(targetObject = globalThis) {
       surface = "",
       formation = "",
       formulaEcho = "",
+      sourceFormulaSlots = null,
+      sourceFormulaEcho = "",
+      sourceCompoundFrame = null,
+      sourceDenominalCompoundFrame = null,
       patientivoSource = "",
       nominalizedVncKind = "",
       grammarFrame = null
@@ -5931,6 +5935,10 @@ export function createUiComposerGlobals(targetObject = globalThis) {
         frames: frame || null,
         formation: String(formation || "").trim(),
         formulaEcho: String(formulaEcho || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === "object" ? sourceCompoundFrame : null,
+        sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === "object" ? sourceDenominalCompoundFrame : null,
         patientivoSource: String(patientivoSource || "").trim(),
         nominalizedVncKind: String(nominalizedVncKind || "").trim(),
         authorityRefs,
@@ -5958,6 +5966,10 @@ export function createUiComposerGlobals(targetObject = globalThis) {
       surface = "",
       formation = "",
       formulaEcho = "",
+      sourceFormulaSlots = null,
+      sourceFormulaEcho = "",
+      sourceCompoundFrame = null,
+      sourceDenominalCompoundFrame = null,
       patientivoSource = "",
       nominalizedVncKind = "",
       grammarFrame = null,
@@ -5975,6 +5987,10 @@ export function createUiComposerGlobals(targetObject = globalThis) {
         surface: normalizedSurface,
         formation,
         formulaEcho,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        sourceCompoundFrame,
+        sourceDenominalCompoundFrame,
         patientivoSource,
         nominalizedVncKind,
         grammarFrame
@@ -5997,6 +6013,9 @@ export function createUiComposerGlobals(targetObject = globalThis) {
       verbEl.dataset.grammarGenerationAllowed = String(entryContract.generationAllowed === true);
       verbEl.dataset.grammarDiagnosticStatus = entryContract.diagnosticStatus || "";
       verbEl.dataset.grammarResultOk = String(entryContract.resultOk === true);
+      if (typeof targetObject.clearActiveNawatRouteProfile === "function") {
+        targetObject.clearActiveNawatRouteProfile();
+      }
       if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
         targetObject.setActiveTenseMode(TENSE_MODE.adjetivo, {
           clearRoute: true
@@ -9138,7 +9157,7 @@ export function createUiComposerGlobals(targetObject = globalThis) {
         return `${raw.length}:${raw}`;
       };
       const encodeFlag = value => value === true ? "1" : "0";
-      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(getAdjectivalNncFunctionOverrideSurface(override)), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
+      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(getAdjectivalNncFunctionOverrideSurface(override)), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.formulaEcho), encodeValue(override.adjectivalNnc?.sourceFormulaEcho), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceCompoundFrame || override.adjectivalNnc?.compoundFrame || "")), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceDenominalCompoundFrame || override.adjectivalNnc?.denominalCompoundFrame || "")), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
       return keyParts.join("|");
     }
     function getCachedSilentGenerateWord(options = {}) {

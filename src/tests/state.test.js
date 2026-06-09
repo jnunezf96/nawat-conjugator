@@ -658,6 +658,40 @@ function run(ctx) {
             display: "frame-state-a / frame-state-b / frame-state-surface",
         }
     );
+    s.eq(
+        "nawat route subject-number connector reader suppresses stale surfaces for empty LCM result frames",
+        (() => {
+            const framedConnector = {
+                surface: "legacy-connector",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["frame-connector"],
+                    }),
+                }),
+            };
+            const emptyConnector = {
+                surface: "legacy-connector",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            };
+            return {
+                framed: ctx.getStateSubjectNumberConnectorSurface(framedConnector),
+                empty: ctx.getStateSubjectNumberConnectorSurface(emptyConnector),
+                legacy: ctx.getStateSubjectNumberConnectorSurface({ surface: "legacy-connector" }),
+            };
+        })(),
+        {
+            framed: "frame-connector",
+            empty: "",
+            legacy: "legacy-connector",
+        }
+    );
     const framedRouteTarget = ctx.attachNawatStaticRouteGrammarFrame({
         result: "—",
         surface: "legacy-route-control",
@@ -755,6 +789,127 @@ function run(ctx) {
             }),
         }),
         ""
+    );
+    s.eq(
+        "nawat route surface trail reads source-tense station LCM result-frame surfaces",
+        ctx.formatNawatRouteSurfaceTrailLabel(tiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: tiPreteritTarget,
+            stationModels: [{
+                key: "source-tense",
+                role: "source",
+                surface: "legacy-source-tense",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["frame-source-tense"],
+                    }),
+                }),
+            }],
+        }),
+        "frame-source-tense"
+    );
+    s.eq(
+        "nawat route surface trail suppresses stale source-tense station surface for an empty LCM result frame",
+        ctx.formatNawatRouteSurfaceTrailLabel(tiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: tiPreteritTarget,
+            stationModels: [{
+                key: "source-tense",
+                role: "source",
+                surface: "legacy-source-tense",
+                renderVerb: "legacy-render",
+                inputValue: "legacy-input",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            }],
+        }),
+        ""
+    );
+    s.eq(
+        "nawat route source-state metadata reads LCM station result-frame surfaces before legacy station fields",
+        (() => {
+            const sourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
+                sourceVerb: "(pusuni)",
+                routeTarget: {
+                    ...tiPreteritTarget,
+                    sourceStem: "legacy-target-stem",
+                },
+                stationModels: [
+                    {
+                        key: "source-mode",
+                        role: "source",
+                        inputValue: "(pusuni)",
+                    },
+                    {
+                        key: "stem",
+                        role: "stem",
+                        inputValue: "legacy-station-input",
+                        surface: "legacy-station-surface",
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: true,
+                                surfaceForms: ["frame-source-stem"],
+                            }),
+                        }),
+                    },
+                ],
+            });
+            return {
+                sourceSurface: sourceState?.sourceSurface || "",
+                profileSourceSurface: sourceState?.denominalFamilyProfile?.sourceSurface || "",
+            };
+        })(),
+        {
+            sourceSurface: "frame-source-stem",
+            profileSourceSurface: "frame-source-stem",
+        }
+    );
+    s.eq(
+        "nawat route source-state metadata suppresses stale station and target stems for an empty LCM station result frame",
+        (() => {
+            const sourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
+                sourceVerb: "(pusuni)",
+                sourceStem: "legacy-explicit-stem",
+                routeTarget: {
+                    ...tiPreteritTarget,
+                    sourceStem: "legacy-target-stem",
+                },
+                stationModels: [
+                    {
+                        key: "source-mode",
+                        role: "source",
+                        inputValue: "(pusuni)",
+                    },
+                    {
+                        key: "stem",
+                        role: "stem",
+                        inputValue: "legacy-station-input",
+                        surface: "legacy-station-surface",
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: false,
+                                surface: "",
+                                surfaceForms: [],
+                            }),
+                        }),
+                    },
+                ],
+            });
+            return {
+                sourceSurface: sourceState?.sourceSurface || "",
+                profileSourceSurface: sourceState?.denominalFamilyProfile?.sourceSurface || "",
+            };
+        })(),
+        {
+            sourceSurface: "",
+            profileSourceSurface: "",
+        }
     );
     const tiRouteFromTroncoOutputTarget = ctx.resolveNawatRouteTarget("denominal-vi-ti-preterit", {
         sourceVerb: "(pusuni)",
@@ -1163,6 +1318,8 @@ function run(ctx) {
             "54.2.4-inceptive-stative-a",
             "54.2.5-inceptive-stative-hua",
             "54.3-included-possessor-ti",
+            "54.5-ti-a-causative",
+            "54.6-t-ia-applicative",
             "55.1-temporal-tia",
             "55.2-causative-tla",
             "55.2-tla-ti-lia-applicative",
@@ -1171,6 +1328,8 @@ function run(ctx) {
             "55.2-intransitive-tla-ti-lia-applicative",
             "55.3-intransitive-o-a-applicative-huia",
             "55.3-o-a-il-huia-al-huia-applicative-note",
+            "55.4-adverbial-huia",
+            "55.5-relational-compound-o-a-huia",
             "55.6-i-hui-a-hui-to-o-a",
             "55.7-transitive-i-a",
         ].includes(entry.id)),
@@ -1184,10 +1343,10 @@ function run(ctx) {
                 suffixes: ["verbalizer:hui->wi"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-partial",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.2-hui-lia-causative",
@@ -1198,10 +1357,10 @@ function run(ctx) {
                 suffixes: ["source-verbalizer:hui->wi", "causative:lia->lia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.3-inceptive-stative-ya",
@@ -1212,10 +1371,10 @@ function run(ctx) {
                 suffixes: ["verbalizer:ya->ya"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-partial",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.3-ti-ya-deverbal",
@@ -1226,10 +1385,10 @@ function run(ctx) {
                 suffixes: ["source-verbalizer:ti->ti", "deverbal-inceptive-stative:ya->ya"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.3-hui-ya-deverbal",
@@ -1240,10 +1399,10 @@ function run(ctx) {
                 suffixes: ["source-verbalizer:hui->wi", "deverbal-inceptive-stative:ya->ya"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.3-ya-lia-causative",
@@ -1254,10 +1413,10 @@ function run(ctx) {
                 suffixes: ["source-verbalizer:ya->ya", "causative-or-applicative:lia->lia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.4-inceptive-stative-a",
@@ -1268,10 +1427,10 @@ function run(ctx) {
                 suffixes: ["verbalizer:a->a"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-partial",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.2.5-inceptive-stative-hua",
@@ -1282,10 +1441,10 @@ function run(ctx) {
                 suffixes: ["verbalizer:hua->wa"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "54.3-included-possessor-ti",
@@ -1296,10 +1455,38 @@ function run(ctx) {
                 suffixes: ["verbalizer:ti->ti"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
+            },
+            {
+                id: "54.5-ti-a-causative",
+                range: "54.5",
+                sourceCategory: "ti-vnc-from-nnc",
+                sourceState: "absolutive-or-possessive",
+                valency: "single-or-double-object-causative",
+                suffixes: ["source-verbalizer:ti->ti", "causative:a->a"],
+                currentRouteFamilies: [],
+                currentRouteIds: [],
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
+                noNewSurfaceForms: true,
+                structuralInventoryOnly: false,
+            },
+            {
+                id: "54.6-t-ia-applicative",
+                range: "54.6",
+                sourceCategory: "intransitive-ti-vnc",
+                sourceState: "derived",
+                valency: "applicative",
+                suffixes: ["source-verbalizer:ti->ti", "applicative:ia->ia"],
+                currentRouteFamilies: [],
+                currentRouteIds: [],
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
+                noNewSurfaceForms: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.1-temporal-tia",
@@ -1310,10 +1497,10 @@ function run(ctx) {
                 suffixes: ["temporal-intransitive:tia->tia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.2-causative-tla",
@@ -1324,10 +1511,10 @@ function run(ctx) {
                 suffixes: ["causative:tla->ta"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-partial",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.2-tla-ti-lia-applicative",
@@ -1338,10 +1525,10 @@ function run(ctx) {
                 suffixes: ["source-causative:tla->ta", "applicative-replacement:ti-lia->ti-lia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.2-intransitive-tla",
@@ -1352,10 +1539,10 @@ function run(ctx) {
                 suffixes: ["intransitive:tla->ta"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.2-intransitive-tla-ti-a-causative",
@@ -1366,10 +1553,10 @@ function run(ctx) {
                 suffixes: ["source-intransitive:tla->ta", "replacement-before-causative:ti-a->ti-a"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.2-intransitive-tla-ti-lia-applicative",
@@ -1380,10 +1567,10 @@ function run(ctx) {
                 suffixes: ["source-intransitive:tla->ta", "applicative-replacement:ti-lia->ti-lia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.3-intransitive-o-a-applicative-huia",
@@ -1394,10 +1581,10 @@ function run(ctx) {
                 suffixes: ["intransitive:o-a->u-a", "applicative-counterpart:huia->wia"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-partial",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.3-o-a-il-huia-al-huia-applicative-note",
@@ -1412,10 +1599,38 @@ function run(ctx) {
                 ],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
+            },
+            {
+                id: "55.4-adverbial-huia",
+                range: "55.4",
+                sourceCategory: "adverbial-nounstem",
+                sourceState: "adverbialized",
+                valency: "applicative",
+                suffixes: ["applicative:huia->wia"],
+                currentRouteFamilies: [],
+                currentRouteIds: [],
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
+                noNewSurfaceForms: true,
+                structuralInventoryOnly: false,
+            },
+            {
+                id: "55.5-relational-compound-o-a-huia",
+                range: "55.5",
+                sourceCategory: "compound-relational-nounstem",
+                sourceState: "relational",
+                valency: "usually-transitive-or-applicative",
+                suffixes: ["transitive-or-intransitive:o-a->u-a", "applicative:huia->wia"],
+                currentRouteFamilies: [],
+                currentRouteIds: [],
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
+                noNewSurfaceForms: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.6-i-hui-a-hui-to-o-a",
@@ -1431,10 +1646,10 @@ function run(ctx) {
                     "denominal-vi-awi-preterit",
                     "denominal-vi-awi-perfect",
                 ],
-                supportStatus: "source-route-supported-target-unmodeled",
-                generationStatus: "source-route-surface-supported",
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                generationStatus: "source-evidence-route-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
             {
                 id: "55.7-transitive-i-a",
@@ -1445,10 +1660,10 @@ function run(ctx) {
                 suffixes: ["transitive:i-a->i-a"],
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                generationStatus: "not-generated",
+                supportStatus: "executable-rule-supported-source-final-guarded",
+                generationStatus: "route-surface-supported",
                 noNewSurfaceForms: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
             },
         ]
     );
@@ -1461,39 +1676,15 @@ function run(ctx) {
             outputKind: "denominal-andrews-contract-coverage",
             contractCount: 26,
             routeCoveredContractCount: 3,
-            unmodeledContractCount: 23,
-            targetUnmodeledContractCount: 1,
+            unmodeledContractCount: 0,
+            targetUnmodeledContractCount: 0,
             nawatOnlyRouteFamilies: ["vt-na"],
-            unmodeledContractIds: [
-                "54.2.2-inceptive-stative-hui",
-                "54.2.2-hui-lia-causative",
-                "54.2.3-inceptive-stative-ya",
-                "54.2.3-ti-ya-deverbal",
-                "54.2.3-hui-ya-deverbal",
-                "54.2.3-ya-lia-causative",
-                "54.2.4-inceptive-stative-a",
-                "54.2.5-inceptive-stative-hua",
-                "54.3-included-possessor-ti",
-                "54.2-54.4-ti-lia-causative",
-                "54.5-ti-a-causative",
-                "54.6-t-ia-applicative",
-                "55.1-temporal-tia",
-                "55.2-causative-tla",
-                "55.2-tla-ti-lia-applicative",
-                "55.2-intransitive-tla",
-                "55.2-intransitive-tla-ti-a-causative",
-                "55.2-intransitive-tla-ti-lia-applicative",
-                "55.3-intransitive-o-a-applicative-huia",
-                "55.3-o-a-il-huia-al-huia-applicative-note",
-                "55.4-adverbial-huia",
-                "55.5-relational-compound-o-a-huia",
-                "55.7-transitive-i-a",
-            ],
-            targetUnmodeledContractIds: ["55.6-i-hui-a-hui-to-o-a"],
+            unmodeledContractIds: [],
+            targetUnmodeledContractIds: [],
             boundaries: {
                 noNewSurfaceForms: true,
                 noFixtureEvidence: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: false,
                 fullLessonGenerationModeled: false,
             },
         }
@@ -1523,13 +1714,13 @@ function run(ctx) {
             sourceStem: "pusuk",
             contractCount: 26,
             routeCount: 31,
-            finiteRouteRequestCount: 13,
+            finiteRouteRequestCount: 11,
             finiteRouteObjectPrefixRequiredCount: 3,
-            finiteRouteStemClassContractCount: 11,
-            finiteRouteSourceEvidenceRequiredCount: 18,
-            routeDiagnosticCount: 20,
+            finiteRouteStemClassContractCount: 10,
+            finiteRouteSourceEvidenceRequiredCount: 20,
+            routeDiagnosticCount: 42,
             routeWarningCount: 0,
-            routeNoteCount: 20,
+            routeNoteCount: 22,
             diagnosticCount: 0,
             boundaries: {
                 noNewSurfaceForms: true,
@@ -1548,6 +1739,4621 @@ function run(ctx) {
         andrewsContractRoutePreview.routes.find((route) => (
             route.contractId === contractId && route.routeTemplateId === routeTemplateId
         ))
+    );
+    s.eq(
+        "Andrews 54.2.1 ti is an executable rule contract with success and blocked frames",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-1-ti");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.1-inceptive-stative-ti"
+            ));
+            const route = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-1-ti", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+            });
+            const blocked = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-1-ti", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                routeExecutableRuleId: route?.executableRuleId || "",
+                routeUsesExecutableRule: route?.boundaries?.usesExecutableAndrewsRuleContract === true,
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    routeStage: success?.frames?.routeContract?.routeStage || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blocked: {
+                    ok: blocked?.ok,
+                    surface: blocked?.surface || "",
+                    resultFrameSurface: blocked?.frames?.resultFrame?.surface || "",
+                    diagnosticId: blocked?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blocked?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blocked?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blocked?.frames?.diagnosticFrame?.status || "",
+                    routeGenerationAllowed: blocked?.frames?.routeContract?.generationAllowed,
+                    blockingFailedLayer: blocked?.frames?.routeContract?.blockingDiagnostics?.[0]?.failedLayer || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-1-ti",
+                contractId: "54.2.1-inceptive-stative-ti",
+                routeTemplateId: "ti",
+                range: "54.2.1",
+                authority: ["Andrews 54.2", "Andrews 54.2.1"],
+                input: {
+                    unit: "nnc-predicate",
+                    state: "absolutive",
+                    sourceCategory: "absolutive-state-nnc-predicate",
+                    sourceEvidence: "nawat-source-stem-or-generated-nnc-predicate",
+                },
+                operation: {
+                    type: "denominal-verbstem",
+                    suffix: "ti",
+                    classicalSuffix: "ti",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A", "B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-1-ti"],
+            inventoryStructuralOnly: false,
+            routeExecutableRuleId: "andrews-54-2-1-ti",
+            routeUsesExecutableRule: true,
+            success: {
+                ok: true,
+                surface: "pusukti",
+                targetVerbStem: "pusukti",
+                targetInput: "(pusukti)",
+                resultFrameSurface: "pusukti",
+                routeStage: "execute-rule-contract",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blocked: {
+                ok: false,
+                surface: "",
+                resultFrameSurface: "",
+                diagnosticId: "andrews-54.2.1-ti-absolutive-state-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+                routeGenerationAllowed: false,
+                blockingFailedLayer: "agreement",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.2 hui is an executable rule contract with orthographic wi output and blocked frames",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.2-inceptive-stative-hui"
+            ));
+            const route = findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui");
+            const consonantSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+            });
+            const vowelSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui", {
+                sourceStem: "shuchi",
+                sourceState: "absolutive",
+            });
+            const blocked = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                routeExecutableRuleId: route?.executableRuleId || "",
+                routeUsesExecutableRule: route?.boundaries?.usesExecutableAndrewsRuleContract === true,
+                routeTargetVerbStem: route?.targetVerbStem || "",
+                consonantSuccess: {
+                    ok: consonantSuccess?.ok,
+                    surface: consonantSuccess?.surface || "",
+                    targetVerbStem: consonantSuccess?.targetVerbStem || "",
+                    targetInput: consonantSuccess?.targetInput || "",
+                    targetStemClass: consonantSuccess?.targetStemClass || "",
+                    resultFrameSurface: consonantSuccess?.frames?.resultFrame?.surface || "",
+                    routeStage: consonantSuccess?.frames?.routeContract?.routeStage || "",
+                    generationAllowed: consonantSuccess?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: consonantSuccess?.contractDiagnostics?.length || 0,
+                },
+                vowelSuccess: {
+                    ok: vowelSuccess?.ok,
+                    surface: vowelSuccess?.surface || "",
+                    targetVerbStem: vowelSuccess?.targetVerbStem || "",
+                    targetInput: vowelSuccess?.targetInput || "",
+                    targetStemClass: vowelSuccess?.targetStemClass || "",
+                    sourceStemFinalType: vowelSuccess?.sourceStemFinalType || "",
+                    nawatRuleSuffix: vowelSuccess?.nawatRuleSuffix || "",
+                },
+                blocked: {
+                    ok: blocked?.ok,
+                    surface: blocked?.surface || "",
+                    resultFrameSurface: blocked?.frames?.resultFrame?.surface || "",
+                    diagnosticId: blocked?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blocked?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blocked?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blocked?.frames?.diagnosticFrame?.status || "",
+                    routeGenerationAllowed: blocked?.frames?.routeContract?.generationAllowed,
+                    blockingFailedLayer: blocked?.frames?.routeContract?.blockingDiagnostics?.[0]?.failedLayer || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-2-hui",
+                contractId: "54.2.2-inceptive-stative-hui",
+                routeTemplateId: "hui",
+                range: "54.2.2",
+                authority: ["Andrews 54.2", "Andrews 54.2.2"],
+                input: {
+                    unit: "nnc-predicate",
+                    state: "absolutive",
+                    sourceCategory: "absolutive-state-nnc-predicate",
+                    sourceEvidence: "nawat-source-stem-or-generated-nnc-predicate",
+                },
+                operation: {
+                    type: "denominal-verbstem",
+                    suffix: "wi",
+                    classicalSuffix: "hui",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A", "B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-2-hui"],
+            inventoryStructuralOnly: false,
+            routeExecutableRuleId: "andrews-54-2-2-hui",
+            routeUsesExecutableRule: true,
+            routeTargetVerbStem: "pusukwi",
+            consonantSuccess: {
+                ok: true,
+                surface: "pusukwi",
+                targetVerbStem: "pusukwi",
+                targetInput: "(pusukwi)",
+                targetStemClass: "A",
+                resultFrameSurface: "pusukwi",
+                routeStage: "execute-rule-contract",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            vowelSuccess: {
+                ok: true,
+                surface: "shuchiwi",
+                targetVerbStem: "shuchiwi",
+                targetInput: "(shuchiwi)",
+                targetStemClass: "B",
+                sourceStemFinalType: "vowel",
+                nawatRuleSuffix: "wi",
+            },
+            blocked: {
+                ok: false,
+                surface: "",
+                resultFrameSurface: "",
+                diagnosticId: "andrews-54.2.2-hui-absolutive-state-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+                routeGenerationAllowed: false,
+                blockingFailedLayer: "agreement",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.2 hui-lia is an executable rule contract gated by generated hui source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.2-hui-lia-causative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2.2-hui-lia-causative", "hui-lia");
+            const huiSourceRoute = findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui");
+            const huiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(huiSourceRoute);
+            const satisfiedRoute = huiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.2.2-hui-lia-causative" && route.routeTemplateId === "hui-lia");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    huiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-hui-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia", {
+                sourceStem: "pusukwi",
+                sourceState: "derived",
+                sourceCategory: "intransitive-hui-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia", {
+                sourceStem: "pusukti",
+                sourceEvidence: {
+                    huiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-hui-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.2-hui-lia-hui-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.2-hui-lia-hui-source-evidence-required")?.failedLayer || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-2-hui-lia",
+                contractId: "54.2.2-hui-lia-causative",
+                routeTemplateId: "hui-lia",
+                range: "54.2.2",
+                authority: ["Andrews 54.2.2", "Andrews 25.5"],
+                input: {
+                    unit: "vnc",
+                    state: "derived",
+                    sourceCategory: "intransitive-hui-vnc",
+                    sourceEvidence: "generated-hui-verbstem-required",
+                },
+                operation: {
+                    type: "single-object-causative-verbstem",
+                    sourceSuffix: "wi",
+                    suffix: "lia",
+                    classicalSuffix: "hui-lia",
+                    outputValency: "single-object-causative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "single-object-causative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-2-hui-lia"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-2-hui-lia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
+                diagnosticLayer: "authority",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-2-hui-lia",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwilia",
+                targetInput: "(pusukwi)-(lia)",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+            },
+            success: {
+                ok: true,
+                surface: "pusukwilia",
+                targetVerbStem: "pusukwilia",
+                targetInput: "(pusukwi)-(lia)",
+                sourceVerbStem: "pusukwi",
+                targetValency: "single-object-causative",
+                resultFrameSurface: "pusukwilia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.2-hui-lia-source-final-wi-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.3 root-plus-ya is an executable rule contract with stem-rank guards",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.3-inceptive-stative-ya"
+            ));
+            const route = findAndrewsContractRoute("54.2.3-inceptive-stative-ya", "ya");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya", {
+                sourceStem: "shuchi",
+                sourceCategory: "nounstem-as-root",
+                sourceState: "absolutive",
+            });
+            const blockedDerivedSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya", {
+                sourceStem: "pusukti",
+                sourceEvidence: {
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                },
+            });
+            const blockedPossessiveSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                routeExecutableRuleId: route?.executableRuleId || "",
+                routeUsesExecutableRule: route?.boundaries?.usesExecutableAndrewsRuleContract === true,
+                routeTargetVerbStem: route?.targetVerbStem || "",
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    routeStage: success?.frames?.routeContract?.routeStage || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedDerivedSource: {
+                    ok: blockedDerivedSource?.ok,
+                    surface: blockedDerivedSource?.surface || "",
+                    diagnosticId: blockedDerivedSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedDerivedSource?.frames?.diagnosticFrame?.status || "",
+                    routeGenerationAllowed: blockedDerivedSource?.frames?.routeContract?.generationAllowed,
+                },
+                blockedPossessiveSource: {
+                    ok: blockedPossessiveSource?.ok,
+                    surface: blockedPossessiveSource?.surface || "",
+                    diagnosticId: blockedPossessiveSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessiveSource?.frames?.diagnosticFrame?.status || "",
+                    routeGenerationAllowed: blockedPossessiveSource?.frames?.routeContract?.generationAllowed,
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-3-ya",
+                contractId: "54.2.3-inceptive-stative-ya",
+                routeTemplateId: "ya",
+                range: "54.2.3",
+                authority: ["Andrews 54.2", "Andrews 54.2.3"],
+                input: {
+                    unit: "nounroot-or-nounstem-as-root",
+                    state: "absolutive",
+                    sourceCategory: "nounroot-or-nounstem-as-root",
+                    sourceEvidence: "nawat-root-or-stem-as-root",
+                },
+                operation: {
+                    type: "denominal-verbstem",
+                    suffix: "ya",
+                    classicalSuffix: "ya",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A", "B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-3-ya"],
+            inventoryStructuralOnly: false,
+            routeExecutableRuleId: "andrews-54-2-3-ya",
+            routeUsesExecutableRule: true,
+            routeTargetVerbStem: "pusukya",
+            success: {
+                ok: true,
+                surface: "shuchiya",
+                targetVerbStem: "shuchiya",
+                targetInput: "(shuchiya)",
+                targetStemClass: "A/B",
+                resultFrameSurface: "shuchiya",
+                routeStage: "execute-rule-contract",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedDerivedSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ya-root-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+                routeGenerationAllowed: false,
+            },
+            blockedPossessiveSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ya-absolutive-root-state-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+                routeGenerationAllowed: false,
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.3 ti-ya is an executable rule contract gated by generated ti source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.3-ti-ya-deverbal"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2.3-ti-ya-deverbal", "ti-ya");
+            const tiSourceRoute = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
+            const tiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(tiSourceRoute);
+            const satisfiedRoute = tiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.2.3-ti-ya-deverbal" && route.routeTemplateId === "ti-ya");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya", {
+                sourceStem: "pusukti",
+                sourceState: "derived",
+                sourceCategory: "intransitive-ti-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya", {
+                sourceStem: "pusukwi",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-ti-ya-ti-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-ti-ya-ti-source-evidence-required")?.failedLayer || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-3-ti-ya",
+                contractId: "54.2.3-ti-ya-deverbal",
+                routeTemplateId: "ti-ya",
+                range: "54.2.3",
+                authority: ["Andrews 54.2.3"],
+                input: {
+                    unit: "vnc",
+                    state: "derived",
+                    sourceCategory: "intransitive-ti-vnc",
+                    sourceEvidence: "generated-ti-verbstem-required",
+                },
+                operation: {
+                    type: "deverbal-verbstem",
+                    sourceSuffix: "ti",
+                    suffix: "ya",
+                    classicalSuffix: "ti-ya",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A", "B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-3-ti-ya"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-ti-ya",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
+                diagnosticLayer: "authority",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-ti-ya",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktiya",
+                targetInput: "(pusukti)-(ya)",
+                finiteAvailable: true,
+                sourceRequirement: "source-evidence-satisfied",
+            },
+            success: {
+                ok: true,
+                surface: "pusuktiya",
+                targetVerbStem: "pusuktiya",
+                targetInput: "(pusukti)-(ya)",
+                sourceVerbStem: "pusukti",
+                targetStemClass: "A/B",
+                resultFrameSurface: "pusuktiya",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ti-ya-source-final-ti-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.3 hui-ya is an executable rule contract gated by generated hui source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.3-hui-ya-deverbal"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2.3-hui-ya-deverbal", "hui-ya");
+            const huiSourceRoute = findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui");
+            const huiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(huiSourceRoute);
+            const satisfiedRoute = huiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.2.3-hui-ya-deverbal" && route.routeTemplateId === "hui-ya");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    huiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-hui-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya", {
+                sourceStem: "pusukwi",
+                sourceState: "derived",
+                sourceCategory: "intransitive-hui-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya", {
+                sourceStem: "pusukti",
+                sourceEvidence: {
+                    huiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-hui-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-hui-ya-hui-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-hui-ya-hui-source-evidence-required")?.failedLayer || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-3-hui-ya",
+                contractId: "54.2.3-hui-ya-deverbal",
+                routeTemplateId: "hui-ya",
+                range: "54.2.3",
+                authority: ["Andrews 54.2.3"],
+                input: {
+                    unit: "vnc",
+                    state: "derived",
+                    sourceCategory: "intransitive-hui-vnc",
+                    sourceEvidence: "generated-hui-verbstem-required",
+                },
+                operation: {
+                    type: "deverbal-verbstem",
+                    sourceSuffix: "wi",
+                    suffix: "ya",
+                    classicalSuffix: "hui-ya",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-3-hui-ya"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-hui-ya",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
+                diagnosticLayer: "authority",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-hui-ya",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwiya",
+                targetInput: "(pusukwi)-(ya)",
+                finiteAvailable: true,
+                sourceRequirement: "source-evidence-satisfied",
+            },
+            success: {
+                ok: true,
+                surface: "pusukwiya",
+                targetVerbStem: "pusukwiya",
+                targetInput: "(pusukwi)-(ya)",
+                sourceVerbStem: "pusukwi",
+                targetStemClass: "B",
+                resultFrameSurface: "pusukwiya",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-hui-ya-source-final-wi-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.3 ya-lia is an executable rule contract gated by generated ya source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.3-ya-lia-causative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2.3-ya-lia-causative", "ya-lia");
+            const yaSourceRoute = findAndrewsContractRoute("54.2.3-inceptive-stative-ya", "ya");
+            const yaSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(yaSourceRoute);
+            const satisfiedRoute = yaSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.2.3-ya-lia-causative" && route.routeTemplateId === "ya-lia");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    yaSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ya-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukya",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia", {
+                sourceStem: "pusukya",
+                sourceState: "derived",
+                sourceCategory: "intransitive-ya-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia", {
+                sourceStem: "pusukti",
+                sourceEvidence: {
+                    yaSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ya-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-ya-lia-ya-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.3-ya-lia-ya-source-evidence-required")?.failedLayer || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-3-ya-lia",
+                contractId: "54.2.3-ya-lia-causative",
+                routeTemplateId: "ya-lia",
+                range: "54.2.3",
+                authority: ["Andrews 54.2.3", "Andrews 25.5.2"],
+                input: {
+                    unit: "vnc",
+                    state: "derived",
+                    sourceCategory: "intransitive-ya-vnc",
+                    sourceEvidence: "generated-ya-verbstem-required",
+                },
+                operation: {
+                    type: "causative-or-applicative-verbstem",
+                    sourceSuffix: "ya",
+                    droppedSourceSuffix: "ya",
+                    suffix: "lia",
+                    classicalSuffix: "lia",
+                    outputValency: "single-object-causative-or-applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "single-object-causative-or-applicative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-3-ya-lia"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-ya-lia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
+                diagnosticLayer: "authority",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-3-ya-lia",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuklia",
+                targetInput: "(pusuk)-(lia)",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+            },
+            success: {
+                ok: true,
+                surface: "pusuklia",
+                targetVerbStem: "pusuklia",
+                targetInput: "(pusuk)-(lia)",
+                sourceVerbStem: "pusukya",
+                targetValency: "single-object-causative-or-applicative",
+                resultFrameSurface: "pusuklia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.3-ya-lia-source-final-ya-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.4 limited inceptive-stative a is an executable Class C rule contract",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.4-inceptive-stative-a"
+            ));
+            const route = findAndrewsContractRoute("54.2.4-inceptive-stative-a", "a");
+            const request = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route, {
+                tense: "presente",
+            });
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a", {
+                sourceStem: "tlawi",
+                sourceCategory: "nounstem",
+                sourceState: "absolutive",
+            });
+            const blockedDerivedSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a", {
+                sourceStem: "pusukti",
+                sourceEvidence: {
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                },
+            });
+            const blockedPossessiveSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                routeExecutableRuleId: route?.executableRuleId || "",
+                routeTargetVerbStem: route?.targetVerbStem || "",
+                routeTargetInput: route?.targetInput || "",
+                routeTargetStemClass: route?.targetStemClass || "",
+                routeLimitedUse: route?.boundaries?.limitedUse === true,
+                routeFiniteAvailable: route?.finiteGenerationContractAvailable === true,
+                requestVerb: request?.prefixInputs?.verb || "",
+                requestObjectExpected: request?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedDerivedSource: {
+                    ok: blockedDerivedSource?.ok,
+                    surface: blockedDerivedSource?.surface || "",
+                    diagnosticId: blockedDerivedSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedDerivedSource?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessiveSource: {
+                    ok: blockedPossessiveSource?.ok,
+                    surface: blockedPossessiveSource?.surface || "",
+                    diagnosticId: blockedPossessiveSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessiveSource?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-4-a",
+                contractId: "54.2.4-inceptive-stative-a",
+                routeTemplateId: "a",
+                range: "54.2.4",
+                authority: ["Andrews 54.2.4"],
+                input: {
+                    unit: "nounstem",
+                    state: "absolutive",
+                    sourceCategory: "absolutive-nounstem",
+                    sourceEvidence: "nawat-source-nounstem-required",
+                },
+                operation: {
+                    type: "limited-inceptive-stative-verbstem",
+                    suffix: "a",
+                    classicalSuffix: "a",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-4-a"],
+            inventoryStructuralOnly: false,
+            routeExecutableRuleId: "andrews-54-2-4-a",
+            routeTargetVerbStem: "pusuka",
+            routeTargetInput: "(pusuka)",
+            routeTargetStemClass: "C",
+            routeLimitedUse: true,
+            routeFiniteAvailable: true,
+            requestVerb: "(pusuka)",
+            requestObjectExpected: false,
+            success: {
+                ok: true,
+                surface: "tlawia",
+                targetVerbStem: "tlawia",
+                targetInput: "(tlawia)",
+                targetStemClass: "C",
+                targetValency: "intransitive",
+                resultFrameSurface: "tlawia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedDerivedSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.4-a-nounstem-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessiveSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.4-a-absolutive-nounstem-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.5 hua is an executable rule contract gated by deverbal yu nounstem source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2.5-inceptive-stative-hua"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2.5-inceptive-stative-hua", "hua");
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "tukayu",
+                contractId: "54.2.5-inceptive-stative-hua",
+                sourceEvidence: {
+                    deverbalYoSource: true,
+                    sourceState: "absolutive",
+                    sourceCategory: "deverbal-yu-nounstem",
+                    sourceBaseStem: "tukayu",
+                },
+            });
+            const satisfiedRoute = satisfiedPreview?.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua", {
+                sourceStem: "tukayu",
+                sourceEvidence: {
+                    deverbalYoSource: true,
+                    sourceState: "absolutive",
+                    sourceCategory: "deverbal-yu-nounstem",
+                    sourceBaseStem: "tukayu",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua", {
+                sourceStem: "tukayu",
+                sourceState: "absolutive",
+                sourceCategory: "deverbal-yu-nounstem",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    deverbalYoSource: true,
+                    sourceState: "absolutive",
+                    sourceCategory: "deverbal-yu-nounstem",
+                    sourceBaseStem: "pusuk",
+                },
+            });
+            const blockedPossessiveSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua", {
+                sourceStem: "nutukayu",
+                sourceEvidence: {
+                    deverbalYoSource: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nutukayu",
+                },
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.5-hua-deverbal-yo-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2.5-hua-deverbal-yo-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    targetStemClass: satisfiedRoute?.targetStemClass || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    notOaFormation: satisfiedRoute?.boundaries?.notOaFormation === true,
+                },
+                success: {
+                    ok: success?.ok,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    nawatRuleSuffix: success?.nawatRuleSuffix || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessiveSource: {
+                    ok: blockedPossessiveSource?.ok,
+                    surface: blockedPossessiveSource?.surface || "",
+                    diagnosticId: blockedPossessiveSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessiveSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessiveSource?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-5-hua",
+                contractId: "54.2.5-inceptive-stative-hua",
+                routeTemplateId: "hua",
+                range: "54.2.5",
+                authority: ["Andrews 54.2.5", "Andrews 39.3"],
+                input: {
+                    unit: "deverbal-nounstem",
+                    state: "absolutive",
+                    sourceCategory: "deverbal-yu-nounstem",
+                    sourceEvidence: "confirmed-deverbal-yo-tl-yu-source-required",
+                },
+                operation: {
+                    type: "deverbal-yo-nounstem-inceptive-stative-verbstem",
+                    sourceMatrix: "yu",
+                    suffix: "wa",
+                    classicalSuffix: "hua",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A"],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-5-hua"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-5-hua",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-5-hua",
+                routeTargetGenerated: true,
+                targetVerbStem: "tukayuwa",
+                targetInput: "(tukayuwa)",
+                targetStemClass: "A",
+                finiteAvailable: true,
+                sourceRequirement: "source-evidence-satisfied",
+                notOaFormation: true,
+            },
+            success: {
+                ok: true,
+                surface: "tukayuwa",
+                targetVerbStem: "tukayuwa",
+                targetInput: "(tukayuwa)",
+                targetStemClass: "A",
+                nawatRuleSuffix: "wa",
+                resultFrameSurface: "tukayuwa",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.5-hua-source-final-yu-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessiveSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2.5-hua-absolutive-yu-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.5 hua route consumes generated characteristic-property yut output as deverbal yu source evidence",
+        (() => {
+            const characteristicOutput = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    verb: "(miki)",
+                    tense: "calificativo-instrumentivo",
+                    tenseMode: "sustantivo",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "",
+                },
+            });
+            const possessedCharacteristicOutput = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    verb: "(miki)",
+                    tense: "calificativo-instrumentivo",
+                    tenseMode: "sustantivo",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "",
+                    possessivePrefix: "nu",
+                },
+            });
+            const nonactiveCharacteristicOutput = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    verb: "-(mati)",
+                    tense: "calificativo-instrumentivo",
+                    tenseMode: "sustantivo",
+                    derivationMode: "nonactive",
+                    voiceMode: "passive-impersonal",
+                    subjectPrefix: "",
+                    subjectSuffix: "",
+                    objectPrefix: "ta",
+                    possessivePrefix: "",
+                },
+            });
+            const sourceEvidence = ctx.buildNawatDenominalAndrewsHuaSourceEvidenceFromCharacteristicPropertyOutput(
+                characteristicOutput
+            );
+            const routePreview = ctx.previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(
+                characteristicOutput
+            );
+            const route = routePreview?.routePreview?.routes?.[0] || null;
+            const request = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route, {
+                tense: "presente",
+            });
+            const execution = ctx.executeNawatDenominalAndrewsContractRoute(route, {
+                tense: "presente",
+            });
+            const nonactivePreview = ctx.previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(
+                nonactiveCharacteristicOutput
+            );
+            return {
+                sourceEvidence,
+                routeCount: routePreview?.candidateRouteCount || 0,
+                routeRequirementStatus: route?.sourceRequirement?.validationStatus || "",
+                routeTargetStemClass: route?.targetStemClass || "",
+                routeNotOaFormation: route?.boundaries?.notOaFormation === true,
+                routeSourceEvidenceLinked: route?.frames?.authorityFrame?.evidenceStatus || "",
+                requestVerb: request?.prefixInputs?.verb || "",
+                executionSurface: execution?.result || "",
+                possessedPreview: ctx.previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(
+                    possessedCharacteristicOutput
+                ),
+                multiSourceStems: (nonactivePreview?.sourceEvidences || []).map((evidence) => evidence.sourceBaseStem),
+                multiRouteTargets: (nonactivePreview?.routePreview?.routes || []).map((candidate) => candidate.targetInput),
+            };
+        })(),
+        {
+            sourceEvidence: {
+                deverbalYoSource: true,
+                deverbalYuSource: true,
+                huaSource: true,
+                sourceState: "absolutive",
+                sourceCategory: "deverbal-yu-nounstem",
+                sourceSurface: "mikkayut",
+                sourceBaseStem: "mikkayu",
+                sourcePredicateStem: "mikka",
+                sourceEmbeddedStem: "mikka",
+                sourceFormulaEcho: "#Ø...Ø(mikka)Ø#",
+                sourceOutputKind: "verb-derived-nominal",
+                sourceNominalKind: "calificativo-instrumentivo",
+                sourceNominalizationKind: "quality-result",
+                boundaries: {
+                    noFixtureEvidence: true,
+                    doesNotCreateLexicalEvidence: true,
+                    sourceEvidenceFromGeneratedOutput: true,
+                    sourceEvidenceFromGeneratedCalificativoInstrumentivo: true,
+                    sourceEvidenceFromGeneratedCharacteristicPropertyNnc: true,
+                    deverbalYuMatrixFromCharacteristicProperty: true,
+                    absolutiveConnectorTStrippedForSourceStem: true,
+                    sourceNounstemEndsInYu: true,
+                    deverbalYuSourceRequiredByAndrews5425Hua: true,
+                    notOaFormation: true,
+                    noClassicalSurfaceImport: true,
+                    classicalRuleSpellingsConvertedToNawat: true,
+                },
+            },
+            routeCount: 1,
+            routeRequirementStatus: "source-evidence-satisfied",
+            routeTargetStemClass: "A",
+            routeNotOaFormation: true,
+            routeSourceEvidenceLinked: "source-evidence-linked",
+            requestVerb: "(mikkayuwa)",
+            executionSurface: "mikkayuwa",
+            possessedPreview: null,
+            multiSourceStems: ["machukayu", "matukayu", "matilukayu"],
+            multiRouteTargets: ["(machukayuwa)", "(matukayuwa)", "(matilukayuwa)"],
+        }
+    );
+    s.eq(
+        "Andrews 54.3 included-possessor ti is an executable rule contract gated by possessive NNC evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.3-included-possessor-ti"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.3-included-possessor-ti", "included-possessor-ti");
+            const possessiveSourceEvidence = {
+                possessiveState: true,
+                sourceState: "possessive",
+                sourceCategory: "possessive-state-nnc-predicate",
+                sourceSurface: "nukal",
+                sourceBaseStem: "nukal",
+                sourcePredicateStem: "kal",
+                sourcePossessorPrefix: "nu",
+            };
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "nukal",
+                contractId: "54.3-included-possessor-ti",
+                sourceEvidence: possessiveSourceEvidence,
+            });
+            const satisfiedRoute = satisfiedPreview?.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti", {
+                sourceStem: "nukal",
+                sourceEvidence: possessiveSourceEvidence,
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti", {
+                sourceStem: "nukal",
+                sourceState: "possessive",
+                sourceCategory: "possessive-state-nnc-predicate",
+            });
+            const blockedAbsolutiveSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti", {
+                sourceStem: "kal",
+                sourceEvidence: {
+                    sourceState: "absolutive",
+                    sourceCategory: "ordinary-nnc-predicate-nounstem",
+                    sourceBaseStem: "kal",
+                },
+            });
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti", {
+                sourceEvidence: {
+                    possessiveState: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-possessive-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-possessive-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    targetStemClass: satisfiedRoute?.targetStemClass || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    objectSlotExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    nawatRuleSuffix: success?.nawatRuleSuffix || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.diagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedAbsolutiveSource: {
+                    ok: blockedAbsolutiveSource?.ok === true,
+                    surface: blockedAbsolutiveSource?.surface || "",
+                    diagnosticId: blockedAbsolutiveSource?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-possessive-state-required")?.id || "",
+                    failedLayer: blockedAbsolutiveSource?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-possessive-state-required")?.failedLayer || "",
+                    contractLayer: blockedAbsolutiveSource?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-possessive-state-required")?.contractLayer || "",
+                    frameStatus: blockedAbsolutiveSource?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-source-predicate-required")?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-source-predicate-required")?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.3-included-possessor-ti-source-predicate-required")?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-3-included-possessor-ti",
+                contractId: "54.3-included-possessor-ti",
+                routeTemplateId: "included-possessor-ti",
+                range: "54.3",
+                authority: ["Andrews 54.3"],
+                input: {
+                    unit: "nnc-predicate",
+                    state: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceEvidence: "confirmed-possessive-state-nnc-predicate-required",
+                },
+                operation: {
+                    type: "possessive-state-predicate-included-possessor-verbstem",
+                    suffix: "ti",
+                    classicalSuffix: "ti",
+                    possessorPlacement: "inside-derived-verbstem",
+                    possessiveCaseTransformedToObjective: false,
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["A"],
+                    surfaceAuthority: "nawat-source-surface-and-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-3-included-possessor-ti"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-3-included-possessor-ti",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-3-included-possessor-ti",
+                routeTargetGenerated: true,
+                targetVerbStem: "nukalti",
+                targetInput: "(nukalti)",
+                targetStemClass: "A",
+                finiteAvailable: true,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(nukalti)",
+                objectSlotExpected: false,
+            },
+            success: {
+                ok: true,
+                surface: "nukalti",
+                targetVerbStem: "nukalti",
+                targetInput: "(nukalti)",
+                targetStemClass: "A",
+                nawatRuleSuffix: "ti",
+                resultFrameSurface: "nukalti",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedAbsolutiveSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.3-included-possessor-ti-possessive-state-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.3-included-possessor-ti-source-predicate-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.2.1 and 54.4 ti-lia is an executable rule contract gated by generated ti source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.2-54.4-ti-lia-causative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.2-54.4-ti-lia-causative", "ti-lia");
+            const tiSourceRoute = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
+            const tiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(tiSourceRoute);
+            const satisfiedRoute = tiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.2-54.4-ti-lia-causative" && route.routeTemplateId === "ti-lia");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia", {
+                sourceStem: "pusukti",
+                sourceState: "derived",
+                sourceCategory: "intransitive-ti-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedOriginalPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    possessiveState: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nukal",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2-54.4-ti-lia-ti-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2-54.4-ti-lia-ti-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    targetStemClass: satisfiedRoute?.targetStemClass || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok === true,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedOriginalPossessive: {
+                    ok: blockedOriginalPossessive?.ok === true,
+                    surface: blockedOriginalPossessive?.surface || "",
+                    diagnosticId: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2-54.4-ti-lia-derived-ti-source-required")?.id || "",
+                    failedLayer: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2-54.4-ti-lia-derived-ti-source-required")?.failedLayer || "",
+                    contractLayer: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.2-54.4-ti-lia-derived-ti-source-required")?.contractLayer || "",
+                    frameStatus: blockedOriginalPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-2-54-4-ti-lia",
+                contractId: "54.2-54.4-ti-lia-causative",
+                routeTemplateId: "ti-lia",
+                range: "54.2.1/54.4",
+                authority: ["Andrews 54.2.1", "Andrews 54.4", "Andrews 25.5"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "intransitive-ti-verbstem-source",
+                    sourceEvidence: "generated-ti-verbstem-source-required",
+                },
+                operation: {
+                    type: "single-object-causative-from-ti-verbstem",
+                    sourceSuffix: "ti",
+                    suffix: "lia",
+                    classicalSuffix: "lia",
+                    outputValency: "single-object-causative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "single-object-causative",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-2-54-4-ti-lia"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-2-54-4-ti-lia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-2-54-4-ti-lia",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                targetStemClass: "C",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(pusukti)-(lia)",
+                requestObjectPrefix: "ta",
+            },
+            success: {
+                ok: true,
+                surface: "pusuktilia",
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                sourceVerbStem: "pusukti",
+                targetStemClass: "C",
+                targetValency: "single-object-causative",
+                resultFrameSurface: "pusuktilia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2-54.4-ti-lia-source-final-ti-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+            blockedOriginalPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.2-54.4-ti-lia-derived-ti-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.5 ti-a is an executable single-object rule contract gated by generated ti source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.5-ti-a-causative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.5-ti-a-causative", "ti-a");
+            const tiSourceRoute = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
+            const tiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(tiSourceRoute);
+            const satisfiedRoute = tiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.5-ti-a-causative" && route.routeTemplateId === "ti-a");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a", {
+                sourceStem: "pusukti",
+                sourceState: "derived",
+                sourceCategory: "ti-vnc-from-nnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedPossessiveDoubleObject = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    possessiveState: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nukal",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.5-ti-a-ti-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.5-ti-a-ti-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    targetStemClass: satisfiedRoute?.targetStemClass || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok === true,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessiveDoubleObject: {
+                    ok: blockedPossessiveDoubleObject?.ok === true,
+                    surface: blockedPossessiveDoubleObject?.surface || "",
+                    diagnosticId: blockedPossessiveDoubleObject?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.5-ti-a-possessive-double-object-source-unmodeled")?.id || "",
+                    failedLayer: blockedPossessiveDoubleObject?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.5-ti-a-possessive-double-object-source-unmodeled")?.failedLayer || "",
+                    contractLayer: blockedPossessiveDoubleObject?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.5-ti-a-possessive-double-object-source-unmodeled")?.contractLayer || "",
+                    frameStatus: blockedPossessiveDoubleObject?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-5-ti-a",
+                contractId: "54.5-ti-a-causative",
+                routeTemplateId: "ti-a",
+                range: "54.5",
+                authority: ["Andrews 54.5", "Andrews 54.5.1"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "intransitive-ti-verbstem-source",
+                    sourceEvidence: "generated-ti-verbstem-source-required",
+                },
+                operation: {
+                    type: "single-object-first-type-causative-from-ti-verbstem",
+                    sourceSuffix: "ti",
+                    suffix: "a",
+                    classicalSuffix: "a",
+                    outputValency: "single-object-causative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "single-object-causative",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-5-ti-a"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-5-ti-a",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.5-ti-a-ti-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-5-ti-a",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukti)-(a)",
+                targetStemClass: "C",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(pusukti)-(a)",
+                requestObjectPrefix: "ta",
+            },
+            success: {
+                ok: true,
+                surface: "pusuktia",
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukti)-(a)",
+                sourceVerbStem: "pusukti",
+                targetStemClass: "C",
+                targetValency: "single-object-causative",
+                resultFrameSurface: "pusuktia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.5-ti-a-ti-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.5-ti-a-source-final-ti-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessiveDoubleObject: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.5-ti-a-possessive-double-object-source-unmodeled",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 54.6 t-ia is an executable applicative rule contract gated by generated ti source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "54.6-t-ia-applicative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("54.6-t-ia-applicative", "t-ia");
+            const tiSourceRoute = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
+            const tiSourcePreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(tiSourceRoute);
+            const satisfiedRoute = tiSourcePreview?.routePreview?.routes
+                ?.find((route) => route.contractId === "54.6-t-ia-applicative" && route.routeTemplateId === "t-ia");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukti",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia", {
+                sourceStem: "pusukti",
+                sourceState: "derived",
+                sourceCategory: "intransitive-ti-vnc",
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tiSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "inceptive-stative-ti-source",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedOriginalPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    possessiveState: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nukal",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.6-t-ia-ti-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.6-t-ia-ti-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    targetStemClass: satisfiedRoute?.targetStemClass || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok === true,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedOriginalPossessive: {
+                    ok: blockedOriginalPossessive?.ok === true,
+                    surface: blockedOriginalPossessive?.surface || "",
+                    diagnosticId: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.6-t-ia-generated-ti-source-required")?.id || "",
+                    failedLayer: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.6-t-ia-generated-ti-source-required")?.failedLayer || "",
+                    contractLayer: blockedOriginalPossessive?.contractDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-54.6-t-ia-generated-ti-source-required")?.contractLayer || "",
+                    frameStatus: blockedOriginalPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-54-6-t-ia",
+                contractId: "54.6-t-ia-applicative",
+                routeTemplateId: "t-ia",
+                range: "54.6",
+                authority: ["Andrews 54.6", "Andrews 26.2"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "intransitive-ti-verbstem-source",
+                    sourceEvidence: "generated-ti-verbstem-source-required",
+                },
+                operation: {
+                    type: "first-type-applicative-from-ti-verbstem",
+                    sourceSuffix: "ti",
+                    replaciveSourceStem: "delete-final-i",
+                    suffix: "ia",
+                    classicalSuffix: "ia",
+                    outputValency: "applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "applicative",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-54-6-t-ia"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-54-6-t-ia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-54.6-t-ia-ti-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-54-6-t-ia",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukt)-(ia)",
+                targetStemClass: "C",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(pusukt)-(ia)",
+                requestObjectPrefix: "ta",
+            },
+            success: {
+                ok: true,
+                surface: "pusuktia",
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukt)-(ia)",
+                sourceVerbStem: "pusukti",
+                targetStemClass: "C",
+                targetValency: "applicative",
+                resultFrameSurface: "pusuktia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.6-t-ia-ti-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.6-t-ia-source-final-ti-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+            blockedOriginalPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-54.6-t-ia-generated-ti-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.1 temporal tia is an executable intransitive rule contract gated by temporal compound source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.1-temporal-tia"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("55.1-temporal-tia", "tia");
+            const explicitPreview = ctx.previewNawatDenominalAndrewsTemporalTiaRouteFromSource({
+                sourceStem: "seilwi",
+                timeSegmentMatrix: "ilwi",
+                numeralEmbed: "se",
+            });
+            const satisfiedRoute = explicitPreview?.routePreview?.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceStem: "seilwi",
+                sourceEvidence: {
+                    temporalCompoundSource: true,
+                    sourceState: "absolutive",
+                    sourceCategory: "compound-temporal-nounstem",
+                    sourceBaseStem: "seilwi",
+                    timeSegmentMatrix: "ilwi",
+                    numeralEmbed: "se",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceStem: "seilwi",
+                sourceState: "absolutive",
+                sourceCategory: "compound-temporal-nnc",
+            });
+            const blockedLocativoTemporal = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceStem: "nemiyan",
+                sourceEvidence: {
+                    sourceState: "absolutive",
+                    sourceCategory: "locativo-temporal",
+                    sourceBaseStem: "nemiyan",
+                },
+            });
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceEvidence: {
+                    temporalCompoundSource: true,
+                    sourceState: "absolutive",
+                    sourceCategory: "compound-temporal-nounstem",
+                    timeSegmentMatrix: "ilwi",
+                    numeralEmbed: "se",
+                },
+            });
+            const blockedPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    temporalCompoundSource: true,
+                    sourceState: "possessive",
+                    sourceCategory: "compound-temporal-nounstem",
+                    sourceBaseStem: "nukal",
+                    timeSegmentMatrix: "ilwi",
+                    numeralEmbed: "se",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.1-temporal-tia-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.1-temporal-tia-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedLocativoTemporal: {
+                    ok: blockedLocativoTemporal?.ok === true,
+                    surface: blockedLocativoTemporal?.surface || "",
+                    diagnosticId: blockedLocativoTemporal?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedLocativoTemporal?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedLocativoTemporal?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedLocativoTemporal?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessive: {
+                    ok: blockedPossessive?.ok === true,
+                    surface: blockedPossessive?.surface || "",
+                    diagnosticId: blockedPossessive?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessive?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessive?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-55-1-temporal-tia",
+                contractId: "55.1-temporal-tia",
+                routeTemplateId: "tia",
+                range: "55.1",
+                authority: ["Andrews 55.1"],
+                input: {
+                    unit: "compound-temporal-nounstem",
+                    state: "absolutive",
+                    sourceCategory: "compound-temporal-nounstem",
+                    sourceEvidence: "confirmed-time-segment-matrix-plus-numeral-embed-required",
+                },
+                operation: {
+                    type: "temporal-intransitive-denominal-verbstem",
+                    suffix: "tia",
+                    classicalSuffix: "tia",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-1-temporal-tia"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-55-1-temporal-tia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-55.1-temporal-tia-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-55-1-temporal-tia",
+                routeTargetGenerated: true,
+                targetVerbStem: "seilwitia",
+                targetInput: "(seilwitia)",
+                finiteAvailable: true,
+                objectPrefixRequired: false,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(seilwitia)",
+                requestObjectExpected: false,
+            },
+            success: {
+                ok: true,
+                surface: "seilwitia",
+                targetVerbStem: "seilwitia",
+                targetInput: "(seilwitia)",
+                targetValency: "intransitive",
+                resultFrameSurface: "seilwitia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.1-temporal-tia-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedLocativoTemporal: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.1-temporal-tia-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.1-temporal-tia-source-stem-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.1-temporal-tia-absolutive-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.2 causative tla is an executable transitive rule contract from a nounstem source",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.2-causative-tla"
+            ));
+            const route = findAndrewsContractRoute("55.2-causative-tla", "tla");
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla", {
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const blockedPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    possessiveState: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nukal",
+                },
+            });
+            const blockedDerivedSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla", {
+                sourceStem: "pusukti",
+                sourceState: "derived",
+                sourceCategory: "intransitive-ti-vnc",
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                route,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                route: {
+                    executableRuleId: route?.executableRuleId || "",
+                    routeTargetGenerated: route?.routeTargetGenerated === true,
+                    targetVerbStem: route?.targetVerbStem || "",
+                    targetInput: route?.targetInput || "",
+                    targetStemClass: route?.targetStemClass || "",
+                    finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: route?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: route?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetStemClass: success?.targetStemClass || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessive: {
+                    ok: blockedPossessive?.ok === true,
+                    surface: blockedPossessive?.surface || "",
+                    diagnosticId: blockedPossessive?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessive?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessive?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedDerivedSource: {
+                    ok: blockedDerivedSource?.ok === true,
+                    surface: blockedDerivedSource?.surface || "",
+                    diagnosticId: blockedDerivedSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedDerivedSource?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-55-2-causative-tla",
+                contractId: "55.2-causative-tla",
+                routeTemplateId: "tla",
+                range: "55.2",
+                authority: ["Andrews 55.2"],
+                input: {
+                    unit: "nounstem",
+                    state: "absolutive",
+                    sourceCategory: "nounstem",
+                    sourceEvidence: "nawat-source-nounstem-required",
+                },
+                operation: {
+                    type: "denominal-causative-verbstem",
+                    suffix: "ta",
+                    classicalSuffix: "tla",
+                    outputValency: "causative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "causative",
+                    stemClass: ["A"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-2-causative-tla"],
+            inventoryStructuralOnly: false,
+            route: {
+                executableRuleId: "andrews-55-2-causative-tla",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukta",
+                targetInput: "(pusuk)-(ta)",
+                targetStemClass: "A",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "not-required",
+                requestVerb: "(pusuk)-(ta)",
+                requestObjectPrefix: "ta",
+                requestObjectExpected: true,
+            },
+            success: {
+                ok: true,
+                surface: "pusukta",
+                targetVerbStem: "pusukta",
+                targetInput: "(pusuk)-(ta)",
+                targetStemClass: "A",
+                targetValency: "causative",
+                resultFrameSurface: "pusukta",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-causative-tla-source-stem-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-causative-tla-absolutive-nounstem-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedDerivedSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-causative-tla-nounstem-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.2 tla-ti-lia is an executable applicative rule contract from a generated causative tla source",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.2-tla-ti-lia-applicative"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("55.2-tla-ti-lia-applicative", "tla-ti-lia");
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusuk",
+                contractId: "55.2-tla-ti-lia-applicative",
+                sourceEvidence: {
+                    tlaCausativeSource: true,
+                    sourceCategory: "causative-tla",
+                    sourceState: "derived",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukta",
+                },
+            });
+            const satisfiedRoute = satisfiedPreview?.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative", {
+                sourceEvidence: {
+                    tlaCausativeSource: true,
+                    sourceCategory: "causative-tla",
+                    sourceState: "derived",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukta",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative", {
+                sourceStem: "pusukta",
+                sourceState: "derived",
+                sourceCategory: "causative-tla-vnc",
+            });
+            const blockedOriginalNounstem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tlaCausativeSource: true,
+                    sourceCategory: "causative-tla",
+                    sourceState: "absolutive",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukta",
+                },
+            });
+            const blockedBoundary = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative", {
+                sourceStem: "pusuk",
+                sourceEvidence: {
+                    tlaCausativeSource: true,
+                    sourceCategory: "causative-tla",
+                    sourceState: "derived",
+                    sourceBaseStem: "pusuk",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    sourceStem: success?.sourceStem || "",
+                    sourceVerbStem: success?.sourceVerbStem || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedOriginalNounstem: {
+                    ok: blockedOriginalNounstem?.ok === true,
+                    surface: blockedOriginalNounstem?.surface || "",
+                    diagnosticId: blockedOriginalNounstem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedOriginalNounstem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedOriginalNounstem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedOriginalNounstem?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedBoundary: {
+                    ok: blockedBoundary?.ok === true,
+                    surface: blockedBoundary?.surface || "",
+                    diagnosticId: blockedBoundary?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedBoundary?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedBoundary?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedBoundary?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-55-2-tla-ti-lia-applicative",
+                contractId: "55.2-tla-ti-lia-applicative",
+                routeTemplateId: "tla-ti-lia",
+                range: "55.2",
+                authority: ["Andrews 55.2", "Andrews 26.7"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "causative-tla-verbstem-source",
+                    sourceEvidence: "generated-causative-tla-verbstem-source-required",
+                },
+                operation: {
+                    type: "applicative-from-causative-tla-verbstem",
+                    sourceSuffix: "ta",
+                    sourceClassicalSuffix: "tla",
+                    replacementBeforeSuffix: "ti",
+                    suffix: "lia",
+                    classicalSuffix: "ti-lia",
+                    outputValency: "applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "applicative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-2-tla-ti-lia-applicative"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-55-2-tla-ti-lia-applicative",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-55-2-tla-ti-lia-applicative",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(pusukti)-(lia)",
+                requestObjectPrefix: "ta",
+                requestObjectExpected: true,
+            },
+            success: {
+                ok: true,
+                surface: "pusuktilia",
+                sourceStem: "pusuk",
+                sourceVerbStem: "pusukta",
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                targetValency: "applicative",
+                resultFrameSurface: "pusuktilia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedOriginalNounstem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-tla-ti-lia-generated-tla-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedBoundary: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-tla-ti-lia-source-final-ta-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.2 note intransitive tla is an executable rule contract gated by lexical source evidence",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.2-intransitive-tla"
+            ));
+            const unsatisfiedRoute = findAndrewsContractRoute("55.2-intransitive-tla", "intransitive-tla");
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "ilwi",
+                contractId: "55.2-intransitive-tla",
+                sourceEvidence: {
+                    intransitiveTlaLexicalSource: true,
+                    sourceCategory: "intransitive-tla-lexical-source",
+                    sourceState: "absolutive",
+                    sourceBaseStem: "ilwi",
+                },
+            });
+            const satisfiedRoute = satisfiedPreview?.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceEvidence: {
+                    intransitiveTlaLexicalSource: true,
+                    sourceCategory: "intransitive-tla-lexical-source",
+                    sourceState: "absolutive",
+                    sourceBaseStem: "ilwi",
+                },
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceStem: "ilwi",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const blockedPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceStem: "nukal",
+                sourceEvidence: {
+                    intransitiveTlaLexicalSource: true,
+                    sourceState: "possessive",
+                    sourceCategory: "possessive-state-nnc-predicate",
+                    sourceBaseStem: "nukal",
+                },
+            });
+            const blockedDerivedSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceStem: "ilwita",
+                sourceEvidence: {
+                    intransitiveTlaLexicalSource: true,
+                    sourceState: "derived",
+                    sourceCategory: "intransitive-tla-vnc",
+                    sourceBaseStem: "ilwita",
+                },
+            });
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceEvidence: {
+                    intransitiveTlaLexicalSource: true,
+                    sourceCategory: "intransitive-tla-lexical-source",
+                    sourceState: "absolutive",
+                },
+            });
+            const finiteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                satisfiedRoute,
+                { tense: "presente" }
+            );
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedRoute: {
+                    executableRuleId: unsatisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-lexical-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-lexical-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedRoute?.sourceRequirement?.validationStatus || "",
+                },
+                satisfiedRoute: {
+                    executableRuleId: satisfiedRoute?.executableRuleId || "",
+                    routeTargetGenerated: satisfiedRoute?.routeTargetGenerated === true,
+                    targetVerbStem: satisfiedRoute?.targetVerbStem || "",
+                    targetInput: satisfiedRoute?.targetInput || "",
+                    finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
+                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessive: {
+                    ok: blockedPossessive?.ok === true,
+                    surface: blockedPossessive?.surface || "",
+                    diagnosticId: blockedPossessive?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessive?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessive?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedDerivedSource: {
+                    ok: blockedDerivedSource?.ok === true,
+                    surface: blockedDerivedSource?.surface || "",
+                    diagnosticId: blockedDerivedSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedDerivedSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedDerivedSource?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-55-2-intransitive-tla",
+                contractId: "55.2-intransitive-tla",
+                routeTemplateId: "intransitive-tla",
+                range: "55.2 note",
+                authority: ["Andrews 55.2 note"],
+                input: {
+                    unit: "nounstem",
+                    state: "absolutive",
+                    sourceCategory: "nounstem",
+                    sourceEvidence: "confirmed-very-limited-intransitive-tla-source-required",
+                },
+                operation: {
+                    type: "very-limited-denominal-intransitive-tla-verbstem",
+                    suffix: "ta",
+                    classicalSuffix: "tla",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-2-intransitive-tla"],
+            inventoryStructuralOnly: false,
+            unsatisfiedRoute: {
+                executableRuleId: "andrews-55-2-intransitive-tla",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-lexical-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-55-2-intransitive-tla",
+                routeTargetGenerated: true,
+                targetVerbStem: "ilwita",
+                targetInput: "(ilwita)",
+                finiteAvailable: true,
+                objectPrefixRequired: false,
+                sourceRequirement: "source-evidence-satisfied",
+                requestVerb: "(ilwita)",
+                requestObjectExpected: false,
+            },
+            success: {
+                ok: true,
+                surface: "ilwita",
+                targetVerbStem: "ilwita",
+                targetInput: "(ilwita)",
+                targetValency: "intransitive",
+                resultFrameSurface: "ilwita",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-lexical-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-absolutive-nounstem-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedDerivedSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-nounstem-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-source-stem-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.2 note intransitive tla ti-a and ti-lia continuations are executable source-gated contracts",
+        (() => {
+            const tiARule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a");
+            const tiLiaRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia");
+            const tiAInventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.2-intransitive-tla-ti-a-causative"
+            ));
+            const tiLiaInventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.2-intransitive-tla-ti-lia-applicative"
+            ));
+            const unsatisfiedTiARoute = findAndrewsContractRoute("55.2-intransitive-tla-ti-a-causative", "intransitive-tla-ti-a");
+            const unsatisfiedTiLiaRoute = findAndrewsContractRoute("55.2-intransitive-tla-ti-lia-applicative", "intransitive-tla-ti-lia");
+            const sourceEvidence = {
+                tlaIntransitiveSource: true,
+                sourceCategory: "intransitive-tla",
+                sourceState: "derived",
+                sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukta",
+            };
+            const tiASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
+                sourceEvidence,
+            });
+            const tiLiaSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia", {
+                sourceEvidence,
+            });
+            const blockedNoEvidence = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const blockedOriginalSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
+                sourceEvidence: {
+                    tlaIntransitiveSource: true,
+                    sourceCategory: "intransitive-tla",
+                    sourceState: "absolutive",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukta",
+                },
+            });
+            const blockedWrongSourceCategory = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
+                sourceEvidence: {
+                    tlaIntransitiveSource: true,
+                    sourceCategory: "causative-tla",
+                    sourceState: "derived",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukta",
+                },
+            });
+            const blockedWrongFinal = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia", {
+                sourceEvidence: {
+                    tlaIntransitiveSource: true,
+                    sourceCategory: "intransitive-tla",
+                    sourceState: "derived",
+                    sourceBaseStem: "pusuk",
+                    sourceVerbStem: "pusukwi",
+                },
+            });
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia", {
+                sourceEvidence: {
+                    tlaIntransitiveSource: true,
+                    sourceCategory: "intransitive-tla",
+                    sourceState: "derived",
+                },
+            });
+            return {
+                tiARuleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(tiARule),
+                tiLiaRuleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(tiLiaRule),
+                tiAInventoryExecutableRuleIds: tiAInventoryContract?.executableRuleIds || [],
+                tiLiaInventoryExecutableRuleIds: tiLiaInventoryContract?.executableRuleIds || [],
+                tiAInventoryStructuralOnly: tiAInventoryContract?.boundaries?.structuralInventoryOnly === true,
+                tiLiaInventoryStructuralOnly: tiLiaInventoryContract?.boundaries?.structuralInventoryOnly === true,
+                unsatisfiedTiARoute: {
+                    executableRuleId: unsatisfiedTiARoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedTiARoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedTiARoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedTiARoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-ti-a-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedTiARoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-ti-a-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedTiARoute?.sourceRequirement?.validationStatus || "",
+                },
+                unsatisfiedTiLiaRoute: {
+                    executableRuleId: unsatisfiedTiLiaRoute?.executableRuleId || "",
+                    routeTargetGenerated: unsatisfiedTiLiaRoute?.routeTargetGenerated === true,
+                    targetVerbStem: unsatisfiedTiLiaRoute?.targetVerbStem || "",
+                    diagnosticId: unsatisfiedTiLiaRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required")?.id || "",
+                    diagnosticLayer: unsatisfiedTiLiaRoute?.routeDiagnostics?.find((diagnostic) => diagnostic?.id === "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required")?.failedLayer || "",
+                    requirementStatus: unsatisfiedTiLiaRoute?.sourceRequirement?.validationStatus || "",
+                },
+                tiASuccess: {
+                    ok: tiASuccess?.ok === true,
+                    surface: tiASuccess?.surface || "",
+                    targetVerbStem: tiASuccess?.targetVerbStem || "",
+                    targetInput: tiASuccess?.targetInput || "",
+                    targetValency: tiASuccess?.targetValency || "",
+                    resultFrameSurface: tiASuccess?.frames?.resultFrame?.surface || "",
+                    generationAllowed: tiASuccess?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: tiASuccess?.contractDiagnostics?.length || 0,
+                },
+                tiLiaSuccess: {
+                    ok: tiLiaSuccess?.ok === true,
+                    surface: tiLiaSuccess?.surface || "",
+                    targetVerbStem: tiLiaSuccess?.targetVerbStem || "",
+                    targetInput: tiLiaSuccess?.targetInput || "",
+                    targetValency: tiLiaSuccess?.targetValency || "",
+                    resultFrameSurface: tiLiaSuccess?.frames?.resultFrame?.surface || "",
+                    generationAllowed: tiLiaSuccess?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: tiLiaSuccess?.contractDiagnostics?.length || 0,
+                },
+                blockedNoEvidence: {
+                    ok: blockedNoEvidence?.ok === true,
+                    surface: blockedNoEvidence?.surface || "",
+                    diagnosticId: blockedNoEvidence?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedOriginalSource: {
+                    ok: blockedOriginalSource?.ok === true,
+                    surface: blockedOriginalSource?.surface || "",
+                    diagnosticId: blockedOriginalSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedOriginalSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedOriginalSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedOriginalSource?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedWrongSourceCategory: {
+                    ok: blockedWrongSourceCategory?.ok === true,
+                    surface: blockedWrongSourceCategory?.surface || "",
+                    diagnosticId: blockedWrongSourceCategory?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedWrongSourceCategory?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedWrongSourceCategory?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedWrongSourceCategory?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedWrongFinal: {
+                    ok: blockedWrongFinal?.ok === true,
+                    surface: blockedWrongFinal?.surface || "",
+                    diagnosticId: blockedWrongFinal?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedWrongFinal?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedWrongFinal?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedWrongFinal?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            tiARuleSummary: {
+                version: 1,
+                id: "andrews-55-2-intransitive-tla-ti-a",
+                contractId: "55.2-intransitive-tla-ti-a-causative",
+                routeTemplateId: "intransitive-tla-ti-a",
+                range: "55.2 note",
+                authority: ["Andrews 55.2 note"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "intransitive-tla-verbstem-source",
+                    sourceEvidence: "generated-intransitive-tla-verbstem-source-required",
+                },
+                operation: {
+                    type: "causative-from-intransitive-tla-verbstem",
+                    sourceSuffix: "ta",
+                    sourceClassicalSuffix: "tla",
+                    replacementBeforeSuffix: "ti",
+                    suffix: "a",
+                    classicalSuffix: "ti-a",
+                    outputValency: "causative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "causative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            tiLiaRuleSummary: {
+                version: 1,
+                id: "andrews-55-2-intransitive-tla-ti-lia",
+                contractId: "55.2-intransitive-tla-ti-lia-applicative",
+                routeTemplateId: "intransitive-tla-ti-lia",
+                range: "55.2 note",
+                authority: ["Andrews 55.2 note"],
+                input: {
+                    unit: "vnc-stem",
+                    state: "derived",
+                    sourceCategory: "intransitive-tla-verbstem-source",
+                    sourceEvidence: "generated-intransitive-tla-verbstem-source-required",
+                },
+                operation: {
+                    type: "applicative-from-intransitive-tla-causative-verbstem",
+                    sourceSuffix: "ta",
+                    sourceClassicalSuffix: "tla",
+                    replacementBeforeSuffix: "ti",
+                    suffix: "lia",
+                    classicalSuffix: "ti-lia",
+                    outputValency: "applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "applicative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            tiAInventoryExecutableRuleIds: ["andrews-55-2-intransitive-tla-ti-a"],
+            tiLiaInventoryExecutableRuleIds: ["andrews-55-2-intransitive-tla-ti-lia"],
+            tiAInventoryStructuralOnly: false,
+            tiLiaInventoryStructuralOnly: false,
+            unsatisfiedTiARoute: {
+                executableRuleId: "andrews-55-2-intransitive-tla-ti-a",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-a-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            unsatisfiedTiLiaRoute: {
+                executableRuleId: "andrews-55-2-intransitive-tla-ti-lia",
+                routeTargetGenerated: false,
+                targetVerbStem: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required",
+                diagnosticLayer: "authority",
+                requirementStatus: "source-evidence-required",
+            },
+            tiASuccess: {
+                ok: true,
+                surface: "pusuktia",
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukti)-(a)",
+                targetValency: "causative",
+                resultFrameSurface: "pusuktia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            tiLiaSuccess: {
+                ok: true,
+                surface: "pusuktilia",
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                targetValency: "applicative",
+                resultFrameSurface: "pusuktilia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedNoEvidence: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-a-source-evidence-required",
+                failedLayer: "authority",
+                contractLayer: "authorityFrame",
+                frameStatus: "blocked",
+            },
+            blockedOriginalSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-a-generated-tla-source-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedWrongSourceCategory: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-a-intransitive-tla-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedWrongFinal: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-lia-source-final-ta-required",
+                failedLayer: "morph-boundary",
+                contractLayer: "morphBoundaryFrame",
+                frameStatus: "blocked",
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.2-intransitive-tla-ti-lia-source-verbstem-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.3 o-a and huia are executable nounstem route contracts with guarded source layers",
+        (() => {
+            const oARule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a");
+            const huiaRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-huia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.3-intransitive-o-a-applicative-huia"
+            ));
+            const oARoute = findAndrewsContractRoute("55.3-intransitive-o-a-applicative-huia", "o-a");
+            const huiaRoute = findAndrewsContractRoute("55.3-intransitive-o-a-applicative-huia", "huia");
+            const oASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const huiaSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-huia", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const huiaBlockedObjectRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                huiaRoute,
+                { tense: "presente" }
+            );
+            const huiaFiniteRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                huiaRoute,
+                { tense: "presente", objectPrefix: "ta" }
+            );
+            const blockedMissingStem = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a", {
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const blockedPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-huia", {
+                sourceStem: "nukal",
+                sourceState: "possessive",
+                sourceCategory: "possessive-state-nnc-predicate",
+            });
+            const blockedGeneratedSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a", {
+                sourceStem: "pusukta",
+                sourceState: "derived",
+                sourceCategory: "causative-tla",
+            });
+            return {
+                oARuleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(oARule),
+                huiaRuleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(huiaRule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                oARoute: {
+                    executableRuleId: oARoute?.executableRuleId || "",
+                    routeTargetGenerated: oARoute?.routeTargetGenerated === true,
+                    targetVerbStem: oARoute?.targetVerbStem || "",
+                    targetInput: oARoute?.targetInput || "",
+                    targetStemClass: oARoute?.targetStemClass || "",
+                    finiteAvailable: oARoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: oARoute?.finiteGenerationRequiresObjectPrefix === true,
+                    diagnosticCount: oARoute?.routeDiagnosticCount || 0,
+                },
+                huiaRoute: {
+                    executableRuleId: huiaRoute?.executableRuleId || "",
+                    routeTargetGenerated: huiaRoute?.routeTargetGenerated === true,
+                    targetVerbStem: huiaRoute?.targetVerbStem || "",
+                    targetInput: huiaRoute?.targetInput || "",
+                    targetStemClass: huiaRoute?.targetStemClass || "",
+                    finiteAvailable: huiaRoute?.finiteGenerationContractAvailable === true,
+                    objectPrefixRequired: huiaRoute?.finiteGenerationRequiresObjectPrefix === true,
+                    diagnosticCount: huiaRoute?.routeDiagnosticCount || 0,
+                    blockedObjectRequest: huiaBlockedObjectRequest,
+                    requestVerb: huiaFiniteRequest?.prefixInputs?.verb || "",
+                    requestObjectPrefix: huiaFiniteRequest?.prefixInputs?.objectPrefix || "",
+                },
+                oASuccess: {
+                    ok: oASuccess?.ok === true,
+                    surface: oASuccess?.surface || "",
+                    targetVerbStem: oASuccess?.targetVerbStem || "",
+                    targetInput: oASuccess?.targetInput || "",
+                    targetValency: oASuccess?.targetValency || "",
+                    targetStemClass: oASuccess?.targetStemClass || "",
+                    resultFrameSurface: oASuccess?.frames?.resultFrame?.surface || "",
+                    generationAllowed: oASuccess?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: oASuccess?.contractDiagnostics?.length || 0,
+                },
+                huiaSuccess: {
+                    ok: huiaSuccess?.ok === true,
+                    surface: huiaSuccess?.surface || "",
+                    targetVerbStem: huiaSuccess?.targetVerbStem || "",
+                    targetInput: huiaSuccess?.targetInput || "",
+                    targetValency: huiaSuccess?.targetValency || "",
+                    targetStemClass: huiaSuccess?.targetStemClass || "",
+                    resultFrameSurface: huiaSuccess?.frames?.resultFrame?.surface || "",
+                    generationAllowed: huiaSuccess?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: huiaSuccess?.contractDiagnostics?.length || 0,
+                },
+                blockedMissingStem: {
+                    ok: blockedMissingStem?.ok === true,
+                    surface: blockedMissingStem?.surface || "",
+                    diagnosticId: blockedMissingStem?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedMissingStem?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedMissingStem?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedMissingStem?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedPossessive: {
+                    ok: blockedPossessive?.ok === true,
+                    surface: blockedPossessive?.surface || "",
+                    diagnosticId: blockedPossessive?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedPossessive?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedPossessive?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedPossessive?.frames?.diagnosticFrame?.status || "",
+                },
+                blockedGeneratedSource: {
+                    ok: blockedGeneratedSource?.ok === true,
+                    surface: blockedGeneratedSource?.surface || "",
+                    diagnosticId: blockedGeneratedSource?.contractDiagnostics?.[0]?.id || "",
+                    failedLayer: blockedGeneratedSource?.contractDiagnostics?.[0]?.failedLayer || "",
+                    contractLayer: blockedGeneratedSource?.contractDiagnostics?.[0]?.contractLayer || "",
+                    frameStatus: blockedGeneratedSource?.frames?.diagnosticFrame?.status || "",
+                },
+            };
+        })(),
+        {
+            oARuleSummary: {
+                version: 1,
+                id: "andrews-55-3-o-a",
+                contractId: "55.3-intransitive-o-a-applicative-huia",
+                routeTemplateId: "o-a",
+                range: "55.3",
+                authority: ["Andrews 55.3"],
+                input: {
+                    unit: "nounstem",
+                    state: "absolutive",
+                    sourceCategory: "nounstem",
+                    sourceEvidence: "nawat-source-nounstem-required",
+                },
+                operation: {
+                    type: "denominal-intransitive-o-a-verbstem",
+                    suffix: "ua",
+                    classicalSuffix: "o-a",
+                    outputValency: "intransitive",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "intransitive",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            huiaRuleSummary: {
+                version: 1,
+                id: "andrews-55-3-huia",
+                contractId: "55.3-intransitive-o-a-applicative-huia",
+                routeTemplateId: "huia",
+                range: "55.3",
+                authority: ["Andrews 55.3"],
+                input: {
+                    unit: "nounstem",
+                    state: "absolutive",
+                    sourceCategory: "nounstem",
+                    sourceEvidence: "nawat-source-nounstem-required",
+                },
+                operation: {
+                    type: "denominal-single-object-applicative-huia-verbstem",
+                    suffix: "wia",
+                    classicalSuffix: "huia",
+                    outputValency: "applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "applicative",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-3-o-a", "andrews-55-3-huia"],
+            inventoryStructuralOnly: false,
+            oARoute: {
+                executableRuleId: "andrews-55-3-o-a",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukua",
+                targetInput: "(pusukua)",
+                targetStemClass: "C",
+                finiteAvailable: true,
+                objectPrefixRequired: false,
+                diagnosticCount: 0,
+            },
+            huiaRoute: {
+                executableRuleId: "andrews-55-3-huia",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwia",
+                targetInput: "(pusuk)-(wia)",
+                targetStemClass: "C",
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                diagnosticCount: 0,
+                blockedObjectRequest: null,
+                requestVerb: "(pusuk)-(wia)",
+                requestObjectPrefix: "ta",
+            },
+            oASuccess: {
+                ok: true,
+                surface: "pusukua",
+                targetVerbStem: "pusukua",
+                targetInput: "(pusukua)",
+                targetValency: "intransitive",
+                targetStemClass: "C",
+                resultFrameSurface: "pusukua",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            huiaSuccess: {
+                ok: true,
+                surface: "pusukwia",
+                targetVerbStem: "pusukwia",
+                targetInput: "(pusuk)-(wia)",
+                targetValency: "applicative",
+                targetStemClass: "C",
+                resultFrameSurface: "pusukwia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blockedMissingStem: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.3-o-a-source-stem-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+            blockedPossessive: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.3-huia-absolutive-nounstem-required",
+                failedLayer: "agreement",
+                contractLayer: "participantFrame",
+                frameStatus: "blocked",
+            },
+            blockedGeneratedSource: {
+                ok: false,
+                surface: "",
+                diagnosticId: "andrews-55.3-o-a-nounstem-source-required",
+                failedLayer: "stem",
+                contractLayer: "stemFrame",
+                frameStatus: "blocked",
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.3 note 2 o-a i-l-huia/a-l-huia continuations are executable source-gated contracts",
+        (() => {
+            const iRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia");
+            const aRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.3-o-a-il-huia-al-huia-applicative-note"
+            ));
+            const iBaseRoute = findAndrewsContractRoute("55.3-o-a-il-huia-al-huia-applicative-note", "o-a-i-l-huia");
+            const aBaseRoute = findAndrewsContractRoute("55.3-o-a-il-huia-al-huia-applicative-note", "o-a-a-l-huia");
+            const sourceEvidence = {
+                intransitiveOaSource: true,
+                sourceCategory: "intransitive-o-a",
+                sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukua",
+            };
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusuk",
+                sourceEvidence,
+            });
+            const iSatisfiedRoute = satisfiedPreview.routes?.find((route) => (
+                route.contractId === "55.3-o-a-il-huia-al-huia-applicative-note"
+                && route.routeTemplateId === "o-a-i-l-huia"
+            ));
+            const aSatisfiedRoute = satisfiedPreview.routes?.find((route) => (
+                route.contractId === "55.3-o-a-il-huia-al-huia-applicative-note"
+                && route.routeTemplateId === "o-a-a-l-huia"
+            ));
+            const iSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia", {
+                sourceState: "derived",
+                sourceEvidence,
+            });
+            const aSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia", {
+                sourceState: "derived",
+                sourceEvidence,
+            });
+            const summarizeRoute = (route) => ({
+                executableRuleId: route?.executableRuleId || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+                finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                requirementStatus: route?.sourceRequirement?.validationStatus || "",
+                diagnosticIds: Array.isArray(route?.routeDiagnostics)
+                    ? route.routeDiagnostics.map((diagnostic) => diagnostic.id)
+                    : [],
+            });
+            const summarizeSuccess = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                targetVerbStem: result?.targetVerbStem || "",
+                targetInput: result?.targetInput || "",
+                targetValency: result?.targetValency || "",
+                resultFrameSurface: result?.frames?.resultFrame?.surface || "",
+                generationAllowed: result?.frames?.routeContract?.generationAllowed === true,
+                diagnosticCount: result?.contractDiagnostics?.length || 0,
+            });
+            const summarizeBlocked = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                diagnosticId: result?.contractDiagnostics?.[0]?.id || "",
+                failedLayer: result?.contractDiagnostics?.[0]?.failedLayer || "",
+                contractLayer: result?.contractDiagnostics?.[0]?.contractLayer || "",
+                frameStatus: result?.frames?.diagnosticFrame?.status || "",
+            });
+            return {
+                ruleIds: [iRule?.id || "", aRule?.id || ""],
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                baseRoutes: [summarizeRoute(iBaseRoute), summarizeRoute(aBaseRoute)],
+                satisfiedRoutes: [
+                    {
+                        ...summarizeRoute(iSatisfiedRoute),
+                        requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                            iSatisfiedRoute,
+                            { tense: "presente" }
+                        ),
+                        requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                            iSatisfiedRoute,
+                            { tense: "presente", objectPrefix: "ta" }
+                        )?.prefixInputs?.verb || "",
+                    },
+                    {
+                        ...summarizeRoute(aSatisfiedRoute),
+                        requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                            aSatisfiedRoute,
+                            { tense: "presente" }
+                        ),
+                        requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                            aSatisfiedRoute,
+                            { tense: "presente", objectPrefix: "ta" }
+                        )?.prefixInputs?.verb || "",
+                    },
+                ],
+                iSuccess: summarizeSuccess(iSuccess),
+                aSuccess: summarizeSuccess(aSuccess),
+                blocked: {
+                    noEvidence: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia", {
+                        sourceStem: "pusuk",
+                        sourceState: "derived",
+                        sourceCategory: "intransitive-o-a",
+                    })),
+                    originalSource: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia", {
+                        sourceState: "absolutive",
+                        sourceEvidence,
+                    })),
+                    wrongCategory: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia", {
+                        sourceState: "derived",
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceCategory: "causative-tla",
+                        },
+                    })),
+                    wrongFinal: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia", {
+                        sourceState: "derived",
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceVerbStem: "pusukta",
+                        },
+                    })),
+                    missingStem: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia", {
+                        sourceState: "derived",
+                        sourceEvidence: {
+                            intransitiveOaSource: true,
+                            sourceCategory: "intransitive-o-a",
+                            sourceBaseStem: "pusuk",
+                        },
+                    })),
+                },
+            };
+        })(),
+        {
+            ruleIds: ["andrews-55-3-o-a-i-l-huia", "andrews-55-3-o-a-a-l-huia"],
+            inventoryExecutableRuleIds: ["andrews-55-3-o-a-i-l-huia", "andrews-55-3-o-a-a-l-huia"],
+            inventoryStructuralOnly: false,
+            baseRoutes: [
+                {
+                    executableRuleId: "andrews-55-3-o-a-i-l-huia",
+                    targetVerbStem: "",
+                    targetInputValue: "",
+                    routeTargetGenerated: false,
+                    finiteAvailable: false,
+                    requirementStatus: "source-evidence-required",
+                    diagnosticIds: [
+                        "andrews-denominal-route-source-evidence-required",
+                        "andrews-55.3-o-a-i-l-huia-source-evidence-required",
+                    ],
+                },
+                {
+                    executableRuleId: "andrews-55-3-o-a-a-l-huia",
+                    targetVerbStem: "",
+                    targetInputValue: "",
+                    routeTargetGenerated: false,
+                    finiteAvailable: false,
+                    requirementStatus: "source-evidence-required",
+                    diagnosticIds: [
+                        "andrews-denominal-route-source-evidence-required",
+                        "andrews-55.3-o-a-a-l-huia-source-evidence-required",
+                    ],
+                },
+            ],
+            satisfiedRoutes: [
+                {
+                    executableRuleId: "andrews-55-3-o-a-i-l-huia",
+                    targetVerbStem: "pusukilwia",
+                    targetInputValue: "(pusuk)-(ilwia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    requirementStatus: "source-evidence-satisfied",
+                    diagnosticIds: [],
+                    requestNoObject: null,
+                    requestObjectVerb: "(pusuk)-(ilwia)",
+                },
+                {
+                    executableRuleId: "andrews-55-3-o-a-a-l-huia",
+                    targetVerbStem: "pusukalwia",
+                    targetInputValue: "(pusuk)-(alwia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    requirementStatus: "source-evidence-satisfied",
+                    diagnosticIds: [],
+                    requestNoObject: null,
+                    requestObjectVerb: "(pusuk)-(alwia)",
+                },
+            ],
+            iSuccess: {
+                ok: true,
+                surface: "pusukilwia",
+                targetVerbStem: "pusukilwia",
+                targetInput: "(pusuk)-(ilwia)",
+                targetValency: "applicative",
+                resultFrameSurface: "pusukilwia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            aSuccess: {
+                ok: true,
+                surface: "pusukalwia",
+                targetVerbStem: "pusukalwia",
+                targetInput: "(pusuk)-(alwia)",
+                targetValency: "applicative",
+                resultFrameSurface: "pusukalwia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blocked: {
+                noEvidence: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.3-o-a-i-l-huia-source-evidence-required",
+                    failedLayer: "authority",
+                    contractLayer: "authorityFrame",
+                    frameStatus: "blocked",
+                },
+                originalSource: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.3-o-a-i-l-huia-generated-o-a-source-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                wrongCategory: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.3-o-a-i-l-huia-intransitive-o-a-source-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                wrongFinal: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.3-o-a-a-l-huia-source-final-ua-required",
+                    failedLayer: "morph-boundary",
+                    contractLayer: "morphBoundaryFrame",
+                    frameStatus: "blocked",
+                },
+                missingStem: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.3-o-a-a-l-huia-source-verbstem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.4 adverbial huia is an executable source-gated applicative contract",
+        (() => {
+            const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia");
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.4-adverbial-huia"
+            ));
+            const basePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "achpa",
+                contractId: "55.4-adverbial-huia",
+            });
+            const baseRoute = basePreview.routes?.[0] || null;
+            const sourceEvidence = {
+                adverbialSource: true,
+                sourceCategory: "adverbial-nounstem",
+                sourceState: "adverbialized",
+                sourceBaseStem: "achpa",
+            };
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "achpa",
+                contractId: "55.4-adverbial-huia",
+                sourceEvidence,
+            });
+            const satisfiedRoute = satisfiedPreview.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                sourceEvidence,
+            });
+            const summarizeRoute = (route) => ({
+                executableRuleId: route?.executableRuleId || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+                finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                requirementStatus: route?.sourceRequirement?.validationStatus || "",
+                diagnosticIds: Array.isArray(route?.routeDiagnostics)
+                    ? route.routeDiagnostics.map((diagnostic) => diagnostic.id)
+                    : [],
+            });
+            const summarizeBlocked = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                diagnosticId: result?.contractDiagnostics?.[0]?.id || "",
+                failedLayer: result?.contractDiagnostics?.[0]?.failedLayer || "",
+                contractLayer: result?.contractDiagnostics?.[0]?.contractLayer || "",
+                frameStatus: result?.frames?.diagnosticFrame?.status || "",
+            });
+            return {
+                ruleSummary: ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(rule),
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                baseRoute: summarizeRoute(baseRoute),
+                satisfiedRoute: {
+                    ...summarizeRoute(satisfiedRoute),
+                    requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        satisfiedRoute,
+                        { tense: "presente" }
+                    ),
+                    requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        satisfiedRoute,
+                        { tense: "presente", objectPrefix: "ta" }
+                    )?.prefixInputs?.verb || "",
+                },
+                success: {
+                    ok: success?.ok === true,
+                    surface: success?.surface || "",
+                    targetVerbStem: success?.targetVerbStem || "",
+                    targetInput: success?.targetInput || "",
+                    targetValency: success?.targetValency || "",
+                    resultFrameSurface: success?.frames?.resultFrame?.surface || "",
+                    generationAllowed: success?.frames?.routeContract?.generationAllowed === true,
+                    diagnosticCount: success?.contractDiagnostics?.length || 0,
+                },
+                blocked: {
+                    noEvidence: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                        sourceStem: "achpa",
+                        sourceState: "adverbialized",
+                        sourceCategory: "adverbial-nounstem",
+                    })),
+                    wrongState: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceState: "absolutive",
+                        },
+                    })),
+                    possessive: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceState: "possessive",
+                            sourceCategory: "possessive-state-nnc-predicate",
+                        },
+                    })),
+                    wrongCategory: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceCategory: "relational-compound-source",
+                        },
+                    })),
+                    missingStem: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia", {
+                        sourceEvidence: {
+                            adverbialSource: true,
+                            sourceCategory: "adverbial-nounstem",
+                            sourceState: "adverbialized",
+                        },
+                    })),
+                },
+            };
+        })(),
+        {
+            ruleSummary: {
+                version: 1,
+                id: "andrews-55-4-adverbial-huia",
+                contractId: "55.4-adverbial-huia",
+                routeTemplateId: "adverbial-huia",
+                range: "55.4",
+                authority: ["Andrews 55.4", "Andrews Lesson 44"],
+                input: {
+                    unit: "nounstem",
+                    state: "adverbialized",
+                    sourceCategory: "adverbial-nounstem",
+                    sourceEvidence: "confirmed-adverbial-nounstem-required",
+                },
+                operation: {
+                    type: "denominal-single-object-applicative-huia-from-adverbial-nounstem",
+                    suffix: "wia",
+                    classicalSuffix: "huia",
+                    outputValency: "applicative",
+                },
+                output: {
+                    unit: "vnc",
+                    valency: "applicative",
+                    stemClass: [],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            },
+            inventoryExecutableRuleIds: ["andrews-55-4-adverbial-huia"],
+            inventoryStructuralOnly: false,
+            baseRoute: {
+                executableRuleId: "andrews-55-4-adverbial-huia",
+                targetVerbStem: "",
+                targetInputValue: "",
+                routeTargetGenerated: false,
+                finiteAvailable: false,
+                requirementStatus: "source-evidence-required",
+                diagnosticIds: [
+                    "andrews-denominal-route-source-evidence-required",
+                    "andrews-55.4-huia-adverbial-source-evidence-required",
+                ],
+            },
+            satisfiedRoute: {
+                executableRuleId: "andrews-55-4-adverbial-huia",
+                targetVerbStem: "achpawia",
+                targetInputValue: "(achpa)-(wia)",
+                routeTargetGenerated: true,
+                finiteAvailable: true,
+                requirementStatus: "source-evidence-satisfied",
+                diagnosticIds: [],
+                requestNoObject: null,
+                requestObjectVerb: "(achpa)-(wia)",
+            },
+            success: {
+                ok: true,
+                surface: "achpawia",
+                targetVerbStem: "achpawia",
+                targetInput: "(achpa)-(wia)",
+                targetValency: "applicative",
+                resultFrameSurface: "achpawia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blocked: {
+                noEvidence: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.4-huia-adverbial-source-evidence-required",
+                    failedLayer: "authority",
+                    contractLayer: "authorityFrame",
+                    frameStatus: "blocked",
+                },
+                wrongState: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.4-huia-adverbial-state-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                possessive: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.4-huia-adverbial-source-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                wrongCategory: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.4-huia-adverbial-source-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                missingStem: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.4-huia-source-stem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.5 relational o-a and huia are executable source-gated contracts",
+        (() => {
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.5-relational-compound-o-a-huia"
+            ));
+            const basePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "kalpan",
+                contractId: "55.5-relational-compound-o-a-huia",
+            });
+            const sourceEvidence = {
+                relationalCompoundSource: true,
+                sourceCategory: "compound-relational-nounstem",
+                sourceState: "relational",
+                sourceBaseStem: "kalpan",
+            };
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "kalpan",
+                contractId: "55.5-relational-compound-o-a-huia",
+                sourceEvidence,
+            });
+            const relationalOaSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a", {
+                sourceEvidence,
+            });
+            const relationalHuiaSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia", {
+                sourceEvidence,
+            });
+            const summarizeRoute = (route) => ({
+                executableRuleId: route?.executableRuleId || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+                finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                objectPrefixRequired: route?.finiteGenerationRequiresObjectPrefix === true,
+                requirementStatus: route?.sourceRequirement?.validationStatus || "",
+                diagnosticIds: Array.isArray(route?.routeDiagnostics)
+                    ? route.routeDiagnostics.map((diagnostic) => diagnostic.id)
+                    : [],
+            });
+            const summarizeSuccess = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                targetVerbStem: result?.targetVerbStem || "",
+                targetInput: result?.targetInput || "",
+                targetValency: result?.targetValency || "",
+                resultFrameSurface: result?.frames?.resultFrame?.surface || "",
+                generationAllowed: result?.frames?.routeContract?.generationAllowed === true,
+                diagnosticCount: result?.contractDiagnostics?.length || 0,
+            });
+            const summarizeBlocked = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                diagnosticId: result?.contractDiagnostics?.[0]?.id || "",
+                failedLayer: result?.contractDiagnostics?.[0]?.failedLayer || "",
+                contractLayer: result?.contractDiagnostics?.[0]?.contractLayer || "",
+                frameStatus: result?.frames?.diagnosticFrame?.status || "",
+            });
+            return {
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                ruleSummaries: [
+                    ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a")
+                    ),
+                    ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia")
+                    ),
+                ].map((rule) => ({
+                    id: rule?.id || "",
+                    operationType: rule?.operation?.type || "",
+                    suffix: rule?.operation?.suffix || "",
+                    outputValency: rule?.output?.valency || "",
+                    surfaceAuthority: rule?.output?.surfaceAuthority || "",
+                })),
+                baseRoutes: (basePreview.routes || []).map(summarizeRoute),
+                satisfiedRoutes: (satisfiedPreview.routes || []).map((route) => ({
+                    ...summarizeRoute(route),
+                    requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        route,
+                        { tense: "presente" }
+                    ),
+                    requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        route,
+                        { tense: "presente", objectPrefix: "ta" }
+                    )?.prefixInputs?.verb || "",
+                })),
+                successes: [
+                    summarizeSuccess(relationalOaSuccess),
+                    summarizeSuccess(relationalHuiaSuccess),
+                ],
+                blocked: {
+                    noEvidence: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a", {
+                        sourceStem: "kalpan",
+                        sourceState: "relational",
+                        sourceCategory: "compound-relational-nounstem",
+                    })),
+                    wrongState: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceState: "absolutive",
+                        },
+                    })),
+                    wrongCategory: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceCategory: "adverbial-nounstem",
+                        },
+                    })),
+                    missingStem: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia", {
+                        sourceEvidence: {
+                            relationalCompoundSource: true,
+                            sourceCategory: "compound-relational-nounstem",
+                            sourceState: "relational",
+                        },
+                    })),
+                },
+            };
+        })(),
+        {
+            inventoryExecutableRuleIds: ["andrews-55-5-relational-o-a", "andrews-55-5-relational-huia"],
+            inventoryStructuralOnly: false,
+            ruleSummaries: [
+                {
+                    id: "andrews-55-5-relational-o-a",
+                    operationType: "denominal-o-a-from-relational-compound-or-predicate",
+                    suffix: "ua",
+                    outputValency: "usually-transitive",
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+                {
+                    id: "andrews-55-5-relational-huia",
+                    operationType: "denominal-single-object-applicative-huia-from-relational-compound-or-predicate",
+                    suffix: "wia",
+                    outputValency: "applicative",
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            ],
+            baseRoutes: [
+                {
+                    executableRuleId: "andrews-55-5-relational-o-a",
+                    targetVerbStem: "",
+                    targetInputValue: "",
+                    routeTargetGenerated: false,
+                    finiteAvailable: false,
+                    objectPrefixRequired: true,
+                    requirementStatus: "source-evidence-required",
+                    diagnosticIds: [
+                        "andrews-denominal-route-source-evidence-required",
+                        "andrews-55.5-o-a-relational-source-evidence-required",
+                    ],
+                },
+                {
+                    executableRuleId: "andrews-55-5-relational-huia",
+                    targetVerbStem: "",
+                    targetInputValue: "",
+                    routeTargetGenerated: false,
+                    finiteAvailable: false,
+                    objectPrefixRequired: true,
+                    requirementStatus: "source-evidence-required",
+                    diagnosticIds: [
+                        "andrews-denominal-route-source-evidence-required",
+                        "andrews-55.5-huia-relational-source-evidence-required",
+                    ],
+                },
+            ],
+            satisfiedRoutes: [
+                {
+                    executableRuleId: "andrews-55-5-relational-o-a",
+                    targetVerbStem: "kalpanua",
+                    targetInputValue: "(kalpan)-(ua)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    objectPrefixRequired: true,
+                    requirementStatus: "source-evidence-satisfied",
+                    diagnosticIds: [],
+                    requestNoObject: null,
+                    requestObjectVerb: "(kalpan)-(ua)",
+                },
+                {
+                    executableRuleId: "andrews-55-5-relational-huia",
+                    targetVerbStem: "kalpanwia",
+                    targetInputValue: "(kalpan)-(wia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    objectPrefixRequired: true,
+                    requirementStatus: "source-evidence-satisfied",
+                    diagnosticIds: [],
+                    requestNoObject: null,
+                    requestObjectVerb: "(kalpan)-(wia)",
+                },
+            ],
+            successes: [
+                {
+                    ok: true,
+                    surface: "kalpanua",
+                    targetVerbStem: "kalpanua",
+                    targetInput: "(kalpan)-(ua)",
+                    targetValency: "usually-transitive",
+                    resultFrameSurface: "kalpanua",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+                {
+                    ok: true,
+                    surface: "kalpanwia",
+                    targetVerbStem: "kalpanwia",
+                    targetInput: "(kalpan)-(wia)",
+                    targetValency: "applicative",
+                    resultFrameSurface: "kalpanwia",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+            ],
+            blocked: {
+                noEvidence: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.5-o-a-relational-source-evidence-required",
+                    failedLayer: "authority",
+                    contractLayer: "authorityFrame",
+                    frameStatus: "blocked",
+                },
+                wrongState: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.5-o-a-relational-state-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                wrongCategory: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.5-huia-relational-source-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                missingStem: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.5-huia-source-stem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+            },
+        }
+    );
+    s.eq(
+        "Andrews 55.6 i-hui/a-hui and o-a are executable staged contracts",
+        (() => {
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.6-i-hui-a-hui-to-o-a"
+            ));
+            const basePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusuk",
+                contractId: "55.6-i-hui-a-hui-to-o-a",
+            });
+            const sourceEvidence = {
+                iHuiOrAHuiSource: true,
+                sourceCategory: "i-hui-a-hui-source",
+                sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukiwi",
+            };
+            const satisfiedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusuk",
+                contractId: "55.6-i-hui-a-hui-to-o-a",
+                sourceEvidence,
+            });
+            const iHuiSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-i-hui", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const aHuiSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-a-hui", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem",
+            });
+            const oASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                sourceEvidence,
+            });
+            const summarizeRoute = (route) => ({
+                routeTemplateId: route?.routeTemplateId || "",
+                executableRuleId: route?.executableRuleId || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+                finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                objectPrefixRequired: route?.finiteGenerationRequiresObjectPrefix === true,
+                requirementStatus: route?.sourceRequirement?.validationStatus || "",
+                diagnosticIds: Array.isArray(route?.routeDiagnostics)
+                    ? route.routeDiagnostics.map((diagnostic) => diagnostic.id)
+                    : [],
+            });
+            const summarizeSuccess = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                targetVerbStem: result?.targetVerbStem || "",
+                targetInput: result?.targetInput || "",
+                targetValency: result?.targetValency || "",
+                targetStemClass: result?.targetStemClass || "",
+                resultFrameSurface: result?.frames?.resultFrame?.surface || "",
+                generationAllowed: result?.frames?.routeContract?.generationAllowed === true,
+                diagnosticCount: result?.contractDiagnostics?.length || 0,
+            });
+            const summarizeBlocked = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                diagnosticId: result?.contractDiagnostics?.[0]?.id || "",
+                failedLayer: result?.contractDiagnostics?.[0]?.failedLayer || "",
+                contractLayer: result?.contractDiagnostics?.[0]?.contractLayer || "",
+                frameStatus: result?.frames?.diagnosticFrame?.status || "",
+            });
+            const satisfiedOaRoute = (satisfiedPreview.routes || []).find((route) => route.routeTemplateId === "o-a");
+            return {
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                ruleSummaries: [
+                    ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-i-hui")
+                    ),
+                    ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-a-hui")
+                    ),
+                    ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a")
+                    ),
+                ].map((rule) => ({
+                    id: rule?.id || "",
+                    operationType: rule?.operation?.type || "",
+                    suffix: rule?.operation?.suffix || "",
+                    outputValency: rule?.output?.valency || "",
+                    stemClass: rule?.output?.stemClass || [],
+                    surfaceAuthority: rule?.output?.surfaceAuthority || "",
+                })),
+                baseRoutes: (basePreview.routes || []).map(summarizeRoute),
+                satisfiedOaRoute: {
+                    ...summarizeRoute(satisfiedOaRoute),
+                    requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        satisfiedOaRoute,
+                        { tense: "presente" }
+                    ),
+                    requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        satisfiedOaRoute,
+                        { tense: "presente", objectPrefix: "ta" }
+                    )?.prefixInputs?.verb || "",
+                },
+                successes: [
+                    summarizeSuccess(iHuiSuccess),
+                    summarizeSuccess(aHuiSuccess),
+                    summarizeSuccess(oASuccess),
+                ],
+                blocked: {
+                    noEvidence: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                        sourceStem: "pusuk",
+                        sourceState: "absolutive",
+                        sourceCategory: "nounstem",
+                    })),
+                    originalSource: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceState: "absolutive",
+                        },
+                    })),
+                    wrongCategory: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceCategory: "intransitive-ti-source",
+                            sourceVerbStem: "pusukti",
+                        },
+                    })),
+                    wrongFinal: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                        sourceEvidence: {
+                            ...sourceEvidence,
+                            sourceVerbStem: "pusukti",
+                        },
+                    })),
+                    missingStem: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                        sourceEvidence: {
+                            iHuiOrAHuiSource: true,
+                            sourceCategory: "i-hui-a-hui-source",
+                            sourceBaseStem: "pusuk",
+                        },
+                    })),
+                },
+            };
+        })(),
+        {
+            inventoryExecutableRuleIds: ["andrews-55-6-i-hui", "andrews-55-6-a-hui", "andrews-55-6-o-a"],
+            inventoryStructuralOnly: false,
+            ruleSummaries: [
+                {
+                    id: "andrews-55-6-i-hui",
+                    operationType: "denominal-intransitive-i-hui-verbstem",
+                    suffix: "iwi",
+                    outputValency: "intransitive",
+                    stemClass: ["B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+                {
+                    id: "andrews-55-6-a-hui",
+                    operationType: "denominal-intransitive-a-hui-verbstem",
+                    suffix: "awi",
+                    outputValency: "intransitive",
+                    stemClass: ["B"],
+                    surfaceAuthority: "nawat-orthography",
+                },
+                {
+                    id: "andrews-55-6-o-a",
+                    operationType: "causative-o-a-from-i-hui-a-hui-source",
+                    suffix: "ua",
+                    outputValency: "transitive",
+                    stemClass: ["C"],
+                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                },
+            ],
+            baseRoutes: [
+                {
+                    routeTemplateId: "i-hui",
+                    executableRuleId: "andrews-55-6-i-hui",
+                    targetVerbStem: "pusukiwi",
+                    targetInputValue: "(pusukiwi)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    objectPrefixRequired: false,
+                    requirementStatus: "not-required",
+                    diagnosticIds: [],
+                },
+                {
+                    routeTemplateId: "a-hui",
+                    executableRuleId: "andrews-55-6-a-hui",
+                    targetVerbStem: "pusukawi",
+                    targetInputValue: "(pusukawi)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
+                    objectPrefixRequired: false,
+                    requirementStatus: "not-required",
+                    diagnosticIds: [],
+                },
+                {
+                    routeTemplateId: "o-a",
+                    executableRuleId: "andrews-55-6-o-a",
+                    targetVerbStem: "",
+                    targetInputValue: "",
+                    routeTargetGenerated: false,
+                    finiteAvailable: false,
+                    objectPrefixRequired: true,
+                    requirementStatus: "source-evidence-required",
+                    diagnosticIds: [
+                        "andrews-denominal-route-source-evidence-required",
+                        "andrews-55.6-o-a-i-hui-a-hui-source-evidence-required",
+                    ],
+                },
+            ],
+            satisfiedOaRoute: {
+                routeTemplateId: "o-a",
+                executableRuleId: "andrews-55-6-o-a",
+                targetVerbStem: "pusukua",
+                targetInputValue: "(pusuk)-(ua)",
+                routeTargetGenerated: true,
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                requirementStatus: "source-evidence-satisfied",
+                diagnosticIds: [],
+                requestNoObject: null,
+                requestObjectVerb: "(pusuk)-(ua)",
+            },
+            successes: [
+                {
+                    ok: true,
+                    surface: "pusukiwi",
+                    targetVerbStem: "pusukiwi",
+                    targetInput: "(pusukiwi)",
+                    targetValency: "intransitive",
+                    targetStemClass: "B",
+                    resultFrameSurface: "pusukiwi",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+                {
+                    ok: true,
+                    surface: "pusukawi",
+                    targetVerbStem: "pusukawi",
+                    targetInput: "(pusukawi)",
+                    targetValency: "intransitive",
+                    targetStemClass: "B",
+                    resultFrameSurface: "pusukawi",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+                {
+                    ok: true,
+                    surface: "pusukua",
+                    targetVerbStem: "pusukua",
+                    targetInput: "(pusuk)-(ua)",
+                    targetValency: "transitive",
+                    targetStemClass: "C",
+                    resultFrameSurface: "pusukua",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+            ],
+            blocked: {
+                noEvidence: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.6-o-a-i-hui-a-hui-source-evidence-required",
+                    failedLayer: "authority",
+                    contractLayer: "authorityFrame",
+                    frameStatus: "blocked",
+                },
+                originalSource: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.6-o-a-generated-i-hui-a-hui-source-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                wrongCategory: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.6-o-a-i-hui-a-hui-source-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                wrongFinal: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.6-o-a-source-final-iwi-awi-required",
+                    failedLayer: "morph-boundary",
+                    contractLayer: "morphBoundaryFrame",
+                    frameStatus: "blocked",
+                },
+                missingStem: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.6-o-a-source-verbstem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+            },
+        }
     );
     s.eq(
         "Lessons 54-55 Andrews contract previews and requests expose LCM frames",
@@ -1657,7 +6463,7 @@ function run(ctx) {
                 targetInputValue: "(pusukwi)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1675,12 +6481,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hui-lia",
                 nawatRuleSuffix: "wi-lia",
                 nawatSurfaceSuffix: "wilia",
-                targetVerbStem: "pusukwilia",
-                targetInputValue: "(pusukwi)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1701,7 +6507,7 @@ function run(ctx) {
                 targetInputValue: "(pusukya)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1719,12 +6525,12 @@ function run(ctx) {
                 classicalSuffixSequence: "ti-ya",
                 nawatRuleSuffix: "ti-ya",
                 nawatSurfaceSuffix: "tiya",
-                targetVerbStem: "pusuktiya",
-                targetInputValue: "(pusukti)-(ya)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1741,12 +6547,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hui-ya",
                 nawatRuleSuffix: "wi-ya",
                 nawatSurfaceSuffix: "wiya",
-                targetVerbStem: "pusukwiya",
-                targetInputValue: "(pusukwi)-(ya)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1763,12 +6569,12 @@ function run(ctx) {
                 classicalSuffixSequence: "lia",
                 nawatRuleSuffix: "lia",
                 nawatSurfaceSuffix: "lia",
-                targetVerbStem: "pusuklia",
-                targetInputValue: "(pusuk)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1789,7 +6595,7 @@ function run(ctx) {
                 targetInputValue: "(pusuka)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1807,12 +6613,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hua",
                 nawatRuleSuffix: "wa",
                 nawatSurfaceSuffix: "wa",
-                targetVerbStem: "pusukwa",
-                targetInputValue: "(pusukwa)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1829,12 +6635,12 @@ function run(ctx) {
                 classicalSuffixSequence: "tia",
                 nawatRuleSuffix: "tia",
                 nawatSurfaceSuffix: "tia",
-                targetVerbStem: "pusuktia",
-                targetInputValue: "(pusuktia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1855,7 +6661,7 @@ function run(ctx) {
                 targetInputValue: "(pusuk)-(ta)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1873,12 +6679,12 @@ function run(ctx) {
                 classicalSuffixSequence: "ti-lia",
                 nawatRuleSuffix: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1895,12 +6701,12 @@ function run(ctx) {
                 classicalSuffixSequence: "tla",
                 nawatRuleSuffix: "ta",
                 nawatSurfaceSuffix: "ta",
-                targetVerbStem: "pusukta",
-                targetInputValue: "(pusukta)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1921,7 +6727,7 @@ function run(ctx) {
                 targetInputValue: "(pusukua)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1943,7 +6749,7 @@ function run(ctx) {
                 targetInputValue: "(pusuk)-(wia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-partial",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -1961,12 +6767,12 @@ function run(ctx) {
                 classicalSuffixSequence: "i-l-huia",
                 nawatRuleSuffix: "i-l-wia",
                 nawatSurfaceSuffix: "ilwia",
-                targetVerbStem: "pusukilwia",
-                targetInputValue: "(pusuk)-(ilwia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -1983,12 +6789,12 @@ function run(ctx) {
                 classicalSuffixSequence: "a-l-huia",
                 nawatRuleSuffix: "a-l-wia",
                 nawatSurfaceSuffix: "alwia",
-                targetVerbStem: "pusukalwia",
-                targetInputValue: "(pusuk)-(alwia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -2014,7 +6820,7 @@ function run(ctx) {
                     "denominal-vi-awi-preterit",
                     "denominal-vi-awi-perfect",
                 ],
-                supportStatus: "source-route-supported-target-unmodeled",
+                supportStatus: "executable-rule-supported-source-evidence-required",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -2041,7 +6847,7 @@ function run(ctx) {
                     "denominal-vi-awi-preterit",
                     "denominal-vi-awi-perfect",
                 ],
-                supportStatus: "source-route-supported-target-unmodeled",
+                supportStatus: "executable-rule-supported-source-evidence-required",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -2059,8 +6865,8 @@ function run(ctx) {
                 classicalSuffixSequence: "o-a",
                 nawatRuleSuffix: "u-a",
                 nawatSurfaceSuffix: "ua",
-                targetVerbStem: "pusukua",
-                targetInputValue: "(pusuk)-(ua)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 currentRouteFamilies: ["vi-iwi", "vi-awi"],
                 currentRouteIds: [
                     "denominal-vi-iwi-preterit",
@@ -2068,8 +6874,8 @@ function run(ctx) {
                     "denominal-vi-awi-preterit",
                     "denominal-vi-awi-perfect",
                 ],
-                supportStatus: "source-route-supported-target-unmodeled",
-                routeTargetGenerated: true,
+                supportStatus: "executable-rule-supported-source-evidence-required",
+                routeTargetGenerated: false,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -2090,7 +6896,7 @@ function run(ctx) {
                 targetInputValue: "(pusuk)-(ia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
-                supportStatus: "andrews-verified-unmodeled",
+                supportStatus: "executable-rule-supported-source-final-guarded",
                 routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
@@ -2299,6 +7105,198 @@ function run(ctx) {
             },
         ]
     );
+    s.eq(
+        "Andrews 55.7 transitive i-a is an executable source-final-guarded contract",
+        (() => {
+            const inventoryContract = andrewsDenominalContracts.find((contract) => (
+                contract.id === "55.7-transitive-i-a"
+            ));
+            const basePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusuk",
+                contractId: "55.7-transitive-i-a",
+            });
+            const baseRoute = basePreview.routes?.[0] || null;
+            const unlistedPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+                sourceStem: "pusu",
+                contractId: "55.7-transitive-i-a",
+            });
+            const unlistedRoute = unlistedPreview.routes?.[0] || null;
+            const success = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a", {
+                sourceStem: "pusuk",
+                sourceState: "absolutive",
+                sourceCategory: "nounstem-plus-i",
+            });
+            const summarizeRoute = (route) => ({
+                executableRuleId: route?.executableRuleId || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+                finiteAvailable: route?.finiteGenerationContractAvailable === true,
+                objectPrefixRequired: route?.finiteGenerationRequiresObjectPrefix === true,
+                sourceFinalPatternStatus: route?.sourceFinalPatternStatus || "",
+                diagnosticIds: Array.isArray(route?.routeDiagnostics)
+                    ? route.routeDiagnostics.map((diagnostic) => diagnostic.id)
+                    : [],
+            });
+            const summarizeSuccess = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                targetVerbStem: result?.targetVerbStem || "",
+                targetInput: result?.targetInput || "",
+                targetValency: result?.targetValency || "",
+                resultFrameSurface: result?.frames?.resultFrame?.surface || "",
+                generationAllowed: result?.frames?.routeContract?.generationAllowed === true,
+                diagnosticCount: result?.contractDiagnostics?.length || 0,
+            });
+            const summarizeBlocked = (result) => ({
+                ok: result?.ok === true,
+                surface: result?.surface || "",
+                diagnosticId: result?.contractDiagnostics?.[0]?.id || "",
+                failedLayer: result?.contractDiagnostics?.[0]?.failedLayer || "",
+                contractLayer: result?.contractDiagnostics?.[0]?.contractLayer || "",
+                frameStatus: result?.frames?.diagnosticFrame?.status || "",
+            });
+            return {
+                inventoryExecutableRuleIds: inventoryContract?.executableRuleIds || [],
+                inventoryStructuralOnly: inventoryContract?.boundaries?.structuralInventoryOnly === true,
+                ruleSummary: (() => {
+                    const rule = ctx.summarizeNawatDenominalAndrewsExecutableRuleContract(
+                        ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a")
+                    );
+                    return {
+                        id: rule?.id || "",
+                        operationType: rule?.operation?.type || "",
+                        baseExtension: rule?.operation?.baseExtension || "",
+                        suffix: rule?.operation?.suffix || "",
+                        outputValency: rule?.output?.valency || "",
+                        stemClass: rule?.output?.stemClass || [],
+                        surfaceAuthority: rule?.output?.surfaceAuthority || "",
+                    };
+                })(),
+                baseRoute: {
+                    ...summarizeRoute(baseRoute),
+                    requestNoObject: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        baseRoute,
+                        { tense: "presente" }
+                    ),
+                    requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                        baseRoute,
+                        { tense: "presente", objectPrefix: "ta" }
+                    )?.prefixInputs?.verb || "",
+                },
+                unlistedRoute: summarizeRoute(unlistedRoute),
+                success: summarizeSuccess(success),
+                blocked: {
+                    missingStem: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a", {
+                        sourceState: "absolutive",
+                        sourceCategory: "nounstem-plus-i",
+                    })),
+                    possessive: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a", {
+                        sourceStem: "pusuk",
+                        sourceState: "possessive",
+                        sourceCategory: "possessive-state-nnc-predicate",
+                    })),
+                    generatedSource: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a", {
+                        sourceStem: "pusukiwi",
+                        sourceState: "derived",
+                        sourceCategory: "i-hui-a-hui-source",
+                    })),
+                    unlistedFinal: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a", {
+                        sourceStem: "pusu",
+                        sourceState: "absolutive",
+                        sourceCategory: "nounstem-plus-i",
+                    })),
+                },
+            };
+        })(),
+        {
+            inventoryExecutableRuleIds: ["andrews-55-7-i-a"],
+            inventoryStructuralOnly: false,
+            ruleSummary: {
+                id: "andrews-55-7-i-a",
+                operationType: "denominal-transitive-i-a-verbstem",
+                baseExtension: "i",
+                suffix: "ia",
+                outputValency: "transitive",
+                stemClass: [],
+                surfaceAuthority: "nawat-orthography-and-source-final-evidence",
+            },
+            baseRoute: {
+                executableRuleId: "andrews-55-7-i-a",
+                targetVerbStem: "pusukia",
+                targetInputValue: "(pusuk)-(ia)",
+                routeTargetGenerated: true,
+                finiteAvailable: true,
+                objectPrefixRequired: true,
+                sourceFinalPatternStatus: "majority",
+                diagnosticIds: [
+                    "andrews-55.7-i-a-source-i-may-belong-to-nounstem",
+                    "andrews-55.7-i-a-source-i-hui-causative-path-possible",
+                ],
+                requestNoObject: null,
+                requestObjectVerb: "(pusuk)-(ia)",
+            },
+            unlistedRoute: {
+                executableRuleId: "andrews-55-7-i-a",
+                targetVerbStem: "",
+                targetInputValue: "",
+                routeTargetGenerated: false,
+                finiteAvailable: false,
+                objectPrefixRequired: true,
+                sourceFinalPatternStatus: "unlisted",
+                diagnosticIds: [
+                    "andrews-55.7-i-a-source-final-unlisted",
+                    "andrews-55.7-i-a-source-i-may-belong-to-nounstem",
+                    "andrews-55.7-i-a-source-i-hui-causative-path-possible",
+                    "andrews-55.7-i-a-source-final-confirmation-required",
+                ],
+            },
+            success: {
+                ok: true,
+                surface: "pusukia",
+                targetVerbStem: "pusukia",
+                targetInput: "(pusuk)-(ia)",
+                targetValency: "transitive",
+                resultFrameSurface: "pusukia",
+                generationAllowed: true,
+                diagnosticCount: 0,
+            },
+            blocked: {
+                missingStem: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.7-i-a-source-stem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                possessive: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.7-i-a-absolutive-nounstem-required",
+                    failedLayer: "agreement",
+                    contractLayer: "participantFrame",
+                    frameStatus: "blocked",
+                },
+                generatedSource: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.7-i-a-nounstem-source-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
+                    frameStatus: "blocked",
+                },
+                unlistedFinal: {
+                    ok: false,
+                    surface: "",
+                    diagnosticId: "andrews-55.7-i-a-source-final-confirmation-required",
+                    failedLayer: "morph-boundary",
+                    contractLayer: "morphBoundaryFrame",
+                    frameStatus: "blocked",
+                },
+            },
+        }
+    );
     const wFinalIAContractRoutePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
         sourceStem: "tlaw",
         contractId: "55.7-transitive-i-a",
@@ -2485,8 +7483,8 @@ function run(ctx) {
             {
                 contractId: "54.2-54.4-ti-lia-causative",
                 routeTemplateId: "ti-lia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -2495,8 +7493,8 @@ function run(ctx) {
             {
                 contractId: "54.5-ti-a-causative",
                 routeTemplateId: "ti-a",
-                targetVerbStem: "pusuktia",
-                targetInputValue: "(pusukti)-(a)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -2505,8 +7503,8 @@ function run(ctx) {
             {
                 contractId: "54.6-t-ia-applicative",
                 routeTemplateId: "t-ia",
-                targetVerbStem: "pusuktia",
-                targetInputValue: "(pusukt)-(ia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: true,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -2515,8 +7513,8 @@ function run(ctx) {
             {
                 contractId: "55.2-tla-ti-lia-applicative",
                 routeTemplateId: "tla-ti-lia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -2525,8 +7523,8 @@ function run(ctx) {
             {
                 contractId: "55.2-intransitive-tla-ti-a-causative",
                 routeTemplateId: "intransitive-tla-ti-a",
-                targetVerbStem: "pusuktia",
-                targetInputValue: "(pusukti)-(a)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: true,
@@ -2535,8 +7533,8 @@ function run(ctx) {
             {
                 contractId: "55.2-intransitive-tla-ti-lia-applicative",
                 routeTemplateId: "intransitive-tla-ti-lia",
-                targetVerbStem: "pusuktilia",
-                targetInputValue: "(pusukti)-(lia)",
+                targetVerbStem: "",
+                targetInputValue: "",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -2730,6 +7728,82 @@ function run(ctx) {
             locativoTemporalRequestVerb: "",
         }
     );
+    const framedExplicitSource = (surface, {
+        ok = true,
+        sourceStem = "legacy-stem",
+        sourceSurface = "legacy-surface",
+        extra = {},
+    } = {}) => ({
+        sourceStem,
+        sourceSurface,
+        ...extra,
+        frames: ctx.buildGrammarFrame({
+            resultFrame: ctx.buildGrammarResultFrame({
+                ok,
+                surface,
+                surfaceForms: surface ? [surface] : [],
+                outputKind: "test-explicit-andrews-source",
+            }),
+        }),
+    });
+    const framedTemporalPreview = ctx.previewNawatDenominalAndrewsTemporalTiaRouteFromSource(
+        framedExplicitSource("omeilwi", {
+            extra: {
+                timeSegmentMatrix: "ilwi",
+                numeralEmbed: "ome",
+            },
+        })
+    );
+    const framedAdverbialEvidence = ctx.buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence(
+        framedExplicitSource("achpa")
+    );
+    const framedRelationalEvidence = ctx.buildNawatDenominalAndrewsRelationalCompoundSourceEvidence(
+        framedExplicitSource("kalpan")
+    );
+    s.eq(
+        "Andrews 55 explicit source evidence reads LCM result-frame surfaces before stale source aliases",
+        {
+            temporalSourceSurface: framedTemporalPreview?.sourceEvidence?.sourceSurface || "",
+            temporalSourceBaseStem: framedTemporalPreview?.sourceEvidence?.sourceBaseStem || "",
+            adverbialSourceSurface: framedAdverbialEvidence?.sourceSurface || "",
+            adverbialSourceBaseStem: framedAdverbialEvidence?.sourceBaseStem || "",
+            relationalSourceSurface: framedRelationalEvidence?.sourceSurface || "",
+            relationalSourceBaseStem: framedRelationalEvidence?.sourceBaseStem || "",
+        },
+        {
+            temporalSourceSurface: "omeilwi",
+            temporalSourceBaseStem: "omeilwi",
+            adverbialSourceSurface: "achpa",
+            adverbialSourceBaseStem: "achpa",
+            relationalSourceSurface: "kalpan",
+            relationalSourceBaseStem: "kalpan",
+        }
+    );
+    s.eq(
+        "Andrews 55 explicit source evidence suppresses stale aliases for empty LCM result frames",
+        {
+            temporal: ctx.previewNawatDenominalAndrewsTemporalTiaRouteFromSource(
+                framedExplicitSource("", {
+                    ok: false,
+                    extra: {
+                        timeSegmentMatrix: "ilwi",
+                        numeralEmbed: "se",
+                    },
+                })
+            ),
+            adverbial: ctx.buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence(
+                framedExplicitSource("", { ok: false })
+            ),
+            relational: ctx.buildNawatDenominalAndrewsRelationalCompoundSourceEvidence(
+                framedExplicitSource("", { ok: false })
+            ),
+        },
+        {
+            temporal: null,
+            adverbial: null,
+            relational: null,
+        }
+    );
     const adverbialHuiaSourcePreview = ctx.previewNawatDenominalAndrewsAdverbialHuiaRouteFromSource({
         sourceStem: "achpa",
     });
@@ -2871,6 +7945,205 @@ function run(ctx) {
             absolutiveEvidence: null,
         }
     );
+    const inceptiveTiFromNncPreview = ctx.previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput(
+        kalAbsolutiveNnc
+    );
+    const inceptiveTiFromPossessiveNncPreview = ctx.previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput(
+        kalPossessiveNnc
+    );
+    const inceptiveTiFromNncRoute = inceptiveTiFromNncPreview?.routePreview?.routes?.[0] || null;
+    s.eq(
+        "Andrews 54.2.1 inceptive ti route consumes generated absolutive NNC output as source evidence",
+        {
+            sourceEvidence: inceptiveTiFromNncPreview?.sourceEvidence || null,
+            routeCount: inceptiveTiFromNncPreview?.candidateRouteCount || 0,
+            routeRequirementStatus: inceptiveTiFromNncRoute?.sourceRequirement?.validationStatus || "",
+            routeTargetStemClass: inceptiveTiFromNncRoute?.targetStemClass || "",
+            routeSourceEvidenceLinked: inceptiveTiFromNncRoute?.frames?.authorityFrame?.evidenceStatus || "",
+            requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                inceptiveTiFromNncRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
+            possessivePreview: inceptiveTiFromPossessiveNncPreview,
+        },
+        {
+            sourceEvidence: {
+                inceptiveTiSource: true,
+                sourceState: "absolutive",
+                sourceCategory: "absolutive-state-nnc-predicate",
+                sourceSurface: "kal",
+                sourceBaseStem: "kal",
+                sourcePredicateStem: "kal",
+                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceOutputKind: "nominal-nuclear-clause",
+                boundaries: {
+                    noFixtureEvidence: true,
+                    doesNotCreateLexicalEvidence: true,
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                    sourceNounstemFromPredicate: true,
+                    inceptiveTiSourceRequiresAbsolutivePredicate: true,
+                    classicalRuleSpellingsConvertedToNawat: true,
+                },
+            },
+            routeCount: 1,
+            routeRequirementStatus: "not-required",
+            routeTargetStemClass: "A",
+            routeSourceEvidenceLinked: "source-evidence-linked",
+            requestVerb: "(kalti)",
+            possessivePreview: null,
+        }
+    );
+    const inceptiveHuiFromNncPreview = ctx.previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput(
+        kalAbsolutiveNnc
+    );
+    const inceptiveHuiFromPossessiveNncPreview = ctx.previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput(
+        kalPossessiveNnc
+    );
+    const inceptiveHuiFromNncRoute = inceptiveHuiFromNncPreview?.routePreview?.routes?.[0] || null;
+    s.eq(
+        "Andrews 54.2.2 inceptive hui route consumes generated absolutive NNC output as source evidence",
+        {
+            sourceEvidence: inceptiveHuiFromNncPreview?.sourceEvidence || null,
+            routeCount: inceptiveHuiFromNncPreview?.candidateRouteCount || 0,
+            routeRequirementStatus: inceptiveHuiFromNncRoute?.sourceRequirement?.validationStatus || "",
+            routeTargetStemClass: inceptiveHuiFromNncRoute?.targetStemClass || "",
+            routeNawatSuffix: inceptiveHuiFromNncRoute?.nawatSurfaceSuffix || "",
+            routeSourceEvidenceLinked: inceptiveHuiFromNncRoute?.frames?.authorityFrame?.evidenceStatus || "",
+            requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                inceptiveHuiFromNncRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
+            possessivePreview: inceptiveHuiFromPossessiveNncPreview,
+        },
+        {
+            sourceEvidence: {
+                inceptiveHuiSource: true,
+                sourceState: "absolutive",
+                sourceCategory: "absolutive-state-nnc-predicate",
+                sourceSurface: "kal",
+                sourceBaseStem: "kal",
+                sourcePredicateStem: "kal",
+                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceOutputKind: "nominal-nuclear-clause",
+                boundaries: {
+                    noFixtureEvidence: true,
+                    doesNotCreateLexicalEvidence: true,
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                    sourceNounstemFromPredicate: true,
+                    inceptiveHuiSourceRequiresAbsolutivePredicate: true,
+                    classicalRuleSpellingsConvertedToNawat: true,
+                },
+            },
+            routeCount: 1,
+            routeRequirementStatus: "not-required",
+            routeTargetStemClass: "A",
+            routeNawatSuffix: "wi",
+            routeSourceEvidenceLinked: "source-evidence-linked",
+            requestVerb: "(kalwi)",
+            possessivePreview: null,
+        }
+    );
+    const rootPlusYaFromNncPreview = ctx.previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput(
+        kalAbsolutiveNnc
+    );
+    const rootPlusYaFromPossessiveNncPreview = ctx.previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput(
+        kalPossessiveNnc
+    );
+    const rootPlusYaFromNncRoute = rootPlusYaFromNncPreview?.routePreview?.routes?.[0] || null;
+    s.eq(
+        "Andrews 54.2.3 root-plus-ya route consumes generated absolutive NNC predicate stem as nounstem-as-root evidence",
+        {
+            sourceEvidence: rootPlusYaFromNncPreview?.sourceEvidence || null,
+            routeCount: rootPlusYaFromNncPreview?.candidateRouteCount || 0,
+            routeRequirementStatus: rootPlusYaFromNncRoute?.sourceRequirement?.validationStatus || "",
+            routeTargetStemClass: rootPlusYaFromNncRoute?.targetStemClass || "",
+            routeSourceEvidenceLinked: rootPlusYaFromNncRoute?.frames?.authorityFrame?.evidenceStatus || "",
+            requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                rootPlusYaFromNncRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
+            possessivePreview: rootPlusYaFromPossessiveNncPreview,
+        },
+        {
+            sourceEvidence: {
+                rootPlusYaSource: true,
+                sourceState: "absolutive",
+                sourceCategory: "nounstem-as-root",
+                sourceSurface: "kal",
+                sourceBaseStem: "kal",
+                sourcePredicateStem: "kal",
+                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceOutputKind: "nominal-nuclear-clause",
+                boundaries: {
+                    noFixtureEvidence: true,
+                    doesNotCreateLexicalEvidence: true,
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                    sourceNounstemFromPredicate: true,
+                    sourceNounstemDowngradedToRootRank: true,
+                    classicalRuleSpellingsConvertedToNawat: true,
+                },
+            },
+            routeCount: 1,
+            routeRequirementStatus: "not-required",
+            routeTargetStemClass: "A/B",
+            routeSourceEvidenceLinked: "source-evidence-linked",
+            requestVerb: "(kalya)",
+            possessivePreview: null,
+        }
+    );
+    const inceptiveAFromNncPreview = ctx.previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput(
+        kalAbsolutiveNnc
+    );
+    const inceptiveAFromPossessiveNncPreview = ctx.previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput(
+        kalPossessiveNnc
+    );
+    const inceptiveAFromNncRoute = inceptiveAFromNncPreview?.routePreview?.routes?.[0] || null;
+    s.eq(
+        "Andrews 54.2.4 limited inceptive a route consumes generated absolutive NNC predicate stem as nounstem evidence",
+        {
+            sourceEvidence: inceptiveAFromNncPreview?.sourceEvidence || null,
+            routeCount: inceptiveAFromNncPreview?.candidateRouteCount || 0,
+            routeRequirementStatus: inceptiveAFromNncRoute?.sourceRequirement?.validationStatus || "",
+            routeTargetStemClass: inceptiveAFromNncRoute?.targetStemClass || "",
+            routeLimitedUse: inceptiveAFromNncRoute?.boundaries?.limitedUse === true,
+            routeSourceEvidenceLinked: inceptiveAFromNncRoute?.frames?.authorityFrame?.evidenceStatus || "",
+            requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                inceptiveAFromNncRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
+            possessivePreview: inceptiveAFromPossessiveNncPreview,
+        },
+        {
+            sourceEvidence: {
+                inceptiveASource: true,
+                sourceState: "absolutive",
+                sourceCategory: "absolutive-nounstem",
+                sourceSurface: "kal",
+                sourceBaseStem: "kal",
+                sourcePredicateStem: "kal",
+                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceOutputKind: "nominal-nuclear-clause",
+                boundaries: {
+                    noFixtureEvidence: true,
+                    doesNotCreateLexicalEvidence: true,
+                    sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                    sourceNounstemFromPredicate: true,
+                    inceptiveASourceRequiresAbsolutiveNounstem: true,
+                    limitedUse: true,
+                    notCausativeA: true,
+                    targetLooksTransitiveButIsIntransitive: true,
+                    classicalRuleSpellingsConvertedToNawat: true,
+                },
+            },
+            routeCount: 1,
+            routeRequirementStatus: "not-required",
+            routeTargetStemClass: "C",
+            routeLimitedUse: true,
+            routeSourceEvidenceLinked: "source-evidence-linked",
+            requestVerb: "(kala)",
+            possessivePreview: null,
+        }
+    );
     const possessionTiFromNncPreview = ctx.previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput(
         kalAbsolutiveNnc
     );
@@ -2918,8 +8191,68 @@ function run(ctx) {
             possessivePreviewSourceStem: "kal",
         }
     );
+    s.eq(
+        "Andrews 54.2.1/54.2.2/54.2.3/54.4 source evidence rejects stale ordinary NNC aliases for empty result frame",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "nominal-nuclear-clause",
+                    generationRoute: "test-empty-nnc-frame",
+                }),
+            });
+            const staleNncOutput = {
+                supported: true,
+                state: "absolutive",
+                stem: "stale-nounstem",
+                surface: "stale-surface",
+                surfaceForms: ["stale-surface-a / stale-surface-b"],
+                result: "stale-result",
+                outputKind: "nominal-nuclear-clause",
+                nncBasic: {
+                    formulaEcho: "#Ø...Ø(stale-nounstem)Ø#",
+                    formulaSlots: {
+                        predicate: {
+                            stem: "stale-nounstem",
+                            state: "absolutive",
+                        },
+                    },
+                },
+                grammarFrame,
+                frames: grammarFrame,
+            };
+            return {
+                inceptiveSourceEvidence: ctx.buildNawatDenominalAndrewsInceptiveTiSourceEvidenceFromOrdinaryNncOutput(staleNncOutput),
+                inceptivePreview: ctx.previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput(staleNncOutput),
+                huiSourceEvidence: ctx.buildNawatDenominalAndrewsInceptiveHuiSourceEvidenceFromOrdinaryNncOutput(staleNncOutput),
+                huiPreview: ctx.previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput(staleNncOutput),
+                rootPlusYaSourceEvidence: ctx.buildNawatDenominalAndrewsRootPlusYaSourceEvidenceFromOrdinaryNncOutput(staleNncOutput),
+                rootPlusYaPreview: ctx.previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput(staleNncOutput),
+                inceptiveASourceEvidence: ctx.buildNawatDenominalAndrewsInceptiveASourceEvidenceFromOrdinaryNncOutput(staleNncOutput),
+                inceptiveAPreview: ctx.previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput(staleNncOutput),
+                sourceEvidence: ctx.buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutput(staleNncOutput),
+                preview: ctx.previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput(staleNncOutput),
+            };
+        })(),
+        {
+            inceptiveSourceEvidence: null,
+            inceptivePreview: null,
+            huiSourceEvidence: null,
+            huiPreview: null,
+            rootPlusYaSourceEvidence: null,
+            rootPlusYaPreview: null,
+            inceptiveASourceEvidence: null,
+            inceptiveAPreview: null,
+            sourceEvidence: null,
+            preview: null,
+        }
+    );
     const inceptiveTiRoute = findAndrewsContractRoute("54.2.1-inceptive-stative-ti", "ti");
     const inceptiveTiNextPreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(inceptiveTiRoute);
+    const inceptiveTiYaSatisfiedRoute = inceptiveTiNextPreview?.routePreview?.routes
+        ?.find((route) => route.contractId === "54.2.3-ti-ya-deverbal" && route.routeTemplateId === "ti-ya");
     const inceptiveTiLiaSatisfiedRoute = inceptiveTiNextPreview?.routePreview?.routes
         ?.find((route) => route.contractId === "54.2-54.4-ti-lia-causative" && route.routeTemplateId === "ti-lia");
     const inceptiveTiASatisfiedRoute = inceptiveTiNextPreview?.routePreview?.routes
@@ -2931,6 +8264,12 @@ function run(ctx) {
         {
             sourceEvidence: inceptiveTiNextPreview?.sourceEvidence || null,
             nextSource: inceptiveTiNextPreview?.nextSource || null,
+            tiYaFiniteAvailable: inceptiveTiYaSatisfiedRoute?.finiteGenerationContractAvailable === true,
+            tiYaRequirementStatus: inceptiveTiYaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
+            tiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                inceptiveTiYaSatisfiedRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
             tiLiaFiniteAvailable: inceptiveTiLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             tiLiaRequirementStatus: inceptiveTiLiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
@@ -2967,6 +8306,7 @@ function run(ctx) {
                     noFixtureEvidence: true,
                     sourceEvidenceFromAndrewsContractRoute: true,
                     classicalRuleSpellingsConvertedToNawat: true,
+                    sourceEvidenceSupportsTiYaDeverbal: true,
                     sourceEvidenceSupportsTiLiaCausative: true,
                     sourceEvidenceSupportsTiACausative: true,
                     sourceEvidenceSupportsTIaApplicative: true,
@@ -2988,12 +8328,16 @@ function run(ctx) {
                         noFixtureEvidence: true,
                         sourceEvidenceFromAndrewsContractRoute: true,
                         classicalRuleSpellingsConvertedToNawat: true,
+                        sourceEvidenceSupportsTiYaDeverbal: true,
                         sourceEvidenceSupportsTiLiaCausative: true,
                         sourceEvidenceSupportsTiACausative: true,
                         sourceEvidenceSupportsTIaApplicative: true,
                     },
                 },
             },
+            tiYaFiniteAvailable: true,
+            tiYaRequirementStatus: "source-evidence-satisfied",
+            tiYaRequestVerb: "(pusukti)-(ya)",
             tiLiaFiniteAvailable: true,
             tiLiaRequirementStatus: "source-evidence-satisfied",
             tiLiaRequestVerb: "(pusukti)-(lia)",
@@ -3070,6 +8414,8 @@ function run(ctx) {
     );
     const huiAndrewsRoute = findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui");
     const huiAndrewsNextPreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(huiAndrewsRoute);
+    const huiAndrewsYaSatisfiedRoute = huiAndrewsNextPreview?.routePreview?.routes
+        ?.find((route) => route.contractId === "54.2.3-hui-ya-deverbal" && route.routeTemplateId === "hui-ya");
     const huiLiaSatisfiedRoute = huiAndrewsNextPreview?.routePreview?.routes
         ?.find((route) => route.contractId === "54.2.2-hui-lia-causative" && route.routeTemplateId === "hui-lia");
     s.eq(
@@ -3077,6 +8423,12 @@ function run(ctx) {
         {
             sourceEvidence: huiAndrewsNextPreview?.sourceEvidence || null,
             nextSource: huiAndrewsNextPreview?.nextSource || null,
+            huiYaFiniteAvailable: huiAndrewsYaSatisfiedRoute?.finiteGenerationContractAvailable === true,
+            huiYaRequirementStatus: huiAndrewsYaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
+            huiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                huiAndrewsYaSatisfiedRoute,
+                { tense: "presente" }
+            )?.prefixInputs?.verb || "",
             huiLiaFiniteAvailable: huiLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             huiLiaRequirementStatus: huiLiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             huiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
@@ -3101,6 +8453,7 @@ function run(ctx) {
                     noFixtureEvidence: true,
                     sourceEvidenceFromAndrewsContractRoute: true,
                     classicalRuleSpellingsConvertedToNawat: true,
+                    sourceEvidenceSupportsHuiYaDeverbal: true,
                     sourceEvidenceSupportsHuiLiaCausative: true,
                 },
             },
@@ -3120,10 +8473,14 @@ function run(ctx) {
                         noFixtureEvidence: true,
                         sourceEvidenceFromAndrewsContractRoute: true,
                         classicalRuleSpellingsConvertedToNawat: true,
+                        sourceEvidenceSupportsHuiYaDeverbal: true,
                         sourceEvidenceSupportsHuiLiaCausative: true,
                     },
                 },
             },
+            huiYaFiniteAvailable: true,
+            huiYaRequirementStatus: "source-evidence-satisfied",
+            huiYaRequestVerb: "(pusukwi)-(ya)",
             huiLiaFiniteAvailable: true,
             huiLiaRequirementStatus: "source-evidence-satisfied",
             huiLiaRequestVerb: "(pusukwi)-(lia)",
@@ -3229,6 +8586,7 @@ function run(ctx) {
             sourceEvidence: {
                 tlaCausativeSource: true,
                 sourceCategory: "causative-tla",
+                sourceState: "derived",
                 sourceContractId: "55.2-causative-tla",
                 sourceRouteTemplateId: "tla",
                 sourceBaseStem: "pusuk",
@@ -3237,6 +8595,8 @@ function run(ctx) {
                     noFixtureEvidence: true,
                     sourceEvidenceFromAndrewsContractRoute: true,
                     classicalRuleSpellingsConvertedToNawat: true,
+                    sourceEvidenceSupportsTlaTiLiaApplicative: true,
+                    sourceTlaReplacedByTiBeforeLia: true,
                 },
             },
             nextSource: {
@@ -3246,6 +8606,7 @@ function run(ctx) {
                 sourceEvidence: {
                     tlaCausativeSource: true,
                     sourceCategory: "causative-tla",
+                    sourceState: "derived",
                     sourceContractId: "55.2-causative-tla",
                     sourceRouteTemplateId: "tla",
                     sourceBaseStem: "pusuk",
@@ -3254,6 +8615,8 @@ function run(ctx) {
                         noFixtureEvidence: true,
                         sourceEvidenceFromAndrewsContractRoute: true,
                         classicalRuleSpellingsConvertedToNawat: true,
+                        sourceEvidenceSupportsTlaTiLiaApplicative: true,
+                        sourceTlaReplacedByTiBeforeLia: true,
                     },
                 },
             },
@@ -3266,7 +8629,17 @@ function run(ctx) {
             sourceExecutionCanSatisfyLaterEvidence: true,
         }
     );
-    const intransitiveTlaRoute = findAndrewsContractRoute("55.2-intransitive-tla", "intransitive-tla");
+    const intransitiveTlaSourcePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: "pusuk",
+        contractId: "55.2-intransitive-tla",
+        sourceEvidence: {
+            intransitiveTlaLexicalSource: true,
+            sourceCategory: "intransitive-tla-lexical-source",
+            sourceState: "absolutive",
+            sourceBaseStem: "pusuk",
+        },
+    });
+    const intransitiveTlaRoute = intransitiveTlaSourcePreview?.routes?.[0] || null;
     const intransitiveTlaNextPreview = ctx.previewNawatDenominalAndrewsContractRouteNextSource(intransitiveTlaRoute);
     const intransitiveTlaTiASatisfiedRoute = intransitiveTlaNextPreview?.routePreview?.routes
         ?.find((route) => route.contractId === "55.2-intransitive-tla-ti-a-causative" && route.routeTemplateId === "intransitive-tla-ti-a");
@@ -3298,6 +8671,7 @@ function run(ctx) {
             sourceEvidence: {
                 tlaIntransitiveSource: true,
                 sourceCategory: "intransitive-tla",
+                sourceState: "derived",
                 sourceContractId: "55.2-intransitive-tla",
                 sourceRouteTemplateId: "intransitive-tla",
                 sourceBaseStem: "pusuk",
@@ -3308,6 +8682,8 @@ function run(ctx) {
                     classicalRuleSpellingsConvertedToNawat: true,
                     sourceEvidenceSupportsIntransitiveTlaTiACausative: true,
                     sourceEvidenceSupportsIntransitiveTlaTiLiaApplicative: true,
+                    sourceTlaReplacedByTiBeforeA: true,
+                    sourceTlaReplacedByTiBeforeLia: true,
                 },
             },
             nextSource: {
@@ -3317,6 +8693,7 @@ function run(ctx) {
                 sourceEvidence: {
                     tlaIntransitiveSource: true,
                     sourceCategory: "intransitive-tla",
+                    sourceState: "derived",
                     sourceContractId: "55.2-intransitive-tla",
                     sourceRouteTemplateId: "intransitive-tla",
                     sourceBaseStem: "pusuk",
@@ -3327,13 +8704,15 @@ function run(ctx) {
                         classicalRuleSpellingsConvertedToNawat: true,
                         sourceEvidenceSupportsIntransitiveTlaTiACausative: true,
                         sourceEvidenceSupportsIntransitiveTlaTiLiaApplicative: true,
+                        sourceTlaReplacedByTiBeforeA: true,
+                        sourceTlaReplacedByTiBeforeLia: true,
                     },
                 },
             },
             contractPreviewSourceStem: "pusuk",
-            finiteRouteRequestCount: 15,
-            finiteRouteObjectPrefixRequiredCount: 5,
-            finiteRouteSourceEvidenceRequiredCount: 16,
+            finiteRouteRequestCount: 3,
+            finiteRouteObjectPrefixRequiredCount: 2,
+            finiteRouteSourceEvidenceRequiredCount: 18,
             tiAFiniteAvailable: true,
             tiARequirementStatus: "source-evidence-satisfied",
             tiARequestVerb: "(pusukti)-(a)",
@@ -3409,9 +8788,9 @@ function run(ctx) {
                 },
             },
             contractPreviewSourceStem: "pusuk",
-            finiteRouteRequestCount: 15,
-            finiteRouteObjectPrefixRequiredCount: 5,
-            finiteRouteSourceEvidenceRequiredCount: 16,
+            finiteRouteRequestCount: 5,
+            finiteRouteObjectPrefixRequiredCount: 2,
+            finiteRouteSourceEvidenceRequiredCount: 18,
             ilHuiaFiniteAvailable: true,
             ilHuiaRequirementStatus: "source-evidence-satisfied",
             ilHuiaRequestVerb: "(pusuk)-(ilwia)",
@@ -3653,6 +9032,149 @@ function run(ctx) {
             noFixtureEvidence: true,
         }
     );
+    const rootYaRouteForNextSource = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: "kal",
+        contractId: "54.2.3-inceptive-stative-ya",
+        sourceEvidence: {
+            rootPlusYaSource: true,
+            sourceState: "absolutive",
+            sourceCategory: "nounstem-as-root",
+            sourceSurface: "kal",
+            sourceBaseStem: "kal",
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromGeneratedOrdinaryNnc: true,
+                sourceNounstemDowngradedToRootRank: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        },
+    })?.routes?.[0] || null;
+    const rootYaActivationForNextSource = ctx.activateNawatDenominalAndrewsContractRouteTarget(
+        rootYaRouteForNextSource,
+        { targetTense: "presente" }
+    );
+    const activeRootYaContext = ctx.getActiveNawatDenominalAndrewsContractRouteContext({
+        inputValue: "(kalya)",
+    });
+    const activeRootYaNextPreview = ctx.previewActiveNawatDenominalAndrewsContractRouteNextSource({
+        inputValue: "(kalya)",
+    });
+    const staleRootYaNextPreview = ctx.previewActiveNawatDenominalAndrewsContractRouteNextSource({
+        inputValue: "(tamati)",
+    });
+    const activeRootYaLiaRoute = activeRootYaNextPreview?.routePreview?.routes
+        ?.find((route) => route.contractId === "54.2.3-ya-lia-causative" && route.routeTemplateId === "ya-lia");
+    const activeRootYaLiaMissingObjectRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+        activeRootYaLiaRoute,
+        { tense: "presente" }
+    );
+    const activeRootYaLiaObjectRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+        activeRootYaLiaRoute,
+        { tense: "presente", objectPrefix: "ta" }
+    );
+    const activeRootYaLiaExecution = ctx.executeNawatDenominalAndrewsContractRoute(
+        activeRootYaLiaRoute,
+        { tense: "presente", objectPrefix: "ta" }
+    );
+    s.eq(
+        "Andrews 54.2.3 generated root-plus-ya activation exposes ya-lia as the next source-gated object route",
+        {
+            activationTargetInput: rootYaActivationForNextSource?.targetInput || "",
+            activationStoresActiveContext: rootYaActivationForNextSource?.boundaries?.storesActiveAndrewsRouteContext === true,
+            activeContext: {
+                outputKind: activeRootYaContext?.outputKind || "",
+                targetInput: activeRootYaContext?.targetInput || "",
+                contractId: activeRootYaContext?.contractId || "",
+                routeTemplateId: activeRootYaContext?.routeTemplateId || "",
+                nextSourceEvidence: activeRootYaContext?.nextSourceEvidence || null,
+            },
+            activeNextPreview: {
+                outputKind: activeRootYaNextPreview?.outputKind || "",
+                sourceStem: activeRootYaNextPreview?.routePreview?.sourceStem || "",
+                finiteRouteRequestCount: activeRootYaNextPreview?.routePreview?.finiteRouteRequestCount || 0,
+                finiteRouteObjectPrefixRequiredCount: activeRootYaNextPreview?.routePreview?.finiteRouteObjectPrefixRequiredCount || 0,
+                finiteRouteSourceEvidenceRequiredCount: activeRootYaNextPreview?.routePreview?.finiteRouteSourceEvidenceRequiredCount || 0,
+            },
+            staleRootYaNextPreview,
+            yaLiaRoute: {
+                targetInput: activeRootYaLiaRoute?.targetInput || "",
+                targetVerbStem: activeRootYaLiaRoute?.targetVerbStem || "",
+                sourceRequirementStatus: activeRootYaLiaRoute?.sourceRequirement?.validationStatus || "",
+                finiteAvailable: activeRootYaLiaRoute?.finiteGenerationContractAvailable === true,
+                objectSlotExpected: activeRootYaLiaRoute?.objectSlotExpected === true,
+            },
+            missingObjectRequest: activeRootYaLiaMissingObjectRequest,
+            objectRequest: {
+                verb: activeRootYaLiaObjectRequest?.prefixInputs?.verb || "",
+                objectPrefix: activeRootYaLiaObjectRequest?.prefixInputs?.objectPrefix || "",
+                objectSlotExpected: activeRootYaLiaObjectRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
+                canSatisfyLaterEvidence: activeRootYaLiaObjectRequest?.denominalAndrewsContractRoute?.boundaries?.canSatisfyLaterSourceEvidence === true,
+            },
+            execution: {
+                result: activeRootYaLiaExecution?.result || "",
+                contractId: activeRootYaLiaExecution?.denominalAndrewsContractRouteExecution?.contractId || "",
+                objectPrefix: activeRootYaLiaExecution?.denominalAndrewsContractRouteExecution?.objectPrefix || "",
+                noFixtureEvidence: activeRootYaLiaExecution?.denominalAndrewsContractRouteExecution?.boundaries?.noFixtureEvidence === true,
+            },
+        },
+        {
+            activationTargetInput: "(kalya)",
+            activationStoresActiveContext: true,
+            activeContext: {
+                outputKind: "active-denominal-andrews-contract-route-context",
+                targetInput: "(kalya)",
+                contractId: "54.2.3-inceptive-stative-ya",
+                routeTemplateId: "ya",
+                nextSourceEvidence: {
+                    yaSource: true,
+                    sourceCategory: "inceptive-stative-ya-source",
+                    sourceState: "derived",
+                    sourceContractId: "54.2.3-inceptive-stative-ya",
+                    sourceRouteTemplateId: "ya",
+                    sourceBaseStem: "kal",
+                    sourceVerbStem: "kalya",
+                    boundaries: {
+                        noFixtureEvidence: true,
+                        sourceEvidenceFromAndrewsContractRoute: true,
+                        classicalRuleSpellingsConvertedToNawat: true,
+                        sourceEvidenceSupportsYaLiaCausative: true,
+                        sourceYaDeletedBeforeLia: true,
+                    },
+                },
+            },
+            activeNextPreview: {
+                outputKind: "denominal-andrews-contract-route-next-source-preview",
+                sourceStem: "kal",
+                finiteRouteRequestCount: 2,
+                finiteRouteObjectPrefixRequiredCount: 1,
+                finiteRouteSourceEvidenceRequiredCount: 19,
+            },
+            staleRootYaNextPreview: null,
+            yaLiaRoute: {
+                targetInput: "(kal)-(lia)",
+                targetVerbStem: "kallia",
+                sourceRequirementStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                objectSlotExpected: true,
+            },
+            missingObjectRequest: null,
+            objectRequest: {
+                verb: "(kal)-(lia)",
+                objectPrefix: "ta",
+                objectSlotExpected: true,
+                canSatisfyLaterEvidence: false,
+            },
+            execution: {
+                result: "kallia",
+                contractId: "54.2.3-ya-lia-causative",
+                objectPrefix: "ta",
+                noFixtureEvidence: true,
+            },
+        }
+    );
+    if (typeof ctx.clearActiveNawatDenominalAndrewsContractRouteContext === "function") {
+        ctx.clearActiveNawatDenominalAndrewsContractRouteContext();
+    }
     const denominalRoutePreview = ctx.generateNawatDenominalRouteFamilyPreview({
         sourceVerb: "(pusuni)",
     });
@@ -3667,7 +9189,7 @@ function run(ctx) {
             familyCount: 4,
             andrewsContractCount: 26,
             andrewsContractRouteCount: 31,
-            pendingAndrewsContractCount: 24,
+            pendingAndrewsContractCount: 0,
             routeSurfaces: [
                 {
                     routeId: "denominal-vi-ti-preterit",
@@ -3918,6 +9440,7 @@ function run(ctx) {
             noFixtureEvidence: true,
             sourceEvidenceFromSelectedGeneratedStage: true,
             classicalRuleSpellingsConvertedToNawat: true,
+            sourceEvidenceSupportsTiYaDeverbal: true,
             sourceEvidenceSupportsTiLiaCausative: true,
             sourceEvidenceSupportsTiACausative: true,
             sourceEvidenceSupportsTIaApplicative: true,
@@ -3996,11 +9519,11 @@ function run(ctx) {
             nextSourceEvidence: viTiLinkedSourceEvidence,
             contractPreviewSourceEvidence: viTiLinkedSourceEvidence,
             contractPreviewSourceStem: "pusuk",
-            finiteRouteRequestCount: 17,
-            finiteRouteObjectPrefixRequiredCount: 6,
-            finiteRouteStemClassContractCount: 15,
-            finiteRouteSourceEvidenceRequiredCount: 14,
-            routeNoteCount: 16,
+            finiteRouteRequestCount: 7,
+            finiteRouteObjectPrefixRequiredCount: 3,
+            finiteRouteStemClassContractCount: 7,
+            finiteRouteSourceEvidenceRequiredCount: 16,
+            routeNoteCount: 18,
             tiLiaFiniteAvailable: true,
             tiLiaSourceRequirementStatus: "source-evidence-satisfied",
             tiLiaRequestVerb: "(pusukti)-(lia)",
@@ -4040,6 +9563,7 @@ function run(ctx) {
                 sourceRouteId: "denominal-vi-iwi-preterit",
                 sourceStageKey: "verbalizer",
                 sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukiwi",
                 boundaries: {
                     noFixtureEvidence: true,
                     sourceEvidenceFromSelectedGeneratedStage: true,
@@ -4053,6 +9577,7 @@ function run(ctx) {
                 sourceRouteId: "denominal-vi-iwi-preterit",
                 sourceStageKey: "verbalizer",
                 sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukiwi",
                 boundaries: {
                     noFixtureEvidence: true,
                     sourceEvidenceFromSelectedGeneratedStage: true,
@@ -4066,6 +9591,7 @@ function run(ctx) {
                 sourceRouteId: "denominal-vi-iwi-preterit",
                 sourceStageKey: "verbalizer",
                 sourceBaseStem: "pusuk",
+                sourceVerbStem: "pusukiwi",
                 boundaries: {
                     noFixtureEvidence: true,
                     sourceEvidenceFromSelectedGeneratedStage: true,
@@ -4073,11 +9599,11 @@ function run(ctx) {
                 },
             },
             contractPreviewSourceStem: "pusuk",
-            finiteRouteRequestCount: 14,
-            finiteRouteObjectPrefixRequiredCount: 4,
-            finiteRouteStemClassContractCount: 12,
-            finiteRouteSourceEvidenceRequiredCount: 17,
-            routeNoteCount: 19,
+            finiteRouteRequestCount: 4,
+            finiteRouteObjectPrefixRequiredCount: 1,
+            finiteRouteStemClassContractCount: 4,
+            finiteRouteSourceEvidenceRequiredCount: 19,
+            routeNoteCount: 21,
             oAFiniteAvailable: true,
             oASourceRequirementStatus: "source-evidence-satisfied",
             oARequestVerb: "(pusuk)-(ua)",
@@ -4211,6 +9737,7 @@ function run(ctx) {
                             sourceRouteId: "denominal-vi-iwi-preterit",
                             sourceStageKey: "verbalizer",
                             sourceBaseStem: "pusukti",
+                            sourceVerbStem: "pusuktiiwi",
                             boundaries: {
                                 noFixtureEvidence: true,
                                 sourceEvidenceFromSelectedGeneratedStage: true,
@@ -4236,6 +9763,7 @@ function run(ctx) {
                             sourceRouteId: "denominal-vi-iwi-preterit",
                             sourceStageKey: "verbalizer",
                             sourceBaseStem: "pusukti",
+                            sourceVerbStem: "pusuktiiwi",
                             boundaries: {
                                 noFixtureEvidence: true,
                                 sourceEvidenceFromSelectedGeneratedStage: true,
@@ -4723,6 +10251,256 @@ function run(ctx) {
             },
         ]
     );
+    s.eq(
+        "linked grammar path execution source options read framed next-source surfaces before stale next-source fields",
+        typeof ctx.getNawatLinkedGrammarPathExecutionSourceOptions === "function"
+            ? ctx.getNawatLinkedGrammarPathExecutionSourceOptions({
+                outputKind: "linked-grammar-path-chain-execution",
+                steps: [
+                    {
+                        index: 0,
+                        status: "executed",
+                        selection: { routeId: "next-frame-route", stageKey: "verbalizer" },
+                        selectedStage: {
+                            stationKey: "verbalizer",
+                            sourceVerb: "legacy-stage-source",
+                            displaySurface: "legacy stage",
+                        },
+                        nextSource: {
+                            sourceVerb: "legacy-next-source",
+                            displaySurface: "legacy next",
+                            frames: ctx.buildGrammarFrame({
+                                resultFrame: ctx.buildGrammarResultFrame({
+                                    ok: true,
+                                    surfaceForms: ["frame-next-source"],
+                                }),
+                            }),
+                        },
+                        generated: {
+                            result: "",
+                            surfaceForms: [],
+                        },
+                    },
+                ],
+            })
+            : [],
+        [
+            {
+                sourceVerb: "frame-next-source",
+                sourceObjectPrefix: "",
+                displaySurface: "frame-next-source",
+                sourceInput: "frame-next-source",
+                sourceInputDisplay: "frame-next-source",
+                generatedSurface: "",
+                routeId: "next-frame-route",
+                stageKey: "verbalizer",
+                fromStepIndex: 0,
+            },
+        ]
+    );
+    s.eq(
+        "linked grammar path execution source options suppress stale next-source and selected-stage fields for an empty next-source result frame",
+        typeof ctx.getNawatLinkedGrammarPathExecutionSourceOptions === "function"
+            ? ctx.getNawatLinkedGrammarPathExecutionSourceOptions({
+                outputKind: "linked-grammar-path-chain-execution",
+                steps: [
+                    {
+                        index: 0,
+                        status: "executed",
+                        selection: { routeId: "empty-next-frame-route" },
+                        selectedStage: {
+                            stationKey: "verbalizer",
+                            sourceVerb: "legacy-stage-source",
+                            displaySurface: "legacy stage",
+                        },
+                        nextSource: {
+                            sourceVerb: "legacy-next-source",
+                            displaySurface: "legacy next",
+                            frames: ctx.buildGrammarFrame({
+                                resultFrame: ctx.buildGrammarResultFrame({
+                                    ok: false,
+                                    surface: "",
+                                    surfaceForms: [],
+                                }),
+                            }),
+                        },
+                        generated: {
+                            result: "",
+                            surfaceForms: [],
+                        },
+                    },
+                ],
+            })
+            : [],
+        []
+    );
+    s.eq(
+        "linked grammar path execution source options suppress stale next-source fields for an empty LCM result frame",
+        typeof ctx.getNawatLinkedGrammarPathExecutionSourceOptions === "function"
+            ? ctx.getNawatLinkedGrammarPathExecutionSourceOptions({
+                outputKind: "linked-grammar-path-chain-execution",
+                steps: [
+                    {
+                        index: 0,
+                        status: "executed",
+                        selection: { routeId: "empty-frame-route" },
+                        selectedStage: {
+                            stationKey: "verbalizer",
+                            sourceVerb: "legacy-stage-source",
+                            displaySurface: "legacy stage",
+                        },
+                        nextSource: {
+                            sourceVerb: "legacy-next-source",
+                            displaySurface: "legacy next",
+                        },
+                        generated: {
+                            result: "legacy-generated-result",
+                            surface: "legacy-generated-surface",
+                            frames: ctx.buildGrammarFrame({
+                                resultFrame: ctx.buildGrammarResultFrame({
+                                    ok: false,
+                                    surface: "",
+                                    surfaceForms: [],
+                                }),
+                            }),
+                        },
+                    },
+                ],
+            })
+            : [],
+        []
+    );
+    s.eq(
+        "linked grammar path stage helpers suppress legacy next-source fields for an empty LCM result frame",
+        typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
+            && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? {
+                sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
+                    surface: "legacy-stage-surface",
+                    inputValue: "legacy-input",
+                    renderVerb: "legacy-render",
+                    nextSource: {
+                        sourceVerb: "legacy-source",
+                        displaySurface: "legacy-display",
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: false,
+                                surfaceForms: [],
+                            }),
+                        }),
+                    },
+                }),
+                displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
+                    surface: "legacy-stage-surface",
+                    nextSource: {
+                        displaySurface: "legacy-display",
+                        frames: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: false,
+                                surfaceForms: [],
+                            }),
+                        }),
+                    },
+                }),
+            }
+            : null,
+        {
+            sourceVerb: "",
+            displaySurface: "",
+        }
+    );
+    s.eq(
+        "linked grammar path stage helpers read stage LCM result-frame surfaces before legacy stage fields",
+        typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
+            && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? {
+                sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
+                    surface: "legacy-stage-surface",
+                    sourceVerb: "legacy-stage-source",
+                    inputValue: "legacy-input",
+                    renderVerb: "legacy-render",
+                    displaySurface: "legacy-stage-display",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: true,
+                            surfaceForms: ["frame-stage-source"],
+                        }),
+                    }),
+                    nextSource: {
+                        sourceVerb: "legacy-next-source",
+                        displaySurface: "legacy-next-display",
+                    },
+                }),
+                displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
+                    surface: "legacy-stage-surface",
+                    sourceVerb: "legacy-stage-source",
+                    displaySurface: "legacy-stage-display",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: true,
+                            surfaceForms: ["frame-stage-display"],
+                        }),
+                    }),
+                    nextSource: {
+                        displaySurface: "legacy-next-display",
+                    },
+                }),
+            }
+            : null,
+        {
+            sourceVerb: "frame-stage-source",
+            displaySurface: "frame-stage-display",
+        }
+    );
+    s.eq(
+        "linked grammar path stage helpers suppress legacy stage fields for an empty LCM result frame",
+        typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
+            && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            ? {
+                sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
+                    surface: "legacy-stage-surface",
+                    sourceVerb: "legacy-stage-source",
+                    inputValue: "legacy-input",
+                    renderVerb: "legacy-render",
+                    displaySurface: "legacy-stage-display",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: false,
+                            surfaceForms: [],
+                        }),
+                    }),
+                    nextSource: {
+                        sourceVerb: "legacy-next-source",
+                        displaySurface: "legacy-next-display",
+                    },
+                }),
+                displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
+                    surface: "legacy-stage-surface",
+                    sourceVerb: "legacy-stage-source",
+                    displaySurface: "legacy-stage-display",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: false,
+                            surfaceForms: [],
+                        }),
+                    }),
+                    nextSource: {
+                        displaySurface: "legacy-next-display",
+                    },
+                }),
+            }
+            : null,
+        {
+            sourceVerb: "",
+            displaySurface: "",
+        }
+    );
     const framedLinkedStageRequest = typeof ctx.buildNawatLinkedGrammarPathStageGenerateWordRequest === "function"
         && typeof ctx.buildGrammarFrame === "function"
         && typeof ctx.buildGrammarResultFrame === "function"
@@ -4795,6 +10573,86 @@ function run(ctx) {
         "linked grammar path stage generation requests suppress legacy source fields for an empty LCM result frame",
         emptyFramedLinkedStageRequest,
         null
+    );
+    const framedPromotedInputCalls = [];
+    s.eq(
+        "linked grammar path promoted source input reads LCM result-frame surfaces before stale source fields",
+        typeof ctx.applyNawatLinkedGrammarPathSourceInput === "function"
+            ? {
+                result: ctx.applyNawatLinkedGrammarPathSourceInput({
+                    sourceVerb: "legacy-promoted-source",
+                    inputValue: "legacy-promoted-input",
+                    displaySurface: "legacy-promoted-display",
+                    generatedSurface: "legacy-generated-surface",
+                    sourceObjectPrefix: "k",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: true,
+                            surfaceForms: ["frame-promoted-source"],
+                        }),
+                    }),
+                }, {
+                    inputApplier: (sourceVerb, sourceContext) => {
+                        framedPromotedInputCalls.push({
+                            sourceVerb,
+                            displaySurface: sourceContext.displaySurface,
+                            generatedSurface: sourceContext.generatedSurface,
+                            sourceObjectPrefix: sourceContext.sourceObjectPrefix,
+                        });
+                    },
+                }),
+                calls: framedPromotedInputCalls,
+            }
+            : null,
+        {
+            result: {
+                applied: true,
+                method: "input-applier",
+                sourceVerb: "frame-promoted-source",
+                sourceObjectPrefix: "k",
+            },
+            calls: [
+                {
+                    sourceVerb: "frame-promoted-source",
+                    displaySurface: "frame-promoted-source",
+                    generatedSurface: "frame-promoted-source",
+                    sourceObjectPrefix: "k",
+                },
+            ],
+        }
+    );
+    const emptyPromotedInputCalls = [];
+    s.eq(
+        "linked grammar path promoted source input suppresses stale fields for an empty LCM result frame",
+        typeof ctx.applyNawatLinkedGrammarPathSourceInput === "function"
+            ? {
+                result: ctx.applyNawatLinkedGrammarPathSourceInput({
+                    sourceVerb: "legacy-promoted-source",
+                    inputValue: "legacy-promoted-input",
+                    displaySurface: "legacy-promoted-display",
+                    frames: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: false,
+                            surfaceForms: [],
+                        }),
+                    }),
+                }, {
+                    inputApplier: (sourceVerb) => {
+                        emptyPromotedInputCalls.push(sourceVerb);
+                    },
+                }),
+                calls: emptyPromotedInputCalls,
+            }
+            : null,
+        {
+            result: {
+                applied: false,
+                method: "",
+                sourceVerb: "",
+                reason: "missing-source",
+            },
+            calls: [],
+        }
     );
     const promotedInputSyncCalls = [];
     const promotedLinkedPathSource = ctx.promoteActiveNawatLinkedGrammarPathExecutionFinalSource({
@@ -5085,6 +10943,7 @@ function run(ctx) {
                             sourceRouteId: "denominal-vi-iwi-preterit",
                             sourceStageKey: "verbalizer",
                             sourceBaseStem: "pusukti",
+                            sourceVerbStem: "pusuktiiwi",
                             boundaries: {
                                 noFixtureEvidence: true,
                                 sourceEvidenceFromSelectedGeneratedStage: true,
@@ -5126,6 +10985,7 @@ function run(ctx) {
                             sourceRouteId: "denominal-vi-iwi-preterit",
                             sourceStageKey: "verbalizer",
                             sourceBaseStem: "pusukti",
+                            sourceVerbStem: "pusuktiiwi",
                             boundaries: {
                                 noFixtureEvidence: true,
                                 sourceEvidenceFromSelectedGeneratedStage: true,
@@ -5149,6 +11009,7 @@ function run(ctx) {
                             sourceRouteId: "denominal-vi-iwi-preterit",
                             sourceStageKey: "verbalizer",
                             sourceBaseStem: "pusukti",
+                            sourceVerbStem: "pusuktiiwi",
                             boundaries: {
                                 noFixtureEvidence: true,
                                 sourceEvidenceFromSelectedGeneratedStage: true,

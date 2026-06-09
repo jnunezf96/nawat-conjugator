@@ -107,6 +107,26 @@ function getVncAllomorphyContractSurface(record = null, options = {}) {
     return getVncAllomorphyContractSurfaceForms(record, options)[0] || "";
 }
 
+function getVncAllomorphyContractSourceInput(record = null, options = {}) {
+    const node = record && typeof record === "object" ? record : {};
+    const resultFrame = getVncAllomorphyContractResultFrame(node, options);
+    if (resultFrame) {
+        return normalizeVncAllomorphyContractSurfaceValue(
+            resultFrame.sourceInput
+            || getVncAllomorphyContractSurface(node, options)
+            || ""
+        );
+    }
+    return normalizeVncAllomorphyContractSurfaceValue(
+        options.sourceInput
+        || node.sourceStem
+        || node.stem
+        || node.sourceSuffix
+        || node.selectedOutputSurface
+        || ""
+    );
+}
+
 function getVncAllomorphySourceSurfaceForms(record = null, options = {}) {
     const node = record && typeof record === "object" ? record : {};
     const resultFrame = getVncAllomorphyContractResultFrame(node, options);
@@ -136,29 +156,60 @@ function attachVncAllomorphyGrammarContract(record = null, options = {}) {
         ...(Array.isArray(node.diagnostics) ? node.diagnostics : []),
         ...(Array.isArray(options.diagnostics) ? options.diagnostics : []),
     ];
-    const sourceInput = String(
-        options.sourceInput
-        || node.sourceStem
-        || node.stem
-        || node.sourceSuffix
-        || node.selectedOutputSurface
-        || ""
-    ).trim();
     const surfaceForms = getVncAllomorphyContractSurfaceForms(node, options);
     const surface = surfaceForms[0] || "";
+    const resultFrame = getVncAllomorphyContractResultFrame(node, options);
+    const hasResultFrame = Boolean(resultFrame);
+    const sourceInput = getVncAllomorphyContractSourceInput(node, options);
     const orthographyFrame = options.orthographyFrame || {
         spellingAuthority: "Nawat/Pipil output spelling",
         noClassicalSurfaceImport: true,
     };
     const resolvedOrthographyFrame = {
         ...orthographyFrame,
-        surface: normalizeVncAllomorphyContractSurfaceValue(orthographyFrame.surface || surface),
-        surfaceForms: Array.isArray(orthographyFrame.surfaceForms) && orthographyFrame.surfaceForms.length
+        surface: hasResultFrame
+            ? surface
+            : normalizeVncAllomorphyContractSurfaceValue(orthographyFrame.surface || surface),
+        surfaceForms: hasResultFrame
+            ? surfaceForms
+            : (Array.isArray(orthographyFrame.surfaceForms) && orthographyFrame.surfaceForms.length
             ? getVncAllomorphyContractSurfaceForms({
                 surfaceForms: orthographyFrame.surfaceForms,
                 surface: orthographyFrame.surface,
             })
-            : surfaceForms,
+            : surfaceForms),
+    };
+    const rawStemFrame = options.stemFrame || {
+        stemKind: String(options.stemKind || node.kind || "vnc-allomorphy-contract"),
+        sourceStem: String(node.sourceStem || node.stem || ""),
+        targetStem: String(node.outputStem || ""),
+        sourceSuffix: String(node.sourceSuffix || ""),
+    };
+    const resolvedStemFrame = {
+        ...rawStemFrame,
+        sourceStem: hasResultFrame ? sourceInput : String(rawStemFrame.sourceStem || ""),
+        targetStem: hasResultFrame ? surface : String(rawStemFrame.targetStem || ""),
+        sourceSuffix: hasResultFrame ? "" : String(rawStemFrame.sourceSuffix || ""),
+    };
+    const rawTargetContract = options.targetContract || {
+        metadataKind: String(options.metadataKind || node.kind || "vnc-allomorphy-contract"),
+        generationAllowed: false,
+        supported,
+        allowed: node.allowed === true,
+        outputSurface: String(node.outputSurface || node.selectedOutputSurface || ""),
+    };
+    const resolvedTargetContract = {
+        ...rawTargetContract,
+        outputSurface: hasResultFrame ? surface : String(rawTargetContract.outputSurface || ""),
+        selectedOutputSurface: hasResultFrame ? surface : String(rawTargetContract.selectedOutputSurface || ""),
+        surface: hasResultFrame
+            ? surface
+            : normalizeVncAllomorphyContractSurfaceValue(rawTargetContract.surface || ""),
+        surfaceForms: hasResultFrame
+            ? surfaceForms
+            : (Array.isArray(rawTargetContract.surfaceForms)
+                ? getVncAllomorphyContractSurfaceForms({ surfaceForms: rawTargetContract.surfaceForms })
+                : []),
     };
     return attachGrammarMetadataContract({
         ...node,
@@ -180,19 +231,8 @@ function attachVncAllomorphyGrammarContract(record = null, options = {}) {
         surfaceForms,
         orthographyFrame: resolvedOrthographyFrame,
         morphBoundaryFrame: options.morphBoundaryFrame || node,
-        stemFrame: options.stemFrame || {
-            stemKind: String(options.stemKind || node.kind || "vnc-allomorphy-contract"),
-            sourceStem: String(node.sourceStem || node.stem || ""),
-            targetStem: String(node.outputStem || ""),
-            sourceSuffix: String(node.sourceSuffix || ""),
-        },
-        targetContract: options.targetContract || {
-            metadataKind: String(options.metadataKind || node.kind || "vnc-allomorphy-contract"),
-            generationAllowed: false,
-            supported,
-            allowed: node.allowed === true,
-            outputSurface: String(node.outputSurface || node.selectedOutputSurface || ""),
-        },
+        stemFrame: resolvedStemFrame,
+        targetContract: resolvedTargetContract,
     });
 }
 

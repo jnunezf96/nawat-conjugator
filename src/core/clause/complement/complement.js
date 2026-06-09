@@ -233,6 +233,9 @@ function getComplementClauseSurface(input = "", fallback = "") {
         return String(fallback || "").trim();
     }
     const surface = getComplementClauseSurfaceForms(input)[0];
+    if (getComplementClauseResultFrame(input)?.resultFrame) {
+        return String(surface || "").trim();
+    }
     return String(surface || fallback || "").trim();
 }
 

@@ -8,8 +8,8 @@ var GRAMMAR_FRAME_VERSION = 1;
 
 var GRAMMAR_FRAME_KEYS = Object.freeze([
     "authorityFrame",
-    "unitFrame",
     "orthographyFrame",
+    "unitFrame",
     "morphBoundaryFrame",
     "stemFrame",
     "nuclearClauseFrame",
@@ -23,8 +23,8 @@ var GRAMMAR_FRAME_KEYS = Object.freeze([
 
 var GRAMMAR_FRAME_LAYER_ORDER = Object.freeze([
     "authority-evidence",
-    "unit-kind",
     "orthography",
+    "unit-kind",
     "morph-boundary",
     "stem-core",
     "nuclear-clause",
@@ -174,7 +174,7 @@ function getGrammarResultContractSurfaceForms({
     if (!hasResultFrame && Array.isArray(output?.surfaceForms)) {
         forms.push(...output.surfaceForms);
     }
-    if (output?.surface) {
+    if (!hasResultFrame && output?.surface) {
         forms.push(output.surface);
     }
     if (!hasResultFrame && output?.result) {
@@ -221,7 +221,7 @@ function getGrammarMetadataContractSurfaceForms(record = null, options = {}) {
     if (!hasResultFrame && Array.isArray(options?.surfaceForms)) {
         forms.push(...options.surfaceForms);
     }
-    if (options?.surface) {
+    if (!hasResultFrame && options?.surface) {
         forms.push(options.surface);
     }
     if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
@@ -230,10 +230,10 @@ function getGrammarMetadataContractSurfaceForms(record = null, options = {}) {
     if (!hasResultFrame && Array.isArray(node.output?.surfaceForms)) {
         forms.push(...node.output.surfaceForms);
     }
-    if (node.surface) {
+    if (!hasResultFrame && node.surface) {
         forms.push(node.surface);
     }
-    if (node.output?.surface) {
+    if (!hasResultFrame && node.output?.surface) {
         forms.push(node.output.surface);
     }
     const normalizedForms = forms
@@ -294,13 +294,60 @@ function buildGrammarResultContract({
     };
 }
 
+function getGrammarDiagnosticLayerContract(entry = null) {
+    const diagnosticId = typeof entry === "string"
+        ? entry
+        : String(entry?.id || entry?.code || entry?.message || "");
+    const id = String(diagnosticId || "").trim();
+    if (!id) {
+        return { failedLayer: "", contractLayer: "" };
+    }
+    if (/authority|evidence|unconfirmed|false-positive|not-evidence|needs-.*evidence|needs-nawat|source-evidence/i.test(id)) {
+        return { failedLayer: "authority", contractLayer: "authorityFrame" };
+    }
+    if (/orthography|spelling|letter|classical|nawat-letter|nawat-spelling|phonolog|syllable/i.test(id)) {
+        return { failedLayer: "orthography", contractLayer: "orthographyFrame" };
+    }
+    if (/surface|output|result|no-output|empty|render|display|form/i.test(id)) {
+        return { failedLayer: "output", contractLayer: "resultFrame" };
+    }
+    if (/agreement|participant|subject|object|possessor|possessive|valence|state|person|number|animate|nonanimate/i.test(id)) {
+        return { failedLayer: "agreement", contractLayer: "participantFrame" };
+    }
+    if (/tense|mode|modal|potential|potencial|indicative|optative|admonitive|preterit|perfective|future|present|past/i.test(id)) {
+        return { failedLayer: "inflection", contractLayer: "inflectionFrame" };
+    }
+    if (/stem|root|source|input|predicate|noun-stem|verbstem|verb-stem|matrix|embed|compound|incorporated/i.test(id)) {
+        return { failedLayer: "stem", contractLayer: "stemFrame" };
+    }
+    if (/nuclear|clause|nnc|vnc/i.test(id)) {
+        return { failedLayer: "nuclear-clause", contractLayer: "nuclearClauseFrame" };
+    }
+    if (/boundary|suffix|prefix|carrier|connector/i.test(id)) {
+        return { failedLayer: "morph-boundary", contractLayer: "morphBoundaryFrame" };
+    }
+    if (/route-blocked|unsupported|not-allowed|requires|missing|route|generation|contract|class|kind|option|relation|order|marked|unmarked/i.test(id)) {
+        return { failedLayer: "route", contractLayer: "routeContract" };
+    }
+    return { failedLayer: "", contractLayer: "" };
+}
+
 function normalizeGrammarDiagnosticContractEntry(entry = null) {
     if (!entry) {
         return null;
     }
     if (typeof entry === "string") {
         const id = entry.trim();
-        return id ? { id, severity: "diagnostic", message: "" } : null;
+        if (!id) {
+            return null;
+        }
+        const layerContract = getGrammarDiagnosticLayerContract(id);
+        return {
+            id,
+            severity: "diagnostic",
+            message: "",
+            ...(layerContract.failedLayer ? layerContract : {}),
+        };
     }
     if (typeof entry !== "object") {
         return null;
@@ -310,12 +357,24 @@ function normalizeGrammarDiagnosticContractEntry(entry = null) {
     if (!id && !message) {
         return null;
     }
-    return {
+    const layerContract = getGrammarDiagnosticLayerContract({
+        ...entry,
+        id: id || message,
+        message,
+    });
+    const normalized = {
         ...entry,
         id: id || message,
         severity: String(entry.severity || "diagnostic"),
         message,
     };
+    if (!String(normalized.failedLayer || "").trim() && layerContract.failedLayer) {
+        normalized.failedLayer = layerContract.failedLayer;
+    }
+    if (!String(normalized.contractLayer || "").trim() && layerContract.contractLayer) {
+        normalized.contractLayer = layerContract.contractLayer;
+    }
+    return normalized;
 }
 
 function normalizeGrammarDiagnosticContractEntries(entries = []) {
@@ -438,6 +497,8 @@ function attachGrammarAstContract(ast = null, options = {}) {
 
 function buildGrammarMetadataContractFrame(record = null, options = {}) {
     const node = record && typeof record === "object" ? record : {};
+    const inboundResultFrame = getGrammarMetadataContractResultFrame(node, options);
+    const hasInboundResultFrame = Boolean(inboundResultFrame);
     const diagnostics = normalizeGrammarDiagnosticContractEntries([
         ...(Array.isArray(node.diagnostics) ? node.diagnostics : []),
         ...(Array.isArray(options.diagnostics) ? options.diagnostics : []),
@@ -470,16 +531,33 @@ function buildGrammarMetadataContractFrame(record = null, options = {}) {
     const unitKind = String(options.unitKind || node.unitKind || "diagnostic-unit").trim();
     const routeStage = String(options.routeStage || (generationAllowed ? "execute" : "classify-boundary")).trim();
     const routeFamily = String(options.routeFamily || metadataKind).trim();
-    const sourceInput = String(
+    const primitiveSource = (
+        typeof node.source === "string"
+        || typeof node.source === "number"
+        || typeof node.source === "boolean"
+    )
+        ? node.source
+        : "";
+    const primitiveTarget = (
+        typeof node.target === "string"
+        || typeof node.target === "number"
+        || typeof node.target === "boolean"
+    )
+        ? node.target
+        : "";
+    const legacySourceInput = String(
         options.sourceInput
         || node.candidate
         || node.sourceName
         || node.nameSource
         || node.source?.raw
-        || node.source
-        || node.target
+        || primitiveSource
+        || primitiveTarget
         || ""
     ).trim();
+    const sourceInput = hasInboundResultFrame
+        ? normalizeGrammarSurfaceValue(inboundResultFrame.sourceInput || surface || "")
+        : legacySourceInput;
     const authorityFrame = buildGrammarAuthorityFrame({
         sourceEvidence: {
             kind: metadataKind,
@@ -492,15 +570,27 @@ function buildGrammarMetadataContractFrame(record = null, options = {}) {
         nawatEvidenceRefs: normalizeGrammarFrameArray(options.nawatEvidenceRefs || node.nawatEvidenceRefs),
         supported,
     });
-    const routeContract = buildGrammarRouteContractFrame({
-        routeFamily,
-        routeStage,
-        sourceContract: normalizeGrammarFrameObject(options.sourceContract) || {
+    const providedSourceContract = normalizeGrammarFrameObject(options.sourceContract);
+    const routeSourceContract = providedSourceContract
+        ? {
+            ...providedSourceContract,
+            sourceInput: hasInboundResultFrame
+                ? sourceInput
+                : String(providedSourceContract.sourceInput || sourceInput || ""),
+            sourceSurface: hasInboundResultFrame
+                ? sourceInput
+                : String(providedSourceContract.sourceSurface || sourceInput || ""),
+        }
+        : {
             unitKind,
             metadataKind,
             sourceInput,
             evidenceSource: String(node.evidenceSource || ""),
-        },
+        };
+    const routeContract = buildGrammarRouteContractFrame({
+        routeFamily,
+        routeStage,
+        sourceContract: routeSourceContract,
         targetContract: normalizeGrammarFrameObject(options.targetContract) || {
             metadataKind,
             generationAllowed,
@@ -525,18 +615,28 @@ function buildGrammarMetadataContractFrame(record = null, options = {}) {
         diagnostics,
         blockers: generationAllowed ? [] : diagnostics,
     });
-    return buildGrammarFrame({
-        authorityFrame,
-        unitFrame: normalizeGrammarFrameObject(options.unitFrame) || {
-            unitKind,
-            outputKind: metadataKind,
-            generationRoute: routeStage,
-        },
-        orthographyFrame: normalizeGrammarFrameObject(options.orthographyFrame) || {
+    const providedOrthographyFrame = normalizeGrammarFrameObject(options.orthographyFrame);
+    const orthographyFrame = providedOrthographyFrame
+        ? {
+            ...providedOrthographyFrame,
+            surface: hasInboundResultFrame ? surface : normalizeGrammarSurfaceValue(providedOrthographyFrame.surface || surface),
+            surfaceForms: hasInboundResultFrame
+                ? surfaceForms
+                : normalizeGrammarSurfaceForms(providedOrthographyFrame.surfaceForms || surfaceForms),
+        }
+        : {
             surface,
             surfaceForms,
             spellingAuthority: "Nawat/Pipil evidence",
             noClassicalSurfaceImport: true,
+        };
+    return buildGrammarFrame({
+        authorityFrame,
+        orthographyFrame,
+        unitFrame: normalizeGrammarFrameObject(options.unitFrame) || {
+            unitKind,
+            outputKind: metadataKind,
+            generationRoute: routeStage,
         },
         morphBoundaryFrame: Object.prototype.hasOwnProperty.call(options, "morphBoundaryFrame")
             ? normalizeGrammarFrameObject(options.morphBoundaryFrame)
@@ -564,6 +664,8 @@ function attachGrammarMetadataContract(record = null, options = {}) {
     });
     const enumerable = options.enumerable === true;
     const output = { ...node };
+    const hasOwnSurfaceForms = Object.prototype.hasOwnProperty.call(node, "surfaceForms");
+    const surfaceFormsEnumerable = Object.prototype.propertyIsEnumerable.call(node, "surfaceForms");
     Object.defineProperties(output, {
         grammarFrame: {
             configurable: true,
@@ -595,6 +697,14 @@ function attachGrammarMetadataContract(record = null, options = {}) {
             writable: true,
             value: resultContract.diagnostics,
         },
+        ...(hasOwnSurfaceForms ? {
+            surfaceForms: {
+                configurable: true,
+                enumerable: surfaceFormsEnumerable,
+                writable: true,
+                value: resultContract.surfaceForms,
+            },
+        } : {}),
     });
     return output;
 }

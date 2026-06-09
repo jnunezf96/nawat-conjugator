@@ -181,6 +181,35 @@ function run(ctx) {
         }
     );
     s.eq(
+        "modification surface helper suppresses fallback for an empty LCM result frame",
+        (() => {
+            const emptyFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "blocked-modification-source",
+                }),
+            });
+            const input = {
+                surface: "stale-surface",
+                surfaceForms: ["stale-a / stale-b"],
+                surfaceDisplay: "stale-display",
+                result: "stale-result",
+                word: "stale-word",
+                frames: emptyFrame,
+            };
+            return {
+                surface: ctx.getAdjectivalModificationSurface(input, "fallback-head"),
+                forms: ctx.getAdjectivalModificationSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
+        }
+    );
+    s.eq(
         "modification AST reads surfaceForms before legacy result",
         (() => {
             const ast = ctx.buildAdjectivalModificationAst({

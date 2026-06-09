@@ -236,6 +236,9 @@ function getAdverbialAdjunctionSurface(input = "", fallback = "") {
         return String(fallback || "").trim();
     }
     const surface = getAdverbialAdjunctionSurfaceForms(input)[0];
+    if (getAdverbialAdjunctionResultFrame(input)?.resultFrame) {
+        return String(surface || "").trim();
+    }
     return String(surface || fallback || "").trim();
 }
 

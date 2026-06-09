@@ -180,6 +180,102 @@ function run(ctx) {
     );
 
     s.eq(
+        "NNC shell reads predicate and connector surfaces from LCM result frames",
+        (() => {
+            const shell = ctx.buildNuclearClauseShellMetadata({
+                clauseKind: "nnc",
+                formulaSlots: {
+                    subjectPerson: { slot: "pers1-pers2", prefix: "", suffix: "", label: "3sg" },
+                    predicate: {
+                        slot: "STEM",
+                        stem: "stale-predicate",
+                        surface: "stale-surface",
+                        state: "absolutive",
+                        grammarFrame: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                surfaceForms: ["frame-predicate"],
+                            }),
+                        }),
+                    },
+                    subjectNumberConnector: {
+                        slot: "num1-num2",
+                        connector: "stale-connector",
+                        displayConnector: "stale-display",
+                        nounClass: "t",
+                        grammarFrame: ctx.buildGrammarFrame({
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                surface: "frame-connector",
+                            }),
+                        }),
+                    },
+                },
+            });
+            return {
+                predicateStem: shell.slots.predicate.stem,
+                predicateDisplay: shell.slots.predicate.displayStem,
+                connector: shell.slots.subjectNumberConnector.connector,
+                connectorDisplay: shell.slots.subjectNumberConnector.displayConnector,
+                formulaEcho: shell.formulaEcho,
+            };
+        })(),
+        {
+            predicateStem: "frame-predicate",
+            predicateDisplay: "frame-predicate",
+            connector: "frame-connector",
+            connectorDisplay: "frame-connector",
+            formulaEcho: "#Ø...Ø(frame-predicate)frame-connector#",
+        }
+    );
+
+    s.eq(
+        "NNC shell does not revive stale predicate or connector text after an empty result frame",
+        (() => {
+            const emptyFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    surface: "",
+                    surfaceForms: [],
+                }),
+            });
+            const shell = ctx.buildNuclearClauseShellMetadata({
+                clauseKind: "nnc",
+                formulaSlots: {
+                    subjectPerson: { slot: "pers1-pers2", prefix: "", suffix: "", label: "3sg" },
+                    predicate: {
+                        slot: "STEM",
+                        stem: "stale-predicate",
+                        surface: "stale-surface",
+                        state: "absolutive",
+                        grammarFrame: emptyFrame,
+                    },
+                    subjectNumberConnector: {
+                        slot: "num1-num2",
+                        connector: "stale-connector",
+                        displayConnector: "stale-display",
+                        displaySurface: "stale-surface",
+                        nounClass: "t",
+                        grammarFrame: emptyFrame,
+                    },
+                },
+                predicate: { stem: "fallback-predicate" },
+            });
+            return {
+                predicateStem: shell.slots.predicate.stem,
+                predicateDisplay: shell.slots.predicate.displayStem,
+                connector: shell.slots.subjectNumberConnector.connector,
+                connectorDisplay: shell.slots.subjectNumberConnector.displayConnector,
+                formulaEcho: shell.formulaEcho,
+            };
+        })(),
+        {
+            predicateStem: "",
+            predicateDisplay: "∅",
+            connector: "",
+            connectorDisplay: "Ø",
+            formulaEcho: "#Ø...Ø(∅)Ø#",
+        }
+    );
+
+    s.eq(
         "VNC formula echo derives from formulaSlots",
         ctx.buildVerbalNuclearClauseFormulaEchoFromSlots({
             subjectPerson: { prefix: "ti", displayPrefix: "ti" },

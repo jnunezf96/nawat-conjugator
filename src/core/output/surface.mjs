@@ -948,13 +948,13 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
         candidates.push(...node.surfaceForms);
       }
-      if (node.surface) {
+      if (!hasResultFrame && node.surface) {
         candidates.push(node.surface);
       }
       if (!hasResultFrame && node.result) {
         candidates.push(node.result);
       }
-      if (fallbackSurface) {
+      if (!hasResultFrame && fallbackSurface) {
         candidates.push(fallbackSurface);
       }
       return candidates.flatMap(entry => splitOutputSurfaceContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);

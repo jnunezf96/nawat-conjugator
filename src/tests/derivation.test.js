@@ -117,6 +117,80 @@ function run(ctx) {
         }
     );
     s.eq(
+        "derivation continuation contract reads framed source surface before legacy source aliases",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    surfaceForms: ["frame-source-a / frame-source-b"],
+                    outputKind: "derivation-source-output",
+                    generationRoute: "test-frame-reader",
+                }),
+            });
+            const contract = ctx.attachDerivationContinuationGrammarContract({
+                outputKind: "test-derivation-continuation-contract",
+                grammarSource: "Andrews 39.8",
+                supported: true,
+                surface: "stale-top-surface",
+                surfaceForms: ["stale-top-a / stale-top-b"],
+                result: "stale-result",
+                sourceSurface: "stale-source-surface",
+                patientivoSurface: "stale-patientive-surface",
+                compoundVerbInput: "-(frame-source-a/tajtani)",
+                grammarFrame,
+                frames: grammarFrame,
+                diagnostics: [],
+            });
+            return {
+                sourceInput: contract.grammarFrame?.resultFrame?.sourceInput || "",
+                sourceSurface: contract.grammarFrame?.routeContract?.sourceContract?.sourceSurface || "",
+                targetInput: contract.grammarFrame?.routeContract?.targetContract?.targetInput || "",
+            };
+        })(),
+        {
+            sourceInput: "frame-source-a",
+            sourceSurface: "frame-source-a",
+            targetInput: "-(frame-source-a/tajtani)",
+        }
+    );
+    s.eq(
+        "derivation continuation contract suppresses legacy source aliases for empty result frame",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "derivation-source-output",
+                    generationRoute: "test-empty-frame-reader",
+                }),
+            });
+            const contract = ctx.attachDerivationContinuationGrammarContract({
+                outputKind: "test-derivation-continuation-contract",
+                grammarSource: "Andrews 39.8",
+                supported: false,
+                sourceSurface: "stale-source-surface",
+                patientivoSurface: "stale-patientive-surface",
+                compoundVerbInput: "-(stale-source/tajtani)",
+                grammarFrame,
+                frames: grammarFrame,
+                diagnostics: ["patientivo-compound-embed-missing-patientivo-surface"],
+            });
+            return {
+                ok: contract.ok,
+                sourceInput: contract.grammarFrame?.resultFrame?.sourceInput || "",
+                sourceSurface: contract.grammarFrame?.routeContract?.sourceContract?.sourceSurface || "",
+                diagnosticLayer: contract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.failedLayer || "",
+            };
+        })(),
+        {
+            ok: false,
+            sourceInput: "",
+            sourceSurface: "",
+            diagnosticLayer: "stem",
+        }
+    );
+    s.eq(
         "Andrews 39.7 absolutive patientive source uses direct subject-to-object mapping",
         [
             { subjectPrefix: "ni", subjectSuffix: "" },

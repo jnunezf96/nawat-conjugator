@@ -253,6 +253,39 @@ function run(ctx) {
         }
     );
     s.eq(
+        "adverbial adjunction surface helper suppresses fallback for an empty LCM result frame",
+        (() => {
+            const emptyFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "blocked-adjunction-source",
+                }),
+            });
+            const input = {
+                surface: "stale-surface",
+                surfaceForms: ["stale-a / stale-b"],
+                surfaceDisplay: "stale-display",
+                output: {
+                    surface: "stale-output-surface",
+                    surfaceForms: ["stale-output-a"],
+                },
+                result: "stale-result",
+                word: "stale-word",
+                frames: emptyFrame,
+            };
+            return {
+                surface: ctx.getAdverbialAdjunctionSurface(input, "fallback-principal"),
+                forms: ctx.getAdverbialAdjunctionSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
+        }
+    );
+    s.eq(
         "adverbial adjunction AST reads surfaceForms before legacy result",
         (() => {
             const ast = ctx.buildAdverbialAdjunctionAst({

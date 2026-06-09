@@ -134,6 +134,18 @@ function getStateResultDisplaySurface(result = null) {
     return getStateResultSurfaceForms(result).join(" / ");
 }
 
+function getStateSubjectNumberConnectorSurface(connector = null) {
+    const framedSurface = getStateResultSurfaceForms(connector)[0] || "";
+    if (framedSurface) {
+        return framedSurface;
+    }
+    if (hasStateResultFrame(connector)) {
+        return "";
+    }
+    const surface = String(connector?.surface || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
 function getNawatLinkedGrammarPathStageSourceVerb(stage = null) {
     const nextSource = stage?.nextSource && typeof stage.nextSource === "object"
         ? stage.nextSource
@@ -145,21 +157,19 @@ function getNawatLinkedGrammarPathStageSourceVerb(stage = null) {
     if (hasStateResultFrame(nextSource)) {
         return "";
     }
+    const stageSurface = getPrimaryNawatRouteSurfaceForm(stage);
+    if (hasStateResultFrame(stage)) {
+        return stageSurface || "";
+    }
     const sourceInput = String(
         nextSource?.sourceVerb
+        || stage?.sourceVerb
         || stage?.inputValue
         || stage?.renderVerb
         || ""
     ).trim();
     if (sourceInput && sourceInput !== "—") {
         return sourceInput;
-    }
-    const stageSurface = getPrimaryNawatRouteSurfaceForm(stage);
-    if (stageSurface) {
-        return stageSurface;
-    }
-    if (hasStateResultFrame(stage)) {
-        return "";
     }
     const sourceVerb = String(stage?.surface || "").trim();
     return sourceVerb === "—" ? "" : sourceVerb;
@@ -185,6 +195,7 @@ function getNawatLinkedGrammarPathStageDisplaySurface(stage = null) {
     }
     const displaySurface = String(
         nextSource?.displaySurface
+        || stage?.displaySurface
         || stage?.surface
         || ""
     ).trim();
@@ -1902,7 +1913,7 @@ function getNawatRouteGeneratedPatientivoConnectorSuffix(profile = null, {
             routeTarget,
             patientivoNominalSuffix: suffix,
         });
-        const connector = String(result?.subjectNumberConnector?.surface || "").trim();
+        const connector = getStateSubjectNumberConnectorSurface(result?.subjectNumberConnector);
         if (connector) {
             return connector;
         }
@@ -2287,6 +2298,12 @@ function getNawatRouteSurfaceTrailParts(routeKeyOrProfile = "", {
     };
     stations.forEach((station) => {
         const stationKey = station?.key || "";
+        const stationSurfaceText = getNawatRouteStationSurfaceText(station);
+        const hasStationResultFrame = hasStateResultFrame(station);
+        const directStationSurface = String(station?.surface || "").trim();
+        const legacyStationSurface = directStationSurface && directStationSurface !== "—"
+            ? directStationSurface
+            : "";
         const surfaceText = stationKey === "finite-tense"
             ? getNawatRouteFiniteSurfaceForm(profile, {
                 sourceVerb: resolvedTarget?.sourceVerb || sourceVerb,
@@ -2302,21 +2319,23 @@ function getNawatRouteSurfaceTrailParts(routeKeyOrProfile = "", {
                     });
                     return generatedConnector
                         ? `-${generatedConnector}`
-                        : (isNawatDynamicPatientivoSurfaceRoute(profile) ? "" : getNawatRouteStationSurfaceText(station));
+                        : (isNawatDynamicPatientivoSurfaceRoute(profile) ? "" : stationSurfaceText);
                 })()
             : (stationKey === "source-tense"
-                ? (
-                    station?.surface
-                    || getNawatRouteSourceSurfaceForm(profile, {
-                        sourceVerb: resolvedTarget?.sourceVerb || sourceVerb,
-                        sourceObjectPrefix: resolvedTarget?.sourceObjectPrefix || sourceObjectPrefix,
-                        routeTarget: resolvedTarget,
-                    })
-                    || getNawatRouteStationSurfaceText(station)
-                )
+                ? (hasStationResultFrame
+                    ? stationSurfaceText
+                    : (
+                        legacyStationSurface
+                        || getNawatRouteSourceSurfaceForm(profile, {
+                            sourceVerb: resolvedTarget?.sourceVerb || sourceVerb,
+                            sourceObjectPrefix: resolvedTarget?.sourceObjectPrefix || sourceObjectPrefix,
+                            routeTarget: resolvedTarget,
+                        })
+                        || stationSurfaceText
+                    ))
             : (stationKey === "verbalizer" || stationKey === "target-mode"
-                ? (station?.inputValue || getNawatRouteStationSurfaceText(station))
-                : getNawatRouteStationSurfaceText(station))));
+                ? (station?.inputValue || stationSurfaceText)
+                : stationSurfaceText)));
         pushPart(station, surfaceText, {
             key: stationKey === "finite-tense" ? "finite-surface" : stationKey,
             relation: station?.role === "stem" ? "source-dependent" : "",
@@ -2358,6 +2377,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromLinkedStage(profile = 
                 noFixtureEvidence: true,
                 sourceEvidenceFromSelectedGeneratedStage: true,
                 classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTiYaDeverbal: true,
                 sourceEvidenceSupportsTiLiaCausative: true,
                 sourceEvidenceSupportsTiACausative: true,
                 sourceEvidenceSupportsTIaApplicative: true,
@@ -2380,6 +2400,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromLinkedStage(profile = 
             sourceRouteId: profile?.id || "",
             sourceStageKey: stationKey,
             sourceBaseStem,
+            sourceVerbStem: String(routeContext?.targetVerb || "").trim(),
             boundaries: {
                 noFixtureEvidence: true,
                 sourceEvidenceFromSelectedGeneratedStage: true,
@@ -3095,23 +3116,27 @@ function buildNawatLinkedGrammarPathSelectionSummary({
             const routeId = route.routeId || route.id || "";
             const appendableStages = (Array.isArray(route.stages) ? route.stages : [])
                 .filter((stage) => stage?.nextSource?.canBecomeSource === true)
-                .map((stage) => ({
-                    routeId,
-                    routeFamily: route.routeFamily || "",
-                    stageKey: stage.key || "",
-                    stationKey: stage.stationKey || "",
-                    role: stage.role || "",
-                    surface: stage.surface || "",
-                    sourceVerb: stage.nextSource?.sourceVerb || "",
-                    displaySurface: stage.nextSource?.displaySurface || stage.surface || "",
-                    mode: stage.nextSource?.mode || "",
-                    tenseValue: stage.nextSource?.tenseValue || "",
-                    objectPrefix: stage.nextSource?.objectPrefix || "",
-                    selection: {
+                .map((stage) => {
+                    const sourceVerb = getNawatLinkedGrammarPathStageSourceVerb(stage);
+                    const displaySurface = getNawatLinkedGrammarPathStageDisplaySurface(stage);
+                    return {
                         routeId,
-                        stageKey: stage.key || stage.stationKey || "",
-                    },
-                }))
+                        routeFamily: route.routeFamily || "",
+                        stageKey: stage.key || "",
+                        stationKey: stage.stationKey || "",
+                        role: stage.role || "",
+                        surface: stage.surface || "",
+                        sourceVerb,
+                        displaySurface,
+                        mode: stage.nextSource?.mode || "",
+                        tenseValue: stage.nextSource?.tenseValue || "",
+                        objectPrefix: stage.nextSource?.objectPrefix || "",
+                        selection: {
+                            routeId,
+                            stageKey: stage.key || stage.stationKey || "",
+                        },
+                    };
+                })
                 .filter((stage) => stage.sourceVerb);
             return {
                 routeId,
@@ -3390,20 +3415,39 @@ function getNawatLinkedGrammarPathExecutionSourceOptions(execution = null) {
         .filter((step) => step?.status === "executed")
         .map((step) => {
             const generatedPrimarySurface = getPrimaryNawatRouteSurfaceForm(step?.generated);
+            if (hasStateResultFrame(step?.generated) && !generatedPrimarySurface) {
+                return null;
+            }
+            const nextSourcePrimarySurface = getPrimaryNawatRouteSurfaceForm(step?.nextSource);
+            const hasNextSourceResultFrame = hasStateResultFrame(step?.nextSource);
+            if (!generatedPrimarySurface && hasNextSourceResultFrame && !nextSourcePrimarySurface) {
+                return null;
+            }
+            const selectedStagePrimarySurface = getPrimaryNawatRouteSurfaceForm(step?.selectedStage);
+            const hasSelectedStageResultFrame = hasStateResultFrame(step?.selectedStage);
+            if (!generatedPrimarySurface && !nextSourcePrimarySurface && hasSelectedStageResultFrame && !selectedStagePrimarySurface) {
+                return null;
+            }
             const sourceVerb = String(
                 generatedPrimarySurface
-                || step?.nextSource?.sourceVerb
-                || step?.selectedStage?.sourceVerb
+                || nextSourcePrimarySurface
+                || (!hasNextSourceResultFrame ? step?.nextSource?.sourceVerb : "")
+                || selectedStagePrimarySurface
+                || (!hasSelectedStageResultFrame ? step?.selectedStage?.sourceVerb : "")
                 || ""
             ).trim();
             if (!sourceVerb) {
                 return null;
             }
             const sourceInput = String(
-                step?.nextSource?.sourceVerb
-                || step?.selectedStage?.sourceVerb
+                nextSourcePrimarySurface
+                || (!hasNextSourceResultFrame ? step?.nextSource?.sourceVerb : "")
+                || selectedStagePrimarySurface
+                || (!hasSelectedStageResultFrame ? step?.selectedStage?.sourceVerb : "")
                 || ""
             ).trim();
+            const nextSourceDisplay = getStateResultDisplaySurface(step?.nextSource);
+            const selectedStageDisplay = getStateResultDisplaySurface(step?.selectedStage);
             return {
                 sourceVerb,
                 sourceObjectPrefix: String(
@@ -3413,14 +3457,18 @@ function getNawatLinkedGrammarPathExecutionSourceOptions(execution = null) {
                 ).trim(),
                 displaySurface: String(
                     generatedPrimarySurface
-                    || step?.nextSource?.displaySurface
-                    || step?.selectedStage?.displaySurface
+                    || nextSourceDisplay
+                    || (!hasNextSourceResultFrame ? step?.nextSource?.displaySurface : "")
+                    || selectedStageDisplay
+                    || (!hasSelectedStageResultFrame ? step?.selectedStage?.displaySurface : "")
                     || ""
                 ).trim(),
                 sourceInput,
                 sourceInputDisplay: String(
-                    step?.nextSource?.displaySurface
-                    || step?.selectedStage?.displaySurface
+                    nextSourceDisplay
+                    || (!hasNextSourceResultFrame ? step?.nextSource?.displaySurface : "")
+                    || selectedStageDisplay
+                    || (!hasSelectedStageResultFrame ? step?.selectedStage?.displaySurface : "")
                     || sourceInput
                     || ""
                 ).trim(),
@@ -3444,11 +3492,18 @@ function getNawatLinkedGrammarPathExecutionFinalSource(execution = null) {
 function applyNawatLinkedGrammarPathSourceInput(source = null, {
     inputApplier = null,
 } = {}) {
+    const framedSourceVerb = getPrimaryNawatRouteSurfaceForm(source);
+    const hasSourceResultFrame = hasStateResultFrame(source);
     const sourceVerb = String(
-        source?.sourceVerb
-        || source?.inputValue
-        || source?.displaySurface
-        || ""
+        framedSourceVerb
+        || (!hasSourceResultFrame
+            ? (
+                source?.sourceVerb
+                || source?.inputValue
+                || source?.displaySurface
+                || ""
+            )
+            : "")
     ).trim();
     if (!sourceVerb) {
         return {
@@ -3458,13 +3513,17 @@ function applyNawatLinkedGrammarPathSourceInput(source = null, {
             reason: "missing-source",
         };
     }
+    const displaySurface = getStateResultDisplaySurface(source)
+        || (!hasSourceResultFrame ? String(source?.displaySurface || sourceVerb).trim() : sourceVerb);
+    const generatedSurface = getStateResultDisplaySurface(source)
+        || (!hasSourceResultFrame ? String(source?.generatedSurface || "").trim() : "");
     const sourceContext = {
         sourceVerb,
         sourceObjectPrefix: String(source?.sourceObjectPrefix || source?.objectPrefix || "").trim(),
-        displaySurface: String(source?.displaySurface || sourceVerb).trim(),
+        displaySurface,
         sourceInput: String(source?.sourceInput || "").trim(),
         sourceInputDisplay: String(source?.sourceInputDisplay || source?.sourceInput || "").trim(),
-        generatedSurface: String(source?.generatedSurface || "").trim(),
+        generatedSurface,
         fromStepIndex: source?.fromStepIndex,
     };
     if (typeof inputApplier === "function") {
@@ -3883,9 +3942,9 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "verbalizer", classical: "hui" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ noCurrentRoute: true }),
+        supportStatus: "executable-rule-supported-partial",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true, semanticFamilyComplete: false }),
     }),
     Object.freeze({
         id: "54.2.2-hui-lia-causative",
@@ -3902,9 +3961,9 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "causative", classical: "lia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({ requiresGeneratedHuiSource: true, causativeApplicativeFamilyModeled: false }),
     }),
     Object.freeze({
         id: "54.2.3-inceptive-stative-ya",
@@ -3920,9 +3979,9 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "verbalizer", classical: "ya" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ noCurrentRoute: true }),
+        supportStatus: "executable-rule-supported-partial",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true, semanticFamilyComplete: false }),
     }),
     Object.freeze({
         id: "54.2.3-ti-ya-deverbal",
@@ -3939,8 +3998,8 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "deverbal-inceptive-stative", classical: "ya" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({ requiresGeneratedTiSource: true, traditionalSpellingAmbiguous: true }),
     }),
     Object.freeze({
@@ -3958,8 +4017,8 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "deverbal-inceptive-stative", classical: "ya" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({ requiresGeneratedHuiSource: true, traditionalSpellingAmbiguous: true }),
     }),
     Object.freeze({
@@ -3977,8 +4036,8 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "causative-or-applicative", classical: "lia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false, sourceYaDeleted: true }),
     }),
     Object.freeze({
@@ -3995,8 +4054,8 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "verbalizer", classical: "a" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-partial",
+        generationStatus: "route-surface-supported",
         boundaryFlags: Object.freeze({ limitedUse: true, noCurrentRoute: true }),
     }),
     Object.freeze({
@@ -4013,9 +4072,9 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "verbalizer", classical: "hua" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ noCurrentRoute: true, notOaFormation: true }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true, requiresDeverbalYoSource: true, notOaFormation: true }),
     }),
     Object.freeze({
         id: "54.3-included-possessor-ti",
@@ -4031,9 +4090,14 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "verbalizer", classical: "ti" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ includedPossessorModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            includedPossessorModeled: true,
+            requiresPossessiveSource: true,
+            possessorIncludedInsideVerbstem: true,
+            possessiveCaseNotTransformedToObjective: true,
+        }),
     }),
     Object.freeze({
         id: "54.4-possession-ti",
@@ -4068,9 +4132,13 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "causative", classical: "lia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            requiresTiSource: true,
+            singleObjectCausativeModeled: true,
+        }),
     }),
     Object.freeze({
         id: "54.5-ti-a-causative",
@@ -4087,9 +4155,14 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "causative", classical: "a" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            requiresTiSource: true,
+            singleObjectTiSourceRouteOnly: true,
+            possessiveSourceDoubleObjectUnmodeled: true,
+        }),
     }),
     Object.freeze({
         id: "54.6-t-ia-applicative",
@@ -4102,12 +4175,18 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
         targetCategory: "vnc",
         valency: "applicative",
         suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "ti" }),
             Object.freeze({ role: "applicative", classical: "ia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            requiresTiSource: true,
+            replaciveTiFinalIDeleted: true,
+            limitedTiApplicativeUse: true,
+        }),
     }),
     Object.freeze({
         id: "55.1-temporal-tia",
@@ -4123,9 +4202,14 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "temporal-intransitive", classical: "tia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ temporalDenominalModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            temporalDenominalModeled: true,
+            requiresTemporalCompoundSource: true,
+            temporalMatrixMustBeTimeSegment: true,
+            temporalEmbedMustBeNumeralNounstem: true,
+        }),
     }),
     Object.freeze({
         id: "55.2-causative-tla",
@@ -4141,9 +4225,16 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "causative", classical: "tla" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-partial",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            causativeTlaModeled: true,
+            targetStemClassVerified: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            applicativeCounterpartUnmodeled: true,
+            intransitiveTlaNoteUnmodeled: true,
+        }),
     }),
     Object.freeze({
         id: "55.2-tla-ti-lia-applicative",
@@ -4160,11 +4251,13 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "applicative-replacement", classical: "ti-lia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({
-            causativeApplicativeFamilyModeled: false,
+            causativeApplicativeFamilyModeled: true,
+            requiresTlaCausativeSource: true,
             sourceTlaReplacedByTiBeforeLia: true,
+            intransitiveTlaNoteUnmodeled: true,
         }),
     }),
     Object.freeze({
@@ -4181,9 +4274,16 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "intransitive", classical: "tla" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ limitedUse: true, noCurrentRoute: true }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            limitedUse: true,
+            veryLimitedUse: true,
+            requiresIntransitiveTlaLexicalSource: true,
+            distinctFromCausativeTla: true,
+            noProductiveDirectGeneration: true,
+            noCurrentRoute: true,
+        }),
     }),
     Object.freeze({
         id: "55.2-intransitive-tla-ti-a-causative",
@@ -4200,10 +4300,11 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "replacement-before-causative", classical: "ti-a" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({
-            causativeApplicativeFamilyModeled: false,
+            causativeApplicativeFamilyModeled: true,
+            requiresTlaIntransitiveSource: true,
             sourceTlaReplacedByTiBeforeA: true,
         }),
     }),
@@ -4222,10 +4323,11 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "applicative-replacement", classical: "ti-lia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({
-            causativeApplicativeFamilyModeled: false,
+            causativeApplicativeFamilyModeled: true,
+            requiresTlaIntransitiveSource: true,
             sourceTlaReplacedByTiBeforeLia: true,
         }),
     }),
@@ -4244,9 +4346,17 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "applicative-counterpart", classical: "huia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-partial",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            intransitiveOaModeled: true,
+            applicativeHuiaCounterpartModeled: true,
+            targetStemClassVerified: true,
+            oaSuffixNotCausative: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            notVeryProductive: true,
+        }),
     }),
     Object.freeze({
         id: "55.3-o-a-il-huia-al-huia-applicative-note",
@@ -4264,12 +4374,14 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "hypothetical-a-hui-applicative", classical: "a-l-huia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
         boundaryFlags: Object.freeze({
-            causativeApplicativeFamilyModeled: false,
+            causativeApplicativeFamilyModeled: true,
+            requiresIntransitiveOaSource: true,
             sourceOaBypassesTransitiveOaStep: true,
             hypotheticalIHuiAHuiSource: true,
+            noProductiveDirectGeneration: true,
         }),
     }),
     Object.freeze({
@@ -4286,9 +4398,16 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "applicative", classical: "huia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            requiresAdverbialSource: true,
+            sourceMustBeConfirmedAdverbialNounstem: true,
+            doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectGeneration: true,
+        }),
     }),
     Object.freeze({
         id: "55.5-relational-compound-o-a-huia",
@@ -4305,9 +4424,17 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "applicative", classical: "huia" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            requiresRelationalCompoundSource: true,
+            sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+            doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
+            relationalOaUsuallyTransitiveExceptionallyIntransitive: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectGeneration: true,
+        }),
     }),
     Object.freeze({
         id: "55.6-i-hui-a-hui-to-o-a",
@@ -4325,9 +4452,18 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "target-causative", classical: "o-a" }),
         ]),
         currentRouteFamilies: Object.freeze(["vi-iwi", "vi-awi"]),
-        supportStatus: "source-route-supported-target-unmodeled",
-        generationStatus: "source-route-surface-supported",
-        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+        supportStatus: "executable-rule-supported-source-evidence-required",
+        generationStatus: "source-evidence-route-supported",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: true,
+            iHuiAHuiSourcesModeled: true,
+            requiresIHuiOrAHuiSource: true,
+            sourceIHuiAHuiBecomesOaCausative: true,
+            iHuiAHuiSourceClassB: true,
+            targetOaClassC: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectOaGeneration: true,
+        }),
     }),
     Object.freeze({
         id: "55.7-transitive-i-a",
@@ -4343,9 +4479,17 @@ const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
             Object.freeze({ role: "transitive", classical: "i-a" }),
         ]),
         currentRouteFamilies: Object.freeze([]),
-        supportStatus: "andrews-verified-unmodeled",
-        generationStatus: "not-generated",
-        boundaryFlags: Object.freeze({ transitiveDenominalModeled: false }),
+        supportStatus: "executable-rule-supported-source-final-guarded",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({
+            transitiveDenominalModeled: true,
+            noIntransitiveCounterpart: true,
+            sourceFinalPatternGuarded: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            wFinalSourceMayBeHuia: true,
+            sourceIFormMayBelongToNounstem: true,
+            sourceIHuiCausativePathPossible: true,
+        }),
     }),
 ]);
 
@@ -4449,6 +4593,9 @@ function getNawatDenominalAndrewsContractInventory() {
         const currentRouteFamilies = Array.isArray(spec.currentRouteFamilies)
             ? Array.from(spec.currentRouteFamilies)
             : [];
+        const executableRuleContracts = getNawatDenominalAndrewsExecutableRuleContractsForContract(spec.id)
+            .map((rule) => summarizeNawatDenominalAndrewsExecutableRuleContract(rule))
+            .filter(Boolean);
         return {
             version: 1,
             curriculumRef: { source: "Andrews", range: spec.range, role: "denominal-contract" },
@@ -4467,12 +4614,16 @@ function getNawatDenominalAndrewsContractInventory() {
             currentRouteIds: getNawatRouteIdsForDenominalFamilies(currentRouteFamilies),
             supportStatus: spec.supportStatus,
             generationStatus: spec.generationStatus,
+            executableRuleIds: executableRuleContracts.map((rule) => rule.id),
+            executableRuleContracts,
+            executableRuleContractAvailable: executableRuleContracts.length > 0,
             routeSurfaceGenerationAvailable: spec.generationStatus !== "not-generated",
             generationAllowed: false,
             boundaries: {
                 noNewSurfaceForms: true,
                 noFixtureEvidence: true,
-                structuralInventoryOnly: true,
+                structuralInventoryOnly: executableRuleContracts.length === 0,
+                executableRuleContractAvailable: executableRuleContracts.length > 0,
                 fullLessonGenerationModeled: false,
                 ...(spec.boundaryFlags || {}),
             },
@@ -4500,7 +4651,7 @@ function getNawatDenominalAndrewsContractCoverageSummary() {
         boundaries: {
             noNewSurfaceForms: true,
             noFixtureEvidence: true,
-            structuralInventoryOnly: true,
+            structuralInventoryOnly: unmodeled.length > 0 || targetUnmodeled.length > 0,
             fullLessonGenerationModeled: false,
         },
     };
@@ -4546,7 +4697,7 @@ const NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID = Object.freeze({
         Object.freeze({ id: "a", role: "inceptive-stative", classicalSuffixSequence: "a", targetValency: "intransitive", targetStemClass: "C", targetStemClassRule: "54.2.4-limited-class-c", limitedUse: true }),
     ]),
     "54.2.5-inceptive-stative-hua": Object.freeze([
-        Object.freeze({ id: "hua", role: "inceptive-stative", classicalSuffixSequence: "hua", targetValency: "intransitive", targetStemClass: "A", targetStemClassRule: "54.2.5-hua-class-a", notOaFormation: true }),
+        Object.freeze({ id: "hua", role: "inceptive-stative", classicalSuffixSequence: "hua", targetValency: "intransitive", targetStemClass: "A", targetStemClassRule: "54.2.5-hua-class-a", requiresDeverbalYoSource: true, notOaFormation: true }),
     ]),
     "54.3-included-possessor-ti": Object.freeze([
         Object.freeze({ id: "included-possessor-ti", role: "included-possessor", classicalSuffixSequence: "ti", targetValency: "intransitive", targetStemClass: "A", requiresPossessiveSource: true }),
@@ -4573,7 +4724,7 @@ const NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID = Object.freeze({
         Object.freeze({ id: "tla-ti-lia", role: "applicative-counterpart", classicalSuffixSequence: "ti-lia", targetValency: "applicative", segmentedPrefix: "ti", segmentedSuffix: "lia", sourceTlaReplacedByTiBeforeLia: true, requiresTlaCausativeSource: true }),
     ]),
     "55.2-intransitive-tla": Object.freeze([
-        Object.freeze({ id: "intransitive-tla", role: "intransitive-become", classicalSuffixSequence: "tla", targetValency: "intransitive", limitedUse: true }),
+        Object.freeze({ id: "intransitive-tla", role: "intransitive-become", classicalSuffixSequence: "tla", targetValency: "intransitive", limitedUse: true, veryLimitedUse: true, requiresIntransitiveTlaLexicalSource: true }),
     ]),
     "55.2-intransitive-tla-ti-a-causative": Object.freeze([
         Object.freeze({ id: "intransitive-tla-ti-a", role: "causative-from-intransitive-tla", classicalSuffixSequence: "ti-a", targetValency: "transitive", segmentedPrefix: "ti", segmentedSuffix: "a", sourceTlaReplacedByTiBeforeA: true, requiresTlaIntransitiveSource: true }),
@@ -4702,6 +4853,4503 @@ function resolveNawatDenominalAndrewsRouteTargetStemClass(template = null, sourc
     };
 }
 
+function normalizeNawatDenominalAndrewsRuleSourceState(value = "") {
+    const state = String(value || "").trim().toLowerCase();
+    if (!state) {
+        return "";
+    }
+    if (state === "absolutivo" || state === "absolute") {
+        return "absolutive";
+    }
+    if (state === "posesivo") {
+        return "possessive";
+    }
+    return state;
+}
+
+function resolveNawatDenominalAndrewsRuleSourceState(ctx = {}) {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = String(ctx?.sourceCategory || sourceEvidence.sourceCategory || "").trim();
+    if (sourceEvidence.possessiveState === true || sourceCategory.includes("possessive-state")) {
+        return "possessive";
+    }
+    return normalizeNawatDenominalAndrewsRuleSourceState(
+        ctx?.sourceState
+        || ctx?.state
+        || sourceEvidence.sourceState
+        || ""
+    );
+}
+
+function resolveNawatDenominalAndrewsRuleSourceStem(ctx = {}) {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    return normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceStem
+        || ctx?.sourceInput
+        || ctx?.sourceSurface
+        || sourceEvidence.sourceBaseStem
+        || sourceEvidence.sourcePredicateStem
+        || sourceEvidence.sourceStem
+        || ""
+    );
+}
+
+function resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx = {}) {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    return normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem
+        || sourceEvidence.sourceVerbStem
+        || sourceEvidence.sourceInput
+        || sourceEvidence.sourceSurface
+        || ctx?.sourceInput
+        || ctx?.sourceSurface
+        || ""
+    );
+}
+
+function resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx = {}, sourceSuffix = "") {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitBaseStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceBaseStem
+        || sourceEvidence.sourceBaseStem
+        || sourceEvidence.sourceNounStem
+        || ""
+    );
+    if (explicitBaseStem) {
+        return explicitBaseStem;
+    }
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) || sourceStem;
+    const suffix = String(sourceSuffix || "").trim();
+    if (suffix && sourceVerbStem.endsWith(suffix)) {
+        return sourceVerbStem.slice(0, -suffix.length);
+    }
+    return sourceStem;
+}
+
+function resolveNawatDenominalAndrewsRuleSourceCategory(ctx = {}) {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    return String(ctx?.sourceCategory || sourceEvidence.sourceCategory || "").trim();
+}
+
+function buildNawatDenominalAndrewsRuleDiagnostic({
+    id = "",
+    message = "",
+    failedLayer = "route",
+    contractLayer = "routeContract",
+    sourceStem = "",
+    sourceState = "",
+} = {}) {
+    const diagnosticId = String(id || "andrews-denominal-rule-blocked").trim();
+    return {
+        id: diagnosticId,
+        code: diagnosticId.toUpperCase().replace(/[^A-Z0-9]+/g, "_"),
+        severity: "error",
+        message: String(message || "Andrews denominal rule cannot generate for this input.").trim(),
+        failedLayer: String(failedLayer || "route").trim(),
+        contractLayer: String(contractLayer || "routeContract").trim(),
+        routeFamily: "denominal-andrews-contract",
+        routeStage: "execute-rule-contract",
+        sourceStem: String(sourceStem || "").trim(),
+        sourceState: String(sourceState || "").trim(),
+    };
+}
+
+function diagnoseNawatDenominalAndrews5421TiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const diagnostics = [];
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.1-ti-source-stem-required",
+            message: "Andrews 54.2.1 requires an NNC absolutive-state predicate stem before ti can form an intransitive VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState && sourceState !== "absolutive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.1-ti-absolutive-state-required",
+            message: "Andrews 54.2.1 attaches ti to an absolutive-state NNC predicate; non-absolutive sources must use a more specific denominal route.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5422HuiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const diagnostics = [];
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-source-stem-required",
+            message: "Andrews 54.2.2 requires an NNC absolutive-state predicate stem before hui can form an intransitive VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState && sourceState !== "absolutive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-absolutive-state-required",
+            message: "Andrews 54.2.2 attaches hui directly to an absolutive-state NNC predicate; non-absolutive sources must use a more specific denominal route.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const hasHuiSourceEvidence = sourceEvidence.huiSource === true || ctx?.huiSource === true;
+    const sourceVerbStem = explicitSourceVerbStem || (hasHuiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasHuiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
+            message: "Andrews 54.2.2 hui-lia requires generated hui/wi verbstem source evidence before lia can form the causative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-lia-derived-hui-source-required",
+            message: "Andrews 54.2.2 hui-lia uses a generated hui/wi verbstem as source, not a possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasHuiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-lia-source-verbstem-required",
+            message: "Andrews 54.2.2 hui-lia requires the generated hui/wi verbstem surface before adding lia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceVerbStem && !sourceVerbStem.endsWith("wi")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.2-hui-lia-source-final-wi-required",
+            message: "Andrews 54.2.2 hui-lia requires a Nawat wi-final generated source verbstem before the lia suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5423YaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const diagnostics = [];
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounroot",
+        "nounstem-as-root",
+        "nounroot-or-nounstem-as-root",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+        "absolutive-nounstem",
+    ]);
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-source-root-required",
+            message: "Andrews 54.2.3 requires a Nawat nounroot or nounstem downgraded to root rank before ya can form an intransitive VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-absolutive-root-state-required",
+            message: "Andrews 54.2.3 root-plus-ya is not a possessive-state route; possessive sources must use a more specific denominal contract.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-root-source-required",
+            message: "Andrews 54.2.3 attaches ya to a nounroot or nounstem downgraded to root rank; generated ti/hui verbstem sources must use the ti-ya or hui-ya contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-absolutive-root-state-required",
+            message: "Andrews 54.2.3 root-plus-ya requires an absolutive/root-rank noun source before it can form an intransitive VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5423TiYaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const hasTiSourceEvidence = sourceEvidence.tiSource === true || ctx?.tiSource === true;
+    const sourceVerbStem = explicitSourceVerbStem || (hasTiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasTiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
+            message: "Andrews 54.2.3 ti-ya requires generated ti verbstem source evidence before ya can form the deverbal inceptive/stative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ti-ya-derived-ti-source-required",
+            message: "Andrews 54.2.3 ti-ya uses a generated ti verbstem as source, not a possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasTiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ti-ya-source-verbstem-required",
+            message: "Andrews 54.2.3 ti-ya requires the generated ti verbstem surface before adding ya.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ti-ya-source-final-ti-required",
+            message: "Andrews 54.2.3 ti-ya requires a ti-final generated source verbstem before the ya suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const hasHuiSourceEvidence = sourceEvidence.huiSource === true || ctx?.huiSource === true;
+    const sourceVerbStem = explicitSourceVerbStem || (hasHuiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasHuiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
+            message: "Andrews 54.2.3 hui-ya requires generated hui/wi verbstem source evidence before ya can form the deverbal inceptive/stative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-hui-ya-derived-hui-source-required",
+            message: "Andrews 54.2.3 hui-ya uses a generated hui/wi verbstem as source, not a possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasHuiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-hui-ya-source-verbstem-required",
+            message: "Andrews 54.2.3 hui-ya requires the generated hui/wi verbstem surface before adding ya.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceVerbStem && !sourceVerbStem.endsWith("wi")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-hui-ya-source-final-wi-required",
+            message: "Andrews 54.2.3 hui-ya requires a Nawat wi-final generated source verbstem before the ya suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const hasYaSourceEvidence = sourceEvidence.yaSource === true || ctx?.yaSource === true;
+    const sourceVerbStem = explicitSourceVerbStem || (hasYaSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasYaSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
+            message: "Andrews 54.2.3 ya-lia requires generated ya verbstem source evidence before deleting ya and adding lia.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-lia-derived-ya-source-required",
+            message: "Andrews 54.2.3 ya-lia uses a generated ya verbstem as source, not a possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasYaSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-lia-source-verbstem-required",
+            message: "Andrews 54.2.3 ya-lia requires the generated ya verbstem surface before replacing ya with lia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceVerbStem && !sourceVerbStem.endsWith("ya")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.3-ya-lia-source-final-ya-required",
+            message: "Andrews 54.2.3 ya-lia requires a ya-final generated source verbstem before deleting ya and adding lia.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5424ARule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const diagnostics = [];
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.4-a-source-nounstem-required",
+            message: "Andrews 54.2.4 requires a Nawat nounstem source before limited inceptive/stative a can form a Class C intransitive VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.4-a-absolutive-nounstem-required",
+            message: "Andrews 54.2.4 limited inceptive/stative a uses an absolutive nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.4-a-nounstem-source-required",
+            message: "Andrews 54.2.4 limited inceptive/stative a requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.4-a-absolutive-nounstem-required",
+            message: "Andrews 54.2.4 limited inceptive/stative a requires an absolutive nounstem source before it can form an intransitive Class C VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasDeverbalYoSourceEvidence = sourceEvidence.deverbalYoSource === true
+        || sourceEvidence.deverbalYuSource === true
+        || ctx?.deverbalYoSource === true
+        || ctx?.deverbalYuSource === true
+        || evidenceCategory === "deverbal-yo-nounstem"
+        || evidenceCategory === "deverbal-yu-nounstem"
+        || evidenceCategory === "deverbal-yu-nounstem-source";
+    const diagnostics = [];
+    if (!hasDeverbalYoSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
+            message: "Andrews 54.2.5 hua requires confirmed deverbal (-yo)-tl nounstem source evidence, realized as a Nawat/Pipil yu-matrix source, before hua can form the intransitive VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.5-hua-absolutive-yu-source-required",
+            message: "Andrews 54.2.5 hua uses an absolutive deverbal (-yo)-tl nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasDeverbalYoSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.5-hua-source-nounstem-required",
+            message: "Andrews 54.2.5 hua requires the Nawat/Pipil deverbal yu-matrix nounstem before adding wa.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasDeverbalYoSourceEvidence && sourceStem && !sourceStem.endsWith("yu")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.5-hua-source-final-yu-required",
+            message: "Andrews 54.2.5 hua requires a Nawat/Pipil yu-final source corresponding to Classical (-yo)-tl before the wa suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2.5-hua-absolutive-yu-source-required",
+            message: "Andrews 54.2.5 hua requires an absolutive deverbal (-yo)-tl nounstem source before it can form an intransitive Class A VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews543IncludedPossessorTiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceState = normalizeNawatDenominalAndrewsRuleSourceState(sourceEvidence.sourceState || "");
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasPossessiveSourceEvidence = sourceEvidence.possessiveState === true
+        || ctx?.possessiveState === true
+        || evidenceState === "possessive"
+        || evidenceState === "posesivo"
+        || evidenceCategory.includes("possessive-state");
+    const diagnostics = [];
+    if (!hasPossessiveSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
+            message: "Andrews 54.3 included-possessor ti requires confirmed possessive-state NNC predicate evidence before ti can form the intransitive VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (
+        sourceState
+        && sourceState !== "possessive"
+        && !sourceCategory.includes("possessive-state")
+    ) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.3-included-possessor-ti-possessive-state-required",
+            message: "Andrews 54.3 attaches ti to the predicate of a possessive-state NNC; absolutive sources must use the ordinary ti or possession-ti contracts.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasPossessiveSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.3-included-possessor-ti-source-predicate-required",
+            message: "Andrews 54.3 requires the Nawat/Pipil possessive-state predicate surface, with the possessor retained inside the stem, before adding ti.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTiSourceEvidence = sourceEvidence.tiSource === true
+        || ctx?.tiSource === true
+        || evidenceCategory === "inceptive-stative-ti-source"
+        || evidenceCategory === "possession-ti-verbstem-source"
+        || evidenceCategory === "intransitive-ti-source";
+    const sourceVerbStem = explicitSourceVerbStem || (hasTiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasTiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
+            message: "Andrews 54.2.1/54.4 ti-lia requires generated intransitive ti verbstem source evidence before lia can form the single-object causative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2-54.4-ti-lia-derived-ti-source-required",
+            message: "Andrews 54.2.1/54.4 ti-lia uses a generated ti verbstem as source, not the original possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasTiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2-54.4-ti-lia-source-verbstem-required",
+            message: "Andrews 54.2.1/54.4 ti-lia requires the generated ti verbstem surface before adding lia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.2-54.4-ti-lia-source-final-ti-required",
+            message: "Andrews 54.2.1/54.4 ti-lia requires a ti-final generated source verbstem before the lia suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews545TiARule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTiSourceEvidence = sourceEvidence.tiSource === true
+        || ctx?.tiSource === true
+        || evidenceCategory === "inceptive-stative-ti-source"
+        || evidenceCategory === "possession-ti-verbstem-source"
+        || evidenceCategory === "intransitive-ti-source";
+    const sourceVerbStem = explicitSourceVerbStem || (hasTiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasTiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.5-ti-a-ti-source-evidence-required",
+            message: "Andrews 54.5 ti-a requires generated intransitive ti verbstem source evidence before a can form the first-type causative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.5-ti-a-possessive-double-object-source-unmodeled",
+            message: "Andrews 54.5 possessive-state sources form double-object ti-a stems; this executable contract only routes the single-object generated-ti source path.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasTiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.5-ti-a-source-verbstem-required",
+            message: "Andrews 54.5 ti-a requires the generated ti verbstem surface before adding the causative a suffix.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasTiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.5-ti-a-source-final-ti-required",
+            message: "Andrews 54.5 ti-a requires a ti-final generated source verbstem before the causative a suffix can attach.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews546TIaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTiSourceEvidence = sourceEvidence.tiSource === true
+        || ctx?.tiSource === true
+        || evidenceCategory === "inceptive-stative-ti-source"
+        || evidenceCategory === "possession-ti-verbstem-source"
+        || evidenceCategory === "intransitive-ti-source";
+    const sourceVerbStem = explicitSourceVerbStem || (hasTiSourceEvidence ? sourceStem : "");
+    const diagnostics = [];
+    if (!hasTiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.6-t-ia-ti-source-evidence-required",
+            message: "Andrews 54.6 t-ia requires generated intransitive ti verbstem source evidence before ia can form the first-type applicative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.6-t-ia-generated-ti-source-required",
+            message: "Andrews 54.6 t-ia uses a generated ti verbstem as source, not the original possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasTiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.6-t-ia-source-verbstem-required",
+            message: "Andrews 54.6 t-ia requires the generated ti verbstem surface before deleting final i and adding ia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasTiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-54.6-t-ia-source-final-ti-required",
+            message: "Andrews 54.6 t-ia requires a ti-final generated source verbstem because ia attaches to a replacive stem lacking final i.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews551TemporalTiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const evidence = normalizeNawatDenominalAndrewsRouteSourceEvidence(sourceEvidence);
+    const normalizedSourceState = normalizeNawatDenominalAndrewsRuleSourceState(sourceEvidence.sourceState || sourceState);
+    const diagnostics = [];
+    if (!evidence.temporalCompoundSource) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.1-temporal-tia-source-evidence-required",
+            message: "Andrews 55.1 temporal tia requires confirmed compound-temporal nounstem evidence with a time-segment matrix and numeral embed.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (evidence.temporalCompoundSource && normalizedSourceState && normalizedSourceState !== "absolutive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.1-temporal-tia-absolutive-source-required",
+            message: "Andrews 55.1 temporal tia routes from a compound temporal nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState: normalizedSourceState,
+        }));
+    }
+    if (evidence.temporalCompoundSource && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.1-temporal-tia-source-stem-required",
+            message: "Andrews 55.1 temporal tia requires the confirmed compound temporal source stem before adding tia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const diagnostics = [];
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-causative-tla-source-stem-required",
+            message: "Andrews 55.2 causative tla requires a Nawat/Pipil nounstem source before it can form a causative Class A VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-causative-tla-absolutive-nounstem-required",
+            message: "Andrews 55.2 causative tla attaches to a nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-causative-tla-nounstem-source-required",
+            message: "Andrews 55.2 causative tla requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-causative-tla-absolutive-nounstem-required",
+            message: "Andrews 55.2 causative tla requires an absolutive nounstem source before it can form a causative Class A VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTlaCausativeSourceEvidence = sourceEvidence.tlaCausativeSource === true
+        || ctx?.tlaCausativeSource === true
+        || evidenceCategory === "causative-tla"
+        || evidenceCategory === "causative-tla-verbstem-source";
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasTlaCausativeSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) || sourceStem : "");
+    const diagnostics = [];
+    if (!hasTlaCausativeSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
+            message: "Andrews 55.2 tla-ti-lia requires generated causative tla verbstem source evidence before tla can change to ti and add lia.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-tla-ti-lia-generated-tla-source-required",
+            message: "Andrews 55.2 tla-ti-lia uses a generated causative tla verbstem as source, not the original possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaCausativeSourceEvidence && sourceState && sourceState !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-tla-ti-lia-generated-tla-source-required",
+            message: "Andrews 55.2 tla-ti-lia requires a derived causative tla verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasTlaCausativeSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-tla-ti-lia-source-verbstem-required",
+            message: "Andrews 55.2 tla-ti-lia requires the generated causative tla verbstem surface before replacing tla with ti and adding lia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaCausativeSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-tla-ti-lia-source-final-ta-required",
+            message: "Andrews 55.2 tla-ti-lia requires a Nawat/Pipil ta-final source corresponding to Classical tla before replacement by ti-lia.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasIntransitiveTlaLexicalSourceEvidence = sourceEvidence.intransitiveTlaLexicalSource === true
+        || sourceEvidence.intransitiveTlaNounstemSource === true
+        || ctx?.intransitiveTlaLexicalSource === true
+        || ctx?.intransitiveTlaNounstemSource === true
+        || evidenceCategory === "intransitive-tla-lexical-source"
+        || evidenceCategory === "intransitive-tla-nounstem-source";
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "intransitive-tla-lexical-source",
+        "intransitive-tla-nounstem-source",
+    ]);
+    const diagnostics = [];
+    if (!hasIntransitiveTlaLexicalSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-lexical-source-evidence-required",
+            message: "Andrews 55.2 note says the intransitive tla formation is even less productive than causative tla; it requires explicit lexical/source confirmation before generation.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-absolutive-nounstem-required",
+            message: "Andrews 55.2 note intransitive tla uses a nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveTlaLexicalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-nounstem-source-required",
+            message: "Andrews 55.2 note intransitive tla requires a confirmed nounstem source; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveTlaLexicalSourceEvidence && sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-absolutive-nounstem-required",
+            message: "Andrews 55.2 note intransitive tla requires an absolutive nounstem source before it can form an intransitive VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasIntransitiveTlaLexicalSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-source-stem-required",
+            message: "Andrews 55.2 note intransitive tla requires the confirmed nounstem source surface before adding tla.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTlaIntransitiveSourceEvidence = sourceEvidence.tlaIntransitiveSource === true
+        || ctx?.tlaIntransitiveSource === true
+        || evidenceCategory === "intransitive-tla"
+        || evidenceCategory === "intransitive-tla-verbstem-source";
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasTlaIntransitiveSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) || sourceStem : "");
+    const compatibleSourceCategories = new Set([
+        "",
+        "intransitive-tla",
+        "intransitive-tla-verbstem-source",
+    ]);
+    const diagnostics = [];
+    if (!hasTlaIntransitiveSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-source-evidence-required",
+            message: "Andrews 55.2 note ti-a causative requires generated intransitive tla verbstem source evidence before tla can change to ti and add a.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-generated-tla-source-required",
+            message: "Andrews 55.2 note ti-a causative uses a generated intransitive tla verbstem as source, not the original possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceState && sourceState !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-generated-tla-source-required",
+            message: "Andrews 55.2 note ti-a causative requires a derived intransitive tla verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-intransitive-tla-source-required",
+            message: "Andrews 55.2 note ti-a causative requires a generated intransitive tla verbstem source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasTlaIntransitiveSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-source-verbstem-required",
+            message: "Andrews 55.2 note ti-a causative requires the generated intransitive tla verbstem surface before replacing tla with ti and adding a.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-a-source-final-ta-required",
+            message: "Andrews 55.2 note ti-a causative requires a Nawat/Pipil ta-final source corresponding to Classical intransitive tla before replacement by ti-a.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasTlaIntransitiveSourceEvidence = sourceEvidence.tlaIntransitiveSource === true
+        || ctx?.tlaIntransitiveSource === true
+        || evidenceCategory === "intransitive-tla"
+        || evidenceCategory === "intransitive-tla-verbstem-source";
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasTlaIntransitiveSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) || sourceStem : "");
+    const compatibleSourceCategories = new Set([
+        "",
+        "intransitive-tla",
+        "intransitive-tla-verbstem-source",
+    ]);
+    const diagnostics = [];
+    if (!hasTlaIntransitiveSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required",
+            message: "Andrews 55.2 note ti-lia applicative requires generated intransitive tla verbstem source evidence before tla can change to ti and add lia.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-generated-tla-source-required",
+            message: "Andrews 55.2 note ti-lia applicative uses a generated intransitive tla verbstem as source, not the original possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceState && sourceState !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-generated-tla-source-required",
+            message: "Andrews 55.2 note ti-lia applicative requires a derived intransitive tla verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-intransitive-tla-source-required",
+            message: "Andrews 55.2 note ti-lia applicative requires a generated intransitive tla verbstem source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasTlaIntransitiveSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-source-verbstem-required",
+            message: "Andrews 55.2 note ti-lia applicative requires the generated intransitive tla verbstem surface before replacing tla with ti and adding lia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasTlaIntransitiveSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.2-intransitive-tla-ti-lia-source-final-ta-required",
+            message: "Andrews 55.2 note ti-lia applicative requires a Nawat/Pipil ta-final source corresponding to Classical intransitive tla before replacement by ti-lia.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews553OaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const diagnostics = [];
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-source-stem-required",
+            message: "Andrews 55.3 intransitive o-a requires a Nawat/Pipil nounstem source before it can form a Class C intransitive VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-absolutive-nounstem-required",
+            message: "Andrews 55.3 intransitive o-a uses a nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-nounstem-source-required",
+            message: "Andrews 55.3 intransitive o-a requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-absolutive-nounstem-required",
+            message: "Andrews 55.3 intransitive o-a requires an absolutive nounstem source before it can form a Class C intransitive VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews553HuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const diagnostics = [];
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-huia-source-stem-required",
+            message: "Andrews 55.3 huia requires a Nawat/Pipil nounstem source before it can form a Class C single-object applicative VNC stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-huia-absolutive-nounstem-required",
+            message: "Andrews 55.3 huia uses a nounstem source for the single-object applicative route; possessive-state two-object huia is a separate limited note.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-huia-nounstem-source-required",
+            message: "Andrews 55.3 huia requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-huia-absolutive-nounstem-required",
+            message: "Andrews 55.3 huia requires an absolutive nounstem source before it can form a Class C single-object applicative VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ua");
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasIntransitiveOaSourceEvidence = sourceEvidence.intransitiveOaSource === true
+        || ctx?.intransitiveOaSource === true
+        || evidenceCategory === "intransitive-o-a"
+        || evidenceCategory === "intransitive-o-a-verbstem-source";
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasIntransitiveOaSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) : "");
+    const compatibleSourceCategories = new Set([
+        "",
+        "intransitive-o-a",
+        "intransitive-o-a-verbstem-source",
+    ]);
+    const diagnostics = [];
+    if (!hasIntransitiveOaSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-source-evidence-required",
+            message: "Andrews 55.3 note 2 i-l-huia requires generated intransitive o-a verbstem source evidence before inventing the hypothetical i-hui applicative path.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-generated-o-a-source-required",
+            message: "Andrews 55.3 note 2 i-l-huia uses a generated intransitive o-a verbstem as source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceState && sourceState !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-generated-o-a-source-required",
+            message: "Andrews 55.3 note 2 i-l-huia requires a derived intransitive o-a verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-intransitive-o-a-source-required",
+            message: "Andrews 55.3 note 2 i-l-huia requires a generated intransitive o-a verbstem source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasIntransitiveOaSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-source-verbstem-required",
+            message: "Andrews 55.3 note 2 i-l-huia requires the generated intransitive o-a verbstem surface before routing to the hypothetical applicative stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ua")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-i-l-huia-source-final-ua-required",
+            message: "Andrews 55.3 note 2 i-l-huia requires a Nawat/Pipil ua-final source corresponding to Classical intransitive o-a.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ua");
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasIntransitiveOaSourceEvidence = sourceEvidence.intransitiveOaSource === true
+        || ctx?.intransitiveOaSource === true
+        || evidenceCategory === "intransitive-o-a"
+        || evidenceCategory === "intransitive-o-a-verbstem-source";
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasIntransitiveOaSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) : "");
+    const compatibleSourceCategories = new Set([
+        "",
+        "intransitive-o-a",
+        "intransitive-o-a-verbstem-source",
+    ]);
+    const diagnostics = [];
+    if (!hasIntransitiveOaSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-source-evidence-required",
+            message: "Andrews 55.3 note 2 a-l-huia requires generated intransitive o-a verbstem source evidence before inventing the hypothetical a-hui applicative path.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-generated-o-a-source-required",
+            message: "Andrews 55.3 note 2 a-l-huia uses a generated intransitive o-a verbstem as source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceState && sourceState !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-generated-o-a-source-required",
+            message: "Andrews 55.3 note 2 a-l-huia requires a derived intransitive o-a verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-intransitive-o-a-source-required",
+            message: "Andrews 55.3 note 2 a-l-huia requires a generated intransitive o-a verbstem source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasIntransitiveOaSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-source-verbstem-required",
+            message: "Andrews 55.3 note 2 a-l-huia requires the generated intransitive o-a verbstem surface before routing to the hypothetical applicative stem.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIntransitiveOaSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ua")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.3-o-a-a-l-huia-source-final-ua-required",
+            message: "Andrews 55.3 note 2 a-l-huia requires a Nawat/Pipil ua-final source corresponding to Classical intransitive o-a.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasAdverbialSourceEvidence = sourceEvidence.adverbialSource === true
+        || ctx?.adverbialSource === true
+        || evidenceCategory === "adverbial-nounstem";
+    const compatibleSourceCategories = new Set([
+        "",
+        "adverbial-nounstem",
+    ]);
+    const diagnostics = [];
+    if (!hasAdverbialSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.4-huia-adverbial-source-evidence-required",
+            message: "Andrews 55.4 huia requires confirmed adverbial nounstem source evidence before it can form a single-object applicative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.4-huia-adverbial-source-required",
+            message: "Andrews 55.4 huia uses an adverbialized nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasAdverbialSourceEvidence && sourceState && sourceState !== "adverbialized") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.4-huia-adverbial-state-required",
+            message: "Andrews 55.4 huia requires an adverbialized nounstem source from the Lesson 44 adverbial NNC domain.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasAdverbialSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.4-huia-adverbial-source-required",
+            message: "Andrews 55.4 huia requires a confirmed adverbial nounstem source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasAdverbialSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.4-huia-source-stem-required",
+            message: "Andrews 55.4 huia requires the Nawat/Pipil adverbial nounstem surface before adding wia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasRelationalSourceEvidence = sourceEvidence.relationalCompoundSource === true
+        || ctx?.relationalCompoundSource === true
+        || evidenceCategory === "compound-relational-nounstem"
+        || evidenceCategory === "possessive-state-relational-predicate";
+    const compatibleSourceCategories = new Set([
+        "",
+        "compound-relational-nounstem",
+        "possessive-state-relational-predicate",
+    ]);
+    const diagnostics = [];
+    if (!hasRelationalSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-o-a-relational-source-evidence-required",
+            message: "Andrews 55.5 o-a requires confirmed relational compound nounstem or possessive-state relational predicate source evidence before it can form a VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasRelationalSourceEvidence && sourceState && sourceState !== "relational" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-o-a-relational-state-required",
+            message: "Andrews 55.5 o-a requires a relational compound nounstem source or a possessive-state predicate built on a relational stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasRelationalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-o-a-relational-source-required",
+            message: "Andrews 55.5 o-a requires a confirmed relational compound nounstem or possessive-state relational predicate, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasRelationalSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-o-a-source-stem-required",
+            message: "Andrews 55.5 o-a requires the Nawat/Pipil relational source surface before adding ua.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasRelationalSourceEvidence = sourceEvidence.relationalCompoundSource === true
+        || ctx?.relationalCompoundSource === true
+        || evidenceCategory === "compound-relational-nounstem"
+        || evidenceCategory === "possessive-state-relational-predicate";
+    const compatibleSourceCategories = new Set([
+        "",
+        "compound-relational-nounstem",
+        "possessive-state-relational-predicate",
+    ]);
+    const diagnostics = [];
+    if (!hasRelationalSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-huia-relational-source-evidence-required",
+            message: "Andrews 55.5 huia requires confirmed relational compound nounstem or possessive-state relational predicate source evidence before it can form a single-object applicative VNC stem.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasRelationalSourceEvidence && sourceState && sourceState !== "relational" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-huia-relational-state-required",
+            message: "Andrews 55.5 huia requires a relational compound nounstem source or a possessive-state predicate built on a relational stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (hasRelationalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-huia-relational-source-required",
+            message: "Andrews 55.5 huia requires a confirmed relational compound nounstem or possessive-state relational predicate, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (hasRelationalSourceEvidence && !sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.5-huia-source-stem-required",
+            message: "Andrews 55.5 huia requires the Nawat/Pipil relational source surface before adding wia.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx = {}, {
+    routeTemplateId = "i-hui",
+    classicalSuffix = "i-hui",
+} = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    const diagnostics = [];
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: `andrews-55.6-${routeTemplateId}-source-stem-required`,
+            message: `Andrews 55.6 ${classicalSuffix} requires a Nawat/Pipil nounstem source before it can form a Class B intransitive VNC stem.`,
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: `andrews-55.6-${routeTemplateId}-absolutive-nounstem-required`,
+            message: `Andrews 55.6 ${classicalSuffix} uses an absolutive nounstem source, not a possessive-state predicate.`,
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: `andrews-55.6-${routeTemplateId}-nounstem-source-required`,
+            message: `Andrews 55.6 ${classicalSuffix} attaches to a nounstem base; generated VNC sources must use the o-a counterpart contract.`,
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: `andrews-55.6-${routeTemplateId}-absolutive-nounstem-required`,
+            message: `Andrews 55.6 ${classicalSuffix} requires an absolutive nounstem source before it can form a Class B intransitive VNC stem.`,
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews556IHuiRule(ctx = {}) {
+    return diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx, {
+        routeTemplateId: "i-hui",
+        classicalSuffix: "i-hui",
+    });
+}
+
+function diagnoseNawatDenominalAndrews556AHuiRule(ctx = {}) {
+    return diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx, {
+        routeTemplateId: "a-hui",
+        classicalSuffix: "a-hui",
+    });
+}
+
+function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "")
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const evidenceCategory = String(sourceEvidence.sourceCategory || "").trim();
+    const hasIHuiOrAHuiSourceEvidence = sourceEvidence.iHuiOrAHuiSource === true
+        || ctx?.iHuiOrAHuiSource === true
+        || evidenceCategory === "i-hui-a-hui-source";
+    const explicitSourceVerbStem = normalizeNawatDenominalContractSourceStem(
+        ctx?.sourceVerbStem || sourceEvidence.sourceVerbStem || ""
+    );
+    const sourceVerbStem = explicitSourceVerbStem
+        || (hasIHuiOrAHuiSourceEvidence ? resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx) : "");
+    const sourceEvidenceHasState = Object.prototype.hasOwnProperty.call(sourceEvidence, "sourceState");
+    const sourceEvidenceKeyCount = Object.keys(sourceEvidence).length;
+    const sourceStateForDerivedCheck = normalizeNawatDenominalAndrewsRuleSourceState(
+        sourceEvidenceHasState
+            ? sourceEvidence.sourceState
+            : (sourceEvidenceKeyCount ? "" : ctx?.sourceState || ctx?.state || "")
+    );
+    const compatibleSourceCategories = new Set([
+        "",
+        "i-hui-a-hui-source",
+    ]);
+    const diagnostics = [];
+    if (!hasIHuiOrAHuiSourceEvidence) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-i-hui-a-hui-source-evidence-required",
+            message: "Andrews 55.6 causative o-a requires generated i-hui/a-hui intransitive source evidence before it can form the transitive counterpart.",
+            failedLayer: "authority",
+            contractLayer: "authorityFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasIHuiOrAHuiSourceEvidence && (sourceStateForDerivedCheck === "possessive" || sourceCategory.includes("possessive-state"))) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-generated-i-hui-a-hui-source-required",
+            message: "Andrews 55.6 causative o-a uses a generated i-hui/a-hui verbstem as source, not a possessive-state NNC predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIHuiOrAHuiSourceEvidence && sourceStateForDerivedCheck && sourceStateForDerivedCheck !== "derived") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-generated-i-hui-a-hui-source-required",
+            message: "Andrews 55.6 causative o-a requires a derived i-hui/a-hui intransitive verbstem source, not the original nounstem source.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIHuiOrAHuiSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-i-hui-a-hui-source-required",
+            message: "Andrews 55.6 causative o-a requires a generated i-hui/a-hui source, not another denominal route source.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    }
+    if (hasIHuiOrAHuiSourceEvidence && !sourceVerbStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-source-verbstem-required",
+            message: "Andrews 55.6 causative o-a requires the generated i-hui/a-hui source verbstem surface before adding ua.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem: sourceBaseStem,
+            sourceState,
+        }));
+    } else if (hasIHuiOrAHuiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("iwi") && !sourceVerbStem.endsWith("awi")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.6-o-a-source-final-iwi-awi-required",
+            message: "Andrews 55.6 causative o-a requires a Nawat/Pipil iwi- or awi-final source corresponding to Classical i-hui/a-hui.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem: sourceVerbStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceCategory = resolveNawatDenominalAndrewsRuleSourceCategory(ctx);
+    const sourceEvidence = ctx?.sourceEvidence && typeof ctx.sourceEvidence === "object"
+        ? ctx.sourceEvidence
+        : {};
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.7-transitive-i-a"]?.find((entry) => entry.id === "i-a") || null;
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const sourceFinalPattern = classifyNawatDenominalIAStemSourceFinal(template, sourceStemFinalLetter);
+    const hasExplicitSourceFinalEvidence = sourceEvidence.transitiveIASourceConfirmed === true
+        || ctx?.transitiveIASourceConfirmed === true;
+    const compatibleSourceCategories = new Set([
+        "",
+        "nounstem",
+        "nounstem-plus-i",
+        "absolutive-nounstem",
+        "absolutive-state-nnc-predicate",
+        "ordinary-nnc-predicate-nounstem",
+    ]);
+    const diagnostics = [];
+    if (!sourceStem) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.7-i-a-source-stem-required",
+            message: "Andrews 55.7 transitive i-a requires a Nawat/Pipil nounstem source before adding the nounstem-plus-i and causative-a sequence.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.7-i-a-absolutive-nounstem-required",
+            message: "Andrews 55.7 transitive i-a uses an absolutive nounstem source, not a possessive-state predicate.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.7-i-a-nounstem-source-required",
+            message: "Andrews 55.7 transitive i-a adds to a nounstem-plus-i base; generated VNC sources must use their own continuation contracts.",
+            failedLayer: "stem",
+            contractLayer: "stemFrame",
+            sourceStem,
+            sourceState,
+        }));
+    } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.7-i-a-absolutive-nounstem-required",
+            message: "Andrews 55.7 transitive i-a requires an absolutive nounstem source before forming the transitive VNC stem.",
+            failedLayer: "agreement",
+            contractLayer: "participantFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    if (
+        sourceStem
+        && sourceFinalPattern?.status === "unlisted"
+        && hasExplicitSourceFinalEvidence !== true
+    ) {
+        diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
+            id: "andrews-55.7-i-a-source-final-confirmation-required",
+            message: "Andrews 55.7 gives majority nounstem finals [c]/l plus k/n examples; this source final needs explicit source evidence before transitive i-a can generate.",
+            failedLayer: "morph-boundary",
+            contractLayer: "morphBoundaryFrame",
+            sourceStem,
+            sourceState,
+        }));
+    }
+    return diagnostics;
+}
+
+function buildNawatDenominalAndrewsExecutableRuleResult({
+    rule = null,
+    sourceStem = "",
+    sourceVerbStem = "",
+    sourceState = "",
+    sourceStemFinalLetter = "",
+    targetVerbStem = "",
+    targetInput = "",
+    targetStemClass = "",
+    targetStemClassRule = "",
+    targetStemClassSource = "",
+    sourceStemFinalType = "",
+    suffix = null,
+    diagnostics = [],
+} = {}) {
+    const blocked = (Array.isArray(diagnostics) ? diagnostics : [])
+        .some((diagnostic) => diagnostic?.severity === "error");
+    const ok = !blocked && Boolean(targetVerbStem);
+    const record = {
+        version: 1,
+        outputKind: "denominal-andrews-executable-rule-result",
+        executableRuleId: rule?.id || "",
+        contractId: rule?.contractId || "",
+        routeTemplateId: rule?.routeTemplateId || "",
+        range: rule?.range || "",
+        authority: Array.isArray(rule?.authority) ? Array.from(rule.authority) : [],
+        sourceStem,
+        sourceVerbStem,
+        sourceState,
+        sourceCategory: rule?.input?.sourceCategory || "",
+        targetCategory: rule?.output?.unit || "vnc",
+        targetValency: rule?.output?.valency || "intransitive",
+        sourceStemFinalLetter,
+        sourceStemFinalType,
+        targetStemClass,
+        targetStemClassRule,
+        targetStemClassSource,
+        classicalSuffixSequence: suffix?.classicalSuffixSequence || rule?.operation?.classicalSuffix || "",
+        nawatRuleSuffix: suffix?.nawatRuleSuffix || rule?.operation?.suffix || "",
+        nawatSurfaceSuffix: suffix?.nawatSurfaceSuffix || "",
+        targetVerbStem: ok ? targetVerbStem : "",
+        targetInput: ok ? targetInput : "",
+        surface: ok ? targetVerbStem : "",
+        status: ok ? "generated" : "blocked",
+        supported: ok,
+        generationAllowed: ok,
+        diagnostics: Array.isArray(diagnostics) ? diagnostics : [],
+        ruleContract: rule ? summarizeNawatDenominalAndrewsExecutableRuleContract(rule) : null,
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            usesExecutableAndrewsRuleContract: true,
+            generatesVncStemOnly: true,
+            finiteGenerationRequiresExplicitRequest: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+    return attachNawatDenominalAndrewsContractGrammarFrame(record, {
+        routeStage: ok ? "execute-rule-contract" : "blocked-rule-contract",
+        generationAllowed: ok,
+        supported: ok,
+        diagnostics: record.diagnostics,
+        sourceStem,
+        targetStem: record.targetVerbStem,
+        targetInput: record.targetInput,
+    });
+}
+
+function generateNawatDenominalAndrews5421TiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.1-inceptive-stative-ti"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5421TiRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-1-ti");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5422HuiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.2-inceptive-stative-hui"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5422HuiRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "wi");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.2-hui-lia-causative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx);
+    const targetVerbStem = sourceVerbStem && !diagnostics.length
+        ? `${sourceVerbStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^wi/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5423YaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.3-inceptive-stative-ya"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5423YaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5423TiYaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ti");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.3-ti-ya-deverbal"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5423TiYaRule(ctx);
+    const targetVerbStem = sourceVerbStem && !diagnostics.length
+        ? `${sourceVerbStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^ti/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "wi");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.3-hui-ya-deverbal"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5423HuiYaRule(ctx);
+    const targetVerbStem = sourceVerbStem && !diagnostics.length
+        ? `${sourceVerbStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^wi/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ya");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.3-ya-lia-causative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5423YaLiaRule(ctx);
+    const targetVerbStem = sourceBaseStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5424ARule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.4-inceptive-stative-a"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5424ARule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews5425HuaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2.5-inceptive-stative-hua"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews5425HuaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews543IncludedPossessorTiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.3-included-possessor-ti"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews543IncludedPossessorTiRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ti");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.2-54.4-ti-lia-causative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews542544TiLiaRule(ctx);
+    const targetVerbStem = sourceVerbStem && !diagnostics.length
+        ? `${sourceVerbStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^ti/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews545TiARule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ti");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.5-ti-a-causative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews545TiARule(ctx);
+    const targetVerbStem = sourceVerbStem && !diagnostics.length
+        ? `${sourceVerbStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^ti/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews546TIaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ti");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["54.6-t-ia-applicative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews546TIaRule(ctx);
+    const replaciveStem = sourceVerbStem && !diagnostics.length
+        ? sourceVerbStem.replace(/i$/, "")
+        : "";
+    const targetVerbStem = replaciveStem
+        ? `${replaciveStem}${String(suffix.nawatSurfaceSuffix || "").replace(/^t/, "")}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews551TemporalTiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.1-temporal-tia"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews551TemporalTiaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.2-causative-tla"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.2-tla-ti-lia-applicative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.2-intransitive-tla"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.2-intransitive-tla-ti-a-causative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ta");
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx)
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.2-intransitive-tla-ti-lia-applicative"]?.[0] || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews553OaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.3-intransitive-o-a-applicative-huia"]?.find((entry) => entry.id === "o-a") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews553OaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews553HuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.3-intransitive-o-a-applicative-huia"]?.find((entry) => entry.id === "huia") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews553HuiaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-huia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ua")
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.3-o-a-il-huia-al-huia-applicative-note"]?.find((entry) => entry.id === "o-a-i-l-huia") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "ua")
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.3-o-a-il-huia-al-huia-applicative-note"]?.find((entry) => entry.id === "o-a-a-l-huia") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.4-adverbial-huia"]?.find((entry) => entry.id === "adverbial-huia") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.5-relational-compound-o-a-huia"]?.find((entry) => entry.id === "relational-o-a") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews555RelationalOaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.5-relational-compound-o-a-huia"]?.find((entry) => entry.id === "relational-huia") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews556IHuiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.6-i-hui-a-hui-to-o-a"]?.find((entry) => entry.id === "i-hui") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews556IHuiRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-i-hui");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews556AHuiRule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.6-i-hui-a-hui-to-o-a"]?.find((entry) => entry.id === "a-hui") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews556AHuiRule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-a-hui");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews556OaRule(ctx = {}) {
+    const sourceBaseStem = resolveNawatDenominalAndrewsRuleSourceBaseStem(ctx, "")
+        || resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceVerbStem = resolveNawatDenominalAndrewsRuleSourceVerbStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceBaseStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.6-i-hui-a-hui-to-o-a"]?.find((entry) => entry.id === "o-a") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews556OaRule(ctx);
+    const targetVerbStem = sourceBaseStem && sourceVerbStem && !diagnostics.length
+        ? `${sourceBaseStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem: sourceBaseStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem: sourceBaseStem,
+        sourceVerbStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function generateNawatDenominalAndrews557IARule(ctx = {}) {
+    const sourceStem = resolveNawatDenominalAndrewsRuleSourceStem(ctx);
+    const sourceState = resolveNawatDenominalAndrewsRuleSourceState(ctx);
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem);
+    const template = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID["55.7-transitive-i-a"]?.find((entry) => entry.id === "i-a") || null;
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const diagnostics = diagnoseNawatDenominalAndrews557IARule(ctx);
+    const targetVerbStem = sourceStem && !diagnostics.length
+        ? `${sourceStem}${suffix.nawatSurfaceSuffix}`
+        : "";
+    const targetInput = targetVerbStem
+        ? formatNawatDenominalAndrewsContractTargetInput({
+            sourceStem,
+            targetVerbStem,
+            suffix,
+            template,
+        })
+        : "";
+    const rule = getNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a");
+    return buildNawatDenominalAndrewsExecutableRuleResult({
+        rule,
+        sourceStem,
+        sourceState,
+        sourceStemFinalLetter,
+        targetVerbStem,
+        targetInput,
+        targetStemClass: stemClassContract.targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        suffix,
+        diagnostics,
+    });
+}
+
+function createNawatDenominalAndrews5421TiRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-1-ti",
+        contractId: "54.2.1-inceptive-stative-ti",
+        routeTemplateId: "ti",
+        range: "54.2.1",
+        authority: ["Andrews 54.2", "Andrews 54.2.1"],
+        input: {
+            unit: "nnc-predicate",
+            state: "absolutive",
+            sourceCategory: "absolutive-state-nnc-predicate",
+            sourceEvidence: "nawat-source-stem-or-generated-nnc-predicate",
+        },
+        operation: {
+            type: "denominal-verbstem",
+            suffix: "ti",
+            classicalSuffix: "ti",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A", "B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5421TiRule,
+        diagnose: diagnoseNawatDenominalAndrews5421TiRule,
+    };
+}
+
+function createNawatDenominalAndrews5422HuiRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-2-hui",
+        contractId: "54.2.2-inceptive-stative-hui",
+        routeTemplateId: "hui",
+        range: "54.2.2",
+        authority: ["Andrews 54.2", "Andrews 54.2.2"],
+        input: {
+            unit: "nnc-predicate",
+            state: "absolutive",
+            sourceCategory: "absolutive-state-nnc-predicate",
+            sourceEvidence: "nawat-source-stem-or-generated-nnc-predicate",
+        },
+        operation: {
+            type: "denominal-verbstem",
+            suffix: "wi",
+            classicalSuffix: "hui",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A", "B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5422HuiRule,
+        diagnose: diagnoseNawatDenominalAndrews5422HuiRule,
+    };
+}
+
+function createNawatDenominalAndrews5422HuiLiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-2-hui-lia",
+        contractId: "54.2.2-hui-lia-causative",
+        routeTemplateId: "hui-lia",
+        range: "54.2.2",
+        authority: ["Andrews 54.2.2", "Andrews 25.5"],
+        input: {
+            unit: "vnc",
+            state: "derived",
+            sourceCategory: "intransitive-hui-vnc",
+            sourceEvidence: "generated-hui-verbstem-required",
+        },
+        operation: {
+            type: "single-object-causative-verbstem",
+            sourceSuffix: "wi",
+            suffix: "lia",
+            classicalSuffix: "hui-lia",
+            outputValency: "single-object-causative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "single-object-causative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5422HuiLiaRule,
+        diagnose: diagnoseNawatDenominalAndrews5422HuiLiaRule,
+    };
+}
+
+function createNawatDenominalAndrews5423YaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-3-ya",
+        contractId: "54.2.3-inceptive-stative-ya",
+        routeTemplateId: "ya",
+        range: "54.2.3",
+        authority: ["Andrews 54.2", "Andrews 54.2.3"],
+        input: {
+            unit: "nounroot-or-nounstem-as-root",
+            state: "absolutive",
+            sourceCategory: "nounroot-or-nounstem-as-root",
+            sourceEvidence: "nawat-root-or-stem-as-root",
+        },
+        operation: {
+            type: "denominal-verbstem",
+            suffix: "ya",
+            classicalSuffix: "ya",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A", "B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5423YaRule,
+        diagnose: diagnoseNawatDenominalAndrews5423YaRule,
+    };
+}
+
+function createNawatDenominalAndrews5423TiYaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-3-ti-ya",
+        contractId: "54.2.3-ti-ya-deverbal",
+        routeTemplateId: "ti-ya",
+        range: "54.2.3",
+        authority: ["Andrews 54.2.3"],
+        input: {
+            unit: "vnc",
+            state: "derived",
+            sourceCategory: "intransitive-ti-vnc",
+            sourceEvidence: "generated-ti-verbstem-required",
+        },
+        operation: {
+            type: "deverbal-verbstem",
+            sourceSuffix: "ti",
+            suffix: "ya",
+            classicalSuffix: "ti-ya",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A", "B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5423TiYaRule,
+        diagnose: diagnoseNawatDenominalAndrews5423TiYaRule,
+    };
+}
+
+function createNawatDenominalAndrews5423HuiYaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-3-hui-ya",
+        contractId: "54.2.3-hui-ya-deverbal",
+        routeTemplateId: "hui-ya",
+        range: "54.2.3",
+        authority: ["Andrews 54.2.3"],
+        input: {
+            unit: "vnc",
+            state: "derived",
+            sourceCategory: "intransitive-hui-vnc",
+            sourceEvidence: "generated-hui-verbstem-required",
+        },
+        operation: {
+            type: "deverbal-verbstem",
+            sourceSuffix: "wi",
+            suffix: "ya",
+            classicalSuffix: "hui-ya",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5423HuiYaRule,
+        diagnose: diagnoseNawatDenominalAndrews5423HuiYaRule,
+    };
+}
+
+function createNawatDenominalAndrews5423YaLiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-3-ya-lia",
+        contractId: "54.2.3-ya-lia-causative",
+        routeTemplateId: "ya-lia",
+        range: "54.2.3",
+        authority: ["Andrews 54.2.3", "Andrews 25.5.2"],
+        input: {
+            unit: "vnc",
+            state: "derived",
+            sourceCategory: "intransitive-ya-vnc",
+            sourceEvidence: "generated-ya-verbstem-required",
+        },
+        operation: {
+            type: "causative-or-applicative-verbstem",
+            sourceSuffix: "ya",
+            droppedSourceSuffix: "ya",
+            suffix: "lia",
+            classicalSuffix: "lia",
+            outputValency: "single-object-causative-or-applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "single-object-causative-or-applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5423YaLiaRule,
+        diagnose: diagnoseNawatDenominalAndrews5423YaLiaRule,
+    };
+}
+
+function createNawatDenominalAndrews5424ARuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-4-a",
+        contractId: "54.2.4-inceptive-stative-a",
+        routeTemplateId: "a",
+        range: "54.2.4",
+        authority: ["Andrews 54.2.4"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "absolutive-nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "limited-inceptive-stative-verbstem",
+            suffix: "a",
+            classicalSuffix: "a",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        generate: generateNawatDenominalAndrews5424ARule,
+        diagnose: diagnoseNawatDenominalAndrews5424ARule,
+    };
+}
+
+function createNawatDenominalAndrews5425HuaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-5-hua",
+        contractId: "54.2.5-inceptive-stative-hua",
+        routeTemplateId: "hua",
+        range: "54.2.5",
+        authority: ["Andrews 54.2.5", "Andrews 39.3"],
+        input: {
+            unit: "deverbal-nounstem",
+            state: "absolutive",
+            sourceCategory: "deverbal-yu-nounstem",
+            sourceEvidence: "confirmed-deverbal-yo-tl-yu-source-required",
+        },
+        operation: {
+            type: "deverbal-yo-nounstem-inceptive-stative-verbstem",
+            sourceMatrix: "yu",
+            suffix: "wa",
+            classicalSuffix: "hua",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A"],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        generate: generateNawatDenominalAndrews5425HuaRule,
+        diagnose: diagnoseNawatDenominalAndrews5425HuaRule,
+    };
+}
+
+function createNawatDenominalAndrews543IncludedPossessorTiRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-3-included-possessor-ti",
+        contractId: "54.3-included-possessor-ti",
+        routeTemplateId: "included-possessor-ti",
+        range: "54.3",
+        authority: ["Andrews 54.3"],
+        input: {
+            unit: "nnc-predicate",
+            state: "possessive",
+            sourceCategory: "possessive-state-nnc-predicate",
+            sourceEvidence: "confirmed-possessive-state-nnc-predicate-required",
+        },
+        operation: {
+            type: "possessive-state-predicate-included-possessor-verbstem",
+            suffix: "ti",
+            classicalSuffix: "ti",
+            possessorPlacement: "inside-derived-verbstem",
+            possessiveCaseTransformedToObjective: false,
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["A"],
+            surfaceAuthority: "nawat-source-surface-and-orthography",
+        },
+        generate: generateNawatDenominalAndrews543IncludedPossessorTiRule,
+        diagnose: diagnoseNawatDenominalAndrews543IncludedPossessorTiRule,
+    };
+}
+
+function createNawatDenominalAndrews542544TiLiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-2-54-4-ti-lia",
+        contractId: "54.2-54.4-ti-lia-causative",
+        routeTemplateId: "ti-lia",
+        range: "54.2.1/54.4",
+        authority: ["Andrews 54.2.1", "Andrews 54.4", "Andrews 25.5"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-ti-verbstem-source",
+            sourceEvidence: "generated-ti-verbstem-source-required",
+        },
+        operation: {
+            type: "single-object-causative-from-ti-verbstem",
+            sourceSuffix: "ti",
+            suffix: "lia",
+            classicalSuffix: "lia",
+            outputValency: "single-object-causative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "single-object-causative",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        generate: generateNawatDenominalAndrews542544TiLiaRule,
+        diagnose: diagnoseNawatDenominalAndrews542544TiLiaRule,
+    };
+}
+
+function createNawatDenominalAndrews545TiARuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-5-ti-a",
+        contractId: "54.5-ti-a-causative",
+        routeTemplateId: "ti-a",
+        range: "54.5",
+        authority: ["Andrews 54.5", "Andrews 54.5.1"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-ti-verbstem-source",
+            sourceEvidence: "generated-ti-verbstem-source-required",
+        },
+        operation: {
+            type: "single-object-first-type-causative-from-ti-verbstem",
+            sourceSuffix: "ti",
+            suffix: "a",
+            classicalSuffix: "a",
+            outputValency: "single-object-causative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "single-object-causative",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            singleObjectTiSourceRouteOnly: true,
+            possessiveSourceDoubleObjectUnmodeled: true,
+        },
+        generate: generateNawatDenominalAndrews545TiARule,
+        diagnose: diagnoseNawatDenominalAndrews545TiARule,
+    };
+}
+
+function createNawatDenominalAndrews546TIaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-54-6-t-ia",
+        contractId: "54.6-t-ia-applicative",
+        routeTemplateId: "t-ia",
+        range: "54.6",
+        authority: ["Andrews 54.6", "Andrews 26.2"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-ti-verbstem-source",
+            sourceEvidence: "generated-ti-verbstem-source-required",
+        },
+        operation: {
+            type: "first-type-applicative-from-ti-verbstem",
+            sourceSuffix: "ti",
+            replaciveSourceStem: "delete-final-i",
+            suffix: "ia",
+            classicalSuffix: "ia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            limitedTiApplicativeUse: true,
+            replaciveTiFinalIDeleted: true,
+            distinguishFromTiACausative: true,
+        },
+        generate: generateNawatDenominalAndrews546TIaRule,
+        diagnose: diagnoseNawatDenominalAndrews546TIaRule,
+    };
+}
+
+function createNawatDenominalAndrews551TemporalTiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-1-temporal-tia",
+        contractId: "55.1-temporal-tia",
+        routeTemplateId: "tia",
+        range: "55.1",
+        authority: ["Andrews 55.1"],
+        input: {
+            unit: "compound-temporal-nounstem",
+            state: "absolutive",
+            sourceCategory: "compound-temporal-nounstem",
+            sourceEvidence: "confirmed-time-segment-matrix-plus-numeral-embed-required",
+        },
+        operation: {
+            type: "temporal-intransitive-denominal-verbstem",
+            suffix: "tia",
+            classicalSuffix: "tia",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            temporalDenominalModeled: true,
+            temporalMatrixMustBeTimeSegment: true,
+            temporalEmbedMustBeNumeralNounstem: true,
+            doesNotTreatLocativoTemporalNominalAsAutomaticEvidence: true,
+        },
+        generate: generateNawatDenominalAndrews551TemporalTiaRule,
+        diagnose: diagnoseNawatDenominalAndrews551TemporalTiaRule,
+    };
+}
+
+function createNawatDenominalAndrews552CausativeTlaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-2-causative-tla",
+        contractId: "55.2-causative-tla",
+        routeTemplateId: "tla",
+        range: "55.2",
+        authority: ["Andrews 55.2"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "denominal-causative-verbstem",
+            suffix: "ta",
+            classicalSuffix: "tla",
+            outputValency: "causative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "causative",
+            stemClass: ["A"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        boundaries: {
+            causativeTlaModeled: true,
+            applicativeCounterpartUnmodeled: true,
+            intransitiveTlaNoteUnmodeled: true,
+            finiteGenerationRequiresObjectPrefix: true,
+        },
+        generate: generateNawatDenominalAndrews552CausativeTlaRule,
+        diagnose: diagnoseNawatDenominalAndrews552CausativeTlaRule,
+    };
+}
+
+function createNawatDenominalAndrews552TlaTiLiaApplicativeRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-2-tla-ti-lia-applicative",
+        contractId: "55.2-tla-ti-lia-applicative",
+        routeTemplateId: "tla-ti-lia",
+        range: "55.2",
+        authority: ["Andrews 55.2", "Andrews 26.7"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "causative-tla-verbstem-source",
+            sourceEvidence: "generated-causative-tla-verbstem-source-required",
+        },
+        operation: {
+            type: "applicative-from-causative-tla-verbstem",
+            sourceSuffix: "ta",
+            sourceClassicalSuffix: "tla",
+            replacementBeforeSuffix: "ti",
+            suffix: "lia",
+            classicalSuffix: "ti-lia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresTlaCausativeSource: true,
+            sourceTlaReplacedByTiBeforeLia: true,
+            intransitiveTlaNoteUnmodeled: true,
+        },
+        generate: generateNawatDenominalAndrews552TlaTiLiaApplicativeRule,
+        diagnose: diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule,
+    };
+}
+
+function createNawatDenominalAndrews552IntransitiveTlaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-2-intransitive-tla",
+        contractId: "55.2-intransitive-tla",
+        routeTemplateId: "intransitive-tla",
+        range: "55.2 note",
+        authority: ["Andrews 55.2 note"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "nounstem",
+            sourceEvidence: "confirmed-very-limited-intransitive-tla-source-required",
+        },
+        operation: {
+            type: "very-limited-denominal-intransitive-tla-verbstem",
+            suffix: "ta",
+            classicalSuffix: "tla",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            limitedUse: true,
+            veryLimitedUse: true,
+            distinctFromCausativeTla: true,
+            noProductiveDirectGeneration: true,
+            sourceEvidenceRequiredBecauseEvenLessProductiveThanCausativeTla: true,
+        },
+        generate: generateNawatDenominalAndrews552IntransitiveTlaRule,
+        diagnose: diagnoseNawatDenominalAndrews552IntransitiveTlaRule,
+    };
+}
+
+function createNawatDenominalAndrews552IntransitiveTlaTiARuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-2-intransitive-tla-ti-a",
+        contractId: "55.2-intransitive-tla-ti-a-causative",
+        routeTemplateId: "intransitive-tla-ti-a",
+        range: "55.2 note",
+        authority: ["Andrews 55.2 note"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-tla-verbstem-source",
+            sourceEvidence: "generated-intransitive-tla-verbstem-source-required",
+        },
+        operation: {
+            type: "causative-from-intransitive-tla-verbstem",
+            sourceSuffix: "ta",
+            sourceClassicalSuffix: "tla",
+            replacementBeforeSuffix: "ti",
+            suffix: "a",
+            classicalSuffix: "ti-a",
+            outputValency: "causative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "causative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresTlaIntransitiveSource: true,
+            sourceTlaReplacedByTiBeforeA: true,
+            noProductiveDirectGeneration: true,
+            sourceEvidenceRequiredBecauseIntransitiveTlaIsVeryLimited: true,
+        },
+        generate: generateNawatDenominalAndrews552IntransitiveTlaTiARule,
+        diagnose: diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule,
+    };
+}
+
+function createNawatDenominalAndrews552IntransitiveTlaTiLiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-2-intransitive-tla-ti-lia",
+        contractId: "55.2-intransitive-tla-ti-lia-applicative",
+        routeTemplateId: "intransitive-tla-ti-lia",
+        range: "55.2 note",
+        authority: ["Andrews 55.2 note"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-tla-verbstem-source",
+            sourceEvidence: "generated-intransitive-tla-verbstem-source-required",
+        },
+        operation: {
+            type: "applicative-from-intransitive-tla-causative-verbstem",
+            sourceSuffix: "ta",
+            sourceClassicalSuffix: "tla",
+            replacementBeforeSuffix: "ti",
+            suffix: "lia",
+            classicalSuffix: "ti-lia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresTlaIntransitiveSource: true,
+            sourceTlaReplacedByTiBeforeLia: true,
+            noProductiveDirectGeneration: true,
+            sourceEvidenceRequiredBecauseIntransitiveTlaIsVeryLimited: true,
+        },
+        generate: generateNawatDenominalAndrews552IntransitiveTlaTiLiaRule,
+        diagnose: diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule,
+    };
+}
+
+function createNawatDenominalAndrews553OaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-3-o-a",
+        contractId: "55.3-intransitive-o-a-applicative-huia",
+        routeTemplateId: "o-a",
+        range: "55.3",
+        authority: ["Andrews 55.3"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "denominal-intransitive-o-a-verbstem",
+            suffix: "ua",
+            classicalSuffix: "o-a",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        boundaries: {
+            intransitiveOaModeled: true,
+            oaSuffixNotCausative: true,
+            notVeryProductive: true,
+            applicativeCounterpart: "huia",
+        },
+        generate: generateNawatDenominalAndrews553OaRule,
+        diagnose: diagnoseNawatDenominalAndrews553OaRule,
+    };
+}
+
+function createNawatDenominalAndrews553HuiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-3-huia",
+        contractId: "55.3-intransitive-o-a-applicative-huia",
+        routeTemplateId: "huia",
+        range: "55.3",
+        authority: ["Andrews 55.3"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "denominal-single-object-applicative-huia-verbstem",
+            suffix: "wia",
+            classicalSuffix: "huia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        boundaries: {
+            applicativeHuiaCounterpartModeled: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            twoObjectPossessiveStateHuiaNoteUnmodeled: true,
+            notVeryProductive: true,
+        },
+        generate: generateNawatDenominalAndrews553HuiaRule,
+        diagnose: diagnoseNawatDenominalAndrews553HuiaRule,
+    };
+}
+
+function createNawatDenominalAndrews553OaIlHuiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-3-o-a-i-l-huia",
+        contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
+        routeTemplateId: "o-a-i-l-huia",
+        range: "55.3 note 2",
+        authority: ["Andrews 55.3 note 2", "Andrews 26.9.2"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-o-a-verbstem-source",
+            sourceEvidence: "generated-intransitive-o-a-verbstem-source-required",
+        },
+        operation: {
+            type: "single-object-applicative-via-hypothetical-i-hui-from-intransitive-o-a",
+            sourceSuffix: "ua",
+            sourceClassicalSuffix: "o-a",
+            hypotheticalSourceSuffix: "i-hui",
+            suffix: "ilwia",
+            classicalSuffix: "i-l-huia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresIntransitiveOaSource: true,
+            sourceOaBypassesTransitiveOaStep: true,
+            hypotheticalIHuiAHuiSource: true,
+            noProductiveDirectGeneration: true,
+        },
+        generate: generateNawatDenominalAndrews553OaIlHuiaRule,
+        diagnose: diagnoseNawatDenominalAndrews553OaIlHuiaRule,
+    };
+}
+
+function createNawatDenominalAndrews553OaAlHuiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-3-o-a-a-l-huia",
+        contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
+        routeTemplateId: "o-a-a-l-huia",
+        range: "55.3 note 2",
+        authority: ["Andrews 55.3 note 2", "Andrews 26.9.2"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "intransitive-o-a-verbstem-source",
+            sourceEvidence: "generated-intransitive-o-a-verbstem-source-required",
+        },
+        operation: {
+            type: "single-object-applicative-via-hypothetical-a-hui-from-intransitive-o-a",
+            sourceSuffix: "ua",
+            sourceClassicalSuffix: "o-a",
+            hypotheticalSourceSuffix: "a-hui",
+            suffix: "alwia",
+            classicalSuffix: "a-l-huia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresIntransitiveOaSource: true,
+            sourceOaBypassesTransitiveOaStep: true,
+            hypotheticalIHuiAHuiSource: true,
+            noProductiveDirectGeneration: true,
+        },
+        generate: generateNawatDenominalAndrews553OaAlHuiaRule,
+        diagnose: diagnoseNawatDenominalAndrews553OaAlHuiaRule,
+    };
+}
+
+function createNawatDenominalAndrews554AdverbialHuiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-4-adverbial-huia",
+        contractId: "55.4-adverbial-huia",
+        routeTemplateId: "adverbial-huia",
+        range: "55.4",
+        authority: ["Andrews 55.4", "Andrews Lesson 44"],
+        input: {
+            unit: "nounstem",
+            state: "adverbialized",
+            sourceCategory: "adverbial-nounstem",
+            sourceEvidence: "confirmed-adverbial-nounstem-required",
+        },
+        operation: {
+            type: "denominal-single-object-applicative-huia-from-adverbial-nounstem",
+            suffix: "wia",
+            classicalSuffix: "huia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresAdverbialSource: true,
+            sourceMustBeConfirmedAdverbialNounstem: true,
+            doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectGeneration: true,
+        },
+        generate: generateNawatDenominalAndrews554AdverbialHuiaRule,
+        diagnose: diagnoseNawatDenominalAndrews554AdverbialHuiaRule,
+    };
+}
+
+function createNawatDenominalAndrews555RelationalOaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-5-relational-o-a",
+        contractId: "55.5-relational-compound-o-a-huia",
+        routeTemplateId: "relational-o-a",
+        range: "55.5",
+        authority: ["Andrews 55.5"],
+        input: {
+            unit: "nounstem-or-nnc-predicate",
+            state: "relational-or-possessive",
+            sourceCategory: "compound-relational-nounstem-or-possessive-state-relational-predicate",
+            sourceEvidence: "confirmed-relational-compound-or-predicate-required",
+        },
+        operation: {
+            type: "denominal-o-a-from-relational-compound-or-predicate",
+            suffix: "ua",
+            classicalSuffix: "o-a",
+            outputValency: "usually-transitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "usually-transitive",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresRelationalCompoundSource: true,
+            sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+            doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
+            relationalOaUsuallyTransitiveExceptionallyIntransitive: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectGeneration: true,
+        },
+        generate: generateNawatDenominalAndrews555RelationalOaRule,
+        diagnose: diagnoseNawatDenominalAndrews555RelationalOaRule,
+    };
+}
+
+function createNawatDenominalAndrews555RelationalHuiaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-5-relational-huia",
+        contractId: "55.5-relational-compound-o-a-huia",
+        routeTemplateId: "relational-huia",
+        range: "55.5",
+        authority: ["Andrews 55.5"],
+        input: {
+            unit: "nounstem-or-nnc-predicate",
+            state: "relational-or-possessive",
+            sourceCategory: "compound-relational-nounstem-or-possessive-state-relational-predicate",
+            sourceEvidence: "confirmed-relational-compound-or-predicate-required",
+        },
+        operation: {
+            type: "denominal-single-object-applicative-huia-from-relational-compound-or-predicate",
+            suffix: "wia",
+            classicalSuffix: "huia",
+            outputValency: "applicative",
+        },
+        output: {
+            unit: "vnc",
+            valency: "applicative",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresRelationalCompoundSource: true,
+            sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+            doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            noProductiveDirectGeneration: true,
+        },
+        generate: generateNawatDenominalAndrews555RelationalHuiaRule,
+        diagnose: diagnoseNawatDenominalAndrews555RelationalHuiaRule,
+    };
+}
+
+function createNawatDenominalAndrews556IHuiRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-6-i-hui",
+        contractId: "55.6-i-hui-a-hui-to-o-a",
+        routeTemplateId: "i-hui",
+        range: "55.6",
+        authority: ["Andrews 55.6", "Andrews 24.7"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "absolutive-nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "denominal-intransitive-i-hui-verbstem",
+            suffix: "iwi",
+            classicalSuffix: "i-hui",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        boundaries: {
+            sourceCanSatisfyIHuiAHuiOaCausative: true,
+            sourceSynonymousWithTiInceptiveStative: true,
+            targetStemClassVerified: true,
+            targetStemClass: "B",
+        },
+        generate: generateNawatDenominalAndrews556IHuiRule,
+        diagnose: diagnoseNawatDenominalAndrews556IHuiRule,
+    };
+}
+
+function createNawatDenominalAndrews556AHuiRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-6-a-hui",
+        contractId: "55.6-i-hui-a-hui-to-o-a",
+        routeTemplateId: "a-hui",
+        range: "55.6",
+        authority: ["Andrews 55.6", "Andrews 24.7"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "absolutive-nounstem",
+            sourceEvidence: "nawat-source-nounstem-required",
+        },
+        operation: {
+            type: "denominal-intransitive-a-hui-verbstem",
+            suffix: "awi",
+            classicalSuffix: "a-hui",
+            outputValency: "intransitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "intransitive",
+            stemClass: ["B"],
+            surfaceAuthority: "nawat-orthography",
+        },
+        boundaries: {
+            sourceCanSatisfyIHuiAHuiOaCausative: true,
+            sourceSynonymousWithTiInceptiveStative: true,
+            targetStemClassVerified: true,
+            targetStemClass: "B",
+        },
+        generate: generateNawatDenominalAndrews556AHuiRule,
+        diagnose: diagnoseNawatDenominalAndrews556AHuiRule,
+    };
+}
+
+function createNawatDenominalAndrews556OaRuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-6-o-a",
+        contractId: "55.6-i-hui-a-hui-to-o-a",
+        routeTemplateId: "o-a",
+        range: "55.6",
+        authority: ["Andrews 55.6", "Andrews 24.7"],
+        input: {
+            unit: "vnc-stem",
+            state: "derived",
+            sourceCategory: "i-hui-a-hui-source",
+            sourceEvidence: "generated-i-hui-a-hui-source-required",
+        },
+        operation: {
+            type: "causative-o-a-from-i-hui-a-hui-source",
+            sourceSuffixes: ["iwi", "awi"],
+            sourceClassicalSuffixes: ["i-hui", "a-hui"],
+            suffix: "ua",
+            classicalSuffix: "o-a",
+            outputValency: "transitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "transitive",
+            stemClass: ["C"],
+            surfaceAuthority: "nawat-orthography-and-source-evidence",
+        },
+        boundaries: {
+            requiresIHuiOrAHuiSource: true,
+            sourceIHuiAHuiBecomesOaCausative: true,
+            noProductiveDirectGeneration: true,
+            finiteGenerationRequiresObjectPrefix: true,
+            targetStemClassVerified: true,
+            targetStemClass: "C",
+        },
+        generate: generateNawatDenominalAndrews556OaRule,
+        diagnose: diagnoseNawatDenominalAndrews556OaRule,
+    };
+}
+
+function createNawatDenominalAndrews557IARuleContract() {
+    return {
+        version: 1,
+        id: "andrews-55-7-i-a",
+        contractId: "55.7-transitive-i-a",
+        routeTemplateId: "i-a",
+        range: "55.7",
+        authority: ["Andrews 55.7"],
+        input: {
+            unit: "nounstem",
+            state: "absolutive",
+            sourceCategory: "nounstem-plus-i-base",
+            sourceEvidence: "nawat-source-nounstem-and-andrews-source-final-pattern",
+        },
+        operation: {
+            type: "denominal-transitive-i-a-verbstem",
+            baseExtension: "i",
+            suffix: "ia",
+            classicalSuffix: "i-a",
+            outputValency: "transitive",
+        },
+        output: {
+            unit: "vnc",
+            valency: "transitive",
+            stemClass: [],
+            surfaceAuthority: "nawat-orthography-and-source-final-evidence",
+        },
+        boundaries: {
+            noIntransitiveCounterpart: true,
+            sourceFinalPatternGuarded: true,
+            majoritySourceFinalLetters: ["k", "l"],
+            attestedSourceFinalLetters: ["k", "l", "n"],
+            wFinalSourceMayBeHuia: true,
+            sourceIFormMayBelongToNounstem: true,
+            sourceIHuiCausativePathPossible: true,
+            finiteGenerationRequiresObjectPrefix: true,
+        },
+        generate: generateNawatDenominalAndrews557IARule,
+        diagnose: diagnoseNawatDenominalAndrews557IARule,
+    };
+}
+
+function getNawatDenominalAndrewsExecutableRuleContract(id = "") {
+    const ruleId = String(id || "").trim();
+    if (
+        ruleId === "andrews-54-2-1-ti"
+        || ruleId === "54.2.1-inceptive-stative-ti"
+        || ruleId === "54.2.1"
+    ) {
+        return createNawatDenominalAndrews5421TiRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-2-hui"
+        || ruleId === "54.2.2-inceptive-stative-hui"
+        || ruleId === "54.2.2"
+    ) {
+        return createNawatDenominalAndrews5422HuiRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-2-hui-lia"
+        || ruleId === "54.2.2-hui-lia-causative"
+    ) {
+        return createNawatDenominalAndrews5422HuiLiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-3-ya"
+        || ruleId === "54.2.3-inceptive-stative-ya"
+        || ruleId === "54.2.3"
+    ) {
+        return createNawatDenominalAndrews5423YaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-3-ti-ya"
+        || ruleId === "54.2.3-ti-ya-deverbal"
+    ) {
+        return createNawatDenominalAndrews5423TiYaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-3-hui-ya"
+        || ruleId === "54.2.3-hui-ya-deverbal"
+    ) {
+        return createNawatDenominalAndrews5423HuiYaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-3-ya-lia"
+        || ruleId === "54.2.3-ya-lia-causative"
+    ) {
+        return createNawatDenominalAndrews5423YaLiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-4-a"
+        || ruleId === "54.2.4-inceptive-stative-a"
+        || ruleId === "54.2.4"
+    ) {
+        return createNawatDenominalAndrews5424ARuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-5-hua"
+        || ruleId === "54.2.5-inceptive-stative-hua"
+        || ruleId === "54.2.5"
+    ) {
+        return createNawatDenominalAndrews5425HuaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-3-included-possessor-ti"
+        || ruleId === "54.3-included-possessor-ti"
+        || ruleId === "54.3"
+    ) {
+        return createNawatDenominalAndrews543IncludedPossessorTiRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-2-54-4-ti-lia"
+        || ruleId === "54.2-54.4-ti-lia-causative"
+    ) {
+        return createNawatDenominalAndrews542544TiLiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-54-5-ti-a"
+        || ruleId === "54.5-ti-a-causative"
+        || ruleId === "54.5"
+    ) {
+        return createNawatDenominalAndrews545TiARuleContract();
+    }
+    if (
+        ruleId === "andrews-54-6-t-ia"
+        || ruleId === "54.6-t-ia-applicative"
+        || ruleId === "54.6"
+    ) {
+        return createNawatDenominalAndrews546TIaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-1-temporal-tia"
+        || ruleId === "55.1-temporal-tia"
+        || ruleId === "55.1"
+    ) {
+        return createNawatDenominalAndrews551TemporalTiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-2-causative-tla"
+        || ruleId === "55.2-causative-tla"
+    ) {
+        return createNawatDenominalAndrews552CausativeTlaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-2-tla-ti-lia-applicative"
+        || ruleId === "55.2-tla-ti-lia-applicative"
+    ) {
+        return createNawatDenominalAndrews552TlaTiLiaApplicativeRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-2-intransitive-tla"
+        || ruleId === "55.2-intransitive-tla"
+    ) {
+        return createNawatDenominalAndrews552IntransitiveTlaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-2-intransitive-tla-ti-a"
+        || ruleId === "55.2-intransitive-tla-ti-a-causative"
+    ) {
+        return createNawatDenominalAndrews552IntransitiveTlaTiARuleContract();
+    }
+    if (
+        ruleId === "andrews-55-2-intransitive-tla-ti-lia"
+        || ruleId === "55.2-intransitive-tla-ti-lia-applicative"
+    ) {
+        return createNawatDenominalAndrews552IntransitiveTlaTiLiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-3-o-a"
+        || ruleId === "55.3-intransitive-o-a-applicative-huia:o-a"
+    ) {
+        return createNawatDenominalAndrews553OaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-3-huia"
+        || ruleId === "55.3-intransitive-o-a-applicative-huia:huia"
+    ) {
+        return createNawatDenominalAndrews553HuiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-3-o-a-i-l-huia"
+        || ruleId === "55.3-o-a-il-huia-al-huia-applicative-note:o-a-i-l-huia"
+    ) {
+        return createNawatDenominalAndrews553OaIlHuiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-3-o-a-a-l-huia"
+        || ruleId === "55.3-o-a-il-huia-al-huia-applicative-note:o-a-a-l-huia"
+    ) {
+        return createNawatDenominalAndrews553OaAlHuiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-4-adverbial-huia"
+        || ruleId === "55.4-adverbial-huia:adverbial-huia"
+        || ruleId === "55.4-adverbial-huia"
+    ) {
+        return createNawatDenominalAndrews554AdverbialHuiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-5-relational-o-a"
+        || ruleId === "55.5-relational-compound-o-a-huia:relational-o-a"
+    ) {
+        return createNawatDenominalAndrews555RelationalOaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-5-relational-huia"
+        || ruleId === "55.5-relational-compound-o-a-huia:relational-huia"
+    ) {
+        return createNawatDenominalAndrews555RelationalHuiaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-6-i-hui"
+        || ruleId === "55.6-i-hui-a-hui-to-o-a:i-hui"
+    ) {
+        return createNawatDenominalAndrews556IHuiRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-6-a-hui"
+        || ruleId === "55.6-i-hui-a-hui-to-o-a:a-hui"
+    ) {
+        return createNawatDenominalAndrews556AHuiRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-6-o-a"
+        || ruleId === "55.6-i-hui-a-hui-to-o-a:o-a"
+    ) {
+        return createNawatDenominalAndrews556OaRuleContract();
+    }
+    if (
+        ruleId === "andrews-55-7-i-a"
+        || ruleId === "55.7-transitive-i-a:i-a"
+        || ruleId === "55.7-transitive-i-a"
+    ) {
+        return createNawatDenominalAndrews557IARuleContract();
+    }
+    return null;
+}
+
+function getNawatDenominalAndrewsExecutableRuleContractForRoute(contractId = "", routeTemplateId = "") {
+    const normalizedContractId = String(contractId || "").trim();
+    const normalizedTemplateId = String(routeTemplateId || "").trim();
+    if (normalizedContractId === "54.2.1-inceptive-stative-ti" && normalizedTemplateId === "ti") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-1-ti");
+    }
+    if (normalizedContractId === "54.2.2-inceptive-stative-hui" && normalizedTemplateId === "hui") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui");
+    }
+    if (normalizedContractId === "54.2.2-hui-lia-causative" && normalizedTemplateId === "hui-lia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia");
+    }
+    if (normalizedContractId === "54.2.3-inceptive-stative-ya" && normalizedTemplateId === "ya") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya");
+    }
+    if (normalizedContractId === "54.2.3-ti-ya-deverbal" && normalizedTemplateId === "ti-ya") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya");
+    }
+    if (normalizedContractId === "54.2.3-hui-ya-deverbal" && normalizedTemplateId === "hui-ya") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya");
+    }
+    if (normalizedContractId === "54.2.3-ya-lia-causative" && normalizedTemplateId === "ya-lia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia");
+    }
+    if (normalizedContractId === "54.2.4-inceptive-stative-a" && normalizedTemplateId === "a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-4-a");
+    }
+    if (normalizedContractId === "54.2.5-inceptive-stative-hua" && normalizedTemplateId === "hua") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua");
+    }
+    if (normalizedContractId === "54.3-included-possessor-ti" && normalizedTemplateId === "included-possessor-ti") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti");
+    }
+    if (normalizedContractId === "54.2-54.4-ti-lia-causative" && normalizedTemplateId === "ti-lia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia");
+    }
+    if (normalizedContractId === "54.5-ti-a-causative" && normalizedTemplateId === "ti-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a");
+    }
+    if (normalizedContractId === "54.6-t-ia-applicative" && normalizedTemplateId === "t-ia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia");
+    }
+    if (normalizedContractId === "55.1-temporal-tia" && normalizedTemplateId === "tia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia");
+    }
+    if (normalizedContractId === "55.2-causative-tla" && normalizedTemplateId === "tla") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-causative-tla");
+    }
+    if (normalizedContractId === "55.2-tla-ti-lia-applicative" && normalizedTemplateId === "tla-ti-lia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative");
+    }
+    if (normalizedContractId === "55.2-intransitive-tla" && normalizedTemplateId === "intransitive-tla") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla");
+    }
+    if (normalizedContractId === "55.2-intransitive-tla-ti-a-causative" && normalizedTemplateId === "intransitive-tla-ti-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a");
+    }
+    if (normalizedContractId === "55.2-intransitive-tla-ti-lia-applicative" && normalizedTemplateId === "intransitive-tla-ti-lia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia");
+    }
+    if (normalizedContractId === "55.3-intransitive-o-a-applicative-huia" && normalizedTemplateId === "o-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a");
+    }
+    if (normalizedContractId === "55.3-intransitive-o-a-applicative-huia" && normalizedTemplateId === "huia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-huia");
+    }
+    if (normalizedContractId === "55.3-o-a-il-huia-al-huia-applicative-note" && normalizedTemplateId === "o-a-i-l-huia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia");
+    }
+    if (normalizedContractId === "55.3-o-a-il-huia-al-huia-applicative-note" && normalizedTemplateId === "o-a-a-l-huia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia");
+    }
+    if (normalizedContractId === "55.4-adverbial-huia" && normalizedTemplateId === "adverbial-huia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia");
+    }
+    if (normalizedContractId === "55.5-relational-compound-o-a-huia" && normalizedTemplateId === "relational-o-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-o-a");
+    }
+    if (normalizedContractId === "55.5-relational-compound-o-a-huia" && normalizedTemplateId === "relational-huia") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-5-relational-huia");
+    }
+    if (normalizedContractId === "55.6-i-hui-a-hui-to-o-a" && normalizedTemplateId === "i-hui") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-i-hui");
+    }
+    if (normalizedContractId === "55.6-i-hui-a-hui-to-o-a" && normalizedTemplateId === "a-hui") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-a-hui");
+    }
+    if (normalizedContractId === "55.6-i-hui-a-hui-to-o-a" && normalizedTemplateId === "o-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a");
+    }
+    if (normalizedContractId === "55.7-transitive-i-a" && normalizedTemplateId === "i-a") {
+        return getNawatDenominalAndrewsExecutableRuleContract("andrews-55-7-i-a");
+    }
+    return null;
+}
+
+function getNawatDenominalAndrewsExecutableRuleContractsForContract(contractId = "") {
+    const rules = [];
+    ["ti", "hui", "hui-lia", "ya", "ti-ya", "hui-ya", "ya-lia", "a", "hua", "included-possessor-ti", "ti-lia", "ti-a", "t-ia", "tia", "tla", "tla-ti-lia", "intransitive-tla", "intransitive-tla-ti-a", "intransitive-tla-ti-lia", "i-hui", "a-hui", "o-a", "huia", "o-a-i-l-huia", "o-a-a-l-huia", "adverbial-huia", "relational-o-a", "relational-huia", "i-a"].forEach((routeTemplateId) => {
+        const rule = getNawatDenominalAndrewsExecutableRuleContractForRoute(contractId, routeTemplateId);
+        if (rule) {
+            rules.push(rule);
+        }
+    });
+    return rules;
+}
+
+function summarizeNawatDenominalAndrewsExecutableRuleContract(rule = null) {
+    if (!rule || typeof rule !== "object") {
+        return null;
+    }
+    return {
+        version: rule.version || 1,
+        id: rule.id || "",
+        contractId: rule.contractId || "",
+        routeTemplateId: rule.routeTemplateId || "",
+        range: rule.range || "",
+        authority: Array.isArray(rule.authority) ? Array.from(rule.authority) : [],
+        input: rule.input && typeof rule.input === "object" ? { ...rule.input } : null,
+        operation: rule.operation && typeof rule.operation === "object" ? { ...rule.operation } : null,
+        output: rule.output && typeof rule.output === "object"
+            ? {
+                ...rule.output,
+                stemClass: Array.isArray(rule.output.stemClass) ? Array.from(rule.output.stemClass) : [],
+            }
+            : null,
+    };
+}
+
+function executeNawatDenominalAndrewsExecutableRuleContract(id = "", ctx = {}) {
+    const rule = getNawatDenominalAndrewsExecutableRuleContract(id);
+    if (!rule || typeof rule.generate !== "function") {
+        return null;
+    }
+    return rule.generate(ctx);
+}
+
 function classifyNawatDenominalIAStemSourceFinal(template = null, sourceStemFinalLetter = "") {
     const finalLetter = String(sourceStemFinalLetter || "").trim();
     const majoritySourceFinalLetters = Array.isArray(template?.majoritySourceFinalLetters)
@@ -4771,6 +9419,11 @@ function normalizeNawatDenominalAndrewsRouteSourceEvidence(sourceEvidence = null
         yaSource: evidence.yaSource === true
             || sourceCategory === "inceptive-stative-ya-source"
             || sourceCategory === "intransitive-ya-source",
+        deverbalYoSource: evidence.deverbalYoSource === true
+            || evidence.deverbalYuSource === true
+            || sourceCategory === "deverbal-yo-nounstem"
+            || sourceCategory === "deverbal-yu-nounstem"
+            || sourceCategory === "deverbal-yu-nounstem-source",
         temporalCompoundSource: (evidence.temporalCompoundSource === true || temporalCompoundSourceCategory)
             && Boolean(temporalMatrix)
             && Boolean(temporalNumeralEmbed),
@@ -4779,11 +9432,18 @@ function normalizeNawatDenominalAndrewsRouteSourceEvidence(sourceEvidence = null
         relationalCompoundSource: evidence.relationalCompoundSource === true
             || hasCategory("relational"),
         tlaCausativeSource: evidence.tlaCausativeSource === true
-            || sourceCategory === "causative-tla",
+            || sourceCategory === "causative-tla"
+            || sourceCategory === "causative-tla-verbstem-source",
+        intransitiveTlaLexicalSource: evidence.intransitiveTlaLexicalSource === true
+            || evidence.intransitiveTlaNounstemSource === true
+            || sourceCategory === "intransitive-tla-lexical-source"
+            || sourceCategory === "intransitive-tla-nounstem-source",
         tlaIntransitiveSource: evidence.tlaIntransitiveSource === true
-            || sourceCategory === "intransitive-tla",
+            || sourceCategory === "intransitive-tla"
+            || sourceCategory === "intransitive-tla-verbstem-source",
         intransitiveOaSource: evidence.intransitiveOaSource === true
-            || sourceCategory === "intransitive-o-a",
+            || sourceCategory === "intransitive-o-a"
+            || sourceCategory === "intransitive-o-a-verbstem-source",
         iHuiOrAHuiSource: evidence.iHuiOrAHuiSource === true
             || sourceCategory === "i-hui-a-hui-source",
     };
@@ -4829,6 +9489,12 @@ function buildNawatDenominalAndrewsRouteSourceRequirement(template = null, {
         evidence.yaSource
     );
     addRequirement(
+        template?.requiresDeverbalYoSource === true,
+        "deverbal-yu-nounstem",
+        "deverbal (-yo)-tl nounstem source realized with Nawat/Pipil yu",
+        evidence.deverbalYoSource
+    );
+    addRequirement(
         template?.requiresTemporalCompoundSource === true,
         "temporal-compound-nounstem",
         "compound nounstem with a time-segment matrix and numeral embed",
@@ -4851,6 +9517,12 @@ function buildNawatDenominalAndrewsRouteSourceRequirement(template = null, {
         "tla-causative-source",
         "causative tla stem source",
         evidence.tlaCausativeSource
+    );
+    addRequirement(
+        template?.requiresIntransitiveTlaLexicalSource === true,
+        "intransitive-tla-lexical-source",
+        "confirmed source for the very limited intransitive tla note",
+        evidence.intransitiveTlaLexicalSource
     );
     addRequirement(
         template?.requiresTlaIntransitiveSource === true,
@@ -4910,6 +9582,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
                 noFixtureEvidence: true,
                 sourceEvidenceFromAndrewsContractRoute: true,
                 classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTiYaDeverbal: true,
                 sourceEvidenceSupportsTiLiaCausative: true,
                 sourceEvidenceSupportsTiACausative: true,
                 sourceEvidenceSupportsTIaApplicative: true,
@@ -4929,6 +9602,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
                 noFixtureEvidence: true,
                 sourceEvidenceFromAndrewsContractRoute: true,
                 classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsHuiYaDeverbal: true,
                 sourceEvidenceSupportsHuiLiaCausative: true,
             },
         };
@@ -5019,6 +9693,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
         return {
             tlaCausativeSource: true,
             sourceCategory: "causative-tla",
+            sourceState: "derived",
             sourceContractId: contractId,
             sourceRouteTemplateId: routeTemplateId,
             sourceBaseStem,
@@ -5027,6 +9702,8 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
                 noFixtureEvidence: true,
                 sourceEvidenceFromAndrewsContractRoute: true,
                 classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTlaTiLiaApplicative: true,
+                sourceTlaReplacedByTiBeforeLia: true,
             },
         };
     }
@@ -5034,6 +9711,7 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
         return {
             tlaIntransitiveSource: true,
             sourceCategory: "intransitive-tla",
+            sourceState: "derived",
             sourceContractId: contractId,
             sourceRouteTemplateId: routeTemplateId,
             sourceBaseStem,
@@ -5044,6 +9722,8 @@ function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = 
                 classicalRuleSpellingsConvertedToNawat: true,
                 sourceEvidenceSupportsIntransitiveTlaTiACausative: true,
                 sourceEvidenceSupportsIntransitiveTlaTiLiaApplicative: true,
+                sourceTlaReplacedByTiBeforeA: true,
+                sourceTlaReplacedByTiBeforeLia: true,
             },
         };
     }
@@ -5185,6 +9865,481 @@ function previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput
     };
 }
 
+function buildNawatDenominalAndrewsInceptiveTiSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const categoryProfile = nncBasic.categoryProfile && typeof nncBasic.categoryProfile === "object"
+        ? nncBasic.categoryProfile
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const predicateState = String(
+        nncOutput.state
+        || formulaSlots?.predicate?.state
+        || categoryProfile.predicateState?.value
+        || ""
+    ).trim();
+    if (predicateState !== "absolutive") {
+        return null;
+    }
+    const sourcePredicateStem = normalizeNawatDenominalContractSourceStem(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    );
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    if (!sourcePredicateStem || !sourceSurface) {
+        return null;
+    }
+    return {
+        inceptiveTiSource: true,
+        sourceState: "absolutive",
+        sourceCategory: "absolutive-state-nnc-predicate",
+        sourceSurface,
+        sourceBaseStem: sourcePredicateStem,
+        sourcePredicateStem,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveTiSourceRequiresAbsolutivePredicate: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsInceptiveTiRouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsInceptiveTiSourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.2.1-inceptive-stative-ti",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2.1", role: "inceptive-stative-ti-denominal-route" },
+        outputKind: "denominal-andrews-inceptive-ti-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveTiSourceRequiresAbsolutivePredicate: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsInceptiveHuiSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const categoryProfile = nncBasic.categoryProfile && typeof nncBasic.categoryProfile === "object"
+        ? nncBasic.categoryProfile
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const predicateState = String(
+        nncOutput.state
+        || formulaSlots?.predicate?.state
+        || categoryProfile.predicateState?.value
+        || ""
+    ).trim();
+    if (predicateState !== "absolutive") {
+        return null;
+    }
+    const sourcePredicateStem = normalizeNawatDenominalContractSourceStem(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    );
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    if (!sourcePredicateStem || !sourceSurface) {
+        return null;
+    }
+    return {
+        inceptiveHuiSource: true,
+        sourceState: "absolutive",
+        sourceCategory: "absolutive-state-nnc-predicate",
+        sourceSurface,
+        sourceBaseStem: sourcePredicateStem,
+        sourcePredicateStem,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveHuiSourceRequiresAbsolutivePredicate: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsInceptiveHuiRouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsInceptiveHuiSourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.2.2-inceptive-stative-hui",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2.2", role: "inceptive-stative-hui-denominal-route" },
+        outputKind: "denominal-andrews-inceptive-hui-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveHuiSourceRequiresAbsolutivePredicate: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsRootPlusYaSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const categoryProfile = nncBasic.categoryProfile && typeof nncBasic.categoryProfile === "object"
+        ? nncBasic.categoryProfile
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const predicateState = String(
+        nncOutput.state
+        || formulaSlots?.predicate?.state
+        || categoryProfile.predicateState?.value
+        || ""
+    ).trim();
+    if (predicateState !== "absolutive") {
+        return null;
+    }
+    const sourcePredicateStem = normalizeNawatDenominalContractSourceStem(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    );
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    if (!sourcePredicateStem || !sourceSurface) {
+        return null;
+    }
+    return {
+        rootPlusYaSource: true,
+        sourceState: "absolutive",
+        sourceCategory: "nounstem-as-root",
+        sourceSurface,
+        sourceBaseStem: sourcePredicateStem,
+        sourcePredicateStem,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            sourceNounstemDowngradedToRootRank: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsRootPlusYaRouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsRootPlusYaSourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.2.3-inceptive-stative-ya",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2.3", role: "root-plus-ya-denominal-route" },
+        outputKind: "denominal-andrews-root-plus-ya-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            sourceNounstemDowngradedToRootRank: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsInceptiveASourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const categoryProfile = nncBasic.categoryProfile && typeof nncBasic.categoryProfile === "object"
+        ? nncBasic.categoryProfile
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const predicateState = String(
+        nncOutput.state
+        || formulaSlots?.predicate?.state
+        || categoryProfile.predicateState?.value
+        || ""
+    ).trim();
+    if (predicateState !== "absolutive") {
+        return null;
+    }
+    const sourcePredicateStem = normalizeNawatDenominalContractSourceStem(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    );
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    if (!sourcePredicateStem || !sourceSurface) {
+        return null;
+    }
+    return {
+        inceptiveASource: true,
+        sourceState: "absolutive",
+        sourceCategory: "absolutive-nounstem",
+        sourceSurface,
+        sourceBaseStem: sourcePredicateStem,
+        sourcePredicateStem,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveASourceRequiresAbsolutiveNounstem: true,
+            limitedUse: true,
+            notCausativeA: true,
+            targetLooksTransitiveButIsIntransitive: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsInceptiveARouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsInceptiveASourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.2.4-inceptive-stative-a",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2.4", role: "limited-inceptive-stative-a-denominal-route" },
+        outputKind: "denominal-andrews-inceptive-a-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            inceptiveASourceRequiresAbsolutiveNounstem: true,
+            limitedUse: true,
+            notCausativeA: true,
+            targetLooksTransitiveButIsIntransitive: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function normalizeNawatDenominalAndrewsHuaCharacteristicPropertySourceStem(surface = "") {
+    const normalizedSurface = normalizeNawatDenominalContractSourceStem(surface);
+    if (!normalizedSurface || !normalizedSurface.endsWith("yut")) {
+        return "";
+    }
+    return normalizedSurface.slice(0, -1);
+}
+
+function buildNawatDenominalAndrewsHuaSourceEvidenceRecordsFromCharacteristicPropertyOutput(output = null) {
+    if (!output || typeof output !== "object" || output.error || output.supported === false) {
+        return [];
+    }
+    const nominalizationProfile = output.nominalizationProfile && typeof output.nominalizationProfile === "object"
+        ? output.nominalizationProfile
+        : {};
+    const nominalKind = String(nominalizationProfile.nominalKind || "").trim();
+    const nominalizationKind = String(nominalizationProfile.role?.nominalizationKind || "").trim();
+    const predicateState = String(
+        nominalizationProfile.predicateState?.value
+        || output.nuclearClauseShell?.slots?.predicate?.state
+        || ""
+    ).trim();
+    if (
+        nominalKind !== "calificativo-instrumentivo"
+        || nominalizationKind !== "quality-result"
+        || predicateState !== "absolutive"
+    ) {
+        return [];
+    }
+    const sourceSurfaces = getStateResultSurfaceForms(output);
+    if (hasStateResultFrame(output) && !sourceSurfaces.length) {
+        return [];
+    }
+    const sourceFormulaEcho = String(output.nuclearClauseShell?.formulaEcho || "").trim();
+    const sourceOutputKind = String(
+        nominalizationProfile.outputKind
+        || output.outputKind
+        || output.generationRoute
+        || ""
+    ).trim();
+    const records = [];
+    sourceSurfaces.forEach((sourceSurface) => {
+        const sourceBaseStem = normalizeNawatDenominalAndrewsHuaCharacteristicPropertySourceStem(sourceSurface);
+        if (!sourceBaseStem || records.some((record) => record.sourceBaseStem === sourceBaseStem)) {
+            return;
+        }
+        const sourcePredicateStem = sourceBaseStem.endsWith("yu")
+            ? sourceBaseStem.slice(0, -2)
+            : sourceBaseStem;
+        records.push({
+            deverbalYoSource: true,
+            deverbalYuSource: true,
+            huaSource: true,
+            sourceState: "absolutive",
+            sourceCategory: "deverbal-yu-nounstem",
+            sourceSurface,
+            sourceBaseStem,
+            sourcePredicateStem,
+            sourceEmbeddedStem: sourcePredicateStem,
+            sourceFormulaEcho,
+            sourceOutputKind,
+            sourceNominalKind: nominalKind,
+            sourceNominalizationKind: nominalizationKind,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotCreateLexicalEvidence: true,
+                sourceEvidenceFromGeneratedOutput: true,
+                sourceEvidenceFromGeneratedCalificativoInstrumentivo: true,
+                sourceEvidenceFromGeneratedCharacteristicPropertyNnc: true,
+                deverbalYuMatrixFromCharacteristicProperty: true,
+                absolutiveConnectorTStrippedForSourceStem: true,
+                sourceNounstemEndsInYu: true,
+                deverbalYuSourceRequiredByAndrews5425Hua: true,
+                notOaFormation: true,
+                noClassicalSurfaceImport: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        });
+    });
+    return records;
+}
+
+function buildNawatDenominalAndrewsHuaSourceEvidenceFromCharacteristicPropertyOutput(output = null) {
+    return buildNawatDenominalAndrewsHuaSourceEvidenceRecordsFromCharacteristicPropertyOutput(output)[0] || null;
+}
+
+function previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(output = null) {
+    const sourceEvidences = buildNawatDenominalAndrewsHuaSourceEvidenceRecordsFromCharacteristicPropertyOutput(output);
+    if (!sourceEvidences.length) {
+        return null;
+    }
+    const routePreviews = sourceEvidences.map((sourceEvidence) => generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.2.5-inceptive-stative-hua",
+        sourceEvidence,
+    }));
+    const routes = routePreviews.flatMap((preview) => Array.isArray(preview?.routes) ? preview.routes : []);
+    const routePreview = {
+        version: 1,
+        outputKind: "denominal-andrews-hua-route-preview-set",
+        contractId: "54.2.5-inceptive-stative-hua",
+        routes,
+        routeTargetCount: routes.length,
+        finiteRouteRequestCount: routes.filter((route) => route?.finiteGenerationContractAvailable === true).length,
+        finiteRouteObjectPrefixRequiredCount: routes.filter((route) => route?.finiteGenerationRequiresObjectPrefix === true).length,
+    };
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2.5", role: "deverbal-yu-hua-denominal-route" },
+        outputKind: "denominal-andrews-hua-route-preview",
+        source: "generated-calificativo-instrumentivo-output",
+        sourceStem: sourceEvidences[0]?.sourceBaseStem || "",
+        sourceEvidence: sourceEvidences[0] || null,
+        sourceEvidences,
+        routePreview,
+        routePreviews,
+        candidateRouteCount: routes.length,
+        finiteRouteRequestCount: routePreview.finiteRouteRequestCount,
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOutput: true,
+            sourceEvidenceFromGeneratedCalificativoInstrumentivo: true,
+            sourceEvidenceFromGeneratedCharacteristicPropertyNnc: true,
+            sourceNounstemEndsInYu: true,
+            absolutiveConnectorTStrippedForSourceStem: true,
+            deverbalYuSourceRequiredByAndrews5425Hua: true,
+            notOaFormation: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
 function buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
     if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
         return null;
@@ -5205,6 +10360,9 @@ function buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutp
         return null;
     }
     const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    if (hasStateResultFrame(nncOutput) && !sourceSurface) {
+        return null;
+    }
     return {
         possessionTiSource: true,
         sourceState: String(nncOutput.state || formulaSlots?.predicate?.state || "").trim(),
@@ -5258,17 +10416,43 @@ function previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput(nncO
     };
 }
 
-function buildNawatDenominalAndrewsTemporalTiaSourceEvidence({
+function resolveNawatDenominalAndrewsExplicitSourceSurface(source = null, {
     sourceStem = "",
     sourceSurface = "",
-    sourceState = "absolutive",
-    sourceKind = "compound-temporal-nounstem",
-    timeSegmentMatrix = "",
-    numeralEmbed = "",
-    sourceFormulaEcho = "",
-    sourceNote = "",
 } = {}) {
-    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+    const sourceRecord = source && typeof source === "object" ? source : null;
+    const framedSurface = getStateResultSurfaceForms(sourceRecord)[0] || "";
+    if (framedSurface) {
+        return normalizeNawatDenominalContractSourceStem(framedSurface);
+    }
+    if (hasStateResultFrame(sourceRecord)) {
+        return "";
+    }
+    return normalizeNawatDenominalContractSourceStem(
+        sourceSurface
+        || sourceRecord?.surface
+        || sourceStem
+        || sourceRecord?.result
+        || ""
+    );
+}
+
+function buildNawatDenominalAndrewsTemporalTiaSourceEvidence(source = {}) {
+    const sourceRecord = source && typeof source === "object" ? source : {};
+    const {
+        sourceStem = "",
+        sourceSurface = "",
+        sourceState = "absolutive",
+        sourceKind = "compound-temporal-nounstem",
+        timeSegmentMatrix = "",
+        numeralEmbed = "",
+        sourceFormulaEcho = "",
+        sourceNote = "",
+    } = sourceRecord;
+    const sourceBaseStem = resolveNawatDenominalAndrewsExplicitSourceSurface(sourceRecord, {
+        sourceStem,
+        sourceSurface,
+    });
     if (!sourceBaseStem) {
         return null;
     }
@@ -5277,7 +10461,7 @@ function buildNawatDenominalAndrewsTemporalTiaSourceEvidence({
     if (!normalizedTimeSegmentMatrix || !normalizedNumeralEmbed) {
         return null;
     }
-    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    const normalizedSourceSurface = sourceBaseStem;
     const requestedSourceKind = String(sourceKind || "compound-temporal-nounstem").trim();
     const normalizedSourceKind = requestedSourceKind === "compound-temporal-nnc"
         ? requestedSourceKind
@@ -5338,17 +10522,22 @@ function previewNawatDenominalAndrewsTemporalTiaRouteFromSource(source = {}) {
     };
 }
 
-function buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence({
-    sourceStem = "",
-    sourceSurface = "",
-    sourceFormulaEcho = "",
-    sourceNote = "",
-} = {}) {
-    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+function buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence(source = {}) {
+    const sourceRecord = source && typeof source === "object" ? source : {};
+    const {
+        sourceStem = "",
+        sourceSurface = "",
+        sourceFormulaEcho = "",
+        sourceNote = "",
+    } = sourceRecord;
+    const sourceBaseStem = resolveNawatDenominalAndrewsExplicitSourceSurface(sourceRecord, {
+        sourceStem,
+        sourceSurface,
+    });
     if (!sourceBaseStem) {
         return null;
     }
-    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    const normalizedSourceSurface = sourceBaseStem;
     return {
         adverbialSource: true,
         sourceState: "adverbialized",
@@ -5401,19 +10590,24 @@ function previewNawatDenominalAndrewsAdverbialHuiaRouteFromSource(source = {}) {
     };
 }
 
-function buildNawatDenominalAndrewsRelationalCompoundSourceEvidence({
-    sourceStem = "",
-    sourceSurface = "",
-    sourceState = "relational",
-    sourceKind = "compound-relational-nounstem",
-    sourceFormulaEcho = "",
-    sourceNote = "",
-} = {}) {
-    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+function buildNawatDenominalAndrewsRelationalCompoundSourceEvidence(source = {}) {
+    const sourceRecord = source && typeof source === "object" ? source : {};
+    const {
+        sourceStem = "",
+        sourceSurface = "",
+        sourceState = "relational",
+        sourceKind = "compound-relational-nounstem",
+        sourceFormulaEcho = "",
+        sourceNote = "",
+    } = sourceRecord;
+    const sourceBaseStem = resolveNawatDenominalAndrewsExplicitSourceSurface(sourceRecord, {
+        sourceStem,
+        sourceSurface,
+    });
     if (!sourceBaseStem) {
         return null;
     }
-    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    const normalizedSourceSurface = sourceBaseStem;
     const normalizedSourceKind = String(sourceKind || "compound-relational-nounstem").trim();
     return {
         relationalCompoundSource: true,
@@ -5657,6 +10851,8 @@ function attachNawatDenominalAndrewsContractGrammarFrame(record = null, {
         },
         targetContract: {
             unitKind: "vnc",
+            executableRuleId: record.executableRuleId || "",
+            executableRuleContract: record.executableRuleContract || record.ruleContract || null,
             targetCategory: record.targetCategory || "vnc",
             targetValency: record.targetValency || "",
             targetVerbStem: resolvedTargetStem,
@@ -5680,11 +10876,14 @@ function attachNawatDenominalAndrewsContractGrammarFrame(record = null, {
         },
         morphBoundaryFrame: {
             kind: "denominal-andrews-contract-boundary",
+            executableRuleId: record.executableRuleId || "",
+            executableRuleContract: record.executableRuleContract || record.ruleContract || null,
             suffix: suffixFrame,
             boundaries: record.boundaries || null,
         },
         stemFrame: {
             stemKind: "denominal-target-verbstem",
+            executableRuleId: record.executableRuleId || "",
             sourceKind: record.sourceCategory || "",
             sourceStem: resolvedSourceStem,
             targetStem: resolvedTargetStem,
@@ -5744,6 +10943,20 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
     const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(normalizedSourceStem);
     const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
     const targetStemClass = stemClassContract.targetStemClass;
+    const executableRule = getNawatDenominalAndrewsExecutableRuleContractForRoute(contract.id, template.id);
+    const executableRuleContract = summarizeNawatDenominalAndrewsExecutableRuleContract(executableRule);
+    const executableRuleResult = executableRule && typeof executableRule.generate === "function"
+        ? executableRule.generate({
+            sourceStem: normalizedSourceStem,
+            sourceState: sourceEvidence?.sourceState || contract.sourceState || "",
+            sourceCategory: sourceEvidence?.sourceCategory || contract.sourceCategory || "",
+            sourceEvidence,
+        })
+        : null;
+    const executableRuleBlocked = executableRuleResult?.ok === false;
+    const executableRuleDiagnostics = Array.isArray(executableRuleResult?.diagnostics)
+        ? executableRuleResult.diagnostics
+        : [];
     const majoritySourceFinalLetters = Array.isArray(template.majoritySourceFinalLetters)
         ? Array.from(template.majoritySourceFinalLetters)
         : [];
@@ -5753,24 +10966,30 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
     const sourceRequirement = buildNawatDenominalAndrewsRouteSourceRequirement(template, {
         sourceEvidence,
     });
-    const routeDiagnostics = buildNawatDenominalAndrewsRouteDiagnostics({
-        contract,
-        template,
+    const routeDiagnostics = [
+        ...buildNawatDenominalAndrewsRouteDiagnostics({
+            contract,
+            template,
+            sourceStem: normalizedSourceStem,
+            sourceStemFinalLetter,
+            sourceFinalPattern,
+            sourceRequirement,
+        }),
+        ...executableRuleDiagnostics,
+    ];
+    const targetInputValue = executableRuleBlocked ? "" : formatNawatDenominalAndrewsContractTargetInput({
         sourceStem: normalizedSourceStem,
-        sourceStemFinalLetter,
-        sourceFinalPattern,
-        sourceRequirement,
-    });
-    const targetInputValue = formatNawatDenominalAndrewsContractTargetInput({
-        sourceStem: normalizedSourceStem,
-        targetVerbStem,
+        targetVerbStem: executableRuleResult?.targetVerbStem || targetVerbStem,
         suffix,
         template,
     });
     const objectSlotExpected = isNawatDenominalAndrewsContractRouteObjectSlotExpected({
         targetValency: template.targetValency || contract.valency || "",
     });
-    const finiteGenerationContractAvailable = sourceRequirement.finiteGenerationRequiresSourceEvidence !== true;
+    const finiteGenerationContractAvailable = (
+        !executableRuleBlocked
+        && sourceRequirement.finiteGenerationRequiresSourceEvidence !== true
+    );
     const route = {
         version: 1,
         curriculumRef: contract.curriculumRef,
@@ -5803,15 +11022,17 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
         classicalSuffixSequence: suffix.classicalSuffixSequence,
         nawatRuleSuffix: suffix.nawatRuleSuffix,
         nawatSurfaceSuffix: suffix.nawatSurfaceSuffix,
-        targetVerbStem,
+        executableRuleId: executableRuleContract?.id || "",
+        executableRuleContract,
+        targetVerbStem: executableRuleBlocked ? "" : (executableRuleResult?.targetVerbStem || targetVerbStem),
         targetInputValue,
         targetInput: targetInputValue,
         orthographyConversion: suffix.orthographyConversion,
         currentRouteFamilies: contract.currentRouteFamilies,
         currentRouteIds: contract.currentRouteIds,
         supportStatus: contract.supportStatus,
-        generationStatus: "vnc-stem-contract-generated",
-        routeTargetGenerated: true,
+        generationStatus: executableRuleBlocked ? "blocked-by-executable-rule" : "vnc-stem-contract-generated",
+        routeTargetGenerated: !executableRuleBlocked,
         generationAllowed: false,
         finiteGenerationAllowed: false,
         finiteGenerationContractAvailable,
@@ -5829,6 +11050,8 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
             noNewSurfaceForms: true,
             noFixtureEvidence: true,
             doesNotCreateLexicalEvidence: true,
+            usesExecutableAndrewsRuleContract: Boolean(executableRuleContract),
+            finiteGenerationBlockedByRuleContract: executableRuleBlocked,
             doesNotGenerateFiniteVnc: true,
             noFiniteVncSurface: true,
             noNewFixtureSurfaceForms: true,
@@ -5863,6 +11086,7 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
             requiresTiSource: template.requiresTiSource === true,
             requiresHuiSource: template.requiresHuiSource === true,
             requiresYaSource: template.requiresYaSource === true,
+            requiresDeverbalYoSource: template.requiresDeverbalYoSource === true,
             requiresTemporalCompoundSource: template.requiresTemporalCompoundSource === true,
             requiresAdverbialSource: template.requiresAdverbialSource === true,
             requiresRelationalCompoundSource: template.requiresRelationalCompoundSource === true,
@@ -5887,11 +11111,11 @@ function buildNawatDenominalAndrewsContractRoute(contract = null, template = nul
     return attachNawatDenominalAndrewsContractGrammarFrame(route, {
         routeStage: "preview-stem-route",
         generationAllowed: false,
-        supported: true,
+        supported: !executableRuleBlocked,
         diagnostics: routeDiagnostics,
         sourceEvidence,
         sourceStem: normalizedSourceStem,
-        targetStem: targetVerbStem,
+        targetStem: route.targetVerbStem,
         targetInput: targetInputValue,
     });
 }
@@ -5953,6 +11177,8 @@ function buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route = null
             outputKind: "denominal-andrews-contract-route-generate-word-request",
             contractId: route.contractId || "",
             routeTemplateId: route.routeTemplateId || "",
+            executableRuleId: route.executableRuleId || "",
+            executableRuleContract: route.executableRuleContract || null,
             range: route.range || "",
             sourceStem: route.sourceStem || "",
             sourceStemFinalLetter: route.sourceStemFinalLetter || "",
@@ -6053,6 +11279,7 @@ function buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route = null
                 requiresTiSource: route.boundaries?.requiresTiSource === true,
                 requiresHuiSource: route.boundaries?.requiresHuiSource === true,
                 requiresYaSource: route.boundaries?.requiresYaSource === true,
+                requiresDeverbalYoSource: route.boundaries?.requiresDeverbalYoSource === true,
                 requiresTemporalCompoundSource: route.boundaries?.requiresTemporalCompoundSource === true,
                 requiresAdverbialSource: route.boundaries?.requiresAdverbialSource === true,
                 requiresRelationalCompoundSource: route.boundaries?.requiresRelationalCompoundSource === true,
@@ -6098,6 +11325,8 @@ function executeNawatDenominalAndrewsContractRoute(route = null, options = {}) {
             outputKind: "denominal-andrews-contract-route-execution",
             contractId: request.denominalAndrewsContractRoute.contractId,
             routeTemplateId: request.denominalAndrewsContractRoute.routeTemplateId,
+            executableRuleId: request.denominalAndrewsContractRoute.executableRuleId,
+            executableRuleContract: request.denominalAndrewsContractRoute.executableRuleContract || null,
             sourceStem: request.denominalAndrewsContractRoute.sourceStem,
             sourceStemFinalLetter: request.denominalAndrewsContractRoute.sourceStemFinalLetter,
             sourceFinalPatternStatus: request.denominalAndrewsContractRoute.sourceFinalPatternStatus,
@@ -6169,6 +11398,91 @@ function executeNawatDenominalAndrewsContractRoute(route = null, options = {}) {
     };
 }
 
+let activeNawatDenominalAndrewsContractRouteContext = null;
+
+function getNawatDenominalAndrewsRouteComparableInputs(context = null) {
+    const targetInput = String(context?.targetInput || "").trim();
+    const targetVerbStem = String(context?.targetVerbStem || "").trim();
+    return [
+        targetInput,
+        targetVerbStem ? wrapNawatRouteInputValue(targetVerbStem) : "",
+        targetVerbStem,
+    ].filter(Boolean);
+}
+
+function setActiveNawatDenominalAndrewsContractRouteContext(route = null, request = null) {
+    const contractRoute = request?.denominalAndrewsContractRoute || route;
+    if (!contractRoute || typeof contractRoute !== "object") {
+        activeNawatDenominalAndrewsContractRouteContext = null;
+        return null;
+    }
+    const nextSourcePreview = previewNawatDenominalAndrewsContractRouteNextSource(contractRoute);
+    const context = {
+        version: 1,
+        outputKind: "active-denominal-andrews-contract-route-context",
+        source: "denominal-andrews-contract-route-activation",
+        contractId: contractRoute.contractId || "",
+        routeTemplateId: contractRoute.routeTemplateId || "",
+        executableRuleId: contractRoute.executableRuleId || "",
+        sourceStem: contractRoute.sourceStem || "",
+        targetInput: contractRoute.targetInput || "",
+        targetVerbStem: contractRoute.targetVerbStem || "",
+        tense: contractRoute.tense || "",
+        objectPrefix: contractRoute.objectPrefix || "",
+        route: contractRoute,
+        nextSourceEvidence: contractRoute.nextSourceEvidence || nextSourcePreview?.sourceEvidence || null,
+        nextSourcePreview,
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            activeContextMustMatchCurrentInput: true,
+            sourceEvidenceFromAndrewsContractRoute: Boolean(nextSourcePreview?.sourceEvidence),
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+    activeNawatDenominalAndrewsContractRouteContext = context;
+    return context;
+}
+
+function clearActiveNawatDenominalAndrewsContractRouteContext() {
+    activeNawatDenominalAndrewsContractRouteContext = null;
+}
+
+function getActiveNawatDenominalAndrewsContractRouteContext({
+    inputValue = "",
+    targetInput = "",
+    targetVerbStem = "",
+} = {}) {
+    const context = activeNawatDenominalAndrewsContractRouteContext;
+    if (!context) {
+        return null;
+    }
+    const requestedInput = String(inputValue || targetInput || targetVerbStem || "").trim();
+    if (!requestedInput) {
+        return context;
+    }
+    const comparableInputs = getNawatDenominalAndrewsRouteComparableInputs(context);
+    return comparableInputs.includes(requestedInput) ? context : null;
+}
+
+function previewActiveNawatDenominalAndrewsContractRouteNextSource(options = {}) {
+    const context = getActiveNawatDenominalAndrewsContractRouteContext(options);
+    if (!context?.route) {
+        return null;
+    }
+    if (context.nextSourcePreview) {
+        return context.nextSourcePreview;
+    }
+    return previewNawatDenominalAndrewsContractRouteNextSource(context.route);
+}
+
+if (typeof globalThis !== "undefined") {
+    globalThis.setActiveNawatDenominalAndrewsContractRouteContext = setActiveNawatDenominalAndrewsContractRouteContext;
+    globalThis.clearActiveNawatDenominalAndrewsContractRouteContext = clearActiveNawatDenominalAndrewsContractRouteContext;
+    globalThis.getActiveNawatDenominalAndrewsContractRouteContext = getActiveNawatDenominalAndrewsContractRouteContext;
+    globalThis.previewActiveNawatDenominalAndrewsContractRouteNextSource = previewActiveNawatDenominalAndrewsContractRouteNextSource;
+}
+
 function activateNawatDenominalAndrewsContractRouteTarget(route = null, {
     tense = "",
     targetTense = "",
@@ -6188,6 +11502,7 @@ function activateNawatDenominalAndrewsContractRouteTarget(route = null, {
         return null;
     }
     const contractRoute = request.denominalAndrewsContractRoute;
+    let activeContext = null;
     const applyActivation = () => {
         if (typeof setActiveTenseMode === "function") {
             setActiveTenseMode(TENSE_MODE.verbo, {
@@ -6196,6 +11511,18 @@ function activateNawatDenominalAndrewsContractRouteTarget(route = null, {
                     : "nawat",
             });
         }
+        const ordinaryNncWasActive = typeof isOrdinaryNncGenerationModeEnabled === "function"
+            && isOrdinaryNncGenerationModeEnabled();
+        if (typeof setOrdinaryNncGenerationModeEnabled === "function") {
+            setOrdinaryNncGenerationModeEnabled(false);
+        }
+        if (typeof setComposerEntryBoard === "function") {
+            const plainComposerBoard = typeof COMPOSER_ENTRY_BOARD !== "undefined"
+                ? (COMPOSER_ENTRY_BOARD.general || "general")
+                : "general";
+            setComposerEntryBoard(plainComposerBoard, { force: ordinaryNncWasActive });
+        }
+        activeContext = setActiveNawatDenominalAndrewsContractRouteContext(route, request);
         if (typeof setActiveDerivationMode === "function") {
             setActiveDerivationMode(DERIVATION_MODE.active);
         }
@@ -6244,16 +11571,20 @@ function activateNawatDenominalAndrewsContractRouteTarget(route = null, {
         outputKind: "denominal-andrews-contract-route-activation",
         contractId: contractRoute.contractId,
         routeTemplateId: contractRoute.routeTemplateId,
+        executableRuleId: contractRoute.executableRuleId,
+        executableRuleContract: contractRoute.executableRuleContract || null,
         sourceStem: contractRoute.sourceStem,
         targetInput: contractRoute.targetInput,
         targetVerbStem: contractRoute.targetVerbStem,
         tense: contractRoute.tense,
         objectPrefix: contractRoute.objectPrefix,
         request,
+        activeContext,
         boundaries: {
             noFixtureEvidence: true,
             doesNotCreateLexicalEvidence: true,
             usesExistingVncEngine: true,
+            storesActiveAndrewsRouteContext: Boolean(activeContext),
             explicitUserRouteActivation: true,
             classicalRuleSpellingsConvertedToNawat: true,
         },
@@ -6656,11 +11987,10 @@ function resolveNawatRouteSourceStateMetadata(routeKeyOrProfile = "", {
         || null;
     const verbalizerStation = stations.find((station) => station.key === "verbalizer")
         || null;
+    const stemStationSurface = getNawatRouteStationSurfaceText(stemStation);
     const sourceSurface = String(
-        stemStation?.inputValue
-        || stemStation?.surface
-        || resolvedTarget.sourceStem
-        || explicitSourceStem
+        stemStationSurface
+        || (!hasStateResultFrame(stemStation) ? (resolvedTarget.sourceStem || explicitSourceStem) : "")
         || ""
     ).trim();
     const sourceInput = String(

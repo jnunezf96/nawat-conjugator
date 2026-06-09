@@ -175,6 +175,9 @@ export function createAdverbialAdjunctionGlobals(targetObject = globalThis) {
         return String(fallback || "").trim();
       }
       const surface = getAdverbialAdjunctionSurfaceForms(input)[0];
+      if (getAdverbialAdjunctionResultFrame(input)?.resultFrame) {
+        return String(surface || "").trim();
+      }
       return String(surface || fallback || "").trim();
     }
     function splitAdverbialAdjunctionSurfaceText(value = "") {

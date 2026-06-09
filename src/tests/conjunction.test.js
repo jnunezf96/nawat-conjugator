@@ -242,6 +242,35 @@ function run(ctx) {
         }
     );
     s.eq(
+        "conjunction surface helper suppresses fallback for an empty LCM result frame",
+        (() => {
+            const emptyFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    surface: "",
+                    surfaceForms: [],
+                    outputKind: "blocked-conjunction-source",
+                }),
+            });
+            const input = {
+                surface: "stale-surface",
+                surfaceForms: ["stale-a / stale-b"],
+                surfaceDisplay: "stale-display",
+                result: "stale-result",
+                word: "stale-word",
+                frames: emptyFrame,
+            };
+            return {
+                surface: ctx.getConjunctionClauseSurface(input, "fallback-conjunct"),
+                forms: ctx.getConjunctionClauseSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
+        }
+    );
+    s.eq(
         "conjunction AST reads surfaceForms before legacy result",
         (() => {
             const ast = ctx.buildConjunctionClauseAst({

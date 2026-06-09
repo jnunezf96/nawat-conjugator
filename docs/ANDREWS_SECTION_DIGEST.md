@@ -1,6 +1,6 @@
 # Andrews Section Digest
 
-Source PDF: `/Users/jaimenunez/Documents/Nahuat World/Classical/Linguistics/[Andrews] Introduction to Classical Nahuatl.pdf`
+Source PDF: `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf`
 
 Generated from the local PDF with bundled Python/pypdf on 2026-06-08. This document is a section-index digest for engineering memory. It paraphrases topics and uses generated keyword labels for internal subitems; verify the PDF wording before implementing rules or adding forms.
 

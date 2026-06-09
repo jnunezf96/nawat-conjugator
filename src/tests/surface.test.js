@@ -244,6 +244,16 @@ function run(ctx) {
         }
     );
     s.eq(
+        "blocked provenance primary stem suppresses stale top-level surface",
+        ctx.getProvenancePrimaryStemSurface(blockedFramedProvenance),
+        ""
+    );
+    s.eq(
+        "blocked provenance primary stem suppresses stale variant surface",
+        ctx.getProvenancePrimaryStemSurface({ variants: [blockedFramedProvenance] }),
+        ""
+    );
+    s.eq(
         "provenance primary stem prefers first variant surface",
         ctx.getProvenancePrimaryStemSurface({ variants: [provenanceVariant] }),
         "nemij"
