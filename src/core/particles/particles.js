@@ -78,6 +78,20 @@ const PARTICLE_ANTI_CONFLATION_RULES = Object.freeze([
     "Andrews particle categories are architecture, not Nawat/Pipil form authority",
 ]);
 
+function attachParticleGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "particle-metadata",
+        routeFamily: "particle-placement",
+        structuralSource: "Andrews Lesson 3",
+        andrewsRefs: ["Andrews Lesson 3"],
+        ...options,
+    });
+}
+
 function cloneParticlePlacementFrame(frame = {}) {
     return { ...frame };
 }
@@ -119,7 +133,7 @@ function buildParticlePlacementMetadata({
 } = {}) {
     const placement = getParticlePlacementFrame(placementScope);
     const normalizedFunctionScope = normalizeParticleFunctionScope(functionScope);
-    return {
+    const metadata = {
         kind: "particle-placement-metadata",
         version: PARTICLE_METADATA_VERSION,
         structuralSource: "Andrews Lesson 3",
@@ -143,6 +157,23 @@ function buildParticlePlacementMetadata({
         ],
         antiConflationRules: getParticleAntiConflationRules(),
     };
+    return attachParticleGrammarContract(metadata, {
+        metadataKind: "particle-placement-metadata",
+        routeStage: "classify-placement",
+        sourceInput: metadata.candidate,
+        supported: false,
+        nuclearClauseFrame: {
+            hostLayer: metadata.placement.hostLayer,
+            placementScope: metadata.placement.scope,
+            functionScope: metadata.functionScope,
+        },
+        targetContract: {
+            metadataKind: "particle-placement-metadata",
+            generationAllowed: false,
+            placementScope: metadata.placement.scope,
+            functionScope: metadata.functionScope,
+        },
+    });
 }
 
 function classifyParticleCandidate(value = "", options = {}) {
@@ -155,7 +186,7 @@ function classifyParticleCandidate(value = "", options = {}) {
         functionScope,
         source: options.source || "candidate",
     });
-    return {
+    const classification = {
         kind: "particle-candidate-classification",
         version: PARTICLE_METADATA_VERSION,
         candidate,
@@ -169,10 +200,24 @@ function classifyParticleCandidate(value = "", options = {}) {
             : ["particle-candidate-empty"],
         placementMetadata,
     };
+    return attachParticleGrammarContract(classification, {
+        metadataKind: "particle-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        nuclearClauseFrame: placementMetadata.grammarFrame?.nuclearClauseFrame || null,
+        targetContract: {
+            metadataKind: "particle-candidate-classification",
+            generationAllowed: false,
+            placementScope: classification.placement.scope,
+            functionScope: classification.functionScope,
+        },
+    });
 }
 
 function buildParticleInventoryBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "particle-inventory-boundary",
         version: PARTICLE_METADATA_VERSION,
         lesson: 3,
@@ -189,4 +234,10 @@ function buildParticleInventoryBoundaryMetadata() {
         },
         antiConflationRules: getParticleAntiConflationRules(),
     };
+    return attachParticleGrammarContract(boundary, {
+        metadataKind: "particle-inventory-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+    });
 }

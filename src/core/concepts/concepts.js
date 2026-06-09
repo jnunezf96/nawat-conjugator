@@ -139,6 +139,20 @@ const CONCEPT_TOKEN_ALIASES = Object.freeze({
     "tense": "tense-position",
 });
 
+function attachConceptGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "concept-metadata",
+        routeFamily: "concept-registry",
+        structuralSource: "Andrews Lesson 1",
+        andrewsRefs: ["Andrews Lesson 1"],
+        ...options,
+    });
+}
+
 function normalizeConceptId(value = "") {
     return String(value || "")
         .trim()
@@ -147,7 +161,7 @@ function normalizeConceptId(value = "") {
 }
 
 function cloneConcept(concept = {}) {
-    return {
+    const cloned = {
         ...concept,
         appliesTo: Array.isArray(concept.appliesTo) ? [...concept.appliesTo] : [],
         source: {
@@ -156,6 +170,18 @@ function cloneConcept(concept = {}) {
         },
         generationAllowed: false,
     };
+    return attachConceptGrammarContract(cloned, {
+        metadataKind: "concept-entry",
+        routeStage: "classify-concept-entry",
+        sourceInput: cloned.id,
+        supported: true,
+        targetContract: {
+            metadataKind: "concept-entry",
+            conceptKind: cloned.kind,
+            notationRole: cloned.notationRole || "",
+            generationAllowed: false,
+        },
+    });
 }
 
 function getConceptAntiConflationRules() {
@@ -169,7 +195,7 @@ function getConceptRegistry({ lesson = null, kind = "" } = {}) {
         .filter((concept) => !normalizedKind || concept.kind === normalizedKind)
         .sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0))
         .map(cloneConcept);
-    return {
+    const registry = {
         kind: "concept-registry",
         version: CONCEPT_REGISTRY_VERSION,
         structuralSource: "Andrews Lesson 1",
@@ -178,6 +204,17 @@ function getConceptRegistry({ lesson = null, kind = "" } = {}) {
         generationAllowed: false,
         antiConflationRules: getConceptAntiConflationRules(),
     };
+    return attachConceptGrammarContract(registry, {
+        metadataKind: "concept-registry",
+        routeStage: "classify-registry",
+        supported: concepts.length > 0,
+        diagnosticStatus: "diagnostic-only",
+        targetContract: {
+            metadataKind: "concept-registry",
+            conceptCount: concepts.length,
+            generationAllowed: false,
+        },
+    });
 }
 
 function listConceptsByLesson(lesson = 1) {
@@ -201,7 +238,7 @@ function classifyConceptToken(value = "") {
         || CONCEPT_TOKEN_ALIASES[normalized]
         || normalized;
     const concept = getConceptById(aliasId);
-    return {
+    const classification = {
         kind: "concept-token-classification",
         version: CONCEPT_REGISTRY_VERSION,
         token: raw,
@@ -215,10 +252,22 @@ function classifyConceptToken(value = "") {
             ? ["concept-token-diagnostic-only"]
             : ["concept-token-unmapped"],
     };
+    return attachConceptGrammarContract(classification, {
+        metadataKind: "concept-token-classification",
+        routeStage: "classify-token",
+        sourceInput: raw,
+        supported: Boolean(concept),
+        targetContract: {
+            metadataKind: "concept-token-classification",
+            conceptId: classification.conceptId,
+            notationRole: classification.notationRole,
+            generationAllowed: false,
+        },
+    });
 }
 
 function buildConceptGlossaryMetadata({ lesson = 1 } = {}) {
-    return {
+    const glossary = {
         kind: "concept-glossary-metadata",
         version: CONCEPT_REGISTRY_VERSION,
         lesson: Number(lesson) || 1,
@@ -233,4 +282,11 @@ function buildConceptGlossaryMetadata({ lesson = 1 } = {}) {
         },
         antiConflationRules: getConceptAntiConflationRules(),
     };
+    return attachConceptGrammarContract(glossary, {
+        metadataKind: "concept-glossary-metadata",
+        routeStage: "classify-glossary",
+        supported: false,
+        sourceInput: String(glossary.lesson),
+        morphBoundaryFrame: glossary,
+    });
 }

@@ -257,6 +257,33 @@ function run(ctx) {
     );
     s.no("sentence boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("sentence boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const sentenceCandidate = ctx.classifySentenceCandidate({
+        text: "amo ni nemi?",
+        polarity: "negative",
+        questionType: "yes-no",
+    });
+    const sentenceFrame = sentenceCandidate.grammarFrame;
+    s.eq(
+        "sentence layer metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(sentenceFrame),
+            routeFamily: sentenceFrame?.routeContract?.routeFamily || "",
+            routeStage: sentenceFrame?.routeContract?.routeStage || "",
+            generationAllowed: sentenceFrame?.routeContract?.generationAllowed,
+            questionType: sentenceFrame?.participantFrame?.questionType || "",
+            andrewsRef: sentenceFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(sentenceCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "sentence-layer",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            questionType: "yes-no",
+            andrewsRef: "Andrews Lessons 8-10",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

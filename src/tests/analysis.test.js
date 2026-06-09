@@ -125,6 +125,35 @@ function run(ctx) {
     );
     s.no("analysis boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("analysis boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const analysisCandidate = ctx.classifyAnalysisIssueCandidate({
+        textSource: "unknown",
+        candidate: "mah",
+        analysisIssue: "mah-construction",
+        affectedUnit: "sentence",
+        falsePositiveSource: "mah-string",
+    });
+    const analysisFrame = analysisCandidate.grammarFrame;
+    s.eq(
+        "analysis metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(analysisFrame),
+            routeFamily: analysisFrame?.routeContract?.routeFamily || "",
+            routeStage: analysisFrame?.routeContract?.routeStage || "",
+            generationAllowed: analysisFrame?.routeContract?.generationAllowed,
+            analysisIssue: analysisFrame?.routeContract?.targetContract?.analysisIssue || "",
+            andrewsRef: analysisFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(analysisCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "textual-analysis",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            analysisIssue: "mah-construction",
+            andrewsRef: "Andrews Lessons 57-58",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

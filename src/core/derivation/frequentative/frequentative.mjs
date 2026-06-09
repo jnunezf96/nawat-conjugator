@@ -39,6 +39,19 @@ export function createFrequentativeApi(targetObject = globalThis) {
       field: "evidenceSource",
       asks: "What Nawat/Pipil repo or user-provided evidence supports the form?"
     })]);
+    function attachFrequentativeGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "vnc-derivation-boundary",
+        routeFamily: "frequentative",
+        structuralSource: "Andrews Lesson 27",
+        andrewsRefs: ["Andrews Lesson 27"],
+        ...options
+      });
+    }
     function normalizeFrequentativeEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
       return allowedValues.includes(normalized) ? normalized : fallback;
@@ -61,7 +74,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       }));
     }
     function buildFrequentativeBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "frequentative-boundary",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         lesson: 27,
@@ -80,6 +93,17 @@ export function createFrequentativeApi(targetObject = globalThis) {
         },
         antiConflationRules: getFrequentativeAntiConflationRules()
       };
+      return attachFrequentativeGrammarContract(boundary, {
+        metadataKind: "frequentative-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+          metadataKind: "frequentative-boundary",
+          generationAllowed: false,
+          hasFrequentativeGeneration: false
+        }
+      });
     }
     function classifyFrequentativeCandidate({
       sourceStem = "",
@@ -93,7 +117,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       const normalizedTarget = normalizeFrequentativeReplicationTarget(reduplicationTarget);
       const normalizedFalsePositive = normalizeFrequentativeFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "frequentative-candidate-classification",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         sourceStem: String(sourceStem || ""),
@@ -107,10 +131,30 @@ export function createFrequentativeApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "frequentative-needs-validation" : "frequentative-needs-nawat-evidence", normalizedFalsePositive !== FREQUENTATIVE_FALSE_POSITIVE_SOURCE.unknown ? "frequentative-false-positive-source" : "frequentative-unconfirmed"],
         boundary: buildFrequentativeBoundaryMetadata()
       };
+      return attachFrequentativeGrammarContract(classification, {
+        metadataKind: "frequentative-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.sourceStem || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        stemFrame: {
+          stemKind: "frequentative-candidate",
+          sourceStem: classification.sourceStem,
+          targetStem: classification.candidate,
+          reduplicationTarget: normalizedTarget,
+          frequentativeType: normalizedType
+        },
+        targetContract: {
+          metadataKind: "frequentative-candidate-classification",
+          generationAllowed: false,
+          frequentativeType: normalizedType,
+          reduplicationTarget: normalizedTarget
+        }
+      });
     }
     function classifyFrequentativeFalsePositive(source = "") {
       const normalizedSource = normalizeFrequentativeFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "frequentative-false-positive",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -119,6 +163,13 @@ export function createFrequentativeApi(targetObject = globalThis) {
         diagnostics: ["frequentative-false-positive-source"],
         antiConflationRules: getFrequentativeAntiConflationRules()
       };
+      return attachFrequentativeGrammarContract(classification, {
+        metadataKind: "frequentative-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics
+      });
     }
 
     const api = {};
@@ -152,6 +203,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
         enumerable: true,
         get() { return FREQUENTATIVE_STRUCTURAL_QUESTIONS; },
     });
+    api.attachFrequentativeGrammarContract = attachFrequentativeGrammarContract;
     api.normalizeFrequentativeEnum = normalizeFrequentativeEnum;
     api.normalizeFrequentativeType = normalizeFrequentativeType;
     api.normalizeFrequentativeReplicationTarget = normalizeFrequentativeReplicationTarget;

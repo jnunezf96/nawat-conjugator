@@ -84,8 +84,20 @@ function getNumeralNncStructuralQuestions() {
     return NUMERAL_NNC_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachNumeralNncGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "numeral-nnc",
+        routeFamily: "numeral-nnc",
+        ...options,
+    });
+}
+
 function buildNumeralNncBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "numeral-nnc-boundary",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         lesson: 34,
@@ -107,6 +119,10 @@ function buildNumeralNncBoundaryMetadata() {
         },
         antiConflationRules: getNumeralNncAntiConflationRules(),
     };
+    return attachNumeralNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyNumeralNncCandidate({
@@ -121,7 +137,7 @@ function classifyNumeralNncCandidate({
     const normalizedKind = normalizeNumeralNncKind(numeralKind);
     const normalizedFalsePositive = normalizeNumeralNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "numeral-nnc-candidate-classification",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -144,11 +160,17 @@ function classifyNumeralNncCandidate({
         ],
         boundary: buildNumeralNncBoundaryMetadata(),
     };
+    return attachNumeralNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.numeralBase,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+    });
 }
 
 function classifyNumeralNncFalsePositive(source = "") {
     const normalizedSource = normalizeNumeralNncFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "numeral-nnc-false-positive",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -158,4 +180,9 @@ function classifyNumeralNncFalsePositive(source = "") {
         diagnostics: ["numeral-nnc-false-positive-source"],
         antiConflationRules: getNumeralNncAntiConflationRules(),
     };
+    return attachNumeralNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

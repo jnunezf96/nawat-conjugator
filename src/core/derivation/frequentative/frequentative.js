@@ -61,6 +61,20 @@ const FREQUENTATIVE_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
 ]);
 
+function attachFrequentativeGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "vnc-derivation-boundary",
+        routeFamily: "frequentative",
+        structuralSource: "Andrews Lesson 27",
+        andrewsRefs: ["Andrews Lesson 27"],
+        ...options,
+    });
+}
+
 function normalizeFrequentativeEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -99,7 +113,7 @@ function getFrequentativeStructuralQuestions() {
 }
 
 function buildFrequentativeBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "frequentative-boundary",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         lesson: 27,
@@ -118,6 +132,17 @@ function buildFrequentativeBoundaryMetadata() {
         },
         antiConflationRules: getFrequentativeAntiConflationRules(),
     };
+    return attachFrequentativeGrammarContract(boundary, {
+        metadataKind: "frequentative-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+            metadataKind: "frequentative-boundary",
+            generationAllowed: false,
+            hasFrequentativeGeneration: false,
+        },
+    });
 }
 
 function classifyFrequentativeCandidate({
@@ -132,7 +157,7 @@ function classifyFrequentativeCandidate({
     const normalizedTarget = normalizeFrequentativeReplicationTarget(reduplicationTarget);
     const normalizedFalsePositive = normalizeFrequentativeFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "frequentative-candidate-classification",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         sourceStem: String(sourceStem || ""),
@@ -151,11 +176,31 @@ function classifyFrequentativeCandidate({
         ],
         boundary: buildFrequentativeBoundaryMetadata(),
     };
+    return attachFrequentativeGrammarContract(classification, {
+        metadataKind: "frequentative-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.sourceStem || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        stemFrame: {
+            stemKind: "frequentative-candidate",
+            sourceStem: classification.sourceStem,
+            targetStem: classification.candidate,
+            reduplicationTarget: normalizedTarget,
+            frequentativeType: normalizedType,
+        },
+        targetContract: {
+            metadataKind: "frequentative-candidate-classification",
+            generationAllowed: false,
+            frequentativeType: normalizedType,
+            reduplicationTarget: normalizedTarget,
+        },
+    });
 }
 
 function classifyFrequentativeFalsePositive(source = "") {
     const normalizedSource = normalizeFrequentativeFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "frequentative-false-positive",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -164,4 +209,11 @@ function classifyFrequentativeFalsePositive(source = "") {
         diagnostics: ["frequentative-false-positive-source"],
         antiConflationRules: getFrequentativeAntiConflationRules(),
     };
+    return attachFrequentativeGrammarContract(classification, {
+        metadataKind: "frequentative-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics,
+    });
 }

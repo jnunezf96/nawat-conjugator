@@ -97,6 +97,35 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "place/gentilic classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "place translation",
+                placeNameSource: "unknown",
+                placeGentilicKind: "place-name",
+                falsePositiveSource: "place-translation",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                stemKind: classification.frames.stemFrame.stemKind,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "place-gentilic-nnc",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            stemKind: "place-gentilic-source-candidate",
+            diagnosticId: "place-gentilic-nnc-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "locative-temporal nominal output is not place-name NNC evidence",
@@ -188,6 +217,21 @@ function run(ctx) {
         "place-name usage frame does not expose generated forms",
         Object.prototype.hasOwnProperty.call(placeNameFrame, "surfaceForms")
             || Object.prototype.hasOwnProperty.call(placeNameFrame, "generatedForms")
+    );
+    s.eq(
+        "place-name usage frames carry stem and nuclear-clause LCM frames",
+        {
+            routeStage: placeNameFrame.frames.routeContract.routeStage,
+            stemKind: placeNameFrame.frames.stemFrame.stemKind,
+            nuclearKind: placeNameFrame.frames.nuclearClauseFrame.kind,
+            generationAllowed: placeNameFrame.frames.routeContract.generationAllowed,
+        },
+        {
+            routeStage: "describe-usage-frame",
+            stemKind: "place-gentilic-nounstem",
+            nuclearKind: "place-gentilic-nnc-usage-frame",
+            generationAllowed: false,
+        }
     );
 
     const contextualLocativeFrame = ctx.buildPlaceGentilicNncUsageFrame({

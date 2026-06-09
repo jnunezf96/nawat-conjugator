@@ -45,6 +45,12 @@ function run(ctx) {
         routePlacement: profile.routePlacement,
         routeProfileSource: profile.routeProfileSource,
         sourceState: profile.sourceState,
+        suffixContract: profile.suffixContract ? {
+            classicalSuffix: profile.suffixContract.classicalSuffix || "",
+            nawatRuleSuffix: profile.suffixContract.nawatRuleSuffix || "",
+            nawatVerbalizer: profile.suffixContract.nawatVerbalizer || "",
+            routeVerbalizer: profile.suffixContract.routeVerbalizer || "",
+        } : null,
         verbalizer: profile.verbalizer,
         verbalizerType: profile.verbalizerType,
         valency: profile.valency,
@@ -53,16 +59,191 @@ function run(ctx) {
         supportStatus: profile.supportStatus,
         isCompleteLesson54_55: profile.isCompleteLesson54_55,
         noNewSurfaceForms: profile.boundaries?.noNewSurfaceForms === true,
+        noAndrewsSuffixContract: profile.boundaries?.noAndrewsSuffixContract === true,
     });
     s.eq(
         "runtime exposes shared nominalization metadata helpers",
         [
             typeof ctx.getVerbDerivedNominalProfileDefaults,
             typeof ctx.buildVerbDerivedPatientiveFamilyProfile,
+            typeof ctx.getPatientivoNonactiveSourceSuffixContract,
+            typeof ctx.getPatientivoPerfectiveSourceStemContract,
+            typeof ctx.getPatientivoImperfectiveSourceStemContract,
+            typeof ctx.getPatientivoRootStockSourceContract,
+            typeof ctx.buildPatientivoMultipleDerivationContract,
+            typeof ctx.buildPatientivoSourceStageFrame,
+            typeof ctx.getActiveActionNominalizerContract,
             typeof ctx.buildVerbDerivedNominalizationProfile,
             typeof ctx.buildGeneratedNominalSubjectNumberConnectorMetadata,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
+    );
+    s.eq(
+        "generation contract readers accept LCM result-frame surface forms",
+        (() => {
+            const result = {
+                result: "—",
+                surface: "stale-generate-surface",
+                surfaceForms: ["stale-generate-a / stale-generate-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surface: "frame-generate-surface",
+                        surfaceForms: ["frame-generate-a / frame-generate-b"],
+                        outputKind: "vnc",
+                    }),
+                }),
+            };
+            const runtimeWrapped = ctx.attachGenerateRuntimeBlockedContract({ ...result }, {
+                routeFamily: "test-runtime-route",
+                routeStage: "test-surface-reader",
+                renderVerb: "frame",
+            });
+            return {
+                generateSurface: ctx.resolveGenerateWordContractSurface(result),
+                generateForms: ctx.normalizeGrammarFrameSurfaceForms(result),
+                runtimeSurface: ctx.resolveGenerateRuntimeContractSurface(result),
+                runtimeWrappedSurface: runtimeWrapped.surface,
+                runtimeWrappedFrameForms: runtimeWrapped.frames.resultFrame.surfaceForms,
+            };
+        })(),
+        {
+            generateSurface: "frame-generate-a",
+            generateForms: ["frame-generate-a", "frame-generate-b", "frame-generate-surface"],
+            runtimeSurface: "frame-generate-a",
+            runtimeWrappedSurface: "frame-generate-a",
+            runtimeWrappedFrameForms: ["frame-generate-a", "frame-generate-b", "frame-generate-surface"],
+        }
+    );
+    s.eq(
+        "morphology source reader keeps preterit source forms frame-first",
+        (() => {
+            const output = {
+                result: "—",
+                forms: ["legacy-preterit-form"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-preterit-surface",
+                        surfaceForms: ["frame-preterit-a / frame-preterit-b"],
+                        outputKind: "preterit-source",
+                    }),
+                }),
+            };
+            return ctx.getMorphologyApplicationSourceSurfaceForms(output);
+        })(),
+        ["frame-preterit-a", "frame-preterit-b", "frame-preterit-surface"]
+    );
+    s.eq(
+        "morphology source reader keeps legacy forms for metadata-only frames",
+        (() => {
+            const output = {
+                forms: ["legacy-source-a / legacy-source-b"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "morphology-application",
+                        routeStage: "metadata-only",
+                        generationAllowed: true,
+                    }),
+                }),
+            };
+            return ctx.getMorphologyApplicationSourceSurfaceForms(output);
+        })(),
+        ["legacy-source-a", "legacy-source-b"]
+    );
+    s.eq(
+        "runtime blocked contract enriches existing diagnostics with failed layer metadata",
+        (() => {
+            const wrapped = ctx.attachGenerateRuntimeBlockedContract({
+                result: "—",
+                diagnostics: ["runtime-existing-blocked"],
+            }, {
+                routeFamily: "forward-derivation",
+                routeStage: "no-stem-mask",
+                renderVerb: "nemi",
+                tense: "presente",
+            });
+            return {
+                diagnosticId: wrapped.diagnostics[0]?.id || "",
+                diagnosticFailedLayer: wrapped.diagnostics[0]?.failedLayer || "",
+                diagnosticContractLayer: wrapped.diagnostics[0]?.contractLayer || "",
+                frameDiagnosticFailedLayer: wrapped.frames.diagnosticFrame.diagnostics[0]?.failedLayer || "",
+                blockingDiagnosticFailedLayer: wrapped.frames.routeContract.blockingDiagnostics[0]?.failedLayer || "",
+                contractDiagnosticFailedLayer: wrapped.contractDiagnostics[0]?.failedLayer || "",
+            };
+        })(),
+        {
+            diagnosticId: "runtime-existing-blocked",
+            diagnosticFailedLayer: "stem",
+            diagnosticContractLayer: "stemFrame",
+            frameDiagnosticFailedLayer: "stem",
+            blockingDiagnosticFailedLayer: "stem",
+            contractDiagnosticFailedLayer: "stem",
+        }
+    );
+    s.eq(
+        "morphology application contract reads LCM result-frame surface forms",
+        (() => {
+            const result = {
+                result: "stale-morph-result",
+                surface: "top-morph-surface",
+                surfaceForms: ["stale-morph-a / stale-morph-b"],
+                verb: "stale-morph-verb",
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        surfaceForms: ["frame-morph-a / frame-morph-b"],
+                        outputKind: "morphology-application",
+                        generationRoute: "presente",
+                    }),
+                }),
+            };
+            const wrapped = ctx.attachMorphologyApplicationGrammarContract(result, {
+                routeStage: "test-frame-reader",
+                tense: "presente",
+            });
+            return {
+                ok: wrapped.ok,
+                surface: wrapped.surface,
+                frameSurface: wrapped.frames.resultFrame.surface,
+                frameSurfaceForms: wrapped.frames.resultFrame.surfaceForms,
+                routeStage: wrapped.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            ok: true,
+            surface: "frame-morph-a",
+            frameSurface: "frame-morph-a",
+            frameSurfaceForms: ["frame-morph-a", "frame-morph-b"],
+            routeStage: "test-frame-reader",
+        }
+    );
+    s.eq(
+        "morphology application contract enriches existing diagnostics with failed layer metadata",
+        (() => {
+            const wrapped = ctx.attachMorphologyApplicationGrammarContract({
+                error: true,
+                diagnostics: ["morphology-existing-blocked"],
+            }, {
+                routeStage: "apply-existing-diagnostic",
+                tense: "presente",
+                verb: "nemi",
+            });
+            return {
+                diagnosticId: wrapped.diagnostics[0]?.id || "",
+                diagnosticFailedLayer: wrapped.diagnostics[0]?.failedLayer || "",
+                diagnosticContractLayer: wrapped.diagnostics[0]?.contractLayer || "",
+                frameDiagnosticFailedLayer: wrapped.frames.diagnosticFrame.diagnostics[0]?.failedLayer || "",
+                blockingDiagnosticFailedLayer: wrapped.frames.routeContract.blockingDiagnostics[0]?.failedLayer || "",
+                contractDiagnosticFailedLayer: wrapped.contractDiagnostics[0]?.failedLayer || "",
+            };
+        })(),
+        {
+            diagnosticId: "morphology-existing-blocked",
+            diagnosticFailedLayer: "stem",
+            diagnosticContractLayer: "stemFrame",
+            frameDiagnosticFailedLayer: "stem",
+            blockingDiagnosticFailedLayer: "stem",
+            contractDiagnosticFailedLayer: "stem",
+        }
     );
 
     const present = ctx.applyMorphologyRules({
@@ -82,6 +263,63 @@ function run(ctx) {
     s.eq("applyMorphologyRules present keeps empty subject suffix", present.subjectSuffix, "");
     s.eq("applyMorphologyRules present returns no alternates", present.alternateForms.length, 0);
     s.ok("applyMorphologyRules present returns surfaceRuleMeta", present.surfaceRuleMeta && typeof present.surfaceRuleMeta === "object");
+    s.eq("applyMorphologyRules present exposes the LCM morphology contract", {
+        ok: present.ok,
+        surface: present.surface,
+        framesIsGrammarFrame: present.frames === present.grammarFrame,
+        routeFamily: present.frames.routeContract.routeFamily,
+        routeStage: present.frames.routeContract.routeStage,
+        unitKind: present.frames.unitFrame.unitKind,
+        generationAllowed: present.frames.routeContract.generationAllowed,
+        enumerableContract: Object.prototype.propertyIsEnumerable.call(present, "grammarFrame"),
+    }, {
+        ok: true,
+        surface: "nemi",
+        framesIsGrammarFrame: true,
+        routeFamily: "morphology-application",
+        routeStage: "apply",
+        unitKind: "verbal-morphology",
+        generationAllowed: true,
+        enumerableContract: false,
+    });
+
+    const blockedMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "ki",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "patientivo",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        patientivoSource: "tronco-verbal",
+    });
+    s.eq("applyMorphologyRules blocked result exposes the LCM morphology contract", {
+        error: blockedMorphology.error,
+        ok: blockedMorphology.ok,
+        surface: blockedMorphology.surface,
+        framesIsGrammarFrame: blockedMorphology.frames === blockedMorphology.grammarFrame,
+        routeFamily: blockedMorphology.frames.routeContract.routeFamily,
+        routeStage: blockedMorphology.frames.routeContract.routeStage,
+        generationAllowed: blockedMorphology.frames.routeContract.generationAllowed,
+        diagnosticId: blockedMorphology.diagnostics[0].id,
+        diagnosticFailedLayer: blockedMorphology.diagnostics[0].failedLayer,
+        diagnosticContractLayer: blockedMorphology.diagnostics[0].contractLayer,
+    }, {
+        error: true,
+        ok: false,
+        surface: "",
+        framesIsGrammarFrame: true,
+        routeFamily: "morphology-application",
+        routeStage: "patientivo-tronco-object-gate",
+        generationAllowed: false,
+        diagnosticId: "morphology-patientivo-tronco-object-blocked",
+        diagnosticFailedLayer: "stem",
+        diagnosticContractLayer: "stemFrame",
+    });
 
     const imperative = ctx.applyMorphologyRules({
         subjectPrefix: "ti",
@@ -554,6 +792,40 @@ function run(ctx) {
             lisRole: "predicate.action-nominalizer",
         }
     );
+    s.eq(
+        "Andrews Lesson 37 active-action nominalizer is an engine contract converted to Nawat letters",
+        (() => {
+            const contract = ctx.getActiveActionNominalizerContract();
+            return {
+                kind: contract.kind,
+                range: contract.curriculumRef.range,
+                sourceSlot: contract.sourceStageModel.slot,
+                sourceCore: contract.sourceStageModel.sourceCore,
+                classical: contract.classicalSuffixes,
+                nawat: contract.nawatSuffixes,
+                longGenerationAllowed: contract.orthographyConversions.long.generationAllowed,
+                shortGenerationAllowed: contract.orthographyConversions.short.generationAllowed,
+                noFixtureEvidence: contract.boundaries.noFixtureEvidence,
+            };
+        })(),
+        {
+            kind: "active-action-nominalizer-contract",
+            range: "37.2-37.5",
+            sourceSlot: "#3 salida",
+            sourceCore: "future-active-core",
+            classical: {
+                long: "liz",
+                short: "z",
+            },
+            nawat: {
+                long: "lis",
+                short: "s",
+            },
+            longGenerationAllowed: false,
+            shortGenerationAllowed: false,
+            noFixtureEvidence: true,
+        }
+    );
     const chukaActionNominal = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -976,12 +1248,20 @@ function run(ctx) {
             kind: transitivePotentialPatient.nominalizationProfile?.role?.nominalizationKind || "",
             semanticRole: transitivePotentialPatient.nominalizationProfile?.role?.semanticRole || "",
             sourceTense: transitivePotentialPatient.nominalizationProfile?.source?.sourceTense || "",
+            subjectConnector: transitivePotentialPatient.subjectNumberConnector?.displaySurface || "",
+            nominalizerRole: transitivePotentialPatient.subjectNumberConnector?.derivationalSuffixRole || "",
+            predicateDerivationalSuffix: transitivePotentialPatient.subjectNumberConnector?.predicateDerivationalSuffix || "",
+            formulaEcho: transitivePotentialPatient.nuclearClauseShell?.formulaEcho || "",
         },
         {
             forms: ["matilis", "matis"],
             kind: "potential-patient",
-            semanticRole: "patient/capability",
+            semanticRole: "potential-patient",
             sourceTense: "futuro",
+            subjectConnector: "Ø",
+            nominalizerRole: "predicate.potential-patient-nominalizer",
+            predicateDerivationalSuffix: "lis",
+            formulaEcho: "#Ø...Ø(mati)Ø#",
         }
     );
     const firstPersonPotentialPatient = ctx.generateWord({
@@ -1328,6 +1608,174 @@ function run(ctx) {
             noNewSurfaceForms: true,
         }
     );
+    s.eq(
+        "Andrews 37.8 nonactive patientive suffix contract converts Classical rule letters into Nawat engine suffixes",
+        {
+            luwa: (() => {
+                const contract = ctx.getPatientivoNonactiveSourceSuffixContract("luwa");
+                return {
+                    classicalSuffix: contract.classicalSuffix,
+                    nawatRuleSuffix: contract.nawatRuleSuffix,
+                    nawatSurfaceSuffix: contract.nawatSurfaceSuffix,
+                    operation: contract.sourceOperation,
+                    class: contract.andrewsNounstemClass,
+                    orthographyGenerationAllowed: contract.orthographyConversion.generationAllowed,
+                };
+            })(),
+            wa: (() => {
+                const contract = ctx.getPatientivoNonactiveSourceSuffixContract("wa");
+                return {
+                    classicalSuffix: contract.classicalSuffix,
+                    nawatRuleSuffix: contract.nawatRuleSuffix,
+                    operation: contract.sourceOperation,
+                    class: contract.andrewsNounstemClass,
+                    connectorFamily: contract.nawatConnectorFamily,
+                };
+            })(),
+        },
+        {
+            luwa: {
+                classicalSuffix: "lo-hua",
+                nawatRuleSuffix: "lu-wa",
+                nawatSurfaceSuffix: "luwa",
+                operation: "delete-wa-and-final-u",
+                class: "tli",
+                orthographyGenerationAllowed: false,
+            },
+            wa: {
+                classicalSuffix: "hua",
+                nawatRuleSuffix: "wa",
+                operation: "delete-entire-suffix",
+                class: "ti",
+                connectorFamily: "ti",
+            },
+        }
+    );
+    const summarizeNonactivePatientiveStemDerivations = (sourceStem, sourceSuffix) => (
+        ctx.getPatientivoStemFromNonactive(sourceStem, sourceSuffix, { isTransitive: true })
+            .map((entry) => ({
+                stem: entry.stem,
+                connector: entry.suffix,
+                sourceSuffix: entry.patientiveSourceStageFrame?.sourceSuffix || "",
+                operation: entry.patientiveSourceStageFrame?.operation || "",
+                deletedSegment: entry.patientiveSourceStageFrame?.sourceSuffixContract?.deletedSegment || "",
+                retainedSegment: entry.patientiveSourceStageFrame?.sourceSuffixContract?.retainedSegment || "",
+            }))
+    );
+    s.eq(
+        "Andrews 37.8 nonactive patientive source-suffix contracts drive stem deletion without changing outputs",
+        {
+            lu: summarizeNonactivePatientiveStemDerivations("matilu", "lu"),
+            luwa: summarizeNonactivePatientiveStemDerivations("matiluwa", "luwa"),
+            u: summarizeNonactivePatientiveStemDerivations("matu", "u"),
+            uwa: summarizeNonactivePatientiveStemDerivations("matuwa", "uwa"),
+            wa: summarizeNonactivePatientiveStemDerivations("matiwa", "wa"),
+            walu: summarizeNonactivePatientiveStemDerivations("matiwalu", "walu"),
+        },
+        {
+            lu: [{
+                stem: "matil",
+                connector: "ti",
+                sourceSuffix: "lu",
+                operation: "delete-final-u",
+                deletedSegment: "u",
+                retainedSegment: "l",
+            }],
+            luwa: [{
+                stem: "matil",
+                connector: "ti",
+                sourceSuffix: "luwa",
+                operation: "delete-wa-and-final-u",
+                deletedSegment: "uwa",
+                retainedSegment: "l",
+            }],
+            u: [
+                {
+                    stem: "mat",
+                    connector: "ti",
+                    sourceSuffix: "u",
+                    operation: "delete-entire-suffix",
+                    deletedSegment: "u",
+                    retainedSegment: "",
+                },
+                {
+                    stem: "mati",
+                    connector: "t",
+                    sourceSuffix: "u",
+                    operation: "delete-entire-suffix",
+                    deletedSegment: "u",
+                    retainedSegment: "",
+                },
+            ],
+            uwa: [
+                {
+                    stem: "mat",
+                    connector: "ti",
+                    sourceSuffix: "uwa",
+                    operation: "delete-entire-suffix",
+                    deletedSegment: "uwa",
+                    retainedSegment: "",
+                },
+                {
+                    stem: "mati",
+                    connector: "t",
+                    sourceSuffix: "uwa",
+                    operation: "delete-entire-suffix",
+                    deletedSegment: "uwa",
+                    retainedSegment: "",
+                },
+            ],
+            wa: [{
+                stem: "mati",
+                connector: "t",
+                sourceSuffix: "wa",
+                operation: "delete-entire-suffix",
+                deletedSegment: "wa",
+                retainedSegment: "",
+            }],
+            walu: [{
+                stem: "matiwal",
+                connector: "ti",
+                sourceSuffix: "walu",
+                operation: "delete-final-u-after-chained-nonactive",
+                deletedSegment: "u",
+                retainedSegment: "wal",
+            }],
+        }
+    );
+    s.eq(
+        "patientivo output carries selected #3 salida source-stage frame without changing surfaces",
+        {
+            forms: matiPatientivo.surfaceForms,
+            stageSlot: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.slot,
+            profileStageSlot: matiPatientivo.nominalizationProfile.patientiveFamilyProfile.sourceStageFrame.slot,
+            sourceType: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceType,
+            sourceSuffix: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceSuffix,
+            classicalSuffix: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceSuffixContract.classicalSuffix,
+            nawatRuleSuffix: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceSuffixContract.nawatRuleSuffix,
+            operation: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.operation,
+            outputPrefix: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.outputPrefix,
+            outputStem: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.outputStem,
+            outputConnector: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.outputConnector,
+            outputSurface: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.outputSurface,
+            noClassicalSurfaceImport: matiPatientivo.nominalizationProfile.patientiveSourceStageFrame.boundaries.noClassicalSurfaceImport,
+        },
+        {
+            forms: ["tamachti", "tamachit", "tamatti", "tamatit", "tamatilti"],
+            stageSlot: "#3 salida",
+            profileStageSlot: "#3 salida",
+            sourceType: "nonactive",
+            sourceSuffix: "u",
+            classicalSuffix: "o",
+            nawatRuleSuffix: "u",
+            operation: "delete-entire-suffix",
+            outputPrefix: "ta",
+            outputStem: "mach",
+            outputConnector: "ti",
+            outputSurface: "tamachti",
+            noClassicalSurfaceImport: true,
+        }
+    );
 
     const patientiveFamilyExamples = [
         {
@@ -1408,6 +1856,60 @@ function run(ctx) {
             patientivoSource: "tronco-verbal",
         },
     });
+    const directRootStockContract = ctx.getPatientivoRootStockSourceContract({
+        sourceStem: "pusuni",
+        outputStem: "pusuk",
+    });
+    const rootStockStageFrame = generatedRootStockDefault.nominalizationProfile?.patientiveSourceStageFrame || null;
+    s.eq(
+        "Andrews 39.4 root/stock patientive contract records tli-class variant boundary without adding surfaces",
+        {
+            direct: {
+                supported: directRootStockContract.supported,
+                sourceCore: directRootStockContract.sourceCore,
+                class: directRootStockContract.andrewsNounstemClass,
+                connector: directRootStockContract.outputConnector,
+                surface: directRootStockContract.outputSurface,
+                variantStatus: directRootStockContract.variantSelectionStatus,
+                nawatVariants: directRootStockContract.nawatVariantConsonants,
+                conversionOutputs: directRootStockContract.orthographyConversions.map((entry) => entry.output),
+                noSurfaceImport: directRootStockContract.boundaries.noClassicalSurfaceImport,
+            },
+            generated: {
+                forms: generatedRootStockDefault.surfaceForms,
+                sourceCore: rootStockStageFrame?.sourceCore || "",
+                contractKind: rootStockStageFrame?.sourceStockContract?.kind || "",
+                contractSourceStem: rootStockStageFrame?.sourceStockContract?.sourceStem || "",
+                connector: rootStockStageFrame?.sourceStockContract?.outputConnector || "",
+                contractSurface: rootStockStageFrame?.sourceStockContract?.outputSurface || "",
+                selectedOutputSurface: rootStockStageFrame?.outputSurface || "",
+                routeStemOnly: rootStockStageFrame?.sourceStockContract?.routeStemOnly === true,
+            },
+        },
+        {
+            direct: {
+                supported: true,
+                sourceCore: "root-or-stock-stem",
+                class: "tli",
+                connector: "ti",
+                surface: "pusukti",
+                variantStatus: "not-fully-recoverable-from-surface-grammar",
+                nawatVariants: ["k", "sh", "s", "ch"],
+                conversionOutputs: ["k", "sh", "s", "ch"],
+                noSurfaceImport: true,
+            },
+            generated: {
+                forms: ["pusukti", "pusuchti", "pususti", "pusushti", "pusut"],
+                sourceCore: "root-or-stock-stem",
+                contractKind: "patientive-root-stock-source-contract",
+                contractSourceStem: "pusuni",
+                connector: "ti",
+                contractSurface: "pusukti",
+                selectedOutputSurface: "pusukti",
+                routeStemOnly: false,
+            },
+        }
+    );
     const explicitTroncoStemForRoute = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -1475,6 +1977,19 @@ function run(ctx) {
         ["pusuk", "pusuch", "pusus", "pusush"]
     );
     s.eq(
+        "explicit tronco-verbal route stem keeps root/stock contract but marks it route-only",
+        {
+            connector: explicitTroncoStemForRoute.nominalizationProfile?.patientiveSourceStageFrame?.sourceStockContract?.outputConnector || "",
+            outputSurface: explicitTroncoStemForRoute.nominalizationProfile?.patientiveSourceStageFrame?.sourceStockContract?.outputSurface || "",
+            routeStemOnly: explicitTroncoStemForRoute.nominalizationProfile?.patientiveSourceStageFrame?.sourceStockContract?.routeStemOnly === true,
+        },
+        {
+            connector: "",
+            outputSurface: "pusuk",
+            routeStemOnly: true,
+        }
+    );
+    s.eq(
         "explicit tronco-verbal in-class request is rejected for intransitive root/stock patientive",
         explicitTroncoInClass.error,
         true
@@ -1488,6 +2003,45 @@ function run(ctx) {
         "explicit tronco-verbal in-class request is rejected for transitive root/stock patientive",
         explicitTransitiveTroncoInClass.error,
         true
+    );
+    const multipleDerivationPerfective = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(ketza)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "perfectivo",
+        },
+    });
+    const multipleDerivationContract = multipleDerivationPerfective.nominalizationProfile?.patientiveMultipleDerivationContract || null;
+    s.eq(
+        "Andrews 39.5 patientive output carries a multiple-derivation procedure contract without merging forms",
+        {
+            forms: multipleDerivationPerfective.surfaceForms,
+            kind: multipleDerivationContract?.kind || "",
+            range: multipleDerivationContract?.curriculumRef?.range || "",
+            selectedSource: multipleDerivationContract?.selectedSource || "",
+            selectedSurface: multipleDerivationContract?.selectedOutputSurface || "",
+            availableFamilies: multipleDerivationContract?.availableSourceFamilies || [],
+            multiple: multipleDerivationContract?.hasMultipleAvailableProcedures === true,
+            noNewForms: multipleDerivationContract?.boundaries?.noNewSurfaceForms === true,
+            noSynonymMerge: multipleDerivationContract?.boundaries?.doesNotMergeSynonymousTranslations === true,
+        },
+        {
+            forms: ["taketzti"],
+            kind: "patientive-multiple-derivation-contract",
+            range: "39.5",
+            selectedSource: "perfectivo",
+            selectedSurface: "taketzti",
+            availableFamilies: ["passive", "impersonal", "perfectivo", "imperfectivo"],
+            multiple: true,
+            noNewForms: true,
+            noSynonymMerge: true,
+        }
     );
     [
         {
@@ -1548,6 +2102,189 @@ function run(ctx) {
             reflexiveGenerated.surfaceForms.some((form) => form.startsWith("mu"))
         );
     });
+    const summarizePerfectiveEndingContract = (stem) => {
+        const contract = ctx.getPatientivoPerfectiveSourceStemContract(stem);
+        return {
+            allowed: contract.allowed,
+            matchedEnding: contract.matchedEnding,
+            contractId: contract.contractId,
+            classicalEnding: contract.classicalEnding,
+            nawatEndings: contract.nawatEndings,
+            firstConversionOutput: contract.orthographyConversions?.[0]?.output || "",
+            diagnostic: contract.diagnostics?.[0] || "",
+        };
+    };
+    s.eq(
+        "Andrews 39.1 perfective patientive source-ending gate converts Classical endings to Nawat letters",
+        {
+            tz: summarizePerfectiveEndingContract("taketz"),
+            x: summarizePerfectiveEndingContract("tax"),
+            qu: summarizePerfectiveEndingContract("taqu"),
+            blockedT: summarizePerfectiveEndingContract("tamat"),
+            blockedCh: summarizePerfectiveEndingContract("kuch"),
+        },
+        {
+            tz: {
+                allowed: true,
+                matchedEnding: "tz",
+                contractId: "tz",
+                classicalEnding: "tz",
+                nawatEndings: ["tz"],
+                firstConversionOutput: "tz",
+                diagnostic: "perfective-patientive-source-ending-allowed",
+            },
+            x: {
+                allowed: true,
+                matchedEnding: "x",
+                contractId: "sh",
+                classicalEnding: "x",
+                nawatEndings: ["sh"],
+                firstConversionOutput: "sh",
+                diagnostic: "perfective-patientive-source-ending-allowed",
+            },
+            qu: {
+                allowed: true,
+                matchedEnding: "qu",
+                contractId: "k",
+                classicalEnding: "k",
+                nawatEndings: ["k"],
+                firstConversionOutput: "k",
+                diagnostic: "perfective-patientive-source-ending-allowed",
+            },
+            blockedT: {
+                allowed: false,
+                matchedEnding: "t",
+                contractId: "",
+                classicalEnding: "",
+                nawatEndings: [],
+                firstConversionOutput: "",
+                diagnostic: "unsupported-perfective-patientive-source-ending",
+            },
+            blockedCh: {
+                allowed: false,
+                matchedEnding: "ch",
+                contractId: "",
+                classicalEnding: "",
+                nawatEndings: [],
+                firstConversionOutput: "",
+                diagnostic: "unsupported-perfective-patientive-source-ending",
+            },
+        }
+    );
+    const nonactiveSuffixFrameContract = ctx.getPatientivoNonactiveSourceSuffixContract("luwa");
+    const perfectiveFrameContract = ctx.getPatientivoPerfectiveSourceStemContract("taketz");
+    const imperfectiveFrameContract = ctx.getPatientivoImperfectiveSourceStemContract({
+        sourceStem: "matiya",
+        outputStem: "tamatiya",
+    });
+    const rootStockFrameContract = ctx.getPatientivoRootStockSourceContract({
+        sourceStem: "mat",
+        outputStem: "mat",
+    });
+    const multipleFrameContract = ctx.buildPatientivoMultipleDerivationContract({
+        patientivoInput: {
+            verb: "ketza",
+            surfaceForms: ["taketzti"],
+        },
+        selectedSource: "perfectivo",
+        selectedOutputSurface: "taketzti",
+    });
+    s.eq(
+        "patientive allomorphy contracts expose non-enumerable LCM frames",
+        {
+            nonactive: {
+                routeFamily: nonactiveSuffixFrameContract.grammarFrame?.routeContract?.routeFamily || "",
+                routeStage: nonactiveSuffixFrameContract.grammarFrame?.routeContract?.routeStage || "",
+                generationAllowed: nonactiveSuffixFrameContract.grammarFrame?.routeContract?.generationAllowed,
+                suffix: nonactiveSuffixFrameContract.grammarFrame?.stemFrame?.sourceSuffix || "",
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(nonactiveSuffixFrameContract, "grammarFrame"),
+            },
+            perfective: {
+                routeStage: perfectiveFrameContract.grammarFrame?.routeContract?.routeStage || "",
+                stem: perfectiveFrameContract.grammarFrame?.stemFrame?.sourceStem || "",
+                output: perfectiveFrameContract.grammarFrame?.orthographyFrame?.nawatRuleSpelling || "",
+            },
+            imperfective: {
+                routeStage: imperfectiveFrameContract.grammarFrame?.routeContract?.routeStage || "",
+                output: imperfectiveFrameContract.grammarFrame?.routeContract?.targetContract?.outputSurface || "",
+            },
+            rootStock: {
+                routeStage: rootStockFrameContract.grammarFrame?.routeContract?.routeStage || "",
+                output: rootStockFrameContract.grammarFrame?.routeContract?.targetContract?.outputSurface || "",
+            },
+            multiple: {
+                routeStage: multipleFrameContract.grammarFrame?.routeContract?.routeStage || "",
+                procedureCount: multipleFrameContract.grammarFrame?.routeContract?.targetContract?.availableProcedureCount,
+            },
+        },
+        {
+            nonactive: {
+                routeFamily: "patientive-source-contract",
+                routeStage: "classify-nonactive-source-suffix",
+                generationAllowed: false,
+                suffix: "luwa",
+                enumerableGrammarFrame: false,
+            },
+            perfective: {
+                routeStage: "classify-perfective-source-ending",
+                stem: "taketz",
+                output: "tz",
+            },
+            imperfective: {
+                routeStage: "classify-imperfective-source-stem",
+                output: "tamatiyat",
+            },
+            rootStock: {
+                routeStage: "classify-root-stock-source",
+                output: "matti",
+            },
+            multiple: {
+                routeStage: "classify-multiple-derivation",
+                procedureCount: 4,
+            },
+        }
+    );
+    const sourceStageFrameContract = ctx.buildPatientivoSourceStageFrame({
+        sourceType: "imperfectivo",
+        sourceStem: "matiya",
+        outputStem: "tamatiya",
+        outputConnector: "t",
+    });
+    const framedAllomorphyContract = ctx.attachVncAllomorphyGrammarContract({
+        result: "stale-allomorphy-result",
+        outputSurface: "staleallomorphy",
+        frames: ctx.buildGrammarFrame({
+            resultFrame: ctx.buildGrammarResultFrame({
+                ok: true,
+                surfaceForms: ["frame-allomorph-a / frame-allomorph-b"],
+                outputKind: "vnc-allomorphy-contract",
+                generationRoute: "test-frame-reader",
+            }),
+        }),
+    }, {
+        metadataKind: "vnc-allomorphy-contract",
+        routeStage: "test-frame-reader",
+        supported: true,
+    });
+    s.eq(
+        "patientive allomorphy contracts suppress stale aliases when result frame exists",
+        {
+            nonactive: nonactiveSuffixFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            perfective: perfectiveFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            imperfective: imperfectiveFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            rootStock: rootStockFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            sourceStage: sourceStageFrameContract.grammarFrame?.resultFrame?.surfaceForms || [],
+            framed: framedAllomorphyContract.grammarFrame?.resultFrame?.surfaceForms || [],
+        },
+        {
+            nonactive: ["luwa"],
+            perfective: ["tz"],
+            imperfective: ["tamatiyat"],
+            rootStock: ["matti"],
+            sourceStage: ["tamatiyat"],
+            framed: ["frame-allomorph-a", "frame-allomorph-b"],
+        }
+    );
     const blockedPerfectiveTCore = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -1565,6 +2302,31 @@ function run(ctx) {
         "Andrews 39.1 blocks perfective patientivo when the perfective source core ends in t",
         blockedPerfectiveTCore.error,
         true
+    );
+    s.eq(
+        "blocked perfective patientivo exposes the LCM morphology-failure contract",
+        {
+            ok: blockedPerfectiveTCore.ok,
+            surface: blockedPerfectiveTCore.surface,
+            framesIsGrammarFrame: blockedPerfectiveTCore.frames === blockedPerfectiveTCore.grammarFrame,
+            routeStage: blockedPerfectiveTCore.frames.routeContract.routeStage,
+            generationAllowed: blockedPerfectiveTCore.frames.routeContract.generationAllowed,
+            diagnosticId: blockedPerfectiveTCore.diagnostics[0].id,
+            diagnosticFailedLayer: blockedPerfectiveTCore.diagnostics[0].failedLayer,
+            diagnosticContractLayer: blockedPerfectiveTCore.diagnostics[0].contractLayer,
+            enumerableContract: Object.prototype.propertyIsEnumerable.call(blockedPerfectiveTCore, "grammarFrame"),
+        },
+        {
+            ok: false,
+            surface: "",
+            framesIsGrammarFrame: true,
+            routeStage: "morphology-application",
+            generationAllowed: false,
+            diagnosticId: "generate-word-morphology-application-blocked",
+            diagnosticFailedLayer: "stem",
+            diagnosticContractLayer: "stemFrame",
+            enumerableContract: false,
+        }
     );
     const blockedPerfectiveChCore = ctx.generateWord({
         silent: true,
@@ -1602,6 +2364,87 @@ function run(ctx) {
         "Andrews 39.1 possessed tli-class patientivo drops Nawat ti connector instead of erroring",
         possessedPerfectivePatientivo.surfaceForms,
         ["nutaketz"]
+    );
+    s.eq(
+        "generated perfective patientivo carries the same Andrews 39.1 source-ending gate in #3 salida metadata",
+        {
+            forms: possessedPerfectivePatientivo.surfaceForms,
+            sourceCore: possessedPerfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceCore,
+            matchedEnding: possessedPerfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceEndingContract.matchedEnding,
+            contractId: possessedPerfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceEndingContract.contractId,
+            allowed: possessedPerfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceEndingContract.allowed,
+        },
+        {
+            forms: ["nutaketz"],
+            sourceCore: "perfective-active-core",
+            matchedEnding: "tz",
+            contractId: "tz",
+            allowed: true,
+        }
+    );
+    const directImperfectiveVowelStemContract = ctx.getPatientivoImperfectiveSourceStemContract({
+        sourceStem: "matiya",
+        outputStem: "tamatiya",
+    });
+    const directImperfectiveConsonantStemContract = ctx.getPatientivoImperfectiveSourceStemContract({
+        sourceStem: "mach",
+        outputStem: "mach",
+    });
+    const generatedImperfectivePatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            verb: "-(mati)",
+            tense: "patientivo",
+            derivationMode: ctx.DERIVATION_MODE.active,
+            subjectPrefix: "",
+            subjectSuffix: "",
+            objectPrefix: "ta",
+            patientivoSource: "imperfectivo",
+        },
+    });
+    s.eq(
+        "Andrews 39.2 imperfective patientive source-stem contract drives the ti-class Nawat connector",
+        {
+            vowelStem: {
+                class: directImperfectiveVowelStemContract.andrewsNounstemClass,
+                connector: directImperfectiveVowelStemContract.outputConnector,
+                family: directImperfectiveVowelStemContract.nawatConnectorFamily,
+                sourceModel: directImperfectiveVowelStemContract.classicalSourceModel.classD,
+            },
+            consonantStem: {
+                class: directImperfectiveConsonantStemContract.andrewsNounstemClass,
+                connector: directImperfectiveConsonantStemContract.outputConnector,
+                family: directImperfectiveConsonantStemContract.nawatConnectorFamily,
+            },
+            generated: {
+                forms: generatedImperfectivePatientivo.surfaceForms,
+                sourceCore: generatedImperfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceCore,
+                connector: generatedImperfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceStemContract.outputConnector,
+                contractSurface: generatedImperfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.sourceStemContract.outputSurface,
+                selectedOutputSurface: generatedImperfectivePatientivo.nominalizationProfile.patientiveSourceStageFrame.outputSurface,
+            },
+        },
+        {
+            vowelStem: {
+                class: "ti",
+                connector: "t",
+                family: "t/ti",
+                sourceModel: "imperfective-final-long-a",
+            },
+            consonantStem: {
+                class: "ti",
+                connector: "ti",
+                family: "t/ti",
+            },
+            generated: {
+                forms: ["tamatiyat"],
+                sourceCore: "imperfective-active-core",
+                connector: "t",
+                contractSurface: "matiyat",
+                selectedOutputSurface: "tamatiyat",
+            },
+        }
     );
 
     const passiveTransitiveZero = ctx.generateWord({
@@ -2264,6 +3107,12 @@ function run(ctx) {
         routePlacement: "patientivo-tronco-conversion",
         routeProfileSource: "static-modes",
         sourceState: "patientivo-tronco",
+        suffixContract: {
+            classicalSuffix: "ti",
+            nawatRuleSuffix: "ti",
+            nawatVerbalizer: "-ti",
+            routeVerbalizer: "-ti",
+        },
         verbalizer: "-ti",
         verbalizerType: "denominal-intransitive",
         valency: "intransitive",
@@ -2272,6 +3121,7 @@ function run(ctx) {
         supportStatus: "current-route-supported",
         isCompleteLesson54_55: false,
         noNewSurfaceForms: true,
+        noAndrewsSuffixContract: false,
     });
     const viTiRouteProfile = ctx.getNawatRouteProfile("adjetivo-preterito-tik");
     s.eq("generated VI -ti denominal metadata derives from static route profile", {
@@ -2290,6 +3140,296 @@ function run(ctx) {
         valency: viTiRouteProfile.valency,
         targetTense: viTiRouteProfile.nawatTenseValue,
         surfaceSuffix: viTiRouteProfile.surfaceSuffix,
+    });
+    s.eq("generated denominal metadata carries Andrews contract coverage without broadening surfaces", {
+        outputKind: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.outputKind || "",
+        contractCount: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.contractCount || 0,
+        routeCoveredContractCount: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.routeCoveredContractCount || 0,
+        unmodeledContractCount: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.unmodeledContractCount || 0,
+        targetUnmodeledContractCount: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.targetUnmodeledContractCount || 0,
+        nawatOnlyRouteFamilies: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.nawatOnlyRouteFamilies || [],
+        noNewSurfaceForms: pusuniPreteritoTik.denominalFamilyProfile.andrewsContractCoverage?.boundaries?.noNewSurfaceForms === true,
+    }, {
+        outputKind: "denominal-andrews-contract-coverage",
+        contractCount: 26,
+        routeCoveredContractCount: 3,
+        unmodeledContractCount: 23,
+        targetUnmodeledContractCount: 1,
+        nawatOnlyRouteFamilies: ["vt-na"],
+        noNewSurfaceForms: true,
+    });
+    const generatedAndrewsRoutePreview = pusuniPreteritoTik.denominalFamilyProfile.andrewsContractRoutePreview;
+    const findGeneratedAndrewsRoute = (contractId, routeTemplateId) => (
+        (generatedAndrewsRoutePreview?.routes || []).find((route) => (
+            route.contractId === contractId && route.routeTemplateId === routeTemplateId
+        ))
+    );
+    const wFinalGeneratedAndrewsRoutePreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: "tlaw",
+        contractId: "55.7-transitive-i-a",
+    });
+    s.eq("generated Andrews 55.7 i-a route flags w-final huia ambiguity", {
+        routeDiagnosticCount: wFinalGeneratedAndrewsRoutePreview.routeDiagnosticCount,
+        routeWarningCount: wFinalGeneratedAndrewsRoutePreview.routeWarningCount,
+        routeNoteCount: wFinalGeneratedAndrewsRoutePreview.routeNoteCount,
+        routeDiagnostics: (wFinalGeneratedAndrewsRoutePreview.routes?.[0]?.routeDiagnostics || []).map((diagnostic) => ({
+            id: diagnostic.id,
+            alternateContractId: diagnostic.alternateContractId,
+            relatedContractId: diagnostic.relatedContractId,
+            severity: diagnostic.severity,
+            noFixtureEvidence: diagnostic.boundaries?.noFixtureEvidence === true,
+            doesNotRejectRouteTarget: diagnostic.boundaries?.doesNotRejectRouteTarget === true,
+        })),
+    }, {
+        routeDiagnosticCount: 3,
+        routeWarningCount: 1,
+        routeNoteCount: 2,
+        routeDiagnostics: [
+            {
+                id: "andrews-55.7-i-a-w-final-source-may-be-huia",
+                alternateContractId: "55.3-intransitive-o-a-applicative-huia",
+                relatedContractId: undefined,
+                severity: "warning",
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+            },
+            {
+                id: "andrews-55.7-i-a-source-i-may-belong-to-nounstem",
+                alternateContractId: undefined,
+                relatedContractId: undefined,
+                severity: "info",
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+            },
+            {
+                id: "andrews-55.7-i-a-source-i-hui-causative-path-possible",
+                alternateContractId: undefined,
+                relatedContractId: "55.6-i-hui-a-hui-to-o-a",
+                severity: "info",
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+            },
+        ],
+    });
+    s.eq("generated denominal metadata carries Andrews NNC-to-VNC route targets without finite generation", {
+        outputKind: generatedAndrewsRoutePreview?.outputKind || "",
+        sourceStem: generatedAndrewsRoutePreview?.sourceStem || "",
+        contractCount: generatedAndrewsRoutePreview?.contractCount || 0,
+        routeCount: generatedAndrewsRoutePreview?.routeCount || 0,
+        finiteRouteRequestCount: generatedAndrewsRoutePreview?.finiteRouteRequestCount || 0,
+        finiteRouteObjectPrefixRequiredCount: generatedAndrewsRoutePreview?.finiteRouteObjectPrefixRequiredCount || 0,
+        finiteRouteStemClassContractCount: generatedAndrewsRoutePreview?.finiteRouteStemClassContractCount || 0,
+        finiteRouteSourceEvidenceRequiredCount: generatedAndrewsRoutePreview?.finiteRouteSourceEvidenceRequiredCount || 0,
+        doesNotGenerateFiniteVnc: generatedAndrewsRoutePreview?.boundaries?.doesNotGenerateFiniteVnc === true,
+        noFixtureEvidence: generatedAndrewsRoutePreview?.boundaries?.noFixtureEvidence === true,
+        targets: [
+            findGeneratedAndrewsRoute("54.2.2-inceptive-stative-hui", "hui"),
+            findGeneratedAndrewsRoute("54.2.3-ti-ya-deverbal", "ti-ya"),
+            findGeneratedAndrewsRoute("54.2.3-hui-ya-deverbal", "hui-ya"),
+            findGeneratedAndrewsRoute("54.4-possession-ti", "possession-ti"),
+            findGeneratedAndrewsRoute("55.2-causative-tla", "tla"),
+            findGeneratedAndrewsRoute("55.2-tla-ti-lia-applicative", "tla-ti-lia"),
+            findGeneratedAndrewsRoute("55.2-intransitive-tla", "intransitive-tla"),
+            findGeneratedAndrewsRoute("55.2-intransitive-tla-ti-a-causative", "intransitive-tla-ti-a"),
+            findGeneratedAndrewsRoute("55.2-intransitive-tla-ti-lia-applicative", "intransitive-tla-ti-lia"),
+            findGeneratedAndrewsRoute("55.3-intransitive-o-a-applicative-huia", "o-a"),
+            findGeneratedAndrewsRoute("55.3-intransitive-o-a-applicative-huia", "huia"),
+            findGeneratedAndrewsRoute("55.3-o-a-il-huia-al-huia-applicative-note", "o-a-i-l-huia"),
+            findGeneratedAndrewsRoute("55.3-o-a-il-huia-al-huia-applicative-note", "o-a-a-l-huia"),
+            findGeneratedAndrewsRoute("55.7-transitive-i-a", "i-a"),
+        ].map((route) => ({
+            contractId: route?.contractId || "",
+            routeTemplateId: route?.routeTemplateId || "",
+            classicalSuffixSequence: route?.classicalSuffixSequence || "",
+                nawatSurfaceSuffix: route?.nawatSurfaceSuffix || "",
+                targetVerbStem: route?.targetVerbStem || "",
+                targetInputValue: route?.targetInputValue || "",
+                targetStemClass: route?.targetStemClass || "",
+                finiteGenerationRequiresSourceEvidence: route?.finiteGenerationRequiresSourceEvidence === true,
+                generationAllowed: route?.generationAllowed === true,
+                routeTargetGenerated: route?.routeTargetGenerated === true,
+            })),
+    }, {
+        outputKind: "denominal-andrews-contract-route-preview",
+        sourceStem: "pusuk",
+        contractCount: 26,
+        routeCount: 31,
+        finiteRouteRequestCount: 13,
+        finiteRouteObjectPrefixRequiredCount: 3,
+        finiteRouteStemClassContractCount: 11,
+        finiteRouteSourceEvidenceRequiredCount: 18,
+        doesNotGenerateFiniteVnc: true,
+        noFixtureEvidence: true,
+        targets: [
+            {
+                contractId: "54.2.2-inceptive-stative-hui",
+                routeTemplateId: "hui",
+                classicalSuffixSequence: "hui",
+                nawatSurfaceSuffix: "wi",
+                targetVerbStem: "pusukwi",
+                targetInputValue: "(pusukwi)",
+                targetStemClass: "A",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "54.2.3-ti-ya-deverbal",
+                routeTemplateId: "ti-ya",
+                classicalSuffixSequence: "ti-ya",
+                nawatSurfaceSuffix: "tiya",
+                targetVerbStem: "pusuktiya",
+                targetInputValue: "(pusukti)-(ya)",
+                targetStemClass: "A/B",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "54.2.3-hui-ya-deverbal",
+                routeTemplateId: "hui-ya",
+                classicalSuffixSequence: "hui-ya",
+                nawatSurfaceSuffix: "wiya",
+                targetVerbStem: "pusukwiya",
+                targetInputValue: "(pusukwi)-(ya)",
+                targetStemClass: "B",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "54.4-possession-ti",
+                routeTemplateId: "possession-ti",
+                classicalSuffixSequence: "ti",
+                nawatSurfaceSuffix: "ti",
+                targetVerbStem: "pusukti",
+                targetInputValue: "(pusukti)",
+                targetStemClass: "A/B",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.2-causative-tla",
+                routeTemplateId: "tla",
+                classicalSuffixSequence: "tla",
+                nawatSurfaceSuffix: "ta",
+                targetVerbStem: "pusukta",
+                targetInputValue: "(pusuk)-(ta)",
+                targetStemClass: "A",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.2-tla-ti-lia-applicative",
+                routeTemplateId: "tla-ti-lia",
+                classicalSuffixSequence: "ti-lia",
+                nawatSurfaceSuffix: "tilia",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.2-intransitive-tla",
+                routeTemplateId: "intransitive-tla",
+                classicalSuffixSequence: "tla",
+                nawatSurfaceSuffix: "ta",
+                targetVerbStem: "pusukta",
+                targetInputValue: "(pusukta)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.2-intransitive-tla-ti-a-causative",
+                routeTemplateId: "intransitive-tla-ti-a",
+                classicalSuffixSequence: "ti-a",
+                nawatSurfaceSuffix: "tia",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusukti)-(a)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.2-intransitive-tla-ti-lia-applicative",
+                routeTemplateId: "intransitive-tla-ti-lia",
+                classicalSuffixSequence: "ti-lia",
+                nawatSurfaceSuffix: "tilia",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.3-intransitive-o-a-applicative-huia",
+                routeTemplateId: "o-a",
+                classicalSuffixSequence: "o-a",
+                nawatSurfaceSuffix: "ua",
+                targetVerbStem: "pusukua",
+                targetInputValue: "(pusukua)",
+                targetStemClass: "C",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.3-intransitive-o-a-applicative-huia",
+                routeTemplateId: "huia",
+                classicalSuffixSequence: "huia",
+                nawatSurfaceSuffix: "wia",
+                targetVerbStem: "pusukwia",
+                targetInputValue: "(pusuk)-(wia)",
+                targetStemClass: "C",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
+                routeTemplateId: "o-a-i-l-huia",
+                classicalSuffixSequence: "i-l-huia",
+                nawatSurfaceSuffix: "ilwia",
+                targetVerbStem: "pusukilwia",
+                targetInputValue: "(pusuk)-(ilwia)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
+                routeTemplateId: "o-a-a-l-huia",
+                classicalSuffixSequence: "a-l-huia",
+                nawatSurfaceSuffix: "alwia",
+                targetVerbStem: "pusukalwia",
+                targetInputValue: "(pusuk)-(alwia)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: true,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+            {
+                contractId: "55.7-transitive-i-a",
+                routeTemplateId: "i-a",
+                classicalSuffixSequence: "i-a",
+                nawatSurfaceSuffix: "ia",
+                targetVerbStem: "pusukia",
+                targetInputValue: "(pusuk)-(ia)",
+                targetStemClass: "",
+                finiteGenerationRequiresSourceEvidence: false,
+                generationAllowed: false,
+                routeTargetGenerated: true,
+            },
+        ],
     });
     const pusuktiVerbPreterito = ctx.executeGenerateWordRequest({
         options: {
@@ -2328,22 +3468,24 @@ function run(ctx) {
     }));
     s.eq("pusuni future nawat denominal VT -na preterit keeps legacy generation", pusuniPreteritoNaj.surfaceForms, ["pusuknaj"]);
     s.eq("pusuni denominal VT -na preterit exposes route-family metadata without adding surfaces", summarizeDenominalFamilyProfile(pusuniPreteritoNaj.denominalFamilyProfile), {
-        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        curriculumRef: { source: "Nawat route data", range: "static_modes", role: "legacy-denominal-route" },
         outputKind: "denominal-route",
         routeFamily: "vt-na",
-        structuralAnalogue: "transitive-denominal-route",
+        structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
         routeId: "denominal-vt-na-preterit",
         routePlacement: "patientivo-tronco-conversion",
         routeProfileSource: "static-modes",
         sourceState: "patientivo-tronco",
+        suffixContract: null,
         verbalizer: "-na",
         verbalizerType: "denominal-transitive",
         valency: "transitive",
         targetTense: "preterito",
         surfaceSuffix: "-naj",
-        supportStatus: "current-route-supported",
+        supportStatus: "current-route-supported-nawat-only",
         isCompleteLesson54_55: false,
         noNewSurfaceForms: true,
+        noAndrewsSuffixContract: true,
     });
     const pusuniPerfectoNaj = ctx.executeGenerateWordRequest(buildSilentActiveAdjectiveRequest({
         tense: "adjetivo-perfecto-naj",

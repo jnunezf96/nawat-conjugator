@@ -21,6 +21,74 @@ function normalizeUnifiedVerbOutputObjectSlotCount(value = 0) {
     return Math.max(0, Math.min(VERB_OBJECT_SLOT_SCHEMA.length, Number(value)));
 }
 
+function normalizeUnifiedVerbOutputBooleanText(value = "") {
+    if (value === true) {
+        return "true";
+    }
+    if (value === false) {
+        return "false";
+    }
+    const text = String(value || "").trim();
+    return text === "true" || text === "false" ? text : "";
+}
+
+function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
+    const src = source && typeof source === "object" ? source : {};
+    const fallback = defaults && typeof defaults === "object" ? defaults : {};
+    const getText = (key) => String(
+        Object.prototype.hasOwnProperty.call(src, key) ? src[key] : (fallback[key] || "")
+    ).trim();
+    const getBooleanText = (key) => normalizeUnifiedVerbOutputBooleanText(
+        Object.prototype.hasOwnProperty.call(src, key) ? src[key] : fallback[key]
+    );
+    return {
+        grammarAuthorityRef: getText("grammarAuthorityRef"),
+        grammarAuthorityRefs: getText("grammarAuthorityRefs"),
+        grammarEvidenceStatus: getText("grammarEvidenceStatus"),
+        grammarNawatEvidenceRef: getText("grammarNawatEvidenceRef"),
+        grammarNawatEvidenceRefs: getText("grammarNawatEvidenceRefs"),
+        grammarSourceEvidenceKind: getText("grammarSourceEvidenceKind"),
+        grammarSourceEvidenceStatus: getText("grammarSourceEvidenceStatus"),
+        grammarSourceEvidenceTargetAuthority: getText("grammarSourceEvidenceTargetAuthority"),
+        grammarSourceEvidenceSource: getText("grammarSourceEvidenceSource"),
+        grammarSourceEvidenceFlags: getText("grammarSourceEvidenceFlags"),
+        grammarUnitKind: getText("grammarUnitKind"),
+        grammarRouteFamily: getText("grammarRouteFamily"),
+        grammarRouteStage: getText("grammarRouteStage"),
+        grammarGenerationAllowed: getBooleanText("grammarGenerationAllowed"),
+        grammarDiagnosticStatus: getText("grammarDiagnosticStatus"),
+        grammarDiagnosticId: getText("grammarDiagnosticId"),
+        grammarDiagnosticLayer: getText("grammarDiagnosticLayer"),
+        grammarDiagnosticContractLayer: getText("grammarDiagnosticContractLayer"),
+        grammarResultOk: getBooleanText("grammarResultOk"),
+    };
+}
+
+function getUnifiedVerbOutputGrammarDatasetMetadata(dataset = {}) {
+    const data = dataset && typeof dataset === "object" ? dataset : {};
+    return normalizeUnifiedVerbOutputGrammarMetadata({
+        grammarAuthorityRef: data.grammarAuthorityRef || "",
+        grammarAuthorityRefs: data.grammarAuthorityRefs || data.grammarAuthorityRef || "",
+        grammarEvidenceStatus: data.grammarEvidenceStatus || data.lcmEvidenceStatus || "",
+        grammarNawatEvidenceRef: data.grammarNawatEvidenceRef || "",
+        grammarNawatEvidenceRefs: data.grammarNawatEvidenceRefs || data.grammarNawatEvidenceRef || "",
+        grammarSourceEvidenceKind: data.grammarSourceEvidenceKind || "",
+        grammarSourceEvidenceStatus: data.grammarSourceEvidenceStatus || "",
+        grammarSourceEvidenceTargetAuthority: data.grammarSourceEvidenceTargetAuthority || "",
+        grammarSourceEvidenceSource: data.grammarSourceEvidenceSource || "",
+        grammarSourceEvidenceFlags: data.grammarSourceEvidenceFlags || "",
+        grammarUnitKind: data.grammarUnitKind || "",
+        grammarRouteFamily: data.grammarRouteFamily || data.lcmRouteFamily || "",
+        grammarRouteStage: data.grammarRouteStage || data.lcmRouteStage || "",
+        grammarGenerationAllowed: data.grammarGenerationAllowed || data.lcmGenerationAllowed || "",
+        grammarDiagnosticStatus: data.grammarDiagnosticStatus || data.lcmDiagnosticStatus || "",
+        grammarDiagnosticId: data.grammarDiagnosticId || data.lcmDiagnosticId || "",
+        grammarDiagnosticLayer: data.grammarDiagnosticLayer || data.lcmFailedLayer || "",
+        grammarDiagnosticContractLayer: data.grammarDiagnosticContractLayer || data.lcmContractLayer || "",
+        grammarResultOk: data.grammarResultOk || "",
+    });
+}
+
 function normalizeUnifiedVerbOutputEntry(entry = {}, defaults = {}) {
     const source = entry && typeof entry === "object" ? entry : {};
     const normalized = {
@@ -40,6 +108,7 @@ function normalizeUnifiedVerbOutputEntry(entry = {}, defaults = {}) {
         objectSlotCount: normalizeUnifiedVerbOutputObjectSlotCount(
             source.objectSlotCount ?? defaults.objectSlotCount ?? 0
         ),
+        ...normalizeUnifiedVerbOutputGrammarMetadata(source, defaults),
     };
     if (!normalized.objectSlotCount) {
         const derivedSlotCount = VERB_OBJECT_SLOT_SCHEMA.reduce((count, slot, index) => (
@@ -48,6 +117,22 @@ function normalizeUnifiedVerbOutputEntry(entry = {}, defaults = {}) {
         normalized.objectSlotCount = normalizeUnifiedVerbOutputObjectSlotCount(derivedSlotCount);
     }
     return normalized;
+}
+
+function projectUnifiedVerbOutputVisibleRow(row = {}) {
+    return {
+        subjectToggle: row.subjectToggle,
+        sourceMode: row.sourceMode,
+        block: row.block,
+        person: row.person,
+        personSub: row.personSub,
+        value: row.form,
+        objectSlotCount: row.objectSlotCount,
+        objectToggle: row.object,
+        objectToggle2: row.object2,
+        objectToggle3: row.object3,
+        ...normalizeUnifiedVerbOutputGrammarMetadata(row),
+    };
 }
 
 function buildUnifiedVerbOutputBaseKey(entry = {}) {
@@ -187,37 +272,16 @@ function collectVisibleConjugationRowsFromDom() {
                 const rawValue = hasDatasetValue ? row.dataset[slot.datasetKey] : fallbackValue;
                 exportRow[slot.id] = rawValue;
             });
+            Object.assign(exportRow, getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset));
             rows.push(normalizeUnifiedVerbOutputEntry(exportRow));
         });
     });
-    return rows.map((row) => ({
-        subjectToggle: row.subjectToggle,
-        sourceMode: row.sourceMode,
-        block: row.block,
-        person: row.person,
-        personSub: row.personSub,
-        value: row.form,
-        objectSlotCount: row.objectSlotCount,
-        objectToggle: row.object,
-        objectToggle2: row.object2,
-        objectToggle3: row.object3,
-    }));
+    return rows.map((row) => projectUnifiedVerbOutputVisibleRow(row));
 }
 
 function collectVisibleConjugationRows() {
     if (Array.isArray(VerbUnifiedOutputState.rows) && VerbUnifiedOutputState.rows.length) {
-        return VerbUnifiedOutputState.rows.map((row) => ({
-            subjectToggle: row.subjectToggle,
-            sourceMode: row.sourceMode,
-            block: row.block,
-            person: row.person,
-            personSub: row.personSub,
-            value: row.form,
-            objectSlotCount: row.objectSlotCount,
-            objectToggle: row.object,
-            objectToggle2: row.object2,
-            objectToggle3: row.object3,
-        }));
+        return VerbUnifiedOutputState.rows.map((row) => projectUnifiedVerbOutputVisibleRow(row));
     }
     return collectVisibleConjugationRowsFromDom();
 }
@@ -265,6 +329,19 @@ function buildViewExportCSV() {
         "bloque",
         "persona",
         "forma",
+        "ruta LCM",
+        "etapa LCM",
+        "generacion LCM",
+        "Andrews",
+        "estado evidencia",
+        "evidencia Nawat",
+        "tipo evidencia fuente",
+        "estado evidencia fuente",
+        "estado diagnostico LCM",
+        "diagnostico LCM",
+        "capa fallida",
+        "contrato fallido",
+        "resultado LCM",
     ]
         .map((label) => escapeCSVValue(label))
         .join(",");
@@ -277,6 +354,19 @@ function buildViewExportCSV() {
         row.block,
         row.person,
         row.value,
+        row.grammarRouteFamily,
+        row.grammarRouteStage,
+        row.grammarGenerationAllowed,
+        row.grammarAuthorityRefs || row.grammarAuthorityRef,
+        row.grammarEvidenceStatus,
+        row.grammarNawatEvidenceRefs || row.grammarNawatEvidenceRef,
+        row.grammarSourceEvidenceKind,
+        row.grammarSourceEvidenceStatus,
+        row.grammarDiagnosticStatus,
+        row.grammarDiagnosticId,
+        row.grammarDiagnosticLayer,
+        row.grammarDiagnosticContractLayer,
+        row.grammarResultOk,
     ].map((value) => escapeCSVValue(value)).join(",")));
     return [header, ...lines].join("\n");
 }
@@ -490,4 +580,3 @@ function initViewExport() {
         downloadViewExportCSV();
     });
 }
-

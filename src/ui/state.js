@@ -75,9 +75,126 @@ function splitConjugationDisplayForms(value = "") {
         .filter(Boolean);
 }
 
+function getStateResultFrame(result = null) {
+    return (
+        (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null)
+        || (result?.frames && typeof result.frames === "object" ? result.frames : null)
+    );
+}
+
+function getStateResultFramePayload(result = null) {
+    const grammarFrame = getStateResultFrame(result);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function hasStateResultFrame(result = null) {
+    return Boolean(getStateResultFramePayload(result));
+}
+
+function getStateFrameResultSurfaceForms(result = null) {
+    const frameResult = getStateResultFramePayload(result);
+    const forms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+    }
+    return forms
+        .flatMap((form) => splitConjugationDisplayForms(form))
+        .filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+}
+
+function getStateResultSurfaceForms(result = null) {
+    const frameResult = getStateResultFramePayload(result);
+    const hasResultFrame = Boolean(frameResult);
+    const forms = [...getStateFrameResultSurfaceForms(result)];
+    if (hasResultFrame) {
+        return forms
+            .flatMap((form) => splitConjugationDisplayForms(form))
+            .filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+    }
+    if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
+        forms.push(...result.surfaceForms);
+    }
+    if (!hasResultFrame && result?.surface) {
+        forms.push(result.surface);
+    }
+    if (!hasResultFrame && result?.result) {
+        forms.push(result.result);
+    }
+    return forms
+        .flatMap((form) => splitConjugationDisplayForms(form))
+        .filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+}
+
+function getStateResultDisplaySurface(result = null) {
+    return getStateResultSurfaceForms(result).join(" / ");
+}
+
+function getNawatLinkedGrammarPathStageSourceVerb(stage = null) {
+    const nextSource = stage?.nextSource && typeof stage.nextSource === "object"
+        ? stage.nextSource
+        : null;
+    const nextSourceSurface = getPrimaryNawatRouteSurfaceForm(nextSource);
+    if (nextSourceSurface) {
+        return nextSourceSurface;
+    }
+    if (hasStateResultFrame(nextSource)) {
+        return "";
+    }
+    const sourceInput = String(
+        nextSource?.sourceVerb
+        || stage?.inputValue
+        || stage?.renderVerb
+        || ""
+    ).trim();
+    if (sourceInput && sourceInput !== "—") {
+        return sourceInput;
+    }
+    const stageSurface = getPrimaryNawatRouteSurfaceForm(stage);
+    if (stageSurface) {
+        return stageSurface;
+    }
+    if (hasStateResultFrame(stage)) {
+        return "";
+    }
+    const sourceVerb = String(stage?.surface || "").trim();
+    return sourceVerb === "—" ? "" : sourceVerb;
+}
+
+function getNawatLinkedGrammarPathStageDisplaySurface(stage = null) {
+    const nextSource = stage?.nextSource && typeof stage.nextSource === "object"
+        ? stage.nextSource
+        : null;
+    const nextSourceSurface = getStateResultDisplaySurface(nextSource);
+    if (nextSourceSurface) {
+        return nextSourceSurface;
+    }
+    if (hasStateResultFrame(nextSource)) {
+        return "";
+    }
+    const stageSurface = getStateResultDisplaySurface(stage);
+    if (stageSurface) {
+        return stageSurface;
+    }
+    if (hasStateResultFrame(stage)) {
+        return "";
+    }
+    const displaySurface = String(
+        nextSource?.displaySurface
+        || stage?.surface
+        || ""
+    ).trim();
+    return displaySurface === "—" ? "" : displaySurface;
+}
+
 function buildReduplicatedConjugationResult(result = {}, options = {}) {
     const source = result && typeof result === "object" ? result : {};
-    const reduplicatedResult = reduplicateConjugationDisplay(source.result || "", options);
+    const sourceSurface = getPrimaryNawatRouteSurfaceForm(source);
+    const reduplicatedResult = reduplicateConjugationDisplay(sourceSurface, options);
     return {
         ...source,
         result: reduplicatedResult,
@@ -1181,6 +1298,180 @@ function getNawatRoutePatientivoSurfaceSpec(profile = null, {
     };
 }
 
+function getNawatStaticRouteAndrewsRefs(profile = null, routeTarget = null) {
+    if (isPatientivoSurfaceRoute(profile)) {
+        const patientivoSource = String(
+            routeTarget?.activePatientivoBranch
+            || routeTarget?.patientivoSource
+            || profile?.patientivoSource
+            || ""
+        ).trim();
+        if (patientivoSource === "nonactive") {
+            return ["Andrews Lesson 38"];
+        }
+        if (patientivoSource === "perfectivo" || patientivoSource === "imperfectivo") {
+            return ["Andrews Lesson 39"];
+        }
+        return ["Andrews Lessons 38-39"];
+    }
+    if (String(profile?.routePlacement || "").trim() === "patientivo-tronco-conversion") {
+        return String(profile?.structuralAnalogue || "").trim() === "nawat-transitive-route-no-andrews-suffix"
+            ? []
+            : ["Andrews Lessons 54-55"];
+    }
+    if (profile?.curriculumRef?.source === "Andrews" && profile.curriculumRef.range) {
+        return [`Andrews ${profile.curriculumRef.range}`];
+    }
+    return [];
+}
+
+function attachNawatStaticRouteGrammarFrame(record = null, {
+    profile = null,
+    routeStage = "resolve-route-target",
+    generationAllowed = true,
+    supported = true,
+    targetSurface = "",
+    diagnostics = [],
+} = {}) {
+    if (!record || typeof record !== "object" || typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    const routeProfile = profile && typeof profile === "object" ? profile : {};
+    const sourceInput = String(record.sourceStem || record.sourceVerb || routeProfile.sourceStem || "").trim();
+    const targetInput = String(
+        record.activeStationInput
+        || record.targetInput
+        || record.targetVerb
+        || record.activeStationVerb
+        || ""
+    ).trim();
+    const routePlacement = String(routeProfile.routePlacement || record.routePlacement || "").trim();
+    const structuralAnalogue = String(routeProfile.structuralAnalogue || record.structuralAnalogue || "").trim();
+    const hasAndrewsRefs = getNawatStaticRouteAndrewsRefs(routeProfile, record).length > 0;
+    const framedSurfaceForms = getStateResultSurfaceForms(record);
+    const hasFramedSurfaceContract = hasStateResultFrame(record);
+    const fallbackSurfaceForms = splitConjugationDisplayForms(targetSurface)
+        .filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+    const targetSurfaceForms = framedSurfaceForms.length || hasFramedSurfaceContract
+        ? framedSurfaceForms
+        : fallbackSurfaceForms;
+    const resolvedTargetSurface = targetSurfaceForms[0] || "";
+    const evidenceStatus = isPatientivoSurfaceRoute(routeProfile)
+        ? "patientivo-route-control"
+        : (routePlacement === "patientivo-tronco-conversion" && !hasAndrewsRefs
+            ? "nawat-route-no-andrews-suffix"
+            : "nawat-route-control");
+    return attachGrammarMetadataContract({
+        ...record,
+        surfaceForms: targetSurfaceForms,
+    }, {
+        enumerable: false,
+        metadataKind: record.outputKind || "nawat-static-route-target",
+        unitKind: "nawat-route-control",
+        routeFamily: routePlacement || routeProfile.denominalFamily || routeProfile.id || "nawat-static-route",
+        routeStage,
+        generationAllowed,
+        supported,
+        andrewsRefs: getNawatStaticRouteAndrewsRefs(routeProfile, record),
+        nawatEvidenceRefs: ["data/static_modes.json"],
+        evidenceStatus,
+        diagnosticStatus: supported ? "route-control" : "blocked",
+        surface: resolvedTargetSurface,
+        surfaceForms: targetSurfaceForms,
+        sourceInput,
+        diagnostics,
+        sourceContract: {
+            unitKind: record.sourceMode || routeProfile.sourceMode || "",
+            sourceMode: record.sourceMode || routeProfile.sourceMode || "",
+            sourceTenseValue: record.sourceTenseValue || routeProfile.sourceTenseValue || "",
+            sourceCombinedMode: record.sourceCombinedMode || routeProfile.sourceCombinedMode || "",
+            sourceVerb: record.sourceVerb || "",
+            sourceStem: record.sourceStem || "",
+            sourceObjectPrefix: record.sourceObjectPrefix || "",
+        },
+        targetContract: {
+            unitKind: record.targetMode || routeProfile.targetMode || "",
+            targetMode: record.targetMode || routeProfile.targetMode || "",
+            targetTenseValue: record.targetTenseValue || routeProfile.targetTenseValue || routeProfile.nawatTenseValue || "",
+            targetCombinedMode: record.targetCombinedMode || routeProfile.targetCombinedMode || "",
+            targetVerb: record.targetVerb || "",
+            targetInput,
+            targetObjectPrefix: record.targetObjectPrefix || "",
+            routeId: routeProfile.id || "",
+            routePlacement,
+            structuralAnalogue,
+            generationAllowed,
+        },
+        orthographyFrame: {
+            surface: resolvedTargetSurface,
+            surfaceForms: targetSurfaceForms,
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+            targetInput,
+        },
+        morphBoundaryFrame: {
+            routePlacement,
+            verbalizer: routeProfile.verbalizer || "",
+            verbalizerType: routeProfile.verbalizerType || "",
+            surfaceSuffix: routeProfile.surfaceSuffix || "",
+            structuralAnalogue,
+            noAndrewsSuffixContract: routePlacement === "patientivo-tronco-conversion" && !hasAndrewsRefs,
+        },
+        stemFrame: {
+            sourceStem: record.sourceStem || record.sourceVerb || "",
+            targetStem: record.targetVerb || targetInput,
+            routeId: routeProfile.id || "",
+        },
+        participantFrame: {
+            sourceObjectPrefix: record.sourceObjectPrefix || "",
+            targetObjectPrefix: record.targetObjectPrefix || "",
+        },
+        inflectionFrame: {
+            sourceTenseValue: record.sourceTenseValue || "",
+            targetTenseValue: record.targetTenseValue || routeProfile.targetTenseValue || routeProfile.nawatTenseValue || "",
+            activeStationTenseValue: record.activeStationTenseValue || "",
+        },
+    });
+}
+
+function buildNawatRouteSurfaceResultContract({
+    profile = null,
+    routeTarget = null,
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    outputKind = "nawat-route-surface-result",
+    routeStage = "surface-result",
+    surface = "",
+    generationAllowed = true,
+    supported = null,
+    diagnostics = [],
+    sourceResult = null,
+} = {}) {
+    const target = routeTarget && typeof routeTarget === "object" ? routeTarget : {};
+    const resolvedSurface = String(surface || "").trim();
+    const resolvedSupported = supported === null ? Boolean(resolvedSurface) : supported === true;
+    const record = {
+        ...target,
+        outputKind,
+        result: resolvedSurface,
+        surfaceForms: resolvedSurface ? [resolvedSurface] : [],
+        sourceVerb: target.sourceVerb || sourceVerb || "",
+        sourceObjectPrefix: target.sourceObjectPrefix || sourceObjectPrefix || "",
+        targetVerb: target.targetVerb || target.activeStationVerb || "",
+        targetInput: target.targetInput || target.activeStationInput || target.targetVerb || "",
+        sourceResult,
+        diagnostics,
+    };
+    return attachNawatStaticRouteGrammarFrame(record, {
+        profile,
+        routeStage,
+        generationAllowed,
+        supported: resolvedSupported,
+        targetSurface: resolvedSurface,
+        diagnostics,
+    });
+}
+
 function resolveNawatRoutePatientivoNominalSuffix(profile = null, options = {}) {
     const surfaceSpec = getNawatRoutePatientivoSurfaceSpec(profile, options);
     if (surfaceSpec?.suffix) {
@@ -1317,6 +1608,13 @@ function getNawatRouteStationSurfaceText(station = null) {
     if (!station || typeof station !== "object") {
         return "";
     }
+    const framedSurface = getStateFrameResultSurfaceForms(station).join(" / ");
+    if (framedSurface) {
+        return framedSurface;
+    }
+    if (hasStateResultFrame(station)) {
+        return "";
+    }
     return String(station.surface || station.renderVerb || station.inputValue || "").trim();
 }
 
@@ -1337,13 +1635,27 @@ function formatNawatRouteStationChipText(station = null, isNawat = false, {
     return label;
 }
 
-function getNawatRouteSourceSurfaceForm(profile = null, {
+function getNawatRouteSourceSurfaceResult(profile = null, {
     sourceVerb = "",
     sourceObjectPrefix = "",
     routeTarget = null,
 } = {}) {
     if (!profile || !sourceVerb || !isPatientivoSurfaceRoute(profile) || typeof executeGenerateWordRequest !== "function") {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-source-surface-result",
+            routeStage: "source-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            diagnostics: [{
+                id: "nawat-route-source-surface-unavailable",
+                severity: "warning",
+                message: "The Nawat route source surface could not be generated for this route context.",
+            }],
+        });
     }
     const routeSpec = isNawatDynamicPatientivoSurfaceRoute(profile)
         ? resolveNawatPatientivoRouteSpec({
@@ -1395,16 +1707,45 @@ function getNawatRouteSourceSurfaceForm(profile = null, {
             verbInputValue: "",
         },
     });
-    const surface = getPrimaryNawatRouteSurfaceForm(result);
+    let surface = getPrimaryNawatRouteSurfaceForm(result);
     if (
         !isNawatDynamicPatientivoSurfaceRoute(profile)
         && patientivoSource === "nonactive"
         && sourceTenseValue === "preterito"
         && surface.endsWith("k")
     ) {
-        return surface.slice(0, -1);
+        surface = surface.slice(0, -1);
     }
-    return surface;
+    return buildNawatRouteSurfaceResultContract({
+        profile,
+        routeTarget: {
+            ...(routeTarget && typeof routeTarget === "object" ? routeTarget : {}),
+            sourceVerb,
+            sourceObjectPrefix,
+            sourceTenseValue,
+            sourceCombinedMode,
+            targetMode: TENSE_MODE.verbo,
+            targetTenseValue: sourceTenseValue,
+            targetVerb: sourceVerb,
+        },
+        sourceVerb,
+        sourceObjectPrefix,
+        outputKind: "nawat-route-source-surface-result",
+        routeStage: surface ? "source-surface" : "source-surface-blocked",
+        surface,
+        generationAllowed: true,
+        supported: Boolean(surface),
+        sourceResult: result,
+        diagnostics: surface ? [] : [{
+            id: "nawat-route-source-surface-empty",
+            severity: "warning",
+            message: "The Nawat route source generation produced no surface.",
+        }],
+    });
+}
+
+function getNawatRouteSourceSurfaceForm(profile = null, options = {}) {
+    return getNawatRouteSourceSurfaceResult(profile, options)?.surface || "";
 }
 
 function stripNawatRoutePreposedParticle(surface = "") {
@@ -1569,83 +1910,211 @@ function getNawatRouteGeneratedPatientivoConnectorSuffix(profile = null, {
     return "";
 }
 
-function getNawatVerbNounConversionNominalSurfaceForm(profile = null, {
+function getNawatVerbNounConversionNominalSurfaceResult(profile = null, {
     sourceVerb = "",
     sourceObjectPrefix = "",
     routeTarget = null,
 } = {}) {
     if (!isNawatDynamicPatientivoSurfaceRoute(profile)) {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-nominal-surface-result",
+            routeStage: "nominal-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            diagnostics: [{
+                id: "nawat-route-nominal-surface-not-patientivo",
+                severity: "warning",
+                message: "The Nawat nominal route surface helper only supports patientivo surface routes.",
+            }],
+        });
     }
     const surfaceSpec = getNawatRoutePatientivoSurfaceSpec(profile, {
         sourceTenseValue: routeTarget?.sourceTenseValue || "",
         sourceCombinedMode: routeTarget?.sourceCombinedMode || "",
     });
     if (!surfaceSpec?.suffix) {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-nominal-surface-result",
+            routeStage: "nominal-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            diagnostics: [{
+                id: "nawat-route-nominal-surface-missing-suffix",
+                severity: "warning",
+                message: "The Nawat patientivo route has no nominal suffix for this source context.",
+            }],
+        });
     }
     if (typeof executeGenerateWordRequest === "function") {
-        const requestedSurface = getPrimaryNawatRouteSurfaceForm(
-            generateNawatRoutePatientivoSurfaceResult(profile, {
-                sourceVerb,
-                sourceObjectPrefix,
-                routeTarget,
-                patientivoNominalSuffix: surfaceSpec.suffix,
-            })
-        );
+        const requestedResult = generateNawatRoutePatientivoSurfaceResult(profile, {
+            sourceVerb,
+            sourceObjectPrefix,
+            routeTarget,
+            patientivoNominalSuffix: surfaceSpec.suffix,
+        });
+        const requestedSurface = getPrimaryNawatRouteSurfaceForm(requestedResult);
         if (requestedSurface) {
-            return requestedSurface;
-        }
-        const defaultSurface = getPrimaryNawatRouteSurfaceForm(
-            generateNawatRoutePatientivoSurfaceResult(profile, {
+            return buildNawatRouteSurfaceResultContract({
+                profile,
+                routeTarget,
                 sourceVerb,
                 sourceObjectPrefix,
-                routeTarget,
-                patientivoNominalSuffix: null,
-            })
-        );
-        return defaultSurface || "";
+                outputKind: "nawat-route-nominal-surface-result",
+                routeStage: "nominal-surface",
+                surface: requestedSurface,
+                generationAllowed: true,
+                supported: true,
+                sourceResult: requestedResult,
+            });
+        }
+        const defaultResult = generateNawatRoutePatientivoSurfaceResult(profile, {
+            sourceVerb,
+            sourceObjectPrefix,
+            routeTarget,
+            patientivoNominalSuffix: null,
+        });
+        const defaultSurface = getPrimaryNawatRouteSurfaceForm(defaultResult);
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-nominal-surface-result",
+            routeStage: defaultSurface ? "nominal-surface" : "nominal-surface-blocked",
+            surface: defaultSurface || "",
+            generationAllowed: true,
+            supported: Boolean(defaultSurface),
+            sourceResult: defaultResult,
+            diagnostics: defaultSurface ? [] : [{
+                id: "nawat-route-nominal-surface-empty",
+                severity: "warning",
+                message: "The Nawat patientivo route produced no nominal surface.",
+            }],
+        });
     }
-    const sourceSurface = getNawatRouteSourceSurfaceForm(profile, {
+    const sourceSurfaceResult = getNawatRouteSourceSurfaceResult(profile, {
         sourceVerb: routeTarget?.sourceVerb || sourceVerb,
         sourceObjectPrefix: routeTarget?.sourceObjectPrefix || sourceObjectPrefix,
         routeTarget,
     });
+    const sourceSurface = sourceSurfaceResult?.surface || "";
     if (!sourceSurface) {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-nominal-surface-result",
+            routeStage: "nominal-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            sourceResult: sourceSurfaceResult,
+            diagnostics: [{
+                id: "nawat-route-nominal-surface-missing-source",
+                severity: "warning",
+                message: "The Nawat patientivo route needs a source surface before deriving a nominal surface.",
+            }],
+        });
     }
     const stem = isNawatRouteNonactiveSource(surfaceSpec)
         ? deriveNawatRouteNonactivePatientivoStem(sourceSurface, surfaceSpec.sourceTenseValue)
         : deriveNawatRouteActivePatientivoStem(sourceSurface, surfaceSpec.sourceTenseValue);
-    return appendNawatRouteNominalSuffix(stem, surfaceSpec.suffix);
+    const surface = appendNawatRouteNominalSuffix(stem, surfaceSpec.suffix);
+    return buildNawatRouteSurfaceResultContract({
+        profile,
+        routeTarget,
+        sourceVerb,
+        sourceObjectPrefix,
+        outputKind: "nawat-route-nominal-surface-result",
+        routeStage: surface ? "nominal-surface" : "nominal-surface-blocked",
+        surface,
+        generationAllowed: true,
+        supported: Boolean(surface),
+        sourceResult: sourceSurfaceResult,
+        diagnostics: surface ? [] : [{
+            id: "nawat-route-nominal-surface-empty",
+            severity: "warning",
+            message: "The Nawat patientivo route derived no nominal surface.",
+        }],
+    });
 }
 
-function getNawatRouteFiniteSurfaceForm(profile = null, {
+function getNawatVerbNounConversionNominalSurfaceForm(profile = null, options = {}) {
+    return getNawatVerbNounConversionNominalSurfaceResult(profile, options)?.surface || "";
+}
+
+function getNawatRouteFiniteSurfaceResult(profile = null, {
     sourceVerb = "",
     sourceObjectPrefix = "",
     routeTarget = null,
 } = {}) {
     if (!profile || typeof profile !== "object") {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-finite-surface-result",
+            routeStage: "finite-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            diagnostics: [{
+                id: "nawat-route-finite-surface-missing-profile",
+                severity: "warning",
+                message: "The Nawat route surface helper needs a route profile.",
+            }],
+        });
     }
     if (isPatientivoSurfaceRoute(profile)) {
-        const routeSurface = getNawatVerbNounConversionNominalSurfaceForm(profile, {
+        const nominalResult = getNawatVerbNounConversionNominalSurfaceResult(profile, {
             sourceVerb,
             sourceObjectPrefix,
             routeTarget,
         });
+        const routeSurface = nominalResult?.surface || "";
         if (routeSurface) {
-            return routeSurface;
+            return buildNawatRouteSurfaceResultContract({
+                profile,
+                routeTarget,
+                sourceVerb,
+                sourceObjectPrefix,
+                outputKind: "nawat-route-finite-surface-result",
+                routeStage: "finite-surface",
+                surface: routeSurface,
+                generationAllowed: true,
+                supported: true,
+                sourceResult: nominalResult,
+            });
         }
     }
     const hasExplicitRouteStem = Boolean(String(routeTarget?.sourceStem || "").trim());
     if (!hasExplicitRouteStem) {
-        const legacySurface = getPrimaryNawatRouteSurfaceForm(executeNawatRouteLegacyGeneration(profile, {
+        const legacyResult = executeNawatRouteLegacyGeneration(profile, {
             sourceVerb,
             sourceObjectPrefix,
-        }));
+        });
+        const legacySurface = getPrimaryNawatRouteSurfaceForm(legacyResult);
         if (legacySurface) {
-            return legacySurface;
+            return buildNawatRouteSurfaceResultContract({
+                profile,
+                routeTarget,
+                sourceVerb,
+                sourceObjectPrefix,
+                outputKind: "nawat-route-finite-surface-result",
+                routeStage: "finite-surface",
+                surface: legacySurface,
+                generationAllowed: true,
+                supported: true,
+                sourceResult: legacyResult,
+            });
         }
     }
     const targetMode = routeTarget?.targetMode || getNawatRouteTargetMode(profile);
@@ -1707,13 +2176,62 @@ function getNawatRouteFiniteSurfaceForm(profile = null, {
         });
         const surface = getPrimaryNawatRouteSurfaceForm(result);
         if (surface) {
-            return surface;
+            return buildNawatRouteSurfaceResultContract({
+                profile,
+                routeTarget,
+                sourceVerb,
+                sourceObjectPrefix,
+                outputKind: "nawat-route-finite-surface-result",
+                routeStage: "finite-surface",
+                surface,
+                generationAllowed: true,
+                supported: true,
+                sourceResult: result,
+            });
         }
     }
     if (isPatientivoSurfaceRoute(profile)) {
-        return "";
+        return buildNawatRouteSurfaceResultContract({
+            profile,
+            routeTarget,
+            sourceVerb,
+            sourceObjectPrefix,
+            outputKind: "nawat-route-finite-surface-result",
+            routeStage: "finite-surface-blocked",
+            generationAllowed: false,
+            supported: false,
+            diagnostics: [{
+                id: "nawat-route-finite-surface-empty-patientivo",
+                severity: "warning",
+                message: "The Nawat patientivo route produced no finite surface.",
+            }],
+        });
     }
-    return generationVerb || targetVerb || "";
+    const fallbackSurface = generationVerb || targetVerb || "";
+    return buildNawatRouteSurfaceResultContract({
+        profile,
+        routeTarget,
+        sourceVerb,
+        sourceObjectPrefix,
+        outputKind: "nawat-route-finite-surface-result",
+        routeStage: fallbackSurface ? "finite-surface-fallback" : "finite-surface-blocked",
+        surface: fallbackSurface,
+        generationAllowed: false,
+        supported: false,
+        diagnostics: [{
+            id: fallbackSurface
+                ? "nawat-route-finite-surface-fallback-target"
+                : "nawat-route-finite-surface-empty",
+            severity: fallbackSurface ? "info" : "warning",
+            message: fallbackSurface
+                ? "The Nawat route exposed a target input fallback rather than a generated finite surface."
+                : "The Nawat route produced no finite surface.",
+        }],
+    });
+}
+
+function getNawatRouteFiniteSurfaceForm(profile = null, options = {}) {
+    return getNawatRouteFiniteSurfaceResult(profile, options)?.surface || "";
 }
 
 function getNawatRouteSurfaceTrailParts(routeKeyOrProfile = "", {
@@ -1816,6 +2334,62 @@ function formatNawatRouteSurfaceTrailLabel(routeKeyOrProfile = "", options = {})
         .join(" → ");
 }
 
+function buildNawatDenominalAndrewsRouteSourceEvidenceFromLinkedStage(profile = null, part = null, routeContext = null) {
+    const familyKey = getNawatDenominalRouteFamilyKey(profile);
+    const stationKey = String(part?.stationKey || part?.key || "").trim();
+    if (familyKey === "vi-ti" && stationKey === "verbalizer") {
+        const sourceBaseStem = String(routeContext?.sourceStem || "").trim()
+            || (() => {
+                const targetVerb = String(routeContext?.targetVerb || "").trim();
+                const familySuffix = "ti";
+                return targetVerb.endsWith(familySuffix)
+                    ? targetVerb.slice(0, -familySuffix.length)
+                    : "";
+            })();
+        return {
+            tiSource: true,
+            sourceCategory: "inceptive-stative-ti-source",
+            sourceRouteFamily: familyKey,
+            sourceRouteId: profile?.id || "",
+            sourceStageKey: stationKey,
+            sourceBaseStem,
+            sourceVerbStem: String(routeContext?.targetVerb || "").trim(),
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromSelectedGeneratedStage: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTiLiaCausative: true,
+                sourceEvidenceSupportsTiACausative: true,
+                sourceEvidenceSupportsTIaApplicative: true,
+            },
+        };
+    }
+    if ((familyKey === "vi-iwi" || familyKey === "vi-awi") && stationKey === "verbalizer") {
+        const sourceBaseStem = String(routeContext?.sourceStem || "").trim()
+            || (() => {
+                const targetVerb = String(routeContext?.targetVerb || "").trim();
+                const familySuffix = familyKey === "vi-iwi" ? "iwi" : "awi";
+                return targetVerb.endsWith(familySuffix)
+                    ? targetVerb.slice(0, -familySuffix.length)
+                    : "";
+            })();
+        return {
+            iHuiOrAHuiSource: true,
+            sourceCategory: "i-hui-a-hui-source",
+            sourceRouteFamily: familyKey,
+            sourceRouteId: profile?.id || "",
+            sourceStageKey: stationKey,
+            sourceBaseStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromSelectedGeneratedStage: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        };
+    }
+    return null;
+}
+
 function buildNawatLinkedGrammarPathStages(routeKeyOrProfile = "", options = {}) {
     const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object"
         ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "")
@@ -1846,6 +2420,7 @@ function buildNawatLinkedGrammarPathStages(routeKeyOrProfile = "", options = {})
         routeTarget: resolvedTarget,
     }).map((part, index) => {
         const sourceVerb = String(part.inputValue || part.renderVerb || part.text || "").trim();
+        const sourceEvidence = buildNawatDenominalAndrewsRouteSourceEvidenceFromLinkedStage(profile, part, routeContext);
         return {
             index,
             key: part.key || "",
@@ -1864,6 +2439,7 @@ function buildNawatLinkedGrammarPathStages(routeKeyOrProfile = "", options = {})
             voiceMode: part.voiceMode || "",
             sourceScope: part.sourceScope || "",
             routeContext,
+            ...(sourceEvidence ? { sourceEvidence } : {}),
             nextSource: {
                 canBecomeSource: Boolean(sourceVerb),
                 sourceVerb,
@@ -1875,6 +2451,7 @@ function buildNawatLinkedGrammarPathStages(routeKeyOrProfile = "", options = {})
                 derivationMode: part.derivationMode || "",
                 voiceMode: part.voiceMode || "",
                 sourceScope: part.sourceScope || "",
+                ...(sourceEvidence ? { sourceEvidence } : {}),
                 routeId: profile.id || "",
                 stationKey: part.stationKey || part.key || "",
             },
@@ -1889,19 +2466,17 @@ function buildNawatLinkedGrammarPathStageGenerateWordRequest(stage = null, {
     const nextSource = stage?.nextSource && typeof stage.nextSource === "object"
         ? stage.nextSource
         : {};
-    const sourceVerb = String(
-        nextSource.sourceVerb
-        || stage?.inputValue
-        || stage?.renderVerb
-        || stage?.surface
-        || ""
-    ).trim();
+    const sourceVerb = getNawatLinkedGrammarPathStageSourceVerb(stage);
     if (!sourceVerb) {
         return null;
     }
+    const displaySurface = getNawatLinkedGrammarPathStageDisplaySurface(stage);
     const tenseMode = nextSource.mode || stage?.mode || TENSE_MODE.verbo;
     const tense = nextSource.tenseValue || stage?.tenseValue || "";
     const objectPrefix = nextSource.objectPrefix || stage?.objectPrefix || "";
+    const sourceEvidence = nextSource.sourceEvidence && typeof nextSource.sourceEvidence === "object"
+        ? nextSource.sourceEvidence
+        : (stage?.sourceEvidence && typeof stage.sourceEvidence === "object" ? stage.sourceEvidence : null);
     const combinedMode = nextSource.combinedMode || stage?.combinedMode || "";
     const derivationMode = nextSource.derivationMode
         || stage?.derivationMode
@@ -1909,7 +2484,7 @@ function buildNawatLinkedGrammarPathStageGenerateWordRequest(stage = null, {
     const voiceMode = nextSource.voiceMode
         || stage?.voiceMode
         || (combinedMode === COMBINED_MODE.nonactive ? VOICE_MODE.passive : VOICE_MODE.active);
-    return {
+    const request = {
         options: {
             silent,
             skipValidation,
@@ -1938,16 +2513,158 @@ function buildNawatLinkedGrammarPathStageGenerateWordRequest(stage = null, {
             routeId: nextSource.routeId || "",
             stationKey: nextSource.stationKey || stage?.stationKey || stage?.key || "",
             sourceVerb,
-            displaySurface: nextSource.displaySurface || stage?.surface || "",
+            displaySurface,
             mode: tenseMode,
             tenseValue: tense,
             objectPrefix,
+            ...(sourceEvidence ? { sourceEvidence } : {}),
             combinedMode,
             derivationMode,
             voiceMode,
             sourceScope: nextSource.sourceScope || stage?.sourceScope || "",
         },
     };
+    if (typeof attachGrammarMetadataContract === "function") {
+        request.linkedGrammarPathStage = attachGrammarMetadataContract(request.linkedGrammarPathStage, {
+            enumerable: false,
+            metadataKind: "linked-grammar-path-stage",
+            unitKind: "linked-grammar-path-stage",
+            routeFamily: "linked-grammar-path",
+            routeStage: "request-stage-generation",
+            generationAllowed: true,
+            supported: true,
+            structuralSource: "Andrews Lessons 54-55",
+            andrewsRefs: ["Andrews Lessons 54-55"],
+            evidenceStatus: sourceEvidence ? "source-evidence-linked" : "route-stage-request",
+            sourceInput: sourceVerb,
+            surface: displaySurface || sourceVerb,
+            surfaceForms: (displaySurface || sourceVerb) ? [displaySurface || sourceVerb] : [],
+            sourceContract: {
+                unitKind: "linked-route-source",
+                sourceVerb,
+                sourceEvidence,
+            },
+            targetContract: {
+                unitKind: "generated-stage",
+                mode: tenseMode,
+                tense,
+                objectPrefix,
+                generationAllowed: true,
+            },
+            orthographyFrame: {
+                surface: sourceVerb,
+                surfaceForms: sourceVerb ? [sourceVerb] : [],
+                spellingAuthority: "Nawat/Pipil evidence",
+                noClassicalSurfaceImport: true,
+            },
+            stemFrame: {
+                stemKind: "linked-stage-source",
+                sourceStem: sourceVerb,
+                useStatus: "explicit-stage-request",
+            },
+        });
+    }
+    return request;
+}
+
+function collectNawatLinkedGrammarPathDiagnostics(record = null) {
+    const diagnostics = [];
+    if (Array.isArray(record?.diagnostics)) {
+        diagnostics.push(...record.diagnostics);
+    }
+    [
+        ...(Array.isArray(record?.steps) ? record.steps : []),
+        ...(Array.isArray(record?.selectedSteps) ? record.selectedSteps : []),
+    ].forEach((step) => {
+        if (Array.isArray(step?.diagnostics)) {
+            diagnostics.push(...step.diagnostics);
+        }
+    });
+    return diagnostics.filter(Boolean);
+}
+
+function attachNawatLinkedGrammarPathContract(record = null, {
+    metadataKind = "",
+    routeStage = "",
+    generationAllowed = false,
+    evidenceStatus = "",
+    sourceVerb = "",
+    sourceObjectPrefix = "",
+    currentSourceVerb = "",
+    selectedStage = null,
+} = {}) {
+    if (!record || typeof record !== "object" || typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    const diagnostics = collectNawatLinkedGrammarPathDiagnostics(record);
+    const resolvedSourceVerb = String(
+        sourceVerb
+        || record.initialSource?.sourceVerb
+        || record.currentSource?.sourceVerb
+        || record.nextSource?.sourceVerb
+        || record.selectedStage?.sourceVerb
+        || record.sourceVerb
+        || ""
+    ).trim();
+    const resolvedCurrentSourceVerb = String(
+        currentSourceVerb
+        || record.currentSource?.sourceVerb
+        || record.nextSource?.sourceVerb
+        || record.promotedSource?.sourceVerb
+        || resolvedSourceVerb
+    ).trim();
+    const resolvedSourceObjectPrefix = String(
+        sourceObjectPrefix
+        || record.initialSource?.sourceObjectPrefix
+        || record.currentSource?.sourceObjectPrefix
+        || record.nextSource?.objectPrefix
+        || record.promotedSource?.sourceObjectPrefix
+        || ""
+    ).trim();
+    const kind = String(metadataKind || record.outputKind || "linked-grammar-path").trim();
+    const resolvedEvidenceStatus = diagnostics.length ? "blocked" : (evidenceStatus || "linked-route-contract");
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        metadataKind: kind,
+        unitKind: "linked-grammar-path",
+        routeFamily: "linked-grammar-path",
+        routeStage,
+        generationAllowed,
+        supported: diagnostics.length === 0,
+        structuralSource: "Andrews Lessons 54-55",
+        andrewsRefs: ["Andrews Lessons 54-55"],
+        evidenceStatus: resolvedEvidenceStatus,
+        diagnosticStatus: resolvedEvidenceStatus,
+        surface: resolvedCurrentSourceVerb,
+        surfaceForms: resolvedCurrentSourceVerb ? [resolvedCurrentSourceVerb] : [],
+        sourceInput: resolvedSourceVerb,
+        diagnostics,
+        sourceContract: {
+            unitKind: "linked-route-source",
+            sourceVerb: resolvedSourceVerb,
+            sourceObjectPrefix: resolvedSourceObjectPrefix,
+            selectedStage,
+        },
+        targetContract: {
+            unitKind: "linked-route-ui-control",
+            currentSourceVerb: resolvedCurrentSourceVerb,
+            generationAllowed,
+            stoppedReason: record.stoppedReason || "",
+            requestedSelectionCount: record.requestedSelectionCount || 0,
+        },
+        orthographyFrame: {
+            surface: resolvedCurrentSourceVerb,
+            surfaceForms: resolvedCurrentSourceVerb ? [resolvedCurrentSourceVerb] : [],
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+        },
+        stemFrame: {
+            stemKind: "linked-route-source",
+            sourceStem: resolvedSourceVerb,
+            currentStem: resolvedCurrentSourceVerb,
+            useStatus: "ui-route-contract",
+        },
+    });
 }
 
 function executeNawatLinkedGrammarPathStage(stage = null, options = {}) {
@@ -1972,6 +2689,7 @@ function executeNawatLinkedGrammarPathStage(stage = null, options = {}) {
             mode: request.linkedGrammarPathStage.mode || "",
             tenseValue: request.linkedGrammarPathStage.tenseValue || "",
             objectPrefix: request.linkedGrammarPathStage.objectPrefix || "",
+            ...(request.linkedGrammarPathStage.sourceEvidence ? { sourceEvidence: request.linkedGrammarPathStage.sourceEvidence } : {}),
             canBecomeSource: true,
             doesNotBroadenGeneration: true,
         },
@@ -1991,8 +2709,10 @@ function previewNawatLinkedGrammarPathNextSource(stage = null, options = {}) {
     const routePreview = generateNawatDenominalRouteFamilyPreview({
         sourceVerb: selectedStage.sourceVerb || "",
         sourceObjectPrefix: selectedStage.objectPrefix || "",
+        sourceEvidence: selectedStage.sourceEvidence || null,
+        andrewsContractSourceStem: selectedStage.sourceEvidence?.sourceBaseStem || "",
     });
-    return {
+    const preview = {
         version: 1,
         outputKind: "linked-grammar-path-next-source-preview",
         source: "linked-grammar-path-stage",
@@ -2005,6 +2725,7 @@ function previewNawatLinkedGrammarPathNextSource(stage = null, options = {}) {
             mode: selectedStage.mode || "",
             tenseValue: selectedStage.tenseValue || "",
             objectPrefix: selectedStage.objectPrefix || "",
+            ...(selectedStage.sourceEvidence ? { sourceEvidence: selectedStage.sourceEvidence } : {}),
         },
         routePreview,
         candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
@@ -2015,6 +2736,15 @@ function previewNawatLinkedGrammarPathNextSource(stage = null, options = {}) {
             doesNotMutateState: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(preview, {
+        metadataKind: "linked-grammar-path-next-source-preview",
+        routeStage: "preview-next-source",
+        generationAllowed: false,
+        evidenceStatus: selectedStage.sourceEvidence ? "source-evidence-linked" : "next-source-preview",
+        sourceVerb: selectedStage.sourceVerb || "",
+        currentSourceVerb: preview.nextSource.sourceVerb || "",
+        selectedStage,
+    });
 }
 
 function getNawatLinkedGrammarPathSelectionRoute(routePreview = null, selection = {}) {
@@ -2148,7 +2878,7 @@ function previewNawatLinkedGrammarPathChain({
         });
         currentPreview = nextPreview.routePreview;
     }
-    return {
+    const chainPreview = {
         version: 1,
         outputKind: "linked-grammar-path-chain-preview",
         source: "linked-grammar-path-chain",
@@ -2168,6 +2898,15 @@ function previewNawatLinkedGrammarPathChain({
             doesNotMutateState: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(chainPreview, {
+        metadataKind: "linked-grammar-path-chain-preview",
+        routeStage: "preview-chain",
+        generationAllowed: false,
+        evidenceStatus: stoppedReason ? "blocked" : "chain-preview",
+        sourceVerb: normalizedSourceVerb,
+        sourceObjectPrefix: normalizedSourceObjectPrefix,
+        currentSourceVerb: chainPreview.currentPreview?.sourceVerb || "",
+    });
 }
 
 function executeNawatLinkedGrammarPathChain({
@@ -2248,6 +2987,9 @@ function executeNawatLinkedGrammarPathChain({
         const candidateRouteIds = Array.isArray(nextPreview?.routePreview?.routes)
             ? nextPreview.routePreview.routes.map((candidate) => candidate.routeId || "").filter(Boolean)
             : [];
+        const generatedGrammarFrame = getStateResultFrame(result);
+        const generatedSurfaceForms = getStateResultSurfaceForms(result);
+        const generatedPrimarySurface = getPrimaryNawatRouteSurfaceForm(result);
         steps.push({
             index,
             status: "executed",
@@ -2265,9 +3007,14 @@ function executeNawatLinkedGrammarPathChain({
             selectedStage: result.linkedGrammarPathStage || null,
             routeContext: stage.routeContext || null,
             generated: {
-                result: result.result || "",
-                surfaceForms: Array.isArray(result.surfaceForms) ? result.surfaceForms.slice() : [],
-                primarySurface: getPrimaryNawatRouteSurfaceForm(result),
+                result: getStateResultDisplaySurface(result),
+                surface: generatedPrimarySurface,
+                surfaceForms: generatedSurfaceForms,
+                ok: result.ok === true,
+                grammarFrame: generatedGrammarFrame,
+                frames: generatedGrammarFrame,
+                diagnostics: Array.isArray(result.diagnostics) ? result.diagnostics.slice() : [],
+                contractDiagnostics: Array.isArray(result.contractDiagnostics) ? result.contractDiagnostics.slice() : [],
             },
             linkedGrammarPath: result.linkedGrammarPath || null,
             nextSource: nextPreview?.nextSource || null,
@@ -2280,7 +3027,7 @@ function executeNawatLinkedGrammarPathChain({
         }
         currentPreview = nextPreview.routePreview;
     }
-    return {
+    const execution = {
         version: 1,
         outputKind: "linked-grammar-path-chain-execution",
         source: "linked-grammar-path-chain",
@@ -2300,6 +3047,15 @@ function executeNawatLinkedGrammarPathChain({
             doesNotMutateState: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(execution, {
+        metadataKind: "linked-grammar-path-chain-execution",
+        routeStage: "execute-chain",
+        generationAllowed: true,
+        evidenceStatus: stoppedReason ? "blocked" : "executed",
+        sourceVerb: normalizedSourceVerb,
+        sourceObjectPrefix: normalizedSourceObjectPrefix,
+        currentSourceVerb: execution.currentPreview?.sourceVerb || "",
+    });
 }
 
 function buildNawatLinkedGrammarPathSelectionSummary({
@@ -2368,7 +3124,7 @@ function buildNawatLinkedGrammarPathSelectionSummary({
                 appendableStages,
             };
         });
-    return {
+    const summary = {
         version: 1,
         outputKind: "linked-grammar-path-selection-summary",
         source: "linked-grammar-path-selection",
@@ -2390,6 +3146,15 @@ function buildNawatLinkedGrammarPathSelectionSummary({
             summaryOnly: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(summary, {
+        metadataKind: "linked-grammar-path-selection-summary",
+        routeStage: "summarize-selection",
+        generationAllowed: false,
+        evidenceStatus: summary.stoppedReason ? "blocked" : "selection-summary",
+        sourceVerb: summary.initialSource.sourceVerb,
+        sourceObjectPrefix: summary.initialSource.sourceObjectPrefix,
+        currentSourceVerb: summary.currentSource.sourceVerb,
+    });
 }
 
 function normalizeNawatLinkedGrammarPathSelection(selection = null) {
@@ -2491,7 +3256,7 @@ function setActiveNawatLinkedGrammarPathSelections(selections = [], {
     state.activeLinkedGrammarPathSelectionSummary = summary;
     state.activeLinkedGrammarPathExecution = null;
     state.activeLinkedGrammarPathPromotedSource = null;
-    return {
+    const selectionState = {
         version: 1,
         outputKind: "linked-grammar-path-selection-state",
         source: "linked-grammar-path-selection-state",
@@ -2504,6 +3269,15 @@ function setActiveNawatLinkedGrammarPathSelections(selections = [], {
             mutatesSelectionStateOnly: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(selectionState, {
+        metadataKind: "linked-grammar-path-selection-state",
+        routeStage: "select-control",
+        generationAllowed: false,
+        evidenceStatus: summary?.stoppedReason ? "blocked" : "selection-state",
+        sourceVerb: source.sourceVerb,
+        sourceObjectPrefix: source.sourceObjectPrefix,
+        currentSourceVerb: summary?.currentSource?.sourceVerb || source.sourceVerb,
+    });
 }
 
 function appendActiveNawatLinkedGrammarPathSelection(selection = null, {
@@ -2529,11 +3303,20 @@ function appendActiveNawatLinkedGrammarPathSelection(selection = null, {
         maxDepth,
         stateStore: state,
     });
-    return {
+    const appendedState = {
         ...selectionState,
         appended: Boolean(normalizedSelection),
         appendedSelection: normalizedSelection,
     };
+    return attachNawatLinkedGrammarPathContract(appendedState, {
+        metadataKind: "linked-grammar-path-selection-state",
+        routeStage: "append-selection",
+        generationAllowed: false,
+        evidenceStatus: appendedState.summary?.stoppedReason ? "blocked" : "selection-appended",
+        sourceVerb: appendedState.summary?.initialSource?.sourceVerb || "",
+        sourceObjectPrefix: appendedState.summary?.initialSource?.sourceObjectPrefix || "",
+        currentSourceVerb: appendedState.summary?.currentSource?.sourceVerb || "",
+    });
 }
 
 function removeLastActiveNawatLinkedGrammarPathSelection({
@@ -2553,7 +3336,7 @@ function removeLastActiveNawatLinkedGrammarPathSelection({
         maxDepth,
         stateStore: state,
     });
-    return {
+    const backtrackState = {
         ...selectionState,
         outputKind: "linked-grammar-path-selection-backtrack",
         removed: Boolean(removedSelection),
@@ -2564,6 +3347,15 @@ function removeLastActiveNawatLinkedGrammarPathSelection({
             doesNotExecuteStages: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(backtrackState, {
+        metadataKind: "linked-grammar-path-selection-backtrack",
+        routeStage: "backtrack-selection",
+        generationAllowed: false,
+        evidenceStatus: backtrackState.summary?.stoppedReason ? "blocked" : "selection-backtracked",
+        sourceVerb: backtrackState.summary?.initialSource?.sourceVerb || "",
+        sourceObjectPrefix: backtrackState.summary?.initialSource?.sourceObjectPrefix || "",
+        currentSourceVerb: backtrackState.summary?.currentSource?.sourceVerb || "",
+    });
 }
 
 function executeActiveNawatLinkedGrammarPathSelections({
@@ -2597,8 +3389,9 @@ function getNawatLinkedGrammarPathExecutionSourceOptions(execution = null) {
     return steps
         .filter((step) => step?.status === "executed")
         .map((step) => {
+            const generatedPrimarySurface = getPrimaryNawatRouteSurfaceForm(step?.generated);
             const sourceVerb = String(
-                step?.generated?.primarySurface
+                generatedPrimarySurface
                 || step?.nextSource?.sourceVerb
                 || step?.selectedStage?.sourceVerb
                 || ""
@@ -2619,7 +3412,7 @@ function getNawatLinkedGrammarPathExecutionSourceOptions(execution = null) {
                     || ""
                 ).trim(),
                 displaySurface: String(
-                    step?.generated?.primarySurface
+                    generatedPrimarySurface
                     || step?.nextSource?.displaySurface
                     || step?.selectedStage?.displaySurface
                     || ""
@@ -2632,8 +3425,7 @@ function getNawatLinkedGrammarPathExecutionSourceOptions(execution = null) {
                     || ""
                 ).trim(),
                 generatedSurface: String(
-                    step?.generated?.primarySurface
-                    || step?.generated?.result
+                    generatedPrimarySurface
                     || ""
                 ).trim(),
                 routeId: step?.selection?.routeId || step?.route?.routeId || "",
@@ -2749,7 +3541,7 @@ function promoteActiveNawatLinkedGrammarPathExecutionStepSource(stepIndex = null
             sourceObjectPrefix: selectedSource.sourceObjectPrefix,
             reason: "not-requested",
         };
-    return {
+    const promotedState = {
         ...selectionState,
         outputKind: "linked-grammar-path-promoted-source",
         promotedSource: selectedSource,
@@ -2762,6 +3554,15 @@ function promoteActiveNawatLinkedGrammarPathExecutionStepSource(stepIndex = null
             syncsPromotedSourceInputOnlyWhenRequested: true,
         },
     };
+    return attachNawatLinkedGrammarPathContract(promotedState, {
+        metadataKind: "linked-grammar-path-promoted-source",
+        routeStage: "promote-generated-source",
+        generationAllowed: false,
+        evidenceStatus: "source-promoted",
+        sourceVerb: promotedState.summary?.initialSource?.sourceVerb || selectedSource.sourceVerb,
+        sourceObjectPrefix: promotedState.summary?.initialSource?.sourceObjectPrefix || selectedSource.sourceObjectPrefix,
+        currentSourceVerb: selectedSource.sourceVerb,
+    });
 }
 
 function promoteActiveNawatLinkedGrammarPathExecutionFinalSource(options = {}) {
@@ -2784,20 +3585,10 @@ function clearActiveNawatLinkedGrammarPathSelections({
 }
 
 function getPrimaryNawatRouteSurfaceForm(result = null) {
-    if (!result || result.error || result.result === "—") {
+    if (!result || result.error) {
         return "";
     }
-    if (Array.isArray(result.surfaceForms) && result.surfaceForms.length) {
-        return String(result.surfaceForms[0] || "").trim();
-    }
-    const rawResult = String(result.result || "").trim();
-    if (!rawResult) {
-        return "";
-    }
-    return rawResult
-        .split(/\s*(?:\/|,|\n)\s*/)
-        .map((part) => part.trim())
-        .find(Boolean) || "";
+    return getStateResultSurfaceForms(result)[0] || "";
 }
 
 function executeNawatRouteLegacyGeneration(profile = null, {
@@ -2964,7 +3755,7 @@ function resolveNawatRouteTarget(routeKeyOrProfile = "", {
             sourceStem: routeStem,
         })
         : routeVerb;
-    return {
+    const routeTarget = {
         sourceVerb: routeVerb,
         sourceObjectPrefix: sourceObjectPrefix || "",
         sourceStem: routeStem,
@@ -2990,6 +3781,12 @@ function resolveNawatRouteTarget(routeKeyOrProfile = "", {
             }))
             : "",
     };
+    return attachNawatStaticRouteGrammarFrame(routeTarget, {
+        profile,
+        routeStage: "resolve-route-target",
+        generationAllowed: true,
+        supported: true,
+    });
 }
 
 function summarizeNawatRouteSourceStateStation(station = null) {
@@ -3048,9 +3845,2562 @@ function getNawatDenominalRouteStructuralAnalogue(profile = null) {
         return "inceptive-stative-wi-route";
     }
     if (familyKey === "vt-na") {
-        return "transitive-denominal-route";
+        return "nawat-transitive-route-no-andrews-suffix";
     }
     return "unknown-denominal-route";
+}
+
+const NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS = Object.freeze([
+    Object.freeze({
+        id: "54.2.1-inceptive-stative-ti",
+        range: "54.2.1",
+        lesson: 54,
+        denominalFamily: "inceptive-stative-ti",
+        structuralAnalogue: "inceptive-stative-ti-route",
+        sourceCategory: "absolutive-state-nnc-predicate",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "ti" }),
+        ]),
+        currentRouteFamilies: Object.freeze(["vi-ti"]),
+        supportStatus: "current-route-suffix-supported-partial",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({ semanticFamilyComplete: false }),
+    }),
+    Object.freeze({
+        id: "54.2.2-inceptive-stative-hui",
+        range: "54.2.2",
+        lesson: 54,
+        denominalFamily: "inceptive-stative-hui",
+        structuralAnalogue: "inceptive-stative-hui-route",
+        sourceCategory: "absolutive-state-nnc-predicate",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "hui" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true }),
+    }),
+    Object.freeze({
+        id: "54.2.2-hui-lia-causative",
+        range: "54.2.2",
+        lesson: 54,
+        denominalFamily: "hui-lia-causative",
+        structuralAnalogue: "single-object-causative-from-hui",
+        sourceCategory: "intransitive-hui-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "single-object-causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "hui" }),
+            Object.freeze({ role: "causative", classical: "lia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "54.2.3-inceptive-stative-ya",
+        range: "54.2.3",
+        lesson: 54,
+        denominalFamily: "inceptive-stative-ya",
+        structuralAnalogue: "inceptive-stative-ya-route",
+        sourceCategory: "nounroot-or-nounstem-as-root",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "ya" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true }),
+    }),
+    Object.freeze({
+        id: "54.2.3-ti-ya-deverbal",
+        range: "54.2.3",
+        lesson: 54,
+        denominalFamily: "ti-ya-deverbal-inceptive-stative",
+        structuralAnalogue: "deverbal-ya-from-ti",
+        sourceCategory: "intransitive-ti-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "ti" }),
+            Object.freeze({ role: "deverbal-inceptive-stative", classical: "ya" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ requiresGeneratedTiSource: true, traditionalSpellingAmbiguous: true }),
+    }),
+    Object.freeze({
+        id: "54.2.3-hui-ya-deverbal",
+        range: "54.2.3",
+        lesson: 54,
+        denominalFamily: "hui-ya-deverbal-inceptive-stative",
+        structuralAnalogue: "deverbal-ya-from-hui",
+        sourceCategory: "intransitive-hui-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "hui" }),
+            Object.freeze({ role: "deverbal-inceptive-stative", classical: "ya" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ requiresGeneratedHuiSource: true, traditionalSpellingAmbiguous: true }),
+    }),
+    Object.freeze({
+        id: "54.2.3-ya-lia-causative",
+        range: "54.2.3",
+        lesson: 54,
+        denominalFamily: "ya-lia-causative",
+        structuralAnalogue: "single-object-causative-from-ya",
+        sourceCategory: "intransitive-ya-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "single-object-causative-or-applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "ya" }),
+            Object.freeze({ role: "causative-or-applicative", classical: "lia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false, sourceYaDeleted: true }),
+    }),
+    Object.freeze({
+        id: "54.2.4-inceptive-stative-a",
+        range: "54.2.4",
+        lesson: 54,
+        denominalFamily: "inceptive-stative-a",
+        structuralAnalogue: "inceptive-stative-a-route",
+        sourceCategory: "nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "a" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ limitedUse: true, noCurrentRoute: true }),
+    }),
+    Object.freeze({
+        id: "54.2.5-inceptive-stative-hua",
+        range: "54.2.5",
+        lesson: 54,
+        denominalFamily: "inceptive-stative-hua",
+        structuralAnalogue: "inceptive-stative-hua-route",
+        sourceCategory: "deverbal-yo-nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "hua" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ noCurrentRoute: true, notOaFormation: true }),
+    }),
+    Object.freeze({
+        id: "54.3-included-possessor-ti",
+        range: "54.3",
+        lesson: 54,
+        denominalFamily: "included-possessor-ti",
+        structuralAnalogue: "possessive-state-nnc-inclusion-ti",
+        sourceCategory: "possessive-state-nnc-predicate",
+        sourceState: "possessive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "ti" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ includedPossessorModeled: false }),
+    }),
+    Object.freeze({
+        id: "54.4-possession-ti",
+        range: "54.4",
+        lesson: 54,
+        denominalFamily: "possession-ti",
+        structuralAnalogue: "possession-ti-route",
+        sourceCategory: "nounstem-source",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "verbalizer", classical: "ti" }),
+        ]),
+        currentRouteFamilies: Object.freeze(["vi-ti"]),
+        supportStatus: "suffix-shape-supported-semantics-unmodeled",
+        generationStatus: "route-surface-supported",
+        boundaryFlags: Object.freeze({ possessionDenominalModeled: false }),
+    }),
+    Object.freeze({
+        id: "54.2-54.4-ti-lia-causative",
+        range: "54.2.1/54.4",
+        lesson: 54,
+        denominalFamily: "ti-lia-causative",
+        structuralAnalogue: "single-object-causative-from-ti",
+        sourceCategory: "intransitive-ti-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "single-object-causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "ti" }),
+            Object.freeze({ role: "causative", classical: "lia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "54.5-ti-a-causative",
+        range: "54.5",
+        lesson: 54,
+        denominalFamily: "ti-a-causative",
+        structuralAnalogue: "first-type-causative-from-ti",
+        sourceCategory: "ti-vnc-from-nnc",
+        sourceState: "absolutive-or-possessive",
+        targetCategory: "vnc",
+        valency: "single-or-double-object-causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-verbalizer", classical: "ti" }),
+            Object.freeze({ role: "causative", classical: "a" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "54.6-t-ia-applicative",
+        range: "54.6",
+        lesson: 54,
+        denominalFamily: "t-ia-applicative",
+        structuralAnalogue: "first-type-applicative-from-ti",
+        sourceCategory: "intransitive-ti-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "applicative", classical: "ia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.1-temporal-tia",
+        range: "55.1",
+        lesson: 55,
+        denominalFamily: "temporal-tia",
+        structuralAnalogue: "temporal-intransitive-tia",
+        sourceCategory: "compound-temporal-nnc",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "temporal-intransitive", classical: "tia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ temporalDenominalModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.2-causative-tla",
+        range: "55.2",
+        lesson: 55,
+        denominalFamily: "causative-tla",
+        structuralAnalogue: "denominal-causative-tla",
+        sourceCategory: "nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "causative", classical: "tla" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.2-tla-ti-lia-applicative",
+        range: "55.2",
+        lesson: 55,
+        denominalFamily: "tla-ti-lia-applicative",
+        structuralAnalogue: "applicative-from-causative-tla",
+        sourceCategory: "causative-tla-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-causative", classical: "tla" }),
+            Object.freeze({ role: "applicative-replacement", classical: "ti-lia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: false,
+            sourceTlaReplacedByTiBeforeLia: true,
+        }),
+    }),
+    Object.freeze({
+        id: "55.2-intransitive-tla",
+        range: "55.2",
+        lesson: 55,
+        denominalFamily: "intransitive-tla",
+        structuralAnalogue: "intransitive-become-tla",
+        sourceCategory: "nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "intransitive", classical: "tla" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ limitedUse: true, noCurrentRoute: true }),
+    }),
+    Object.freeze({
+        id: "55.2-intransitive-tla-ti-a-causative",
+        range: "55.2 note",
+        lesson: 55,
+        denominalFamily: "intransitive-tla-ti-a-causative",
+        structuralAnalogue: "causative-from-intransitive-tla",
+        sourceCategory: "intransitive-tla-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-intransitive", classical: "tla" }),
+            Object.freeze({ role: "replacement-before-causative", classical: "ti-a" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: false,
+            sourceTlaReplacedByTiBeforeA: true,
+        }),
+    }),
+    Object.freeze({
+        id: "55.2-intransitive-tla-ti-lia-applicative",
+        range: "55.2 note",
+        lesson: 55,
+        denominalFamily: "intransitive-tla-ti-lia-applicative",
+        structuralAnalogue: "applicative-from-intransitive-tla-causative",
+        sourceCategory: "intransitive-tla-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-intransitive", classical: "tla" }),
+            Object.freeze({ role: "applicative-replacement", classical: "ti-lia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: false,
+            sourceTlaReplacedByTiBeforeLia: true,
+        }),
+    }),
+    Object.freeze({
+        id: "55.3-intransitive-o-a-applicative-huia",
+        range: "55.3",
+        lesson: 55,
+        denominalFamily: "intransitive-o-a-applicative-huia",
+        structuralAnalogue: "intransitive-o-a-with-applicative-huia",
+        sourceCategory: "nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive-and-single-object-applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "intransitive", classical: "o-a" }),
+            Object.freeze({ role: "applicative-counterpart", classical: "huia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.3-o-a-il-huia-al-huia-applicative-note",
+        range: "55.3 note 2",
+        lesson: 55,
+        denominalFamily: "o-a-il-huia-al-huia-applicative-note",
+        structuralAnalogue: "applicative-from-intransitive-o-a-via-hypothetical-i-hui-a-hui",
+        sourceCategory: "intransitive-o-a-vnc",
+        sourceState: "derived",
+        targetCategory: "vnc",
+        valency: "single-object-applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-intransitive", classical: "o-a" }),
+            Object.freeze({ role: "hypothetical-i-hui-applicative", classical: "i-l-huia" }),
+            Object.freeze({ role: "hypothetical-a-hui-applicative", classical: "a-l-huia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({
+            causativeApplicativeFamilyModeled: false,
+            sourceOaBypassesTransitiveOaStep: true,
+            hypotheticalIHuiAHuiSource: true,
+        }),
+    }),
+    Object.freeze({
+        id: "55.4-adverbial-huia",
+        range: "55.4",
+        lesson: 55,
+        denominalFamily: "adverbial-huia",
+        structuralAnalogue: "adverbial-nounstem-huia",
+        sourceCategory: "adverbial-nounstem",
+        sourceState: "adverbialized",
+        targetCategory: "vnc",
+        valency: "applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "applicative", classical: "huia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.5-relational-compound-o-a-huia",
+        range: "55.5",
+        lesson: 55,
+        denominalFamily: "relational-compound-o-a-huia",
+        structuralAnalogue: "relational-compound-o-a-huia",
+        sourceCategory: "compound-relational-nounstem",
+        sourceState: "relational",
+        targetCategory: "vnc",
+        valency: "usually-transitive-or-applicative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "transitive-or-intransitive", classical: "o-a" }),
+            Object.freeze({ role: "applicative", classical: "huia" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.6-i-hui-a-hui-to-o-a",
+        range: "55.6",
+        lesson: 55,
+        denominalFamily: "i-hui-a-hui-to-o-a",
+        structuralAnalogue: "destockal-i-hui-a-hui-to-o-a",
+        sourceCategory: "nounstem",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "intransitive-to-transitive-causative",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "source-intransitive", classical: "i-hui" }),
+            Object.freeze({ role: "source-intransitive", classical: "a-hui" }),
+            Object.freeze({ role: "target-causative", classical: "o-a" }),
+        ]),
+        currentRouteFamilies: Object.freeze(["vi-iwi", "vi-awi"]),
+        supportStatus: "source-route-supported-target-unmodeled",
+        generationStatus: "source-route-surface-supported",
+        boundaryFlags: Object.freeze({ causativeApplicativeFamilyModeled: false }),
+    }),
+    Object.freeze({
+        id: "55.7-transitive-i-a",
+        range: "55.7",
+        lesson: 55,
+        denominalFamily: "transitive-i-a",
+        structuralAnalogue: "transitive-denominal-i-a",
+        sourceCategory: "nounstem-plus-i",
+        sourceState: "absolutive",
+        targetCategory: "vnc",
+        valency: "transitive",
+        suffixContracts: Object.freeze([
+            Object.freeze({ role: "transitive", classical: "i-a" }),
+        ]),
+        currentRouteFamilies: Object.freeze([]),
+        supportStatus: "andrews-verified-unmodeled",
+        generationStatus: "not-generated",
+        boundaryFlags: Object.freeze({ transitiveDenominalModeled: false }),
+    }),
+]);
+
+function hasAndrewsDenominalSuffixContract(profile = null) {
+    return getNawatDenominalRouteStructuralAnalogue(profile) !== "nawat-transitive-route-no-andrews-suffix";
+}
+
+function getNawatDenominalRouteCurriculumRef(profile = null) {
+    if (hasAndrewsDenominalSuffixContract(profile)) {
+        return { source: "Andrews", range: "54-55", role: "structural-analogue" };
+    }
+    return { source: "Nawat route data", range: "static_modes", role: "legacy-denominal-route" };
+}
+
+function getNawatDenominalRouteSupportStatus(profile = null, { inventory = false } = {}) {
+    if (hasAndrewsDenominalSuffixContract(profile)) {
+        return inventory ? "current-route-supported-partial" : "current-route-supported";
+    }
+    return inventory ? "current-route-supported-nawat-only-partial" : "current-route-supported-nawat-only";
+}
+
+function getNawatDenominalRouteSuffixContract(profile = null) {
+    const familyKey = getNawatDenominalRouteFamilyKey(profile);
+    const contractByFamily = {
+        "vi-ti": { range: "54.2/54.4", classicalSuffix: "ti" },
+        "vi-iwi": { range: "55.6", classicalSuffix: "i-hui" },
+        "vi-awi": { range: "55.6", classicalSuffix: "a-hui" },
+    };
+    const contractSpec = contractByFamily[familyKey];
+    if (!contractSpec) {
+        return null;
+    }
+    const orthographyConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(contractSpec.classicalSuffix, {
+            source: "Andrews Lessons 54-55 denominal route suffix",
+        })
+        : null;
+    const nawatRuleSuffix = orthographyConversion?.output || contractSpec.classicalSuffix;
+    return {
+        kind: "denominal-route-suffix-contract",
+        curriculumRef: { source: "Andrews", range: contractSpec.range, role: "suffix-family" },
+        routeFamily: familyKey,
+        classicalSuffix: contractSpec.classicalSuffix,
+        nawatRuleSuffix,
+        nawatVerbalizer: `-${String(nawatRuleSuffix || "").replace(/-/g, "")}`,
+        routeVerbalizer: String(profile?.verbalizer || "").trim(),
+        orthographyConversion,
+        boundaries: {
+            noFixtureEvidence: true,
+            noNewSurfaceForms: true,
+            suffixFamilyInventoryComplete: false,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsSuffixContract(entry = null, contractId = "") {
+    const classicalSuffix = String(entry?.classical || "").trim();
+    const orthographyConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(classicalSuffix, {
+            source: `Andrews denominal contract ${contractId}`,
+        })
+        : null;
+    const nawatRuleSuffix = orthographyConversion?.output || classicalSuffix;
+    return {
+        role: entry?.role || "",
+        classicalSuffix,
+        nawatRuleSuffix,
+        nawatVerbalizer: `-${String(nawatRuleSuffix || "").replace(/-/g, "")}`,
+        orthographyConversion,
+    };
+}
+
+function getNawatRouteIdsForDenominalFamilies(routeFamilies = []) {
+    const familySet = new Set((Array.isArray(routeFamilies) ? routeFamilies : [])
+        .map((family) => String(family || "").trim())
+        .filter(Boolean));
+    if (!familySet.size) {
+        return [];
+    }
+    return getNawatRouteProfiles()
+        .filter((profile) => familySet.has(getNawatDenominalRouteFamilyKey(profile)))
+        .map((profile) => profile.id || "")
+        .filter(Boolean);
+}
+
+function getNawatDenominalRouteFamiliesWithoutAndrewsContract() {
+    return Array.from(new Set(
+        getNawatRouteProfiles()
+            .filter((profile) => isPatientivoTroncoConversionRoute(profile))
+            .filter((profile) => !hasAndrewsDenominalSuffixContract(profile))
+            .map((profile) => getNawatDenominalRouteFamilyKey(profile))
+            .filter(Boolean)
+    )).sort();
+}
+
+function getNawatDenominalAndrewsContractInventory() {
+    return NAWAT_DENOMINAL_ANDREWS_CONTRACT_SPECS.map((spec) => {
+        const suffixContracts = Array.isArray(spec.suffixContracts)
+            ? spec.suffixContracts.map((entry) => buildNawatDenominalAndrewsSuffixContract(entry, spec.id))
+            : [];
+        const currentRouteFamilies = Array.isArray(spec.currentRouteFamilies)
+            ? Array.from(spec.currentRouteFamilies)
+            : [];
+        return {
+            version: 1,
+            curriculumRef: { source: "Andrews", range: spec.range, role: "denominal-contract" },
+            outputKind: "denominal-andrews-contract",
+            id: spec.id,
+            lesson: spec.lesson,
+            range: spec.range,
+            denominalFamily: spec.denominalFamily,
+            structuralAnalogue: spec.structuralAnalogue,
+            sourceCategory: spec.sourceCategory,
+            sourceState: spec.sourceState,
+            targetCategory: spec.targetCategory,
+            valency: spec.valency,
+            suffixContracts,
+            currentRouteFamilies,
+            currentRouteIds: getNawatRouteIdsForDenominalFamilies(currentRouteFamilies),
+            supportStatus: spec.supportStatus,
+            generationStatus: spec.generationStatus,
+            routeSurfaceGenerationAvailable: spec.generationStatus !== "not-generated",
+            generationAllowed: false,
+            boundaries: {
+                noNewSurfaceForms: true,
+                noFixtureEvidence: true,
+                structuralInventoryOnly: true,
+                fullLessonGenerationModeled: false,
+                ...(spec.boundaryFlags || {}),
+            },
+        };
+    });
+}
+
+function getNawatDenominalAndrewsContractCoverageSummary() {
+    const contracts = getNawatDenominalAndrewsContractInventory();
+    const routeCovered = contracts.filter((contract) => contract.currentRouteFamilies.length > 0);
+    const unmodeled = contracts.filter((contract) => contract.generationStatus === "not-generated");
+    const targetUnmodeled = contracts.filter((contract) => contract.generationStatus === "source-route-surface-supported");
+    const nawatOnlyRouteFamilies = getNawatDenominalRouteFamiliesWithoutAndrewsContract();
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2-55.7", role: "denominal-contract-inventory" },
+        outputKind: "denominal-andrews-contract-coverage",
+        contractCount: contracts.length,
+        routeCoveredContractCount: routeCovered.length,
+        unmodeledContractCount: unmodeled.length,
+        targetUnmodeledContractCount: targetUnmodeled.length,
+        nawatOnlyRouteFamilies,
+        unmodeledContractIds: unmodeled.map((contract) => contract.id),
+        targetUnmodeledContractIds: targetUnmodeled.map((contract) => contract.id),
+        boundaries: {
+            noNewSurfaceForms: true,
+            noFixtureEvidence: true,
+            structuralInventoryOnly: true,
+            fullLessonGenerationModeled: false,
+        },
+    };
+}
+
+const NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID = Object.freeze({
+    "54.2.1-inceptive-stative-ti": Object.freeze([
+        Object.freeze({
+            id: "ti",
+            role: "inceptive-stative",
+            classicalSuffixSequence: "ti",
+            targetValency: "intransitive",
+            targetStemClassBySourceFinalType: Object.freeze({ consonant: "A", vowel: "A/B" }),
+            targetStemClassRule: "54.2.1-source-final",
+        }),
+    ]),
+    "54.2.2-inceptive-stative-hui": Object.freeze([
+        Object.freeze({
+            id: "hui",
+            role: "inceptive-stative",
+            classicalSuffixSequence: "hui",
+            targetValency: "intransitive",
+            targetStemClassBySourceFinalType: Object.freeze({ consonant: "A", vowel: "B" }),
+            targetStemClassRule: "54.2.2-source-final",
+        }),
+    ]),
+    "54.2.2-hui-lia-causative": Object.freeze([
+        Object.freeze({ id: "hui-lia", role: "single-object-causative", classicalSuffixSequence: "hui-lia", targetValency: "transitive", segmentedPrefix: "hui", segmentedSuffix: "lia", requiresHuiSource: true }),
+    ]),
+    "54.2.3-inceptive-stative-ya": Object.freeze([
+        Object.freeze({ id: "ya", role: "inceptive-stative", classicalSuffixSequence: "ya", targetValency: "intransitive", targetStemClass: "A/B", targetStemClassRule: "54.2.3-a-or-b" }),
+    ]),
+    "54.2.3-ti-ya-deverbal": Object.freeze([
+        Object.freeze({ id: "ti-ya", role: "deverbal-inceptive-stative-from-ti", classicalSuffixSequence: "ti-ya", targetValency: "intransitive", targetStemClass: "A/B", targetStemClassRule: "54.2.3-ti-ya-a-or-b", segmentedPrefix: "ti", segmentedSuffix: "ya", requiresTiSource: true, traditionalSpelling: "tia", traditionalSpellingConfusableWith: "causative-tia" }),
+    ]),
+    "54.2.3-hui-ya-deverbal": Object.freeze([
+        Object.freeze({ id: "hui-ya", role: "deverbal-inceptive-stative-from-hui", classicalSuffixSequence: "hui-ya", targetValency: "intransitive", targetStemClass: "B", targetStemClassRule: "54.2.3-hui-ya-class-b", segmentedPrefix: "hui", segmentedSuffix: "ya", requiresHuiSource: true, traditionalSpelling: "huia", traditionalSpellingConfusableWith: "applicative-huia" }),
+    ]),
+    "54.2.3-ya-lia-causative": Object.freeze([
+        Object.freeze({ id: "ya-lia", role: "single-object-causative-or-applicative", classicalSuffixSequence: "lia", targetValency: "transitive", droppedSourceSuffix: "ya", requiresYaSource: true }),
+    ]),
+    "54.2.4-inceptive-stative-a": Object.freeze([
+        Object.freeze({ id: "a", role: "inceptive-stative", classicalSuffixSequence: "a", targetValency: "intransitive", targetStemClass: "C", targetStemClassRule: "54.2.4-limited-class-c", limitedUse: true }),
+    ]),
+    "54.2.5-inceptive-stative-hua": Object.freeze([
+        Object.freeze({ id: "hua", role: "inceptive-stative", classicalSuffixSequence: "hua", targetValency: "intransitive", targetStemClass: "A", targetStemClassRule: "54.2.5-hua-class-a", notOaFormation: true }),
+    ]),
+    "54.3-included-possessor-ti": Object.freeze([
+        Object.freeze({ id: "included-possessor-ti", role: "included-possessor", classicalSuffixSequence: "ti", targetValency: "intransitive", targetStemClass: "A", requiresPossessiveSource: true }),
+    ]),
+    "54.4-possession-ti": Object.freeze([
+        Object.freeze({ id: "possession-ti", role: "possession", classicalSuffixSequence: "ti", targetValency: "intransitive", targetStemClass: "A/B", noDeverbalYa: true }),
+    ]),
+    "54.2-54.4-ti-lia-causative": Object.freeze([
+        Object.freeze({ id: "ti-lia", role: "single-object-causative", classicalSuffixSequence: "ti-lia", targetValency: "transitive", targetStemClass: "C", segmentedPrefix: "ti", segmentedSuffix: "lia", requiresTiSource: true }),
+    ]),
+    "54.5-ti-a-causative": Object.freeze([
+        Object.freeze({ id: "ti-a", role: "first-type-causative", classicalSuffixSequence: "ti-a", targetValency: "transitive", targetStemClass: "C", segmentedPrefix: "ti", segmentedSuffix: "a", requiresTiSource: true, singleObjectTiSourceRouteOnly: true, possessiveSourceDoubleObjectUnmodeled: true }),
+    ]),
+    "54.6-t-ia-applicative": Object.freeze([
+        Object.freeze({ id: "t-ia", role: "first-type-applicative", classicalSuffixSequence: "t-ia", targetValency: "applicative", targetStemClass: "C", segmentedPrefix: "t", segmentedSuffix: "ia", replaciveTiFinalIDeleted: true, requiresTiSource: true, limitedTiApplicativeUse: true }),
+    ]),
+    "55.1-temporal-tia": Object.freeze([
+        Object.freeze({ id: "tia", role: "temporal-intransitive", classicalSuffixSequence: "tia", targetValency: "intransitive", requiresTemporalCompoundSource: true }),
+    ]),
+    "55.2-causative-tla": Object.freeze([
+        Object.freeze({ id: "tla", role: "causative", classicalSuffixSequence: "tla", targetValency: "transitive", targetStemClass: "A" }),
+    ]),
+    "55.2-tla-ti-lia-applicative": Object.freeze([
+        Object.freeze({ id: "tla-ti-lia", role: "applicative-counterpart", classicalSuffixSequence: "ti-lia", targetValency: "applicative", segmentedPrefix: "ti", segmentedSuffix: "lia", sourceTlaReplacedByTiBeforeLia: true, requiresTlaCausativeSource: true }),
+    ]),
+    "55.2-intransitive-tla": Object.freeze([
+        Object.freeze({ id: "intransitive-tla", role: "intransitive-become", classicalSuffixSequence: "tla", targetValency: "intransitive", limitedUse: true }),
+    ]),
+    "55.2-intransitive-tla-ti-a-causative": Object.freeze([
+        Object.freeze({ id: "intransitive-tla-ti-a", role: "causative-from-intransitive-tla", classicalSuffixSequence: "ti-a", targetValency: "transitive", segmentedPrefix: "ti", segmentedSuffix: "a", sourceTlaReplacedByTiBeforeA: true, requiresTlaIntransitiveSource: true }),
+    ]),
+    "55.2-intransitive-tla-ti-lia-applicative": Object.freeze([
+        Object.freeze({ id: "intransitive-tla-ti-lia", role: "applicative-from-intransitive-tla", classicalSuffixSequence: "ti-lia", targetValency: "applicative", segmentedPrefix: "ti", segmentedSuffix: "lia", sourceTlaReplacedByTiBeforeLia: true, requiresTlaIntransitiveSource: true }),
+    ]),
+    "55.3-intransitive-o-a-applicative-huia": Object.freeze([
+        Object.freeze({ id: "o-a", role: "intransitive", classicalSuffixSequence: "o-a", targetValency: "intransitive", targetStemClass: "C" }),
+        Object.freeze({ id: "huia", role: "applicative-counterpart", classicalSuffixSequence: "huia", targetValency: "applicative", targetStemClass: "C" }),
+    ]),
+    "55.3-o-a-il-huia-al-huia-applicative-note": Object.freeze([
+        Object.freeze({ id: "o-a-i-l-huia", role: "single-object-applicative-via-hypothetical-i-hui", classicalSuffixSequence: "i-l-huia", targetValency: "applicative", requiresIntransitiveOaSource: true, hypotheticalIHuiAHuiSource: true, sourceOaBypassesTransitiveOaStep: true }),
+        Object.freeze({ id: "o-a-a-l-huia", role: "single-object-applicative-via-hypothetical-a-hui", classicalSuffixSequence: "a-l-huia", targetValency: "applicative", requiresIntransitiveOaSource: true, hypotheticalIHuiAHuiSource: true, sourceOaBypassesTransitiveOaStep: true }),
+    ]),
+    "55.4-adverbial-huia": Object.freeze([
+        Object.freeze({ id: "adverbial-huia", role: "adverbial-applicative", classicalSuffixSequence: "huia", targetValency: "applicative", requiresAdverbialSource: true }),
+    ]),
+    "55.5-relational-compound-o-a-huia": Object.freeze([
+        Object.freeze({ id: "relational-o-a", role: "relational-o-a", classicalSuffixSequence: "o-a", targetValency: "usually-transitive", requiresRelationalCompoundSource: true }),
+        Object.freeze({ id: "relational-huia", role: "relational-applicative", classicalSuffixSequence: "huia", targetValency: "applicative", requiresRelationalCompoundSource: true }),
+    ]),
+    "55.6-i-hui-a-hui-to-o-a": Object.freeze([
+        Object.freeze({ id: "i-hui", role: "source-intransitive", classicalSuffixSequence: "i-hui", targetValency: "intransitive", targetStemClass: "B" }),
+        Object.freeze({ id: "a-hui", role: "source-intransitive", classicalSuffixSequence: "a-hui", targetValency: "intransitive", targetStemClass: "B" }),
+        Object.freeze({ id: "o-a", role: "target-causative", classicalSuffixSequence: "o-a", targetValency: "transitive", targetStemClass: "C", requiresIHuiOrAHuiSource: true }),
+    ]),
+    "55.7-transitive-i-a": Object.freeze([
+        Object.freeze({
+            id: "i-a",
+            role: "transitive-denominal",
+            classicalSuffixSequence: "i-a",
+            targetValency: "transitive",
+            noIntransitiveCounterpart: true,
+            majoritySourceFinalLetters: Object.freeze(["k", "l"]),
+            attestedSourceFinalLetters: Object.freeze(["k", "l", "n"]),
+            attestedMinoritySourceFinalLetters: Object.freeze(["n"]),
+            classicalSourceFinalPattern: Object.freeze({
+                majority: Object.freeze(["[c]", "/l/"]),
+                attestedMinority: Object.freeze(["/k/", "/n/"]),
+                nawatOrthographyBoundary: "Classical [c] and /k/ both realize as Nawat k here.",
+            }),
+            wFinalSourceMayBeHuia: true,
+            sourceIFormMayBelongToNounstem: true,
+            sourceIHuiCausativePathPossible: true,
+        }),
+    ]),
+});
+
+function normalizeNawatDenominalContractSourceStem(value = "") {
+    return unwrapNawatRouteInputValue(value)
+        .replace(/\s+/g, "")
+        .replace(/^-+/, "")
+        .trim();
+}
+
+function buildNawatDenominalAndrewsRouteTemplateSuffix(template = null) {
+    const classicalSuffixSequence = String(template?.classicalSuffixSequence || "").trim();
+    const orthographyConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(classicalSuffixSequence, {
+            source: "Andrews denominal route-generation contract",
+        })
+        : null;
+    const nawatRuleSuffix = orthographyConversion?.output || classicalSuffixSequence;
+    const nawatSurfaceSuffix = String(nawatRuleSuffix || "").replace(/-/g, "");
+    return {
+        classicalSuffixSequence,
+        nawatRuleSuffix,
+        nawatSurfaceSuffix,
+        orthographyConversion,
+    };
+}
+
+function isNawatDenominalAndrewsContractRouteObjectSlotExpected(route = null) {
+    const targetValency = String(route?.targetValency || "").trim();
+    return Boolean(targetValency && targetValency !== "intransitive");
+}
+
+function getNawatDenominalAndrewsRouteSourceFinalLetter(sourceStem = "") {
+    const normalizedSourceStem = normalizeNawatDenominalContractSourceStem(sourceStem);
+    if (!normalizedSourceStem) {
+        return "";
+    }
+    const letters = typeof splitVerbLetters === "function"
+        ? splitVerbLetters(normalizedSourceStem)
+        : [];
+    if (Array.isArray(letters) && letters.length) {
+        return String(letters[letters.length - 1] || "").trim();
+    }
+    return normalizedSourceStem.slice(-1);
+}
+
+function getNawatDenominalAndrewsRouteSourceFinalType(sourceStemFinalLetter = "") {
+    const finalLetter = String(sourceStemFinalLetter || "").trim().toLowerCase();
+    if (!finalLetter) {
+        return "";
+    }
+    return ["a", "e", "i", "o", "u"].includes(finalLetter) ? "vowel" : "consonant";
+}
+
+function resolveNawatDenominalAndrewsRouteTargetStemClass(template = null, sourceStemFinalLetter = "") {
+    const sourceStemFinalType = getNawatDenominalAndrewsRouteSourceFinalType(sourceStemFinalLetter);
+    const targetStemClassBySourceFinalType = template?.targetStemClassBySourceFinalType
+        && typeof template.targetStemClassBySourceFinalType === "object"
+        ? template.targetStemClassBySourceFinalType
+        : null;
+    const targetStemClassRule = String(template?.targetStemClassRule || "").trim();
+    const finalTypeClass = sourceStemFinalType && targetStemClassBySourceFinalType
+        ? String(targetStemClassBySourceFinalType[sourceStemFinalType] || "").trim()
+        : "";
+    const targetStemClass = finalTypeClass || String(template?.targetStemClass || "").trim();
+    return {
+        targetStemClass,
+        targetStemClassRule,
+        sourceStemFinalType,
+        targetStemClassSource: finalTypeClass ? "source-final-type" : (targetStemClass ? "template" : ""),
+        targetStemClassBySourceFinalType: targetStemClassBySourceFinalType
+            ? { ...targetStemClassBySourceFinalType }
+            : null,
+        boundaries: {
+            sourceFinalDeterminesTargetStemClass: Boolean(finalTypeClass),
+            targetStemClassSourceFinalRule: Boolean(targetStemClassBySourceFinalType),
+            noFixtureEvidence: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function classifyNawatDenominalIAStemSourceFinal(template = null, sourceStemFinalLetter = "") {
+    const finalLetter = String(sourceStemFinalLetter || "").trim();
+    const majoritySourceFinalLetters = Array.isArray(template?.majoritySourceFinalLetters)
+        ? Array.from(template.majoritySourceFinalLetters)
+        : [];
+    const attestedSourceFinalLetters = Array.isArray(template?.attestedSourceFinalLetters)
+        ? Array.from(template.attestedSourceFinalLetters)
+        : majoritySourceFinalLetters;
+    const attestedMinoritySourceFinalLetters = Array.isArray(template?.attestedMinoritySourceFinalLetters)
+        ? Array.from(template.attestedMinoritySourceFinalLetters)
+        : [];
+    const classicalSourceFinalPattern = template?.classicalSourceFinalPattern
+        && typeof template.classicalSourceFinalPattern === "object"
+        ? template.classicalSourceFinalPattern
+        : null;
+    let status = finalLetter ? "unlisted" : "";
+    let label = finalLetter ? `final no listada por Andrews 55.7: ${finalLetter}` : "";
+    if (finalLetter && majoritySourceFinalLetters.includes(finalLetter)) {
+        status = "majority";
+        label = `final mayoritaria Andrews 55.7: ${finalLetter}`;
+    } else if (finalLetter && attestedMinoritySourceFinalLetters.includes(finalLetter)) {
+        status = "attested-minority";
+        label = `final atestiguada Andrews 55.7: ${finalLetter}`;
+    } else if (finalLetter === "w" && template?.wFinalSourceMayBeHuia === true) {
+        status = "w-final-huia-ambiguous";
+        label = "final w: puede ser huia";
+    }
+    return {
+        status,
+        label,
+        finalLetter,
+        majoritySourceFinalLetters,
+        attestedSourceFinalLetters,
+        attestedMinoritySourceFinalLetters,
+        classicalSourceFinalPattern,
+        boundaries: {
+            noFixtureEvidence: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+            sourceFinalPatternIsDiagnostic: true,
+            doesNotRejectRouteTarget: true,
+        },
+    };
+}
+
+function normalizeNawatDenominalAndrewsRouteSourceEvidence(sourceEvidence = null) {
+    const evidence = sourceEvidence && typeof sourceEvidence === "object"
+        ? sourceEvidence
+        : {};
+    const sourceState = String(evidence.sourceState || "").trim();
+    const sourceCategory = String(evidence.sourceCategory || "").trim();
+    const hasCategory = (pattern) => sourceCategory.includes(pattern);
+    const temporalMatrix = String(evidence.timeSegmentMatrix || "").trim();
+    const temporalNumeralEmbed = String(evidence.numeralEmbed || "").trim();
+    const temporalCompoundSourceCategory = sourceCategory === "compound-temporal-nounstem"
+        || sourceCategory === "compound-temporal-nnc";
+    return {
+        possessiveState: evidence.possessiveState === true
+            || sourceState === "possessive"
+            || sourceState === "posesivo",
+        tiSource: evidence.tiSource === true
+            || sourceCategory === "inceptive-stative-ti-source"
+            || sourceCategory === "possession-ti-verbstem-source"
+            || sourceCategory === "intransitive-ti-source",
+        huiSource: evidence.huiSource === true
+            || sourceCategory === "inceptive-stative-hui-source"
+            || sourceCategory === "intransitive-hui-source",
+        yaSource: evidence.yaSource === true
+            || sourceCategory === "inceptive-stative-ya-source"
+            || sourceCategory === "intransitive-ya-source",
+        temporalCompoundSource: (evidence.temporalCompoundSource === true || temporalCompoundSourceCategory)
+            && Boolean(temporalMatrix)
+            && Boolean(temporalNumeralEmbed),
+        adverbialSource: evidence.adverbialSource === true
+            || hasCategory("adverbial"),
+        relationalCompoundSource: evidence.relationalCompoundSource === true
+            || hasCategory("relational"),
+        tlaCausativeSource: evidence.tlaCausativeSource === true
+            || sourceCategory === "causative-tla",
+        tlaIntransitiveSource: evidence.tlaIntransitiveSource === true
+            || sourceCategory === "intransitive-tla",
+        intransitiveOaSource: evidence.intransitiveOaSource === true
+            || sourceCategory === "intransitive-o-a",
+        iHuiOrAHuiSource: evidence.iHuiOrAHuiSource === true
+            || sourceCategory === "i-hui-a-hui-source",
+    };
+}
+
+function buildNawatDenominalAndrewsRouteSourceRequirement(template = null, {
+    sourceEvidence = null,
+} = {}) {
+    const evidence = normalizeNawatDenominalAndrewsRouteSourceEvidence(sourceEvidence);
+    const requirements = [];
+    const addRequirement = (condition, id, label, satisfied) => {
+        if (!condition) {
+            return;
+        }
+        requirements.push({
+            id,
+            label,
+            satisfied: satisfied === true,
+        });
+    };
+    addRequirement(
+        template?.requiresPossessiveSource === true,
+        "possessive-state-nnc-predicate",
+        "predicate of a possessive-state NNC",
+        evidence.possessiveState
+    );
+    addRequirement(
+        template?.requiresTiSource === true,
+        "intransitive-ti-verbstem-source",
+        "intransitive ti verbstem source",
+        evidence.tiSource
+    );
+    addRequirement(
+        template?.requiresHuiSource === true,
+        "intransitive-hui-verbstem-source",
+        "intransitive hui verbstem source",
+        evidence.huiSource
+    );
+    addRequirement(
+        template?.requiresYaSource === true,
+        "intransitive-ya-verbstem-source",
+        "intransitive ya verbstem source",
+        evidence.yaSource
+    );
+    addRequirement(
+        template?.requiresTemporalCompoundSource === true,
+        "temporal-compound-nounstem",
+        "compound nounstem with a time-segment matrix and numeral embed",
+        evidence.temporalCompoundSource
+    );
+    addRequirement(
+        template?.requiresAdverbialSource === true,
+        "adverbial-nounstem",
+        "adverbial nounstem",
+        evidence.adverbialSource
+    );
+    addRequirement(
+        template?.requiresRelationalCompoundSource === true,
+        "relational-compound-or-possessive-relational-predicate",
+        "compound nounstem with relational matrix or possessive-state relational predicate",
+        evidence.relationalCompoundSource
+    );
+    addRequirement(
+        template?.requiresTlaCausativeSource === true,
+        "tla-causative-source",
+        "causative tla stem source",
+        evidence.tlaCausativeSource
+    );
+    addRequirement(
+        template?.requiresTlaIntransitiveSource === true,
+        "intransitive-tla-verbstem-source",
+        "intransitive tla verbstem source",
+        evidence.tlaIntransitiveSource
+    );
+    addRequirement(
+        template?.requiresIntransitiveOaSource === true,
+        "intransitive-o-a-verbstem-source",
+        "intransitive o-a verbstem source",
+        evidence.intransitiveOaSource
+    );
+    addRequirement(
+        template?.requiresIHuiOrAHuiSource === true,
+        "i-hui-a-hui-source",
+        "i-hui or a-hui intransitive source stem",
+        evidence.iHuiOrAHuiSource
+    );
+    const unsatisfied = requirements.filter((requirement) => requirement.satisfied !== true);
+    return {
+        required: requirements.length > 0,
+        satisfied: unsatisfied.length === 0,
+        requirements,
+        unsatisfied,
+        validationStatus: requirements.length
+            ? (unsatisfied.length ? "source-evidence-required" : "source-evidence-satisfied")
+            : "not-required",
+        finiteGenerationRequiresSourceEvidence: unsatisfied.length > 0,
+    };
+}
+
+function removeNawatDenominalAndrewsSourceFinalSuffix(value = "", suffix = "") {
+    const source = String(value || "").trim();
+    const ending = String(suffix || "").trim();
+    if (!source || !ending || !source.endsWith(ending)) {
+        return source;
+    }
+    return source.slice(0, -ending.length);
+}
+
+function buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route = null) {
+    const contractId = String(route?.contractId || "").trim();
+    const routeTemplateId = String(route?.routeTemplateId || "").trim();
+    const sourceBaseStem = String(route?.sourceStem || "").trim();
+    const sourceVerbStem = String(route?.targetVerbStem || "").trim();
+    if (contractId === "54.2.1-inceptive-stative-ti" && routeTemplateId === "ti") {
+        return {
+            tiSource: true,
+            sourceCategory: "inceptive-stative-ti-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTiLiaCausative: true,
+                sourceEvidenceSupportsTiACausative: true,
+                sourceEvidenceSupportsTIaApplicative: true,
+            },
+        };
+    }
+    if (contractId === "54.2.2-inceptive-stative-hui" && routeTemplateId === "hui") {
+        return {
+            huiSource: true,
+            sourceCategory: "inceptive-stative-hui-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsHuiLiaCausative: true,
+            },
+        };
+    }
+    if (contractId === "54.2.3-inceptive-stative-ya" && routeTemplateId === "ya") {
+        return {
+            yaSource: true,
+            sourceCategory: "inceptive-stative-ya-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsYaLiaCausative: true,
+                sourceYaDeletedBeforeLia: true,
+            },
+        };
+    }
+    if (contractId === "54.2.3-ti-ya-deverbal" && routeTemplateId === "ti-ya") {
+        return {
+            yaSource: true,
+            tiYaSource: true,
+            sourceCategory: "deverbal-ti-ya-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceNounStem: sourceBaseStem,
+            sourceBaseStem: removeNawatDenominalAndrewsSourceFinalSuffix(sourceVerbStem, "ya"),
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsYaLiaCausative: true,
+                sourceYaDeletedBeforeLia: true,
+                sourceTiYaDerivedFromGeneratedTi: true,
+            },
+        };
+    }
+    if (contractId === "54.2.3-hui-ya-deverbal" && routeTemplateId === "hui-ya") {
+        return {
+            yaSource: true,
+            huiYaSource: true,
+            sourceCategory: "deverbal-hui-ya-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceNounStem: sourceBaseStem,
+            sourceBaseStem: removeNawatDenominalAndrewsSourceFinalSuffix(sourceVerbStem, "ya"),
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsYaLiaCausative: true,
+                sourceYaDeletedBeforeLia: true,
+                sourceHuiYaDerivedFromGeneratedHui: true,
+            },
+        };
+    }
+    if (contractId === "54.4-possession-ti" && routeTemplateId === "possession-ti") {
+        return {
+            tiSource: true,
+            possessionTiVerbstemSource: true,
+            sourceCategory: "possession-ti-verbstem-source",
+            sourceState: "derived",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsTiLiaCausative: true,
+                sourceEvidenceSupportsTiACausative: true,
+                sourceEvidenceSupportsTIaApplicative: true,
+                possessionTiSourceFocusesNounstem: true,
+                possessionTiDoesNotFormDeverbalYa: true,
+            },
+        };
+    }
+    if (contractId === "55.2-causative-tla" && routeTemplateId === "tla") {
+        return {
+            tlaCausativeSource: true,
+            sourceCategory: "causative-tla",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        };
+    }
+    if (contractId === "55.2-intransitive-tla" && routeTemplateId === "intransitive-tla") {
+        return {
+            tlaIntransitiveSource: true,
+            sourceCategory: "intransitive-tla",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsIntransitiveTlaTiACausative: true,
+                sourceEvidenceSupportsIntransitiveTlaTiLiaApplicative: true,
+            },
+        };
+    }
+    if (contractId === "55.3-intransitive-o-a-applicative-huia" && routeTemplateId === "o-a") {
+        return {
+            intransitiveOaSource: true,
+            sourceCategory: "intransitive-o-a",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                sourceEvidenceSupportsOaIlHuiaApplicative: true,
+                sourceOaBypassesTransitiveOaStep: true,
+                hypotheticalIHuiAHuiSource: true,
+            },
+        };
+    }
+    if (
+        contractId === "55.6-i-hui-a-hui-to-o-a"
+        && (routeTemplateId === "i-hui" || routeTemplateId === "a-hui")
+    ) {
+        return {
+            iHuiOrAHuiSource: true,
+            sourceCategory: "i-hui-a-hui-source",
+            sourceContractId: contractId,
+            sourceRouteTemplateId: routeTemplateId,
+            sourceBaseStem,
+            sourceVerbStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                sourceEvidenceFromAndrewsContractRoute: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        };
+    }
+    return null;
+}
+
+function getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object") {
+        return "";
+    }
+    return normalizeNawatDenominalContractSourceStem(getPrimaryNawatRouteSurfaceForm(nncOutput));
+}
+
+function buildNawatDenominalAndrewsRouteSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const categoryProfile = nncBasic.categoryProfile && typeof nncBasic.categoryProfile === "object"
+        ? nncBasic.categoryProfile
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const possessiveState = categoryProfile.possessiveState && typeof categoryProfile.possessiveState === "object"
+        ? categoryProfile.possessiveState
+        : {};
+    const predicateState = String(
+        nncOutput.state
+        || formulaSlots?.predicate?.state
+        || categoryProfile.predicateState?.value
+        || ""
+    ).trim();
+    const possessorPrefix = String(
+        nncOutput.possessor?.prefix
+        || possessiveState.possessorPrefix
+        || ""
+    ).trim();
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    const sourcePredicateStem = String(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    ).trim();
+    const isPossessive = possessiveState.isPossessive === true || predicateState === "possessive";
+    const markingAvailable = possessiveState.markingAvailable === true
+        || (isPossessive && Boolean(possessorPrefix) && nncOutput.supported === true);
+    if (!sourceSurface || !isPossessive || !markingAvailable) {
+        return null;
+    }
+    return {
+        possessiveState: true,
+        sourceState: "possessive",
+        sourceCategory: "possessive-state-nnc-predicate",
+        sourceSurface,
+        sourceBaseStem: sourceSurface,
+        sourcePredicateStem,
+        sourcePossessorPrefix: possessorPrefix,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            possessorIncludedInsideVerbstem: true,
+            possessiveCaseNotTransformedToObjective: true,
+            usesNawatSourceSurface: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsRouteSourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.3-included-possessor-ti",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.3", role: "included-possessor-denominal-route" },
+        outputKind: "denominal-andrews-included-possessor-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            possessorIncludedInsideVerbstem: true,
+            possessiveCaseNotTransformedToObjective: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutput(nncOutput = null) {
+    if (!nncOutput || typeof nncOutput !== "object" || nncOutput.supported !== true) {
+        return null;
+    }
+    const nncBasic = nncOutput.nncBasic && typeof nncOutput.nncBasic === "object"
+        ? nncOutput.nncBasic
+        : {};
+    const formulaSlots = nncBasic.formulaSlots
+        || nncOutput.clauseFrame?.formulaSlots
+        || null;
+    const sourcePredicateStem = normalizeNawatDenominalContractSourceStem(
+        formulaSlots?.predicate?.stem
+        || nncBasic.predicate?.stem
+        || nncOutput.stem
+        || ""
+    );
+    if (!sourcePredicateStem) {
+        return null;
+    }
+    const sourceSurface = getNawatDenominalAndrewsSourceSurfaceFromOrdinaryNncOutput(nncOutput);
+    return {
+        possessionTiSource: true,
+        sourceState: String(nncOutput.state || formulaSlots?.predicate?.state || "").trim(),
+        sourceCategory: "ordinary-nnc-predicate-nounstem",
+        sourceSurface,
+        sourceBaseStem: sourcePredicateStem,
+        sourcePredicateStem,
+        sourceFormulaEcho: nncBasic.formulaEcho || nncOutput.clauseFrame?.formulaEcho || "",
+        sourceOutputKind: nncOutput.outputKind || nncOutput.clauseKind || "",
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            possessionTiSourceFocusesNounstem: true,
+            possessionTiDoesNotFormDeverbalYa: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput(nncOutput = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsPossessionTiSourceEvidenceFromOrdinaryNncOutput(nncOutput);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "54.4-possession-ti",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.4", role: "possession-ti-denominal-route" },
+        outputKind: "denominal-andrews-possession-ti-route-preview",
+        source: "ordinary-nnc-output",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromGeneratedOrdinaryNnc: true,
+            sourceNounstemFromPredicate: true,
+            possessionTiSourceFocusesNounstem: true,
+            possessionTiDoesNotFormDeverbalYa: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsTemporalTiaSourceEvidence({
+    sourceStem = "",
+    sourceSurface = "",
+    sourceState = "absolutive",
+    sourceKind = "compound-temporal-nounstem",
+    timeSegmentMatrix = "",
+    numeralEmbed = "",
+    sourceFormulaEcho = "",
+    sourceNote = "",
+} = {}) {
+    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+    if (!sourceBaseStem) {
+        return null;
+    }
+    const normalizedTimeSegmentMatrix = String(timeSegmentMatrix || "").trim();
+    const normalizedNumeralEmbed = String(numeralEmbed || "").trim();
+    if (!normalizedTimeSegmentMatrix || !normalizedNumeralEmbed) {
+        return null;
+    }
+    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    const requestedSourceKind = String(sourceKind || "compound-temporal-nounstem").trim();
+    const normalizedSourceKind = requestedSourceKind === "compound-temporal-nnc"
+        ? requestedSourceKind
+        : "compound-temporal-nounstem";
+    return {
+        temporalCompoundSource: true,
+        sourceState: String(sourceState || "absolutive").trim(),
+        sourceCategory: normalizedSourceKind,
+        sourceSurface: normalizedSourceSurface,
+        sourceBaseStem,
+        timeSegmentMatrix: normalizedTimeSegmentMatrix,
+        numeralEmbed: normalizedNumeralEmbed,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceNote: String(sourceNote || "").trim(),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceEvidenceSupportsTemporalTiaIntransitive: true,
+            sourceMustBeConfirmedTemporalCompoundNounstem: true,
+            temporalMatrixMustBeTimeSegment: true,
+            temporalEmbedMustBeNumeralNounstem: true,
+            doesNotTreatLocativoTemporalNominalAsAutomaticEvidence: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsTemporalTiaRouteFromSource(source = {}) {
+    const sourceEvidence = buildNawatDenominalAndrewsTemporalTiaSourceEvidence(source);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "55.1-temporal-tia",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "55.1", role: "temporal-tia-denominal-route" },
+        outputKind: "denominal-andrews-temporal-tia-route-preview",
+        source: "explicit-temporal-compound-nounstem",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        finiteRouteObjectPrefixRequiredCount: Number(routePreview?.finiteRouteObjectPrefixRequiredCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceMustBeConfirmedTemporalCompoundNounstem: true,
+            doesNotTreatLocativoTemporalNominalAsAutomaticEvidence: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence({
+    sourceStem = "",
+    sourceSurface = "",
+    sourceFormulaEcho = "",
+    sourceNote = "",
+} = {}) {
+    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+    if (!sourceBaseStem) {
+        return null;
+    }
+    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    return {
+        adverbialSource: true,
+        sourceState: "adverbialized",
+        sourceCategory: "adverbial-nounstem",
+        sourceSurface: normalizedSourceSurface,
+        sourceBaseStem,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceNote: String(sourceNote || "").trim(),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceEvidenceSupportsAdverbialHuiaApplicative: true,
+            sourceMustBeConfirmedAdverbialNounstem: true,
+            doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsAdverbialHuiaRouteFromSource(source = {}) {
+    const sourceEvidence = buildNawatDenominalAndrewsAdverbialHuiaSourceEvidence(source);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "55.4-adverbial-huia",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "55.4", role: "adverbial-huia-denominal-route" },
+        outputKind: "denominal-andrews-adverbial-huia-route-preview",
+        source: "explicit-adverbial-nounstem",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        finiteRouteObjectPrefixRequiredCount: Number(routePreview?.finiteRouteObjectPrefixRequiredCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceMustBeConfirmedAdverbialNounstem: true,
+            doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsRelationalCompoundSourceEvidence({
+    sourceStem = "",
+    sourceSurface = "",
+    sourceState = "relational",
+    sourceKind = "compound-relational-nounstem",
+    sourceFormulaEcho = "",
+    sourceNote = "",
+} = {}) {
+    const sourceBaseStem = normalizeNawatDenominalContractSourceStem(sourceStem || sourceSurface);
+    if (!sourceBaseStem) {
+        return null;
+    }
+    const normalizedSourceSurface = normalizeNawatDenominalContractSourceStem(sourceSurface || sourceBaseStem);
+    const normalizedSourceKind = String(sourceKind || "compound-relational-nounstem").trim();
+    return {
+        relationalCompoundSource: true,
+        sourceState: String(sourceState || "relational").trim(),
+        sourceCategory: normalizedSourceKind,
+        sourceSurface: normalizedSourceSurface,
+        sourceBaseStem,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceNote: String(sourceNote || "").trim(),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceEvidenceSupportsRelationalOaHuia: true,
+            sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+            doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+}
+
+function previewNawatDenominalAndrewsRelationalCompoundRouteFromSource(source = {}) {
+    const sourceEvidence = buildNawatDenominalAndrewsRelationalCompoundSourceEvidence(source);
+    if (!sourceEvidence) {
+        return null;
+    }
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: sourceEvidence.sourceBaseStem,
+        contractId: "55.5-relational-compound-o-a-huia",
+        sourceEvidence,
+    });
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "55.5", role: "relational-o-a-huia-denominal-route" },
+        outputKind: "denominal-andrews-relational-compound-route-preview",
+        source: "explicit-relational-compound-or-predicate",
+        sourceStem: sourceEvidence.sourceBaseStem,
+        sourceEvidence,
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        finiteRouteRequestCount: Number(routePreview?.finiteRouteRequestCount || 0),
+        finiteRouteObjectPrefixRequiredCount: Number(routePreview?.finiteRouteObjectPrefixRequiredCount || 0),
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromExplicitSourceClassification: true,
+            sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+            doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
+        },
+    };
+}
+
+function buildNawatDenominalAndrewsRouteDiagnostics({
+    contract = null,
+    template = null,
+    sourceStem = "",
+    sourceStemFinalLetter = "",
+    sourceFinalPattern = null,
+    sourceRequirement = null,
+} = {}) {
+    const diagnostics = [];
+    if (sourceRequirement?.finiteGenerationRequiresSourceEvidence === true) {
+        diagnostics.push({
+            id: "andrews-denominal-route-source-evidence-required",
+            severity: "info",
+            message: `Andrews limits this route to ${sourceRequirement.unsatisfied.map((requirement) => requirement.label).join(" + ")}; finite routing waits for that source evidence.`,
+            sourceStem,
+            requirementIds: sourceRequirement.unsatisfied.map((requirement) => requirement.id),
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                finiteGenerationRequiresSourceEvidence: true,
+            },
+        });
+    }
+    if (
+        contract?.id === "55.7-transitive-i-a"
+        && template?.wFinalSourceMayBeHuia === true
+        && sourceStemFinalLetter === "w"
+    ) {
+        diagnostics.push({
+            id: "andrews-55.7-i-a-w-final-source-may-be-huia",
+            severity: "warning",
+            message: "Andrews notes that a w-final nounstem that looks like transitive i-a may instead be huia with w+w contraction.",
+            sourceStem,
+            sourceStemFinalLetter,
+            alternateContractId: "55.3-intransitive-o-a-applicative-huia",
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                requiresLexicalConfirmation: true,
+            },
+        });
+    }
+    if (
+        contract?.id === "55.7-transitive-i-a"
+        && sourceFinalPattern?.status === "attested-minority"
+    ) {
+        diagnostics.push({
+            id: "andrews-55.7-i-a-source-final-attested-minority",
+            severity: "info",
+            message: "Andrews gives source-final /k/ and /n/ examples after the majority [c]/[l] pattern; Nawat orthography keeps this as source-final pattern metadata.",
+            sourceStem,
+            sourceStemFinalLetter,
+            sourceFinalPatternStatus: sourceFinalPattern.status,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                sourceFinalPatternIsDiagnostic: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        });
+    }
+    if (
+        contract?.id === "55.7-transitive-i-a"
+        && sourceFinalPattern?.status === "unlisted"
+    ) {
+        diagnostics.push({
+            id: "andrews-55.7-i-a-source-final-unlisted",
+            severity: "info",
+            message: "Andrews gives [c]/[l] as the majority source-final pattern and /k/ or /n/ examples; this source final needs lexical confirmation.",
+            sourceStem,
+            sourceStemFinalLetter,
+            sourceFinalPatternStatus: sourceFinalPattern.status,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                sourceFinalPatternIsDiagnostic: true,
+                requiresLexicalConfirmation: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        });
+    }
+    if (
+        contract?.id === "55.7-transitive-i-a"
+        && template?.sourceIFormMayBelongToNounstem === true
+    ) {
+        diagnostics.push({
+            id: "andrews-55.7-i-a-source-i-may-belong-to-nounstem",
+            severity: "info",
+            message: "Andrews notes that the i in a seeming i-a transitive stem can be part of the source nounstem.",
+            sourceStem,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                requiresLexicalConfirmation: true,
+            },
+        });
+    }
+    if (
+        contract?.id === "55.7-transitive-i-a"
+        && template?.sourceIHuiCausativePathPossible === true
+    ) {
+        diagnostics.push({
+            id: "andrews-55.7-i-a-source-i-hui-causative-path-possible",
+            severity: "info",
+            message: "Andrews notes that a seeming i-a causative can have an i-hui intransitive source and need not follow the 55.6 o-a counterpart path.",
+            sourceStem,
+            relatedContractId: "55.6-i-hui-a-hui-to-o-a",
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotRejectRouteTarget: true,
+                requiresLexicalConfirmation: true,
+            },
+        });
+    }
+    return diagnostics;
+}
+
+function attachNawatDenominalAndrewsContractGrammarFrame(record = null, {
+    routeStage = "preview",
+    generationAllowed = false,
+    supported = true,
+    diagnostics = null,
+    sourceEvidence = null,
+    sourceStem = "",
+    targetStem = "",
+    targetInput = "",
+} = {}) {
+    if (!record || typeof record !== "object" || typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    const resolvedDiagnostics = Array.isArray(diagnostics)
+        ? diagnostics
+        : [
+            ...(Array.isArray(record.diagnostics) ? record.diagnostics : []),
+            ...(Array.isArray(record.routeDiagnostics) ? record.routeDiagnostics : []),
+        ];
+    const resolvedSourceStem = normalizeNawatDenominalContractSourceStem(
+        sourceStem
+        || record.sourceStem
+        || record.source?.sourceStem
+        || ""
+    );
+    const resolvedTargetStem = String(
+        targetStem
+        || record.targetVerbStem
+        || record.targetInputValue
+        || record.targetInput
+        || ""
+    ).trim();
+    const resolvedTargetInput = String(
+        targetInput
+        || record.targetInput
+        || record.targetInputValue
+        || record.targetVerbStem
+        || ""
+    ).trim();
+    const resolvedSourceEvidence = sourceEvidence && typeof sourceEvidence === "object"
+        ? sourceEvidence
+        : (record.sourceEvidence && typeof record.sourceEvidence === "object" ? record.sourceEvidence : null);
+    const suffixFrame = {
+        classicalSuffixSequence: String(record.classicalSuffixSequence || "").trim(),
+        nawatRuleSuffix: String(record.nawatRuleSuffix || "").trim(),
+        nawatSurfaceSuffix: String(record.nawatSurfaceSuffix || "").trim(),
+        orthographyConversion: record.orthographyConversion || null,
+    };
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        metadataKind: record.outputKind || "denominal-andrews-contract-route",
+        unitKind: "denominal-vnc-route",
+        routeFamily: "denominal-andrews-contract",
+        routeStage,
+        generationAllowed,
+        supported,
+        structuralSource: "Andrews Lessons 54-55",
+        andrewsRefs: record.range ? [`Andrews ${record.range}`] : ["Andrews Lessons 54-55"],
+        evidenceStatus: generationAllowed
+            ? "finite-generation-requested"
+            : (resolvedSourceEvidence ? "source-evidence-linked" : "preview-only"),
+        diagnostics: resolvedDiagnostics,
+        sourceInput: resolvedSourceStem || resolvedTargetInput,
+        sourceContract: {
+            unitKind: "denominal-source",
+            sourceStem: resolvedSourceStem,
+            sourceCategory: record.sourceCategory || "",
+            sourceState: record.sourceState || "",
+            sourceEvidence: resolvedSourceEvidence,
+            sourceRequirement: record.sourceRequirement || null,
+        },
+        targetContract: {
+            unitKind: "vnc",
+            targetCategory: record.targetCategory || "vnc",
+            targetValency: record.targetValency || "",
+            targetVerbStem: resolvedTargetStem,
+            targetInput: resolvedTargetInput,
+            targetStemClass: record.targetStemClass || "",
+            generationAllowed,
+            finiteGenerationRequiresExplicitRequest: record.finiteGenerationRequiresExplicitRequest === true,
+            finiteGenerationRequiresTargetTense: record.finiteGenerationRequiresTargetTense === true,
+            finiteGenerationRequiresObjectPrefix: record.finiteGenerationRequiresObjectPrefix === true,
+            finiteGenerationRequiresSourceEvidence: record.finiteGenerationRequiresSourceEvidence === true,
+        },
+        orthographyFrame: {
+            classicalRuleSpelling: suffixFrame.classicalSuffixSequence,
+            nawatRuleSpelling: suffixFrame.nawatRuleSuffix,
+            surface: resolvedTargetStem,
+            surfaceForms: resolvedTargetStem ? [resolvedTargetStem] : [],
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+            orthographyConversion: suffixFrame.orthographyConversion,
+        },
+        morphBoundaryFrame: {
+            kind: "denominal-andrews-contract-boundary",
+            suffix: suffixFrame,
+            boundaries: record.boundaries || null,
+        },
+        stemFrame: {
+            stemKind: "denominal-target-verbstem",
+            sourceKind: record.sourceCategory || "",
+            sourceStem: resolvedSourceStem,
+            targetStem: resolvedTargetStem,
+            class: record.targetStemClass || "",
+            finalProfile: {
+                sourceStemFinalLetter: record.sourceStemFinalLetter || "",
+                sourceStemFinalType: record.sourceStemFinalType || record.boundaries?.sourceStemFinalType || "",
+                sourceFinalPatternStatus: record.sourceFinalPatternStatus || record.boundaries?.sourceFinalPatternStatus || "",
+                sourceFinalPatternLabel: record.sourceFinalPatternLabel || record.boundaries?.sourceFinalPatternLabel || "",
+                classicalSourceFinalPattern: record.classicalSourceFinalPattern || record.boundaries?.classicalSourceFinalPattern || null,
+            },
+            useStatus: "preview-stem",
+        },
+    });
+}
+
+function formatNawatDenominalAndrewsContractTargetInput({
+    sourceStem = "",
+    targetVerbStem = "",
+    suffix = null,
+    template = null,
+} = {}) {
+    const stem = String(sourceStem || "").trim();
+    const target = String(targetVerbStem || "").trim();
+    const targetValency = String(template?.targetValency || "").trim();
+    const segmentedPrefix = String(template?.segmentedPrefix || "").trim();
+    const segmentedSuffix = String(template?.segmentedSuffix || "").trim();
+    if (segmentedPrefix && segmentedSuffix) {
+        const nawatSegmentedPrefix = typeof convertClassicalLettersToNawat === "function"
+            ? (convertClassicalLettersToNawat(segmentedPrefix, {
+                source: "Andrews denominal segmented source suffix",
+            })?.output || segmentedPrefix)
+            : segmentedPrefix;
+        const nawatSegmentedSuffix = typeof convertClassicalLettersToNawat === "function"
+            ? (convertClassicalLettersToNawat(segmentedSuffix, {
+                source: "Andrews denominal segmented target suffix",
+            })?.output || segmentedSuffix)
+            : segmentedSuffix;
+        return `(${stem}${String(nawatSegmentedPrefix || "").replace(/-/g, "")})-(${String(nawatSegmentedSuffix || "").replace(/-/g, "")})`;
+    }
+    if (targetValency !== "intransitive" && stem && suffix?.nawatSurfaceSuffix) {
+        return `(${stem})-(${suffix.nawatSurfaceSuffix})`;
+    }
+    return wrapNawatRouteInputValue(target);
+}
+
+function buildNawatDenominalAndrewsContractRoute(contract = null, template = null, {
+    sourceStem = "",
+    sourceEvidence = null,
+} = {}) {
+    const normalizedSourceStem = normalizeNawatDenominalContractSourceStem(sourceStem);
+    if (!contract || !template || !normalizedSourceStem) {
+        return null;
+    }
+    const suffix = buildNawatDenominalAndrewsRouteTemplateSuffix(template);
+    const targetVerbStem = `${normalizedSourceStem}${suffix.nawatSurfaceSuffix}`;
+    const sourceStemFinalLetter = getNawatDenominalAndrewsRouteSourceFinalLetter(normalizedSourceStem);
+    const stemClassContract = resolveNawatDenominalAndrewsRouteTargetStemClass(template, sourceStemFinalLetter);
+    const targetStemClass = stemClassContract.targetStemClass;
+    const majoritySourceFinalLetters = Array.isArray(template.majoritySourceFinalLetters)
+        ? Array.from(template.majoritySourceFinalLetters)
+        : [];
+    const sourceFinalPattern = contract.id === "55.7-transitive-i-a"
+        ? classifyNawatDenominalIAStemSourceFinal(template, sourceStemFinalLetter)
+        : null;
+    const sourceRequirement = buildNawatDenominalAndrewsRouteSourceRequirement(template, {
+        sourceEvidence,
+    });
+    const routeDiagnostics = buildNawatDenominalAndrewsRouteDiagnostics({
+        contract,
+        template,
+        sourceStem: normalizedSourceStem,
+        sourceStemFinalLetter,
+        sourceFinalPattern,
+        sourceRequirement,
+    });
+    const targetInputValue = formatNawatDenominalAndrewsContractTargetInput({
+        sourceStem: normalizedSourceStem,
+        targetVerbStem,
+        suffix,
+        template,
+    });
+    const objectSlotExpected = isNawatDenominalAndrewsContractRouteObjectSlotExpected({
+        targetValency: template.targetValency || contract.valency || "",
+    });
+    const finiteGenerationContractAvailable = sourceRequirement.finiteGenerationRequiresSourceEvidence !== true;
+    const route = {
+        version: 1,
+        curriculumRef: contract.curriculumRef,
+        outputKind: "denominal-andrews-contract-route",
+        contractId: contract.id,
+        range: contract.range || contract.curriculumRef?.range || "",
+        denominalFamily: contract.denominalFamily || "",
+        structuralAnalogue: contract.structuralAnalogue || "",
+        routeTemplateId: template.id || "",
+        role: template.role || "",
+        targetRole: template.role || "",
+        sourceStem: normalizedSourceStem,
+        sourceStemFinalLetter,
+        sourceFinalPatternStatus: sourceFinalPattern?.status || "",
+        sourceFinalPatternLabel: sourceFinalPattern?.label || "",
+        attestedSourceFinalLetters: sourceFinalPattern?.attestedSourceFinalLetters || [],
+        attestedMinoritySourceFinalLetters: sourceFinalPattern?.attestedMinoritySourceFinalLetters || [],
+        classicalSourceFinalPattern: sourceFinalPattern?.classicalSourceFinalPattern || null,
+        sourceCategory: contract.sourceCategory,
+        sourceState: contract.sourceState,
+        targetCategory: contract.targetCategory,
+        targetValency: template.targetValency || contract.valency || "",
+        targetStemClass,
+        targetStemClassRule: stemClassContract.targetStemClassRule,
+        targetStemClassSource: stemClassContract.targetStemClassSource,
+        sourceStemFinalType: stemClassContract.sourceStemFinalType,
+        targetStemClassBySourceFinalType: stemClassContract.targetStemClassBySourceFinalType,
+        traditionalSpelling: String(template.traditionalSpelling || "").trim(),
+        traditionalSpellingConfusableWith: String(template.traditionalSpellingConfusableWith || "").trim(),
+        classicalSuffixSequence: suffix.classicalSuffixSequence,
+        nawatRuleSuffix: suffix.nawatRuleSuffix,
+        nawatSurfaceSuffix: suffix.nawatSurfaceSuffix,
+        targetVerbStem,
+        targetInputValue,
+        targetInput: targetInputValue,
+        orthographyConversion: suffix.orthographyConversion,
+        currentRouteFamilies: contract.currentRouteFamilies,
+        currentRouteIds: contract.currentRouteIds,
+        supportStatus: contract.supportStatus,
+        generationStatus: "vnc-stem-contract-generated",
+        routeTargetGenerated: true,
+        generationAllowed: false,
+        finiteGenerationAllowed: false,
+        finiteGenerationContractAvailable,
+        finiteGenerationRequiresTargetTense: true,
+        finiteGenerationRequiresObjectPrefix: objectSlotExpected,
+        finiteGenerationRequiresExplicitRequest: true,
+        finiteGenerationRequiresSourceEvidence: sourceRequirement.finiteGenerationRequiresSourceEvidence === true,
+        objectSlotExpected,
+        sourceRequirement,
+        routeDiagnostics,
+        routeDiagnosticCount: routeDiagnostics.length,
+        routeWarningCount: routeDiagnostics.filter((diagnostic) => diagnostic?.severity === "warning").length,
+        routeNoteCount: routeDiagnostics.filter((diagnostic) => diagnostic?.severity === "info").length,
+        boundaries: {
+            noNewSurfaceForms: true,
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            noFiniteVncSurface: true,
+            noNewFixtureSurfaceForms: true,
+            generatesVncStemOnly: true,
+            finiteGenerationRequiresExplicitRequest: true,
+            finiteGenerationRequiresTargetTense: true,
+            finiteGenerationRequiresObjectPrefix: objectSlotExpected,
+            finiteGenerationRequiresSourceEvidence: sourceRequirement.finiteGenerationRequiresSourceEvidence === true,
+            targetStemClassVerified: Boolean(targetStemClass),
+            targetStemClassRule: stemClassContract.targetStemClassRule,
+            targetStemClassSource: stemClassContract.targetStemClassSource,
+            sourceStemFinalType: stemClassContract.sourceStemFinalType,
+            targetStemClassBySourceFinalType: stemClassContract.targetStemClassBySourceFinalType,
+            sourceFinalDeterminesTargetStemClass: stemClassContract.boundaries.sourceFinalDeterminesTargetStemClass === true,
+            targetStemClassSourceFinalRule: stemClassContract.boundaries.targetStemClassSourceFinalRule === true,
+            traditionalSpelling: String(template.traditionalSpelling || "").trim(),
+            traditionalSpellingConfusableWith: String(template.traditionalSpellingConfusableWith || "").trim(),
+            traditionalSpellingAmbiguous: Boolean(template.traditionalSpellingConfusableWith),
+            noIntransitiveCounterpart: template.noIntransitiveCounterpart === true,
+            majoritySourceFinalLetters,
+            sourceFinalPatternStatus: sourceFinalPattern?.status || "",
+            sourceFinalPatternLabel: sourceFinalPattern?.label || "",
+            attestedSourceFinalLetters: sourceFinalPattern?.attestedSourceFinalLetters || [],
+            attestedMinoritySourceFinalLetters: sourceFinalPattern?.attestedMinoritySourceFinalLetters || [],
+            classicalSourceFinalPattern: sourceFinalPattern?.classicalSourceFinalPattern || null,
+            sourceFinalPatternIsDiagnostic: sourceFinalPattern?.boundaries?.sourceFinalPatternIsDiagnostic === true,
+            wFinalSourceMayBeHuia: template.wFinalSourceMayBeHuia === true && sourceStemFinalLetter === "w",
+            sourceIFormMayBelongToNounstem: template.sourceIFormMayBelongToNounstem === true,
+            sourceIHuiCausativePathPossible: template.sourceIHuiCausativePathPossible === true,
+            requiresNawatSourceStem: true,
+            requiresPossessiveSource: template.requiresPossessiveSource === true,
+            requiresTiSource: template.requiresTiSource === true,
+            requiresHuiSource: template.requiresHuiSource === true,
+            requiresYaSource: template.requiresYaSource === true,
+            requiresTemporalCompoundSource: template.requiresTemporalCompoundSource === true,
+            requiresAdverbialSource: template.requiresAdverbialSource === true,
+            requiresRelationalCompoundSource: template.requiresRelationalCompoundSource === true,
+            requiresTlaCausativeSource: template.requiresTlaCausativeSource === true,
+            requiresTlaIntransitiveSource: template.requiresTlaIntransitiveSource === true,
+            requiresIntransitiveOaSource: template.requiresIntransitiveOaSource === true,
+            requiresIHuiOrAHuiSource: template.requiresIHuiOrAHuiSource === true,
+            replaciveTiFinalIDeleted: template.replaciveTiFinalIDeleted === true,
+            sourceYaDeleted: template.droppedSourceSuffix === "ya",
+            sourceTlaReplacedByTiBeforeA: template.sourceTlaReplacedByTiBeforeA === true,
+            sourceTlaReplacedByTiBeforeLia: template.sourceTlaReplacedByTiBeforeLia === true,
+            sourceOaBypassesTransitiveOaStep: template.sourceOaBypassesTransitiveOaStep === true,
+            hypotheticalIHuiAHuiSource: template.hypotheticalIHuiAHuiSource === true,
+            singleObjectTiSourceRouteOnly: template.singleObjectTiSourceRouteOnly === true,
+            possessiveSourceDoubleObjectUnmodeled: template.possessiveSourceDoubleObjectUnmodeled === true,
+            limitedTiApplicativeUse: template.limitedTiApplicativeUse === true,
+            limitedUse: template.limitedUse === true,
+            notOaFormation: template.notOaFormation === true,
+            possessionTiDoesNotFormDeverbalYa: template.noDeverbalYa === true,
+        },
+    };
+    return attachNawatDenominalAndrewsContractGrammarFrame(route, {
+        routeStage: "preview-stem-route",
+        generationAllowed: false,
+        supported: true,
+        diagnostics: routeDiagnostics,
+        sourceEvidence,
+        sourceStem: normalizedSourceStem,
+        targetStem: targetVerbStem,
+        targetInput: targetInputValue,
+    });
+}
+
+function buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route = null, {
+    tense = "",
+    targetTense = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    silent = true,
+    skipValidation = false,
+} = {}) {
+    const targetInput = String(route?.targetInputValue || route?.targetInput || route?.targetVerbStem || "").trim();
+    const requestedTense = String(targetTense || tense || "").trim();
+    if (
+        !route
+        || !targetInput
+        || !requestedTense
+        || route.finiteGenerationRequiresSourceEvidence === true
+    ) {
+        return null;
+    }
+    const resolvedSubjectPrefix = String(subjectPrefix || "").trim();
+    const resolvedSubjectSuffix = String(subjectSuffix || "").trim();
+    const resolvedObjectPrefix = String(objectPrefix || "").trim();
+    const objectSlotExpected = isNawatDenominalAndrewsContractRouteObjectSlotExpected(route);
+    if (objectSlotExpected && !resolvedObjectPrefix) {
+        return null;
+    }
+    const nextSourceEvidence = buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route);
+    const request = {
+        options: {
+            silent,
+            skipValidation,
+            override: {
+                tense: requestedTense,
+                tenseMode: TENSE_MODE.verbo,
+                derivationMode: DERIVATION_MODE.active,
+                voiceMode: VOICE_MODE.active,
+                subjectPrefix: resolvedSubjectPrefix,
+                subjectSuffix: resolvedSubjectSuffix,
+                objectPrefix: resolvedObjectPrefix,
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: resolvedSubjectPrefix,
+            objectPrefix: resolvedObjectPrefix,
+            verb: targetInput,
+            subjectSuffix: resolvedSubjectSuffix,
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+        denominalAndrewsContractRoute: {
+            version: 1,
+            outputKind: "denominal-andrews-contract-route-generate-word-request",
+            contractId: route.contractId || "",
+            routeTemplateId: route.routeTemplateId || "",
+            range: route.range || "",
+            sourceStem: route.sourceStem || "",
+            sourceStemFinalLetter: route.sourceStemFinalLetter || "",
+            sourceFinalPatternStatus: route.sourceFinalPatternStatus || route.boundaries?.sourceFinalPatternStatus || "",
+            sourceFinalPatternLabel: route.sourceFinalPatternLabel || route.boundaries?.sourceFinalPatternLabel || "",
+            attestedSourceFinalLetters: Array.isArray(route.attestedSourceFinalLetters)
+                ? route.attestedSourceFinalLetters
+                : (Array.isArray(route.boundaries?.attestedSourceFinalLetters)
+                    ? route.boundaries.attestedSourceFinalLetters
+                    : []),
+            attestedMinoritySourceFinalLetters: Array.isArray(route.attestedMinoritySourceFinalLetters)
+                ? route.attestedMinoritySourceFinalLetters
+                : (Array.isArray(route.boundaries?.attestedMinoritySourceFinalLetters)
+                    ? route.boundaries.attestedMinoritySourceFinalLetters
+                    : []),
+            classicalSourceFinalPattern: route.classicalSourceFinalPattern
+                || route.boundaries?.classicalSourceFinalPattern
+                || null,
+            targetInput,
+            targetVerbStem: route.targetVerbStem || "",
+            targetValency: route.targetValency || "",
+            targetStemClass: route.targetStemClass || "",
+            targetStemClassRule: route.targetStemClassRule || route.boundaries?.targetStemClassRule || "",
+            targetStemClassSource: route.targetStemClassSource || route.boundaries?.targetStemClassSource || "",
+            sourceStemFinalType: route.sourceStemFinalType || route.boundaries?.sourceStemFinalType || "",
+            targetStemClassBySourceFinalType: route.targetStemClassBySourceFinalType
+                || route.boundaries?.targetStemClassBySourceFinalType
+                || null,
+            traditionalSpelling: route.traditionalSpelling || route.boundaries?.traditionalSpelling || "",
+            traditionalSpellingConfusableWith: route.traditionalSpellingConfusableWith
+                || route.boundaries?.traditionalSpellingConfusableWith
+                || "",
+            targetRole: route.targetRole || route.role || "",
+            sourceRequirement: route.sourceRequirement && typeof route.sourceRequirement === "object"
+                ? route.sourceRequirement
+                : null,
+            routeDiagnostics: Array.isArray(route.routeDiagnostics)
+                ? route.routeDiagnostics
+                : [],
+            routeDiagnosticCount: Number(route.routeDiagnosticCount || 0),
+            routeWarningCount: Number(route.routeWarningCount || 0),
+            routeNoteCount: Number(route.routeNoteCount || 0),
+            ...(nextSourceEvidence ? { nextSourceEvidence } : {}),
+            classicalSuffixSequence: route.classicalSuffixSequence || "",
+            nawatRuleSuffix: route.nawatRuleSuffix || "",
+            nawatSurfaceSuffix: route.nawatSurfaceSuffix || "",
+            tense: requestedTense,
+            tenseMode: TENSE_MODE.verbo,
+            objectPrefix: resolvedObjectPrefix,
+            objectSlotExpected,
+            finiteGenerationContractAvailable: route.finiteGenerationContractAvailable === true,
+            finiteGenerationRequiresExplicitRequest: true,
+            finiteGenerationRequiresTargetTense: true,
+            finiteGenerationRequiresObjectPrefix: objectSlotExpected,
+            finiteGenerationRequiresSourceEvidence: route.finiteGenerationRequiresSourceEvidence === true,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotCreateLexicalEvidence: true,
+                finiteGenerationRequiresExplicitRequest: true,
+                finiteGenerationRequiresTargetTense: true,
+                finiteGenerationRequiresObjectPrefix: objectSlotExpected,
+                finiteGenerationRequiresSourceEvidence: route.finiteGenerationRequiresSourceEvidence === true,
+                targetStemClassVerified: Boolean(route.targetStemClass),
+                targetStemClassRule: route.targetStemClassRule || route.boundaries?.targetStemClassRule || "",
+                targetStemClassSource: route.targetStemClassSource || route.boundaries?.targetStemClassSource || "",
+                sourceStemFinalType: route.sourceStemFinalType || route.boundaries?.sourceStemFinalType || "",
+                targetStemClassBySourceFinalType: route.targetStemClassBySourceFinalType
+                    || route.boundaries?.targetStemClassBySourceFinalType
+                    || null,
+                sourceFinalDeterminesTargetStemClass: route.boundaries?.sourceFinalDeterminesTargetStemClass === true,
+                targetStemClassSourceFinalRule: route.boundaries?.targetStemClassSourceFinalRule === true,
+                traditionalSpelling: route.traditionalSpelling || route.boundaries?.traditionalSpelling || "",
+                traditionalSpellingConfusableWith: route.traditionalSpellingConfusableWith
+                    || route.boundaries?.traditionalSpellingConfusableWith
+                    || "",
+                traditionalSpellingAmbiguous: route.boundaries?.traditionalSpellingAmbiguous === true,
+                noIntransitiveCounterpart: route.boundaries?.noIntransitiveCounterpart === true,
+                sourceFinalPatternStatus: route.sourceFinalPatternStatus || route.boundaries?.sourceFinalPatternStatus || "",
+                sourceFinalPatternLabel: route.sourceFinalPatternLabel || route.boundaries?.sourceFinalPatternLabel || "",
+                attestedSourceFinalLetters: Array.isArray(route.attestedSourceFinalLetters)
+                    ? route.attestedSourceFinalLetters
+                    : (Array.isArray(route.boundaries?.attestedSourceFinalLetters)
+                        ? route.boundaries.attestedSourceFinalLetters
+                        : []),
+                attestedMinoritySourceFinalLetters: Array.isArray(route.attestedMinoritySourceFinalLetters)
+                    ? route.attestedMinoritySourceFinalLetters
+                    : (Array.isArray(route.boundaries?.attestedMinoritySourceFinalLetters)
+                        ? route.boundaries.attestedMinoritySourceFinalLetters
+                        : []),
+                classicalSourceFinalPattern: route.classicalSourceFinalPattern
+                    || route.boundaries?.classicalSourceFinalPattern
+                    || null,
+                sourceFinalPatternIsDiagnostic: route.boundaries?.sourceFinalPatternIsDiagnostic === true,
+                wFinalSourceMayBeHuia: route.boundaries?.wFinalSourceMayBeHuia === true,
+                sourceIFormMayBelongToNounstem: route.boundaries?.sourceIFormMayBelongToNounstem === true,
+                sourceIHuiCausativePathPossible: route.boundaries?.sourceIHuiCausativePathPossible === true,
+                requiresPossessiveSource: route.boundaries?.requiresPossessiveSource === true,
+                requiresTiSource: route.boundaries?.requiresTiSource === true,
+                requiresHuiSource: route.boundaries?.requiresHuiSource === true,
+                requiresYaSource: route.boundaries?.requiresYaSource === true,
+                requiresTemporalCompoundSource: route.boundaries?.requiresTemporalCompoundSource === true,
+                requiresAdverbialSource: route.boundaries?.requiresAdverbialSource === true,
+                requiresRelationalCompoundSource: route.boundaries?.requiresRelationalCompoundSource === true,
+                requiresTlaCausativeSource: route.boundaries?.requiresTlaCausativeSource === true,
+                requiresTlaIntransitiveSource: route.boundaries?.requiresTlaIntransitiveSource === true,
+                requiresIntransitiveOaSource: route.boundaries?.requiresIntransitiveOaSource === true,
+                requiresIHuiOrAHuiSource: route.boundaries?.requiresIHuiOrAHuiSource === true,
+                sourceOaBypassesTransitiveOaStep: route.boundaries?.sourceOaBypassesTransitiveOaStep === true,
+                hypotheticalIHuiAHuiSource: route.boundaries?.hypotheticalIHuiAHuiSource === true,
+                canSatisfyLaterSourceEvidence: Boolean(nextSourceEvidence),
+                usesExistingVncEngine: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+            },
+        },
+    };
+    request.denominalAndrewsContractRoute = attachNawatDenominalAndrewsContractGrammarFrame(
+        request.denominalAndrewsContractRoute,
+        {
+            routeStage: "request-finite-generation",
+            generationAllowed: true,
+            supported: true,
+            diagnostics: request.denominalAndrewsContractRoute.routeDiagnostics,
+            sourceEvidence: route.sourceEvidence || route.sourceRequirement?.sourceEvidence || null,
+            sourceStem: request.denominalAndrewsContractRoute.sourceStem,
+            targetStem: request.denominalAndrewsContractRoute.targetVerbStem,
+            targetInput,
+        }
+    );
+    return request;
+}
+
+function executeNawatDenominalAndrewsContractRoute(route = null, options = {}) {
+    const request = buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route, options);
+    if (!request || typeof executeGenerateWordRequest !== "function") {
+        return null;
+    }
+    const result = executeGenerateWordRequest(request);
+    if (!result || typeof result !== "object") {
+        return result;
+    }
+    const denominalAndrewsContractRouteExecution = attachNawatDenominalAndrewsContractGrammarFrame({
+            version: 1,
+            outputKind: "denominal-andrews-contract-route-execution",
+            contractId: request.denominalAndrewsContractRoute.contractId,
+            routeTemplateId: request.denominalAndrewsContractRoute.routeTemplateId,
+            sourceStem: request.denominalAndrewsContractRoute.sourceStem,
+            sourceStemFinalLetter: request.denominalAndrewsContractRoute.sourceStemFinalLetter,
+            sourceFinalPatternStatus: request.denominalAndrewsContractRoute.sourceFinalPatternStatus,
+            sourceFinalPatternLabel: request.denominalAndrewsContractRoute.sourceFinalPatternLabel,
+            attestedSourceFinalLetters: request.denominalAndrewsContractRoute.attestedSourceFinalLetters,
+            attestedMinoritySourceFinalLetters: request.denominalAndrewsContractRoute.attestedMinoritySourceFinalLetters,
+            classicalSourceFinalPattern: request.denominalAndrewsContractRoute.classicalSourceFinalPattern,
+            sourceRequirement: request.denominalAndrewsContractRoute.sourceRequirement,
+            targetInput: request.denominalAndrewsContractRoute.targetInput,
+            targetVerbStem: request.denominalAndrewsContractRoute.targetVerbStem,
+            targetStemClass: request.denominalAndrewsContractRoute.targetStemClass,
+            targetStemClassRule: request.denominalAndrewsContractRoute.targetStemClassRule,
+            targetStemClassSource: request.denominalAndrewsContractRoute.targetStemClassSource,
+            sourceStemFinalType: request.denominalAndrewsContractRoute.sourceStemFinalType,
+            targetStemClassBySourceFinalType: request.denominalAndrewsContractRoute.targetStemClassBySourceFinalType,
+            traditionalSpelling: request.denominalAndrewsContractRoute.traditionalSpelling,
+            traditionalSpellingConfusableWith: request.denominalAndrewsContractRoute.traditionalSpellingConfusableWith,
+            tense: request.denominalAndrewsContractRoute.tense,
+            objectPrefix: request.denominalAndrewsContractRoute.objectPrefix,
+            routeDiagnostics: request.denominalAndrewsContractRoute.routeDiagnostics,
+            routeDiagnosticCount: request.denominalAndrewsContractRoute.routeDiagnosticCount,
+            routeWarningCount: request.denominalAndrewsContractRoute.routeWarningCount,
+            routeNoteCount: request.denominalAndrewsContractRoute.routeNoteCount,
+            ...(request.denominalAndrewsContractRoute.nextSourceEvidence
+                ? { nextSourceEvidence: request.denominalAndrewsContractRoute.nextSourceEvidence }
+                : {}),
+            finiteGenerationRequiresSourceEvidence: request.denominalAndrewsContractRoute.finiteGenerationRequiresSourceEvidence === true,
+            boundaries: {
+                noFixtureEvidence: true,
+                doesNotCreateLexicalEvidence: true,
+                usesExistingVncEngine: true,
+                classicalRuleSpellingsConvertedToNawat: true,
+                noIntransitiveCounterpart: request.denominalAndrewsContractRoute.boundaries.noIntransitiveCounterpart === true,
+                finiteGenerationRequiresSourceEvidence: request.denominalAndrewsContractRoute.boundaries.finiteGenerationRequiresSourceEvidence === true,
+                targetStemClassRule: request.denominalAndrewsContractRoute.boundaries.targetStemClassRule || "",
+                targetStemClassSource: request.denominalAndrewsContractRoute.boundaries.targetStemClassSource || "",
+                sourceStemFinalType: request.denominalAndrewsContractRoute.boundaries.sourceStemFinalType || "",
+                targetStemClassBySourceFinalType: request.denominalAndrewsContractRoute.boundaries.targetStemClassBySourceFinalType || null,
+                sourceFinalDeterminesTargetStemClass: request.denominalAndrewsContractRoute.boundaries.sourceFinalDeterminesTargetStemClass === true,
+                targetStemClassSourceFinalRule: request.denominalAndrewsContractRoute.boundaries.targetStemClassSourceFinalRule === true,
+                traditionalSpelling: request.denominalAndrewsContractRoute.boundaries.traditionalSpelling || "",
+                traditionalSpellingConfusableWith: request.denominalAndrewsContractRoute.boundaries.traditionalSpellingConfusableWith || "",
+                traditionalSpellingAmbiguous: request.denominalAndrewsContractRoute.boundaries.traditionalSpellingAmbiguous === true,
+                sourceFinalPatternStatus: request.denominalAndrewsContractRoute.boundaries.sourceFinalPatternStatus || "",
+                sourceFinalPatternLabel: request.denominalAndrewsContractRoute.boundaries.sourceFinalPatternLabel || "",
+                attestedSourceFinalLetters: request.denominalAndrewsContractRoute.boundaries.attestedSourceFinalLetters || [],
+                attestedMinoritySourceFinalLetters: request.denominalAndrewsContractRoute.boundaries.attestedMinoritySourceFinalLetters || [],
+                classicalSourceFinalPattern: request.denominalAndrewsContractRoute.boundaries.classicalSourceFinalPattern || null,
+                sourceFinalPatternIsDiagnostic: request.denominalAndrewsContractRoute.boundaries.sourceFinalPatternIsDiagnostic === true,
+                wFinalSourceMayBeHuia: request.denominalAndrewsContractRoute.boundaries.wFinalSourceMayBeHuia === true,
+                sourceIFormMayBelongToNounstem: request.denominalAndrewsContractRoute.boundaries.sourceIFormMayBelongToNounstem === true,
+                sourceIHuiCausativePathPossible: request.denominalAndrewsContractRoute.boundaries.sourceIHuiCausativePathPossible === true,
+                canSatisfyLaterSourceEvidence: request.denominalAndrewsContractRoute.boundaries.canSatisfyLaterSourceEvidence === true,
+            },
+        }, {
+            routeStage: "execute-finite-generation",
+            generationAllowed: true,
+            supported: Boolean(getPrimaryNawatRouteSurfaceForm(result)),
+            diagnostics: request.denominalAndrewsContractRoute.routeDiagnostics,
+            sourceEvidence: request.denominalAndrewsContractRoute.nextSourceEvidence || null,
+            sourceStem: request.denominalAndrewsContractRoute.sourceStem,
+            targetStem: request.denominalAndrewsContractRoute.targetVerbStem,
+            targetInput: request.denominalAndrewsContractRoute.targetInput,
+        });
+    return {
+        ...result,
+        denominalAndrewsContractRoute: request.denominalAndrewsContractRoute,
+        denominalAndrewsContractRouteExecution,
+    };
+}
+
+function activateNawatDenominalAndrewsContractRouteTarget(route = null, {
+    tense = "",
+    targetTense = "",
+    objectPrefix = "",
+    render = false,
+    anchorElement = null,
+} = {}) {
+    const resolvedObjectPrefix = String(
+        objectPrefix || (typeof getCurrentObjectPrefix === "function" ? getCurrentObjectPrefix() : "")
+    ).trim();
+    const request = buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route, {
+        tense,
+        targetTense,
+        objectPrefix: resolvedObjectPrefix,
+    });
+    if (!request) {
+        return null;
+    }
+    const contractRoute = request.denominalAndrewsContractRoute;
+    const applyActivation = () => {
+        if (typeof setActiveTenseMode === "function") {
+            setActiveTenseMode(TENSE_MODE.verbo, {
+                modeSystem: typeof TENSE_MODE_SYSTEM !== "undefined"
+                    ? (TENSE_MODE_SYSTEM.nawat || "nawat")
+                    : "nawat",
+            });
+        }
+        if (typeof setActiveDerivationMode === "function") {
+            setActiveDerivationMode(DERIVATION_MODE.active);
+        }
+        if (typeof setActiveVoiceMode === "function") {
+            setActiveVoiceMode(VOICE_MODE.active);
+        }
+        if (typeof mutateConjugationSelectionState === "function") {
+            mutateConjugationSelectionState({
+                tenseMode: TENSE_MODE.verbo,
+                group: typeof CONJUGATION_GROUPS !== "undefined"
+                    ? CONJUGATION_GROUPS.tense
+                    : "tense",
+                tenseValue: contractRoute.tense,
+                classFilter: null,
+            }, {
+                tenseMode: TENSE_MODE.verbo,
+            });
+        }
+        if (render && typeof applyNawatRouteStationInput === "function") {
+            applyNawatRouteStationInput({
+                inputValue: contractRoute.targetInput,
+                objectPrefix: contractRoute.objectPrefix,
+            });
+        }
+        if (render && typeof updateTenseModeTabs === "function") {
+            updateTenseModeTabs();
+        }
+        if (render && typeof renderTenseTabs === "function") {
+            renderTenseTabs();
+        }
+        if (render && typeof renderActiveConjugations === "function") {
+            renderActiveConjugations({
+                verb: contractRoute.targetInput,
+                objectPrefix: contractRoute.objectPrefix,
+                tense: contractRoute.tense,
+            });
+        }
+    };
+    if (anchorElement && typeof preserveViewportAnchorPosition === "function") {
+        preserveViewportAnchorPosition(anchorElement, applyActivation);
+    } else {
+        applyActivation();
+    }
+    const activation = {
+        version: 1,
+        outputKind: "denominal-andrews-contract-route-activation",
+        contractId: contractRoute.contractId,
+        routeTemplateId: contractRoute.routeTemplateId,
+        sourceStem: contractRoute.sourceStem,
+        targetInput: contractRoute.targetInput,
+        targetVerbStem: contractRoute.targetVerbStem,
+        tense: contractRoute.tense,
+        objectPrefix: contractRoute.objectPrefix,
+        request,
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            usesExistingVncEngine: true,
+            explicitUserRouteActivation: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+    return attachNawatDenominalAndrewsContractGrammarFrame(activation, {
+        routeStage: "activate-finite-generation",
+        generationAllowed: true,
+        supported: true,
+        diagnostics: contractRoute.routeDiagnostics,
+        sourceEvidence: contractRoute.nextSourceEvidence || null,
+        sourceStem: contractRoute.sourceStem,
+        targetStem: contractRoute.targetVerbStem,
+        targetInput: contractRoute.targetInput,
+    });
+}
+
+function previewNawatDenominalAndrewsContractRouteNextSource(route = null) {
+    const sourceEvidence = buildNawatDenominalAndrewsRouteSourceEvidenceFromContractRoute(route);
+    if (!route || !sourceEvidence) {
+        return null;
+    }
+    const sourceStem = normalizeNawatDenominalContractSourceStem(sourceEvidence.sourceBaseStem || route.sourceStem || "");
+    const routePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem,
+        sourceEvidence,
+    });
+    const preview = {
+        version: 1,
+        outputKind: "denominal-andrews-contract-route-next-source-preview",
+        source: "denominal-andrews-contract-route",
+        selectedRoute: {
+            contractId: route.contractId || "",
+            routeTemplateId: route.routeTemplateId || "",
+            sourceStem: route.sourceStem || "",
+            targetInput: route.targetInputValue || route.targetInput || route.targetVerbStem || "",
+            targetVerbStem: route.targetVerbStem || "",
+        },
+        sourceEvidence,
+        nextSource: {
+            canBecomeSource: true,
+            sourceVerb: route.targetInputValue || route.targetInput || route.targetVerbStem || "",
+            displaySurface: route.targetVerbStem || route.targetInputValue || "",
+            sourceEvidence,
+        },
+        routePreview,
+        candidateRouteCount: Array.isArray(routePreview?.routes) ? routePreview.routes.length : 0,
+        boundaries: {
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            sourceEvidenceFromAndrewsContractRoute: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+        },
+    };
+    return attachNawatDenominalAndrewsContractGrammarFrame(preview, {
+        routeStage: "preview-next-source",
+        generationAllowed: false,
+        supported: true,
+        sourceEvidence,
+        sourceStem,
+        targetStem: route.targetVerbStem || "",
+        targetInput: route.targetInputValue || route.targetInput || route.targetVerbStem || "",
+    });
+}
+
+function generateNawatDenominalAndrewsContractRoutePreview({
+    sourceStem = "",
+    contractId = "",
+    sourceEvidence = null,
+} = {}) {
+    const normalizedSourceStem = normalizeNawatDenominalContractSourceStem(sourceStem);
+    const requestedContractId = String(contractId || "").trim();
+    const contracts = getNawatDenominalAndrewsContractInventory()
+        .filter((contract) => !requestedContractId || contract.id === requestedContractId);
+    const routes = normalizedSourceStem
+        ? contracts.flatMap((contract) => {
+            const templates = NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID[contract.id] || [];
+            return templates
+                .map((template) => buildNawatDenominalAndrewsContractRoute(contract, template, {
+                    sourceStem: normalizedSourceStem,
+                    sourceEvidence,
+                }))
+                .filter(Boolean);
+        })
+        : [];
+    const finiteRoutes = routes.filter((route) => route.finiteGenerationContractAvailable === true);
+    const preview = {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2-55.7", role: "denominal-contract-route-preview" },
+        outputKind: "denominal-andrews-contract-route-preview",
+        sourceStem: normalizedSourceStem,
+        requestedContractId,
+        contractCount: contracts.length,
+        routeCount: routes.length,
+        finiteRouteRequestCount: finiteRoutes.length,
+        finiteRouteObjectPrefixRequiredCount: finiteRoutes.filter((route) => route.finiteGenerationRequiresObjectPrefix === true).length,
+        finiteRouteStemClassContractCount: finiteRoutes.filter((route) => route.targetStemClass).length,
+        finiteRouteSourceEvidenceRequiredCount: routes.filter((route) => route.finiteGenerationRequiresSourceEvidence === true).length,
+        routeDiagnosticCount: routes.reduce((sum, route) => sum + Number(route.routeDiagnosticCount || 0), 0),
+        routeWarningCount: routes.reduce((sum, route) => sum + Number(route.routeWarningCount || 0), 0),
+        routeNoteCount: routes.reduce((sum, route) => sum + Number(route.routeNoteCount || 0), 0),
+        ...(sourceEvidence && typeof sourceEvidence === "object" ? { sourceEvidence } : {}),
+        routes,
+        diagnostics: normalizedSourceStem
+            ? []
+            : [{
+                id: "denominal-contract-route-preview-missing-source-stem",
+                severity: "warning",
+                message: "A Nawat/Pipil source stem is required before Andrews denominal route contracts can generate VNC stems.",
+            }],
+        boundaries: {
+            noNewSurfaceForms: true,
+            noFixtureEvidence: true,
+            doesNotCreateLexicalEvidence: true,
+            doesNotGenerateFiniteVnc: true,
+            noFiniteVncSurface: true,
+            generatesVncStemsOnly: true,
+            classicalRuleSpellingsConvertedToNawat: true,
+            finiteGenerationRequiresExplicitRequest: true,
+            finiteGenerationRequiresTargetTense: true,
+        },
+    };
+    return attachNawatDenominalAndrewsContractGrammarFrame(preview, {
+        routeStage: "preview-route-family",
+        generationAllowed: false,
+        supported: Boolean(normalizedSourceStem),
+        sourceEvidence,
+        sourceStem: normalizedSourceStem,
+        diagnostics: preview.diagnostics,
+    });
+}
+
+function buildNawatDenominalRouteBoundaries(profile = null) {
+    const hasAndrewsContract = hasAndrewsDenominalSuffixContract(profile);
+    const boundaries = {
+        noNewSurfaceForms: true,
+        routeBasedOnly: true,
+        suffixFamilyInventoryComplete: false,
+        includedPossessorModeled: false,
+        possessionDenominalModeled: false,
+        temporalDenominalModeled: false,
+        causativeApplicativeFamilyModeled: false,
+    };
+    if (!hasAndrewsContract) {
+        boundaries.noAndrewsSuffixContract = true;
+    }
+    return boundaries;
 }
 
 function buildNawatDenominalFamilyProfile(profile = null, {
@@ -3065,7 +6415,7 @@ function buildNawatDenominalFamilyProfile(profile = null, {
     const verbalizer = String(profile.verbalizer || "").trim();
     return {
         version: 1,
-        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        curriculumRef: getNawatDenominalRouteCurriculumRef(profile),
         outputKind: "denominal-route",
         routeFamily: getNawatDenominalRouteFamilyKey(profile),
         structuralAnalogue: getNawatDenominalRouteStructuralAnalogue(profile),
@@ -3076,22 +6426,16 @@ function buildNawatDenominalFamilyProfile(profile = null, {
         sourceSlot: profile.sourceSlot || "",
         sourceCategory: profile.sourceCategory || "",
         sourceSurface: String(sourceSurface || "").trim(),
+        suffixContract: getNawatDenominalRouteSuffixContract(profile),
         verbalizer,
         verbalizerType: profile.verbalizerType || "",
         valency,
         targetTense: targetTenseValue || getNawatRouteTargetTenseValue(profile),
         surfaceSuffix: profile.surfaceSuffix || "",
-        supportStatus: "current-route-supported",
+        andrewsContractCoverage: getNawatDenominalAndrewsContractCoverageSummary(),
+        supportStatus: getNawatDenominalRouteSupportStatus(profile),
         isCompleteLesson54_55: false,
-        boundaries: {
-            noNewSurfaceForms: true,
-            routeBasedOnly: true,
-            suffixFamilyInventoryComplete: false,
-            includedPossessorModeled: false,
-            possessionDenominalModeled: false,
-            temporalDenominalModeled: false,
-            causativeApplicativeFamilyModeled: false,
-        },
+        boundaries: buildNawatDenominalRouteBoundaries(profile),
     };
 }
 
@@ -3106,7 +6450,7 @@ function getNawatDenominalRouteFamilyInventory() {
             if (!familyMap.has(familyKey)) {
                 familyMap.set(familyKey, {
                     version: 1,
-                    curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+                    curriculumRef: getNawatDenominalRouteCurriculumRef(profile),
                     outputKind: "denominal-route-family-inventory",
                     routeFamily: familyKey,
                     structuralAnalogue: getNawatDenominalRouteStructuralAnalogue(profile),
@@ -3121,17 +6465,9 @@ function getNawatDenominalRouteFamilyInventory() {
                     surfaceSuffixes: [],
                     sourceSlots: [],
                     sourceCategories: [],
-                    supportStatus: "current-route-supported-partial",
+                    supportStatus: getNawatDenominalRouteSupportStatus(profile, { inventory: true }),
                     isCompleteLesson54_55: false,
-                    boundaries: {
-                        noNewSurfaceForms: true,
-                        routeBasedOnly: true,
-                        suffixFamilyInventoryComplete: false,
-                        includedPossessorModeled: false,
-                        possessionDenominalModeled: false,
-                        temporalDenominalModeled: false,
-                        causativeApplicativeFamilyModeled: false,
-                    },
+                    boundaries: buildNawatDenominalRouteBoundaries(profile),
                 });
             }
             const entry = familyMap.get(familyKey);
@@ -3165,6 +6501,8 @@ function getNawatDenominalRouteFamilyInventory() {
 function generateNawatDenominalRouteFamilyPreview({
     sourceVerb = "",
     sourceObjectPrefix = "",
+    sourceEvidence = null,
+    andrewsContractSourceStem = "",
 } = {}) {
     const normalizedSourceVerb = String(sourceVerb || "").trim();
     const normalizedSourceObjectPrefix = String(sourceObjectPrefix || "").trim();
@@ -3226,13 +6564,29 @@ function generateNawatDenominalRouteFamilyPreview({
             };
         })
         .filter(Boolean);
-    return {
+    const andrewsContractRouteSourceStem = normalizeNawatDenominalContractSourceStem(
+        andrewsContractSourceStem
+        || (sourceEvidence && typeof sourceEvidence === "object" ? sourceEvidence.sourceBaseStem : "")
+    )
+        || routes.find((route) => route.sourceSurface)?.sourceSurface
+        || routes.find((route) => route.sourceStem)?.sourceStem
+        || normalizeNawatDenominalContractSourceStem(normalizedSourceVerb);
+    const andrewsContractRoutePreview = generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: andrewsContractRouteSourceStem,
+        sourceEvidence,
+    });
+    const preview = {
         version: 1,
         curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
         outputKind: "denominal-route-family-preview",
         sourceVerb: normalizedSourceVerb,
         sourceObjectPrefix: normalizedSourceObjectPrefix,
+        ...(sourceEvidence && typeof sourceEvidence === "object" ? { sourceEvidence } : {}),
         families: getNawatDenominalRouteFamilyInventory(),
+        andrewsContracts: getNawatDenominalAndrewsContractInventory(),
+        andrewsContractCoverage: getNawatDenominalAndrewsContractCoverageSummary(),
+        andrewsContractRoutePreview,
+        andrewsContractRouteCount: andrewsContractRoutePreview.routeCount,
         routes,
         supportStatus: "current-route-supported-partial",
         isCompleteLesson54_55: false,
@@ -3246,6 +6600,14 @@ function generateNawatDenominalRouteFamilyPreview({
             causativeApplicativeFamilyModeled: false,
         },
     };
+    return attachNawatDenominalAndrewsContractGrammarFrame(preview, {
+        routeStage: "preview-denominal-family",
+        generationAllowed: false,
+        supported: true,
+        sourceEvidence,
+        sourceStem: andrewsContractRouteSourceStem,
+        diagnostics: andrewsContractRoutePreview?.diagnostics || [],
+    });
 }
 
 function resolveNawatRouteSourceStateMetadata(routeKeyOrProfile = "", {
@@ -3764,7 +7126,7 @@ function getActiveNawatRouteProfile() {
     if (!profile) {
         return null;
     }
-    return {
+    const activeProfile = {
         ...profile,
         activeRouteTravelSource: state.activeRouteTravelSource || "",
         sourceVerb: state.sourceVerb || "",
@@ -3792,6 +7154,12 @@ function getActiveNawatRouteProfile() {
         activeStationTenseValue: state.activeStationTenseValue || "",
         activeStationObjectPrefix: state.activeStationObjectPrefix || "",
     };
+    return attachNawatStaticRouteGrammarFrame(activeProfile, {
+        profile,
+        routeStage: "active-route-profile",
+        generationAllowed: true,
+        supported: true,
+    });
 }
 
 function setActiveNawatRouteProfile(routeKey = "", routeTarget = null) {
@@ -3827,33 +7195,40 @@ function setActiveNawatRouteProfile(routeKey = "", routeTarget = null) {
     state.activeStationMode = resolvedTarget.activeStationMode || "";
     state.activeStationTenseValue = resolvedTarget.activeStationTenseValue || "";
     state.activeStationObjectPrefix = resolvedTarget.activeStationObjectPrefix || "";
-    return profile
-        ? {
-            ...cloneNawatRouteProfile(profile, profile.legacyTenseValue || ""),
-            activeRouteTravelSource: state.activeRouteTravelSource,
-            sourceVerb: state.sourceVerb,
-            sourceObjectPrefix: state.sourceObjectPrefix,
-            sourceStem: state.sourceStem,
-            sourceMode: state.sourceMode,
-            sourceTenseValue: state.sourceTenseValue,
-            sourceCombinedMode: state.sourceCombinedMode,
-            targetMode: state.targetMode,
-            targetTenseValue: state.targetTenseValue,
-            targetCombinedMode: state.targetCombinedMode,
-            targetDerivationMode: state.targetDerivationMode,
-            targetVoiceMode: state.targetVoiceMode,
-            targetVerb: state.targetVerb,
-            targetObjectPrefix: state.targetObjectPrefix,
-            activePatientivoBranch: state.activePatientivoBranch,
-            activePatientivoNominalSuffix: state.activePatientivoNominalSuffix,
-            activeStationKey: state.activeStationKey,
-            activeStationInput: state.activeStationInput,
-            activeStationVerb: state.activeStationVerb,
-            activeStationMode: state.activeStationMode,
-            activeStationTenseValue: state.activeStationTenseValue,
-            activeStationObjectPrefix: state.activeStationObjectPrefix,
-        }
-        : null;
+    if (!profile) {
+        return null;
+    }
+    const activeProfile = {
+        ...cloneNawatRouteProfile(profile, profile.legacyTenseValue || ""),
+        activeRouteTravelSource: state.activeRouteTravelSource,
+        sourceVerb: state.sourceVerb,
+        sourceObjectPrefix: state.sourceObjectPrefix,
+        sourceStem: state.sourceStem,
+        sourceMode: state.sourceMode,
+        sourceTenseValue: state.sourceTenseValue,
+        sourceCombinedMode: state.sourceCombinedMode,
+        targetMode: state.targetMode,
+        targetTenseValue: state.targetTenseValue,
+        targetCombinedMode: state.targetCombinedMode,
+        targetDerivationMode: state.targetDerivationMode,
+        targetVoiceMode: state.targetVoiceMode,
+        targetVerb: state.targetVerb,
+        targetObjectPrefix: state.targetObjectPrefix,
+        activePatientivoBranch: state.activePatientivoBranch,
+        activePatientivoNominalSuffix: state.activePatientivoNominalSuffix,
+        activeStationKey: state.activeStationKey,
+        activeStationInput: state.activeStationInput,
+        activeStationVerb: state.activeStationVerb,
+        activeStationMode: state.activeStationMode,
+        activeStationTenseValue: state.activeStationTenseValue,
+        activeStationObjectPrefix: state.activeStationObjectPrefix,
+    };
+    return attachNawatStaticRouteGrammarFrame(activeProfile, {
+        profile,
+        routeStage: "active-route-profile",
+        generationAllowed: true,
+        supported: true,
+    });
 }
 
 function clearActiveNawatRouteProfile() {
@@ -4128,7 +7503,13 @@ function activateNawatRouteStation(routeKey = "", stationKey = "", {
         activeStationTenseValue: station.tenseValue || "",
         activeStationObjectPrefix: station.objectPrefix || "",
     };
-    const activatedProfile = setActiveNawatRouteProfile(profile.id || routeKey, stationRouteTarget);
+    const framedStationRouteTarget = attachNawatStaticRouteGrammarFrame(stationRouteTarget, {
+        profile,
+        routeStage: "activate-station",
+        generationAllowed: true,
+        supported: true,
+    });
+    const activatedProfile = setActiveNawatRouteProfile(profile.id || routeKey, framedStationRouteTarget);
     if (!render) {
         return activatedProfile;
     }
@@ -5706,7 +9087,7 @@ function renderDerivationAntiderivativePanel(verbMeta = null) {
 
     const result = document.createElement("div");
     result.className = "derivation-antiderivative__result";
-    result.textContent = "—";
+    result.textContent = "Sin antiderivada calculada.";
 
     const fullReverseButton = document.createElement("button");
     fullReverseButton.type = "button";
@@ -5764,7 +9145,7 @@ function renderDerivationAntiderivativePanel(verbMeta = null) {
         return;
     }
     if (stage === "off") {
-        result.textContent = "—";
+        result.textContent = "Sin antiderivada calculada.";
         return;
     }
     if (stage === "lock" && !hasResult) {
@@ -5773,18 +9154,18 @@ function renderDerivationAntiderivativePanel(verbMeta = null) {
         return;
     }
     if (!hasResult) {
-        result.textContent = "—";
+        result.textContent = "Sin antiderivada calculada.";
         return;
     }
     const cachedResult = getCachedDerivationalAntiderivativeResult(targetStem, requestedType, lookupOptions);
     if (!cachedResult) {
-        result.textContent = "—";
+        result.textContent = "Sin antiderivada calculada.";
         return;
     }
 
     const uniqueDirectStems = getUniqueAntiderivativeDirectStems(cachedResult);
     if (!uniqueDirectStems.length) {
-        result.textContent = "—";
+        result.textContent = "Sin antiderivada disponible.";
         return;
     }
     result.textContent = uniqueDirectStems.join(" / ");

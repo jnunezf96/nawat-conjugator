@@ -26,6 +26,20 @@ const NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze([
     "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
 ]);
 
+function attachNuclearClauseGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "nuclear-clause-shell",
+        routeFamily: "nuclear-clause-shell",
+        structuralSource: "Andrews Lesson 4",
+        andrewsRefs: ["Andrews Lesson 4"],
+        ...options,
+    });
+}
+
 function normalizeNuclearClauseKind(value = "") {
     const normalized = String(value || "").trim().toLowerCase();
     if (["vnc", "verbal", "verb", "verbo", NUCLEAR_CLAUSE_KIND.verbal].includes(normalized)) {
@@ -216,7 +230,7 @@ function buildNuclearClauseShellMetadata(options = {}) {
                 hasTensePosition: null,
                 slots: {},
             });
-    return {
+    const shell = {
         kind: "nuclear-clause-shell",
         version: NUCLEAR_CLAUSE_SHELL_VERSION,
         source: "Andrews Lesson 4 structural analogy",
@@ -229,4 +243,32 @@ function buildNuclearClauseShellMetadata(options = {}) {
         ...payload,
         antiConflationRules: Array.from(NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES),
     };
+    return attachNuclearClauseGrammarContract(shell, {
+        metadataKind: "nuclear-clause-shell",
+        routeStage: "classify-shell",
+        sourceInput: shell.formulaEcho || shell.formula || shell.clauseKind,
+        supported: formulaType !== NUCLEAR_CLAUSE_FORMULA_TYPE.unknown,
+        nuclearClauseFrame: {
+            clauseKind,
+            formulaType,
+            formula: shell.formula,
+            formulaEcho: shell.formulaEcho,
+            hasTensePosition: shell.hasTensePosition,
+            slots: shell.slots,
+        },
+        participantFrame: {
+            subject: shell.slots?.subject || null,
+            object: shell.slots?.object || null,
+        },
+        inflectionFrame: {
+            tense: shell.slots?.tense || null,
+            hasTensePosition: shell.hasTensePosition,
+        },
+        targetContract: {
+            metadataKind: "nuclear-clause-shell",
+            generationAllowed: false,
+            formulaType,
+            clauseKind,
+        },
+    });
 }

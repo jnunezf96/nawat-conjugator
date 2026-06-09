@@ -60,8 +60,19 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachNominalizationGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "nominalization",
+        routeFamily: "nominalization",
+        ...options
+      });
+    }
     function buildNominalizationBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "nominalization-boundary",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         lessons: [35, 36, 37, 38, 39],
@@ -87,6 +98,10 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
         },
         antiConflationRules: getNominalizationBoundaryAntiConflationRules()
       };
+      return attachNominalizationGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyNominalizationBoundaryCandidate({
       candidate = "",
@@ -102,7 +117,7 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
       const normalizedKind = normalizeNominalizationBoundaryKind(nominalizationKind);
       const normalizedFalsePositive = normalizeNominalizationFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "nominalization-boundary-candidate-classification",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -119,10 +134,21 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "nominalization-needs-validation" : "nominalization-needs-nawat-evidence", normalizedKind !== NOMINALIZATION_BOUNDARY_KIND.unknown ? "nominalization-category-recognized" : "nominalization-category-unconfirmed", hasNominalizationProfile ? "nominalization-profile-is-metadata-only" : "nominalization-profile-absent", hasPatientiveFamilyProfile ? "patientive-family-profile-is-partial" : "patientive-family-profile-absent", normalizedFalsePositive !== NOMINALIZATION_FALSE_POSITIVE_SOURCE.unknown ? "nominalization-false-positive-source" : "nominalization-unconfirmed"],
         boundary: buildNominalizationBoundaryMetadata()
       };
+      return attachNominalizationGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.sourceVnc,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+          stemKind: "nominalization-source-candidate",
+          sourceKind: classification.stemUse,
+          sourceStem: classification.sourceVnc
+        }
+      });
     }
     function classifyNominalizationFalsePositive(source = "") {
       const normalizedSource = normalizeNominalizationFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "nominalization-false-positive",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -134,6 +160,11 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
         diagnostics: ["nominalization-false-positive-source"],
         antiConflationRules: getNominalizationBoundaryAntiConflationRules()
       };
+      return attachNominalizationGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -167,6 +198,7 @@ export function createNominalizationBoundaryApi(targetObject = globalThis) {
     api.normalizeNominalizationFalsePositiveSource = normalizeNominalizationFalsePositiveSource;
     api.getNominalizationBoundaryAntiConflationRules = getNominalizationBoundaryAntiConflationRules;
     api.getNominalizationBoundaryStructuralQuestions = getNominalizationBoundaryStructuralQuestions;
+    api.attachNominalizationGrammarContract = attachNominalizationGrammarContract;
     api.buildNominalizationBoundaryMetadata = buildNominalizationBoundaryMetadata;
     api.classifyNominalizationBoundaryCandidate = classifyNominalizationBoundaryCandidate;
     api.classifyNominalizationFalsePositive = classifyNominalizationFalsePositive;

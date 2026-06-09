@@ -114,6 +114,34 @@ function run(ctx) {
     );
     s.no("purposive/directional boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("purposive/directional boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const purposiveCandidate = ctx.classifyPurposiveDirectionalCandidate({
+        sourceStem: "ya",
+        candidate: "[wal]/ya",
+        directionalPrefix: "wal",
+        relation: "directional",
+    });
+    const purposiveFrame = purposiveCandidate.grammarFrame;
+    s.eq(
+        "purposive/directional metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(purposiveFrame),
+            routeFamily: purposiveFrame?.routeContract?.routeFamily || "",
+            routeStage: purposiveFrame?.routeContract?.routeStage || "",
+            generationAllowed: purposiveFrame?.routeContract?.generationAllowed,
+            relation: purposiveFrame?.stemFrame?.relation || "",
+            andrewsRef: purposiveFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(purposiveCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "purposive-directional",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            relation: "directional",
+            andrewsRef: "Andrews Lesson 29",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

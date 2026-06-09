@@ -68,7 +68,7 @@ const STATIC_MODES_DENOMINAL_ROUTE_FAMILIES = new Map([
     ["vi-ti", { verbalizer: "-ti", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-ti-route" }],
     ["vi-iwi", { verbalizer: "-iwi", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-wi-route" }],
     ["vi-awi", { verbalizer: "-awi", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-wi-route" }],
-    ["vt-na", { verbalizer: "-na", verbalizerType: "denominal-transitive", valency: "transitive", structuralAnalogue: "transitive-denominal-route" }],
+    ["vt-na", { verbalizer: "-na", verbalizerType: "denominal-transitive", valency: "transitive", structuralAnalogue: "nawat-transitive-route-no-andrews-suffix" }],
 ]);
 
 const errors = [];

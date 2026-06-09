@@ -98,6 +98,35 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "personal-name classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyPersonalNameNncCandidate({
+                candidate: "capitalized label",
+                nameSource: "unknown",
+                personalNameKind: "single-clause-name",
+                falsePositiveSource: "capitalization-label",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                stemKind: classification.frames.stemFrame.stemKind,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "personal-name-nnc",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            stemKind: "personal-name-source-candidate",
+            diagnosticId: "personal-name-nnc-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "capitalization label is not personal-name NNC evidence",

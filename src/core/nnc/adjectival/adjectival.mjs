@@ -57,7 +57,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       "potential-patient": Object.freeze({
         lessonRef: "Andrews 40.4.2",
         functionKind: "potential-patient-adjectival",
-        rule: "potential-patient NNC predicates may function adjectivally as capability/result predicates"
+        rule: "potential-patient NNC predicates may function adjectivally"
       }),
       "customary-present-patientive": Object.freeze({
         lessonRef: "Andrews 40.7",
@@ -213,6 +213,147 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         id,
         severity,
         message
+      };
+    }
+    function normalizeAdjectivalNncSurfaceValue(value = "") {
+      if (typeof targetObject.normalizeGrammarSurfaceValue === "function") {
+        return targetObject.normalizeGrammarSurfaceValue(value);
+      }
+      const surface = String(value || "").trim();
+      return surface === "—" ? "" : surface;
+    }
+    function splitAdjectivalNncSurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeAdjectivalNncSurfaceValue(entry)).filter(Boolean);
+    }
+    function getAdjectivalNncResultFrame(result = null) {
+      return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
+    }
+    function getAdjectivalNncSurfaceForms(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const grammarFrame = getAdjectivalNncResultFrame(output);
+      const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(frameResult);
+      const forms = [];
+      if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitAdjectivalNncSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
+        forms.push(...output.surfaceForms);
+      }
+      if (!hasResultFrame && output.surface) {
+        forms.push(output.surface);
+      }
+      if (!hasResultFrame && output.result) {
+        forms.push(output.result);
+      }
+      return forms.flatMap(entry => splitAdjectivalNncSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getAdjectivalNncSurface(result = null) {
+      return getAdjectivalNncSurfaceForms(result)[0] || "";
+    }
+    function buildAdjectivalNncGrammarFrame(result = null) {
+      if (typeof targetObject.buildGrammarFrame !== "function") {
+        return null;
+      }
+      const output = result && typeof result === "object" ? result : {};
+      const functionFrame = output.adjectivalNncFunctionFrame || {};
+      const diagnostics = Array.isArray(output.diagnostics) ? output.diagnostics : [];
+      const surfaceForms = getAdjectivalNncSurfaceForms(output);
+      const surface = getAdjectivalNncSurface(output);
+      const ok = Boolean(surface || surfaceForms.length) && output.supported !== false && output.error !== true;
+      const sourceFormulaSlots = output.formulaSlots || functionFrame.sourceFormulaSlots || null;
+      const sourceFormulaEcho = output.formulaEcho || functionFrame.sourceFormulaEcho || "";
+      const routeContract = typeof targetObject.buildGrammarRouteContractFrame === "function" ? targetObject.buildGrammarRouteContractFrame({
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute",
+        sourceContract: {
+          sourceCategory: functionFrame.sourceCategory || "",
+          sourceClauseKind: functionFrame.sourceClauseKind || output.clauseKind || "",
+          requiredPredicateState: functionFrame.requiredPredicateState || "",
+          requestedPredicateState: functionFrame.requestedPredicateState || output.state || ""
+        },
+        targetContract: {
+          outputKind: output.outputKind || "",
+          functionKind: functionFrame.functionKind || "",
+          generationRoute: output.generationRoute || "adjectival-nnc"
+        },
+        generationAllowed: ok,
+        blockingDiagnostics: ok ? [] : diagnostics
+      }) : null;
+      const resultFrame = typeof targetObject.buildGrammarResultFrame === "function" ? targetObject.buildGrammarResultFrame({
+        ok,
+        surface,
+        surfaceForms,
+        outputKind: output.outputKind || "",
+        generationRoute: output.generationRoute || "adjectival-nnc",
+        sourceInput: String(functionFrame.patientivoSurface || functionFrame.nominalizedSurface || functionFrame.vncSurface || output.stem || "")
+      }) : null;
+      const diagnosticFrame = typeof targetObject.buildGrammarDiagnosticFrame === "function" ? targetObject.buildGrammarDiagnosticFrame({
+        status: ok ? "generated" : diagnostics.length ? "blocked" : "pending",
+        diagnostics,
+        blockers: ok ? [] : diagnostics
+      }) : null;
+      const authorityFrame = typeof targetObject.buildGrammarAuthorityFrame === "function" ? targetObject.buildGrammarAuthorityFrame({
+        evidenceStatus: ok ? "generated" : diagnostics.length ? "blocked" : "pending",
+        andrewsRefs: [functionFrame.lessonRef || "Andrews 40"].filter(Boolean),
+        supported: ok
+      }) : null;
+      return targetObject.buildGrammarFrame({
+        authorityFrame,
+        unitFrame: {
+          unitKind: functionFrame.sourceClauseKind === "verbal-nuclear-clause" ? "verbal-nuclear-clause" : "ordinary-nnc",
+          outputKind: output.outputKind || "",
+          generationRoute: output.generationRoute || "adjectival-nnc"
+        },
+        orthographyFrame: {
+          surface,
+          surfaceForms,
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true
+        },
+        morphBoundaryFrame: {
+          formulaSlots: sourceFormulaSlots,
+          formulaEcho: String(sourceFormulaEcho || "")
+        },
+        stemFrame: {
+          stem: String(output.stem || surface || ""),
+          sourceStem: String(functionFrame.sourcePredicateStem || functionFrame.patientivoSurface || functionFrame.nominalizedSurface || "")
+        },
+        nuclearClauseFrame: null,
+        participantFrame: null,
+        inflectionFrame: {
+          tenseMode: "adjetivo",
+          state: output.state || functionFrame.actualPredicateState || ""
+        },
+        routeContract,
+        astFrame: null,
+        resultFrame,
+        diagnosticFrame
+      });
+    }
+    function attachAdjectivalNncGrammarContract(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const grammarFrame = buildAdjectivalNncGrammarFrame(output);
+      const resultContract = typeof targetObject.buildGrammarResultContract === "function" ? targetObject.buildGrammarResultContract({
+        result: output,
+        grammarFrame
+      }) : {
+        ok: Boolean(getAdjectivalNncSurface(output)) && output.supported !== false && output.error !== true,
+        surface: getAdjectivalNncSurface(output),
+        surfaceForms: getAdjectivalNncSurfaceForms(output),
+        frames: grammarFrame,
+        diagnostics: Array.isArray(output.diagnostics) ? output.diagnostics : []
+      };
+      return {
+        ...output,
+        grammarFrame,
+        ...resultContract
       };
     }
     function isRootPlusYaAdjectivalNncFormation(value = "") {
@@ -480,7 +621,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         requestedState,
         sourceFormationSubtype
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-root-plus-ya",
         clauseKind: "nominal-nuclear-clause",
         supported: false,
@@ -492,7 +633,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         rootPlusYaAdjectivalNncFrame: frame,
         diagnostics
-      };
+      });
     }
     function buildAdjectivalNncFunctionFrame({
       sourceNnc = null,
@@ -528,7 +669,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       if (sourceNnc && Array.isArray(sourceNnc.diagnostics)) {
         diagnostics.push(...sourceNnc.diagnostics);
       }
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-function",
         clauseKind: "nominal-nuclear-clause",
         supported: false,
@@ -543,7 +684,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         }),
         sourceNnc: sourceNnc || null,
         diagnostics
-      };
+      });
     }
     function buildPatientivoAdjectivalNncFunctionFrame({
       patientivoSurface = "",
@@ -596,7 +737,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       formulaEcho = ""
     } = {}) {
       const diagnostics = diagnostic ? [diagnostic] : [];
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-patientive-function",
         clauseKind: "nominal-nuclear-clause",
         supported: false,
@@ -613,7 +754,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
           requestedState
         }),
         diagnostics
-      };
+      });
     }
     function buildPatientivoAdjectivalNncFunctionOutput({
       patientivoSurface = "",
@@ -659,7 +800,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         requestedState,
         role
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-patientive-function",
         clauseKind: "nominal-nuclear-clause",
         supported: true,
@@ -673,7 +814,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         patientivoAdjectivalNncFunctionFrame: frame,
         diagnostics: []
-      };
+      });
     }
     function buildVncAdjectivalNncFunctionFrame({
       vncSurface = "",
@@ -721,7 +862,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       sourceVoiceMode = ""
     } = {}) {
       const diagnostics = diagnostic ? [diagnostic] : [];
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-vnc-function",
         clauseKind: "verbal-nuclear-clause",
         supported: false,
@@ -738,7 +879,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
           sourceVoiceMode
         }),
         diagnostics
-      };
+      });
     }
     function buildVncAdjectivalNncFunctionOutput({
       vncSurface = "",
@@ -769,7 +910,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         sourceVoiceMode,
         role
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-vnc-function",
         clauseKind: "verbal-nuclear-clause",
         supported: true,
@@ -783,7 +924,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         vncAdjectivalNncFunctionFrame: frame,
         diagnostics: []
-      };
+      });
     }
     function buildIntensifiedAdjectivalNncFunctionFrame({
       sourceSurface = "",
@@ -828,7 +969,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       diagnostic = null
     } = {}) {
       const diagnostics = diagnostic ? [diagnostic] : [];
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-intensified",
         clauseKind: "nominal-nuclear-clause",
         supported: false,
@@ -843,7 +984,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
           sourceFormulaEcho
         }),
         diagnostics
-      };
+      });
     }
     function buildIntensifiedAdjectivalNncOutput({
       sourceSurface = "",
@@ -883,7 +1024,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         intensifiedStem,
         role
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-intensified",
         clauseKind: "nominal-nuclear-clause",
         supported: true,
@@ -897,7 +1038,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         intensifiedAdjectivalNncFunctionFrame: frame,
         diagnostics: []
-      };
+      });
     }
     function resolveNominalizedVncAdjectivalLessonSpec(nominalizationKind = "") {
       const normalizedKind = normalizeAdjectivalNncText(nominalizationKind);
@@ -949,7 +1090,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       formulaEcho = ""
     } = {}) {
       const diagnostics = diagnostic ? [diagnostic] : [];
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-nominalized-vnc-function",
         clauseKind: "nominal-nuclear-clause",
         supported: false,
@@ -966,7 +1107,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
           requestedState
         }),
         diagnostics
-      };
+      });
     }
     function buildNominalizedVncAdjectivalNncFunctionOutput({
       nominalizedSurface = "",
@@ -1018,7 +1159,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         requestedState,
         role
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-nominalized-vnc-function",
         clauseKind: "nominal-nuclear-clause",
         supported: true,
@@ -1032,7 +1173,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         nominalizedVncAdjectivalNncFunctionFrame: frame,
         diagnostics: []
-      };
+      });
     }
     function generateAdjectivalNncFunctionOutput({
       stem = "",
@@ -1080,14 +1221,14 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
           sourceNnc
         });
       }
-      return {
+      return attachAdjectivalNncGrammarContract({
         ...sourceNnc,
         outputKind: "adjectival-nnc-function",
         generationRoute: "adjectival-nnc",
         adjectivalNncFunctionFrame: frame,
         sourceNnc,
         diagnostics: Array.isArray(sourceNnc.diagnostics) ? [...sourceNnc.diagnostics] : []
-      };
+      });
     }
     function generateRootPlusYaAdjectivalNncOutput({
       stem = "",
@@ -1140,7 +1281,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         role,
         sourceFormationSubtype: source.sourceFormationSubtype
       });
-      return {
+      return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-root-plus-ya",
         clauseKind: "nominal-nuclear-clause",
         supported: true,
@@ -1154,7 +1295,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
         adjectivalNncFunctionFrame: frame,
         rootPlusYaAdjectivalNncFrame: frame,
         diagnostics: []
-      };
+      });
     }
 
     const api = {};
@@ -1226,6 +1367,13 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
     api.normalizeAdjectivalNncText = normalizeAdjectivalNncText;
     api.normalizeAdjectivalNncState = normalizeAdjectivalNncState;
     api.buildAdjectivalNncDiagnostic = buildAdjectivalNncDiagnostic;
+    api.normalizeAdjectivalNncSurfaceValue = normalizeAdjectivalNncSurfaceValue;
+    api.splitAdjectivalNncSurfaceText = splitAdjectivalNncSurfaceText;
+    api.getAdjectivalNncResultFrame = getAdjectivalNncResultFrame;
+    api.getAdjectivalNncSurfaceForms = getAdjectivalNncSurfaceForms;
+    api.getAdjectivalNncSurface = getAdjectivalNncSurface;
+    api.buildAdjectivalNncGrammarFrame = buildAdjectivalNncGrammarFrame;
+    api.attachAdjectivalNncGrammarContract = attachAdjectivalNncGrammarContract;
     api.isRootPlusYaAdjectivalNncFormation = isRootPlusYaAdjectivalNncFormation;
     api.shouldGenerateRootPlusYaAdjectivalNnc = shouldGenerateRootPlusYaAdjectivalNnc;
     api.isIntensifiedAdjectivalNncFormation = isIntensifiedAdjectivalNncFormation;

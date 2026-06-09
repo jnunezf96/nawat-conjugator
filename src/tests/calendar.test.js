@@ -90,6 +90,32 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "calendar-name classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyCalendarNameCandidate({
+                candidate: "calendar roadmap label",
+                calendarKind: "day-name",
+                falsePositiveSource: "calendar-roadmap-text",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "calendar-name",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            diagnosticId: "calendar-name-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "personal-name boundary is not calendar-name evidence",

@@ -90,6 +90,36 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "compound/affective classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "(shuchi)-(kwi)",
+                headStem: "kwi",
+                embeddedStem: "shuchi",
+                compoundKind: "lexical-embed",
+                falsePositiveSource: "outer-lexical-embed",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                stemKind: classification.frames.stemFrame.stemKind,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "compound-nnc",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            stemKind: "compound-nounstem-candidate",
+            diagnosticId: "compound-nnc-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "ordinary NNC fixture is classified as false positive affective evidence",

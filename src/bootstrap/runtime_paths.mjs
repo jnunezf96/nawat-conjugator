@@ -35,6 +35,10 @@ export const ESM_PRELOAD_PATHS = Object.freeze([
         esmModulePath: "src/core/sentence/sentence.mjs",
     }),
     Object.freeze({
+        legacyScriptPath: "src/core/grammar/frame.js",
+        esmModulePath: "src/core/grammar/frame.mjs",
+    }),
+    Object.freeze({
         legacyScriptPath: "src/core/orthography/orthography.js",
         esmModulePath: "src/core/orthography/orthography.mjs",
     }),
@@ -256,6 +260,7 @@ export const LEGACY_BROWSER_SCRIPT_PATHS = Object.freeze([
     "src/core/concepts/concepts.js",
     "src/core/particles/particles.js",
     "src/core/sentence/sentence.js",
+    "src/core/grammar/frame.js",
     "src/core/orthography/orthography.js",
     "src/core/clause/clause.js",
     "src/core/clause/modification/modification.js",
@@ -316,6 +321,7 @@ export const LEGACY_VM_SCRIPT_PATHS = Object.freeze([
     "src/core/concepts/concepts.js",
     "src/core/particles/particles.js",
     "src/core/sentence/sentence.js",
+    "src/core/grammar/frame.js",
     "src/core/orthography/orthography.js",
     "src/core/clause/clause.js",
     "src/core/clause/modification/modification.js",

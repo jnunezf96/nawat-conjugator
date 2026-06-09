@@ -33,8 +33,10 @@ function run(ctx) {
     s.eq("orthography API is exported", [
         typeof ctx.classifyOrthographyInput,
         typeof ctx.buildOrthographyBridgeMetadata,
+        typeof ctx.convertClassicalLettersToNawat,
+        typeof ctx.getClassicalLettersAsNawat,
         typeof ctx.splitOrthographyGraphemes,
-    ], ["function", "function", "function"]);
+    ], ["function", "function", "function", "function", "function"]);
 
     s.eq(
         "modern Nawat profile uses repo phonology inventory",
@@ -119,6 +121,48 @@ function run(ctx) {
         }
     );
 
+    s.eq(
+        "Classical grammar-rule spelling converts to Nawat/Pipil letters without becoming lexical evidence",
+        {
+            zLiz: ctx.getClassicalLettersAsNawat("z/liz"),
+            loHua: ctx.getClassicalLettersAsNawat("lo-hua"),
+            huaLo: ctx.getClassicalLettersAsNawat("hua-lo"),
+            xochitl: ctx.getClassicalLettersAsNawat("(xochi)-tl"),
+            cTiya: ctx.getClassicalLettersAsNawat("c-ti-ya"),
+            cihuatl: ctx.getClassicalLettersAsNawat("cihuatl"),
+            conversion: (() => {
+                const converted = ctx.convertClassicalLettersToNawat("xochitl");
+                return {
+                    kind: converted.kind,
+                    output: converted.output,
+                    orthographyConversionAllowed: converted.orthographyConversionAllowed,
+                    generationAllowed: converted.generationAllowed,
+                    diagnostics: converted.diagnostics,
+                    ruleIds: converted.correspondences.map((entry) => entry.ruleId),
+                };
+            })(),
+        },
+        {
+            zLiz: "s/lis",
+            loHua: "lu-wa",
+            huaLo: "wa-lu",
+            xochitl: "(shuchi)-t",
+            cTiya: "k-ti-ya",
+            cihuatl: "siwat",
+            conversion: {
+                kind: "classical-to-nawat-letter-conversion",
+                output: "shuchit",
+                orthographyConversionAllowed: true,
+                generationAllowed: false,
+                diagnostics: [
+                    "classical-to-nawat-orthography-conversion",
+                    "orthography-conversion-is-not-lexical-evidence",
+                ],
+                ruleIds: ["x-sh", "o-u", "same-ch", "tl-t"],
+            },
+        }
+    );
+
     const quAsNawat = ctx.classifyOrthographyInput("quetza", { profileId: "nawat-modern" });
     s.eq(
         "profile-forced Nawat diagnostics catch q without reclassifying as generation",
@@ -152,6 +196,31 @@ function run(ctx) {
     const lossy = ctx.buildOrthographyBridgeMetadata("co:tl");
     s.no("orthography bridge does not expose surface forms", Object.prototype.hasOwnProperty.call(lossy, "surfaceForms"));
     s.no("orthography bridge does not expose generated forms", Object.prototype.hasOwnProperty.call(lossy, "generatedForms"));
+    const conversion = ctx.convertClassicalLettersToNawat("cihuatl");
+    const conversionFrame = conversion.grammarFrame;
+    s.eq(
+        "orthography conversion exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(conversionFrame),
+            routeFamily: conversionFrame?.routeContract?.routeFamily || "",
+            routeStage: conversionFrame?.routeContract?.routeStage || "",
+            generationAllowed: conversionFrame?.routeContract?.generationAllowed,
+            sourceProfileId: conversionFrame?.orthographyFrame?.sourceProfileId || "",
+            output: conversionFrame?.orthographyFrame?.surface || "",
+            andrewsRef: conversionFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(conversion, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "orthography",
+            routeStage: "convert-rule-spelling",
+            generationAllowed: false,
+            sourceProfileId: "classical-nahuatl",
+            output: "siwat",
+            andrewsRef: "Andrews Lesson 2",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

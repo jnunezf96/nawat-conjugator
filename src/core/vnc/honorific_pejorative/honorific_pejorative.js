@@ -53,6 +53,20 @@ const HONORIFIC_PEJORATIVE_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
 ]);
 
+function attachHonorificPejorativeGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "vnc-derivation-boundary",
+        routeFamily: "honorific-pejorative",
+        structuralSource: "Andrews Lesson 33",
+        andrewsRefs: ["Andrews Lesson 33"],
+        ...options,
+    });
+}
+
 function normalizeHonorificPejorativeEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -83,7 +97,7 @@ function getHonorificPejorativeStructuralQuestions() {
 }
 
 function buildHonorificPejorativeBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "honorific-pejorative-boundary",
         version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
         lesson: 33,
@@ -106,6 +120,18 @@ function buildHonorificPejorativeBoundaryMetadata() {
         },
         antiConflationRules: getHonorificPejorativeAntiConflationRules(),
     };
+    return attachHonorificPejorativeGrammarContract(boundary, {
+        metadataKind: "honorific-pejorative-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+            metadataKind: "honorific-pejorative-boundary",
+            generationAllowed: false,
+            hasHonorificGeneration: false,
+            hasPejorativeGeneration: false,
+        },
+    });
 }
 
 function classifyHonorificPejorativeCandidate({
@@ -119,7 +145,7 @@ function classifyHonorificPejorativeCandidate({
     const normalizedPolarity = normalizeHonorificPejorativePolarity(polarity);
     const normalizedFalsePositive = normalizeHonorificPejorativeFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "honorific-pejorative-candidate-classification",
         version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
         sourceStem: String(sourceStem || ""),
@@ -141,11 +167,33 @@ function classifyHonorificPejorativeCandidate({
         ],
         boundary: buildHonorificPejorativeBoundaryMetadata(),
     };
+    return attachHonorificPejorativeGrammarContract(classification, {
+        metadataKind: "honorific-pejorative-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.sourceStem || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        stemFrame: {
+            stemKind: "honorific-pejorative-candidate",
+            sourceStem: classification.sourceStem,
+            targetStem: classification.candidate,
+            morphologicalStrategy: classification.morphologicalStrategy,
+        },
+        participantFrame: {
+            honorificPejorativePolarity: normalizedPolarity,
+            evidenceSource: classification.evidenceSource,
+        },
+        targetContract: {
+            metadataKind: "honorific-pejorative-candidate-classification",
+            generationAllowed: false,
+            polarity: normalizedPolarity,
+        },
+    });
 }
 
 function classifyHonorificPejorativeFalsePositive(source = "") {
     const normalizedSource = normalizeHonorificPejorativeFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "honorific-pejorative-false-positive",
         version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -155,4 +203,11 @@ function classifyHonorificPejorativeFalsePositive(source = "") {
         diagnostics: ["honorific-pejorative-false-positive-source"],
         antiConflationRules: getHonorificPejorativeAntiConflationRules(),
     };
+    return attachHonorificPejorativeGrammarContract(classification, {
+        metadataKind: "honorific-pejorative-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics,
+    });
 }

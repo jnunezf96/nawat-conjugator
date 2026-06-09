@@ -13,6 +13,19 @@ export function createClauseApi(targetObject = globalThis) {
       unknown: "unknown"
     });
     const NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze(["nuclear clause shell is not generation", "VNC/NNC word output is not a complete sentence model", "tense position belongs to VNC, not ordinary NNC", "topic and supplementation are clause-level relations, not noun classes", "Andrews slot order is architecture, not Nawat/Pipil surface evidence"]);
+    function attachNuclearClauseGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "nuclear-clause-shell",
+        routeFamily: "nuclear-clause-shell",
+        structuralSource: "Andrews Lesson 4",
+        andrewsRefs: ["Andrews Lesson 4"],
+        ...options
+      });
+    }
     function normalizeNuclearClauseKind(value = "") {
       const normalized = String(value || "").trim().toLowerCase();
       if (["vnc", "verbal", "verb", "verbo", NUCLEAR_CLAUSE_KIND.verbal].includes(normalized)) {
@@ -191,7 +204,7 @@ export function createClauseApi(targetObject = globalThis) {
         hasTensePosition: null,
         slots: {}
       };
-      return {
+      const shell = {
         kind: "nuclear-clause-shell",
         version: NUCLEAR_CLAUSE_SHELL_VERSION,
         source: "Andrews Lesson 4 structural analogy",
@@ -202,6 +215,34 @@ export function createClauseApi(targetObject = globalThis) {
         ...payload,
         antiConflationRules: Array.from(NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES)
       };
+      return attachNuclearClauseGrammarContract(shell, {
+        metadataKind: "nuclear-clause-shell",
+        routeStage: "classify-shell",
+        sourceInput: shell.formulaEcho || shell.formula || shell.clauseKind,
+        supported: formulaType !== NUCLEAR_CLAUSE_FORMULA_TYPE.unknown,
+        nuclearClauseFrame: {
+          clauseKind,
+          formulaType,
+          formula: shell.formula,
+          formulaEcho: shell.formulaEcho,
+          hasTensePosition: shell.hasTensePosition,
+          slots: shell.slots
+        },
+        participantFrame: {
+          subject: shell.slots?.subject || null,
+          object: shell.slots?.object || null
+        },
+        inflectionFrame: {
+          tense: shell.slots?.tense || null,
+          hasTensePosition: shell.hasTensePosition
+        },
+        targetContract: {
+          metadataKind: "nuclear-clause-shell",
+          generationAllowed: false,
+          formulaType,
+          clauseKind
+        }
+      });
     }
 
     const api = {};
@@ -225,6 +266,7 @@ export function createClauseApi(targetObject = globalThis) {
         enumerable: true,
         get() { return NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES; },
     });
+    api.attachNuclearClauseGrammarContract = attachNuclearClauseGrammarContract;
     api.normalizeNuclearClauseKind = normalizeNuclearClauseKind;
     api.getNuclearClauseFormulaType = getNuclearClauseFormulaType;
     api.buildClauseParticipantSlot = buildClauseParticipantSlot;

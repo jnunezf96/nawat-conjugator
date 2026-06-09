@@ -59,8 +59,19 @@ export function createCalendarNameApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachCalendarNameGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "calendar-name",
+        routeFamily: "calendar-name",
+        ...options
+      });
+    }
     function buildCalendarNameBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "calendar-name-boundary",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         appendix: "E",
@@ -84,6 +95,10 @@ export function createCalendarNameApi(targetObject = globalThis) {
         },
         antiConflationRules: getCalendarNameAntiConflationRules()
       };
+      return attachCalendarNameGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyCalendarNameCandidate({
       candidate = "",
@@ -97,7 +112,7 @@ export function createCalendarNameApi(targetObject = globalThis) {
       const normalizedKind = normalizeCalendarNameKind(calendarKind);
       const normalizedFalsePositive = normalizeCalendarNameFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "calendar-name-candidate-classification",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -112,10 +127,16 @@ export function createCalendarNameApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "calendar-name-needs-validation" : "calendar-name-needs-nawat-evidence", normalizedKind !== CALENDAR_NAME_KIND.unknown ? "calendar-name-kind-recognized" : "calendar-name-kind-unconfirmed", normalizedFalsePositive !== CALENDAR_NAME_FALSE_POSITIVE_SOURCE.unknown ? "calendar-name-false-positive-source" : "calendar-name-unconfirmed"],
         boundary: buildCalendarNameBoundaryMetadata()
       };
+      return attachCalendarNameGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.sourceName,
+        supported: false,
+        morphBoundaryFrame: classification.boundary
+      });
     }
     function classifyCalendarNameFalsePositive(source = "") {
       const normalizedSource = normalizeCalendarNameFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "calendar-name-false-positive",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -126,6 +147,11 @@ export function createCalendarNameApi(targetObject = globalThis) {
         diagnostics: ["calendar-name-false-positive-source"],
         antiConflationRules: getCalendarNameAntiConflationRules()
       };
+      return attachCalendarNameGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -159,6 +185,7 @@ export function createCalendarNameApi(targetObject = globalThis) {
     api.normalizeCalendarNameFalsePositiveSource = normalizeCalendarNameFalsePositiveSource;
     api.getCalendarNameAntiConflationRules = getCalendarNameAntiConflationRules;
     api.getCalendarNameStructuralQuestions = getCalendarNameStructuralQuestions;
+    api.attachCalendarNameGrammarContract = attachCalendarNameGrammarContract;
     api.buildCalendarNameBoundaryMetadata = buildCalendarNameBoundaryMetadata;
     api.classifyCalendarNameCandidate = classifyCalendarNameCandidate;
     api.classifyCalendarNameFalsePositive = classifyCalendarNameFalsePositive;

@@ -45,6 +45,20 @@ const SENTENCE_LAYER_ANTI_CONFLATION_RULES = Object.freeze([
     "Andrews sentence categories are architecture, not Nawat/Pipil form authority",
 ]);
 
+function attachSentenceGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "sentence-layer",
+        routeFamily: "sentence-layer",
+        structuralSource: "Andrews Lessons 8-10",
+        andrewsRefs: ["Andrews Lessons 8-10"],
+        ...options,
+    });
+}
+
 function normalizeSentenceEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -130,7 +144,7 @@ function buildSentenceLayerMetadata({
     const resolvedEmphasisType = normalizeSentenceEmphasisType(emphasisType);
     const resolvedMoodScope = normalizeSentenceMoodScope(moodScope);
     const resolvedClauseKind = nuclearClauseShell?.clauseKind || clauseKind || "unknown";
-    return {
+    const layer = {
         kind: "sentence-layer-metadata",
         version: SENTENCE_LAYER_VERSION,
         structuralSource: "Andrews Lessons 8-10",
@@ -175,10 +189,31 @@ function buildSentenceLayerMetadata({
         ],
         antiConflationRules: getSentenceLayerAntiConflationRules(),
     };
+    return attachSentenceGrammarContract(layer, {
+        metadataKind: "sentence-layer-metadata",
+        routeStage: "classify-sentence-layer",
+        sourceInput: String(layer.finiteTenseValue || layer.clauseKind || ""),
+        supported: false,
+        nuclearClauseFrame: nuclearClauseShell || {
+            clauseKind: layer.clauseKind,
+        },
+        participantFrame: {
+            polarity: resolvedPolarity,
+            questionType: resolvedQuestionType,
+            emphasisType: resolvedEmphasisType,
+            moodScope: resolvedMoodScope,
+        },
+        targetContract: {
+            metadataKind: "sentence-layer-metadata",
+            generationAllowed: false,
+            changesFiniteVncOutput: false,
+            hasConfirmedParticleInventory: false,
+        },
+    });
 }
 
 function buildBasicSentenceBoundaryMetadata(options = {}) {
-    return {
+    const boundary = {
         kind: "basic-sentence-boundary",
         version: SENTENCE_LAYER_VERSION,
         lessonRange: "8-10",
@@ -195,6 +230,13 @@ function buildBasicSentenceBoundaryMetadata(options = {}) {
         ],
         antiConflationRules: getSentenceLayerAntiConflationRules(),
     };
+    return attachSentenceGrammarContract(boundary, {
+        metadataKind: "basic-sentence-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        nuclearClauseFrame: boundary.sentenceLayer?.grammarFrame?.nuclearClauseFrame || null,
+    });
 }
 
 function isSentenceLayerGenerationOptIn(override = null) {
@@ -246,7 +288,7 @@ function classifySentenceCandidate({
         moodScope: moodScope || SENTENCE_MOOD_SCOPE.unknown,
         source: "candidate",
     });
-    return {
+    const classification = {
         kind: "sentence-candidate-classification",
         version: SENTENCE_LAYER_VERSION,
         text: String(text == null ? "" : text),
@@ -256,4 +298,13 @@ function classifySentenceCandidate({
         generationAllowed: false,
         diagnostics: ["sentence-candidate-unconfirmed"],
     };
+    return attachSentenceGrammarContract(classification, {
+        metadataKind: "sentence-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.text,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        nuclearClauseFrame: sentenceLayer.grammarFrame?.nuclearClauseFrame || null,
+        participantFrame: sentenceLayer.grammarFrame?.participantFrame || null,
+    });
 }

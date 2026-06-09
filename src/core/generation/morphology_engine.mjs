@@ -7,6 +7,307 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
     // Deps (resolved at call time): all globals and functions in global scope from
     // script.js and other extracted modules.
 
+    const MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+    function buildMorphologyApplicationDiagnostic({
+      id = "morphology-application-blocked",
+      message = MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE,
+      failedLayer = "stem",
+      contractLayer = "stemFrame",
+      routeStage = ""
+    } = {}) {
+      const normalizedId = String(id || "morphology-application-blocked").trim();
+      return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: "error",
+        message: String(message || MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE).trim(),
+        failedLayer: String(failedLayer || "stem").trim(),
+        contractLayer: String(contractLayer || "stemFrame").trim(),
+        routeFamily: "morphology-application",
+        routeStage: String(routeStage || "").trim()
+      };
+    }
+    function getMorphologyApplicationDiagnosticLayerContract(routeStage = "") {
+      const stage = String(routeStage || "").trim();
+      if (/orthography|spelling|letter/i.test(stage)) {
+        return {
+          failedLayer: "orthography",
+          contractLayer: "orthographyFrame"
+        };
+      }
+      if (/agreement|participant/i.test(stage)) {
+        return {
+          failedLayer: "agreement",
+          contractLayer: "participantFrame"
+        };
+      }
+      if (/surface|result|output/i.test(stage)) {
+        return {
+          failedLayer: "output",
+          contractLayer: "resultFrame"
+        };
+      }
+      return {
+        failedLayer: "stem",
+        contractLayer: "stemFrame"
+      };
+    }
+    function normalizeMorphologyApplicationDiagnostics(diagnostics = [], fallbackDiagnostic = null, {
+      routeStage = ""
+    } = {}) {
+      const entries = Array.isArray(diagnostics) && diagnostics.length ? diagnostics : fallbackDiagnostic ? [fallbackDiagnostic] : [];
+      const normalized = typeof targetObject.normalizeGrammarDiagnosticContractEntries === "function" ? targetObject.normalizeGrammarDiagnosticContractEntries(entries) : entries.filter(entry => entry && typeof entry === "object");
+      const layerContract = getMorphologyApplicationDiagnosticLayerContract(routeStage);
+      return normalized.map(entry => ({
+        ...entry,
+        failedLayer: entry.failedLayer || layerContract.failedLayer,
+        contractLayer: entry.contractLayer || layerContract.contractLayer,
+        routeFamily: entry.routeFamily || "morphology-application",
+        routeStage: entry.routeStage || String(routeStage || "").trim()
+      }));
+    }
+    function normalizeMorphologyApplicationSurfaceValue(value = "") {
+      if (typeof targetObject.normalizeGrammarSurfaceValue === "function") {
+        return targetObject.normalizeGrammarSurfaceValue(value);
+      }
+      const surface = String(value || "").trim();
+      return surface === "—" ? "" : surface;
+    }
+    function splitMorphologyApplicationSurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeMorphologyApplicationSurfaceValue(entry)).filter(Boolean);
+    }
+    function getMorphologyApplicationResultFrame(result = null) {
+      return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
+    }
+    function getMorphologyApplicationSurfaceForms(result = null, fallbackSurface = "") {
+      const output = result && typeof result === "object" ? result : {};
+      const grammarFrame = getMorphologyApplicationResultFrame(output);
+      const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(frameResult);
+      const forms = [];
+      if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitMorphologyApplicationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
+        forms.push(...output.surfaceForms);
+      }
+      if (output.surface) {
+        forms.push(output.surface);
+      }
+      if (!hasResultFrame && output.result) {
+        forms.push(output.result);
+      }
+      if (!hasResultFrame && fallbackSurface) {
+        forms.push(fallbackSurface);
+      }
+      return forms.flatMap(entry => splitMorphologyApplicationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getMorphologyApplicationSourceSurfaceForms(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const grammarFrame = getMorphologyApplicationResultFrame(output);
+      const hasResultFrame = Boolean(grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object");
+      const frameFirstForms = getMorphologyApplicationSurfaceForms(output);
+      if (frameFirstForms.length || hasResultFrame) {
+        return frameFirstForms;
+      }
+      return (Array.isArray(output.forms) ? output.forms : []).flatMap(entry => splitMorphologyApplicationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getMorphologyApplicationAndrewsRefs({
+      tense = "",
+      derivationType = "",
+      patientivoSource = ""
+    } = {}) {
+      const refs = ["Andrews Lesson 5", "Andrews Lesson 7"];
+      const normalizedTense = String(tense || "");
+      if (normalizedTense === "sustantivo-verbal" || normalizedTense === "agentivo" || normalizedTense === "agentivo-presente" || normalizedTense === "agentivo-preterito" || normalizedTense === "agentivo-futuro" || normalizedTense === "instrumentivo" || normalizedTense === "calificativo-instrumentivo") {
+        refs.push("Andrews Lessons 35-36");
+      }
+      if (normalizedTense === "potencial" || normalizedTense === "patientivo" || String(patientivoSource || "")) {
+        refs.push("Andrews Lessons 37-39");
+      }
+      if (String(derivationType || "") === "causative") {
+        refs.push("Andrews Lessons 24-25");
+      }
+      if (String(derivationType || "") === "applicative") {
+        refs.push("Andrews Lesson 26");
+      }
+      return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function attachMorphologyApplicationGrammarContract(result = null, {
+      routeStage = "apply",
+      diagnosticId = "morphology-application-blocked",
+      message = MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE,
+      subjectPrefix = "",
+      objectPrefix = "",
+      subjectSuffix = "",
+      verb = "",
+      tense = "",
+      analysisVerb = "",
+      rawVerb = "",
+      sourceRawVerb = "",
+      derivationType = "",
+      patientivoSource = "",
+      combinedMode = "",
+      isNounContext = false,
+      enumerable = false
+    } = {}) {
+      const output = result && typeof result === "object" ? result : {};
+      const fallbackDiagnostic = buildMorphologyApplicationDiagnostic({
+        id: diagnosticId,
+        message,
+        failedLayer: "stem",
+        contractLayer: "stemFrame",
+        routeStage
+      });
+      const diagnostics = normalizeMorphologyApplicationDiagnostics(output.diagnostics, output.error ? fallbackDiagnostic : null, {
+        routeStage
+      });
+      Object.defineProperty(output, "diagnostics", {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: diagnostics
+      });
+      const outputVerb = String(output.verb || verb || "");
+      const surfaceForms = output.error ? [] : getMorphologyApplicationSurfaceForms(output, outputVerb);
+      const surface = output.error ? "" : surfaceForms[0] || "";
+      const ok = Boolean(surface) && output.error !== true;
+      const grammarFrame = typeof targetObject.buildGrammarFrame === "function" ? targetObject.buildGrammarFrame({
+        authorityFrame: typeof targetObject.buildGrammarAuthorityFrame === "function" ? targetObject.buildGrammarAuthorityFrame({
+          sourceEvidence: {
+            kind: "morphology-application",
+            tense: String(tense || ""),
+            derivationType: String(derivationType || ""),
+            patientivoSource: String(patientivoSource || "")
+          },
+          evidenceStatus: ok ? "applied" : "blocked",
+          andrewsRefs: getMorphologyApplicationAndrewsRefs({
+            tense,
+            derivationType,
+            patientivoSource
+          }),
+          supported: ok
+        }) : null,
+        unitFrame: {
+          unitKind: isNounContext ? "nominal-morphology" : "verbal-morphology",
+          outputKind: "morphology-application",
+          generationRoute: String(tense || "")
+        },
+        orthographyFrame: {
+          surface,
+          surfaceForms,
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true
+        },
+        morphBoundaryFrame: {
+          subjectSuffix: String(output.subjectSuffix ?? subjectSuffix ?? ""),
+          trailingSuffix: String(output.trailingSuffix || ""),
+          alternateCount: Array.isArray(output.alternateForms) ? output.alternateForms.length : 0
+        },
+        stemFrame: {
+          stem: outputVerb,
+          analysisStem: String(analysisVerb || ""),
+          sourceRawVerb: String(sourceRawVerb || rawVerb || ""),
+          stemProvenance: output.stemProvenance || null
+        },
+        nuclearClauseFrame: null,
+        participantFrame: {
+          subject: {
+            prefix: String(output.subjectPrefix ?? subjectPrefix ?? ""),
+            suffix: String(output.subjectSuffix ?? subjectSuffix ?? "")
+          },
+          object: {
+            prefix: String(output.objectPrefix ?? objectPrefix ?? "")
+          }
+        },
+        inflectionFrame: {
+          tense: String(tense || ""),
+          derivationType: String(derivationType || ""),
+          patientivoSource: String(patientivoSource || ""),
+          combinedMode: String(combinedMode || ""),
+          isNounContext: isNounContext === true
+        },
+        routeContract: typeof targetObject.buildGrammarRouteContractFrame === "function" ? targetObject.buildGrammarRouteContractFrame({
+          routeFamily: "morphology-application",
+          routeStage,
+          sourceContract: {
+            tense: String(tense || ""),
+            verb: String(verb || ""),
+            analysisVerb: String(analysisVerb || ""),
+            derivationType: String(derivationType || "")
+          },
+          targetContract: {
+            outputKind: "morphology-application",
+            surfaceKind: isNounContext ? "nominal-stem" : "verbal-stem"
+          },
+          generationAllowed: ok,
+          blockingDiagnostics: ok ? [] : diagnostics
+        }) : null,
+        astFrame: null,
+        resultFrame: typeof targetObject.buildGrammarResultFrame === "function" ? targetObject.buildGrammarResultFrame({
+          ok,
+          surface,
+          surfaceForms,
+          outputKind: "morphology-application",
+          generationRoute: String(tense || ""),
+          sourceInput: String(sourceRawVerb || rawVerb || verb || ""),
+          provenance: output.stemProvenance || null
+        }) : null,
+        diagnosticFrame: typeof targetObject.buildGrammarDiagnosticFrame === "function" ? targetObject.buildGrammarDiagnosticFrame({
+          status: ok ? "applied" : "blocked",
+          diagnostics,
+          blockers: ok ? [] : diagnostics
+        }) : null
+      }) : null;
+      const resultContract = typeof targetObject.buildGrammarResultContract === "function" ? targetObject.buildGrammarResultContract({
+        result: output,
+        grammarFrame
+      }) : {
+        ok,
+        surface,
+        frames: grammarFrame,
+        diagnostics
+      };
+      Object.defineProperties(output, {
+        grammarFrame: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: grammarFrame
+        },
+        ok: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.ok
+        },
+        surface: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.surface
+        },
+        frames: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.frames
+        },
+        contractDiagnostics: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.diagnostics
+        }
+      });
+      return output;
+    }
     function buildTroncoActivePatientivoCoreForms({
       wrapperProfile = "tik",
       sourceTense = "",
@@ -310,7 +611,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           hasDoubleDash,
           forceClassBSelection: classPolicy.forceClassBSelection
         });
-        const candidateForms = targetObject.selectPreferredActiveAdjectiveForms(classOutput?.forms || [], {
+        const candidateForms = targetObject.selectPreferredActiveAdjectiveForms(getMorphologyApplicationSourceSurfaceForms(classOutput), {
           sourceVerb: candidate.analysisVerb || candidate.verb,
           sourceTense,
           selectionMode: classPolicy.preferredFinalYaSurfaceMode,
@@ -429,6 +730,24 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       const agentivoNumberSlot = isAgentivoTense ? baseSubjectSuffix : "";
       const sustantivoVerbalLikeNumberSlot = tense === "sustantivo-verbal" ? "" : isSustantivoVerbalLikeTense ? baseSubjectSuffix : "";
       const morphologyTense = isAgentivoTense ? "presente-habitual" : isPresentAgentivoTense ? "presente" : isPreteritAgentivoTense ? "preterito" : isFutureAgentivoTense ? "futuro" : isPotencialNounLikeTense ? "sustantivo-verbal" : isPotencialHabitualProfile ? "presente-habitual" : tense;
+      const returnMorphologyError = (routeStage = "blocked", diagnosticId = "morphology-application-blocked") => attachMorphologyApplicationGrammarContract({
+        error: true
+      }, {
+        routeStage,
+        diagnosticId,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        verb,
+        tense,
+        analysisVerb,
+        rawVerb,
+        sourceRawVerb,
+        derivationType,
+        patientivoSource,
+        combinedMode,
+        isNounContext
+      });
       if (isAgentivoTense) {
         subjectSuffix = "";
       }
@@ -483,6 +802,9 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       let suppressSustantivoIEndingSVariant = false;
       let passivePatientivoKeepsSelectedProjectiveFromDoubleObject = false;
       let customaryPresentPatientiveSelectedProjectiveObjectPrefix = "";
+      let patientivoSourceStageFrame = null;
+      let patientivoSourceStageFrames = [];
+      let patientivoMultipleDerivationContract = null;
       const earlyPatientivoFamily = tense === "patientivo" ? typeof targetObject.normalizeVerbDerivedPatientiveFamily === "function" ? targetObject.normalizeVerbDerivedPatientiveFamily(patientivoSource) : String(patientivoSource || "").trim() : "";
       if (earlyPatientivoFamily === "passive") {
         const projectiveObjects = [objectPrefix, indirectObjectMarker, thirdObjectMarker].filter(marker => marker === "ta" || marker === "te");
@@ -669,9 +991,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           combinedMode
         });
         if (!sustantivoVerbalStemCandidates.length) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("sustantivo-verbal-stem-candidates", "morphology-sustantivo-verbal-no-stem");
         }
         const [primarySustantivoStem, ...alternateSustantivoStems] = sustantivoVerbalStemCandidates;
         const isActiveActionSustantivoVerbal = tense === "sustantivo-verbal" && combinedMode !== "nonactive";
@@ -716,9 +1036,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           objectPrefix = "ta";
         }
         if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientive-adjective-tronco-object-gate", "morphology-patientive-adjective-tronco-object-blocked");
         }
         const patientivoInput = targetObject.buildPatientivoDerivationInput({
           verb,
@@ -755,9 +1073,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
         const patientivoDerivations = targetObject.getPatientivoDerivationBuilder(patientivoAdjectiveSource)(patientivoInput);
         const patientivoAdjectiveForms = targetObject.buildPatientivoAdjectiveDerivations(patientivoDerivations, patientivoAdjectiveSource);
         if (!patientivoAdjectiveForms.length) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientive-adjective-source-forms", "morphology-patientive-adjective-no-forms");
         }
         const [primary, ...alternates] = patientivoAdjectiveForms;
         verb = primary.verb;
@@ -776,9 +1092,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
         const resolvedPatientivoFamily = typeof targetObject.normalizeVerbDerivedPatientiveFamily === "function" ? targetObject.normalizeVerbDerivedPatientiveFamily(patientivoSource) : String(patientivoSource || "").trim();
         if (resolvedPatientivoFamily === "passive" && !isTransitive) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientivo-passive-valency-gate", "morphology-patientivo-passive-intransitive-blocked");
         }
         if (resolvedPatientivoFamily === "passive" && (objectPrefix === "ta" || objectPrefix === "te") && !indirectObjectMarker && !thirdObjectMarker && !passivePatientivoKeepsSelectedProjectiveFromDoubleObject) {
           objectPrefix = "";
@@ -796,9 +1110,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           objectPrefix = "ta";
         }
         if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientivo-tronco-object-gate", "morphology-patientivo-tronco-object-blocked");
         }
         const pluralMarker = baseSubjectSuffix === "p" ? "wan" : baseSubjectSuffix === "t" ? "met" : "";
         const applyPatientivoSuffix = suffix => {
@@ -842,9 +1154,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
         const patientivoNominalDerivations = targetObject.expandPatientivoNominalMarkerOptions(derivations, patientivoSource);
         let resolvedPatientivoDerivations = patientivoNominalDerivations.length ? patientivoNominalDerivations : derivations;
         if (patientivoSource === "tronco-verbal" && String(patientivoNominalSuffix || "") === "zero") {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientivo-tronco-zero-suffix-gate", "morphology-patientivo-tronco-zero-suffix-blocked");
         }
         const resolvedPatientivoNominalSuffix = targetObject.normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
         if (patientivoSource === "tronco-verbal" && resolvedPatientivoNominalSuffix === null && typeof targetObject.getTClassSuffixForStem === "function") {
@@ -854,12 +1164,35 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           resolvedPatientivoDerivations = resolvedPatientivoDerivations.filter(entry => String(entry?.subjectSuffix || "") === resolvedPatientivoNominalSuffix);
         }
         if (!resolvedPatientivoDerivations.length && (resolvedPatientivoNominalSuffix !== null || targetObject.isStrictPatientivoDerivationSource(patientivoSource))) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("patientivo-source-derivations", "morphology-patientivo-source-no-derivations");
         }
         if (resolvedPatientivoDerivations.length) {
           const [primary, ...alternates] = targetObject.normalizePatientivoDerivationEntries(resolvedPatientivoDerivations, patientivoSource);
+          const buildSelectedPatientivoSourceStageFrame = (entry, nextSuffix) => {
+            const frame = entry?.patientiveSourceStageFrame;
+            if (!frame || typeof frame !== "object") {
+              return null;
+            }
+            const outputStem = String(entry?.verb || entry?.stem || frame.outputStem || "");
+            const outputConnector = String(nextSuffix || "");
+            const outputPrefix = String(objectPrefix || "");
+            const sourceStockContract = frame.sourceStockContract && frame.sourceStockContract.kind === "patientive-root-stock-source-contract" && typeof targetObject.getPatientivoRootStockSourceContract === "function" ? targetObject.getPatientivoRootStockSourceContract({
+              sourceStem: frame.sourceStockContract.sourceStem || frame.sourceStem || "",
+              outputStem,
+              outputConnector,
+              routeStemOnly: outputConnector === "",
+              variantConsonant: frame.sourceStockContract.variantConsonant || ""
+            }) : frame.sourceStockContract || null;
+            return {
+              ...frame,
+              selectedOutput: true,
+              outputPrefix,
+              outputStem,
+              outputConnector,
+              outputSurface: `${outputPrefix}${outputStem}${outputConnector}`,
+              sourceStockContract
+            };
+          };
           const shouldAddPassiveTeDeletionAlternate = resolvedPatientivoFamily === "passive" && passivePatientivoKeepsSelectedProjectiveFromDoubleObject && passivePatientivoSelectedProjectiveObjectPrefix === "te";
           const pushPassiveTeDeletionAlternate = (entry, nextSuffix) => {
             const deletedVerb = String(entry?.verb || "");
@@ -873,9 +1206,15 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           };
           verb = primary.verb;
           subjectSuffix = applyPatientivoSuffix(primary.subjectSuffix);
+          patientivoSourceStageFrame = buildSelectedPatientivoSourceStageFrame(primary, subjectSuffix);
+          patientivoSourceStageFrames = patientivoSourceStageFrame ? [patientivoSourceStageFrame] : [];
           pushPassiveTeDeletionAlternate(primary, subjectSuffix);
           alternates.forEach(entry => {
             const nextSuffix = applyPatientivoSuffix(entry.subjectSuffix);
+            const alternateSourceStageFrame = buildSelectedPatientivoSourceStageFrame(entry, nextSuffix);
+            if (alternateSourceStageFrame) {
+              patientivoSourceStageFrames.push(alternateSourceStageFrame);
+            }
             pushAlternateForm(entry.verb, nextSuffix, {
               formSpec: targetObject.withNominalFormSpecSuffix(entry.formSpec || null, nextSuffix, {
                 verb: entry.verb,
@@ -884,6 +1223,12 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
             });
             pushPassiveTeDeletionAlternate(entry, nextSuffix);
           });
+          patientivoMultipleDerivationContract = typeof targetObject.buildPatientivoMultipleDerivationContract === "function" ? targetObject.buildPatientivoMultipleDerivationContract({
+            patientivoInput,
+            selectedSource: resolvedPatientivoFamily || patientivoSource,
+            selectedStageFrame: patientivoSourceStageFrame,
+            selectedOutputSurface: patientivoSourceStageFrame?.outputSurface || ""
+          }) : null;
         }
       }
       const resolveOutputVerbForCurrentPrefixes = (verbValue = "", prefixOverrides = {}) => targetObject.resolveOptionalSupportiveOutputVerb({
@@ -967,15 +1312,13 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           }
           return null;
         };
-        const resolvedPreteritAgentiveEntries = (preteritAgentiveOutput.forms || []).map(form => targetObject.resolveOptionalSupportiveOutputText({
+        const resolvedPreteritAgentiveEntries = getMorphologyApplicationSourceSurfaceForms(preteritAgentiveOutput).map(form => targetObject.resolveOptionalSupportiveOutputText({
           value: form,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
         })).map(form => splitPreteritAgentiveForm(form)).filter(Boolean);
         if (!resolvedPreteritAgentiveEntries.length) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("preterit-agentive-source-forms", "morphology-preterit-agentive-no-forms");
         }
         const [primaryEntry, ...alternateEntries] = resolvedPreteritAgentiveEntries;
         subjectPrefix = baseSubjectPrefix;
@@ -996,7 +1339,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       }
       if (targetObject.PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         const universalOutput = targetObject.buildPretUniversalResultWithProvenance(pretDerivationSharedOptions);
-        const resolvedUniversalForms = (universalOutput.forms || []).map(f => targetObject.resolveOptionalSupportiveOutputText({
+        const resolvedUniversalForms = getMorphologyApplicationSourceSurfaceForms(universalOutput).map(f => targetObject.resolveOptionalSupportiveOutputText({
           value: f,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
@@ -1033,7 +1376,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
             hasOptionalSupportiveI,
             optionalSupportiveLetter
           });
-          const nonactiveForms = nonactiveResult?.forms || [];
+          const nonactiveForms = getMorphologyApplicationSourceSurfaceForms(nonactiveResult);
           const primaryNonactiveVerb = nonactiveForms[0] || "—";
           nonactiveForms.slice(1).forEach(f => pushAlternateForm(f, ""));
           return {
@@ -1052,7 +1395,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           forceClassBSelection: forceAdjectiveClassB,
           forceClassBOnly: isVerbNonactiveMode
         });
-        const resolvedClassForms = (classOutput.forms || []).map(f => targetObject.resolveOptionalSupportiveOutputText({
+        const resolvedClassForms = getMorphologyApplicationSourceSurfaceForms(classOutput).map(f => targetObject.resolveOptionalSupportiveOutputText({
           value: f,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
@@ -1173,9 +1516,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           alternateForms
         });
         if (!potentialForms.length) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("potential-active-source-forms", "morphology-potential-active-no-forms");
         }
         const [primaryPotential, ...alternatePotentials] = potentialForms;
         verb = primaryPotential.verb;
@@ -1206,9 +1547,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           combinedMode
         });
         if (!calificativoResult || calificativoResult.error || !applyVerbDerivedNominalResultToMorphology(calificativoResult)) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("calificativo-instrumentivo-direct-route", "morphology-calificativo-instrumentivo-route-blocked");
         }
       }
       if (tense === "instrumentivo") {
@@ -1226,9 +1565,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           possessivePrefix
         });
         if (!instrumentivoResult || instrumentivoResult.error || !applyVerbDerivedNominalResultToMorphology(instrumentivoResult)) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("instrumentivo-direct-route", "morphology-instrumentivo-route-blocked");
         }
       }
       if (tense === "locativo-temporal") {
@@ -1243,9 +1580,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           combinedMode
         });
         if (!locativoResult || locativoResult.error || !applyVerbDerivedNominalResultToMorphology(locativoResult)) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("locativo-temporal-direct-route", "morphology-locativo-temporal-route-blocked");
         }
       }
       if (tense === "activo-no-finito") {
@@ -1529,7 +1864,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
             hasDoubleDash,
             forceClassBSelection: adjectiveClassPolicy.forceClassBSelection
           });
-          let candidateForms = targetObject.selectPreferredActiveAdjectiveForms(classOutput?.forms || [], {
+          let candidateForms = targetObject.selectPreferredActiveAdjectiveForms(getMorphologyApplicationSourceSurfaceForms(classOutput), {
             sourceVerb: sourceAnalysis || sourceVerb,
             sourceTense: activeWrapperSourceTense,
             selectionMode: adjectiveClassPolicy.preferredFinalYaSurfaceMode,
@@ -1542,9 +1877,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           candidateForms.forEach(formValue => addWrapperForm(formValue));
         });
         if (!wrapperForms.length) {
-          return {
-            error: true
-          };
+          return returnMorphologyError("active-adjective-wrapper-forms", "morphology-active-adjective-wrapper-no-forms");
         }
         const [primaryWrapperForm, ...alternateWrapperForms] = wrapperForms;
         const splitTroncoTikWrapperForm = (formValue = "") => {
@@ -1663,9 +1996,12 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
           suppressIEndingSVariant = false
         } = {}) => {
           const stem = typeof stemValue === "string" ? stemValue : "";
-          const variants = ["lis"];
+          const nominalizerContract = typeof targetObject.getActiveActionNominalizerContract === "function" ? targetObject.getActiveActionNominalizerContract() : null;
+          const longNominalizer = nominalizerContract?.nawatSuffixes?.long || "lis";
+          const shortNominalizer = nominalizerContract?.nawatSuffixes?.short || "s";
+          const variants = [longNominalizer];
           if (stem.endsWith("i") && !suppressSustantivoIEndingSVariant && suppressIEndingSVariant !== true) {
-            variants.push("s");
+            variants.push(shortNominalizer);
           }
           return variants.map(value => targetObject.applyAgentivoNumberSuffix(value, pluralSlot)).filter((value, index, list) => list.indexOf(value) === index);
         };
@@ -1761,7 +2097,10 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
         imperativeKiReduction: tense === "imperativo" && (baseSubjectPrefix === "ti" && baseSubjectSuffix === "" || baseSubjectPrefix === "an" && baseSubjectSuffix === "t"),
         dropVerbInitialIAfterObjectI: shouldApplyEarlyContactElision,
         dropInitialIFromIskaliaAfterMu: objectPrefix === "mu" || markerChain.includes("mu"),
-        trimFinalIAUAVowel: tense === "imperativo" || dropClassCNucleusTenses.has(tense)
+        trimFinalIAUAVowel: tense === "imperativo" || dropClassCNucleusTenses.has(tense),
+        patientivoSourceStageFrame,
+        patientivoSourceStageFrames,
+        patientivoMultipleDerivationContract
       };
       const directionalChainMeta = directionalInputPrefix ? {
         directionalInputPrefix,
@@ -1783,7 +2122,7 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
       const normalizedAlternateForms = isNounContextFinal ? alternateForms.map(form => targetObject.normalizeNominalFormEntry(form, {
         subjectSuffix
       })).filter(form => form && form.subjectSuffix !== null) : alternateForms;
-      return {
+      return attachMorphologyApplicationGrammarContract({
         subjectPrefix,
         objectPrefix,
         subjectSuffix,
@@ -1794,10 +2133,39 @@ export function createMorphologyEngineGlobals(targetObject = globalThis) {
         surfaceRuleMeta,
         directionalChainMeta,
         stemProvenance: stemProvenanceSeed || null
-      };
+      }, {
+        routeStage: "apply",
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        verb,
+        tense,
+        analysisVerb,
+        rawVerb,
+        sourceRawVerb,
+        derivationType,
+        patientivoSource,
+        combinedMode,
+        isNounContext: isNounContextFinal
+      });
     }
 
     const api = {};
+    Object.defineProperty(api, "MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE", {
+        configurable: true,
+        enumerable: true,
+        get() { return MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE; },
+    });
+    api.buildMorphologyApplicationDiagnostic = buildMorphologyApplicationDiagnostic;
+    api.getMorphologyApplicationDiagnosticLayerContract = getMorphologyApplicationDiagnosticLayerContract;
+    api.normalizeMorphologyApplicationDiagnostics = normalizeMorphologyApplicationDiagnostics;
+    api.normalizeMorphologyApplicationSurfaceValue = normalizeMorphologyApplicationSurfaceValue;
+    api.splitMorphologyApplicationSurfaceText = splitMorphologyApplicationSurfaceText;
+    api.getMorphologyApplicationResultFrame = getMorphologyApplicationResultFrame;
+    api.getMorphologyApplicationSurfaceForms = getMorphologyApplicationSurfaceForms;
+    api.getMorphologyApplicationSourceSurfaceForms = getMorphologyApplicationSourceSurfaceForms;
+    api.getMorphologyApplicationAndrewsRefs = getMorphologyApplicationAndrewsRefs;
+    api.attachMorphologyApplicationGrammarContract = attachMorphologyApplicationGrammarContract;
     api.buildTroncoActivePatientivoCoreForms = buildTroncoActivePatientivoCoreForms;
     api.buildPotencialActiveForms = buildPotencialActiveForms;
     api.applyMorphologyRules = applyMorphologyRules;

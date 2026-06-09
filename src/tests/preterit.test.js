@@ -90,6 +90,286 @@ function run(ctx) {
             fromProvenance: "A",
         }
     );
+    s.eq(
+        "preterit class-based direct result exposes non-enumerable LCM frame",
+        (() => {
+            const result = ctx.buildClassBasedResultWithProvenance({
+                verb: "asi",
+                analysisVerb: "asi",
+                exactBaseVerb: "asi",
+                tense: "preterito",
+                classFilter: "A",
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "",
+            });
+            return {
+                result: result.result,
+                forms: result.forms,
+                ok: result.ok,
+                surface: result.surface,
+                frameAlias: result.frames === result.grammarFrame,
+                grammarFrameEnumerable: Object.prototype.propertyIsEnumerable.call(result, "grammarFrame"),
+                routeFamily: result.grammarFrame.routeContract.routeFamily,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                unitKind: result.grammarFrame.unitFrame.unitKind,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+                evidenceStatus: result.grammarFrame.authorityFrame.evidenceStatus,
+                classKey: result.grammarFrame.stemFrame.classKey,
+            };
+        })(),
+        {
+            result: "niaski",
+            forms: ["niaski"],
+            ok: true,
+            surface: "niaski",
+            frameAlias: true,
+            grammarFrameEnumerable: false,
+            routeFamily: "preterit-class-based-result",
+            routeStage: "assemble-output",
+            unitKind: "verbal-nuclear-clause",
+            generationAllowed: true,
+            evidenceStatus: "generated",
+            classKey: "A",
+        }
+    );
+    s.eq(
+        "preterit class-based contract reader prefers LCM result-frame surface forms before legacy no-output text",
+        (() => {
+            const result = ctx.attachPreteritClassBasedGrammarContract({
+                result: "stale-preterit-result",
+                surface: "top-preterit-surface",
+                forms: ["stale-preterit-form"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-pret-surface",
+                        surfaceForms: ["frame-pret-a / frame-pret-b"],
+                    }),
+                }),
+            }, {
+                verb: "asi",
+                analysisVerb: "asi",
+                tense: "preterito",
+                classKey: "A",
+            });
+            return {
+                ok: result.ok,
+                surface: result.surface,
+                frameSurface: result.grammarFrame.resultFrame.surface,
+                frameForms: result.grammarFrame.resultFrame.surfaceForms,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+            };
+        })(),
+        {
+            ok: true,
+            surface: "frame-pret-a",
+            frameSurface: "frame-pret-a",
+            frameForms: ["frame-pret-a", "frame-pret-b", "frame-pret-surface"],
+            generationAllowed: true,
+        }
+    );
+    s.eq(
+        "preterit class-based contract reader keeps legacy forms for metadata-only frames",
+        (() => {
+            const result = ctx.attachPreteritClassBasedGrammarContract({
+                result: "legacy-preterit-result",
+                surface: "top-preterit-surface",
+                forms: ["legacy-preterit-a / legacy-preterit-b"],
+                frames: ctx.buildGrammarFrame({
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "preterit-class-based-result",
+                        routeStage: "metadata-only",
+                        generationAllowed: true,
+                    }),
+                }),
+            }, {
+                verb: "asi",
+                analysisVerb: "asi",
+                tense: "preterito",
+                classKey: "A",
+            });
+            return {
+                ok: result.ok,
+                surface: result.surface,
+                frameSurface: result.grammarFrame.resultFrame.surface,
+                frameForms: result.grammarFrame.resultFrame.surfaceForms,
+            };
+        })(),
+        {
+            ok: true,
+            surface: "legacy-preterit-a",
+            frameSurface: "legacy-preterit-a",
+            frameForms: ["legacy-preterit-a", "legacy-preterit-b", "top-preterit-surface", "legacy-preterit-result"],
+        }
+    );
+    s.eq(
+        "preterit class-based blocked result normalizes dash surface",
+        (() => {
+            const result = ctx.buildClassBasedResultWithProvenance({
+                verb: "asi",
+                analysisVerb: "asi",
+                exactBaseVerb: "asi",
+                tense: "perfecto",
+                classFilter: "B",
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "",
+            });
+            return {
+                result: result.result,
+                forms: result.forms,
+                ok: result.ok,
+                surface: result.surface,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+                diagnosticStatus: result.grammarFrame.diagnosticFrame.status,
+                diagnosticId: result.grammarFrame.diagnosticFrame.diagnostics[0]?.id || "",
+                diagnosticFailedLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.failedLayer || "",
+                diagnosticContractLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.contractLayer || "",
+                diagnosticsEnumerable: Object.prototype.propertyIsEnumerable.call(result, "diagnostics"),
+            };
+        })(),
+        {
+            result: "—",
+            forms: [],
+            ok: false,
+            surface: "",
+            routeStage: "class-result-gate",
+            generationAllowed: false,
+            diagnosticStatus: "blocked",
+            diagnosticId: "preterit-class-based-result-no-output",
+            diagnosticFailedLayer: "output",
+            diagnosticContractLayer: "resultFrame",
+            diagnosticsEnumerable: false,
+        }
+    );
+    s.eq(
+        "preterit variant assembly exposes LCM frame",
+        (() => {
+            const context = ctx.buildPretUniversalContext("asi", "asi", false, { exactBaseVerb: "asi" });
+            const variants = ctx.getPretUniversalVariantsByClass(context).get("A");
+            const result = ctx.buildPretUniversalResultDetailedFromVariants(variants, "ni", "", "");
+            return {
+                result: result.result,
+                forms: result.forms,
+                ok: result.ok,
+                surface: result.surface,
+                routeFamily: result.grammarFrame.routeContract.routeFamily,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                unitKind: result.grammarFrame.unitFrame.unitKind,
+                variantCount: result.grammarFrame.stemFrame.variantCount,
+                grammarFrameEnumerable: Object.prototype.propertyIsEnumerable.call(result, "grammarFrame"),
+            };
+        })(),
+        {
+            result: "niaski",
+            forms: ["niaski"],
+            ok: true,
+            surface: "niaski",
+            routeFamily: "preterit-variant-assembly",
+            routeStage: "assemble-variants",
+            unitKind: "verbal-nuclear-clause",
+            variantCount: 1,
+            grammarFrameEnumerable: false,
+        }
+    );
+    s.eq(
+        "preterit variant assembly contract reader prefers LCM result-frame surface forms before legacy no-output text",
+        (() => {
+            const result = ctx.attachPretUniversalVariantAssemblyGrammarContract({
+                result: "stale-variant-result",
+                surface: "top-variant-surface",
+                forms: ["stale-variant-form"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-variant-surface",
+                        surfaceForms: ["frame-variant-a / frame-variant-b"],
+                    }),
+                }),
+            }, {
+                variants: [],
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "",
+            });
+            return {
+                ok: result.ok,
+                surface: result.surface,
+                frameSurface: result.grammarFrame.resultFrame.surface,
+                frameForms: result.grammarFrame.resultFrame.surfaceForms,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+            };
+        })(),
+        {
+            ok: true,
+            surface: "frame-variant-a",
+            frameSurface: "frame-variant-a",
+            frameForms: ["frame-variant-a", "frame-variant-b", "frame-variant-surface"],
+            generationAllowed: true,
+        }
+    );
+    s.eq(
+        "preterit variant assembly reader keeps legacy forms for metadata-only frames",
+        (() => {
+            const result = ctx.attachPretUniversalVariantAssemblyGrammarContract({
+                result: "legacy-variant-result",
+                surface: "top-variant-surface",
+                forms: ["legacy-variant-a / legacy-variant-b"],
+                frames: ctx.buildGrammarFrame({
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "preterit-variant-assembly",
+                        routeStage: "metadata-only",
+                        generationAllowed: true,
+                    }),
+                }),
+            }, {
+                variants: [],
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "",
+            });
+            return {
+                ok: result.ok,
+                surface: result.surface,
+                frameSurface: result.grammarFrame.resultFrame.surface,
+                frameForms: result.grammarFrame.resultFrame.surfaceForms,
+            };
+        })(),
+        {
+            ok: true,
+            surface: "legacy-variant-a",
+            frameSurface: "legacy-variant-a",
+            frameForms: ["legacy-variant-a", "legacy-variant-b", "top-variant-surface", "legacy-variant-result"],
+        }
+    );
+    s.eq(
+        "preterit variant assembly blocked source gate carries diagnostics",
+        (() => {
+            const result = ctx.buildPretUniversalResultDetailedFromVariants([], "ni", "", "");
+            return {
+                result: result.result,
+                forms: result.forms,
+                ok: result.ok,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+                diagnosticId: result.grammarFrame.diagnosticFrame.diagnostics[0]?.id || "",
+                diagnosticFailedLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.failedLayer || "",
+                diagnosticContractLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.contractLayer || "",
+            };
+        })(),
+        {
+            result: null,
+            forms: [],
+            ok: false,
+            routeStage: "variant-source-gate",
+            generationAllowed: false,
+            diagnosticId: "preterit-variant-assembly-blocked",
+            diagnosticFailedLayer: "route",
+            diagnosticContractLayer: "routeContract",
+        }
+    );
 
     const asiSecondPluralPreterite = ctx.generateWord({
         silent: true,

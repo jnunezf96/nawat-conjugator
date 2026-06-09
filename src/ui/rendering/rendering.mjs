@@ -413,6 +413,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         patientive: "patientivo",
         instrumentive: "instrumentivo",
         "quality-result": "calificativo",
+        "potential-patient": "paciente potencial",
         "locative-temporal": "locativo-temporal",
         "patientive-adjectival": "adjetivo patientivo",
         "adjectival-surface": "adjetivo"
@@ -421,6 +422,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         "action/process": "accion/proceso",
         agent: "agente",
         "patient/result": "paciente/resultado",
+        "potential-patient": "paciente potencial",
         instrument: "instrumento",
         "quality/result": "cualidad/resultado",
         "place/time": "lugar/tiempo",
@@ -509,6 +511,55 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       if (verbalizer) {
         labels.push(`Verbalizador denominal: ${verbalizer}`);
       }
+      const suffixContract = profile.suffixContract && typeof profile.suffixContract === "object" ? profile.suffixContract : null;
+      if (suffixContract?.classicalSuffix && suffixContract?.nawatVerbalizer) {
+        labels.push(`Contrato Andrews: ${suffixContract.classicalSuffix} -> ${suffixContract.nawatVerbalizer}`);
+      }
+      if (profile.boundaries?.noAndrewsSuffixContract === true) {
+        labels.push("Contrato Andrews: no confirmado");
+      }
+      const contractCoverage = profile.andrewsContractCoverage && typeof profile.andrewsContractCoverage === "object" ? profile.andrewsContractCoverage : null;
+      const pendingCount = Number(contractCoverage?.unmodeledContractCount || 0) + Number(contractCoverage?.targetUnmodeledContractCount || 0);
+      if (pendingCount > 0) {
+        labels.push(`Contratos Andrews pendientes: ${pendingCount}`);
+      }
+      if (Array.isArray(contractCoverage?.nawatOnlyRouteFamilies) && contractCoverage.nawatOnlyRouteFamilies.length) {
+        labels.push(`Rutas Nawat sin contrato Andrews: ${contractCoverage.nawatOnlyRouteFamilies.join(", ")}`);
+      }
+      const contractRoutePreview = profile.andrewsContractRoutePreview && typeof profile.andrewsContractRoutePreview === "object" ? profile.andrewsContractRoutePreview : null;
+      labels.push(...buildNawatDenominalSourceEvidenceSubLabels(profile.sourceEvidence || contractRoutePreview?.sourceEvidence));
+      const routeTargetCount = Number(contractRoutePreview?.routeCount || 0);
+      if (routeTargetCount > 0) {
+        labels.push(`Objetivos Andrews NNC/VNC: ${routeTargetCount}`);
+      }
+      const finiteRouteRequestCount = Number(contractRoutePreview?.finiteRouteRequestCount || 0);
+      if (finiteRouteRequestCount > 0) {
+        labels.push(`Solicitudes VNC Andrews: ${finiteRouteRequestCount} con tiempo explícito`);
+      }
+      const objectPrefixRequiredCount = Number(contractRoutePreview?.finiteRouteObjectPrefixRequiredCount || 0);
+      if (objectPrefixRequiredCount > 0) {
+        labels.push(`Solicitudes VNC Andrews con objeto: ${objectPrefixRequiredCount}`);
+      }
+      const stemClassContractCount = Number(contractRoutePreview?.finiteRouteStemClassContractCount || 0);
+      if (stemClassContractCount > 0) {
+        labels.push(`Clases VNC Andrews: ${stemClassContractCount}`);
+      }
+      const sourceEvidenceRequiredCount = Number(contractRoutePreview?.finiteRouteSourceEvidenceRequiredCount || 0);
+      if (sourceEvidenceRequiredCount > 0) {
+        labels.push(`Fuentes Andrews pendientes: ${sourceEvidenceRequiredCount}`);
+      }
+      const routeWarningCount = Number(contractRoutePreview?.routeWarningCount || 0);
+      if (routeWarningCount > 0) {
+        labels.push(`Avisos Andrews VNC: ${routeWarningCount}`);
+      }
+      const routeNoteCount = Number(contractRoutePreview?.routeNoteCount || 0);
+      if (routeNoteCount > 0) {
+        labels.push(`Notas Andrews VNC: ${routeNoteCount}`);
+      }
+      const routeTargetSamples = Array.isArray(contractRoutePreview?.routes) ? contractRoutePreview.routes.map(route => String(route?.targetInputValue || route?.targetInput || route?.targetVerbStem || "").trim()).filter(Boolean).slice(0, 3) : [];
+      if (routeTargetSamples.length) {
+        labels.push(`Entradas VNC Andrews: ${routeTargetSamples.join(", ")}`);
+      }
       if (profile.isCompleteLesson54_55 === false) {
         labels.push("Cobertura denominal: parcial");
       }
@@ -517,6 +568,114 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     function appendDenominalFamilyProfileSubLabels(baseLabel = "", profile = null) {
       return [baseLabel, ...buildDenominalFamilyProfileSubLabels(profile)].filter(Boolean).join(" · ");
     }
+    function buildNawatDenominalSourceEvidenceSubLabels(sourceEvidence = null) {
+      const evidence = sourceEvidence && typeof sourceEvidence === "object" ? sourceEvidence : null;
+      if (!evidence) {
+        return [];
+      }
+      const sourceCategory = String(evidence.sourceCategory || "").trim();
+      const labels = [];
+      if (evidence.iHuiOrAHuiSource === true || sourceCategory === "i-hui-a-hui-source") {
+        labels.push("Fuente Andrews: i-hui/a-hui generada");
+      } else if (evidence.intransitiveOaSource === true || sourceCategory === "intransitive-o-a") {
+        labels.push("Fuente Andrews: o-a intransitiva generada");
+      } else if (evidence.tlaCausativeSource === true || sourceCategory === "causative-tla") {
+        labels.push("Fuente Andrews: tla causativa generada");
+      } else if (evidence.tlaIntransitiveSource === true || sourceCategory === "intransitive-tla") {
+        labels.push("Fuente Andrews: tla intransitiva generada");
+      } else if (evidence.possessionTiVerbstemSource === true || sourceCategory === "possession-ti-verbstem-source") {
+        labels.push("Fuente Andrews: ti de posesión generada");
+      } else if (evidence.tiSource === true || sourceCategory === "inceptive-stative-ti-source" || sourceCategory === "intransitive-ti-source") {
+        labels.push("Fuente Andrews: ti intransitiva generada");
+      } else if (evidence.huiSource === true || sourceCategory === "inceptive-stative-hui-source" || sourceCategory === "intransitive-hui-source") {
+        labels.push("Fuente Andrews: hui/wi intransitiva generada");
+      } else if (evidence.yaSource === true || sourceCategory === "inceptive-stative-ya-source" || sourceCategory === "intransitive-ya-source") {
+        labels.push("Fuente Andrews: ya intransitiva generada");
+      } else if (evidence.possessiveState === true || sourceCategory === "possessive-state-nnc-predicate") {
+        labels.push("Fuente Andrews: NNC posesivo generado");
+      } else if (evidence.possessionTiSource === true || sourceCategory === "ordinary-nnc-predicate-nounstem") {
+        labels.push("Fuente Andrews: tronco NNC generado");
+      } else if (evidence.temporalCompoundSource === true) {
+        labels.push("Fuente Andrews: compuesto temporal confirmado");
+      } else if (evidence.adverbialSource === true || sourceCategory === "adverbial-nounstem") {
+        labels.push("Fuente Andrews: tronco adverbial confirmado");
+      } else if (evidence.relationalCompoundSource === true || sourceCategory.includes("relational")) {
+        labels.push("Fuente Andrews: relacional confirmado");
+      } else if (sourceCategory) {
+        labels.push(`Fuente Andrews: ${sourceCategory}`);
+      }
+      const sourceBaseStem = String(evidence.sourceBaseStem || "").trim();
+      if (sourceBaseStem) {
+        labels.push(`Base Andrews: ${sourceBaseStem}`);
+      }
+      const sourceSurface = String(evidence.sourceSurface || "").trim();
+      if (sourceSurface && sourceSurface !== sourceBaseStem) {
+        labels.push(`Fuente Nawat: ${sourceSurface}`);
+      }
+      const sourcePossessorPrefix = String(evidence.sourcePossessorPrefix || "").trim();
+      if (sourcePossessorPrefix) {
+        labels.push(`Poseedor fuente: ${sourcePossessorPrefix}`);
+      }
+      const timeSegmentMatrix = String(evidence.timeSegmentMatrix || "").trim();
+      if (timeSegmentMatrix) {
+        labels.push(`Matriz temporal: ${timeSegmentMatrix}`);
+      }
+      const numeralEmbed = String(evidence.numeralEmbed || "").trim();
+      if (numeralEmbed) {
+        labels.push(`Numeral embed: ${numeralEmbed}`);
+      }
+      if (evidence.boundaries?.sourceEvidenceFromSelectedGeneratedStage === true) {
+        labels.push("Evidencia: etapa generada");
+      }
+      if (evidence.boundaries?.sourceEvidenceFromAndrewsContractRoute === true) {
+        labels.push("Evidencia: ruta Andrews");
+      }
+      if (evidence.boundaries?.sourceEvidenceFromGeneratedOrdinaryNnc === true) {
+        labels.push("Evidencia: salida NNC");
+      }
+      if (evidence.boundaries?.sourceEvidenceFromExplicitSourceClassification === true) {
+        labels.push("Evidencia: fuente clasificada");
+      }
+      return labels;
+    }
+    function getNawatLinkedGrammarStageDisplaySurface(stage = null) {
+      const nextSource = stage?.nextSource && typeof stage.nextSource === "object" ? stage.nextSource : null;
+      const nextSourceDisplay = getConjugationDisplaySurface(nextSource);
+      if (nextSourceDisplay) {
+        return nextSourceDisplay;
+      }
+      if (hasConjugationResultFrame(nextSource)) {
+        return "";
+      }
+      const stageDisplay = getConjugationDisplaySurface(stage);
+      if (stageDisplay) {
+        return stageDisplay;
+      }
+      if (hasConjugationResultFrame(stage)) {
+        return "";
+      }
+      const displaySurface = String(nextSource?.displaySurface || stage?.surface || "").trim();
+      return displaySurface === "—" ? "" : displaySurface;
+    }
+    function getNawatLinkedGrammarStageSourceVerb(stage = null) {
+      const nextSource = stage?.nextSource && typeof stage.nextSource === "object" ? stage.nextSource : null;
+      const nextSourceSurface = getPrimaryConjugationSurface(nextSource);
+      if (nextSourceSurface) {
+        return nextSourceSurface;
+      }
+      if (hasConjugationResultFrame(nextSource)) {
+        return "";
+      }
+      const sourceInput = String(nextSource?.sourceVerb || stage?.inputValue || stage?.renderVerb || "").trim();
+      if (sourceInput && sourceInput !== "—") {
+        return sourceInput;
+      }
+      const stageSurface = getPrimaryConjugationSurface(stage);
+      if (stageSurface) {
+        return stageSurface;
+      }
+      return hasConjugationResultFrame(stage) ? "" : String(stage?.surface || "").trim();
+    }
     function buildNawatLinkedGrammarStageSubLabels(stage = null, {
       nextPreview = null
     } = {}) {
@@ -524,13 +683,14 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       if (!nextSource || nextSource.canBecomeSource !== true) {
         return [];
       }
-      const sourceVerb = String(nextSource.sourceVerb || stage?.inputValue || stage?.renderVerb || "").trim();
+      const sourceVerb = getNawatLinkedGrammarStageSourceVerb(stage);
       if (!sourceVerb) {
         return [];
       }
-      const displaySurface = String(nextSource.displaySurface || stage?.surface || "").trim();
+      const displaySurface = getNawatLinkedGrammarStageDisplaySurface(stage);
       const candidateRouteCount = Number(nextPreview?.candidateRouteCount || 0);
-      return [`Siguiente fuente: ${sourceVerb}`, displaySurface && displaySurface !== sourceVerb ? `Salida de etapa: ${displaySurface}` : "", Number.isFinite(candidateRouteCount) && candidateRouteCount > 0 ? `Continuaciones: ${candidateRouteCount}` : ""].filter(Boolean);
+      const sourceEvidence = nextSource.sourceEvidence && typeof nextSource.sourceEvidence === "object" ? nextSource.sourceEvidence : stage?.sourceEvidence && typeof stage.sourceEvidence === "object" ? stage.sourceEvidence : null;
+      return [`Siguiente fuente: ${sourceVerb}`, displaySurface && displaySurface !== sourceVerb ? `Salida de etapa: ${displaySurface}` : "", Number.isFinite(candidateRouteCount) && candidateRouteCount > 0 ? `Continuaciones: ${candidateRouteCount}` : "", ...buildNawatDenominalSourceEvidenceSubLabels(sourceEvidence)].filter(Boolean);
     }
     function getNawatLinkedGrammarCompactRouteLabel(routeOrId = "") {
       const routeId = String(routeOrId && typeof routeOrId === "object" ? routeOrId.routeFamily || routeOrId.routeId || routeOrId.id || "" : routeOrId).trim();
@@ -556,6 +716,255 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       const routeLabel = getNawatLinkedGrammarCompactRouteLabel(choice.routeFamily || choice.routeId || choice.route || "");
       const stageLabel = getNawatLinkedGrammarCompactStageLabel(choice.stageKey || choice.stationKey || choice.selection?.stageKey || "");
       return [routeLabel, stageLabel].filter(Boolean).join(" · ");
+    }
+    function createConjugationConversionActionsContainer() {
+      const actions = targetObject.document.createElement("div");
+      actions.className = "conjugation-conversion-actions";
+      return actions;
+    }
+    function resolveContinuationActionGroupMeta(action = null) {
+      const dataset = action?.dataset || {};
+      const classList = action?.classList || {
+        contains: () => false
+      };
+      if (dataset.verbPatientivoContinuation) {
+        return {
+          key: "sustantivo-patientivo",
+          mode: "sustantivo",
+          eyebrow: "Sustantivo",
+          title: "Patientivo"
+        };
+      }
+      if (dataset.verbNominalContinuation) {
+        const targetTense = String(dataset.targetTense || "").trim();
+        if (targetTense.startsWith("agentivo")) {
+          return {
+            key: "sustantivo-agentivo",
+            mode: "sustantivo",
+            eyebrow: "Sustantivo",
+            title: "Agentivo"
+          };
+        }
+        if (targetTense === "sustantivo-verbal") {
+          return {
+            key: "sustantivo-accion",
+            mode: "sustantivo",
+            eyebrow: "Sustantivo",
+            title: "Acción"
+          };
+        }
+        if (targetTense === "instrumentivo") {
+          return {
+            key: "sustantivo-instrumentivo",
+            mode: "sustantivo",
+            eyebrow: "Sustantivo",
+            title: "Instrumentivo"
+          };
+        }
+        if (targetTense === "calificativo-instrumentivo") {
+          return {
+            key: "sustantivo-calificativo",
+            mode: "sustantivo",
+            eyebrow: "Sustantivo",
+            title: "Calificativo"
+          };
+        }
+        if (targetTense === "locativo-temporal") {
+          return {
+            key: "sustantivo-locativo",
+            mode: "sustantivo",
+            eyebrow: "Sustantivo",
+            title: "Lugar/tiempo"
+          };
+        }
+        return {
+          key: "sustantivo-nominalizacion",
+          mode: "sustantivo",
+          eyebrow: "Sustantivo",
+          title: "Nominalización"
+        };
+      }
+      if (dataset.patientivoAdjectivalFunctionContinuation || dataset.nominalizedVncAdjectivalFunctionContinuation) {
+        return {
+          key: "adjetivo-funcion",
+          mode: "adjetivo",
+          eyebrow: "Adjetivo",
+          title: "Función"
+        };
+      }
+      if (dataset.activeActionNominalCompoundContinuation || dataset.customaryAgentiveNominalCompoundContinuation || dataset.preteritAgentiveNominalCompoundContinuation || dataset.patientivoNominalCompoundContinuation) {
+        return {
+          key: "sustantivo-compuesto",
+          mode: "sustantivo",
+          eyebrow: "Sustantivo",
+          title: "Compuesto"
+        };
+      }
+      if (dataset.actionNounSourceSubjectPossessor || dataset.instrumentivoSourceSubjectPossessor) {
+        return {
+          key: "sustantivo-posesivo",
+          mode: "sustantivo",
+          eyebrow: "Sustantivo",
+          title: "Posesivo"
+        };
+      }
+      if (dataset.ordinaryNncOwnerhoodContinuation || dataset.preteritAgentiveOwnerhoodContinuation) {
+        return {
+          key: "verbo-posesion",
+          mode: "verbo",
+          eyebrow: "Verbo",
+          title: "Posesión"
+        };
+      }
+      if (dataset.activeActionCompoundEmbedContinuation || dataset.customaryAgentiveCompoundEmbedContinuation || dataset.preteritAgentiveCompoundEmbedContinuation || dataset.patientivoCompoundEmbedContinuation || dataset.patientivoCharacteristicPropertyEmbedContinuation) {
+        return {
+          key: "verbo-compuesto",
+          mode: "verbo",
+          eyebrow: "Verbo",
+          title: "Compuesto"
+        };
+      }
+      if (dataset.preteritAgentiveComplementContinuation || dataset.patientivoPrelocativeContinuation) {
+        return {
+          key: "verbo-complemento",
+          mode: "verbo",
+          eyebrow: "Verbo",
+          title: "Complemento"
+        };
+      }
+      if (dataset.denominalAndrewsContractRouteContinuation) {
+        return {
+          key: "verbo-andrews-denominal",
+          mode: "verbo",
+          eyebrow: "Verbo",
+          title: "Andrews denominal"
+        };
+      }
+      if (dataset.preteritAgentiveAdverbialContinuation) {
+        return {
+          key: "verbo-manera",
+          mode: "verbo",
+          eyebrow: "Verbo",
+          title: "Manera"
+        };
+      }
+      if (classList.contains("calc-guidance__chip--mode-adjetivo")) {
+        return {
+          key: "adjetivo-otros",
+          mode: "adjetivo",
+          eyebrow: "Adjetivo",
+          title: "Continuación"
+        };
+      }
+      if (classList.contains("calc-guidance__chip--mode-sustantivo")) {
+        return {
+          key: "sustantivo-otros",
+          mode: "sustantivo",
+          eyebrow: "Sustantivo",
+          title: "Continuación"
+        };
+      }
+      return {
+        key: "verbo-otros",
+        mode: "verbo",
+        eyebrow: "Verbo",
+        title: "Continuación"
+      };
+    }
+    function getOrCreateContinuationActionGroup(actions = null, meta = {}) {
+      if (!actions) {
+        return null;
+      }
+      const key = String(meta.key || "continuacion").trim();
+      const existing = actions.querySelector?.(`[data-continuation-group="${key}"] .conjugation-continuation-group__chips`);
+      if (existing) {
+        return existing;
+      }
+      const group = targetObject.document.createElement("section");
+      group.className = ["conjugation-continuation-group", meta.mode ? `conjugation-continuation-group--${meta.mode}` : ""].filter(Boolean).join(" ");
+      group.dataset.continuationGroup = key;
+      const header = targetObject.document.createElement("header");
+      header.className = "conjugation-continuation-group__header";
+      const eyebrow = targetObject.document.createElement("span");
+      eyebrow.className = "conjugation-continuation-group__eyebrow";
+      eyebrow.textContent = meta.eyebrow || "Continuación";
+      const title = targetObject.document.createElement("span");
+      title.className = "conjugation-continuation-group__title";
+      title.textContent = meta.title || "Salida";
+      header.append(eyebrow, title);
+      const chips = targetObject.document.createElement("div");
+      chips.className = "conjugation-continuation-group__chips";
+      group.append(header, chips);
+      actions.appendChild(group);
+      return chips;
+    }
+    function appendContinuationAction(actions = null, action = null) {
+      if (!actions || !action) {
+        return null;
+      }
+      const meta = resolveContinuationActionGroupMeta(action);
+      const group = getOrCreateContinuationActionGroup(actions, meta);
+      if (!group) {
+        actions.appendChild(action);
+        return action;
+      }
+      group.appendChild(action);
+      return action;
+    }
+    function getVerbToNominalContinuationSpecsForTense(tenseValue = "") {
+      const sourceTense = String(tenseValue || "").trim();
+      const specsBySourceTense = {
+        presente: [{
+          targetTense: "agentivo-presente",
+          subLabel: "S agentivo presente"
+        }],
+        "presente-habitual": [{
+          targetTense: "agentivo",
+          subLabel: "S agentivo habitual"
+        }, {
+          targetTense: "instrumentivo",
+          subLabel: "S instrumentivo"
+        }],
+        preterito: [{
+          targetTense: "agentivo-preterito",
+          subLabel: "S agentivo pretérito"
+        }],
+        perfecto: [{
+          targetTense: "agentivo-preterito",
+          subLabel: "S agentivo pretérito"
+        }],
+        pluscuamperfecto: [{
+          targetTense: "agentivo-preterito",
+          subLabel: "S agentivo pretérito"
+        }],
+        "condicional-perfecto": [{
+          targetTense: "agentivo-preterito",
+          subLabel: "S agentivo pretérito"
+        }],
+        futuro: [{
+          targetTense: "agentivo-futuro",
+          subLabel: "S agentivo futuro"
+        }, {
+          targetTense: "sustantivo-verbal",
+          subLabel: "S acción"
+        }],
+        condicional: [{
+          targetTense: "agentivo-futuro",
+          subLabel: "S agentivo futuro"
+        }, {
+          targetTense: "sustantivo-verbal",
+          subLabel: "S acción"
+        }],
+        imperfecto: [{
+          targetTense: "locativo-temporal",
+          subLabel: "S locativo/temporal"
+        }],
+        "pasado-remoto": [{
+          targetTense: "calificativo-instrumentivo",
+          subLabel: "S calificativo"
+        }]
+      };
+      return specsBySourceTense[sourceTense] || [];
     }
     function appendNawatLinkedGrammarStageSubLabels(baseLabel = "", stage = null, options = {}) {
       return [baseLabel, ...buildNawatLinkedGrammarStageSubLabels(stage, options)].filter(Boolean).join(" · ");
@@ -697,7 +1106,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       const steps = Array.isArray(execution.steps) ? execution.steps : [];
       const executedSteps = steps.filter(step => step?.status === "executed");
       const lastGenerated = executedSteps[executedSteps.length - 1]?.generated || null;
-      const finalSurface = String(lastGenerated?.primarySurface || lastGenerated?.result || "").trim();
+      const finalSurface = getPrimaryConjugationSurface(lastGenerated);
       return [executedSteps.length ? `Trayecto generado: ${executedSteps.length}` : "", finalSurface ? `Salida final: ${finalSurface}` : "", execution.stoppedReason ? `Alto: ${execution.stoppedReason}` : ""].filter(Boolean);
     }
     function buildNawatLinkedGrammarPromotedSourceSubLabels(promotedSource = null) {
@@ -847,6 +1256,217 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     }
     function appendNuclearClauseShellSubLabels(baseLabel = "", shell = null) {
       return [baseLabel, ...buildNuclearClauseShellSubLabels(shell)].filter(Boolean).join(" · ");
+    }
+    function getGrammarFrameForRendering(frameLike = null) {
+      if (!frameLike || typeof frameLike !== "object") {
+        return null;
+      }
+      const candidates = [frameLike.grammarFrame, frameLike.frames, frameLike];
+      return candidates.find(candidate => candidate && typeof candidate === "object" && (candidate.authorityFrame || candidate.routeContract || candidate.resultFrame || candidate.diagnosticFrame)) || null;
+    }
+    function applyGrammarFrameRouteDataset(element = null, frameLike = null) {
+      if (!element?.dataset) {
+        return null;
+      }
+      const frame = getGrammarFrameForRendering(frameLike);
+      if (!frame) {
+        return null;
+      }
+      const authorityFrame = frame.authorityFrame || {};
+      const unitFrame = frame.unitFrame || {};
+      const routeContract = frame.routeContract || {};
+      const resultFrame = frame.resultFrame || {};
+      const diagnosticFrame = frame.diagnosticFrame || {};
+      const primaryDiagnostic = (Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : []).find(entry => entry && typeof entry === "object" && (String(entry.id || entry.code || "").trim() || String(entry.failedLayer || entry.contractLayer || "").trim())) || {};
+      const sourceEvidence = authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : {};
+      const authorityRefs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const nawatEvidenceRefs = Array.isArray(authorityFrame.nawatEvidenceRefs) ? authorityFrame.nawatEvidenceRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const sourceEvidenceBoundaries = sourceEvidence.boundaries && typeof sourceEvidence.boundaries === "object" ? sourceEvidence.boundaries : {};
+      const sourceEvidenceFlags = Object.keys(sourceEvidenceBoundaries).filter(key => sourceEvidenceBoundaries[key] === true).sort();
+      element.dataset.grammarAuthorityRef = authorityRefs[0] || "";
+      element.dataset.grammarAuthorityRefs = authorityRefs.join("|");
+      element.dataset.grammarEvidenceStatus = String(authorityFrame.evidenceStatus || "").trim();
+      element.dataset.grammarNawatEvidenceRef = nawatEvidenceRefs[0] || "";
+      element.dataset.grammarNawatEvidenceRefs = nawatEvidenceRefs.join("|");
+      element.dataset.grammarSourceEvidenceKind = String(sourceEvidence.kind || sourceEvidence.sourceKind || sourceEvidence.type || "").trim();
+      element.dataset.grammarSourceEvidenceStatus = String(sourceEvidence.status || sourceEvidence.evidenceStatus || sourceEvidence.validationStatus || "").trim();
+      element.dataset.grammarSourceEvidenceTargetAuthority = String(sourceEvidence.targetAuthority || "").trim();
+      element.dataset.grammarSourceEvidenceSource = String(sourceEvidence.evidenceSource || "").trim();
+      element.dataset.grammarSourceEvidenceFlags = sourceEvidenceFlags.join("|");
+      element.dataset.grammarUnitKind = String(unitFrame.unitKind || "").trim();
+      element.dataset.grammarRouteFamily = String(routeContract.routeFamily || "").trim();
+      element.dataset.grammarRouteStage = String(routeContract.routeStage || "").trim();
+      element.dataset.grammarGenerationAllowed = String(routeContract.generationAllowed === true);
+      element.dataset.grammarDiagnosticStatus = String(diagnosticFrame.status || "").trim();
+      element.dataset.grammarDiagnosticId = String(primaryDiagnostic.id || primaryDiagnostic.code || "").trim();
+      element.dataset.grammarDiagnosticLayer = String(primaryDiagnostic.failedLayer || "").trim();
+      element.dataset.grammarDiagnosticContractLayer = String(primaryDiagnostic.contractLayer || "").trim();
+      element.dataset.grammarResultOk = String(resultFrame.ok === true);
+      return frame;
+    }
+    function attachUiRouteControlGrammarContract(record = null, {
+      outputKind = "ui-route-control",
+      routeFamily = "ui-route-control",
+      routeStage = "preview-control",
+      unitKind = "ui-route-control",
+      sourceInput = "",
+      targetInput = "",
+      targetSurface = "",
+      andrewsRefs = [],
+      nawatEvidenceRefs = [],
+      generationAllowed = true,
+      supported = true,
+      evidenceStatus = "route-control",
+      diagnosticStatus = "route-control",
+      sourceContract = null,
+      targetContract = null,
+      orthographyFrame = null,
+      morphBoundaryFrame = null,
+      stemFrame = null,
+      nuclearClauseFrame = null,
+      participantFrame = null,
+      inflectionFrame = null,
+      diagnostics = []
+    } = {}) {
+      if (!record || typeof record !== "object" || typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      const surface = String(targetSurface || "").trim();
+      const forms = surface ? [surface] : [];
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        metadataKind: outputKind,
+        unitKind,
+        routeFamily,
+        routeStage,
+        generationAllowed,
+        supported,
+        andrewsRefs,
+        nawatEvidenceRefs,
+        evidenceStatus,
+        diagnosticStatus,
+        sourceInput,
+        surface,
+        surfaceForms: forms,
+        diagnostics,
+        sourceContract,
+        targetContract,
+        orthographyFrame: orthographyFrame || {
+          surface,
+          surfaceForms: forms,
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true,
+          targetInput
+        },
+        morphBoundaryFrame,
+        stemFrame,
+        nuclearClauseFrame,
+        participantFrame,
+        inflectionFrame
+      });
+    }
+    function getPatientivoRouteControlAndrewsRefs(patientivoSource = "") {
+      const source = String(patientivoSource || "").trim();
+      if (source === "nonactive") {
+        return ["Andrews Lesson 38"];
+      }
+      if (source === "perfectivo" || source === "imperfectivo") {
+        return ["Andrews Lesson 39"];
+      }
+      return ["Andrews Lessons 38-39"];
+    }
+    function getGrammarFrameDiagnosticLabelForRendering(diagnostic = null) {
+      if (!diagnostic) {
+        return "";
+      }
+      if (typeof targetObject.getConjugationDiagnosticDisplayLabel === "function") {
+        return targetObject.getConjugationDiagnosticDisplayLabel(diagnostic);
+      }
+      if (typeof diagnostic === "string") {
+        return diagnostic;
+      }
+      return String(diagnostic.message || diagnostic.id || diagnostic.code || "").trim();
+    }
+    function buildGrammarFrameSubLabels(frameLike = null, {
+      includeResult = true,
+      includeRoute = true,
+      includeAuthority = true,
+      includeOrthography = true,
+      includeDiagnostics = true,
+      maxDiagnostics = 2
+    } = {}) {
+      const frame = getGrammarFrameForRendering(frameLike);
+      if (!frame) {
+        return [];
+      }
+      const labels = [];
+      const resultFrame = frame.resultFrame || {};
+      const routeContract = frame.routeContract || {};
+      const authorityFrame = frame.authorityFrame || {};
+      const orthographyFrame = frame.orthographyFrame || {};
+      const diagnosticFrame = frame.diagnosticFrame || {};
+      if (includeResult && typeof resultFrame.ok === "boolean") {
+        labels.push(`Estado LCM: ${resultFrame.ok ? "generado" : "bloqueado"}`);
+      }
+      if (includeRoute) {
+        const routeFamily = String(routeContract.routeFamily || resultFrame.generationRoute || "").trim();
+        const routeStage = String(routeContract.routeStage || "").trim();
+        if (routeFamily || routeStage) {
+          labels.push(`Ruta LCM: ${[routeFamily, routeStage].filter(Boolean).join(" / ")}`);
+        }
+        if (routeContract.generationAllowed === false) {
+          labels.push("Generacion LCM: no autorizada");
+        }
+      }
+      if (includeAuthority) {
+        const refs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+        if (refs.length) {
+          labels.push(`Andrews: ${refs.slice(0, 2).join(", ")}`);
+        }
+        const evidenceStatus = String(authorityFrame.evidenceStatus || "").trim();
+        if (evidenceStatus) {
+          labels.push(`Evidencia: ${evidenceStatus}`);
+        }
+      }
+      if (includeOrthography) {
+        const surfaceForms = [...(Array.isArray(resultFrame.surfaceForms) ? resultFrame.surfaceForms : []), resultFrame.surface, ...(Array.isArray(orthographyFrame.surfaceForms) ? orthographyFrame.surfaceForms : []), orthographyFrame.surface].flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+        const rawSurface = String(surfaceForms[0] || orthographyFrame.nawatRuleSpelling || "").trim();
+        const surface = rawSurface === "—" ? "" : rawSurface;
+        const nawatRuleSpelling = String(orthographyFrame.nawatRuleSpelling || "").trim();
+        const spellingLabel = surface || nawatRuleSpelling;
+        if (spellingLabel) {
+          labels.push(`Realizacion Nawat: ${spellingLabel}`);
+        } else if (orthographyFrame.noClassicalSurfaceImport === true) {
+          labels.push("Realizacion Nawat: pendiente");
+        }
+      }
+      if (includeDiagnostics) {
+        const failedLayerDiagnostics = [...(Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : []), ...(Array.isArray(routeContract.blockingDiagnostics) ? routeContract.blockingDiagnostics : [])];
+        const failedLayerEntry = failedLayerDiagnostics.find(entry => entry && typeof entry === "object" && String(entry.failedLayer || entry.contractLayer || "").trim()) || null;
+        let failedLayer = String(failedLayerEntry?.failedLayer || "").trim();
+        let contractLayer = String(failedLayerEntry?.contractLayer || "").trim();
+        if (!failedLayer && authorityFrame.supported === false) {
+          failedLayer = "authority";
+          contractLayer = contractLayer || "authorityFrame";
+        } else if (!failedLayer && routeContract.generationAllowed === false) {
+          failedLayer = "route";
+          contractLayer = contractLayer || "routeContract";
+        } else if (!failedLayer && resultFrame.ok === false) {
+          failedLayer = "output";
+          contractLayer = contractLayer || "resultFrame";
+        }
+        if (failedLayer || contractLayer) {
+          labels.push(`Falla LCM: ${[failedLayer, contractLayer].filter(Boolean).join(" / ")}`);
+        }
+        const diagnosticLabels = (Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : []).map(entry => getGrammarFrameDiagnosticLabelForRendering(entry)).filter(Boolean);
+        diagnosticLabels.slice(0, Math.max(0, maxDiagnostics)).forEach(label => {
+          labels.push(`Diagnostico LCM: ${label}`);
+        });
+      }
+      return labels.filter(Boolean);
+    }
+    function appendGrammarFrameSubLabels(baseLabel = "", frameLike = null, options = {}) {
+      return [baseLabel, ...buildGrammarFrameSubLabels(frameLike, options)].filter(Boolean).join(" · ");
     }
     function buildVncValencyFrameSubLabels(frame = null) {
       if (!frame || frame.kind !== "vnc-valency-frame") {
@@ -1219,14 +1839,65 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         routeStem,
         targetVerb
       }) : targetVerb && typeof targetObject.wrapNawatRouteInputValue === "function" ? targetObject.wrapNawatRouteInputValue(targetVerb) : targetVerb;
-      return {
+      const destination = finiteSurface || profile.surfaceSuffix || spec.routeKey;
+      const track = {
         routeKey: spec.routeKey,
         line: spec.line,
         tenseValue: spec.tenseValue,
         targetInput,
         targetVerb,
-        destination: finiteSurface || profile.surfaceSuffix || spec.routeKey
+        destination
       };
+      const hasAndrewsSuffixContract = String(profile.structuralAnalogue || "").trim() !== "nawat-transitive-route-no-andrews-suffix";
+      return attachUiRouteControlGrammarContract(track, {
+        outputKind: "patientivo-tronco-conversion-route-control",
+        unitKind: "ui-route-control",
+        routeFamily: "patientivo-tronco-conversion",
+        routeStage: "finite-tense-preview",
+        generationAllowed: true,
+        supported: true,
+        andrewsRefs: hasAndrewsSuffixContract ? ["Andrews Lessons 54-55"] : [],
+        nawatEvidenceRefs: ["data/static_modes.json"],
+        evidenceStatus: hasAndrewsSuffixContract ? "denominal-route-preview" : "nawat-route-no-andrews-suffix",
+        diagnosticStatus: "route-control",
+        sourceInput: sourceVerb || stem,
+        targetInput,
+        targetSurface: destination,
+        sourceContract: {
+          unitKind: "patientivo-tronco",
+          sourceVerb,
+          sourceStem: stem,
+          sourceObjectPrefix
+        },
+        targetContract: {
+          unitKind: "vnc",
+          routeKey: spec.routeKey,
+          targetMode: targetObject.TENSE_MODE.verbo,
+          targetTense: spec.tenseValue,
+          targetVerb,
+          targetInput,
+          verbalizer: profile.verbalizer || "",
+          structuralAnalogue: profile.structuralAnalogue || ""
+        },
+        morphBoundaryFrame: {
+          verbalizer: profile.verbalizer || "",
+          verbalizerType: profile.verbalizerType || "",
+          surfaceSuffix: profile.surfaceSuffix || "",
+          noAndrewsSuffixContract: !hasAndrewsSuffixContract
+        },
+        stemFrame: {
+          sourceStem: routeStem,
+          targetStem: targetVerb,
+          routeKey: spec.routeKey
+        },
+        participantFrame: {
+          objectPrefix: sourceObjectPrefix
+        },
+        inflectionFrame: {
+          targetTense: spec.tenseValue,
+          finiteTense: profile.finiteTense || ""
+        }
+      });
     }
     function normalizeDerivationalInputFamilyToken(token = "") {
       const normalizedToken = targetObject.normalizeDerivationStemValue(token);
@@ -1685,19 +2356,55 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       const rowReferenceLabel = rowCategoryProfile?.reference?.label || (state.number === "plural" ? "plural" : "singular");
       const rowPossessiveState = rowCategoryProfile?.possessiveState || null;
       const rowPossessiveMarkingLabel = rowPossessiveState?.isPossessive ? `Marcacion posesiva: ${rowPossessiveState.markingAvailable ? "disponible" : "no disponible"}` : "";
-      personSub.textContent = [...buildNuclearClauseShellSubLabels(result.nuclearClauseShell), ...buildSentenceLayerSubLabels(result.sentenceLayer), rowFormulaEcho ? `Formula NNC: ${rowFormulaEcho}` : "", rowPredicateFormula, rowNounClassLabel ? `clase ${rowNounClassLabel}` : "", rowConnectorSlotLabel, `Estado del predicado: ${rowPredicateStateLabel}`, `Animacidad: ${rowAnimacyLabel}`, `Referencia: ${rowReferenceLabel}`, rowPossessiveMarkingLabel, state.state === "possessive" ? `poseedor ${result.possessor?.prefix || state.possessor || "nu"}` : ""].filter(Boolean).join(" · ");
+      personSub.textContent = appendGrammarFrameSubLabels([...buildNuclearClauseShellSubLabels(result.nuclearClauseShell), ...buildSentenceLayerSubLabels(result.sentenceLayer), rowFormulaEcho ? `Formula NNC: ${rowFormulaEcho}` : "", rowPredicateFormula, rowNounClassLabel ? `clase ${rowNounClassLabel}` : "", rowConnectorSlotLabel, `Estado del predicado: ${rowPredicateStateLabel}`, `Animacidad: ${rowAnimacyLabel}`, `Referencia: ${rowReferenceLabel}`, rowPossessiveMarkingLabel, state.state === "possessive" ? `poseedor ${result.possessor?.prefix || state.possessor || "nu"}` : ""].filter(Boolean).join(" · "), result, {
+        maxDiagnostics: 1
+      });
       rowLabel.appendChild(personLabel);
       rowLabel.appendChild(personSub);
       const value = targetObject.document.createElement("div");
       value.className = "conjugation-value";
+      const surfaceDisplay = getConjugationDisplaySurface(result);
       if (result.supported === true) {
-        value.textContent = targetObject.formatConjugationDisplay(result.result || "");
+        const displayValue = typeof targetObject.normalizeConjugationDisplayText === "function" ? targetObject.normalizeConjugationDisplayText(targetObject.formatConjugationDisplay(surfaceDisplay)) : String(targetObject.formatConjugationDisplay(surfaceDisplay) || "").trim();
+        if (displayValue) {
+          value.textContent = displayValue;
+        } else {
+          value.textContent = typeof targetObject.getConjugationNoOutputDisplay === "function" ? targetObject.getConjugationNoOutputDisplay({
+            result,
+            diagnostics: result.diagnostics || []
+          }) : "Sin salida para esta configuracion.";
+          value.classList.add("conjugation-error", "conjugation-value--no-output");
+        }
       } else {
-        value.textContent = result.diagnostics?.[0]?.message || "—";
+        value.textContent = typeof targetObject.getConjugationNoOutputDisplay === "function" ? targetObject.getConjugationNoOutputDisplay({
+          result,
+          diagnostics: result.diagnostics || [],
+          diagnosticIds: (result.diagnostics || []).map(entry => entry.id).filter(Boolean),
+          shouldMaskRow: true,
+          isErrorRow: true
+        }, "Sin salida NNC para esta configuracion.") : result.diagnostics?.[0]?.message || "Sin salida NNC para esta configuracion.";
         value.classList.add("conjugation-error");
+        value.classList.add("conjugation-value--no-output");
         row.dataset.availabilityState = targetObject.CONJUGATION_AVAILABILITY_STATE.impossible;
         row.dataset.diagnosticIds = (result.diagnostics || []).map(entry => entry.id).filter(Boolean).join(",");
       }
+      let ordinaryNncConversionActions = null;
+      const ensureOrdinaryNncConversionActions = () => {
+        if (ordinaryNncConversionActions) {
+          return ordinaryNncConversionActions;
+        }
+        if (!surfaceDisplay) {
+          return null;
+        }
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = targetObject.document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        surfaceText.textContent = targetObject.formatConjugationDisplay(surfaceDisplay);
+        ordinaryNncConversionActions = createConjugationConversionActionsContainer();
+        value.append(surfaceText, ordinaryNncConversionActions);
+        return ordinaryNncConversionActions;
+      };
       const renderOrdinaryNncOwnerhoodContinuations = () => {
         if (result.supported !== true || typeof targetObject.buildOrdinaryNounOwnerhoodContinuationContract !== "function") {
           return false;
@@ -1711,7 +2418,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         const contracts = matrixInventory.map(matrixSpec => targetObject.buildOrdinaryNounOwnerhoodContinuationContract({
           nounStem,
           nounClass,
-          sourceSurface: result.result || "",
+          sourceSurface: surfaceDisplay,
           sourceKind: result.source?.sourceKind || "",
           matrixRoot: matrixSpec.nawatRoot || "",
           ownerhoodKind: matrixSpec.ownerhoodKind || "ownerhood"
@@ -1719,14 +2426,10 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         if (!contracts.length) {
           return false;
         }
-        const surfaceDisplay = String(result.result || "").trim();
-        value.replaceChildren();
-        value.classList.add("conjugation-value--conversion-picker");
-        const surfaceText = targetObject.document.createElement("span");
-        surfaceText.className = "conjugation-conversion-surface";
-        surfaceText.textContent = targetObject.formatConjugationDisplay(surfaceDisplay);
-        const actions = targetObject.document.createElement("span");
-        actions.className = "conjugation-conversion-actions";
+        const actions = ensureOrdinaryNncConversionActions();
+        if (!actions) {
+          return false;
+        }
         const getOwnerhoodPreviewSurface = (ownerhoodVerbInput = "") => {
           if (!ownerhoodVerbInput || typeof targetObject.getCachedSilentGenerateWord !== "function") {
             return "";
@@ -1745,7 +2448,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
               voiceMode: targetObject.VOICE_MODE.active
             }
           }) || {};
-          const surface = Array.isArray(preview.surfaceForms) && preview.surfaceForms.length ? String(preview.surfaceForms[0] || "").trim() : String(preview.result || "").split(/\s*\/\s*/g)[0]?.trim();
+          const surface = getPrimaryConjugationSurface(preview);
           return surface && surface !== "—" ? surface : "";
         };
         const applyOrdinaryNounOwnerhoodContract = contract => {
@@ -1770,6 +2473,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.ownerhoodMatrixRoot = contract.matrixRoot;
           continueButton.dataset.ownerhoodMatrixId = contract.matrix?.id || "";
           continueButton.dataset.ownerhoodKind = contract.ownerhoodKind || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || contract.ownerhoodVerbInput}`;
@@ -1778,12 +2482,112 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.addEventListener("click", () => {
             applyOrdinaryNounOwnerhoodContract(contract);
           });
-          actions.appendChild(continueButton);
+          appendContinuationAction(actions, continueButton);
         });
-        value.append(surfaceText, actions);
+        return true;
+      };
+      const renderOrdinaryNncIncludedPossessorContinuations = () => {
+        if (result.supported !== true || typeof targetObject.previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput !== "function" || typeof targetObject.activateNawatDenominalAndrewsContractRouteTarget !== "function") {
+          return false;
+        }
+        const includedPreview = targetObject.previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput(result);
+        const routes = Array.isArray(includedPreview?.routePreview?.routes) ? includedPreview.routePreview.routes.filter(route => route?.finiteGenerationContractAvailable === true) : [];
+        if (!routes.length) {
+          return false;
+        }
+        const actions = ensureOrdinaryNncConversionActions();
+        if (!actions) {
+          return false;
+        }
+        const targetTense = "presente";
+        routes.forEach(route => {
+          const targetInput = String(route.targetInputValue || route.targetInput || route.targetVerbStem || "").trim();
+          if (!targetInput) {
+            return;
+          }
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "is-source-satisfied", "is-possessive-source"].join(" ");
+          continueButton.dataset.denominalAndrewsContractRouteContinuation = "true";
+          continueButton.dataset.sourceEvidenceSatisfied = "true";
+          continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true";
+          continueButton.dataset.contractId = route.contractId || "";
+          continueButton.dataset.routeTemplateId = route.routeTemplateId || "";
+          continueButton.dataset.targetInput = targetInput;
+          continueButton.dataset.targetTense = targetTense;
+          applyGrammarFrameRouteDataset(continueButton, route);
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = `→ ${targetInput}`;
+          continueButton.appendChild(continueLabel);
+          const continueSubLabel = targetObject.document.createElement("span");
+          continueSubLabel.className = "calc-guidance__chip-sublabel";
+          continueSubLabel.textContent = [`Andrews ${route.range || "54.3"}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", "fuente NNC", targetTense].filter(Boolean).join(" · ");
+          continueButton.appendChild(continueSubLabel);
+          continueButton.title = [`#3 salida NNC: ${surfaceDisplay}`, `contrato: ${route.contractId || ""}`, `ruta: ${route.routeTemplateId || ""}`, `VNC: ${targetInput}`, "el poseedor queda dentro del tronco", "no se convierte en objeto", "no crea ficha lexical"].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
+              targetTense,
+              render: true,
+              anchorElement: continueButton
+            });
+          });
+          appendContinuationAction(actions, continueButton);
+        });
+        return true;
+      };
+      const renderOrdinaryNncPossessionTiContinuations = () => {
+        if (result.supported !== true || typeof targetObject.previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput !== "function" || typeof targetObject.activateNawatDenominalAndrewsContractRouteTarget !== "function") {
+          return false;
+        }
+        const possessionPreview = targetObject.previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput(result);
+        const routes = Array.isArray(possessionPreview?.routePreview?.routes) ? possessionPreview.routePreview.routes.filter(route => route?.finiteGenerationContractAvailable === true) : [];
+        if (!routes.length) {
+          return false;
+        }
+        const actions = ensureOrdinaryNncConversionActions();
+        if (!actions) {
+          return false;
+        }
+        const targetTense = "presente";
+        routes.forEach(route => {
+          const targetInput = String(route.targetInputValue || route.targetInput || route.targetVerbStem || "").trim();
+          if (!targetInput) {
+            return;
+          }
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "is-nounstem-source"].join(" ");
+          continueButton.dataset.denominalAndrewsContractRouteContinuation = "true";
+          continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true";
+          continueButton.dataset.contractId = route.contractId || "";
+          continueButton.dataset.routeTemplateId = route.routeTemplateId || "";
+          continueButton.dataset.targetInput = targetInput;
+          continueButton.dataset.targetTense = targetTense;
+          applyGrammarFrameRouteDataset(continueButton, route);
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = `→ ${targetInput}`;
+          continueButton.appendChild(continueLabel);
+          const continueSubLabel = targetObject.document.createElement("span");
+          continueSubLabel.className = "calc-guidance__chip-sublabel";
+          continueSubLabel.textContent = [`Andrews ${route.range || "54.4"}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", "tronco NNC", targetTense].filter(Boolean).join(" · ");
+          continueButton.appendChild(continueSubLabel);
+          continueButton.title = [`#3 salida NNC: ${surfaceDisplay}`, `contrato: ${route.contractId || ""}`, `ruta: ${route.routeTemplateId || ""}`, `VNC: ${targetInput}`, "ti de posesión enfoca el tronco nominal", "no forma deverbal ya", "no crea ficha lexical"].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
+              targetTense,
+              render: true,
+              anchorElement: continueButton
+            });
+          });
+          appendContinuationAction(actions, continueButton);
+        });
         return true;
       };
       renderOrdinaryNncOwnerhoodContinuations();
+      renderOrdinaryNncPossessionTiContinuations();
+      renderOrdinaryNncIncludedPossessorContinuations();
       row.appendChild(rowLabel);
       row.appendChild(value);
       list.appendChild(row);
@@ -1957,12 +2761,16 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             source: "result"
           })] : []
         });
+        personSub.textContent = appendGrammarFrameSubLabels(subText, result, {
+          maxDiagnostics: 1
+        });
         targetObject.applyConjugationEvaluationPresentation({
           row,
           value,
           evaluation,
-          formattedValue: targetObject.formatConjugationDisplay(result.result)
+          formattedValue: targetObject.formatConjugationDisplay(getConjugationDisplaySurface(result))
         });
+        applyGrammarFrameRouteDataset(row, result);
         row.dataset.objectPrefix = targetObject.getZeroObjectDisplayValue(prefix || "");
         row.appendChild(label);
         row.appendChild(value);
@@ -1973,6 +2781,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             person: labelText,
             personSub: subText,
             form: value.textContent.trim(),
+            grammarMetadata: typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {},
             slotValuesById: {
               object: targetObject.getZeroObjectDisplayValue(prefix || "")
             },
@@ -2029,6 +2838,52 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         });
         buildNonactiveRow(rowLabel.label, rowLabel.subLabel, prefix);
       });
+    }
+    function splitConjugationSurfaceText(surface = "") {
+      return String(surface || "").split(/\s*(?:\/|,|\n)\s*/).map(form => form.trim()).filter(Boolean);
+    }
+    function getConjugationResultFrame(result = null) {
+      return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
+    }
+    function hasConjugationResultFrame(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      return Boolean(grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object");
+    }
+    function getConjugationFrameSurfaceForms(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const forms = [];
+      if (Array.isArray(resultFrame?.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+      }
+      if (resultFrame?.surface) {
+        forms.push(resultFrame.surface);
+      }
+      return forms.flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+    }
+    function getConjugationSurfaceForms(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      const hasResultFrame = Boolean(grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object");
+      const forms = [...getConjugationFrameSurfaceForms(result)];
+      if (hasResultFrame) {
+        return forms.flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+      }
+      if (!hasResultFrame && Array.isArray(result?.surfaceForms) && result.surfaceForms.length) {
+        forms.push(...result.surfaceForms);
+      }
+      if (result?.surface) {
+        forms.push(result.surface);
+      }
+      if (!hasResultFrame && !forms.length && result?.result) {
+        forms.push(result.result);
+      }
+      return forms.flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+    }
+    function getPrimaryConjugationSurface(result = null) {
+      return getConjugationSurfaceForms(result).find(surface => surface && surface !== "—") || "";
+    }
+    function getConjugationDisplaySurface(result = null) {
+      return getConjugationSurfaceForms(result).filter(surface => surface && surface !== "—").join(" / ");
     }
     function buildVerbTenseBlock({
       verb,
@@ -2523,7 +3378,8 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         person = "",
         personSub = "",
         form = "",
-        slotValuesById = {}
+        slotValuesById = {},
+        grammarMetadata = {}
       } = {}) => {
         blockOutputRows.push(targetObject.normalizeUnifiedVerbOutputEntry({
           sourceMode: isNonactiveMode ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active,
@@ -2535,8 +3391,42 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           object2: slotValuesById.object2 || "",
           object3: slotValuesById.object3 || "",
           form,
-          objectSlotCount: getObjectSlotCountForExport()
+          objectSlotCount: getObjectSlotCountForExport(),
+          ...grammarMetadata
         }));
+      };
+      const ensureVerbRowConversionActions = ({
+        value,
+        sourceDisplay = ""
+      } = {}) => {
+        if (!value) {
+          return null;
+        }
+        let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
+        if (actions) {
+          return actions;
+        }
+        const display = String(sourceDisplay || "").trim();
+        if (!display || display === "—") {
+          return null;
+        }
+        value.replaceChildren();
+        value.classList.add("conjugation-value--conversion-picker");
+        const surfaceText = targetObject.document.createElement("span");
+        surfaceText.className = "conjugation-conversion-surface";
+        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(display) : display;
+        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
+          const lineElement = targetObject.document.createElement("span");
+          lineElement.className = "conjugation-conversion-surface-line";
+          lineElement.textContent = line;
+          surfaceText.appendChild(lineElement);
+        });
+        actions = createConjugationConversionActionsContainer();
+        value.append(surfaceText, actions);
+        return actions;
+      };
+      const getVerbRowSourceDisplay = (evaluation = null) => {
+        return getConjugationDisplaySurface(evaluation?.result);
       };
       const appendVerbToPatientivoRowContinuation = ({
         value,
@@ -2568,33 +3458,76 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         if (!patientivoSurface) {
           return false;
         }
-        const sourceForms = targetObject.getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-        const sourceDisplay = sourceForms.length ? sourceForms.join(" / ") : String(evaluation?.result?.result || "").trim();
+        const sourceDisplay = getVerbRowSourceDisplay(evaluation);
         if (!sourceDisplay || sourceDisplay === "—") {
           return false;
         }
-        let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
+        const actions = ensureVerbRowConversionActions({
+          value,
+          sourceDisplay
+        });
         if (!actions) {
-          value.replaceChildren();
-          value.classList.add("conjugation-value--conversion-picker");
-          const surfaceText = targetObject.document.createElement("span");
-          surfaceText.className = "conjugation-conversion-surface";
-          const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(sourceDisplay) : sourceDisplay;
-          groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-            const lineElement = targetObject.document.createElement("span");
-            lineElement.className = "conjugation-conversion-surface-line";
-            lineElement.textContent = line;
-            surfaceText.appendChild(lineElement);
-          });
-          actions = targetObject.document.createElement("span");
-          actions.className = "conjugation-conversion-actions";
-          value.append(surfaceText, actions);
+          return false;
         }
         const continueButton = targetObject.document.createElement("button");
         continueButton.type = "button";
         continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
         continueButton.dataset.verbPatientivoContinuation = "true";
         continueButton.dataset.nawatRouteKey = routeKey;
+        const routeControlContract = attachUiRouteControlGrammarContract({
+          outputKind: "verb-to-patientivo-row-continuation-control",
+          supported: true,
+          routeKey,
+          patientivoSurface,
+          patientivoSource: routeTarget.patientivoSource || routeProfile.patientivoSource || "",
+          sourceTenseValue: tenseValue,
+          sourceCombinedMode: targetObject.COMBINED_MODE.active,
+          sourceObjectPrefix,
+          sourceVerb: verb,
+          targetInput: routeTarget.targetInput || routeTarget.targetVerb || patientivoSurface
+        }, {
+          outputKind: "verb-to-patientivo-row-continuation-control",
+          unitKind: "ui-route-control",
+          routeFamily: "verb-to-patientivo-row-continuation",
+          routeStage: "target-mode-preview",
+          generationAllowed: true,
+          supported: true,
+          andrewsRefs: getPatientivoRouteControlAndrewsRefs(routeTarget.patientivoSource || routeProfile.patientivoSource || ""),
+          evidenceStatus: "row-continuation-preview",
+          diagnosticStatus: "route-control",
+          sourceInput: verb,
+          targetInput: routeTarget.targetInput || routeTarget.targetVerb || patientivoSurface,
+          targetSurface: patientivoSurface,
+          sourceContract: {
+            unitKind: "vnc",
+            sourceMode: targetObject.TENSE_MODE.verbo,
+            sourceTenseValue: tenseValue,
+            sourceCombinedMode: targetObject.COMBINED_MODE.active,
+            sourceVerb: verb,
+            sourceObjectPrefix
+          },
+          targetContract: {
+            unitKind: "nnc",
+            targetMode: targetObject.TENSE_MODE.sustantivo,
+            targetTense: "patientivo",
+            routeKey,
+            patientivoSource: routeTarget.patientivoSource || routeProfile.patientivoSource || "",
+            patientivoNominalSuffix: routeProfile.patientivoNominalSuffix || ""
+          },
+          stemFrame: {
+            sourceStem: verb,
+            targetStem: routeTarget.targetVerb || patientivoSurface,
+            routeKey
+          },
+          participantFrame: {
+            objectPrefix: sourceObjectPrefix
+          },
+          inflectionFrame: {
+            sourceTenseValue: tenseValue,
+            targetTense: "patientivo"
+          }
+        });
+        applyGrammarFrameRouteDataset(continueButton, routeControlContract);
         const continueLabel = targetObject.document.createElement("span");
         continueLabel.className = "calc-guidance__chip-label";
         continueLabel.textContent = `→ ${patientivoSurface}`;
@@ -2613,8 +3546,91 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             sourceCombinedMode: targetObject.COMBINED_MODE.active
           });
         });
-        actions.appendChild(continueButton);
+        appendContinuationAction(actions, continueButton);
         return true;
+      };
+      const appendVerbToNominalRowContinuations = ({
+        value,
+        evaluation,
+        sourceObjectPrefix = ""
+      } = {}) => {
+        if (!value || isNonactiveMode || !verb || !tenseValue || typeof targetObject.getCachedSilentGenerateWord !== "function" || typeof targetObject.setActiveTenseMode !== "function" || typeof targetObject.setSelectedTenseTab !== "function" || typeof renderActiveConjugations !== "function") {
+          return 0;
+        }
+        const specs = getVerbToNominalContinuationSpecsForTense(tenseValue);
+        if (!specs.length) {
+          return 0;
+        }
+        const sourceDisplay = getVerbRowSourceDisplay(evaluation);
+        const actions = ensureVerbRowConversionActions({
+          value,
+          sourceDisplay
+        });
+        if (!actions) {
+          return 0;
+        }
+        let appended = 0;
+        const seenSurfaces = new Set();
+        specs.forEach(spec => {
+          const targetTense = String(spec.targetTense || "").trim();
+          if (!targetTense) {
+            return;
+          }
+          const nominalDerivationMode = typeof targetObject.getNominalDerivationModeForTense === "function" ? targetObject.getNominalDerivationModeForTense(targetTense) : targetObject.DERIVATION_MODE.active;
+          const preview = targetObject.getCachedSilentGenerateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+              verb,
+              tense: targetTense,
+              tenseMode: targetObject.TENSE_MODE.sustantivo,
+              derivationMode: nominalDerivationMode,
+              subjectPrefix: "",
+              subjectSuffix: "",
+              objectPrefix: sourceObjectPrefix
+            }
+          }) || {};
+          if (preview.error || preview.shouldMaskRow) {
+            return;
+          }
+          const previewForms = getConjugationSurfaceForms(preview).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+          const previewSurface = previewForms.join(" / ");
+          if (!previewSurface || seenSurfaces.has(`${targetTense}|${previewSurface}`)) {
+            return;
+          }
+          seenSurfaces.add(`${targetTense}|${previewSurface}`);
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
+          continueButton.dataset.verbNominalContinuation = "true";
+          continueButton.dataset.targetMode = "sustantivo";
+          continueButton.dataset.targetTense = targetTense;
+          continueButton.dataset.targetSurface = previewSurface;
+          applyGrammarFrameRouteDataset(continueButton, preview);
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = `→ ${previewSurface}`;
+          continueButton.appendChild(continueLabel);
+          const continueSubLabel = targetObject.document.createElement("span");
+          continueSubLabel.className = "calc-guidance__chip-sublabel";
+          continueSubLabel.textContent = spec.subLabel || "S nominal";
+          continueButton.appendChild(continueSubLabel);
+          continueButton.title = [`V ${tenseValue}: ${sourceDisplay}`, `S ${targetTense}: ${previewSurface}`].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            targetObject.setActiveTenseMode(targetObject.TENSE_MODE.sustantivo, {
+              clearRoute: true
+            });
+            targetObject.setSelectedTenseTab(targetTense);
+            renderActiveConjugations({
+              verb,
+              objectPrefix: sourceObjectPrefix,
+              tense: targetTense
+            });
+          });
+          appendContinuationAction(actions, continueButton);
+          appended += 1;
+        });
+        return appended;
       };
       const updateSectionCategory = prefix => {
         targetObject.applyObjectSectionCategory(sectionEl, prefix);
@@ -3017,8 +4033,10 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             roleParts.push(`${slotModel.roleLabel} ${slotLabel}`.trim());
           });
           const rowPersonSub = useObjectOnlyPersonSub ? targetObject.formatActiveValence3PlusPersonSub(basePersonSub, objectOnlyParts, isNawat) : roleParts.length ? [basePersonSub, ...roleParts].filter(Boolean).join(" · ") : [basePersonSub].filter(Boolean).join(" · ");
-          personSub.textContent = appendSentenceLayerSubLabels(appendVncVerbstemClassProfileSubLabels(appendCompoundFrameSubLabels(appendForwardDerivationFrameSubLabels(appendDerivedVoiceFrameSubLabels(appendVncValencyFrameSubLabels(appendNuclearClauseShellSubLabels(rowPersonSub, evaluation.result?.nuclearClauseShell), evaluation.result?.vncValencyFrame), evaluation.result?.derivedVoiceFrame), evaluation.result?.forwardDerivationFrame), evaluation.result?.compoundFrame), evaluation.result?.verbstemClassProfile || evaluation.result?.stemProvenance?.verbstemClassProfile || null), evaluation.result?.sentenceLayer);
-          const renderedValue = shouldMaskRow ? "—" : targetObject.formatConjugationDisplay(evaluation.result.result);
+          personSub.textContent = appendGrammarFrameSubLabels(appendSentenceLayerSubLabels(appendVncVerbstemClassProfileSubLabels(appendCompoundFrameSubLabels(appendForwardDerivationFrameSubLabels(appendDerivedVoiceFrameSubLabels(appendVncValencyFrameSubLabels(appendNuclearClauseShellSubLabels(rowPersonSub, evaluation.result?.nuclearClauseShell), evaluation.result?.vncValencyFrame), evaluation.result?.derivedVoiceFrame), evaluation.result?.forwardDerivationFrame), evaluation.result?.compoundFrame), evaluation.result?.verbstemClassProfile || evaluation.result?.stemProvenance?.verbstemClassProfile || null), evaluation.result?.sentenceLayer), evaluation.result, {
+            maxDiagnostics: 1
+          });
+          const renderedValue = shouldMaskRow ? typeof targetObject.getConjugationNoOutputDisplay === "function" ? targetObject.getConjugationNoOutputDisplay(evaluation) : "Sin salida para esta configuracion." : targetObject.formatConjugationDisplay(getConjugationDisplaySurface(evaluation.result));
           const dedupeKey = isBitransitiveGrid ? canonicalKey : [selection.subjectPrefix, selection.subjectSuffix, ...objectSlotModels.map(slotModel => displaySlotValues[slotModel.id] || ""), renderedValue].join("|");
           if (seenRows.has(dedupeKey)) {
             return;
@@ -3033,7 +4051,13 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             evaluation,
             formattedValue: renderedValue
           });
+          applyGrammarFrameRouteDataset(row, evaluation.result);
           appendVerbToPatientivoRowContinuation({
+            value,
+            evaluation,
+            sourceObjectPrefix: displaySlotValues.object || ""
+          });
+          appendVerbToNominalRowContinuations({
             value,
             evaluation,
             sourceObjectPrefix: displaySlotValues.object || ""
@@ -3045,7 +4069,8 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             person: personLabel.textContent.trim(),
             personSub: personSub.textContent.trim(),
             form: value.textContent.trim(),
-            slotValuesById: displaySlotValues
+            slotValuesById: displaySlotValues,
+            grammarMetadata: typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {}
           });
         };
         subjectSelections.forEach(({
@@ -3174,7 +4199,8 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           object,
           object2,
           object3,
-          form
+          form,
+          ...(typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {})
         };
         rows.push(entry);
         const baseKey = [entry.groupKey, entry.tenseValue, entry.block, entry.person, entry.personSub, entry.object, entry.object2, entry.object3].join("|");
@@ -3297,7 +4323,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             }
             const empty = targetObject.document.createElement("div");
             empty.className = "tense-grid-source-column__empty";
-            empty.textContent = "—";
+            empty.textContent = "Sin salidas en este grupo.";
             blocks.appendChild(empty);
           });
           clearEmptyPlaceholder(mixedColumn.blocks);
@@ -4181,39 +5207,48 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
                 possessorPrefix
               });
               const possessorLabel = evaluation.result.possessorPrefix ? targetObject.getPossessorLabel(evaluation.result.possessorPrefix, isNawat) : "";
-              personSub.textContent = appendSentenceLayerSubLabels(appendNuclearClauseShellSubLabels(appendAdverbialAdjunctionBoundaryFrameSubLabels(appendAdverbialNuclearFrameSubLabels(appendRelationalNncBoundaryFrameSubLabels(appendPlaceGentilicNncBoundaryFrameSubLabels(appendDenominalFamilyProfileSubLabels(appendVerbDerivedNominalizationProfileSubLabels(targetObject.buildPersonSub({
+              personSub.textContent = appendGrammarFrameSubLabels(appendSentenceLayerSubLabels(appendNuclearClauseShellSubLabels(appendAdverbialAdjunctionBoundaryFrameSubLabels(appendAdverbialNuclearFrameSubLabels(appendRelationalNncBoundaryFrameSubLabels(appendPlaceGentilicNncBoundaryFrameSubLabels(appendDenominalFamilyProfileSubLabels(appendVerbDerivedNominalizationProfileSubLabels(targetObject.buildPersonSub({
                 subjectLabel: "",
                 possessorLabel,
                 objectLabel
               }), evaluation.result?.nominalizationProfile, {
                 isNawat
-              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer);
+              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer), evaluation.result, {
+                maxDiagnostics: 1
+              });
               targetObject.applyConjugationEvaluationPresentation({
                 row,
                 value,
                 evaluation,
-                formattedValue: targetObject.formatConjugationDisplay(evaluation.result.result)
+                formattedValue: targetObject.formatConjugationDisplay(getConjugationDisplaySurface(evaluation.result))
               });
-              targetObject.renderPatientivoPrelocativeContinuation({
-                value,
-                evaluation,
-                selection: targetObject.normalizedSelection,
-                number: targetObject.number,
-                possessorPrefix,
-                patientivoSource: targetObject.patientivoSource,
-                sourceTenseValue: targetObject.resolvedPatientivoSourceTenseValue,
-                sourceCombinedMode: targetObject.resolvedPatientivoSourceCombinedMode
-              });
-              targetObject.renderPatientivoCompoundEmbedContinuation({
-                value,
-                evaluation,
-                patientivoSource: targetObject.patientivoSource
-              });
-              targetObject.renderPatientivoNominalCompoundContinuation({
-                value,
-                evaluation,
-                patientivoSource: targetObject.patientivoSource
-              });
+              applyGrammarFrameRouteDataset(row, evaluation.result);
+              if (typeof targetObject.renderPatientivoPrelocativeContinuation === "function") {
+                targetObject.renderPatientivoPrelocativeContinuation({
+                  value,
+                  evaluation,
+                  selection: targetObject.normalizedSelection,
+                  number: targetObject.number,
+                  possessorPrefix,
+                  patientivoSource: targetObject.patientivoSource,
+                  sourceTenseValue: targetObject.resolvedPatientivoSourceTenseValue,
+                  sourceCombinedMode: targetObject.resolvedPatientivoSourceCombinedMode
+                });
+              }
+              if (typeof targetObject.renderPatientivoCompoundEmbedContinuation === "function") {
+                targetObject.renderPatientivoCompoundEmbedContinuation({
+                  value,
+                  evaluation,
+                  patientivoSource: targetObject.patientivoSource
+                });
+              }
+              if (typeof targetObject.renderPatientivoNominalCompoundContinuation === "function") {
+                targetObject.renderPatientivoNominalCompoundContinuation({
+                  value,
+                  evaluation,
+                  patientivoSource: targetObject.patientivoSource
+                });
+              }
               row.appendChild(label);
               row.appendChild(value);
               list.appendChild(row);
@@ -4566,6 +5601,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       const nounObjectToggleButtonsById = new Map();
       const getActiveNounSlotValue = slotId => nounObjectSlotStateById.get(slotId)?.activeId || "";
       activeObjectPrefix = getActiveNounSlotValue("object");
+      const resolvedNominalControlCombinedMode = targetObject.getResolvedNominalCombinedModeForTense(resolvedTense, modeFilter || combinedMode);
       const {
         objSection,
         grid
@@ -4763,7 +5799,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             voiceMode: isNonactiveSource ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active
           }
         }) || {};
-        const sourceSurface = Array.isArray(presentResult.surfaceForms) && presentResult.surfaceForms.length ? String(presentResult.surfaceForms[0] || "").trim() : String(presentResult.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        const sourceSurface = getPrimaryConjugationSurface(presentResult);
         return sourceSurface && sourceSurface !== "—" ? sourceSurface : "";
       };
       const resolvePatientivoOriginSourceObjectPrefix = (patientivoSource = "") => {
@@ -5001,16 +6037,11 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             voiceMode: targetObject.VOICE_MODE.active
           }
         }) || {};
-        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length ? String(result.surfaceForms[0] || "").trim() : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        const surface = getPrimaryConjugationSurface(result);
         return surface && surface !== "—" ? surface : "";
       };
       const resolvePatientivoSurfaceFromEvaluation = (evaluation = {}) => {
-        const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-        if (forms.length) {
-          return forms[0];
-        }
-        const fallback = String(evaluation?.result?.result || "").split(/\s*\/\s*/g)[0]?.trim();
-        return fallback && fallback !== "—" ? fallback : "";
+        return getPrimaryConjugationSurface(evaluation?.result);
       };
       const resolvePatientivoSourceSurfaceForContinuation = ({
         evaluation = {},
@@ -5042,8 +6073,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         if (value.classList.contains("conjugation-value--conversion-picker") && actions) {
           return actions;
         }
-        const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-        const surfaceDisplay = forms.length ? forms.join(" / ") : String(evaluation?.result?.result || "").trim();
+        const surfaceDisplay = getConjugationDisplaySurface(evaluation?.result);
         if (!surfaceDisplay || surfaceDisplay === "—") {
           return null;
         }
@@ -5058,10 +6088,156 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           lineElement.textContent = line;
           surfaceText.appendChild(lineElement);
         });
-        actions = targetObject.document.createElement("span");
-        actions.className = "conjugation-conversion-actions";
+        actions = createConjugationConversionActionsContainer();
         value.append(surfaceText, actions);
         return actions;
+      };
+      const renderDenominalAndrewsContractRouteContinuation = ({
+        value,
+        evaluation
+      } = {}) => {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.activateNawatDenominalAndrewsContractRouteTarget !== "function") {
+          return false;
+        }
+        const profile = evaluation?.result?.denominalFamilyProfile;
+        const preview = profile?.andrewsContractRoutePreview;
+        const routes = Array.isArray(preview?.routes) ? preview.routes.filter(route => route?.finiteGenerationContractAvailable === true) : [];
+        const targetTense = String(profile?.targetTense || resolvedTense || "").trim();
+        if (!routes.length || !targetTense) {
+          return false;
+        }
+        const currentObjectPrefix = typeof targetObject.getCurrentObjectPrefix === "function" ? String(targetObject.getCurrentObjectPrefix() || "").trim() : "";
+        const actions = ensurePatientivoContinuationDisplay({
+          value,
+          evaluation
+        });
+        if (!actions) {
+          return false;
+        }
+        routes.slice(0, 4).forEach(route => {
+          const targetInput = String(route.targetInputValue || route.targetInput || route.targetVerbStem || "").trim();
+          if (!targetInput) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.contractId === String(route.contractId || "") && button.dataset.routeTemplateId === String(route.routeTemplateId || "") && button.dataset.targetTense === targetTense);
+          if (alreadyRendered) {
+            return;
+          }
+          const continueButton = targetObject.document.createElement("button");
+          continueButton.type = "button";
+          continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews"].join(" ");
+          continueButton.dataset.denominalAndrewsContractRouteContinuation = "true";
+          continueButton.dataset.contractId = route.contractId || "";
+          continueButton.dataset.routeTemplateId = route.routeTemplateId || "";
+          continueButton.dataset.targetInput = targetInput;
+          continueButton.dataset.targetTense = targetTense;
+          applyGrammarFrameRouteDataset(continueButton, route);
+          const routeDiagnostics = Array.isArray(route.routeDiagnostics) ? route.routeDiagnostics : [];
+          const hasRouteWarning = routeDiagnostics.some(diagnostic => diagnostic?.severity === "warning");
+          const hasRouteNote = routeDiagnostics.some(diagnostic => diagnostic?.severity === "info");
+          if (hasRouteWarning) {
+            continueButton.dataset.andrewsRouteWarning = "true";
+            continueButton.classList.add("is-warning");
+          } else if (hasRouteNote) {
+            continueButton.dataset.andrewsRouteNote = "true";
+            continueButton.classList.add("is-note");
+          }
+          const sourceFinalPatternStatus = String(route.sourceFinalPatternStatus || route.boundaries?.sourceFinalPatternStatus || "").trim();
+          const sourceFinalPatternLabel = String(route.sourceFinalPatternLabel || route.boundaries?.sourceFinalPatternLabel || "").trim();
+          if (sourceFinalPatternStatus) {
+            continueButton.dataset.sourceFinalPatternStatus = sourceFinalPatternStatus;
+            continueButton.classList.add("is-source-final-pattern");
+            if (sourceFinalPatternStatus === "attested-minority") {
+              continueButton.classList.add("is-source-final-minority");
+            }
+            if (sourceFinalPatternStatus === "unlisted" || sourceFinalPatternStatus === "w-final-huia-ambiguous") {
+              continueButton.classList.add("is-source-final-needs-confirmation");
+            }
+          }
+          const sourceFinalDeterminesTargetStemClass = route.boundaries?.sourceFinalDeterminesTargetStemClass === true;
+          const targetStemClassRule = String(route.targetStemClassRule || route.boundaries?.targetStemClassRule || "").trim();
+          if (sourceFinalDeterminesTargetStemClass) {
+            continueButton.dataset.sourceFinalClassContract = "true";
+            continueButton.classList.add("is-source-final-class-contract");
+          }
+          const traditionalSpelling = String(route.traditionalSpelling || route.boundaries?.traditionalSpelling || "").trim();
+          const traditionalSpellingConfusableWith = String(route.traditionalSpellingConfusableWith || route.boundaries?.traditionalSpellingConfusableWith || "").trim();
+          if (traditionalSpellingConfusableWith) {
+            continueButton.dataset.traditionalSpellingAmbiguous = "true";
+            continueButton.classList.add("is-traditional-spelling-ambiguous");
+          }
+          const objectPrefixRequired = route.finiteGenerationRequiresObjectPrefix === true || route.objectSlotExpected === true;
+          const sourceEvidenceRequired = route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+          const sourceEvidenceSatisfied = route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
+          const sourceRequirementIds = Array.isArray(route.sourceRequirement?.requirements) ? route.sourceRequirement.requirements.map(requirement => String(requirement?.id || "").trim()) : [];
+          if (sourceEvidenceRequired) {
+            continueButton.dataset.sourceEvidenceRequired = "true";
+            continueButton.classList.add("is-source-required");
+          }
+          if (sourceEvidenceSatisfied) {
+            continueButton.dataset.sourceEvidenceSatisfied = "true";
+            continueButton.classList.add("is-source-satisfied");
+          }
+          if (sourceRequirementIds.includes("intransitive-ti-verbstem-source")) {
+            continueButton.dataset.tiSourceRequired = "true";
+            continueButton.classList.add("is-ti-source");
+          }
+          if (sourceRequirementIds.includes("intransitive-hui-verbstem-source")) {
+            continueButton.dataset.huiSourceRequired = "true";
+            continueButton.classList.add("is-hui-source");
+          }
+          if (sourceRequirementIds.includes("intransitive-ya-verbstem-source")) {
+            continueButton.dataset.yaSourceRequired = "true";
+            continueButton.classList.add("is-ya-source");
+          }
+          if (sourceRequirementIds.includes("intransitive-tla-verbstem-source")) {
+            continueButton.dataset.tlaIntransitiveSourceRequired = "true";
+            continueButton.classList.add("is-tla-intransitive-source");
+          }
+          if (sourceRequirementIds.includes("intransitive-o-a-verbstem-source")) {
+            continueButton.dataset.intransitiveOaSourceRequired = "true";
+            continueButton.classList.add("is-intransitive-o-a-source");
+          }
+          if (sourceRequirementIds.includes("temporal-compound-nounstem")) {
+            continueButton.dataset.temporalSourceRequired = "true";
+            continueButton.classList.add("is-temporal-source");
+          }
+          if (sourceRequirementIds.includes("adverbial-nounstem")) {
+            continueButton.dataset.adverbialSourceRequired = "true";
+            continueButton.classList.add("is-adverbial-source");
+          }
+          if (sourceRequirementIds.includes("relational-compound-or-possessive-relational-predicate")) {
+            continueButton.dataset.relationalCompoundSourceRequired = "true";
+            continueButton.classList.add("is-relational-source");
+          }
+          if (objectPrefixRequired) {
+            continueButton.dataset.objectPrefixRequired = "true";
+          }
+          if (sourceEvidenceRequired || objectPrefixRequired && !currentObjectPrefix) {
+            continueButton.disabled = true;
+            continueButton.setAttribute("aria-disabled", "true");
+            continueButton.classList.add("is-unavailable");
+          }
+          const continueLabel = targetObject.document.createElement("span");
+          continueLabel.className = "calc-guidance__chip-label";
+          continueLabel.textContent = `→ ${targetInput}`;
+          continueButton.appendChild(continueLabel);
+          const continueSubLabel = targetObject.document.createElement("span");
+          continueSubLabel.className = "calc-guidance__chip-sublabel";
+          continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", sourceEvidenceRequired ? "fuente pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", targetTense].filter(Boolean).join(" · ");
+          continueButton.appendChild(continueSubLabel);
+          continueButton.title = [`contrato: ${route.contractId || ""}`, `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `VNC: ${targetInput}`, `tiempo: ${targetTense}`, sourceEvidenceRequired ? "requiere fuente Andrews verificada" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto VNC" : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
+          continueButton.addEventListener("click", () => {
+            targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
+              targetTense,
+              objectPrefix: currentObjectPrefix,
+              render: true,
+              anchorElement: continueButton
+            });
+          });
+          appendContinuationAction(actions, continueButton);
+        });
+        return true;
       };
       const getCompoundEmbedFinitePreviewSurface = ({
         compoundVerb = "",
@@ -5084,7 +6260,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             voiceMode: targetObject.VOICE_MODE.active
           }
         }) || {};
-        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length ? String(result.surfaceForms[0] || "").trim() : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        const surface = getPrimaryConjugationSurface(result);
         return surface && surface !== "—" ? surface : "";
       };
       const getCharacteristicPropertyEmbedFinitePreviewSurface = ({
@@ -5114,7 +6290,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             voiceMode: targetObject.VOICE_MODE.active
           }
         }) || {};
-        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length ? String(result.surfaceForms[0] || "").trim() : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        const surface = getPrimaryConjugationSurface(result);
         return surface && surface !== "—" ? surface : "";
       };
       const getNominalCompoundPreviewSurface = ({
@@ -5141,16 +6317,12 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             }
           }
         }) || {};
-        const surface = Array.isArray(result.surfaceForms) && result.surfaceForms.length ? String(result.surfaceForms[0] || "").trim() : String(result.result || "").split(/\s*\/\s*/g)[0]?.trim();
+        const surface = getPrimaryConjugationSurface(result);
         return surface && surface !== "—" ? surface : "";
       };
       const getActionNominalSurfacesFromEvaluation = (evaluation = {}) => {
         const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-        if (forms.length) {
-          return forms;
-        }
-        const fallback = String(evaluation?.result?.result || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(form => form && form !== "—");
-        return fallback.filter((form, index, list) => list.indexOf(form) === index);
+        return forms;
       };
       const getCustomaryAgentiveStemsFromEvaluation = (evaluation = {}) => {
         const result = evaluation?.result || {};
@@ -5286,6 +6458,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.actionNominalSurface = contract.actionNominalSurface;
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
@@ -5299,7 +6472,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createActiveActionCompoundButton(contract));
+            appendContinuationAction(actions, createActiveActionCompoundButton(contract));
           }
         });
         return true;
@@ -5362,6 +6535,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
@@ -5375,7 +6549,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
           if (!alreadyRendered) {
-            actions.appendChild(createActiveActionNominalButton(contract));
+            appendContinuationAction(actions, createActiveActionNominalButton(contract));
           }
         });
         return true;
@@ -5438,6 +6612,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
@@ -5451,7 +6626,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
           if (!alreadyRendered) {
-            actions.appendChild(createCustomaryAgentiveNominalButton(contract));
+            appendContinuationAction(actions, createCustomaryAgentiveNominalButton(contract));
           }
         });
         return true;
@@ -5515,6 +6690,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
@@ -5528,7 +6704,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createCustomaryAgentiveCompoundEmbedButton(contract));
+            appendContinuationAction(actions, createCustomaryAgentiveCompoundEmbedButton(contract));
           }
         });
         return true;
@@ -5586,6 +6762,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
@@ -5599,7 +6776,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createPreteritAgentiveCompoundButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveCompoundButton(contract));
           }
         });
         return true;
@@ -5662,6 +6839,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${contract.ordinaryNncInput}`;
@@ -5675,7 +6853,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
           if (!alreadyRendered) {
-            actions.appendChild(createPreteritAgentiveNominalButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveNominalButton(contract));
           }
         });
         return true;
@@ -5736,6 +6914,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.ownerhoodMatrixRoot = contract.matrixRoot;
           continueButton.dataset.ownerhoodMatrixId = contract.matrix?.id || "";
           continueButton.dataset.ownerhoodKind = contract.ownerhoodKind || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || ownerhoodVerbInput}`;
@@ -5749,7 +6928,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-ownerhood-continuation]")).some(button => button.dataset.ownerhoodVerbInput === contract.ownerhoodVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createPreteritAgentiveOwnerhoodButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveOwnerhoodButton(contract));
           }
         });
         return true;
@@ -5812,6 +6991,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.complementMatrixRoot = contract.matrixRoot;
           continueButton.dataset.complementMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "ki";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || complementVerbInput}`;
@@ -5825,7 +7005,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-complement-continuation]")).some(button => button.dataset.complementVerbInput === contract.complementVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createPreteritAgentiveComplementButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveComplementButton(contract));
           }
         });
         return true;
@@ -5889,6 +7069,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.adverbialMatrixRoot = contract.matrixRoot;
           continueButton.dataset.adverbialMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || adverbialVerbInput}`;
@@ -5902,7 +7083,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-adverbial-continuation]")).some(button => button.dataset.adverbialVerbInput === contract.adverbialVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createPreteritAgentiveAdverbialButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveAdverbialButton(contract));
           }
         });
         return true;
@@ -5969,6 +7150,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = previewSurface ? `→ ${previewSurface}` : `S→ ${ordinaryNncInput}`;
@@ -5982,7 +7164,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
           if (!alreadyRendered) {
-            actions.appendChild(createNominalCompoundContinuationButton(contract));
+            appendContinuationAction(actions, createNominalCompoundContinuationButton(contract));
           }
         });
         return true;
@@ -6016,38 +7198,44 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createAdjectivalFunctionButton = contract => {
+        const createAdjectivalFunctionButton = (contract, targetSurface) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo"].join(" ");
           continueButton.dataset.patientivoAdjectivalFunctionContinuation = "true";
-          continueButton.dataset.targetSurface = contract.result || "";
+          continueButton.dataset.targetSurface = targetSurface;
           continueButton.dataset.adjectivalFunction = contract.adjectivalNncFunctionFrame?.functionKind || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
-          continueLabel.textContent = `→ ${contract.result}`;
+          continueLabel.textContent = `→ ${targetSurface}`;
           continueButton.appendChild(continueLabel);
           const continueSubLabel = targetObject.document.createElement("span");
           continueSubLabel.className = "calc-guidance__chip-sublabel";
           continueSubLabel.textContent = "Adj NNC";
           continueButton.appendChild(continueSubLabel);
-          continueButton.title = [`#3 salida patientiva: ${contract.result}`, "Andrews 40.4: NNC patientiva en funcion adjetival", contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "", contract.adjectivalNncFunctionFrame?.patientivoSource ? `fuente patientiva: ${contract.adjectivalNncFunctionFrame.patientivoSource}` : ""].filter(Boolean).join("; ");
+          continueButton.title = [`#3 salida patientiva: ${targetSurface}`, "Andrews 40.4: NNC patientiva en funcion adjetival", contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "", contract.adjectivalNncFunctionFrame?.patientivoSource ? `fuente patientiva: ${contract.adjectivalNncFunctionFrame.patientivoSource}` : ""].filter(Boolean).join("; ");
           continueButton.addEventListener("click", () => {
             if (typeof targetObject.applyAdjectivalNncFunctionToVerbEntry === "function") {
               targetObject.applyAdjectivalNncFunctionToVerbEntry({
-                surface: contract.result,
+                surface: targetSurface,
                 formation: "patientive-adjectival",
                 formulaEcho: contract.formulaEcho || "",
-                patientivoSource: contract.adjectivalNncFunctionFrame?.patientivoSource || ""
+                patientivoSource: contract.adjectivalNncFunctionFrame?.patientivoSource || "",
+                grammarFrame: contract.grammarFrame || contract.frames || null
               });
             }
           });
           return continueButton;
         };
         contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === contract.result);
+          const targetSurface = getPrimaryConjugationSurface(contract);
+          if (!targetSurface) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
           if (!alreadyRendered) {
-            actions.appendChild(createAdjectivalFunctionButton(contract));
+            appendContinuationAction(actions, createAdjectivalFunctionButton(contract, targetSurface));
           }
         });
         return true;
@@ -6082,38 +7270,44 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createNominalizedVncAdjectivalButton = contract => {
+        const createNominalizedVncAdjectivalButton = (contract, targetSurface) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo"].join(" ");
           continueButton.dataset.nominalizedVncAdjectivalFunctionContinuation = "true";
-          continueButton.dataset.targetSurface = contract.result || "";
+          continueButton.dataset.targetSurface = targetSurface;
           continueButton.dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
-          continueLabel.textContent = `→ ${contract.result}`;
+          continueLabel.textContent = `→ ${targetSurface}`;
           continueButton.appendChild(continueLabel);
           const continueSubLabel = targetObject.document.createElement("span");
           continueSubLabel.className = "calc-guidance__chip-sublabel";
           continueSubLabel.textContent = "Adj NNC";
           continueButton.appendChild(continueSubLabel);
-          continueButton.title = [`#3 salida nominalizada: ${contract.result}`, `${contract.adjectivalNncFunctionFrame?.lessonRef}: NNC nominalizada en funcion adjetival`, contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "", contract.adjectivalNncFunctionFrame?.nominalizationKind ? `nominalizacion: ${contract.adjectivalNncFunctionFrame.nominalizationKind}` : ""].filter(Boolean).join("; ");
+          continueButton.title = [`#3 salida nominalizada: ${targetSurface}`, `${contract.adjectivalNncFunctionFrame?.lessonRef}: NNC nominalizada en funcion adjetival`, contract.formulaEcho ? `Formula NNC: ${contract.formulaEcho}` : "", contract.adjectivalNncFunctionFrame?.nominalizationKind ? `nominalizacion: ${contract.adjectivalNncFunctionFrame.nominalizationKind}` : ""].filter(Boolean).join("; ");
           continueButton.addEventListener("click", () => {
             if (typeof targetObject.applyAdjectivalNncFunctionToVerbEntry === "function") {
               targetObject.applyAdjectivalNncFunctionToVerbEntry({
-                surface: contract.result,
+                surface: targetSurface,
                 formation: "nominalized-vnc-adjectival",
                 formulaEcho: contract.formulaEcho || "",
-                nominalizedVncKind: contract.adjectivalNncFunctionFrame?.nominalizationKind || ""
+                nominalizedVncKind: contract.adjectivalNncFunctionFrame?.nominalizationKind || "",
+                grammarFrame: contract.grammarFrame || contract.frames || null
               });
             }
           });
           return continueButton;
         };
         contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-nominalized-vnc-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === contract.result);
+          const targetSurface = getPrimaryConjugationSurface(contract);
+          if (!targetSurface) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-nominalized-vnc-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
           if (!alreadyRendered) {
-            actions.appendChild(createNominalizedVncAdjectivalButton(contract));
+            appendContinuationAction(actions, createNominalizedVncAdjectivalButton(contract, targetSurface));
           }
         });
         return true;
@@ -6174,6 +7368,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.compoundVerb = compoundVerbInput;
           continueButton.dataset.compoundMatrixRoot = matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
@@ -6187,7 +7382,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createCompoundEmbedContinuationButton(contract));
+            appendContinuationAction(actions, createCompoundEmbedContinuationButton(contract));
           }
         });
         return true;
@@ -6249,6 +7444,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
           continueButton.dataset.omittedSuffix = contract.omittedSuffix || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`;
@@ -6262,7 +7458,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         contracts.forEach(contract => {
           const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-characteristic-property-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
           if (!alreadyRendered) {
-            actions.appendChild(createCharacteristicPropertyContinuationButton(contract));
+            appendContinuationAction(actions, createCharacteristicPropertyContinuationButton(contract));
           }
         });
         return true;
@@ -6359,6 +7555,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.prelocativeObjectPrefix = objectTransfer.objectPrefix;
           continueButton.dataset.prelocativeMatrixRoot = matrixRoot;
           continueButton.dataset.prelocativeMatrixId = contract.matrix?.id || "";
+          applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${previewSurface || prelocativeVerbInput}`;
@@ -6369,8 +7566,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           });
           return continueButton;
         };
-        const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-        const surfaceDisplay = forms.length ? forms.join(" / ") : String(evaluation?.result?.result || "").trim();
+        const surfaceDisplay = getConjugationDisplaySurface(evaluation?.result);
         value.replaceChildren();
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
@@ -6382,10 +7578,9 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           lineElement.textContent = line;
           surfaceText.appendChild(lineElement);
         });
-        const continuationActions = targetObject.document.createElement("span");
-        continuationActions.className = "conjugation-conversion-actions";
+        const continuationActions = createConjugationConversionActionsContainer();
         contracts.forEach(contract => {
-          continuationActions.appendChild(createPrelocativeContinuationButton(contract));
+          appendContinuationAction(continuationActions, createPrelocativeContinuationButton(contract));
         });
         value.append(surfaceText, continuationActions);
         return true;
@@ -6606,13 +7801,6 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         return TRONCO_INTERMEDIARY_CONSONANTS.has(last);
       };
       const hasTroncoIntermediaryConsonant = (surface = "") => hasBareTroncoIntermediaryConsonant(stripPatientivoNominalMarker(surface));
-      const getConjugationSurfaceForms = (result = null) => {
-        const splitSurfaceText = (surface = "") => String(surface || "").split(/\s*(?:\/|,|\n)\s*/).map(form => form.trim()).filter(Boolean);
-        if (Array.isArray(result?.surfaceForms) && result.surfaceForms.length) {
-          return result.surfaceForms.flatMap(form => splitSurfaceText(form)).filter(Boolean);
-        }
-        return splitSurfaceText(result?.result || "");
-      };
       const getTroncoConversionStems = (forms = []) => {
         const stems = [];
         forms.forEach(form => {
@@ -6677,8 +7865,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           lineElement.textContent = line;
           surfaceText.appendChild(lineElement);
         });
-        const conversionActions = targetObject.document.createElement("span");
-        conversionActions.className = "conjugation-conversion-actions";
+        const conversionActions = createConjugationConversionActionsContainer();
         conversionEntries.forEach(({
           stem,
           track
@@ -6692,6 +7879,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           continueButton.dataset.troncoStem = stem;
           continueButton.dataset.targetInput = track.targetInput || "";
           continueButton.dataset.targetSurface = track.destination || "";
+          applyGrammarFrameRouteDataset(continueButton, track);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
           continueLabel.textContent = `→ ${track.destination || track.targetInput}`;
@@ -6706,7 +7894,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
               sourceStem: stem
             });
           });
-          conversionActions.appendChild(continueButton);
+          appendContinuationAction(conversionActions, continueButton);
         });
         value.append(surfaceText, conversionActions);
         return conversionStems;
@@ -6743,7 +7931,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         const resolvedThirdObjectMarker = normalizedProbeSelection.thirdObjectMarker;
         const ownershipSelections = isPatientivo && possessorPrefix !== "" && (patientivoOwnership === null || patientivoOwnership === undefined || patientivoOwnership === "") ? targetObject.PATIENTIVO_OWNERSHIP_OPTIONS.map(entry => entry.id) : [patientivoOwnership || targetObject.DEFAULT_PATIENTIVO_OWNERSHIP];
         const resolvedPatientivoNominalSuffix = targetObject.normalizePatientivoNominalSuffixSelection(patientivoNominalSuffix);
-        const cacheKey = [selection.subjectPrefix || "", selection.subjectSuffix || "", number || "", possessorPrefix || "", resolvedObjectPrefix || "", resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || "", resolvedPatientivoSource || "", resolvedPatientivoSourceTenseValue, resolvedPatientivoSourceCombinedMode, ownershipSelections.join(","), resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix, targetObject.resolvedNominalControlCombinedMode || "", instrumentivoMode || "", actionNounStemUse || "", useReduplicatedSingularSurface ? "redup" : "plain"].join("|");
+        const cacheKey = [selection.subjectPrefix || "", selection.subjectSuffix || "", number || "", possessorPrefix || "", resolvedObjectPrefix || "", resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || "", resolvedPatientivoSource || "", resolvedPatientivoSourceTenseValue, resolvedPatientivoSourceCombinedMode, ownershipSelections.join(","), resolvedPatientivoNominalSuffix === null ? "*" : resolvedPatientivoNominalSuffix, resolvedNominalControlCombinedMode || "", instrumentivoMode || "", actionNounStemUse || "", useReduplicatedSingularSurface ? "redup" : "plain"].join("|");
         const cached = nounCombinationEvaluationCache.get(cacheKey);
         if (cached) {
           return cached;
@@ -6783,7 +7971,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
               thirdObjectMarker: resolvedThirdObjectMarker,
               possessivePrefix: possessorPrefix,
               actionNounStemUse,
-              combinedMode: targetObject.resolvedNominalControlCombinedMode
+              combinedMode: resolvedNominalControlCombinedMode
             }) || {};
           } else {
             const nominalDerivationMode = targetObject.getNominalDerivationModeForTense(tenseValue);
@@ -6805,7 +7993,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
                 patientivoNominalSuffix: resolvedPatientivoNominalSuffix
               }
             }) || {};
-            if (useReduplicatedSingularSurface && result?.result) {
+            if (useReduplicatedSingularSurface && getPrimaryConjugationSurface(result)) {
               const prefixChain = targetObject.buildPrefixedChain({
                 subjectPrefix: selection.subjectPrefix,
                 possessivePrefix: possessorPrefix,
@@ -6854,7 +8042,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           ...targetObject.buildConjugationEvaluationRecord({
             result: {
               ...visibleEvaluations[0].result,
-              result: Array.from(new Set(visibleEvaluations.flatMap(entry => Array.isArray(entry.result?.surfaceForms) && entry.result.surfaceForms.length ? entry.result.surfaceForms : String(entry.result?.result || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(Boolean)))).join(" / ")
+              result: Array.from(new Set(visibleEvaluations.flatMap(entry => getConjugationSurfaceForms(entry.result)))).join(" / ")
             }
           }),
           normalizedSelection: visibleEvaluations[0].normalizedSelection || normalizedProbeSelection
@@ -6894,13 +8082,14 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           thirdObjectMarker,
           actionNounStemUse: "general-use"
         });
-        if (generalUseEvaluation?.shouldMaskRow || !generalUseEvaluation?.result?.result || generalUseEvaluation.result.result === evaluation?.result?.result) {
+        const generalUseTargetSurface = getPrimaryConjugationSurface(generalUseEvaluation?.result);
+        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
+        if (generalUseEvaluation?.shouldMaskRow || !generalUseTargetSurface || generalUseTargetSurface === currentSurface) {
           return false;
         }
         let actions = value.querySelector?.(".conjugation-conversion-actions") || null;
         if (!actions) {
-          const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
-          const sourceSurface = forms.length ? forms.join(" / ") : String(evaluation?.result?.result || "").trim();
+          const sourceSurface = getConjugationDisplaySurface(evaluation?.result);
           value.replaceChildren();
           value.classList.remove("conjugation-error", "conjugation-reflexive");
           value.classList.add("conjugation-value--conversion-picker");
@@ -6916,11 +8105,10 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
             });
             value.appendChild(surfaceText);
           }
-          actions = targetObject.document.createElement("span");
-          actions.className = "conjugation-conversion-actions";
+          actions = createConjugationConversionActionsContainer();
           value.appendChild(actions);
         }
-        const alreadyRendered = Array.from(actions.querySelectorAll("[data-action-noun-source-subject-possessor]")).some(button => button.dataset.targetSurface === generalUseEvaluation.result.result);
+        const alreadyRendered = Array.from(actions.querySelectorAll("[data-action-noun-source-subject-possessor]")).some(button => button.dataset.targetSurface === generalUseTargetSurface);
         if (alreadyRendered) {
           return true;
         }
@@ -6929,13 +8117,14 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         action.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
         action.dataset.actionNounSourceSubjectPossessor = derivedPossessorPrefix;
         action.dataset.actionNounStemUse = "general-use";
-        action.dataset.targetSurface = generalUseEvaluation.result.result || "";
+        action.dataset.targetSurface = generalUseTargetSurface;
+        applyGrammarFrameRouteDataset(action, generalUseEvaluation.result);
         const label = targetObject.document.createElement("span");
         label.className = "calc-guidance__chip-label";
-        label.textContent = `→ ${generalUseEvaluation.result.result}`;
+        label.textContent = `→ ${generalUseTargetSurface}`;
         action.appendChild(label);
-        action.title = ["Andrews 36.10-36.11: sujeto fuente → poseedor", `poseedor: ${derivedPossessorPrefix}`, `uso general: ${generalUseEvaluation.result.result}`].join("; ");
-        actions.appendChild(action);
+        action.title = ["Andrews 36.10-36.11: sujeto fuente → poseedor", `poseedor: ${derivedPossessorPrefix}`, `uso general: ${generalUseTargetSurface}`].join("; ");
+        appendContinuationAction(actions, action);
         if (row) {
           row.dataset.availabilityState = targetObject.CONJUGATION_AVAILABILITY_STATE.viable;
           row.dataset.diagnosticState = targetObject.CONJUGATION_AVAILABILITY_STATE.viable;
@@ -6971,7 +8160,9 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
           thirdObjectMarker,
           instrumentivoMode: targetObject.INSTRUMENTIVO_MODE.posesivo
         });
-        if (possessiveEvaluation?.shouldMaskRow || !possessiveEvaluation?.result?.result || possessiveEvaluation.result.result === evaluation?.result?.result) {
+        const possessiveTargetSurface = getPrimaryConjugationSurface(possessiveEvaluation?.result);
+        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
+        if (possessiveEvaluation?.shouldMaskRow || !possessiveTargetSurface || possessiveTargetSurface === currentSurface) {
           return;
         }
         const forms = getConjugationSurfaceForms(evaluation?.result);
@@ -6979,26 +8170,27 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(forms.join(" / ") || evaluation?.result?.result || "") : forms.join(" / ") || evaluation?.result?.result || "";
+        const surfaceDisplay = forms.join(" / ") || getConjugationDisplaySurface(evaluation?.result);
+        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
         groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
           const lineElement = targetObject.document.createElement("span");
           lineElement.className = "conjugation-conversion-surface-line";
           lineElement.textContent = line;
           surfaceText.appendChild(lineElement);
         });
-        const actions = targetObject.document.createElement("span");
-        actions.className = "conjugation-conversion-actions";
+        const actions = createConjugationConversionActionsContainer();
         const action = targetObject.document.createElement("button");
         action.type = "button";
         action.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
         action.dataset.instrumentivoSourceSubjectPossessor = possessivePrefix;
-        action.dataset.targetSurface = possessiveEvaluation.result.result || "";
+        action.dataset.targetSurface = possessiveTargetSurface;
+        applyGrammarFrameRouteDataset(action, possessiveEvaluation.result);
         const label = targetObject.document.createElement("span");
         label.className = "calc-guidance__chip-label";
-        label.textContent = `→ ${possessiveEvaluation.result.result}`;
+        label.textContent = `→ ${possessiveTargetSurface}`;
         action.appendChild(label);
-        action.title = ["Andrews 36.6: sujeto fuente → poseedor", `poseedor: ${possessivePrefix}`, `salida posesiva: ${possessiveEvaluation.result.result}`].join("; ");
-        actions.appendChild(action);
+        action.title = ["Andrews 36.6: sujeto fuente → poseedor", `poseedor: ${possessivePrefix}`, `salida posesiva: ${possessiveTargetSurface}`].join("; ");
+        appendContinuationAction(actions, action);
         value.append(surfaceText, actions);
       };
       const resolveNounToggleAvailabilityState = ({
@@ -7475,18 +8667,25 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
                 selection: normalizedSelection,
                 displaySelection
               });
-              personSub.textContent = appendSentenceLayerSubLabels(appendNuclearClauseShellSubLabels(appendAdverbialAdjunctionBoundaryFrameSubLabels(appendAdverbialNuclearFrameSubLabels(appendRelationalNncBoundaryFrameSubLabels(appendPlaceGentilicNncBoundaryFrameSubLabels(appendDenominalFamilyProfileSubLabels(appendVerbDerivedNominalizationProfileSubLabels(targetObject.buildPersonSub({
+              personSub.textContent = appendGrammarFrameSubLabels(appendSentenceLayerSubLabels(appendNuclearClauseShellSubLabels(appendAdverbialAdjunctionBoundaryFrameSubLabels(appendAdverbialNuclearFrameSubLabels(appendRelationalNncBoundaryFrameSubLabels(appendPlaceGentilicNncBoundaryFrameSubLabels(appendDenominalFamilyProfileSubLabels(appendVerbDerivedNominalizationProfileSubLabels(targetObject.buildPersonSub({
                 subjectLabel: appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel),
                 possessorLabel,
                 objectLabel
               }), evaluation.result?.nominalizationProfile, {
                 isNawat
-              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer);
+              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer), evaluation.result, {
+                maxDiagnostics: 1
+              });
               targetObject.applyConjugationEvaluationPresentation({
                 row,
                 value,
                 evaluation,
-                formattedValue: targetObject.formatConjugationDisplay(evaluation.result.result)
+                formattedValue: targetObject.formatConjugationDisplay(getConjugationDisplaySurface(evaluation.result))
+              });
+              applyGrammarFrameRouteDataset(row, evaluation.result);
+              renderDenominalAndrewsContractRouteContinuation({
+                value,
+                evaluation
               });
               if (resolvedTense === "patientivo") {
                 renderPatientivoAdjectivalFunctionContinuation({
@@ -7741,12 +8940,100 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
       containerId = "all-tense-conjugations",
       tenseValue = ""
     }) {
+      if (renderAdjectivalNncFunctionConjugations({
+        verb,
+        containerId
+      })) {
+        return;
+      }
       renderNounConjugations({
         verb,
         containerId,
         tenseValue,
         modeKey: "adjetivo"
       });
+    }
+    function renderAdjectivalNncFunctionConjugations({
+      verb,
+      containerId = "all-tense-conjugations"
+    } = {}) {
+      if (typeof targetObject.resolveAdjectivalNncFunctionOverrideFromInput !== "function" || typeof targetObject.buildConjugationEvaluationRecord !== "function" || typeof targetObject.applyConjugationEvaluationPresentation !== "function") {
+        return false;
+      }
+      const verbInput = targetObject.document.getElementById("verb");
+      const override = targetObject.resolveAdjectivalNncFunctionOverrideFromInput(verbInput);
+      const targetSurface = getPrimaryConjugationSurface(override?.adjectivalNnc) || String(override?.verb || "").trim();
+      if (!override?.adjectivalNnc?.enabled || !targetSurface) {
+        return false;
+      }
+      const container = targetObject.document.getElementById(containerId);
+      if (!container) {
+        return false;
+      }
+      const result = typeof targetObject.getCachedSilentGenerateWord === "function" ? targetObject.getCachedSilentGenerateWord({
+        silent: true,
+        skipValidation: true,
+        override
+      }) || {} : {};
+      const evaluation = targetObject.buildConjugationEvaluationRecord({
+        result
+      });
+      const languageSwitch = targetObject.document.getElementById("language");
+      const isNawat = languageSwitch && languageSwitch.checked;
+      const frame = result?.adjectivalNncFunctionFrame || {};
+      const {
+        grid
+      } = createObjectSectionGrid(container);
+      const tenseBlock = targetObject.document.createElement("div");
+      tenseBlock.className = "tense-block";
+      tenseBlock.dataset.tenseBlock = "adjetivo-nnc-funcion";
+      applyGrammarFrameRouteDataset(tenseBlock, result);
+      if (typeof targetObject.applyTenseBlockComboPalette === "function") {
+        targetObject.applyTenseBlockComboPalette(tenseBlock, "adjetivo|nnc-funcion");
+      }
+      const tenseTitle = targetObject.document.createElement("div");
+      tenseTitle.className = "tense-block__title";
+      const titleLabel = targetObject.document.createElement("span");
+      titleLabel.className = "tense-block__label";
+      titleLabel.textContent = "Funcion adjetival";
+      tenseTitle.appendChild(titleLabel);
+      tenseBlock.appendChild(tenseTitle);
+      const list = targetObject.document.createElement("div");
+      list.className = "conjugation-list";
+      const row = targetObject.document.createElement("div");
+      row.className = "conjugation-row";
+      row.dataset.objectPrefix = "";
+      row.dataset.indirectObjectPrefix = "";
+      row.dataset.thirdObjectPrefix = "";
+      const label = targetObject.document.createElement("div");
+      label.className = "conjugation-label";
+      const personLabel = targetObject.document.createElement("div");
+      personLabel.className = "person-label";
+      personLabel.textContent = "NNC";
+      const personSub = targetObject.document.createElement("div");
+      personSub.className = "person-sub";
+      personSub.textContent = appendGrammarFrameSubLabels([frame.lessonRef || "Andrews 40", frame.functionKind || ""].filter(Boolean).join(" · "), result, {
+        maxDiagnostics: 1
+      });
+      label.append(personLabel, personSub);
+      const value = targetObject.document.createElement("div");
+      value.className = "conjugation-value";
+      targetObject.applyConjugationEvaluationPresentation({
+        row,
+        value,
+        evaluation,
+        formattedValue: targetObject.formatConjugationDisplay(getConjugationDisplaySurface(result))
+      });
+      applyGrammarFrameRouteDataset(row, result);
+      row.append(label, value);
+      list.appendChild(row);
+      tenseBlock.appendChild(list);
+      grid.appendChild(tenseBlock);
+      renderOutputGuidancePanel({
+        verb: targetSurface
+      });
+      targetObject.updateCalcSummaryAndStatus();
+      return true;
     }
     function buildAdverbTabRenderContext({
       verb,
@@ -7942,10 +9229,18 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     api.appendVerbDerivedNominalizationProfileSubLabels = appendVerbDerivedNominalizationProfileSubLabels;
     api.buildDenominalFamilyProfileSubLabels = buildDenominalFamilyProfileSubLabels;
     api.appendDenominalFamilyProfileSubLabels = appendDenominalFamilyProfileSubLabels;
+    api.buildNawatDenominalSourceEvidenceSubLabels = buildNawatDenominalSourceEvidenceSubLabels;
+    api.getNawatLinkedGrammarStageDisplaySurface = getNawatLinkedGrammarStageDisplaySurface;
+    api.getNawatLinkedGrammarStageSourceVerb = getNawatLinkedGrammarStageSourceVerb;
     api.buildNawatLinkedGrammarStageSubLabels = buildNawatLinkedGrammarStageSubLabels;
     api.getNawatLinkedGrammarCompactRouteLabel = getNawatLinkedGrammarCompactRouteLabel;
     api.getNawatLinkedGrammarCompactStageLabel = getNawatLinkedGrammarCompactStageLabel;
     api.formatNawatLinkedGrammarCompactChoiceLabel = formatNawatLinkedGrammarCompactChoiceLabel;
+    api.createConjugationConversionActionsContainer = createConjugationConversionActionsContainer;
+    api.resolveContinuationActionGroupMeta = resolveContinuationActionGroupMeta;
+    api.getOrCreateContinuationActionGroup = getOrCreateContinuationActionGroup;
+    api.appendContinuationAction = appendContinuationAction;
+    api.getVerbToNominalContinuationSpecsForTense = getVerbToNominalContinuationSpecsForTense;
     api.appendNawatLinkedGrammarStageSubLabels = appendNawatLinkedGrammarStageSubLabels;
     api.buildNawatLinkedGrammarSelectionSummarySubLabels = buildNawatLinkedGrammarSelectionSummarySubLabels;
     api.appendNawatLinkedGrammarSelectionSummarySubLabels = appendNawatLinkedGrammarSelectionSummarySubLabels;
@@ -7958,6 +9253,13 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     api.attachNawatLinkedGrammarStagesToRailStations = attachNawatLinkedGrammarStagesToRailStations;
     api.buildNuclearClauseShellSubLabels = buildNuclearClauseShellSubLabels;
     api.appendNuclearClauseShellSubLabels = appendNuclearClauseShellSubLabels;
+    api.getGrammarFrameForRendering = getGrammarFrameForRendering;
+    api.applyGrammarFrameRouteDataset = applyGrammarFrameRouteDataset;
+    api.attachUiRouteControlGrammarContract = attachUiRouteControlGrammarContract;
+    api.getPatientivoRouteControlAndrewsRefs = getPatientivoRouteControlAndrewsRefs;
+    api.getGrammarFrameDiagnosticLabelForRendering = getGrammarFrameDiagnosticLabelForRendering;
+    api.buildGrammarFrameSubLabels = buildGrammarFrameSubLabels;
+    api.appendGrammarFrameSubLabels = appendGrammarFrameSubLabels;
     api.buildVncValencyFrameSubLabels = buildVncValencyFrameSubLabels;
     api.appendVncValencyFrameSubLabels = appendVncValencyFrameSubLabels;
     api.buildDerivedVoiceFrameSubLabels = buildDerivedVoiceFrameSubLabels;
@@ -7998,6 +9300,13 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     api.renderOrdinaryNncConjugations = renderOrdinaryNncConjugations;
     api.renderActiveConjugations = renderActiveConjugations;
     api.renderNonactiveConjugationRows = renderNonactiveConjugationRows;
+    api.splitConjugationSurfaceText = splitConjugationSurfaceText;
+    api.getConjugationResultFrame = getConjugationResultFrame;
+    api.hasConjugationResultFrame = hasConjugationResultFrame;
+    api.getConjugationFrameSurfaceForms = getConjugationFrameSurfaceForms;
+    api.getConjugationSurfaceForms = getConjugationSurfaceForms;
+    api.getPrimaryConjugationSurface = getPrimaryConjugationSurface;
+    api.getConjugationDisplaySurface = getConjugationDisplaySurface;
     api.buildVerbTenseBlock = buildVerbTenseBlock;
     api.clearUnifiedVerbOutputDataset = clearUnifiedVerbOutputDataset;
     api.rebuildUnifiedVerbOutputDataset = rebuildUnifiedVerbOutputDataset;
@@ -8016,6 +9325,7 @@ export function createUiRenderingGlobals(targetObject = globalThis) {
     api.renderNounConjugations = renderNounConjugations;
     api.buildAdjectiveTabRenderContext = buildAdjectiveTabRenderContext;
     api.renderAdjectiveConjugations = renderAdjectiveConjugations;
+    api.renderAdjectivalNncFunctionConjugations = renderAdjectivalNncFunctionConjugations;
     api.buildAdverbTabRenderContext = buildAdverbTabRenderContext;
     api.renderAdverbConjugations = renderAdverbConjugations;
     api.renderAllTenseConjugations = renderAllTenseConjugations;

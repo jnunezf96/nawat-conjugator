@@ -115,6 +115,34 @@ function run(ctx) {
     );
     s.no("honorific/pejorative boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("honorific/pejorative boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const honorificCandidate = ctx.classifyHonorificPejorativeCandidate({
+        sourceStem: "palehuia",
+        candidate: "polite translation label",
+        polarity: "honorific",
+        falsePositiveSource: "polite-translation",
+    });
+    const honorificFrame = honorificCandidate.grammarFrame;
+    s.eq(
+        "honorific/pejorative metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(honorificFrame),
+            routeFamily: honorificFrame?.routeContract?.routeFamily || "",
+            routeStage: honorificFrame?.routeContract?.routeStage || "",
+            generationAllowed: honorificFrame?.routeContract?.generationAllowed,
+            polarity: honorificFrame?.participantFrame?.honorificPejorativePolarity || "",
+            andrewsRef: honorificFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(honorificCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "honorific-pejorative",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            polarity: "honorific",
+            andrewsRef: "Andrews Lesson 33",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

@@ -62,8 +62,19 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachPersonalNameNncGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "personal-name-nnc",
+        routeFamily: "personal-name-nnc",
+        ...options
+      });
+    }
     function buildPersonalNameNncBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "personal-name-nnc-boundary",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         lesson: 56,
@@ -92,6 +103,10 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         },
         antiConflationRules: getPersonalNameNncAntiConflationRules()
       };
+      return attachPersonalNameNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyPersonalNameNncCandidate({
       candidate = "",
@@ -107,7 +122,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
       const normalizedKind = normalizePersonalNameNncKind(personalNameKind || sourceClauseType);
       const normalizedFalsePositive = normalizePersonalNameNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "personal-name-nnc-candidate-classification",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -124,10 +139,21 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "personal-name-nnc-needs-validation" : "personal-name-nnc-needs-nawat-evidence", normalizedKind !== PERSONAL_NAME_NNC_KIND.unknown ? "personal-name-nnc-kind-recognized" : "personal-name-nnc-kind-unconfirmed", normalizedFalsePositive !== PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown ? "personal-name-nnc-false-positive-source" : "personal-name-nnc-unconfirmed"],
         boundary: buildPersonalNameNncBoundaryMetadata()
       };
+      return attachPersonalNameNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.nameSource,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+          stemKind: "personal-name-source-candidate",
+          sourceStem: classification.nameSource,
+          sourceKind: classification.personalNameKind
+        }
+      });
     }
     function classifyPersonalNameNncFalsePositive(source = "") {
       const normalizedSource = normalizePersonalNameNncFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "personal-name-nnc-false-positive",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -137,6 +163,11 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         diagnostics: ["personal-name-nnc-false-positive-source"],
         antiConflationRules: getPersonalNameNncAntiConflationRules()
       };
+      return attachPersonalNameNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -170,6 +201,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
     api.normalizePersonalNameNncFalsePositiveSource = normalizePersonalNameNncFalsePositiveSource;
     api.getPersonalNameNncAntiConflationRules = getPersonalNameNncAntiConflationRules;
     api.getPersonalNameNncStructuralQuestions = getPersonalNameNncStructuralQuestions;
+    api.attachPersonalNameNncGrammarContract = attachPersonalNameNncGrammarContract;
     api.buildPersonalNameNncBoundaryMetadata = buildPersonalNameNncBoundaryMetadata;
     api.classifyPersonalNameNncCandidate = classifyPersonalNameNncCandidate;
     api.classifyPersonalNameNncFalsePositive = classifyPersonalNameNncFalsePositive;

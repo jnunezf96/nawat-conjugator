@@ -16,11 +16,12 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260607-patientivo-prelocative-contract-001" />
+    <link rel="stylesheet" href="style.css?v=20260608-andrews-workspace-001" />
     <!-- Phase 1 baseline: keep this ordered legacy script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/concepts/concepts.js?v=20260606-concepts-001" defer></script>
     <script src="src/core/particles/particles.js?v=20260606-particles-001" defer></script>
     <script src="src/core/sentence/sentence.js?v=20260606-sentence-layer-001" defer></script>
+    <script src="src/core/grammar/frame.js?v=20260608-grammar-frame-001" defer></script>
     <script src="src/core/orthography/orthography.js?v=20260606-orthography-bridge-001" defer></script>
     <script src="src/core/clause/clause.js?v=20260606-clause-shell-001" defer></script>
     <script src="src/core/clause/modification/modification.js?v=20260606-modification-boundary-001" defer></script>
@@ -52,7 +53,7 @@
     <script src="src/core/generation/request.js?v=20260403-import-isolate-008" defer></script>
     <script src="src/core/generation/morphology_engine.js?v=20260404-tronco-lvv-ua-004" defer></script>
     <script src="src/core/generation/runtime_support.js?v=20260403-import-isolate-007" defer></script>
-    <script src="src/core/generation/engine.js?v=20260404-tronco-lvv-ua-004" defer></script>
+    <script src="src/core/generation/engine.js?v=20260608-denominal-contract-routes-027" defer></script>
     <script src="src/core/nnc/nnc.js?v=20260402-phase5a-001" defer></script>
     <script src="src/core/nnc/compound/compound.js?v=20260606-nnc-compound-boundary-001" defer></script>
     <script src="src/core/nnc/adjectival/adjectival.js?v=20260606-nnc-adjectival-boundary-001" defer></script>
@@ -68,9 +69,9 @@
     <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
     <script src="src/ui/panels/panels.js?v=20260603-chip-route-default-001" defer></script>
     <script src="src/ui/export/export.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/state.js?v=20260604-prelocative-entry-003" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260607-preterit-agentive-continuation-001" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260607-patientivo-prelocative-contract-001" defer></script>
+    <script src="src/ui/state.js?v=20260608-denominal-contract-routes-028" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260608-denominal-contract-routes-029" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260608-vnc-output-refresh-001" defer></script>
     <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
@@ -149,32 +150,66 @@
         </div>
       </div>
       <section
-        class="book-map"
-        id="book-map"
-        aria-labelledby="book-map-title"
+        class="andrews-workspace"
+        id="andrews-workspace"
+        aria-label="Andrews 1-58 grammar workspace"
       >
-        <div class="book-map__header">
-          <div class="book-map__title-block">
-            <span class="book-map__eyebrow">Andrews 1-58 · mapa curricular</span>
-            <h2 id="book-map-title">Mapa curricular</h2>
+        <section
+          class="book-map"
+          id="book-map"
+          aria-labelledby="book-map-title"
+        >
+          <div class="book-map__header">
+            <div class="book-map__title-block">
+              <span class="book-map__eyebrow">Andrews 1-58 · mapa curricular</span>
+              <h2 id="book-map-title">Mapa curricular</h2>
+            </div>
+            <div class="book-map__totals" id="book-map-totals" aria-live="polite"></div>
           </div>
-          <div class="book-map__totals" id="book-map-totals" aria-live="polite"></div>
-        </div>
-        <div class="book-map__body">
-          <div
-            class="book-map__groups"
-            id="book-map-groups"
-            role="list"
-            aria-label="Grupos del mapa curricular"
-          ></div>
-          <div
-            class="book-map__detail"
-            id="book-map-detail"
-            aria-live="polite"
-          ></div>
-        </div>
-      </section>
-      <div class="panel-grid">
+          <div class="book-map__body">
+            <div
+              class="book-map__groups"
+              id="book-map-groups"
+              role="list"
+              aria-label="Grupos del mapa curricular"
+            ></div>
+            <div
+              class="book-map__detail"
+              id="book-map-detail"
+              aria-live="polite"
+            ></div>
+          </div>
+        </section>
+        <section
+          class="andrews-contract-strip"
+          aria-label="Capas del contrato gramatical Andrews"
+        >
+          <span class="andrews-contract-strip__item" data-contract-layer="andrews">
+            <span class="andrews-contract-strip__kicker">Andrews</span>
+            <span class="andrews-contract-strip__label">1-58</span>
+          </span>
+          <span class="andrews-contract-strip__item" data-contract-layer="orthography">
+            <span class="andrews-contract-strip__kicker">Grafia</span>
+            <span class="andrews-contract-strip__label">Nawat</span>
+          </span>
+          <span class="andrews-contract-strip__item" data-contract-layer="source">
+            <span class="andrews-contract-strip__kicker">Fuente</span>
+            <span class="andrews-contract-strip__label">Evidencia</span>
+          </span>
+          <span class="andrews-contract-strip__item" data-contract-layer="category">
+            <span class="andrews-contract-strip__kicker">Categoria</span>
+            <span class="andrews-contract-strip__label">Slots</span>
+          </span>
+          <span class="andrews-contract-strip__item" data-contract-layer="route">
+            <span class="andrews-contract-strip__kicker">Ruta</span>
+            <span class="andrews-contract-strip__label">Contrato</span>
+          </span>
+          <span class="andrews-contract-strip__item" data-contract-layer="diagnostic">
+            <span class="andrews-contract-strip__kicker">Limite</span>
+            <span class="andrews-contract-strip__label">Diagnostico</span>
+          </span>
+        </section>
+        <div class="panel-grid" aria-label="Banco gramatical Andrews">
         <div class="panel-stack">
           <div class="panel-stack-tabs" role="tablist" aria-label="Etapas">
             <button
@@ -239,6 +274,8 @@
             class="panel-stack-pane is-active"
             id="panel-stack-pane-inputs"
             data-panel-stack-pane="inputs"
+            data-andrews-stage="source"
+            data-andrews-stage-label="1 Entrada"
             role="tabpanel"
             aria-labelledby="panel-stack-tab-inputs"
             autocomplete="off"
@@ -1079,6 +1116,8 @@
               class="panel container-tense-grid panel-stack-pane"
               id="container-tense-grid"
               data-panel-stack-pane="output"
+              data-andrews-stage="output"
+              data-andrews-stage-label="3 Salida"
               role="tabpanel"
               aria-labelledby="panel-stack-tab-output"
             >
@@ -1238,6 +1277,8 @@
             class="panel tense-tabs-panel panel-stack-pane"
             id="panel-stack-pane-tense"
             data-panel-stack-pane="tense"
+            data-andrews-stage="route-controls"
+            data-andrews-stage-label="2 Derivada"
             role="tabpanel"
             aria-labelledby="panel-stack-tab-tense"
           >
@@ -1443,6 +1484,7 @@
           </select>
         </div>
       </div>
+      </section>
       <footer>
         <p><span id="copyright-label">Copyright © 2026 Jaime Núñez</span></p>
         <p>Gracias a Sigfredo Olmedo</p>

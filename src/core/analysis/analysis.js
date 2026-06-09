@@ -74,6 +74,20 @@ const ANALYSIS_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
 ]);
 
+function attachAnalysisGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "analysis-boundary",
+        routeFamily: "textual-analysis",
+        structuralSource: "Andrews Lessons 57-58",
+        andrewsRefs: ["Andrews Lessons 57-58"],
+        ...options,
+    });
+}
+
 function normalizeAnalysisEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -104,7 +118,7 @@ function getAnalysisStructuralQuestions() {
 }
 
 function buildAnalysisBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "analysis-boundary",
         version: ANALYSIS_BOUNDARY_VERSION,
         lessons: [57, 58],
@@ -131,6 +145,17 @@ function buildAnalysisBoundaryMetadata() {
         },
         antiConflationRules: getAnalysisAntiConflationRules(),
     };
+    return attachAnalysisGrammarContract(boundary, {
+        metadataKind: "analysis-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+            metadataKind: "analysis-boundary",
+            generationAllowed: false,
+            hasTextualAnalysisEngine: false,
+        },
+    });
 }
 
 function classifyAnalysisIssueCandidate({
@@ -146,7 +171,7 @@ function classifyAnalysisIssueCandidate({
     const normalizedIssue = normalizeAnalysisIssue(analysisIssue);
     const normalizedFalsePositive = normalizeAnalysisFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "analysis-issue-candidate-classification",
         version: ANALYSIS_BOUNDARY_VERSION,
         textSource: String(textSource || ""),
@@ -170,11 +195,29 @@ function classifyAnalysisIssueCandidate({
         ],
         boundary: buildAnalysisBoundaryMetadata(),
     };
+    return attachAnalysisGrammarContract(classification, {
+        metadataKind: "analysis-issue-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.textSource || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        astFrame: {
+            affectedUnit: classification.affectedUnit,
+            expectedSystem: classification.expectedSystem,
+            diagnosticEvidence: classification.diagnosticEvidence,
+        },
+        targetContract: {
+            metadataKind: "analysis-issue-candidate-classification",
+            generationAllowed: false,
+            analysisIssue: normalizedIssue,
+            falsePositiveSource: normalizedFalsePositive,
+        },
+    });
 }
 
 function classifyAnalysisFalsePositive(source = "") {
     const normalizedSource = normalizeAnalysisFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "analysis-false-positive",
         version: ANALYSIS_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -184,4 +227,11 @@ function classifyAnalysisFalsePositive(source = "") {
         diagnostics: ["analysis-issue-false-positive-source"],
         antiConflationRules: getAnalysisAntiConflationRules(),
     };
+    return attachAnalysisGrammarContract(classification, {
+        metadataKind: "analysis-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics,
+    });
 }

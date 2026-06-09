@@ -278,6 +278,24 @@ function run(ctx) {
         result: "—",
         surfaceForms: [],
     });
+    const bareKalBlocked = generatePresent("kal");
+    s.eq("ordinaryNnc: bare kal no-output keeps an LCM blocked frame", {
+        ok: bareKalBlocked.ok,
+        surface: bareKalBlocked.surface,
+        framesIsGrammarFrame: bareKalBlocked.frames === bareKalBlocked.grammarFrame,
+        unitKind: bareKalBlocked.frames.unitFrame.unitKind,
+        routeStage: bareKalBlocked.frames.routeContract.routeStage,
+        generationAllowed: bareKalBlocked.frames.routeContract.generationAllowed,
+        diagnosticId: bareKalBlocked.diagnostics[0].id,
+    }, {
+        ok: false,
+        surface: "",
+        framesIsGrammarFrame: true,
+        unitKind: "verbal-nuclear-clause",
+        routeStage: "raw-input-final-vowel-gate",
+        generationAllowed: false,
+        diagnosticId: "generate-word-final-vowel-gate-blocked",
+    });
     s.eq("ordinaryNnc: bare shuchit generation remains verb-routed", summarizeGenerated(generatePresent("shuchit")), {
         error: true,
         result: "—",

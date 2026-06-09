@@ -1,6 +1,6 @@
 // core/orthography/orthography.js
-// Orthography-profile and bridge metadata. This layer may classify spelling
-// correspondences, but it must not generate Nawat/Pipil forms.
+// Orthography-profile and bridge metadata. Arbitrary input classification remains
+// diagnostic-only; grammar-rule spellings may be realized in Nawat/Pipil letters.
 
 "use strict";
 
@@ -162,6 +162,20 @@ const ORTHOGRAPHY_BRIDGE_RULES = Object.freeze([
         generationAllowed: false,
     }),
 ]);
+
+function attachOrthographyGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "orthography-bridge",
+        routeFamily: "orthography",
+        structuralSource: "Andrews Lesson 2",
+        andrewsRefs: ["Andrews Lesson 2"],
+        ...options,
+    });
+}
 
 function normalizeOrthographyInput(value) {
     return String(value == null ? "" : value)
@@ -350,6 +364,117 @@ function getOrthographyBridgeDiagnostics(matches, options = {}) {
     return diagnostics;
 }
 
+function convertClassicalLettersToNawat(value, options = {}) {
+    const normalized = normalizeOrthographyInput(value);
+    const correspondences = [];
+    let output = "";
+    let index = 0;
+    const pushConverted = (source, target, ruleId, note = "") => {
+        correspondences.push({
+            source,
+            target,
+            ruleId,
+            note,
+        });
+        output += target;
+        index += source.length;
+    };
+    while (index < normalized.length) {
+        const rest = normalized.slice(index);
+        const char = normalized[index];
+        if (rest.startsWith("ch")) {
+            pushConverted("ch", "ch", "same-ch");
+        } else if (rest.startsWith("tz")) {
+            pushConverted("tz", "tz", "same-tz");
+        } else if (rest.startsWith("tl")) {
+            pushConverted("tl", "t", "tl-t", "Nawat/Pipil realizes the Classical lateral affricate spelling without l in the current grammar-rule surface.");
+        } else if (rest.startsWith("qu")) {
+            pushConverted("qu", "k", "qu-k");
+        } else if (rest.startsWith("cu")) {
+            pushConverted("cu", "kw", "cu-kw");
+        } else if (rest.startsWith("uc")) {
+            pushConverted("uc", "kw", "uc-kw");
+        } else if (rest.startsWith("hu")) {
+            pushConverted("hu", "w", "hu-w");
+        } else if (rest.startsWith("uh")) {
+            pushConverted("uh", "w", "uh-w");
+        } else if (char === "x") {
+            pushConverted("x", "sh", "x-sh");
+        } else if (char === "z") {
+            pushConverted("z", "s", "z-s");
+        } else if (char === "c") {
+            const next = normalized[index + 1] || "";
+            const target = next === "e" || next === "i" ? "s" : "k";
+            pushConverted("c", target, target === "s" ? "c-front-s" : "c-k");
+        } else if (char === "o") {
+            pushConverted("o", "u", "o-u");
+        } else if (char === ":") {
+            correspondences.push({
+                source: ":",
+                target: "",
+                ruleId: "long-vowel-dropped",
+                note: "Modern Nawat/Pipil output does not use Classical vowel-length notation.",
+            });
+            index += 1;
+        } else {
+            output += char;
+            index += 1;
+        }
+    }
+    const conversion = {
+        kind: "classical-to-nawat-letter-conversion",
+        version: ORTHOGRAPHY_BRIDGE_VERSION,
+        input: String(value == null ? "" : value),
+        normalized,
+        output,
+        sourceProfileId: ORTHOGRAPHY_PROFILE_IDS.classicalNahuatl,
+        targetProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
+        correspondences,
+        orthographyConversionAllowed: true,
+        generationAllowed: false,
+        evidence: {
+            grammarAuthority: "Andrews PDF",
+            targetAuthority: "Modern Nawat/Pipil orthography",
+            contract: options.contract || "grammar-rule-surface-realization",
+        },
+        diagnostics: [
+            "classical-to-nawat-orthography-conversion",
+            "orthography-conversion-is-not-lexical-evidence",
+        ],
+    };
+    return attachOrthographyGrammarContract(conversion, {
+        metadataKind: "classical-to-nawat-letter-conversion",
+        routeStage: "convert-rule-spelling",
+        sourceInput: conversion.input,
+        surface: output,
+        surfaceForms: output ? [output] : [],
+        supported: true,
+        diagnostics: conversion.diagnostics,
+        evidenceStatus: "orthography-conversion-only",
+        orthographyFrame: {
+            sourceProfileId: conversion.sourceProfileId,
+            targetProfileId: conversion.targetProfileId,
+            sourceSurface: conversion.normalized,
+            surface: output,
+            surfaceForms: output ? [output] : [],
+            correspondences,
+            spellingAuthority: "Modern Nawat/Pipil orthography",
+            noClassicalSurfaceImport: true,
+            orthographyConversionAllowed: true,
+        },
+        targetContract: {
+            metadataKind: "classical-to-nawat-letter-conversion",
+            generationAllowed: false,
+            orthographyConversionAllowed: true,
+            doesNotCreateLexicalEvidence: true,
+        },
+    });
+}
+
+function getClassicalLettersAsNawat(value, options = {}) {
+    return convertClassicalLettersToNawat(value, options).output;
+}
+
 function buildOrthographyBridgeMetadata(value, options = {}) {
     const normalized = normalizeOrthographyInput(value);
     const sourceProfileId = options.sourceProfileId || inferOrthographyProfileId(normalized);
@@ -361,7 +486,7 @@ function buildOrthographyBridgeMetadata(value, options = {}) {
             && rule.targetProfile === targetProfileId
         ));
     const blocked = matches.filter((match) => match.action === "blocked");
-    return {
+    const bridge = {
         kind: "orthography-bridge",
         version: ORTHOGRAPHY_BRIDGE_VERSION,
         input: String(value == null ? "" : value),
@@ -387,6 +512,32 @@ function buildOrthographyBridgeMetadata(value, options = {}) {
             targetAuthority: "Modern Nawat/Pipil orthography",
         },
     };
+    return attachOrthographyGrammarContract(bridge, {
+        metadataKind: "orthography-bridge",
+        routeStage: "classify-bridge",
+        sourceInput: bridge.input,
+        supported: blocked.length === 0,
+        diagnostics: bridge.diagnostics,
+        evidenceStatus: blocked.length ? "orthography-blocked" : "orthography-diagnostic",
+        orthographyFrame: {
+            sourceProfileId,
+            targetProfileId,
+            sourceSurface: normalized,
+            surface: "",
+            surfaceForms: [],
+            graphemes,
+            correspondences: bridge.correspondences,
+            blocked: bridge.blocked,
+            spellingAuthority: "Modern Nawat/Pipil orthography",
+            noClassicalSurfaceImport: true,
+        },
+        targetContract: {
+            metadataKind: "orthography-bridge",
+            generationAllowed: false,
+            doesNotCreateLexicalEvidence: true,
+            blocked: bridge.blocked,
+        },
+    });
 }
 
 function classifyOrthographyInput(value, options = {}) {
@@ -400,7 +551,7 @@ function classifyOrthographyInput(value, options = {}) {
         targetProfileId: options.targetProfileId || ORTHOGRAPHY_PROFILE_IDS.nawatModern,
         requireNawatEvidence: options.requireNawatEvidence,
     });
-    return {
+    const classification = {
         kind: "orthography-classification",
         version: ORTHOGRAPHY_BRIDGE_VERSION,
         input: String(value == null ? "" : value),
@@ -412,4 +563,29 @@ function classifyOrthographyInput(value, options = {}) {
         bridge,
         generationAllowed: false,
     };
+    return attachOrthographyGrammarContract(classification, {
+        metadataKind: "orthography-classification",
+        routeStage: "classify-input",
+        sourceInput: classification.input,
+        supported: invalidGraphemes.length === 0,
+        diagnostics: bridge.diagnostics,
+        evidenceStatus: invalidGraphemes.length ? "orthography-invalid" : "orthography-profile-classified",
+        orthographyFrame: {
+            sourceProfileId: profileId,
+            targetProfileId: classification.bridge.targetProfileId,
+            sourceSurface: normalized,
+            surface: "",
+            surfaceForms: [],
+            graphemes,
+            invalidGraphemes,
+            spellingAuthority: "Modern Nawat/Pipil orthography",
+            noClassicalSurfaceImport: true,
+        },
+        targetContract: {
+            metadataKind: "orthography-classification",
+            generationAllowed: false,
+            profileId,
+            invalidGraphemes,
+        },
+    });
 }

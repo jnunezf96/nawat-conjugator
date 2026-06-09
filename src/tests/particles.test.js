@@ -111,6 +111,32 @@ function run(ctx) {
     );
     s.no("particle boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("particle boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const particleCandidate = ctx.classifyParticleCandidate("amo", {
+        placementScope: "pre-predicate",
+        functionScope: "negation",
+    });
+    const particleFrame = particleCandidate.grammarFrame;
+    s.eq(
+        "particle metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(particleFrame),
+            routeFamily: particleFrame?.routeContract?.routeFamily || "",
+            routeStage: particleFrame?.routeContract?.routeStage || "",
+            generationAllowed: particleFrame?.routeContract?.generationAllowed,
+            hostLayer: particleFrame?.nuclearClauseFrame?.hostLayer || "",
+            andrewsRef: particleFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(particleCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "particle-placement",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            hostLayer: "nuclear-clause",
+            andrewsRef: "Andrews Lesson 3",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

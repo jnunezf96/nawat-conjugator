@@ -49,6 +49,19 @@ export function createAnalysisApi(targetObject = globalThis) {
       field: "evidenceSource",
       asks: "What Nawat/Pipil repo or user-provided text supports the analysis?"
     })]);
+    function attachAnalysisGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "analysis-boundary",
+        routeFamily: "textual-analysis",
+        structuralSource: "Andrews Lessons 57-58",
+        andrewsRefs: ["Andrews Lessons 57-58"],
+        ...options
+      });
+    }
     function normalizeAnalysisEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
       return allowedValues.includes(normalized) ? normalized : fallback;
@@ -68,7 +81,7 @@ export function createAnalysisApi(targetObject = globalThis) {
       }));
     }
     function buildAnalysisBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "analysis-boundary",
         version: ANALYSIS_BOUNDARY_VERSION,
         lessons: [57, 58],
@@ -95,6 +108,17 @@ export function createAnalysisApi(targetObject = globalThis) {
         },
         antiConflationRules: getAnalysisAntiConflationRules()
       };
+      return attachAnalysisGrammarContract(boundary, {
+        metadataKind: "analysis-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+          metadataKind: "analysis-boundary",
+          generationAllowed: false,
+          hasTextualAnalysisEngine: false
+        }
+      });
     }
     function classifyAnalysisIssueCandidate({
       textSource = "",
@@ -109,7 +133,7 @@ export function createAnalysisApi(targetObject = globalThis) {
       const normalizedIssue = normalizeAnalysisIssue(analysisIssue);
       const normalizedFalsePositive = normalizeAnalysisFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "analysis-issue-candidate-classification",
         version: ANALYSIS_BOUNDARY_VERSION,
         textSource: String(textSource || ""),
@@ -125,10 +149,28 @@ export function createAnalysisApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "analysis-issue-needs-validation" : "analysis-issue-needs-nawat-text-evidence", normalizedIssue !== ANALYSIS_ISSUE.unknown ? "analysis-issue-kind-recognized" : "analysis-issue-kind-unconfirmed", normalizedFalsePositive !== ANALYSIS_FALSE_POSITIVE_SOURCE.unknown ? "analysis-issue-false-positive-source" : "analysis-issue-unconfirmed"],
         boundary: buildAnalysisBoundaryMetadata()
       };
+      return attachAnalysisGrammarContract(classification, {
+        metadataKind: "analysis-issue-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.textSource || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        astFrame: {
+          affectedUnit: classification.affectedUnit,
+          expectedSystem: classification.expectedSystem,
+          diagnosticEvidence: classification.diagnosticEvidence
+        },
+        targetContract: {
+          metadataKind: "analysis-issue-candidate-classification",
+          generationAllowed: false,
+          analysisIssue: normalizedIssue,
+          falsePositiveSource: normalizedFalsePositive
+        }
+      });
     }
     function classifyAnalysisFalsePositive(source = "") {
       const normalizedSource = normalizeAnalysisFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "analysis-false-positive",
         version: ANALYSIS_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -138,6 +180,13 @@ export function createAnalysisApi(targetObject = globalThis) {
         diagnostics: ["analysis-issue-false-positive-source"],
         antiConflationRules: getAnalysisAntiConflationRules()
       };
+      return attachAnalysisGrammarContract(classification, {
+        metadataKind: "analysis-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics
+      });
     }
 
     const api = {};
@@ -166,6 +215,7 @@ export function createAnalysisApi(targetObject = globalThis) {
         enumerable: true,
         get() { return ANALYSIS_STRUCTURAL_QUESTIONS; },
     });
+    api.attachAnalysisGrammarContract = attachAnalysisGrammarContract;
     api.normalizeAnalysisEnum = normalizeAnalysisEnum;
     api.normalizeAnalysisIssue = normalizeAnalysisIssue;
     api.normalizeAnalysisFalsePositiveSource = normalizeAnalysisFalsePositiveSource;

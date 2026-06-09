@@ -52,6 +52,20 @@ const PURPOSIVE_DIRECTIONAL_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
 ]);
 
+function attachPurposiveDirectionalGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "vnc-derivation-boundary",
+        routeFamily: "purposive-directional",
+        structuralSource: "Andrews Lesson 29",
+        andrewsRefs: ["Andrews Lesson 29"],
+        ...options,
+    });
+}
+
 function normalizePurposiveDirectionalEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -89,7 +103,7 @@ function getKnownDirectionalPrefixesForPurposiveBoundary() {
 }
 
 function buildPurposiveDirectionalBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "purposive-directional-boundary",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         lesson: 29,
@@ -110,6 +124,17 @@ function buildPurposiveDirectionalBoundaryMetadata() {
         },
         antiConflationRules: getPurposiveDirectionalAntiConflationRules(),
     };
+    return attachPurposiveDirectionalGrammarContract(boundary, {
+        metadataKind: "purposive-directional-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+            metadataKind: "purposive-directional-boundary",
+            generationAllowed: false,
+            hasPurposiveGeneration: false,
+        },
+    });
 }
 
 function classifyPurposiveDirectionalCandidate({
@@ -126,7 +151,7 @@ function classifyPurposiveDirectionalCandidate({
     const normalizedDirectionalPrefix = String(directionalPrefix || "").trim().toLowerCase();
     const hasKnownDirectionalPrefix = knownPrefixes.includes(normalizedDirectionalPrefix);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "purposive-directional-candidate-classification",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         sourceStem: String(sourceStem || ""),
@@ -147,11 +172,31 @@ function classifyPurposiveDirectionalCandidate({
         ],
         boundary: buildPurposiveDirectionalBoundaryMetadata(),
     };
+    return attachPurposiveDirectionalGrammarContract(classification, {
+        metadataKind: "purposive-directional-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.sourceStem || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        stemFrame: {
+            stemKind: "purposive-directional-candidate",
+            sourceStem: classification.sourceStem,
+            targetStem: classification.candidate,
+            directionalPrefix: normalizedDirectionalPrefix,
+            relation: normalizedRelation,
+        },
+        targetContract: {
+            metadataKind: "purposive-directional-candidate-classification",
+            generationAllowed: false,
+            relation: normalizedRelation,
+            hasKnownDirectionalPrefix,
+        },
+    });
 }
 
 function classifyPurposiveDirectionalFalsePositive(source = "") {
     const normalizedSource = normalizePurposiveDirectionalFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "purposive-directional-false-positive",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -160,4 +205,11 @@ function classifyPurposiveDirectionalFalsePositive(source = "") {
         diagnostics: ["purposive-directional-false-positive-source"],
         antiConflationRules: getPurposiveDirectionalAntiConflationRules(),
     };
+    return attachPurposiveDirectionalGrammarContract(classification, {
+        metadataKind: "purposive-directional-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics,
+    });
 }

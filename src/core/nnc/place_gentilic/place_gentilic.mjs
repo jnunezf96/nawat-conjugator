@@ -24,6 +24,46 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
+    const PLACE_GENTILIC_NNC_USAGE = Object.freeze({
+      ordinary: "ordinary-nnc",
+      adverbial: "adverbial-nnc",
+      adjectival: "adjectival-nnc",
+      unknown: "unknown"
+    });
+    const PLACE_GENTILIC_NNC_PLACE_GROUP = Object.freeze({
+      nGroup: "n-group",
+      panGroup: "pan-group",
+      coCGroup: "co-c-group",
+      tlahGroup: "tlah-group",
+      tzalanGroup: "tzalan-group",
+      titlanGroup: "ti-tlan-group",
+      chanGroup: "chan-group",
+      unknown: "unknown"
+    });
+    const PLACE_GENTILIC_NNC_GENTILIC_FORMATION = Object.freeze({
+      nonlocativeAbsolutive: "nonlocative-absolutive",
+      twoClauseConcatenate: "two-clause-concatenate",
+      preteritAgentivePlace: "preterit-agentive-place",
+      caMatrixFullPlace: "ca-matrix-full-place",
+      caMatrixPanEca: "ca-matrix-pan-e-ca",
+      caMatrixCanMeca: "ca-matrix-ca-n-m-e-ca",
+      caMatrixSilentReplacement: "ca-matrix-silent-replacement",
+      caMatrixManTlanTeca: "ca-matrix-ma-n-tla-n-te-ca",
+      collectivityYo: "collectivity-yo",
+      professionExtension: "profession-extension",
+      incorporation: "incorporation",
+      unknown: "unknown"
+    });
+    const PLACE_GENTILIC_NNC_SUBJECT_REFERENCE = Object.freeze({
+      uniqueSocial: "unique-socially-designated-place",
+      contextChosen: "context-chosen-locative-relation",
+      unknown: "unknown"
+    });
+    const PLACE_GENTILIC_NNC_STATE = Object.freeze({
+      absolutive: "absolutive",
+      possessive: "possessive",
+      unknown: "unknown"
+    });
     const PLACE_GENTILIC_NNC_ANTI_CONFLATION_RULES = Object.freeze(["place-name/gentilic NNC boundary metadata is not generation", "ordinary NNC fixtures are not place-name or gentilic fixture evidence", "open-stem ordinary NNC previews are not place-name or gentilic data", "locative-temporal nominal outputs are not place-name NNC evidence", "relational NNC boundary metadata is not place-name or gentilic evidence", "place, profession, or gentilic translations are not Nawat/Pipil form evidence", "Andrews place-name and gentilic categories are architecture, not Nawat/Pipil form authority"]);
     const PLACE_GENTILIC_NNC_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "placeNameSource",
@@ -54,6 +94,89 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
     function normalizePlaceGentilicNncFalsePositiveSource(value = "") {
       return normalizePlaceGentilicNncEnum(value, Object.values(PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE), PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown);
     }
+    function normalizePlaceGentilicNncUsage(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      const aliases = {
+        ordinary: PLACE_GENTILIC_NNC_USAGE.ordinary,
+        adverbial: PLACE_GENTILIC_NNC_USAGE.adverbial,
+        adjectival: PLACE_GENTILIC_NNC_USAGE.adjectival
+      };
+      return aliases[normalized] || normalizePlaceGentilicNncEnum(normalized, Object.values(PLACE_GENTILIC_NNC_USAGE), PLACE_GENTILIC_NNC_USAGE.unknown);
+    }
+    function normalizePlaceGentilicNncPlaceGroup(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      const aliases = {
+        n: PLACE_GENTILIC_NNC_PLACE_GROUP.nGroup,
+        "n": PLACE_GENTILIC_NNC_PLACE_GROUP.nGroup,
+        "n-tli": PLACE_GENTILIC_NNC_PLACE_GROUP.nGroup,
+        pan: PLACE_GENTILIC_NNC_PLACE_GROUP.panGroup,
+        "co": PLACE_GENTILIC_NNC_PLACE_GROUP.coCGroup,
+        c: PLACE_GENTILIC_NNC_PLACE_GROUP.coCGroup,
+        "co-c": PLACE_GENTILIC_NNC_PLACE_GROUP.coCGroup,
+        tlah: PLACE_GENTILIC_NNC_PLACE_GROUP.tlahGroup,
+        tzalan: PLACE_GENTILIC_NNC_PLACE_GROUP.tzalanGroup,
+        titlan: PLACE_GENTILIC_NNC_PLACE_GROUP.titlanGroup,
+        "ti-tlan": PLACE_GENTILIC_NNC_PLACE_GROUP.titlanGroup,
+        chan: PLACE_GENTILIC_NNC_PLACE_GROUP.chanGroup
+      };
+      return aliases[normalized] || normalizePlaceGentilicNncEnum(normalized, Object.values(PLACE_GENTILIC_NNC_PLACE_GROUP), PLACE_GENTILIC_NNC_PLACE_GROUP.unknown);
+    }
+    function normalizePlaceGentilicNncGentilicFormation(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      const aliases = {
+        "tribal": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.nonlocativeAbsolutive,
+        "nonlocative": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.nonlocativeAbsolutive,
+        "two-clause": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.twoClauseConcatenate,
+        concatenate: PLACE_GENTILIC_NNC_GENTILIC_FORMATION.twoClauseConcatenate,
+        "preterit-agentive": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.preteritAgentivePlace,
+        "full-place": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixFullPlace,
+        "pan-e-ca": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixPanEca,
+        "ca-n-m-e-ca": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixCanMeca,
+        "silent-replacement": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixSilentReplacement,
+        "te-ca": PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixManTlanTeca,
+        collectivity: PLACE_GENTILIC_NNC_GENTILIC_FORMATION.collectivityYo,
+        profession: PLACE_GENTILIC_NNC_GENTILIC_FORMATION.professionExtension,
+        incorporation: PLACE_GENTILIC_NNC_GENTILIC_FORMATION.incorporation
+      };
+      return aliases[normalized] || normalizePlaceGentilicNncEnum(normalized, Object.values(PLACE_GENTILIC_NNC_GENTILIC_FORMATION), PLACE_GENTILIC_NNC_GENTILIC_FORMATION.unknown);
+    }
+    function normalizePlaceGentilicNncSubjectReference(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      const aliases = {
+        unique: PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.uniqueSocial,
+        "social": PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.uniqueSocial,
+        "socially-designated": PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.uniqueSocial,
+        contextual: PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.contextChosen,
+        "context-chosen": PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.contextChosen,
+        locative: PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.contextChosen
+      };
+      return aliases[normalized] || normalizePlaceGentilicNncEnum(normalized, Object.values(PLACE_GENTILIC_NNC_SUBJECT_REFERENCE), PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.unknown);
+    }
+    function normalizePlaceGentilicNncState(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      const aliases = {
+        absolute: PLACE_GENTILIC_NNC_STATE.absolutive,
+        absolutive: PLACE_GENTILIC_NNC_STATE.absolutive,
+        absolutivo: PLACE_GENTILIC_NNC_STATE.absolutive,
+        possessive: PLACE_GENTILIC_NNC_STATE.possessive,
+        possessed: PLACE_GENTILIC_NNC_STATE.possessive,
+        posesivo: PLACE_GENTILIC_NNC_STATE.possessive
+      };
+      return aliases[normalized] || normalizePlaceGentilicNncEnum(normalized, Object.values(PLACE_GENTILIC_NNC_STATE), PLACE_GENTILIC_NNC_STATE.unknown);
+    }
+    function getPlaceGentilicNncPlaceMatrix(placeGroup = "") {
+      const normalized = normalizePlaceGentilicNncPlaceGroup(placeGroup);
+      const matrixByGroup = {
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.nGroup]: "-n",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.panGroup]: "pan",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.coCGroup]: "co/c",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.tlahGroup]: "tlah",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.tzalanGroup]: "tzalan",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.titlanGroup]: "ti-tlan",
+        [PLACE_GENTILIC_NNC_PLACE_GROUP.chanGroup]: "chan"
+      };
+      return matrixByGroup[normalized] || "";
+    }
     function getPlaceGentilicNncAntiConflationRules() {
       return Array.from(PLACE_GENTILIC_NNC_ANTI_CONFLATION_RULES);
     }
@@ -62,8 +185,19 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachPlaceGentilicNncGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "place-gentilic-nnc",
+        routeFamily: "place-gentilic-nnc",
+        ...options
+      });
+    }
     function buildPlaceGentilicNncBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "place-gentilic-nnc-boundary",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         lesson: 48,
@@ -76,6 +210,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         boundaries: {
           hasOrdinaryNncGeneration: true,
           hasRelationalNncBoundary: true,
+          hasPlaceGentilicUsageFrame: true,
           hasPlaceNameNncGeneration: false,
           hasGentilicNncGeneration: false,
           hasStaticPlaceData: false,
@@ -90,6 +225,10 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         },
         antiConflationRules: getPlaceGentilicNncAntiConflationRules()
       };
+      return attachPlaceGentilicNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyPlaceGentilicNncCandidate({
       candidate = "",
@@ -105,7 +244,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       const normalizedKind = normalizePlaceGentilicNncKind(placeGentilicKind);
       const normalizedFalsePositive = normalizePlaceGentilicNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "place-gentilic-nnc-candidate-classification",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -122,10 +261,21 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "place-gentilic-nnc-needs-validation" : "place-gentilic-nnc-needs-nawat-evidence", normalizedKind !== PLACE_GENTILIC_NNC_KIND.unknown ? "place-gentilic-nnc-kind-recognized" : "place-gentilic-nnc-kind-unconfirmed", normalizedFalsePositive !== PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown ? "place-gentilic-nnc-false-positive-source" : "place-gentilic-nnc-unconfirmed"],
         boundary: buildPlaceGentilicNncBoundaryMetadata()
       };
+      return attachPlaceGentilicNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.placeNameSource || classification.gentilicSource,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+          stemKind: "place-gentilic-source-candidate",
+          sourceStem: classification.placeNameSource || classification.gentilicSource,
+          sourceKind: classification.placeGentilicKind
+        }
+      });
     }
     function classifyPlaceGentilicNncFalsePositive(source = "") {
       const normalizedSource = normalizePlaceGentilicNncFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "place-gentilic-nnc-false-positive",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -136,6 +286,133 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         diagnostics: ["place-gentilic-nnc-false-positive-source"],
         antiConflationRules: getPlaceGentilicNncAntiConflationRules()
       };
+      return attachPlaceGentilicNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
+    }
+    function buildPlaceGentilicNncUsageFrame({
+      candidate = "",
+      placeNameSource = "",
+      gentilicSource = "",
+      placeGentilicKind = "",
+      usage = "",
+      placeGroup = "",
+      gentilicFormation = "",
+      subjectReference = "",
+      state = "",
+      associatedPlace = "",
+      collectivity = "",
+      headNounstem = "",
+      matrixStem = "",
+      embeddedStem = "",
+      sourcePlaceName = "",
+      evidenceSource = "",
+      sourceKind = "",
+      translationLabel = ""
+    } = {}) {
+      const normalizedKind = normalizePlaceGentilicNncKind(placeGentilicKind);
+      const normalizedUsage = normalizePlaceGentilicNncUsage(usage);
+      const normalizedPlaceGroup = normalizePlaceGentilicNncPlaceGroup(placeGroup);
+      const normalizedFormation = normalizePlaceGentilicNncGentilicFormation(gentilicFormation);
+      const normalizedState = normalizePlaceGentilicNncState(state);
+      const normalizedSubjectReference = normalizePlaceGentilicNncSubjectReference(subjectReference) || PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.unknown;
+      const placeMatrix = String(matrixStem || getPlaceGentilicNncPlaceMatrix(normalizedPlaceGroup));
+      const diagnostics = ["place-gentilic-nnc-usage-frame-non-generative"];
+      let supported = true;
+      if (normalizedKind === PLACE_GENTILIC_NNC_KIND.placeName && normalizedSubjectReference === PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.contextChosen) {
+        supported = false;
+        diagnostics.push("place-name-nnc-requires-unique-social-reference");
+      }
+      if (normalizedKind === PLACE_GENTILIC_NNC_KIND.gentilic && normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixPanEca) {
+        diagnostics.push("gentilic-pan-e-ca-distinct-from-associated-entity-pan-ca");
+      }
+      if (normalizedKind === PLACE_GENTILIC_NNC_KIND.gentilicCollective || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.collectivityYo) {
+        diagnostics.push("gentilic-collectivity-yo-matrix");
+      }
+      if (String(translationLabel || "").trim()) {
+        diagnostics.push("place-gentilic-nnc-translation-label-is-not-morphology");
+      }
+      const isProfession = normalizedKind === PLACE_GENTILIC_NNC_KIND.professionPlaceAssociation || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.professionExtension;
+      const isCollective = normalizedKind === PLACE_GENTILIC_NNC_KIND.gentilicCollective || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.collectivityYo;
+      const allowedStates = isProfession || isCollective ? [PLACE_GENTILIC_NNC_STATE.absolutive, PLACE_GENTILIC_NNC_STATE.possessive] : [PLACE_GENTILIC_NNC_STATE.absolutive];
+      if (normalizedState !== PLACE_GENTILIC_NNC_STATE.unknown && !allowedStates.includes(normalizedState)) {
+        supported = false;
+        diagnostics.push("place-gentilic-nnc-state-not-allowed-for-kind");
+      }
+      const placeNameContract = normalizedKind === PLACE_GENTILIC_NNC_KIND.placeName ? {
+        adverbializedSubjectPronoun: true,
+        uniqueReferenceRequired: true,
+        subjectReference: normalizedSubjectReference === PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.unknown ? PLACE_GENTILIC_NNC_SUBJECT_REFERENCE.uniqueSocial : normalizedSubjectReference,
+        contextualLocativeContrast: "ordinary adverbialized locative NNC has context-chosen reference",
+        topographicalFeatureIsPlaceName: false,
+        topographicalFeatureMayEmbedInPlaceName: true,
+        functions: [PLACE_GENTILIC_NNC_USAGE.ordinary, PLACE_GENTILIC_NNC_USAGE.adverbial, PLACE_GENTILIC_NNC_USAGE.adjectival]
+      } : null;
+      const gentilicContract = normalizedKind === PLACE_GENTILIC_NNC_KIND.gentilic || normalizedKind === PLACE_GENTILIC_NNC_KIND.gentilicCollective || normalizedKind === PLACE_GENTILIC_NNC_KIND.professionPlaceAssociation ? {
+        semanticRole: isProfession ? "profession-associated-with-place" : isCollective ? "collective-body-or-characteristic-of-people" : "human-associated-with-place",
+        formation: normalizedFormation,
+        headNounstem: String(headNounstem || ""),
+        clauseStructure: normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.twoClauseConcatenate ? "place-name-adjoined-to-absolutive-head-nnc" : "",
+        matrixStem: isCollective ? "yo" : normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixFullPlace || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixPanEca || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixCanMeca || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixSilentReplacement || normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixManTlanTeca ? "ca" : String(matrixStem || ""),
+        relationToAssociatedEntity: normalizedFormation === PLACE_GENTILIC_NNC_GENTILIC_FORMATION.caMatrixPanEca ? "gentilic pan-e-ca, not associated-entity pan-ca" : "",
+        possessiveNum1Variants: isCollective ? ["zero", "uh"] : [],
+        adjectivalUseAllowed: isCollective
+      } : null;
+      const frame = {
+        kind: "place-gentilic-nnc-usage-frame",
+        version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
+        lesson: 48,
+        structuralSource: "Andrews Lesson 48",
+        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        candidate: String(candidate || ""),
+        placeNameSource: String(placeNameSource || ""),
+        gentilicSource: String(gentilicSource || ""),
+        placeGentilicKind: normalizedKind,
+        usage: normalizedUsage,
+        placeGroup: normalizedPlaceGroup,
+        placeMatrix,
+        gentilicFormation: normalizedFormation,
+        state: normalizedState,
+        allowedStates,
+        associatedPlace: String(associatedPlace || ""),
+        collectivity: String(collectivity || ""),
+        embeddedStem: String(embeddedStem || ""),
+        sourcePlaceName: String(sourcePlaceName || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceKind: String(sourceKind || ""),
+        placeNameContract,
+        gentilicContract,
+        supported,
+        generationAllowed: false,
+        generationContract: {
+          frameGeneratesSurface: false,
+          changesSurfaceForms: false,
+          newWordGenerationAllowed: false
+        },
+        translationWarning: {
+          labelsAreMorphology: false,
+          translationLabel: String(translationLabel || ""),
+          warning: "place, profession, and gentilic labels are translation-only unless Nawat/Pipil morphology is evidenced"
+        },
+        diagnostics,
+        boundary: buildPlaceGentilicNncBoundaryMetadata()
+      };
+      return attachPlaceGentilicNncGrammarContract(frame, {
+        routeStage: "describe-usage-frame",
+        sourceInput: frame.candidate || frame.placeNameSource || frame.gentilicSource,
+        supported,
+        morphBoundaryFrame: frame.boundary,
+        stemFrame: {
+          stemKind: "place-gentilic-nounstem",
+          sourceStem: frame.placeNameSource || frame.gentilicSource,
+          matrix: frame.placeMatrix,
+          embed: frame.embeddedStem,
+          sourceKind: frame.placeGentilicKind
+        },
+        nuclearClauseFrame: frame
+      });
     }
 
     const api = {};
@@ -154,6 +431,31 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         enumerable: true,
         get() { return PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE; },
     });
+    Object.defineProperty(api, "PLACE_GENTILIC_NNC_USAGE", {
+        configurable: true,
+        enumerable: true,
+        get() { return PLACE_GENTILIC_NNC_USAGE; },
+    });
+    Object.defineProperty(api, "PLACE_GENTILIC_NNC_PLACE_GROUP", {
+        configurable: true,
+        enumerable: true,
+        get() { return PLACE_GENTILIC_NNC_PLACE_GROUP; },
+    });
+    Object.defineProperty(api, "PLACE_GENTILIC_NNC_GENTILIC_FORMATION", {
+        configurable: true,
+        enumerable: true,
+        get() { return PLACE_GENTILIC_NNC_GENTILIC_FORMATION; },
+    });
+    Object.defineProperty(api, "PLACE_GENTILIC_NNC_SUBJECT_REFERENCE", {
+        configurable: true,
+        enumerable: true,
+        get() { return PLACE_GENTILIC_NNC_SUBJECT_REFERENCE; },
+    });
+    Object.defineProperty(api, "PLACE_GENTILIC_NNC_STATE", {
+        configurable: true,
+        enumerable: true,
+        get() { return PLACE_GENTILIC_NNC_STATE; },
+    });
     Object.defineProperty(api, "PLACE_GENTILIC_NNC_ANTI_CONFLATION_RULES", {
         configurable: true,
         enumerable: true,
@@ -167,11 +469,19 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
     api.normalizePlaceGentilicNncEnum = normalizePlaceGentilicNncEnum;
     api.normalizePlaceGentilicNncKind = normalizePlaceGentilicNncKind;
     api.normalizePlaceGentilicNncFalsePositiveSource = normalizePlaceGentilicNncFalsePositiveSource;
+    api.normalizePlaceGentilicNncUsage = normalizePlaceGentilicNncUsage;
+    api.normalizePlaceGentilicNncPlaceGroup = normalizePlaceGentilicNncPlaceGroup;
+    api.normalizePlaceGentilicNncGentilicFormation = normalizePlaceGentilicNncGentilicFormation;
+    api.normalizePlaceGentilicNncSubjectReference = normalizePlaceGentilicNncSubjectReference;
+    api.normalizePlaceGentilicNncState = normalizePlaceGentilicNncState;
+    api.getPlaceGentilicNncPlaceMatrix = getPlaceGentilicNncPlaceMatrix;
     api.getPlaceGentilicNncAntiConflationRules = getPlaceGentilicNncAntiConflationRules;
     api.getPlaceGentilicNncStructuralQuestions = getPlaceGentilicNncStructuralQuestions;
+    api.attachPlaceGentilicNncGrammarContract = attachPlaceGentilicNncGrammarContract;
     api.buildPlaceGentilicNncBoundaryMetadata = buildPlaceGentilicNncBoundaryMetadata;
     api.classifyPlaceGentilicNncCandidate = classifyPlaceGentilicNncCandidate;
     api.classifyPlaceGentilicNncFalsePositive = classifyPlaceGentilicNncFalsePositive;
+    api.buildPlaceGentilicNncUsageFrame = buildPlaceGentilicNncUsageFrame;
     return api;
 }
 

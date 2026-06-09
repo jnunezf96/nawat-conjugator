@@ -109,6 +109,34 @@ function run(ctx) {
     );
     s.no("frequentative boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("frequentative boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+    const frequentativeCandidate = ctx.classifyFrequentativeCandidate({
+        sourceStem: "nemi",
+        candidate: "nenemi",
+        frequentativeType: "ordinary",
+        reduplicationTarget: "stem",
+    });
+    const frequentativeFrame = frequentativeCandidate.grammarFrame;
+    s.eq(
+        "frequentative metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(frequentativeFrame),
+            routeFamily: frequentativeFrame?.routeContract?.routeFamily || "",
+            routeStage: frequentativeFrame?.routeContract?.routeStage || "",
+            generationAllowed: frequentativeFrame?.routeContract?.generationAllowed,
+            sourceStem: frequentativeFrame?.stemFrame?.sourceStem || "",
+            andrewsRef: frequentativeFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(frequentativeCandidate, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "frequentative",
+            routeStage: "classify-candidate",
+            generationAllowed: false,
+            sourceStem: "nemi",
+            andrewsRef: "Andrews Lesson 27",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

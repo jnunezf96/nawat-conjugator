@@ -91,6 +91,34 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "comparison classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyComparisonCandidate({
+                target: "unknown",
+                standard: "translation",
+                comparisonRelation: "comparative-degree",
+                dimension: "size",
+                falsePositiveSource: "comparison-translation",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "comparison-clause-unit",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            diagnosticId: "comparison-needs-nawat-clause-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "adjective-like output is not comparison evidence",

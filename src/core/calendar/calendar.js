@@ -92,8 +92,20 @@ function getCalendarNameStructuralQuestions() {
     return CALENDAR_NAME_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachCalendarNameGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "calendar-name",
+        routeFamily: "calendar-name",
+        ...options,
+    });
+}
+
 function buildCalendarNameBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "calendar-name-boundary",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         appendix: "E",
@@ -117,6 +129,10 @@ function buildCalendarNameBoundaryMetadata() {
         },
         antiConflationRules: getCalendarNameAntiConflationRules(),
     };
+    return attachCalendarNameGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyCalendarNameCandidate({
@@ -131,7 +147,7 @@ function classifyCalendarNameCandidate({
     const normalizedKind = normalizeCalendarNameKind(calendarKind);
     const normalizedFalsePositive = normalizeCalendarNameFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "calendar-name-candidate-classification",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -154,11 +170,17 @@ function classifyCalendarNameCandidate({
         ],
         boundary: buildCalendarNameBoundaryMetadata(),
     };
+    return attachCalendarNameGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.sourceName,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+    });
 }
 
 function classifyCalendarNameFalsePositive(source = "") {
     const normalizedSource = normalizeCalendarNameFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "calendar-name-false-positive",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -169,4 +191,9 @@ function classifyCalendarNameFalsePositive(source = "") {
         diagnostics: ["calendar-name-false-positive-source"],
         antiConflationRules: getCalendarNameAntiConflationRules(),
     };
+    return attachCalendarNameGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

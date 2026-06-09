@@ -5839,25 +5839,164 @@ export function createUiComposerGlobals(targetObject = globalThis) {
       delete verbEl.dataset.adjectivalNncFormulaEcho;
       delete verbEl.dataset.patientivoSource;
       delete verbEl.dataset.nominalizedVncKind;
+      delete verbEl.dataset.adjectivalNncFunctionContract;
+      delete verbEl.dataset.grammarAuthorityRef;
+      delete verbEl.dataset.grammarEvidenceStatus;
+      delete verbEl.dataset.grammarUnitKind;
+      delete verbEl.dataset.grammarRouteFamily;
+      delete verbEl.dataset.grammarRouteStage;
+      delete verbEl.dataset.grammarGenerationAllowed;
+      delete verbEl.dataset.grammarDiagnosticStatus;
+      delete verbEl.dataset.grammarResultOk;
+    }
+    function getAdjectivalNncFunctionEntryGrammarFrame(frameLike = null) {
+      if (!frameLike || typeof frameLike !== "object") {
+        return null;
+      }
+      return frameLike.grammarFrame || frameLike.frames || (frameLike.authorityFrame || frameLike.routeContract || frameLike.resultFrame || frameLike.diagnosticFrame ? frameLike : null);
+    }
+    function normalizeAdjectivalNncFunctionEntrySurfaceValue(value = "") {
+      const text = String(value || "").trim();
+      return text === "—" ? "" : text;
+    }
+    function splitAdjectivalNncFunctionEntrySurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry)).filter(Boolean);
+    }
+    function getAdjectivalNncFunctionEntrySurfaceForms({
+      surface = "",
+      grammarFrame = null
+    } = {}) {
+      const frame = getAdjectivalNncFunctionEntryGrammarFrame(grammarFrame);
+      const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object" ? frame.resultFrame : null;
+      const hasResultFrame = Boolean(resultFrame);
+      const forms = [];
+      if (Array.isArray(resultFrame?.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+      }
+      if (resultFrame?.surface) {
+        forms.push(resultFrame.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitAdjectivalNncFunctionEntrySurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && surface) {
+        forms.push(surface);
+      }
+      return forms.flatMap(entry => splitAdjectivalNncFunctionEntrySurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getAdjectivalNncFunctionEntrySurface({
+      surface = "",
+      grammarFrame = null
+    } = {}) {
+      return getAdjectivalNncFunctionEntrySurfaceForms({
+        surface,
+        grammarFrame
+      })[0] || "";
+    }
+    function getAdjectivalNncFunctionOverrideSurface(override = null) {
+      const adjectivalNnc = override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : null;
+      if (!adjectivalNnc) {
+        return "";
+      }
+      return getAdjectivalNncFunctionEntrySurface({
+        surface: adjectivalNnc.surface || "",
+        grammarFrame: adjectivalNnc.grammarFrame || adjectivalNnc.frames || null
+      });
+    }
+    function buildAdjectivalNncFunctionEntryContract({
+      surface = "",
+      formation = "",
+      formulaEcho = "",
+      patientivoSource = "",
+      nominalizedVncKind = "",
+      grammarFrame = null
+    } = {}) {
+      const frame = getAdjectivalNncFunctionEntryGrammarFrame(grammarFrame);
+      const authorityFrame = frame?.authorityFrame || {};
+      const routeContract = frame?.routeContract || {};
+      const unitFrame = frame?.unitFrame || {};
+      const resultFrame = frame?.resultFrame || {};
+      const diagnosticFrame = frame?.diagnosticFrame || {};
+      const resolvedSurface = getAdjectivalNncFunctionEntrySurface({
+        surface,
+        grammarFrame: frame
+      });
+      const authorityRefs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const diagnosticIds = Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics.map(entry => String(entry?.id || entry?.code || entry || "").trim()).filter(Boolean) : [];
+      return {
+        version: 1,
+        source: "adjectival-nnc-function-entry",
+        surface: resolvedSurface,
+        grammarFrame: frame || null,
+        frames: frame || null,
+        formation: String(formation || "").trim(),
+        formulaEcho: String(formulaEcho || "").trim(),
+        patientivoSource: String(patientivoSource || "").trim(),
+        nominalizedVncKind: String(nominalizedVncKind || "").trim(),
+        authorityRefs,
+        evidenceStatus: String(authorityFrame.evidenceStatus || "").trim(),
+        unitKind: String(unitFrame.unitKind || "").trim(),
+        routeFamily: String(routeContract.routeFamily || "").trim(),
+        routeStage: String(routeContract.routeStage || "").trim(),
+        generationAllowed: routeContract.generationAllowed === true,
+        resultOk: resultFrame.ok === true,
+        diagnosticStatus: String(diagnosticFrame.status || "").trim(),
+        diagnosticIds
+      };
+    }
+    function serializeAdjectivalNncFunctionEntryContract(contract = null) {
+      if (!contract || typeof contract !== "object") {
+        return "";
+      }
+      try {
+        return JSON.stringify(contract);
+      } catch (_error) {
+        return "";
+      }
     }
     function applyAdjectivalNncFunctionToVerbEntry({
       surface = "",
       formation = "",
       formulaEcho = "",
       patientivoSource = "",
-      nominalizedVncKind = ""
+      nominalizedVncKind = "",
+      grammarFrame = null,
+      refresh = true
     } = {}) {
       const verbEl = targetObject.document.getElementById("verb");
-      const normalizedSurface = String(surface || "").trim();
+      const normalizedSurface = getAdjectivalNncFunctionEntrySurface({
+        surface,
+        grammarFrame
+      });
       if (!verbEl || !normalizedSurface) {
-        return;
+        return null;
       }
+      const entryContract = buildAdjectivalNncFunctionEntryContract({
+        surface: normalizedSurface,
+        formation,
+        formulaEcho,
+        patientivoSource,
+        nominalizedVncKind,
+        grammarFrame
+      });
       verbEl.value = normalizedSurface;
       verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface;
       verbEl.dataset.adjectivalNncFormation = String(formation || "").trim();
       verbEl.dataset.adjectivalNncFormulaEcho = String(formulaEcho || "").trim();
       verbEl.dataset.patientivoSource = String(patientivoSource || "").trim();
       verbEl.dataset.nominalizedVncKind = String(nominalizedVncKind || "").trim();
+      const serializedContract = serializeAdjectivalNncFunctionEntryContract(entryContract);
+      if (serializedContract) {
+        verbEl.dataset.adjectivalNncFunctionContract = serializedContract;
+      }
+      verbEl.dataset.grammarAuthorityRef = entryContract.authorityRefs[0] || "";
+      verbEl.dataset.grammarEvidenceStatus = entryContract.evidenceStatus || "";
+      verbEl.dataset.grammarUnitKind = entryContract.unitKind || "";
+      verbEl.dataset.grammarRouteFamily = entryContract.routeFamily || "";
+      verbEl.dataset.grammarRouteStage = entryContract.routeStage || "";
+      verbEl.dataset.grammarGenerationAllowed = String(entryContract.generationAllowed === true);
+      verbEl.dataset.grammarDiagnosticStatus = entryContract.diagnosticStatus || "";
+      verbEl.dataset.grammarResultOk = String(entryContract.resultOk === true);
       if (typeof targetObject.setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
         targetObject.setActiveTenseMode(TENSE_MODE.adjetivo, {
           clearRoute: true
@@ -5869,13 +6008,17 @@ export function createUiComposerGlobals(targetObject = globalThis) {
           formation: String(formation || "").trim(),
           formulaEcho: String(formulaEcho || "").trim(),
           patientivoSource: String(patientivoSource || "").trim(),
-          nominalizedVncKind: String(nominalizedVncKind || "").trim()
+          nominalizedVncKind: String(nominalizedVncKind || "").trim(),
+          entryContract
         });
       }
-      scheduleVerbInputRefresh(verbEl.value, {
-        immediate: true,
-        source: "adjectival-nnc-function-entry"
-      });
+      if (refresh !== false) {
+        scheduleVerbInputRefresh(verbEl.value, {
+          immediate: true,
+          source: "adjectival-nnc-function-entry"
+        });
+      }
+      return entryContract;
     }
     function applyPrelocativeRootsToVerbEntry({
       incorporatedRoot = "",
@@ -8941,6 +9084,11 @@ export function createUiComposerGlobals(targetObject = globalThis) {
           targetObject.updateDerivationTypeControl();
         }
         targetObject.generateWord();
+        const verbMeta = getVerbInputMeta();
+        targetObject.renderActiveConjugations({
+          verb: verbMeta.displayVerb,
+          objectPrefix: targetObject.getCurrentObjectPrefix()
+        });
         targetObject.maybeAutoScrollToConjugationRow(value);
       } finally {
         targetObject.VerbRenderContext = previousContext;
@@ -8990,7 +9138,7 @@ export function createUiComposerGlobals(targetObject = globalThis) {
         return `${raw.length}:${raw}`;
       };
       const encodeFlag = value => value === true ? "1" : "0";
-      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(override.adjectivalNnc?.surface), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
+      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipTransitivityValidation === true), encodeFlag(options.skipValidation === true), encodeValue(override.subjectPrefix), encodeValue(override.subjectSuffix), encodeValue(override.objectPrefix), encodeValue(override.indirectObjectMarker), encodeValue(override.thirdObjectMarker), encodeValue(override.verb), encodeValue(override.tense), encodeValue(override.possessivePrefix), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(getAdjectivalNncFunctionOverrideSurface(override)), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
       return keyParts.join("|");
     }
     function getCachedSilentGenerateWord(options = {}) {
@@ -10102,6 +10250,14 @@ export function createUiComposerGlobals(targetObject = globalThis) {
     api.syncComposerStateFromVerbInput = syncComposerStateFromVerbInput;
     api.applyComposerStateToVerbInput = applyComposerStateToVerbInput;
     api.clearAdjectivalNncFunctionEntryState = clearAdjectivalNncFunctionEntryState;
+    api.getAdjectivalNncFunctionEntryGrammarFrame = getAdjectivalNncFunctionEntryGrammarFrame;
+    api.normalizeAdjectivalNncFunctionEntrySurfaceValue = normalizeAdjectivalNncFunctionEntrySurfaceValue;
+    api.splitAdjectivalNncFunctionEntrySurfaceText = splitAdjectivalNncFunctionEntrySurfaceText;
+    api.getAdjectivalNncFunctionEntrySurfaceForms = getAdjectivalNncFunctionEntrySurfaceForms;
+    api.getAdjectivalNncFunctionEntrySurface = getAdjectivalNncFunctionEntrySurface;
+    api.getAdjectivalNncFunctionOverrideSurface = getAdjectivalNncFunctionOverrideSurface;
+    api.buildAdjectivalNncFunctionEntryContract = buildAdjectivalNncFunctionEntryContract;
+    api.serializeAdjectivalNncFunctionEntryContract = serializeAdjectivalNncFunctionEntryContract;
     api.applyAdjectivalNncFunctionToVerbEntry = applyAdjectivalNncFunctionToVerbEntry;
     api.applyPrelocativeRootsToVerbEntry = applyPrelocativeRootsToVerbEntry;
     api.applyPatientivoCompoundEmbedRootsToVerbEntry = applyPatientivoCompoundEmbedRootsToVerbEntry;

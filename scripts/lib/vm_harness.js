@@ -108,6 +108,7 @@ const PRETERIT_PATHS = [
   "src/core/concepts/concepts.js",
   "src/core/particles/particles.js",
   "src/core/sentence/sentence.js",
+  "src/core/grammar/frame.js",
   "src/core/orthography/orthography.js",
   "src/core/clause/clause.js",
   "src/core/clause/modification/modification.js",

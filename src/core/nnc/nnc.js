@@ -53,6 +53,323 @@ const ORDINARY_NNC_DIAGNOSTIC_IDS = Object.freeze({
     organicPossessionRequiresPossessor: "ordinary-nnc-organic-possession-requires-possessor",
 });
 
+function buildVerbDerivedNominalDiagnostic({
+    id = "verb-derived-nominal-blocked",
+    message = "La generacion no produjo una forma.",
+    failedLayer = "route",
+    contractLayer = "routeContract",
+    routeStage = "",
+} = {}) {
+    const normalizedId = String(id || "verb-derived-nominal-blocked").trim();
+    return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: "error",
+        message: String(message || "La generacion no produjo una forma.").trim(),
+        failedLayer: String(failedLayer || "route").trim(),
+        contractLayer: String(contractLayer || "routeContract").trim(),
+        routeFamily: "verb-derived-nominal",
+        routeStage: String(routeStage || "").trim(),
+    };
+}
+
+function getVerbDerivedNominalAndrewsRefs(kind = "", result = null) {
+    const refs = [];
+    const output = result && typeof result === "object" ? result : {};
+    [
+        output.instrumentivoSourceSubjectPossessor?.grammarSource,
+        output.actionNounSourceSubjectPossessor?.grammarSource,
+        output.nominalizationProfile?.curriculumRef?.source === "Andrews"
+            ? `Andrews ${output.nominalizationProfile.curriculumRef.range || "Lesson 36"}`
+            : "",
+    ].forEach((entry) => {
+        const value = String(entry || "").trim();
+        if (value) {
+            refs.push(value);
+        }
+    });
+    switch (kind) {
+        case "instrumentivo":
+            refs.push("Andrews 36.6");
+            break;
+        case "calificativo-instrumentivo":
+            refs.push("Andrews 36.10-36.11");
+            break;
+        case "locativo-temporal":
+            refs.push("Andrews 46.4");
+            break;
+        default:
+            break;
+    }
+    return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function normalizeVerbDerivedNominalSurfaceValue(value = "") {
+    if (typeof normalizeGrammarSurfaceValue === "function") {
+        return normalizeGrammarSurfaceValue(value);
+    }
+    const surface = String(value || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
+function splitVerbDerivedNominalSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeVerbDerivedNominalSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getVerbDerivedNominalResultFrame(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    if (output.grammarFrame && typeof output.grammarFrame === "object") {
+        return output.grammarFrame;
+    }
+    if (output.frames && typeof output.frames === "object") {
+        return output.frames;
+    }
+    return null;
+}
+
+function getVerbDerivedNominalResultFramePayload(result = null) {
+    const grammarFrame = getVerbDerivedNominalResultFrame(result);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function getVerbDerivedNominalSurfaceForms(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const frameResult = getVerbDerivedNominalResultFramePayload(output);
+    const hasResultFrame = Boolean(frameResult);
+    const forms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+    }
+    if (hasResultFrame) {
+        return forms
+            .flatMap((entry) => splitVerbDerivedNominalSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
+        forms.push(...output.surfaceForms);
+    }
+    if (!hasResultFrame && output.surface) {
+        forms.push(output.surface);
+    }
+    if (!hasResultFrame && output.result) {
+        forms.push(output.result);
+    }
+    return forms
+        .flatMap((entry) => splitVerbDerivedNominalSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function getVerbDerivedNominalSurface(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const frameResult = getVerbDerivedNominalResultFramePayload(output);
+    const hasResultFrame = Boolean(frameResult);
+    return normalizeVerbDerivedNominalSurfaceValue(
+        getVerbDerivedNominalSurfaceForms(output)[0]
+        || frameResult?.surface
+        || (!hasResultFrame ? (output.surface || output.result) : "")
+        || ""
+    );
+}
+
+function hasVerbDerivedNominalSurface(result = null) {
+    return Boolean(getVerbDerivedNominalSurface(result) || getVerbDerivedNominalSurfaceForms(result).length);
+}
+
+function normalizeVerbDerivedNominalDiagnostics(result = null, fallbackDiagnostic = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const diagnostics = Array.isArray(output.diagnostics) ? output.diagnostics : [];
+    const normalized = typeof normalizeGrammarDiagnosticContractEntries === "function"
+        ? normalizeGrammarDiagnosticContractEntries(diagnostics)
+        : diagnostics.filter((entry) => entry && typeof entry === "object");
+    if (!normalized.length && fallbackDiagnostic) {
+        normalized.push(fallbackDiagnostic);
+    }
+    return normalized;
+}
+
+function applyVerbDerivedNominalDiagnosticLayerMetadata(diagnostics = [], routeStage = "") {
+    return (Array.isArray(diagnostics) ? diagnostics : []).map((entry) => {
+        if (!entry || typeof entry !== "object") {
+            return entry;
+        }
+        return {
+            ...entry,
+            failedLayer: entry.failedLayer || "route",
+            contractLayer: entry.contractLayer || "routeContract",
+            routeFamily: entry.routeFamily || "verb-derived-nominal",
+            routeStage: entry.routeStage || String(routeStage || "").trim(),
+        };
+    });
+}
+
+function attachVerbDerivedNominalGrammarContract(result = null, {
+    kind = "",
+    rawVerb = "",
+    routeStage = "execute",
+    diagnosticId = "verb-derived-nominal-blocked",
+    message = "La generacion no produjo una forma.",
+    enumerable = false,
+} = {}) {
+    const output = result && typeof result === "object" ? result : {};
+    const nominalKind = String(kind || output.nounDerivationKind || "").trim();
+    const fallbackDiagnostic = buildVerbDerivedNominalDiagnostic({
+        id: diagnosticId,
+        message,
+        failedLayer: "route",
+        contractLayer: "routeContract",
+        routeStage,
+    });
+    const diagnostics = applyVerbDerivedNominalDiagnosticLayerMetadata(
+        normalizeVerbDerivedNominalDiagnostics(output, output.error ? fallbackDiagnostic : null),
+        routeStage
+    );
+    if (!Object.prototype.hasOwnProperty.call(output, "diagnostics")) {
+        Object.defineProperty(output, "diagnostics", {
+            configurable: true,
+            enumerable: false,
+            writable: true,
+            value: diagnostics,
+        });
+    }
+    const surface = getVerbDerivedNominalSurface(output);
+    const surfaceForms = getVerbDerivedNominalSurfaceForms(output);
+    const ok = Boolean(surface) && output.error !== true && output.supported !== false;
+    const grammarFrame = typeof buildGrammarFrame === "function"
+        ? buildGrammarFrame({
+            authorityFrame: typeof buildGrammarAuthorityFrame === "function"
+                ? buildGrammarAuthorityFrame({
+                    sourceEvidence: {
+                        kind: "verb-derived-nominal",
+                        nominalKind,
+                        sourceModel: output.sourceModel || null,
+                    },
+                    evidenceStatus: ok ? "generated" : "blocked",
+                    andrewsRefs: getVerbDerivedNominalAndrewsRefs(nominalKind, output),
+                    supported: ok,
+                })
+                : null,
+            unitFrame: {
+                unitKind: "nominal-nuclear-clause",
+                outputKind: "verb-derived-nominal",
+                generationRoute: nominalKind,
+            },
+            orthographyFrame: {
+                surface,
+                surfaceForms,
+                spellingAuthority: "Nawat/Pipil evidence",
+                noClassicalSurfaceImport: true,
+            },
+            morphBoundaryFrame: {
+                subjectNumberConnector: output.subjectNumberConnector || null,
+                subjectNumberConnectors: Array.isArray(output.subjectNumberConnectors)
+                    ? output.subjectNumberConnectors
+                    : [],
+            },
+            stemFrame: {
+                stem: String(output.entries?.[0]?.verb || ""),
+                sourceStem: String(output.sourceModel?.sourceStem || output.sourceModel?.matrixBase || ""),
+                entries: Array.isArray(output.entries) ? output.entries : [],
+            },
+            nuclearClauseFrame: output.nominalClauseFrame || null,
+            participantFrame: {
+                possessor: {
+                    prefix: String(
+                        output.instrumentivoSourceSubjectPossessor?.possessivePrefix
+                        || output.actionNounSourceSubjectPossessor?.possessivePrefix
+                        || output.possessorPrefix
+                        || ""
+                    ),
+                },
+            },
+            inflectionFrame: {
+                tenseMode: "sustantivo",
+                tense: nominalKind,
+                state: output.nominalClauseFrame?.stateSlot?.state || "",
+            },
+            routeContract: typeof buildGrammarRouteContractFrame === "function"
+                ? buildGrammarRouteContractFrame({
+                    routeFamily: "verb-derived-nominal",
+                    routeStage: ok ? routeStage : "blocked",
+                    sourceContract: {
+                        rawVerb: String(rawVerb || ""),
+                        nominalKind,
+                        sourceModel: output.sourceModel || null,
+                    },
+                    targetContract: {
+                        outputKind: "verb-derived-nominal",
+                        generationRoute: nominalKind,
+                    },
+                    generationAllowed: ok,
+                    blockingDiagnostics: ok ? [] : diagnostics,
+                })
+                : null,
+            astFrame: null,
+            resultFrame: typeof buildGrammarResultFrame === "function"
+                ? buildGrammarResultFrame({
+                    ok,
+                    surface,
+                    surfaceForms,
+                    outputKind: "verb-derived-nominal",
+                    generationRoute: nominalKind,
+                    sourceInput: String(rawVerb || ""),
+                })
+                : null,
+            diagnosticFrame: typeof buildGrammarDiagnosticFrame === "function"
+                ? buildGrammarDiagnosticFrame({
+                    status: ok ? "generated" : "blocked",
+                    diagnostics,
+                    blockers: ok ? [] : diagnostics,
+                })
+                : null,
+        })
+        : null;
+    const resultContract = typeof buildGrammarResultContract === "function"
+        ? buildGrammarResultContract({ result: output, grammarFrame })
+        : { ok, surface, frames: grammarFrame, diagnostics };
+    Object.defineProperties(output, {
+        grammarFrame: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: grammarFrame,
+        },
+        ok: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: resultContract.ok,
+        },
+        surface: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: resultContract.surface,
+        },
+        frames: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: resultContract.frames,
+        },
+    });
+    return output;
+}
+
+function buildVerbDerivedNominalBlockedResult(options = {}) {
+    return attachVerbDerivedNominalGrammarContract({ error: true }, {
+        ...options,
+        routeStage: "blocked",
+    });
+}
+
 function normalizeOrdinaryNncText(value = "") {
     return String(value || "").trim().toLowerCase();
 }
@@ -1835,7 +2152,11 @@ function getInstrumentivoResult({
         thirdObjectMarker,
     });
     if (context.error) {
-        return { error: true };
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: "instrumentivo-context-blocked",
+        });
     }
     const {
         nounSourceModel,
@@ -1959,10 +2280,17 @@ function getInstrumentivoResult({
         const result = buildVerbDerivedNominalResult(entries, {
             kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
         });
-        if (!result.result) {
-            return { error: true };
+        if (!hasVerbDerivedNominalSurface(result)) {
+            return buildVerbDerivedNominalBlockedResult({
+                kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+                rawVerb,
+                diagnosticId: "instrumentivo-no-output",
+            });
         }
-        return result;
+        return attachVerbDerivedNominalGrammarContract(result, {
+            kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+        });
     }
 
     const explicitPossessivePrefix = typeof possessivePrefix === "string"
@@ -2035,10 +2363,14 @@ function getInstrumentivoResult({
         hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
         optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
     });
-    if (!result.result) {
-        return { error: true };
+    if (!hasVerbDerivedNominalSurface(result)) {
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: "instrumentivo-no-output",
+        });
     }
-    return {
+    return attachVerbDerivedNominalGrammarContract({
         ...result,
         instrumentivoSourceSubjectPossessor: mode === INSTRUMENTIVO_MODE.posesivo ? {
             grammarSource: "Andrews 36.6",
@@ -2048,7 +2380,10 @@ function getInstrumentivoResult({
             explicitPossessivePrefix,
             derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
         } : null,
-    };
+    }, {
+        kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+        rawVerb,
+    });
 }
 
 function getCalificativoInstrumentivoResult({
@@ -2078,7 +2413,11 @@ function getCalificativoInstrumentivoResult({
         requireNonanimateSubject: resolvedActionNounStemUse !== "general-use",
     });
     if (context.error) {
-        return { error: true };
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-context-blocked",
+        });
     }
     const {
         nounSourceModel,
@@ -2098,7 +2437,11 @@ function getCalificativoInstrumentivoResult({
         : "";
     const resolvedPossessivePrefix = explicitPossessivePrefix || sourceSubjectPossessivePrefix;
     if (useGeneralActionStem && !resolvedPossessivePrefix) {
-        return { error: true };
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-possessor-unmapped",
+        });
     }
     const isActiveGeneralActionStem = useGeneralActionStem
         && String(combinedMode || "") !== COMBINED_MODE.nonactive;
@@ -2113,7 +2456,11 @@ function getCalificativoInstrumentivoResult({
     );
     const sourceHasReflexiveObject = resolvedObjectPrefix === "mu";
     if (isActiveGeneralActionStem && sourceHasActiveObjectSlot && !sourceHasReflexiveObject) {
-        return { error: true };
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-transitive-source-blocked",
+        });
     }
     const shouldCollapseMarkerEcho = Boolean(
         getForwardDerivationConfig(getNounDerivationTypeFromMeta(verbMeta))
@@ -2264,10 +2611,14 @@ function getCalificativoInstrumentivoResult({
         hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
         optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
     });
-    if (!result.result) {
-        return { error: true };
+    if (!hasVerbDerivedNominalSurface(result)) {
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-no-output",
+        });
     }
-    return {
+    return attachVerbDerivedNominalGrammarContract({
         ...result,
         actionNounSourceSubjectPossessor: useGeneralActionStem ? {
             grammarSource: isActiveActionSource ? "Andrews 36.11" : "Andrews 36.10",
@@ -2277,7 +2628,10 @@ function getCalificativoInstrumentivoResult({
             explicitPossessivePrefix,
             derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
         } : null,
-    };
+    }, {
+        kind: VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+        rawVerb,
+    });
 }
 
 function getLocativoTemporalResult({
@@ -2301,7 +2655,11 @@ function getLocativoTemporalResult({
         combinedMode: resolvedMode,
     });
     if (context.error) {
-        return { error: true };
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
+            rawVerb,
+            diagnosticId: "locativo-temporal-context-blocked",
+        });
     }
     const {
         nounSourceModel,
@@ -2429,12 +2787,19 @@ function getLocativoTemporalResult({
         kind: VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
         possessivePrefix: possessorInput,
     });
-    if (!result.result) {
-        return { error: true };
+    if (!hasVerbDerivedNominalSurface(result)) {
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
+            rawVerb,
+            diagnosticId: "locativo-temporal-no-output",
+        });
     }
-    return {
+    return attachVerbDerivedNominalGrammarContract({
         ...result,
         possessorPrefix: possessorInput,
         isImpersonal,
-    };
+    }, {
+        kind: VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
+        rawVerb,
+    });
 }

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/agreement/agreement.js.
 
-export function createAgreementApi(targetObject = globalThis) {
+export function createAgreementGlobals(targetObject = globalThis) {
     // === Person & Agreement ===
     function getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
       const key = `${subjectPrefix}|${subjectSuffix}`;
@@ -576,6 +576,15 @@ export function createAgreementApi(targetObject = globalThis) {
       subjectPossessorCollision: "subject-possessor-collision",
       valence4Matrix: "valence4-matrix"
     });
+    var CONJUGATION_DIAGNOSTIC_DISPLAY_LABELS = Object.freeze({
+      [CONJUGATION_DIAGNOSTIC_IDS.resultError]: "La generacion no produjo una forma.",
+      [CONJUGATION_DIAGNOSTIC_IDS.reflexiveHidden]: "Forma reflexiva oculta para este rol.",
+      [CONJUGATION_DIAGNOSTIC_IDS.invalidCombo]: "Combinacion incompatible.",
+      [CONJUGATION_DIAGNOSTIC_IDS.personAgreement]: "Persona incompatible.",
+      [CONJUGATION_DIAGNOSTIC_IDS.hierarchyOrder]: "Jerarquia de participantes incompatible.",
+      [CONJUGATION_DIAGNOSTIC_IDS.subjectPossessorCollision]: "Sujeto y poseedor incompatibles.",
+      [CONJUGATION_DIAGNOSTIC_IDS.valence4Matrix]: "Matriz de valencia incompatible."
+    });
     function buildConjugationDiagnosticEntry(id = "", severity = "masked", options = {}) {
       return {
         id: String(id || ""),
@@ -584,16 +593,181 @@ export function createAgreementApi(targetObject = globalThis) {
         masked: options.masked !== false
       };
     }
+    function normalizeConjugationDiagnosticEntry(entry = null, fallbackSource = "") {
+      if (!entry) {
+        return null;
+      }
+      if (typeof entry === "string") {
+        const id = entry.trim();
+        return id ? buildConjugationDiagnosticEntry(id, "diagnostic", {
+          source: fallbackSource
+        }) : null;
+      }
+      if (typeof entry !== "object") {
+        return null;
+      }
+      const id = String(entry.id || entry.code || entry.message || "").trim();
+      if (!id) {
+        return null;
+      }
+      return {
+        ...entry,
+        id,
+        severity: String(entry.severity || "diagnostic"),
+        source: entry.source || fallbackSource || ""
+      };
+    }
     function dedupeConjugationDiagnosticEntries(entries = []) {
       const seen = new Set();
-      return (Array.isArray(entries) ? entries : []).filter(entry => entry && entry.id).filter(entry => {
-        const key = `${entry.id}|${entry.severity || ""}|${entry.source || ""}`;
+      return (Array.isArray(entries) ? entries : []).map(entry => normalizeConjugationDiagnosticEntry(entry)).filter(entry => entry && entry.id).filter(entry => {
+        const key = `${entry.id}|${entry.severity || ""}|${entry.source || ""}|${entry.message || ""}`;
         if (seen.has(key)) {
           return false;
         }
         seen.add(key);
         return true;
       });
+    }
+    function getConjugationResultFrame(result = null) {
+      return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
+    }
+    function splitConjugationRenderableSurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeConjugationDisplayText(entry)).filter(Boolean);
+    }
+    function getConjugationRenderableSurfaceForms(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(frameResult);
+      const forms = [];
+      if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitConjugationRenderableSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
+        forms.push(...result.surfaceForms);
+      }
+      if (result?.surface) {
+        forms.push(result.surface);
+      }
+      if (!hasResultFrame && result?.result) {
+        forms.push(result.result);
+      }
+      return forms.flatMap(entry => splitConjugationRenderableSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getConjugationRenderableSurface(result = null) {
+      return getConjugationRenderableSurfaceForms(result).join(" / ");
+    }
+    function buildConjugationFrameStatusDiagnostic(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      if (!grammarFrame || typeof grammarFrame !== "object") {
+        return null;
+      }
+      const routeContract = grammarFrame.routeContract && typeof grammarFrame.routeContract === "object" ? grammarFrame.routeContract : {};
+      const authorityFrame = grammarFrame.authorityFrame && typeof grammarFrame.authorityFrame === "object" ? grammarFrame.authorityFrame : {};
+      const resultFrame = grammarFrame.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : {};
+      const blocked = result?.ok === false || resultFrame.ok === false || routeContract.generationAllowed === false || authorityFrame.supported === false;
+      if (!blocked) {
+        return null;
+      }
+      const andrewsRefs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const routeFamily = String(routeContract.routeFamily || "").trim();
+      const routeStage = String(routeContract.routeStage || "").trim();
+      const hasAndrewsAuthority = andrewsRefs.length > 0 || String(authorityFrame.grammarAuthority || "") === "Andrews";
+      const authorityBlocked = authorityFrame.supported === false;
+      const routeBlocked = routeContract.generationAllowed === false;
+      const resultBlocked = result?.ok === false || resultFrame.ok === false;
+      let failedLayer = "diagnostic";
+      let contractLayer = "diagnosticFrame";
+      if (authorityBlocked) {
+        failedLayer = "authority";
+        contractLayer = "authorityFrame";
+      } else if (routeBlocked) {
+        failedLayer = "route";
+        contractLayer = "routeContract";
+      } else if (resultBlocked) {
+        failedLayer = "output";
+        contractLayer = "resultFrame";
+      }
+      return {
+        id: hasAndrewsAuthority ? "ANDREWS_ROUTE_NOT_LICENSED" : "LCM_ROUTE_GENERATION_BLOCKED",
+        code: hasAndrewsAuthority ? "ANDREWS_ROUTE_NOT_LICENSED" : "LCM_ROUTE_GENERATION_BLOCKED",
+        severity: "error",
+        source: "grammar-frame",
+        failedLayer,
+        contractLayer,
+        message: hasAndrewsAuthority ? "Ruta bloqueada antes de generar por la evidencia Andrews del contrato." : "Ruta bloqueada antes de generar por el contrato gramatical.",
+        authority: andrewsRefs.join("; "),
+        routeFamily,
+        routeStage
+      };
+    }
+    function isGenericConjugationNoOutputDiagnostic(entry = null) {
+      if (!entry || typeof entry !== "object") {
+        return false;
+      }
+      const id = String(entry.id || entry.code || "").trim();
+      const message = String(entry.message || "").trim();
+      return id === CONJUGATION_DIAGNOSTIC_IDS.resultError || id === "generate-word-route-blocked" || id === "generate-runtime-no-output" || id === "morphology-application-blocked" || id === "verb-derived-nominal-blocked" || id === "verb-derived-nominal-context-blocked" || id === "preterit-class-based-result-blocked" || message === "La generacion no produjo una forma." || message === "La generación no produjo una forma.";
+    }
+    function hasConjugationFailedLayerDiagnostic(entries = []) {
+      return entries.some(entry => {
+        if (!entry || typeof entry !== "object") {
+          return false;
+        }
+        const id = String(entry.id || entry.code || "").trim();
+        return entry.source === "grammar-frame" || Boolean(entry.failedLayer || entry.contractLayer) || id === "ANDREWS_ROUTE_NOT_LICENSED" || id === "LCM_ROUTE_GENERATION_BLOCKED";
+      });
+    }
+    function shouldPromoteConjugationFrameStatusDiagnostic(frameStatusDiagnostic = null, entries = []) {
+      if (!frameStatusDiagnostic || typeof frameStatusDiagnostic !== "object") {
+        return false;
+      }
+      const statusLayer = String(frameStatusDiagnostic.failedLayer || "").trim();
+      const statusId = String(frameStatusDiagnostic.id || frameStatusDiagnostic.code || "").trim();
+      if (!["authority", "route", "stem", "orthography", "agreement"].includes(statusLayer)) {
+        return false;
+      }
+      const diagnosticEntries = Array.isArray(entries) ? entries : [];
+      if (diagnosticEntries.some(entry => entry && typeof entry === "object" && !isGenericConjugationNoOutputDiagnostic(entry))) {
+        return false;
+      }
+      return !diagnosticEntries.some(entry => {
+        if (!entry || typeof entry !== "object") {
+          return false;
+        }
+        const entryId = String(entry.id || entry.code || "").trim();
+        if (entry.source === "grammar-frame" || entryId === statusId || entryId === "ANDREWS_ROUTE_NOT_LICENSED" || entryId === "LCM_ROUTE_GENERATION_BLOCKED") {
+          return true;
+        }
+        const failedLayer = String(entry.failedLayer || "").trim();
+        const contractLayer = String(entry.contractLayer || "").trim();
+        if (!failedLayer && !contractLayer) {
+          return false;
+        }
+        if (isGenericConjugationNoOutputDiagnostic(entry)) {
+          return false;
+        }
+        return failedLayer !== "output" && failedLayer !== "result" && contractLayer !== "resultFrame";
+      });
+    }
+    function getConjugationResultDiagnostics(result = null) {
+      if (!result || typeof result !== "object") {
+        return [];
+      }
+      const grammarFrame = getConjugationResultFrame(result);
+      const routeDiagnostics = Array.isArray(grammarFrame?.routeContract?.blockingDiagnostics) ? grammarFrame.routeContract.blockingDiagnostics : [];
+      const frameDiagnostics = Array.isArray(grammarFrame?.diagnosticFrame?.diagnostics) ? grammarFrame.diagnosticFrame.diagnostics : [];
+      const diagnostics = [...(Array.isArray(result.diagnostics) ? result.diagnostics : []), ...routeDiagnostics, ...frameDiagnostics, ...(Array.isArray(result.contractDiagnostics) ? result.contractDiagnostics : [])];
+      const frameStatusDiagnostic = buildConjugationFrameStatusDiagnostic(result);
+      if (frameStatusDiagnostic && (!hasConjugationFailedLayerDiagnostic(diagnostics) && (!diagnostics.length || diagnostics.every(entry => isGenericConjugationNoOutputDiagnostic(entry))) || diagnostics.every(entry => isGenericConjugationNoOutputDiagnostic(entry)) || shouldPromoteConjugationFrameStatusDiagnostic(frameStatusDiagnostic, diagnostics))) {
+        diagnostics.unshift(frameStatusDiagnostic);
+      }
+      return dedupeConjugationDiagnosticEntries(diagnostics);
     }
     function resolveConjugationAvailabilityState({
       hasRenderableResult = false,
@@ -646,7 +820,7 @@ export function createAgreementApi(targetObject = globalThis) {
       extraDiagnostics = []
     } = {}) {
       const resolvedMaskState = maskState && typeof maskState === "object" ? maskState : {};
-      const diagnostics = [...(Array.isArray(resolvedMaskState.diagnostics) ? resolvedMaskState.diagnostics : []), ...(Array.isArray(extraDiagnostics) ? extraDiagnostics : [])];
+      const diagnostics = [...(Array.isArray(resolvedMaskState.diagnostics) ? resolvedMaskState.diagnostics : []), ...getConjugationResultDiagnostics(result), ...(Array.isArray(extraDiagnostics) ? extraDiagnostics : [])];
       const maskedConstraintIds = Array.isArray(grammarConstraintState?.maskedConstraintIds) ? grammarConstraintState.maskedConstraintIds : [];
       maskedConstraintIds.forEach(constraintId => {
         diagnostics.push(buildConjugationDiagnosticEntry(constraintId, "masked", {
@@ -659,7 +833,7 @@ export function createAgreementApi(targetObject = globalThis) {
         }));
       }
       const dedupedDiagnostics = dedupeConjugationDiagnosticEntries(diagnostics);
-      const hasRenderableResult = resolvedMaskState.hasRenderableResult === true || !!(result && result.result && result.result !== "—");
+      const hasRenderableResult = resolvedMaskState.hasRenderableResult === true || Boolean(getConjugationRenderableSurface(result));
       const shouldMaskRow = !!(resolvedMaskState.shouldMask || grammarConstraintState?.shouldMask || hasValenceStructureError);
       const isErrorRow = !!(resolvedMaskState.isError || grammarConstraintState?.shouldMask || hasValenceStructureError);
       return {
@@ -677,6 +851,38 @@ export function createAgreementApi(targetObject = globalThis) {
         maskedConstraintIds
       };
     }
+    function getConjugationDiagnosticDisplayLabel(diagnostic = null) {
+      const entry = typeof diagnostic === "string" ? {
+        id: diagnostic
+      } : diagnostic;
+      const explicitMessage = String(entry?.message || "").trim();
+      if (explicitMessage) {
+        return explicitMessage;
+      }
+      const id = String(entry?.id || "").trim();
+      return id ? CONJUGATION_DIAGNOSTIC_DISPLAY_LABELS[id] || id : "";
+    }
+    function getConjugationNoOutputDisplay(evaluation = null, fallback = "Sin salida para esta configuracion.") {
+      const diagnostics = Array.isArray(evaluation?.diagnostics) ? evaluation.diagnostics : [];
+      const primaryDiagnostic = diagnostics.find(entry => String(entry?.message || "").trim() || String(entry?.id || "").trim());
+      const diagnosticLabel = getConjugationDiagnosticDisplayLabel(primaryDiagnostic);
+      if (diagnosticLabel) {
+        return diagnosticLabel;
+      }
+      const diagnosticIds = Array.isArray(evaluation?.diagnosticIds) ? evaluation.diagnosticIds : [];
+      const diagnosticIdLabel = getConjugationDiagnosticDisplayLabel(diagnosticIds.find(Boolean) || "");
+      if (diagnosticIdLabel) {
+        return diagnosticIdLabel;
+      }
+      if (evaluation?.shouldMaskRow) {
+        return evaluation.isErrorRow ? "Combinacion bloqueada por la gramatica." : "Salida no visible para esta seleccion.";
+      }
+      return String(fallback || "").trim() || "Sin salida para esta configuracion.";
+    }
+    function normalizeConjugationDisplayText(value = "") {
+      const text = String(value || "").trim();
+      return text && text !== "—" ? text : "";
+    }
     function applyConjugationEvaluationPresentation({
       row = null,
       value = null,
@@ -685,26 +891,51 @@ export function createAgreementApi(targetObject = globalThis) {
     }) {
       const availabilityState = evaluation?.availabilityState || CONJUGATION_AVAILABILITY_STATE.impossible;
       const diagnosticIds = Array.isArray(evaluation?.diagnosticIds) ? evaluation.diagnosticIds : [];
+      const grammarFrame = evaluation?.result?.grammarFrame || evaluation?.result?.frames || null;
+      const routeContract = grammarFrame?.routeContract || {};
+      const authorityFrame = grammarFrame?.authorityFrame || {};
+      const diagnosticFrame = grammarFrame?.diagnosticFrame || {};
+      const primaryDiagnostic = (Array.isArray(evaluation?.diagnostics) ? evaluation.diagnostics : []).find(entry => entry && typeof entry === "object" && (String(entry.id || entry.code || "").trim() || String(entry.failedLayer || entry.contractLayer || "").trim())) || {};
       if (row) {
         row.dataset.availabilityState = availabilityState;
         row.dataset.diagnosticState = availabilityState;
         row.dataset.diagnosticIds = diagnosticIds.join(",");
+        if (grammarFrame && typeof grammarFrame === "object") {
+          row.dataset.grammarFrameVersion = String(grammarFrame.version || "");
+          row.dataset.lcmRouteFamily = String(routeContract.routeFamily || "");
+          row.dataset.lcmRouteStage = String(routeContract.routeStage || "");
+          row.dataset.lcmGenerationAllowed = routeContract.generationAllowed === false ? "false" : routeContract.generationAllowed === true ? "true" : "";
+          row.dataset.lcmEvidenceStatus = String(authorityFrame.evidenceStatus || "");
+          row.dataset.lcmDiagnosticStatus = String(diagnosticFrame.status || "");
+        }
+        row.dataset.lcmDiagnosticId = String(primaryDiagnostic.id || primaryDiagnostic.code || "").trim();
+        row.dataset.lcmFailedLayer = String(primaryDiagnostic.failedLayer || "").trim();
+        row.dataset.lcmContractLayer = String(primaryDiagnostic.contractLayer || "").trim();
       }
       if (!value) {
         return;
       }
       value.classList.remove("conjugation-error", "conjugation-reflexive");
+      value.classList.remove("conjugation-value--no-output");
       value.dataset.availabilityState = availabilityState;
       value.dataset.diagnosticState = availabilityState;
       value.dataset.diagnosticIds = diagnosticIds.join(",");
       if (evaluation?.shouldMaskRow) {
-        value.textContent = "—";
+        value.textContent = getConjugationNoOutputDisplay(evaluation);
+        value.classList.add("conjugation-value--no-output");
         if (evaluation.isErrorRow) {
           value.classList.add("conjugation-error");
         }
         return;
       }
-      value.textContent = formattedValue;
+      const displayValue = normalizeConjugationDisplayText(formattedValue) || getConjugationRenderableSurface(evaluation?.result);
+      if (!displayValue) {
+        value.textContent = getConjugationNoOutputDisplay(evaluation);
+        value.classList.add("conjugation-value--no-output");
+        value.classList.add("conjugation-error");
+        return;
+      }
+      value.textContent = displayValue;
       if (evaluation?.result?.isReflexive) {
         value.classList.add("conjugation-reflexive");
       }
@@ -745,9 +976,14 @@ export function createAgreementApi(targetObject = globalThis) {
       const isError = !!(result?.error || invalidCombo || samePerson || hierarchyOrderViolation || subjectPossessorCollision);
       const diagnostics = [];
       if (result?.error) {
-        diagnostics.push(buildConjugationDiagnosticEntry(CONJUGATION_DIAGNOSTIC_IDS.resultError, "error", {
-          source: "result"
-        }));
+        const resultDiagnostics = getConjugationResultDiagnostics(result);
+        if (resultDiagnostics.length) {
+          diagnostics.push(...resultDiagnostics);
+        } else {
+          diagnostics.push(buildConjugationDiagnosticEntry(CONJUGATION_DIAGNOSTIC_IDS.resultError, "error", {
+            source: "result"
+          }));
+        }
       }
       if (hideReflexive) {
         diagnostics.push(buildConjugationDiagnosticEntry(CONJUGATION_DIAGNOSTIC_IDS.reflexiveHidden, "masked", {
@@ -774,7 +1010,7 @@ export function createAgreementApi(targetObject = globalThis) {
           source: "grammar-constraint"
         }));
       }
-      const hasRenderableResult = !!(result && result.result && result.result !== "—");
+      const hasRenderableResult = Boolean(getConjugationRenderableSurface(result));
       const dedupedDiagnostics = dedupeConjugationDiagnosticEntries(diagnostics);
       return {
         shouldMask,
@@ -1083,6 +1319,298 @@ export function createAgreementApi(targetObject = globalThis) {
         };
       }).filter(entry => entry && entry.verb);
     }
+    function buildVerbDerivedNominalBuilderContextDiagnostic({
+      id = "verb-derived-nominal-context-blocked",
+      message = "La generacion no produjo una forma.",
+      details = null,
+      failedLayer = "",
+      contractLayer = "",
+      routeStage = ""
+    } = {}) {
+      const normalizedId = String(id || "verb-derived-nominal-context-blocked").trim();
+      const layerContract = getVerbDerivedNominalBuilderContextFailedLayerContract(routeStage);
+      return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: "error",
+        message: String(message || "La generacion no produjo una forma.").trim(),
+        details: details && typeof details === "object" ? details : null,
+        failedLayer: String(failedLayer || layerContract.failedLayer).trim(),
+        contractLayer: String(contractLayer || layerContract.contractLayer).trim(),
+        routeFamily: "verb-derived-nominal-builder-context",
+        routeStage: String(routeStage || "").trim()
+      };
+    }
+    function getVerbDerivedNominalBuilderContextFailedLayerContract(routeStage = "") {
+      const stage = String(routeStage || "").trim();
+      if (/parse-input|orthography|spelling|letters?|characters?/i.test(stage)) {
+        return {
+          failedLayer: "orthography",
+          contractLayer: "orthographyFrame"
+        };
+      }
+      if (/parse-stem|stem-context|stem|source-stem/i.test(stage)) {
+        return {
+          failedLayer: "stem",
+          contractLayer: "stemFrame"
+        };
+      }
+      if (/subject|object-slot|object|possess|participant|agreement|valence|state/i.test(stage)) {
+        return {
+          failedLayer: "agreement",
+          contractLayer: "participantFrame"
+        };
+      }
+      if (/output|result|surface|no-output/i.test(stage)) {
+        return {
+          failedLayer: "output",
+          contractLayer: "resultFrame"
+        };
+      }
+      return {
+        failedLayer: "route",
+        contractLayer: "routeContract"
+      };
+    }
+    function getVerbDerivedNominalBuilderContextAndrewsRefs(kind = "") {
+      const refs = ["Andrews Lesson 5", "Andrews Lesson 6", "Andrews Lesson 7"];
+      switch (String(kind || "")) {
+        case "instrumentivo":
+          refs.push("Andrews 36.6");
+          break;
+        case "calificativo-instrumentivo":
+          refs.push("Andrews 36.10-36.11");
+          break;
+        case "locativo-temporal":
+          refs.push("Andrews 46.4");
+          break;
+        default:
+          refs.push("Andrews Lessons 35-37");
+          break;
+      }
+      return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function normalizeVerbDerivedNominalBuilderContextDiagnostics(diagnostics = [], fallbackDiagnostic = null) {
+      const entries = [...(Array.isArray(diagnostics) ? diagnostics : []), ...(fallbackDiagnostic ? [fallbackDiagnostic] : [])];
+      if (typeof targetObject.normalizeGrammarDiagnosticContractEntries === "function") {
+        return targetObject.normalizeGrammarDiagnosticContractEntries(entries);
+      }
+      return entries.filter(entry => entry && typeof entry === "object");
+    }
+    function applyVerbDerivedNominalBuilderContextDiagnosticLayerMetadata(diagnostics = [], routeStage = "") {
+      const layerContract = getVerbDerivedNominalBuilderContextFailedLayerContract(routeStage);
+      return (Array.isArray(diagnostics) ? diagnostics : []).map(entry => {
+        if (!entry || typeof entry !== "object") {
+          return entry;
+        }
+        return {
+          ...entry,
+          failedLayer: entry.failedLayer || layerContract.failedLayer,
+          contractLayer: entry.contractLayer || layerContract.contractLayer,
+          routeFamily: entry.routeFamily || "verb-derived-nominal-builder-context",
+          routeStage: entry.routeStage || String(routeStage || "").trim()
+        };
+      });
+    }
+    function attachVerbDerivedNominalBuilderContextContract(context = null, {
+      kind = "",
+      rawVerb = "",
+      subjectPrefix = "",
+      subjectSuffix = "",
+      objectPrefix = "",
+      indirectObjectMarker = "",
+      thirdObjectMarker = "",
+      combinedMode = "",
+      slotPlanBundle = null,
+      routeStage = "build-context",
+      diagnosticId = "verb-derived-nominal-context-blocked",
+      message = "La generacion no produjo una forma.",
+      diagnosticDetails = null,
+      enumerable = false
+    } = {}) {
+      const output = context && typeof context === "object" ? context : {};
+      const nominalKind = String(kind || output.kind || output.nounSourceModel?.nounDerivationKind || "").trim();
+      const blocked = output.error === true;
+      const fallbackDiagnostic = buildVerbDerivedNominalBuilderContextDiagnostic({
+        id: diagnosticId,
+        message,
+        details: diagnosticDetails,
+        routeStage
+      });
+      const diagnostics = applyVerbDerivedNominalBuilderContextDiagnosticLayerMetadata(normalizeVerbDerivedNominalBuilderContextDiagnostics(output.diagnostics, blocked ? fallbackDiagnostic : null), routeStage);
+      if (!Object.prototype.hasOwnProperty.call(output, "diagnostics")) {
+        Object.defineProperty(output, "diagnostics", {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: diagnostics
+        });
+      }
+      const ok = !blocked;
+      const grammarFrame = typeof targetObject.buildGrammarFrame === "function" ? targetObject.buildGrammarFrame({
+        authorityFrame: typeof targetObject.buildGrammarAuthorityFrame === "function" ? targetObject.buildGrammarAuthorityFrame({
+          sourceEvidence: {
+            kind: "verb-derived-nominal-builder-context",
+            nominalKind,
+            sourceModel: output.nounSourceModel || null
+          },
+          evidenceStatus: ok ? "context-built" : "blocked",
+          andrewsRefs: getVerbDerivedNominalBuilderContextAndrewsRefs(nominalKind),
+          supported: ok
+        }) : null,
+        unitFrame: {
+          unitKind: "agreement-builder-context",
+          outputKind: "verb-derived-nominal-builder-context",
+          generationRoute: nominalKind
+        },
+        orthographyFrame: {
+          surface: "",
+          surfaceForms: [],
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true
+        },
+        morphBoundaryFrame: {
+          objectPrefix: String(output.objectPrefix || objectPrefix || ""),
+          indirectObjectMarker: String(output.indirectObjectMarker || indirectObjectMarker || ""),
+          thirdObjectMarker: String(output.thirdObjectMarker || thirdObjectMarker || ""),
+          slotPlanBundle: output.slotPlanBundle || slotPlanBundle || null
+        },
+        stemFrame: {
+          stem: String(output.verb || ""),
+          analysisStem: String(output.analysisVerb || ""),
+          sourceRawVerb: String(rawVerb || output.rawVerb || ""),
+          sourceModel: output.nounSourceModel || null,
+          forwardStemTargets: Array.isArray(output.forwardStemTargets) ? output.forwardStemTargets : [],
+          forwardStemContexts: Array.isArray(output.forwardStemContexts) ? output.forwardStemContexts : []
+        },
+        nuclearClauseFrame: {
+          clauseKind: "nominal-nuclear-clause",
+          sourceUnitKind: "verbal-nuclear-clause",
+          predicateInsideParentheses: true,
+          subjectConnectorsOutsideParentheses: true,
+          tenseSlot: false
+        },
+        participantFrame: {
+          subject: {
+            prefix: String(output.subjectPrefix || subjectPrefix || ""),
+            suffix: String(output.subjectSuffix || subjectSuffix || "")
+          },
+          object: {
+            prefix: String(output.objectPrefix || objectPrefix || ""),
+            indirectObjectMarker: String(output.indirectObjectMarker || indirectObjectMarker || ""),
+            thirdObjectMarker: String(output.thirdObjectMarker || thirdObjectMarker || "")
+          }
+        },
+        inflectionFrame: {
+          nominalKind,
+          combinedMode: String(output.combinedMode || combinedMode || "")
+        },
+        routeContract: typeof targetObject.buildGrammarRouteContractFrame === "function" ? targetObject.buildGrammarRouteContractFrame({
+          routeFamily: "verb-derived-nominal-builder-context",
+          routeStage,
+          sourceContract: {
+            rawVerb: String(rawVerb || output.rawVerb || ""),
+            nominalKind
+          },
+          targetContract: {
+            outputKind: "verb-derived-nominal-builder-context",
+            generationRoute: nominalKind,
+            contextReady: ok
+          },
+          generationAllowed: ok,
+          blockingDiagnostics: ok ? [] : diagnostics
+        }) : null,
+        astFrame: null,
+        resultFrame: typeof targetObject.buildGrammarResultFrame === "function" ? targetObject.buildGrammarResultFrame({
+          ok,
+          surface: "",
+          surfaceForms: [],
+          outputKind: "verb-derived-nominal-builder-context",
+          generationRoute: nominalKind,
+          sourceInput: String(rawVerb || output.rawVerb || "")
+        }) : null,
+        diagnosticFrame: typeof targetObject.buildGrammarDiagnosticFrame === "function" ? targetObject.buildGrammarDiagnosticFrame({
+          status: ok ? "context-built" : "blocked",
+          diagnostics,
+          blockers: ok ? [] : diagnostics
+        }) : null
+      }) : null;
+      const resultContract = typeof targetObject.buildGrammarResultContract === "function" ? targetObject.buildGrammarResultContract({
+        result: output,
+        grammarFrame
+      }) : {
+        ok,
+        surface: "",
+        frames: grammarFrame,
+        diagnostics
+      };
+      Object.defineProperties(output, {
+        grammarFrame: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: grammarFrame
+        },
+        ok: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.ok
+        },
+        surface: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.surface
+        },
+        frames: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.frames
+        },
+        contractDiagnostics: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.diagnostics
+        }
+      });
+      return output;
+    }
+    function buildVerbDerivedNominalBuilderContextBlocked({
+      kind = "",
+      rawVerb = "",
+      subjectPrefix = "",
+      subjectSuffix = "",
+      objectPrefix = "",
+      indirectObjectMarker = "",
+      thirdObjectMarker = "",
+      combinedMode = "",
+      slotPlanBundle = null,
+      routeStage = "blocked",
+      diagnosticId = "verb-derived-nominal-context-blocked",
+      message = "La generacion no produjo una forma.",
+      diagnosticDetails = null
+    } = {}) {
+      return attachVerbDerivedNominalBuilderContextContract({
+        error: true
+      }, {
+        kind,
+        rawVerb,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker,
+        combinedMode,
+        slotPlanBundle,
+        routeStage,
+        diagnosticId,
+        message,
+        diagnosticDetails
+      });
+    }
     function buildVerbDerivedNominalBuilderContext({
       kind = "",
       rawVerb = "",
@@ -1100,20 +1628,60 @@ export function createAgreementApi(targetObject = globalThis) {
       const invalidLetters = targetObject.getInvalidVerbLetters(rawVerb);
       const invalidStructure = targetObject.getInvalidVerbStructure(rawVerb);
       if (invalidCharacters.length || invalidLetters.length || invalidStructure) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          combinedMode,
+          routeStage: "parse-input",
+          diagnosticId: "verb-derived-nominal-context-invalid-input",
+          message: "Entrada verbal incompatible con la ruta nominal.",
+          diagnosticDetails: {
+            invalidCharacters,
+            invalidLetters,
+            invalidStructure
+          }
+        });
       }
       let verb = String(verbMeta?.verb || "");
       if (!verb || !targetObject.VOWEL_RE.test(verb) || !targetObject.VOWEL_END_RE.test(verb)) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          combinedMode,
+          routeStage: "parse-stem",
+          diagnosticId: "verb-derived-nominal-context-invalid-stem",
+          message: "La ruta nominal requiere un tronco verbal con vocal final.",
+          diagnosticDetails: {
+            verb,
+            hasVowel: targetObject.VOWEL_RE.test(verb),
+            hasFinalVowel: targetObject.VOWEL_END_RE.test(verb)
+          }
+        });
       }
       if (requireNonanimateSubject && !isNonanimateSubject(subjectPrefix, subjectSuffix)) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          combinedMode,
+          routeStage: "subject-gate",
+          diagnosticId: "verb-derived-nominal-context-nonanimate-subject-required",
+          message: "Esta ruta nominal requiere sujeto no animado."
+        });
       }
       let resolvedObjectPrefix = String(objectPrefix || "");
       let resolvedIndirectObjectMarker = String(indirectObjectMarker || "");
@@ -1136,9 +1704,25 @@ export function createAgreementApi(targetObject = globalThis) {
       const hasOverflowedSlotSelection = targetObject.NOUN_OBJECT_SLOT_SCHEMA.slice(slotPlanBundle.slotPlans.length).some(slotMeta => Boolean(selectedBySlot[slotMeta.id]));
       const hasInvalidSlotSelection = slotPlanBundle.slotPlans.some(slotPlan => !slotPlan.toggleValues.includes(selectedBySlot[slotPlan.id] || ""));
       if (hasOverflowedSlotSelection || hasInvalidSlotSelection) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix: resolvedObjectPrefix,
+          indirectObjectMarker: resolvedIndirectObjectMarker,
+          thirdObjectMarker: resolvedThirdObjectMarker,
+          combinedMode,
+          slotPlanBundle,
+          routeStage: "object-slot-gate",
+          diagnosticId: "verb-derived-nominal-context-invalid-object-slot",
+          message: "La seleccion de objeto no coincide con las ranuras de esta ruta nominal.",
+          diagnosticDetails: {
+            selectedBySlot,
+            hasOverflowedSlotSelection,
+            hasInvalidSlotSelection
+          }
+        });
       }
       const nounSourceModel = targetObject.buildVerbDerivedNominalSourceModel({
         ...(verbMeta && typeof verbMeta === "object" ? verbMeta : {}),
@@ -1160,9 +1744,21 @@ export function createAgreementApi(targetObject = globalThis) {
         objectPrefix: resolvedObjectPrefix
       });
       if (nounForwardDerivation.blocked) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix: resolvedObjectPrefix,
+          indirectObjectMarker: resolvedIndirectObjectMarker,
+          thirdObjectMarker: resolvedThirdObjectMarker,
+          combinedMode,
+          slotPlanBundle,
+          routeStage: "forward-derivation-gate",
+          diagnosticId: "verb-derived-nominal-context-forward-derivation-blocked",
+          message: "La derivacion nominal no produjo un tronco de avance.",
+          diagnosticDetails: nounForwardDerivation
+        });
       }
       const forwardStemTargets = getNounForwardStemTargets(nounForwardDerivation, verb, analysisVerb);
       const forwardStemContexts = buildNounForwardStemContexts({
@@ -1173,11 +1769,22 @@ export function createAgreementApi(targetObject = globalThis) {
         thirdObjectMarker: resolvedThirdObjectMarker
       });
       if (!forwardStemContexts.length) {
-        return {
-          error: true
-        };
+        return buildVerbDerivedNominalBuilderContextBlocked({
+          kind,
+          rawVerb,
+          subjectPrefix,
+          subjectSuffix,
+          objectPrefix: resolvedObjectPrefix,
+          indirectObjectMarker: resolvedIndirectObjectMarker,
+          thirdObjectMarker: resolvedThirdObjectMarker,
+          combinedMode,
+          slotPlanBundle,
+          routeStage: "forward-stem-context-gate",
+          diagnosticId: "verb-derived-nominal-context-no-forward-stem",
+          message: "La ruta nominal no encontro un tronco aplicable."
+        });
       }
-      return {
+      return attachVerbDerivedNominalBuilderContextContract({
         error: false,
         rawVerb,
         verbMeta,
@@ -1198,7 +1805,18 @@ export function createAgreementApi(targetObject = globalThis) {
         indirectObjectMarker: resolvedIndirectObjectMarker,
         thirdObjectMarker: resolvedThirdObjectMarker,
         combinedMode
-      };
+      }, {
+        kind,
+        rawVerb,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix: resolvedObjectPrefix,
+        indirectObjectMarker: resolvedIndirectObjectMarker,
+        thirdObjectMarker: resolvedThirdObjectMarker,
+        combinedMode,
+        slotPlanBundle,
+        routeStage: "build-context"
+      });
     }
     function collapseCalificativoMarkerEcho({
       form = "",
@@ -1290,13 +1908,32 @@ export function createAgreementApi(targetObject = globalThis) {
         get() { return CONJUGATION_DIAGNOSTIC_IDS; },
         set(value) { CONJUGATION_DIAGNOSTIC_IDS = value; },
     });
+    Object.defineProperty(api, "CONJUGATION_DIAGNOSTIC_DISPLAY_LABELS", {
+        configurable: true,
+        enumerable: true,
+        get() { return CONJUGATION_DIAGNOSTIC_DISPLAY_LABELS; },
+        set(value) { CONJUGATION_DIAGNOSTIC_DISPLAY_LABELS = value; },
+    });
     api.buildConjugationDiagnosticEntry = buildConjugationDiagnosticEntry;
+    api.normalizeConjugationDiagnosticEntry = normalizeConjugationDiagnosticEntry;
     api.dedupeConjugationDiagnosticEntries = dedupeConjugationDiagnosticEntries;
+    api.getConjugationResultFrame = getConjugationResultFrame;
+    api.splitConjugationRenderableSurfaceText = splitConjugationRenderableSurfaceText;
+    api.getConjugationRenderableSurfaceForms = getConjugationRenderableSurfaceForms;
+    api.getConjugationRenderableSurface = getConjugationRenderableSurface;
+    api.buildConjugationFrameStatusDiagnostic = buildConjugationFrameStatusDiagnostic;
+    api.isGenericConjugationNoOutputDiagnostic = isGenericConjugationNoOutputDiagnostic;
+    api.hasConjugationFailedLayerDiagnostic = hasConjugationFailedLayerDiagnostic;
+    api.shouldPromoteConjugationFrameStatusDiagnostic = shouldPromoteConjugationFrameStatusDiagnostic;
+    api.getConjugationResultDiagnostics = getConjugationResultDiagnostics;
     api.resolveConjugationAvailabilityState = resolveConjugationAvailabilityState;
     api.createToggleAvailabilityRealizationSummary = createToggleAvailabilityRealizationSummary;
     api.recordToggleAvailabilityRealization = recordToggleAvailabilityRealization;
     api.realizeToggleAvailabilitySummary = realizeToggleAvailabilitySummary;
     api.buildConjugationEvaluationRecord = buildConjugationEvaluationRecord;
+    api.getConjugationDiagnosticDisplayLabel = getConjugationDiagnosticDisplayLabel;
+    api.getConjugationNoOutputDisplay = getConjugationNoOutputDisplay;
+    api.normalizeConjugationDisplayText = normalizeConjugationDisplayText;
     api.applyConjugationEvaluationPresentation = applyConjugationEvaluationPresentation;
     api.getConjugationMaskState = getConjugationMaskState;
     api.getLocativoTemporalMaskState = getLocativoTemporalMaskState;
@@ -1310,6 +1947,13 @@ export function createAgreementApi(targetObject = globalThis) {
     api.getNounNonactiveRuleBase = getNounNonactiveRuleBase;
     api.getNounForwardStemTargets = getNounForwardStemTargets;
     api.buildNounForwardStemContexts = buildNounForwardStemContexts;
+    api.buildVerbDerivedNominalBuilderContextDiagnostic = buildVerbDerivedNominalBuilderContextDiagnostic;
+    api.getVerbDerivedNominalBuilderContextFailedLayerContract = getVerbDerivedNominalBuilderContextFailedLayerContract;
+    api.getVerbDerivedNominalBuilderContextAndrewsRefs = getVerbDerivedNominalBuilderContextAndrewsRefs;
+    api.normalizeVerbDerivedNominalBuilderContextDiagnostics = normalizeVerbDerivedNominalBuilderContextDiagnostics;
+    api.applyVerbDerivedNominalBuilderContextDiagnosticLayerMetadata = applyVerbDerivedNominalBuilderContextDiagnosticLayerMetadata;
+    api.attachVerbDerivedNominalBuilderContextContract = attachVerbDerivedNominalBuilderContextContract;
+    api.buildVerbDerivedNominalBuilderContextBlocked = buildVerbDerivedNominalBuilderContextBlocked;
     api.buildVerbDerivedNominalBuilderContext = buildVerbDerivedNominalBuilderContext;
     api.collapseCalificativoMarkerEcho = collapseCalificativoMarkerEcho;
     api.buildCalificativoInstrumentivoPredicateStemSpec = buildCalificativoInstrumentivoPredicateStemSpec;
@@ -1317,7 +1961,7 @@ export function createAgreementApi(targetObject = globalThis) {
 }
 
 export function installAgreementGlobals(targetObject = globalThis) {
-    const api = createAgreementApi(targetObject);
+    const api = createAgreementGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

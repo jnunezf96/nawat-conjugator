@@ -56,6 +56,19 @@ export function createParticlesApi(targetObject = globalThis) {
       afterPredicate: true
     })]);
     const PARTICLE_ANTI_CONFLATION_RULES = Object.freeze(["particle placement metadata is not particle generation", "particle-looking string is not confirmed Nawat/Pipil particle evidence", "particle mode label is not a particle inventory", "preposed output segment is not a Lesson 3 particle engine", "topic/focus label is not supplementation", "Andrews particle categories are architecture, not Nawat/Pipil form authority"]);
+    function attachParticleGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "particle-metadata",
+        routeFamily: "particle-placement",
+        structuralSource: "Andrews Lesson 3",
+        andrewsRefs: ["Andrews Lesson 3"],
+        ...options
+      });
+    }
     function cloneParticlePlacementFrame(frame = {}) {
       return {
         ...frame
@@ -89,7 +102,7 @@ export function createParticlesApi(targetObject = globalThis) {
     } = {}) {
       const placement = getParticlePlacementFrame(placementScope);
       const normalizedFunctionScope = normalizeParticleFunctionScope(functionScope);
-      return {
+      const metadata = {
         kind: "particle-placement-metadata",
         version: PARTICLE_METADATA_VERSION,
         structuralSource: "Andrews Lesson 3",
@@ -110,6 +123,23 @@ export function createParticlesApi(targetObject = globalThis) {
         diagnostics: ["particle-placement-diagnostic-only", "particle-needs-confirmed-nawat-evidence"],
         antiConflationRules: getParticleAntiConflationRules()
       };
+      return attachParticleGrammarContract(metadata, {
+        metadataKind: "particle-placement-metadata",
+        routeStage: "classify-placement",
+        sourceInput: metadata.candidate,
+        supported: false,
+        nuclearClauseFrame: {
+          hostLayer: metadata.placement.hostLayer,
+          placementScope: metadata.placement.scope,
+          functionScope: metadata.functionScope
+        },
+        targetContract: {
+          metadataKind: "particle-placement-metadata",
+          generationAllowed: false,
+          placementScope: metadata.placement.scope,
+          functionScope: metadata.functionScope
+        }
+      });
     }
     function classifyParticleCandidate(value = "", options = {}) {
       const candidate = String(value == null ? "" : value).trim();
@@ -121,7 +151,7 @@ export function createParticlesApi(targetObject = globalThis) {
         functionScope,
         source: options.source || "candidate"
       });
-      return {
+      const classification = {
         kind: "particle-candidate-classification",
         version: PARTICLE_METADATA_VERSION,
         candidate,
@@ -133,9 +163,23 @@ export function createParticlesApi(targetObject = globalThis) {
         diagnostics: candidate ? ["particle-candidate-unconfirmed"] : ["particle-candidate-empty"],
         placementMetadata
       };
+      return attachParticleGrammarContract(classification, {
+        metadataKind: "particle-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        nuclearClauseFrame: placementMetadata.grammarFrame?.nuclearClauseFrame || null,
+        targetContract: {
+          metadataKind: "particle-candidate-classification",
+          generationAllowed: false,
+          placementScope: classification.placement.scope,
+          functionScope: classification.functionScope
+        }
+      });
     }
     function buildParticleInventoryBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "particle-inventory-boundary",
         version: PARTICLE_METADATA_VERSION,
         lesson: 3,
@@ -152,6 +196,12 @@ export function createParticlesApi(targetObject = globalThis) {
         },
         antiConflationRules: getParticleAntiConflationRules()
       };
+      return attachParticleGrammarContract(boundary, {
+        metadataKind: "particle-inventory-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary
+      });
     }
 
     const api = {};
@@ -180,6 +230,7 @@ export function createParticlesApi(targetObject = globalThis) {
         enumerable: true,
         get() { return PARTICLE_ANTI_CONFLATION_RULES; },
     });
+    api.attachParticleGrammarContract = attachParticleGrammarContract;
     api.cloneParticlePlacementFrame = cloneParticlePlacementFrame;
     api.getParticleAntiConflationRules = getParticleAntiConflationRules;
     api.getParticlePlacementFrames = getParticlePlacementFrames;

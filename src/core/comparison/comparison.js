@@ -95,8 +95,20 @@ function getComparisonStructuralQuestions() {
     return COMPARISON_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachComparisonGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "comparison-clause-unit",
+        routeFamily: "comparison",
+        ...options,
+    });
+}
+
 function buildComparisonBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "comparison-boundary",
         version: COMPARISON_BOUNDARY_VERSION,
         lesson: 53,
@@ -120,6 +132,10 @@ function buildComparisonBoundaryMetadata() {
         },
         antiConflationRules: getComparisonAntiConflationRules(),
     };
+    return attachComparisonGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyComparisonCandidate({
@@ -135,7 +151,7 @@ function classifyComparisonCandidate({
     const normalizedRelation = normalizeComparisonRelation(comparisonRelation);
     const normalizedFalsePositive = normalizeComparisonFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "comparison-candidate-classification",
         version: COMPARISON_BOUNDARY_VERSION,
         target: String(target || ""),
@@ -159,11 +175,17 @@ function classifyComparisonCandidate({
         ],
         boundary: buildComparisonBoundaryMetadata(),
     };
+    return attachComparisonGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.target,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+    });
 }
 
 function classifyComparisonFalsePositive(source = "") {
     const normalizedSource = normalizeComparisonFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "comparison-false-positive",
         version: COMPARISON_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -173,4 +195,9 @@ function classifyComparisonFalsePositive(source = "") {
         diagnostics: ["comparison-false-positive-source"],
         antiConflationRules: getComparisonAntiConflationRules(),
     };
+    return attachComparisonGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

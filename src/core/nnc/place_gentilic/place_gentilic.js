@@ -252,8 +252,20 @@ function getPlaceGentilicNncStructuralQuestions() {
     return PLACE_GENTILIC_NNC_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachPlaceGentilicNncGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "place-gentilic-nnc",
+        routeFamily: "place-gentilic-nnc",
+        ...options,
+    });
+}
+
 function buildPlaceGentilicNncBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "place-gentilic-nnc-boundary",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         lesson: 48,
@@ -281,6 +293,10 @@ function buildPlaceGentilicNncBoundaryMetadata() {
         },
         antiConflationRules: getPlaceGentilicNncAntiConflationRules(),
     };
+    return attachPlaceGentilicNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyPlaceGentilicNncCandidate({
@@ -297,7 +313,7 @@ function classifyPlaceGentilicNncCandidate({
     const normalizedKind = normalizePlaceGentilicNncKind(placeGentilicKind);
     const normalizedFalsePositive = normalizePlaceGentilicNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "place-gentilic-nnc-candidate-classification",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -322,11 +338,22 @@ function classifyPlaceGentilicNncCandidate({
         ],
         boundary: buildPlaceGentilicNncBoundaryMetadata(),
     };
+    return attachPlaceGentilicNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.placeNameSource || classification.gentilicSource,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "place-gentilic-source-candidate",
+            sourceStem: classification.placeNameSource || classification.gentilicSource,
+            sourceKind: classification.placeGentilicKind,
+        },
+    });
 }
 
 function classifyPlaceGentilicNncFalsePositive(source = "") {
     const normalizedSource = normalizePlaceGentilicNncFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "place-gentilic-nnc-false-positive",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -337,6 +364,11 @@ function classifyPlaceGentilicNncFalsePositive(source = "") {
         diagnostics: ["place-gentilic-nnc-false-positive-source"],
         antiConflationRules: getPlaceGentilicNncAntiConflationRules(),
     };
+    return attachPlaceGentilicNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }
 
 function buildPlaceGentilicNncUsageFrame({
@@ -460,7 +492,7 @@ function buildPlaceGentilicNncUsageFrame({
         }
         : null;
 
-    return {
+    const frame = {
         kind: "place-gentilic-nnc-usage-frame",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         lesson: 48,
@@ -499,4 +531,18 @@ function buildPlaceGentilicNncUsageFrame({
         diagnostics,
         boundary: buildPlaceGentilicNncBoundaryMetadata(),
     };
+    return attachPlaceGentilicNncGrammarContract(frame, {
+        routeStage: "describe-usage-frame",
+        sourceInput: frame.candidate || frame.placeNameSource || frame.gentilicSource,
+        supported,
+        morphBoundaryFrame: frame.boundary,
+        stemFrame: {
+            stemKind: "place-gentilic-nounstem",
+            sourceStem: frame.placeNameSource || frame.gentilicSource,
+            matrix: frame.placeMatrix,
+            embed: frame.embeddedStem,
+            sourceKind: frame.placeGentilicKind,
+        },
+        nuclearClauseFrame: frame,
+    });
 }

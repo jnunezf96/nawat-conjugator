@@ -220,6 +220,99 @@ function run(ctx) {
     s.eq("direct instrumentivo returns structured entries", directInstrumentivo.entries.length, 2);
     s.eq("direct instrumentivo records derivation kind", directInstrumentivo.nounDerivationKind, "instrumentivo");
     s.eq("direct instrumentivo records source tense", directInstrumentivo.entries[0].sourceTense, "presente-habitual");
+    s.eq("direct instrumentivo exposes the LCM verb-derived nominal contract", {
+        ok: directInstrumentivo.ok,
+        surface: directInstrumentivo.surface,
+        framesIsGrammarFrame: directInstrumentivo.frames === directInstrumentivo.grammarFrame,
+        routeFamily: directInstrumentivo.frames.routeContract.routeFamily,
+        routeStage: directInstrumentivo.frames.routeContract.routeStage,
+        unitKind: directInstrumentivo.frames.unitFrame.unitKind,
+        generationAllowed: directInstrumentivo.frames.routeContract.generationAllowed,
+        hasInstrumentivoAuthority: directInstrumentivo.frames.authorityFrame.andrewsRefs.includes("Andrews 36.6"),
+        enumerableContract: Object.prototype.propertyIsEnumerable.call(directInstrumentivo, "grammarFrame"),
+    }, {
+        ok: true,
+        surface: "nemiwani",
+        framesIsGrammarFrame: true,
+        routeFamily: "verb-derived-nominal",
+        routeStage: "execute",
+        unitKind: "nominal-nuclear-clause",
+        generationAllowed: true,
+        hasInstrumentivoAuthority: true,
+        enumerableContract: false,
+    });
+    s.eq(
+        "verb-derived nominal reader prefers LCM result-frame surfaces before stale legacy aliases",
+        (() => {
+            const framed = {
+                result: "stale-nnc-result",
+                surface: "top-nnc-surface",
+                surfaceForms: ["stale-nnc-a / stale-nnc-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-nnc-surface",
+                        surfaceForms: ["frame-nnc-a / frame-nnc-b"],
+                    }),
+                }),
+            };
+            return {
+                surface: ctx.getVerbDerivedNominalSurface(framed),
+                forms: ctx.getVerbDerivedNominalSurfaceForms(framed),
+                hasSurface: ctx.hasVerbDerivedNominalSurface(framed),
+            };
+        })(),
+        {
+            surface: "frame-nnc-a",
+            forms: ["frame-nnc-a", "frame-nnc-b", "frame-nnc-surface"],
+            hasSurface: true,
+        }
+    );
+    s.eq(
+        "verb-derived nominal reader suppresses stale aliases for empty result frames",
+        (() => {
+            const framed = {
+                result: "stale-nnc-result",
+                surface: "top-nnc-surface",
+                surfaceForms: ["stale-nnc-a / stale-nnc-b"],
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        surface: "",
+                        surfaceForms: [],
+                    }),
+                }),
+            };
+            return {
+                surface: ctx.getVerbDerivedNominalSurface(framed),
+                forms: ctx.getVerbDerivedNominalSurfaceForms(framed),
+                hasSurface: ctx.hasVerbDerivedNominalSurface(framed),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
+            hasSurface: false,
+        }
+    );
+    s.eq(
+        "verb-derived nominal reader keeps top-level surface forms before surface/result fallbacks",
+        (() => {
+            const result = {
+                result: "legacy-nnc",
+                surface: "surface-nnc",
+                surfaceForms: ["surface-nnc-a / surface-nnc-b"],
+            };
+            return {
+                surface: ctx.getVerbDerivedNominalSurface(result),
+                forms: ctx.getVerbDerivedNominalSurfaceForms(result),
+            };
+        })(),
+        {
+            surface: "surface-nnc-a",
+            forms: ["surface-nnc-a", "surface-nnc-b", "surface-nnc", "legacy-nnc"],
+        }
+    );
     s.eq("direct instrumentivo exposes category-first nominalization profile", summarizeNominalizationProfile(directInstrumentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
         outputKind: "verb-derived-nominal",
@@ -476,6 +569,27 @@ function run(ctx) {
         blockedTransitiveGeneralUseActiveAction.error,
         true
     );
+    s.eq("blocked active-action direct route exposes the LCM contract", {
+        ok: blockedTransitiveGeneralUseActiveAction.ok,
+        surface: blockedTransitiveGeneralUseActiveAction.surface,
+        framesIsGrammarFrame: blockedTransitiveGeneralUseActiveAction.frames === blockedTransitiveGeneralUseActiveAction.grammarFrame,
+        routeFamily: blockedTransitiveGeneralUseActiveAction.frames.routeContract.routeFamily,
+        routeStage: blockedTransitiveGeneralUseActiveAction.frames.routeContract.routeStage,
+        generationAllowed: blockedTransitiveGeneralUseActiveAction.frames.routeContract.generationAllowed,
+        diagnosticId: blockedTransitiveGeneralUseActiveAction.diagnostics[0].id,
+        diagnosticFailedLayer: blockedTransitiveGeneralUseActiveAction.diagnostics[0].failedLayer,
+        diagnosticContractLayer: blockedTransitiveGeneralUseActiveAction.diagnostics[0].contractLayer,
+    }, {
+        ok: false,
+        surface: "",
+        framesIsGrammarFrame: true,
+        routeFamily: "verb-derived-nominal",
+        routeStage: "blocked",
+        generationAllowed: false,
+        diagnosticId: "calificativo-instrumentivo-transitive-source-blocked",
+        diagnosticFailedLayer: "route",
+        diagnosticContractLayer: "routeContract",
+    });
     const reflexiveCuepaMeta = ctx.parseVerbInput("-(cuepa)");
     const reflexiveGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "-(cuepa)",

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/clause/modification/modification.js.
 
-export function createAdjectivalModificationApi(targetObject = globalThis) {
+export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     const ADJECTIVAL_MODIFICATION_BOUNDARY_VERSION = 1;
     const ADJECTIVAL_MODIFICATION_RELATION = Object.freeze({
       predicateFunction: "predicate-function",
@@ -114,8 +114,51 @@ export function createAdjectivalModificationApi(targetObject = globalThis) {
       if (!input || typeof input !== "object") {
         return String(fallback || "").trim();
       }
-      const surfaceForms = Array.isArray(input.surfaceForms) ? input.surfaceForms : [];
-      return String(input.result || input.surface || input.surfaceDisplay || surfaceForms[0] || input.word || fallback || "").trim();
+      const surface = getAdjectivalModificationSurfaceForms(input)[0];
+      return String(surface || fallback || "").trim();
+    }
+    function splitAdjectivalModificationSurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—");
+    }
+    function getAdjectivalModificationResultFrame(input = null) {
+      return (input?.grammarFrame && typeof input.grammarFrame === "object" ? input.grammarFrame : null) || (input?.frames && typeof input.frames === "object" ? input.frames : null);
+    }
+    function getAdjectivalModificationSurfaceForms(input = null) {
+      if (typeof input === "string") {
+        return splitAdjectivalModificationSurfaceText(input);
+      }
+      if (!input || typeof input !== "object") {
+        return [];
+      }
+      const grammarFrame = getAdjectivalModificationResultFrame(input);
+      const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(frameResult);
+      const forms = [];
+      if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitAdjectivalModificationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
+        forms.push(...input.surfaceForms);
+      }
+      if (!hasResultFrame && input.surface) {
+        forms.push(input.surface);
+      }
+      if (!hasResultFrame && input.surfaceDisplay) {
+        forms.push(input.surfaceDisplay);
+      }
+      if (!hasResultFrame && input.result) {
+        forms.push(input.result);
+      }
+      if (!hasResultFrame && input.word) {
+        forms.push(input.word);
+      }
+      return forms.flatMap(entry => splitAdjectivalModificationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     function getAdjectivalModificationFormulaSlots(input = null) {
       if (!input || typeof input !== "object") {
@@ -215,7 +258,7 @@ export function createAdjectivalModificationApi(targetObject = globalThis) {
         order: normalizedOrder,
         marker: markerText
       }) : [];
-      return {
+      return targetObject.attachGrammarAstContract({
         kind: "adjectival-modification-ast",
         version: ADJECTIVAL_MODIFICATION_BOUNDARY_VERSION,
         lessons: [42, 43],
@@ -252,7 +295,11 @@ export function createAdjectivalModificationApi(targetObject = globalThis) {
         generationAllowed: false,
         diagnostics,
         boundary: buildAdjectivalModificationBoundaryMetadata()
-      };
+      }, {
+        astKind: "adjectival-modification-ast",
+        lessons: [42, 43],
+        structuralSource: "Andrews Lessons 42-43"
+      });
     }
     function classifyAdjectivalModificationCandidate({
       head = "",
@@ -348,6 +395,9 @@ export function createAdjectivalModificationApi(targetObject = globalThis) {
     api.getAdjectivalModificationStructuralQuestions = getAdjectivalModificationStructuralQuestions;
     api.buildAdjectivalModificationBoundaryMetadata = buildAdjectivalModificationBoundaryMetadata;
     api.getAdjectivalModificationSurface = getAdjectivalModificationSurface;
+    api.splitAdjectivalModificationSurfaceText = splitAdjectivalModificationSurfaceText;
+    api.getAdjectivalModificationResultFrame = getAdjectivalModificationResultFrame;
+    api.getAdjectivalModificationSurfaceForms = getAdjectivalModificationSurfaceForms;
     api.getAdjectivalModificationFormulaSlots = getAdjectivalModificationFormulaSlots;
     api.getAdjectivalModificationFormulaEcho = getAdjectivalModificationFormulaEcho;
     api.buildAdjectivalModificationClauseNode = buildAdjectivalModificationClauseNode;
@@ -359,7 +409,7 @@ export function createAdjectivalModificationApi(targetObject = globalThis) {
 }
 
 export function installAdjectivalModificationGlobals(targetObject = globalThis) {
-    const api = createAdjectivalModificationApi(targetObject);
+    const api = createAdjectivalModificationGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

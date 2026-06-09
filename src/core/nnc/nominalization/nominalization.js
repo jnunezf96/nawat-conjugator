@@ -94,8 +94,20 @@ function getNominalizationBoundaryStructuralQuestions() {
     return NOMINALIZATION_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachNominalizationGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "nominalization",
+        routeFamily: "nominalization",
+        ...options,
+    });
+}
+
 function buildNominalizationBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "nominalization-boundary",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         lessons: [35, 36, 37, 38, 39],
@@ -121,6 +133,10 @@ function buildNominalizationBoundaryMetadata() {
         },
         antiConflationRules: getNominalizationBoundaryAntiConflationRules(),
     };
+    return attachNominalizationGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyNominalizationBoundaryCandidate({
@@ -137,7 +153,7 @@ function classifyNominalizationBoundaryCandidate({
     const normalizedKind = normalizeNominalizationBoundaryKind(nominalizationKind);
     const normalizedFalsePositive = normalizeNominalizationFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "nominalization-boundary-candidate-classification",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -164,11 +180,22 @@ function classifyNominalizationBoundaryCandidate({
         ],
         boundary: buildNominalizationBoundaryMetadata(),
     };
+    return attachNominalizationGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.sourceVnc,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "nominalization-source-candidate",
+            sourceKind: classification.stemUse,
+            sourceStem: classification.sourceVnc,
+        },
+    });
 }
 
 function classifyNominalizationFalsePositive(source = "") {
     const normalizedSource = normalizeNominalizationFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "nominalization-false-positive",
         version: NOMINALIZATION_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -180,4 +207,9 @@ function classifyNominalizationFalsePositive(source = "") {
         diagnostics: ["nominalization-false-positive-source"],
         antiConflationRules: getNominalizationBoundaryAntiConflationRules(),
     };
+    return attachNominalizationGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

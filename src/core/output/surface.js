@@ -1033,6 +1033,216 @@ function joinOutputWordSegments(segments = []) {
         .join("");
 }
 
+var OUTPUT_SURFACE_ANDREWS_REFS = Object.freeze([
+    "Andrews Lesson 2 2.1 and 2.6",
+    "Andrews Lesson 4 4.4-4.5",
+]);
+
+function normalizeOutputSurfaceSegments(segments = []) {
+    return (Array.isArray(segments) ? segments : [])
+        .map((segment) => ({
+            role: String(segment?.role || ""),
+            value: String(segment?.value || ""),
+        }))
+        .filter((segment) => segment.role || segment.value);
+}
+
+function getOutputSurfaceSegmentValue(segments = [], role = "") {
+    const normalizedRole = String(role || "");
+    const match = (Array.isArray(segments) ? segments : [])
+        .find((segment) => String(segment?.role || "") === normalizedRole);
+    return String(match?.value || "");
+}
+
+function normalizeOutputSurfaceContractSurfaceValue(value = "") {
+    const text = String(value || "").trim();
+    return text === "—" ? "" : text;
+}
+
+function splitOutputSurfaceContractSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeOutputSurfaceContractSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getOutputSurfaceResultFrame(record = null, options = {}) {
+    const optionFrame = options?.grammarFrame && typeof options.grammarFrame === "object"
+        ? options.grammarFrame
+        : (options?.frames && typeof options.frames === "object" ? options.frames : null);
+    const recordFrame = record?.grammarFrame && typeof record.grammarFrame === "object"
+        ? record.grammarFrame
+        : (record?.frames && typeof record.frames === "object" ? record.frames : null);
+    const frame = optionFrame || recordFrame;
+    return frame?.resultFrame && typeof frame.resultFrame === "object"
+        ? frame.resultFrame
+        : null;
+}
+
+function getOutputSurfaceSurfaceForms(record = null, fallbackSurface = "", options = {}) {
+    const node = record && typeof record === "object" ? record : {};
+    const resultFrame = getOutputSurfaceResultFrame(node, options);
+    const hasResultFrame = Boolean(resultFrame);
+    const candidates = [];
+    if (Array.isArray(resultFrame?.surfaceForms)) {
+        candidates.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame?.surface) {
+        candidates.push(resultFrame.surface);
+    }
+    if (hasResultFrame) {
+        return candidates
+            .flatMap((entry) => splitOutputSurfaceContractSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
+        candidates.push(...node.surfaceForms);
+    }
+    if (node.surface) {
+        candidates.push(node.surface);
+    }
+    if (!hasResultFrame && node.result) {
+        candidates.push(node.result);
+    }
+    if (fallbackSurface) {
+        candidates.push(fallbackSurface);
+    }
+    return candidates
+        .flatMap((entry) => splitOutputSurfaceContractSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function getOutputSurfacePrimarySurface(record = null, fallbackSurface = "", options = {}) {
+    return getOutputSurfaceSurfaceForms(record, fallbackSurface, options)[0] || "";
+}
+
+function attachOutputSurfaceGrammarContract(record = null, options = {}) {
+    if (!record || typeof record !== "object" || typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    const segments = normalizeOutputSurfaceSegments(options.segments || record.segments);
+    const fallbackSurface = String(options.surface || joinOutputWordSegments(segments) || "");
+    const surfaceForms = getOutputSurfaceSurfaceForms(record, fallbackSurface, options);
+    const surface = getOutputSurfacePrimarySurface(record, fallbackSurface, options);
+    const supported = options.supported !== undefined
+        ? options.supported === true
+        : Boolean(surface || surfaceForms.length);
+    const diagnostics = Array.isArray(options.diagnostics) ? options.diagnostics : [];
+    const metadataKind = String(options.metadataKind || "output-surface").trim();
+    const routeStage = String(options.routeStage || (supported ? "realize-output-surface" : "blocked")).trim();
+    const subjectPrefix = getOutputSurfaceSegmentValue(segments, "subject");
+    const possessivePrefix = getOutputSurfaceSegmentValue(segments, "possessive");
+    const sourceOuterPrefix = getOutputSurfaceSegmentValue(segments, "sourceOuter");
+    const objectPrefix = getOutputSurfaceSegmentValue(segments, "object");
+    const verb = getOutputSurfaceSegmentValue(segments, "verb");
+    const subjectSuffix = getOutputSurfaceSegmentValue(segments, "subjectSuffix");
+    const nominalSuffix = getOutputSurfaceSegmentValue(segments, "nominalSuffix");
+    return attachGrammarMetadataContract({
+        ...record,
+        surfaceForms,
+    }, {
+        enumerable: false,
+        metadataKind,
+        unitKind: "output-surface",
+        routeFamily: "output-surface",
+        routeStage,
+        generationAllowed: supported,
+        supported,
+        structuralSource: "Andrews Lesson 2",
+        andrewsRefs: OUTPUT_SURFACE_ANDREWS_REFS,
+        evidenceStatus: supported ? "surface-realized" : "blocked",
+        diagnosticStatus: supported ? "surface-realized" : "blocked",
+        surface,
+        surfaceForms,
+        sourceInput: verb,
+        diagnostics,
+        sourceContract: {
+            unitKind: "surface-segment-chain",
+            segments,
+            subjectPrefix,
+            possessivePrefix,
+            sourceOuterPrefix,
+            objectPrefix,
+            verb,
+            subjectSuffix,
+            nominalSuffix,
+        },
+        targetContract: {
+            unitKind: "realized-output-surface",
+            surface,
+            outputKind: metadataKind,
+        },
+        orthographyFrame: {
+            surface,
+            surfaceForms,
+            segments,
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+        },
+        morphBoundaryFrame: {
+            segments,
+            segmentRoles: segments.map((segment) => segment.role),
+        },
+        nuclearClauseFrame: {
+            surface,
+            predicateStem: verb,
+            subjectPrefix,
+            objectPrefix,
+            subjectSuffix,
+            nominalSuffix,
+            clauseBoundary: "#...#",
+            slotOrder: ["subject", "possessive", "sourceOuter", "object", "verb", "subjectSuffix", "nominalSuffix"],
+        },
+        participantFrame: {
+            subjectPrefix,
+            possessivePrefix,
+            objectPrefix,
+            subjectSuffix,
+        },
+        inflectionFrame: {
+            subjectSuffix,
+            nominalSuffix,
+        },
+    });
+}
+
+function buildOutputWordResult({
+    preposedParticle = "",
+    subjectPrefix = "",
+    possessivePrefix = "",
+    objectPrefix = "",
+    verb = "",
+    subjectSuffix = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+    directionalChainMeta = null,
+    surfaceRuleMeta = null,
+} = {}) {
+    const segments = buildOutputWordSegments({
+        preposedParticle,
+        subjectPrefix,
+        possessivePrefix,
+        objectPrefix,
+        verb,
+        subjectSuffix,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter,
+        directionalChainMeta,
+        surfaceRuleMeta,
+    });
+    const surface = joinOutputWordSegments(segments);
+    return attachOutputSurfaceGrammarContract({
+        surface,
+        segments,
+    }, {
+        metadataKind: "output-word-surface",
+        routeStage: surface ? "realize-output-word" : "blocked",
+        supported: Boolean(surface),
+        surface,
+        segments,
+    });
+}
+
 function buildOutputWordText({
     preposedParticle = "",
     subjectPrefix = "",
@@ -1045,7 +1255,7 @@ function buildOutputWordText({
     directionalChainMeta = null,
     surfaceRuleMeta = null,
 }) {
-    return joinOutputWordSegments(buildOutputWordSegments({
+    return buildOutputWordResult({
         preposedParticle,
         subjectPrefix,
         possessivePrefix,
@@ -1056,7 +1266,7 @@ function buildOutputWordText({
         optionalSupportiveLetter,
         directionalChainMeta,
         surfaceRuleMeta,
-    }));
+    }).surface;
 }
 
 function buildNominalOutputSegments({
@@ -1103,7 +1313,7 @@ function buildNominalOutputText({
     directionalChainMeta = null,
     surfaceRuleMeta = null,
 }) {
-    return joinOutputWordSegments(buildNominalOutputSegments({
+    return buildNominalOutputResult({
         preposedParticle,
         subjectPrefix,
         possessivePrefix,
@@ -1115,7 +1325,46 @@ function buildNominalOutputText({
         optionalSupportiveLetter,
         directionalChainMeta,
         surfaceRuleMeta,
-    }));
+    }).surface;
+}
+
+function buildNominalOutputResult({
+    preposedParticle = "",
+    subjectPrefix = "",
+    possessivePrefix = "",
+    objectPrefix = "",
+    verb = "",
+    subjectSuffix = "",
+    trailingSuffix = "",
+    hasOptionalSupportiveI = false,
+    optionalSupportiveLetter = "",
+    directionalChainMeta = null,
+    surfaceRuleMeta = null,
+} = {}) {
+    const segments = buildNominalOutputSegments({
+        preposedParticle,
+        subjectPrefix,
+        possessivePrefix,
+        objectPrefix,
+        verb,
+        subjectSuffix,
+        trailingSuffix,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter,
+        directionalChainMeta,
+        surfaceRuleMeta,
+    });
+    const surface = joinOutputWordSegments(segments);
+    return attachOutputSurfaceGrammarContract({
+        surface,
+        segments,
+    }, {
+        metadataKind: "nominal-output-surface",
+        routeStage: surface ? "realize-nominal-output" : "blocked",
+        supported: Boolean(surface),
+        surface,
+        segments,
+    });
 }
 
 function realizeDerivedMuStemInteraction({

@@ -1195,6 +1195,61 @@ function renderNonactiveTabs({ verbMeta, verb, analysisVerb, hasVerb, endsWithCo
     }
 }
 
+function getPanelConjugationRenderableSurface(result = null) {
+    if (!result) {
+        return "";
+    }
+    if (typeof getConjugationRenderableSurface === "function") {
+        return getConjugationRenderableSurface(result);
+    }
+    return getPanelConjugationRenderableSurfaceForms(result).join(" / ");
+}
+
+function splitPanelConjugationRenderableSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => String(entry || "").trim())
+        .filter((entry) => entry && entry !== "—");
+}
+
+function getPanelConjugationRenderableSurfaceForms(result = null) {
+    if (!result) {
+        return [];
+    }
+    const grammarFrame = (
+        (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null)
+        || (result?.frames && typeof result.frames === "object" ? result.frames : null)
+    );
+    const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+    const hasResultFrame = Boolean(frameResult);
+    const forms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+    }
+    if (hasResultFrame) {
+        return forms
+            .flatMap((entry) => splitPanelConjugationRenderableSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
+        forms.push(...result.surfaceForms);
+    }
+    if (!hasResultFrame && result?.surface) {
+        forms.push(result.surface);
+    }
+    if (!hasResultFrame && result?.result) {
+        forms.push(result.result);
+    }
+    return forms
+        .flatMap((entry) => splitPanelConjugationRenderableSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
 function isConjugationResultVisible({
     result,
     subjectPrefix,
@@ -1204,7 +1259,7 @@ function isConjugationResultVisible({
     enforceInvalidCombo = true,
     hideReflexive = false,
 }) {
-    if (!result || !result.result || result.result === "—") {
+    if (!getPanelConjugationRenderableSurface(result)) {
         return false;
     }
     const diagnosticRecord = getConjugationMaskState({
@@ -1737,7 +1792,7 @@ function resolveNominalCombinationAvailabilityRecord({
                     patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
                 },
             }) || {};
-            if (useReduplicatedSingularSurface && result?.result) {
+            if (useReduplicatedSingularSurface && getPanelConjugationRenderableSurface(result)) {
                 const prefixChain = buildPrefixedChain({
                     subjectPrefix: selection.subjectPrefix,
                     possessivePrefix: possessorPrefix,

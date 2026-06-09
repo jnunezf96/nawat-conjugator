@@ -36,6 +36,716 @@ function getAdjectivalNncGenerationOptions(override = null) {
         : {};
 }
 
+function resolveAdjectivalNncGenerationSurface(adjectivalNnc = null, fields = [], fallback = "") {
+    const source = adjectivalNnc && typeof adjectivalNnc === "object" ? adjectivalNnc : {};
+    const framedSurface = resolveGenerateWordContractSurface(source);
+    if (framedSurface) {
+        return framedSurface;
+    }
+    const fieldNames = Array.isArray(fields) ? fields : [fields];
+    for (const fieldName of fieldNames) {
+        const value = normalizeGenerateWordContractSurface(source[fieldName]);
+        if (value) {
+            return value;
+        }
+    }
+    return normalizeGenerateWordContractSurface(fallback);
+}
+
+const GENERATE_WORD_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+
+function normalizeGenerateWordContractSurface(value = "") {
+    if (typeof normalizeGrammarSurfaceValue === "function") {
+        return normalizeGrammarSurfaceValue(value);
+    }
+    const surface = String(value || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
+function splitGenerateWordContractSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeGenerateWordContractSurface(entry))
+        .filter(Boolean);
+}
+
+function getGenerateWordResultFrame(result = null) {
+    return (
+        (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null)
+        || (result?.frames && typeof result.frames === "object" ? result.frames : null)
+    );
+}
+
+function getGenerateWordResultFramePayload(result = null) {
+    const grammarFrame = getGenerateWordResultFrame(result);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function resolveGenerateWordContractSurface(result = null) {
+    const frameResult = getGenerateWordResultFramePayload(result);
+    const hasResultFrame = Boolean(frameResult);
+    const surfaceForms = normalizeGrammarFrameSurfaceForms(result);
+    return normalizeGenerateWordContractSurface(
+        surfaceForms[0]
+        || frameResult?.surface
+        || (!hasResultFrame ? (result?.surface || result?.result) : "")
+        || ""
+    );
+}
+
+function resolveGenerateWordFrameSourceInput({
+    result = null,
+    renderVerb = "",
+    verb = "",
+} = {}) {
+    return normalizeGenerateWordContractSurface(renderVerb)
+        || resolveGenerateWordContractSurface(result)
+        || normalizeGenerateWordContractSurface(result?.stem)
+        || normalizeGenerateWordContractSurface(verb);
+}
+
+function buildGenerateWordDiagnosticEntry({
+    id = "generate-word-route-blocked",
+    message = GENERATE_WORD_NO_OUTPUT_MESSAGE,
+    severity = "error",
+    failedLayer = "route",
+    contractLayer = "routeContract",
+    routeFamily = "generate-word",
+    routeStage = "",
+} = {}) {
+    const normalizedId = String(id || "generate-word-route-blocked").trim();
+    return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: String(severity || "error"),
+        message: String(message || GENERATE_WORD_NO_OUTPUT_MESSAGE).trim(),
+        failedLayer: String(failedLayer || "route").trim(),
+        contractLayer: String(contractLayer || "routeContract").trim(),
+        routeFamily: String(routeFamily || "generate-word").trim(),
+        routeStage: String(routeStage || "").trim(),
+    };
+}
+
+function getGenerateWordFailedLayerContract(routeStage = "") {
+    const stage = String(routeStage || "").trim();
+    if (/morphology|stem/i.test(stage)) {
+        return { failedLayer: "stem", contractLayer: "stemFrame" };
+    }
+    if (/orthography|spelling/i.test(stage)) {
+        return { failedLayer: "orthography", contractLayer: "orthographyFrame" };
+    }
+    if (/agreement|participant|subject|object|possess/i.test(stage)) {
+        return { failedLayer: "agreement", contractLayer: "participantFrame" };
+    }
+    if (/output|result|surface|no-output/i.test(stage)) {
+        return { failedLayer: "output", contractLayer: "resultFrame" };
+    }
+    return { failedLayer: "route", contractLayer: "routeContract" };
+}
+
+function normalizeGenerateWordDiagnosticEntries(diagnostics = [], fallbackDiagnostic = null) {
+    const entries = Array.isArray(diagnostics) ? diagnostics : [];
+    const normalized = entries
+        .map((entry) => {
+            if (typeof normalizeGrammarDiagnosticContractEntry === "function") {
+                return normalizeGrammarDiagnosticContractEntry(entry);
+            }
+            if (typeof entry === "string") {
+                const id = entry.trim();
+                return id ? { id, severity: "diagnostic", message: "" } : null;
+            }
+            return entry && typeof entry === "object" ? entry : null;
+        })
+        .filter(Boolean);
+    if (!normalized.length && fallbackDiagnostic) {
+        normalized.push(fallbackDiagnostic);
+    }
+    return normalized.filter((entry, index, list) => {
+        const key = `${entry.id || entry.code || ""}|${entry.severity || ""}|${entry.message || ""}`;
+        return list.findIndex((candidate) => (
+            `${candidate.id || candidate.code || ""}|${candidate.severity || ""}|${candidate.message || ""}` === key
+        )) === index;
+    });
+}
+
+function resolveGenerateWordUnitKind(resolvedTenseMode = "") {
+    return resolvedTenseMode === TENSE_MODE.sustantivo
+        || resolvedTenseMode === TENSE_MODE.adjetivo
+        || resolvedTenseMode === TENSE_MODE.adverbio
+        ? "nominal-nuclear-clause"
+        : "verbal-nuclear-clause";
+}
+
+function normalizeGrammarFrameSurfaceForms(result = null) {
+    const frameResult = getGenerateWordResultFramePayload(result);
+    const hasResultFrame = Boolean(frameResult);
+    const surfaceForms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        surfaceForms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        surfaceForms.push(frameResult.surface);
+    }
+    if (hasResultFrame) {
+        return surfaceForms
+            .flatMap((entry) => splitGenerateWordContractSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
+        surfaceForms.push(...result.surfaceForms);
+    }
+    if (result?.surface) {
+        surfaceForms.push(result.surface);
+    }
+    if (!hasResultFrame && result?.result) {
+        surfaceForms.push(result.result);
+    }
+    return surfaceForms
+        .flatMap((entry) => splitGenerateWordContractSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function collectGrammarFrameRefsFromObject(source = null, refs = []) {
+    if (!source || typeof source !== "object") {
+        return refs;
+    }
+    [
+        source.lessonRef,
+        source.curriculumRef,
+        source.range,
+        source.andrewsRef,
+        source.authorityRef,
+    ].forEach((entry) => {
+        const value = String(entry || "").trim();
+        if (value) {
+            refs.push(value);
+        }
+    });
+    if (Array.isArray(source.lessonRefs)) {
+        source.lessonRefs.forEach((entry) => {
+            const value = String(entry || "").trim();
+            if (value) {
+                refs.push(value);
+            }
+        });
+    }
+    if (Array.isArray(source.authorityRefs)) {
+        source.authorityRefs.forEach((entry) => {
+            const value = String(entry || "").trim();
+            if (value) {
+                refs.push(value);
+            }
+        });
+    }
+    if (Array.isArray(source.andrewsRefs)) {
+        source.andrewsRefs.forEach((entry) => {
+            const value = String(entry || "").trim();
+            if (value) {
+                refs.push(value);
+            }
+        });
+    }
+    return refs;
+}
+
+function isGenerateWordGrammarFrameCandidate(value = null) {
+    return Boolean(
+        value
+        && typeof value === "object"
+        && (
+            value.authorityFrame
+            || value.routeContract
+            || value.resultFrame
+            || value.diagnosticFrame
+        )
+    );
+}
+
+function getGenerateWordOverrideSourceGrammarFrame(override = null) {
+    const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    const entryRouteContract = adjectivalNnc.entryRouteContract && typeof adjectivalNnc.entryRouteContract === "object"
+        ? adjectivalNnc.entryRouteContract
+        : null;
+    return [
+        adjectivalNnc.grammarFrame,
+        adjectivalNnc.frames,
+        entryRouteContract?.grammarFrame,
+        entryRouteContract?.frames,
+        override?.grammarFrame,
+        override?.frames,
+    ].find((candidate) => isGenerateWordGrammarFrameCandidate(candidate)) || null;
+}
+
+function getGenerateWordSourceEvidenceBoundaries(value = null) {
+    return value?.boundaries && typeof value.boundaries === "object"
+        ? value.boundaries
+        : {};
+}
+
+function mergeGenerateWordSourceEvidence(primary = null, fallback = null) {
+    const primaryEvidence = primary && typeof primary === "object" ? primary : null;
+    const fallbackEvidence = fallback && typeof fallback === "object" ? fallback : null;
+    if (!primaryEvidence) {
+        return fallbackEvidence;
+    }
+    if (!fallbackEvidence) {
+        return primaryEvidence;
+    }
+    const merged = {
+        ...fallbackEvidence,
+        ...primaryEvidence,
+        kind: String(
+            primaryEvidence.kind
+            || primaryEvidence.sourceKind
+            || primaryEvidence.type
+            || fallbackEvidence.kind
+            || fallbackEvidence.sourceKind
+            || fallbackEvidence.type
+            || ""
+        ).trim(),
+        status: String(
+            primaryEvidence.status
+            || primaryEvidence.evidenceStatus
+            || primaryEvidence.validationStatus
+            || fallbackEvidence.status
+            || fallbackEvidence.evidenceStatus
+            || fallbackEvidence.validationStatus
+            || ""
+        ).trim(),
+        targetAuthority: String(primaryEvidence.targetAuthority || fallbackEvidence.targetAuthority || "").trim(),
+        evidenceSource: String(primaryEvidence.evidenceSource || fallbackEvidence.evidenceSource || "").trim(),
+        boundaries: {
+            ...getGenerateWordSourceEvidenceBoundaries(fallbackEvidence),
+            ...getGenerateWordSourceEvidenceBoundaries(primaryEvidence),
+        },
+    };
+    if (merged.status && !merged.evidenceStatus) {
+        merged.evidenceStatus = merged.status;
+    }
+    return merged;
+}
+
+function buildGenerateWordOverrideSourceEvidence(override = null) {
+    const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    if (!adjectivalNnc || !Object.keys(adjectivalNnc).length) {
+        return null;
+    }
+    const entryRouteContract = adjectivalNnc.entryRouteContract && typeof adjectivalNnc.entryRouteContract === "object"
+        ? adjectivalNnc.entryRouteContract
+        : null;
+    const sourceFrame = getGenerateWordOverrideSourceGrammarFrame(override);
+    const authorityFrame = sourceFrame?.authorityFrame && typeof sourceFrame.authorityFrame === "object"
+        ? sourceFrame.authorityFrame
+        : {};
+    const routeContract = sourceFrame?.routeContract && typeof sourceFrame.routeContract === "object"
+        ? sourceFrame.routeContract
+        : {};
+    const sourceContract = routeContract.sourceContract && typeof routeContract.sourceContract === "object"
+        ? routeContract.sourceContract
+        : {};
+    const targetContract = routeContract.targetContract && typeof routeContract.targetContract === "object"
+        ? routeContract.targetContract
+        : {};
+    const resultFrame = sourceFrame?.resultFrame && typeof sourceFrame.resultFrame === "object"
+        ? sourceFrame.resultFrame
+        : {};
+    const sourceSurface = normalizeGenerateWordContractSurface(
+        (Array.isArray(resultFrame.surfaceForms) ? resultFrame.surfaceForms[0] : "")
+        || resultFrame.surface
+        || adjectivalNnc.surface
+        || adjectivalNnc.patientivoSurface
+        || adjectivalNnc.nominalizedSurface
+        || adjectivalNnc.vncSurface
+        || ""
+    );
+    const hasEntryContract = Boolean(entryRouteContract);
+    const hasSourceFrame = Boolean(sourceFrame);
+    const sourceGenerated = resultFrame.ok === true
+        || routeContract.generationAllowed === true
+        || entryRouteContract?.generationAllowed === true;
+    if (!hasEntryContract && !hasSourceFrame && !adjectivalNnc.sourceEvidenceStatus && !adjectivalNnc.sourceRouteFamily) {
+        return null;
+    }
+    const status = String(
+        sourceGenerated
+            ? "source-evidence-satisfied"
+            : (
+                adjectivalNnc.sourceEvidenceStatus
+                || entryRouteContract?.evidenceStatus
+                || authorityFrame.evidenceStatus
+                || ""
+            )
+    ).trim();
+    const sourceRouteFamily = String(
+        adjectivalNnc.sourceRouteFamily
+        || entryRouteContract?.routeFamily
+        || routeContract.routeFamily
+        || ""
+    ).trim();
+    const sourceRouteStage = String(
+        adjectivalNnc.sourceRouteStage
+        || entryRouteContract?.routeStage
+        || routeContract.routeStage
+        || ""
+    ).trim();
+    return {
+        kind: String(adjectivalNnc.sourceEvidenceKind || "adjectival-nnc-function").trim(),
+        status,
+        evidenceStatus: status,
+        targetAuthority: String(authorityFrame.grammarAuthority || "Andrews").trim(),
+        evidenceSource: String(adjectivalNnc.sourceEvidenceSource || "linked-promoted grammar frame").trim(),
+        sourceRouteFamily,
+        sourceRouteStage,
+        sourceOutputKind: String(resultFrame.outputKind || targetContract.outputKind || "").trim(),
+        sourceUnitKind: String(sourceFrame?.unitFrame?.unitKind || sourceContract.unitKind || "").trim(),
+        sourceSurface,
+        sourceCategory: String(sourceContract.sourceCategory || adjectivalNnc.sourceCategory || "").trim(),
+        boundaries: {
+            sourceEvidenceFromAndrewsContractRoute: Boolean(sourceRouteFamily),
+            sourceEvidenceFromSelectedGeneratedStage: Boolean(sourceSurface && sourceGenerated),
+            sourceEvidenceFromAdjectivalNncEntryContract: hasEntryContract,
+            sourceEvidenceFromMirroredGrammarFrame: hasSourceFrame,
+        },
+    };
+}
+
+function collectGrammarFrameAndrewsRefs(result = null, override = null) {
+    const refs = [];
+    const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    const sourceFrame = getGenerateWordOverrideSourceGrammarFrame(override);
+    const entryRouteContract = adjectivalNnc.entryRouteContract && typeof adjectivalNnc.entryRouteContract === "object"
+        ? adjectivalNnc.entryRouteContract
+        : null;
+    [
+        result,
+        result?.grammarFrame?.authorityFrame,
+        result?.frames?.authorityFrame,
+        result?.adjectivalNncFunctionFrame,
+        result?.rootPlusYaAdjectivalNncFrame,
+        result?.nominalizationProfile,
+        result?.denominalFamilyProfile,
+        result?.patientiveSourceStageFrame,
+        result?.formationFrame,
+        result?.adverbialNuclearFrame,
+        result?.relationalNncBoundaryFrame,
+        result?.placeGentilicNncBoundaryFrame,
+        result?.adverbialAdjunctionBoundaryFrame,
+        result?.sentenceLayer,
+        adjectivalNnc,
+        entryRouteContract,
+        sourceFrame?.authorityFrame,
+    ].forEach((entry) => {
+        collectGrammarFrameRefsFromObject(entry, refs);
+    });
+    return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function resolveGrammarFrameSourceEvidence(result = null, override = null) {
+    const outputSourceEvidence = result?.sourceEvidence
+        || result?.denominalFamilyProfile?.sourceEvidence
+        || result?.formationFrame?.sourceEvidence
+        || result?.patientiveSourceStageFrame?.sourceEvidence
+        || null;
+    return mergeGenerateWordSourceEvidence(
+        outputSourceEvidence,
+        buildGenerateWordOverrideSourceEvidence(override)
+    );
+}
+
+function resolveGrammarFrameAstFrame(result = null) {
+    return result?.astFrame
+        || result?.modificationAst
+        || result?.adverbialAdjunctionAst
+        || result?.complementClauseAst
+        || result?.conjunctionClauseAst
+        || result?.comparisonAst
+        || result?.compoundFrame
+        || null;
+}
+
+function buildGenerateWordGrammarFrame({
+    result = null,
+    override = null,
+    resolvedTenseMode = "",
+    tense = "",
+    routeFamily = "",
+    routeStage = "execute",
+    unitKind = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    possessivePrefix = "",
+    verb = "",
+    renderVerb = "",
+    nuclearClauseShell = null,
+    vncValencyFrame = null,
+    resolvedDerivationMode = "",
+    resolvedDerivationType = "",
+    resolvedVoiceMode = "",
+} = {}) {
+    if (typeof buildGrammarFrame !== "function") {
+        return null;
+    }
+    const output = result && typeof result === "object" ? result : {};
+    const surface = resolveGenerateWordContractSurface(output);
+    const surfaceForms = normalizeGrammarFrameSurfaceForms(output);
+    const diagnostics = Array.isArray(output.diagnostics) ? output.diagnostics : [];
+    const ok = Boolean(surface) && output.error !== true && output.supported !== false;
+    const evidenceStatus = ok
+        ? "generated"
+        : (diagnostics.length ? "blocked" : "pending");
+    const activeRouteFamily = routeFamily
+        || output.generationRoute
+        || output.outputKind
+        || "";
+    const sourceEvidence = resolveGrammarFrameSourceEvidence(output, override);
+    const activeNuclearShell = nuclearClauseShell || output.nuclearClauseShell || null;
+    const formulaSlots = activeNuclearShell?.formulaSlots || output.formulaSlots || null;
+    const formulaEcho = activeNuclearShell?.formulaEcho || output.formulaEcho || "";
+    const frameSourceInput = resolveGenerateWordFrameSourceInput({
+        result: output,
+        renderVerb,
+        verb,
+    });
+    const routeContract = typeof buildGrammarRouteContractFrame === "function"
+        ? buildGrammarRouteContractFrame({
+            routeFamily: activeRouteFamily,
+            routeStage,
+            sourceContract: {
+                unitKind,
+                tenseMode: resolvedTenseMode,
+                tense,
+                sourceEvidence,
+                sourceRouteFamily: sourceEvidence?.sourceRouteFamily || "",
+                sourceRouteStage: sourceEvidence?.sourceRouteStage || "",
+                sourceOutputKind: sourceEvidence?.sourceOutputKind || "",
+                sourceSurface: sourceEvidence?.sourceSurface || "",
+            },
+            targetContract: {
+                outputKind: output.outputKind || "",
+                generationRoute: output.generationRoute || activeRouteFamily,
+            },
+            generationAllowed: ok,
+            blockingDiagnostics: ok ? [] : diagnostics,
+        })
+        : null;
+    const resultFrame = typeof buildGrammarResultFrame === "function"
+        ? buildGrammarResultFrame({
+            ok,
+            surface,
+            surfaceForms,
+            outputKind: output.outputKind || "",
+            generationRoute: output.generationRoute || activeRouteFamily,
+            sourceInput: frameSourceInput,
+            provenance: output.stemProvenance || output.provenance || null,
+            continuation: output.continuation || null,
+        })
+        : null;
+    const diagnosticFrame = typeof buildGrammarDiagnosticFrame === "function"
+        ? buildGrammarDiagnosticFrame({
+            status: ok ? "generated" : evidenceStatus,
+            diagnostics,
+            blockers: ok ? [] : diagnostics,
+        })
+        : null;
+    const authorityFrame = typeof buildGrammarAuthorityFrame === "function"
+        ? buildGrammarAuthorityFrame({
+            sourceEvidence,
+            evidenceStatus,
+            andrewsRefs: collectGrammarFrameAndrewsRefs(output, override),
+            supported: ok,
+        })
+        : null;
+    return buildGrammarFrame({
+        authorityFrame,
+        unitFrame: {
+            unitKind,
+            tenseMode: resolvedTenseMode,
+            outputKind: output.outputKind || "",
+            generationRoute: output.generationRoute || activeRouteFamily,
+        },
+        orthographyFrame: {
+            surface,
+            surfaceForms,
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+        },
+        morphBoundaryFrame: {
+            formulaSlots,
+            formulaEcho: String(formulaEcho || ""),
+        },
+        stemFrame: {
+            stem: normalizeGenerateWordContractSurface(output.stem) || frameSourceInput,
+            sourceStem: String(output.sourceStem || output.stemProvenance?.sourceStem || ""),
+            stemProvenance: output.stemProvenance || null,
+            verbstemClassProfile: output.verbstemClassProfile || output.stemProvenance?.verbstemClassProfile || null,
+        },
+        nuclearClauseFrame: activeNuclearShell,
+        participantFrame: {
+            subject: {
+                prefix: String(subjectPrefix || ""),
+                suffix: String(subjectSuffix || ""),
+            },
+            object: {
+                prefix: String(objectPrefix || ""),
+            },
+            possessor: {
+                prefix: String(possessivePrefix || ""),
+            },
+            valenceFrame: vncValencyFrame || output.vncValencyFrame || null,
+        },
+        inflectionFrame: {
+            tenseMode: resolvedTenseMode,
+            tense,
+            derivationMode: resolvedDerivationMode,
+            derivationType: resolvedDerivationType,
+            voiceMode: resolvedVoiceMode,
+            state: output.state || "",
+        },
+        routeContract,
+        astFrame: resolveGrammarFrameAstFrame(output),
+        resultFrame,
+        diagnosticFrame,
+    });
+}
+
+function buildGenerateWordResultContract(resultPayload = null, grammarFrame = null) {
+    if (typeof buildGrammarResultContract === "function") {
+        return buildGrammarResultContract({
+            result: resultPayload,
+            grammarFrame,
+        });
+    }
+    const surface = resolveGenerateWordContractSurface(resultPayload);
+    return {
+        ok: Boolean(surface) && resultPayload?.error !== true && resultPayload?.supported !== false,
+        surface,
+        frames: grammarFrame,
+        diagnostics: Array.isArray(resultPayload?.diagnostics) ? resultPayload.diagnostics : [],
+    };
+}
+
+function attachGenerateWordContractProperties(resultPayload = null, resultContract = null, grammarFrame = null, {
+    enumerable = false,
+} = {}) {
+    if (!resultPayload || typeof resultPayload !== "object") {
+        return resultPayload;
+    }
+    const contract = resultContract || buildGenerateWordResultContract(resultPayload, grammarFrame);
+    Object.defineProperties(resultPayload, {
+        grammarFrame: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: grammarFrame,
+        },
+        ok: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: contract.ok,
+        },
+        surface: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: contract.surface,
+        },
+        frames: {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: contract.frames,
+        },
+    });
+    if (!Object.prototype.hasOwnProperty.call(resultPayload, "diagnostics")) {
+        Object.defineProperty(resultPayload, "diagnostics", {
+            configurable: true,
+            enumerable,
+            writable: true,
+            value: contract.diagnostics,
+        });
+    }
+    return resultPayload;
+}
+
+function buildGenerateWordBlockedResult({
+    result = null,
+    message = GENERATE_WORD_NO_OUTPUT_MESSAGE,
+    diagnosticId = "generate-word-route-blocked",
+    routeFamily = "generate-word",
+    routeStage = "validate",
+    resultMarker = "—",
+    override = null,
+    resolvedTenseMode = "",
+    tense = "",
+    subjectPrefix = "",
+    subjectSuffix = "",
+    objectPrefix = "",
+    possessivePrefix = "",
+    verb = "",
+    renderVerb = "",
+    isReflexive = false,
+    resolvedDerivationMode = "",
+    resolvedDerivationType = "",
+    resolvedVoiceMode = "",
+    nuclearClauseShell = null,
+    vncValencyFrame = null,
+    enumerableContract = false,
+} = {}) {
+    const resultPayload = result && typeof result === "object" ? result : {};
+    if (resultMarker !== null && !Object.prototype.hasOwnProperty.call(resultPayload, "result")) {
+        resultPayload.result = resultMarker;
+    }
+    if (resultMarker !== null && !Object.prototype.hasOwnProperty.call(resultPayload, "surfaceForms")) {
+        resultPayload.surfaceForms = [];
+    }
+    if (!Object.prototype.hasOwnProperty.call(resultPayload, "error")) {
+        resultPayload.error = true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(resultPayload, "isReflexive")) {
+        resultPayload.isReflexive = isReflexive;
+    }
+    const failedLayerContract = getGenerateWordFailedLayerContract(routeStage);
+    const fallbackDiagnostic = buildGenerateWordDiagnosticEntry({
+        id: diagnosticId,
+        message,
+        ...failedLayerContract,
+        routeFamily,
+        routeStage,
+    });
+    resultPayload.diagnostics = normalizeGenerateWordDiagnosticEntries(
+        resultPayload.diagnostics,
+        fallbackDiagnostic
+    );
+    const grammarFrame = buildGenerateWordGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode,
+        tense,
+        routeFamily,
+        routeStage,
+        unitKind: resolveGenerateWordUnitKind(resolvedTenseMode),
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        possessivePrefix,
+        verb,
+        renderVerb,
+        nuclearClauseShell,
+        vncValencyFrame,
+        resolvedDerivationMode,
+        resolvedDerivationType,
+        resolvedVoiceMode,
+    });
+    const resultContract = buildGenerateWordResultContract(resultPayload, grammarFrame);
+    return attachGenerateWordContractProperties(resultPayload, resultContract, grammarFrame, {
+        enumerable: enumerableContract,
+    });
+}
+
 function executeAdjectivalNncGenerationRoute({
     override = null,
     verb = "",
@@ -56,20 +766,22 @@ function executeAdjectivalNncGenerationRoute({
         && shouldGenerateRootPlusYaAdjectivalNnc(adjectivalNnc);
     const result = shouldUseIntensifiedRoute && typeof buildIntensifiedAdjectivalNncOutput === "function"
         ? buildIntensifiedAdjectivalNncOutput({
-            sourceSurface: adjectivalNnc.sourceSurface
-                ?? adjectivalNnc.surface
-                ?? adjectivalNnc.stem
-                ?? verb,
+            sourceSurface: resolveAdjectivalNncGenerationSurface(
+                adjectivalNnc,
+                ["sourceSurface", "surface", "stem"],
+                verb
+            ),
             sourceFormulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
             sourceFormulaEcho: adjectivalNnc.sourceFormulaEcho || adjectivalNnc.formulaEcho || "",
             role: adjectivalNnc.role ?? "predicate-surface",
         })
         : shouldUseVncRoute && typeof buildVncAdjectivalNncFunctionOutput === "function"
         ? buildVncAdjectivalNncFunctionOutput({
-            vncSurface: adjectivalNnc.vncSurface
-                ?? adjectivalNnc.surface
-                ?? adjectivalNnc.stem
-                ?? verb,
+            vncSurface: resolveAdjectivalNncGenerationSurface(
+                adjectivalNnc,
+                ["vncSurface", "surface", "stem"],
+                verb
+            ),
             sourceVerb: adjectivalNnc.sourceVerb ?? verb,
             sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
             sourceCombinedMode: adjectivalNnc.sourceCombinedMode ?? "",
@@ -78,10 +790,11 @@ function executeAdjectivalNncGenerationRoute({
         })
         : shouldUseNominalizedVncRoute && typeof buildNominalizedVncAdjectivalNncFunctionOutput === "function"
         ? buildNominalizedVncAdjectivalNncFunctionOutput({
-            nominalizedSurface: adjectivalNnc.nominalizedSurface
-                ?? adjectivalNnc.surface
-                ?? adjectivalNnc.stem
-                ?? verb,
+            nominalizedSurface: resolveAdjectivalNncGenerationSurface(
+                adjectivalNnc,
+                ["nominalizedSurface", "surface", "stem"],
+                verb
+            ),
             state: adjectivalNnc.state ?? "absolutive",
             nominalizationProfile: adjectivalNnc.nominalizationProfile || null,
             formulaSlots: adjectivalNnc.formulaSlots || null,
@@ -90,10 +803,11 @@ function executeAdjectivalNncGenerationRoute({
         })
         : shouldUsePatientiveRoute && typeof buildPatientivoAdjectivalNncFunctionOutput === "function"
         ? buildPatientivoAdjectivalNncFunctionOutput({
-            patientivoSurface: adjectivalNnc.patientivoSurface
-                ?? adjectivalNnc.surface
-                ?? adjectivalNnc.stem
-                ?? verb,
+            patientivoSurface: resolveAdjectivalNncGenerationSurface(
+                adjectivalNnc,
+                ["patientivoSurface", "surface", "stem"],
+                verb
+            ),
             state: adjectivalNnc.state ?? "absolutive",
             patientivoSource: adjectivalNnc.patientivoSource ?? "",
             sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
@@ -105,7 +819,7 @@ function executeAdjectivalNncGenerationRoute({
         })
         : shouldUseRootPlusYaRoute && typeof generateRootPlusYaAdjectivalNncOutput === "function"
         ? generateRootPlusYaAdjectivalNncOutput({
-            stem: adjectivalNnc.stem ?? verb,
+            stem: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["stem", "surface"], verb),
             state: adjectivalNnc.state ?? "absolutive",
             subject: {
                 subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
@@ -116,7 +830,7 @@ function executeAdjectivalNncGenerationRoute({
         })
         : typeof generateAdjectivalNncFunctionOutput === "function"
         ? generateAdjectivalNncFunctionOutput({
-            stem: adjectivalNnc.stem ?? verb,
+            stem: resolveAdjectivalNncGenerationSurface(adjectivalNnc, ["stem", "surface"], verb),
             state: adjectivalNnc.state ?? "absolutive",
             subject: {
                 subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
@@ -182,13 +896,39 @@ function executeAdjectivalNncGenerationRoute({
             clauseKind: resultClauseKind,
         })
         : null;
-    return {
+    const resultPayload = {
         ...result,
         generationRoute: "adjectival-nnc",
         isReflexive: false,
         stemProvenance: null,
         nuclearClauseShell,
         sentenceLayer,
+    };
+    const grammarFrame = buildGenerateWordGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode: TENSE_MODE.adjetivo,
+        tense: result.tense || adjectivalNnc.targetTense || "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute",
+        unitKind: resultClauseKind === "verbal-nuclear-clause"
+            ? "verbal-nuclear-clause"
+            : "ordinary-nnc",
+        subjectPrefix: adjectivalNnc.subjectPrefix ?? subjectPrefix,
+        subjectSuffix: adjectivalNnc.subjectSuffix ?? subjectSuffix,
+        objectPrefix: adjectivalNnc.objectPrefix ?? objectPrefix,
+        verb,
+        renderVerb: resolveGenerateWordFrameSourceInput({
+            result: resultPayload,
+            verb: result.stem || verb,
+        }),
+        nuclearClauseShell,
+    });
+    const resultContract = buildGenerateWordResultContract(resultPayload, grammarFrame);
+    return {
+        ...resultPayload,
+        grammarFrame,
+        ...resultContract,
     };
 }
 
@@ -261,13 +1001,37 @@ function executeOrdinaryNncGenerationRoute({
             clauseKind: "nominal-nuclear-clause",
         })
         : null;
-    return {
+    const resultPayload = {
         ...result,
         generationRoute: "ordinary-nnc",
         isReflexive: false,
         stemProvenance: null,
         nuclearClauseShell,
         sentenceLayer,
+    };
+    const grammarFrame = buildGenerateWordGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode: TENSE_MODE.sustantivo,
+        tense: result.tense || ordinaryNnc.targetTense || "ordinary-nnc",
+        routeFamily: "ordinary-nnc",
+        routeStage: "execute",
+        unitKind: "ordinary-nnc",
+        subjectPrefix: ordinaryNnc.subjectPrefix ?? subjectPrefix,
+        subjectSuffix: ordinaryNnc.subjectSuffix ?? subjectSuffix,
+        possessivePrefix: possessor,
+        verb,
+        renderVerb: resolveGenerateWordFrameSourceInput({
+            result: resultPayload,
+            verb: result.stem || verb,
+        }),
+        nuclearClauseShell,
+    });
+    const resultContract = buildGenerateWordResultContract(resultPayload, grammarFrame);
+    return {
+        ...resultPayload,
+        grammarFrame,
+        ...resultContract,
     };
 }
 
@@ -1172,7 +1936,7 @@ const GENERATED_DENOMINAL_ROUTE_PROFILE_BY_TENSE = Object.freeze({
     },
     "adjetivo-preterito-naj": {
         routeFamily: "vt-na",
-        structuralAnalogue: "transitive-denominal-route",
+        structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
         routeId: "denominal-vt-na-preterit",
         sourceSlot: "noun/inc.obj.",
         sourceCategory: "noun-or-incorporated-object",
@@ -1184,7 +1948,7 @@ const GENERATED_DENOMINAL_ROUTE_PROFILE_BY_TENSE = Object.freeze({
     },
     "adjetivo-perfecto-naj": {
         routeFamily: "vt-na",
-        structuralAnalogue: "transitive-denominal-route",
+        structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
         routeId: "denominal-vt-na-perfect",
         sourceSlot: "noun/inc.obj.",
         sourceCategory: "noun-or-incorporated-object",
@@ -1224,6 +1988,137 @@ function resolveGeneratedDenominalRouteProfileSpec(nominalKind = "") {
         : null;
 }
 
+function generatedDenominalRouteHasAndrewsSuffixContract(spec = null) {
+    return String(spec?.structuralAnalogue || "").trim() !== "nawat-transitive-route-no-andrews-suffix";
+}
+
+function getGeneratedDenominalRouteCurriculumRef(spec = null) {
+    if (generatedDenominalRouteHasAndrewsSuffixContract(spec)) {
+        return { source: "Andrews", range: "54-55", role: "structural-analogue" };
+    }
+    return { source: "Nawat route data", range: "static_modes", role: "legacy-denominal-route" };
+}
+
+function getGeneratedDenominalRouteSupportStatus(spec = null) {
+    return generatedDenominalRouteHasAndrewsSuffixContract(spec)
+        ? "current-route-supported"
+        : "current-route-supported-nawat-only";
+}
+
+const GENERATED_DENOMINAL_ANDREWS_UNMODELED_CONTRACT_IDS = Object.freeze([
+    "54.2.2-inceptive-stative-hui",
+    "54.2.2-hui-lia-causative",
+    "54.2.3-inceptive-stative-ya",
+    "54.2.3-ti-ya-deverbal",
+    "54.2.3-hui-ya-deverbal",
+    "54.2.3-ya-lia-causative",
+    "54.2.4-inceptive-stative-a",
+    "54.2.5-inceptive-stative-hua",
+    "54.3-included-possessor-ti",
+    "54.2-54.4-ti-lia-causative",
+    "54.5-ti-a-causative",
+    "54.6-t-ia-applicative",
+    "55.1-temporal-tia",
+    "55.2-causative-tla",
+    "55.2-tla-ti-lia-applicative",
+    "55.2-intransitive-tla",
+    "55.2-intransitive-tla-ti-a-causative",
+    "55.2-intransitive-tla-ti-lia-applicative",
+    "55.3-intransitive-o-a-applicative-huia",
+    "55.3-o-a-il-huia-al-huia-applicative-note",
+    "55.4-adverbial-huia",
+    "55.5-relational-compound-o-a-huia",
+    "55.7-transitive-i-a",
+]);
+
+const GENERATED_DENOMINAL_ANDREWS_TARGET_UNMODELED_CONTRACT_IDS = Object.freeze([
+    "55.6-i-hui-a-hui-to-o-a",
+]);
+
+function getGeneratedDenominalRouteFamiliesWithoutAndrewsContract() {
+    if (typeof getNawatRouteProfiles !== "function") {
+        return ["vt-na"];
+    }
+    return Array.from(new Set(
+        getNawatRouteProfiles()
+            .filter((profile) => profile?.routePlacement === "patientivo-tronco-conversion")
+            .filter((profile) => !generatedDenominalRouteHasAndrewsSuffixContract(profile))
+            .map((profile) => profile.denominalFamily || profile.routeFamily || "")
+            .filter(Boolean)
+    )).sort();
+}
+
+function getGeneratedDenominalAndrewsContractCoverageSummary() {
+    return {
+        version: 1,
+        curriculumRef: { source: "Andrews", range: "54.2-55.7", role: "denominal-contract-inventory" },
+        outputKind: "denominal-andrews-contract-coverage",
+        contractCount: 26,
+        routeCoveredContractCount: 3,
+        unmodeledContractCount: GENERATED_DENOMINAL_ANDREWS_UNMODELED_CONTRACT_IDS.length,
+        targetUnmodeledContractCount: GENERATED_DENOMINAL_ANDREWS_TARGET_UNMODELED_CONTRACT_IDS.length,
+        nawatOnlyRouteFamilies: getGeneratedDenominalRouteFamiliesWithoutAndrewsContract(),
+        unmodeledContractIds: Array.from(GENERATED_DENOMINAL_ANDREWS_UNMODELED_CONTRACT_IDS),
+        targetUnmodeledContractIds: Array.from(GENERATED_DENOMINAL_ANDREWS_TARGET_UNMODELED_CONTRACT_IDS),
+        boundaries: {
+            noNewSurfaceForms: true,
+            noFixtureEvidence: true,
+            structuralInventoryOnly: true,
+            fullLessonGenerationModeled: false,
+        },
+    };
+}
+
+function getGeneratedDenominalRouteSuffixContract(spec = null) {
+    const familyKey = spec?.denominalFamily || spec?.routeFamily || "";
+    const contractByFamily = {
+        "vi-ti": { range: "54.2/54.4", classicalSuffix: "ti" },
+        "vi-iwi": { range: "55.6", classicalSuffix: "i-hui" },
+        "vi-awi": { range: "55.6", classicalSuffix: "a-hui" },
+    };
+    const contractSpec = contractByFamily[familyKey];
+    if (!contractSpec) {
+        return null;
+    }
+    const orthographyConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(contractSpec.classicalSuffix, {
+            source: "Andrews Lessons 54-55 denominal route suffix",
+        })
+        : null;
+    const nawatRuleSuffix = orthographyConversion?.output || contractSpec.classicalSuffix;
+    return {
+        kind: "denominal-route-suffix-contract",
+        curriculumRef: { source: "Andrews", range: contractSpec.range, role: "suffix-family" },
+        routeFamily: familyKey,
+        classicalSuffix: contractSpec.classicalSuffix,
+        nawatRuleSuffix,
+        nawatVerbalizer: `-${String(nawatRuleSuffix || "").replace(/-/g, "")}`,
+        routeVerbalizer: String(spec?.verbalizer || "").trim(),
+        orthographyConversion,
+        boundaries: {
+            noFixtureEvidence: true,
+            noNewSurfaceForms: true,
+            suffixFamilyInventoryComplete: false,
+        },
+    };
+}
+
+function buildGeneratedDenominalRouteBoundaries(spec = null) {
+    const boundaries = {
+        noNewSurfaceForms: true,
+        routeBasedOnly: true,
+        suffixFamilyInventoryComplete: false,
+        includedPossessorModeled: false,
+        possessionDenominalModeled: false,
+        temporalDenominalModeled: false,
+        causativeApplicativeFamilyModeled: false,
+    };
+    if (!generatedDenominalRouteHasAndrewsSuffixContract(spec)) {
+        boundaries.noAndrewsSuffixContract = true;
+    }
+    return boundaries;
+}
+
 function buildGeneratedDenominalFamilyProfileMetadata({
     nominalKind = "",
     renderVerb = "",
@@ -1234,9 +2129,14 @@ function buildGeneratedDenominalFamilyProfileMetadata({
     if (!spec) {
         return null;
     }
+    const sourceSurface = String(renderVerb || analysisVerb || verb || "").trim();
+    const sourceInput = String(verb || analysisVerb || renderVerb || "").trim();
+    const andrewsContractRoutePreview = typeof generateNawatDenominalAndrewsContractRoutePreview === "function"
+        ? generateNawatDenominalAndrewsContractRoutePreview({ sourceStem: sourceInput || sourceSurface })
+        : null;
     return {
         version: 1,
-        curriculumRef: { source: "Andrews", range: "54-55", role: "structural-analogue" },
+        curriculumRef: getGeneratedDenominalRouteCurriculumRef(spec),
         outputKind: "denominal-route",
         routeFamily: spec.denominalFamily || spec.routeFamily || "",
         structuralAnalogue: spec.structuralAnalogue || "",
@@ -1246,24 +2146,19 @@ function buildGeneratedDenominalFamilyProfileMetadata({
         sourceState: "patientivo-tronco",
         sourceSlot: spec.sourceSlot,
         sourceCategory: spec.sourceCategory,
-        sourceSurface: String(renderVerb || analysisVerb || verb || "").trim(),
-        sourceInput: String(verb || analysisVerb || renderVerb || "").trim(),
+        sourceSurface,
+        sourceInput,
+        suffixContract: getGeneratedDenominalRouteSuffixContract(spec),
         verbalizer: spec.verbalizer,
         verbalizerType: spec.verbalizerType,
         valency: spec.valency,
         targetTense: spec.nawatTenseValue || spec.targetTenseValue || spec.finiteTense || spec.targetTense || "",
         surfaceSuffix: spec.surfaceSuffix,
-        supportStatus: "current-route-supported",
+        andrewsContractCoverage: getGeneratedDenominalAndrewsContractCoverageSummary(),
+        andrewsContractRoutePreview,
+        supportStatus: getGeneratedDenominalRouteSupportStatus(spec),
         isCompleteLesson54_55: false,
-        boundaries: {
-            noNewSurfaceForms: true,
-            routeBasedOnly: true,
-            suffixFamilyInventoryComplete: false,
-            includedPossessorModeled: false,
-            possessionDenominalModeled: false,
-            temporalDenominalModeled: false,
-            causativeApplicativeFamilyModeled: false,
-        },
+        boundaries: buildGeneratedDenominalRouteBoundaries(spec),
     };
 }
 
@@ -1276,6 +2171,8 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
     sourceCombinedMode = "",
     actionNounStemUse = "",
     patientivoSource = "",
+    patientiveSourceStageFrame = null,
+    patientiveMultipleDerivationContract = null,
     renderVerb = "",
     verb = "",
     analysisVerb = "",
@@ -1332,6 +2229,8 @@ function buildGeneratedNominalSubjectNumberConnectorMetadata({
             predicateStateSlot,
             subjectNumberConnector: connector,
             patientivoSource,
+            patientiveSourceStageFrame,
+            patientiveMultipleDerivationContract,
         })
         : null;
     return {
@@ -1545,7 +2444,28 @@ function executeGenerateWordRequest(request = {}) {
                 baseObjectPrefix,
             });
         }
-        return { error: message };
+        return buildGenerateWordBlockedResult({
+            result: { error: message },
+            message,
+            diagnosticId: "generate-word-validation-error",
+            routeFamily: "generate-word",
+            routeStage: "validate",
+            resultMarker: null,
+            override,
+            resolvedTenseMode,
+            tense,
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix: baseObjectPrefix,
+            possessivePrefix,
+            verb,
+            renderVerb,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
     };
     const returnIfError = (message, errorTargets = []) => {
         const error = returnError(message, errorTargets);
@@ -1977,7 +2897,28 @@ function executeGenerateWordRequest(request = {}) {
         initialState: { verb, analysisVerb, isYawi, suppletiveStemSet },
     });
     if (forwardDerivations.noStemMask) {
-        return forwardDerivations.noStemMask;
+        return buildGenerateWordBlockedResult({
+            result: forwardDerivations.noStemMask,
+            message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+            diagnosticId: "generate-word-forward-derivation-no-stem",
+            routeFamily: "forward-derivation",
+            routeStage: "no-stem-mask",
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix: baseObjectPrefix,
+            possessivePrefix,
+            verb,
+            renderVerb,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
     }
     ({
         verb,
@@ -2136,11 +3077,33 @@ function executeGenerateWordRequest(request = {}) {
         && !shouldBypassGenericRawInputGates
     ) {
         if (skipValidation) {
-            return {
-                result: "—",
-                error: true,
+            return buildGenerateWordBlockedResult({
+                result: {
+                    result: "—",
+                    error: true,
+                    surfaceForms: [],
+                    isReflexive,
+                },
+                message: "El verbo debe terminar en vocal.",
+                diagnosticId: "generate-word-final-vowel-gate-blocked",
+                routeFamily: "generate-word",
+                routeStage: "raw-input-final-vowel-gate",
+                resultMarker: "—",
+                override,
+                resolvedTenseMode,
+                tense,
+                subjectPrefix,
+                subjectSuffix,
+                objectPrefix: baseObjectPrefix,
+                possessivePrefix,
+                verb,
+                renderVerb,
                 isReflexive,
-            };
+                resolvedDerivationMode,
+                resolvedDerivationType,
+                resolvedVoiceMode,
+                enumerableContract: false,
+            });
         }
         const message = "El verbo debe terminar en vocal.";
         const error = returnIfError(message, ["verb"]);
@@ -2151,11 +3114,33 @@ function executeGenerateWordRequest(request = {}) {
     const stemGate = evaluateVerbStemInputGate(rawVerb, parsedVerb);
     if (!stemGate.isValid && !shouldBypassGenericRawInputGates) {
         if (skipValidation) {
-            return {
-                result: "—",
-                error: true,
+            return buildGenerateWordBlockedResult({
+                result: {
+                    result: "—",
+                    error: true,
+                    surfaceForms: [],
+                    isReflexive,
+                },
+                message: "El segmento final del verbo no cumple un patrón silábico válido.",
+                diagnosticId: "generate-word-stem-syllable-gate-blocked",
+                routeFamily: "generate-word",
+                routeStage: "raw-input-stem-syllable-gate",
+                resultMarker: "—",
+                override,
+                resolvedTenseMode,
+                tense,
+                subjectPrefix,
+                subjectSuffix,
+                objectPrefix: baseObjectPrefix,
+                possessivePrefix,
+                verb,
+                renderVerb,
                 isReflexive,
-            };
+                resolvedDerivationMode,
+                resolvedDerivationType,
+                resolvedVoiceMode,
+                enumerableContract: false,
+            });
         }
         const message = "El segmento final del verbo no cumple un patrón silábico válido.";
         const error = returnIfError(message, ["verb"]);
@@ -2272,11 +3257,33 @@ function executeGenerateWordRequest(request = {}) {
             && isTransitiveVerb
         ) {
             if (skipValidation) {
-                return {
-                    result: "—",
-                    error: true,
+                return buildGenerateWordBlockedResult({
+                    result: {
+                        result: "—",
+                        error: true,
+                        surfaceForms: [],
+                        isReflexive,
+                    },
+                    message: "Adjetivo activo solo para verbos intransitivos.",
+                    diagnosticId: "generate-word-active-adjective-transitive-blocked",
+                    routeFamily: "generate-word",
+                    routeStage: "adjective-active-valency-gate",
+                    resultMarker: "—",
+                    override,
+                    resolvedTenseMode,
+                    tense,
+                    subjectPrefix,
+                    subjectSuffix,
+                    objectPrefix,
+                    possessivePrefix,
+                    verb,
+                    renderVerb,
                     isReflexive,
-                };
+                    resolvedDerivationMode,
+                    resolvedDerivationType,
+                    resolvedVoiceMode,
+                    enumerableContract: false,
+                });
             }
             const error = returnIfError(
                 "Adjetivo activo solo para verbos intransitivos.",
@@ -2558,7 +3565,28 @@ function executeGenerateWordRequest(request = {}) {
     };
     appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     if (appliedMorphology?.error) {
-        return { error: true };
+        return buildGenerateWordBlockedResult({
+            result: { error: true },
+            message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+            diagnosticId: "generate-word-morphology-application-blocked",
+            routeFamily: "generate-word",
+            routeStage: "morphology-application",
+            resultMarker: null,
+            override,
+            resolvedTenseMode,
+            tense,
+            subjectPrefix,
+            subjectSuffix,
+            objectPrefix: morphologyObjectPrefix,
+            possessivePrefix,
+            verb,
+            renderVerb,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
     }
     if (isPotencialHabitualNominalProfile) {
         const customaryPresentSubjectSuffix = String(appliedMorphology.subjectSuffix || "");
@@ -2617,7 +3645,28 @@ function executeGenerateWordRequest(request = {}) {
             }
         );
         if (subjectSuffix === null) {
-            return { error: true };
+            return buildGenerateWordBlockedResult({
+                result: { error: true },
+                message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+                diagnosticId: "generate-word-patientivo-possessive-suffix-blocked",
+                routeFamily: "generate-word",
+                routeStage: "patientivo-possessive-suffix",
+                resultMarker: null,
+                override,
+                resolvedTenseMode,
+                tense,
+                subjectPrefix,
+                subjectSuffix: "",
+                objectPrefix,
+                possessivePrefix,
+                verb,
+                renderVerb,
+                isReflexive,
+                resolvedDerivationMode,
+                resolvedDerivationType,
+                resolvedVoiceMode,
+                enumerableContract: false,
+            });
         }
     }
     primaryFormSpec = appliedMorphology.formSpec
@@ -2810,6 +3859,8 @@ function executeGenerateWordRequest(request = {}) {
             renderVerb,
             verb,
             analysisVerb,
+            patientiveSourceStageFrame: appliedMorphology?.surfaceRuleMeta?.patientivoSourceStageFrame || null,
+            patientiveMultipleDerivationContract: appliedMorphology?.surfaceRuleMeta?.patientivoMultipleDerivationContract || null,
             sourceSubjectPrefix: inputSubjectPrefix,
             sourceSubjectSuffix: inputSubjectSuffix,
         })
@@ -2914,7 +3965,7 @@ function executeGenerateWordRequest(request = {}) {
             clauseKind: nuclearClauseShell?.clauseKind || "",
         })
         : null;
-    return {
+    const resultPayload = {
         result: generatedText,
         surfaceForms: forms,
         isReflexive,
@@ -2934,5 +3985,33 @@ function executeGenerateWordRequest(request = {}) {
             || nominalClauseMetadata?.adverbialAdjunctionBoundaryFrame
             || null,
         sentenceLayer,
+    };
+    const grammarFrame = buildGenerateWordGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode,
+        tense,
+        routeFamily: resultPayload.generationRoute
+            || nominalClauseMetadata?.nominalizationProfile?.role?.nominalizationKind
+            || (resolvedTenseMode === TENSE_MODE.verbo ? "vnc" : resolvedTenseMode),
+        routeStage: "execute",
+        unitKind: nuclearClauseShell?.clauseKind || (resolvedTenseMode === TENSE_MODE.verbo ? "verbal-nuclear-clause" : "nominal-nuclear-clause"),
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        possessivePrefix,
+        verb,
+        renderVerb,
+        nuclearClauseShell,
+        vncValencyFrame,
+        resolvedDerivationMode,
+        resolvedDerivationType,
+        resolvedVoiceMode,
+    });
+    const resultContract = buildGenerateWordResultContract(resultPayload, grammarFrame);
+    return {
+        ...resultPayload,
+        grammarFrame,
+        ...resultContract,
     };
 }

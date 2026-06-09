@@ -102,6 +102,36 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "nominalization classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyNominalizationBoundaryCandidate({
+                candidate: "tamachti",
+                nominalizationKind: "patientive-family",
+                sourceVnc: "-(mati)",
+                hasNominalizationProfile: true,
+                falsePositiveSource: "patientive-family-profile",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                stemKind: classification.frames.stemFrame.stemKind,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "nominalization",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            stemKind: "nominalization-source-candidate",
+            diagnosticId: "nominalization-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "ownerhood category is recognized but requires Nawat/Pipil evidence",

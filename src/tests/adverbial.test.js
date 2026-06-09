@@ -123,7 +123,6 @@ function run(ctx) {
             },
             output: {
                 surfaceForms: ["matka", "matika"],
-                primarySurface: "matka",
                 preservesGeneratedSurface: true,
             },
             generationContract: {
@@ -138,11 +137,11 @@ function run(ctx) {
         }
     );
 
-    s.eq(
-        "Andrews 44.2 blocks second-degree adverbialization on VNC source frames",
-        (() => {
-            const frame = ctx.buildAdverbialNuclearClauseFrame({
-                source: "mati",
+	    s.eq(
+	        "Andrews 44.2 blocks second-degree adverbialization on VNC source frames",
+	        (() => {
+	            const frame = ctx.buildAdverbialNuclearClauseFrame({
+	                source: "mati",
                 surfaceForms: ["matka"],
                 sourceClauseKind: "vnc",
                 adverbialDegree: "second-degree",
@@ -159,13 +158,54 @@ function run(ctx) {
             supported: false,
             degree: "second-degree",
             num1Changes: true,
-            diagnostics: ["adverbial-nuclear-source-permits-first-degree-only"],
+	            diagnostics: ["adverbial-nuclear-source-permits-first-degree-only"],
+	        }
+	    );
+	    s.eq(
+	        "adverbial nuclear clause frame reads LCM result-frame surfaces before stale legacy surfaces",
+	        (() => {
+	            const sourceFrame = ctx.buildGrammarFrame({
+	                resultFrame: ctx.buildGrammarResultFrame({
+	                    ok: true,
+	                    surface: "frame-matika",
+	                    surfaceForms: ["frame-matka / frame-matika"],
+	                    sourceInput: "frame-source",
+	                    outputKind: "vnc",
+	                    generationRoute: "adverbio",
+	                }),
+	            });
+	            const frame = ctx.buildAdverbialNuclearClauseFrame({
+	                result: {
+	                    result: "legacy-result",
+	                    surface: "legacy-surface",
+	                    surfaceForms: ["legacy-a / legacy-b"],
+	                    frames: sourceFrame,
+	                },
+                surfaceForms: ["direct-stale-a / direct-stale-b"],
+                surface: "direct-stale-surface",
+                sourceClauseKind: "vnc",
+                adverbialKind: "vnc-adverbial",
+                adverbialDegree: "first-degree",
+	                semanticDomain: "manner",
+	            });
+	            return {
+	                source: frame.source.raw,
+	                outputSurfaceForms: frame.output.surfaceForms,
+	                contractSurfaceForms: frame.frames.resultFrame.surfaceForms,
+	                contractSourceInput: frame.frames.resultFrame.sourceInput,
+	            };
+	        })(),
+        {
+            source: "frame-source",
+            outputSurfaceForms: ["frame-matka", "frame-matika"],
+            contractSurfaceForms: ["frame-matka", "frame-matika"],
+            contractSourceInput: "frame-source",
         }
     );
 
-    s.eq(
-        "legacy adverbio tense remains unconfirmed full Lesson 44 evidence",
-        ctx.classifyAdverbialNuclearCandidate({
+	    s.eq(
+	        "legacy adverbio tense remains unconfirmed full Lesson 44 evidence",
+	        ctx.classifyAdverbialNuclearCandidate({
             source: "(mati)",
             candidate: "matka",
             tense: "pasado-remoto-adverbio-activo",
@@ -191,6 +231,36 @@ function run(ctx) {
                 "adverbial-nuclear-false-positive-source",
             ],
             boundary,
+        }
+    );
+    s.eq(
+        "adverbial nuclear classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyAdverbialNuclearCandidate({
+                source: "(mati)",
+                candidate: "matka",
+                tense: "pasado-remoto-adverbio-activo",
+                adverbialKind: "manner-surface",
+                falsePositiveSource: "legacy-adverbio-surface",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                framesIsGrammarFrame: classification.frames === classification.grammarFrame,
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            framesIsGrammarFrame: true,
+            unitKind: "adverbial-nuclear-clause",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            diagnosticId: "adverbial-nuclear-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
         }
     );
 

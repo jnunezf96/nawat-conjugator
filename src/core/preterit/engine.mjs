@@ -957,7 +957,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     function adjustPretNhBeforeVowel(prefix, base) {
       let adjustedPrefix = prefix || "";
       const adjustedBase = base || "";
-      if (adjustedPrefix && adjustedBase && targetObject.VOWEL_START_RE?.test(adjustedBase) && adjustedPrefix.endsWith("n") && !adjustedPrefix.endsWith("nh") && adjustedPrefix.length >= 2 && targetObject.VOWEL_RE?.test(adjustedPrefix[adjustedPrefix.length - 2] || "")) {
+      if (adjustedPrefix && adjustedBase && targetObject.VOWEL_START_RE.test(adjustedBase) && adjustedPrefix.endsWith("n") && !adjustedPrefix.endsWith("nh") && adjustedPrefix.length >= 2 && targetObject.VOWEL_RE.test(adjustedPrefix[adjustedPrefix.length - 2] || "")) {
         adjustedPrefix = `${adjustedPrefix}h`;
       }
       return {
@@ -1103,12 +1103,266 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     function normalizePretYawiPreteriteVariants(variants, tense, isYawi) {
       return variants;
     }
+    function normalizePretVariantAssemblySurfaceValue(value = "") {
+      if (typeof targetObject.normalizeGrammarSurfaceValue === "function") {
+        return targetObject.normalizeGrammarSurfaceValue(value);
+      }
+      const surface = String(value || "").trim();
+      return surface === "—" ? "" : surface;
+    }
+    function splitPretVariantAssemblySurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizePretVariantAssemblySurfaceValue(entry)).filter(Boolean);
+    }
+    function getPretVariantAssemblyResultFrame(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      if (output.grammarFrame && typeof output.grammarFrame === "object") {
+        return output.grammarFrame;
+      }
+      if (output.frames && typeof output.frames === "object") {
+        return output.frames;
+      }
+      return null;
+    }
+    function getPretVariantAssemblyResultFramePayload(result = null) {
+      const grammarFrame = getPretVariantAssemblyResultFrame(result);
+      return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+    }
+    function getPretVariantAssemblySurfaceForms(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const frameResult = getPretVariantAssemblyResultFramePayload(output);
+      const hasResultFrame = Boolean(frameResult);
+      const forms = [];
+      if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+      }
+      if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitPretVariantAssemblySurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(output.forms)) {
+        forms.push(...output.forms);
+      }
+      if (!hasResultFrame && output.surface) {
+        forms.push(output.surface);
+      }
+      if (!hasResultFrame && output.result) {
+        forms.push(output.result);
+      }
+      return forms.flatMap(entry => splitPretVariantAssemblySurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getPretVariantAssemblySurface(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const frameResult = getPretVariantAssemblyResultFramePayload(output);
+      const candidates = [getPretVariantAssemblySurfaceForms(output)[0], frameResult?.surface, !frameResult ? output.surface || output.result : ""];
+      for (const candidate of candidates) {
+        const surface = normalizePretVariantAssemblySurfaceValue(candidate);
+        if (surface) {
+          return surface;
+        }
+      }
+      return "";
+    }
+    function buildPretUniversalVariantAssemblyDiagnostic({
+      id = "preterit-variant-assembly-blocked",
+      message = "La ruta preterita/perfectiva no produjo variantes.",
+      failedLayer = "route",
+      contractLayer = "routeContract",
+      routeStage = ""
+    } = {}) {
+      const normalizedId = String(id || "preterit-variant-assembly-blocked").trim();
+      return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: "error",
+        message: String(message || "La ruta preterita/perfectiva no produjo variantes.").trim(),
+        failedLayer: String(failedLayer || "route").trim(),
+        contractLayer: String(contractLayer || "routeContract").trim(),
+        routeFamily: "preterit-variant-assembly",
+        routeStage: String(routeStage || "").trim()
+      };
+    }
+    function attachPretUniversalVariantAssemblyGrammarContract(output = null, {
+      variants = [],
+      subjectPrefix = "",
+      objectPrefix = "",
+      subjectSuffix = "",
+      directionalInputPrefix = "",
+      directionalOutputPrefix = "",
+      baseSubjectPrefix = "",
+      baseObjectPrefix = "",
+      pluralSuffix = null,
+      indirectObjectMarker = "",
+      hasDoubleDash = false,
+      isYawi = false,
+      routeStage = "assemble-variants",
+      enumerable = false
+    } = {}) {
+      const result = output && typeof output === "object" ? output : {};
+      const forms = getPretVariantAssemblySurfaceForms(result);
+      const surface = getPretVariantAssemblySurface(result);
+      const ok = Boolean(surface && forms.length);
+      const diagnostics = ok ? [] : [buildPretUniversalVariantAssemblyDiagnostic({
+        failedLayer: "route",
+        contractLayer: "routeContract",
+        routeStage
+      })];
+      if (!Object.prototype.hasOwnProperty.call(result, "diagnostics")) {
+        Object.defineProperty(result, "diagnostics", {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: diagnostics
+        });
+      }
+      const grammarFrame = typeof targetObject.buildGrammarFrame === "function" ? targetObject.buildGrammarFrame({
+        authorityFrame: typeof targetObject.buildGrammarAuthorityFrame === "function" ? targetObject.buildGrammarAuthorityFrame({
+          sourceEvidence: {
+            kind: "preterit-variant-assembly",
+            variantCount: Array.isArray(variants) ? variants.length : 0
+          },
+          evidenceStatus: ok ? "assembled" : "blocked",
+          andrewsRefs: ["Andrews Lesson 7"],
+          supported: ok
+        }) : null,
+        unitFrame: {
+          unitKind: "verbal-nuclear-clause",
+          outputKind: "preterit-variant-assembly",
+          generationRoute: "preterit-perfective-class-variants"
+        },
+        orthographyFrame: {
+          surface,
+          surfaceForms: forms,
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true
+        },
+        morphBoundaryFrame: {
+          subjectPrefix: String(subjectPrefix || ""),
+          objectPrefix: String(objectPrefix || ""),
+          subjectSuffix: String(subjectSuffix || ""),
+          baseSubjectPrefix: String(baseSubjectPrefix || subjectPrefix || ""),
+          baseObjectPrefix: String(baseObjectPrefix || objectPrefix || ""),
+          pluralSuffix: pluralSuffix === null ? null : String(pluralSuffix || ""),
+          indirectObjectMarker: String(indirectObjectMarker || ""),
+          directionalInputPrefix: String(directionalInputPrefix || ""),
+          directionalOutputPrefix: String(directionalOutputPrefix || ""),
+          hasDoubleDash: hasDoubleDash === true,
+          isYawi: isYawi === true
+        },
+        stemFrame: {
+          variants: Array.isArray(variants) ? variants : [],
+          variantCount: Array.isArray(variants) ? variants.length : 0
+        },
+        nuclearClauseFrame: {
+          clauseKind: "verbal-nuclear-clause",
+          formula: "#pers1-pers2(STEM)tense-num1-num2#",
+          predicateInsideParentheses: true,
+          tenseSlot: true
+        },
+        participantFrame: {
+          subject: {
+            prefix: String(subjectPrefix || ""),
+            suffix: String(subjectSuffix || "")
+          },
+          object: {
+            prefix: String(objectPrefix || ""),
+            indirectObjectMarker: String(indirectObjectMarker || "")
+          }
+        },
+        inflectionFrame: {
+          route: "preterit-perfective-class-variants",
+          pluralSuffix: pluralSuffix === null ? null : String(pluralSuffix || "")
+        },
+        routeContract: typeof targetObject.buildGrammarRouteContractFrame === "function" ? targetObject.buildGrammarRouteContractFrame({
+          routeFamily: "preterit-variant-assembly",
+          routeStage,
+          sourceContract: {
+            variantCount: Array.isArray(variants) ? variants.length : 0
+          },
+          targetContract: {
+            outputKind: "preterit-variant-assembly"
+          },
+          generationAllowed: ok,
+          blockingDiagnostics: ok ? [] : diagnostics
+        }) : null,
+        astFrame: null,
+        resultFrame: typeof targetObject.buildGrammarResultFrame === "function" ? targetObject.buildGrammarResultFrame({
+          ok,
+          surface,
+          surfaceForms: forms,
+          outputKind: "preterit-variant-assembly",
+          generationRoute: "preterit-perfective-class-variants"
+        }) : null,
+        diagnosticFrame: typeof targetObject.buildGrammarDiagnosticFrame === "function" ? targetObject.buildGrammarDiagnosticFrame({
+          status: ok ? "assembled" : "blocked",
+          diagnostics,
+          blockers: ok ? [] : diagnostics
+        }) : null
+      }) : null;
+      const resultContract = typeof targetObject.buildGrammarResultContract === "function" ? targetObject.buildGrammarResultContract({
+        result,
+        grammarFrame
+      }) : {
+        ok,
+        surface,
+        frames: grammarFrame,
+        diagnostics
+      };
+      Object.defineProperties(result, {
+        grammarFrame: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: grammarFrame
+        },
+        ok: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.ok
+        },
+        surface: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.surface
+        },
+        frames: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.frames
+        },
+        contractDiagnostics: {
+          configurable: true,
+          enumerable,
+          writable: true,
+          value: resultContract.diagnostics
+        }
+      });
+      return result;
+    }
     function buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix = "", directionalOutputPrefix = "", baseSubjectPrefix = subjectPrefix, baseObjectPrefix = objectPrefix, pluralSuffix = null, indirectObjectMarker = "", hasDoubleDash = false, isYawi = false, hasOptionalSupportiveI = false, optionalSupportiveLetter = "") {
       if (!variants || variants.length === 0) {
-        return {
+        return attachPretUniversalVariantAssemblyGrammarContract({
           result: null,
           forms: []
-        };
+        }, {
+          variants,
+          subjectPrefix,
+          objectPrefix,
+          subjectSuffix,
+          directionalInputPrefix,
+          directionalOutputPrefix,
+          baseSubjectPrefix,
+          baseObjectPrefix,
+          pluralSuffix,
+          indirectObjectMarker,
+          hasDoubleDash,
+          isYawi,
+          routeStage: "variant-source-gate"
+        });
       }
       const canUseSegments = typeof targetObject.buildOutputWordSegments === "function" && typeof targetObject.joinOutputWordSegments === "function";
       // Realize a verb core + suffix into a surface text string.
@@ -1162,10 +1416,23 @@ export function createPreteritEngineApi(targetObject = globalThis) {
             results.push(form);
           }
         });
-        return {
+        return attachPretUniversalVariantAssemblyGrammarContract({
           result: results.join(" / "),
           forms: results
-        };
+        }, {
+          variants,
+          subjectPrefix,
+          objectPrefix,
+          subjectSuffix,
+          directionalInputPrefix,
+          directionalOutputPrefix,
+          baseSubjectPrefix,
+          baseObjectPrefix,
+          pluralSuffix,
+          indirectObjectMarker,
+          hasDoubleDash,
+          isYawi
+        });
       }
       const groups = new Map();
       const order = [];
@@ -1232,10 +1499,23 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           results.push(realizeForm(verbCore, suffix, surfaceRuleMeta));
         });
       });
-      return {
+      return attachPretUniversalVariantAssemblyGrammarContract({
         result: results.join(" / "),
         forms: results
-      };
+      }, {
+        variants,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        pluralSuffix,
+        indirectObjectMarker,
+        hasDoubleDash,
+        isYawi
+      });
     }
     function buildPretUniversalResultFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix = "", directionalOutputPrefix = "", baseSubjectPrefix = subjectPrefix, baseObjectPrefix = objectPrefix, pluralSuffix = null, indirectObjectMarker = "", hasDoubleDash = false, isYawi = false, hasOptionalSupportiveI = false, optionalSupportiveLetter = "") {
       return buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter).result;
@@ -2071,11 +2351,20 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.maybeShortenZeroBitransitiveKi = maybeShortenZeroBitransitiveKi;
     api.composePretUniversalObjectPrefix = composePretUniversalObjectPrefix;
     api.shouldAllowZeroBitransitiveKiDrop = shouldAllowZeroBitransitiveKiDrop;
+    api.adjustPretNhBeforeVowel = adjustPretNhBeforeVowel;
     api.adjustPretPrefixBaseContact = adjustPretPrefixBaseContact;
     api.adjustPretComposedObjectPrefixContact = adjustPretComposedObjectPrefixContact;
     api.resolvePretObjectPrefixContact = resolvePretObjectPrefixContact;
     api.getPretUniversalPrefixForBase = getPretUniversalPrefixForBase;
     api.normalizePretYawiPreteriteVariants = normalizePretYawiPreteriteVariants;
+    api.normalizePretVariantAssemblySurfaceValue = normalizePretVariantAssemblySurfaceValue;
+    api.splitPretVariantAssemblySurfaceText = splitPretVariantAssemblySurfaceText;
+    api.getPretVariantAssemblyResultFrame = getPretVariantAssemblyResultFrame;
+    api.getPretVariantAssemblyResultFramePayload = getPretVariantAssemblyResultFramePayload;
+    api.getPretVariantAssemblySurfaceForms = getPretVariantAssemblySurfaceForms;
+    api.getPretVariantAssemblySurface = getPretVariantAssemblySurface;
+    api.buildPretUniversalVariantAssemblyDiagnostic = buildPretUniversalVariantAssemblyDiagnostic;
+    api.attachPretUniversalVariantAssemblyGrammarContract = attachPretUniversalVariantAssemblyGrammarContract;
     api.buildPretUniversalResultDetailedFromVariants = buildPretUniversalResultDetailedFromVariants;
     api.buildPretUniversalResultFromVariants = buildPretUniversalResultFromVariants;
     api.buildNonactivePerfectiveResult = buildNonactivePerfectiveResult;

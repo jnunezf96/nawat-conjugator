@@ -8,6 +8,194 @@
 
 "use strict";
 
+function normalizeVncAllomorphyContractSurfaceValue(value = "") {
+    if (typeof normalizeGrammarSurfaceValue === "function") {
+        return normalizeGrammarSurfaceValue(value);
+    }
+    const text = String(value || "").trim();
+    return text === "—" ? "" : text;
+}
+
+function splitVncAllomorphyContractSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeVncAllomorphyContractSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getVncAllomorphyContractGrammarFrame(record = null, options = {}) {
+    const optionFrame = options?.grammarFrame && typeof options.grammarFrame === "object"
+        ? options.grammarFrame
+        : (options?.frames && typeof options.frames === "object" ? options.frames : null);
+    const recordFrame = record?.grammarFrame && typeof record.grammarFrame === "object"
+        ? record.grammarFrame
+        : (record?.frames && typeof record.frames === "object" ? record.frames : null);
+    return optionFrame || recordFrame || null;
+}
+
+function getVncAllomorphyContractResultFrame(record = null, options = {}) {
+    const grammarFrame = getVncAllomorphyContractGrammarFrame(record, options);
+    return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+}
+
+function getVncAllomorphyContractSurfaceForms(record = null, options = {}) {
+    const node = record && typeof record === "object" ? record : {};
+    const resultFrame = getVncAllomorphyContractResultFrame(node, options);
+    const hasResultFrame = Boolean(resultFrame);
+    const orthographyFrame = options?.orthographyFrame && typeof options.orthographyFrame === "object"
+        ? options.orthographyFrame
+        : null;
+    const targetContract = options?.targetContract && typeof options.targetContract === "object"
+        ? options.targetContract
+        : null;
+    const forms = [];
+    if (Array.isArray(resultFrame?.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame?.surface) {
+        forms.push(resultFrame.surface);
+    }
+    if (hasResultFrame) {
+        return forms
+            .flatMap((entry) => splitVncAllomorphyContractSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(options?.surfaceForms)) {
+        forms.push(...options.surfaceForms);
+    }
+    if (!hasResultFrame && options?.surface) {
+        forms.push(options.surface);
+    }
+    if (!hasResultFrame && Array.isArray(orthographyFrame?.surfaceForms)) {
+        forms.push(...orthographyFrame.surfaceForms);
+    }
+    if (!hasResultFrame && orthographyFrame?.surface) {
+        forms.push(orthographyFrame.surface);
+    }
+    if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
+        forms.push(...node.surfaceForms);
+    }
+    if (!hasResultFrame && node.surface) {
+        forms.push(node.surface);
+    }
+    if (!hasResultFrame && node.outputSurface) {
+        forms.push(node.outputSurface);
+    }
+    if (!hasResultFrame && node.selectedOutputSurface) {
+        forms.push(node.selectedOutputSurface);
+    }
+    if (!hasResultFrame && node.nawatSurfaceSuffix) {
+        forms.push(node.nawatSurfaceSuffix);
+    }
+    if (!hasResultFrame && targetContract?.outputSurface) {
+        forms.push(targetContract.outputSurface);
+    }
+    if (!hasResultFrame && targetContract?.selectedOutputSurface) {
+        forms.push(targetContract.selectedOutputSurface);
+    }
+    if (!hasResultFrame && node.result) {
+        forms.push(node.result);
+    }
+    return forms
+        .flatMap((entry) => splitVncAllomorphyContractSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function getVncAllomorphyContractSurface(record = null, options = {}) {
+    return getVncAllomorphyContractSurfaceForms(record, options)[0] || "";
+}
+
+function getVncAllomorphySourceSurfaceForms(record = null, options = {}) {
+    const node = record && typeof record === "object" ? record : {};
+    const resultFrame = getVncAllomorphyContractResultFrame(node, options);
+    const frameFirstForms = getVncAllomorphyContractSurfaceForms(node, options);
+    if (frameFirstForms.length || resultFrame) {
+        return frameFirstForms;
+    }
+    return (Array.isArray(node.forms) ? node.forms : [])
+        .flatMap((entry) => splitVncAllomorphyContractSurfaceText(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function attachVncAllomorphyGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    const node = record && typeof record === "object" ? record : {};
+    const curriculumRef = node.curriculumRef && typeof node.curriculumRef === "object"
+        ? node.curriculumRef
+        : {};
+    const range = String(options.range || curriculumRef.range || "").trim();
+    const structuralSource = String(options.structuralSource || (range ? `Andrews ${range}` : "Andrews Lessons 37-39")).trim();
+    const supported = Object.prototype.hasOwnProperty.call(options, "supported")
+        ? options.supported === true
+        : (node.supported === true || node.allowed === true);
+    const diagnostics = [
+        ...(Array.isArray(node.diagnostics) ? node.diagnostics : []),
+        ...(Array.isArray(options.diagnostics) ? options.diagnostics : []),
+    ];
+    const sourceInput = String(
+        options.sourceInput
+        || node.sourceStem
+        || node.stem
+        || node.sourceSuffix
+        || node.selectedOutputSurface
+        || ""
+    ).trim();
+    const surfaceForms = getVncAllomorphyContractSurfaceForms(node, options);
+    const surface = surfaceForms[0] || "";
+    const orthographyFrame = options.orthographyFrame || {
+        spellingAuthority: "Nawat/Pipil output spelling",
+        noClassicalSurfaceImport: true,
+    };
+    const resolvedOrthographyFrame = {
+        ...orthographyFrame,
+        surface: normalizeVncAllomorphyContractSurfaceValue(orthographyFrame.surface || surface),
+        surfaceForms: Array.isArray(orthographyFrame.surfaceForms) && orthographyFrame.surfaceForms.length
+            ? getVncAllomorphyContractSurfaceForms({
+                surfaceForms: orthographyFrame.surfaceForms,
+                surface: orthographyFrame.surface,
+            })
+            : surfaceForms,
+    };
+    return attachGrammarMetadataContract({
+        ...node,
+        surfaceForms,
+    }, {
+        enumerable: false,
+        unitKind: "vnc-allomorphy-contract",
+        metadataKind: String(options.metadataKind || node.kind || "vnc-allomorphy-contract"),
+        routeFamily: String(options.routeFamily || "vnc-allomorphy"),
+        routeStage: String(options.routeStage || "classify-contract"),
+        generationAllowed: false,
+        supported,
+        structuralSource,
+        andrewsRefs: [structuralSource],
+        diagnostics,
+        sourceInput,
+        evidenceStatus: supported ? "contract-supported" : "contract-blocked",
+        surface,
+        surfaceForms,
+        orthographyFrame: resolvedOrthographyFrame,
+        morphBoundaryFrame: options.morphBoundaryFrame || node,
+        stemFrame: options.stemFrame || {
+            stemKind: String(options.stemKind || node.kind || "vnc-allomorphy-contract"),
+            sourceStem: String(node.sourceStem || node.stem || ""),
+            targetStem: String(node.outputStem || ""),
+            sourceSuffix: String(node.sourceSuffix || ""),
+        },
+        targetContract: options.targetContract || {
+            metadataKind: String(options.metadataKind || node.kind || "vnc-allomorphy-contract"),
+            generationAllowed: false,
+            supported,
+            allowed: node.allowed === true,
+            outputSurface: String(node.outputSurface || node.selectedOutputSurface || ""),
+        },
+    });
+}
+
 function replaceAnalysisSuffix(verb, analysisVerb, nextAnalysisVerb) {
     if (!analysisVerb || analysisVerb === nextAnalysisVerb) {
         return { verb, analysisVerb };
@@ -958,7 +1146,11 @@ function buildNominalSubjectNumberConnector({
 } = {}) {
     const normalizedNominalKind = String(nominalKind || "");
     const rawSubjectSuffix = String(subjectSuffix || "");
-    const suffixIsPredicateNominalizer = normalizedNominalKind === VERB_DERIVED_NOMINAL_KIND.sustantivoVerbal;
+    const suffixIsPredicateNominalizer = normalizedNominalKind === VERB_DERIVED_NOMINAL_KIND.sustantivoVerbal
+        || normalizedNominalKind === "potencial";
+    const derivationalSuffixRole = normalizedNominalKind === "potencial"
+        ? "predicate.potential-patient-nominalizer"
+        : "predicate.action-nominalizer";
     const surface = suffixIsPredicateNominalizer ? "" : rawSubjectSuffix;
     return Object.freeze({
         version: 1,
@@ -971,7 +1163,7 @@ function buildNominalSubjectNumberConnector({
         predicateState: String(predicateState || "derived-nominal"),
         source: String(source || ""),
         predicateDerivationalSuffix: suffixIsPredicateNominalizer ? rawSubjectSuffix : "",
-        derivationalSuffixRole: suffixIsPredicateNominalizer ? "predicate.action-nominalizer" : "",
+        derivationalSuffixRole: suffixIsPredicateNominalizer ? derivationalSuffixRole : "",
         notNounSuffix: true,
         notStatePosition: true,
     });
@@ -1058,6 +1250,80 @@ var VERB_DERIVED_NOMINAL_KIND = Object.freeze({
     locativoTemporal: "locativo-temporal",
 });
 
+function getActiveActionNominalizerContract() {
+    const longConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat("liz", {
+            contract: "active-action-nominalizer",
+        })
+        : null;
+    const shortConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat("z", {
+            contract: "active-action-nominalizer",
+        })
+        : null;
+    const contract = {
+        kind: "active-action-nominalizer-contract",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: "37.2-37.5",
+            role: "active-action-nnc-nominalizer",
+        }),
+        classicalSuffixes: Object.freeze({
+            long: "liz",
+            short: "z",
+        }),
+        nawatSuffixes: Object.freeze({
+            long: longConversion?.output || "lis",
+            short: shortConversion?.output || "s",
+        }),
+        orthographyConversions: Object.freeze({
+            long: longConversion,
+            short: shortConversion,
+        }),
+        sourceStageModel: Object.freeze({
+            slot: "#3 salida",
+            sourceCore: "future-active-core",
+            outputStage: "active-action-noun-output",
+        }),
+        boundaries: Object.freeze({
+            noClassicalSurfaceImport: true,
+            noFixtureEvidence: true,
+            preservesGeneratedSurfaceForms: true,
+            orthographyConversionIsRuleOnly: true,
+        }),
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(contract, {
+        metadataKind: "active-action-nominalizer-contract",
+        routeFamily: "active-action-nominalizer",
+        routeStage: "classify-nominalizer",
+        range: "37.2-37.5",
+        supported: true,
+        orthographyFrame: {
+            classicalRuleSpelling: "z/liz",
+            nawatRuleSpelling: `${contract.nawatSuffixes.short}/${contract.nawatSuffixes.long}`,
+            surfaceForms: [contract.nawatSuffixes.short, contract.nawatSuffixes.long].filter(Boolean),
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            orthographyConversions: contract.orthographyConversions,
+        },
+        targetContract: {
+            metadataKind: "active-action-nominalizer-contract",
+            generationAllowed: false,
+            sourceStageModel: contract.sourceStageModel,
+            doesNotCreateFixtureEvidence: true,
+        },
+    }));
+}
+
+function getActiveActionNominalizerSuffixes() {
+    const contract = getActiveActionNominalizerContract();
+    return Object.freeze([
+        contract.nawatSuffixes.long,
+        contract.nawatSuffixes.short,
+    ].filter(Boolean));
+}
+
 var VERB_DERIVED_PATIENTIVE_FAMILY = Object.freeze({
     nonactive: "nonactive",
     passive: "passive",
@@ -1068,6 +1334,273 @@ var VERB_DERIVED_PATIENTIVE_FAMILY = Object.freeze({
     customaryPresent: "customary-present-passive",
     unknown: "unknown",
 });
+
+const PATIENTIVO_NONACTIVE_SOURCE_SUFFIX_CONTRACTS = Object.freeze({
+    lu: Object.freeze({
+        sourceSuffix: "lu",
+        classicalSuffix: "lo",
+        sourceFamily: "nonactive",
+        sourceOperation: "delete-final-u",
+        deletedSegment: "u",
+        retainedSegment: "l",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        lessonRef: "37.8-37.9",
+    }),
+    luwa: Object.freeze({
+        sourceSuffix: "luwa",
+        classicalSuffix: "lo-hua",
+        sourceFamily: "nonactive",
+        sourceOperation: "delete-wa-and-final-u",
+        deletedSegment: "uwa",
+        retainedSegment: "l",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        lessonRef: "37.8-37.9",
+    }),
+    u: Object.freeze({
+        sourceSuffix: "u",
+        classicalSuffix: "o",
+        sourceFamily: "nonactive",
+        sourceOperation: "delete-entire-suffix",
+        deletedSegment: "u",
+        retainedSegment: "",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        lessonRef: "37.8-37.9",
+    }),
+    uwa: Object.freeze({
+        sourceSuffix: "uwa",
+        classicalSuffix: "o-hua",
+        sourceFamily: "nonactive",
+        sourceOperation: "delete-entire-suffix",
+        deletedSegment: "uwa",
+        retainedSegment: "",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        lessonRef: "37.8-37.9",
+    }),
+    wa: Object.freeze({
+        sourceSuffix: "wa",
+        classicalSuffix: "hua",
+        sourceFamily: "nonactive",
+        sourceOperation: "delete-entire-suffix",
+        deletedSegment: "wa",
+        retainedSegment: "",
+        andrewsNounstemClass: "ti",
+        nawatConnectorFamily: "ti",
+        lessonRef: "37.8-37.9",
+    }),
+    walu: Object.freeze({
+        sourceSuffix: "walu",
+        classicalSuffix: "hua-lo",
+        sourceFamily: "nonactive-chain",
+        sourceOperation: "delete-final-u-after-chained-nonactive",
+        deletedSegment: "u",
+        retainedSegment: "wal",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        lessonRef: "37.8-39.5",
+    }),
+});
+
+function normalizePatientivoSourceSuffix(value = "") {
+    return normalizeRuleBase(String(value || "").trim().toLowerCase()).replace(/-/g, "");
+}
+
+function getPatientivoNonactiveSourceSuffixContract(sourceSuffix = "") {
+    const suffix = normalizePatientivoSourceSuffix(sourceSuffix);
+    const contract = PATIENTIVO_NONACTIVE_SOURCE_SUFFIX_CONTRACTS[suffix] || null;
+    if (!contract) {
+        return null;
+    }
+    const orthographyConversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(contract.classicalSuffix, {
+            contract: "patientive-nonactive-source-suffix",
+        })
+        : null;
+    const contractRecord = {
+        kind: "patientive-nonactive-source-suffix-contract",
+        version: 1,
+        sourceSuffix: contract.sourceSuffix,
+        classicalSuffix: contract.classicalSuffix,
+        nawatRuleSuffix: orthographyConversion?.output || contract.sourceSuffix,
+        nawatSurfaceSuffix: String(orthographyConversion?.output || contract.sourceSuffix).replace(/[^a-z]/g, ""),
+        sourceFamily: contract.sourceFamily,
+        sourceOperation: contract.sourceOperation,
+        deletedSegment: contract.deletedSegment,
+        retainedSegment: contract.retainedSegment,
+        andrewsNounstemClass: contract.andrewsNounstemClass,
+        nawatConnectorFamily: contract.nawatConnectorFamily,
+        lessonRef: contract.lessonRef,
+        orthographyConversion,
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil output spelling",
+        generationAllowedByOrthography: false,
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(contractRecord, {
+        metadataKind: "patientive-nonactive-source-suffix-contract",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-nonactive-source-suffix",
+        range: contract.lessonRef,
+        supported: true,
+        sourceInput: contractRecord.sourceSuffix,
+        orthographyFrame: {
+            classicalRuleSpelling: contractRecord.classicalSuffix,
+            nawatRuleSpelling: contractRecord.nawatRuleSuffix,
+            surface: contractRecord.nawatSurfaceSuffix,
+            surfaceForms: contractRecord.nawatSurfaceSuffix ? [contractRecord.nawatSurfaceSuffix] : [],
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            orthographyConversion,
+        },
+        stemFrame: {
+            stemKind: "patientive-nonactive-source-suffix",
+            sourceSuffix: contractRecord.sourceSuffix,
+            sourceOperation: contractRecord.sourceOperation,
+            deletedSegment: contractRecord.deletedSegment,
+            retainedSegment: contractRecord.retainedSegment,
+        },
+        targetContract: {
+            metadataKind: "patientive-nonactive-source-suffix-contract",
+            generationAllowed: false,
+            sourceFamily: contractRecord.sourceFamily,
+            andrewsNounstemClass: contractRecord.andrewsNounstemClass,
+            nawatConnectorFamily: contractRecord.nawatConnectorFamily,
+        },
+    }));
+}
+
+function buildPatientivoSourceStageFrame({
+    sourceType = "",
+    sourceSuffix = "",
+    sourceStem = "",
+    outputStem = "",
+    outputConnector = "",
+    sourceEndingContract = null,
+    sourceStockContract = null,
+    sourceModel = null,
+} = {}) {
+    const normalizedSourceType = String(sourceType || "").trim();
+    const normalizedSourceSuffix = normalizePatientivoSourceSuffix(sourceSuffix);
+    const nonactiveSuffixContract = normalizedSourceType === "nonactive"
+        ? getPatientivoNonactiveSourceSuffixContract(normalizedSourceSuffix)
+        : null;
+    const perfectiveEndingContract = normalizedSourceType === "perfectivo"
+        ? (
+            sourceEndingContract
+            && typeof sourceEndingContract === "object"
+            && sourceEndingContract.kind === "patientive-perfective-source-ending-contract"
+                ? sourceEndingContract
+                : getPatientivoPerfectiveSourceStemContract(outputStem || sourceStem)
+        )
+        : null;
+    const imperfectiveStemContract = normalizedSourceType === "imperfectivo"
+        ? (
+            sourceEndingContract
+            && typeof sourceEndingContract === "object"
+            && sourceEndingContract.kind === "patientive-imperfective-source-stem-contract"
+                ? sourceEndingContract
+                : getPatientivoImperfectiveSourceStemContract({
+                    sourceStem,
+                    outputStem,
+                    outputConnector,
+                })
+        )
+        : null;
+    const rootStockContract = normalizedSourceType === "tronco-verbal"
+        ? (
+            sourceStockContract
+            && typeof sourceStockContract === "object"
+            && sourceStockContract.kind === "patientive-root-stock-source-contract"
+                ? sourceStockContract
+                : getPatientivoRootStockSourceContract({
+                    sourceStem,
+                    outputStem,
+                    outputConnector,
+                })
+        )
+        : null;
+    const sourceCore = nonactiveSuffixContract
+        ? "nonactive-core"
+        : (
+            normalizedSourceType === "perfectivo"
+                ? "perfective-active-core"
+                : (
+                    normalizedSourceType === "imperfectivo"
+                        ? "imperfective-active-core"
+                        : (
+                            normalizedSourceType === "tronco-verbal"
+                                ? "root-or-stock-stem"
+                                : normalizedSourceType
+                        )
+                )
+        );
+    const operation = nonactiveSuffixContract?.sourceOperation || (
+        normalizedSourceType === "perfectivo"
+            ? "derive-from-perfective-active-core"
+            : (
+                normalizedSourceType === "imperfectivo"
+                    ? "derive-from-imperfective-active-core"
+                    : (
+                        normalizedSourceType === "tronco-verbal"
+                            ? "derive-from-root-or-stock"
+                            : "unknown-patientive-source-operation"
+                    )
+            )
+    );
+    const frameRecord = {
+        kind: "patientive-source-stage-frame",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: nonactiveSuffixContract?.lessonRef || "37.9-39",
+            role: "patientive-source-to-output-contract",
+        }),
+        slot: "#3 salida",
+        sourceType: normalizedSourceType,
+        sourceCore,
+        sourceSuffix: normalizedSourceSuffix,
+        sourceSuffixContract: nonactiveSuffixContract,
+        sourceEndingContract: perfectiveEndingContract,
+        sourceStemContract: imperfectiveStemContract,
+        sourceStockContract: rootStockContract,
+        sourceStem: String(sourceStem || ""),
+        outputStem: String(outputStem || ""),
+        outputConnector: String(outputConnector || ""),
+        outputSurface: `${String(outputStem || "")}${String(outputConnector || "")}`,
+        operation,
+        sourceModel,
+        boundaries: Object.freeze({
+            noClassicalSurfaceImport: true,
+            noNewFixtureEvidence: true,
+            preservesGeneratedSurfaceForms: true,
+            orthographyConversionIsRuleOnly: true,
+        }),
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(frameRecord, {
+        metadataKind: "patientive-source-stage-frame",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-source-stage",
+        range: frameRecord.curriculumRef.range,
+        supported: Boolean(frameRecord.sourceType),
+        sourceInput: frameRecord.sourceStem || frameRecord.sourceSuffix,
+        stemFrame: {
+            stemKind: "patientive-source-stage",
+            sourceStem: frameRecord.sourceStem,
+            targetStem: frameRecord.outputStem,
+            sourceSuffix: frameRecord.sourceSuffix,
+            sourceCore: frameRecord.sourceCore,
+            operation: frameRecord.operation,
+        },
+        targetContract: {
+            metadataKind: "patientive-source-stage-frame",
+            generationAllowed: false,
+            outputSurface: frameRecord.outputSurface,
+            sourceType: frameRecord.sourceType,
+        },
+    }));
+}
 
 function normalizeVerbDerivedPatientiveFamily(value = "") {
     const normalized = String(value || "").trim();
@@ -1098,6 +1631,7 @@ function normalizeVerbDerivedPatientiveFamily(value = "") {
 function buildVerbDerivedPatientiveFamilyProfile(patientivoSource = "", {
     nominalKind = "",
     sourceTense = "",
+    sourceStageFrame = null,
 } = {}) {
     const family = normalizeVerbDerivedPatientiveFamily(patientivoSource);
     if (!family) {
@@ -1199,6 +1733,7 @@ function buildVerbDerivedPatientiveFamilyProfile(patientivoSource = "", {
             patientiveFamily: family,
             outputStage: "patientive-noun-output",
         }),
+        sourceStageFrame: sourceStageFrame || null,
         andrewsAnalogue: profile.andrewsAnalogue,
         implementedAs: "current-patientivo-branch",
         isGeneratedSurfaceOnly: true,
@@ -1278,7 +1813,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
     if (kind === "potencial") {
         return {
             nominalizationKind: "potential-patient",
-            semanticRole: "patient/capability",
+            semanticRole: "potential-patient",
             sourceTense: "futuro",
         };
     }
@@ -1382,6 +1917,8 @@ function buildVerbDerivedNominalizationProfile({
     predicateStateSlot = null,
     subjectNumberConnector = null,
     patientivoSource = "",
+    patientiveSourceStageFrame = null,
+    patientiveMultipleDerivationContract = null,
     generatedSurface = true,
 } = {}) {
     const kind = String(nominalKind || "");
@@ -1432,6 +1969,7 @@ function buildVerbDerivedNominalizationProfile({
         ? buildVerbDerivedPatientiveFamilyProfile(resolvedPatientiveFamily, {
             nominalKind: kind,
             sourceTense: resolvedSourceTense,
+            sourceStageFrame: patientiveSourceStageFrame,
         })
         : null;
     const possessorSourceFrame = buildVerbDerivedNominalPossessorSourceFrame({
@@ -1466,6 +2004,12 @@ function buildVerbDerivedNominalizationProfile({
             adjectivalFunction: roleDefaults.adjectivalFunction || "",
         }),
         patientiveFamilyProfile,
+        patientiveSourceStageFrame: patientiveSourceStageFrame || null,
+        patientiveMultipleDerivationContract: (
+            patientiveMultipleDerivationContract
+            && typeof patientiveMultipleDerivationContract === "object"
+            && patientiveMultipleDerivationContract.kind === "patientive-multiple-derivation-contract"
+        ) ? patientiveMultipleDerivationContract : null,
         categoryTransition: Object.freeze({
             sourceCategory: "VNC",
             targetCategory: "NNC",
@@ -6526,6 +7070,11 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
     if (!stem || !suffix) {
         return [];
     }
+    const normalizedSuffix = normalizePatientivoSourceSuffix(suffix);
+    const sourceSuffixContract = getPatientivoNonactiveSourceSuffixContract(normalizedSuffix);
+    if (!sourceSuffixContract) {
+        return [];
+    }
     const sourceStemSpec = (
         options.stemSpec
         && typeof options.stemSpec === "object"
@@ -6534,7 +7083,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
     const baseInfo = options.baseInfo || null;
     const normalizedStem = normalizeDerivationStemValue(stem);
     const routeSourceBase = normalizeDerivationStemValue(sourceStemSpec?.sourceBase || "");
-    const routeSourceSuffix = normalizeRuleBase(sourceStemSpec?.sourceSuffix || "");
+    const routeSourceSuffix = normalizePatientivoSourceSuffix(sourceStemSpec?.sourceSuffix || "");
     const buildVariantEntry = (stemSpec, fallbackStem, subjectSuffix, metadata = null) => {
         const resolvedStemSpec = (
             stemSpec
@@ -6547,10 +7096,21 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         if (!realizedStem) {
             return null;
         }
+        const patientiveSourceStageFrame = (
+            metadata?.patientiveSourceStageFrame
+            && typeof metadata.patientiveSourceStageFrame === "object"
+        ) ? metadata.patientiveSourceStageFrame : buildPatientivoSourceStageFrame({
+            sourceType: "nonactive",
+            sourceSuffix: normalizedSuffix,
+            sourceStem: normalizedStem,
+            outputStem: realizedStem,
+            outputConnector: subjectSuffix,
+        });
         return {
             stem: realizedStem,
             suffix: String(subjectSuffix || ""),
             stemSpec: resolvedStemSpec,
+            patientiveSourceStageFrame,
             ...(metadata && typeof metadata === "object" ? metadata : {}),
         };
     };
@@ -6568,104 +7128,41 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
         })
     );
     const buildFallbackBaseEntry = () => {
-        switch (suffix) {
-            case "lu":
-                return normalizedStem.endsWith("lu")
-                    ? {
-                        stem: normalizedStem.slice(0, -1),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "u", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            case "luwa":
-                return normalizedStem.endsWith("luwa")
-                    ? {
-                        stem: normalizedStem.slice(0, -3),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "uwa", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            case "u":
-                return normalizedStem.endsWith("u")
-                    ? {
-                        stem: normalizedStem.slice(0, -1),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "u", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            case "uwa":
-                return normalizedStem.endsWith("uwa")
-                    ? {
-                        stem: normalizedStem.slice(0, -3),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "uwa", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            case "wa":
-                return normalizedStem.endsWith("wa")
-                    ? {
-                        stem: normalizedStem.slice(0, -2),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "wa", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            case "walu":
-                return normalizedStem.endsWith("walu")
-                    ? {
-                        stem: normalizedStem.slice(0, -1),
-                        stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, "u", "", {
-                            fallbackSourceStem: normalizedStem,
-                        }),
-                    }
-                    : null;
-            default:
-                return null;
-        }
-    };
-    const buildRouteBaseEntry = () => {
-        const routeSurface = `${routeSourceBase}${routeSourceSuffix || suffix}`;
-        if (!routeSourceBase || !routeSourceSuffix || routeSurface !== normalizedStem) {
+        const sourceSuffix = sourceSuffixContract.sourceSuffix;
+        const deletedSegment = sourceSuffixContract.deletedSegment;
+        if (
+            !sourceSuffix
+            || !deletedSegment
+            || !normalizedStem.endsWith(sourceSuffix)
+            || !normalizedStem.endsWith(deletedSegment)
+        ) {
             return null;
         }
-        switch (suffix) {
-            case "lu":
-                return {
-                    stem: `${routeSourceBase}l`,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "lu", "l"),
-                };
-            case "luwa":
-                return {
-                    stem: `${routeSourceBase}l`,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "luwa", "l"),
-                };
-            case "u":
-                return {
-                    stem: routeSourceBase,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "u", ""),
-                };
-            case "uwa":
-                return {
-                    stem: routeSourceBase,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "uwa", ""),
-                };
-            case "wa":
-                return {
-                    stem: routeSourceBase,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "wa", ""),
-                };
-            case "walu":
-                return {
-                    stem: `${routeSourceBase}wal`,
-                    stemSpec: buildBaseSuffixRouteSpec(routeSourceBase, routeSourceSuffix || "walu", "wal"),
-                };
-            default:
-                return null;
+        return {
+            stem: normalizedStem.slice(0, -deletedSegment.length),
+            stemSpec: buildReplaceSuffixMorphStemSpec(sourceStemSpec || normalizedStem, deletedSegment, "", {
+                fallbackSourceStem: normalizedStem,
+            }),
+        };
+    };
+    const buildRouteBaseEntry = () => {
+        const routeSurface = `${routeSourceBase}${routeSourceSuffix}`;
+        if (
+            !routeSourceBase
+            || !routeSourceSuffix
+            || routeSourceSuffix !== normalizedSuffix
+            || routeSurface !== normalizedStem
+        ) {
+            return null;
         }
+        return {
+            stem: `${routeSourceBase}${sourceSuffixContract.retainedSegment || ""}`,
+            stemSpec: buildBaseSuffixRouteSpec(
+                routeSourceBase,
+                routeSourceSuffix || sourceSuffixContract.sourceSuffix,
+                sourceSuffixContract.retainedSegment || "",
+            ),
+        };
     };
     const familyBaseEntry = buildRouteBaseEntry() || buildFallbackBaseEntry();
     const buildRecoveredBase = (baseStem, baseStemSpec, recoverDeletedW = false) => {
@@ -6683,7 +7180,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
     };
     const buildUVariants = (base, variantOptions = {}) => {
         const isTransitive = options.isTransitive === true;
-        const recoversDeletedW = suffix === "uwa" && baseInfo && baseInfo.lastOnset === "w";
+        const recoversDeletedW = normalizedSuffix === "uwa" && baseInfo && baseInfo.lastOnset === "w";
         const recoveredBase = buildRecoveredBase(base, variantOptions.baseStemSpec || null, recoversDeletedW);
         if (!isTransitive && recoversDeletedW) {
             const tStemSpec = buildAppendVariant(recoveredBase.stemSpec, recoveredBase.stem, "i");
@@ -6729,7 +7226,7 @@ function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
             },
         );
     };
-    switch (suffix) {
+    switch (normalizedSuffix) {
         case "lu":
             return familyBaseEntry
                 ? [buildTliClassVariant(familyBaseEntry)].filter(Boolean)
@@ -6964,6 +7461,25 @@ function buildPatientivoDerivationEntry({
         adjectiveSuffix: resolvedPolicy.adjectiveSuffix || "ti",
     });
     const entryStemSpec = resolvedStemSpec || buildLiteralMorphStemSpec(realizedStem);
+    const patientiveSourceStageFrame = (
+        metadata?.patientiveSourceStageFrame
+        && typeof metadata.patientiveSourceStageFrame === "object"
+    ) ? metadata.patientiveSourceStageFrame : buildPatientivoSourceStageFrame({
+        sourceType: resolvedSourceType,
+        sourceSuffix: metadata?.nonactiveSourceSuffix || "",
+        sourceStem: metadata?.nonactiveSourceStem
+            || metadata?.stem
+            || metadata?.verb
+            || sourceModel?.matrixBase
+            || "",
+        outputStem: realizedStem,
+        outputConnector: subjectSuffix,
+        sourceEndingContract: metadata?.perfectiveSourceEndingContract
+            || metadata?.imperfectiveSourceStemContract
+            || null,
+        sourceStockContract: metadata?.rootStockSourceContract || null,
+        sourceModel: sourceModel || metadata?.patientivoSourceModel || null,
+    });
     return buildNominalFormEntry(realizedStem, subjectSuffix, {
         ...(metadata && typeof metadata === "object" ? metadata : {}),
         stem: realizedStem,
@@ -6971,6 +7487,7 @@ function buildPatientivoDerivationEntry({
         sourceType: resolvedSourceType,
         patientivoSourceModel: sourceModel || metadata?.patientivoSourceModel || null,
         sourceModel: sourceModel || metadata?.sourceModel || metadata?.patientivoSourceModel || null,
+        patientiveSourceStageFrame,
         nominalMarkerPolicy: entryPolicy,
         lockNominalMarker: entryPolicy.lockNominalMarker === true,
         formSpec: buildStemNominalFormSpec(entryStemSpec, subjectSuffix, {
@@ -7446,6 +7963,7 @@ function buildPatientivoDerivations({
                 }),
                 metadata: {
                     nonactiveSourceSuffix: option.suffix,
+                    nonactiveSourceStem: optionStem,
                     blocksAbsolutiveZeroNominalMarker: derived?.blocksAbsolutiveZeroNominalMarker === true,
                 },
             });
@@ -7560,28 +8078,200 @@ function getPatientivoPerfectivoSourceStemEnding(stem = "") {
     return normalized[normalized.length - 1] || "";
 }
 
-function isAllowedPatientivoPerfectivoSourceStem(stem = "") {
-    const ending = getPatientivoPerfectivoSourceStemEnding(stem);
-    if (!ending) {
-        return false;
+const PATIENTIVO_PERFECTIVE_SOURCE_ENDING_CONTRACTS = Object.freeze([
+    Object.freeze({
+        id: "w",
+        classicalEnding: "w",
+        classicalSpellings: Object.freeze(["hu", "uh"]),
+        nawatEndings: Object.freeze(["w"]),
+        acceptedEndings: Object.freeze(["w"]),
+    }),
+    Object.freeze({
+        id: "k",
+        classicalEnding: "k",
+        classicalSpellings: Object.freeze(["c", "qu"]),
+        nawatEndings: Object.freeze(["k"]),
+        acceptedEndings: Object.freeze(["k", "c", "qu"]),
+    }),
+    Object.freeze({
+        id: "kw",
+        classicalEnding: "kw",
+        classicalSpellings: Object.freeze(["cu", "uc"]),
+        nawatEndings: Object.freeze(["kw"]),
+        acceptedEndings: Object.freeze(["kw"]),
+    }),
+    Object.freeze({
+        id: "s",
+        classicalEnding: "s/z",
+        classicalSpellings: Object.freeze(["s", "z"]),
+        nawatEndings: Object.freeze(["s"]),
+        acceptedEndings: Object.freeze(["s", "z"]),
+    }),
+    Object.freeze({
+        id: "sh",
+        classicalEnding: "x",
+        classicalSpellings: Object.freeze(["x"]),
+        nawatEndings: Object.freeze(["sh"]),
+        acceptedEndings: Object.freeze(["sh", "x"]),
+    }),
+    Object.freeze({
+        id: "n",
+        classicalEnding: "n",
+        classicalSpellings: Object.freeze(["n"]),
+        nawatEndings: Object.freeze(["n"]),
+        acceptedEndings: Object.freeze(["n"]),
+    }),
+    Object.freeze({
+        id: "glottal",
+        classicalEnding: "?",
+        classicalSpellings: Object.freeze(["h"]),
+        nawatEndings: Object.freeze(["h", "j"]),
+        acceptedEndings: Object.freeze(["h", "j"]),
+    }),
+    Object.freeze({
+        id: "l",
+        classicalEnding: "l",
+        classicalSpellings: Object.freeze(["l"]),
+        nawatEndings: Object.freeze(["l"]),
+        acceptedEndings: Object.freeze(["l"]),
+    }),
+    Object.freeze({
+        id: "tz",
+        classicalEnding: "tz",
+        classicalSpellings: Object.freeze(["tz"]),
+        nawatEndings: Object.freeze(["tz"]),
+        acceptedEndings: Object.freeze(["tz", "ts"]),
+    }),
+]);
+
+function buildPatientivoPerfectiveEndingOrthographyConversions(contract = null) {
+    const spellings = Array.isArray(contract?.classicalSpellings)
+        ? contract.classicalSpellings
+        : [];
+    return Object.freeze(spellings.map((spelling) => (
+        typeof convertClassicalLettersToNawat === "function"
+            ? convertClassicalLettersToNawat(spelling, {
+                contract: "patientive-perfective-source-ending",
+            })
+            : {
+                input: spelling,
+                output: spelling,
+                generationAllowed: false,
+            }
+    )));
+}
+
+function getPatientivoPerfectiveSourceStemContract(stem = "") {
+    const normalizedStem = normalizeRuleBase(String(stem || "").trim().toLowerCase());
+    const matchedEnding = getPatientivoPerfectivoSourceStemEnding(normalizedStem);
+    const contract = PATIENTIVO_PERFECTIVE_SOURCE_ENDING_CONTRACTS.find((entry) => (
+        Array.isArray(entry.acceptedEndings)
+        && entry.acceptedEndings.includes(matchedEnding)
+    )) || null;
+    const allowedContractIds = PATIENTIVO_PERFECTIVE_SOURCE_ENDING_CONTRACTS.map((entry) => entry.id);
+    if (!contract) {
+        const blockedContract = {
+            kind: "patientive-perfective-source-ending-contract",
+            version: 1,
+            curriculumRef: Object.freeze({
+                source: "Andrews",
+                range: "39.1",
+                role: "perfective-active-core-ending-gate",
+            }),
+            stem: normalizedStem,
+            matchedEnding,
+            allowed: false,
+            contractId: "",
+            classicalEnding: "",
+            classicalSpellings: Object.freeze([]),
+            nawatEndings: Object.freeze([]),
+            acceptedEndings: Object.freeze([]),
+            allowedContractIds: Object.freeze(allowedContractIds),
+            diagnostics: Object.freeze(["unsupported-perfective-patientive-source-ending"]),
+            grammarAuthority: "Andrews PDF",
+            orthographyAuthority: "Nawat/Pipil output spelling",
+            generationAllowedByOrthography: false,
+        };
+        return Object.freeze(attachVncAllomorphyGrammarContract(blockedContract, {
+            metadataKind: "patientive-perfective-source-ending-contract",
+            routeFamily: "patientive-source-contract",
+            routeStage: "classify-perfective-source-ending",
+            range: "39.1",
+            supported: false,
+            sourceInput: normalizedStem,
+            diagnostics: blockedContract.diagnostics,
+            stemFrame: {
+                stemKind: "patientive-perfective-source-ending",
+                sourceStem: normalizedStem,
+                matchedEnding,
+            },
+            targetContract: {
+                metadataKind: "patientive-perfective-source-ending-contract",
+                generationAllowed: false,
+                allowed: false,
+                allowedContractIds,
+            },
+        }));
     }
-    return new Set([
-        "w",
-        "k",
-        "c",
-        "kw",
-        "qu",
-        "s",
-        "x",
-        "sh",
-        "z",
-        "n",
-        "j",
-        "h",
-        "l",
-        "tz",
-        "ts",
-    ]).has(ending);
+    const supportedContract = {
+        kind: "patientive-perfective-source-ending-contract",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: "39.1",
+            role: "perfective-active-core-ending-gate",
+        }),
+        stem: normalizedStem,
+        matchedEnding,
+        allowed: true,
+        contractId: contract.id,
+        classicalEnding: contract.classicalEnding,
+        classicalSpellings: Object.freeze([...(contract.classicalSpellings || [])]),
+        nawatEndings: Object.freeze([...(contract.nawatEndings || [])]),
+        acceptedEndings: Object.freeze([...(contract.acceptedEndings || [])]),
+        allowedContractIds: Object.freeze(allowedContractIds),
+        orthographyConversions: buildPatientivoPerfectiveEndingOrthographyConversions(contract),
+        diagnostics: Object.freeze([
+            "perfective-patientive-source-ending-allowed",
+            "orthography-conversion-is-not-lexical-evidence",
+        ]),
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil output spelling",
+        generationAllowedByOrthography: false,
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(supportedContract, {
+        metadataKind: "patientive-perfective-source-ending-contract",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-perfective-source-ending",
+        range: "39.1",
+        supported: true,
+        sourceInput: normalizedStem,
+        diagnostics: supportedContract.diagnostics,
+        orthographyFrame: {
+            classicalRuleSpelling: supportedContract.classicalEnding,
+            nawatRuleSpelling: supportedContract.nawatEndings.join("/"),
+            surfaceForms: supportedContract.nawatEndings,
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            orthographyConversions: supportedContract.orthographyConversions,
+        },
+        stemFrame: {
+            stemKind: "patientive-perfective-source-ending",
+            sourceStem: normalizedStem,
+            matchedEnding,
+            contractId: supportedContract.contractId,
+        },
+        targetContract: {
+            metadataKind: "patientive-perfective-source-ending-contract",
+            generationAllowed: false,
+            allowed: true,
+            acceptedEndings: supportedContract.acceptedEndings,
+        },
+    }));
+}
+
+function isAllowedPatientivoPerfectivoSourceStem(stem = "") {
+    return getPatientivoPerfectiveSourceStemContract(stem).allowed === true;
 }
 
 function applyPatientivoPerfectivoSourceChainStemSpec(stemSpec = null, fallbackStem = "", chain = null) {
@@ -7850,7 +8540,7 @@ function buildPasadoRemotoStemEntries({
                 });
             });
         if (!provenanceVariants.length) {
-            (pasadoRemotoOutput?.forms || [])
+            getVncAllomorphySourceSurfaceForms(pasadoRemotoOutput)
                 .map((entry) => normalizeDerivationStemValue(entry))
                 .filter((entry) => entry && entry !== "—")
                 .forEach((surfaceForm) => {
@@ -8505,7 +9195,8 @@ function buildPatientivoPerfectivoStemEntries({
         if (!normalizedStem) {
             return;
         }
-        if (!isAllowedPatientivoPerfectivoSourceStem(normalizedStem)) {
+        const perfectiveSourceEndingContract = getPatientivoPerfectiveSourceStemContract(normalizedStem);
+        if (perfectiveSourceEndingContract.allowed !== true) {
             return;
         }
         if (seenStemEntries.has(normalizedStem)) {
@@ -8522,6 +9213,7 @@ function buildPatientivoPerfectivoStemEntries({
             provenanceSuffix: "",
             provenanceSurfaceStem: "",
             pasadoRemotoStemCore: normalizedStem,
+            perfectiveSourceEndingContract,
         });
     };
     const shouldUseClassABStem = selectedClassKey !== "C"
@@ -8588,7 +9280,7 @@ function buildPatientivoPerfectivoStemEntries({
             });
         if (!perfectiveStemEntries.length) {
             const fallbackPerfectiveStem = normalizeDerivationStemValue(
-                preteriteOutput?.result || ""
+                getVncAllomorphyContractSurface(preteriteOutput)
             );
             if (fallbackPerfectiveStem) {
                 pushPerfectiveStemEntry(
@@ -8635,6 +9327,197 @@ function getTClassSuffixForStem(stem) {
     const letters = splitVerbLetters(stem);
     const last = letters[letters.length - 1] || "";
     return isVerbLetterVowel(last) ? "t" : "ti";
+}
+
+const PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS = Object.freeze([
+    Object.freeze({ classical: "c", nawat: "k" }),
+    Object.freeze({ classical: "x", nawat: "sh" }),
+    Object.freeze({ classical: "z", nawat: "s" }),
+    Object.freeze({ classical: "ch", nawat: "ch" }),
+]);
+
+function buildPatientivoRootStockVariantOrthographyConversions() {
+    return Object.freeze(PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS.map((entry) => (
+        typeof convertClassicalLettersToNawat === "function"
+            ? convertClassicalLettersToNawat(entry.classical, {
+                contract: "patientive-root-stock-variant-consonant",
+            })
+            : {
+                input: entry.classical,
+                output: entry.nawat,
+                generationAllowed: false,
+            }
+    )));
+}
+
+function normalizePatientivoRootStockVariantConsonant(value = "") {
+    const normalized = String(value || "").trim().toLowerCase();
+    const matched = PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS.find((entry) => (
+        entry.classical === normalized || entry.nawat === normalized
+    ));
+    return matched ? matched.nawat : "";
+}
+
+function getPatientivoRootStockSourceContract(options = {}) {
+    const normalizedSourceStem = normalizeDerivationStemValue(options.sourceStem || "");
+    const normalizedOutputStem = normalizeDerivationStemValue(options.outputStem || "");
+    const hasOutputConnector = Object.prototype.hasOwnProperty.call(options, "outputConnector");
+    const routeStemOnly = options.routeStemOnly === true
+        || (hasOutputConnector && String(options.outputConnector ?? "") === "");
+    const resolvedConnector = routeStemOnly
+        ? ""
+        : (
+            hasOutputConnector
+                ? String(options.outputConnector ?? "")
+                : getTClassSuffixForStem(normalizedOutputStem)
+        );
+    const variantConsonant = normalizePatientivoRootStockVariantConsonant(options.variantConsonant || "");
+    const supported = Boolean(normalizedSourceStem && normalizedOutputStem && (routeStemOnly || resolvedConnector));
+    const contract = {
+        kind: "patientive-root-stock-source-contract",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: "39.4",
+            role: "root-or-stock-patientive-nounstem",
+        }),
+        sourceCore: "root-or-stock-stem",
+        sourceStem: normalizedSourceStem,
+        outputStem: normalizedOutputStem,
+        outputConnector: resolvedConnector,
+        outputSurface: `${normalizedOutputStem}${resolvedConnector}`,
+        supported,
+        andrewsSourceFamily: "root-or-stock",
+        andrewsNounstemClass: "tli",
+        nawatConnectorFamily: "t/ti",
+        connectorRule: "tli-class-surface-connector-follows-current-Nawat-stem-shape",
+        variantSelectionStatus: "not-fully-recoverable-from-surface-grammar",
+        variantConsonant,
+        classicalVariantConsonants: Object.freeze(
+            PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS.map((entry) => entry.classical)
+        ),
+        nawatVariantConsonants: Object.freeze(
+            PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS.map((entry) => entry.nawat)
+        ),
+        orthographyConversions: buildPatientivoRootStockVariantOrthographyConversions(),
+        routeStemOnly,
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil output spelling",
+        diagnostics: Object.freeze(supported
+            ? ["root-stock-patientive-source-supported"]
+            : ["unsupported-root-stock-patientive-source"]),
+        boundaries: Object.freeze({
+            noClassicalSurfaceImport: true,
+            noNewFixtureEvidence: true,
+            preservesGeneratedSurfaceForms: true,
+            orthographyConversionIsRuleOnly: true,
+            doesNotSelectVariantFromSurfaceGrammar: true,
+        }),
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(contract, {
+        metadataKind: "patientive-root-stock-source-contract",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-root-stock-source",
+        range: "39.4",
+        supported,
+        sourceInput: normalizedSourceStem,
+        diagnostics: contract.diagnostics,
+        orthographyFrame: {
+            classicalRuleSpelling: contract.classicalVariantConsonants.join("/"),
+            nawatRuleSpelling: contract.nawatVariantConsonants.join("/"),
+            surface: contract.outputSurface,
+            surfaceForms: contract.outputSurface ? [contract.outputSurface] : [],
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            orthographyConversions: contract.orthographyConversions,
+        },
+        stemFrame: {
+            stemKind: "patientive-root-stock-source",
+            sourceStem: normalizedSourceStem,
+            targetStem: normalizedOutputStem,
+            variantConsonant,
+        },
+        targetContract: {
+            metadataKind: "patientive-root-stock-source-contract",
+            generationAllowed: false,
+            supported,
+            outputSurface: contract.outputSurface,
+            outputConnector: resolvedConnector,
+            routeStemOnly,
+        },
+    }));
+}
+
+function getPatientivoImperfectiveSourceStemContract({
+    sourceStem = "",
+    outputStem = "",
+    outputConnector = "",
+} = {}) {
+    const normalizedSourceStem = normalizeDerivationStemValue(sourceStem);
+    const normalizedOutputStem = normalizeDerivationStemValue(outputStem);
+    const resolvedConnector = String(outputConnector || getTClassSuffixForStem(normalizedOutputStem) || "");
+    const supported = Boolean(normalizedSourceStem && normalizedOutputStem && resolvedConnector);
+    const contract = {
+        kind: "patientive-imperfective-source-stem-contract",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: "39.2",
+            role: "imperfective-active-core-to-patientive-nounstem",
+        }),
+        sourceCore: "imperfective-active-core",
+        sourceStem: normalizedSourceStem,
+        outputStem: normalizedOutputStem,
+        outputConnector: resolvedConnector,
+        outputSurface: `${normalizedOutputStem}${resolvedConnector}`,
+        supported,
+        andrewsNounstemClass: "ti",
+        nawatConnectorFamily: "t/ti",
+        connectorRule: "ti-class-surface-connector-follows-current-Nawat-stem-shape",
+        classicalSourceModel: Object.freeze({
+            classC: "truncated-imperfective-final-long-o-or-i",
+            classD: "imperfective-final-long-a",
+            sourceAnalogy: "modeled-after-passive-or-impersonal-patientive",
+        }),
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil output spelling",
+        diagnostics: Object.freeze(supported
+            ? ["imperfective-patientive-source-stem-supported"]
+            : ["unsupported-imperfective-patientive-source-stem"]),
+        boundaries: Object.freeze({
+            noClassicalSurfaceImport: true,
+            noNewFixtureEvidence: true,
+            preservesGeneratedSurfaceForms: true,
+        }),
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(contract, {
+        metadataKind: "patientive-imperfective-source-stem-contract",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-imperfective-source-stem",
+        range: "39.2",
+        supported,
+        sourceInput: normalizedSourceStem,
+        diagnostics: contract.diagnostics,
+        orthographyFrame: {
+            surface: contract.outputSurface,
+            surfaceForms: contract.outputSurface ? [contract.outputSurface] : [],
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+        },
+        stemFrame: {
+            stemKind: "patientive-imperfective-source-stem",
+            sourceStem: normalizedSourceStem,
+            targetStem: normalizedOutputStem,
+            outputConnector: resolvedConnector,
+        },
+        targetContract: {
+            metadataKind: "patientive-imperfective-source-stem-contract",
+            generationAllowed: false,
+            supported,
+            outputSurface: contract.outputSurface,
+            outputConnector: resolvedConnector,
+        },
+    }));
 }
 
 function allowsPatientivoSFamily(sourceBase = "") {
@@ -8716,7 +9599,14 @@ function buildPatientivoImperfectivoDerivations({
     const nounStem = nounStemSpec
         ? realizeMorphStemSpec(nounStemSpec, "")
         : realizePatientivoImperfectiveSourceChainStem(baseStem, imperfectiveSourceChain);
-    const subjectSuffix = "t";
+    const imperfectiveSourceStemContract = getPatientivoImperfectiveSourceStemContract({
+        sourceStem: baseStem,
+        outputStem: nounStem,
+    });
+    if (imperfectiveSourceStemContract.supported !== true) {
+        return [];
+    }
+    const subjectSuffix = imperfectiveSourceStemContract.outputConnector;
     const entry = buildPatientivoDerivationEntry({
         sourceModel: patientivoSourceModel,
         sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.imperfectivo,
@@ -8731,6 +9621,9 @@ function buildPatientivoImperfectivoDerivations({
             adjectiveSuffix: "ti",
             lockNominalMarker: true,
         }),
+        metadata: {
+            imperfectiveSourceStemContract,
+        },
     });
     return entry ? [entry] : [];
 }
@@ -9066,6 +9959,14 @@ function buildPatientivoTroncoDerivations({
         if (!normalized) {
             return;
         }
+        const rootStockSourceContract = options.rootStockSourceContract
+            || getPatientivoRootStockSourceContract({
+                sourceStem: base,
+                outputStem: normalized,
+                outputConnector: suffix,
+                routeStemOnly: suffix === "",
+                variantConsonant: options.variantConsonant || "",
+            });
         const nextEntry = buildPatientivoDerivationEntry({
             sourceModel: patientivoSourceModel,
             sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
@@ -9078,6 +9979,9 @@ function buildPatientivoTroncoDerivations({
                 defaultSuffix: suffix,
                 lockNominalMarker: options.lockNominalMarker === true,
             }),
+            metadata: {
+                rootStockSourceContract,
+            },
         });
         if (nextEntry) {
             if (!shouldBypassPatientivoPronounceabilityGate(nextEntry) && !isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)) {
@@ -9096,10 +10000,16 @@ function buildPatientivoTroncoDerivations({
         if (!normalized) {
             return;
         }
-        const suffix = getTClassSuffixForStem(normalized);
+        const rootStockSourceContract = getPatientivoRootStockSourceContract({
+            sourceStem: base,
+            outputStem: normalized,
+        });
+        const suffix = rootStockSourceContract.outputConnector;
         addRawResult(normalized, suffix, {
             stemSpec: options.stemSpec || null,
             lockNominalMarker: options.lockNominalMarker !== false,
+            rootStockSourceContract,
+            variantConsonant: options.variantConsonant || "",
         });
     };
     const hasFinalConsonantCluster = (stem = "") => {
@@ -9189,8 +10099,14 @@ function buildPatientivoTroncoDerivations({
         consonants.forEach((consonant) => {
             const extendedStem = `${stem}${consonant}`;
             const extendedStemSpec = buildAppendedStemSpec(stem, stemSpec, consonant);
-            addRawResult(extendedStem, "", { stemSpec: extendedStemSpec });
-            addResult(extendedStem, { stemSpec: extendedStemSpec });
+            addRawResult(extendedStem, "", {
+                stemSpec: extendedStemSpec,
+                variantConsonant: consonant,
+            });
+            addResult(extendedStem, {
+                stemSpec: extendedStemSpec,
+                variantConsonant: consonant,
+            });
         });
     };
     const wiFamilyConsonants = ["k", "ch", "s", "sh"];
@@ -9362,6 +10278,108 @@ function buildPatientivoTroncoDerivations({
         }
     }
     return finalizeSeriesMirroredResults();
+}
+
+const PATIENTIVO_MULTIPLE_DERIVATION_SOURCE_FAMILIES = Object.freeze([
+    VERB_DERIVED_PATIENTIVE_FAMILY.passive,
+    VERB_DERIVED_PATIENTIVE_FAMILY.impersonal,
+    VERB_DERIVED_PATIENTIVE_FAMILY.perfectivo,
+    VERB_DERIVED_PATIENTIVE_FAMILY.imperfectivo,
+    VERB_DERIVED_PATIENTIVE_FAMILY.troncoVerbal,
+]);
+
+function buildPatientivoMultipleDerivationContract({
+    patientivoInput = null,
+    selectedSource = "",
+    selectedStageFrame = null,
+    selectedOutputSurface = "",
+    sourceFamilies = PATIENTIVO_MULTIPLE_DERIVATION_SOURCE_FAMILIES,
+} = {}) {
+    const input = patientivoInput && typeof patientivoInput === "object" ? patientivoInput : null;
+    const selectedFamily = normalizeVerbDerivedPatientiveFamily(selectedSource || selectedStageFrame?.sourceType || "");
+    const families = Array.isArray(sourceFamilies) && sourceFamilies.length
+        ? sourceFamilies
+        : PATIENTIVO_MULTIPLE_DERIVATION_SOURCE_FAMILIES;
+    const sourceOptions = families.map((familyValue) => {
+        const sourceFamily = normalizeVerbDerivedPatientiveFamily(familyValue);
+        const builder = sourceFamily ? getPatientivoDerivationBuilder(sourceFamily) : null;
+        let entries = [];
+        if (input && typeof builder === "function") {
+            const rawEntries = normalizePatientivoDerivationEntries(builder(input), sourceFamily);
+            const expandedEntries = expandPatientivoNominalMarkerOptions(rawEntries, sourceFamily);
+            entries = (expandedEntries.length ? expandedEntries : rawEntries).filter(Boolean);
+        }
+        const sourceCores = Array.from(new Set(entries
+            .map((entry) => String(entry?.patientiveSourceStageFrame?.sourceCore || entry?.sourceType || ""))
+            .filter(Boolean)));
+        const outputSurfaces = Array.from(new Set(entries
+            .map((entry) => `${String(entry?.verb || entry?.stem || "")}${String(entry?.subjectSuffix || "")}`)
+            .filter(Boolean)));
+        return Object.freeze({
+            sourceFamily,
+            available: entries.length > 0,
+            outputCount: entries.length,
+            sourceCores: Object.freeze(sourceCores),
+            outputSurfaces: Object.freeze(outputSurfaces),
+            selected: sourceFamily === selectedFamily,
+            diagnostics: Object.freeze(entries.length
+                ? ["patientive-derivation-procedure-available"]
+                : ["patientive-derivation-procedure-unavailable"]),
+        });
+    });
+    const availableOptions = sourceOptions.filter((entry) => entry.available === true);
+    const contract = {
+        kind: "patientive-multiple-derivation-contract",
+        version: 1,
+        curriculumRef: Object.freeze({
+            source: "Andrews",
+            range: "39.5",
+            role: "multiple-patientive-derivation-procedures",
+        }),
+        slot: "#3 salida",
+        selectedSource: selectedFamily,
+        selectedSourceCore: String(selectedStageFrame?.sourceCore || ""),
+        selectedOutputSurface: String(selectedOutputSurface || selectedStageFrame?.outputSurface || ""),
+        sourceOptions: Object.freeze(sourceOptions),
+        availableSourceFamilies: Object.freeze(availableOptions.map((entry) => entry.sourceFamily)),
+        availableProcedureCount: availableOptions.length,
+        hasMultipleAvailableProcedures: availableOptions.length > 1,
+        semanticBoundary: "shared-source-patientive-outputs-may-be-synonymous-or-idiomatically-distinct",
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil output spelling",
+        diagnostics: Object.freeze(availableOptions.length > 1
+            ? ["multiple-patientive-derivation-procedures-available"]
+            : ["single-patientive-derivation-procedure-available"]),
+        boundaries: Object.freeze({
+            noClassicalSurfaceImport: true,
+            noNewFixtureEvidence: true,
+            noNewSurfaceForms: true,
+            doesNotMergeSynonymousTranslations: true,
+            sourceProcedureInventoryOnly: true,
+        }),
+    };
+    return Object.freeze(attachVncAllomorphyGrammarContract(contract, {
+        metadataKind: "patientive-multiple-derivation-contract",
+        routeFamily: "patientive-source-contract",
+        routeStage: "classify-multiple-derivation",
+        range: "39.5",
+        supported: availableOptions.length > 0,
+        sourceInput: selectedFamily,
+        diagnostics: contract.diagnostics,
+        stemFrame: {
+            stemKind: "patientive-multiple-derivation",
+            sourceFamily: selectedFamily,
+            selectedSourceCore: contract.selectedSourceCore,
+            targetStem: contract.selectedOutputSurface,
+        },
+        targetContract: {
+            metadataKind: "patientive-multiple-derivation-contract",
+            generationAllowed: false,
+            availableSourceFamilies: contract.availableSourceFamilies,
+            availableProcedureCount: contract.availableProcedureCount,
+            hasMultipleAvailableProcedures: contract.hasMultipleAvailableProcedures,
+        },
+    }));
 }
 
 function buildNonactiveOptionMap(options) {

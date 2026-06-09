@@ -31,6 +31,19 @@ export function createPurposiveApi(targetObject = globalThis) {
       field: "evidenceSource",
       asks: "What Nawat/Pipil repo or user-provided clause/form evidence supports purposive status?"
     })]);
+    function attachPurposiveDirectionalGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "vnc-derivation-boundary",
+        routeFamily: "purposive-directional",
+        structuralSource: "Andrews Lesson 29",
+        andrewsRefs: ["Andrews Lesson 29"],
+        ...options
+      });
+    }
     function normalizePurposiveDirectionalEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
       return allowedValues.includes(normalized) ? normalized : fallback;
@@ -56,7 +69,7 @@ export function createPurposiveApi(targetObject = globalThis) {
       return ["wal", "un"];
     }
     function buildPurposiveDirectionalBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "purposive-directional-boundary",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         lesson: 29,
@@ -77,6 +90,17 @@ export function createPurposiveApi(targetObject = globalThis) {
         },
         antiConflationRules: getPurposiveDirectionalAntiConflationRules()
       };
+      return attachPurposiveDirectionalGrammarContract(boundary, {
+        metadataKind: "purposive-directional-boundary",
+        routeStage: "classify-boundary",
+        supported: false,
+        morphBoundaryFrame: boundary,
+        targetContract: {
+          metadataKind: "purposive-directional-boundary",
+          generationAllowed: false,
+          hasPurposiveGeneration: false
+        }
+      });
     }
     function classifyPurposiveDirectionalCandidate({
       sourceStem = "",
@@ -92,7 +116,7 @@ export function createPurposiveApi(targetObject = globalThis) {
       const normalizedDirectionalPrefix = String(directionalPrefix || "").trim().toLowerCase();
       const hasKnownDirectionalPrefix = knownPrefixes.includes(normalizedDirectionalPrefix);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "purposive-directional-candidate-classification",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         sourceStem: String(sourceStem || ""),
@@ -107,10 +131,30 @@ export function createPurposiveApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "purposive-directional-needs-validation" : "purposive-directional-needs-nawat-evidence", hasKnownDirectionalPrefix ? "directional-prefix-recognized" : "directional-prefix-unconfirmed", normalizedFalsePositive !== PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE.unknown ? "purposive-directional-false-positive-source" : "purposive-directional-unconfirmed"],
         boundary: buildPurposiveDirectionalBoundaryMetadata()
       };
+      return attachPurposiveDirectionalGrammarContract(classification, {
+        metadataKind: "purposive-directional-candidate-classification",
+        routeStage: "classify-candidate",
+        sourceInput: classification.sourceStem || classification.candidate,
+        supported: false,
+        diagnostics: classification.diagnostics,
+        stemFrame: {
+          stemKind: "purposive-directional-candidate",
+          sourceStem: classification.sourceStem,
+          targetStem: classification.candidate,
+          directionalPrefix: normalizedDirectionalPrefix,
+          relation: normalizedRelation
+        },
+        targetContract: {
+          metadataKind: "purposive-directional-candidate-classification",
+          generationAllowed: false,
+          relation: normalizedRelation,
+          hasKnownDirectionalPrefix
+        }
+      });
     }
     function classifyPurposiveDirectionalFalsePositive(source = "") {
       const normalizedSource = normalizePurposiveDirectionalFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "purposive-directional-false-positive",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -119,6 +163,13 @@ export function createPurposiveApi(targetObject = globalThis) {
         diagnostics: ["purposive-directional-false-positive-source"],
         antiConflationRules: getPurposiveDirectionalAntiConflationRules()
       };
+      return attachPurposiveDirectionalGrammarContract(classification, {
+        metadataKind: "purposive-directional-false-positive",
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+        diagnostics: classification.diagnostics
+      });
     }
 
     const api = {};
@@ -147,6 +198,7 @@ export function createPurposiveApi(targetObject = globalThis) {
         enumerable: true,
         get() { return PURPOSIVE_DIRECTIONAL_STRUCTURAL_QUESTIONS; },
     });
+    api.attachPurposiveDirectionalGrammarContract = attachPurposiveDirectionalGrammarContract;
     api.normalizePurposiveDirectionalEnum = normalizePurposiveDirectionalEnum;
     api.normalizePurposiveDirectionalRelation = normalizePurposiveDirectionalRelation;
     api.normalizePurposiveDirectionalFalsePositiveSource = normalizePurposiveDirectionalFalsePositiveSource;

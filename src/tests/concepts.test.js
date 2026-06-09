@@ -157,6 +157,26 @@ function run(ctx) {
     );
     s.no("concept glossary does not expose surface forms", Object.prototype.hasOwnProperty.call(glossary, "surfaceForms"));
     s.no("concept glossary does not expose generated forms", Object.prototype.hasOwnProperty.call(glossary, "generatedForms"));
+    const tokenFrame = ctx.classifyConceptToken("NNC").grammarFrame;
+    s.eq(
+        "concept metadata exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(tokenFrame),
+            routeFamily: tokenFrame?.routeContract?.routeFamily || "",
+            routeStage: tokenFrame?.routeContract?.routeStage || "",
+            generationAllowed: tokenFrame?.routeContract?.generationAllowed,
+            andrewsRef: tokenFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(ctx.classifyConceptToken("NNC"), "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "concept-registry",
+            routeStage: "classify-token",
+            generationAllowed: false,
+            andrewsRef: "Andrews Lesson 1",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

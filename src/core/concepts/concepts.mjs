@@ -113,11 +113,24 @@ export function createConceptsApi(targetObject = globalThis) {
       "predicate": "predicate-stem-slot",
       "tense": "tense-position"
     });
+    function attachConceptGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "concept-metadata",
+        routeFamily: "concept-registry",
+        structuralSource: "Andrews Lesson 1",
+        andrewsRefs: ["Andrews Lesson 1"],
+        ...options
+      });
+    }
     function normalizeConceptId(value = "") {
       return String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     }
     function cloneConcept(concept = {}) {
-      return {
+      const cloned = {
         ...concept,
         appliesTo: Array.isArray(concept.appliesTo) ? [...concept.appliesTo] : [],
         source: {
@@ -126,6 +139,18 @@ export function createConceptsApi(targetObject = globalThis) {
         },
         generationAllowed: false
       };
+      return attachConceptGrammarContract(cloned, {
+        metadataKind: "concept-entry",
+        routeStage: "classify-concept-entry",
+        sourceInput: cloned.id,
+        supported: true,
+        targetContract: {
+          metadataKind: "concept-entry",
+          conceptKind: cloned.kind,
+          notationRole: cloned.notationRole || "",
+          generationAllowed: false
+        }
+      });
     }
     function getConceptAntiConflationRules() {
       return Array.from(CONCEPT_ANTI_CONFLATION_RULES);
@@ -136,7 +161,7 @@ export function createConceptsApi(targetObject = globalThis) {
     } = {}) {
       const normalizedKind = String(kind || "").trim();
       const concepts = LESSON_1_CONCEPTS.filter(concept => lesson == null || Number(concept.lesson) === Number(lesson)).filter(concept => !normalizedKind || concept.kind === normalizedKind).sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0)).map(cloneConcept);
-      return {
+      const registry = {
         kind: "concept-registry",
         version: CONCEPT_REGISTRY_VERSION,
         structuralSource: "Andrews Lesson 1",
@@ -145,6 +170,17 @@ export function createConceptsApi(targetObject = globalThis) {
         generationAllowed: false,
         antiConflationRules: getConceptAntiConflationRules()
       };
+      return attachConceptGrammarContract(registry, {
+        metadataKind: "concept-registry",
+        routeStage: "classify-registry",
+        supported: concepts.length > 0,
+        diagnosticStatus: "diagnostic-only",
+        targetContract: {
+          metadataKind: "concept-registry",
+          conceptCount: concepts.length,
+          generationAllowed: false
+        }
+      });
     }
     function listConceptsByLesson(lesson = 1) {
       return getConceptRegistry({
@@ -166,7 +202,7 @@ export function createConceptsApi(targetObject = globalThis) {
       const normalized = normalizeConceptId(raw);
       const aliasId = CONCEPT_TOKEN_ALIASES[raw.trim()] || CONCEPT_TOKEN_ALIASES[normalized] || normalized;
       const concept = getConceptById(aliasId);
-      return {
+      const classification = {
         kind: "concept-token-classification",
         version: CONCEPT_REGISTRY_VERSION,
         token: raw,
@@ -178,11 +214,23 @@ export function createConceptsApi(targetObject = globalThis) {
         generationAllowed: false,
         diagnostics: concept ? ["concept-token-diagnostic-only"] : ["concept-token-unmapped"]
       };
+      return attachConceptGrammarContract(classification, {
+        metadataKind: "concept-token-classification",
+        routeStage: "classify-token",
+        sourceInput: raw,
+        supported: Boolean(concept),
+        targetContract: {
+          metadataKind: "concept-token-classification",
+          conceptId: classification.conceptId,
+          notationRole: classification.notationRole,
+          generationAllowed: false
+        }
+      });
     }
     function buildConceptGlossaryMetadata({
       lesson = 1
     } = {}) {
-      return {
+      const glossary = {
         kind: "concept-glossary-metadata",
         version: CONCEPT_REGISTRY_VERSION,
         lesson: Number(lesson) || 1,
@@ -197,6 +245,13 @@ export function createConceptsApi(targetObject = globalThis) {
         },
         antiConflationRules: getConceptAntiConflationRules()
       };
+      return attachConceptGrammarContract(glossary, {
+        metadataKind: "concept-glossary-metadata",
+        routeStage: "classify-glossary",
+        supported: false,
+        sourceInput: String(glossary.lesson),
+        morphBoundaryFrame: glossary
+      });
     }
 
     const api = {};
@@ -225,6 +280,7 @@ export function createConceptsApi(targetObject = globalThis) {
         enumerable: true,
         get() { return CONCEPT_TOKEN_ALIASES; },
     });
+    api.attachConceptGrammarContract = attachConceptGrammarContract;
     api.normalizeConceptId = normalizeConceptId;
     api.cloneConcept = cloneConcept;
     api.getConceptAntiConflationRules = getConceptAntiConflationRules;

@@ -54,8 +54,19 @@ export function createNncCompoundApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachCompoundNncGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "compound-nnc",
+        routeFamily: "compound-nnc",
+        ...options
+      });
+    }
     function buildCompoundNncAffectiveBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "compound-nnc-affective-boundary",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         lessons: [31, 32],
@@ -76,6 +87,10 @@ export function createNncCompoundApi(targetObject = globalThis) {
         },
         antiConflationRules: getCompoundNncAntiConflationRules()
       };
+      return attachCompoundNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyCompoundNncAffectiveCandidate({
       candidate = "",
@@ -91,7 +106,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       const normalizedKind = normalizeCompoundNncKind(compoundKind);
       const normalizedFalsePositive = normalizeCompoundNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "compound-nnc-affective-candidate-classification",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -108,10 +123,21 @@ export function createNncCompoundApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "compound-nnc-needs-validation" : "compound-nnc-needs-nawat-evidence", hasCompoundAst ? "vnc-compound-ast-not-nnc-evidence" : "compound-nnc-no-compound-ast", normalizedFalsePositive !== COMPOUND_NNC_FALSE_POSITIVE_SOURCE.unknown ? "compound-nnc-false-positive-source" : "compound-nnc-unconfirmed"],
         boundary: buildCompoundNncAffectiveBoundaryMetadata()
       };
+      return attachCompoundNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.headStem,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+          stemKind: "compound-nounstem-candidate",
+          matrix: classification.headStem,
+          embed: classification.embeddedStem
+        }
+      });
     }
     function classifyCompoundNncAffectiveFalsePositive(source = "") {
       const normalizedSource = normalizeCompoundNncFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "compound-nnc-affective-false-positive",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -121,6 +147,11 @@ export function createNncCompoundApi(targetObject = globalThis) {
         diagnostics: ["compound-nnc-false-positive-source"],
         antiConflationRules: getCompoundNncAntiConflationRules()
       };
+      return attachCompoundNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -154,6 +185,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
     api.normalizeCompoundNncFalsePositiveSource = normalizeCompoundNncFalsePositiveSource;
     api.getCompoundNncAntiConflationRules = getCompoundNncAntiConflationRules;
     api.getCompoundNncStructuralQuestions = getCompoundNncStructuralQuestions;
+    api.attachCompoundNncGrammarContract = attachCompoundNncGrammarContract;
     api.buildCompoundNncAffectiveBoundaryMetadata = buildCompoundNncAffectiveBoundaryMetadata;
     api.classifyCompoundNncAffectiveCandidate = classifyCompoundNncAffectiveCandidate;
     api.classifyCompoundNncAffectiveFalsePositive = classifyCompoundNncAffectiveFalsePositive;

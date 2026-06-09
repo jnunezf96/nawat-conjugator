@@ -201,6 +201,38 @@ function run(ctx) {
             "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
         ]
     );
+    const shell = ctx.buildNuclearClauseShellMetadata({
+        clauseKind: "nnc",
+        formulaSlots: {
+            subjectPerson: { slot: "pers1-pers2", prefix: "", suffix: "", label: "3sg" },
+            predicate: { slot: "STEM", stem: "shuchi", state: "absolutive" },
+            subjectNumberConnector: { slot: "num1-num2", connector: "t", nounClass: "t" },
+        },
+    });
+    const shellFrame = shell.grammarFrame;
+    s.eq(
+        "nuclear clause shell exposes non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(shellFrame),
+            routeFamily: shellFrame?.routeContract?.routeFamily || "",
+            routeStage: shellFrame?.routeContract?.routeStage || "",
+            generationAllowed: shellFrame?.routeContract?.generationAllowed,
+            formulaType: shellFrame?.nuclearClauseFrame?.formulaType || "",
+            hasTensePosition: shellFrame?.inflectionFrame?.hasTensePosition,
+            andrewsRef: shellFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(shell, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "nuclear-clause-shell",
+            routeStage: "classify-shell",
+            generationAllowed: false,
+            formulaType: "NNC",
+            hasTensePosition: false,
+            andrewsRef: "Andrews Lesson 4",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     return s;
 }

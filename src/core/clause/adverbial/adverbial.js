@@ -138,8 +138,153 @@ function getAdverbialNuclearStructuralQuestions() {
     return ADVERBIAL_NUCLEAR_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachAdverbialNuclearGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "adverbial-nuclear-clause",
+        routeFamily: "adverbial-nuclear",
+        ...options,
+    });
+}
+
+function normalizeAdverbialNuclearSurfaceValue(value = "") {
+    const surface = String(value || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
+function splitAdverbialNuclearSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeAdverbialNuclearSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getAdverbialNuclearGrammarFrame(frameLike = null) {
+    if (!frameLike || typeof frameLike !== "object") {
+        return null;
+    }
+    return [
+        frameLike.grammarFrame,
+        frameLike.frames,
+        frameLike,
+    ].find((candidate) => (
+        candidate
+        && typeof candidate === "object"
+        && (
+            candidate.authorityFrame
+            || candidate.routeContract
+            || candidate.resultFrame
+            || candidate.diagnosticFrame
+        )
+    )) || null;
+}
+
+function getAdverbialNuclearResultFrame({
+    grammarFrame = null,
+    frames = null,
+    result = null,
+    output = null,
+} = {}) {
+    const frame = [
+        getAdverbialNuclearGrammarFrame(grammarFrame),
+        getAdverbialNuclearGrammarFrame(frames),
+        getAdverbialNuclearGrammarFrame(result),
+        getAdverbialNuclearGrammarFrame(output),
+    ].find(Boolean);
+    return frame?.resultFrame && typeof frame.resultFrame === "object"
+        ? frame.resultFrame
+        : null;
+}
+
+function getAdverbialNuclearContractSurfaceForms({
+    surfaceForms = [],
+    surface = "",
+    result = null,
+    output = null,
+    grammarFrame = null,
+    frames = null,
+} = {}) {
+    const frameResult = getAdverbialNuclearResultFrame({
+        grammarFrame,
+        frames,
+        result,
+        output,
+    });
+    const hasResultFrame = Boolean(frameResult);
+    const forms = [];
+    if (Array.isArray(frameResult?.surfaceForms)) {
+        forms.push(...frameResult.surfaceForms);
+    }
+    if (frameResult?.surface) {
+        forms.push(frameResult.surface);
+    }
+    if (hasResultFrame) {
+        return forms
+            .flatMap((entry) => splitAdverbialNuclearSurfaceText(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    if (!hasResultFrame && Array.isArray(surfaceForms)) {
+        forms.push(...surfaceForms);
+    } else if (!hasResultFrame && surfaceForms) {
+        forms.push(surfaceForms);
+    }
+    if (!hasResultFrame && surface) {
+        forms.push(surface);
+    }
+    [result, output].forEach((node) => {
+        if (!node || typeof node !== "object") {
+            return;
+        }
+        if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
+            forms.push(...node.surfaceForms);
+        }
+        if (!hasResultFrame && node.surface) {
+            forms.push(node.surface);
+        }
+        if (!hasResultFrame && node.result) {
+            forms.push(node.result);
+        }
+    });
+    return forms
+        .flatMap((form) => splitAdverbialNuclearSurfaceText(form))
+        .filter((form, index, list) => form && list.indexOf(form) === index);
+}
+
+function getAdverbialNuclearContractSourceText({
+    source = "",
+    sourceStem = "",
+    analysisStem = "",
+    finalStem = "",
+    result = null,
+    output = null,
+    grammarFrame = null,
+    frames = null,
+} = {}) {
+    const frameResult = getAdverbialNuclearResultFrame({
+        grammarFrame,
+        frames,
+        result,
+        output,
+    });
+    return String(
+        source
+        || sourceStem
+        || analysisStem
+        || finalStem
+        || frameResult?.sourceInput
+        || result?.sourceInput
+        || output?.sourceInput
+        || result?.source
+        || output?.source
+        || ""
+    ).trim();
+}
+
 function buildAdverbialNuclearBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "adverbial-nuclear-boundary",
         version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
         lesson: 44,
@@ -164,6 +309,10 @@ function buildAdverbialNuclearBoundaryMetadata() {
         },
         antiConflationRules: getAdverbialNuclearAntiConflationRules(),
     };
+    return attachAdverbialNuclearGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function buildAdverbializedSubjectPronounFrame({
@@ -196,6 +345,11 @@ function buildAdverbializedSubjectPronounFrame({
 function buildAdverbialNuclearClauseFrame({
     source = "",
     surfaceForms = [],
+    surface = "",
+    result = null,
+    output = null,
+    grammarFrame = null,
+    frames = null,
     sourceClauseKind = ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND.vnc,
     adverbialKind = ADVERBIAL_NUCLEAR_KIND.vncAdverbial,
     adverbialDegree = ADVERBIAL_NUCLEAR_DEGREE.firstDegree,
@@ -214,10 +368,24 @@ function buildAdverbialNuclearClauseFrame({
     const normalizedKind = normalizeAdverbialNuclearKind(adverbialKind);
     const normalizedDegree = normalizeAdverbialNuclearDegree(adverbialDegree);
     const normalizedDomain = normalizeAdverbialNuclearDomain(semanticDomain);
-    const forms = Array.isArray(surfaceForms)
-        ? surfaceForms.map((form) => String(form || "").trim()).filter(Boolean)
-        : [String(surfaceForms || "").trim()].filter(Boolean);
-    const sourceText = String(source || sourceStem || analysisStem || finalStem || "").trim();
+    const forms = getAdverbialNuclearContractSurfaceForms({
+        surfaceForms,
+        surface,
+        result,
+        output,
+        grammarFrame,
+        frames,
+    });
+    const sourceText = getAdverbialNuclearContractSourceText({
+        source,
+        sourceStem,
+        analysisStem,
+        finalStem,
+        result,
+        output,
+        grammarFrame,
+        frames,
+    });
     const diagnostics = [];
     if (!sourceText) {
         diagnostics.push("adverbial-nuclear-requires-source");
@@ -241,7 +409,7 @@ function buildAdverbialNuclearClauseFrame({
         sourceClauseKind: normalizedSourceKind,
         adverbialDegree: normalizedDegree,
     });
-    return {
+    const frame = {
         kind: "adverbial-nuclear-clause-frame",
         version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
         lesson: 44,
@@ -270,7 +438,6 @@ function buildAdverbialNuclearClauseFrame({
         },
         output: {
             surfaceForms: forms,
-            primarySurface: forms[0] || "",
             preservesGeneratedSurface: true,
         },
         generationContract: {
@@ -283,6 +450,15 @@ function buildAdverbialNuclearClauseFrame({
         diagnostics,
         boundary: buildAdverbialNuclearBoundaryMetadata(),
     };
+    return attachAdverbialNuclearGrammarContract(frame, {
+        routeStage: "describe-existing-output",
+        sourceInput: sourceText,
+        surfaceForms: forms,
+        supported,
+        generationAllowed: false,
+        nuclearClauseFrame: frame,
+        morphBoundaryFrame: frame.boundary,
+    });
 }
 
 function classifyAdverbialNuclearCandidate({
@@ -299,7 +475,7 @@ function classifyAdverbialNuclearCandidate({
     const normalizedTense = String(tense || "").trim();
     const hasKnownLegacyAdverbioTense = getKnownLegacyAdverbioTensesForAdverbialBoundary().includes(normalizedTense);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "adverbial-nuclear-candidate-classification",
         version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
         source: String(source || ""),
@@ -321,11 +497,17 @@ function classifyAdverbialNuclearCandidate({
         ],
         boundary: buildAdverbialNuclearBoundaryMetadata(),
     };
+    return attachAdverbialNuclearGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.source || classification.candidate,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+    });
 }
 
 function classifyAdverbialNuclearFalsePositive(source = "") {
     const normalizedSource = normalizeAdverbialNuclearFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "adverbial-nuclear-false-positive",
         version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -336,4 +518,9 @@ function classifyAdverbialNuclearFalsePositive(source = "") {
         diagnostics: ["adverbial-nuclear-false-positive-source"],
         antiConflationRules: getAdverbialNuclearAntiConflationRules(),
     };
+    return attachAdverbialNuclearGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

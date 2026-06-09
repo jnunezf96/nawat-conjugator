@@ -55,6 +55,76 @@ function run(ctx) {
     });
     s.eq("noStemMask: masked result marker", noStemMask.result, "—");
     s.eq("noStemMask: masked result exposes empty surfaceForms", noStemMask.surfaceForms, []);
+    s.eq(
+        "noStemMask: masked result exposes the blocked LCM contract",
+        {
+            ok: noStemMask.ok,
+            surface: noStemMask.surface,
+            framesIsGrammarFrame: noStemMask.frames === noStemMask.grammarFrame,
+            routeFamily: noStemMask.frames.routeContract.routeFamily,
+            routeStage: noStemMask.frames.routeContract.routeStage,
+            generationAllowed: noStemMask.frames.routeContract.generationAllowed,
+            diagnosticId: noStemMask.diagnostics[0].id,
+            enumerableContract: Object.prototype.propertyIsEnumerable.call(noStemMask, "grammarFrame"),
+        },
+        {
+            ok: false,
+            surface: "",
+            framesIsGrammarFrame: true,
+            routeFamily: "forward-derivation",
+            routeStage: "no-stem-mask",
+            generationAllowed: false,
+            diagnosticId: "generate-forward-derivation-no-stem",
+            enumerableContract: false,
+        }
+    );
+
+    const validationError = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: false,
+            override: {
+                tense: "presente",
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "ni",
+            objectPrefix: "",
+            verb: "",
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    s.eq(
+        "executeGenerateWordRequest: validation error exposes the blocked LCM contract",
+        {
+            error: validationError.error,
+            ok: validationError.ok,
+            surface: validationError.surface,
+            framesIsGrammarFrame: validationError.frames === validationError.grammarFrame,
+            routeStage: validationError.frames.routeContract.routeStage,
+            generationAllowed: validationError.frames.routeContract.generationAllowed,
+            diagnosticMessage: validationError.diagnostics[0].message,
+            enumerableContract: Object.prototype.propertyIsEnumerable.call(validationError, "grammarFrame"),
+        },
+        {
+            error: "El verbo no puede estar vacío. Ingrese verbo.",
+            ok: false,
+            surface: "",
+            framesIsGrammarFrame: true,
+            routeStage: "validate",
+            generationAllowed: false,
+            diagnosticMessage: "El verbo no puede estar vacío. Ingrese verbo.",
+            enumerableContract: false,
+        }
+    );
 
     const nonactiveOverride = ctx.applyNonactiveGenerateOverrides({
         nonactiveDerivation: {
@@ -270,6 +340,143 @@ function run(ctx) {
             subjectSlot: "subject",
             objectDisplay: "Ø",
         }
+    );
+    s.eq(
+        "executeGenerateWordRequest also exposes the LCM grammar frame for VNC output",
+        {
+            frameKeys: ctx.GRAMMAR_FRAME_KEYS.filter((key) => Object.prototype.hasOwnProperty.call(executeEngineResult.grammarFrame, key)),
+            topOk: executeEngineResult.ok,
+            topSurface: executeEngineResult.surface,
+            topFramesIsGrammarFrame: executeEngineResult.frames === executeEngineResult.grammarFrame,
+            unitKind: executeEngineResult.grammarFrame.unitFrame.unitKind,
+            surface: executeEngineResult.grammarFrame.resultFrame.surface,
+            ok: executeEngineResult.grammarFrame.resultFrame.ok,
+            shellKind: executeEngineResult.grammarFrame.nuclearClauseFrame.clauseKind,
+            routeFamily: executeEngineResult.grammarFrame.routeContract.routeFamily,
+            tense: executeEngineResult.grammarFrame.inflectionFrame.tense,
+            subjectPrefix: executeEngineResult.grammarFrame.participantFrame.subject.prefix,
+        },
+        {
+            frameKeys: ctx.GRAMMAR_FRAME_KEYS,
+            topOk: true,
+            topSurface: "nemi",
+            topFramesIsGrammarFrame: true,
+            unitKind: "verbal-nuclear-clause",
+            surface: "nemi",
+            ok: true,
+            shellKind: "verbal-nuclear-clause",
+            routeFamily: "vnc",
+            tense: "presente",
+            subjectPrefix: "",
+        }
+    );
+    const priorResultFrame = ctx.buildGrammarFrame({
+        resultFrame: ctx.buildGrammarResultFrame({
+            ok: true,
+            surface: "frame-engine-surface",
+            surfaceForms: ["frame-engine-a", "frame-engine-b"],
+        }),
+    });
+    const rebuiltGenerateFrame = ctx.buildGenerateWordGrammarFrame({
+        result: {
+            result: "stale-engine-result",
+            frames: priorResultFrame,
+            surface: "top-engine-surface",
+            surfaceForms: ["stale-engine-a / stale-engine-b"],
+        },
+        renderVerb: "—",
+        verb: "legacy-source",
+        resolvedTenseMode: "verbo",
+        tense: "presente",
+        routeFamily: "vnc",
+        unitKind: "verbal-nuclear-clause",
+    });
+    s.eq(
+        "generate word grammar frame reads framed result surface forms before legacy no-output text",
+        {
+            surface: rebuiltGenerateFrame.resultFrame.surface,
+            surfaceForms: rebuiltGenerateFrame.resultFrame.surfaceForms,
+            ok: rebuiltGenerateFrame.resultFrame.ok,
+            sourceInput: rebuiltGenerateFrame.resultFrame.sourceInput,
+            stem: rebuiltGenerateFrame.stemFrame.stem,
+        },
+        {
+            surface: "frame-engine-a",
+            surfaceForms: ["frame-engine-a", "frame-engine-b", "frame-engine-surface"],
+            ok: true,
+            sourceInput: "frame-engine-a",
+            stem: "frame-engine-a",
+        }
+    );
+    s.eq(
+        "generate runtime blocked wrapper preserves framed surface forms before stale legacy text",
+        typeof ctx.resolveGenerateRuntimeContractSurface === "function"
+            ? ctx.resolveGenerateRuntimeContractSurface({
+                result: "stale-runtime-result",
+                surface: "top-runtime-surface",
+                surfaceForms: ["stale-runtime-a / stale-runtime-b"],
+                frames: priorResultFrame,
+            })
+            : "runtime-support-not-loaded",
+        "frame-engine-a"
+    );
+    s.eq(
+        "generate runtime surface forms ignore stale aliases when result frame exists",
+        typeof ctx.getGenerateRuntimeSurfaceForms === "function"
+            ? ctx.getGenerateRuntimeSurfaceForms({
+                result: "stale-runtime-result",
+                surface: "top-runtime-surface",
+                surfaceForms: ["stale-runtime-a / stale-runtime-b"],
+                frames: priorResultFrame,
+            })
+            : ["runtime-support-not-loaded"],
+        ["frame-engine-a", "frame-engine-b", "frame-engine-surface"]
+    );
+    s.eq(
+        "VNC allomorphy primary surface reads framed result before legacy no-output text",
+        typeof ctx.getVncAllomorphyContractSurface === "function"
+            ? ctx.getVncAllomorphyContractSurface({
+                result: "stale-allomorphy-result",
+                surface: "top-allomorphy-surface",
+                outputSurface: "stale-output-surface",
+                selectedOutputSurface: "stale-selected-output",
+                nawatSurfaceSuffix: "stale-suffix",
+                forms: ["stale-legacy-form"],
+                frames: priorResultFrame,
+            })
+            : "vnc-allomorphy-helper-not-loaded",
+        "frame-engine-a"
+    );
+    s.eq(
+        "VNC allomorphy source forms prefer framed result before stale legacy forms",
+        typeof ctx.getVncAllomorphySourceSurfaceForms === "function"
+            ? ctx.getVncAllomorphySourceSurfaceForms({
+                result: "stale-allomorphy-result",
+                surface: "top-allomorphy-surface",
+                outputSurface: "stale-output-surface",
+                selectedOutputSurface: "stale-selected-output",
+                nawatSurfaceSuffix: "stale-suffix",
+                forms: ["stale-legacy-form"],
+                frames: priorResultFrame,
+            })
+            : ["vnc-allomorphy-source-helper-not-loaded"],
+        ["frame-engine-a", "frame-engine-b", "frame-engine-surface"]
+    );
+    s.eq(
+        "VNC allomorphy source forms keep legacy forms for metadata-only frames",
+        typeof ctx.getVncAllomorphySourceSurfaceForms === "function"
+            ? ctx.getVncAllomorphySourceSurfaceForms({
+                forms: ["legacy-allomorphy-a / legacy-allomorphy-b"],
+                frames: ctx.buildGrammarFrame({
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "vnc-allomorphy",
+                        routeStage: "metadata-only",
+                        generationAllowed: true,
+                    }),
+                }),
+            })
+            : ["vnc-allomorphy-source-helper-not-loaded"],
+        ["legacy-allomorphy-a", "legacy-allomorphy-b"]
     );
     const transitiveFrameResult = ctx.executeGenerateWordRequest({
         options: {

@@ -247,8 +247,20 @@ function getRelationalNncStructuralQuestions() {
     return RELATIONAL_NNC_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachRelationalNncGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "relational-nnc",
+        routeFamily: "relational-nnc",
+        ...options,
+    });
+}
+
 function buildRelationalNncBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "relational-nnc-boundary",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         lessons: [45, 46, 47],
@@ -271,6 +283,10 @@ function buildRelationalNncBoundaryMetadata() {
         },
         antiConflationRules: getRelationalNncAntiConflationRules(),
     };
+    return attachRelationalNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyRelationalNncCandidate({
@@ -287,7 +303,7 @@ function classifyRelationalNncCandidate({
     const normalizedOption = normalizeRelationalNncOption(relationalOption);
     const normalizedFalsePositive = normalizeRelationalNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "relational-nnc-candidate-classification",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -311,11 +327,22 @@ function classifyRelationalNncCandidate({
         ],
         boundary: buildRelationalNncBoundaryMetadata(),
     };
+    return attachRelationalNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.relationalStem,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "relational-nounstem-candidate",
+            sourceStem: classification.relationalStem,
+            useStatus: classification.relationalOption,
+        },
+    });
 }
 
 function classifyRelationalNncFalsePositive(source = "") {
     const normalizedSource = normalizeRelationalNncFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "relational-nnc-false-positive",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -326,6 +353,11 @@ function classifyRelationalNncFalsePositive(source = "") {
         diagnostics: ["relational-nnc-false-positive-source"],
         antiConflationRules: getRelationalNncAntiConflationRules(),
     };
+    return attachRelationalNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }
 
 function buildRelationalNncUsageFrame({
@@ -407,7 +439,7 @@ function buildRelationalNncUsageFrame({
                 : "",
     };
 
-    return {
+    const frame = {
         kind: "relational-nnc-usage-frame",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         lessonRange: "45-47",
@@ -444,4 +476,18 @@ function buildRelationalNncUsageFrame({
         diagnostics,
         boundary: buildRelationalNncBoundaryMetadata(),
     };
+    return attachRelationalNncGrammarContract(frame, {
+        routeStage: "describe-usage-frame",
+        sourceInput: frame.candidate || frame.relationalStem,
+        supported,
+        morphBoundaryFrame: frame.boundary,
+        stemFrame: {
+            stemKind: "relational-nounstem",
+            sourceStem: frame.relationalStem,
+            matrix: frame.matrixStem,
+            embed: frame.embeddedStem,
+            useStatus: frame.stemPosition,
+        },
+        nuclearClauseFrame: frame,
+    });
 }

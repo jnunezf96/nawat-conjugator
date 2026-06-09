@@ -72,6 +72,182 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       preserveSupportive: true,
       preserveAdjacentEmbed: true
     });
+    function getDerivationContinuationContractTargetInput(record = null) {
+      const source = record && typeof record === "object" ? record : {};
+      return String(source.prelocativeVerbInput || source.compoundVerbInput || source.ordinaryNncInput || source.ownerhoodVerbInput || source.complementVerbInput || source.adverbialVerbInput || source.compoundStem || "").trim();
+    }
+    function getDerivationContinuationContractSourceInput(record = null) {
+      const source = record && typeof record === "object" ? record : {};
+      return String(source.sourceSurface || source.patientivoSurface || source.characteristicSurface || source.actionNominalSurface || source.preteritAgentiveStem || source.customaryAgentiveStem || source.nounStem || "").trim();
+    }
+    function getDerivationContinuationContractAndrewsRefs(record = null) {
+      const source = record && typeof record === "object" ? record : {};
+      const refs = [source.grammarSource, source.matrix?.grammarSource, source.formationFrame?.grammarSource].map(entry => String(entry || "").trim()).filter(Boolean);
+      return refs.filter((entry, index, list) => list.indexOf(entry) === index);
+    }
+    function getDerivationContinuationDiagnosticLayerContract(entry = null) {
+      const diagnosticId = typeof entry === "string" ? entry : String(entry?.id || entry?.code || entry?.message || "");
+      const id = String(diagnosticId || "").trim();
+      if (/missing-(patientivo|characteristic|action-nominal|general-use|fully-nominalized|noun-stem|incorporated-root|surface)/i.test(id)) {
+        return {
+          failedLayer: "stem",
+          contractLayer: "stemFrame"
+        };
+      }
+      if (/unmapped-(possessor|subject)|object-transfer|source-state/i.test(id)) {
+        return {
+          failedLayer: "agreement",
+          contractLayer: "participantFrame"
+        };
+      }
+      if (/missing-(verb-input|nnc-input)|missing-.*input/i.test(id)) {
+        return {
+          failedLayer: "output",
+          contractLayer: "resultFrame"
+        };
+      }
+      if (/unsupported-matrix|class-matrix-mismatch|ambiguous-ti-class|unsupported-noun-class/i.test(id)) {
+        return {
+          failedLayer: "route",
+          contractLayer: "routeContract"
+        };
+      }
+      return {
+        failedLayer: "route",
+        contractLayer: "routeContract"
+      };
+    }
+    function normalizeDerivationContinuationDiagnosticEntries(diagnostics = [], {
+      routeStage = ""
+    } = {}) {
+      return (Array.isArray(diagnostics) ? diagnostics : []).map(entry => {
+        if (!entry) {
+          return null;
+        }
+        const normalizedEntry = typeof entry === "string" ? {
+          id: String(entry || "").trim(),
+          message: ""
+        } : entry && typeof entry === "object" ? {
+          ...entry
+        } : null;
+        if (!normalizedEntry) {
+          return null;
+        }
+        const id = String(normalizedEntry.id || normalizedEntry.code || normalizedEntry.message || "").trim();
+        if (!id) {
+          return null;
+        }
+        const layerContract = getDerivationContinuationDiagnosticLayerContract(normalizedEntry);
+        return {
+          ...normalizedEntry,
+          id,
+          code: String(normalizedEntry.code || id.toUpperCase().replace(/-/g, "_")).trim(),
+          severity: String(normalizedEntry.severity || "error").trim(),
+          message: String(normalizedEntry.message || "").trim(),
+          failedLayer: normalizedEntry.failedLayer || layerContract.failedLayer,
+          contractLayer: normalizedEntry.contractLayer || layerContract.contractLayer,
+          routeFamily: normalizedEntry.routeFamily || "derivation-continuation",
+          routeStage: normalizedEntry.routeStage || String(routeStage || "").trim()
+        };
+      }).filter(Boolean).filter((entry, index, list) => {
+        const key = `${entry.id || ""}|${entry.severity || ""}|${entry.message || ""}`;
+        return list.findIndex(candidate => `${candidate.id || ""}|${candidate.severity || ""}|${candidate.message || ""}` === key) === index;
+      });
+    }
+    function attachDerivationContinuationGrammarContract(record = null) {
+      if (!record || typeof record !== "object" || typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      const outputKind = String(record.outputKind || "derivation-continuation-contract").trim();
+      const supported = record.supported === true;
+      const sourceInput = getDerivationContinuationContractSourceInput(record);
+      const targetInput = getDerivationContinuationContractTargetInput(record);
+      const legacyDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
+      const routeStage = supported ? "preview-continuation" : "blocked";
+      const diagnostics = normalizeDerivationContinuationDiagnosticEntries(legacyDiagnostics, {
+        routeStage
+      });
+      const andrewsRefs = getDerivationContinuationContractAndrewsRefs(record);
+      const output = targetObject.attachGrammarMetadataContract({
+        ...record,
+        diagnostics: []
+      }, {
+        enumerable: false,
+        metadataKind: outputKind,
+        unitKind: "derivation-continuation-contract",
+        routeFamily: "derivation-continuation",
+        routeStage,
+        generationAllowed: supported,
+        supported,
+        structuralSource: andrewsRefs[0] || "Andrews derivation continuation",
+        andrewsRefs,
+        evidenceStatus: supported ? "continuation-supported" : "blocked",
+        diagnosticStatus: supported ? "continuation-supported" : "blocked",
+        surface: "",
+        surfaceForms: [],
+        sourceInput,
+        diagnostics,
+        sourceContract: {
+          unitKind: "generated-source-output",
+          sourceInput,
+          sourceSurface: String(record.sourceSurface || "").trim(),
+          patientivoSurface: String(record.patientivoSurface || "").trim(),
+          sourceState: String(record.sourceState || "").trim(),
+          sourceKind: String(record.sourceKind || "").trim()
+        },
+        targetContract: {
+          unitKind: "continuation-target",
+          outputKind,
+          targetInput,
+          generationAllowed: supported,
+          request: record.prelocativeRequest || record.compoundRequest || record.ownerhoodRequest || record.complementRequest || record.adverbialRequest || record.ordinaryNncRequest || null
+        },
+        orthographyFrame: {
+          surface: "",
+          surfaceForms: [],
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true,
+          targetInput
+        },
+        stemFrame: {
+          sourceStem: sourceInput,
+          incorporatedRoot: String(record.incorporatedRoot || "").trim(),
+          matrixRoot: String(record.matrixRoot || "").trim(),
+          nounStem: String(record.nounStem || "").trim(),
+          compoundStem: String(record.compoundStem || "").trim(),
+          targetInput,
+          matrix: record.matrix || null,
+          formationFrame: record.formationFrame || null
+        },
+        morphBoundaryFrame: {
+          formationFrame: record.formationFrame || null,
+          objectTransfer: record.objectTransfer || null,
+          omittedSuffix: String(record.omittedSuffix || "").trim(),
+          nounClass: String(record.nounClass || "").trim(),
+          ownerhoodKind: String(record.ownerhoodKind || "").trim()
+        },
+        participantFrame: {
+          object: record.objectTransfer || {
+            prefix: String(record.objectPrefix || "").trim()
+          },
+          possessor: {
+            prefix: String(record.possessorPrefix || "").trim()
+          }
+        },
+        inflectionFrame: {
+          outputKind,
+          sourceTenseValue: String(record.sourceTenseValue || "").trim(),
+          sourceCombinedMode: String(record.sourceCombinedMode || "").trim()
+        }
+      });
+      Object.defineProperty(output, "diagnostics", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: legacyDiagnostics
+      });
+      return output;
+    }
     function normalizeDerivationSourceOuterPiece(piece = null) {
       if (!piece || !piece.type || !piece.value) {
         return null;
@@ -1736,7 +1912,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         sourceSurface,
         compoundVerbInput
       });
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-characteristic-property-embed-continuation-contract",
         grammarSource: "Andrews 39.9",
         supported: uniqueDiagnostics.length === 0,
@@ -1754,7 +1930,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         objectTransfer: embedSource.objectTransfer,
         formationFrame,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPatientivoPrelocativeContinuationContract({
       patientivoSurface = "",
@@ -1817,7 +1993,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         sourceSurface,
         prelocativeVerbInput
       });
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-prelocative-continuation-contract",
         grammarSource: "Andrews 39.7-39.8",
         supported: uniqueDiagnostics.length === 0,
@@ -1835,7 +2011,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         objectTransfer,
         formationFrame,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPatientivoCompoundEmbedContinuationContract({
       patientivoSurface = "",
@@ -1872,7 +2048,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         sourceSurface,
         compoundVerbInput
       });
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-compound-embed-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
@@ -1884,7 +2060,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         compoundVerbInput,
         formationFrame,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPatientivoNominalCompoundContinuationContract({
       patientivoSurface = "",
@@ -1926,7 +2102,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         compoundStem,
         ordinaryNncInput
       });
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-nominal-compound-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
@@ -1947,7 +2123,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         } : null,
         formationFrame,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildActiveActionCompoundEmbedContinuationContract({
       actionNominalSurface = "",
@@ -1971,7 +2147,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("active-action-compound-embed-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "active-action-compound-embed-continuation-contract",
         grammarSource: "Andrews 37.5.4",
         supported: uniqueDiagnostics.length === 0,
@@ -1982,7 +2158,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         matrix: matrixSpec,
         compoundVerbInput,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildActiveActionNominalCompoundContinuationContract({
       actionNominalSurface = "",
@@ -2010,7 +2186,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "active-action-nominal-compound-continuation-contract",
         grammarSource: "Andrews 37.5.4",
         supported: uniqueDiagnostics.length === 0,
@@ -2030,7 +2206,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           animacy: matrixSpec.animacy || "inanimate"
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPreteritAgentiveCompoundEmbedContinuationContract({
       preteritAgentiveStem = "",
@@ -2054,7 +2230,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("preterit-agentive-compound-embed-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-compound-embed-continuation-contract",
         grammarSource: "Andrews 35.7",
         supported: uniqueDiagnostics.length === 0,
@@ -2065,7 +2241,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         matrix: matrixSpec,
         compoundVerbInput,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPreteritAgentiveNominalCompoundContinuationContract({
       preteritAgentiveStem = "",
@@ -2093,7 +2269,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-nominal-compound-continuation-contract",
         grammarSource: "Andrews 35.7",
         supported: uniqueDiagnostics.length === 0,
@@ -2113,7 +2289,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           animacy: matrixSpec.animacy || "inanimate"
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildCustomaryAgentiveNominalCompoundContinuationContract({
       customaryAgentiveStem = "",
@@ -2141,7 +2317,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "customary-agentive-nominal-compound-continuation-contract",
         grammarSource: "Andrews 36.3",
         supported: uniqueDiagnostics.length === 0,
@@ -2161,7 +2337,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           animacy: matrixSpec.animacy || "inanimate"
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildCustomaryAgentiveCompoundEmbedContinuationContract({
       customaryAgentiveStem = "",
@@ -2187,7 +2363,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki" : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "customary-agentive-compound-embed-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 36.3",
         supported: uniqueDiagnostics.length === 0,
@@ -2207,7 +2383,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           objectPrefix: resolvedObjectPrefix
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPreteritAgentiveOwnerhoodContinuationContract({
       preteritAgentiveStem = "",
@@ -2231,7 +2407,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("preterit-agentive-ownerhood-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-ownerhood-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
         supported: uniqueDiagnostics.length === 0,
@@ -2251,7 +2427,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           voiceMode: "active"
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPreteritAgentiveComplementContinuationContract({
       preteritAgentiveStem = "",
@@ -2277,7 +2453,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       const resolvedObjectPrefix = String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-complement-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
         supported: uniqueDiagnostics.length === 0,
@@ -2297,7 +2473,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           objectPrefix: resolvedObjectPrefix
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildPreteritAgentiveAdverbialContinuationContract({
       preteritAgentiveStem = "",
@@ -2323,7 +2499,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       }
       const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || "ki").trim() || "ki" : "";
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-adverbial-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
         supported: uniqueDiagnostics.length === 0,
@@ -2344,7 +2520,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           objectPrefix: resolvedObjectPrefix
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
     function buildOrdinaryNounOwnerhoodContinuationContract({
       nounStem = "",
@@ -2389,7 +2565,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         diagnostics.push("ordinary-noun-ownerhood-missing-verb-input");
       }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      return {
+      return attachDerivationContinuationGrammarContract({
         outputKind: "ordinary-noun-ownerhood-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
         supported: uniqueDiagnostics.length === 0,
@@ -2412,7 +2588,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
           voiceMode: "active"
         } : null,
         diagnostics: uniqueDiagnostics
-      };
+      });
     }
 
     const api = {};
@@ -2444,6 +2620,12 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         enumerable: true,
         get() { return CALIFICATIVO_INSTRUMENTIVO_SOURCE_CHAIN_POLICY; },
     });
+    api.getDerivationContinuationContractTargetInput = getDerivationContinuationContractTargetInput;
+    api.getDerivationContinuationContractSourceInput = getDerivationContinuationContractSourceInput;
+    api.getDerivationContinuationContractAndrewsRefs = getDerivationContinuationContractAndrewsRefs;
+    api.getDerivationContinuationDiagnosticLayerContract = getDerivationContinuationDiagnosticLayerContract;
+    api.normalizeDerivationContinuationDiagnosticEntries = normalizeDerivationContinuationDiagnosticEntries;
+    api.attachDerivationContinuationGrammarContract = attachDerivationContinuationGrammarContract;
     api.normalizeDerivationSourceOuterPiece = normalizeDerivationSourceOuterPiece;
     api.buildCurrentRegexDerivationSourceModel = buildCurrentRegexDerivationSourceModel;
     api.buildFallbackDerivationSourceModel = buildFallbackDerivationSourceModel;

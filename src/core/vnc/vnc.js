@@ -9,10 +9,74 @@
 // Shared morphology support extracted to src/core/generation/morphology_support.js
 // Shared morphology engine extracted to src/core/generation/morphology_engine.js
 
+function parseAdjectivalNncFunctionEntryContract(dataset = {}) {
+    const rawContract = String(dataset.adjectivalNncFunctionContract || "").trim();
+    if (!rawContract) {
+        return null;
+    }
+    try {
+        const parsed = JSON.parse(rawContract);
+        return parsed && typeof parsed === "object" ? parsed : null;
+    } catch (_error) {
+        return null;
+    }
+}
+
+function normalizeAdjectivalNncFunctionSurfaceValue(value = "") {
+    const surface = String(value || "").trim();
+    return surface === "—" ? "" : surface;
+}
+
+function splitAdjectivalNncFunctionSurfaceText(value = "") {
+    return String(value || "")
+        .split(/\s*\/\s*/g)
+        .map((entry) => normalizeAdjectivalNncFunctionSurfaceValue(entry))
+        .filter(Boolean);
+}
+
+function getAdjectivalNncFunctionEntryContractFrame(contract = null) {
+    const source = contract && typeof contract === "object" ? contract : {};
+    return (
+        (source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : null)
+        || (source.frames && typeof source.frames === "object" ? source.frames : null)
+    );
+}
+
+function getAdjectivalNncFunctionEntryContractSurface(contract = null) {
+    const source = contract && typeof contract === "object" ? contract : {};
+    const frame = getAdjectivalNncFunctionEntryContractFrame(source);
+    const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object"
+        ? frame.resultFrame
+        : null;
+    const forms = [];
+    if (Array.isArray(resultFrame?.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame?.surface) {
+        forms.push(resultFrame.surface);
+    }
+    if (resultFrame) {
+        return forms
+            .flatMap((entry) => splitAdjectivalNncFunctionSurfaceText(entry))
+            .find(Boolean)
+            || "";
+    }
+    if (source.surface) {
+        forms.push(source.surface);
+    }
+    return forms
+        .flatMap((entry) => splitAdjectivalNncFunctionSurfaceText(entry))
+        .find(Boolean)
+        || "";
+}
+
 function resolveAdjectivalNncFunctionOverrideFromInput(verbInput = null) {
     const dataset = verbInput?.dataset || {};
     const currentSurface = String(verbInput?.value || "").trim();
-    const targetSurface = String(dataset.adjectivalNncFunctionSurface || "").trim();
+    const entryRouteContract = parseAdjectivalNncFunctionEntryContract(dataset);
+    const entryGrammarFrame = getAdjectivalNncFunctionEntryContractFrame(entryRouteContract);
+    const targetSurface = getAdjectivalNncFunctionEntryContractSurface(entryRouteContract)
+        || normalizeAdjectivalNncFunctionSurfaceValue(dataset.adjectivalNncFunctionSurface);
     if (!currentSurface || !targetSurface || currentSurface !== targetSurface) {
         return null;
     }
@@ -24,9 +88,14 @@ function resolveAdjectivalNncFunctionOverrideFromInput(verbInput = null) {
         enabled: true,
         stem: targetSurface,
         surface: targetSurface,
+        surfaceForms: targetSurface ? [targetSurface] : [],
         state: "absolutive",
         role: "predicate-surface",
     };
+    if (entryGrammarFrame) {
+        adjectivalNnc.grammarFrame = entryGrammarFrame;
+        adjectivalNnc.frames = entryGrammarFrame;
+    }
     if (formation) {
         adjectivalNnc.formation = formation;
     }
@@ -43,6 +112,15 @@ function resolveAdjectivalNncFunctionOverrideFromInput(verbInput = null) {
     }
     if (formulaEcho) {
         adjectivalNnc.formulaEcho = formulaEcho;
+    }
+    if (entryRouteContract) {
+        adjectivalNnc.entryRouteContract = entryRouteContract;
+        adjectivalNnc.sourceAuthorityRefs = Array.isArray(entryRouteContract.authorityRefs)
+            ? entryRouteContract.authorityRefs.slice()
+            : [];
+        adjectivalNnc.sourceEvidenceStatus = entryRouteContract.evidenceStatus || "";
+        adjectivalNnc.sourceRouteFamily = entryRouteContract.routeFamily || "";
+        adjectivalNnc.sourceRouteStage = entryRouteContract.routeStage || "";
     }
     return {
         verb: targetSurface,

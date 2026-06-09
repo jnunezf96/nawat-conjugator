@@ -52,8 +52,19 @@ export function createNumeralNncApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachNumeralNncGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "numeral-nnc",
+        routeFamily: "numeral-nnc",
+        ...options
+      });
+    }
     function buildNumeralNncBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "numeral-nnc-boundary",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         lesson: 34,
@@ -75,6 +86,10 @@ export function createNumeralNncApi(targetObject = globalThis) {
         },
         antiConflationRules: getNumeralNncAntiConflationRules()
       };
+      return attachNumeralNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyNumeralNncCandidate({
       candidate = "",
@@ -88,7 +103,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       const normalizedKind = normalizeNumeralNncKind(numeralKind);
       const normalizedFalsePositive = normalizeNumeralNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "numeral-nnc-candidate-classification",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -103,10 +118,16 @@ export function createNumeralNncApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "numeral-nnc-needs-validation" : "numeral-nnc-needs-nawat-evidence", normalizedKind !== NUMERAL_NNC_KIND.unknown ? "numeral-nnc-category-recognized" : "numeral-nnc-category-unconfirmed", normalizedFalsePositive !== NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown ? "numeral-nnc-false-positive-source" : "numeral-nnc-unconfirmed"],
         boundary: buildNumeralNncBoundaryMetadata()
       };
+      return attachNumeralNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.numeralBase,
+        supported: false,
+        morphBoundaryFrame: classification.boundary
+      });
     }
     function classifyNumeralNncFalsePositive(source = "") {
       const normalizedSource = normalizeNumeralNncFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "numeral-nnc-false-positive",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -116,6 +137,11 @@ export function createNumeralNncApi(targetObject = globalThis) {
         diagnostics: ["numeral-nnc-false-positive-source"],
         antiConflationRules: getNumeralNncAntiConflationRules()
       };
+      return attachNumeralNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -149,6 +175,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
     api.normalizeNumeralNncFalsePositiveSource = normalizeNumeralNncFalsePositiveSource;
     api.getNumeralNncAntiConflationRules = getNumeralNncAntiConflationRules;
     api.getNumeralNncStructuralQuestions = getNumeralNncStructuralQuestions;
+    api.attachNumeralNncGrammarContract = attachNumeralNncGrammarContract;
     api.buildNumeralNncBoundaryMetadata = buildNumeralNncBoundaryMetadata;
     api.classifyNumeralNncCandidate = classifyNumeralNncCandidate;
     api.classifyNumeralNncFalsePositive = classifyNumeralNncFalsePositive;

@@ -1,13 +1,292 @@
 // Native wrapper generated from src/core/generation/runtime_support.js.
 
-export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
+export function createGenerationRuntimeSupportGlobals(targetObject = globalThis) {
+    const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+    function buildGenerateRuntimeBlockedDiagnostic({
+      id = "generate-runtime-no-output",
+      message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE,
+      failedLayer = "stem",
+      contractLayer = "stemFrame",
+      routeFamily = "generate-word",
+      routeStage = ""
+    } = {}) {
+      const normalizedId = String(id || "generate-runtime-no-output").trim();
+      return {
+        id: normalizedId,
+        code: normalizedId.toUpperCase().replace(/-/g, "_"),
+        severity: "error",
+        message: String(message || GENERATE_RUNTIME_NO_OUTPUT_MESSAGE).trim(),
+        failedLayer: String(failedLayer || "stem").trim(),
+        contractLayer: String(contractLayer || "stemFrame").trim(),
+        routeFamily: String(routeFamily || "generate-word").trim(),
+        routeStage: String(routeStage || "").trim()
+      };
+    }
+    function getGenerateRuntimeDiagnosticLayerContract(routeStage = "") {
+      const stage = String(routeStage || "").trim();
+      if (/orthography|spelling|letter/i.test(stage)) {
+        return {
+          failedLayer: "orthography",
+          contractLayer: "orthographyFrame"
+        };
+      }
+      if (/agreement|participant/i.test(stage)) {
+        return {
+          failedLayer: "agreement",
+          contractLayer: "participantFrame"
+        };
+      }
+      if (/surface|result/i.test(stage)) {
+        return {
+          failedLayer: "output",
+          contractLayer: "resultFrame"
+        };
+      }
+      return {
+        failedLayer: "stem",
+        contractLayer: "stemFrame"
+      };
+    }
+    function normalizeGenerateRuntimeDiagnostics(diagnostics = [], fallbackDiagnostic = null, {
+      routeFamily = "generate-word",
+      routeStage = ""
+    } = {}) {
+      const layerContract = getGenerateRuntimeDiagnosticLayerContract(routeStage);
+      const entries = [...(Array.isArray(diagnostics) ? diagnostics : []), ...(fallbackDiagnostic ? [fallbackDiagnostic] : [])];
+      const normalized = entries.map(entry => {
+        if (!entry) {
+          return null;
+        }
+        const normalizedEntry = typeof entry === "string" ? {
+          id: String(entry || "").trim(),
+          message: ""
+        } : entry && typeof entry === "object" ? {
+          ...entry
+        } : null;
+        if (!normalizedEntry) {
+          return null;
+        }
+        const id = String(normalizedEntry.id || normalizedEntry.code || normalizedEntry.message || "").trim();
+        if (!id) {
+          return null;
+        }
+        return {
+          ...normalizedEntry,
+          id,
+          code: String(normalizedEntry.code || id.toUpperCase().replace(/-/g, "_")).trim(),
+          severity: String(normalizedEntry.severity || "error").trim(),
+          message: String(normalizedEntry.message || "").trim(),
+          failedLayer: normalizedEntry.failedLayer || layerContract.failedLayer,
+          contractLayer: normalizedEntry.contractLayer || layerContract.contractLayer,
+          routeFamily: normalizedEntry.routeFamily || String(routeFamily || "generate-word").trim(),
+          routeStage: normalizedEntry.routeStage || String(routeStage || "").trim()
+        };
+      }).filter(Boolean);
+      return normalized.filter((entry, index, list) => {
+        const key = `${entry.id || ""}|${entry.severity || ""}|${entry.message || ""}`;
+        return list.findIndex(candidate => `${candidate.id || ""}|${candidate.severity || ""}|${candidate.message || ""}` === key) === index;
+      });
+    }
+    function getGenerateRuntimeResultFrame(result = null) {
+      return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
+    }
+    function normalizeGenerateRuntimeContractSurface(value = "") {
+      return typeof targetObject.normalizeGrammarSurfaceValue === "function" ? targetObject.normalizeGrammarSurfaceValue(value) : String(value || "").trim() === "—" ? "" : String(value || "").trim();
+    }
+    function splitGenerateRuntimeContractSurfaceText(value = "") {
+      return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeGenerateRuntimeContractSurface(entry)).filter(Boolean);
+    }
+    function getGenerateRuntimeSurfaceForms(result = null) {
+      if (!result || typeof result !== "object") {
+        return [];
+      }
+      const grammarFrame = getGenerateRuntimeResultFrame(result);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(resultFrame);
+      const forms = [];
+      if (Array.isArray(resultFrame?.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+      }
+      if (resultFrame?.surface) {
+        forms.push(resultFrame.surface);
+      }
+      if (hasResultFrame) {
+        return forms.flatMap(entry => splitGenerateRuntimeContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
+        forms.push(...result.surfaceForms);
+      }
+      if (result?.surface) {
+        forms.push(result.surface);
+      }
+      if (!hasResultFrame && result?.result) {
+        forms.push(result.result);
+      }
+      return forms.flatMap(entry => splitGenerateRuntimeContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function resolveGenerateRuntimeContractSurface(result = null) {
+      const grammarFrame = getGenerateRuntimeResultFrame(result);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      const hasResultFrame = Boolean(resultFrame);
+      const surfaceForms = getGenerateRuntimeSurfaceForms(result);
+      const rawSurface = surfaceForms[0] || resultFrame?.surface || (!hasResultFrame ? result?.surface || result?.result : "") || "";
+      return normalizeGenerateRuntimeContractSurface(rawSurface);
+    }
+    function attachGenerateRuntimeBlockedContract(result = null, {
+      routeFamily = "generate-word",
+      routeStage = "no-output",
+      renderVerb = "",
+      objectPrefix = "",
+      tense = "",
+      derivationType = "",
+      diagnosticId = "generate-runtime-no-output",
+      message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE
+    } = {}) {
+      if (!result || typeof result !== "object" || typeof targetObject.buildGrammarFrame !== "function") {
+        return result;
+      }
+      const fallbackDiagnostic = buildGenerateRuntimeBlockedDiagnostic({
+        id: diagnosticId,
+        message,
+        failedLayer: "stem",
+        contractLayer: "stemFrame",
+        routeFamily,
+        routeStage
+      });
+      const diagnostics = normalizeGenerateRuntimeDiagnostics(result.diagnostics, Array.isArray(result.diagnostics) && result.diagnostics.length ? null : fallbackDiagnostic, {
+        routeFamily,
+        routeStage
+      });
+      Object.defineProperty(result, "diagnostics", {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: diagnostics
+      });
+      const normalizedSurface = resolveGenerateRuntimeContractSurface(result);
+      const normalizedSurfaceForms = getGenerateRuntimeSurfaceForms(result);
+      const grammarFrame = targetObject.buildGrammarFrame({
+        authorityFrame: typeof targetObject.buildGrammarAuthorityFrame === "function" ? targetObject.buildGrammarAuthorityFrame({
+          sourceEvidence: {
+            kind: "generate-runtime-no-output",
+            evidenceSource: "forward derivation route blocked before stem output"
+          },
+          evidenceStatus: "blocked",
+          supported: false
+        }) : null,
+        unitFrame: {
+          unitKind: "verbal-nuclear-clause",
+          outputKind: "generate-runtime-no-output",
+          generationRoute: routeFamily
+        },
+        orthographyFrame: {
+          surface: normalizedSurface,
+          surfaceForms: normalizedSurfaceForms,
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true
+        },
+        morphBoundaryFrame: {
+          blockedBoundary: "stem-output",
+          tense: String(tense || "")
+        },
+        stemFrame: {
+          stem: String(renderVerb || ""),
+          blocked: true
+        },
+        nuclearClauseFrame: null,
+        participantFrame: {
+          object: {
+            prefix: String(objectPrefix || "")
+          }
+        },
+        inflectionFrame: {
+          tense: String(tense || ""),
+          derivationType: String(derivationType || "")
+        },
+        routeContract: typeof targetObject.buildGrammarRouteContractFrame === "function" ? targetObject.buildGrammarRouteContractFrame({
+          routeFamily,
+          routeStage,
+          sourceContract: {
+            renderVerb: String(renderVerb || ""),
+            objectPrefix: String(objectPrefix || ""),
+            tense: String(tense || ""),
+            derivationType: String(derivationType || "")
+          },
+          targetContract: {
+            outputKind: "generate-runtime-no-output",
+            generationRoute: routeFamily
+          },
+          generationAllowed: false,
+          blockingDiagnostics: diagnostics
+        }) : null,
+        astFrame: null,
+        resultFrame: typeof targetObject.buildGrammarResultFrame === "function" ? targetObject.buildGrammarResultFrame({
+          ok: false,
+          surface: normalizedSurface,
+          surfaceForms: normalizedSurfaceForms,
+          outputKind: "generate-runtime-no-output",
+          generationRoute: routeFamily,
+          sourceInput: String(renderVerb || "")
+        }) : null,
+        diagnosticFrame: typeof targetObject.buildGrammarDiagnosticFrame === "function" ? targetObject.buildGrammarDiagnosticFrame({
+          status: "blocked",
+          diagnostics,
+          blockers: diagnostics
+        }) : null
+      });
+      const resultContract = typeof targetObject.buildGrammarResultContract === "function" ? targetObject.buildGrammarResultContract({
+        result,
+        grammarFrame
+      }) : {
+        ok: false,
+        surface: normalizedSurface,
+        frames: grammarFrame,
+        diagnostics
+      };
+      Object.defineProperties(result, {
+        grammarFrame: {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: grammarFrame
+        },
+        ok: {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: resultContract.ok
+        },
+        surface: {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: resultContract.surface
+        },
+        frames: {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: resultContract.frames
+        },
+        contractDiagnostics: {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: resultContract.diagnostics
+        }
+      });
+      return result;
+    }
     function buildNoStemMaskResult({
       shouldMask = false,
       silent = false,
       renderVerb = "",
       objectPrefix = "",
       tense = "",
-      isReflexive = false
+      isReflexive = false,
+      derivationType = "",
+      routeFamily = "forward-derivation",
+      routeStage = "no-stem-mask"
     }) {
       if (!shouldMask) {
         return null;
@@ -19,11 +298,19 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
           tense
         });
       }
-      return {
+      return attachGenerateRuntimeBlockedContract({
         result: "—",
         surfaceForms: [],
         isReflexive
-      };
+      }, {
+        routeFamily,
+        routeStage,
+        renderVerb,
+        objectPrefix,
+        tense,
+        derivationType,
+        diagnosticId: "generate-forward-derivation-no-stem"
+      });
     }
     function applyForwardStageForGenerate({
       derivationType = "",
@@ -46,7 +333,8 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
         renderVerb,
         objectPrefix: baseObjectPrefix,
         tense,
-        isReflexive
+        isReflexive,
+        derivationType
       });
       const config = targetObject.getForwardDerivationConfig(derivationType);
       return {
@@ -322,6 +610,20 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
     }
 
     const api = {};
+    Object.defineProperty(api, "GENERATE_RUNTIME_NO_OUTPUT_MESSAGE", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATE_RUNTIME_NO_OUTPUT_MESSAGE; },
+    });
+    api.buildGenerateRuntimeBlockedDiagnostic = buildGenerateRuntimeBlockedDiagnostic;
+    api.getGenerateRuntimeDiagnosticLayerContract = getGenerateRuntimeDiagnosticLayerContract;
+    api.normalizeGenerateRuntimeDiagnostics = normalizeGenerateRuntimeDiagnostics;
+    api.getGenerateRuntimeResultFrame = getGenerateRuntimeResultFrame;
+    api.normalizeGenerateRuntimeContractSurface = normalizeGenerateRuntimeContractSurface;
+    api.splitGenerateRuntimeContractSurfaceText = splitGenerateRuntimeContractSurfaceText;
+    api.getGenerateRuntimeSurfaceForms = getGenerateRuntimeSurfaceForms;
+    api.resolveGenerateRuntimeContractSurface = resolveGenerateRuntimeContractSurface;
+    api.attachGenerateRuntimeBlockedContract = attachGenerateRuntimeBlockedContract;
     api.buildNoStemMaskResult = buildNoStemMaskResult;
     api.applyForwardStageForGenerate = applyForwardStageForGenerate;
     api.applyGenerateForwardDerivations = applyGenerateForwardDerivations;
@@ -332,7 +634,7 @@ export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
 }
 
 export function installGenerationRuntimeSupportGlobals(targetObject = globalThis) {
-    const api = createGenerationRuntimeSupportApi(targetObject);
+    const api = createGenerationRuntimeSupportGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

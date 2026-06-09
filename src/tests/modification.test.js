@@ -90,6 +90,11 @@ function run(ctx) {
                 changesNawatSurfaceForms: ast.changesNawatSurfaceForms,
                 newWordGenerationAllowed: ast.newWordGenerationAllowed,
                 generationAllowed: ast.generationAllowed,
+                ok: ast.ok,
+                frameAstKind: ast.frames?.astFrame?.kind || "",
+                frameRouteStage: ast.frames?.routeContract?.routeStage || "",
+                frameGenerationAllowed: ast.frames?.routeContract?.generationAllowed,
+                frameStatus: ast.frames?.diagnosticFrame?.status || "",
                 hasTopLevelFormulaSlots: Object.prototype.hasOwnProperty.call(ast, "formulaSlots"),
                 diagnostics: ast.diagnostics,
             };
@@ -109,8 +114,101 @@ function run(ctx) {
             changesNawatSurfaceForms: false,
             newWordGenerationAllowed: false,
             generationAllowed: false,
+            ok: true,
+            frameAstKind: "adjectival-modification-ast",
+            frameRouteStage: "compose-ast",
+            frameGenerationAllowed: false,
+            frameStatus: "composed",
             hasTopLevelFormulaSlots: false,
             diagnostics: [],
+        }
+    );
+    s.eq(
+        "modification AST reads LCM result-frame surface forms from input nodes",
+        (() => {
+            const headFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    surfaceForms: ["frame-head / frame-head-alt"],
+                    outputKind: "nnc",
+                }),
+            });
+            const modifierFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    surfaceForms: ["frame-modifier / frame-modifier-alt"],
+                    outputKind: "adjectival-nnc",
+                }),
+            });
+            const headInput = {
+                result: "stale-head-result",
+                surface: "top-head-surface",
+                surfaceForms: ["stale-head-a / stale-head-b"],
+                surfaceDisplay: "stale-head-display",
+                word: "stale-head-word",
+                frames: headFrame,
+            };
+            const modifierInput = {
+                result: "stale-modifier-result",
+                surface: "top-modifier-surface",
+                surfaceForms: ["stale-modifier-a / stale-modifier-b"],
+                surfaceDisplay: "stale-modifier-display",
+                word: "stale-modifier-word",
+                frames: modifierFrame,
+            };
+            const ast = ctx.buildAdjectivalModificationAst({
+                head: headInput,
+                modifier: modifierInput,
+                order: "head-modifier",
+                evidenceSource: "test-framed-generated-output-contract",
+            });
+            return {
+                surface: ast.surface,
+                headSurface: ast.head.surface,
+                modifierSurface: ast.modifier.surface,
+                headForms: ctx.getAdjectivalModificationSurfaceForms(headInput),
+                modifierForms: ctx.getAdjectivalModificationSurfaceForms(modifierInput),
+                ok: ast.ok,
+                routeStage: ast.frames?.routeContract?.routeStage || "",
+            };
+        })(),
+        {
+            surface: "frame-head frame-modifier",
+            headSurface: "frame-head",
+            modifierSurface: "frame-modifier",
+            headForms: ["frame-head", "frame-head-alt"],
+            modifierForms: ["frame-modifier", "frame-modifier-alt"],
+            ok: true,
+            routeStage: "compose-ast",
+        }
+    );
+    s.eq(
+        "modification AST reads surfaceForms before legacy result",
+        (() => {
+            const ast = ctx.buildAdjectivalModificationAst({
+                head: {
+                    result: "legacy-head",
+                    surface: "top-head-surface",
+                    surfaceForms: ["top-head-a / top-head-b"],
+                },
+                modifier: {
+                    result: "legacy-modifier",
+                    surface: "top-modifier-surface",
+                    surfaceForms: ["top-modifier-a / top-modifier-b"],
+                },
+                order: "head-modifier",
+                evidenceSource: "test-surface-forms-contract",
+            });
+            return {
+                surface: ast.surface,
+                headSurface: ast.head.surface,
+                modifierSurface: ast.modifier.surface,
+                ok: ast.ok,
+            };
+        })(),
+        {
+            surface: "top-head-a top-modifier-a",
+            headSurface: "top-head-a",
+            modifierSurface: "top-modifier-a",
+            ok: true,
         }
     );
 

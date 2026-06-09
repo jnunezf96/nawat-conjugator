@@ -88,6 +88,35 @@ function run(ctx) {
         }
     );
     s.eq(
+        "derivation continuation contracts expose non-enumerable LCM frames",
+        {
+            hasFrame: Boolean(absolutivePrelocativeContract.grammarFrame),
+            framesAlias: absolutivePrelocativeContract.frames === absolutivePrelocativeContract.grammarFrame,
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(absolutivePrelocativeContract, "grammarFrame"),
+            ok: absolutivePrelocativeContract.ok,
+            surface: absolutivePrelocativeContract.surface,
+            routeFamily: absolutivePrelocativeContract.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: absolutivePrelocativeContract.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: absolutivePrelocativeContract.grammarFrame?.routeContract?.generationAllowed,
+            unitKind: absolutivePrelocativeContract.grammarFrame?.unitFrame?.unitKind || "",
+            sourceInput: absolutivePrelocativeContract.grammarFrame?.resultFrame?.sourceInput || "",
+            targetInput: absolutivePrelocativeContract.grammarFrame?.routeContract?.targetContract?.targetInput || "",
+        },
+        {
+            hasFrame: true,
+            framesAlias: true,
+            enumerableGrammarFrame: false,
+            ok: true,
+            surface: "",
+            routeFamily: "derivation-continuation",
+            routeStage: "preview-continuation",
+            generationAllowed: true,
+            unitKind: "derivation-continuation-contract",
+            sourceInput: "tamatiya",
+            targetInput: "-(tamatiya/tajtani)",
+        }
+    );
+    s.eq(
         "Andrews 39.7 absolutive patientive source uses direct subject-to-object mapping",
         [
             { subjectPrefix: "ni", subjectSuffix: "" },
@@ -243,6 +272,39 @@ function run(ctx) {
                 "patientivo-compound-embed-unsupported-matrix",
                 "patientivo-compound-embed-missing-verb-input",
             ],
+        }
+    );
+    s.eq(
+        "blocked derivation continuation contracts expose failed LCM layer",
+        {
+            ok: unsupportedCompoundEmbedContract.ok,
+            routeStage: unsupportedCompoundEmbedContract.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: unsupportedCompoundEmbedContract.grammarFrame?.routeContract?.generationAllowed,
+            diagnosticStatus: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.status || "",
+            diagnosticId: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id || "",
+            diagnosticFailedLayer: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.failedLayer || "",
+            diagnosticContractLayer: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.contractLayer || "",
+            diagnosticRouteFamily: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.routeFamily || "",
+            diagnosticRouteStage: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.routeStage || "",
+            secondDiagnosticFailedLayer: unsupportedCompoundEmbedContract.grammarFrame?.diagnosticFrame?.diagnostics?.[1]?.failedLayer || "",
+            blockingDiagnosticFailedLayer: unsupportedCompoundEmbedContract.grammarFrame?.routeContract?.blockingDiagnostics?.[0]?.failedLayer || "",
+            contractDiagnosticFailedLayer: unsupportedCompoundEmbedContract.contractDiagnostics?.[0]?.failedLayer || "",
+            diagnosticsEnumerable: Object.prototype.propertyIsEnumerable.call(unsupportedCompoundEmbedContract, "diagnostics"),
+        },
+        {
+            ok: false,
+            routeStage: "blocked",
+            generationAllowed: false,
+            diagnosticStatus: "blocked",
+            diagnosticId: "patientivo-compound-embed-unsupported-matrix",
+            diagnosticFailedLayer: "route",
+            diagnosticContractLayer: "routeContract",
+            diagnosticRouteFamily: "derivation-continuation",
+            diagnosticRouteStage: "blocked",
+            secondDiagnosticFailedLayer: "output",
+            blockingDiagnosticFailedLayer: "route",
+            contractDiagnosticFailedLayer: "route",
+            diagnosticsEnumerable: true,
         }
     );
     const nominalCompoundInventory = ctx.getPatientivoNominalCompoundMatrixInventory();
@@ -2139,6 +2201,8 @@ function run(ctx) {
         {
             supported: unsupportedPrelocativeContract.supported,
             diagnostics: unsupportedPrelocativeContract.diagnostics,
+            frameFailedLayers: unsupportedPrelocativeContract.grammarFrame?.diagnosticFrame?.diagnostics.map((entry) => entry.failedLayer) || [],
+            frameContractLayers: unsupportedPrelocativeContract.grammarFrame?.diagnosticFrame?.diagnostics.map((entry) => entry.contractLayer) || [],
         },
         {
             supported: false,
@@ -2147,6 +2211,8 @@ function run(ctx) {
                 "patientivo-prelocative-unsupported-matrix",
                 "patientivo-prelocative-missing-verb-input",
             ],
+            frameFailedLayers: ["agreement", "route", "output"],
+            frameContractLayers: ["participantFrame", "routeContract", "resultFrame"],
         }
     );
 

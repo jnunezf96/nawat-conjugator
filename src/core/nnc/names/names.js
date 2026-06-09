@@ -96,8 +96,20 @@ function getPersonalNameNncStructuralQuestions() {
     return PERSONAL_NAME_NNC_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachPersonalNameNncGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "personal-name-nnc",
+        routeFamily: "personal-name-nnc",
+        ...options,
+    });
+}
+
 function buildPersonalNameNncBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "personal-name-nnc-boundary",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         lesson: 56,
@@ -126,6 +138,10 @@ function buildPersonalNameNncBoundaryMetadata() {
         },
         antiConflationRules: getPersonalNameNncAntiConflationRules(),
     };
+    return attachPersonalNameNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyPersonalNameNncCandidate({
@@ -142,7 +158,7 @@ function classifyPersonalNameNncCandidate({
     const normalizedKind = normalizePersonalNameNncKind(personalNameKind || sourceClauseType);
     const normalizedFalsePositive = normalizePersonalNameNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "personal-name-nnc-candidate-classification",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -167,11 +183,22 @@ function classifyPersonalNameNncCandidate({
         ],
         boundary: buildPersonalNameNncBoundaryMetadata(),
     };
+    return attachPersonalNameNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.nameSource,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "personal-name-source-candidate",
+            sourceStem: classification.nameSource,
+            sourceKind: classification.personalNameKind,
+        },
+    });
 }
 
 function classifyPersonalNameNncFalsePositive(source = "") {
     const normalizedSource = normalizePersonalNameNncFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "personal-name-nnc-false-positive",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -181,4 +208,9 @@ function classifyPersonalNameNncFalsePositive(source = "") {
         diagnostics: ["personal-name-nnc-false-positive-source"],
         antiConflationRules: getPersonalNameNncAntiConflationRules(),
     };
+    return attachPersonalNameNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

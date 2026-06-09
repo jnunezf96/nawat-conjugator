@@ -61,8 +61,19 @@ export function createComparisonApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachComparisonGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "comparison-clause-unit",
+        routeFamily: "comparison",
+        ...options
+      });
+    }
     function buildComparisonBoundaryMetadata() {
-      return {
+      const boundary = {
         kind: "comparison-boundary",
         version: COMPARISON_BOUNDARY_VERSION,
         lesson: 53,
@@ -86,6 +97,10 @@ export function createComparisonApi(targetObject = globalThis) {
         },
         antiConflationRules: getComparisonAntiConflationRules()
       };
+      return attachComparisonGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary
+      });
     }
     function classifyComparisonCandidate({
       target = "",
@@ -100,7 +115,7 @@ export function createComparisonApi(targetObject = globalThis) {
       const normalizedRelation = normalizeComparisonRelation(comparisonRelation);
       const normalizedFalsePositive = normalizeComparisonFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
-      return {
+      const classification = {
         kind: "comparison-candidate-classification",
         version: COMPARISON_BOUNDARY_VERSION,
         target: String(target || ""),
@@ -116,10 +131,16 @@ export function createComparisonApi(targetObject = globalThis) {
         diagnostics: [hasEvidence ? "comparison-needs-validation" : "comparison-needs-nawat-clause-evidence", normalizedRelation !== COMPARISON_RELATION.unknown ? "comparison-relation-recognized" : "comparison-relation-unconfirmed", normalizedFalsePositive !== COMPARISON_FALSE_POSITIVE_SOURCE.unknown ? "comparison-false-positive-source" : "comparison-unconfirmed"],
         boundary: buildComparisonBoundaryMetadata()
       };
+      return attachComparisonGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.target,
+        supported: false,
+        morphBoundaryFrame: classification.boundary
+      });
     }
     function classifyComparisonFalsePositive(source = "") {
       const normalizedSource = normalizeComparisonFalsePositiveSource(source);
-      return {
+      const classification = {
         kind: "comparison-false-positive",
         version: COMPARISON_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -129,6 +150,11 @@ export function createComparisonApi(targetObject = globalThis) {
         diagnostics: ["comparison-false-positive-source"],
         antiConflationRules: getComparisonAntiConflationRules()
       };
+      return attachComparisonGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false
+      });
     }
 
     const api = {};
@@ -162,6 +188,7 @@ export function createComparisonApi(targetObject = globalThis) {
     api.normalizeComparisonFalsePositiveSource = normalizeComparisonFalsePositiveSource;
     api.getComparisonAntiConflationRules = getComparisonAntiConflationRules;
     api.getComparisonStructuralQuestions = getComparisonStructuralQuestions;
+    api.attachComparisonGrammarContract = attachComparisonGrammarContract;
     api.buildComparisonBoundaryMetadata = buildComparisonBoundaryMetadata;
     api.classifyComparisonCandidate = classifyComparisonCandidate;
     api.classifyComparisonFalsePositive = classifyComparisonFalsePositive;

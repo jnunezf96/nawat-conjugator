@@ -91,6 +91,36 @@ function run(ctx) {
             boundary,
         }
     );
+    s.eq(
+        "relational classifiers expose the LCM grammar frame contract",
+        (() => {
+            const classification = ctx.classifyRelationalNncCandidate({
+                candidate: "place translation",
+                relationalStem: "unknown",
+                relationalKind: "locative",
+                relationalOption: "2",
+                falsePositiveSource: "preposition-translation",
+            });
+            return {
+                hasFrame: Boolean(classification.grammarFrame),
+                unitKind: classification.frames.unitFrame.unitKind,
+                routeStage: classification.frames.routeContract.routeStage,
+                generationAllowed: classification.frames.routeContract.generationAllowed,
+                stemKind: classification.frames.stemFrame.stemKind,
+                diagnosticId: classification.contractDiagnostics[0].id,
+                enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(classification, "grammarFrame"),
+            };
+        })(),
+        {
+            hasFrame: true,
+            unitKind: "relational-nnc",
+            routeStage: "classify-boundary",
+            generationAllowed: false,
+            stemKind: "relational-nounstem-candidate",
+            diagnosticId: "relational-nnc-needs-nawat-evidence",
+            enumerableGrammarFrame: false,
+        }
+    );
 
     s.eq(
         "locative-temporal nominal output is classified as false positive relational evidence",
@@ -181,6 +211,21 @@ function run(ctx) {
         "relational usage frame still does not expose generated forms",
         Object.prototype.hasOwnProperty.call(optionOneFrame, "surfaceForms")
             || Object.prototype.hasOwnProperty.call(optionOneFrame, "generatedForms")
+    );
+    s.eq(
+        "relational usage frames carry stem and nuclear-clause LCM frames",
+        {
+            routeStage: optionOneFrame.frames.routeContract.routeStage,
+            stemKind: optionOneFrame.frames.stemFrame.stemKind,
+            nuclearKind: optionOneFrame.frames.nuclearClauseFrame.kind,
+            generationAllowed: optionOneFrame.frames.routeContract.generationAllowed,
+        },
+        {
+            routeStage: "describe-usage-frame",
+            stemKind: "relational-nounstem",
+            nuclearKind: "relational-nnc-usage-frame",
+            generationAllowed: false,
+        }
     );
 
     const invalidOptionOne = ctx.buildRelationalNncUsageFrame({

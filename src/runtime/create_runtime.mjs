@@ -18,6 +18,7 @@ import { installDerivationSourceModelGlobals } from "../core/derivation/source_m
 import { installFrequentativeGlobals } from "../core/derivation/frequentative/frequentative.mjs";
 import { installForwardDerivationRuntimeGlobals } from "../core/derivation/forward_runtime.mjs";
 import { installNonactiveDerivationGlobals } from "../core/derivation/nonactive.mjs";
+import { installGrammarFrameGlobals } from "../core/grammar/frame.mjs";
 import { installMorphologySupportGlobals } from "../core/generation/morphology_support.mjs";
 import { installGenerationEngineGlobals } from "../core/generation/engine.mjs";
 import { installMorphologyEngineGlobals } from "../core/generation/morphology_engine.mjs";
@@ -62,6 +63,7 @@ const INSTALLER_BY_ESM_MODULE_PATH = new Map([
     ["src/core/concepts/concepts.mjs", installConceptsGlobals],
     ["src/core/particles/particles.mjs", installParticlesGlobals],
     ["src/core/sentence/sentence.mjs", installSentenceGlobals],
+    ["src/core/grammar/frame.mjs", installGrammarFrameGlobals],
     ["src/core/agreement/agreement.mjs", installAgreementGlobals],
     ["src/core/orthography/orthography.mjs", installOrthographyGlobals],
     ["src/core/clause/clause.mjs", installClauseGlobals],

@@ -87,8 +87,20 @@ function getCompoundNncStructuralQuestions() {
     return COMPOUND_NNC_STRUCTURAL_QUESTIONS.map((question) => ({ ...question }));
 }
 
+function attachCompoundNncGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "compound-nnc",
+        routeFamily: "compound-nnc",
+        ...options,
+    });
+}
+
 function buildCompoundNncAffectiveBoundaryMetadata() {
-    return {
+    const boundary = {
         kind: "compound-nnc-affective-boundary",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         lessons: [31, 32],
@@ -109,6 +121,10 @@ function buildCompoundNncAffectiveBoundaryMetadata() {
         },
         antiConflationRules: getCompoundNncAntiConflationRules(),
     };
+    return attachCompoundNncGrammarContract(boundary, {
+        routeStage: "classify-boundary",
+        morphBoundaryFrame: boundary,
+    });
 }
 
 function classifyCompoundNncAffectiveCandidate({
@@ -125,7 +141,7 @@ function classifyCompoundNncAffectiveCandidate({
     const normalizedKind = normalizeCompoundNncKind(compoundKind);
     const normalizedFalsePositive = normalizeCompoundNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
-    return {
+    const classification = {
         kind: "compound-nnc-affective-candidate-classification",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
@@ -148,11 +164,22 @@ function classifyCompoundNncAffectiveCandidate({
         ],
         boundary: buildCompoundNncAffectiveBoundaryMetadata(),
     };
+    return attachCompoundNncGrammarContract(classification, {
+        routeStage: "classify-boundary",
+        sourceInput: classification.candidate || classification.headStem,
+        supported: false,
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "compound-nounstem-candidate",
+            matrix: classification.headStem,
+            embed: classification.embeddedStem,
+        },
+    });
 }
 
 function classifyCompoundNncAffectiveFalsePositive(source = "") {
     const normalizedSource = normalizeCompoundNncFalsePositiveSource(source);
-    return {
+    const classification = {
         kind: "compound-nnc-affective-false-positive",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         source: normalizedSource,
@@ -162,4 +189,9 @@ function classifyCompoundNncAffectiveFalsePositive(source = "") {
         diagnostics: ["compound-nnc-false-positive-source"],
         antiConflationRules: getCompoundNncAntiConflationRules(),
     };
+    return attachCompoundNncGrammarContract(classification, {
+        routeStage: "classify-false-positive",
+        sourceInput: normalizedSource,
+        supported: false,
+    });
 }

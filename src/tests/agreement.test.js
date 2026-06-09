@@ -76,6 +76,359 @@ function run(ctx) {
     s.eq("getObjectComboLabel kin/Nawat = yejemet", ctx.getObjectComboLabel("kin", true), "yejemet");
     // Spanish mode delegates to getObjectLabelShort
     s.eq("getObjectComboLabel ki/Spanish = getObjectLabelShort(ki)", ctx.getObjectComboLabel("ki", false), ctx.getObjectLabelShort("ki", false));
+    s.eq(
+        "masked conjugation display uses a diagnostic message instead of an empty dash",
+        ctx.getConjugationNoOutputDisplay({
+            shouldMaskRow: true,
+            isErrorRow: true,
+            diagnosticIds: [ctx.CONJUGATION_DIAGNOSTIC_IDS.invalidCombo],
+        }),
+        "Combinacion incompatible."
+    );
+    s.eq(
+        "missing conjugation display has a stable fallback",
+        ctx.getConjugationNoOutputDisplay({ hasRenderableResult: false }),
+        "Sin salida para esta configuracion."
+    );
+    s.eq(
+        "conjugation evaluation reads LCM frame and contract diagnostics",
+        (() => {
+            const diagnostic = {
+                id: "ANDREWS_ROUTE_NOT_LICENSED",
+                message: "Andrews route blocked before generation.",
+                severity: "error",
+            };
+            const grammarFrame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "diagnostic-only",
+                    andrewsRefs: ["Andrews Lesson 53"],
+                    supported: false,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "comparison",
+                    routeStage: "classify-boundary",
+                    generationAllowed: false,
+                    blockingDiagnostics: [diagnostic],
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    outputKind: "comparison-candidate-classification",
+                }),
+                diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                    status: "diagnostic-only",
+                    diagnostics: [diagnostic],
+                }),
+            });
+            const evaluation = ctx.buildConjugationEvaluationRecord({
+                result: {
+                    frames: grammarFrame,
+                    contractDiagnostics: [diagnostic],
+                },
+            });
+            const row = { dataset: {} };
+            ctx.applyConjugationEvaluationPresentation({
+                row,
+                value: null,
+                evaluation,
+            });
+            return {
+                label: ctx.getConjugationNoOutputDisplay(evaluation),
+                diagnosticIds: evaluation.diagnosticIds,
+                routeFamily: row.dataset.lcmRouteFamily,
+                routeStage: row.dataset.lcmRouteStage,
+                generationAllowed: row.dataset.lcmGenerationAllowed,
+                evidenceStatus: row.dataset.lcmEvidenceStatus,
+            };
+        })(),
+        {
+            label: "Andrews route blocked before generation.",
+            diagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED"],
+            routeFamily: "comparison",
+            routeStage: "classify-boundary",
+            generationAllowed: "false",
+            evidenceStatus: "diagnostic-only",
+        }
+    );
+    s.eq(
+        "conjugation evaluation promotes framed failed layer over generic no-output",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "blocked",
+                    andrewsRefs: ["Andrews Lesson 4"],
+                    supported: false,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "generate-word",
+                    routeStage: "morphology-application",
+                    generationAllowed: false,
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    outputKind: "generate-word",
+                }),
+                diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                    status: "blocked",
+                    diagnostics: [],
+                }),
+            });
+            const evaluation = ctx.buildConjugationEvaluationRecord({
+                result: {
+                    error: true,
+	                    diagnostics: [{
+	                        id: "generate-word-route-blocked",
+	                        severity: "error",
+	                        message: "La generacion no produjo una forma.",
+	                        failedLayer: "output",
+	                        contractLayer: "resultFrame",
+	                    }],
+                    frames: grammarFrame,
+                },
+            });
+            return {
+                label: ctx.getConjugationNoOutputDisplay(evaluation),
+                diagnosticIds: evaluation.diagnosticIds,
+                firstFailedLayer: evaluation.diagnostics[0]?.failedLayer || "",
+                firstContractLayer: evaluation.diagnostics[0]?.contractLayer || "",
+                secondMessage: evaluation.diagnostics[1]?.message || "",
+            };
+        })(),
+        {
+            label: "Ruta bloqueada antes de generar por la evidencia Andrews del contrato.",
+            diagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED", "generate-word-route-blocked"],
+            firstFailedLayer: "authority",
+            firstContractLayer: "authorityFrame",
+            secondMessage: "La generacion no produjo una forma.",
+        }
+    );
+    s.eq(
+        "conjugation evaluation treats contract surface as renderable",
+        (() => {
+            const result = ctx.buildOutputWordResult({ subjectPrefix: "ni", verb: "nemi" });
+            const evaluation = ctx.buildConjugationEvaluationRecord({ result });
+            return {
+                resultField: result.result || "",
+                surface: result.surface,
+                hasRenderableResult: evaluation.hasRenderableResult,
+                hasVisibleResult: evaluation.hasVisibleResult,
+                availabilityState: evaluation.availabilityState,
+            };
+        })(),
+        {
+            resultField: "",
+            surface: "ninemi",
+            hasRenderableResult: true,
+            hasVisibleResult: true,
+            availabilityState: ctx.CONJUGATION_AVAILABILITY_STATE.viable,
+        }
+    );
+    s.eq(
+        "conjugation evaluation treats LCM result-frame surface forms as renderable",
+        (() => {
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    surfaceForms: ["frame-visible-a / frame-visible-b"],
+                    outputKind: "vnc",
+                    generationRoute: "vnc",
+                }),
+            });
+            const result = {
+                result: "stale-visible-result",
+                surface: "top-visible-surface",
+                surfaceForms: ["stale-visible-a / stale-visible-b"],
+                frames: grammarFrame,
+            };
+            const evaluation = ctx.buildConjugationEvaluationRecord({ result });
+            return {
+                forms: ctx.getConjugationRenderableSurfaceForms(result),
+                surface: ctx.getConjugationRenderableSurface(result),
+                hasRenderableResult: evaluation.hasRenderableResult,
+                hasVisibleResult: evaluation.hasVisibleResult,
+                availabilityState: evaluation.availabilityState,
+            };
+        })(),
+        {
+            forms: ["frame-visible-a", "frame-visible-b"],
+            surface: "frame-visible-a / frame-visible-b",
+            hasRenderableResult: true,
+            hasVisibleResult: true,
+            availabilityState: ctx.CONJUGATION_AVAILABILITY_STATE.viable,
+        }
+    );
+    s.eq(
+        "presentation falls back to contract surface when legacy formatted value is blank",
+        (() => {
+            const classes = new Set();
+            const value = {
+                textContent: "",
+                dataset: {},
+                classList: {
+                    add: (...names) => names.forEach((name) => classes.add(name)),
+                    remove: (...names) => names.forEach((name) => classes.delete(name)),
+                    contains: (name) => classes.has(name),
+                },
+            };
+            const result = ctx.buildOutputWordResult({ subjectPrefix: "ni", verb: "nemi" });
+            const evaluation = ctx.buildConjugationEvaluationRecord({ result });
+            ctx.applyConjugationEvaluationPresentation({
+                value,
+                evaluation,
+                formattedValue: "",
+            });
+            return {
+                textContent: value.textContent,
+                noOutputClass: classes.has("conjugation-value--no-output"),
+                availabilityState: value.dataset.availabilityState,
+            };
+        })(),
+        {
+            textContent: "ninemi",
+            noOutputClass: false,
+            availabilityState: ctx.CONJUGATION_AVAILABILITY_STATE.viable,
+        }
+    );
+    s.eq(
+        "mask state prefers LCM route diagnostics over generic result error",
+        (() => {
+            const diagnostic = {
+                id: "ANDREWS_ROUTE_NOT_LICENSED",
+                message: "Andrews route blocked before generation.",
+                severity: "error",
+            };
+            const grammarFrame = ctx.buildGrammarFrame({
+                authorityFrame: ctx.buildGrammarAuthorityFrame({
+                    evidenceStatus: "diagnostic-only",
+                    andrewsRefs: ["Andrews Lesson 40"],
+                    supported: false,
+                }),
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "adjectival-nnc-function",
+                    routeStage: "classify-route",
+                    generationAllowed: false,
+                    blockingDiagnostics: [diagnostic],
+                }),
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: false,
+                    outputKind: "adjectival-nnc-function",
+                }),
+                diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                    status: "blocked",
+                    diagnostics: [diagnostic],
+                }),
+            });
+            const result = {
+                error: true,
+                frames: grammarFrame,
+                contractDiagnostics: [diagnostic],
+            };
+            const maskState = ctx.getConjugationMaskState({
+                result,
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+                enforceInvalidCombo: false,
+            });
+            const evaluation = ctx.buildConjugationEvaluationRecord({ result, maskState });
+            return {
+                maskDiagnosticIds: maskState.diagnosticIds,
+                evaluationDiagnosticIds: evaluation.diagnosticIds,
+                label: ctx.getConjugationNoOutputDisplay(evaluation),
+            };
+        })(),
+        {
+            maskDiagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED"],
+            evaluationDiagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED"],
+            label: "Andrews route blocked before generation.",
+        }
+    );
+    s.eq(
+        "verb-derived nominal builder context exposes non-enumerable LCM frame",
+        (() => {
+            const rawVerb = "(miki)";
+            const result = ctx.buildVerbDerivedNominalBuilderContext({
+                kind: ctx.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+                rawVerb,
+                verbMeta: ctx.parseVerbInput(rawVerb),
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "",
+            });
+            return {
+                error: result.error,
+                ok: result.ok,
+                surface: result.surface,
+                frameAlias: result.frames === result.grammarFrame,
+                grammarFrameEnumerable: Object.prototype.propertyIsEnumerable.call(result, "grammarFrame"),
+                routeFamily: result.grammarFrame.routeContract.routeFamily,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                unitKind: result.grammarFrame.unitFrame.unitKind,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+                evidenceStatus: result.grammarFrame.authorityFrame.evidenceStatus,
+                sourceInput: result.grammarFrame.resultFrame.sourceInput,
+            };
+        })(),
+        {
+            error: false,
+            ok: true,
+            surface: "",
+            frameAlias: true,
+            grammarFrameEnumerable: false,
+            routeFamily: "verb-derived-nominal-builder-context",
+            routeStage: "build-context",
+            unitKind: "agreement-builder-context",
+            generationAllowed: true,
+            evidenceStatus: "context-built",
+            sourceInput: "(miki)",
+        }
+    );
+    s.eq(
+        "verb-derived nominal builder context blocked gates carry diagnostics",
+        (() => {
+            const rawVerb = "(miki)";
+            const result = ctx.buildVerbDerivedNominalBuilderContext({
+                kind: ctx.VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
+                rawVerb,
+                verbMeta: ctx.parseVerbInput(rawVerb),
+                subjectPrefix: "ni",
+                subjectSuffix: "",
+                objectPrefix: "",
+                requireNonanimateSubject: true,
+            });
+            return {
+                error: result.error,
+                ok: result.ok,
+                routeStage: result.grammarFrame.routeContract.routeStage,
+                generationAllowed: result.grammarFrame.routeContract.generationAllowed,
+                diagnosticStatus: result.grammarFrame.diagnosticFrame.status,
+                diagnosticId: result.grammarFrame.diagnosticFrame.diagnostics[0]?.id || "",
+                diagnosticMessage: result.grammarFrame.diagnosticFrame.diagnostics[0]?.message || "",
+                diagnosticFailedLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.failedLayer || "",
+                diagnosticContractLayer: result.grammarFrame.diagnosticFrame.diagnostics[0]?.contractLayer || "",
+                diagnosticRouteFamily: result.grammarFrame.diagnosticFrame.diagnostics[0]?.routeFamily || "",
+                diagnosticRouteStage: result.grammarFrame.diagnosticFrame.diagnostics[0]?.routeStage || "",
+                diagnosticsEnumerable: Object.prototype.propertyIsEnumerable.call(result, "diagnostics"),
+            };
+        })(),
+        {
+            error: true,
+            ok: false,
+            routeStage: "subject-gate",
+            generationAllowed: false,
+            diagnosticStatus: "blocked",
+            diagnosticId: "verb-derived-nominal-context-nonanimate-subject-required",
+            diagnosticMessage: "Esta ruta nominal requiere sujeto no animado.",
+            diagnosticFailedLayer: "agreement",
+            diagnosticContractLayer: "participantFrame",
+            diagnosticRouteFamily: "verb-derived-nominal-builder-context",
+            diagnosticRouteStage: "subject-gate",
+            diagnosticsEnumerable: false,
+        }
+    );
+    s.eq(
+        "blank formatted conjugation display normalizes to no output",
+        ctx.normalizeConjugationDisplayText("—"),
+        ""
+    );
 
     return s;
 }
