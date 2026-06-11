@@ -343,6 +343,8 @@ async function initializeUiRuntime() {
     return uiRuntimeInitializationPromise;
 }
 
+let IsRefreshingInlineComposerFormulaControls = false;
+
 function initInlineComposerFormulaPatch() {
     const composer = document.getElementById("verb-composer");
     if (!composer || composer.dataset.inlineFormulaPatch === "true") {
@@ -353,7 +355,8 @@ function initInlineComposerFormulaPatch() {
     installInlineComposerFormulaStyles();
     applyInlineComposerFormulaDom();
     bindInlineComposerTransitivitySelect();
-    wrapInlineComposerRenderPasses();
+    wrapInlineComposerStateProjection();
+    refreshInlineComposerControlsFromState();
 }
 
 function installInlineComposerFormulaStyles() {
@@ -363,7 +366,8 @@ function installInlineComposerFormulaStyles() {
     const style = document.createElement("style");
     style.id = "inline-composer-formula-style";
     style.textContent = `
-        .verb-composer--inline-formula {
+        .verb-composer--inline-formula,
+        .verb-composer--inline-formula .verb-composer__formula-row {
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -395,7 +399,8 @@ function installInlineComposerFormulaStyles() {
             width: auto;
             min-width: 0;
         }
-        .verb-composer--inline-formula .verb-composer__top-row {
+        .verb-composer--inline-formula .verb-composer__top-row,
+        .verb-composer--inline-formula .verb-composer__stem-boundary {
             position: relative;
             display: flex;
             flex-direction: row;
@@ -408,7 +413,8 @@ function installInlineComposerFormulaStyles() {
             border-radius: 0.85rem;
             background: rgba(255, 255, 255, 0.55);
         }
-        .verb-composer--inline-formula .verb-composer__top-row::before {
+        .verb-composer--inline-formula .verb-composer__top-row::before,
+        .verb-composer--inline-formula .verb-composer__stem-boundary::before {
             content: "(STEM)";
             position: absolute;
             top: -0.72rem;
@@ -443,8 +449,11 @@ function installInlineComposerFormulaStyles() {
         .verb-composer--inline-formula .verb-composer__input {
             width: min(11rem, 42vw);
         }
-        .verb-composer--inline-formula .verb-composer__slot-tabs:has([data-composer-transitivity]),
-        .verb-composer--inline-formula .verb-composer__chips:is(#composer-directional-chips, #composer-valence-a-chips, #composer-valence-chips, #composer-valence-2-chips),
+        .verb-composer--inline-formula .verb-composer__slot-tabs,
+        .verb-composer--inline-formula #composer-directional-chips,
+        .verb-composer--inline-formula #composer-valence-a-chips,
+        .verb-composer--inline-formula #composer-valence-chips,
+        .verb-composer--inline-formula #composer-valence-2-chips,
         .verb-composer--inline-formula [data-composer-serial-type-chips] {
             display: none !important;
         }
@@ -454,6 +463,7 @@ function installInlineComposerFormulaStyles() {
         }
         @media (max-width: 720px) {
             .verb-composer--inline-formula,
+            .verb-composer--inline-formula .verb-composer__formula-row,
             .verb-composer--inline-formula #composer-slot-stage,
             .verb-composer--inline-formula .verb-composer__slot-panel,
             .verb-composer--inline-formula .verb-composer__top-row,
@@ -472,9 +482,145 @@ function installInlineComposerFormulaStyles() {
     document.head.appendChild(style);
 }
 
-function applyInlineComposerFormulaDom() {
-    removeInlineComposerPresentationControls();
-    exposeInlineComposerNativeControls();
+function getInlineComposerActiveSlot() {
+    if (typeof getComposerActiveSlotFromState === "function") {
+        return getComposerActiveSlotFromState();
+    }
+    const transitivity = String(VerbComposerState?.transitivity || "");
+    if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        return "c";
+    }
+    if (transitivity === COMPOSER_TRANSITIVITY.transitive) {
+        return "b";
+    }
+    return "a";
+}
+
+function getInlineComposerFormulaValenceSelect(elements = getVerbComposerElements()) {
+    const transitivity = String(VerbComposerState?.transitivity || "");
+    if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        return elements.valenceSelectSecondary || null;
+    }
+    if (transitivity === COMPOSER_TRANSITIVITY.transitive) {
+        return elements.valenceSelect || null;
+    }
+    return elements.valenceSelectIntransitive || null;
+}
+
+function getInlineComposerFormulaControls() {
+    const elements = typeof getVerbComposerElements === "function" ? getVerbComposerElements() : {};
+    const activeSlot = getInlineComposerActiveSlot();
+    const activeRefs = elements.slots?.[activeSlot] || {};
+    return {
+        elements,
+        activeSlot,
+        panel: elements.panel || document.getElementById("verb-composer"),
+        stagePanel: document.getElementById("composer-slot-stage"),
+        transitivitySelect: elements.transitivitySelect || document.getElementById("composer-transitivity"),
+        valenceSelect: getInlineComposerFormulaValenceSelect(elements),
+        embedInput: activeRefs.embedInput || null,
+        stemInput: activeRefs.stemInput || null,
+        objectInput: activeRefs.objectInput || null,
+        directionalSelect: elements.directionalSelect || document.getElementById("composer-directional"),
+        supportiveICheckbox: elements.supportiveICheckbox || document.getElementById("composer-supportive-i"),
+        activeRefs,
+    };
+}
+
+function getInlineComposerFormulaValenceValue(state = VerbComposerState) {
+    const transitivity = String(state?.transitivity || "");
+    if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        return state?.valenceSecondary || "";
+    }
+    if (transitivity === COMPOSER_TRANSITIVITY.transitive) {
+        return state?.valence || "";
+    }
+    return state?.valenceIntransitive || "";
+}
+
+function getInlineComposerFormulaViewModel() {
+    const activeSlot = getInlineComposerActiveSlot();
+    const stateKeys = getComposerSlotStateKeys(activeSlot);
+    return {
+        activeSlot,
+        transitivity: VerbComposerState.transitivity || "",
+        valence: getInlineComposerFormulaValenceValue(VerbComposerState),
+        embed: VerbComposerState[stateKeys.embed] || "",
+        stem: VerbComposerState[stateKeys.stem] || "",
+        objectEmbed: VerbComposerState[stateKeys.objectEmbed] || "",
+        directional: VerbComposerState.directionalPrefix || "",
+        supportive: hasSupportiveMarkerValue(getComposerSupportiveMarker()),
+    };
+}
+
+function setInlineComposerVisibleLabel(inputEl, labelText = "") {
+    if (!inputEl || !labelText) {
+        return;
+    }
+    const field = inputEl.closest(".verb-composer__stem-field, .verb-composer__bottom-field, .verb-composer__valence-main");
+    const label = field?.querySelector(".verb-composer__sub-label") || null;
+    if (label) {
+        label.textContent = labelText;
+    }
+}
+
+function setInlineComposerTaggedLabel(inputEl, labelText = "") {
+    if (!inputEl || !labelText) {
+        return;
+    }
+    const shell = inputEl.closest(".verb-composer__tagged-input-shell");
+    const tag = shell?.querySelector(".verb-composer__tagged-input-tag") || null;
+    if (tag) {
+        tag.textContent = labelText;
+    }
+}
+
+function syncInlineComposerFormulaLabels(viewModel = getInlineComposerFormulaViewModel(), controls = getInlineComposerFormulaControls()) {
+    const transitivity = String(viewModel.transitivity || "");
+    const isBitransitive = transitivity === COMPOSER_TRANSITIVITY.bitransitive;
+    const isTransitive = transitivity === COMPOSER_TRANSITIVITY.transitive;
+    const embedLabel = isBitransitive ? "Elemento incorporado VB" : (isTransitive ? "Elemento incorporado VT" : "Elemento incorporado VI");
+    const objectLabel = isBitransitive ? "Objeto incorporado doble" : (isTransitive ? "Objeto incorporado" : "Objeto incorporado");
+    const valenceLabel = isBitransitive ? "Objeto / valencia doble" : (isTransitive ? "Objeto indefinido" : "Objeto indefinido");
+    setInlineComposerVisibleLabel(controls.embedInput, embedLabel);
+    setInlineComposerVisibleLabel(controls.objectInput, objectLabel);
+    setInlineComposerVisibleLabel(controls.stemInput, "Raíz matriz");
+    setInlineComposerTaggedLabel(controls.embedInput, "Incorp.");
+    setInlineComposerTaggedLabel(controls.objectInput, "Obj.");
+    setInlineComposerTaggedLabel(controls.stemInput, "Verbo");
+    if (controls.embedInput) {
+        controls.embedInput.placeholder = "Elemento incorporado";
+        controls.embedInput.setAttribute("aria-label", embedLabel);
+    }
+    if (controls.objectInput) {
+        controls.objectInput.placeholder = "Objeto incorporado";
+        controls.objectInput.setAttribute("aria-label", objectLabel);
+    }
+    if (controls.stemInput) {
+        controls.stemInput.placeholder = "Raíz matriz";
+        controls.stemInput.setAttribute("aria-label", "Raíz matriz");
+    }
+    if (controls.valenceSelect) {
+        const valenceField = controls.valenceSelect.closest(".verb-composer__valence-main, .verb-composer__bottom-field");
+        const valenceVisibleLabel = valenceField?.querySelector(".verb-composer__sub-label") || null;
+        if (valenceVisibleLabel) {
+            valenceVisibleLabel.textContent = valenceLabel;
+        }
+        controls.valenceSelect.setAttribute("aria-label", valenceLabel);
+    }
+}
+
+function syncInlineComposerFormulaRowClasses() {
+    const controls = getInlineComposerFormulaControls();
+    const stagePanel = controls.stagePanel;
+    if (stagePanel) {
+        stagePanel.classList.add("verb-composer__formula-row");
+        stagePanel.setAttribute("role", "group");
+        stagePanel.setAttribute("aria-label", "Fórmula verbal");
+    }
+    document.querySelectorAll(".verb-composer__top-row").forEach((row) => {
+        row.classList.toggle("verb-composer__stem-boundary", row.closest("#composer-slot-stage") !== null);
+    });
 }
 
 function removeInlineComposerPresentationControls() {
@@ -520,6 +666,116 @@ function exposeInlineComposerNativeControls() {
     }
 }
 
+function applyInlineComposerFormulaDom() {
+    removeInlineComposerPresentationControls();
+    exposeInlineComposerNativeControls();
+    syncInlineComposerFormulaRowClasses();
+    syncInlineComposerFormulaLabels();
+}
+
+function syncInlineComposerFormulaValenceStateFromControl(selectEl) {
+    const value = selectEl?.value || "";
+    const transitivity = String(VerbComposerState.transitivity || "");
+    if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
+        VerbComposerState.valenceSecondary = value;
+        VerbComposerState.valence = "";
+        VerbComposerState.valenceIntransitive = "";
+        return;
+    }
+    if (transitivity === COMPOSER_TRANSITIVITY.transitive) {
+        VerbComposerState.valence = value;
+        VerbComposerState.valenceSecondary = "";
+        VerbComposerState.valenceIntransitive = "";
+        return;
+    }
+    VerbComposerState.valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(value);
+    VerbComposerState.valence = "";
+    VerbComposerState.valenceSecondary = "";
+}
+
+function collectInlineComposerFormulaStateFromControls({ preserveSupportiveState = false } = {}) {
+    if (IsRefreshingInlineComposerFormulaControls) {
+        return;
+    }
+    const controls = getInlineComposerFormulaControls();
+    const nextTransitivity = controls.transitivitySelect?.value || "";
+    if (COMPOSER_TRANSITIVITY_ORDER.includes(nextTransitivity)) {
+        VerbComposerState.transitivity = nextTransitivity;
+    } else if (!isComposerTransitivitySelected()) {
+        VerbComposerState.transitivity = "";
+    }
+    const activeSlot = getInlineComposerActiveSlot();
+    const stateKeys = getComposerSlotStateKeys(activeSlot);
+    const previousStem = normalizeComposerStem(VerbComposerState[stateKeys.stem] || "");
+    const nextEmbed = normalizeComposerEmbedValue(controls.embedInput?.value || "");
+    let nextStem = getComposerCanonicalStemFromInputValue(controls.stemInput?.value || "", activeSlot);
+    if (!nextStem && nextEmbed && previousStem) {
+        nextStem = previousStem;
+    }
+    VerbComposerState[stateKeys.embed] = nextEmbed;
+    VerbComposerState[stateKeys.stem] = nextStem;
+    VerbComposerState[stateKeys.objectEmbed] = normalizeComposerEmbedValue(controls.objectInput?.value || "");
+    syncInlineComposerFormulaValenceStateFromControl(controls.valenceSelect);
+    VerbComposerState.directionalPrefix = controls.directionalSelect?.value || "";
+    syncComposerActiveStemAndEmbedFromState();
+    VerbComposerState.syllableMode = getComposerStemSyllableCount(getComposerActiveStemValue()) === 1
+        ? COMPOSER_SYLLABLE_MODE.monosyllable
+        : COMPOSER_SYLLABLE_MODE.multisyllable;
+    const supportiveRequested = Boolean(controls.supportiveICheckbox?.checked);
+    const currentSupportiveMarker = getComposerSupportiveMarker();
+    const candidateSupportiveMarker = getComposerSupportiveMarkerCandidate();
+    if (supportiveRequested) {
+        VerbComposerState.supportiveMarker = candidateSupportiveMarker
+            || (preserveSupportiveState ? currentSupportiveMarker : "")
+            || "";
+    } else {
+        VerbComposerState.supportiveMarker = "";
+    }
+}
+
+function refreshInlineComposerControlsFromState() {
+    const controls = getInlineComposerFormulaControls();
+    const viewModel = getInlineComposerFormulaViewModel();
+    IsRefreshingInlineComposerFormulaControls = true;
+    try {
+        if (controls.transitivitySelect) {
+            controls.transitivitySelect.value = viewModel.transitivity || "";
+            controls.transitivitySelect.dataset.previousTransitivity = viewModel.transitivity || "";
+        }
+        if (controls.valenceSelect) {
+            controls.valenceSelect.value = viewModel.valence || "";
+        }
+        if (controls.embedInput) {
+            controls.embedInput.value = normalizeComposerEmbedValue(viewModel.embed || "");
+        }
+        if (controls.stemInput) {
+            const templateSuffix = typeof getComposerStemInputTemplateSuffix === "function"
+                ? getComposerStemInputTemplateSuffix(controls.stemInput, viewModel.activeSlot)
+                : "";
+            controls.stemInput.value = typeof formatComposerStemForInputDisplay === "function"
+                ? formatComposerStemForInputDisplay(normalizeComposerStem(viewModel.stem || ""), {
+                    slotKey: viewModel.activeSlot,
+                    preferSplitFromStem: true,
+                    templateSuffix,
+                    surfaceValue: COMPOSER_TEMPLATE_SURFACE_BY_SLOT[viewModel.activeSlot] || "",
+                })
+                : normalizeComposerStem(viewModel.stem || "");
+        }
+        if (controls.objectInput) {
+            controls.objectInput.value = normalizeComposerEmbedValue(viewModel.objectEmbed || "");
+        }
+        if (controls.directionalSelect) {
+            controls.directionalSelect.value = viewModel.directional || "";
+        }
+        if (controls.supportiveICheckbox) {
+            controls.supportiveICheckbox.checked = Boolean(viewModel.supportive);
+        }
+        applyInlineComposerFormulaDom();
+    } finally {
+        IsRefreshingInlineComposerFormulaControls = false;
+    }
+}
+
 function bindInlineComposerTransitivitySelect() {
     const select = document.getElementById("composer-transitivity");
     if (!select || select.dataset.inlineFormulaBound === "true") {
@@ -528,17 +784,20 @@ function bindInlineComposerTransitivitySelect() {
     select.dataset.inlineFormulaBound = "true";
     select.dataset.previousTransitivity = select.value || (typeof VerbComposerState === "object" ? VerbComposerState.transitivity || "" : "");
     const rememberPrevious = () => {
-        select.dataset.previousTransitivity = select.value || (typeof VerbComposerState === "object" ? VerbComposerState.transitivity || "" : "");
+        if (IsRefreshingInlineComposerFormulaControls) {
+            return;
+        }
+        select.dataset.previousTransitivity = (typeof VerbComposerState === "object" ? VerbComposerState.transitivity || "" : "") || select.value || "";
     };
     select.addEventListener("pointerdown", rememberPrevious, { passive: true });
     select.addEventListener("focus", rememberPrevious);
     select.addEventListener("keydown", rememberPrevious);
     select.addEventListener("change", () => {
+        if (IsRefreshingInlineComposerFormulaControls) {
+            return;
+        }
         const nextToken = select.value || "";
-        const previousToken = (
-            typeof VerbComposerState === "object"
-            && COMPOSER_TRANSITIVITY_ORDER.includes(VerbComposerState.transitivity)
-        ) ? VerbComposerState.transitivity : (select.dataset.previousTransitivity || "");
+        const previousToken = select.dataset.previousTransitivity || "";
         if (!COMPOSER_TRANSITIVITY_ORDER.includes(nextToken)) {
             return;
         }
@@ -554,18 +813,37 @@ function bindInlineComposerTransitivitySelect() {
     });
 }
 
-function wrapInlineComposerRenderPasses() {
+function wrapInlineComposerStateProjection() {
     if (typeof window !== "undefined" && window.__NAWAT_INLINE_FORMULA_RENDER_WRAP__) {
         return;
     }
     if (typeof window !== "undefined") {
         window.__NAWAT_INLINE_FORMULA_RENDER_WRAP__ = true;
     }
+    if (typeof collectComposerStateFromControls === "function") {
+        const originalCollectComposerStateFromControls = collectComposerStateFromControls;
+        collectComposerStateFromControls = function collectComposerStateFromInlineFormulaWrapper(...args) {
+            const panel = document.getElementById("verb-composer");
+            if (panel?.classList?.contains("verb-composer--inline-formula")) {
+                return collectInlineComposerFormulaStateFromControls(...args);
+            }
+            return originalCollectComposerStateFromControls.apply(this, args);
+        };
+    }
+    if (typeof onVerbComposerControlChange === "function") {
+        const originalOnVerbComposerControlChange = onVerbComposerControlChange;
+        onVerbComposerControlChange = function onVerbComposerControlChangeInlineFormulaWrapper(...args) {
+            if (IsRefreshingInlineComposerFormulaControls) {
+                return;
+            }
+            return originalOnVerbComposerControlChange.apply(this, args);
+        };
+    }
     if (typeof renderVerbComposerFromState === "function") {
         const originalRenderVerbComposerFromState = renderVerbComposerFromState;
         renderVerbComposerFromState = function renderVerbComposerFromStateInlineFormulaWrapper(...args) {
             const result = originalRenderVerbComposerFromState.apply(this, args);
-            applyInlineComposerFormulaDom();
+            refreshInlineComposerControlsFromState();
             return result;
         };
     }
