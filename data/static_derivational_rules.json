@@ -12,22 +12,25 @@
             { "to": "none", "weight": 5.0, "when": { "endsWithWi": true, "endsWithConsonantCluster": true, "firstManner": "glide" } },
             { "to": "replacive", "weight": 3.8, "when": { "endsWithWi": true, "mannerPair": { "not": "glide:fricative" } } },
             { "to": "replacive", "weight": 3.8, "when": { "endsWithWi": true, "mannerPair": "glide:fricative", "penultimateNucleus": { "not": "e" } } },
-            { "to": "replacive", "weight": 1.3, "when": { "endsWithWi": true, "mannerPair": "glide:stop" } },
-            { "to": "replacive", "weight": 1.0, "when": { "endsWithWi": true, "mannerPair": "glide:affricate" } },
+            { "to": "replacive", "weight": 4.0, "when": { "endsWithWi": true, "mannerPair": "glide:stop" } },
+            { "to": "replacive", "weight": 3.6, "when": { "endsWithWi": true, "mannerPair": "glide:affricate" } },
             { "to": "additive", "weight": 3.2, "when": { "endsWithTi": true, "penultimateHasCoda": true } },
             { "to": "additive", "weight": 3.2, "when": { "endsWithTi": true, "penultimateNucleus": "e" } },
             { "to": "replacive", "weight": 2.6, "when": { "endsWithTi": true, "firstOnset": "p", "penultimateHasCoda": false, "penultimateNucleus": { "not": "e" } } },
             { "to": "none", "weight": 2.8, "when": { "endsWithTi": true, "firstOnset": { "not": "p" }, "penultimateHasCoda": false, "penultimateNucleus": { "not": "e" } } },
-            { "to": "additive", "weight": 2.8, "when": { "finalManner": "nasal", "firstManner": ["stop", "fricative"] } },
+            { "to": "additive", "weight": 4.8, "when": { "mannerPair": ["nasal:stop", "nasal:fricative"] } },
             { "to": "replacive", "weight": 2.6, "when": { "finalManner": "nasal", "firstOnset": "m" } },
             { "to": "none", "weight": 2.6, "when": { "finalManner": "nasal", "firstManner": "nasal", "firstOnset": { "not": "m" } } },
-            { "to": "none", "weight": 2.8, "when": { "finalManner": ["fricative", "lateral"] } },
+            { "to": "none", "weight": 4.8, "when": { "finalManner": ["fricative", "lateral"] } },
+            { "to": "none", "weight": 4.8, "when": { "finalConsonant": ["s", "sh", "tz"] } },
+            { "to": "replacive", "weight": 4.2, "when": { "finalConsonant": ["y", "j", "ch", "kw", "w"] } },
+            { "to": "replacive", "weight": 4.0, "when": { "mannerPair": "glide:stop" } },
             { "to": "none", "weight": 1.9, "when": { "placePair": "dorsal:coronal", "finalManner": "stop", "firstManner": "nasal" } },
             { "to": "none", "weight": 1.7, "when": { "mannerPair": "stop:nasal", "firstOnset": { "not": "p" } } },
             { "to": "additive", "weight": 2.6, "when": { "finalManner": "stop", "firstManner": "lateral" } },
             { "to": "additive", "weight": 1.6, "when": { "mannerPair": "affricate:affricate" } },
             { "to": "additive", "weight": 1.5, "when": { "finalConsonant": "k", "penultimateHasCoda": false, "firstOnset": { "not": "n" } } },
-            { "to": "replacive", "weight": 1.8, "when": { "finalConsonant": ["p", "w", "kw", "tz", "ch"] } },
+            { "to": "replacive", "weight": 1.8, "when": { "finalConsonant": ["p"] } },
             { "to": "replacive", "weight": 1.4, "when": { "finalConsonant": "w", "firstOnset": ["k", "kw", "p", "sh", "s"] } },
             { "to": "replacive", "weight": 1.6, "when": { "mannerPair": "stop:stop", "placePair": { "not": "dorsal:dorsal" } } },
             { "to": "additive", "weight": 2.0, "when": { "finalConsonant": "m", "firstOnset": "t", "penultimateNucleus": "a" } },
@@ -260,29 +263,7 @@
             "suffix": "wia",
             "components": ["wi", "a"],
             "additionExamples": ["temu -> temuwia"],
-            "replacementExamples": ["tejku -> tejkawia", "ejku -> ejkawia", "panu -> panawia"]
-          }
-        },
-        "nonactiveLu": {
-          "typeTwo": {
-            "suffix": "tia",
-            "components": ["ti", "a"],
-            "notes": "Some -u intransitives take -lu nonactive and form causative with -tia.",
-            "examples": ["tejku -> tejkultia"]
-          }
-        }
-      },
-      "destockal": {
-        "wiStockFormative": {
-          "selection": {
-            "rootVowelsToStockFormative": {
-              "e": "i",
-              "a": "i",
-              "i": "a",
-              "u": "a"
-            },
-            "rootFinalLForcesStockFormative": "i",
-            "examples": ["petziwi", "ijtawi", "pishawi", "patziwi", "puliwi", "kweliwi", "nuliwi"]
+            "replacementExamples": ["tejku -> tejkawia", "ejku -> ejkawia"]
           }
         }
       }
