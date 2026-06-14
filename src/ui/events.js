@@ -662,7 +662,11 @@ function exposeInlineComposerNativeControls() {
         const placeholder = document.createElement("option");
         placeholder.value = "";
         placeholder.textContent = "Transitividad";
-        transitivitySelect.insertBefore(placeholder, transitivitySelect.firstElementChild || null);
+        if (typeof transitivitySelect.insertBefore === "function") {
+            transitivitySelect.insertBefore(placeholder, transitivitySelect.firstElementChild || null);
+        } else if (typeof transitivitySelect.appendChild === "function") {
+            transitivitySelect.appendChild(placeholder);
+        }
     }
 }
 

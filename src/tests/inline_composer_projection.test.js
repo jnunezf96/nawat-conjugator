@@ -42,6 +42,14 @@ function createProjectionControl() {
 }
 
 function installProjectionDomFixture(ctx) {
+    const restoreState = {
+        getElementById: ctx.document.getElementById,
+        querySelectorAll: ctx.document.querySelectorAll,
+        getVerbComposerElements: ctx.getVerbComposerElements,
+        getComposerActiveSlotFromState: ctx.getComposerActiveSlotFromState,
+        getComposerStemInputTemplateSuffix: ctx.getComposerStemInputTemplateSuffix,
+        formatComposerStemForInputDisplay: ctx.formatComposerStemForInputDisplay,
+    };
     const controls = {
         panel: createProjectionControl(),
         stagePanel: createProjectionControl(),
@@ -88,6 +96,14 @@ function installProjectionDomFixture(ctx) {
     ctx.getComposerActiveSlotFromState = () => "c";
     ctx.getComposerStemInputTemplateSuffix = () => "";
     ctx.formatComposerStemForInputDisplay = (value) => value;
+    controls.restore = () => {
+        ctx.document.getElementById = restoreState.getElementById;
+        ctx.document.querySelectorAll = restoreState.querySelectorAll;
+        ctx.getVerbComposerElements = restoreState.getVerbComposerElements;
+        ctx.getComposerActiveSlotFromState = restoreState.getComposerActiveSlotFromState;
+        ctx.getComposerStemInputTemplateSuffix = restoreState.getComposerStemInputTemplateSuffix;
+        ctx.formatComposerStemForInputDisplay = restoreState.formatComposerStemForInputDisplay;
+    };
     return controls;
 }
 
@@ -135,26 +151,35 @@ function run(ctx = {}) {
             && events.includes('"[data-composer-serial-type-chips]"')
             && !events.includes('document.querySelectorAll(".verb-composer__chips")')
     );
+    s.ok(
+        "inline formula placeholder insertion tolerates light DOM test fixtures",
+        events.includes('typeof transitivitySelect.insertBefore === "function"')
+            && events.includes('typeof transitivitySelect.appendChild === "function"')
+    );
 
     if (vm.isContext(ctx)) {
         vm.runInContext(events, ctx, { filename: eventsPath });
         const controls = installProjectionDomFixture(ctx);
-        ctx.VerbComposerState.transitivity = ctx.COMPOSER_TRANSITIVITY.bitransitive;
-        ctx.VerbComposerState.valenceSecondary = "te+ta";
-        ctx.VerbComposerState.valence = "ta";
-        ctx.VerbComposerState.valenceIntransitive = "ta";
-        ctx.VerbComposerState.slotCEmbed = "takwal";
-        ctx.VerbComposerState.slotCStem = "maka";
-        ctx.VerbComposerState.valenceEmbedSecondary = "nexti";
-        ctx.VerbComposerState.directionalPrefix = "wal";
-        ctx.VerbComposerState.supportiveMarker = "";
-        ctx.refreshInlineComposerControlsFromState();
-        s.eq("programmatic bitransitive state projects transitivity", controls.transitivitySelect.value, ctx.COMPOSER_TRANSITIVITY.bitransitive);
-        s.eq("programmatic bitransitive state projects valence", controls.valenceC.value, "te+ta");
-        s.eq("programmatic bitransitive state projects incorporated element", controls.embedC.value, "takwal");
-        s.eq("programmatic bitransitive state projects matrix stem", controls.stemC.value, "maka");
-        s.eq("programmatic bitransitive state projects object embed", controls.objectC.value, "nexti");
-        s.eq("programmatic bitransitive state projects directional", controls.directional.value, "wal");
+        try {
+            ctx.VerbComposerState.transitivity = ctx.COMPOSER_TRANSITIVITY.bitransitive;
+            ctx.VerbComposerState.valenceSecondary = "te+ta";
+            ctx.VerbComposerState.valence = "ta";
+            ctx.VerbComposerState.valenceIntransitive = "ta";
+            ctx.VerbComposerState.slotCEmbed = "takwal";
+            ctx.VerbComposerState.slotCStem = "maka";
+            ctx.VerbComposerState.valenceEmbedSecondary = "nexti";
+            ctx.VerbComposerState.directionalPrefix = "wal";
+            ctx.VerbComposerState.supportiveMarker = "";
+            ctx.refreshInlineComposerControlsFromState();
+            s.eq("programmatic bitransitive state projects transitivity", controls.transitivitySelect.value, ctx.COMPOSER_TRANSITIVITY.bitransitive);
+            s.eq("programmatic bitransitive state projects valence", controls.valenceC.value, "te+ta");
+            s.eq("programmatic bitransitive state projects incorporated element", controls.embedC.value, "takwal");
+            s.eq("programmatic bitransitive state projects matrix stem", controls.stemC.value, "maka");
+            s.eq("programmatic bitransitive state projects object embed", controls.objectC.value, "nexti");
+            s.eq("programmatic bitransitive state projects directional", controls.directional.value, "wal");
+        } finally {
+            controls.restore();
+        }
     } else {
         s.ok(
             "module runtime keeps static projection fixture coverage",
