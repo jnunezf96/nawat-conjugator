@@ -4,8 +4,9 @@ This file is reserved for stable grammar summaries extracted by the architecture
 
 ## Scope
 
-- Andrews PDF is the grammar-rule authority for engine architecture: order, roles, slots, boundaries, categories, and dependencies.
+- Andrews PDF is the grammar-rule authority for engine architecture: order, roles, slots, boundaries, categories, dependencies, and supported derivational operations.
 - Modern Nawat/Pipil orthography is the spelling/surface authority. Classical Nahuatl examples from Andrews must not be copied verbatim into Nawat output; they must be realized through Nawat/Pipil orthography and confirmed Nawat-specific exceptions.
+- Andrews-supported derivations remain structurally valid after letter conversion. Classical `tl` maps to Nawat `t`, `tla-` maps to `ta-`, `tla-(pa-tla)` corresponds structurally to Nawat `ta-(pa-ta)`, Classical `(pa-ti)-tl` corresponds to Nawat `(pa-ti)-t`, and Classical person `-h` maps to Nawat `-t`.
 - Nawat/Pipil repo evidence and user-provided forms decide lexical examples, spelling realization, and Nawat-specific exceptions; they do not demote Andrews to analogy for engine rules.
 - Andrews is lesson-per-lesson, but the UI/engine is category-based. Lesson rows are curriculum/status and evidence indexes; implementation should extract reusable grammar categories, metadata, controls, and diagnostics rather than creating one engine or UI surface per lesson.
 
