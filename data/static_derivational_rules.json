@@ -263,7 +263,30 @@
             "suffix": "wia",
             "components": ["wi", "a"],
             "additionExamples": ["temu -> temuwia"],
-            "replacementExamples": ["tejku -> tejkawia", "ejku -> ejkawia"]
+            "replacementExamples": ["tejku -> tejkawia", "ejku -> ejkawia", "panu -> panawia"]
+          }
+        },
+        "nonactiveLu": {
+          "typeTwo": {
+            "suffix": "tia",
+            "components": ["ti", "a"],
+            "notes": "Some -u intransitives take -lu nonactive and form causative with -tia.",
+            "examples": ["tejku -> tejkultia"]
+          }
+        }
+      },
+      "destockal": {
+        "wiStockFormative": {
+          "selection": {
+            "rootVowelsToStockFormative": {
+              "e": "i",
+              "a": "i",
+              "i": "a",
+              "u": "a"
+            },
+            "rootFinalLForcesStockFormative": "i",
+            "notes": "Andrews 24.7 supplies the structural stock-formative contrast; Nawat/Pipil fixture evidence remains responsible for accepted surfaces.",
+            "repoEvidenceExamples": ["petziwi", "patziwi", "pipishawi", "puliwi", "kweliwi"]
           }
         }
       }

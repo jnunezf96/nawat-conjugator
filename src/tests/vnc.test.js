@@ -610,6 +610,61 @@ function run(ctx) {
             forms: ["ninemitia", "ninentia"],
         }
     );
+    const generateCausativeThirdSingular = (verb) => ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                tense: "presente",
+                derivationType: ctx.DERIVATION_TYPE.causative,
+                parsedVerb: ctx.parseVerbInput(verb),
+            },
+        },
+        prefixInputs: {
+            subjectPrefix: "",
+            objectPrefix: "ki",
+            verb,
+            subjectSuffix: "",
+            possessivePrefix: "",
+        },
+        liveInput: {
+            hasVerbInput: false,
+            verbInputValue: "",
+        },
+    });
+    const panuCausativeFrameResult = generateCausativeThirdSingular("panu");
+    const tejkuCausativeFrameResult = generateCausativeThirdSingular("tejku");
+    s.eq(
+        "Nawat -u causative exceptions keep attested panu and tejku outputs",
+        {
+            panuForms: panuCausativeFrameResult.surfaceForms,
+            panuSelectedStem: panuCausativeFrameResult.forwardDerivationFrame?.stem?.selectedStem,
+            tejkuForms: tejkuCausativeFrameResult.surfaceForms,
+            tejkuSelectedStem: tejkuCausativeFrameResult.forwardDerivationFrame?.stem?.selectedStem,
+        },
+        {
+            panuForms: ["kipanawia", "kipanultia"],
+            panuSelectedStem: "panawia",
+            tejkuForms: ["kitejkawia", "kitejkultia"],
+            tejkuSelectedStem: "tejkawia",
+        }
+    );
+    s.eq(
+        "Andrews 24.7 stock-formative selection remains explicit for destockal wi reverse lookup",
+        {
+            petz: ctx.getDestockalWiReverseBaseSuffixes("petz"),
+            patz: ctx.getDestockalWiReverseBaseSuffixes("patz"),
+            pish: ctx.getDestockalWiReverseBaseSuffixes("pish"),
+            pul: ctx.getDestockalWiReverseBaseSuffixes("pul"),
+            unknown: ctx.getDestockalWiReverseBaseSuffixes(""),
+        },
+        {
+            petz: ["iwi"],
+            patz: ["iwi"],
+            pish: ["awi"],
+            pul: ["iwi"],
+            unknown: ["iwi", "awi"],
+        }
+    );
     const applicativeFrameResult = ctx.executeGenerateWordRequest({
         options: {
             silent: true,
