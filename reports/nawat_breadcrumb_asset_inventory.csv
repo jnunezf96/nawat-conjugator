@@ -29,6 +29,6 @@ SG-RN-002,signal,active patientivo branch state,script.js:1081-1084,Declared rou
 SG-RN-003,signal,active chip styling,style.css:2160-2165,Highlights selected breadcrumb chip.
 SG-RN-004,signal,patientivo focus styling,style.css:5302-5305,Temporarily highlights selected branch output block.
 BND-RN-001,boundary,candidate admission boundary,src/ui/rendering/rendering.js:4359-4385,Strips absolutive suffix and checks intermediary consonant.
-BND-RN-002,boundary,legacy generation boundary,data/static_modes.json:18-97,Visible Nawat route still uses legacy metadata internally.
+BND-RN-002,boundary,compatibility generation boundary,data/static_modes.json:18-97,Visible Nawat route still uses compatibility metadata internally.
 BND-RN-003,boundary,particle unbuilt boundary,data/static_modes.json:12-16,Particle mode exists but no current breadcrumb route is built.
 BND-RN-004,boundary,European adjective scope boundary,data/static_modes.json:18-97,Current Nawat tracks cover four of nine European-convention adjective circuits only.

@@ -140,23 +140,24 @@ function run(ctx) {
             silent: true,
             skipValidation: false,
             override: {
-                tense,
                 tenseMode: ctx.TENSE_MODE.sustantivo,
                 derivationMode,
                 voiceMode,
                 actionNounStemUse,
             },
         },
-        prefixInputs: {
-            subjectPrefix,
-            objectPrefix,
-            verb,
-            subjectSuffix,
-            possessivePrefix,
+        posicionesFormula: {
+            pers1: subjectPrefix,
+            obj1: objectPrefix,
+            tronco: verb,
+            pers2: subjectSuffix,
+            num2: subjectSuffix,
+            poseedor: possessivePrefix,
+            tiempo: tense,
         },
-        liveInput: {
-            hasVerbInput: false,
-            verbInputValue: "",
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
         },
     });
     const buildSilentOrdinaryNncRequest = ({
@@ -176,7 +177,6 @@ function run(ctx) {
             silent: true,
             skipValidation: false,
             override: {
-                tense: "ordinary-nnc",
                 tenseMode: ctx.TENSE_MODE.sustantivo,
                 derivationMode: ctx.DERIVATION_MODE.active,
                 voiceMode: ctx.VOICE_MODE.active,
@@ -193,17 +193,512 @@ function run(ctx) {
                 },
             },
         },
-        prefixInputs: {
-            subjectPrefix,
-            objectPrefix: "",
-            verb: stem,
-            subjectSuffix,
-            possessivePrefix: possessor,
+        posicionesFormula: {
+            pers1: subjectPrefix,
+            obj1: "",
+            tronco: stem,
+            pers2: subjectSuffix,
+            num2: subjectSuffix,
+            poseedor: possessor,
+            tiempo: "ordinary-nnc",
         },
-        liveInput: {
-            hasVerbInput: false,
-            verbInputValue: "",
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
         },
+    });
+
+    s.eq(
+        "Lesson 12 absolutive NNC audit API is exposed",
+        typeof ctx.buildNncLesson12PursuitFrame,
+        "function"
+    );
+    const lesson12 = ctx.buildNncLesson12PursuitFrame();
+    s.eq("Lesson 12 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson12.stepNumber,
+        aimStatus: lesson12.aimStatus,
+        pdfRefs: lesson12.pdfRefs,
+        subsectionCount: lesson12.subsectionInventory.length,
+        generationAllowed: lesson12.generationAllowed,
+        closestPass: lesson12.closestPass,
+        hitCount: lesson12.hitCount,
+        missCount: lesson12.missCount,
+    }, {
+        stepNumber: 12,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 12.1",
+            "Andrews Lesson 12.2",
+            "Andrews Lesson 12.3",
+            "Andrews Lesson 12.4",
+            "Andrews Lesson 12.5",
+            "Andrews Lesson 12.6",
+            "Andrews Lesson 12.7",
+        ],
+        subsectionCount: 7,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq("Lesson 12 formula frame keeps CNN/NNC contrast against CNV/VNC", {
+        nncFormula: lesson12.formulaContrastFrame.nncFormula,
+        hasTensePosition: lesson12.formulaContrastFrame.hasTensePosition,
+        stateFunction: lesson12.formulaContrastFrame.stateFunction,
+        absolutiveStatePosition: lesson12.absolutiveFormulaFrame.statePosition,
+        predicateStemInsideParentheses: lesson12.absolutiveFormulaFrame.predicateStemInsideParentheses,
+        subjectConnectorOutsideParentheses: lesson12.absolutiveFormulaFrame.subjectConnectorOutsideParentheses,
+    }, {
+        nncFormula: "#pers1-pers2(STEM)num1-num2#",
+        hasTensePosition: false,
+        stateFunction: "State brings a possessor participant into the predicate.",
+        absolutiveStatePosition: "vacant",
+        predicateStemInsideParentheses: true,
+        subjectConnectorOutsideParentheses: true,
+    });
+    s.eq("Lesson 12 subject frame keeps num1-num2 in the subject", {
+        absentCarriers: lesson12.subjectPositionFrame.pers1Pers2Rule.absentCarriers,
+        num1BelongsTo: lesson12.subjectPositionFrame.num1Num2Rule.num1BelongsTo,
+        num1DoesNotBelongTo: lesson12.subjectPositionFrame.num1Num2Rule.num1DoesNotBelongTo,
+        singularDyads: lesson12.subjectPositionFrame.num1Num2Rule.singularCommonDyads,
+        pluralDyads: lesson12.subjectPositionFrame.num1Num2Rule.pluralDyads,
+        pluralNum2Morphs: lesson12.subjectPositionFrame.num1Num2Rule.pluralNum2Morphs,
+    }, {
+        absentCarriers: ["x", "xi"],
+        num1BelongsTo: "subject-personal-pronoun",
+        num1DoesNotBelongTo: ["predicate-state", "nounstem", "noun suffix"],
+        singularDyads: ["tl-0", "tli-0", "li-0", "in-0", "0-0"],
+        pluralDyads: ["t-in", "m-eh", "0-h"],
+        pluralNum2Morphs: ["in", "eh", "h"],
+    });
+    s.eq("Lesson 12 predicate and animacy frames keep no-tense and reference boundaries", {
+        predicateState: lesson12.predicateFrame.predicateState,
+        hasTenseMorph: lesson12.predicateFrame.hasTenseMorph,
+        timeReferenceSource: lesson12.predicateFrame.timeReferenceSource,
+        predicateFunctions: lesson12.predicateFrame.predicateFunctions,
+        subjectReferenceIsDecisive: lesson12.animacyFrame.subjectReferenceIsDecisive,
+        nonanimateCommonOnly: lesson12.animacyFrame.nonanimateNncAllowsCommonNumberOnly,
+        numberNotNounstem: lesson12.animacyFrame.numberPositionNotInflectionOnNounstem,
+        stateRestrictionDeferred: lesson12.stateNounstemFrame.restrictedStateStemsDeferredToLesson15,
+    }, {
+        predicateState: "absolutive",
+        hasTenseMorph: false,
+        timeReferenceSource: "discourse-context",
+        predicateFunctions: ["identify", "describe", "locate"],
+        subjectReferenceIsDecisive: true,
+        nonanimateCommonOnly: true,
+        numberNotNounstem: true,
+        stateRestrictionDeferred: true,
+    });
+    s.eq("Lesson 12 LCM frame blocks unlicensed paradigm generation", {
+        routeFamily: lesson12.grammarFrame?.routeContract?.routeFamily,
+        routeStage: lesson12.grammarFrame?.routeContract?.routeStage,
+        generationAllowed: lesson12.grammarFrame?.routeContract?.generationAllowed,
+        diagnosticId: lesson12.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        nuclearFormula: lesson12.grammarFrame?.nuclearClauseFrame?.formula,
+        hasTensePosition: lesson12.grammarFrame?.inflectionFrame?.hasTensePosition,
+    }, {
+        routeFamily: "ordinary-nnc",
+        routeStage: "audit-lesson-12",
+        generationAllowed: false,
+        diagnosticId: "lesson-12-absolutive-nnc-partial",
+        nuclearFormula: "#pers1-pers2(STEM)num1-num2#",
+        hasTensePosition: false,
+    });
+
+    s.eq(
+        "Lesson 13 possessive NNC audit API is exposed",
+        typeof ctx.buildNncLesson13PursuitFrame,
+        "function"
+    );
+    const lesson13 = ctx.buildNncLesson13PursuitFrame();
+    s.eq("Lesson 13 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson13.stepNumber,
+        aimStatus: lesson13.aimStatus,
+        pdfRefs: lesson13.pdfRefs,
+        subsectionCount: lesson13.subsectionInventory.length,
+        generationAllowed: lesson13.generationAllowed,
+        closestPass: lesson13.closestPass,
+        hitCount: lesson13.hitCount,
+        missCount: lesson13.missCount,
+    }, {
+        stepNumber: 13,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 13.1",
+            "Andrews Lesson 13.2",
+            "Andrews Lesson 13.3",
+            "Andrews Lesson 13.4",
+            "Andrews Lesson 13.5",
+            "Andrews Lesson 13.6",
+        ],
+        subsectionCount: 6,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq("Lesson 13 formula frame keeps monadic and dyadic State in predicate", {
+        formulas: lesson13.possessiveFormulaFrame.formulas.map((entry) => [entry.id, entry.linearFormula, entry.predicateLine]),
+        statePosition: lesson13.possessiveFormulaFrame.statePosition,
+        stateParticipant: lesson13.possessiveFormulaFrame.stateBringsParticipantRole,
+        hasTensePosition: lesson13.possessiveFormulaFrame.hasTensePosition,
+        stemProblemDeferredToLesson14: lesson13.possessiveFormulaFrame.stemProblemDeferredToLesson14,
+    }, {
+        formulas: [
+            ["monadic-state-position", "#pers1-pers2+st(STEM)num1-num2#", "+st(STEM)"],
+            ["dyadic-state-position", "#pers1-pers2+st1-st2(STEM)num1-num2#", "+st1-st2(STEM)"],
+        ],
+        statePosition: "present-in-predicate",
+        stateParticipant: "possessor",
+        hasTensePosition: false,
+        stemProblemDeferredToLesson14: true,
+    });
+    s.eq("Lesson 13 subject frame keeps possessive num1-num2 in the subject", {
+        num1BelongsTo: lesson13.subjectPositionFrame.num1Num2Rule.num1BelongsTo,
+        num1DoesNotBelongTo: lesson13.subjectPositionFrame.num1Num2Rule.num1DoesNotBelongTo,
+        num1Variants: lesson13.subjectPositionFrame.num1Num2Rule.num1Variants,
+        singularCommonNum2: lesson13.subjectPositionFrame.num1Num2Rule.singularCommonNum2,
+        pluralNum2: lesson13.subjectPositionFrame.num1Num2Rule.pluralNum2,
+        uhAfterVowel: lesson13.subjectPositionFrame.num1Num2Rule.uhAfterVowel,
+        huiAfterConsonant: lesson13.subjectPositionFrame.num1Num2Rule.huiAfterConsonant,
+    }, {
+        num1BelongsTo: "subject-personal-pronoun",
+        num1DoesNotBelongTo: ["predicate-state", "possessor", "nounstem", "noun suffix"],
+        num1Variants: ["uh/hu", "hui", "0"],
+        singularCommonNum2: "0",
+        pluralNum2: "an",
+        uhAfterVowel: true,
+        huiAfterConsonant: true,
+    });
+    s.eq("Lesson 13 monadic and dyadic State frames follow Andrews", {
+        monadicFillers: lesson13.monadicStateFrame.fillers.map((entry) => [entry.id, entry.andrewsMorph, entry.nawatCandidate || ""]),
+        st1FirstSecondFillers: lesson13.dyadicStateFrame.st1.firstSecondPerson.fillers,
+        st1Third: lesson13.dyadicStateFrame.st1.thirdPerson.filler,
+        st2ThirdPlural: lesson13.dyadicStateFrame.st2.thirdPerson.plural,
+        st2FirstSecondFiller: lesson13.dyadicStateFrame.st2.firstSecondPerson.filler,
+        st2VowelAllomorph: lesson13.dyadicStateFrame.st2.firstSecondPerson.vowelInitialStemAllomorph,
+    }, {
+        monadicFillers: [
+            ["reciprocative-possessor", "ne", ""],
+            ["human-nonspecific-possessor", "te", "te"],
+            ["nonhuman-nonspecific-possessor", "tla", "ta"],
+        ],
+        st1FirstSecondFillers: ["m", "am", "n", "t"],
+        st1Third: "i",
+        st2ThirdPlural: "m~n...",
+        st2FirstSecondFiller: "o",
+        st2VowelAllomorph: "□",
+    });
+    s.eq("Lesson 13 specific possessor frame separates Andrews from current Nawat prefixes", {
+        possessors: lesson13.specificPossessorFrame.possessors.map((entry) => [entry.id, entry.andrews, entry.currentNawatPrefix]),
+        hasTraditionalSpellingWarning: /#am-0\+m-o/.test(lesson13.specificPossessorFrame.traditionalSpellingWarning),
+    }, {
+        possessors: [
+            ["1sg", "n-o ~ n-□", "nu"],
+            ["1pl", "t-o ~ t-□", "tu"],
+            ["2sg", "m-o ~ m-□", "mu"],
+            ["2pl", "am-o ~ am-□", "anmu"],
+            ["3sg-common", "i-0", "i"],
+            ["3pl", "i-m ~ i-n...", "in"],
+        ],
+        hasTraditionalSpellingWarning: true,
+    });
+    s.eq("Lesson 13 LCM frame blocks unlicensed possessive paradigms", {
+        routeFamily: lesson13.grammarFrame?.routeContract?.routeFamily,
+        routeStage: lesson13.grammarFrame?.routeContract?.routeStage,
+        generationAllowed: lesson13.grammarFrame?.routeContract?.generationAllowed,
+        diagnosticId: lesson13.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        statePosition: lesson13.grammarFrame?.nuclearClauseFrame?.statePosition,
+        predicateState: lesson13.grammarFrame?.inflectionFrame?.predicateState,
+        possessorKind: lesson13.grammarFrame?.participantFrame?.possessor?.kind,
+    }, {
+        routeFamily: "ordinary-nnc",
+        routeStage: "audit-lesson-13",
+        generationAllowed: false,
+        diagnosticId: "lesson-13-possessive-nnc-partial",
+        statePosition: "present-in-predicate",
+        predicateState: "possessive",
+        possessorKind: "lesson-13-specific-possessor-frame",
+    });
+
+    s.eq(
+        "Lesson 14 nounstem class audit API is exposed",
+        typeof ctx.buildNncLesson14PursuitFrame,
+        "function"
+    );
+    const lesson14 = ctx.buildNncLesson14PursuitFrame();
+    s.eq("Lesson 14 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson14.stepNumber,
+        aimStatus: lesson14.aimStatus,
+        pdfRefs: lesson14.pdfRefs,
+        subsectionCount: lesson14.subsectionInventory.length,
+        generationAllowed: lesson14.generationAllowed,
+        closestPass: lesson14.closestPass,
+        hitCount: lesson14.hitCount,
+        missCount: lesson14.missCount,
+    }, {
+        stepNumber: 14,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 14.1",
+            "Andrews Lesson 14.2",
+            "Andrews Lesson 14.3",
+            "Andrews Lesson 14.4",
+            "Andrews Lesson 14.5",
+            "Andrews Lesson 14.6",
+            "Andrews Lesson 14.7",
+            "Andrews Lesson 14.8",
+        ],
+        subsectionCount: 8,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq("Lesson 14 use-stem and class frames keep Andrews classes mapped to current Nawat classes", {
+        restrictedUse: lesson14.useStemFrame.restrictedUseStem.usedIn,
+        generalUse: lesson14.useStemFrame.generalUseStem.usedIn,
+        generalShapes: lesson14.useStemFrame.generalUseStem.shapeOptions,
+        classes: lesson14.nounstemClassFrame.classes.map((entry) => [
+            entry.andrewsClass,
+            entry.currentNawatClass,
+            entry.absolutiveSingularCommonNum1,
+            entry.stemFinalShape,
+        ]),
+        liIsSeparateClass: lesson14.nounstemClassFrame.classes.find((entry) => entry.andrewsClass === "tli").liIsSeparateClass,
+        currentEngineClasses: lesson14.nounstemClassFrame.currentEngineClasses,
+    }, {
+        restrictedUse: ["absolutive-state NNC"],
+        generalUse: ["possessive-state NNC", "compound-stem embed subposition"],
+        generalShapes: ["base", "truncated", "glottalized"],
+        classes: [
+            ["ti", "t", "tl", "vowel-final"],
+            ["tli", "ti", "tli/li", "consonant-final"],
+            ["in", "in", "in", "consonant-final"],
+            ["0", "zero", "0", "consonant-or-vowel-final"],
+        ],
+        liIsSeparateClass: false,
+        currentEngineClasses: ["t", "ti", "in", "zero"],
+    });
+    s.eq("Lesson 14 number frame keeps plural meaning out of the predicate nounstem", {
+        numberBelongsTo: lesson14.nounstemNumberFrame.numberBelongsTo,
+        predicateMarksNumber: lesson14.nounstemNumberFrame.predicateMarksNumber,
+        derivedStemTypes: lesson14.nounstemNumberFrame.derivedStemTypes.map((entry) => entry.id),
+        derivedStemIsNotSubjectPluralInflection: lesson14.nounstemNumberFrame.derivedStemIsNotSubjectPluralInflection,
+        animateNonanimateDistinctionMaintained: lesson14.nounstemNumberFrame.animateNonanimateDistinctionMaintained,
+    }, {
+        numberBelongsTo: "personal-pronoun subject",
+        predicateMarksNumber: false,
+        derivedStemTypes: ["plain", "affinity", "distributive-varietal"],
+        derivedStemIsNotSubjectPluralInflection: true,
+        animateNonanimateDistinctionMaintained: true,
+    });
+    s.eq("Lesson 14 state-specific stem-selection frames stay diagnostic", {
+        absolutiveSingularShape: lesson14.absolutiveSingularCommonFrame.requiredStemShape,
+        absolutivePluralStemTypes: lesson14.absolutivePluralFrame.allowedStemTypes,
+        possessivePluralNormalStem: lesson14.possessivePluralFrame.normalStemType,
+        possessiveSingularShapes: lesson14.possessiveSingularCommonFrame.possibleGeneralUseShapes,
+        possessiveTiSubclassIds: lesson14.possessiveSingularCommonFrame.classRules.ti.subclasses.map((entry) => entry.id),
+        num1DoesNotBelongTo: lesson14.possessiveSingularCommonFrame.num1DoesNotBelongTo,
+    }, {
+        absolutiveSingularShape: "restricted-use base shape",
+        absolutivePluralStemTypes: ["plain base", "affinity base", "distributive/varietal base"],
+        possessivePluralNormalStem: "plain general-use stem",
+        possessiveSingularShapes: ["base", "truncated"],
+        possessiveTiSubclassIds: ["ti-1-a", "ti-1-b", "ti-2-a", "ti-2-b", "ti-2-c"],
+        num1DoesNotBelongTo: ["predicate-state", "nounstem", "noun suffix"],
+    });
+    s.eq("Lesson 14 analysis frame and LCM frame block unlicensed nounstem-class paradigms", {
+        ambiguousBackCount: lesson14.constituentAnalysisFrame.ambiguousBackConstituents.length,
+        ambiguousFrontCount: lesson14.constituentAnalysisFrame.ambiguousFrontConstituents.length,
+        routeStage: lesson14.grammarFrame?.routeContract?.routeStage,
+        diagnosticId: lesson14.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        hasTensePosition: lesson14.grammarFrame?.nuclearClauseFrame?.hasTensePosition,
+        nounstemClassValues: lesson14.grammarFrame?.inflectionFrame?.nounstemClassValues,
+    }, {
+        ambiguousBackCount: 3,
+        ambiguousFrontCount: 2,
+        routeStage: "audit-lesson-14",
+        diagnosticId: "lesson-14-nounstem-class-partial",
+        hasTensePosition: false,
+        nounstemClassValues: ["t", "ti", "in", "zero"],
+    });
+
+    s.eq(
+        "Lesson 15 further NNC audit API is exposed",
+        typeof ctx.buildNncLesson15PursuitFrame,
+        "function"
+    );
+    const lesson15 = ctx.buildNncLesson15PursuitFrame();
+    s.eq("Lesson 15 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson15.stepNumber,
+        aimStatus: lesson15.aimStatus,
+        pdfRefs: lesson15.pdfRefs,
+        subsectionCount: lesson15.subsectionInventory.length,
+        generationAllowed: lesson15.generationAllowed,
+        closestPass: lesson15.closestPass,
+        hitCount: lesson15.hitCount,
+        missCount: lesson15.missCount,
+    }, {
+        stepNumber: 15,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 15.1",
+            "Andrews Lesson 15.2",
+            "Andrews Lesson 15.3",
+        ],
+        subsectionCount: 3,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq("Lesson 15 possessive peculiarity frame blocks unlicensed state-case generation", {
+        assimilationConnector: lesson15.possessivePeculiaritiesFrame.possessivePluralAssimilation.connector,
+        affectedStemFinals: lesson15.possessivePeculiaritiesFrame.possessivePluralAssimilation.affectedStemFinals,
+        suppletiveCount: lesson15.possessivePeculiaritiesFrame.suppletivePossessiveStems.length,
+        secondaryStemOperation: lesson15.possessivePeculiaritiesFrame.secondaryGeneralUseStem.operation,
+        analogicalPossessor: lesson15.possessivePeculiaritiesFrame.analogicalTlaStem.possessor,
+        nuclearPossessorRule: /nuclear/.test(lesson15.possessivePeculiaritiesFrame.nuclearPossessorRule),
+    }, {
+        assimilationConnector: "hu-an",
+        affectedStemFinals: ["voiceless uh/w", "n"],
+        suppletiveCount: 4,
+        secondaryStemOperation: "possessive-state predicate downgraded to general-use stem",
+        analogicalPossessor: "tla",
+        nuclearPossessorRule: true,
+    });
+    s.eq("Lesson 15 natural-possession and sentence frames stay evidence-bound", {
+        naturalTypes: lesson15.naturallyPossessedFrame.naturalPossessionTypes.map((entry) => entry.id),
+        dictionarySuffixOnlyClass: lesson15.naturallyPossessedFrame.dictionaryAbsolutiveSuffixCanOnlyIdentifyClass,
+        metaphorOverride: lesson15.naturallyPossessedFrame.unavailablePossessiveContrast.metaphorCanOverrideRestriction,
+        sentenceFunctions: lesson15.sentenceStructureFrame.equationalPredicateFunctions,
+        sentenceTypes: lesson15.sentenceStructureFrame.equativeSentenceTypes,
+        havingTranslation: lesson15.sentenceStructureFrame.possessiveStateMayTranslateAsHaving,
+    }, {
+        naturalTypes: ["property", "kinship-human-relations", "body-parts"],
+        dictionarySuffixOnlyClass: true,
+        metaphorOverride: true,
+        sentenceFunctions: ["equative", "attributive", "adverbial"],
+        sentenceTypes: ["simple affirmative", "negative", "emphatic", "yes/no question", "wish"],
+        havingTranslation: true,
+    });
+    s.eq("Lesson 15 LCM frame blocks unlicensed NNC sentence generation", {
+        routeStage: lesson15.grammarFrame?.routeContract?.routeStage,
+        diagnosticId: lesson15.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        generationAllowed: lesson15.grammarFrame?.routeContract?.generationAllowed,
+        hasTensePosition: lesson15.grammarFrame?.nuclearClauseFrame?.hasTensePosition,
+        sentenceCanConstitute: lesson15.grammarFrame?.nuclearClauseFrame?.sentenceStructureFrame?.nncCanConstituteSentence,
+        predicateState: lesson15.grammarFrame?.inflectionFrame?.predicateState,
+    }, {
+        routeStage: "audit-lesson-15",
+        diagnosticId: "lesson-15-further-nnc-partial",
+        generationAllowed: false,
+        hasTensePosition: false,
+        sentenceCanConstitute: true,
+        predicateState: "possessive-state-diagnostic",
+    });
+
+    s.eq(
+        "Lesson 16 pronominal NNC audit API is exposed",
+        typeof ctx.buildNncLesson16PursuitFrame,
+        "function"
+    );
+    const lesson16 = ctx.buildNncLesson16PursuitFrame();
+    s.eq("Lesson 16 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson16.stepNumber,
+        aimStatus: lesson16.aimStatus,
+        pdfRefs: lesson16.pdfRefs,
+        subsectionCount: lesson16.subsectionInventory.length,
+        generationAllowed: lesson16.generationAllowed,
+        closestPass: lesson16.closestPass,
+        hitCount: lesson16.hitCount,
+        missCount: lesson16.missCount,
+    }, {
+        stepNumber: 16,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 16.1",
+            "Andrews Lesson 16.2",
+            "Andrews Lesson 16.3",
+            "Andrews Lesson 16.4",
+            "Andrews Lesson 16.5",
+            "Andrews Lesson 16.6",
+            "Andrews Lesson 16.7",
+            "Andrews Lesson 16.8",
+            "Andrews Lesson 16.9",
+        ],
+        subsectionCount: 9,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq("Lesson 16 overview and entitive frames keep pronominal NNCs absolutive-only", {
+        nncKind: lesson16.overviewFrame.nncKind,
+        stateRestriction: lesson16.overviewFrame.stateRestriction,
+        semanticKinds: lesson16.overviewFrame.semanticKinds,
+        pluralStructuralTypes: lesson16.overviewFrame.pluralStructuralTypes,
+        pluralizedStemRule: /inside the stem/.test(lesson16.overviewFrame.pluralizedStemRule),
+        entitiveSubtypes: lesson16.entitiveFrame.subtypes,
+        hasRelativePronouns: lesson16.entitiveFrame.hasRelativePronouns,
+    }, {
+        nncKind: "pronominal",
+        stateRestriction: "absolutive-only",
+        semanticKinds: ["entitive", "quantitive"],
+        pluralStructuralTypes: ["plain-stem plural", "pluralized-stem plural"],
+        pluralizedStemRule: true,
+        entitiveSubtypes: ["personal", "interrogative", "indefinite", "demonstrative"],
+        hasRelativePronouns: false,
+    });
+    s.eq("Lesson 16 entitive subtype frames block English pronoun-word drift", {
+        realPersonalPronounsAreAffixal: lesson16.personalFrame.realPersonalPronounsAreAffixal,
+        personalStems: lesson16.personalFrame.stems.map((entry) => [entry.id, entry.stems]),
+        interrogativeStems: lesson16.interrogativeFrame.stems.map((entry) => entry.id),
+        tlehFusion: lesson16.interrogativeFrame.tlehInFusion.fusedForms,
+        demonstratives: lesson16.demonstrativeFrame.stems.map((entry) => entry.stem),
+        indefiniteStems: lesson16.indefiniteFrame.stems.map((entry) => entry.id),
+    }, {
+        realPersonalPronounsAreAffixal: true,
+        personalStems: [
+            ["simple-eh", ["eh-0", "yeh-0"]],
+            ["compound-eh-hua", ["eh-hua-tl", "yeh-hua-tl"]],
+        ],
+        interrogativeStems: ["what-entity", "what-entity-compound", "which-entity", "who"],
+        tlehFusion: ["tlein", "tlei", "tlen"],
+        demonstratives: ["in", "on"],
+        indefiniteStems: ["someone", "something"],
+    });
+    s.eq("Lesson 16 quantitive frames expose matrix architecture without generation", {
+        matrixStems: lesson16.quantitiveOverviewFrame.matrixStems,
+        morphDeploymentPredictable: lesson16.quantitiveOverviewFrame.morphDeploymentPredictable,
+        quichStems: lesson16.quichFrame.stems.map((entry) => entry.id),
+        quiChiPluralRule: /derivational n/.test(lesson16.quiChiFrame.pluralizedStemRule),
+        quiChiStemCount: lesson16.quiChiFrame.stems.length,
+        interrogativeQualityLost: lesson16.quiChiFrame.interrogativeQualityLostWhenNotInitial,
+    }, {
+        matrixStems: ["chi/ch", "qui/c", "qui-ch"],
+        morphDeploymentPredictable: false,
+        quichStems: ["all", "how-much-general", "how-many-varietal"],
+        quiChiPluralRule: true,
+        quiChiStemCount: 8,
+        interrogativeQualityLost: true,
+    });
+    s.eq("Lesson 16 LCM frame blocks unlicensed pronominal NNC generation", {
+        routeStage: lesson16.grammarFrame?.routeContract?.routeStage,
+        diagnosticId: lesson16.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        generationAllowed: lesson16.grammarFrame?.routeContract?.generationAllowed,
+        nncKind: lesson16.grammarFrame?.nuclearClauseFrame?.nncKind,
+        stateRestriction: lesson16.grammarFrame?.nuclearClauseFrame?.stateRestriction,
+        predicateState: lesson16.grammarFrame?.inflectionFrame?.predicateState,
+    }, {
+        routeStage: "audit-lesson-16",
+        diagnosticId: "lesson-16-pronominal-nnc-partial",
+        generationAllowed: false,
+        nncKind: "pronominal",
+        stateRestriction: "absolutive-only",
+        predicateState: "absolutive-only",
     });
 
     const nemiMeta = ctx.parseVerbInput("(nemi)");
@@ -242,7 +737,7 @@ function run(ctx) {
         enumerableContract: false,
     });
     s.eq(
-        "verb-derived nominal reader prefers LCM result-frame surfaces before stale legacy aliases",
+        "verb-derived nominal reader prefers LCM result-frame surfaces before stale stale aliases",
         (() => {
             const framed = {
                 result: "stale-nnc-result",
@@ -299,7 +794,7 @@ function run(ctx) {
         "verb-derived nominal reader keeps top-level surface forms before surface/result fallbacks",
         (() => {
             const result = {
-                result: "legacy-nnc",
+                result: "stale-nnc",
                 surface: "surface-nnc",
                 surfaceForms: ["surface-nnc-a / surface-nnc-b"],
             };
@@ -310,7 +805,7 @@ function run(ctx) {
         })(),
         {
             surface: "surface-nnc-a",
-            forms: ["surface-nnc-a", "surface-nnc-b", "surface-nnc", "legacy-nnc"],
+            forms: ["surface-nnc-a", "surface-nnc-b", "surface-nnc", "stale-nnc"],
         }
     );
     s.eq("direct instrumentivo exposes category-first nominalization profile", summarizeNominalizationProfile(directInstrumentivo.nominalizationProfile), {
@@ -350,12 +845,12 @@ function run(ctx) {
     });
     s.eq(
         "direct instrumentivo keeps source tense morph inside the predicate stem",
-        directInstrumentivo.subjectNumberConnectors.map((entry) => entry.displaySurface),
+        directInstrumentivo.num1Num2Alternates.map((entry) => entry.displaySurface),
         ["Ø"]
     );
     s.eq(
         "direct instrumentivo frames the connector as subject material",
-        directInstrumentivo.subjectNumberConnector.belongsTo,
+        directInstrumentivo.num1Num2.belongsTo,
         "subject"
     );
 
@@ -369,14 +864,20 @@ function run(ctx) {
         kind: generatedInstrumentivo.nuclearClauseShell?.kind,
         clauseKind: generatedInstrumentivo.nuclearClauseShell?.clauseKind,
         formulaType: generatedInstrumentivo.nuclearClauseShell?.formulaType,
+        formulaAbbreviation: generatedInstrumentivo.nuclearClauseShell?.formulaAbbreviation,
+        formulaLabel: generatedInstrumentivo.nuclearClauseShell?.formulaLabel,
+        displayLabel: generatedInstrumentivo.nuclearClauseShell?.displayLabel,
         hasTensePosition: generatedInstrumentivo.nuclearClauseShell?.hasTensePosition,
         generationAllowed: generatedInstrumentivo.nuclearClauseShell?.generationAllowed,
-        connector: generatedInstrumentivo.nuclearClauseShell?.slots?.subjectNumberConnector?.displayConnector,
+        connector: generatedInstrumentivo.nuclearClauseShell?.slots?.num1Num2?.displayConnector,
         formulaEcho: generatedInstrumentivo.nuclearClauseShell?.formulaEcho,
     }, {
         kind: "nuclear-clause-shell",
         clauseKind: "nominal-nuclear-clause",
         formulaType: "NNC",
+        formulaAbbreviation: "CNN",
+        formulaLabel: "Fórmula CNN",
+        displayLabel: "cláusula nuclear nominal (CNN)",
         hasTensePosition: false,
         generationAllowed: false,
         connector: "Ø",
@@ -424,9 +925,9 @@ function run(ctx) {
             hasTensePosition: generatedInstrumentivo.nominalClauseFrame.hasTensePosition,
             predicateState: generatedInstrumentivo.nominalClauseFrame.predicate.state,
             predicateNotTense: generatedInstrumentivo.nominalClauseFrame.predicate.stateSlot.notTense,
-            belongsTo: generatedInstrumentivo.subjectNumberConnector.belongsTo,
-            notNounSuffix: generatedInstrumentivo.subjectNumberConnector.notNounSuffix,
-            notStatePosition: generatedInstrumentivo.subjectNumberConnector.notStatePosition,
+            belongsTo: generatedInstrumentivo.num1Num2.belongsTo,
+            notNounSuffix: generatedInstrumentivo.num1Num2.notNounSuffix,
+            notStatePosition: generatedInstrumentivo.num1Num2.notStatePosition,
         },
         {
             clauseKind: "nominal-nuclear-clause",
@@ -875,7 +1376,7 @@ function run(ctx) {
     s.eq("generateWord possessed instrumentivo matches direct helper text", generatedPossessedInstrumentivo.result, directPossessedInstrumentivo.result);
     s.eq("generateWord possessed instrumentivo exposes surface form", generatedPossessedInstrumentivo.surfaceForms, ["itapiyaya"]);
     s.eq("generateWord possessed instrumentivo keeps imperfect ya inside the predicate stem", {
-        connector: generatedPossessedInstrumentivo.subjectNumberConnector?.displaySurface || "",
+        connector: generatedPossessedInstrumentivo.num1Num2?.displaySurface || "",
         formulaEcho: generatedPossessedInstrumentivo.nuclearClauseShell?.formulaEcho || "",
     }, {
         connector: "Ø",
@@ -939,22 +1440,25 @@ function run(ctx) {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 derivationMode: ctx.DERIVATION_MODE.active,
                 voiceMode: ctx.VOICE_MODE.active,
             },
         },
-        prefixInputs: {
-            subjectPrefix: "ni",
-            objectPrefix: "",
-            verb,
-            subjectSuffix: "",
-            possessivePrefix: "",
-        },
-        liveInput: {
-            hasVerbInput: false,
-            verbInputValue: "",
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "",
+            tronco: verb,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
         },
     });
     s.eq(
@@ -1201,17 +1705,23 @@ function run(ctx) {
             kind: generatedKalShell?.kind,
             clauseKind: generatedKalShell?.clauseKind,
             formulaType: generatedKalShell?.formulaType,
+            formulaAbbreviation: generatedKalShell?.formulaAbbreviation,
+            formulaLabel: generatedKalShell?.formulaLabel,
+            displayLabel: generatedKalShell?.displayLabel,
             formula: generatedKalShell?.formula,
             formulaEcho: generatedKalShell?.formulaEcho,
             hasTensePosition: generatedKalShell?.hasTensePosition,
             generationAllowed: generatedKalShell?.generationAllowed,
-            predicateStem: generatedKalShell?.slots?.predicate?.stem,
-            connector: generatedKalShell?.slots?.subjectNumberConnector?.displayConnector,
+            predicateStem: generatedKalShell?.slots?.predicateStem?.stem,
+            connector: generatedKalShell?.slots?.num1Num2?.displayConnector,
         },
         {
             kind: "nuclear-clause-shell",
             clauseKind: "nominal-nuclear-clause",
             formulaType: "NNC",
+            formulaAbbreviation: "CNN",
+            formulaLabel: "Fórmula CNN",
+            displayLabel: "cláusula nuclear nominal (CNN)",
             formula: "#pers1-pers2(STEM)num1-num2#",
             formulaEcho: "#Ø...Ø(kal)Ø#",
             hasTensePosition: false,
@@ -1437,7 +1947,7 @@ function run(ctx) {
         kind: "nominal-nuclear-clause",
         formula: "#pers1-pers2(STEM)num1-num2#",
         formulaSlots: {
-            subjectPerson: {
+            pers1Pers2: {
                 role: "subject-person",
                 slot: "pers1-pers2",
                 prefix: "",
@@ -1446,13 +1956,13 @@ function run(ctx) {
                 displaySuffix: "Ø",
                 label: "3sg",
             },
-            predicate: {
+            predicateStem: {
                 role: "predicate",
                 slot: "STEM",
                 stem: "kal",
                 state: "absolutive",
             },
-            subjectNumberConnector: {
+            num1Num2: {
                 role: "subject-number-connector",
                 slot: "num1-num2",
                 nounClass: "zero",
@@ -1574,7 +2084,7 @@ function run(ctx) {
         })(),
         {
             zeroSlots: {
-                subjectPerson: {
+                pers1Pers2: {
                     role: "subject-person",
                     slot: "pers1-pers2",
                     prefix: "ni",
@@ -1583,13 +2093,13 @@ function run(ctx) {
                     displaySuffix: "Ø",
                     label: "1sg",
                 },
-                predicate: {
+                predicateStem: {
                     role: "predicate",
                     slot: "STEM",
                     stem: "tapiyal",
                     state: "absolutive",
                 },
-                subjectNumberConnector: {
+                num1Num2: {
                     role: "subject-number-connector",
                     slot: "num1-num2",
                     nounClass: "zero",
@@ -1605,7 +2115,7 @@ function run(ctx) {
             zeroClass: "zero",
             zeroSourceKind: "open-stem",
             tSlots: {
-                subjectPerson: {
+                pers1Pers2: {
                     role: "subject-person",
                     slot: "pers1-pers2",
                     prefix: "",
@@ -1614,13 +2124,13 @@ function run(ctx) {
                     displaySuffix: "Ø",
                     label: "3sg",
                 },
-                predicate: {
+                predicateStem: {
                     role: "predicate",
                     slot: "STEM",
                     stem: "siwa",
                     state: "absolutive",
                 },
-                subjectNumberConnector: {
+                num1Num2: {
                     role: "subject-number-connector",
                     slot: "num1-num2",
                     nounClass: "t",
@@ -1638,8 +2148,8 @@ function run(ctx) {
     s.eq(
         "ordinary NNC formula echo reads LCM result-frame slot surfaces before stale slot text",
         ctx.buildOrdinaryNncFormulaEchoFromSlots({
-            subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
-            predicate: {
+            pers1Pers2: { displayPrefix: "Ø", displaySuffix: "Ø" },
+            predicateStem: {
                 stem: "stale-predicate",
                 surface: "stale-surface",
                 frames: ctx.buildGrammarFrame({
@@ -1648,7 +2158,7 @@ function run(ctx) {
                     }),
                 }),
             },
-            subjectNumberConnector: {
+            num1Num2: {
                 connector: "stale-connector",
                 surface: "stale-surface",
                 frames: ctx.buildGrammarFrame({
@@ -1664,8 +2174,8 @@ function run(ctx) {
         "ordinary NNC formula echo stops before stale slot text after an empty result frame",
         {
             emptyPredicate: ctx.buildOrdinaryNncFormulaEchoFromSlots({
-                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
-                predicate: {
+                pers1Pers2: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicateStem: {
                     stem: "stale-predicate",
                     surface: "stale-surface",
                     frames: ctx.buildGrammarFrame({
@@ -1675,15 +2185,15 @@ function run(ctx) {
                         }),
                     }),
                 },
-                subjectNumberConnector: {
+                num1Num2: {
                     connector: "stale-connector",
                     surface: "stale-surface",
                 },
             }),
             emptyConnector: ctx.buildOrdinaryNncFormulaEchoFromSlots({
-                subjectPerson: { displayPrefix: "Ø", displaySuffix: "Ø" },
-                predicate: { stem: "frame-safe-predicate" },
-                subjectNumberConnector: {
+                pers1Pers2: { displayPrefix: "Ø", displaySuffix: "Ø" },
+                predicateStem: { stem: "frame-safe-predicate" },
+                num1Num2: {
                     connector: "stale-connector",
                     surface: "stale-surface",
                     frames: ctx.buildGrammarFrame({
@@ -2436,6 +2946,62 @@ function run(ctx) {
         ["inhawat", "nishkat", "anhawatmet"]
     );
     s.eq(
+        "ordinary NNC onset changes expose Lesson 2 frames without changing surfaces",
+        (() => {
+            const possessive = ctx.generateOrdinaryNncParadigm({
+                stem: "awat",
+                state: "possessive",
+                possessor: "in",
+                number: "singular",
+            });
+            const subjectPlural = ctx.generateOrdinaryNncParadigm({
+                stem: "awat",
+                state: "absolutive",
+                animacy: "animate",
+                subject: { subjectPrefix: "an", subjectSuffix: "t" },
+                number: "plural",
+                pluralType: "count",
+            });
+            const summarizeFrame = (result) => {
+                const frame = (result.soundSpellingFrames || [])
+                    .find((entry) => entry.ruleId === "n-open-transition-nh") || {};
+                return {
+                    result: result.result,
+                    ruleId: frame.ruleId || "",
+                    source: frame.sourceSurface || "",
+                    target: frame.target || "",
+                    grammarSlot: frame.grammarSlot || "",
+                    segmentRole: frame.segmentRole || "",
+                    sourceSegmentValue: frame.sourceSegmentValue || "",
+                    targetSegmentValue: frame.targetSegmentValue || "",
+                };
+            };
+            return [summarizeFrame(possessive), summarizeFrame(subjectPlural)];
+        })(),
+        [
+            {
+                result: "inhawat",
+                ruleId: "n-open-transition-nh",
+                source: "n",
+                target: "nh",
+                grammarSlot: "poseedor",
+                segmentRole: "poseedor",
+                sourceSegmentValue: "in",
+                targetSegmentValue: "inh",
+            },
+            {
+                result: "anhawatmet",
+                ruleId: "n-open-transition-nh",
+                source: "n",
+                target: "nh",
+                grammarSlot: "pers1",
+                segmentRole: "pers1",
+                sourceSegmentValue: "an",
+                targetSegmentValue: "anh",
+            },
+        ]
+    );
+    s.eq(
         "Andrews 39.3.4 organic possession builds a real Nawat -yu possessive NNC",
         (() => {
             const direct = ctx.generateOrdinaryNncParadigm({
@@ -2799,7 +3365,7 @@ function run(ctx) {
                 animatePlural: animatePlural.nncBasic.categoryProfile,
                 inanimateDistributive: inanimateDistributive.nncBasic.categoryProfile,
                 derivedFromSlots: {
-                    formulaSlot: animatePlural.nncBasic.formulaSlots.subjectNumberConnector.slot,
+                    formulaSlot: animatePlural.nncBasic.formulaSlots.num1Num2.slot,
                     categoryConnectorSlot: animatePlural.nncBasic.categoryProfile.reference.connectorSlot,
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(animatePlural.nncBasic.formulaSlots),
                 },
@@ -2993,7 +3559,7 @@ function run(ctx) {
                     sourceKind: shuchi.source?.sourceKind,
                     nounClass: shuchi.nounClass,
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(shuchi.nncBasic.formulaSlots),
-                    connectorClass: shuchi.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                    connectorClass: shuchi.nncBasic.formulaSlots.num1Num2.nounClass,
                 },
                 kal: {
                     sourceKind: kalPossessive.source?.sourceKind,
@@ -3030,7 +3596,7 @@ function run(ctx) {
                     openStem: xilunTiOpen.openStem,
                     nounClass: xilunTiOpen.nounClass,
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(xilunTiOpen.nncBasic.formulaSlots),
-                    connectorClass: xilunTiOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                    connectorClass: xilunTiOpen.nncBasic.formulaSlots.num1Num2.nounClass,
                 },
                 tekpanOpen: {
                     fixtureProbe: ctx.resolveOrdinaryNncFixture({ stem: "tekpan" }),
@@ -3038,7 +3604,7 @@ function run(ctx) {
                     openStem: tekpanOpen.openStem,
                     nounClass: tekpanOpen.nounClass,
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(tekpanOpen.nncBasic.formulaSlots),
-                    connectorClass: tekpanOpen.nncBasic.formulaSlots.subjectNumberConnector.nounClass,
+                    connectorClass: tekpanOpen.nncBasic.formulaSlots.num1Num2.nounClass,
                 },
                 nounClasses,
                 noPseudoClasses: nounClasses.every((nounClass) => (

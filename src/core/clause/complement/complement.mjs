@@ -137,6 +137,407 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         ...question
       }));
     }
+    function attachComplementClauseGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "complement-clause-boundary",
+        routeFamily: "complement-clause",
+        ...options
+      });
+    }
+    const LESSON51_COMPLEMENT_VALIDATION_REFS = Object.freeze(["src/tests/complement.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON51_COMPLEMENT_PDF_REFS = Object.freeze(["Andrews Lesson 51.1", "Andrews Lesson 51.2", "Andrews Lesson 51.3", "Andrews Lesson 51.4"]);
+    const LESSON51_DOUBLE_NUCLEUS_FRAME = Object.freeze({
+      kind: "lesson-51-double-nucleus-complement-frame",
+      sourceSection: "Andrews 51.1",
+      complementIsAdjoinedNnc: true,
+      complementKinds: Object.freeze([COMPLEMENT_CLAUSE_ROLE.objectComplement, COMPLEMENT_CLAUSE_ROLE.subjectComplement, COMPLEMENT_CLAUSE_ROLE.adverbialComplement]),
+      incorporatedComplementCompoundVerbstemsRemainSeparate: true,
+      doubleNucleusStructureNotWordGeneration: true
+    });
+    const LESSON51_OBJECT_COMPLEMENT_FRAME = Object.freeze({
+      kind: "lesson-51-object-complement-frame",
+      sourceSection: "Andrews 51.2",
+      role: COMPLEMENT_CLAUSE_ROLE.objectComplement,
+      link: COMPLEMENT_CLAUSE_LINK.objectPronounToComplementSubject,
+      headPronounSlot: "object",
+      onlyCertainPrincipalVerbstemsPermitComplementedObjects: true,
+      distinctFromSharedReferentSupplementation: true,
+      semanticCategories: Object.freeze({
+        change: Object.freeze({
+          sourceSection: "Andrews 51.2.1",
+          complementNamesRoleAssumedByObjectReferent: true,
+          reflexiveObjectCanBeComplemented: true,
+          complementMayBeSubstantivalOrAdjectivalNnc: true
+        }),
+        materialComposition: Object.freeze({
+          sourceSection: "Andrews 51.2.2",
+          complementNounstemNamesMaterial: true,
+          canSourceTransformedSentences: true
+        }),
+        designation: Object.freeze({
+          sourceSection: "Andrews 51.2.3",
+          complementNamesEntity: true,
+          agreementVariantsPossible: true,
+          nonspecificTlaCanHaveLocativeSupplementAndPlaceNameObjectComplement: true,
+          possessiveNameConstructionChangesObjectComplementToPossessorComplement: true
+        }),
+        state: Object.freeze({
+          sourceSection: "Andrews 51.2.4",
+          adjectivalNncIndicatesObjectReferentState: true,
+          compareIncorporatedComplementAndConnectiveTCompounds: true
+        })
+      })
+    });
+    const LESSON51_SUBJECT_COMPLEMENT_FRAME = Object.freeze({
+      kind: "lesson-51-subject-complement-frame",
+      sourceSection: "Andrews 51.3",
+      role: COMPLEMENT_CLAUSE_ROLE.subjectComplement,
+      link: COMPLEMENT_CLAUSE_LINK.subjectPronounToComplementSubject,
+      headPronounSlot: "subject",
+      complementStemMayBeSubstantivalOrAdjectival: true,
+      semanticCategories: Object.freeze({
+        identity: Object.freeze({
+          sourceSection: "Andrews 51.3.1",
+          complementIndicatesNatureOfSubjectReferent: true
+        }),
+        composition: Object.freeze({
+          sourceSection: "Andrews 51.3.2",
+          complementIndicatesMaterialOfSubjectReferent: true
+        }),
+        state: Object.freeze({
+          sourceSection: "Andrews 51.3.3",
+          complementIndicatesSubjectReferentState: true,
+          resemblesAdverbialMannerButCentersOnSubjectPronoun: true,
+          frequentNounstems: Object.freeze(["ce-l", "el", "iyo-h-0"]),
+          possessorPronounInsideStemCanShareWithPrincipalSubject: true
+        }),
+        passiveObjectComplementTransform: Object.freeze({
+          sourceSection: "Andrews 51.3.4",
+          passiveTransformOfObjectComplementPossible: true
+        })
+      })
+    });
+    const LESSON51_ADVERBIAL_COMPLEMENT_FRAME = Object.freeze({
+      kind: "lesson-51-adverbial-complement-frame",
+      sourceSection: "Andrews 51.4",
+      role: COMPLEMENT_CLAUSE_ROLE.adverbialComplement,
+      complementHasAdverbLikeCapabilities: true,
+      semanticCategories: Object.freeze({
+        coverage: Object.freeze({
+          sourceSection: "Andrews 51.4.1",
+          principalStem: "mo-ca",
+          complementMayBePreteritAgentiveAbundantOwnerhoodNnc: true,
+          complementNncUsuallySingularEvenWhenAnimate: true
+        }),
+        beginning: Object.freeze({
+          sourceSection: "Andrews 51.4.2",
+          principalStem: "pehua",
+          resemblesPurposeOrConjunctionButBelongsFullyToNeither: true,
+          adjoinedSubjectSharesWithPrincipalSubject: true,
+          adjoinedClauseUsuallyPresentTenseRegardlessOfPrincipalTense: true,
+          futureTenseOccasionallyFound: true,
+          impersonalConstructionPossible: true,
+          contrastSupplementaryObjectConstruction: true
+        }),
+        satisfaction: Object.freeze({
+          sourceSection: "Andrews 51.4.3",
+          principalStem: "pach-i-hui",
+          sameConstructionAsPehua: true,
+          adjoinedClauseUsuallyPresentTense: true
+        }),
+        daring: Object.freeze({
+          sourceSection: "Andrews 51.4.4",
+          principalStems: Object.freeze(["tlahpal-i-hui", "m-o-tlahpal-o-a"]),
+          adjoinedTenseDeterminedByPrincipalAndUsuallySubsequent: true,
+          optativeCanSignalInsecurity: true
+        }),
+        cessation: Object.freeze({
+          sourceSection: "Andrews 51.4.5",
+          principalStem: "m-o-cahua"
+        }),
+        tarrying: Object.freeze({
+          sourceSection: "Andrews 51.4.6",
+          principalStem: "hueh-cahua"
+        }),
+        relationalLexicalized: Object.freeze({
+          sourceSection: "Andrews 51.4.7",
+          relationalNncCooperatesWithMeaningCompatibleVerbstem: true,
+          combinationMustBeLearnedAsVocabulary: true,
+          activeActionDerivationCanIncorporateAdverbializedNnc: true,
+          personDyadBlocksDirectCommerceWithIncorporatedNncPossessor: true
+        })
+      })
+    });
+    const LESSON51_COMPLEMENT_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson51-double-nucleus-overview",
+      andrewsSection: "51.1",
+      category: "double-nucleus-complementation",
+      directiveEs: "La complementacion de esta leccion usa una CNN adyacente como complemento; no es generacion de palabra.",
+      engineSurface: "diagnostic complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-object-complement-overview",
+      andrewsSection: "51.2",
+      category: "object-complement",
+      directiveEs: "El complemento de objeto enlaza el pronombre de objeto principal con el sujeto de la CNN complemento y se distingue de suplementacion.",
+      engineSurface: "diagnostic object-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-object-change",
+      andrewsSection: "51.2.1",
+      category: "object-complement-change",
+      directiveEs: "El complemento nombra el papel que asume el referente del objeto; tambien puede haber objeto reflexivo.",
+      engineSurface: "diagnostic object-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-object-material",
+      andrewsSection: "51.2.2",
+      category: "object-complement-material",
+      directiveEs: "El complemento de objeto puede nombrar el material del referente del objeto.",
+      engineSurface: "diagnostic object-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-object-designation",
+      andrewsSection: "51.2.3",
+      category: "object-complement-designation",
+      directiveEs: "El complemento puede designar nombre; con posesivo cambia a complemento de poseedor.",
+      engineSurface: "diagnostic object-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-object-state",
+      andrewsSection: "51.2.4",
+      category: "object-complement-state",
+      directiveEs: "Una CNN adjetival puede indicar el estado del referente del objeto.",
+      engineSurface: "diagnostic object-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-subject-complement-overview",
+      andrewsSection: "51.3",
+      category: "subject-complement",
+      directiveEs: "El complemento de sujeto enlaza el sujeto de la CNN complemento con el sujeto de la CNV principal.",
+      engineSurface: "diagnostic subject-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-subject-identity",
+      andrewsSection: "51.3.1",
+      category: "subject-complement-identity",
+      directiveEs: "El complemento de sujeto puede indicar identidad o naturaleza del referente.",
+      engineSurface: "diagnostic subject-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-subject-composition",
+      andrewsSection: "51.3.2",
+      category: "subject-complement-composition",
+      directiveEs: "El complemento de sujeto puede indicar material o composicion.",
+      engineSurface: "diagnostic subject-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-subject-state",
+      andrewsSection: "51.3.3",
+      category: "subject-complement-state",
+      directiveEs: "El estado de sujeto puede parecer manera adverbial, pero el enlace se centra en el pronombre de sujeto.",
+      engineSurface: "diagnostic subject-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-subject-passive-transform",
+      andrewsSection: "51.3.4",
+      category: "passive-object-complement-transform",
+      directiveEs: "Una construccion de complemento de sujeto puede ser transformacion pasiva de complemento de objeto.",
+      engineSurface: "diagnostic subject-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-complement-overview",
+      andrewsSection: "51.4",
+      category: "adverbial-complement",
+      directiveEs: "El complemento adverbial tiene capacidad adverbial y se licencia por familias de troncos principales.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-coverage",
+      andrewsSection: "51.4.1",
+      category: "coverage-complement",
+      directiveEs: "Mo-ca toma complementos de cobertura o llenura; la CNN complemento suele ser singular incluso con tronco animado.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-beginning",
+      andrewsSection: "51.4.2",
+      category: "beginning-complement",
+      directiveEs: "Pehua toma complemento que se parece a proposito o conjuncion, pero no se asigna completamente a ninguno.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-satisfaction",
+      andrewsSection: "51.4.3",
+      category: "satisfaction-complement",
+      directiveEs: "Pachihui sigue el patron de pehua y normalmente lleva presente en la clausula adyacente.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-daring",
+      andrewsSection: "51.4.4",
+      category: "daring-complement",
+      directiveEs: "Tlahpalihui o motlahpaloa determinan el tiempo del complemento, normalmente posterior.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-cessation",
+      andrewsSection: "51.4.5",
+      category: "cessation-complement",
+      directiveEs: "Mocahua puede tomar complemento de cesacion.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-tarrying",
+      andrewsSection: "51.4.6",
+      category: "tarrying-complement",
+      directiveEs: "Huehcahua puede tomar complemento de tardanza.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson51-adverbial-relational-lexicalized",
+      andrewsSection: "51.4.7",
+      category: "relational-lexicalized-complement",
+      directiveEs: "Una CNN relacional puede asociarse idiomaticamente con tronco compatible; se aprende como vocabulario.",
+      engineSurface: "diagnostic adverbial-complement frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    })]);
+    function cloneComplementClauseLessonRecord(record) {
+      if (!record || typeof record !== "object") {
+        return record;
+      }
+      if (Array.isArray(record)) {
+        return record.map(entry => cloneComplementClauseLessonRecord(entry));
+      }
+      return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, cloneComplementClauseLessonRecord(value)]));
+    }
+    function getLesson51ComplementClauseSubsectionInventory() {
+      return LESSON51_COMPLEMENT_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "not-surface-bearing",
+        validationRefs: Array.from(LESSON51_COMPLEMENT_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson51ComplementClausePursuitFrame() {
+      const subsectionInventory = getLesson51ComplementClauseSubsectionInventory();
+      const doubleNucleusFrame = cloneComplementClauseLessonRecord(LESSON51_DOUBLE_NUCLEUS_FRAME);
+      const objectComplementFrame = cloneComplementClauseLessonRecord(LESSON51_OBJECT_COMPLEMENT_FRAME);
+      const subjectComplementFrame = cloneComplementClauseLessonRecord(LESSON51_SUBJECT_COMPLEMENT_FRAME);
+      const adverbialComplementFrame = cloneComplementClauseLessonRecord(LESSON51_ADVERBIAL_COMPLEMENT_FRAME);
+      const remainingGaps = ["Current Lesson 51 support records Andrews' complementation architecture as diagnostics and supplied-surface AST frames; it does not implement static complement data, complement parser/search detection, or surface generation.", "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed."];
+      const frame = {
+        kind: "lesson-51-complement-clause-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 51,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-51",
+        pdfRefs: Array.from(LESSON51_COMPLEMENT_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-51-complement-clause-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 51.1-51.4 against current complement boundary metadata, supplied-surface AST behavior, double-nucleus structure, object/subject/adverbial complement categories, shared-pronoun links, passive transforms, and relational lexicalized adverbial complements.",
+          andrewsRefs: Array.from(LESSON51_COMPLEMENT_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON51_COMPLEMENT_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-51-complement-clause-audit",
+          result: "hit",
+          correction: "Lesson 51 now records Andrews complementation architecture across double-nucleus complement structure, object complement categories, subject complement categories, adverbial complement stem families, passive object-complement transforms, and relational lexicalized complement behavior while keeping generation blocked.",
+          andrewsRefs: Array.from(LESSON51_COMPLEMENT_PDF_REFS),
+          feedbackRefs: Array.from(LESSON51_COMPLEMENT_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        doubleNucleusFrame,
+        objectComplementFrame,
+        subjectComplementFrame,
+        adverbialComplementFrame,
+        currentEngineBoundary: {
+          complementBoundaryMetadataImplemented: true,
+          complementAstImplemented: true,
+          relationContractImplemented: true,
+          objectComplementFrameDiagnosticOnly: true,
+          subjectComplementFrameDiagnosticOnly: true,
+          adverbialComplementFrameDiagnosticOnly: true,
+          passiveTransformDiagnosticOnly: true,
+          relationalLexicalizedFrameDiagnosticOnly: true,
+          parserDetectionImplemented: false,
+          staticComplementDataImplemented: false,
+          newWordGenerationAllowed: false,
+          fullLesson51GenerationImplemented: false
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachComplementClauseGrammarContract(frame, {
+        metadataKind: "lesson-51-complement-clause-pursuit-frame",
+        unitKind: "complement-clause-boundary",
+        routeStage: "audit-lesson-51",
+        structuralSource: "Andrews Lesson 51",
+        andrewsRefs: Array.from(LESSON51_COMPLEMENT_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 51.1-51.4",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil complement-clause evidence",
+          noClassicalSurfaceImport: true,
+          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          orthographyStatus: "not-surface-bearing"
+        },
+        morphBoundaryFrame: {
+          doubleNucleusFrame,
+          objectComplementFrame,
+          subjectComplementFrame,
+          adverbialComplementFrame
+        },
+        nuclearClauseFrame: {
+          sourceClauseKind: "double-nucleus complement structure",
+          objectSubjectAndAdverbialComplementRolesTracked: true,
+          objectComplementSharesPrincipalObjectWithComplementSubject: true,
+          subjectComplementSharesPrincipalSubjectWithComplementSubject: true,
+          adverbialComplementStemFamilyMustLicenseRelation: true
+        },
+        participantFrame: {
+          semanticRole: "object complement, subject complement, adverbial complement, possessor complement, or relational lexicalized complement participant",
+          translationComplementIsNotMorphology: true,
+          supplementationPurposeAndConjunctionContrastsEvidenceGated: true
+        },
+        targetContract: {
+          metadataKind: "lesson-51-complement-clause-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnostics: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"]
+      });
+    }
     function buildComplementClauseBoundaryMetadata() {
       return {
         kind: "complement-clause-boundary",
@@ -514,6 +915,45 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
     api.normalizeComplementClauseFalsePositiveSource = normalizeComplementClauseFalsePositiveSource;
     api.getComplementClauseAntiConflationRules = getComplementClauseAntiConflationRules;
     api.getComplementClauseStructuralQuestions = getComplementClauseStructuralQuestions;
+    api.attachComplementClauseGrammarContract = attachComplementClauseGrammarContract;
+    Object.defineProperty(api, "LESSON51_COMPLEMENT_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_COMPLEMENT_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON51_COMPLEMENT_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_COMPLEMENT_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON51_DOUBLE_NUCLEUS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_DOUBLE_NUCLEUS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON51_OBJECT_COMPLEMENT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_OBJECT_COMPLEMENT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON51_SUBJECT_COMPLEMENT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_SUBJECT_COMPLEMENT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON51_ADVERBIAL_COMPLEMENT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_ADVERBIAL_COMPLEMENT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON51_COMPLEMENT_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON51_COMPLEMENT_SUBSECTION_INVENTORY; },
+    });
+    api.cloneComplementClauseLessonRecord = cloneComplementClauseLessonRecord;
+    api.getLesson51ComplementClauseSubsectionInventory = getLesson51ComplementClauseSubsectionInventory;
+    api.buildLesson51ComplementClausePursuitFrame = buildLesson51ComplementClausePursuitFrame;
     api.buildComplementClauseBoundaryMetadata = buildComplementClauseBoundaryMetadata;
     api.getComplementClauseSurface = getComplementClauseSurface;
     api.splitComplementClauseSurfaceText = splitComplementClauseSurfaceText;

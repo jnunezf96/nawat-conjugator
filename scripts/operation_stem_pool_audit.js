@@ -322,7 +322,7 @@ ${RECOMMENDATION.next_tranche_scope.map((s) => `1. ${s}`).join("\n")}
 
 ---
 
-## Live Verification
+## Audit Findings
 
 | Question | Finding |
 |---|---|

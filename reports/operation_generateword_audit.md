@@ -1,6 +1,6 @@
 # Operation GenerateWord Audit
 
-**Date:** 2026-04-02
+**Date:** 2026-06-15
 **Scope:** `generateWord(...)` output path and its direct output helpers
 **Out of scope:** noun-side wrappers, `applyMorphologyRules` internals, pret engine, nonactive rule-base path
 
@@ -54,17 +54,17 @@ _No authority violations or mixed-boundary sites require immediate action._
 
 ### gw-11 — return contract (layer4_legitimate)
 
-`generateWord` now returns `{ result, surfaceForms: string[], isReflexive, stemProvenance }`. `surfaceForms` is the ordered deduplicated alternant array; `result` is preserved as the compatibility joined string. Ownership aggregation prefers `surfaceForms` with a split fallback. **Resolved.**
+`generateWord` now returns `{ result, surfaceForms: string[], isReflexive, stemProvenance }`. `surfaceForms` is the ordered deduplicated alternant array; `result` is preserved as the joined display string. Ownership aggregation prefers `surfaceForms` with a split reader. **Resolved.**
 
 ---
 
-## Live Verification
+## Audit Findings
 
 | Question | Finding |
 |---|---|
 | Does final word assembly funnel through `buildOutputWordText`? | **Yes** — all paths through `forms[]` use `buildWord` or `buildWordFromParts`, both routing through `buildActiveOutputWordText` → `buildOutputWordText`. |
 | Is duplicate suppression string-only? | **Yes** — `forms.includes(text)` compares realized surface strings. |
-| Is alternant aggregation string-only? | **No** — `surfaceForms: string[]` now exposed on return; `result` preserved as compatibility string. |
+| Is alternant aggregation string-only? | **No** — `surfaceForms: string[]` now exposed on return; `result` preserved as joined display string. |
 | Are there string operations outside the gate? | **No.** |
 | Does `buildOutputWordSegments` contain authority logic? | **No** — it is the gate; no grammatical decisions inside it. |
 

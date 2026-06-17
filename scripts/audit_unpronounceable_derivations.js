@@ -4,7 +4,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
 const { createVmContext } = require("./lib/vm_harness");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -36,11 +35,6 @@ const LEXICON_FILES = [
   path.join(ROOT, "data", "data.csv"),
 ];
 
-const EXTRA_RUNTIME_FILES = [
-  path.join(ROOT, "pret_universal_context.js"),
-  path.join(ROOT, "pret_universal_engine.js"),
-];
-
 function loadStaticData(context) {
   STATIC_LOADERS.forEach(([fnName, filename]) => {
     const fn = context[fnName];
@@ -51,16 +45,6 @@ function loadStaticData(context) {
       fs.readFileSync(path.join(ROOT, "data", filename), "utf8"),
     );
     fn(payload);
-  });
-}
-
-function loadExtraRuntimeFiles(context) {
-  EXTRA_RUNTIME_FILES.forEach((filePath) => {
-    vm.runInContext(
-      fs.readFileSync(filePath, "utf8"),
-      context,
-      { filename: filePath },
-    );
   });
 }
 
@@ -207,7 +191,7 @@ function buildBaseFinding(row, family, output, extra = {}) {
 function auditRow(context, row, recordFinding, errors) {
   const parsed = row.parsedVerb || {};
   const analysisVerb = parsed.analysisVerb || parsed.verb || row.lexeme;
-  const canonicalRuleBase = context.getNonactiveRuleBase(analysisVerb, parsed);
+  const canonicalRuleBase = context.resolveNonactiveRuleBase(analysisVerb, parsed);
   const rootPlusYaDropAllowed = context.shouldDropYaInRootPlusYaNonactive(
     canonicalRuleBase,
     {
@@ -376,7 +360,6 @@ function summarizeFindings(findings) {
 
 function main() {
   const { context } = createVmContext({ rootDir: ROOT, scriptPath: SCRIPT_PATH });
-  loadExtraRuntimeFiles(context);
   loadStaticData(context);
   if (typeof context.setSelectedNonactiveSuffix === "function") {
     context.setSelectedNonactiveSuffix(null);

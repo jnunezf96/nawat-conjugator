@@ -28,8 +28,10 @@ function run(ctx) {
             typeof ctx.getConceptById,
             typeof ctx.classifyConceptToken,
             typeof ctx.buildConceptGlossaryMetadata,
+            typeof ctx.getNuclearClauseTerminology,
+            typeof ctx.buildConceptGlossaryDisplayModel,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function"]
     );
 
     s.eq(
@@ -49,13 +51,52 @@ function run(ctx) {
                 "nuclear-clause",
                 "vnc",
                 "nnc",
+                "type-level",
+                "token-level",
+                "instance-level",
                 "formula-boundary",
                 "predicate-boundary",
+                "morpheme",
+                "morph",
+                "form",
+                "root",
+                "stem",
+                "stock",
+                "major-morpheme",
+                "minor-morpheme",
+                "affix",
+                "derivational-affix",
+                "inflectional-affix",
                 "subject-person-slot",
                 "subject-number-connector-slot",
                 "predicate-stem-slot",
                 "tense-position",
             ],
+        }
+    );
+
+    s.eq(
+        "Lesson 1 glossary uses Spanish CN/CNV/CNN terminology",
+        ctx.getNuclearClauseTerminology(),
+        {
+            nc: {
+                english: "nuclear clause",
+                spanish: "cláusula nuclear",
+                abbreviation: "CN",
+                conceptId: "nuclear-clause",
+            },
+            vnc: {
+                english: "verbal nuclear clause",
+                spanish: "cláusula nuclear verbal",
+                abbreviation: "CNV",
+                conceptId: "vnc",
+            },
+            nnc: {
+                english: "nominal nuclear clause",
+                spanish: "cláusula nuclear nominal",
+                abbreviation: "CNN",
+                conceptId: "nnc",
+            },
         }
     );
 
@@ -122,7 +163,7 @@ function run(ctx) {
 
     const glossary = ctx.buildConceptGlossaryMetadata({ lesson: 1 });
     s.eq(
-        "concept glossary metadata keeps Lesson 1 partial and non-generative",
+        "concept glossary metadata marks Lesson 1 visible and non-generative",
         {
             kind: glossary.kind,
             lesson: glossary.lesson,
@@ -133,14 +174,46 @@ function run(ctx) {
         {
             kind: "concept-glossary-metadata",
             lesson: 1,
-            status: "partial",
+            status: "visible-diagnostic",
             generationAllowed: false,
             boundaries: {
                 isEngine: false,
-                isUiGlossaryComplete: false,
+                isUiGlossaryComplete: true,
                 isNawatFormAuthority: false,
-                requiresVisibleGlossaryUi: true,
+                requiresVisibleGlossaryUi: false,
+                isExternalConceptDataRequired: false,
             },
+        }
+    );
+
+    const displayModel = ctx.buildConceptGlossaryDisplayModel({ lesson: 1 });
+    s.eq(
+        "concept glossary display model exposes Lesson 1 OS terms for UI without generation",
+        {
+            kind: displayModel.kind,
+            title: displayModel.title,
+            generationAllowed: displayModel.generationAllowed,
+            terminology: displayModel.terminology.map((entry) => entry.display),
+            sampleConcepts: displayModel.concepts
+                .filter((entry) => ["vnc", "nnc", "morpheme", "derivational-affix", "inflectional-affix"].includes(entry.id))
+                .map((entry) => [entry.id, entry.label, entry.notationRole, entry.generationAllowed]),
+        },
+        {
+            kind: "concept-glossary-display-model",
+            title: "Andrews OS: notación y términos",
+            generationAllowed: false,
+            terminology: [
+                "CN = cláusula nuclear",
+                "CNV = cláusula nuclear verbal",
+                "CNN = cláusula nuclear nominal",
+            ],
+            sampleConcepts: [
+                ["vnc", "cláusula nuclear verbal", "verbal-nuclear-clause-category", false],
+                ["nnc", "cláusula nuclear nominal", "nominal-nuclear-clause-category", false],
+                ["morpheme", "morfema", "type-level-meaningful-unit", false],
+                ["derivational-affix", "afijo derivacional", "stem-internal-affix", false],
+                ["inflectional-affix", "afijo flexional", "stem-external-affix", false],
+            ],
         }
     );
 

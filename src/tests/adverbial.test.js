@@ -17,8 +17,10 @@ function run(ctx) {
             typeof ctx.classifyAdverbialNuclearFalsePositive,
             typeof ctx.getAdverbialNuclearAntiConflationRules,
             typeof ctx.buildAdverbialNuclearClauseFrame,
+            typeof ctx.buildLesson44AdverbialNuclearPursuitFrame,
+            typeof ctx.getLesson44AdverbialNuclearSubsectionInventory,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildAdverbialNuclearBoundaryMetadata();
@@ -30,7 +32,7 @@ function run(ctx) {
             status: boundary.status,
             generationAllowed: boundary.generationAllowed,
             confirmedExamples: boundary.confirmedExamples,
-            knownLegacyAdverbioTenses: boundary.knownLegacyAdverbioTenses,
+            knownConfiguredAdverbioTenses: boundary.knownConfiguredAdverbioTenses,
             boundaries: boundary.boundaries,
             questionFields: boundary.structuralQuestions.map((question) => question.field),
         },
@@ -40,9 +42,9 @@ function run(ctx) {
             status: "partial",
             generationAllowed: false,
             confirmedExamples: [],
-            knownLegacyAdverbioTenses: ["pasado-remoto-adverbio-activo"],
+            knownConfiguredAdverbioTenses: ["pasado-remoto-adverbio-activo"],
             boundaries: {
-                hasLegacyAdverbioSurface: true,
+                hasConfiguredAdverbioSurface: true,
                 hasAdverbialNuclearClauseFrame: true,
                 hasFullAdverbialNuclearClauseEngine: false,
                 hasAdverbialNncGeneration: false,
@@ -51,7 +53,7 @@ function run(ctx) {
                 changesAdverbioGeneration: false,
                 changesNncGeneration: false,
                 changesVncGeneration: false,
-                treatsLegacyAdverbioSurfaceAsFullLesson44Evidence: false,
+                treatsConfiguredAdverbioSurfaceAsFullLesson44Evidence: false,
             },
             questionFields: [
                 "source",
@@ -59,6 +61,132 @@ function run(ctx) {
                 "adverbialDegree",
                 "evidenceSource",
             ],
+        }
+    );
+    s.eq(
+        "Lesson 44 pursuit frame covers every Andrews adverbial nuclear-clause subsection",
+        (() => {
+            const inventory = ctx.getLesson44AdverbialNuclearSubsectionInventory();
+            const frame = ctx.buildLesson44AdverbialNuclearPursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /confirmed Nawat\/Pipil examples/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-44-adverbial-nuclear-pursuit-frame",
+            stepNumber: 44,
+            routeStage: "audit-lesson-44",
+            pdfRefCount: 9,
+            firstPdfRef: "Andrews Lesson 44.1",
+            lastPdfRef: "Andrews Lesson 44.9",
+            subsectionCount: 18,
+            subsectionRefs: [
+                "44.1",
+                "44.1 transformation",
+                "44.2",
+                "44.2 VNC/possessive",
+                "44.3",
+                "44.3 iuh/iz note",
+                "44.4.1",
+                "44.4.2",
+                "44.4 note",
+                "44.5",
+                "44.5.4",
+                "44.5.7",
+                "44.6",
+                "44.6 eh collocations",
+                "44.7",
+                "44.7 variants",
+                "44.8",
+                "44.9",
+            ],
+            plannedArrowIds: ["lesson-44-adverbial-nuclear-audit"],
+            firedArrowIds: [["lesson-44-adverbial-nuclear-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionEvidence: true,
+        }
+    );
+    s.eq(
+        "Lesson 44 frame records degree constraints and diagnostic-only adverbial inventories",
+        (() => {
+            const frame = ctx.buildLesson44AdverbialNuclearPursuitFrame();
+            return {
+                particlesSeparate: frame.overviewFrame.adverbialParticlesBelongToLesson3,
+                adjoinedDeferred: frame.overviewFrame.adjoinedConcatenateUnitsDeferredToLessons49_50,
+                semanticDomains: frame.overviewFrame.semanticDomains,
+                firstDegreeSemanticOnly: frame.degreesFrame.firstDegreeSemanticOnly,
+                secondDegreeNum1Silent: frame.degreesFrame.secondDegreeReplacesSoundedNum1WithSilent,
+                vncFirstOnly: frame.degreesFrame.vncAllowsOnlyFirstDegree,
+                possessiveFirstOnly: frame.degreesFrame.possessiveStateNncAllowsOnlyFirstDegree,
+                vncExampleCount: frame.adverbializedVncFrame.examples.length,
+                nncFirstDegreeAmbiguous: frame.adverbializedNncFrame.firstDegreeFrame.sameShapeCanBeEquativeOrAdverbial,
+                nncSecondDegreeDistinctive: frame.adverbializedNncFrame.secondDegreeFrame.distinctiveSubjectPronounShapeRemovesAmbiguity,
+                particleLookingCount: frame.particleLookingNncFrame.examples.length,
+                moNotInterrogative: frame.particleLookingNncFrame.moFrame.notInherentlyInterrogative,
+                quenFusedIn: frame.particleLookingNncFrame.quenFrame.fusedAdjunctorInAnalysis,
+                otherNncSubcategories: frame.otherAbsolutiveNncFrame.semanticSubcategories,
+                preteritAgentiveSource: frame.preteritAgentiveAdverbialNncFrame.generalUsePreteritAgentiveStemIsRichAdverbialSource,
+                possessiveDeferred: frame.possessiveStateAdverbialNncFrame.majorityDeferredToLessons45_47,
+                incorporatedDegreesDisappear: frame.incorporatedAdverbialModifierFrame.subjectPronounDiscardedSoDegreesDisappear,
+                generationBoundary: frame.currentEngineBoundary,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            particlesSeparate: true,
+            adjoinedDeferred: true,
+            semanticDomains: ["location", "direction", "time", "duration", "manner", "degree"],
+            firstDegreeSemanticOnly: true,
+            secondDegreeNum1Silent: true,
+            vncFirstOnly: true,
+            possessiveFirstOnly: true,
+            vncExampleCount: 13,
+            nncFirstDegreeAmbiguous: true,
+            nncSecondDegreeDistinctive: true,
+            particleLookingCount: 7,
+            moNotInterrogative: true,
+            quenFusedIn: true,
+            otherNncSubcategories: ["time", "place", "manner"],
+            preteritAgentiveSource: true,
+            possessiveDeferred: true,
+            incorporatedDegreesDisappear: true,
+            generationBoundary: {
+                adverbialNuclearBoundaryMetadataImplemented: true,
+                configuredAdverbioSurfaceImplemented: true,
+                adverbialNuclearClauseFrameImplemented: true,
+                firstDegreeVncFrameImplemented: true,
+                secondDegreeNncDiagnosticOnly: true,
+                adverbializedVncInventoryDiagnosticOnly: true,
+                adverbializedNncInventoryDiagnosticOnly: true,
+                particleLookingNncDiagnosticOnly: true,
+                preteritAgentiveAdverbialNncDiagnosticOnly: true,
+                possessiveStateAdverbialNncDiagnosticOnly: true,
+                incorporatedAdverbialModifierDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                staticAdverbialDataImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson44GenerationImplemented: false,
+            },
+            grammarRouteStage: "audit-lesson-44",
+            diagnosticIds: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-needs-nawat-evidence"],
         }
     );
 
@@ -75,7 +203,7 @@ function run(ctx) {
             adverbialDegree: "first-degree",
             semanticDomain: "manner",
             tense: "pasado-remoto-adverbio-activo",
-            legacyTense: "pasado-remoto-adverbio-activo",
+            configuredTense: "pasado-remoto-adverbio-activo",
             surfaceForms: ["matka", "matika"],
             evidenceSource: "test-generated-output-contract",
         }),
@@ -119,7 +247,7 @@ function run(ctx) {
                     },
                 },
                 lexicalized: false,
-                legacyRoute: true,
+                configuredRoute: true,
             },
             output: {
                 surfaceForms: ["matka", "matika"],
@@ -162,7 +290,7 @@ function run(ctx) {
 	        }
 	    );
     s.eq(
-        "adverbial nuclear clause frame reads LCM result-frame surfaces before stale legacy surfaces",
+        "adverbial nuclear clause frame reads LCM result-frame surfaces before stale stale surfaces",
         (() => {
             const sourceFrame = ctx.buildGrammarFrame({
 	                resultFrame: ctx.buildGrammarResultFrame({
@@ -176,9 +304,9 @@ function run(ctx) {
 	            });
 	            const frame = ctx.buildAdverbialNuclearClauseFrame({
 	                result: {
-	                    result: "legacy-result",
-	                    surface: "legacy-surface",
-	                    surfaceForms: ["legacy-a / legacy-b"],
+	                    result: "stale-result",
+	                    surface: "stale-surface",
+	                    surfaceForms: ["stale-a / stale-b"],
 	                    frames: sourceFrame,
 	                },
                 surfaceForms: ["direct-stale-a / direct-stale-b"],
@@ -216,14 +344,14 @@ function run(ctx) {
                 }),
             });
             const frame = ctx.buildAdverbialNuclearClauseFrame({
-                source: "legacy-source",
-                sourceStem: "legacy-stem",
-                finalStem: "legacy-final",
-                analysisStem: "legacy-analysis",
+                source: "stale-source",
+                sourceStem: "stale-stem",
+                finalStem: "stale-final",
+                analysisStem: "stale-analysis",
                 result: {
-                    result: "legacy-result",
-                    surface: "legacy-surface",
-                    surfaceForms: ["legacy-a / legacy-b"],
+                    result: "stale-result",
+                    surface: "stale-surface",
+                    surfaceForms: ["stale-a / stale-b"],
                     frames: sourceFrame,
                 },
                 surfaceForms: ["direct-stale-a / direct-stale-b"],
@@ -262,13 +390,13 @@ function run(ctx) {
     );
 
 	    s.eq(
-	        "legacy adverbio tense remains unconfirmed full Lesson 44 evidence",
+	        "configured adverbio tense remains unconfirmed full Lesson 44 evidence",
 	        ctx.classifyAdverbialNuclearCandidate({
             source: "(mati)",
             candidate: "matka",
             tense: "pasado-remoto-adverbio-activo",
             adverbialKind: "manner-surface",
-            falsePositiveSource: "legacy-adverbio-surface",
+            falsePositiveSource: "configured-adverbio-surface",
         }),
         {
             kind: "adverbial-nuclear-candidate-classification",
@@ -276,16 +404,16 @@ function run(ctx) {
             source: "(mati)",
             candidate: "matka",
             tense: "pasado-remoto-adverbio-activo",
-            hasKnownLegacyAdverbioTense: true,
+            hasKnownConfiguredAdverbioTense: true,
             adverbialKind: "manner-surface",
             adverbialDegree: "",
             evidenceSource: "",
-            falsePositiveSource: "legacy-adverbio-surface",
+            falsePositiveSource: "configured-adverbio-surface",
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
                 "adverbial-nuclear-needs-nawat-evidence",
-                "legacy-adverbio-surface-recognized",
+                "configured-adverbio-surface-recognized",
                 "adverbial-nuclear-false-positive-source",
             ],
             boundary,
@@ -299,7 +427,7 @@ function run(ctx) {
                 candidate: "matka",
                 tense: "pasado-remoto-adverbio-activo",
                 adverbialKind: "manner-surface",
-                falsePositiveSource: "legacy-adverbio-surface",
+                falsePositiveSource: "configured-adverbio-surface",
             });
             return {
                 hasFrame: Boolean(classification.grammarFrame),
@@ -344,7 +472,7 @@ function run(ctx) {
         [
             "adverbial nuclear-clause boundary metadata is not generation",
             "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms",
-            "legacy adverbio word output is not a full Lesson 44 engine",
+            "configured adverbio word output is not a full Lesson 44 engine",
             "adverb translations are not Nawat/Pipil adverbial-clause evidence",
             "particle-looking labels are not particle or adverbial NNC fixture evidence",
             "ordinary NNC/VNC outputs are not clause-level adverbialization evidence",

@@ -1,6 +1,6 @@
-import { installLegacyBridge } from "./legacy_bridge.mjs";
+import { installRuntimeBridge } from "./runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
-import { LEGACY_BROWSER_SCRIPT_PATHS, LEGACY_HTML_SHELL_PATH } from "./runtime_paths.mjs";
+import { BROWSER_SCRIPT_PATHS, HTML_SHELL_PATH } from "./runtime_paths.mjs";
 import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs";
 
 let browserBootstrapPromise = null;
@@ -12,25 +12,25 @@ function hasAppShell(documentObject) {
     );
 }
 
-async function ensureLegacyAppShell({
+async function ensureRuntimeAppShell({
     documentObject,
     fetchImpl = globalThis.fetch,
-    shellSource = LEGACY_HTML_SHELL_PATH,
+    shellSource = HTML_SHELL_PATH,
 }) {
     if (!documentObject || hasAppShell(documentObject)) {
         return;
     }
     if (typeof fetchImpl !== "function") {
-        throw new Error("bootstrapBrowserApp requires fetch() to hydrate the legacy shell.");
+        throw new Error("bootstrapBrowserApp requires fetch() to hydrate the HTML shell.");
     }
     const response = await fetchImpl(shellSource, { cache: "no-store" });
     if (!response || !response.ok) {
-        throw new Error(`Failed to hydrate legacy shell from ${shellSource}.`);
+        throw new Error(`Failed to hydrate HTML shell from ${shellSource}.`);
     }
     const html = await response.text();
     const domParser = typeof DOMParser === "function" ? new DOMParser() : null;
     if (!domParser) {
-        throw new Error("bootstrapBrowserApp requires DOMParser to hydrate the legacy shell.");
+        throw new Error("bootstrapBrowserApp requires DOMParser to hydrate the HTML shell.");
     }
     const parsed = domParser.parseFromString(html, "text/html");
     const fragment = documentObject.createDocumentFragment();
@@ -53,7 +53,7 @@ export async function bootstrapRuntime({
     }
     const runtime = await loadRuntime();
     if (installBridge) {
-        installLegacyBridge(globalObject, runtime);
+        installRuntimeBridge(globalObject, runtime);
     }
     return runtime;
 }
@@ -75,10 +75,10 @@ export async function bootstrapBrowserApp(options = {}) {
             globalObject.__NAWAT_BOOTSTRAP_MANAGED__ = true;
             globalObject.__NAWAT_RUNTIME_CONFIG__ = runtimeConfig;
             globalObject.__NAWAT_RUNTIME_PATHS__ = runtimeConfig.paths;
-            await ensureLegacyAppShell({
+            await ensureRuntimeAppShell({
                 documentObject,
                 fetchImpl: options.fetchImpl || globalObject.fetch,
-                shellSource: options.shellSource || LEGACY_HTML_SHELL_PATH,
+                shellSource: options.shellSource || HTML_SHELL_PATH,
             });
             const runtimeInstance = await createRuntimeInstance({
                 globalObject,
@@ -102,10 +102,10 @@ export async function bootstrapBrowserApp(options = {}) {
                 bootstrapBrowserApp,
                 initializeUiRuntime: globalObject.initializeUiRuntime || null,
                 runtimeConfig,
-                scriptPaths: [...(options.scriptPaths || LEGACY_BROWSER_SCRIPT_PATHS)],
+                scriptPaths: [...(options.scriptPaths || BROWSER_SCRIPT_PATHS)],
                 esmPreloads: runtimeInstance.loadedModules,
                 moduleRuntimeMode: "direct-import",
-                legacyExecutionDisabled: true,
+                scriptExecutionDisabled: true,
             };
         },
     }).catch((error) => {

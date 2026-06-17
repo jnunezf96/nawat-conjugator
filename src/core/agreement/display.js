@@ -1,7 +1,7 @@
 // core/agreement/display.js
 // UI-facing agreement display helpers: object toggle defaults, transitividad
 // selectors, and localized role/person labels.
-// Depends on core agreement helpers plus legacy UI state globals at call time.
+// Depends on core agreement helpers plus UI state globals at call time.
 
 "use strict";
 
@@ -409,7 +409,7 @@ function getSubjectSubLabel(selection, options = {}) {
     if (!selection) {
         return "";
     }
-    if (!isNawat && isNonanimateContext && isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)) {
+    if (!isNawat && isNonanimateContext && isNonanimatePers1Pers2(selection.subjectPrefix, selection.subjectSuffix)) {
         return getDummySubjectSubLabel(isNawat);
     }
     if (!isNawat && selection.subjectPrefix === "" && selection.subjectSuffix === "t") {

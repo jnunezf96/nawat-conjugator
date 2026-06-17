@@ -11,6 +11,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const vm = require("vm");
 
 const ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(ROOT, "data");
@@ -148,6 +149,33 @@ function loadJsonFile(fileName) {
         addError(`${rel(absPath)} could not be parsed as JSON: ${error.message}`);
         return null;
     }
+}
+
+function loadScriptConst(relPath, constName) {
+    const absPath = path.join(ROOT, relPath);
+    let source = "";
+    try {
+        source = fs.readFileSync(absPath, "utf8");
+    } catch (error) {
+        addError(`${rel(absPath)} could not be read: ${error.message}`);
+        return undefined;
+    }
+    source = source
+        .replace(/export\s+const\s+/g, "const ")
+        .replace(/export\s+function\s+/g, "function ");
+    const context = {};
+    vm.createContext(context);
+    try {
+        vm.runInContext(
+            `${source}\nglobalThis.__CHECK_VALUE__ = ${constName};`,
+            context,
+            { filename: absPath }
+        );
+    } catch (error) {
+        addError(`${rel(absPath)} could not expose ${constName}: ${error.message}`);
+        return undefined;
+    }
+    return context.__CHECK_VALUE__;
 }
 
 function loadAllowlist() {
@@ -423,7 +451,7 @@ function checkNawatRouteProfiles(jsonByName) {
                 addError(`${where}.${field} must be a non-empty string.`);
             }
         });
-        ["legacyTenseValue", "legacyMode"].forEach((field) => {
+        ["routeTenseValue", "routeMode"].forEach((field) => {
             if (
                 Object.prototype.hasOwnProperty.call(profile, field)
                 && typeof profile[field] !== "string"
@@ -440,21 +468,21 @@ function checkNawatRouteProfiles(jsonByName) {
         }
         checkLocalizedLabel(profile.nawatLabel, `${where}.nawatLabel`);
         checkLocalizedLabel(profile.nawatMetaLabel, `${where}.nawatMetaLabel`);
-        if (profile.legacyTenseValue && !profile.legacyMode) {
-            addError(`${where}.legacyMode must be a non-empty string when legacyTenseValue is set.`);
+        if (profile.routeTenseValue && !profile.routeMode) {
+            addError(`${where}.routeMode must be a non-empty string when routeTenseValue is set.`);
         }
-        if (profile.legacyTenseValue && profile.legacyTenseValue !== key) {
-            addError(`${where}.legacyTenseValue must match its map key.`);
+        if (profile.routeTenseValue && profile.routeTenseValue !== key) {
+            addError(`${where}.routeTenseValue must match its map key.`);
         }
-        if (profile.legacyTenseValue && !knownTenseSet.has(profile.legacyTenseValue)) {
-            addError(`${where}.legacyTenseValue references unknown tense "${profile.legacyTenseValue}".`);
+        if (profile.routeTenseValue && !knownTenseSet.has(profile.routeTenseValue)) {
+            addError(`${where}.routeTenseValue references unknown tense "${profile.routeTenseValue}".`);
         }
         ["nawatTenseValue", "targetTenseValue"].forEach((field) => {
             if (profile[field] && !knownTenseSet.has(profile[field])) {
                 addError(`${where}.${field} references unknown tense "${profile[field]}".`);
             }
         });
-        ["legacyMode", "targetMode", "sourceMode"].forEach((field) => {
+        ["routeMode", "targetMode", "sourceMode"].forEach((field) => {
             if (profile[field] && !tenseModeKeys.has(profile[field])) {
                 addError(`${where}.${field} references unknown tense mode "${profile[field]}".`);
             }
@@ -462,17 +490,17 @@ function checkNawatRouteProfiles(jsonByName) {
         if (profile.nawatMode && !nawatModeKeys.has(profile.nawatMode)) {
             addError(`${where}.nawatMode references unknown Nawat mode "${profile.nawatMode}".`);
         }
-        ["sourceCombinedMode", "targetCombinedMode", "legacyCombinedMode"].forEach((field) => {
+        ["sourceCombinedMode", "targetCombinedMode", "routeCombinedMode"].forEach((field) => {
             if (profile[field] && !combinedModeKeys.has(profile[field])) {
                 addError(`${where}.${field} references unknown combined mode "${profile[field]}".`);
             }
         });
-        ["derivationMode", "targetDerivationMode", "legacyDerivationMode"].forEach((field) => {
+        ["derivationMode", "targetDerivationMode", "routeDerivationMode"].forEach((field) => {
             if (profile[field] && !derivationModeKeys.has(profile[field])) {
                 addError(`${where}.${field} references unknown derivation mode "${profile[field]}".`);
             }
         });
-        ["voiceMode", "targetVoiceMode", "legacyVoiceMode"].forEach((field) => {
+        ["voiceMode", "targetVoiceMode", "routeVoiceMode"].forEach((field) => {
             if (profile[field] && !voiceModeKeys.has(profile[field])) {
                 addError(`${where}.${field} references unknown voice mode "${profile[field]}".`);
             }
@@ -630,8 +658,12 @@ function checkOptionReferences(jsonByName) {
         }
     });
 
+    const subjectSlotKeys = new Set();
     asArray(options.subjectCombinations, "static_options.subjectCombinations").forEach((entry, index) => {
         checkPersonRef(entry && entry.personSubKey, `static_options.subjectCombinations[${index}].personSubKey`, knownPersonKeys);
+        if (isPlainObject(entry)) {
+            subjectSlotKeys.add(`${entry.subjectPrefix || ""}|${entry.subjectSuffix || ""}`);
+        }
     });
     asArray(options.subjectPersonGroups, "static_options.subjectPersonGroups").forEach((entry, index) => {
         checkKnownKey(entry && entry.labelKey, knownPersonGroupKeys, `static_options.subjectPersonGroups[${index}].labelKey`, "personGroupLabels");
@@ -669,9 +701,26 @@ function checkOptionReferences(jsonByName) {
     });
 
     const passiveImpersonalSubjectMap = asObject(options.passiveImpersonalSubjectMap, "static_options.passiveImpersonalSubjectMap");
-    Object.keys(passiveImpersonalSubjectMap).forEach((objectPrefix) => {
+    Object.entries(passiveImpersonalSubjectMap).forEach(([objectPrefix, subjectSlots]) => {
         if (!objectPrefixSet.has(objectPrefix)) {
             addError(`static_options.passiveImpersonalSubjectMap references unknown object prefix "${objectPrefix}".`);
+        }
+        if (!isPlainObject(subjectSlots)) {
+            addError(`static_options.passiveImpersonalSubjectMap.${objectPrefix} must be an object.`);
+            return;
+        }
+        if (Object.prototype.hasOwnProperty.call(subjectSlots, "subjectPrefix")
+            || Object.prototype.hasOwnProperty.call(subjectSlots, "subjectSuffix")) {
+            addError(`static_options.passiveImpersonalSubjectMap.${objectPrefix} must use pers1/pers2, not the former subject-slot keys.`);
+        }
+        ["pers1", "pers2"].forEach((slot) => {
+            if (typeof subjectSlots[slot] !== "string") {
+                addError(`static_options.passiveImpersonalSubjectMap.${objectPrefix}.${slot} must be a string.`);
+            }
+        });
+        const subjectSlotKey = `${subjectSlots.pers1 || ""}|${subjectSlots.pers2 || ""}`;
+        if (!subjectSlotKeys.has(subjectSlotKey)) {
+            addError(`static_options.passiveImpersonalSubjectMap.${objectPrefix} maps to unknown pers1/pers2 "${subjectSlotKey}".`);
         }
     });
 
@@ -1088,6 +1137,348 @@ function countAllowlistedExceptions(allowlist) {
     return duplicateLexiconEntries + crossFileLexiconOverlap + separatorRows + missingLexiconReferences;
 }
 
+function checkAndrewsTrajectoryDoc() {
+    const docPath = path.join(ROOT, "docs", "ANDREWS_TRAJECTORY.md");
+    let text = "";
+    try {
+        text = fs.readFileSync(docPath, "utf8");
+    } catch (error) {
+        addError(`${rel(docPath)} could not be read: ${error.message}`);
+        return;
+    }
+    [
+        "Lessons 1-4",
+        "Lessons 5-11",
+        "Lessons 12-19",
+        "Lessons 20-27",
+        "Lessons 28-34",
+        "Lessons 35-43",
+        "Lessons 44-50",
+        "Lessons 51-58",
+        "Directing Rule",
+        "Redirecting Rule",
+        "Plan/Pursue Rule",
+    ].forEach((marker) => {
+        if (!text.includes(marker)) {
+            addError(`docs/ANDREWS_TRAJECTORY.md must include "${marker}".`);
+        }
+    });
+    Array.from({ length: 58 }, (_, index) => index + 1).forEach((lessonId) => {
+        if (!text.includes(`Lesson ${lessonId}:`)) {
+            addError(`docs/ANDREWS_TRAJECTORY.md must include a Lesson ${lessonId} trajectory row.`);
+        }
+    });
+    if (!/Done Standard/.test(text)) {
+        addError("docs/ANDREWS_TRAJECTORY.md must include the Done Standard gate.");
+    }
+}
+
+function collectVisibleUiSpanishSurfaceErrors() {
+    const errorsFound = [];
+    const htmlPath = path.join(ROOT, "index.html");
+    const labelsPath = path.join(DATA_DIR, "static_labels.json");
+    let html = "";
+    let staticLabels = null;
+    try {
+        html = fs.readFileSync(htmlPath, "utf8");
+    } catch (error) {
+        return [`${rel(htmlPath)} could not be read: ${error.message}`];
+    }
+    try {
+        staticLabels = JSON.parse(fs.readFileSync(labelsPath, "utf8"));
+    } catch (error) {
+        return [`${rel(labelsPath)} could not be parsed as JSON: ${error.message}`];
+    }
+    const visibleHtmlText = html
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    const labelEsValues = [];
+    const collectLabelEs = (value) => {
+        if (!value || typeof value !== "object") {
+            return;
+        }
+        Object.entries(value).forEach(([key, entry]) => {
+            if (key === "labelEs" && typeof entry === "string") {
+                labelEsValues.push(entry);
+                return;
+            }
+            collectLabelEs(entry);
+        });
+    };
+    collectLabelEs(staticLabels);
+    const labelEsText = labelEsValues.join(" ");
+    const visibleUiChecks = [
+        ["index.html visible text", visibleHtmlText],
+        ["data/static_labels.json labelEs", labelEsText],
+    ];
+    visibleUiChecks.forEach(([where, text]) => {
+        if (/Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(text)) {
+            errorsFound.push(`${where} must not use the obsolete Unidad y función / Unit and Function label.`);
+        }
+        if (/\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(text)) {
+            errorsFound.push(`${where} must use Spanish visible grammar labels instead of English grammar labels.`);
+        }
+        if (/\btns\b/i.test(text)) {
+            errorsFound.push(`${where} must not expose tns; use tiempo in visible UI and compact formula text.`);
+        }
+    });
+    return errorsFound;
+}
+
+function checkVisibleUiSpanishSurface() {
+    collectVisibleUiSpanishSurfaceErrors().forEach(addError);
+}
+
+function checkAndrewsTrajectoryRegistry() {
+    const lessonRegistry = loadScriptConst("src/lessons/registry.js", "LESSON_REGISTRY");
+    const lessonRegistryMjs = loadScriptConst("src/lessons/registry.mjs", "LESSON_REGISTRY");
+    const redirectActions = loadScriptConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
+    const redirectActionsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
+    const trajectoryGroups = loadScriptConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_GROUPS");
+    const trajectoryGroupsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_GROUPS");
+    const aimStatuses = loadScriptConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
+    const aimStatusesMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
+    const arrowResults = loadScriptConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
+    const arrowResultsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
+    if (
+        !Array.isArray(lessonRegistry)
+        || !Array.isArray(lessonRegistryMjs)
+        || !Array.isArray(redirectActions)
+        || !Array.isArray(redirectActionsMjs)
+        || !Array.isArray(trajectoryGroups)
+        || !Array.isArray(trajectoryGroupsMjs)
+        || !Array.isArray(aimStatuses)
+        || !Array.isArray(aimStatusesMjs)
+        || !Array.isArray(arrowResults)
+        || !Array.isArray(arrowResultsMjs)
+    ) {
+        addError("Lesson registry trajectory metadata could not be loaded.");
+        return;
+    }
+    [
+        ["LESSON_REGISTRY", lessonRegistryMjs, lessonRegistry],
+        ["ANDREWS_TRAJECTORY_REDIRECT_ACTIONS", redirectActionsMjs, redirectActions],
+        ["ANDREWS_TRAJECTORY_GROUPS", trajectoryGroupsMjs, trajectoryGroups],
+        ["ANDREWS_PLAN_PURSUIT_AIM_STATUSES", aimStatusesMjs, aimStatuses],
+        ["ANDREWS_PLAN_PURSUIT_ARROW_RESULTS", arrowResultsMjs, arrowResults],
+    ].forEach(([label, mjsValue, jsValue]) => {
+        if (JSON.stringify(mjsValue) !== JSON.stringify(jsValue)) {
+            addError(`src/lessons/registry.mjs ${label} must match src/lessons/registry.js.`);
+        }
+    });
+
+    const expectedActions = [
+        "keep",
+        "rename-visible-ui",
+        "reframe-metadata",
+        "diagnostic-only",
+        "block-generation",
+        "refactor-engine",
+        "needs-nawat-evidence",
+    ];
+    if (redirectActions.join("\u0000") !== expectedActions.join("\u0000")) {
+        addError(`src/lessons/registry.js redirect actions must be exactly: ${expectedActions.join(", ")}.`);
+    }
+    if (trajectoryGroups.length !== 8) {
+        addError("src/lessons/registry.js must define the eight Andrews trajectory lesson groups.");
+    }
+    [
+        ["Lessons 1-4", [1, 4]],
+        ["Lessons 5-11", [5, 11]],
+        ["Lessons 12-19", [12, 19]],
+        ["Lessons 20-27", [20, 27]],
+        ["Lessons 28-34", [28, 34]],
+        ["Lessons 35-43", [35, 43]],
+        ["Lessons 44-50", [44, 50]],
+        ["Lessons 51-58", [51, 58]],
+    ].forEach(([label, range], index) => {
+        const group = trajectoryGroups[index] || {};
+        if (group.label !== label || JSON.stringify(group.range) !== JSON.stringify(range)) {
+            addError(`src/lessons/registry.js trajectory group ${index + 1} must be ${label} ${range.join("-")}.`);
+        }
+    });
+    const expectedAimStatuses = ["queued", "shooting", "blocked", "closest-pass"];
+    if (aimStatuses.join("\u0000") !== expectedAimStatuses.join("\u0000")) {
+        addError(`src/lessons/registry.js aim statuses must be exactly: ${expectedAimStatuses.join(", ")}.`);
+    }
+    const expectedArrowResults = ["hit", "miss"];
+    if (arrowResults.join("\u0000") !== expectedArrowResults.join("\u0000")) {
+        addError(`src/lessons/registry.js arrow results must be exactly: ${expectedArrowResults.join(", ")}.`);
+    }
+
+    const allowedActions = new Set(expectedActions);
+    const allowedAimStatuses = new Set(expectedAimStatuses);
+    const allowedArrowResults = new Set(expectedArrowResults);
+    const allowedStates = new Set(["implemented-audited", "partial", "unmapped", "placeholder"]);
+    const expectedKeys = new Set([
+        "pdfRefs",
+        "directive",
+        "implementationState",
+        "redirectAction",
+        "evidenceStatus",
+        "orthographyStatus",
+        "validationRefs",
+        "stepNumber",
+        "aimStatus",
+        "plannedArrows",
+        "firedArrows",
+        "hitCount",
+        "missCount",
+        "remainingGap",
+        "closestPass",
+    ]);
+
+    function checkArrowRefs(arrow, where, feedbackKey) {
+        const andrewsRefs = checkStringArray(arrow.andrewsRefs, `${where}.andrewsRefs`);
+        const feedbackRefs = checkStringArray(arrow[feedbackKey], `${where}.${feedbackKey}`);
+        if (!andrewsRefs.some((ref) => /^Andrews Lesson /.test(ref))) {
+            addError(`${where}.andrewsRefs must include Andrews lesson evidence.`);
+        }
+        if (!feedbackRefs.some((ref) => /^src\/tests\/|^scripts\/|^docs\//.test(ref))) {
+            addError(`${where}.${feedbackKey} must include a test, script, or doc feedback reference.`);
+        }
+        feedbackRefs.forEach((ref) => {
+            if (/^(src\/tests\/|scripts\/|docs\/)/.test(ref) && !fs.existsSync(path.join(ROOT, ref))) {
+                addError(`${where}.${feedbackKey} references missing repo path "${ref}".`);
+            }
+        });
+    }
+
+    lessonRegistry.forEach((lesson, index) => {
+        const where = `src/lessons/registry.js lesson ${lesson.id}.trajectory`;
+        const trajectory = asObject(lesson.trajectory, where);
+        checkNoUnknownKeys(trajectory, expectedKeys, where);
+        const pdfRefs = checkStringArray(trajectory.pdfRefs, `${where}.pdfRefs`);
+        const validationRefs = checkStringArray(trajectory.validationRefs, `${where}.validationRefs`);
+        const plannedArrows = asArray(trajectory.plannedArrows, `${where}.plannedArrows`);
+        const firedArrows = asArray(trajectory.firedArrows, `${where}.firedArrows`);
+        const lessonRefPattern = new RegExp(`^Andrews Lesson ${lesson.id}(\\b|\\.)`);
+        if (trajectory.stepNumber !== lesson.id || trajectory.stepNumber !== index + 1) {
+            addError(`${where}.stepNumber must keep lessons as ordered steps 1-58.`);
+        }
+        if (!pdfRefs.some((ref) => lessonRefPattern.test(ref))) {
+            addError(`${where}.pdfRefs must include a direct Andrews Lesson ${lesson.id} reference.`);
+        }
+        validationRefs.forEach((ref) => {
+            if (!/^(src\/tests\/|scripts\/|docs\/)/.test(ref)) {
+                addError(`${where}.validationRefs must use a repo-local test, script, or doc path.`);
+            } else if (!fs.existsSync(path.join(ROOT, ref))) {
+                addError(`${where}.validationRefs references missing repo path "${ref}".`);
+            }
+        });
+        if (typeof trajectory.directive !== "string" || !/Andrews/.test(trajectory.directive)) {
+            addError(`${where}.directive must state the Andrews-directed grammar rule.`);
+        }
+        if (!allowedStates.has(trajectory.implementationState)) {
+            addError(`${where}.implementationState has unknown state "${trajectory.implementationState}".`);
+        }
+        if (!allowedActions.has(trajectory.redirectAction)) {
+            addError(`${where}.redirectAction has unknown action "${trajectory.redirectAction}".`);
+        }
+        if (!allowedAimStatuses.has(trajectory.aimStatus)) {
+            addError(`${where}.aimStatus has unknown status "${trajectory.aimStatus}".`);
+        }
+        if (typeof trajectory.evidenceStatus !== "string" || trajectory.evidenceStatus.trim() === "") {
+            addError(`${where}.evidenceStatus must be a non-empty string.`);
+        }
+        if (typeof trajectory.orthographyStatus !== "string" || trajectory.orthographyStatus.trim() === "") {
+            addError(`${where}.orthographyStatus must be a non-empty string.`);
+        }
+        if (typeof trajectory.remainingGap !== "string" || trajectory.remainingGap.trim() === "") {
+            addError(`${where}.remainingGap must be a non-empty string.`);
+        }
+        if (typeof trajectory.closestPass !== "boolean") {
+            addError(`${where}.closestPass must be boolean.`);
+        }
+        plannedArrows.forEach((arrow, arrowIndex) => {
+            const arrowWhere = `${where}.plannedArrows[${arrowIndex}]`;
+            if (!isPlainObject(arrow)) {
+                addError(`${arrowWhere} must be an object.`);
+                return;
+            }
+            ["id", "type", "aim"].forEach((field) => {
+                if (typeof arrow[field] !== "string" || arrow[field].trim() === "") {
+                    addError(`${arrowWhere}.${field} must be a non-empty string.`);
+                }
+            });
+            checkArrowRefs(arrow, arrowWhere, "expectedFeedbackRefs");
+        });
+        firedArrows.forEach((arrow, arrowIndex) => {
+            const arrowWhere = `${where}.firedArrows[${arrowIndex}]`;
+            if (!isPlainObject(arrow)) {
+                addError(`${arrowWhere} must be an object.`);
+                return;
+            }
+            ["id", "correction"].forEach((field) => {
+                if (typeof arrow[field] !== "string" || arrow[field].trim() === "") {
+                    addError(`${arrowWhere}.${field} must be a non-empty string.`);
+                }
+            });
+            if (!allowedArrowResults.has(arrow.result)) {
+                addError(`${arrowWhere}.result has unknown result "${arrow.result}".`);
+            }
+            checkArrowRefs(arrow, arrowWhere, "feedbackRefs");
+        });
+        const hitCount = firedArrows.filter((arrow) => arrow && arrow.result === "hit").length;
+        const missCount = firedArrows.filter((arrow) => arrow && arrow.result === "miss").length;
+        if (trajectory.hitCount !== hitCount) {
+            addError(`${where}.hitCount must match fired hit arrows.`);
+        }
+        if (trajectory.missCount !== missCount) {
+            addError(`${where}.missCount must match fired missed arrows.`);
+        }
+        if (trajectory.closestPass) {
+            if (trajectory.aimStatus !== "closest-pass") {
+                addError(`${where}.aimStatus must be closest-pass when closestPass is true.`);
+            }
+            if (trajectory.remainingGap !== "none") {
+                addError(`${where}.remainingGap must be none for closest-pass lessons.`);
+            }
+            if (!firedArrows.length || firedArrows.some((arrow) => arrow.result !== "hit")) {
+                addError(`${where}.firedArrows must include only validated hits for closest-pass lessons.`);
+            }
+        }
+        if (lesson.status === "implemented") {
+            if (trajectory.implementationState !== "implemented-audited") {
+                addError(`${where}.implementationState must be implemented-audited for implemented lessons.`);
+            }
+            if (trajectory.redirectAction !== "keep") {
+                addError(`${where}.redirectAction must be keep for implemented lessons.`);
+            }
+            if (!validationRefs.some((ref) => /^src\/tests\/|^scripts\//.test(ref))) {
+                addError(`${where}.validationRefs must include a focused test or validation script.`);
+            }
+            if (!trajectory.closestPass) {
+                addError(`${where}.closestPass must be true for implemented lessons.`);
+            }
+        }
+        if (lesson.status === "partially-implemented" && trajectory.implementationState !== "partial") {
+            addError(`${where}.implementationState must be partial for partially implemented lessons.`);
+        }
+        if (lesson.status === "partially-implemented" && trajectory.closestPass) {
+            addError(`${where}.closestPass must be false for partial lessons.`);
+        }
+        if (lesson.status === "not-mapped" && (trajectory.implementationState !== "unmapped" || trajectory.redirectAction !== "block-generation")) {
+            addError(`${where} must keep not-mapped lessons unmapped and block-generation.`);
+        }
+        if (lesson.status === "not-mapped" && (trajectory.aimStatus !== "blocked" || trajectory.closestPass || firedArrows.length !== 0)) {
+            addError(`${where} must keep not-mapped lessons blocked with no fired arrows.`);
+        }
+    });
+}
+
+function collectAndrewsTrajectoryErrors() {
+    const start = errors.length;
+    checkAndrewsTrajectoryDoc();
+    checkAndrewsTrajectoryRegistry();
+    const collected = errors.slice(start);
+    errors.length = start;
+    return collected;
+}
+
 function main() {
     checkExpectedDataFiles();
     const allowlist = loadAllowlist();
@@ -1117,6 +1508,9 @@ function main() {
     checkSuppletivePathReferences(jsonByName);
     checkValenceNeutralReferences(jsonByName, lexiconVerbSet, allowlist);
     checkParseFixtureShape(jsonByName);
+    checkVisibleUiSpanishSurface();
+    checkAndrewsTrajectoryDoc();
+    checkAndrewsTrajectoryRegistry();
 
     if (errors.length) {
         process.stderr.write("Grammar data check failed:\n");
@@ -1137,5 +1531,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+    collectAndrewsTrajectoryErrors,
     collectStaticNncFixtureErrors,
+    collectVisibleUiSpanishSurfaceErrors,
 };

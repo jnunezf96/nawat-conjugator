@@ -113,9 +113,13 @@ function run(ctx = {}) {
     const events = fs.readFileSync(eventsPath, "utf8");
 
     s.ok(
-        "inline formula patch installs before composer event binding",
-        events.includes("initInlineComposerFormulaPatch();")
+        "inline formula layout patch is disabled before composer event binding",
+        events.includes("function disableInlineComposerFormulaPatch()")
+            && events.includes("initInlineComposerFormulaPatch();")
             && events.indexOf("initInlineComposerFormulaPatch();") < events.indexOf("initVerbComposer();")
+            && events.includes('composer.dataset.inlineFormulaPatch = "disabled"')
+            && events.includes('composer.classList.remove("verb-composer--inline-formula")')
+            && events.includes('transitivitySelect.classList.add("is-hidden-control")')
     );
     s.ok(
         "inline formula projection has a recursion guard",

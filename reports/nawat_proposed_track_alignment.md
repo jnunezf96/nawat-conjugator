@@ -31,14 +31,14 @@ Proposed phase one covers the remaining five in that nine-circuit scope:
 
 Inventory reconciliation: the code also lists `potencial` in the European adjective tab. Strict code inventory therefore finds six uncovered entries, not five. This design keeps `potencial` as `TRK-RES-ADJ-001`, a reserved spur, until the official nine-circuit count is revised or `potencial` is explicitly classified as a Nawat noun route.
 
-`pasado-remoto-adverbio-activo` remains a legacy European adverb output only. It is not a Nawat rail line and must not be connected to the route map.
+`pasado-remoto-adverbio-activo` remains a compatibility European adverb output only. It is not a Nawat rail line and must not be connected to the route map.
 
 ## Design Rule
 
 Every visible route must be driven by Nawat geometry:
 
 - Visible stations use `V`, `S`, `muchiwalis`, `tukayit`, and Nawat route names.
-- `legacyMode` and `legacyTenseValue` stay backend aliases.
+- `routeMode` and `routeTenseValue` stay hidden route fields.
 - No visible breadcrumb may say `Adjetivo`, `Adverbio`, or `Europea:` as its destination.
 - Non-tronco routes must not reuse the patientivo-tronco conversion switch.
 
@@ -50,7 +50,7 @@ Add explicit geometry to `nawatRouteProfiles` before adding more visible tracks:
 {
   "routeConvention": "nawat",
   "routePlacement": "direct-finite | patientivo-surface | nonactive-habitual | patientivo-tronco-conversion",
-  "legacyAlias": {
+  "routeAlias": {
     "mode": "adjetivo",
     "tenseValue": "adjetivo-preterito",
     "visible": false
@@ -63,7 +63,7 @@ Add explicit geometry to `nawatRouteProfiles` before adding more visible tracks:
     "generation": {
       "mode": "adjetivo",
       "tenseValue": "adjetivo-preterito",
-      "surfaceProfile": "legacy-compatible",
+      "surfaceProfile": "compatibility-compatible",
       "visibleConvention": "nawat"
     },
     "stationOrder": ["source-mode", "source-tense", "target-mode", "finite-tense"]
@@ -107,7 +107,7 @@ These routes are not patientivo-tronco conversions. They must not show `S patien
 | Required station model | source, patientivo branch switch, surface profile, finite patientivo | source, patientivo branch switch, surface profile, finite patientivo |
 | Required construction | `patientivoSource`, surface-profile metadata, focused tests | `patientivoSource`, surface-profile metadata, focused tests |
 
-The perfective path can probably use existing native patientivo source handling. The nonactive path needs a dedicated `surfaceProfile: "patientivo-adjectival-ti"` because the legacy output includes surfaces that native `patientivoNominalSuffix: "ti"` does not fully cover yet.
+The perfective path can probably use existing native patientivo source handling. The nonactive path needs a dedicated `surfaceProfile: "patientivo-adjectival-ti"` because the compatibility output includes surfaces that native `patientivoNominalSuffix: "ti"` does not fully cover yet.
 
 ### Nonactive Habitual Track
 
@@ -126,7 +126,7 @@ This track should not be sent to `S agentivo`. It is better modeled as a Nawat v
 
 ### Removed Adverb Connection
 
-`pasado-remoto-adverbio-activo` is classified as `legacy-only`. No `agentive-manner-adverb` route profile should exist, and no Nawat destination picker should connect `V source` to `S agentivo / manera`.
+`pasado-remoto-adverbio-activo` is classified as `compatibility-only`. No `agentive-manner-adverb` route profile should exist, and no Nawat destination picker should connect `V source` to `S agentivo / manera`.
 
 ### Reserved Spur
 
@@ -142,7 +142,7 @@ The code lists this in the adjective tab, but the current official scope is four
 
 ## Engineering Requirements
 
-1. Add a route manifest with statuses: `wired`, `proposed`, `reserved`, `legacy-only`, `not-a-route`.
+1. Add a route manifest with statuses: `wired`, `proposed`, `reserved`, `compatibility-only`, `not-a-route`.
 2. Add route-profile validation to `scripts/check_grammar_data.js`.
 3. Add `routePlacement` station builders for:
    - `direct-finite`
@@ -171,7 +171,7 @@ Highest-risk conflicts:
 
 1. Build route manifest and validation first.
 2. Add route-placement station builders.
-3. Retrofit existing five route profiles with explicit `routeConvention`, `legacyAlias`, and `centerline`.
+3. Retrofit existing five route profiles with explicit `routeConvention`, `routeAlias`, and `centerline`.
 4. Add the five phase-one proposed profiles.
 5. Add renderer placement rules and guard patientivo-tronco-only switches.
 6. Add state and morphology tests for each route family.

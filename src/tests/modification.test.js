@@ -17,8 +17,12 @@ function run(ctx) {
             typeof ctx.classifyAdjectivalModificationFalsePositive,
             typeof ctx.getAdjectivalModificationAntiConflationRules,
             typeof ctx.buildAdjectivalModificationAst,
+            typeof ctx.buildLesson42AdjectivalModificationPursuitFrame,
+            typeof ctx.getLesson42AdjectivalModificationSubsectionInventory,
+            typeof ctx.buildLesson43AdjectivalModificationPursuitFrame,
+            typeof ctx.getLesson43AdjectivalModificationSubsectionInventory,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildAdjectivalModificationBoundaryMetadata();
@@ -56,6 +60,245 @@ function run(ctx) {
                 "order",
                 "evidenceSource",
             ],
+        }
+    );
+    s.eq(
+        "Lesson 42 pursuit frame covers every Andrews adjectival-modification subsection",
+        (() => {
+            const inventory = ctx.getLesson42AdjectivalModificationSubsectionInventory();
+            const frame = ctx.buildLesson42AdjectivalModificationPursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Confirmed Nawat\/Pipil/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-42-adjectival-modification-pursuit-frame",
+            stepNumber: 42,
+            routeStage: "audit-lesson-42",
+            pdfRefCount: 19,
+            firstPdfRef: "Andrews Lesson 42.1",
+            lastPdfRef: "Andrews Lesson 42.10",
+            subsectionCount: 19,
+            subsectionRefs: [
+                "42.1",
+                "42.2",
+                "42.3",
+                "42.4",
+                "42.5",
+                "42.6",
+                "42.7",
+                "42.8",
+                "42.8.1",
+                "42.8.2",
+                "42.8.3",
+                "42.8.4",
+                "42.8.5",
+                "42.8.6",
+                "42.8.7",
+                "42.8.8",
+                "42.8.9",
+                "42.9",
+                "42.10",
+            ],
+            plannedArrowIds: ["lesson-42-adjectival-modification-audit"],
+            firedArrowIds: [["lesson-42-adjectival-modification-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionEvidence: true,
+        }
+    );
+    s.eq(
+        "Lesson 42 frame records modifier/head syntax and current AST boundaries",
+        (() => {
+            const frame = ctx.buildLesson42AdjectivalModificationPursuitFrame();
+            return {
+                noRelativePronounLink: frame.multipleNucleusFrame.noRelativePronounLink,
+                headDefinition: frame.multipleNucleusFrame.modificationStructure.head,
+                preposedNotTopic: frame.preposedModifierFrame.preposingDoesNotCreateTopic,
+                adjoinedWholeStructure: frame.adjoinedUnitFrame.adjunctorBeforePreposedModifierSubordinatesWholeStructure,
+                principalUnit: frame.principalUnitFrame.modificationStructureCanServeAsPrincipalUnit,
+                ambiguityNoSpecialAdjunctor: frame.supplementationAmbiguityFrame.noSpecialAdjunctorDistinguishesModification,
+                compoundHeadMatrix: frame.compoundHeadModifierFrame.modifierOfCompoundHeadTendsToRelateToMatrix,
+                transitiveVncSubjectOrObject: frame.modifierFunctionTypesFrame.transitiveVncFrame.specificProjectiveObjectCanLinkThroughSubjectOrObjectPronoun,
+                measureHead: frame.modifierFunctionTypesFrame.measureNncFrame.measureNncServesAsHead,
+                recursive: frame.recursionFrame.modificationTransformationIsRecursive,
+                incorporatedKeepsPronouns: frame.incorporatedModificationFrame.constituentNncsKeepSubjectPronounsInsideCompoundStem,
+                incorporatedDeletesHeadNumberDyad: frame.incorporatedModificationFrame.headNncNumberDyadOfIncorporatedStructureDeleted,
+                generationBoundary: frame.currentEngineBoundary,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            noRelativePronounLink: true,
+            headDefinition: "core in an NNC functioning as principal clause",
+            preposedNotTopic: true,
+            adjoinedWholeStructure: true,
+            principalUnit: true,
+            ambiguityNoSpecialAdjunctor: true,
+            compoundHeadMatrix: true,
+            transitiveVncSubjectOrObject: true,
+            measureHead: true,
+            recursive: true,
+            incorporatedKeepsPronouns: true,
+            incorporatedDeletesHeadNumberDyad: true,
+            generationBoundary: {
+                adjectivalModificationBoundaryMetadataImplemented: true,
+                modificationAstCompositionImplemented: true,
+                preposedModifierDiagnosticImplemented: true,
+                markedAdjoinedUnitDiagnosticImplemented: true,
+                supplementationAmbiguityDiagnosticPartial: true,
+                modifierClauseTypeInventoryDiagnosticOnly: true,
+                recursionDiagnosticOnly: true,
+                incorporatedModificationDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                fixtureBackedClauseExamplesImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson42GenerationImplemented: false,
+            },
+            grammarRouteStage: "audit-lesson-42",
+            diagnosticIds: ["adjectival-modification-lesson-42-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"],
+        }
+    );
+    s.eq(
+        "Lesson 43 pursuit frame covers every Andrews part-two adjectival-modification subsection",
+        (() => {
+            const inventory = ctx.getLesson43AdjectivalModificationSubsectionInventory();
+            const frame = ctx.buildLesson43AdjectivalModificationPursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Confirmed Nawat\/Pipil/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-43-adjectival-modification-pursuit-frame",
+            stepNumber: 43,
+            routeStage: "audit-lesson-43",
+            pdfRefCount: 15,
+            firstPdfRef: "Andrews Lesson 43.1",
+            lastPdfRef: "Andrews Lesson 43.9",
+            subsectionCount: 21,
+            subsectionRefs: [
+                "43.1 item 1",
+                "43.1 item 2",
+                "43.1 item 3",
+                "43.1 item 4",
+                "43.2",
+                "43.3 source transform",
+                "43.3 no adjunctor",
+                "43.3 shifted modifier",
+                "43.4",
+                "43.4 in warning",
+                "43.4.1",
+                "43.4.2",
+                "43.4 remark",
+                "43.5",
+                "43.6",
+                "43.6.1",
+                "43.6.2",
+                "43.7.1",
+                "43.7.2",
+                "43.8",
+                "43.9",
+            ],
+            plannedArrowIds: ["lesson-43-adjectival-modification-audit"],
+            firedArrowIds: [["lesson-43-adjectival-modification-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionEvidence: true,
+        }
+    );
+    s.eq(
+        "Lesson 43 frame records discontinuity, interrogative-head ambiguity, and idiomatic modifier boundaries",
+        (() => {
+            const frame = ctx.buildLesson43AdjectivalModificationPursuitFrame();
+            return {
+                nonpreposedSupplements: frame.nonpreposedModifierFrame.supplementaryElementsAllowedBeyondPreposedModifier,
+                distantSupplement: frame.nonpreposedModifierFrame.supplementaryElementMayStandAtDistance,
+                pronominalHeadTranslationWarning: frame.nonpreposedModifierFrame.englishTranslationOftenFalsifiesNahuatlStructure,
+                sameHeadCooperation: frame.preposedNonpreposedCooperationFrame.preposedAndNonpreposedModifiersMayAdjoinToSameHead,
+                topicalizedHeadDiscontinuity: frame.discontinuousModifierFrame.frequentSourceTopicalizesHeadAndLeavesModifierInPlace,
+                modifierMayLackAdjunctor: frame.discontinuousModifierFrame.modifierMayLackAdjunctor,
+                acTlehNotRelativePronouns: frame.interrogativeHeadFrame.acAndTlehAreNotRelativePronouns,
+                solidWritingWarning: frame.interrogativeHeadFrame.solidTraditionalWritingDisguisesInAsUnitWithFollowingClause,
+                ocCeHead: frame.ocCeCollocationFrame.ocCeMayServeAsHeadInModification,
+                sharedReferentViolation: frame.sharedReferentViolationFrame.idiomaticModificationMayViolateSharedReferentRestriction,
+                cemPluralPreferred: frame.sharedReferentViolationFrame.pronominalGroupFrame.pluralSubjectPronounOnCemNncPreferred,
+                acahOneOf: frame.oneOfNoneOfFrame.acahFrame.acahMayReplaceCemeh,
+                ayacNoneOf: frame.oneOfNoneOfFrame.ayacFrame.ayacMayExpressNoneOfGroup,
+                maleBondingFirstPlural: frame.maleBondingModifierFrame.maleSpeakerWithSocialOrFamilialTieUsesFirstPersonPluralSubjectPronoun,
+                namedPartnerOnlyThirdEntity: frame.namedPartnerModifierFrame.modifierNormallyMentionsOnlyNamedThirdPersonEntity,
+                generationBoundary: frame.currentEngineBoundary,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            nonpreposedSupplements: true,
+            distantSupplement: true,
+            pronominalHeadTranslationWarning: true,
+            sameHeadCooperation: true,
+            topicalizedHeadDiscontinuity: true,
+            modifierMayLackAdjunctor: true,
+            acTlehNotRelativePronouns: true,
+            solidWritingWarning: true,
+            ocCeHead: true,
+            sharedReferentViolation: true,
+            cemPluralPreferred: true,
+            acahOneOf: true,
+            ayacNoneOf: true,
+            maleBondingFirstPlural: true,
+            namedPartnerOnlyThirdEntity: true,
+            generationBoundary: {
+                adjectivalModificationBoundaryMetadataImplemented: true,
+                modificationAstCompositionImplemented: true,
+                nonpreposedModifierDiagnosticsPartial: true,
+                preposedNonpreposedCooperationDiagnosticOnly: true,
+                discontinuousModifierDiagnosticPartial: true,
+                interrogativeHeadAmbiguityDiagnosticOnly: true,
+                ocCeCollocationDiagnosticOnly: true,
+                sharedReferentViolationDiagnosticOnly: true,
+                oneOfNoneOfDiagnosticOnly: true,
+                maleBondingModifierDiagnosticOnly: true,
+                namedPartnerModifierDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                fixtureBackedClauseExamplesImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson43GenerationImplemented: false,
+            },
+            grammarRouteStage: "audit-lesson-43",
+            diagnosticIds: ["adjectival-modification-lesson-43-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"],
         }
     );
 
@@ -210,16 +453,16 @@ function run(ctx) {
         }
     );
     s.eq(
-        "modification AST reads surfaceForms before legacy result",
+        "modification AST reads surfaceForms before stale result",
         (() => {
             const ast = ctx.buildAdjectivalModificationAst({
                 head: {
-                    result: "legacy-head",
+                    result: "stale-head",
                     surface: "top-head-surface",
                     surfaceForms: ["top-head-a / top-head-b"],
                 },
                 modifier: {
-                    result: "legacy-modifier",
+                    result: "stale-modifier",
                     surface: "top-modifier-surface",
                     surfaceForms: ["top-modifier-a / top-modifier-b"],
                 },

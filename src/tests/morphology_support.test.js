@@ -22,30 +22,30 @@ function run(ctx) {
     s.eq("getTotalVowelCount counts nemi vowels", ctx.getTotalVowelCount("nemi"), 2);
 
     const walPlan = ctx.buildWalDirectionalPlan({
-        baseSubjectPrefix: "",
-        baseObjectPrefix: "ki",
+        pers1Base: "",
+        obj1Base: "ki",
         directionalOutputPrefix: "wal",
     });
     s.ok("buildWalDirectionalPlan promotes wal -> al for third-person object", walPlan.shouldUseAl);
     s.eq("buildWalDirectionalPlan resolves output prefix", walPlan.directionalOutputPrefix, "al");
 
     const walRealization = ctx.resolveDirectionalOutputChain({
-        subjectPrefix: "",
-        objectPrefix: "ki",
-        verb: "walitta",
+        pers1: "",
+        obj1: "ki",
+        tronco: "walitta",
         directionalChainMeta: {
             directionalInputPrefix: "wal",
-            baseSubjectPrefix: "",
-            baseSubjectSuffix: "",
-            baseObjectPrefix: "ki",
+            pers1Base: "",
+            pers2Base: "",
+            obj1Base: "ki",
             directionalOutputPrefix: "wal",
             directionalPlan: walPlan,
             tense: "presente",
             isYawi: false,
         },
     });
-    s.eq("resolveDirectionalOutputChain rewrites wal chain object prefix", walRealization.objectPrefix, "kal");
-    s.eq("resolveDirectionalOutputChain strips wal from verb", walRealization.verb, "itta");
+    s.eq("resolveDirectionalOutputChain rewrites wal chain obj1", walRealization.obj1, "kal");
+    s.eq("resolveDirectionalOutputChain strips wal from tronco", walRealization.tronco, "itta");
 
     s.eq(
         "adjustPatientivoPossessiveSuffix converts ti to yu in organic ownership",

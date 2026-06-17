@@ -173,6 +173,1468 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         targetContract: resolvedTargetContract
       });
     }
+    function cloneVncAllomorphyLessonRecord(record = null) {
+      return JSON.parse(JSON.stringify(record || null));
+    }
+    const LESSON20_NONACTIVE_VALIDATION_REFS = Object.freeze(["src/tests/derivation.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON20_NONACTIVE_PDF_REFS = Object.freeze(["Andrews Lesson 20.1", "Andrews Lesson 20.2", "Andrews Lesson 20.3", "Andrews Lesson 20.4", "Andrews Lesson 20.5", "Andrews Lesson 20.6", "Andrews Lesson 20.7", "Andrews Lesson 20.8"]);
+    const LESSON20_NONACTIVE_SUFFIX_BRIDGE = Object.freeze([Object.freeze({
+      andrews: "o",
+      nawat: "u",
+      family: "plain-o"
+    }), Object.freeze({
+      andrews: "lo",
+      nawat: "lu",
+      family: "lo"
+    }), Object.freeze({
+      andrews: "hua",
+      nawat: "wa",
+      family: "hua"
+    }), Object.freeze({
+      andrews: "o-hua",
+      nawat: "uwa",
+      family: "o-hua"
+    }), Object.freeze({
+      andrews: "lo-hua",
+      nawat: "luwa",
+      family: "lo-hua"
+    }), Object.freeze({
+      andrews: "hua-lo",
+      nawat: "walu",
+      family: "hua-lo"
+    })]);
+    const LESSON20_NONACTIVE_OVERVIEW_FRAME = Object.freeze({
+      kind: "lesson-20-nonactive-overview-frame",
+      sourceSection: "Andrews 20.1",
+      derivationSource: "imperfective active stem",
+      derivedUnit: "nonactive verbstem",
+      suffixFamilies: Object.freeze(["u", "lu", "wa", "uwa", "luwa", "walu"]),
+      perfectiveNonactiveSource: "imperfective nonactive stem",
+      vncUseDeferredTo: Object.freeze(["Andrews Lesson 21", "Andrews Lesson 22"]),
+      misleadingTraditionalSpellings: Object.freeze(["oa", "loa"]),
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_LU_FRAME = Object.freeze({
+      kind: "lesson-20-lu-frame",
+      sourceSections: Object.freeze(["Andrews 20.2"]),
+      andrewsSuffix: "lo",
+      nawatSuffix: "lu",
+      frequency: "most frequent nonactive formative",
+      mainSource: "transitive verbstems ending in a",
+      intransitiveSource: "Class C intransitives may also use this suffix",
+      sourceStemShape: "future-tense imperfective active stem, except Class D",
+      rootPlusYaBehavior: "some Class B root-plus-ya verbs drop ya before suffix",
+      classCBehavior: "base-final o and i lengthen before the suffix in Andrews notation",
+      classDBehavior: "final a has reduced-long pronunciation before suffix",
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_LUWA_FRAME = Object.freeze({
+      kind: "lesson-20-luwa-frame",
+      sourceSections: Object.freeze(["Andrews 20.3"]),
+      andrewsSuffix: "lo-hua",
+      nawatSuffix: "luwa",
+      frequency: "small number of verbstems",
+      irregularIntransitivesUseSuppletiveStem: true,
+      compoundStemAttachment: "attached to first member of certain compound stems",
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_U_FRAME = Object.freeze({
+      kind: "lesson-20-u-frame",
+      sourceSections: Object.freeze(["Andrews 20.4"]),
+      andrewsSuffix: "o",
+      nawatSuffix: "u",
+      sourceFinals: Object.freeze(["ka", "ki", "na", "ni", "sa", "si", "kwi", "ta", "ti"]),
+      deletesSourceFinalVowel: true,
+      baseIsReplaciveImperfective: true,
+      notPerfectiveStemDespiteSurfaceIdentity: true,
+      soundCorrespondencesAsNawat: Object.freeze([Object.freeze({
+        from: "s",
+        to: "sh"
+      }), Object.freeze({
+        from: "kw",
+        to: "k"
+      }), Object.freeze({
+        from: "t",
+        to: "ch",
+        condition: "ti/ta subfamilies where licensed"
+      })]),
+      variantLuAllowedForSomeNaNiSa: true,
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_UWA_FRAME = Object.freeze({
+      kind: "lesson-20-uwa-frame",
+      sourceSections: Object.freeze(["Andrews 20.5"]),
+      andrewsSuffix: "o-hua",
+      nawatSuffix: "uwa",
+      mainSource: "active intransitive source",
+      sourceFinals: Object.freeze(["ka", "ki", "sa", "si", "wa", "wi", "mi", "ni", "tzi"]),
+      deletesSourceFinalVowel: true,
+      deletesBaseFinalWWithCompensation: true,
+      soundCorrespondencesAsNawat: Object.freeze([Object.freeze({
+        from: "s",
+        to: "sh"
+      }), Object.freeze({
+        from: "tz",
+        to: "ch"
+      })]),
+      exceptionsRequireLexicalOrRuleEvidence: true,
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_WA_WALU_FRAME = Object.freeze({
+      kind: "lesson-20-wa-walu-frame",
+      sourceSections: Object.freeze(["Andrews 20.6", "Andrews 20.7"]),
+      wa: Object.freeze({
+        andrewsSuffix: "hua",
+        nawatSuffix: "wa",
+        sourceFinals: Object.freeze(["i", "o"]),
+        mainlyIntransitive: true,
+        someTransitivesUseIt: true,
+        finalOOftenMisleadinglySpelledA: true
+      }),
+      walu: Object.freeze({
+        andrewsSuffix: "hua-lo",
+        nawatSuffix: "walu",
+        freeVariantOfWa: true,
+        lessFrequent: true
+      }),
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_CLASS_FRAME = Object.freeze({
+      kind: "lesson-20-class-frame",
+      sourceSections: Object.freeze(["Andrews 20.8"]),
+      classMembership: "Class A-2",
+      appliesRegardlessOfActiveSourceClass: true,
+      finalOSuffixes: Object.freeze(["lo", "o", "hua-lo"]),
+      nawatFinalUSuffixes: Object.freeze(["lu", "u", "walu"]),
+      longFinalVowelBoundary: "Andrews final o length is not a separate Nawat spelling surface",
+      perfectiveBuiltLikeClassA2: true,
+      generationAllowed: true
+    });
+    const LESSON20_NONACTIVE_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson20-nonactive-derivation",
+      andrewsSection: "20.1",
+      category: "nonactive-verbstem-derivation",
+      directiveEs: "El tronco no activo se deriva de un tronco activo imperfectivo con familias u, lu, wa, uwa, luwa o walu; su uso en CNV queda para Lecciones 21-22.",
+      engineSurface: "nonactive source and suffix family metadata",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-lu-suffix",
+      andrewsSection: "20.2",
+      category: "lu-suffix",
+      directiveEs: "El sufijo lu corresponde a Andrews lo y se adjunta sobre todo a fuentes transitivas en a, con rutas para Clase C, raiz+ya y Clase D.",
+      engineSurface: "lu nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-luwa-combination",
+      andrewsSection: "20.3",
+      category: "luwa-suffix-combination",
+      directiveEs: "La combinacion luwa corresponde a Andrews lo-hua y cubre un grupo pequeno, incluidas rutas supletivas e insercion en compuestos.",
+      engineSurface: "luwa nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-u-suffix",
+      andrewsSection: "20.4",
+      category: "u-suffix",
+      directiveEs: "El sufijo u corresponde a Andrews o; usa base imperfectiva reemplazante con borrado de vocal final y cambios como s->sh o kw->k.",
+      engineSurface: "u nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-uwa-combination",
+      andrewsSection: "20.5",
+      category: "uwa-suffix-combination",
+      directiveEs: "La combinacion uwa corresponde a Andrews o-hua; deriva sobre todo de fuentes intransitivas con borrado de vocal final y cambios segmentales.",
+      engineSurface: "uwa nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-wa-suffix",
+      andrewsSection: "20.6",
+      category: "wa-suffix",
+      directiveEs: "El sufijo wa corresponde a Andrews hua; se asocia principalmente con fuentes intransitivas en i u o, pero admite algunas transitivas.",
+      engineSurface: "wa nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-walu-combination",
+      andrewsSection: "20.7",
+      category: "walu-suffix-combination",
+      directiveEs: "La combinacion walu corresponde a Andrews hua-lo y funciona como variante libre menos frecuente de wa.",
+      engineSurface: "walu nonactive option family",
+      implementationState: "implemented"
+    }), Object.freeze({
+      id: "lesson20-nonactive-class-membership",
+      andrewsSection: "20.8",
+      category: "nonactive-class-membership",
+      directiveEs: "Todo tronco no activo pertenece a Clase A-2 sin importar la clase de la fuente activa.",
+      engineSurface: "Class A-2 nonactive perfective routing",
+      implementationState: "implemented"
+    })]);
+    function getLesson20NonactiveSubsectionInventory() {
+      return LESSON20_NONACTIVE_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        redirectAction: "keep",
+        evidenceStatus: "direct-pdf-with-nawat-realization",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON20_NONACTIVE_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson20NonactivePursuitFrame() {
+      const subsectionInventory = getLesson20NonactiveSubsectionInventory();
+      const overviewFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_OVERVIEW_FRAME);
+      const suffixBridge = LESSON20_NONACTIVE_SUFFIX_BRIDGE.map(entry => ({
+        ...entry
+      }));
+      const luFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_LU_FRAME);
+      const luwaFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_LUWA_FRAME);
+      const uFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_U_FRAME);
+      const uwaFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_UWA_FRAME);
+      const waWaluFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_WA_WALU_FRAME);
+      const classMembershipFrame = cloneVncAllomorphyLessonRecord(LESSON20_NONACTIVE_CLASS_FRAME);
+      const frame = {
+        kind: "lesson-20-nonactive-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 20,
+        aimStatus: "closest-pass",
+        pdfRefs: Array.from(LESSON20_NONACTIVE_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-20-nonactive-verbstem-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 20.1-20.8 against current Nawat nonactive suffix families, imperfective-active source selection, suffix correspondences, exception boundaries, and Class A-2 routing.",
+          andrewsRefs: Array.from(LESSON20_NONACTIVE_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON20_NONACTIVE_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-20-nonactive-verbstem-audit",
+          result: "hit",
+          correction: "Lesson 20 now carries subsection PDF refs, Spanish directives, Nawat suffix-family bridge metadata, source-stem boundaries, current engine option families, and Class A-2 routing evidence.",
+          andrewsRefs: Array.from(LESSON20_NONACTIVE_PDF_REFS),
+          feedbackRefs: Array.from(LESSON20_NONACTIVE_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        overviewFrame,
+        suffixBridge,
+        luFrame,
+        luwaFrame,
+        uFrame,
+        uwaFrame,
+        waWaluFrame,
+        classMembershipFrame,
+        currentEngineBoundary: {
+          nonactiveGenerationImplemented: true,
+          nawatSuffixFamilies: suffixBridge.map(entry => entry.nawat),
+          activeImperfectiveSourceRequired: true,
+          perfectiveNonactiveUsesClassA2Routing: true,
+          noClassicalSurfaceImport: true,
+          vowelLengthIsNotIndependentNawatSpelling: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: [],
+        closestPass: true,
+        generationAllowed: true
+      };
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return frame;
+      }
+      return targetObject.attachGrammarMetadataContract(frame, {
+        enumerable: false,
+        unitKind: "nonactive-verbstem",
+        metadataKind: "lesson-20-nonactive-pursuit-frame",
+        routeFamily: "vnc-allomorphy",
+        routeStage: "audit-lesson-20",
+        generationAllowed: false,
+        supported: true,
+        structuralSource: "Andrews Lesson 20",
+        andrewsRefs: ["Andrews Lesson 20.1-20.8"],
+        evidenceStatus: "direct-pdf-with-nawat-realization",
+        sourceInput: "Andrews Lesson 20.1-20.8",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil output spelling",
+          noClassicalSurfaceImport: true,
+          suffixBridge
+        },
+        morphBoundaryFrame: {
+          overviewFrame,
+          luFrame,
+          luwaFrame,
+          uFrame,
+          uwaFrame,
+          waWaluFrame,
+          classMembershipFrame
+        },
+        stemFrame: {
+          stemKind: "nonactive-derived-verbstem",
+          sourceStem: "imperfective active stem",
+          targetStem: "nonactive stem",
+          sourceSuffix: suffixBridge.map(entry => entry.nawat).join("/")
+        },
+        nuclearClauseFrame: {
+          clauseKind: "verbal-nuclear-clause",
+          nonactiveUseLessons: ["Andrews Lesson 21", "Andrews Lesson 22"],
+          classMembership: classMembershipFrame.classMembership
+        },
+        targetContract: {
+          metadataKind: "lesson-20-nonactive-pursuit-frame",
+          generationAllowed: false,
+          closestPass: true,
+          nonactiveGenerationImplemented: true,
+          currentEngineFamilies: suffixBridge.map(entry => entry.nawat)
+        }
+      });
+    }
+    const LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS = Object.freeze(["src/tests/derivation.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS = Object.freeze(["Andrews Lesson 24.1", "Andrews Lesson 24.2", "Andrews Lesson 24.3", "Andrews Lesson 24.4", "Andrews Lesson 24.5", "Andrews Lesson 24.6", "Andrews Lesson 24.7", "Andrews Lesson 24.8", "Andrews Lesson 24.9"]);
+    const LESSON24_FINAL_VOWEL_VALENCE_FRAME = Object.freeze({
+      kind: "lesson-24-final-vowel-valence-frame",
+      sourceSection: "Andrews 24.1",
+      finalVowels: Object.freeze(["i", "a", "o", "e"]),
+      valencePredictableFromFinalVowel: false,
+      majorityPattern: "many intransitive stems end in i and many directive stems end in a",
+      exceptions: Object.freeze(["intransitive stems may end in a, o, or o-long", "directive stems may end in i", "nonactive stems in o-long or wa may be intransitive or transitive", "some directive a-stems have e variants"])
+    });
+    const LESSON24_VALENCE_NEUTRAL_FRAME = Object.freeze({
+      kind: "lesson-24-valence-neutral-frame",
+      sourceSection: "Andrews 24.2",
+      violatesValencePrinciple: true,
+      derivationalSuffixDeterminesShift: false,
+      transitiveNormallyRequiresSpecificObject: true,
+      normalMeaning: "applicative-like transitive member",
+      exceptionalMeaning: "some i-final transitive members have causative meaning",
+      nonactiveReflectsValenceNeutralVariant: true
+    });
+    const LESSON24_TYPE_ONE_CAUSATIVE_FRAME = Object.freeze({
+      kind: "lesson-24-type-one-causative-frame",
+      sourceSection: "Andrews 24.3",
+      causativeMorpheme: Object.freeze({
+        andrews: "a",
+        nawat: "a"
+      }),
+      createsIntransitiveTransitivePair: true,
+      sourceMustBeIntransitive: true,
+      lengthPolicy: "short after consonants, long after vowels in Andrews notation",
+      iFinalProcedures: Object.freeze([Object.freeze({
+        id: "i-final-replacement",
+        operation: "delete final i and add causative a",
+        classOfDerivedStem: "Class B",
+        mayReplaceFinalConsonant: true,
+        meaningMayShift: true
+      }), Object.freeze({
+        id: "i-final-addition",
+        operation: "add causative a to the full intransitive stem",
+        classOfDerivedStem: "Class C",
+        lengthensAfterVowel: true
+      })]),
+      aFinalProcedures: Object.freeze([Object.freeze({
+        id: "a-final-non-ya-replacement",
+        operation: "replace stem-final a with causative a",
+        phonologicalContrastVisible: false,
+        sourceClass: "Class A",
+        derivedClass: "Class B"
+      }), Object.freeze({
+        id: "ya-final-replacement",
+        operation: "replace derivational ya with causative a",
+        sourceClass: "Class A or Class B",
+        derivedClass: "Class C",
+        exceptionsExist: true
+      })])
+    });
+    const LESSON24_DESTOCKAL_ARCHITECTURE_FRAME = Object.freeze({
+      kind: "lesson-24-destockal-architecture-frame",
+      sourceSection: "Andrews 24.4",
+      stockRank: "above root and below stem",
+      stockCannotActAsStem: true,
+      process: Object.freeze(["root-plus-stock-formative-creates-stock", "stock-plus-stem-formative-creates-intransitive-verbstem", "type-one-causative-creates-transitive-mate"]),
+      destockalTypes: Object.freeze(["ni-or-hui", "hua", "i-hui-or-a-hui"])
+    });
+    const LESSON24_DESTOCKAL_NI_HUI_FRAME = Object.freeze({
+      kind: "lesson-24-destockal-ni-hui-frame",
+      sourceSection: "Andrews 24.5",
+      stemFormatives: Object.freeze(["ni", "hui"]),
+      stockFormativeLength: "long vowel normally harmonizes with the root vowel",
+      intransitiveClass: "Class B",
+      causativeSelection: Object.freeze({
+        ni: "majority add a to full intransitive stem; a smaller set replaces final i",
+        hui: "majority replace final i with causative a; a smaller set adds a"
+      }),
+      derivedClassPolicy: Object.freeze({
+        "n-a": "Class B",
+        "hu-a": "Class B",
+        "ni-a": "Class C",
+        "hui-a": "Class C"
+      }),
+      irregularCoalescedStocksExist: true
+    });
+    const LESSON24_DESTOCKAL_HUA_FRAME = Object.freeze({
+      kind: "lesson-24-destockal-hua-frame",
+      sourceSection: "Andrews 24.6",
+      stemFormative: "hua",
+      stockFormatives: Object.freeze(["a", "e"]),
+      nounstemMayBeDowngradedToNounroot: true,
+      mayBeSynonymousWithHuiStem: true,
+      intransitiveClassPolicy: "a-hua/e-hua usually Class A, sometimes Class A or B",
+      causativeAlwaysReplacement: true,
+      causativeShape: "hua becomes hu-a",
+      derivedClass: "Class B"
+    });
+    const LESSON24_DESTOCKAL_IHUI_AHUI_FRAME = Object.freeze({
+      kind: "lesson-24-destockal-ihui-ahui-frame",
+      sourceSection: "Andrews 24.7",
+      stemFormative: "hui",
+      stockFormativeSelection: Object.freeze([Object.freeze({
+        rootVowels: Object.freeze(["e", "a"]),
+        stockFormative: "i"
+      }), Object.freeze({
+        rootVowels: Object.freeze(["i", "o"]),
+        stockFormative: "a"
+      }), Object.freeze({
+        afterRootFinal: "l",
+        stockFormative: "i"
+      })]),
+      selectionContrastsWithLesson245: true,
+      causativeOperation: "replace i-hui or a-hui with o-a",
+      intransitiveClass: "Class B",
+      derivedClass: "Class C",
+      gapsAndIrregularRelationsExist: true
+    });
+    const LESSON24_CAUSATIVE_VNC_GENERATION_FRAME = Object.freeze({
+      kind: "lesson-24-causative-vnc-generation-frame",
+      sourceSection: "Andrews 24.8",
+      generatedObjectSources: Object.freeze([Object.freeze({
+        source: "active intransitive VNC",
+        causativeObject: "specific projective or reflexive object"
+      }), Object.freeze({
+        source: "impersonal intransitive VNC",
+        causativeObject: "nonspecific projective object"
+      })]),
+      sourceSubjectBecomesCausativeObject: true,
+      causativeSubjectImportedFromOutsideSource: true,
+      sameTranslationCanHideMeaningDifference: true,
+      responsibilityImplicationForReflexiveCausative: true
+    });
+    const LESSON24_CAUSATIVE_A_CONTROL_FRAME = Object.freeze({
+      kind: "lesson-24-causative-a-control-frame",
+      sourceSection: "Andrews 24.9",
+      causativeAControls: Object.freeze(["source subject", "source core"]),
+      matrixStemAnalysisSuggested: true,
+      possibleCompoundStemAnalysis: "causative a behaves as if it embeds the source VNC as incorporated object",
+      sourceSubjectObjectivizationIsConsequence: true,
+      compareLessons: Object.freeze(["Andrews Lesson 28.2", "Andrews Lesson 39.7.2"])
+    });
+    const LESSON24_FIRST_TYPE_CAUSATIVE_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson24-final-vowel-valence",
+      andrewsSection: "24.1",
+      category: "final-vowel-valence-boundary",
+      directiveEs: "La vocal final no predice por si sola la valencia; los patrones i/a son tendencias con excepciones.",
+      engineSurface: "source-stem class, transitivity, and derivation gates",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson24-valence-neutral",
+      andrewsSection: "24.2",
+      category: "valence-neutral-verbstems",
+      directiveEs: "Algunos troncos son neutrales de valencia y violan el principio de que el sufijo derivacional justifica el objeto.",
+      engineSurface: "lexical/source evidence gates",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson24-type-one-causative",
+      andrewsSection: "24.3",
+      category: "type-one-causative-a",
+      directiveEs: "El causativo tipo 1 usa a para convertir una fuente intransitiva en tronco transitivo por reemplazo o adicion.",
+      engineSurface: "causative forward derivation options",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson24-destockal-architecture",
+      andrewsSection: "24.4",
+      category: "destockal-stock-architecture",
+      directiveEs: "El destockal se construye en dos pasos: raiz a stock y stock a tronco; el stock no funciona como tronco independiente.",
+      engineSurface: "stock-formative metadata and reverse derivation hints",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson24-destockal-ni-hui",
+      andrewsSection: "24.5",
+      category: "destockal-ni-hui",
+      directiveEs: "Los destockales ni/hui usan vocal larga de stock, Clase B intransitiva y seleccion causativa por adicion o reemplazo.",
+      engineSurface: "type-one causative choices and destockal hints",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson24-destockal-hua",
+      andrewsSection: "24.6",
+      category: "destockal-hua",
+      directiveEs: "Los destockales hua usan stock a/e y su causativo siempre reemplaza hua por hu-a.",
+      engineSurface: "Nawat wa/ua causative exceptions and source metadata",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson24-destockal-ihui-ahui",
+      andrewsSection: "24.7",
+      category: "destockal-ihui-ahui",
+      directiveEs: "Los destockales i-hui/a-hui seleccionan stock al reves de 24.5 y forman causativo cambiando i-hui/a-hui a o-a.",
+      engineSurface: "getDestockalWiReverseBaseSuffixes and ua route hints",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson24-causative-vnc-generation",
+      andrewsSection: "24.8",
+      category: "causative-vnc-generation",
+      directiveEs: "La CNV causativa convierte el sujeto de la fuente en objeto causativo, y el sujeto causativo viene de fuera.",
+      engineSurface: "object slot controls plus forwardDerivationFrame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson24-causative-a-control",
+      andrewsSection: "24.9",
+      category: "causative-a-control",
+      directiveEs: "La a causativa controla el sujeto y el nucleo fuente, como si incorporara la CNV fuente como objeto.",
+      engineSurface: "diagnostic boundary before compound-stem modeling",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    })]);
+    function getLesson24FirstTypeCausativeSubsectionInventory() {
+      return LESSON24_FIRST_TYPE_CAUSATIVE_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson24FirstTypeCausativePursuitFrame() {
+      const subsectionInventory = getLesson24FirstTypeCausativeSubsectionInventory();
+      const finalVowelValenceFrame = cloneVncAllomorphyLessonRecord(LESSON24_FINAL_VOWEL_VALENCE_FRAME);
+      const valenceNeutralFrame = cloneVncAllomorphyLessonRecord(LESSON24_VALENCE_NEUTRAL_FRAME);
+      const typeOneCausativeFrame = cloneVncAllomorphyLessonRecord(LESSON24_TYPE_ONE_CAUSATIVE_FRAME);
+      const destockalArchitectureFrame = cloneVncAllomorphyLessonRecord(LESSON24_DESTOCKAL_ARCHITECTURE_FRAME);
+      const destockalNiHuiFrame = cloneVncAllomorphyLessonRecord(LESSON24_DESTOCKAL_NI_HUI_FRAME);
+      const destockalHuaFrame = cloneVncAllomorphyLessonRecord(LESSON24_DESTOCKAL_HUA_FRAME);
+      const destockalIhuiAhuiFrame = cloneVncAllomorphyLessonRecord(LESSON24_DESTOCKAL_IHUI_AHUI_FRAME);
+      const causativeVncGenerationFrame = cloneVncAllomorphyLessonRecord(LESSON24_CAUSATIVE_VNC_GENERATION_FRAME);
+      const causativeAControlFrame = cloneVncAllomorphyLessonRecord(LESSON24_CAUSATIVE_A_CONTROL_FRAME);
+      const remainingGaps = ["Final-vowel valence tendencies are not a complete lexical source model; valence-neutral stems still need confirmed Nawat/Pipil evidence and source-specific gates.", "Type-one causative replacement versus addition is only partially controlled by current rules and exceptions, especially for a-final, ya-final, and consonant-replacement cases.", "Destockal ni/hui/hua/i-hui/a-hui inventories, class membership, coalesced stocks, synonym pairs, and gaps are not data-complete.", "Andrews 24.8 source-subject-to-causative-object generation is not yet a full source-CNV transform with imported causative subject and specific/reflexive/nonspecific object derivation.", "Andrews 24.9 matrix-stem or compound-stem analysis of causative a remains diagnostic until compound-source modeling is explicit."];
+      const frame = {
+        kind: "lesson-24-first-type-causative-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 24,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-24-first-type-causative-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 24.1-24.9 against current type-one causative generation, valence-neutral boundaries, destockal stem architecture, source-subject-to-object transforms, and Nawat orthography evidence.",
+          andrewsRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-24-first-type-causative-audit",
+          result: "hit",
+          correction: "Lesson 24 now records Andrews final-vowel boundaries, valence-neutral stems, type-one causative a procedures, destockal stock architecture, 24.8 generation transform, current engine support, and explicit gaps before closest-pass can be claimed.",
+          andrewsRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS),
+          feedbackRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        finalVowelValenceFrame,
+        valenceNeutralFrame,
+        typeOneCausativeFrame,
+        destockalArchitectureFrame,
+        destockalNiHuiFrame,
+        destockalHuaFrame,
+        destockalIhuiAhuiFrame,
+        causativeVncGenerationFrame,
+        causativeAControlFrame,
+        currentEngineBoundary: {
+          causativeForwardDerivationImplemented: true,
+          forwardDerivationFrameImplemented: true,
+          typeOneCausativeSubsetImplemented: true,
+          destockalWiReverseLookupImplemented: true,
+          nawatUExceptionsImplementedForKnownForms: true,
+          finalVowelValenceLexiconIncomplete: true,
+          valenceNeutralStemGatesIncomplete: true,
+          destockalInventoryIncomplete: true,
+          sourceCnvTransformIncomplete: true,
+          causativeACompoundAnalysisDiagnosticOnly: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return frame;
+      }
+      return targetObject.attachGrammarMetadataContract(frame, {
+        enumerable: false,
+        unitKind: "causative-verbstem",
+        metadataKind: "lesson-24-first-type-causative-pursuit-frame",
+        routeFamily: "vnc-allomorphy",
+        routeStage: "audit-lesson-24",
+        generationAllowed: false,
+        supported: true,
+        structuralSource: "Andrews Lesson 24",
+        andrewsRefs: ["Andrews Lesson 24.1-24.9"],
+        evidenceStatus: "direct-pdf-partial",
+        sourceInput: "Andrews Lesson 24.1-24.9",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil output spelling",
+          noClassicalSurfaceImport: true,
+          causativeMorpheme: typeOneCausativeFrame.causativeMorpheme,
+          destockalBridge: {
+            "hui": "wi",
+            "hua": "wa",
+            "o-a": "u-a"
+          }
+        },
+        morphBoundaryFrame: {
+          finalVowelValenceFrame,
+          valenceNeutralFrame,
+          typeOneCausativeFrame,
+          destockalArchitectureFrame,
+          destockalNiHuiFrame,
+          destockalHuaFrame,
+          destockalIhuiAhuiFrame,
+          causativeAControlFrame
+        },
+        stemFrame: {
+          stemKind: "first-type-causative-verbstem",
+          sourceStem: "active intransitive or impersonal intransitive source",
+          targetStem: "type-one causative stem",
+          sourceSuffix: "a",
+          destockalTypes: destockalArchitectureFrame.destockalTypes
+        },
+        participantFrame: {
+          sourceSubjectBecomesCausativeObject: true,
+          causativeSubjectImportedFromOutsideSource: true,
+          generatedObjectSources: causativeVncGenerationFrame.generatedObjectSources,
+          valenceNeutralStemGatesIncomplete: true
+        },
+        nuclearClauseFrame: {
+          clauseKind: "verbal-nuclear-clause",
+          sourceClauseKind: "intransitive VNC",
+          targetClauseKind: "single-object causative VNC",
+          sourceCnvTransformComplete: false
+        },
+        targetContract: {
+          metadataKind: "lesson-24-first-type-causative-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnosticStatus: "partial-audit"
+      });
+    }
+    const LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS = Object.freeze(["src/tests/derivation.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS = Object.freeze(["Andrews Lesson 25.1", "Andrews Lesson 25.2", "Andrews Lesson 25.3", "Andrews Lesson 25.4", "Andrews Lesson 25.5", "Andrews Lesson 25.6", "Andrews Lesson 25.7", "Andrews Lesson 25.8", "Andrews Lesson 25.9", "Andrews Lesson 25.10", "Andrews Lesson 25.11", "Andrews Lesson 25.12", "Andrews Lesson 25.13", "Andrews Lesson 25.14", "Andrews Lesson 25.15", "Andrews Lesson 25.16"]);
+    const LESSON25_TYPE_TWO_OVERVIEW_FRAME = Object.freeze({
+      kind: "lesson-25-type-two-overview-frame",
+      sourceSection: "Andrews 25.1",
+      suffixalUnits: Object.freeze(["tia", "lia", "huia"]),
+      coreCausativeCluster: "tia",
+      tiaComposition: Object.freeze(["semantically empty ti", "causative a from Lesson 24"]),
+      derivesObjectCounts: Object.freeze(["single-object", "double-object", "triple-object"]),
+      nonactiveSourceFamilies: Object.freeze(["hua", "o", "o-hua", "lo"]),
+      deletesFromNonactiveSource: Object.freeze(["hua", "o"]),
+      unexpectedOrUnattestedNonactiveSources: true,
+      suppletiveNoCausativeStems: Object.freeze(["yawi uses huica", "hual-la-uh uses hual+huica"]),
+      honorificOnlyBoundary: "some causatives serve only honorific VNCs"
+    });
+    const LESSON25_SOURCE_FORMATION_FRAME = Object.freeze({
+      kind: "lesson-25-source-formation-frame",
+      sourceSections: Object.freeze(["Andrews 25.2", "Andrews 25.3", "Andrews 25.4", "Andrews 25.5", "Andrews 25.6"]),
+      huaSource: Object.freeze({
+        operation: "tia replaces hua",
+        usualMarker: "long base-final i before tia",
+        unexpectedFinals: Object.freeze(["ki/ka", "si/sa", "ti/ta", "i-hui/a-hui"])
+      }),
+      oOHuaSource: Object.freeze({
+        operation: "tia replaces o or o-hua",
+        distinguishedBy: "consonant before tia except l",
+        impossibleWhenActiveHasTwoConsonantsBeforeFinalVowel: true,
+        specialSpecificNonhumanObjectCases: true
+      }),
+      loSource: Object.freeze({
+        operation: "tia replaces the o of lo, leaving l before tia",
+        classCDUseThisProcedure: true,
+        unexpectedFinals: Object.freeze(["ka/ki", "ni/na", "kwa", "si/sa", "wa/wi", "postvocalic ti", "root+ya"])
+      }),
+      liaSource: Object.freeze({
+        sourceShape: "active i or a stem",
+        iFinalSource: "denominal ti 'to become'",
+        aFinalSource: "root plus ya, with ya deleted",
+        phonologicallyIdenticalToApplicativeLia: true
+      }),
+      huiaSource: Object.freeze({
+        sourceShape: "active o/o-long stem with hua nonactive source",
+        mayAttachDirectlyOrAfterOToAReplacement: true,
+        phonologicallyIdenticalToApplicativeHuia: true
+      })
+    });
+    const LESSON25_CLASS_AND_PARALLEL_FRAME = Object.freeze({
+      kind: "lesson-25-class-and-parallel-frame",
+      sourceSections: Object.freeze(["Andrews 25.7", "Andrews 25.8"]),
+      classMembership: "Class C",
+      appliesTo: Object.freeze(["tia", "lia", "huia"]),
+      typeOneAndTypeTwoSameSourceAllowed: true,
+      typeOneTypeTwoMeaningsMayMatchOrDiverge: true
+    });
+    const LESSON25_CAUSATIVE_TRANSFORMATION_FRAME = Object.freeze({
+      kind: "lesson-25-causative-transformation-frame",
+      sourceSection: "Andrews 25.9",
+      sameAsTypeOneButMoreComplexForTransitiveSources: true,
+      operations: Object.freeze(["compact-source-vnc-into-causative-predicate", "replace-source-stem-with-causative-stem", "change-source-subject-pronoun-into-causative-object", "import-new-causative-subject-from-outside-source"]),
+      causativeObjectIsObjectInFormSubjectInFunction: true,
+      specificityFromSourceVoice: Object.freeze(["active", "passive", "impersonal"])
+    });
+    const LESSON25_OBJECT_TRANSFORM_FRAME = Object.freeze({
+      kind: "lesson-25-object-transform-frame",
+      sourceSections: Object.freeze(["Andrews 25.10", "Andrews 25.11", "Andrews 25.12"]),
+      singleObject: Object.freeze({
+        source: "active or impersonal intransitive VNC",
+        outputs: Object.freeze(["specific projective", "reflexive", "nonspecific projective"])
+      }),
+      doubleObject: Object.freeze({
+        sources: Object.freeze(["active single-object transitive VNC", "passive intransitive VNC", "single-object impersonal VNC"]),
+        causativeObjectBecomesMainline: true,
+        shuntlineSpecificMayBeSilent: true,
+        shuntlineReflexiveUsuallyNe: true,
+        nonspecificProjectivePreserved: true,
+        coreferenceCanPreventNeShape: true
+      }),
+      tripleObject: Object.freeze({
+        mainline: "causative object",
+        secondLevelShuntline: "causative or applicative object",
+        firstLevelShuntline: "direct, causative, or rare applicative object",
+        silentShuntlinesRequireStemKnowledge: true,
+        exhaustiveCombinationTableDeferredTo: "Andrews Lesson 23.5 and Appendix C"
+      })
+    });
+    const LESSON25_BOUNDARY_FRAME = Object.freeze({
+      kind: "lesson-25-boundary-frame",
+      sourceSections: Object.freeze(["Andrews 25.13", "Andrews 25.14", "Andrews 25.15", "Andrews 25.16"]),
+      ambiguity: Object.freeze({
+        objectFormsDoNotDiscriminateFunction: true,
+        contextChoosesSource: true,
+        reducers: Object.freeze(["specific-object incompatibility", "shuntline ne replacement"])
+      }),
+      sentenceMoods: Object.freeze(["wish", "command/exhortation", "admonition"]),
+      passiveImpersonalTransformsAllowed: true,
+      silentObjectPronounCanBeSupplemented: true,
+      supplementationRequiresSentenceLayer: true
+    });
+    const LESSON25_SECOND_TYPE_CAUSATIVE_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson25-type-two-causative",
+      andrewsSection: "25.1",
+      category: "type-two-causative-overview",
+      directiveEs: "El causativo tipo 2 usa tia, con ti vacio mas a causativa, y puede crear CNV de uno, dos o tres objetos.",
+      engineSurface: "type-two causative derivation option",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-hua-source",
+      andrewsSection: "25.2",
+      category: "hua-nonactive-source",
+      directiveEs: "Tia reemplaza hua y frecuentemente muestra i final de base; hay formaciones inesperadas por terminacion de fuente.",
+      engineSurface: "type-two causative source selection",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson25-o-ohua-source",
+      andrewsSection: "25.3",
+      category: "o-ohua-nonactive-source",
+      directiveEs: "Tia reemplaza o u o-hua; la consonante antes de tia distingue la ruta salvo l.",
+      engineSurface: "type-two causative source selection",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-lo-source",
+      andrewsSection: "25.4",
+      category: "lo-nonactive-source",
+      directiveEs: "Tia reemplaza la o de lo y deja l ante tia; esta ruta gobierna clases C/D y muchas formaciones inesperadas.",
+      engineSurface: "type-two causative l-tia routes",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson25-lia-causative",
+      andrewsSection: "25.5",
+      category: "lia-causative",
+      directiveEs: "Algunas fuentes intransitivas en i/a usan lia causativa, identica en forma a la lia aplicativa.",
+      engineSurface: "lia causative/applicative ambiguous routing",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson25-huia-causative",
+      andrewsSection: "25.6",
+      category: "huia-causative",
+      directiveEs: "Fuentes intransitivas en o con no activo hua pueden formar huia, identica en forma a la huia aplicativa.",
+      engineSurface: "huia/wia causative-applicative ambiguity",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson25-class-membership",
+      andrewsSection: "25.7",
+      category: "type-two-class-c",
+      directiveEs: "Todo causativo tipo 2, sea tia, lia o huia, pertenece a Clase C.",
+      engineSurface: "Class C causative routing",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson25-type-one-type-two-same-source",
+      andrewsSection: "25.8",
+      category: "type-one-type-two-parallel",
+      directiveEs: "Una misma fuente puede tener causativo tipo 1 y tipo 2, con significado igual o diferente.",
+      engineSurface: "parallel causative stem pool",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson25-causative-transformation",
+      andrewsSection: "25.9",
+      category: "causative-transformation",
+      directiveEs: "La fuente se compacta dentro del predicado causativo, el sujeto fuente pasa a objeto y se importa un sujeto nuevo.",
+      engineSurface: "forwardDerivationFrame plus object slots",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-single-object-causative",
+      andrewsSection: "25.10",
+      category: "single-object-causative-vnc",
+      directiveEs: "La fuente intransitiva activa o impersonal genera objeto causativo especifico, reflexivo o inespecifico.",
+      engineSurface: "single-object causative output",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-double-object-causative",
+      andrewsSection: "25.11",
+      category: "double-object-causative-vnc",
+      directiveEs: "La causativa de dos objetos puede venir de activa transitiva, pasiva intransitiva o impersonal de un objeto; el objeto causativo es linea principal.",
+      engineSurface: "obj1/obj2 valence controls",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-triple-object-causative",
+      andrewsSection: "25.12",
+      category: "triple-object-causative-vnc",
+      directiveEs: "La causativa de tres objetos exige linea principal y dos niveles secundarios, a veces silenciosos.",
+      engineSurface: "obj1/obj2/obj3 controls",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-causative-ambiguity",
+      andrewsSection: "25.13",
+      category: "causative-transform-ambiguity",
+      directiveEs: "Las formas de objeto no distinguen funcion; el contexto y las reglas de silencio/ne reducen ambiguedad.",
+      engineSurface: "diagnostic ambiguity metadata",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson25-causative-moods",
+      andrewsSection: "25.14",
+      category: "causative-sentence-moods",
+      directiveEs: "Las CNV causativas pueden entrar en deseo, mandato/exhortacion y admonicion.",
+      engineSurface: "finite output plus sentence-layer diagnostics",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson25-causative-passive-impersonal",
+      andrewsSection: "25.15",
+      category: "causative-passive-impersonal",
+      directiveEs: "Las CNV con tronco causativo pueden sufrir transformaciones pasivas e impersonales.",
+      engineSurface: "shared passive/impersonal nonactive route",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson25-silent-object-supplementation",
+      andrewsSection: "25.16",
+      category: "silent-object-supplementation",
+      directiveEs: "Un objeto silencioso es real y puede recibir suplemento; esto pertenece a la capa de oracion.",
+      engineSurface: "supplementation diagnostics only",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    })]);
+    function getLesson25SecondTypeCausativeSubsectionInventory() {
+      return LESSON25_SECOND_TYPE_CAUSATIVE_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson25SecondTypeCausativePursuitFrame() {
+      const subsectionInventory = getLesson25SecondTypeCausativeSubsectionInventory();
+      const overviewFrame = cloneVncAllomorphyLessonRecord(LESSON25_TYPE_TWO_OVERVIEW_FRAME);
+      const sourceFormationFrame = cloneVncAllomorphyLessonRecord(LESSON25_SOURCE_FORMATION_FRAME);
+      const classAndParallelFrame = cloneVncAllomorphyLessonRecord(LESSON25_CLASS_AND_PARALLEL_FRAME);
+      const causativeTransformationFrame = cloneVncAllomorphyLessonRecord(LESSON25_CAUSATIVE_TRANSFORMATION_FRAME);
+      const objectTransformFrame = cloneVncAllomorphyLessonRecord(LESSON25_OBJECT_TRANSFORM_FRAME);
+      const boundaryFrame = cloneVncAllomorphyLessonRecord(LESSON25_BOUNDARY_FRAME);
+      const remainingGaps = ["Type-two source selection from hua, o, o-hua, lo, lia, and huia is not data-complete and often depends on unexpected or unattested nonactive stems.", "The engine exposes type-two causative output, but it does not yet prove all Andrews 25.2-25.8 source-shape, class, suppletive, honorific-only, and type-one/type-two parallel distinctions.", "Andrews 25.9-25.12 source-CNV transformations for single-, double-, and triple-object causatives are not fully modeled with mainline/shuntline function and silent object pronouns.", "Causative transform ambiguity, passive/impersonal causative transforms, sentence moods, and supplementation of silent objects remain diagnostic or partially routed."];
+      const frame = {
+        kind: "lesson-25-second-type-causative-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 25,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-25-second-type-causative-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 25.1-25.16 against current type-two causative generation, source-family selection, single/double/triple object transforms, ambiguity, voices, sentence moods, and silent-object supplementation.",
+          andrewsRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-25-second-type-causative-audit",
+          result: "hit",
+          correction: "Lesson 25 now records Andrews type-two causative source families, tia/lia/huia boundaries, Class C policy, source-CNV transformation rules, object-depth behavior, ambiguity, voice and sentence boundaries, current engine support, and explicit gaps before closest-pass can be claimed.",
+          andrewsRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS),
+          feedbackRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        overviewFrame,
+        sourceFormationFrame,
+        classAndParallelFrame,
+        causativeTransformationFrame,
+        objectTransformFrame,
+        boundaryFrame,
+        currentEngineBoundary: {
+          typeTwoCausativeGenerationImplemented: true,
+          forwardDerivationFrameImplemented: true,
+          tiaLiaHuiaStemPoolPartial: true,
+          classCPolicyPartial: true,
+          sourceCnvTransformIncomplete: true,
+          doubleTripleObjectRoutingIncomplete: true,
+          silentObjectSupplementationMissing: true,
+          passiveImpersonalCausativeRoutingPartial: true,
+          sentenceMoodLayerDiagnosticOnly: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return frame;
+      }
+      return targetObject.attachGrammarMetadataContract(frame, {
+        enumerable: false,
+        unitKind: "causative-verbstem",
+        metadataKind: "lesson-25-second-type-causative-pursuit-frame",
+        routeFamily: "vnc-allomorphy",
+        routeStage: "audit-lesson-25",
+        generationAllowed: false,
+        supported: true,
+        structuralSource: "Andrews Lesson 25",
+        andrewsRefs: ["Andrews Lesson 25.1-25.16"],
+        evidenceStatus: "direct-pdf-partial",
+        sourceInput: "Andrews Lesson 25.1-25.16",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil output spelling",
+          noClassicalSurfaceImport: true,
+          suffixalUnits: overviewFrame.suffixalUnits,
+          classicalToNawatHints: {
+            "tia": "tia",
+            "lia": "lia",
+            "huia": "wia",
+            "hua": "wa"
+          }
+        },
+        morphBoundaryFrame: {
+          overviewFrame,
+          sourceFormationFrame,
+          classAndParallelFrame,
+          causativeTransformationFrame,
+          objectTransformFrame,
+          boundaryFrame
+        },
+        stemFrame: {
+          stemKind: "second-type-causative-verbstem",
+          sourceStem: "nonactive-derived base or exceptional active source",
+          targetStem: "type-two causative stem",
+          sourceSuffix: overviewFrame.suffixalUnits.join("/"),
+          classMembership: classAndParallelFrame.classMembership
+        },
+        participantFrame: {
+          sourceSubjectBecomesCausativeObject: true,
+          causativeSubjectImportedFromOutsideSource: true,
+          singleObjectSources: objectTransformFrame.singleObject.source,
+          doubleObjectSources: objectTransformFrame.doubleObject.sources,
+          tripleObjectMainline: objectTransformFrame.tripleObject.mainline,
+          silentShuntlinesRequireStemKnowledge: true
+        },
+        nuclearClauseFrame: {
+          clauseKind: "verbal-nuclear-clause",
+          sourceClauseKind: "intransitive/transitive/passive/impersonal VNC",
+          targetClauseKind: "causative VNC",
+          maxObjectDepth: 3,
+          sentenceMoodBoundary: boundaryFrame.sentenceMoods
+        },
+        targetContract: {
+          metadataKind: "lesson-25-second-type-causative-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnosticStatus: "partial-audit"
+      });
+    }
+    const LESSON26_APPLICATIVE_VALIDATION_REFS = Object.freeze(["src/tests/derivation.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON26_APPLICATIVE_PDF_REFS = Object.freeze(["Andrews Lesson 26.1", "Andrews Lesson 26.2", "Andrews Lesson 26.3", "Andrews Lesson 26.4", "Andrews Lesson 26.5", "Andrews Lesson 26.6", "Andrews Lesson 26.7", "Andrews Lesson 26.8", "Andrews Lesson 26.9", "Andrews Lesson 26.10", "Andrews Lesson 26.11", "Andrews Lesson 26.12", "Andrews Lesson 26.13", "Andrews Lesson 26.14", "Andrews Lesson 26.15", "Andrews Lesson 26.16", "Andrews Lesson 26.17", "Andrews Lesson 26.18", "Andrews Lesson 26.19", "Andrews Lesson 26.20", "Andrews Lesson 26.21", "Andrews Lesson 26.22", "Andrews Lesson 26.23"]);
+    const LESSON26_APPLICATIVE_NATURE_FRAME = Object.freeze({
+      kind: "lesson-26-applicative-nature-frame",
+      sourceSection: "Andrews 26.1",
+      semanticRange: Object.freeze(["advantage", "disadvantage", "interest", "possession", "bestowal", "deprival", "association"]),
+      mainlineConstituents: Object.freeze(["applicative suffix", "obligatorily concomitant applicative object pronoun"]),
+      derivesObjectCounts: Object.freeze(["single-object", "double-object", "triple-object"]),
+      honorificOnlyBoundary: true,
+      irregularBoundaries: Object.freeze(["inherently applicative double-object maca without applicative suffix", "itta from defective itzi with unusual sound shift and applicative a", "valence-neutral pairs with applicative-like transitive member"])
+    });
+    const LESSON26_APPLICATIVE_FORMATION_FRAME = Object.freeze({
+      kind: "lesson-26-applicative-formation-frame",
+      sourceSections: Object.freeze(["Andrews 26.2", "Andrews 26.3", "Andrews 26.12", "Andrews 26.13"]),
+      typeOne: Object.freeze({
+        suffixalUnit: "ia",
+        operation: "add ia to a replacive imperfective stem lacking the final source vowel",
+        sourceIFinalStillDeletes: true,
+        sourceTiCanLookCausative: true,
+        causativeApplicativeAmbiguity: true,
+        lexicalPredictability: "unpredictable; learn each verbstem separately"
+      }),
+      typeTwo: Object.freeze({
+        suffixalUnits: Object.freeze(["lia", "huia"]),
+        composition: Object.freeze(["applicative ia", "semantically empty l or w"]),
+        defaultLiaElsewhere: true,
+        huiaEnvironments: Object.freeze(["transitive Class C o-a sources", "intransitive Class A long-o sources"]),
+        causativeLiaSourcesNormallyBlockApplicative: true,
+        sourceReflexiveBecomesShuntlineNe: true
+      }),
+      sameSourceCanHaveBothTypes: true,
+      classMembership: "Class C"
+    });
+    const LESSON26_SOURCE_SHAPE_FRAME = Object.freeze({
+      kind: "lesson-26-source-shape-frame",
+      sourceSections: Object.freeze(["Andrews 26.4", "Andrews 26.5", "Andrews 26.6", "Andrews 26.7", "Andrews 26.8"]),
+      finalI: Object.freeze({
+        operation: "attach lia to imperfective stem",
+        finalVowelLengtheningPossible: true,
+        siToXi: true,
+        tziOrTzToChiPossible: true,
+        postvocalicTiToChiPossible: true
+      }),
+      finalAAfterI: Object.freeze({
+        operation: "delete final a and add lia",
+        appliesToCausativeAndApplicativeSources: true,
+        iteratedApplicativesPossible: true
+      }),
+      finalAAfterConsonant: Object.freeze({
+        operation: "replace final a with i and add lia",
+        saToXilia: true,
+        tlaOrTzaToChilia: true,
+        occasionalTlaToTilia: true,
+        homophonousCausativeRisk: true
+      }),
+      exceptions: Object.freeze({
+        classD: "add lia to imperfective stem",
+        transitiveClassBIya: "add lia to imperfective stem",
+        intransitiveClassBEya: "delete ya and add lia to root",
+        oyaRootYa: "delete ya for root+lia when the source behaves like root+ya; otherwise add lia"
+      })
+    });
+    const LESSON26_HUIA_TIA_FRAME = Object.freeze({
+      kind: "lesson-26-huia-tia-frame",
+      sourceSections: Object.freeze(["Andrews 26.9", "Andrews 26.10", "Andrews 26.11"]),
+      oaSources: Object.freeze({
+        generalSuffixalUnit: "huia",
+        rootFinalL: "add huia to root",
+        rootFinalConsonantOtherThanL: "add a-l-huia or i-l-huia according to the intransitive a-hui/i-hui source",
+        rootFinalO: "add l-huia to root",
+        rootYaCausativeOa: "add l-huia to root",
+        exceptionalOaUsesLia: true
+      }),
+      intransitiveLongO: Object.freeze({
+        suffixalUnit: "huia",
+        causativeApplicativeAmbiguityResolvedByContext: true
+      }),
+      rareTiaApplicative: Object.freeze({
+        suffixalUnit: "tia",
+        notCausative: true,
+        exceptional: true
+      })
+    });
+    const LESSON26_APPLICATIVE_TRANSFORMATION_FRAME = Object.freeze({
+      kind: "lesson-26-applicative-transformation-frame",
+      sourceSection: "Andrews 26.14",
+      operations: Object.freeze(["replace-source-stem-with-applicative-stem", "import-applicative-object-pronoun-from-outside-source-vnc", "make-last-added-applicative-object-the-mainline-object", "demote-source-objects-to-shuntline-levels"]),
+      mainlineObject: "applicative object",
+      sourceObjectInDoubleObjectTarget: "shuntline object",
+      sourceObjectsInTripleObjectTarget: Object.freeze(["first-level shuntline", "second-level shuntline"])
+    });
+    const LESSON26_OBJECT_DEPTH_FRAME = Object.freeze({
+      kind: "lesson-26-object-depth-frame",
+      sourceSections: Object.freeze(["Andrews 26.15", "Andrews 26.16", "Andrews 26.17"]),
+      singleObject: Object.freeze({
+        source: "intransitive VNC",
+        target: "single-object applicative VNC",
+        tlaFusionMayHideIntransitiveSource: true,
+        adverbialEmbedCanClarifyObjectCount: true
+      }),
+      doubleObject: Object.freeze({
+        source: "single-object VNC",
+        target: "double-object applicative VNC",
+        sourceReflexiveBecomesShuntlineNe: true,
+        mainlineApplicativeObjectMayBeOnlyOvertSpecificObject: true,
+        silentSpecificObjectMayTakeSupplement: true,
+        appendixRef: "Appendix C.2"
+      }),
+      tripleObject: Object.freeze({
+        source: "double-object VNC",
+        target: "triple-object applicative VNC",
+        overtObjectCountsAllowed: Object.freeze([3, 2, 1]),
+        silentProjectiveShuntlinesPossible: true,
+        appendixRef: "Appendix C.3"
+      })
+    });
+    const LESSON26_APPLICATIVE_BOUNDARY_FRAME = Object.freeze({
+      kind: "lesson-26-applicative-boundary-frame",
+      sourceSections: Object.freeze(["Andrews 26.18", "Andrews 26.19", "Andrews 26.20", "Andrews 26.21", "Andrews 26.22", "Andrews 26.23"]),
+      ambiguity: Object.freeze({
+        objectSequenceMayHaveMultipleSources: true,
+        mustResolveMainlineAndShuntlineRoles: true,
+        appendixCRequired: true
+      }),
+      sentenceMoods: Object.freeze(["wish", "command/exhortation", "admonition"]),
+      passiveImpersonalTransformsAllowed: true,
+      alternativeObjectPronouns: Object.freeze({
+        humanNonhumanContrastCanChangeTranslation: true,
+        translationCanDisguiseApplicativeNature: true
+      }),
+      deceptiveVncs: true,
+      applicativeUnitControl: Object.freeze({
+        discontinuousObjectPlusSuffixUnit: true,
+        possibleCompositionAnalysis: true,
+        doesNotIncorporateWholeSourceVncAsObject: true,
+        causativeApplicativeMeaningOverlapRequiresCaution: true
+      })
+    });
+    const LESSON26_APPLICATIVE_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson26-applicative-nature",
+      andrewsSection: "26.1",
+      category: "applicative-object-role",
+      directiveEs: "El aplicativo aplica la accion a un participante tangencial y su objeto es constituyente principal junto con el sufijo.",
+      engineSurface: "applicative derivation option",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-type-one-applicative",
+      andrewsSection: "26.2",
+      category: "type-one-applicative-ia",
+      directiveEs: "El tipo 1 agrega ia a un imperfectivo replacivo sin vocal final y es lexicalmente impredecible.",
+      engineSurface: "applicative stem pool",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-type-two-applicative",
+      andrewsSection: "26.3",
+      category: "type-two-applicative-lia-huia",
+      directiveEs: "El tipo 2 usa lia o huia, con l/w vacios mas ia aplicativa; reflexivo fuente pasa a ne secundario.",
+      engineSurface: "applicative stem pool",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-final-i-sources",
+      andrewsSection: "26.4",
+      category: "final-i-source",
+      directiveEs: "Fuentes en i agregan lia y pueden mostrar alargamiento o cambios si/ti/tz.",
+      engineSurface: "source-shape allomorphy",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson26-final-a-frame",
+      andrewsSection: "26.5",
+      category: "final-a-source-frame",
+      directiveEs: "Fuentes en a se dividen por sonido precedente: i, consonante u o.",
+      engineSurface: "source-shape classifier",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-final-ia-sources",
+      andrewsSection: "26.6",
+      category: "final-ia-source",
+      directiveEs: "Fuentes en ia borran a y agregan lia; esto permite aplicativos de causativos y de aplicativos.",
+      engineSurface: "iterated applicative routing",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-final-consonant-a-sources",
+      andrewsSection: "26.7",
+      category: "final-consonant-a-source",
+      directiveEs: "Fuentes consonante+a cambian a por i y agregan lia, con rutas xi/ch/ti.",
+      engineSurface: "source-shape allomorphy",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson26-exceptions",
+      andrewsSection: "26.8",
+      category: "applicative-source-exceptions",
+      directiveEs: "Clase D, clase B iya/eya y oya tienen excepciones propias antes de lia.",
+      engineSurface: "exception stem pool",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson26-oa-huia-sources",
+      andrewsSection: "26.9",
+      category: "oa-huia-source",
+      directiveEs: "Fuentes o-a forman huia sobre raiz, raiz+a-l/i-l, raiz+l, o excepcionalmente lia.",
+      engineSurface: "huia/wia applicative routing",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-long-o-huia",
+      andrewsSection: "26.10",
+      category: "long-o-huia-source",
+      directiveEs: "Fuentes intransitivas en o larga pueden dar huia causativa o aplicativa; el contexto decide.",
+      engineSurface: "causative/applicative ambiguity metadata",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-tia-applicative",
+      andrewsSection: "26.11",
+      category: "rare-tia-applicative",
+      directiveEs: "Tia puede ser formativo aplicativo raro y no debe confundirse con causativo.",
+      engineSurface: "tia ambiguity diagnostics",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-two-types-same-source",
+      andrewsSection: "26.12",
+      category: "type-one-type-two-parallel",
+      directiveEs: "Una misma fuente puede tener aplicativo tipo 1 y tipo 2, con significado igual o diferente.",
+      engineSurface: "parallel applicative stem pool",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson26-class-c",
+      andrewsSection: "26.13",
+      category: "applicative-class-c",
+      directiveEs: "Todo aplicativo, de tipo 1 o tipo 2, pertenece a Clase C.",
+      engineSurface: "Class C applicative routing",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson26-applicative-transform",
+      andrewsSection: "26.14",
+      category: "applicative-transformation",
+      directiveEs: "La CNV fuente cambia a tronco aplicativo e importa objeto aplicativo principal; objetos fuente pasan a lineas secundarias.",
+      engineSurface: "forwardDerivationFrame plus object slots",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-single-object-transform",
+      andrewsSection: "26.15",
+      category: "single-object-applicative-vnc",
+      directiveEs: "Fuente intransitiva produce CNV aplicativa de un objeto; tla fusion puede ocultar la fuente.",
+      engineSurface: "single-object applicative output",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-double-object-transform",
+      andrewsSection: "26.16",
+      category: "double-object-applicative-vnc",
+      directiveEs: "Fuente de un objeto produce aplicativo de dos objetos; incompatibilidad puede silenciar el objeto fuente.",
+      engineSurface: "obj1/obj2 valence controls",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-triple-object-transform",
+      andrewsSection: "26.17",
+      category: "triple-object-applicative-vnc",
+      directiveEs: "Fuente de dos objetos produce aplicativo de tres objetos con lineas secundarias y silencios posibles.",
+      engineSurface: "obj1/obj2/obj3 controls",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-applicative-ambiguity",
+      andrewsSection: "26.18",
+      category: "applicative-transform-ambiguity",
+      directiveEs: "Las secuencias de objeto pueden venir de fuentes distintas; hay que resolver linea principal y secundarias.",
+      engineSurface: "diagnostic ambiguity metadata",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-applicative-moods",
+      andrewsSection: "26.19",
+      category: "applicative-sentence-moods",
+      directiveEs: "Las CNV aplicativas pueden entrar en deseo, mandato/exhortacion y admonicion.",
+      engineSurface: "finite output plus sentence-layer diagnostics",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-applicative-passive-impersonal",
+      andrewsSection: "26.20",
+      category: "applicative-passive-impersonal",
+      directiveEs: "Las CNV aplicativas pueden sufrir transformaciones pasivas e impersonales.",
+      engineSurface: "shared passive/impersonal nonactive route",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson26-alternative-object-pronouns",
+      andrewsSection: "26.21",
+      category: "human-nonhuman-object-translation",
+      directiveEs: "Objetos humanos/no humanos pueden cambiar la traduccion y ocultar la naturaleza aplicativa.",
+      engineSurface: "object-humanity diagnostics",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-deceptive-vncs",
+      andrewsSection: "26.22",
+      category: "deceptive-applicative-vnc",
+      directiveEs: "La superficie puede ocultar analisis morfosintacticos distintos.",
+      engineSurface: "alternate-source diagnostics",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson26-applicative-unit",
+      andrewsSection: "26.23",
+      category: "object-plus-suffix-unit",
+      directiveEs: "El sufijo aplicativo y su objeto forman una unidad discontinua fuerte, posiblemente composicional.",
+      engineSurface: "applicative unit metadata",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    })]);
+    function getLesson26ApplicativeSubsectionInventory() {
+      return LESSON26_APPLICATIVE_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON26_APPLICATIVE_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson26ApplicativePursuitFrame() {
+      const subsectionInventory = getLesson26ApplicativeSubsectionInventory();
+      const natureFrame = cloneVncAllomorphyLessonRecord(LESSON26_APPLICATIVE_NATURE_FRAME);
+      const formationFrame = cloneVncAllomorphyLessonRecord(LESSON26_APPLICATIVE_FORMATION_FRAME);
+      const sourceShapeFrame = cloneVncAllomorphyLessonRecord(LESSON26_SOURCE_SHAPE_FRAME);
+      const huiaTiaFrame = cloneVncAllomorphyLessonRecord(LESSON26_HUIA_TIA_FRAME);
+      const transformationFrame = cloneVncAllomorphyLessonRecord(LESSON26_APPLICATIVE_TRANSFORMATION_FRAME);
+      const objectDepthFrame = cloneVncAllomorphyLessonRecord(LESSON26_OBJECT_DEPTH_FRAME);
+      const boundaryFrame = cloneVncAllomorphyLessonRecord(LESSON26_APPLICATIVE_BOUNDARY_FRAME);
+      const remainingGaps = ["Applicative source-shape selection for ia, lia, huia, and rare tia is not data-complete and has many lexical, exception, and ambiguity boundaries.", "Current applicative generation and forwardDerivationFrame metadata do not yet prove Andrews 26.1-26.13 irregular, valence-neutral, honorific-only, source-class, source-final, type-one/type-two parallel, and Class C contracts.", "Andrews 26.14-26.18 source-CNV transforms for single-, double-, and triple-object applicatives are not fully modeled with mainline/shuntline function, silent objects, and Appendix C coverage.", "Applicative moods, passive/impersonal transforms, human/nonhuman alternative-object diagnostics, deceptive VNCs, and the discontinuous object-plus-suffix unit remain diagnostic or partially routed."];
+      const frame = {
+        kind: "lesson-26-applicative-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 26,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON26_APPLICATIVE_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-26-applicative-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 26.1-26.23 against current applicative generation, source-shape selection, single/double/triple object transforms, ambiguity, voices, sentence moods, and object-plus-suffix unit control.",
+          andrewsRefs: Array.from(LESSON26_APPLICATIVE_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON26_APPLICATIVE_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-26-applicative-audit",
+          result: "hit",
+          correction: "Lesson 26 now records Andrews applicative source families, ia/lia/huia/tia boundaries, Class C policy, source-CNV transformation rules, object-depth behavior, ambiguity, voice and sentence boundaries, current engine support, and explicit gaps before closest-pass can be claimed.",
+          andrewsRefs: Array.from(LESSON26_APPLICATIVE_PDF_REFS),
+          feedbackRefs: Array.from(LESSON26_APPLICATIVE_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        natureFrame,
+        formationFrame,
+        sourceShapeFrame,
+        huiaTiaFrame,
+        transformationFrame,
+        objectDepthFrame,
+        boundaryFrame,
+        currentEngineBoundary: {
+          applicativeGenerationImplemented: true,
+          forwardDerivationFrameImplemented: true,
+          typeOneTypeTwoStemPoolPartial: true,
+          sourceShapeAllomorphyPartial: true,
+          classCPolicyPartial: true,
+          sourceCnvTransformIncomplete: true,
+          doubleTripleObjectRoutingIncomplete: true,
+          silentObjectSupplementationPartial: true,
+          passiveImpersonalApplicativeRoutingPartial: true,
+          sentenceMoodLayerDiagnosticOnly: true,
+          deceptiveVncDiagnosticsPartial: true,
+          objectPlusSuffixUnitDiagnosticOnly: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return frame;
+      }
+      return targetObject.attachGrammarMetadataContract(frame, {
+        enumerable: false,
+        unitKind: "applicative-verbstem",
+        metadataKind: "lesson-26-applicative-pursuit-frame",
+        routeFamily: "vnc-allomorphy",
+        routeStage: "audit-lesson-26",
+        generationAllowed: false,
+        supported: true,
+        structuralSource: "Andrews Lesson 26",
+        andrewsRefs: ["Andrews Lesson 26.1-26.23"],
+        evidenceStatus: "direct-pdf-partial",
+        sourceInput: "Andrews Lesson 26.1-26.23",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil output spelling",
+          noClassicalSurfaceImport: true,
+          suffixalUnits: ["ia", "lia", "huia", "tia"],
+          classicalToNawatHints: {
+            "huia": "wia",
+            "hua": "wa",
+            "tla": "ta",
+            "h": "j"
+          }
+        },
+        morphBoundaryFrame: {
+          natureFrame,
+          formationFrame,
+          sourceShapeFrame,
+          huiaTiaFrame,
+          transformationFrame,
+          objectDepthFrame,
+          boundaryFrame
+        },
+        stemFrame: {
+          stemKind: "applicative-verbstem",
+          sourceStem: "nonapplicative or applicative source stem",
+          targetStem: "applicative stem",
+          sourceSuffix: "ia/lia/huia/tia",
+          classMembership: formationFrame.classMembership
+        },
+        participantFrame: {
+          applicativeObjectIsMainline: true,
+          applicativeObjectImportedFromOutsideSource: true,
+          sourceObjectsBecomeShuntline: true,
+          singleObjectSource: objectDepthFrame.singleObject.source,
+          doubleObjectSource: objectDepthFrame.doubleObject.source,
+          tripleObjectSource: objectDepthFrame.tripleObject.source,
+          silentSpecificObjectMayTakeSupplement: true
+        },
+        nuclearClauseFrame: {
+          clauseKind: "verbal-nuclear-clause",
+          sourceClauseKind: "intransitive/transitive/applicative/causative VNC",
+          targetClauseKind: "applicative VNC",
+          maxObjectDepth: 3,
+          sentenceMoodBoundary: boundaryFrame.sentenceMoods
+        },
+        targetContract: {
+          metadataKind: "lesson-26-applicative-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnosticStatus: "partial-audit"
+      });
+    }
     function replaceAnalysisSuffix(verb, analysisVerb, nextAnalysisVerb) {
       if (!analysisVerb || analysisVerb === nextAnalysisVerb) {
         return {
@@ -191,12 +1653,42 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         analysisVerb: nextAnalysisVerb
       };
     }
+    function buildVncAllomorphyLesson2SoundSpellingFrame(frameInput = {}, beforeValue = "", afterValue = "", role = "") {
+      if (typeof targetObject.buildLesson2SoundSpellingFrame !== "function") {
+        return null;
+      }
+      const frame = targetObject.buildLesson2SoundSpellingFrame(frameInput);
+      if (!frame || !frame.ruleId) {
+        return null;
+      }
+      const normalizedRole = String(role || frame.grammarSlot || "");
+      return {
+        ...frame,
+        segmentRole: normalizedRole,
+        sourceSegmentValue: String(beforeValue || ""),
+        targetSegmentValue: String(afterValue || "")
+      };
+    }
+    function pushVncAllomorphyLesson2SoundSpellingFrame(frames = [], frameInput = {}, beforeValue = "", afterValue = "", role = "") {
+      if (!Array.isArray(frames)) {
+        return;
+      }
+      const frame = buildVncAllomorphyLesson2SoundSpellingFrame(frameInput, beforeValue, afterValue, role);
+      if (!frame) {
+        return;
+      }
+      const key = [frame.ruleId || "", frame.grammarSlot || "", frame.syllablePosition || "", frame.sourceSurface || "", frame.target || "", Array.isArray(frame.targetCandidates) ? frame.targetCandidates.join("/") : "", frame.segmentRole || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":");
+      if (key && frames.some(entry => [entry.ruleId || "", entry.grammarSlot || "", entry.syllablePosition || "", entry.sourceSurface || "", entry.target || "", Array.isArray(entry.targetCandidates) ? entry.targetCandidates.join("/") : "", entry.segmentRole || "", entry.sourceSegmentValue || "", entry.targetSegmentValue || ""].join(":") === key)) {
+        return;
+      }
+      frames.push(frame);
+    }
     function applyNonspecificObjectAllomorphy({
       verb,
       analysisVerb,
-      objectPrefix,
-      indirectObjectMarker = "",
-      thirdObjectMarker = "",
+      obj1,
+      obj2 = "",
+      obj3 = "",
       hasOptionalSupportiveI = false,
       optionalSupportiveLetter = "",
       supportivePrecedingSurface = "",
@@ -205,22 +1697,32 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       hasBoundMarker = false,
       directionalPrefix = ""
     }) {
+      const soundSpellingFrames = [];
       if (!verb) {
         return {
           verb,
           analysisVerb,
-          objectPrefix
+          obj1,
+          soundSpellingFrames
         };
       }
       const base = analysisVerb || verb;
       let nextVerb = verb;
       let nextAnalysis = base;
-      let nextObjectPrefix = objectPrefix;
+      let nextObj1 = obj1;
       const normalizedSupportivePrecedingSurface = targetObject.normalizeSupportiveYContextSurface(supportivePrecedingSurface);
-      const hasNonspecificMarker = hasNonspecificValence || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(objectPrefix) || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(indirectObjectMarker) || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(thirdObjectMarker);
-      const shouldReduceMuPrefix = objectPrefix === "mu" && (targetObject.startsWithICVCVPattern(base) || targetObject.startsWithAlPrefix(base) || targetObject.startsWithACVlPattern(base)) && !targetObject.startsWithAny(base, targetObject.NONSPECIFIC_I_DROP_VERBS);
+      const hasNonspecificMarker = hasNonspecificValence || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(obj1) || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(obj2) || targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(obj3);
+      const shouldReduceMuPrefix = obj1 === "mu" && (targetObject.startsWithICVCVPattern(base) || targetObject.startsWithAlPrefix(base) || targetObject.startsWithACVlPattern(base)) && !targetObject.startsWithAny(base, targetObject.NONSPECIFIC_I_DROP_VERBS);
       if (shouldReduceMuPrefix) {
-        nextObjectPrefix = "m";
+        const position = targetObject.startsWithICVCVPattern(base) ? "before-i-stem" : targetObject.startsWithAlPrefix(base) ? "before-al-stem" : "before-a-cvl-stem";
+        pushVncAllomorphyLesson2SoundSpellingFrame(soundSpellingFrames, {
+          ruleId: "obj1-mu-before-vowel-m",
+          source: obj1,
+          target: "m",
+          slot: "obj1",
+          syllablePosition: position
+        }, obj1, "m", "obj1");
+        nextObj1 = "m";
       }
       if (hasOptionalSupportiveI) {
         const supportiveLetter = targetObject.resolveOptionalSupportiveLetter(optionalSupportiveLetter, nextAnalysis);
@@ -231,6 +1733,13 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         if (shouldDropSupportiveMarker) {
           if (nextAnalysis.startsWith(supportiveLetter)) {
             const dropped = nextAnalysis.slice(1);
+            pushVncAllomorphyLesson2SoundSpellingFrame(soundSpellingFrames, {
+              ruleId: "supportive-i-stem-initial-elision",
+              source: supportiveLetter,
+              target: "",
+              slot: "stem-initial",
+              syllablePosition: hasSlashMarker ? "slash-boundary" : "after-object"
+            }, nextAnalysis, dropped, "stem-initial");
             const updated = replaceAnalysisSuffix(nextVerb, nextAnalysis, dropped);
             nextVerb = updated.verb;
             // Keep the underlying matrix analysis for bound slash inputs even when
@@ -238,6 +1747,14 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
             nextAnalysis = hasSlashMarker && hasBoundMarker ? nextAnalysis : updated.analysisVerb;
           } else if (nextVerb.startsWith(supportiveLetter)) {
             // Slash/fused paths can keep matrix support in surface verb while analysis is matrix-only.
+            const dropped = nextVerb.slice(1);
+            pushVncAllomorphyLesson2SoundSpellingFrame(soundSpellingFrames, {
+              ruleId: "supportive-i-stem-initial-elision",
+              source: supportiveLetter,
+              target: "",
+              slot: "stem-initial",
+              syllablePosition: hasSlashMarker ? "slash-boundary" : "after-object"
+            }, nextVerb, dropped, "stem-initial");
             nextVerb = nextVerb.slice(1);
           }
         } else if (isSupportiveI && !nextAnalysis.startsWith(supportiveLetter) && !normalizedSupportivePrecedingSurface) {
@@ -257,11 +1774,12 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       return {
         verb: nextVerb,
         analysisVerb: nextAnalysis,
-        objectPrefix: nextObjectPrefix
+        obj1: nextObj1,
+        soundSpellingFrames
       };
     }
-    function isValencyFilled(objectPrefix, verbMeta) {
-      if (objectPrefix) {
+    function isObj1ValencyFilled(obj1, verbMeta) {
+      if (obj1) {
         return true;
       }
       if (!verbMeta) {
@@ -272,14 +1790,14 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       }
       return getActiveVerbValency(verbMeta) > 1;
     }
-    function isNonactiveTransitiveVerb(objectPrefix, verbMeta) {
+    function isNonactiveTransitiveByObj1(obj1, verbMeta) {
       if (!verbMeta) {
-        return Boolean(objectPrefix);
+        return Boolean(obj1);
       }
       if (verbMeta.isTaFusion) {
         return true;
       }
-      return isValencyFilled(objectPrefix, verbMeta);
+      return isObj1ValencyFilled(obj1, verbMeta);
     }
     function shouldUseAnalysisVerbAsRuleBase(verbMeta) {
       if (!verbMeta) {
@@ -327,12 +1845,12 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       }
       return "";
     }
-    function collapseLegacySlashTiInput(baseValue = "") {
+    function collapseSlashTiInput(baseValue = "") {
       const base = String(baseValue || "").trim().toLowerCase();
       if (!base.includes("/ti")) {
         return baseValue;
       }
-      // New serial mechanism treats legacy X/ti as fused Xti.
+      // New serial mechanism treats slash X/ti as fused Xti.
       // Keep known valence-marked forms untouched.
       const simpleMatch = base.match(/^([a-z]+)\/ti$/);
       if (!simpleMatch) {
@@ -404,7 +1922,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         return "ti";
       });
       return {
-        base: collapseLegacySlashTiInput(normalizedBase),
+        base: collapseSlashTiInput(normalizedBase),
         tiCausativeClass
       };
     }
@@ -466,8 +1984,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     }
 
     // Strip the directional prefix and any bound/fusion prefixes from a rule base so
-    // that phonological rules operate on the bare verb root.  Used by both
-    // buildNonactiveRuleSourceContext and the legacy getNonactiveRuleBase wrapper.
+    // that phonological rules operate on the bare verb root.
     function stripNonactiveRuleBasePrefixes(base, verbMeta) {
       if (!verbMeta || !base) {
         return base;
@@ -481,7 +1998,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       const allPrefixes = fusionPrefixes.length ? [...fusionPrefixes, ...boundPrefixes.filter(p => !fusionPrefixes.includes(p))] : boundPrefixes;
       return allPrefixes.length ? stripLeadingPrefixes(result, allPrefixes) : result;
     }
-    function getNonactiveRuleBase(source, verbMeta) {
+    function resolveNonactiveRuleBase(source, verbMeta) {
       if (!source || !verbMeta) {
         return source;
       }
@@ -943,7 +2460,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         lockNominalMarker: resolved.lockNominalMarker
       });
     }
-    function buildNominalSubjectNumberConnector({
+    function buildNominalNum1Num2({
       subjectSuffix = "",
       nominalKind = "",
       predicateState = "derived-nominal",
@@ -970,7 +2487,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         notStatePosition: true
       });
     }
-    function normalizeNominalSubjectNumberConnector(connector = null, fallback = {}) {
+    function normalizeNominalNum1Num2(connector = null, fallback = {}) {
       if (connector && typeof connector === "object") {
         return Object.freeze({
           ...connector,
@@ -989,7 +2506,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           notStatePosition: connector.notStatePosition !== false
         });
       }
-      return buildNominalSubjectNumberConnector(fallback);
+      return buildNominalNum1Num2(fallback);
     }
     function buildNominalFormEntry(verb = "", subjectSuffix = "", options = {}) {
       const normalizedVerb = normalizeRuleBase(String(verb || "").trim().toLowerCase());
@@ -998,19 +2515,20 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         lockNominalMarker: options?.lockNominalMarker === true
       });
       const nominalKind = String(options?.nounDerivationKind || options?.nominalKind || "");
-      const subjectNumberConnector = normalizeNominalSubjectNumberConnector(options?.subjectNumberConnector || null, {
+      const num1Num2 = normalizeNominalNum1Num2(options?.num1Num2 || null, {
         subjectSuffix: normalizedSuffix,
         nominalKind,
         predicateState: options?.predicateState || "derived-nominal",
         source: options?.sourceTense || options?.source || ""
       });
-      return {
+      const entry = {
         ...options,
         verb: normalizedVerb,
         subjectSuffix: normalizedSuffix,
         formSpec,
-        subjectNumberConnector
+        num1Num2
       };
+      return entry;
     }
     function normalizeNominalFormEntry(entry = null, fallback = {}) {
       if (!entry || typeof entry !== "object") {
@@ -1630,7 +3148,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       sourceModel = null,
       sourceTense = "",
       predicateStateSlot = null,
-      subjectNumberConnector = null,
+      num1Num2 = null,
       patientivoSource = "",
       patientiveSourceStageFrame = null,
       patientiveMultipleDerivationContract = null,
@@ -1675,7 +3193,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         isGeneralUseActionNominal,
         isGeneralUsePassiveActionNominal
       });
-      return Object.freeze({
+      const connectorSlot = num1Num2 || null;
+      const profile = {
         version: 1,
         outputKind: "verb-derived-nominal",
         nominalKind: kind,
@@ -1714,7 +3233,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           possessorPrefix: String(predicateStateSlot?.possessorPrefix || "")
         }),
         possessorSourceFrame,
-        subjectConnector: subjectNumberConnector || null,
+        num1Num2: connectorSlot,
         boundaries: Object.freeze({
           nominalizationScope: "structural-word-output",
           isGeneratedSurface: generatedSurface !== false,
@@ -1723,7 +3242,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           isAdjectivalModification: false,
           doesNotImplementLessons42_43: true
         })
-      });
+      };
+      return Object.freeze(profile);
     }
     function buildVerbDerivedNominalSourceModel(options = {}, kind = "") {
       const chain = targetObject.buildFullDerivationSourceChain(options, options?.verb || "", options?.analysisVerb || options?.verb || "");
@@ -1982,10 +3502,10 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       const normalizedPossessivePrefix = String(possessivePrefix || "");
       const normalizedObjectPrefix = String(objectPrefix || "");
       const expectedOutput = targetObject.buildOutputPrefixedChain({
-        subjectPrefix: normalizedSubjectPrefix,
-        possessivePrefix: normalizedPossessivePrefix,
-        objectPrefix: normalizedObjectPrefix,
-        verb: baseVerb,
+        pers1: normalizedSubjectPrefix,
+        poseedor: normalizedPossessivePrefix,
+        obj1: normalizedObjectPrefix,
+        tronco: baseVerb,
         hasOptionalSupportiveI,
         optionalSupportiveLetter,
         directionalChainMeta,
@@ -2051,11 +3571,11 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       normalizedEntries.forEach(entry => {
         const realized = realizeNominalFormSpec(entry.formSpec || null, entry);
         const text = targetObject.buildNominalOutputText({
-          possessivePrefix: possessivePrefix || "",
-          objectPrefix: entry.surfaceObjectPrefix || "",
-          verb: realized.verb,
-          subjectSuffix: realized.subjectSuffix,
-          trailingSuffix: entry.trailingSuffix || "",
+          poseedor: possessivePrefix || "",
+          obj1: entry.surfaceObjectPrefix || "",
+          tronco: realized.verb,
+          pers2: realized.subjectSuffix,
+          sufijoNominal: entry.trailingSuffix || "",
           hasOptionalSupportiveI,
           optionalSupportiveLetter,
           surfaceRuleMeta: entry.surfaceRuleMeta || null
@@ -2064,10 +3584,10 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           forms.add(text);
         }
       });
-      const subjectNumberConnectors = [];
+      const num1Num2Alternates = [];
       const seenConnectorKeys = new Set();
       normalizedEntries.forEach(entry => {
-        const connector = normalizeNominalSubjectNumberConnector(entry?.subjectNumberConnector || null, {
+        const connector = normalizeNominalNum1Num2(entry?.num1Num2 || null, {
           subjectSuffix: entry?.subjectSuffix || "",
           nominalKind: kind || entry?.nounDerivationKind || "",
           predicateState: "derived-nominal",
@@ -2076,10 +3596,10 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         const key = [connector.surface, connector.nominalKind, connector.predicateState, connector.source].join("|");
         if (!seenConnectorKeys.has(key)) {
           seenConnectorKeys.add(key);
-          subjectNumberConnectors.push(connector);
+          num1Num2Alternates.push(connector);
         }
       });
-      const primaryConnector = subjectNumberConnectors[0] || null;
+      const primaryConnector = num1Num2Alternates[0] || null;
       const nounDerivationKind = kind || normalizedEntries[0]?.nounDerivationKind || "";
       const sourceTenses = normalizedEntries.map(entry => String(entry?.sourceTense || "")).filter(Boolean);
       const primarySourceTense = sourceTenses[0] || "";
@@ -2096,19 +3616,19 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         notSubjectConnector: true,
         notTense: true
       });
-      return {
+      const output = {
         result: Array.from(forms).join(" / "),
         entries: normalizedEntries,
         sourceModel: normalizedEntries[0]?.sourceModel || null,
         nounDerivationKind,
-        subjectNumberConnector: primaryConnector,
-        subjectNumberConnectors,
+        num1Num2: primaryConnector,
+        num1Num2Alternates,
         nominalizationProfile: buildVerbDerivedNominalizationProfile({
           nominalKind: nounDerivationKind,
           sourceModel: normalizedEntries[0]?.sourceModel || null,
           sourceTense: primarySourceTense,
           predicateStateSlot,
-          subjectNumberConnector: primaryConnector
+          num1Num2: primaryConnector
         }),
         nominalClauseFrame: primaryConnector ? Object.freeze({
           version: 1,
@@ -2118,7 +3638,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           tense: null,
           subject: Object.freeze({
             numberConnector: primaryConnector,
-            numberConnectors: Object.freeze([...subjectNumberConnectors])
+            numberConnectors: Object.freeze([...num1Num2Alternates])
           }),
           predicate: Object.freeze({
             kind: nounDerivationKind,
@@ -2128,6 +3648,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           stateSlot: predicateStateSlot
         }) : null
       };
+      return output;
     }
     function isNominalMorphProfileTense(tenseValue = "") {
       return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "agentivo-presente" || tenseValue === "agentivo-preterito" || tenseValue === "agentivo-futuro" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
@@ -4417,7 +5938,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     function traceDerivationalFunction(rawInput, options = {}) {
       const baseInput = String(targetObject.getSearchInputBase(rawInput || "") || "");
       const parsedVerb = targetObject.parseVerbInput(baseInput);
-      const canonicalDirect = normalizeDerivationStemValue(parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || getNonactiveRuleBase(parsedVerb?.analysisVerb || parsedVerb?.verb || "", parsedVerb) || parsedVerb?.analysisVerb || parsedVerb?.verb || "");
+      const canonicalDirect = normalizeDerivationStemValue(parsedVerb?.canonicalRuleBase || parsedVerb?.canonical?.ruleBase || resolveNonactiveRuleBase(parsedVerb?.analysisVerb || parsedVerb?.verb || "", parsedVerb) || parsedVerb?.analysisVerb || parsedVerb?.verb || "");
       const sourcePrefix = parsedVerb?.hasBoundMarker ? parsedVerb?.sourcePrefix || parsedVerb?.canonical?.sourcePrefix || targetObject.resolveCanonicalSourceSplit(parsedVerb, {
         verb: canonicalDirect,
         analysisVerb: canonicalDirect
@@ -4731,7 +6252,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       const hasParsedFusionList = Array.isArray(fusionPrefixes);
       const hasExplicitFusionList = hasParsedFusionList && fusionPrefixes.length > 0;
       // Prefer parser-produced fusion prefixes whenever available (even empty).
-      // Falling back to boundPrefixes is only for legacy metadata that does not
+      // Falling back to boundPrefixes is only for parser metadata that does not
       // carry fusionPrefixes.
       const candidates = hasParsedFusionList ? fusionPrefixes : boundPrefixes;
       return candidates.filter(prefix => targetObject.FUSION_PREFIXES.has(prefix)
@@ -5080,12 +6601,12 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       const resolvedSubjectPrefix = subjectPrefix || "";
       const resolvedSubjectSuffix = subjectSuffix || "";
       const resolvedControllerPrefix = controllerPrefix || "";
-      const personAgreementViolation = shouldApplyPersonAgreement && !!resolvedControllerPrefix && targetObject.isSamePersonAcrossNumber(resolvedSubjectPrefix, resolvedSubjectSuffix, resolvedControllerPrefix);
-      const hierarchyOrderViolation = shouldApplyPersonAgreement && !!resolvedControllerPrefix && targetObject.isHierarchyOrderViolation(resolvedSubjectPrefix, resolvedSubjectSuffix, resolvedControllerPrefix);
-      const valence4Violation = enforceValence4Matrix && !!valence4Slots && !targetObject.isValidValence4Combo({
-        objectPrefix: valence4Slots.objectPrefix || "",
-        indirectObjectMarker: valence4Slots.indirectObjectMarker || "",
-        thirdObjectMarker: valence4Slots.thirdObjectMarker || ""
+      const personAgreementViolation = shouldApplyPersonAgreement && !!resolvedControllerPrefix && targetObject.isPers1Obj1SamePersonAcrossNumber(resolvedSubjectPrefix, resolvedSubjectSuffix, resolvedControllerPrefix);
+      const hierarchyOrderViolation = shouldApplyPersonAgreement && !!resolvedControllerPrefix && targetObject.isPers1Obj1HierarchyOrderViolation(resolvedSubjectPrefix, resolvedSubjectSuffix, resolvedControllerPrefix);
+      const valence4Violation = enforceValence4Matrix && !!valence4Slots && !targetObject.isValidObj1Obj2Obj3Combo({
+        obj1: valence4Slots.objectPrefix || "",
+        obj2: valence4Slots.indirectObjectMarker || "",
+        obj3: valence4Slots.thirdObjectMarker || ""
       });
       const shouldMaskByCore = personAgreementViolation || hierarchyOrderViolation || valence4Violation;
       return {
@@ -5107,15 +6628,15 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         shuntline1: slotValuesByRole.shuntline1 || "",
         shuntline2: slotValuesByRole.shuntline2 || ""
       };
-      const normalizedPair = targetObject.resolveDisplayValencePrefixes({
-        objectPrefix: rawRoleValues.mainline,
-        indirectObjectMarker: rawRoleValues.shuntline1,
+      const normalizedPair = targetObject.resolveDisplayObj1Obj2({
+        obj1: rawRoleValues.mainline,
+        obj2: rawRoleValues.shuntline1,
         derivationType: state.derivationType
       });
       const normalizedRoleValues = {
         ...rawRoleValues,
-        mainline: normalizedPair.objectPrefix || "",
-        shuntline1: normalizedPair.indirectObjectMarker || ""
+        mainline: normalizedPair.obj1 || "",
+        shuntline1: normalizedPair.obj2 || ""
       };
       const hierarchyAdjusted = normalizedRoleValues.mainline !== rawRoleValues.mainline || normalizedRoleValues.shuntline1 !== rawRoleValues.shuntline1;
       const controllerRole = getCanonicalControllerRole(state.derivationType);
@@ -5125,11 +6646,11 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         [getCanonicalSlotIdForRole("mainline")]: rawRoleValues.mainline || "",
         [getCanonicalSlotIdForRole("shuntline1")]: rawRoleValues.shuntline1 || ""
       };
-      const controllerPrefix = targetObject.resolveComboValidationObjectPrefix({
-        objectPrefix: roleValuesBySlotId.object || "",
-        indirectObjectMarker: roleValuesBySlotId.object2 || "",
+      const controllerPrefix = targetObject.resolveComboValidationObj1({
+        obj1: roleValuesBySlotId.object || "",
+        obj2: roleValuesBySlotId.object2 || "",
         derivationType: state.derivationType,
-        controllerObjectMarker: rawControllerPrefix !== "" ? rawControllerPrefix : controllerPriority.map(slotId => roleValuesBySlotId[slotId] || "").find(prefix => Boolean(prefix)) || null
+        controllerObj1: rawControllerPrefix !== "" ? rawControllerPrefix : controllerPriority.map(slotId => roleValuesBySlotId[slotId] || "").find(prefix => Boolean(prefix)) || null
       });
       const subjectPrefix = subjectSelection?.subjectPrefix || "";
       const subjectSuffix = subjectSelection?.subjectSuffix || "";
@@ -9491,15 +11012,236 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     api.getVncAllomorphyContractSourceInput = getVncAllomorphyContractSourceInput;
     api.getVncAllomorphySourceSurfaceForms = getVncAllomorphySourceSurfaceForms;
     api.attachVncAllomorphyGrammarContract = attachVncAllomorphyGrammarContract;
+    api.cloneVncAllomorphyLessonRecord = cloneVncAllomorphyLessonRecord;
+    Object.defineProperty(api, "LESSON20_NONACTIVE_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_SUFFIX_BRIDGE", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_SUFFIX_BRIDGE; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_OVERVIEW_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_OVERVIEW_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_LU_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_LU_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_LUWA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_LUWA_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_U_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_U_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_UWA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_UWA_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_WA_WALU_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_WA_WALU_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_CLASS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_CLASS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON20_NONACTIVE_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON20_NONACTIVE_SUBSECTION_INVENTORY; },
+    });
+    api.getLesson20NonactiveSubsectionInventory = getLesson20NonactiveSubsectionInventory;
+    api.buildLesson20NonactivePursuitFrame = buildLesson20NonactivePursuitFrame;
+    Object.defineProperty(api, "LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_FIRST_TYPE_CAUSATIVE_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON24_FINAL_VOWEL_VALENCE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_FINAL_VOWEL_VALENCE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_VALENCE_NEUTRAL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_VALENCE_NEUTRAL_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_TYPE_ONE_CAUSATIVE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_TYPE_ONE_CAUSATIVE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_DESTOCKAL_ARCHITECTURE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_DESTOCKAL_ARCHITECTURE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_DESTOCKAL_NI_HUI_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_DESTOCKAL_NI_HUI_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_DESTOCKAL_HUA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_DESTOCKAL_HUA_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_DESTOCKAL_IHUI_AHUI_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_DESTOCKAL_IHUI_AHUI_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_CAUSATIVE_VNC_GENERATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_CAUSATIVE_VNC_GENERATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_CAUSATIVE_A_CONTROL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_CAUSATIVE_A_CONTROL_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON24_FIRST_TYPE_CAUSATIVE_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON24_FIRST_TYPE_CAUSATIVE_SUBSECTION_INVENTORY; },
+    });
+    api.getLesson24FirstTypeCausativeSubsectionInventory = getLesson24FirstTypeCausativeSubsectionInventory;
+    api.buildLesson24FirstTypeCausativePursuitFrame = buildLesson24FirstTypeCausativePursuitFrame;
+    Object.defineProperty(api, "LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_SECOND_TYPE_CAUSATIVE_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON25_TYPE_TWO_OVERVIEW_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_TYPE_TWO_OVERVIEW_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_SOURCE_FORMATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_SOURCE_FORMATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_CLASS_AND_PARALLEL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_CLASS_AND_PARALLEL_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_CAUSATIVE_TRANSFORMATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_CAUSATIVE_TRANSFORMATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_OBJECT_TRANSFORM_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_OBJECT_TRANSFORM_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_BOUNDARY_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_BOUNDARY_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON25_SECOND_TYPE_CAUSATIVE_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON25_SECOND_TYPE_CAUSATIVE_SUBSECTION_INVENTORY; },
+    });
+    api.getLesson25SecondTypeCausativeSubsectionInventory = getLesson25SecondTypeCausativeSubsectionInventory;
+    api.buildLesson25SecondTypeCausativePursuitFrame = buildLesson25SecondTypeCausativePursuitFrame;
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_NATURE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_NATURE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_FORMATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_FORMATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_SOURCE_SHAPE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_SOURCE_SHAPE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_HUIA_TIA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_HUIA_TIA_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_TRANSFORMATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_TRANSFORMATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_OBJECT_DEPTH_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_OBJECT_DEPTH_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_BOUNDARY_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_BOUNDARY_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON26_APPLICATIVE_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON26_APPLICATIVE_SUBSECTION_INVENTORY; },
+    });
+    api.getLesson26ApplicativeSubsectionInventory = getLesson26ApplicativeSubsectionInventory;
+    api.buildLesson26ApplicativePursuitFrame = buildLesson26ApplicativePursuitFrame;
     api.replaceAnalysisSuffix = replaceAnalysisSuffix;
+    api.buildVncAllomorphyLesson2SoundSpellingFrame = buildVncAllomorphyLesson2SoundSpellingFrame;
+    api.pushVncAllomorphyLesson2SoundSpellingFrame = pushVncAllomorphyLesson2SoundSpellingFrame;
     api.applyNonspecificObjectAllomorphy = applyNonspecificObjectAllomorphy;
-    api.isValencyFilled = isValencyFilled;
-    api.isNonactiveTransitiveVerb = isNonactiveTransitiveVerb;
+    api.isObj1ValencyFilled = isObj1ValencyFilled;
+    api.isNonactiveTransitiveByObj1 = isNonactiveTransitiveByObj1;
     api.shouldUseAnalysisVerbAsRuleBase = shouldUseAnalysisVerbAsRuleBase;
     api.normalizeRuleBase = normalizeRuleBase;
     api.normalizeTiCausativeClass = normalizeTiCausativeClass;
     api.parseTiCausativeDirectiveToken = parseTiCausativeDirectiveToken;
-    api.collapseLegacySlashTiInput = collapseLegacySlashTiInput;
+    api.collapseSlashTiInput = collapseSlashTiInput;
     api.isValenceLikeDashPrefixToken = isValenceLikeDashPrefixToken;
     api.collapseSerialStemDashInput = collapseSerialStemDashInput;
     api.parseInlineTiCausativeClassFromBase = parseInlineTiCausativeClassFromBase;
@@ -9507,7 +11249,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     api.getDerivationRuleBase = getDerivationRuleBase;
     api.buildDerivationRuleBaseOptions = buildDerivationRuleBaseOptions;
     api.stripNonactiveRuleBasePrefixes = stripNonactiveRuleBasePrefixes;
-    api.getNonactiveRuleBase = getNonactiveRuleBase;
+    api.resolveNonactiveRuleBase = resolveNonactiveRuleBase;
     api.shouldForceAllNonactiveOptions = shouldForceAllNonactiveOptions;
     Object.defineProperty(api, "MORPH_STEM_SPEC_KIND", {
         configurable: true,
@@ -9544,8 +11286,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     api.buildStemNominalFormSpec = buildStemNominalFormSpec;
     api.realizeNominalFormSpec = realizeNominalFormSpec;
     api.withNominalFormSpecSuffix = withNominalFormSpecSuffix;
-    api.buildNominalSubjectNumberConnector = buildNominalSubjectNumberConnector;
-    api.normalizeNominalSubjectNumberConnector = normalizeNominalSubjectNumberConnector;
+    api.buildNominalNum1Num2 = buildNominalNum1Num2;
+    api.normalizeNominalNum1Num2 = normalizeNominalNum1Num2;
     api.buildNominalFormEntry = buildNominalFormEntry;
     api.normalizeNominalFormEntry = normalizeNominalFormEntry;
     api.withNominalFormEntrySuffix = withNominalFormEntrySuffix;

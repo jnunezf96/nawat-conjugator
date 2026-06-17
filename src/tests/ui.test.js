@@ -8,8 +8,11 @@ function run(ctx = {}) {
     const s = createSuite("ui");
     const html = fs.readFileSync(path.resolve(__dirname, "..", "..", "index.html"), "utf8");
     const css = fs.readFileSync(path.resolve(__dirname, "..", "..", "style.css"), "utf8");
+    const staticLabels = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_labels.json"), "utf8");
+    const staticModes = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_modes.json"), "utf8");
     const rendering = fs.readFileSync(path.resolve(__dirname, "..", "ui", "rendering", "rendering.js"), "utf8");
     const composer = fs.readFileSync(path.resolve(__dirname, "..", "ui", "composer", "composer.js"), "utf8");
+    const events = fs.readFileSync(path.resolve(__dirname, "..", "ui", "events.js"), "utf8");
     const exportUi = fs.readFileSync(path.resolve(__dirname, "..", "ui", "export", "export.js"), "utf8");
     const state = fs.readFileSync(path.resolve(__dirname, "..", "ui", "state.js"), "utf8");
     const vncFacade = fs.readFileSync(path.resolve(__dirname, "..", "core", "vnc", "vnc.js"), "utf8");
@@ -37,6 +40,7 @@ function run(ctx = {}) {
     const nncNames = fs.readFileSync(path.resolve(__dirname, "..", "core", "nnc", "names", "names.js"), "utf8");
     const analysis = fs.readFileSync(path.resolve(__dirname, "..", "core", "analysis", "analysis.js"), "utf8");
     const panels = fs.readFileSync(path.resolve(__dirname, "..", "ui", "panels", "panels.js"), "utf8");
+    const curriculum = fs.readFileSync(path.resolve(__dirname, "..", "ui", "curriculum", "curriculum.js"), "utf8");
     const tabsStart = html.indexOf('id="verb-entry-board-tabs"');
     const tabsEnd = html.indexOf('<div class="verb-block__utility-actions"', tabsStart);
     const tabsHtml = tabsStart >= 0 && tabsEnd > tabsStart
@@ -47,17 +51,22 @@ function run(ctx = {}) {
     const nawatModeHtml = nawatModeStart >= 0 && nawatModeEnd > nawatModeStart
         ? html.slice(nawatModeStart, nawatModeEnd)
         : "";
+    const entradaComposerCssStart = css.indexOf("/* #1 Entrada operation order: grouped by grammar band. */");
+    const entradaComposerCssEnd = css.indexOf("/* Functional button scale", entradaComposerCssStart);
+    const entradaComposerCss = entradaComposerCssStart >= 0 && entradaComposerCssEnd > entradaComposerCssStart
+        ? css.slice(entradaComposerCssStart, entradaComposerCssEnd)
+        : "";
 
     s.ok(
         "ordinary NNC S control lives in the composer entry board tabs",
         tabsHtml.includes('id="verb-entry-board-ordinary-nnc"')
             && tabsHtml.includes('data-ordinary-nnc-mode="true"')
-            && />\s*S\s*<\/button>/.test(tabsHtml)
+            && />\s*N\s*<\/button>/.test(tabsHtml)
     );
     s.ok(
         "ordinary NNC S control is labeled as a nominal clause",
-        tabsHtml.includes('aria-label="Tablero NNC/S: clausula nominal"')
-            && tabsHtml.includes('title="NNC/S: clausula nominal"')
+        tabsHtml.includes('aria-label="Tablero CNN/N: cláusula nominal"')
+            && tabsHtml.includes('title="CNN/N: cláusula nominal"')
     );
     s.no(
         "ordinary NNC is not rendered as a Nawat mode operator chip",
@@ -65,23 +74,158 @@ function run(ctx = {}) {
             || nawatModeHtml.includes('data-ordinary-nnc-mode="true"')
     );
     s.ok(
-        "entry board tabs reserve columns for V, S, and S->V",
+        "entry board tabs reserve columns for V, N, and N>V",
         css.includes("grid-template-columns: repeat(3, minmax(44px, 1fr));")
             && css.includes("grid-template-columns: auto minmax(24px, auto) minmax(24px, auto) minmax(38px, auto);")
             && /#container-inputs #composer-slot-stage > \.verb-entry-board-tabs\s*\{[^}]*grid-column: 1;[^}]*justify-self: start;/s.test(css)
     );
     s.ok(
-        "Andrews workspace frames the all-lesson map and grammar stages",
+        "#1 Entrada composer is organized by operation-slot order per board",
+        composer.includes("function syncComposerOperationSlotOrderMetadata")
+            && composer.includes('stagePanel.dataset.operationBoard = board')
+            && composer.includes('stagePanel.dataset.operationOrder = getComposerOperationOrderLabel(board)')
+            && composer.includes('"CNV: tablero -> valencia CNV -> dir -> incorporado -> obj1/obj2 -> predicado STEM"')
+            && composer.includes('"CNN/N: tablero -> pers1-pers2 -> predicado STEM -> conector num1-num2 -> referencia"')
+            && composer.includes('"N>V: tablero -> fuente N -> verbalización -> valencia CNV -> obj1/obj2 -> dir"')
+            && composer.includes('setComposerOperationSlotMetadata(directionalHost, "directional-prefix", 10)')
+            && composer.includes('setComposerOperationSlotMetadata(embedField, "incorporated-prefix", 20)')
+            && composer.includes('setComposerOperationSlotMetadata(objectPair, "object-valency", 30)')
+            && composer.includes('setComposerOperationSlotMetadata(matrixField, "predicate-core", 40)')
+            && composer.includes('setComposerOperationSlotMetadata(matrixField, "nnc-predicate", 30)')
+            && composer.includes('setComposerOperationSlotMetadata(classTabs, "nnc-num1-num2"')
+            && composer.includes("const moveSlotContentChildren = (fromEl, toEl)")
+            && composer.includes("const currentTopRow = Array.from(stagePanel.children)")
+            && composer.includes('stagePanel.dataset.activeTransitivity = activeToken')
+            && entradaComposerCss.includes("grid-template-areas:")
+            && entradaComposerCss.includes('"entry switch"')
+            && entradaComposerCss.includes('"source source"')
+            && entradaComposerCss.includes('"operations operations"')
+            && entradaComposerCss.includes("#container-inputs #composer-slot-stage > .verb-composer__top-row")
+            && entradaComposerCss.includes("#container-inputs #composer-slot-stage > .verb-composer__bottom-row")
+            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="noun-to-verb"] > .verb-composer__top-row')
+            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-class-tabs')
+            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-controls')
+            && !entradaComposerCss.includes("display: contents")
+    );
+    s.ok(
+        "S->V composer verbalization chips carry Andrews/Nawat judgement without changing generation",
+        composer.includes("function getComposerMatrixAffixAndrewsJudgment")
+            && composer.includes("Andrews 54.2.1: inceptivo/estativo con ti.")
+            && composer.includes("Andrews 54.2.2: Classical hui se realiza como Nawat wi.")
+            && composer.includes("Andrews 55.7: i-a es transitivo y sensible a la fuente.")
+            && composer.includes("Nawat · sin contrato Andrews")
+            && composer.includes('triggerPrefix.textContent = currentState.triggerPrefix || getComposerMatrixAffixTriggerPrefix("manual")')
+            && composer.includes("const shouldHidePrefix = false")
+            && composer.includes("button.dataset.andrewsJudgment = andrewsJudgment.status || \"\"")
+            && composer.includes("verb-composer__matrix-affix-chip-judge")
+            && css.includes(".verb-composer__matrix-affix-chip-judge")
+            && css.includes(".verb-composer__matrix-affix-chip.is-andrews-source-required")
+            && css.includes(".verb-composer__matrix-affix-chip.is-andrews-nawat-only")
+    );
+    s.ok(
+        "Andrews workspace starts at #1 Entrada without intro sections",
         html.includes('id="andrews-workspace"')
-            && html.includes('class="andrews-contract-strip"')
-            && html.includes('data-contract-layer="andrews"')
+            && !html.includes('id="book-map"')
+            && !html.includes('class="andrews-contract-strip"')
+            && !html.includes('id="concept-glossary"')
             && html.includes('data-andrews-stage="source"')
-            && html.includes('data-andrews-stage="route-controls"')
+            && html.includes('data-andrews-stage="formula-controls"')
             && html.includes('data-andrews-stage="output"')
             && css.includes(".andrews-workspace")
-            && css.includes("grid-template-rows: auto auto minmax(0, 1fr);")
-            && css.includes("grid-template-columns: repeat(6, minmax(0, 1fr));")
-            && css.includes("grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));")
+            && css.includes("grid-template-rows: minmax(0, 1fr);")
+    );
+    s.ok(
+        "visible page shell follows Andrews nuclear-clause terminology",
+        html.includes("<title>Conjugador de cláusulas nucleares nawat</title>")
+            && html.includes('id="app-title"')
+            && html.includes(">Conjugador de cláusulas nucleares nawat<")
+            && html.includes('class="form-container-clause hero-panel hero-panel--entrada"')
+            && html.includes('aria-label="Espacio gramatical Andrews: cláusulas nucleares"')
+            && html.includes('aria-label="Banco de cláusulas nucleares Andrews"')
+            && html.includes('data-ui-label-key="panel-stack-tab-inputs"')
+            && html.includes('id="panel-stack-tab-formula"')
+            && html.includes('data-ui-label-key="panel-stack-tab-formula"')
+            && html.includes('data-ui-label-key="panel-stack-tab-output"')
+            && html.includes('data-panel-stack-tab="formula"')
+            && html.includes('data-panel-stack-pane="formula"')
+            && html.includes('data-andrews-stage-label="2 Fórmula"')
+            && html.includes(">FÓRMULA<")
+            && !html.includes("Conjugador de verbos")
+            && !html.includes("form-container-word")
+            && !html.includes(">DERIVADA<")
+    );
+    s.eq(
+        "static visible UI text excludes obsolete English grammar labels",
+        (() => {
+            const visibleHtmlText = html
+                .replace(/<script[\s\S]*?<\/script>/gi, " ")
+                .replace(/<style[\s\S]*?<\/style>/gi, " ")
+                .replace(/<[^>]+>/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+            const labelEsValues = [];
+            const collectLabelEs = (value) => {
+                if (!value || typeof value !== "object") {
+                    return;
+                }
+                Object.entries(value).forEach(([key, entry]) => {
+                    if (key === "labelEs" && typeof entry === "string") {
+                        labelEsValues.push(entry);
+                    } else {
+                        collectLabelEs(entry);
+                    }
+                });
+            };
+            collectLabelEs(JSON.parse(staticLabels));
+            const labelEsText = labelEsValues.join(" ");
+            return {
+                htmlHasUnitFunction: /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(visibleHtmlText),
+                htmlHasEnglishSlotLabel: /\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(visibleHtmlText),
+                htmlHasTnsShorthand: /\btns\b/i.test(visibleHtmlText),
+                labelsHaveUnitFunction: /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(labelEsText),
+                labelsHaveEnglishSlotLabel: /\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(labelEsText),
+                labelsHaveTnsShorthand: /\btns\b/i.test(labelEsText),
+            };
+        })(),
+        {
+            htmlHasUnitFunction: false,
+            htmlHasEnglishSlotLabel: false,
+            htmlHasTnsShorthand: false,
+            labelsHaveUnitFunction: false,
+            labelsHaveEnglishSlotLabel: false,
+            labelsHaveTnsShorthand: false,
+        }
+    );
+    s.ok(
+        "Lesson 4 HTML structure encodes Andrews formula architecture instead of only relabeling",
+        html.includes('data-andrews-lesson="4"')
+            && html.includes('data-andrews-unit="clausula-nuclear"')
+            && html.includes('data-andrews-not-word="true"')
+            && html.includes('data-andrews-layout="source-formula-output"')
+            && html.includes('class="form-container panel nuclear-clause-source-panel"')
+            && html.includes('data-andrews-formula-role="predicate-stem-source"')
+            && html.includes('class="verb-block nuclear-clause-entry"')
+            && html.includes('data-andrews-input="stem-or-particle"')
+            && html.includes('data-andrews-formula-slot="person-prefix"')
+            && html.includes('data-andrews-formula-slot="number-suffix"')
+            && html.includes('class="panel tense-tabs-panel formula-controls-panel panel-stack-pane"')
+            && html.includes('data-andrews-general-formula="subject-predicate"')
+            && html.includes('data-andrews-subject-formula="#person+...+number#"')
+            && html.includes('data-andrews-vnc-predicate="valence+stem+tense"')
+            && html.includes('data-andrews-nnc-predicate="state+stem"')
+            && html.includes('data-andrews-vnc-layers="verbstem > verbcore > predicate > CNV"')
+            && html.includes('data-andrews-nnc-layers="nounstem > nouncore/predicate > CNN"')
+            && html.includes('class="calc-operators formula-controls-grid"')
+            && html.includes('formula-controls-section--unit"')
+            && html.includes('data-andrews-formula-role="clause-kind"')
+            && html.includes('formula-controls-section--predicate-route"')
+            && html.includes('class="tense-tabs formula-slot-controls"')
+            && html.includes('data-andrews-vnc-slot="tns"')
+            && html.includes('data-andrews-nnc-slot="st"')
+            && html.includes('class="panel container-tense-grid nuclear-clause-output-panel panel-stack-pane"')
+            && html.includes('data-andrews-renders="subject-predicate-formula"')
+            && state.includes('var PANEL_STACK_ORDER = ["inputs", "formula", "output"]')
+            && state.includes('mode === "formula" || mode === "tense"')
     );
     s.ok(
         "ordinary NNC entry surface hides denominal suffix controls",
@@ -92,29 +236,156 @@ function run(ctx = {}) {
             && css.includes('.verb-composer[data-entry-board="ordinary-nnc"] .verb-composer__bottom-row')
     );
     s.ok(
-        "ordinary NNC composer tag is not labeled as a plain sustantivo",
-        composer.includes('matrixInputTag.textContent = ordinaryNncActive')
-            && composer.includes('? "NNC"')
-            && composer.includes('activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb ? "Sustantivo" : "Verbo"')
-            && composer.includes('matrixLabel.textContent = ordinaryNncActive ? "Tronco predicado" : "Raíz matriz"')
+        "verb composer labels use Andrews slot vocabulary instead of old root labels",
+        composer.includes("function getComposerMatrixFieldLabel")
+            && composer.includes("function getComposerMatrixInputTagLabel")
+            && composer.includes('return "Predicado (STEM)"')
+            && composer.includes('return "Fuente N (STEM)"')
+            && composer.includes('return "STEM"')
+            && composer.includes('return "N"')
+            && html.includes('aria-label="Tablero CNV"')
+            && html.includes('aria-label="Tablero N>V: verbalización"')
+            && html.includes(">Predicado (STEM)<")
+            && html.includes(">Incorporado<")
+            && html.includes(">obj1/REFL<")
+            && html.includes(">obj1/obj2/REFL<")
+            && html.includes(">dir<")
+            && html.includes(">inc<")
+            && !html.includes(">Raíz matriz<")
+            && !html.includes(">Elemento incorporado<")
+            && !html.includes(">Marcador no específico<")
+            && !composer.includes('"Tronco predicado"')
+            && !composer.includes('"Raíz matriz"')
     );
     s.ok(
-        "Lesson 1 concept registry reaches browser runtime without generation",
+        "Lesson 1 concept registry remains non-generative while visible glossary is omitted",
         html.includes("src/core/concepts/concepts.js")
+            && !html.includes('id="concept-glossary"')
+            && !html.includes("Lección 1 · Andrews OS")
+            && !html.includes("Notación y términos")
             && concepts.includes("concept-glossary-metadata")
+            && concepts.includes("buildConceptGlossaryDisplayModel")
+            && concepts.includes("cláusula nuclear verbal")
+            && concepts.includes("cláusula nuclear nominal")
             && concepts.includes("generationAllowed: false")
             && concepts.includes("concept glossary is not generation")
+            && curriculum.includes("function initConceptGlossaryPanel")
+            && curriculum.includes("buildConceptGlossaryDisplayModel({ lesson: 1 })")
+            && curriculum.includes("concept-glossary__item")
     );
     s.ok(
-        "Lesson 3 particle metadata reaches browser runtime while particle mode stays placeholder",
+        "#2 mode controls separate Andrews syntactical class from formal class so adjectival use can apply to CNV or CNN",
+        html.includes('aria-label="Clase sintáctica y clase formal"')
+            && html.includes(">Clase sintáctica / clase formal<")
+            && !html.includes("Unidad y función")
+            && html.includes('id="calc-mode-operator-label"')
+            && html.includes('data-ui-label-key="calc-mode-operator-label"')
+            && html.includes('id="calc-mode-system-function"')
+            && html.includes('data-ui-label-key="mode-system-function"')
+            && html.includes('data-mode-system="function"')
+            && html.includes('data-mode-role="function"')
+            && />\s*Clase sintáctica\s*<\/div>/.test(html)
+            && html.includes('data-function-role="verbal"')
+            && html.includes('data-function-role="nominal"')
+            && html.includes('data-function-role="adjectival"')
+            && html.includes('data-function-role="adverbial"')
+            && html.includes('aria-label="Clase sintáctica verbal"')
+            && html.includes('aria-label="Clase sintáctica nominal"')
+            && html.includes('aria-label="Clase sintáctica adjetival"')
+            && html.includes('aria-label="Clase sintáctica adverbial"')
+            && !html.includes('aria-label="Función verbal"')
+            && !html.includes('title="Función verbal"')
+            && html.includes('data-ui-label-key="tense-tabs-function-adjectival"')
+            && />\s*Adjetival\s*<\/button>/.test(html)
+            && html.includes('id="calc-mode-system-unit"')
+            && html.includes('data-ui-label-key="mode-system-unit"')
+            && html.includes('data-mode-system="unit"')
+            && html.includes('data-mode-role="unit"')
+            && />\s*Clase formal\s*<\/div>/.test(html)
+            && html.includes('data-unit-kind="cnv"')
+            && html.includes('data-unit-kind="cnn"')
+            && html.includes('data-unit-kind="particula"')
+            && html.includes('data-ui-label-key="tense-tabs-unit-cnv"')
+            && html.includes('data-ui-label-key="tense-tabs-unit-cnn"')
+            && />\s*CNV\s*<\/button>/.test(html)
+            && />\s*CNN\s*<\/button>/.test(html)
+            && !html.includes("Convención europea")
+            && !html.includes('data-mode-system="european"')
+            && !html.includes('data-mode-system="nawat"')
+            && !html.includes('data-ui-label-key="mode-system-european"')
+            && !html.includes('id="calc-mode-system-nawat"')
+            && staticLabels.includes('"mode-system-function"')
+            && staticLabels.includes('"tense-tabs-function-adjectival"')
+            && staticLabels.includes('"labelEs": "Clase sintáctica"')
+            && staticLabels.includes('"labelEs": "Clase formal"')
+            && !staticLabels.includes("convención europea")
+            && !staticLabels.includes('"labelEs": "nawat"')
+            && staticLabels.includes('"tense-tabs-unit-cnv"')
+            && staticModes.includes('"function": { "value": "function"')
+            && staticModes.includes('"unit": { "value": "unit"')
+            && staticModes.includes('"labelEs": "Clase sintáctica"')
+            && staticModes.includes('"labelEs": "Clase formal"')
+    );
+    s.ok(
+        "Lesson 3 particle metadata reaches browser runtime as enabled diagnostic Partícula mode",
         html.includes("src/core/particles/particles.js")
             && html.includes('id="calc-nawat-mode-particle"')
-            && html.includes('calc-operator-chip--placeholder')
-            && html.includes('aria-disabled="true"')
-            && html.includes("disabled")
+            && html.includes('data-tense-mode="particula"')
+            && html.includes('data-mode-system="unit"')
+            && !html.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"')
+            && !html.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"\n                            disabled')
             && particles.includes("particle-inventory-boundary")
+            && particles.includes("particle-mode-display-model")
+            && particles.includes("particle-seed-inventory-entry")
+            && particles.includes("getParticleLesson3InventoryGroups")
+            && particles.includes("3.2 Clases funcionales")
+            && particles.includes("3.3 Negación")
+            && particles.includes("3.4 Colocaciones")
+            && particles.includes("3.5 Honorificadas")
+            && particles.includes("andrews-orthography-adapted")
+            && particles.includes("particle-candidate-stem-syntax")
+            && particles.includes("clause-introducer")
+            && particles.includes("colocación de partículas")
             && particles.includes("particle placement metadata is not particle generation")
             && particles.includes("generationAllowed: false")
+            && rendering.includes("function renderParticleModeConjugations")
+            && rendering.includes("function applyOutputPanelShellForTenseMode")
+            && rendering.includes('outputPanel.classList.toggle("container-tense-grid--particle", isParticleMode)')
+            && rendering.includes('titleText.textContent = isParticleMode ? "PARTÍCULAS" : "SALIDA"')
+            && rendering.includes('metaStrip.classList.toggle("output-meta-strip--particle", isParticleMode)')
+            && rendering.includes('resultControls.classList.toggle("output-result-controls--particle", isParticleMode)')
+            && rendering.includes('outputList.classList.toggle("all-tense-conjugations--particle", isParticleMode)')
+            && rendering.includes("const particleEvaluation = {")
+            && rendering.includes("applyGrammarFrameRouteDataset(row, frameModel)")
+            && rendering.includes("row.dataset.exportInput")
+            && rendering.includes("row.dataset.particleSourceForm")
+            && rendering.includes("row.dataset.particleSection")
+            && rendering.includes("row.dataset.particleEvidenceStatus")
+            && rendering.includes('row.className = "particle-row conjugation-row--particle"')
+            && rendering.includes('grid.classList.add("particle-mode-grid")')
+            && rendering.includes('["particle-row__class", "Función"]')
+            && rendering.includes('["particle-row__status", "Estado"]')
+            && rendering.includes("model.inventoryGroups")
+            && rendering.includes("particle-panel--group")
+            && !rendering.includes('row.className = "conjugation-row conjugation-row--particle"')
+            && css.includes(".particle-row")
+            && css.includes(".particle-row__status")
+            && css.includes(".particle-group-title__count")
+            && css.includes(".particle-mode-grid")
+            && css.includes("#container-tense-grid.container-tense-grid--particle")
+            && css.includes(".output-meta-strip .calc-summary")
+            && css.includes(".output-result-controls--particle")
+            && css.includes("#all-tense-conjugations.all-tense-conjugations--particle")
+            && rendering.includes("Partículas · Andrews Lección 3")
+            && !rendering.includes("Partícula · Andrews Lesson 3")
+            && exportUi.includes("function buildParticleViewExportCSV")
+            && exportUi.includes('"entrada Nawat"')
+            && exportUi.includes('"fuente Andrews"')
+            && exportUi.includes('"clase funcional"')
+            && exportUi.includes('diagnosticId === "particle-candidate-empty"')
+            && state.includes('"Partículas · Andrews Lección 3", "inventario diagnóstico", "sin generación"')
+            && state.includes("mode === TENSE_MODE.particula")
+            && panels.includes("tenseMode === TENSE_MODE.particula")
     );
     s.ok(
         "Lesson 8 sentence layer metadata reaches browser runtime without generation",
@@ -221,7 +492,7 @@ function run(ctx = {}) {
         "Lesson 44 adverbial nuclear boundary reaches browser runtime without generation",
         html.includes("src/core/clause/adverbial/adverbial.js")
             && adverbial.includes("adverbial-nuclear-boundary")
-            && adverbial.includes("legacy adverbio word output is not a full Lesson 44 engine")
+            && adverbial.includes("configured adverbio word output is not a full Lesson 44 engine")
             && adverbial.includes("changesAdverbioGeneration: false")
             && adverbial.includes("generationAllowed: false")
     );
@@ -284,7 +555,7 @@ function run(ctx = {}) {
     s.ok(
         "orthography bridge metadata reaches input and status UI without generation",
         composer.includes("orthographyClassification")
-            && composer.includes("classifyOrthographyInput(verbInputSource.parseValue || verbInputSource.rawValue || \"\")")
+            && composer.includes("classifyOrthographyInput(troncoInputSource.parseValue || troncoInputSource.rawValue || \"\")")
             && state.includes("function getOrthographyBridgeStatusInfo")
             && state.includes("Ortografia: correspondencia candidata; requiere evidencia Nawat/Pipil.")
             && state.includes("Ortografia: correspondencia bloqueada; no genera formas.")
@@ -297,7 +568,19 @@ function run(ctx = {}) {
             && state.includes("function getCurrentNuclearClauseShell")
             && state.includes("buildNuclearClauseShellMetadata")
             && state.includes("clauseLabel")
-            && clause.includes("Clausula ${formulaType}")
+            && clause.includes("getNuclearClauseDisplayLabel(formulaType)")
+            && clause.includes("formulaAbbreviation")
+            && clause.includes("getNuclearClauseLesson4FormulaInventory")
+            && clause.includes("buildNuclearClauseLesson4Frame")
+            && clause.includes("buildNuclearClauseLesson4UseFrame")
+            && clause.includes("getNuclearClauseLesson4PredicateFunctionProfile")
+            && clause.includes("buildNuclearClauseLesson4DiagramTree")
+            && clause.includes("buildNuclearClauseLesson4PredicatePositionControlFrame")
+            && clause.includes("buildNuclearClauseLesson4PersonalPronounResolutionFrame")
+            && clause.includes("#pers1-pers2+va1-va2(STEM)tns+num1-num2#")
+            && clause.includes("#pers1-pers2+st1-st2(STEM)num1-num2#")
+            && clause.includes("objectiveCaseOnlyInVncPredicate")
+            && clause.includes("possessiveCaseOnlyInNncPredicate")
             && clause.includes("NUCLEAR_CLAUSE_FORMULA_TYPE.vnc")
             && clause.includes("NUCLEAR_CLAUSE_FORMULA_TYPE.nnc")
     );
@@ -305,16 +588,35 @@ function run(ctx = {}) {
         "Lesson 4 nuclear clause shell labels reach generated output rows",
         rendering.includes("function buildNuclearClauseShellSubLabels")
             && rendering.includes("function appendNuclearClauseShellSubLabels")
+            && rendering.includes("function appendLesson4NuclearClauseInspector")
+            && rendering.includes("function appendLesson4CompactDiagram")
+            && rendering.includes("function createLesson4InspectorPanel")
+            && rendering.includes("function collectLesson4TreeNodes")
             && rendering.includes("result.nuclearClauseShell")
             && rendering.includes("evaluation.result?.nuclearClauseShell")
-            && rendering.includes('formula ? `${label}: ${formula}` : label')
+            && rendering.includes("Andrews Lección 4")
+            && rendering.includes("cláusula nuclear")
+            && rendering.includes("sin generación")
+            && rendering.includes("pronombres")
+            && rendering.includes("referencia: contexto")
+            && rendering.includes("jerarquía")
+            && rendering.includes("lesson4?.activeFormula")
+            && rendering.includes("function formatVisibleAndrewsFormula")
+            && rendering.includes("function formatVisibleAndrewsSlotToken")
+            && rendering.includes('formula ? `${label}: ${formatVisibleAndrewsFormula(formula)}` : label')
+            && css.includes(".lesson4-inspector")
+            && css.includes(".lesson4-inspector__body")
+            && css.includes(".lesson4-inspector__panel")
+            && css.includes(".lesson4-inspector__diagram")
+            && css.includes(".lesson4-inspector__diagram-branches")
+            && css.includes(".lesson4-inspector__formula-option.is-active")
     );
     s.ok(
         "ordinary NNC entrada uses analogue input and digital composer controls",
         composer.includes("parseComposerOrdinaryNncAnalogueInput")
             && composer.includes("formatComposerOrdinaryNncAnalogueInput")
             && composer.includes("buildComposerOrdinaryNncInputBundle")
-            && composer.includes('parsedFallback?.nounClass || uiState.nounClass || ""')
+            && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
             && composer.includes('selectionRequired = !nounClass')
             && composer.includes('"ordinary-nnc-animacy"')
             && composer.includes("function isComposerTransitivitySelected")
@@ -330,39 +632,86 @@ function run(ctx = {}) {
             && composer.includes('labelEl.textContent = "Conector num1-num2"')
             && composer.includes('button.className = "verb-composer__slot-transitivity verb-composer__slot-tab"')
             && !composer.includes('label: "Clase"')
-            && composer.includes('label: animacyIsFixed ? "Animacidad fija" : "Animacidad"')
+            && composer.includes('label: "Animacidad"')
             && !composer.includes('label: "Sujeto"')
             && !composer.includes('label: "Poseedor"')
             && !composer.includes('label: "Referencia"')
             && !composer.includes('label: "Tipo"')
-            && composer.includes('classTabs.setAttribute("aria-label", "Conector num1-num2 de la clausula nominal")')
-            && composer.includes('classTabs.dataset.lockedByFixture = fixedClass ? "true" : "false"')
-            && composer.includes('button.dataset.lockedByFixture = "true"')
-            && composer.includes('button.disabled = true')
-            && composer.includes('disabled: animacyIsFixed && fixtureAnimacy !== "inanimate"')
-            && composer.includes('disabled: animacyIsFixed && fixtureAnimacy !== "animate"')
+            && composer.includes('classTabs.setAttribute("aria-label", "Conector num1-num2 de la cláusula nominal")')
+            && composer.includes('classTabs.dataset.fixtureNounClass = fixedClass')
+            && composer.includes('const displayedClass = normalizeComposerOrdinaryNncNounClass(activeClass || "") || fixedClass')
+            && composer.includes('const activeClass = normalizeComposerOrdinaryNncNounClass(state.nounClass || "")')
+            && composer.includes('|| parsedInputClass')
+            && composer.includes('|| fixtureClass')
+            && composer.includes('button.dataset.fixtureAlternative = "true"')
+            && composer.includes('button.dataset.fixtureNounClass = fixedClass')
+            && composer.includes('button.classList.add("is-fixture-alternative")')
+            && !composer.includes("bloqueado por ficha: conector")
+            && composer.includes('const currentStem = currentAnalogue?.stem || getComposerActiveStemValue()')
+            && composer.includes('setComposerActiveSlotStem(normalizeComposerStem(currentStem))')
+            && composer.includes("syncEntradaUrlSegmentsFromCurrentState({ replace: true })")
+            && composer.includes("function syncComposerOrdinaryNncClassTabActiveState")
+            && composer.includes("syncComposerOrdinaryNncClassTabActiveState(nextPatch.nounClass)")
+            && composer.includes("window.setTimeout(() => {")
+            && composer.includes('const rawInputValue = document.getElementById("verb")?.value || ""')
+            && composer.includes('const parsedInputClass = normalizeComposerOrdinaryNncNounClass(')
+            && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
+            && composer.includes('const selectedAnimacy = (')
+            && composer.includes(') || fixtureAnimacy')
+            && composer.includes('const hasFixtureAnimacy = Boolean(fixtureAnimacy)')
+            && !composer.includes("Animacidad fija")
+            && !composer.includes('disabled: animacyIsFixed')
+            && !composer.includes("bloqueado por ficha: animado")
+            && !composer.includes("bloqueado por ficha: inanimado")
             && composer.includes('title: "clase t: (...V)t"')
             && composer.includes('title: "clase ti: (...C)ti"')
             && composer.includes('title: "clase in: (...C)in"')
             && composer.includes('title: "clase Ø: (...C/V)"')
-            && rendering.includes("Selecciona un conector num1-num2 para saber su salida.")
+            && rendering.includes("Selecciona un conector de número para saber su salida.")
             && rendering.includes("Selecciona una animacidad para saber su salida.")
             && rendering.includes("Selecciona una transitividad para saber su salida.")
             && html.includes('<option value="">Selecciona transitividad</option>')
             && css.includes(".verb-composer__ordinary-nnc-controls")
             && css.includes(".verb-composer__ordinary-nnc-class-tabs")
+            && css.includes(".verb-composer__ordinary-nnc-class-tabs .verb-composer__slot-tab.is-active")
+            && css.includes(".verb-composer__ordinary-nnc-chip.is-active")
+            && css.includes("rgba(18, 107, 97, 0.38)")
             && css.includes("#container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls")
+    );
+    s.ok(
+        "ordinary NNC connector visual state is synchronized before generation refresh can block",
+        (() => {
+            const start = composer.indexOf("function setComposerOrdinaryNncState");
+            const end = composer.indexOf("function appendComposerOrdinaryNncChipGroup", start);
+            const body = start >= 0 && end > start ? composer.slice(start, end) : "";
+            return body.indexOf("syncComposerOrdinaryNncClassTabActiveState(nextPatch.nounClass)")
+                < body.indexOf("applyComposerStateToVerbInput({")
+                && body.indexOf("applyComposerStateToVerbInput({") >= 0
+                && body.lastIndexOf("syncComposerOrdinaryNncClassTabActiveState(nextPatch.nounClass)")
+                    > body.indexOf("syncEntradaUrlSegmentsFromCurrentState({ replace: true })");
+        })()
+    );
+    s.ok(
+        "entrada URL segments are wired to #1 Entrada composer state",
+        composer.includes("ENTRADA_URL_SEGMENT_SCHEMA")
+            && composer.includes("function buildEntradaUrlSegmentString")
+            && composer.includes("function parseEntradaUrlSegmentString")
+            && composer.includes("function initEntradaUrlSegments")
+            && composer.includes('target.closest("#container-inputs")')
+            && composer.includes('"ordinaryNncNounClass"')
+            && composer.includes('"slotATemplateTiCausativeClass"')
+            && events.includes("initEntradaUrlSegments()")
     );
     s.ok(
         "ordinary NNC output uses a nominal-clause block with shared controls",
         rendering.includes("tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls")
             && rendering.includes("tense-block tense-block--ordinary-nnc")
-            && rendering.includes('label.textContent = "Clausula nominal"')
+            && rendering.includes('label.textContent = "Cláusula nuclear CNN"')
             && !rendering.includes('label.textContent = "Sustantivo ordinario"')
             && !rendering.includes('visibleLabel: "Clase"')
             && !rendering.includes('ariaLabel: "Clase del conector de numero del sujeto"')
             && !rendering.includes('visibleLabel: "Animacidad"')
-            && rendering.includes('visibleLabel: "Sujeto"')
+            && rendering.includes('visibleLabel: ANDREWS_RENDERING_TERMS.pers1Pers2')
             && rendering.includes('visibleLabel: "Estado/poseedor"')
             && rendering.includes('ariaLabel: "Estado/poseedor"')
             && rendering.includes('id: "", label: "Ø", title: "predicado absolutivo: poseedor Ø"')
@@ -380,24 +729,24 @@ function run(ctx = {}) {
             && rendering.includes("getOrdinaryNncSubjectMarkerLabel")
             && rendering.includes('return `${prefix || "Ø"}...${suffix || "Ø"}`;')
             && rendering.includes("label: getOrdinaryNncSubjectMarkerLabel(entry)")
-            && rendering.includes('`clase ${rowNounClassLabel}`')
+            && rendering.includes('`clase sustantiva ${rowNounClassLabel}`')
             && rendering.includes("result.nncBasic?.subject?.affixLabel")
             && rendering.includes("rowCategoryProfile")
             && rendering.includes("rowCategoryProfile?.predicateState?.label")
             && rendering.includes("rowCategoryProfile?.animacy?.label")
             && rendering.includes("rowCategoryProfile?.reference?.label")
             && rendering.includes("rowCategoryProfile?.possessiveState")
-            && rendering.includes("Estado del predicado:")
-            && rendering.includes("Animacidad:")
-            && rendering.includes("Referencia:")
-            && rendering.includes('Conector ${rowConnectorSlot.slot || "num1-num2"}:')
-            && rendering.includes("Marcacion posesiva:")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.predicateState")
+            && rendering.includes("animacidad:")
+            && rendering.includes("referencia:")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.num1Num2")
+            && rendering.includes("marcacion posesiva:")
             && rendering.includes("rowFormulaSlots")
             && rendering.includes("buildOrdinaryNncFormulaEchoFromSlots(rowFormulaSlots)")
-            && rendering.includes("Formula NNC:")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.nncFormula")
             && rendering.includes("rowConnectorSlotLabel")
             && rendering.includes("const rowConnectorSurface = rowConnectorSlot")
-            && rendering.includes("resolveNominalSubjectConnectorSurface(")
+            && rendering.includes("resolveNominalNum1Num2Surface(")
             && rendering.includes("rowConnectorSlot,")
             && rendering.includes('"num1-num2"')
             && rendering.includes("rowPredicateFormula")
@@ -405,30 +754,30 @@ function run(ctx = {}) {
             && rendering.includes("getConjugationNoOutputDisplay")
             && rendering.includes("conjugation-value--no-output")
             && rendering.includes('`poseedor ${result.possessor?.prefix || state.possessor || "nu"}`')
-            && rendering.includes("personLabel.textContent = `Sujeto ${result.nncBasic?.subject?.affixLabel || getOrdinaryNncSubjectMarkerLabel(rowSubject)}`")
+            && rendering.includes("personLabel.textContent = `${ANDREWS_RENDERING_TERMS.pers1Pers2} ${result.nncBasic?.subject?.affixLabel || getOrdinaryNncSubjectMarkerLabel(rowSubject)}`")
     );
     s.ok(
         "shared sustantivo renderer labels subject number connectors",
-        rendering.includes("buildNominalSubjectConnectorSubLabel")
-            && rendering.includes("resolveNominalSubjectConnectorSurface")
-            && rendering.includes('subjectNumberConnector')
+        rendering.includes("buildNominalNum1Num2SubLabel")
+            && rendering.includes("resolveNominalNum1Num2Surface")
+            && rendering.includes('num1Num2')
             && rendering.includes('nominalClauseFrame?.subject?.numberConnector')
             && rendering.includes('return `conector ${connectorSurface || "Ø"}`;')
-            && rendering.includes("appendNominalSubjectConnectorSubLabel(basePersonSub, subjectConnectorLabel)")
+            && rendering.includes("appendNominalNum1Num2SubLabel(basePersonSub, num1Num2Label)")
     );
     s.eq(
-        "shared renderer subject-number connector labels read LCM result frames before legacy display fields",
+        "shared renderer subject-number connector labels read LCM result frames before stale display fields",
         (() => {
-            if (typeof ctx.resolveNominalSubjectConnectorSurface !== "function") {
+            if (typeof ctx.resolveNominalNum1Num2Surface !== "function") {
                 return {
                     framed: "rendering-runtime-not-loaded",
                     empty: "rendering-runtime-not-loaded",
-                    legacy: "rendering-runtime-not-loaded",
+                    stale: "rendering-runtime-not-loaded",
                 };
             }
             const framedConnector = {
-                surface: "legacy-connector",
-                displaySurface: "legacy-display",
+                surface: "stale-connector",
+                displaySurface: "stale-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -437,8 +786,8 @@ function run(ctx = {}) {
                 }),
             };
             const emptyConnector = {
-                surface: "legacy-connector",
-                displaySurface: "legacy-display",
+                surface: "stale-connector",
+                displaySurface: "stale-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -448,11 +797,11 @@ function run(ctx = {}) {
                 }),
             };
             return {
-                framed: ctx.resolveNominalSubjectConnectorSurface(framedConnector, "fallback-connector"),
-                empty: ctx.resolveNominalSubjectConnectorSurface(emptyConnector, "fallback-connector"),
-                legacy: ctx.resolveNominalSubjectConnectorSurface({
-                    surface: "legacy-connector",
-                    displaySurface: "legacy-display",
+                framed: ctx.resolveNominalNum1Num2Surface(framedConnector, "fallback-connector"),
+                empty: ctx.resolveNominalNum1Num2Surface(emptyConnector, "fallback-connector"),
+                stale: ctx.resolveNominalNum1Num2Surface({
+                    surface: "stale-connector",
+                    displaySurface: "stale-display",
                 }, "fallback-connector"),
             };
         })(),
@@ -460,12 +809,12 @@ function run(ctx = {}) {
             ? {
                 framed: "frame-connector",
                 empty: "",
-                legacy: "legacy-display",
+                stale: "stale-display",
             }
             : {
                 framed: "rendering-runtime-not-loaded",
                 empty: "rendering-runtime-not-loaded",
-                legacy: "rendering-runtime-not-loaded",
+                stale: "rendering-runtime-not-loaded",
             }
     );
     s.ok(
@@ -480,6 +829,10 @@ function run(ctx = {}) {
     s.ok(
         "calc-guidance continuation chips use organized wrapping grids",
         rendering.includes("createConjugationConversionActionsContainer")
+            && rendering.includes("applyConjugationConversionColumnLayout")
+            && rendering.includes("conjugation-row--conversion-columns")
+            && rendering.includes("conjugation-conversion-source-column")
+            && rendering.includes("conjugation-conversion-target-column")
             && rendering.includes("resolveContinuationActionGroupMeta")
             && rendering.includes("appendContinuationAction")
             && rendering.includes("conjugation-continuation-group")
@@ -489,14 +842,20 @@ function run(ctx = {}) {
             && rendering.includes('title: "Compuesto"')
             && css.includes(".calc-guidance__chips")
             && css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), max-content));")
+            && css.includes(".conjugation-row--conversion-columns")
+            && css.includes(".conjugation-conversion-source-column")
+            && css.includes(".conjugation-conversion-target-column")
             && css.includes(".conjugation-conversion-actions")
-            && css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));")
+            && css.includes("grid-template-columns: repeat(2, minmax(0, 1fr));")
+            && css.includes(".conjugation-conversion-target-column > .conjugation-value--conversion-source")
+            && css.includes("max-width: 100%;")
             && css.includes(".conjugation-continuation-group__header")
             && css.includes(".conjugation-continuation-group__chips")
             && css.includes(".calc-guidance__chip--mode-adjetivo")
             && css.includes(".tense-block--adjectival-nnc-function")
             && css.includes(".conjugation-conversion-actions .calc-guidance__chip")
-            && css.includes("@container (max-width: 360px)")
+            && css.includes("@container (max-width: 560px)")
+            && css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr));")
     );
     s.ok(
         "ordinary NNC #3 salida offers dynamic ownerhood continuations",
@@ -520,17 +879,72 @@ function run(ctx = {}) {
             && rendering.includes('profile.outputKind !== "verb-derived-nominal"')
             && rendering.includes("appendVerbDerivedNominalizationProfileSubLabels")
             && rendering.includes("evaluation.result?.nominalizationProfile")
-            && rendering.includes("Ambito: estructural")
-            && rendering.includes("Nominalizacion:")
-            && rendering.includes("Rol nominal:")
-            && rendering.includes("Fuente VNC:")
-            && rendering.includes("Familia patientiva:")
-            && rendering.includes("Fuente patientiva:")
-            && rendering.includes("Familias Andrews:")
-            && rendering.includes("Etapa salida:")
-            && rendering.includes("Taxonomia patientiva: parcial")
-            && rendering.includes("Funcion adjetival:")
-            && rendering.includes("Modificacion: no modelada")
+            && rendering.includes("ambito: salida estructural")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.nominalization")
+            && rendering.includes("rol nominal:")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.sourceVnc")
+            && rendering.includes("familia patientiva:")
+            && rendering.includes("ANDREWS_RENDERING_TERMS.patientiveSource")
+            && rendering.includes("familias Andrews:")
+            && rendering.includes("etapa salida:")
+            && rendering.includes("taxonomia patientiva: parcial")
+            && rendering.includes("funcion adjetival:")
+            && rendering.includes("modificacion: no modelada")
+    );
+    s.ok(
+        "#3 salida renders dynamic slot chips from engine metadata",
+        rendering.includes("function buildGeneratedOutputSlotChips")
+            && rendering.includes("function buildGeneratedOutputCompactSubLabel")
+            && rendering.includes("function renderGeneratedOutputSlotChips")
+            && rendering.includes("getGeneratedOutputShellSlots(result)")
+            && rendering.includes("ANDREWS_RENDERING_TERMS")
+            && rendering.includes("Fórmula CNV")
+            && rendering.includes("Fórmula CNN")
+            && rendering.includes("persona1-persona2")
+            && rendering.includes("objeto 1")
+            && rendering.includes("reflexivo")
+            && rendering.includes("base")
+            && rendering.includes("getGeneratedOutputCompactTenseValue")
+            && rendering.includes('"presente-habitual": "pres-hab"')
+            && rendering.includes('"condicional-perfecto": "cond-perf"')
+            && rendering.includes('`${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}`')
+            && rendering.includes("persona1-persona2")
+            && rendering.includes("número1-número2")
+            && rendering.includes("etapa #3 salida")
+            && rendering.includes("procedimientos patientivos")
+            && rendering.includes("renderGeneratedOutputSlotChips(personSub, evaluation.result)")
+            && rendering.includes("renderGeneratedOutputSlotChips(personSub, result)")
+            && css.includes(".person-sub__slot-strip")
+            && css.includes(".person-sub__compact-text")
+            && css.includes(".person-sub__slot-chip--formula")
+            && css.includes(".person-sub__slot-chip--reflexivo")
+            && css.includes(".person-sub__slot-chip--patientive")
+            && css.includes(".person-sub__slot-chip--lesson2")
+            && css.includes(".person-sub__slot-chip[data-detail]::after")
+            && rendering.includes("chipEl.tabIndex = 0")
+            && rendering.includes("container.dataset.fullSubLabel = fullSubLabel")
+            && rendering.includes("container.replaceChildren()")
+    );
+    s.ok(
+        "#3 salida slot chips do not double-wrap framed VNC predicates",
+        rendering.includes('return stem.includes("(") && stem.includes(")") ? stem : `(${stem})`;')
+            && rendering.includes('value.textContent = chip.label ? ` ${chip.value}` : chip.value')
+            && rendering.includes("if (chip.label)")
+    );
+    s.ok(
+        "#3 salida LCM labels expose Lesson 2 sound-spelling frames",
+        rendering.includes("soundSpellingFrames")
+            && rendering.includes("soundSpellingFrame")
+            && rendering.includes("Proceso L2")
+            && rendering.includes("sourceSurface")
+            && rendering.includes("targetCandidates")
+            && rendering.includes("grammarSlot")
+            && rendering.includes("spanishProcess")
+            && rendering.includes("andrewsProcess")
+            && rendering.includes("getGeneratedOutputLesson2SoundSpellingFrames(result)")
+            && rendering.includes("buildGeneratedOutputLesson2ChipValue(frame)")
+            && rendering.includes("allowEmptyLabel: true")
+            && rendering.includes("chipEl.dataset.detail = chip.title")
     );
     s.ok(
         "patientivo pre-locative continuation is driven from generated row output",
@@ -846,7 +1260,7 @@ function run(ctx = {}) {
             && vncFacade.includes("adjectivalNnc.vncSurface = targetSurface")
             && vncFacade.includes("adjectivalNnc.sourceTenseValue")
             && vncFacade.includes("resolveAdjectivalNncFunctionOverrideFromInput")
-            && vncFacade.includes('tense: "adjectival-nnc"')
+            && vncFacade.includes('tiempo: "adjectival-nnc"')
             && vncFacade.includes("adjectivalNnc")
             && composer.includes("override.adjectivalNnc?.nominalizedSurface")
             && !composer.includes("encodeValue(override.adjectivalNnc?.surface)")
@@ -1143,7 +1557,7 @@ function run(ctx = {}) {
             && renderNounSetup.includes("modeFilter || combinedMode")
     );
     s.ok(
-        "reduplicated noun/adjective combination gates read LCM primary surfaces before legacy result text",
+        "reduplicated noun/adjective combination gates read LCM primary surfaces before stale result text",
         rendering.includes("useReduplicatedSingularSurface && getPrimaryConjugationSurface(result)")
             && panels.includes("useReduplicatedSingularSurface && getPanelConjugationRenderableSurface(result)")
             && !rendering.includes("useReduplicatedSingularSurface && result?.result")
@@ -1436,8 +1850,8 @@ function run(ctx = {}) {
         rendering.includes("buildAdverbialNuclearFrameSubLabels")
             && rendering.includes("appendAdverbialNuclearFrameSubLabels")
             && rendering.includes("evaluation.result?.adverbialNuclearFrame")
-            && rendering.includes("Adverbial nuclear:")
-            && rendering.includes("Alcance: adverbio heredado")
+            && rendering.includes("adverbial nuclear:")
+            && rendering.includes("alcance: adverbio heredado")
     );
     s.ok(
         "shared sustantivo renderer exposes relational NNC boundary metadata without generation",
@@ -1464,12 +1878,12 @@ function run(ctx = {}) {
             && rendering.includes("Evidencia adjuncion: no confirmada")
     );
     const expectedVerbDerivedNominalizationLabels = [
-        "Ambito: estructural",
-        "Nominalizacion: adjetivo",
-        "Rol nominal: propiedad",
-        "Fuente VNC: ipan muchiwki",
-        "Funcion adjetival: predicado",
-        "Modificacion: no modelada",
+        "ambito: salida estructural",
+        "nominalización: adjetivo",
+        "rol nominal: propiedad",
+        "fuente CNV: ipan muchiwki",
+        "funcion adjetival: predicado",
+        "modificacion: no modelada",
     ];
     s.eq(
         "shared sustantivo renderer builds nominalization metadata labels in rendering runtime",
@@ -1495,14 +1909,14 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     const expectedPatientiveNominalizationLabels = [
-        "Ambito: estructural",
-        "Nominalizacion: patientivo",
-        "Rol nominal: paciente/resultado",
-        "Familia patientiva: perfectivo",
-        "Fuente patientiva: tronco perfectivo activo",
-        "Familias Andrews: perfectivo activo",
-        "Etapa salida: #3 salida",
-        "Taxonomia patientiva: parcial",
+        "ambito: salida estructural",
+        "nominalización: patientivo",
+        "rol nominal: paciente/resultado",
+        "familia patientiva: perfectivo",
+        "fuente patientiva: tronco perfectivo activo",
+        "familias Andrews: perfectivo activo",
+        "etapa salida: #3 salida",
+        "taxonomia patientiva: parcial",
     ];
     s.eq(
         "shared renderer shows patientive-family taxonomy labels as display-only metadata",
@@ -1553,10 +1967,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Ambito: estructural",
-                "Nominalizacion: paciente potencial",
-                "Rol nominal: paciente potencial",
-                "Fuente VNC: ipan muchiwas",
+                "ambito: salida estructural",
+                "nominalización: paciente potencial",
+                "rol nominal: paciente potencial",
+                "fuente CNV: ipan muchiwas",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -1807,7 +2221,7 @@ function run(ctx = {}) {
             ? [
                 "Fuente Andrews: NNC posesivo generado",
                 "Base Andrews: nukal",
-                "Poseedor fuente: nu",
+                "poseedor fuente: nu",
                 "Evidencia: salida NNC",
             ]
             : ["rendering-runtime-not-loaded"]
@@ -1973,17 +2387,17 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer reads linked grammar stage labels from LCM result frames before legacy stage fields",
+        "shared renderer reads linked grammar stage labels from LCM result frames before stale stage fields",
         typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarStageSubLabels({
-                surface: "legacy-stage-surface",
-                inputValue: "legacy-input",
+                surface: "stale-stage-surface",
+                inputValue: "stale-input",
                 nextSource: {
                     canBecomeSource: true,
-                    sourceVerb: "legacy-source",
-                    displaySurface: "legacy-display",
+                    sourceVerb: "stale-source",
+                    displaySurface: "stale-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: true,
@@ -2000,18 +2414,18 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer suppresses linked grammar legacy labels for an empty LCM result frame",
+        "shared renderer suppresses linked grammar stale labels for an empty LCM result frame",
         typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarStageSubLabels({
-                surface: "legacy-stage-surface",
-                inputValue: "legacy-input",
-                renderVerb: "legacy-render",
+                surface: "stale-stage-surface",
+                inputValue: "stale-input",
+                renderVerb: "stale-render",
                 nextSource: {
                     canBecomeSource: true,
-                    sourceVerb: "legacy-source",
-                    displaySurface: "legacy-display",
+                    sourceVerb: "stale-source",
+                    displaySurface: "stale-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: false,
@@ -2026,16 +2440,16 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer reads linked grammar stage labels from stage LCM result frames before legacy fields",
+        "shared renderer reads linked grammar stage labels from stage LCM result frames before stale fields",
         typeof ctx.buildNawatLinkedGrammarStageSubLabels === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarStageSubLabels({
-                surface: "legacy-stage-surface",
-                sourceVerb: "legacy-stage-source",
-                inputValue: "legacy-input",
-                renderVerb: "legacy-render",
-                displaySurface: "legacy-stage-display",
+                surface: "stale-stage-surface",
+                sourceVerb: "stale-stage-source",
+                inputValue: "stale-input",
+                renderVerb: "stale-render",
+                displaySurface: "stale-stage-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -2044,8 +2458,8 @@ function run(ctx = {}) {
                 }),
                 nextSource: {
                     canBecomeSource: true,
-                    sourceVerb: "legacy-next-source",
-                    displaySurface: "legacy-next-display",
+                    sourceVerb: "stale-next-source",
+                    displaySurface: "stale-next-display",
                 },
             })
             : ["rendering-runtime-not-loaded"],
@@ -2061,11 +2475,11 @@ function run(ctx = {}) {
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarStageSubLabels({
-                surface: "legacy-stage-surface",
-                sourceVerb: "legacy-stage-source",
-                inputValue: "legacy-input",
-                renderVerb: "legacy-render",
-                displaySurface: "legacy-stage-display",
+                surface: "stale-stage-surface",
+                sourceVerb: "stale-stage-source",
+                inputValue: "stale-input",
+                renderVerb: "stale-render",
+                displaySurface: "stale-stage-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -2074,8 +2488,8 @@ function run(ctx = {}) {
                 }),
                 nextSource: {
                     canBecomeSource: true,
-                    sourceVerb: "legacy-next-source",
-                    displaySurface: "legacy-next-display",
+                    sourceVerb: "stale-next-source",
+                    displaySurface: "stale-next-display",
                 },
             })
             : ["rendering-runtime-not-loaded"],
@@ -2258,8 +2672,8 @@ function run(ctx = {}) {
                     appendableStages: [
                         {
                             stageKey: "source-mode",
-                            sourceVerb: "legacy-stage-source",
-                            displaySurface: "legacy-stage-display",
+                            sourceVerb: "stale-stage-source",
+                            displaySurface: "stale-stage-display",
                             frames: ctx.buildGrammarFrame({
                                 resultFrame: ctx.buildGrammarResultFrame({
                                     ok: true,
@@ -2447,8 +2861,8 @@ function run(ctx = {}) {
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarPromotedSourceSubLabels({
-                sourceVerb: "legacy-promoted-source",
-                displaySurface: "legacy-promoted-display",
+                sourceVerb: "stale-promoted-source",
+                displaySurface: "stale-promoted-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -2469,8 +2883,8 @@ function run(ctx = {}) {
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.buildNawatLinkedGrammarPromotedSourceSubLabels({
-                sourceVerb: "legacy-promoted-source",
-                displaySurface: "legacy-promoted-display",
+                sourceVerb: "stale-promoted-source",
+                displaySurface: "stale-promoted-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -2489,10 +2903,10 @@ function run(ctx = {}) {
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.resolveAdjectivalNncFunctionTargetSurface({
-                verb: "legacy-override-verb",
+                verb: "stale-override-verb",
                 adjectivalNnc: {
                     enabled: true,
-                    surface: "legacy-adjectival-surface",
+                    surface: "stale-adjectival-surface",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: true,
@@ -2512,10 +2926,10 @@ function run(ctx = {}) {
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? ctx.resolveAdjectivalNncFunctionTargetSurface({
-                verb: "legacy-override-verb",
+                verb: "stale-override-verb",
                 adjectivalNnc: {
                     enabled: true,
-                    surface: "legacy-adjectival-surface",
+                    surface: "stale-adjectival-surface",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: false,
@@ -2832,14 +3246,172 @@ function run(ctx = {}) {
             ? ctx.buildNuclearClauseShellSubLabels({
                 kind: "nuclear-clause-shell",
                 formulaType: "VNC",
-                displayLabel: "Clausula VNC",
-                formula: "#subject-object(PREDICATE)-tense#",
-                formulaEcho: "#ni-ki(nemi)-presente#",
+                displayLabel: "cláusula nuclear verbal (CNV)",
+                formula: "#pers1-obj1-obj2-obj3-reflexivo(STEM)-pers2-tiempo#",
+                formulaEcho: "#ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#",
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Clausula VNC: #subject-object(PREDICATE)-tense#", "Formula VNC: #ni-ki(nemi)-presente#"]
+            ? ["cláusula nuclear verbal (CNV): #pers1-obj1-obj2-obj3-reflexivo(base)-pers2-tiempo#", "Fórmula CNV: #ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#"]
             : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "visible Andrews formula renderer uses the approved compact Spanish formula only in formula text",
+        typeof ctx.formatVisibleAndrewsFormula === "function"
+            ? [
+                ctx.formatVisibleAndrewsFormula("#pers1-pers2(STEM)tns+num1-num2#"),
+                ctx.formatVisibleAndrewsFormula("#persona1-persona2(STEM)tense+número1-número2#"),
+                ctx.formatVisibleAndrewsFormula("#pers1-pers2+st1-st2(STEM)num1-num2#"),
+            ]
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                "#pers1-pers2(base)tiempo+núm1-núm2#",
+                "#pers1-pers2(base)tiempo+núm1-núm2#",
+                "#pers1-pers2+est1-est2(base)núm1-núm2#",
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer derives VNC slot chips from formula echo when slot objects are absent",
+        typeof ctx.buildGeneratedOutputSlotChips === "function"
+            ? ctx.buildGeneratedOutputSlotChips({
+                nuclearClauseShell: {
+                    kind: "nuclear-clause-shell",
+                    formulaType: "VNC",
+                    formulaEcho: "#Ø-ki-(ilpia)-t-presente#",
+                },
+            }).map((chip) => [chip.kind, chip.label, chip.value])
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                ["formula", "Fórmula CNV", "#Ø-ki-(ilpia)-t-presente#"],
+                ["pers1-pers2", "persona1-persona2", "Ø...t"],
+                ["obj1", "objeto 1", "ki"],
+                ["STEM", "base", "-(ilpia)"],
+                ["tiempo", "tiempo", "pres"],
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer adds Lesson 2 process chips from generated output frames",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.buildOutputWordResult === "function"
+            ? ctx.buildGeneratedOutputSlotChips(ctx.buildOutputWordResult({
+                pers1: "ni",
+                tronco: "chinam",
+            }))
+                .filter((chip) => chip.kind === "lesson2")
+                .map((chip) => [
+                    chip.label,
+                    chip.value,
+                    chip.title.includes("Andrews L2 2.11.5 / 2.13.2"),
+                    chip.title.includes("asimilación regresiva"),
+                    chip.title.includes("posicion:"),
+                    chip.title.includes("casilla:"),
+                    !chip.title.includes("Regressive Assimilation"),
+                    !chip.title.includes("not a global letter replacement"),
+                ])
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [["", "m→n", true, true, true, true, true, true]]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer keeps Lesson 2 candidate chips compact without treating candidates as deletion",
+        typeof ctx.buildGeneratedOutputLesson2ChipValue === "function"
+            ? ctx.buildGeneratedOutputLesson2ChipValue({
+                sourceSurface: "-uh",
+                target: "",
+                targetCandidates: ["w", "uj", "j"],
+            })
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? "-uh→w/uj/j"
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "shared renderer keeps Lesson 2 deletion chips short while preserving detail",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.buildOutputWordResult === "function"
+            ? [
+                ctx.buildOutputWordResult({
+                    pers1: "ni",
+                    obj1: "ki",
+                    tronco: "ita",
+                    surfaceRuleMeta: { dropVerbInitialIAfterObjectI: true },
+                }),
+                ctx.buildOutputWordResult({
+                    pers1: "ni",
+                    tronco: "nemia",
+                    surfaceRuleMeta: { trimFinalIAUAVowel: true },
+                }),
+            ].map((result) => ctx.buildGeneratedOutputSlotChips(result)
+                .filter((chip) => chip.kind === "lesson2")
+                .map((chip) => [
+                    chip.label,
+                    chip.value,
+                    chip.title.includes("Andrews L2 2.14"),
+                    chip.title.includes("elisión vocálica"),
+                    chip.title.includes("posicion:"),
+                    chip.title.includes("casilla:"),
+                    !chip.title.includes("Vowel Elision"),
+                ]))
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                [["", "i→Ø", true, true, true, true, true]],
+                [["", "a→Ø", true, true, true, true, true]],
+            ]
+            : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "shared renderer adds Lesson 2 process chip for generated mima preterit row",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: false,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.verbo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "ki",
+                        tronco: "-(mima)",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "preterito",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                });
+                return {
+                    result: result.result,
+                    chips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "lesson2")
+                        .map((chip) => [
+                            chip.label,
+                            chip.value,
+                            chip.title.includes("Andrews L2 2.11.5 / 2.13.2"),
+                            chip.title.includes("asimilación regresiva"),
+                            chip.title.includes("posicion:"),
+                            !chip.title.includes("Regressive Assimilation"),
+                        ]),
+                };
+            })()
+            : { result: "rendering-runtime-not-loaded", chips: [] },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                result: "kimin(ki)",
+                chips: [["", "m→n", true, true, true, true]],
+            }
+            : { result: "rendering-runtime-not-loaded", chips: [] }
     );
     s.eq(
         "shared renderer formats diagnostic VNC verbstem class labels",
@@ -2862,11 +3434,11 @@ function run(ctx = {}) {
             ? ctx.buildVncValencyFrameSubLabels({
                 kind: "vnc-valency-frame",
                 valencyLabel: "transitiva",
-                object: { displayPrefix: "ki" },
+                obj1: { displayPrefix: "ki" },
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Valencia VNC: transitiva", "Objeto VNC: ki"]
+            ? ["valencia VNC: transitiva", "objeto 1 CNV: ki"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2878,13 +3450,13 @@ function run(ctx = {}) {
                 valency: {
                     sourceValency: 2,
                     targetValency: 1,
-                    baseObjectPrefix: "ki",
-                    selectedObjectPrefix: "",
+                    baseObj1: "ki",
+                    selectedObj1: "",
                 },
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Voz derivada: pasivo/impersonal", "Valencia derivada: 2->1", "Objeto base: ki->Ø"]
+            ? ["voz derivada: pasivo/impersonal", "valencia derivada: 2->1", "objeto base: ki->Ø"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2901,7 +3473,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Derivacion VNC: causativa", "Valencia derivada: 1->2", "Tronco derivado: nemtia"]
+            ? ["derivacion VNC: causativa", "valencia derivada: 1->2", "tronco derivado: nemtia"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2916,7 +3488,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Compuesto VNC: kwi", "Incrustado: outer-lexical shuchi"]
+            ? ["compuesto VNC: kwi", "incrustado: outer-lexical shuchi"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -2935,17 +3507,17 @@ function run(ctx = {}) {
                         semanticDomain: "manner",
                     },
                 },
-                boundaries: { legacyAdverbioSurfaceOnly: true },
+                boundaries: { configuredAdverbioSurfaceOnly: true },
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Adverbial nuclear: manera",
-                "Fuente VNC: mati",
-                "Valencia fuente: transitiva",
-                "Grado: primer grado",
-                "Dominio: manera",
-                "Alcance: adverbio heredado",
+                "adverbial nuclear: manera",
+                "fuente CNV: mati",
+                "valencia fuente: transitiva",
+                "grado: primer grado",
+                "dominio: manera",
+                "alcance: adverbio heredado",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -3119,11 +3691,11 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer reads LCM result-frame surface forms before legacy result text",
+        "shared renderer reads LCM result-frame surface forms before stale result text",
         typeof ctx.getConjugationSurfaceForms === "function"
             ? ctx.getConjugationSurfaceForms({
-                result: "legacy-form",
-                surface: "legacy-surface",
+                result: "stale-form",
+                surface: "stale-surface",
                 surfaceForms: ["stale-render-a / stale-render-b"],
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
@@ -3139,11 +3711,11 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer stops at empty LCM result frames before legacy result text",
+        "shared renderer stops at empty LCM result frames before stale result text",
         typeof ctx.getConjugationSurfaceForms === "function"
             ? ctx.getConjugationSurfaceForms({
-                result: "legacy-form",
-                surface: "legacy-surface",
+                result: "stale-form",
+                surface: "stale-surface",
                 surfaceForms: ["stale-render-a / stale-render-b"],
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
@@ -3162,7 +3734,7 @@ function run(ctx = {}) {
         "shared renderer does not let top-level surface hide surface-form variants",
         typeof ctx.getConjugationSurfaceForms === "function"
             ? ctx.getConjugationSurfaceForms({
-                result: "legacy-form",
+                result: "stale-form",
                 surface: "top-surface",
                 surfaceForms: ["top-a / top-b"],
             })
@@ -3192,8 +3764,8 @@ function run(ctx = {}) {
         "shared renderer joins LCM result-frame surfaces for display values",
         typeof ctx.getConjugationDisplaySurface === "function"
             ? ctx.getConjugationDisplaySurface({
-                result: "legacy-form",
-                surface: "legacy-surface",
+                result: "stale-form",
+                surface: "stale-surface",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -3208,7 +3780,7 @@ function run(ctx = {}) {
             : "rendering-runtime-not-loaded"
     );
     s.ok(
-        "rendering display paths consume LCM display surfaces instead of legacy result text",
+        "rendering display paths consume LCM display surfaces instead of stale result text",
         rendering.includes("function getConjugationDisplaySurface(result = null)")
             && rendering.includes("const surfaceDisplay = getConjugationDisplaySurface(result);")
             && rendering.includes("sourceSurface: surfaceDisplay")
@@ -3287,7 +3859,7 @@ function run(ctx = {}) {
             : { routeFamily: "export-runtime-not-loaded" }
     );
     s.eq(
-        "view export form reads LCM result frames before legacy form text",
+        "view export form reads LCM result frames before stale form text",
         typeof ctx.normalizeUnifiedVerbOutputEntry === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
@@ -3326,15 +3898,15 @@ function run(ctx = {}) {
                         }),
                     },
                 });
-                const legacy = ctx.normalizeUnifiedVerbOutputEntry({
+                const stale = ctx.normalizeUnifiedVerbOutputEntry({
                     block: "Intransitivo",
                     person: "1sg",
-                    form: "legacy export form",
+                    form: "stale export form",
                 });
                 return {
                     framed: framed.form,
                     emptyFramed: emptyFramed.form,
-                    legacy: legacy.form,
+                    stale: stale.form,
                 };
             })()
             : { framed: "export-runtime-not-loaded" },
@@ -3342,7 +3914,7 @@ function run(ctx = {}) {
             ? {
                 framed: "frame export a / frame export b / frame export surface",
                 emptyFramed: "",
-                legacy: "legacy export form",
+                stale: "stale export form",
             }
             : { framed: "export-runtime-not-loaded" }
     );
@@ -3362,6 +3934,7 @@ function run(ctx = {}) {
                     ctx.setUnifiedVerbOutputDatasetRows([{
                         tenseValue: "present",
                         groupKey: "universal",
+                        inputValue: "ka",
                         sourceMode: ctx.COMBINED_MODE?.active || "active",
                         block: "Intransitivo",
                         person: "1sg",
@@ -3384,6 +3957,7 @@ function run(ctx = {}) {
                     return {
                         hasRouteHeader: csv.includes("ruta LCM"),
                         hasDiagnosticHeader: csv.includes("capa fallida"),
+                        hasRowInputValue: csv.split(/\r?\n/)[1]?.startsWith("ka,") === true,
                         hasRouteValue: csv.includes("vnc,execute,false"),
                         hasDiagnosticValue: csv.includes("ANDREWS_ROUTE_NOT_LICENSED,route,routeContract,false"),
                     };
@@ -3397,6 +3971,7 @@ function run(ctx = {}) {
             : {
                 hasRouteHeader: false,
                 hasDiagnosticHeader: false,
+                hasRowInputValue: false,
                 hasRouteValue: false,
                 hasDiagnosticValue: false,
             },
@@ -3404,24 +3979,133 @@ function run(ctx = {}) {
             ? {
                 hasRouteHeader: true,
                 hasDiagnosticHeader: true,
+                hasRowInputValue: true,
                 hasRouteValue: true,
                 hasDiagnosticValue: true,
             }
             : {
                 hasRouteHeader: false,
                 hasDiagnosticHeader: false,
+                hasRowInputValue: false,
                 hasRouteValue: false,
                 hasDiagnosticValue: false,
             }
     );
+    s.eq(
+        "Partícula view export uses Lesson 3 particle columns instead of conjugation slots",
+        ctx.__TEST_RUNTIME_MODE__ === "module" && typeof ctx.buildViewExportCSV === "function"
+            ? (() => {
+                const documentObject = ctx.document || {};
+                const previousGetElementById = documentObject.getElementById;
+                const makeTextNode = (text) => ({ textContent: text });
+                const block = {
+                    querySelector: () => makeTextNode("3.2 Clases funcionales"),
+                };
+                const makeParticleRow = ({
+                    label,
+                    value,
+                    rowId = "",
+                    dataset = {},
+                }) => ({
+                    dataset: {
+                        particleRow: rowId,
+                        ...dataset,
+                    },
+                    querySelector(selector) {
+                        if (selector === ".person-label") {
+                            return makeTextNode(label);
+                        }
+                        if (selector === ".conjugation-value") {
+                            return makeTextNode(value);
+                        }
+                        return makeTextNode("");
+                    },
+                    closest(selector) {
+                        return selector === ".tense-block" ? block : null;
+                    },
+                });
+                const rows = [
+                    makeParticleRow({
+                        label: "Candidata",
+                        value: "Ø",
+                        rowId: "candidate",
+                        dataset: {
+                            particleEntryKind: "candidate-diagnostic",
+                            grammarDiagnosticId: "particle-candidate-empty",
+                        },
+                    }),
+                    makeParticleRow({
+                        label: "ka",
+                        value: "introductor de cláusula",
+                        dataset: {
+                            exportInput: "ka",
+                            particleEntryKind: "andrews-seed",
+                            particleNawatForm: "ka",
+                            particleSourceForm: "ca",
+                            particleSection: "3.2.1",
+                            particleFunctionClass: "introductor de cláusula",
+                            particlePlacement: "inicio de cláusula",
+                            particleHostLayer: "sentence",
+                            particleGloss: "en verdad; de hecho",
+                            particleConfirmedNawat: "false",
+                            grammarEvidenceStatus: "andrews-orthography-adapted",
+                            grammarGenerationAllowed: "false",
+                            grammarRouteFamily: "particle-placement",
+                            grammarRouteStage: "inventory-preview",
+                            grammarDiagnosticId: "particle-seed-inventory-entry",
+                            grammarResultOk: "false",
+                        },
+                    }),
+                ];
+                const container = {
+                    querySelectorAll(selector) {
+                        return selector === ".conjugation-row--particle" ? rows : [];
+                    },
+                };
+                documentObject.getElementById = (id) => {
+                    return id === "all-tense-conjugations" ? container : null;
+                };
+                try {
+                    const csv = ctx.buildViewExportCSV();
+                    const lines = csv.split(/\r?\n/);
+                    return {
+                        lineCount: lines.length,
+                        header: lines[0],
+                        firstRow: lines[1],
+                        hasConjugationHeader: lines[0].includes("derivación") || lines[0].includes("sujeto"),
+                    };
+                } finally {
+                    documentObject.getElementById = previousGetElementById;
+                }
+            })()
+            : {
+                lineCount: 0,
+                header: "",
+                firstRow: "",
+                hasConjugationHeader: true,
+            },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                lineCount: 2,
+                header: "tipo,entrada Nawat,fuente Andrews,sección Andrews,clase funcional,posición,capa,glosa,estado evidencia,confirmado Nawat,generación LCM,ruta LCM,etapa LCM,diagnóstico LCM,resultado LCM",
+                firstRow: "ejemplo Andrews,ka,ca,3.2.1,introductor de cláusula,inicio de cláusula,sentence,en verdad; de hecho,andrews-orthography-adapted,false,false,particle-placement,inventory-preview,particle-seed-inventory-entry,false",
+                hasConjugationHeader: false,
+            }
+            : {
+                lineCount: 0,
+                header: "",
+                firstRow: "",
+                hasConjugationHeader: true,
+            }
+    );
     s.ok(
-        "panel visibility reader checks LCM framed surfaces before legacy result text",
+        "panel visibility reader checks LCM framed surfaces before stale result text",
         panels.includes("function getPanelConjugationRenderableSurface")
             && panels.includes('if (!getPanelConjugationRenderableSurface(result))')
             && !panels.includes('if (!result || !result.result || result.result === "—")')
     );
     s.eq(
-        "panel visibility accepts LCM result-frame surface when legacy result is empty",
+        "panel visibility accepts LCM result-frame surface when stale result is empty",
         typeof ctx.getPanelConjugationRenderableSurface === "function"
             && typeof ctx.isConjugationResultVisible === "function"
             && typeof ctx.buildGrammarFrame === "function"
@@ -3456,7 +4140,7 @@ function run(ctx = {}) {
             : { surface: "panels-runtime-not-loaded", visible: false }
     );
     s.eq(
-        "panel visibility accepts LCM result-frame surface forms when legacy result is empty",
+        "panel visibility accepts LCM result-frame surface forms when stale result is empty",
         typeof ctx.getPanelConjugationRenderableSurface === "function"
             && typeof ctx.isConjugationResultVisible === "function"
             && typeof ctx.buildGrammarFrame === "function"
@@ -3668,9 +4352,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.ok(
-        "curriculum map visually separates lesson index from engine categories",
-        css.includes(".book-map__architecture-note")
-            && css.includes(".book-map__missing-category")
+        "curriculum map support is no longer mounted before #1 Entrada",
+        !html.includes('id="book-map"')
+            && curriculum.includes('book-map__architecture-note')
+            && curriculum.includes('book-map__missing-category')
     );
 
     return s;

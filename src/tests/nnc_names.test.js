@@ -16,8 +16,10 @@ function run(ctx) {
             typeof ctx.classifyPersonalNameNncCandidate,
             typeof ctx.classifyPersonalNameNncFalsePositive,
             typeof ctx.getPersonalNameNncAntiConflationRules,
+            typeof ctx.getLesson56PersonalNameNncSubsectionInventory,
+            typeof ctx.buildLesson56PersonalNameNncPursuitFrame,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildPersonalNameNncBoundaryMetadata();
@@ -28,6 +30,7 @@ function run(ctx) {
             lesson: boundary.lesson,
             appendices: boundary.appendices,
             status: boundary.status,
+            pdfRefs: boundary.pdfRefs,
             generationAllowed: boundary.generationAllowed,
             confirmedExamples: boundary.confirmedExamples,
             boundaries: boundary.boundaries,
@@ -38,6 +41,13 @@ function run(ctx) {
             lesson: 56,
             appendices: ["E"],
             status: "partial",
+            pdfRefs: [
+                "Andrews Lesson 56.1",
+                "Andrews Lesson 56.2",
+                "Andrews Lesson 56.3",
+                "Andrews Lesson 56.4",
+                "Andrews Lesson 56.5",
+            ],
             generationAllowed: false,
             confirmedExamples: [],
             boundaries: {
@@ -59,6 +69,9 @@ function run(ctx) {
             questionFields: [
                 "nameSource",
                 "sourceClauseType",
+                "outerSubject",
+                "innerSubjectBarrier",
+                "innerSourceStructure",
                 "clauseSource",
                 "adjunctionSource",
                 "conjunctionSource",
@@ -154,6 +167,68 @@ function run(ctx) {
             "calendar roadmap text is not personal-name NNC data",
             "Andrews personal-name categories are architecture, not Nawat/Pipil form authority",
         ]
+    );
+    const lesson56PursuitFrame = ctx.buildLesson56PersonalNameNncPursuitFrame();
+    s.eq(
+        "Lesson 56 pursuit frame records Andrews personal-name NNC architecture without generation",
+        {
+            outputKind: lesson56PursuitFrame.outputKind,
+            stepNumber: lesson56PursuitFrame.stepNumber,
+            pdfRefs: lesson56PursuitFrame.pdfRefs,
+            plannedArrowIds: lesson56PursuitFrame.plannedArrows.map((arrow) => arrow.id),
+            firedArrowIds: lesson56PursuitFrame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+            redirectAction: lesson56PursuitFrame.redirectAction,
+            orthographyStatus: lesson56PursuitFrame.orthographyStatus,
+            hitCount: lesson56PursuitFrame.hitCount,
+            missCount: lesson56PursuitFrame.missCount,
+            closestPass: lesson56PursuitFrame.closestPass,
+            remainingGapMentionsNameData: /static names\/calendar data/.test(lesson56PursuitFrame.remainingGap),
+            subsectionRanges: lesson56PursuitFrame.subsectionInventory.map((entry) => entry.range),
+            subsectionRoles: lesson56PursuitFrame.subsectionInventory.map((entry) => entry.role),
+            coverage: lesson56PursuitFrame.coverage,
+            boundaries: lesson56PursuitFrame.boundaries,
+        },
+        {
+            outputKind: "lesson-56-personal-name-nnc-pursuit-frame",
+            stepNumber: 56,
+            pdfRefs: [
+                "Andrews Lesson 56.1",
+                "Andrews Lesson 56.2",
+                "Andrews Lesson 56.3",
+                "Andrews Lesson 56.4",
+                "Andrews Lesson 56.5",
+            ],
+            plannedArrowIds: ["lesson-56-personal-name-nnc-audit"],
+            firedArrowIds: [["lesson-56-personal-name-nnc-audit", "hit"]],
+            redirectAction: "diagnostic-only",
+            orthographyStatus: "not-surface-bearing",
+            hitCount: 1,
+            missCount: 0,
+            closestPass: false,
+            remainingGapMentionsNameData: true,
+            subsectionRanges: ["56.1", "56.2", "56.3", "56.4", "56.5"],
+            subsectionRoles: [
+                "two-tier-personal-name-nnc",
+                "single-clause-source",
+                "adjunction-source",
+                "conjunction-source",
+                "sentence-use-and-downgrades",
+            ],
+            coverage: {
+                subsectionCount: 5,
+                sourceKindCount: 17,
+                blockerCount: 15,
+                generationAllowed: false,
+            },
+            boundaries: {
+                noClassicalSurfaceImport: true,
+                noNewFixtureEvidence: true,
+                noSilentGeneration: true,
+                personalNameGenerationAllowed: false,
+                staticNameDataExists: false,
+                visibleUiSpanishRequired: true,
+            },
+        }
     );
     s.no("personal-name NNC boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("personal-name NNC boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));

@@ -46,10 +46,10 @@ The engine also exposes diagnostic VNC formula slots for subject, object, predic
 Nonactive/passive/impersonal rows may also carry diagnostic `derivedVoiceFrame` metadata for derived voice and source-to-target valency; it is explanatory only.
 Causative/applicative rows may carry diagnostic `forwardDerivationFrame` metadata for derived stem and source-to-derived valency; it is also explanatory only.
 Accepted compound VNC inputs may carry diagnostic `compoundFrame` metadata for matrix and embedded pieces; it is derived from parser metadata and does not change output.
-Legacy adverbio rows may carry diagnostic `adverbialNuclearFrame` metadata for Lesson 44 source VNC and manner-surface scope; it does not change output or complete the adverbial clause engine.
+Configured adverbio rows may carry diagnostic `adverbialNuclearFrame` metadata for Lesson 44 source VNC and manner-surface scope; it does not change output or complete the adverbial clause engine.
 Generated locativo-temporal nominal rows may carry diagnostic `relationalNncBoundaryFrame` metadata to mark the Lessons 45-47 relational boundary; it explicitly says the current row is not confirmed relational-NNC fixture evidence.
 Those same rows may carry diagnostic `placeGentilicNncBoundaryFrame` metadata for Lesson 48; it explicitly separates locative-temporal output from confirmed place-name or gentilic fixture evidence.
-Legacy adverbio and locativo-temporal rows may also carry diagnostic `adverbialAdjunctionBoundaryFrame` metadata for Lessons 49-50; it marks single generated words as not confirmed clause-adjunction evidence.
+Configured adverbio and locativo-temporal rows may also carry diagnostic `adverbialAdjunctionBoundaryFrame` metadata for Lessons 49-50; it marks single generated words as not confirmed clause-adjunction evidence.
 
 ### NNC formula
 
@@ -76,6 +76,8 @@ The rule is: **j never appears after a consonant onset**. It only appears after 
 Preterit class provenance also exposes diagnostic `verbstemClassProfile` metadata, which rendering can show as `Clase de tronco`. This is explanatory metadata; the preterit generator remains the source of forms.
 
 Sentence-layer diagnostics for polarity, question, emphasis, and mood can be attached only by explicit override. Rendering may show them as `Capa oracional`; they do not generate sentence particles or change finite VNC output.
+
+Partícula mode follows Andrews Lesson 3 as a diagnostic inspector. It now includes a restrained Andrews-derived seed list whose spellings are adapted through the Nawat/Pipil orthography bridge, shows only a capped sample in the UI, rejects parenthesized stem syntax such as `(nemi)` as outside particles, and still does not generate VNC/NNC forms or treat those transfers as confirmed local particle fixtures.
 
 ### Derivation
 
@@ -141,7 +143,7 @@ Not yet mapped: natural/required possession, pronominal NNCs, supplementation/to
 
 ## Architecture
 
-The engine is organized as global-scope modules loaded in dependency order. No `type="module"` — each file declares functions and variables directly on the global object. This preserves compatibility with the existing `pret_universal_*.js` files and with the Node.js `vm_harness.js` test runner.
+The engine is organized as global-scope modules loaded in dependency order. No `type="module"` — each file declares functions and variables directly on the global object. This keeps the current global runtime contract for the `pret_universal_*.js` files and the Node.js `vm_harness.js` test runner.
 
 ```
 data/               JSON + CSV linguistic data (single source of truth)

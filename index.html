@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="description"
-      content="Conjugador y derivador de verbos en náhuat de El Salvador. Genera conjugaciones, derivaciones y sustantivos verbales en una sola herramienta."
+      content="Conjugador de cláusulas nucleares nawat guiado por Andrews: entrada, fórmula y salida para CNV, CNN y partículas."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40" />
@@ -16,14 +16,14 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260609-andrews543-included-possessor-live-route-001" />
-    <!-- Phase 1 baseline: keep this ordered legacy script manifest stable while the parallel ESM bootstrap is introduced. -->
+    <link rel="stylesheet" href="style.css?v=20260616-lesson4-visible-006" />
+    <!-- Phase 1 baseline: keep this ordered script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/concepts/concepts.js?v=20260606-concepts-001" defer></script>
-    <script src="src/core/particles/particles.js?v=20260606-particles-001" defer></script>
+    <script src="src/core/particles/particles.js?v=20260616-particle-ui-groups-001" defer></script>
     <script src="src/core/sentence/sentence.js?v=20260606-sentence-layer-001" defer></script>
     <script src="src/core/grammar/frame.js?v=20260608-grammar-frame-001" defer></script>
-    <script src="src/core/orthography/orthography.js?v=20260606-orthography-bridge-001" defer></script>
-    <script src="src/core/clause/clause.js?v=20260606-clause-shell-001" defer></script>
+    <script src="src/core/orthography/orthography.js?v=20260616-particle-ui-groups-001" defer></script>
+    <script src="src/core/clause/clause.js?v=20260616-lesson4-visible-003" defer></script>
     <script src="src/core/clause/modification/modification.js?v=20260606-modification-boundary-001" defer></script>
     <script src="src/core/clause/adverbial/adverbial.js?v=20260606-adverbial-boundary-001" defer></script>
     <script src="src/core/clause/adjunction/adjunction.js?v=20260606-adjunction-boundary-001" defer></script>
@@ -53,7 +53,7 @@
     <script src="src/core/generation/request.js?v=20260403-import-isolate-008" defer></script>
     <script src="src/core/generation/morphology_engine.js?v=20260404-tronco-lvv-ua-004" defer></script>
     <script src="src/core/generation/runtime_support.js?v=20260403-import-isolate-007" defer></script>
-    <script src="src/core/generation/engine.js?v=20260609-andrews413-denominal-compound-adj-001" defer></script>
+    <script src="src/core/generation/engine.js?v=20260615-nnc-connector-state-001" defer></script>
     <script src="src/core/nnc/nnc.js?v=20260402-phase5a-001" defer></script>
     <script src="src/core/nnc/compound/compound.js?v=20260606-nnc-compound-boundary-001" defer></script>
     <script src="src/core/nnc/adjectival/adjectival.js?v=20260609-andrews413-denominal-compound-adj-001" defer></script>
@@ -69,21 +69,21 @@
     <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
     <script src="src/ui/panels/panels.js?v=20260603-chip-route-default-001" defer></script>
     <script src="src/ui/export/export.js?v=20260402-phase6-001" defer></script>
-    <script src="src/ui/state.js?v=20260609-andrews546-all-next-routes-001" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260609-andrews546-all-next-routes-001" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260609-andrews413-denominal-compound-adj-001" defer></script>
+    <script src="src/ui/state.js?v=20260616-function-unit-mode-001" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260616-lesson4-visible-007" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260615-nnc-connector-state-003" defer></script>
     <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/ui/curriculum/curriculum.js?v=20260606-curriculum-index-001" defer></script>
-    <script src="src/ui/events.js?v=20260603-enter-apply-001" defer></script>
-    <title>Conjugador de verbos náhuat</title>
+    <script src="src/ui/events.js?v=20260614-composer-layout-001" defer></script>
+    <title>Conjugador de cláusulas nucleares nawat</title>
   </head>
   <body>
     <main class="app-shell">
-      <div class="form-container-word hero-panel hero-panel--entrada" id="container-header">
+      <div class="form-container-clause hero-panel hero-panel--entrada" id="container-header">
         <div class="hero-copy hero-copy--entrada">
-          <h1>Conjugador de verbos náhuat</h1>
+          <h1 id="app-title" data-ui-label-key="app-title">Conjugador de cláusulas nucleares nawat</h1>
         </div>
         <div class="hero-controls">
           <div class="ui-scale-control">
@@ -152,71 +152,27 @@
       <section
         class="andrews-workspace"
         id="andrews-workspace"
-        aria-label="Andrews 1-58 grammar workspace"
+        aria-label="Espacio gramatical Andrews: cláusulas nucleares"
+        data-andrews-lesson="4"
+        data-andrews-unit="clausula-nuclear"
+        data-andrews-general-formula="subject-predicate"
+        data-andrews-boundary="#...#"
+        data-andrews-not-word="true"
       >
-        <section
-          class="book-map"
-          id="book-map"
-          aria-labelledby="book-map-title"
+        <div
+          class="panel-grid"
+          aria-label="Banco de cláusulas nucleares Andrews"
+          data-andrews-layout="source-formula-output"
         >
-          <div class="book-map__header">
-            <div class="book-map__title-block">
-              <span class="book-map__eyebrow">Andrews 1-58 · mapa curricular</span>
-              <h2 id="book-map-title">Mapa curricular</h2>
-            </div>
-            <div class="book-map__totals" id="book-map-totals" aria-live="polite"></div>
-          </div>
-          <div class="book-map__body">
-            <div
-              class="book-map__groups"
-              id="book-map-groups"
-              role="list"
-              aria-label="Grupos del mapa curricular"
-            ></div>
-            <div
-              class="book-map__detail"
-              id="book-map-detail"
-              aria-live="polite"
-            ></div>
-          </div>
-        </section>
-        <section
-          class="andrews-contract-strip"
-          aria-label="Capas del contrato gramatical Andrews"
-        >
-          <span class="andrews-contract-strip__item" data-contract-layer="andrews">
-            <span class="andrews-contract-strip__kicker">Andrews</span>
-            <span class="andrews-contract-strip__label">1-58</span>
-          </span>
-          <span class="andrews-contract-strip__item" data-contract-layer="orthography">
-            <span class="andrews-contract-strip__kicker">Grafia</span>
-            <span class="andrews-contract-strip__label">Nawat</span>
-          </span>
-          <span class="andrews-contract-strip__item" data-contract-layer="source">
-            <span class="andrews-contract-strip__kicker">Fuente</span>
-            <span class="andrews-contract-strip__label">Evidencia</span>
-          </span>
-          <span class="andrews-contract-strip__item" data-contract-layer="category">
-            <span class="andrews-contract-strip__kicker">Categoria</span>
-            <span class="andrews-contract-strip__label">Slots</span>
-          </span>
-          <span class="andrews-contract-strip__item" data-contract-layer="route">
-            <span class="andrews-contract-strip__kicker">Ruta</span>
-            <span class="andrews-contract-strip__label">Contrato</span>
-          </span>
-          <span class="andrews-contract-strip__item" data-contract-layer="diagnostic">
-            <span class="andrews-contract-strip__kicker">Limite</span>
-            <span class="andrews-contract-strip__label">Diagnostico</span>
-          </span>
-        </section>
-        <div class="panel-grid" aria-label="Banco gramatical Andrews">
         <div class="panel-stack">
-          <div class="panel-stack-tabs" role="tablist" aria-label="Etapas">
+          <div class="panel-stack-tabs" role="tablist" aria-label="Etapas Andrews">
             <button
               type="button"
               class="panel-stack-tab button-with-icon is-active"
               id="panel-stack-tab-inputs"
               data-panel-stack-tab="inputs"
+              data-ui-label-key="panel-stack-tab-inputs"
+              data-andrews-panel="source"
               role="tab"
               aria-selected="true"
               aria-controls="panel-stack-pane-inputs"
@@ -233,8 +189,10 @@
             <button
               type="button"
               class="panel-stack-tab button-with-icon"
-              id="panel-stack-tab-tense"
-              data-panel-stack-tab="tense"
+              id="panel-stack-tab-formula"
+              data-panel-stack-tab="formula"
+              data-ui-label-key="panel-stack-tab-formula"
+              data-andrews-panel="formula"
               role="tab"
               aria-selected="false"
               aria-controls="panel-stack-pane-tense"
@@ -247,13 +205,15 @@
                   <path d="M8.5 11.5 13 7"></path>
                 </svg>
               </span>
-              <span class="button-label" data-ui-label-target>Derivada</span>
+              <span class="button-label" data-ui-label-target>Fórmula</span>
             </button>
             <button
               type="button"
               class="panel-stack-tab button-with-icon"
               id="panel-stack-tab-output"
               data-panel-stack-tab="output"
+              data-ui-label-key="panel-stack-tab-output"
+              data-andrews-panel="output"
               role="tab"
               aria-selected="false"
               aria-controls="container-tense-grid"
@@ -276,11 +236,19 @@
             data-panel-stack-pane="inputs"
             data-andrews-stage="source"
             data-andrews-stage-label="1 Entrada"
+            data-andrews-panel="source"
+            data-andrews-section="4.1-4.2"
+            data-andrews-formula-role="predicate-stem-source"
             role="tabpanel"
             aria-labelledby="panel-stack-tab-inputs"
             autocomplete="off"
           >
-            <div class="form-container panel" id="container-inputs">
+            <div
+              class="form-container panel nuclear-clause-source-panel"
+              id="container-inputs"
+              data-andrews-component="nuclear-clause-source"
+              data-andrews-contains="clause-kind predicate-stem"
+            >
               <div class="panel-block-title">
                 <button
                   type="button"
@@ -298,7 +266,7 @@
                   <div
                     class="calc-input-mode"
                     role="group"
-                    aria-label="Entrada verbal"
+                    aria-label="Entrada de cláusula nuclear"
                   >
                     <div
                       class="verb-entry-board-tabs"
@@ -311,8 +279,8 @@
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="general"
                         aria-pressed="true"
-                        aria-label="Tablero Verbo puro"
-                        title="Verbo puro"
+                        aria-label="Tablero CNV"
+                        title="CNV"
                       >
                         V
                       </button>
@@ -322,20 +290,20 @@
                         data-ordinary-nnc-mode="true"
                         id="verb-entry-board-ordinary-nnc"
                         aria-pressed="false"
-                        aria-label="Tablero NNC/S: clausula nominal"
-                        title="NNC/S: clausula nominal"
+                        aria-label="Tablero CNN/N: cláusula nominal"
+                        title="CNN/N: cláusula nominal"
                       >
-                        S
+                        N
                       </button>
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="noun-to-verb"
                         aria-pressed="false"
-                        aria-label="Tablero Sustantivo→verbo"
-                        title="Sustantivo→verbo"
+                        aria-label="Tablero N>V: verbalización"
+                        title="N>V: verbalización"
                       >
-                        S→V
+                        N&gt;V
                       </button>
                     </div>
                   </div>
@@ -430,7 +398,13 @@
                 </button>
               </div>
               <div class="form-group">
-                <section class="verb-block" id="verb-block" aria-label="Entrada principal del verbo">
+                <section
+                  class="verb-block nuclear-clause-entry"
+                  id="verb-block"
+                  aria-label="Entrada principal de la cláusula nuclear"
+                  data-andrews-section="4.1"
+                  data-andrews-formula-role="stem-foundation"
+                >
                   <div class="verb-block__display">
                     <div class="verb-block__screen">
                       <div class="verb-input-wrap">
@@ -440,7 +414,9 @@
                           name="verb"
                           class="verb-input"
                           inputmode="text"
-                          aria-label="Verbo"
+                          aria-label="Entrada"
+                          data-andrews-input="stem-or-particle"
+                          data-andrews-formula-role="stem"
                           placeholder="_"
                           autocomplete="off"
                           autocorrect="off"
@@ -456,12 +432,19 @@
                   </div>
                 </div>
                 <div class="verb-block__separator" aria-hidden="true"></div>
-                <div class="verb-block__controls verb-composer" id="verb-composer">
+                <div
+                  class="verb-block__controls verb-composer nuclear-clause-composer"
+                  id="verb-composer"
+                  data-andrews-component="formula-composer"
+                  data-andrews-general-formula="subject-predicate"
+                >
                           <div
                             class="verb-composer__field verb-composer__slot verb-composer__slot-panel"
                             id="composer-slot-stage"
                             role="group"
                             aria-label="Grupo del compositor verbal"
+                            data-andrews-layer="stem-foundation"
+                            data-andrews-formula-role="predicate-stem"
                           ></div>
                           <div class="verb-composer__slot-stash" hidden aria-hidden="true">
                               <div
@@ -476,16 +459,16 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="a"
                                   >
-                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                    <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-embed"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot A"
+                                          aria-label="Incorporado Slot A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -498,8 +481,8 @@
                                     data-composer-matrix-field="a"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Raíz matriz</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -540,13 +523,13 @@
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
                                         <input
                                           type="text"
                                           id="composer-stem-a"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz matriz Slot A"
+                                          aria-label="Predicado STEM Slot A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -565,7 +548,7 @@
                                           aria-controls="composer-stem-a-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot A"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-a-affix-trigger-value"
@@ -592,7 +575,7 @@
                                     <select
                                       id="composer-stem-a-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones raíz matriz Slot A"
+                                      aria-label="Opciones predicado STEM Slot A"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -608,19 +591,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="Direccional Slot A"
+                                    aria-label="dir Slot A"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                      <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-valence-a-embed-left"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot A"
+                                          aria-label="Incorporado Slot A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -628,17 +611,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Marcador no específico</span>
+                                      <span class="verb-composer__sub-label">obj1/REFL</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-a-chips"
                                         role="group"
-                                        aria-label="Marcador no específico Slot A"
+                                        aria-label="obj1/REFL Slot A"
                                       ></div>
                                       <select
                                         id="composer-valence-a"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Marcador no específico Slot A"
+                                        aria-label="obj1/REFL Slot A"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -659,16 +642,16 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="b"
                                   >
-                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                    <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-valence-embed-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot B"
+                                          aria-label="Incorporado Slot B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -681,8 +664,8 @@
                                     data-composer-matrix-field="b"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Raíz matriz</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -723,13 +706,13 @@
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
                                         <input
                                           type="text"
                                           id="composer-stem-b"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz matriz Slot B"
+                                          aria-label="Predicado STEM Slot B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -748,7 +731,7 @@
                                           aria-controls="composer-stem-b-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot B"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-b-affix-trigger-value"
@@ -775,7 +758,7 @@
                                     <select
                                       id="composer-stem-b-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones raíz matriz Slot B"
+                                      aria-label="Opciones predicado STEM Slot B"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -791,19 +774,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="Direccional Slot B"
+                                    aria-label="dir Slot B"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                      <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-valence-left-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot B"
+                                          aria-label="Incorporado Slot B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -811,17 +794,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Marcador no específico</span>
+                                      <span class="verb-composer__sub-label">obj1/REFL</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-chips"
                                         role="group"
-                                        aria-label="Marcador no específico Slot B"
+                                        aria-label="obj1/REFL Slot B"
                                       ></div>
                                       <select
                                         id="composer-valence"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Marcador no específico Slot B"
+                                        aria-label="obj1/REFL Slot B"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -844,16 +827,16 @@
                                     class="verb-composer__stem-field verb-composer__embed-field"
                                     data-composer-embed-field="c"
                                   >
-                                    <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                    <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Prefijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-valence-embed-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot C"
+                                          aria-label="Incorporado Slot C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -866,8 +849,8 @@
                                     data-composer-matrix-field="c"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Raíz matriz</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Transitividad">
+                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
+                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -908,13 +891,13 @@
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Verbo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
                                         <input
                                           type="text"
                                           id="composer-stem-c"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Raíz matriz Slot C"
+                                          aria-label="Predicado STEM Slot C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -933,7 +916,7 @@
                                           aria-controls="composer-stem-c-affix-popover"
                                           aria-label="Abrir opciones derivativas Slot C"
                                         >
-                                          <span class="verb-composer__matrix-affix-trigger-prefix">Sufijo</span>
+                                          <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
                                             class="verb-composer__matrix-affix-trigger-value"
                                             id="composer-stem-c-affix-trigger-value"
@@ -960,7 +943,7 @@
                                     <select
                                       id="composer-stem-c-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones raíz matriz Slot C"
+                                      aria-label="Opciones predicado STEM Slot C"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -976,19 +959,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="Direccional Slot C"
+                                    aria-label="dir Slot C"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Elemento incorporado</span>
+                                      <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">Afijo</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
                                         <input
                                           type="text"
                                           id="composer-valence-left-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Elemento incorporado Slot C"
+                                          aria-label="Incorporado Slot C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -996,17 +979,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">Marcador no específico</span>
+                                      <span class="verb-composer__sub-label">obj1/obj2/REFL</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-2-chips"
                                         role="group"
-                                        aria-label="Marcador no específico Slot C"
+                                        aria-label="obj1/obj2/REFL Slot C"
                                       ></div>
                                       <select
                                         id="composer-valence-2"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="Marcador no específico Slot C"
+                                        aria-label="obj1/obj2/REFL Slot C"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="te-2">-te</option>
@@ -1026,7 +1009,7 @@
                           <select
                             id="composer-transitivity"
                             class="verb-composer__select is-hidden-control"
-                            aria-label="Transitividad"
+                            aria-label="Valencia CNV"
                           >
                             <option value="">Selecciona transitividad</option>
                             <option value="intransitive">Intransitivo</option>
@@ -1039,17 +1022,17 @@
                             role="group"
                             aria-label="Grupo direccional"
                           >
-                            <span class="verb-composer__sub-label">Direccional</span>
+                            <span class="verb-composer__sub-label">dir</span>
                             <div
                               class="verb-composer__chips"
                               id="composer-directional-chips"
                               role="group"
-                              aria-label="Direccional"
+                              aria-label="dir"
                             ></div>
                             <select
                               id="composer-directional"
                               class="verb-composer__select is-hidden-control"
-                              aria-label="Direccional"
+                              aria-label="dir"
                             >
                               <option value="">Sin direccional</option>
                             </select>
@@ -1107,17 +1090,34 @@
                   </div>
                 </section>
               </div>
-              <input type="hidden" id="subject-prefix" name="subject-prefix" value="" />
-              <input type="hidden" id="subject-suffix" name="subject-suffix" value="" />
+              <input
+                type="hidden"
+                id="subject-prefix"
+                name="subject-prefix"
+                value=""
+                data-andrews-formula-role="subject"
+                data-andrews-formula-slot="person-prefix"
+              />
+              <input
+                type="hidden"
+                id="subject-suffix"
+                name="subject-suffix"
+                value=""
+                data-andrews-formula-role="subject"
+                data-andrews-formula-slot="number-suffix"
+              />
             </div>
           </form>
           <div class="panel-output-column">
-            <div
-              class="panel container-tense-grid panel-stack-pane"
+            <section
+              class="panel container-tense-grid nuclear-clause-output-panel panel-stack-pane"
               id="container-tense-grid"
               data-panel-stack-pane="output"
               data-andrews-stage="output"
               data-andrews-stage-label="3 Salida"
+              data-andrews-panel="output"
+              data-andrews-section="4.3-4.5"
+              data-andrews-renders="subject-predicate-formula"
               role="tabpanel"
               aria-labelledby="panel-stack-tab-output"
             >
@@ -1270,23 +1270,30 @@
               ></div>
             </div>
             <div id="all-tense-conjugations"></div>
-            </div>
+            </section>
           </div>
-          </div>
-          <div
-            class="panel tense-tabs-panel panel-stack-pane"
+          <section
+            class="panel tense-tabs-panel formula-controls-panel panel-stack-pane"
             id="panel-stack-pane-tense"
-            data-panel-stack-pane="tense"
-            data-andrews-stage="route-controls"
-            data-andrews-stage-label="2 Derivada"
+            data-panel-stack-pane="formula"
+            data-andrews-stage="formula-controls"
+            data-andrews-stage-label="2 Fórmula"
+            data-andrews-panel="formula"
+            data-andrews-section="4.3-4.5"
+            data-andrews-general-formula="subject-predicate"
+            data-andrews-subject-formula="#person+...+number#"
+            data-andrews-vnc-predicate="valence+stem+tense"
+            data-andrews-nnc-predicate="state+stem"
+            data-andrews-vnc-layers="verbstem > verbcore > predicate > CNV"
+            data-andrews-nnc-layers="nounstem > nouncore/predicate > CNN"
             role="tabpanel"
-            aria-labelledby="panel-stack-tab-tense"
+            aria-labelledby="panel-stack-tab-formula"
           >
             <div class="panel-block-title">
               <button
                 type="button"
                 class="panel-pane-nav-btn panel-pane-nav-btn--prev"
-                data-pane-nav-from="tense"
+                data-pane-nav-from="formula"
                 data-pane-nav-direction="prev"
                 aria-label="Ir al panel anterior"
                 title="Panel anterior"
@@ -1294,11 +1301,11 @@
                 <span aria-hidden="true">◀</span>
               </button>
               <span class="panel-block-step">2</span>
-              <span class="panel-block-text">DERIVADA</span>
+              <span class="panel-block-text">FÓRMULA</span>
               <button
                 type="button"
                 class="panel-pane-nav-btn panel-pane-nav-btn--next"
-                data-pane-nav-from="tense"
+                data-pane-nav-from="formula"
                 data-pane-nav-direction="next"
                 aria-label="Ir al siguiente panel"
                 title="Panel siguiente"
@@ -1306,120 +1313,156 @@
                 <span aria-hidden="true">▶</span>
               </button>
             </div>
-                <div class="calc-operators">
-                  <div class="calc-operator calc-operator--mode" role="group" aria-label="Modo">
-                    <div class="calc-operator__label">Modo</div>
+                <div
+                  class="calc-operators formula-controls-grid"
+                  data-andrews-component="formula-controls"
+                >
+                  <section
+                    class="calc-operator calc-operator--mode formula-controls-section formula-controls-section--unit"
+                    role="group"
+                    aria-label="Clase sintáctica y clase formal"
+                    data-andrews-section="4.2"
+                    data-andrews-formula-role="clause-kind"
+                  >
+                    <div class="calc-operator__label" id="calc-mode-operator-label" data-ui-label-key="calc-mode-operator-label">Clase sintáctica / clase formal</div>
                     <div class="calc-mode-taxonomy-grid">
-                      <div class="calc-mode-taxonomy calc-mode-taxonomy--european" data-mode-system="european">
+                      <div class="calc-mode-taxonomy calc-mode-taxonomy--function" data-mode-system="function" data-mode-role="function">
                         <div
                           class="calc-mode-taxonomy__label"
-                          id="calc-mode-system-european"
-                          data-ui-label-key="mode-system-european"
+                          id="calc-mode-system-function"
+                          data-ui-label-key="mode-system-function"
                         >
-                          Convención europea
+                          Clase sintáctica
                         </div>
-                        <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-labelledby="calc-mode-system-european">
+                        <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-labelledby="calc-mode-system-function">
                           <button
                             type="button"
                             class="calc-operator-chip"
                             data-tense-mode="verbo"
-                            data-mode-system="european"
+                            data-mode-system="function"
+                            data-function-role="verbal"
                             id="calc-mode-verb"
                             role="tab"
                             aria-selected="true"
-                            data-ui-label-key="tense-tabs-mode-verb"
+                            data-ui-label-key="tense-tabs-function-verbal"
+                            aria-label="Clase sintáctica verbal"
+                            title="Clase sintáctica verbal"
                           >
-                            Verbo
+                            Verbal
                           </button>
                           <button
                             type="button"
                             class="calc-operator-chip"
                             data-tense-mode="sustantivo"
-                            data-mode-system="european"
+                            data-mode-system="function"
+                            data-function-role="nominal"
                             id="calc-mode-noun"
                             role="tab"
                             aria-selected="false"
-                            data-ui-label-key="tense-tabs-mode-noun"
+                            data-ui-label-key="tense-tabs-function-nominal"
+                            aria-label="Clase sintáctica nominal"
+                            title="Clase sintáctica nominal"
                           >
-                            Sustantivo
+                            Nominal
                           </button>
                           <button
                             type="button"
                             class="calc-operator-chip"
                             data-tense-mode="adjetivo"
-                            data-mode-system="european"
+                            data-mode-system="function"
+                            data-function-role="adjectival"
                             id="calc-mode-adjective"
                             role="tab"
                             aria-selected="false"
-                            data-ui-label-key="tense-tabs-mode-adjective"
+                            data-ui-label-key="tense-tabs-function-adjectival"
+                            aria-label="Clase sintáctica adjetival"
+                            title="Clase sintáctica adjetival"
                           >
-                            Adjetivo
+                            Adjetival
                           </button>
                           <button
                             type="button"
                             class="calc-operator-chip"
                             data-tense-mode="adverbio"
-                            data-mode-system="european"
+                            data-mode-system="function"
+                            data-function-role="adverbial"
                             id="calc-mode-adverb"
                             role="tab"
                             aria-selected="false"
-                            data-ui-label-key="tense-tabs-mode-adverb"
+                            data-ui-label-key="tense-tabs-function-adverbial"
+                            aria-label="Clase sintáctica adverbial"
+                            title="Clase sintáctica adverbial"
                           >
-                            Adverbio
+                            Adverbial
                           </button>
                         </div>
                       </div>
-                      <div class="calc-mode-taxonomy calc-mode-taxonomy--nawat" data-mode-system="nawat">
+                      <div class="calc-mode-taxonomy calc-mode-taxonomy--unit" data-mode-system="unit" data-mode-role="unit">
                         <div
                           class="calc-mode-taxonomy__label"
-                          id="calc-mode-system-nawat"
-                          data-ui-label-key="mode-system-nawat"
+                          id="calc-mode-system-unit"
+                          data-ui-label-key="mode-system-unit"
                         >
-                          Nawat
+                          Clase formal
                         </div>
-                        <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-labelledby="calc-mode-system-nawat">
+                        <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-labelledby="calc-mode-system-unit">
                           <button
                             type="button"
                             class="calc-operator-chip calc-operator-chip--nawat"
                             data-tense-mode="verbo"
-                            data-mode-system="nawat"
+                            data-mode-system="unit"
+                            data-unit-kind="cnv"
                             id="calc-nawat-mode-verb"
                             role="tab"
                             aria-selected="true"
-                            data-ui-label-key="tense-tabs-mode-verb"
+                            data-ui-label-key="tense-tabs-unit-cnv"
+                            aria-label="Clase formal CNV"
+                            title="Clase formal CNV"
                           >
-                            Verbo
+                            CNV
                           </button>
                           <button
                             type="button"
                             class="calc-operator-chip calc-operator-chip--nawat"
                             data-tense-mode="sustantivo"
-                            data-mode-system="nawat"
+                            data-mode-system="unit"
+                            data-unit-kind="cnn"
                             id="calc-nawat-mode-noun"
                             role="tab"
                             aria-selected="false"
-                            data-ui-label-key="tense-tabs-mode-noun"
+                            data-ui-label-key="tense-tabs-unit-cnn"
+                            aria-label="Clase formal CNN"
+                            title="Clase formal CNN"
                           >
-                            Sustantivo
+                            CNN
                           </button>
                           <button
                             type="button"
-                            class="calc-operator-chip calc-operator-chip--nawat calc-operator-chip--placeholder"
+                            class="calc-operator-chip calc-operator-chip--nawat"
+                            data-tense-mode="particula"
+                            data-mode-system="unit"
                             data-nawat-category="particula"
+                            data-unit-kind="particula"
                             id="calc-nawat-mode-particle"
                             role="tab"
                             aria-selected="false"
-                            aria-disabled="true"
-                            disabled
-                            data-ui-label-key="tense-tabs-mode-particle"
+                            data-ui-label-key="tense-tabs-unit-particle"
+                            aria-label="Clase formal partícula"
+                            title="Clase formal partícula"
                           >
                             Partícula
                           </button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="calc-operator calc-operator--derivation" role="group" aria-label="Derivación">
+                  </section>
+                  <section
+                    class="calc-operator calc-operator--derivation formula-controls-section formula-controls-section--predicate-route"
+                    role="group"
+                    aria-label="Derivación"
+                    data-andrews-formula-role="predicate-route"
+                    data-andrews-layer="stem-route"
+                  >
                     <div class="calc-operator__label" id="derivation-type-label">Derivación</div>
                     <div class="calc-operator-grid calc-operator-grid--derivation" role="tablist" aria-label="Derivación activa">
                       <button
@@ -1461,15 +1504,23 @@
                       </div>
                       <button type="button" class="causative-report-button" id="causative-report-download" title="Descargar informe de condiciones causativas">Informe ↓</button>
                     </div>
-                  </div>
+                  </section>
                 </div>
             <div
               class="derivation-antiderivative calc-operator-hint"
               id="derivation-antiderivative"
+              data-andrews-formula-role="predicate-route-diagnostic"
               aria-live="polite"
             ></div>
-            <div id="tense-tabs" class="tense-tabs"></div>
-          </div>
+            <div
+              id="tense-tabs"
+              class="tense-tabs formula-slot-controls"
+              data-andrews-section="4.4-4.5"
+              data-andrews-formula-role="predicate-inflection"
+              data-andrews-vnc-slot="tns"
+              data-andrews-nnc-slot="st"
+            ></div>
+          </section>
           <select
             id="derivation-type"
             class="is-hidden-control"

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/nnc/nnc.js.
 
-export function createNncGlobals(targetObject = globalThis) {
+export function createNncApi(targetObject = globalThis) {
     const ORDINARY_NNC_STATE = Object.freeze({
       absolutive: "absolutive",
       possessive: "possessive"
@@ -28,6 +28,1090 @@ export function createNncGlobals(targetObject = globalThis) {
       organicPossessionRequiresPossessiveState: "ordinary-nnc-organic-possession-requires-possessive-state",
       organicPossessionRequiresPossessor: "ordinary-nnc-organic-possession-requires-possessor"
     });
+    const NNC_LESSON12_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const NNC_LESSON12_PDF_REFS = Object.freeze(["Andrews Lesson 12.1", "Andrews Lesson 12.2", "Andrews Lesson 12.3", "Andrews Lesson 12.4", "Andrews Lesson 12.5", "Andrews Lesson 12.6", "Andrews Lesson 12.7"]);
+    const NNC_LESSON12_FORMULA_CONTRAST_FRAME = Object.freeze({
+      kind: "lesson-12-nnc-vnc-contrast-frame",
+      sourceSection: "Andrews §12.1",
+      nncFormula: "#pers1-pers2(STEM)num1-num2#",
+      vncContrast: "NNC has State where VNC has Valence, and NNC has no Tense position.",
+      stateFunction: "State brings a possessor participant into the predicate.",
+      valenceContrast: "Valence brings an object participant; State brings a possessor participant.",
+      hasTensePosition: false,
+      generationAllowed: false
+    });
+    const NNC_LESSON12_ABSOLUTIVE_FORMULA_FRAME = Object.freeze({
+      kind: "lesson-12-absolutive-nnc-formula-frame",
+      sourceSection: "Andrews §12.2",
+      linearFormula: "#pers1-pers2(STEM)num1-num2#",
+      diagrammaticFormula: Object.freeze({
+        subjectLine: "#pers1-pers2(...)num1-num2#",
+        predicateLine: "(STEM)"
+      }),
+      statePosition: "vacant",
+      possessorPronounPresent: false,
+      predicateStemInsideParentheses: true,
+      subjectConnectorOutsideParentheses: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON12_SUBJECT_POSITION_FRAME = Object.freeze({
+      kind: "lesson-12-absolutive-subject-position-frame",
+      sourceSection: "Andrews §12.3",
+      pers1Pers2Rule: Object.freeze({
+        sameAsVncExcept: Object.freeze(["second-person x carrier absent", "second-person xi carrier absent"]),
+        absentCarriers: Object.freeze(["x", "xi"])
+      }),
+      num1Num2Rule: Object.freeze({
+        num1BelongsTo: "subject-personal-pronoun",
+        num1DoesNotBelongTo: Object.freeze(["predicate-state", "nounstem", "noun suffix"]),
+        sensitiveToPredicateState: true,
+        singularCommonDyads: Object.freeze(["tl-0", "tli-0", "li-0", "in-0", "0-0"]),
+        pluralDyads: Object.freeze(["t-in", "m-eh", "0-h"]),
+        singularNum1Morphs: Object.freeze(["tl", "tli", "li", "in", "0"]),
+        pluralNum1Morphs: Object.freeze(["t", "m", "0"]),
+        singularNum2Morphs: Object.freeze(["0"]),
+        pluralNum2Morphs: Object.freeze(["in", "eh", "h"])
+      }),
+      nawatRealizationStatus: "Classical filler letters are Andrews structural evidence; Nawat/Pipil realization requires orthography bridge plus evidence."
+    });
+    const NNC_LESSON12_SUBJECT_PRONOUN_INVENTORY_FRAME = Object.freeze({
+      kind: "lesson-12-absolutive-subject-pronoun-inventory-frame",
+      sourceSection: "Andrews §12.4",
+      formulaUse: "subject only on absolutive-state NNCs",
+      contrastsWith: "possessive-state NNC subject shapes in Andrews Lesson 13.3",
+      persons: Object.freeze([Object.freeze({
+        id: "1sg",
+        number: "singular",
+        variantCount: 4
+      }), Object.freeze({
+        id: "1pl",
+        number: "plural",
+        variantCount: 3
+      }), Object.freeze({
+        id: "2sg",
+        number: "singular",
+        variantCount: 4
+      }), Object.freeze({
+        id: "2pl",
+        number: "plural",
+        variantCount: 3
+      }), Object.freeze({
+        id: "3sg-common",
+        number: "singular-common",
+        variantCount: 4
+      }), Object.freeze({
+        id: "3pl",
+        number: "plural",
+        variantCount: 3
+      })]),
+      includesSupportiveAndAssimilatedPers1Shapes: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON12_PREDICATE_FRAME = Object.freeze({
+      kind: "lesson-12-absolutive-predicate-frame",
+      sourceSection: "Andrews §12.5",
+      predicateState: "absolutive",
+      statePosition: "vacant",
+      predicateConstituent: "nounstem-alone-in-these-lessons",
+      hasTenseMorph: false,
+      timeReferenceSource: "discourse-context",
+      translationRequiresEnglishCopulaChoice: true,
+      definitenessMarkedInNahuatlNnc: false,
+      predicateFunctions: Object.freeze(["identify", "describe", "locate"]),
+      nounstemNotIndependentWord: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON12_ANIMACY_FRAME = Object.freeze({
+      kind: "lesson-12-animacy-frame",
+      sourceSection: "Andrews §12.6",
+      nounstemAnimacyIsCulturalClassification: true,
+      subjectReferenceIsDecisive: true,
+      animateNncAllowsSubjectNumberContrast: true,
+      nonanimateNncAllowsCommonNumberOnly: true,
+      metaphorCanOverrideExpectedAnimacy: true,
+      countMassDistinctionAbsent: true,
+      numberPositionBelongsToSubject: true,
+      numberPositionNotInflectionOnNounstem: true,
+      warning: "num1-num2 belongs to the subject personal pronoun, not to the nounstem."
+    });
+    const NNC_LESSON12_STATE_NOUNSTEM_FRAME = Object.freeze({
+      kind: "lesson-12-state-nounstem-frame",
+      sourceSection: "Andrews §12.7",
+      stateRelationDiffersFromValence: true,
+      nounstemUsuallyDoesNotChooseState: true,
+      mostNounstemsCanUseEitherState: true,
+      restrictedStateStemsDeferredToLesson15: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON12_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson12-nnc-vnc-contrast",
+      andrewsSection: "12.1",
+      category: "nnc-vnc-formula-contrast",
+      directiveEs: "La CNN tiene Estado donde la CNV tiene Valencia, y no tiene posicion de tiempo.",
+      engineSurface: "formula and category metadata over ordinary NNC output",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-absolutive-state-nnc",
+      andrewsSection: "12.2",
+      category: "absolutive-state-formula",
+      directiveEs: "La formula absolutiva es #pers1-pers2(STEM)num1-num2#; el Estado esta vacante y el tronco funciona como predicado.",
+      engineSurface: "ordinary NNC formula slots",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-subject-positions",
+      andrewsSection: "12.3",
+      category: "absolutive-subject-slots",
+      directiveEs: "pers1/pers2 siguen la CNV salvo x/xi; num1-num2 es conector del sujeto, no estado ni sufijo del nombre.",
+      engineSurface: "subject and num1-num2 metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-subject-pronoun-summary",
+      andrewsSection: "12.4",
+      category: "absolutive-subject-pronoun-inventory",
+      directiveEs: "Los paradigmas de sujeto absolutivo tienen variantes por persona y numero; no deben confundirse con los paradigmas posesivos de la Leccion 13.",
+      engineSurface: "diagnostic inventory metadata",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-predicate-position",
+      andrewsSection: "12.5",
+      category: "absolutive-predicate",
+      directiveEs: "El tronco nominal identifica, describe o localiza al sujeto; no contiene tiempo y requiere contexto para referencia temporal.",
+      engineSurface: "predicate metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-animacy",
+      andrewsSection: "12.6",
+      category: "animacy-and-reference",
+      directiveEs: "La animacidad guia la referencia singular/plural, pero la referencia del sujeto decide; num1-num2 sigue siendo material del sujeto.",
+      engineSurface: "animacy/reference diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson12-state-and-nounstem",
+      andrewsSection: "12.7",
+      category: "state-nounstem-boundary",
+      directiveEs: "El Estado no se relaciona con el tronco como la Valencia se relaciona con el verbo; la mayoria de troncos puede entrar en ambos estados.",
+      engineSurface: "state boundary metadata",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    })]);
+    const NNC_LESSON12_REMAINING_GAPS = Object.freeze(["The full Andrews 12.3-12.4 absolutive subject-pronoun filler inventory is not generated as a complete paradigm.", "Current ordinary NNC output remains Nawat/Pipil evidence-bound and cannot import Classical num1-num2 surfaces directly.", "Discourse time reference, definiteness/article choice, metaphorical animacy overrides, and state-restriction exceptions remain diagnostic or deferred."]);
+    const NNC_LESSON13_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const NNC_LESSON13_PDF_REFS = Object.freeze(["Andrews Lesson 13.1", "Andrews Lesson 13.2", "Andrews Lesson 13.3", "Andrews Lesson 13.4", "Andrews Lesson 13.5", "Andrews Lesson 13.6"]);
+    const NNC_LESSON13_POSSESSIVE_FORMULA_FRAME = Object.freeze({
+      kind: "lesson-13-possessive-nnc-formula-frame",
+      sourceSection: "Andrews §13.1",
+      formulas: Object.freeze([Object.freeze({
+        id: "monadic-state-position",
+        linearFormula: "#pers1-pers2+st(STEM)num1-num2#",
+        subjectLine: "#pers1-pers2+...)num1-num2#",
+        predicateLine: "+st(STEM)"
+      }), Object.freeze({
+        id: "dyadic-state-position",
+        linearFormula: "#pers1-pers2+st1-st2(STEM)num1-num2#",
+        subjectLine: "#pers1-pers2+...)num1-num2#",
+        predicateLine: "+st1-st2(STEM)"
+      })]),
+      statePosition: "present-in-predicate",
+      stateBringsParticipantRole: "possessor",
+      hasTensePosition: false,
+      stemProblemDeferredToLesson14: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON13_SUBJECT_POSITION_FRAME = Object.freeze({
+      kind: "lesson-13-possessive-subject-position-frame",
+      sourceSection: "Andrews §13.2",
+      pers1Pers2Rule: "same fillers as absolutive-state NNC subject positions in Andrews 12.3.1",
+      num1Num2Rule: Object.freeze({
+        num1BelongsTo: "subject-personal-pronoun",
+        num1DoesNotBelongTo: Object.freeze(["predicate-state", "possessor", "nounstem", "noun suffix"]),
+        sensitiveToPredicateState: true,
+        num1Variants: Object.freeze(["uh/hu", "hui", "0"]),
+        singularCommonNum2: "0",
+        pluralNum2: "an",
+        uhAfterVowel: true,
+        huiAfterConsonant: true,
+        huiRareMorphologicallyConditioned: true,
+        uhHuSpellingVariants: "uh before silent morph; hu before sounded morph"
+      }),
+      generationAllowed: false
+    });
+    const NNC_LESSON13_SUBJECT_PRONOUN_INVENTORY_FRAME = Object.freeze({
+      kind: "lesson-13-possessive-subject-pronoun-inventory-frame",
+      sourceSection: "Andrews §13.3",
+      formulaUse: "subject only on possessive-state NNCs",
+      contrastsWith: "absolutive-state NNC subject shapes in Andrews Lesson 12.4",
+      persons: Object.freeze([Object.freeze({
+        id: "1sg",
+        number: "singular-common",
+        variants: Object.freeze(["uh-0", "hui-0", "0-0"])
+      }), Object.freeze({
+        id: "1pl",
+        number: "plural",
+        variants: Object.freeze(["hu-an"])
+      }), Object.freeze({
+        id: "2sg",
+        number: "singular-common",
+        variants: Object.freeze(["uh-0", "hui-0", "0-0"])
+      }), Object.freeze({
+        id: "2pl",
+        number: "plural",
+        variants: Object.freeze(["hu-an"])
+      }), Object.freeze({
+        id: "3sg-common",
+        number: "singular-common",
+        variants: Object.freeze(["uh-0", "hui-0", "0-0"])
+      }), Object.freeze({
+        id: "3pl",
+        number: "plural",
+        variants: Object.freeze(["hu-an"])
+      })]),
+      nawatRealizationStatus: "current Nawat subject/connector output remains evidence-bound and does not import Classical connector paradigms",
+      generationAllowed: false
+    });
+    const NNC_LESSON13_MONADIC_STATE_FRAME = Object.freeze({
+      kind: "lesson-13-monadic-possessive-state-frame",
+      sourceSection: "Andrews §13.4",
+      statePosition: "monadic",
+      stateSlot: "st",
+      predicatePosition: true,
+      expressesCategories: Object.freeze(["person", "number", "possessive-case"]),
+      sameShapesAsMonadicValence: true,
+      fillers: Object.freeze([Object.freeze({
+        id: "reciprocative-possessor",
+        andrewsMorph: "ne",
+        meaning: "one another's / each other's",
+        restrictions: Object.freeze(["third-person only", "highly infrequent", "narrower than shuntline reflexive/reciprocal object ne"]),
+        nawatStatus: "requires Nawat/Pipil evidence before generation"
+      }), Object.freeze({
+        id: "human-nonspecific-possessor",
+        andrewsMorph: "te",
+        meaning: "someone's / anyone's / everyone's",
+        frequency: "frequent",
+        nawatCandidate: "te",
+        nawatStatus: "requires Nawat/Pipil evidence before generation"
+      }), Object.freeze({
+        id: "nonhuman-nonspecific-possessor",
+        andrewsMorph: "tla",
+        meaning: "something's / anything's / everything's",
+        primaryUse: "relational nounstems",
+        lessonRefs: Object.freeze(["Andrews Lessons 45-47", "Andrews §15.1.6"]),
+        nawatCandidate: "ta",
+        nawatStatus: "orthography-adapted candidate only; requires Nawat/Pipil evidence before generation"
+      })]),
+      generationAllowed: false
+    });
+    const NNC_LESSON13_DYADIC_STATE_FRAME = Object.freeze({
+      kind: "lesson-13-dyadic-possessive-state-frame",
+      sourceSection: "Andrews §13.5",
+      statePosition: "dyadic",
+      stateSlots: Object.freeze(["st1", "st2"]),
+      categoriesDistributedByThirdPerson: true,
+      st1: Object.freeze({
+        alwaysManifests: "person",
+        thirdPerson: Object.freeze({
+          combines: Object.freeze(["person", "possessive-case"]),
+          filler: "i"
+        }),
+        firstSecondPerson: Object.freeze({
+          combines: Object.freeze(["person", "number"]),
+          fillers: Object.freeze(["m", "am", "n", "t"]),
+          sameAsValenceSlot: "va1"
+        })
+      }),
+      st2: Object.freeze({
+        suppliesCategoryMissingFromSt1: true,
+        thirdPerson: Object.freeze({
+          manifests: "number",
+          singular: "0",
+          plural: "m~n...",
+          soundChangeRefs: Object.freeze(["Andrews §2.11.1", "Andrews §2.11.5", "Andrews §2.12.4-5"])
+        }),
+        firstSecondPerson: Object.freeze({
+          manifests: "possessive-case",
+          filler: "o",
+          vowelInitialStemAllomorph: "□"
+        })
+      }),
+      generationAllowed: false
+    });
+    const NNC_LESSON13_SPECIFIC_POSSESSOR_FRAME = Object.freeze({
+      kind: "lesson-13-specific-possessor-frame",
+      sourceSection: "Andrews §13.6",
+      role: "specific personal pronouns in possessor role",
+      possessors: Object.freeze([Object.freeze({
+        id: "1sg",
+        andrews: "n-o ~ n-□",
+        meaning: "my",
+        currentNawatPrefix: "nu"
+      }), Object.freeze({
+        id: "1pl",
+        andrews: "t-o ~ t-□",
+        meaning: "our",
+        currentNawatPrefix: "tu"
+      }), Object.freeze({
+        id: "2sg",
+        andrews: "m-o ~ m-□",
+        meaning: "your (sg)",
+        currentNawatPrefix: "mu"
+      }), Object.freeze({
+        id: "2pl",
+        andrews: "am-o ~ am-□",
+        meaning: "your (pl)",
+        currentNawatPrefix: "anmu"
+      }), Object.freeze({
+        id: "3sg-common",
+        andrews: "i-0",
+        meaning: "his/her/its; its/their",
+        currentNawatPrefix: "i"
+      }), Object.freeze({
+        id: "3pl",
+        andrews: "i-m ~ i-n...",
+        meaning: "their",
+        currentNawatPrefix: "in"
+      })]),
+      pluralPossessorTranslationRange: Object.freeze(["of one of us", "of one of you", "of one of them", "belonging to one of us/you/them"]),
+      firstPluralBroadUse: "can broaden to someone's",
+      traditionalSpellingWarning: "Distinguish VNC #am-0+m-o(... from NNC #0-0+am-o(... in texts with double/single consonant inconsistency.",
+      nawatRealizationStatus: "current Nawat possessor prefixes are repo evidence, not automatic Classical surface imports",
+      generationAllowed: false
+    });
+    const NNC_LESSON13_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson13-possessive-state-nnc",
+      andrewsSection: "13.1",
+      category: "possessive-state-formula",
+      directiveEs: "La CNN posesiva tiene Estado en el predicado: monadico +st(STEM) o diadico +st1-st2(STEM), sin posicion de tiempo.",
+      engineSurface: "possessive formula metadata over ordinary NNC output",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson13-subject-positions",
+      andrewsSection: "13.2",
+      category: "possessive-subject-slots",
+      directiveEs: "El sujeto posesivo conserva pers1-pers2, y su num1-num2 usa conectores sensibles al Estado; el conector sigue siendo del sujeto.",
+      engineSurface: "subject and num1-num2 metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson13-subject-pronoun-summary",
+      andrewsSection: "13.3",
+      category: "possessive-subject-pronoun-inventory",
+      directiveEs: "Los paradigmas de sujeto posesivo solo sirven para CNN posesivas y contrastan con los paradigmas absolutivos de la Leccion 12.",
+      engineSurface: "diagnostic inventory metadata",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson13-monadic-state",
+      andrewsSection: "13.4",
+      category: "monadic-possessive-state",
+      directiveEs: "El Estado monadico concentra persona, numero y caso posesivo en un solo pronombre prefijal: ne, te o tla.",
+      engineSurface: "blocked monadic-state taxonomy",
+      redirectAction: "block-generation",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson13-dyadic-state",
+      andrewsSection: "13.5",
+      category: "dyadic-possessive-state",
+      directiveEs: "El Estado diadico divide persona, numero y caso entre st1 y st2, con reglas distintas para poseedor de tercera persona.",
+      engineSurface: "specific possessor metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson13-specific-possessors",
+      andrewsSection: "13.6",
+      category: "specific-possessor-pronouns",
+      directiveEs: "Los poseedores especificos son pronombres posesivos; sus realizaciones Nawat se toman de evidencia del repo, no de importacion grafica clasica.",
+      engineSurface: "current possessor-prefix metadata",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    })]);
+    const NNC_LESSON13_REMAINING_GAPS = Object.freeze(["The full Andrews possessive-state subject connector inventory is not generated as a complete paradigm.", "Monadic possessive-state NNCs with ne, te, and nonhuman tla/ta remain blocked until confirmed Nawat/Pipil evidence licenses them.", "Current specific possessor prefixes are Nawat repo evidence, while Andrews st1/st2 allomorphy and traditional-spelling caveats remain diagnostic metadata.", "Lesson 14 stem selection is required before possessive-state NNC generation can claim full Andrews coverage."]);
+    const NNC_LESSON14_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const NNC_LESSON14_PDF_REFS = Object.freeze(["Andrews Lesson 14.1", "Andrews Lesson 14.2", "Andrews Lesson 14.3", "Andrews Lesson 14.4", "Andrews Lesson 14.5", "Andrews Lesson 14.6", "Andrews Lesson 14.7", "Andrews Lesson 14.8"]);
+    const NNC_LESSON14_USE_STEM_FRAME = Object.freeze({
+      kind: "lesson-14-use-stem-frame",
+      sourceSection: "Andrews §14.1",
+      restrictedUseStem: Object.freeze({
+        shape: "base",
+        usualRole: "citation-form",
+        usedIn: Object.freeze(["absolutive-state NNC"])
+      }),
+      generalUseStem: Object.freeze({
+        derivedFromRestrictedUseStem: true,
+        usedIn: Object.freeze(["possessive-state NNC", "compound-stem embed subposition"]),
+        shapeOptions: Object.freeze(["base", "truncated", "glottalized"])
+      }),
+      currentEngineBoundary: "ordinary NNC stores a predicate stem and class, but does not yet model complete restricted/general use-stem alternation",
+      generationAllowed: false
+    });
+    const NNC_LESSON14_NOUNSTEM_CLASS_FRAME = Object.freeze({
+      kind: "lesson-14-nounstem-class-frame",
+      sourceSection: "Andrews §14.2",
+      classNamingSlot: "subject num1 in absolutive singular/common NNCs",
+      classMembershipPredictable: false,
+      classes: Object.freeze([Object.freeze({
+        andrewsClass: "ti",
+        currentNawatClass: "t",
+        absolutiveSingularCommonNum1: "tl",
+        stemFinalShape: "vowel-final"
+      }), Object.freeze({
+        andrewsClass: "tli",
+        currentNawatClass: "ti",
+        absolutiveSingularCommonNum1: "tli/li",
+        stemFinalShape: "consonant-final",
+        liIsSeparateClass: false
+      }), Object.freeze({
+        andrewsClass: "in",
+        currentNawatClass: "in",
+        absolutiveSingularCommonNum1: "in",
+        stemFinalShape: "consonant-final"
+      }), Object.freeze({
+        andrewsClass: "0",
+        currentNawatClass: "zero",
+        absolutiveSingularCommonNum1: "0",
+        stemFinalShape: "consonant-or-vowel-final"
+      })]),
+      mainDivision: "ti-class versus all other classes",
+      inAndZeroNotNumerous: true,
+      alternativeClassMembershipPossible: true,
+      supportiveInitialVowelMayHaveVariantWithoutVowel: true,
+      currentEngineClasses: Object.freeze(["t", "ti", "in", "zero"]),
+      currentEngineBoundary: "class/stem-final compatibility is enforced; lexical class membership and alternatives remain evidence-bound",
+      generationAllowed: false
+    });
+    const NNC_LESSON14_NOUNSTEM_NUMBER_FRAME = Object.freeze({
+      kind: "lesson-14-nounstem-number-frame",
+      sourceSection: "Andrews §14.3",
+      numberBelongsTo: "personal-pronoun subject",
+      predicateMarksNumber: false,
+      nounstemCanBeDerivationallyAlteredForGroupRelation: true,
+      derivedStemTypes: Object.freeze([Object.freeze({
+        id: "plain",
+        relationship: "unmarked stem"
+      }), Object.freeze({
+        id: "affinity",
+        relationship: "cohesive group relation",
+        reduplication: "long-vowel reduplicative prefix inside the stem"
+      }), Object.freeze({
+        id: "distributive-varietal",
+        relationship: "separate locations, separate members, or various kinds",
+        reduplication: "glottal-stop reduplicative prefix inside the stem"
+      })]),
+      derivedStemIsNotSubjectPluralInflection: true,
+      animateNonanimateDistinctionMaintained: true,
+      affectiveStemContrast: "Lesson 32",
+      pronominalPluralStemExceptions: Object.freeze(["Andrews §16.3", "Andrews §16.9"]),
+      generationAllowed: false
+    });
+    const NNC_LESSON14_ABSOLUTIVE_SINGULAR_COMMON_FRAME = Object.freeze({
+      kind: "lesson-14-absolutive-singular-common-frame",
+      sourceSection: "Andrews §14.4",
+      predicateState: "absolutive",
+      subjectNumber: "singular/common",
+      requiredStemShape: "restricted-use base shape",
+      derivedDistributiveOrVarietalStemMayServeAsBase: true,
+      hasTensePosition: false,
+      generationAllowed: false
+    });
+    const NNC_LESSON14_ABSOLUTIVE_PLURAL_FRAME = Object.freeze({
+      kind: "lesson-14-absolutive-plural-frame",
+      sourceSection: "Andrews §14.5",
+      predicateState: "absolutive",
+      subjectNumber: "plural",
+      subjectReference: "animate",
+      allowedStemTypes: Object.freeze(["plain base", "affinity base", "distributive/varietal base"]),
+      plainStemNum1Rules: Object.freeze({
+        tiClass: "usually m, occasionally 0; lexical choice must be learned",
+        tliInZeroClasses: "t or m; t favors consonant-final stems and m favors vowel-final stems, but lexical choice must be learned"
+      }),
+      affinityStemRules: Object.freeze({
+        tiSource: "0 or infrequent m",
+        tliOrInSource: "t",
+        lexicallyObligatoryForSomeItems: true
+      }),
+      distributiveVarietalRule: "formation follows the source stem",
+      lexicalAlternativesCanBeFickleOrSteadfast: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON14_POSSESSIVE_PLURAL_FRAME = Object.freeze({
+      kind: "lesson-14-possessive-plural-frame",
+      sourceSection: "Andrews §14.6",
+      predicateState: "possessive",
+      subjectNumber: "plural",
+      normalStemType: "plain general-use stem",
+      affinityStemAvailableForSpecialGroupCohesion: true,
+      distributiveVarietalStemAvailableForDistributionOrVariety: true,
+      subjectConnector: "hu-an",
+      derivedStemUseIsSemantic: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON14_POSSESSIVE_SINGULAR_COMMON_FRAME = Object.freeze({
+      kind: "lesson-14-possessive-singular-common-frame",
+      sourceSection: "Andrews §14.7",
+      predicateState: "possessive",
+      subjectNumber: "singular/common",
+      possibleGeneralUseShapes: Object.freeze(["base", "truncated"]),
+      classRules: Object.freeze({
+        inAndZero: Object.freeze({
+          stemShape: "base",
+          num1: "0"
+        }),
+        tli: Object.freeze({
+          stemShape: "base",
+          subclasses: Object.freeze([Object.freeze({
+            id: "tli-1",
+            num1: "0",
+            frequency: "almost all tli stems"
+          }), Object.freeze({
+            id: "tli-2",
+            num1: "hui",
+            frequency: "very limited"
+          }), Object.freeze({
+            id: "tli-2-alternative",
+            num1: "0 instead of hui",
+            frequency: "very limited"
+          })])
+        }),
+        ti: Object.freeze({
+          subclasses: Object.freeze([Object.freeze({
+            id: "ti-1-a",
+            stemShape: "base",
+            num1: "uh",
+            lexicalChoiceMustBeLearned: true
+          }), Object.freeze({
+            id: "ti-1-b",
+            stemShape: "base",
+            num1: "0",
+            lexicalChoiceMustBeLearned: true
+          }), Object.freeze({
+            id: "ti-2-a",
+            stemShape: "truncated",
+            num1: "0",
+            deletes: "ephemeral short i after long vowel"
+          }), Object.freeze({
+            id: "ti-2-b",
+            stemShape: "truncated",
+            num1: "0",
+            deletes: "ephemeral short a/i after one consonant"
+          }), Object.freeze({
+            id: "ti-2-c",
+            stemShape: "truncated-plus-supportive-i",
+            num1: "0",
+            deletes: "ephemeral short a after two consonants"
+          })])
+        })
+      }),
+      num1BelongsTo: "subject personal pronoun",
+      num1DoesNotBelongTo: Object.freeze(["predicate-state", "nounstem", "noun suffix"]),
+      warning: "Do not call uh/hu possessive suffixes or tli/li/in absolutive suffixes; State is in front of the nounstem.",
+      generationAllowed: false
+    });
+    const NNC_LESSON14_CONSTITUENT_ANALYSIS_FRAME = Object.freeze({
+      kind: "lesson-14-constituent-analysis-frame",
+      sourceSection: "Andrews §14.8",
+      ambiguousBackConstituents: Object.freeze(["uh can be stem-final consonant or num1 filler", "ti can be stem-final consonant sequence or num1 filler", "tli can rarely be stem-final material or num1 filler"]),
+      ambiguousFrontConstituents: Object.freeze(["o after n/t/am can belong to the stem or to st2", "m after long i can belong to the stem or to st2"]),
+      spellingProblemRefs: Object.freeze(["amo ambiguity from Andrews §13.6", "long o missing in traditional spelling", "i-0 before long i or glottal-stop-initial stems", "supportive i dropped after i-0"]),
+      diagnosticRule: "keep alternative analyses open unless vocabulary, filler morphs, sound changes, and Nawat/Pipil evidence settle the parse",
+      generationAllowed: false
+    });
+    const NNC_LESSON14_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson14-use-stem-kinds",
+      andrewsSection: "14.1",
+      category: "restricted-general-use-stems",
+      directiveEs: "Distinguir tronco de uso restringido para CNN absolutiva y tronco de uso general para CNN posesiva y encaje compuesto.",
+      engineSurface: "use-stem metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-nounstem-classes",
+      andrewsSection: "14.2",
+      category: "nounstem-class-system",
+      directiveEs: "Las clases se nombran por num1 absolutivo singular/comun; en Nawat actual son t, ti, in y zero, con membresia lexica no predecible.",
+      engineSurface: "class/stem compatibility metadata",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-number-and-derived-stems",
+      andrewsSection: "14.3",
+      category: "number-and-derived-nounstems",
+      directiveEs: "El numero pertenece al sujeto; afinidad y distributivo/varietal son derivaciones internas del tronco, no plural nominal.",
+      engineSurface: "derived-stem diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-absolutive-singular-common",
+      andrewsSection: "14.4",
+      category: "absolutive-singular-common-stem-selection",
+      directiveEs: "La CNN absolutiva singular/comun usa la forma base del tronco de uso restringido.",
+      engineSurface: "absolutive class compatibility",
+      redirectAction: "reframe-metadata",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-absolutive-plural",
+      andrewsSection: "14.5",
+      category: "absolutive-plural-stem-selection",
+      directiveEs: "La CNN absolutiva plural puede usar tronco simple, de afinidad o distributivo/varietal, con num1 lexicamente aprendido.",
+      engineSurface: "plural-subject diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-possessive-plural",
+      andrewsSection: "14.6",
+      category: "possessive-plural-stem-selection",
+      directiveEs: "La CNN posesiva plural normalmente usa tronco simple, salvo necesidad semantica de afinidad o distribucion.",
+      engineSurface: "possessive plural diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-possessive-singular-common",
+      andrewsSection: "14.7",
+      category: "possessive-singular-common-stem-selection",
+      directiveEs: "La CNN posesiva singular/comun selecciona forma base o truncada segun clase y subclase; num1 sigue siendo del sujeto.",
+      engineSurface: "possessive class/subclass diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson14-constituent-analysis-difficulties",
+      andrewsSection: "14.8",
+      category: "constituent-analysis-diagnostics",
+      directiveEs: "Mantener analisis alternativos para uh, ti, tli, o y m cuando la ortografia o el vocabulario no decidan la frontera.",
+      engineSurface: "ambiguity diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    })]);
+    const NNC_LESSON14_REMAINING_GAPS = Object.freeze(["Current ordinary NNC class handling enforces Nawat t/ti/in/zero shape compatibility, but full Andrews lexical class membership and class alternatives are not data-complete.", "Restricted-use versus general-use stem selection is not yet a complete engine contract for possessive NNCs and compound embed positions.", "Affinity and distributive/varietal nounstem derivation, plural-subject alternatives, and class/subclass num1 choices remain diagnostic or Nawat/Pipil-evidence-needed.", "Constituent-analysis ambiguities around uh, ti, tli, o, m, and traditional spelling remain diagnostic metadata until vocabulary and Nawat/Pipil evidence settle them."]);
+    const NNC_LESSON15_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const NNC_LESSON15_PDF_REFS = Object.freeze(["Andrews Lesson 15.1", "Andrews Lesson 15.2", "Andrews Lesson 15.3"]);
+    const NNC_LESSON15_POSSESSIVE_PECULIARITIES_FRAME = Object.freeze({
+      kind: "lesson-15-possessive-peculiarities-frame",
+      sourceSection: "Andrews §15.1",
+      possessivePluralAssimilation: Object.freeze({
+        connector: "hu-an",
+        affectedStemFinals: Object.freeze(["voiceless uh/w", "n"]),
+        soundChangeRefs: Object.freeze(["Andrews §2.12.6", "Andrews §2.12.5"]),
+        generationAllowedWithoutEvidence: false
+      }),
+      suppletivePossessiveStems: Object.freeze([Object.freeze({
+        source: "(tlacoh)-tli",
+        possessiveStem: "(tlaca)-tl",
+        role: "slave/person replacement"
+      }), Object.freeze({
+        source: "(pil)-li",
+        possessiveStem: "(pil-lo)-tl",
+        role: "nobleman/nobility replacement"
+      }), Object.freeze({
+        source: "(teuc)-tli",
+        possessiveStem: "(teuc-yo)-tl",
+        role: "lord/lordship replacement"
+      }), Object.freeze({
+        source: "(tec)-0",
+        possessiveStem: "Totec",
+        role: "special title/name"
+      })]),
+      spuriousOrTraditionalWarning: "totecuiyo/notecuiyo is treated as a text-history warning, not a productive source stem.",
+      derivedNonanimatePossessive: Object.freeze({
+        stemTypes: Object.freeze(["distributive-varietal", "affinity"]),
+        numberDyadReports: "common number",
+        englishMayTranslatePlural: true
+      }),
+      possessorReduplicationCanMarkPlurality: true,
+      secondaryGeneralUseStem: Object.freeze({
+        possessor: "te",
+        operation: "possessive-state predicate downgraded to general-use stem",
+        teMayBlurTo: Object.freeze(["ti", "t"])
+      }),
+      analogicalTlaStem: Object.freeze({
+        possessor: "tla",
+        operation: "possessive-state predicate downgraded to restricted-use stem",
+        currentNawatCandidate: "ta",
+        generationAllowedWithoutEvidence: false
+      }),
+      tiSubclassReclassification: "Subclass 2-A ti stems can reclassify as Subclass 1-A by loss of ephemeral i, with possible meaning or style shift.",
+      nuclearPossessorRule: "The pronominal possessor inside the NNC is the nuclear/basic possessor; supplementary possessors are later sentence structure.",
+      generationAllowed: false
+    });
+    const NNC_LESSON15_NATURALLY_POSSESSED_FRAME = Object.freeze({
+      kind: "lesson-15-naturally-possessed-frame",
+      sourceSection: "Andrews §15.2",
+      description: "Some nounstems usually or always occur in possessive-state NNCs because their referent is naturally associated with another entity.",
+      dictionaryAbsolutiveSuffixCanOnlyIdentifyClass: true,
+      naturalPossessionTypes: Object.freeze([Object.freeze({
+        id: "property",
+        examples: Object.freeze(["home/homeland", "property/possession"])
+      }), Object.freeze({
+        id: "kinship-human-relations",
+        examples: Object.freeze(["child", "mother", "enemy", "companion"])
+      }), Object.freeze({
+        id: "body-parts",
+        examples: Object.freeze(["nose", "hand"])
+      })]),
+      unavailablePossessiveContrast: Object.freeze({
+        examples: Object.freeze(["cloud", "rain"]),
+        metaphorCanOverrideRestriction: true
+      }),
+      organicIntegralPossessionRef: "Andrews §39.3.4",
+      currentEngineBoundary: "current ordinary possessive fixtures and organic -yu opt-in do not prove complete Lesson 15 natural-possession classes",
+      generationAllowed: false
+    });
+    const NNC_LESSON15_SENTENCE_STRUCTURE_FRAME = Object.freeze({
+      kind: "lesson-15-nnc-sentence-structure-frame",
+      sourceSection: "Andrews §15.3",
+      nncCanConstituteSentence: true,
+      sentenceParticipation: Object.freeze(["simple", "complex", "compound"]),
+      equationalPredicateFunctions: Object.freeze(["equative", "attributive", "adverbial"]),
+      equativeSentenceTypes: Object.freeze(["simple affirmative", "negative", "emphatic", "yes/no question", "wish"]),
+      adverbialModifiersAllowed: true,
+      possessiveStateMayTranslateAsHaving: true,
+      predicateDefinitenessAmbiguous: true,
+      currentEngineBoundary: "sentence-layer NNC composition remains diagnostic; word-level NNC output does not license sentence generation",
+      generationAllowed: false
+    });
+    const NNC_LESSON15_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson15-possessive-peculiarities",
+      andrewsSection: "15.1",
+      category: "possessive-state-peculiarities",
+      directiveEs: "Registrar asimilacion con hu-an, suplencias posesivas, troncos secundarios, analogias con tla, reduplicacion de poseedor y poseedor nuclear sin generar paradigmas no confirmados.",
+      engineSurface: "possessive peculiarity diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson15-naturally-possessed-nounstems",
+      andrewsSection: "15.2",
+      category: "natural-possession-state-cases",
+      directiveEs: "Distinguir posesion natural, obligatoria o restringida de posesion ordinaria; los sufijos absolutivos de diccionario solo identifican clase.",
+      engineSurface: "natural-possession evidence boundary",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson15-nnc-sentence-structure",
+      andrewsSection: "15.3",
+      category: "nnc-sentence-structure",
+      directiveEs: "Una CNN puede ser oracion simple o entrar en oraciones complejas/compuestas, pero la salida nominal no debe convertirse silenciosamente en generador de oraciones.",
+      engineSurface: "sentence-layer diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    })]);
+    const NNC_LESSON15_REMAINING_GAPS = Object.freeze(["Possessive plural assimilation, suppletive possessive stems, te/tla secondary stems, possessor reduplication, and ti-subclass reclassification remain diagnostic until Nawat/Pipil evidence licenses concrete forms.", "Natural-possession state cases require lexical metadata for required, optional, unavailable, possessive-only, absolutive-unavailable, and irregular nouns.", "Current fixture-backed possessive forms and organic -yu generation do not prove complete Lesson 15 natural-possession coverage.", "NNC sentence-structure behavior remains sentence-layer metadata; sentence generation and particle placement are not licensed by ordinary NNC output alone."]);
+    const NNC_LESSON16_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const NNC_LESSON16_PDF_REFS = Object.freeze(["Andrews Lesson 16.1", "Andrews Lesson 16.2", "Andrews Lesson 16.3", "Andrews Lesson 16.4", "Andrews Lesson 16.5", "Andrews Lesson 16.6", "Andrews Lesson 16.7", "Andrews Lesson 16.8", "Andrews Lesson 16.9"]);
+    const NNC_LESSON16_OVERVIEW_FRAME = Object.freeze({
+      kind: "lesson-16-pronominal-nnc-overview-frame",
+      sourceSection: "Andrews §16.1",
+      nncKind: "pronominal",
+      builtOnStemMeanings: Object.freeze(["entitive", "quantitive"]),
+      stateRestriction: "absolutive-only",
+      translatedAsPronounWords: true,
+      structuralWarning: "Nahuatl pronominal NNCs are structured as NNCs, not as English pronoun words.",
+      semanticKinds: Object.freeze(["entitive", "quantitive"]),
+      pluralStructuralTypes: Object.freeze(["plain-stem plural", "pluralized-stem plural"]),
+      pluralizedStemRule: "plural-number morph n is derivational suffix inside the stem",
+      pluralizedStemSubjectNumberDyads: Object.freeze(["t-in", "0-0"]),
+      currentEngineBoundary: "ordinary NNC formula slots are not reused as generated pronominal NNC paradigms without a separate Nawat evidence model",
+      generationAllowed: false
+    });
+    const NNC_LESSON16_ENTITIVE_FRAME = Object.freeze({
+      kind: "lesson-16-entitive-pronominal-frame",
+      sourceSection: "Andrews §16.2",
+      subtypes: Object.freeze(["personal", "interrogative", "indefinite", "demonstrative"]),
+      hasRelativePronouns: false,
+      generationAllowed: false
+    });
+    const NNC_LESSON16_PERSONAL_FRAME = Object.freeze({
+      kind: "lesson-16-personal-pronominal-nnc-frame",
+      sourceSection: "Andrews §16.3",
+      realPersonalPronounsAreAffixal: true,
+      stems: Object.freeze([Object.freeze({
+        id: "simple-eh",
+        stems: Object.freeze(["eh-0", "yeh-0"]),
+        thirdPersonVariant: "yeh",
+        meaning: "entity/existent one",
+        pluralSubjectUse: "extremely rare",
+        shortFormsUsuallySupplements: true
+      }), Object.freeze({
+        id: "compound-eh-hua",
+        stems: Object.freeze(["eh-hua-tl", "yeh-hua-tl"]),
+        thirdPersonVariant: "yeh-hua",
+        pluralStemRule: "add derivational n inside predicate stem when subject is plural",
+        num1Variants: Object.freeze(["sounded", "silent"]),
+        distributiveVarietalCommonSubjectPossible: true
+      })]),
+      adverbialModificationPossible: true,
+      idiomaticQuenMachHuelConstruction: true,
+      doubledFirstPluralPers1Formation: true,
+      supplementRefs: Object.freeze(["Andrews Lessons 17-18"]),
+      generationAllowed: false
+    });
+    const NNC_LESSON16_INTERROGATIVE_FRAME = Object.freeze({
+      kind: "lesson-16-interrogative-pronominal-nnc-frame",
+      sourceSection: "Andrews §16.4",
+      questionScope: "identity of the affixal subject",
+      stems: Object.freeze([Object.freeze({
+        id: "what-entity",
+        stem: "tl-eh-0",
+        gloss: "what entity / what",
+        usualSubject: "third-person singular",
+        anyPersonPossible: true
+      }), Object.freeze({
+        id: "what-entity-compound",
+        stem: "tl-eh-hua-tl",
+        gloss: "what entity / what"
+      }), Object.freeze({
+        id: "which-entity",
+        stem: "ca-tl",
+        gloss: "which entity / which one"
+      }), Object.freeze({
+        id: "who",
+        stem: "a-0-c",
+        gloss: "what person / who",
+        fixedSubject: "third-person singular",
+        singularOrPluralMeaning: true
+      })]),
+      tlehInFusion: Object.freeze({
+        source: "tleh + in",
+        fusedForms: Object.freeze(["tlein", "tlei", "tlen"]),
+        writeSeparateWhenDependentClauseFollows: true
+      }),
+      acInFusion: Object.freeze({
+        source: "ac + in",
+        fusedForms: Object.freeze(["aquin", "aqui"]),
+        writeSeparateWhenDependentClauseFollows: true
+      }),
+      interrogativeQualityLostWhen: Object.freeze(["negative", "not sentence-initial"]),
+      relativePronounWarning: "do not model these as English-style relative pronouns",
+      generationAllowed: false
+    });
+    const NNC_LESSON16_DEMONSTRATIVE_FRAME = Object.freeze({
+      kind: "lesson-16-demonstrative-pronominal-nnc-frame",
+      sourceSection: "Andrews §16.5",
+      stems: Object.freeze([Object.freeze({
+        id: "proximal",
+        stem: "in",
+        gloss: "this one / these"
+      }), Object.freeze({
+        id: "distal",
+        stem: "on",
+        gloss: "that one / those"
+      })]),
+      canFunctionAdjectivally: true,
+      adjectivalFunctionRef: "Andrews §40.1",
+      invariantButPreferNncAnalysis: true,
+      subjectLimit: "third-person",
+      pluralNumberDyad: "0-0",
+      pluralizesStem: false,
+      stemFinalNMayBeUnwritten: true,
+      adjunctorSolidSpellingWarning: "in in / in on are traditionally written inin / inon",
+      generationAllowed: false
+    });
+    const NNC_LESSON16_INDEFINITE_FRAME = Object.freeze({
+      kind: "lesson-16-indefinite-pronominal-nnc-frame",
+      sourceSection: "Andrews §16.6",
+      matrixStem: "ah-0",
+      matrixMeaning: "undetermined, unspecified, or unknown entity",
+      stems: Object.freeze([Object.freeze({
+        id: "someone",
+        stem: "a-c-ah-0",
+        source: "ac",
+        humanMeaning: true
+      }), Object.freeze({
+        id: "something",
+        stem: "itl-ah-0",
+        source: "related to tla / tl-eh",
+        humanSubjectOnlySpecialSituations: true
+      })]),
+      embedVowelLengthLost: true,
+      lessGeneralThanPrefixes: Object.freeze(["te", "tla"]),
+      generationAllowed: false
+    });
+    const NNC_LESSON16_QUANTITIVE_OVERVIEW_FRAME = Object.freeze({
+      kind: "lesson-16-quantitive-pronominal-overview-frame",
+      sourceSection: "Andrews §16.7",
+      canFunctionAdjectivally: true,
+      adjectivalFunctionRef: "Andrews §40.1",
+      stateRestriction: "absolutive-only",
+      matrixStems: Object.freeze(["chi/ch", "qui/c", "qui-ch"]),
+      matrixMeaning: "amount, quantity, number",
+      embedMeanings: Object.freeze(["equal", "total", "abundant", "full", "small"]),
+      chiQuiMorphVariants: Object.freeze(["long vowel", "glottal stop", "short vowel", "zero vowel"]),
+      morphDeploymentPredictable: false,
+      generationAllowed: false
+    });
+    const NNC_LESSON16_QUICH_FRAME = Object.freeze({
+      kind: "lesson-16-quantitive-quich-frame",
+      sourceSection: "Andrews §16.8",
+      matrix: "qui-ch-0",
+      stems: Object.freeze([Object.freeze({
+        id: "all",
+        stem: "ix-qui-ch-0",
+        meaning: "total amount / all"
+      }), Object.freeze({
+        id: "how-much-general",
+        stem: "que-x-qui-ch-0",
+        meaning: "how much / how many in general"
+      }), Object.freeze({
+        id: "how-many-varietal",
+        stem: "que-x-ix-qui-ch-0",
+        meaning: "how many in different places or kinds"
+      })]),
+      adverbialModificationFrequent: true,
+      interrogativeQualityLostWhenNotInitial: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON16_QUI_CHI_FRAME = Object.freeze({
+      kind: "lesson-16-quantitive-qui-chi-frame",
+      sourceSection: "Andrews §16.9",
+      matrices: Object.freeze(["qui/c", "chi/ch"]),
+      pluralizedStemRule: "normally includes derivational n when subject is plural",
+      pluralSubjectNumberDyads: Object.freeze(["t-in", "0-0"]),
+      stems: Object.freeze([Object.freeze({
+        id: "abundant",
+        stem: "miya/miye-qui/c",
+        meaning: "much / many"
+      }), Object.freeze({
+        id: "some",
+        stem: "ce-qui/c",
+        meaning: "one, some, part"
+      }), Object.freeze({
+        id: "equal",
+        stem: "iz-qui",
+        meaning: "as much / as many"
+      }), Object.freeze({
+        id: "how-many-specific",
+        stem: "que-z-qui",
+        meaning: "how many specifically"
+      }), Object.freeze({
+        id: "few",
+        stem: "a-qui",
+        meaning: "a few"
+      }), Object.freeze({
+        id: "little",
+        stem: "a-chi",
+        meaning: "a little"
+      }), Object.freeze({
+        id: "all-full",
+        stem: "mo-chi/ch",
+        meaning: "all"
+      }), Object.freeze({
+        id: "great-many",
+        stem: "ix-a-chi",
+        meaning: "very large amount / many"
+      })]),
+      variantPluralFormationsExist: true,
+      interrogativeQualityLostWhenNotInitial: true,
+      generationAllowed: false
+    });
+    const NNC_LESSON16_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson16-pronominal-nnc-overview",
+      andrewsSection: "16.1",
+      category: "pronominal-nnc-overview",
+      directiveEs: "Las CNN pronominales son CNN absolutivas especiales sobre troncos entitativos o cuantitativos, no pronombres-palabra importables.",
+      engineSurface: "pronominal NNC boundary metadata",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-entitive-subtypes",
+      andrewsSection: "16.2",
+      category: "entitive-pronominal-subtypes",
+      directiveEs: "Las entitativas se dividen en personales, interrogativas, indefinidas y demostrativas; no hay pronombres relativos.",
+      engineSurface: "entitive subtype metadata",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-personal-pronominal",
+      andrewsSection: "16.3",
+      category: "personal-pronominal-nnc",
+      directiveEs: "Los pronombres personales reales son afijales; eh/yeh y eh-hua/yeh-hua son predicados CNN de entidad y suelen servir como suplementos.",
+      engineSurface: "personal-pronominal diagnostic metadata",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-interrogative-pronominal",
+      andrewsSection: "16.4",
+      category: "interrogative-pronominal-nnc",
+      directiveEs: "Las interrogativas identificacionales preguntan por el sujeto afijal; pierden interrogatividad en negativo o fuera de posicion inicial.",
+      engineSurface: "interrogative pronominal diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-demonstrative-pronominal",
+      andrewsSection: "16.5",
+      category: "demonstrative-pronominal-nnc",
+      directiveEs: "in y on son CNN demostrativas de tercera persona, aunque sean invariantes y puedan parecer particulas.",
+      engineSurface: "demonstrative pronominal diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-indefinite-pronominal",
+      andrewsSection: "16.6",
+      category: "indefinite-pronominal-nnc",
+      directiveEs: "acah e itlah son compuestos indefinidos menos generales que los prefijos te y tla.",
+      engineSurface: "indefinite pronominal diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-quantitive-overview",
+      andrewsSection: "16.7",
+      category: "quantitive-pronominal-overview",
+      directiveEs: "Las cuantitativas son CNN absolutivas de cantidad/numero con matrices chi, qui y qui-ch, no cuantificadores sueltos.",
+      engineSurface: "quantitive pronominal diagnostics",
+      redirectAction: "diagnostic-only",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-quantitive-quich",
+      andrewsSection: "16.8",
+      category: "quantitive-quich-pronominal",
+      directiveEs: "ixquich y quexquich pertenecen a la matriz qui-ch y mantienen reglas de posicion interrogativa.",
+      engineSurface: "qui-ch quantitive diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    }), Object.freeze({
+      id: "lesson16-quantitive-qui-chi",
+      andrewsSection: "16.9",
+      category: "quantitive-qui-chi-pronominal",
+      directiveEs: "Las matrices qui/c y chi/ch pluralizan por n derivacional en el tronco cuando corresponde; no se generan paradigmas sin evidencia.",
+      engineSurface: "qui/chi quantitive diagnostics",
+      redirectAction: "needs-nawat-evidence",
+      evidenceStatus: "direct-pdf-partial",
+      implementationState: "partial"
+    })]);
+    const NNC_LESSON16_REMAINING_GAPS = Object.freeze(["Confirmed Nawat/Pipil pronominal NNC examples are still needed before any personal, interrogative, demonstrative, indefinite, or quantitive paradigms can generate.", "The current ordinary NNC formula slot model is not yet extended to a safe pronominal NNC route.", "Fused spellings such as tlein/aquin and demonstrative inin/inon remain diagnostic text-analysis metadata, not generated Nawat fixtures.", "Quantitive matrix allomorphy, derivational plural n, adjectival-function use, and supplementation behavior remain diagnostic or deferred to later lessons."]);
     function buildVerbDerivedNominalDiagnostic({
       id = "verb-derived-nominal-blocked",
       message = "La generacion no produjo una forma.",
@@ -204,8 +1288,8 @@ export function createNncGlobals(targetObject = globalThis) {
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
-          subjectNumberConnector: output.subjectNumberConnector || null,
-          subjectNumberConnectors: Array.isArray(output.subjectNumberConnectors) ? output.subjectNumberConnectors : []
+          num1Num2: output.num1Num2 || null,
+          num1Num2Alternates: Array.isArray(output.num1Num2Alternates) ? output.num1Num2Alternates : []
         },
         stemFrame: {
           stem: String(output.entries?.[0]?.verb || ""),
@@ -384,6 +1468,623 @@ export function createNncGlobals(targetObject = globalThis) {
         message
       };
     }
+    function attachNncLessonGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "nominal-nuclear-clause-metadata",
+        routeFamily: "ordinary-nnc",
+        structuralSource: "Andrews Lesson 12",
+        andrewsRefs: ["Andrews Lesson 12.1-12.7"],
+        ...options
+      });
+    }
+    function cloneNncLessonRecord(value) {
+      if (Array.isArray(value)) {
+        return value.map(entry => cloneNncLessonRecord(entry));
+      }
+      if (!value || typeof value !== "object") {
+        return value;
+      }
+      return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cloneNncLessonRecord(entry)]));
+    }
+    function getNncLesson12FormulaContrastFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_FORMULA_CONTRAST_FRAME);
+    }
+    function getNncLesson12AbsolutiveFormulaFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_ABSOLUTIVE_FORMULA_FRAME);
+    }
+    function getNncLesson12SubjectPositionFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_SUBJECT_POSITION_FRAME);
+    }
+    function getNncLesson12SubjectPronounInventoryFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_SUBJECT_PRONOUN_INVENTORY_FRAME);
+    }
+    function getNncLesson12PredicateFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_PREDICATE_FRAME);
+    }
+    function getNncLesson12AnimacyFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_ANIMACY_FRAME);
+    }
+    function getNncLesson12StateNounstemFrame() {
+      return cloneNncLessonRecord(NNC_LESSON12_STATE_NOUNSTEM_FRAME);
+    }
+    function getNncLesson12SubsectionInventory() {
+      return NNC_LESSON12_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        validationRefs: Array.from(NNC_LESSON12_VALIDATION_REFS),
+        generationPolicy: "diagnostico; no importa conectores clasicos ni genera paradigmas completos sin evidencia Nawat/Pipil"
+      }));
+    }
+    function getNncLesson12RemainingGaps() {
+      return Array.from(NNC_LESSON12_REMAINING_GAPS);
+    }
+    function buildNncLesson12PursuitFrame() {
+      const inventory = getNncLesson12SubsectionInventory();
+      const absolutiveFormulaFrame = getNncLesson12AbsolutiveFormulaFrame();
+      const subjectPositionFrame = getNncLesson12SubjectPositionFrame();
+      const predicateFrame = getNncLesson12PredicateFrame();
+      const animacyFrame = getNncLesson12AnimacyFrame();
+      const frame = {
+        kind: "lesson-12-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 12,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(NNC_LESSON12_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-12-absolutive-nnc-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 12.1-12.7 against NNC/VNC contrast, absolutive-state NNC formula slots, subject-pronoun positions, predicate behavior, animacy, and state/nounstem boundaries.",
+          andrewsRefs: Array.from(NNC_LESSON12_PDF_REFS),
+          expectedFeedbackRefs: Array.from(NNC_LESSON12_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-12-absolutive-nnc-audit",
+          result: "hit",
+          correction: "Lesson 12 now carries subsection PDF refs, Spanish directives, absolutive NNC formula metadata, subject num1-num2 ownership, no-tense predicate boundaries, animacy diagnostics, and generation blockers for unlicensed Classical connector paradigms.",
+          andrewsRefs: Array.from(NNC_LESSON12_PDF_REFS),
+          feedbackRefs: Array.from(NNC_LESSON12_VALIDATION_REFS)
+        }],
+        subsectionInventory: inventory,
+        formulaContrastFrame: getNncLesson12FormulaContrastFrame(),
+        absolutiveFormulaFrame,
+        subjectPositionFrame,
+        subjectPronounInventoryFrame: getNncLesson12SubjectPronounInventoryFrame(),
+        predicateFrame,
+        animacyFrame,
+        stateNounstemFrame: getNncLesson12StateNounstemFrame(),
+        currentEngineBoundary: {
+          ordinaryNncFormulaSlotsExist: true,
+          ordinaryNncGenerationIsEvidenceBound: true,
+          completeAndrewsSubjectParadigmGenerated: false,
+          noTenseSlot: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: getNncLesson12RemainingGaps(),
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachNncLessonGrammarContract(frame, {
+        metadataKind: "lesson-12-pursuit-frame",
+        routeStage: "audit-lesson-12",
+        sourceInput: "Andrews Lesson 12.1-12.7",
+        supported: false,
+        diagnostics: ["lesson-12-absolutive-nnc-partial"],
+        morphBoundaryFrame: subjectPositionFrame.num1Num2Rule,
+        stemFrame: predicateFrame,
+        nuclearClauseFrame: {
+          clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+          formula: absolutiveFormulaFrame.linearFormula,
+          statePosition: "vacant",
+          hasTensePosition: false
+        },
+        participantFrame: {
+          subject: subjectPositionFrame,
+          animacy: animacyFrame
+        },
+        inflectionFrame: {
+          hasTensePosition: false,
+          predicateState: "absolutive"
+        },
+        targetContract: {
+          metadataKind: "lesson-12-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false
+        }
+      });
+    }
+    function getNncLesson13PossessiveFormulaFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_POSSESSIVE_FORMULA_FRAME);
+    }
+    function getNncLesson13SubjectPositionFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_SUBJECT_POSITION_FRAME);
+    }
+    function getNncLesson13SubjectPronounInventoryFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_SUBJECT_PRONOUN_INVENTORY_FRAME);
+    }
+    function getNncLesson13MonadicStateFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_MONADIC_STATE_FRAME);
+    }
+    function getNncLesson13DyadicStateFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_DYADIC_STATE_FRAME);
+    }
+    function getNncLesson13SpecificPossessorFrame() {
+      return cloneNncLessonRecord(NNC_LESSON13_SPECIFIC_POSSESSOR_FRAME);
+    }
+    function getNncLesson13SubsectionInventory() {
+      return NNC_LESSON13_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        validationRefs: Array.from(NNC_LESSON13_VALIDATION_REFS),
+        generationPolicy: "diagnostico; no importa poseedores clasicos ni genera paradigmas posesivos completos sin evidencia Nawat/Pipil"
+      }));
+    }
+    function getNncLesson13RemainingGaps() {
+      return Array.from(NNC_LESSON13_REMAINING_GAPS);
+    }
+    function buildNncLesson13PursuitFrame() {
+      const inventory = getNncLesson13SubsectionInventory();
+      const possessiveFormulaFrame = getNncLesson13PossessiveFormulaFrame();
+      const subjectPositionFrame = getNncLesson13SubjectPositionFrame();
+      const monadicStateFrame = getNncLesson13MonadicStateFrame();
+      const dyadicStateFrame = getNncLesson13DyadicStateFrame();
+      const specificPossessorFrame = getNncLesson13SpecificPossessorFrame();
+      const frame = {
+        kind: "lesson-13-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 13,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(NNC_LESSON13_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-13-possessive-nnc-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 13.1-13.6 against possessive-state NNC formulas, subject connector behavior, monadic and dyadic State slots, and possessor-pronoun inventories.",
+          andrewsRefs: Array.from(NNC_LESSON13_PDF_REFS),
+          expectedFeedbackRefs: Array.from(NNC_LESSON13_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-13-possessive-nnc-audit",
+          result: "hit",
+          correction: "Lesson 13 now carries subsection PDF refs, Spanish directives, possessive-state formula metadata, subject num1-num2 ownership, monadic and dyadic State taxonomy, specific possessor frames, and blockers for unlicensed Classical-to-Nawat possessive paradigms.",
+          andrewsRefs: Array.from(NNC_LESSON13_PDF_REFS),
+          feedbackRefs: Array.from(NNC_LESSON13_VALIDATION_REFS)
+        }],
+        subsectionInventory: inventory,
+        possessiveFormulaFrame,
+        subjectPositionFrame,
+        subjectPronounInventoryFrame: getNncLesson13SubjectPronounInventoryFrame(),
+        monadicStateFrame,
+        dyadicStateFrame,
+        specificPossessorFrame,
+        currentEngineBoundary: {
+          ordinaryNncPossessiveStateExists: true,
+          currentSpecificPossessorPrefixesAreNawatEvidence: true,
+          monadicPossessiveStateGenerated: false,
+          completeAndrewsPossessiveParadigmGenerated: false,
+          noTenseSlot: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: getNncLesson13RemainingGaps(),
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachNncLessonGrammarContract(frame, {
+        metadataKind: "lesson-13-pursuit-frame",
+        routeStage: "audit-lesson-13",
+        sourceInput: "Andrews Lesson 13.1-13.6",
+        structuralSource: "Andrews Lesson 13",
+        andrewsRefs: ["Andrews Lesson 13.1-13.6"],
+        supported: false,
+        diagnostics: ["lesson-13-possessive-nnc-partial"],
+        morphBoundaryFrame: subjectPositionFrame.num1Num2Rule,
+        stemFrame: {
+          stemProblemDeferredToLesson14: true,
+          stateFrames: {
+            monadic: monadicStateFrame,
+            dyadic: dyadicStateFrame
+          }
+        },
+        nuclearClauseFrame: {
+          clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+          formulas: possessiveFormulaFrame.formulas,
+          statePosition: "present-in-predicate",
+          hasTensePosition: false
+        },
+        participantFrame: {
+          subject: subjectPositionFrame,
+          possessor: specificPossessorFrame
+        },
+        inflectionFrame: {
+          hasTensePosition: false,
+          predicateState: "possessive"
+        },
+        targetContract: {
+          metadataKind: "lesson-13-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false
+        }
+      });
+    }
+    function getNncLesson14UseStemFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_USE_STEM_FRAME);
+    }
+    function getNncLesson14NounstemClassFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_NOUNSTEM_CLASS_FRAME);
+    }
+    function getNncLesson14NounstemNumberFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_NOUNSTEM_NUMBER_FRAME);
+    }
+    function getNncLesson14AbsolutiveSingularCommonFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_ABSOLUTIVE_SINGULAR_COMMON_FRAME);
+    }
+    function getNncLesson14AbsolutivePluralFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_ABSOLUTIVE_PLURAL_FRAME);
+    }
+    function getNncLesson14PossessivePluralFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_POSSESSIVE_PLURAL_FRAME);
+    }
+    function getNncLesson14PossessiveSingularCommonFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_POSSESSIVE_SINGULAR_COMMON_FRAME);
+    }
+    function getNncLesson14ConstituentAnalysisFrame() {
+      return cloneNncLessonRecord(NNC_LESSON14_CONSTITUENT_ANALYSIS_FRAME);
+    }
+    function getNncLesson14SubsectionInventory() {
+      return NNC_LESSON14_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        validationRefs: Array.from(NNC_LESSON14_VALIDATION_REFS),
+        generationPolicy: "diagnostico; no completa clases, subclases, derivaciones de tronco ni alternativas sin evidencia Nawat/Pipil"
+      }));
+    }
+    function getNncLesson14RemainingGaps() {
+      return Array.from(NNC_LESSON14_REMAINING_GAPS);
+    }
+    function buildNncLesson14PursuitFrame() {
+      const inventory = getNncLesson14SubsectionInventory();
+      const useStemFrame = getNncLesson14UseStemFrame();
+      const nounstemClassFrame = getNncLesson14NounstemClassFrame();
+      const nounstemNumberFrame = getNncLesson14NounstemNumberFrame();
+      const absolutiveSingularCommonFrame = getNncLesson14AbsolutiveSingularCommonFrame();
+      const absolutivePluralFrame = getNncLesson14AbsolutivePluralFrame();
+      const possessivePluralFrame = getNncLesson14PossessivePluralFrame();
+      const possessiveSingularCommonFrame = getNncLesson14PossessiveSingularCommonFrame();
+      const constituentAnalysisFrame = getNncLesson14ConstituentAnalysisFrame();
+      const frame = {
+        kind: "lesson-14-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 14,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(NNC_LESSON14_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-14-nounstem-class-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 14.1-14.8 against use-stem kinds, nounstem classes, number boundaries, state/number-specific stem selection, and constituent-analysis warnings.",
+          andrewsRefs: Array.from(NNC_LESSON14_PDF_REFS),
+          expectedFeedbackRefs: Array.from(NNC_LESSON14_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-14-nounstem-class-audit",
+          result: "hit",
+          correction: "Lesson 14 now carries subsection PDF refs, Spanish directives, use-stem and nounstem-class metadata, number/derived-stem boundaries, state-specific stem-selection frames, and blockers for unlicensed class/subclass generation.",
+          andrewsRefs: Array.from(NNC_LESSON14_PDF_REFS),
+          feedbackRefs: Array.from(NNC_LESSON14_VALIDATION_REFS)
+        }],
+        subsectionInventory: inventory,
+        useStemFrame,
+        nounstemClassFrame,
+        nounstemNumberFrame,
+        absolutiveSingularCommonFrame,
+        absolutivePluralFrame,
+        possessivePluralFrame,
+        possessiveSingularCommonFrame,
+        constituentAnalysisFrame,
+        currentEngineBoundary: {
+          currentNawatClasses: ["t", "ti", "in", "zero"],
+          classStemCompatibilityEnforced: true,
+          completeLexicalClassInventory: false,
+          completeUseStemAlternation: false,
+          completeDerivedStemGeneration: false,
+          noTenseSlot: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: getNncLesson14RemainingGaps(),
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachNncLessonGrammarContract(frame, {
+        metadataKind: "lesson-14-pursuit-frame",
+        routeStage: "audit-lesson-14",
+        sourceInput: "Andrews Lesson 14.1-14.8",
+        structuralSource: "Andrews Lesson 14",
+        andrewsRefs: ["Andrews Lesson 14.1-14.8"],
+        supported: false,
+        diagnostics: ["lesson-14-nounstem-class-partial"],
+        morphBoundaryFrame: {
+          num1BelongsTo: "subject-personal-pronoun",
+          classNamingSlot: nounstemClassFrame.classNamingSlot,
+          ambiguityFrame: constituentAnalysisFrame
+        },
+        stemFrame: {
+          useStemFrame,
+          nounstemClassFrame,
+          nounstemNumberFrame,
+          stateSpecificStemSelection: {
+            absolutiveSingularCommon: absolutiveSingularCommonFrame,
+            absolutivePlural: absolutivePluralFrame,
+            possessivePlural: possessivePluralFrame,
+            possessiveSingularCommon: possessiveSingularCommonFrame
+          }
+        },
+        nuclearClauseFrame: {
+          clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+          stateScope: ["absolutive", "possessive"],
+          hasTensePosition: false
+        },
+        participantFrame: {
+          subject: {
+            numberBelongsTo: nounstemNumberFrame.numberBelongsTo,
+            predicateMarksNumber: nounstemNumberFrame.predicateMarksNumber
+          }
+        },
+        inflectionFrame: {
+          hasTensePosition: false,
+          predicateState: "absolutive-or-possessive",
+          nounstemClassValues: nounstemClassFrame.currentEngineClasses
+        },
+        targetContract: {
+          metadataKind: "lesson-14-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false
+        }
+      });
+    }
+    function getNncLesson15PossessivePeculiaritiesFrame() {
+      return cloneNncLessonRecord(NNC_LESSON15_POSSESSIVE_PECULIARITIES_FRAME);
+    }
+    function getNncLesson15NaturallyPossessedFrame() {
+      return cloneNncLessonRecord(NNC_LESSON15_NATURALLY_POSSESSED_FRAME);
+    }
+    function getNncLesson15SentenceStructureFrame() {
+      return cloneNncLessonRecord(NNC_LESSON15_SENTENCE_STRUCTURE_FRAME);
+    }
+    function getNncLesson15SubsectionInventory() {
+      return NNC_LESSON15_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        validationRefs: Array.from(NNC_LESSON15_VALIDATION_REFS),
+        generationPolicy: "diagnostico; no genera suplencias, posesion natural ni oraciones CNN sin evidencia Nawat/Pipil y capa sintactica"
+      }));
+    }
+    function getNncLesson15RemainingGaps() {
+      return Array.from(NNC_LESSON15_REMAINING_GAPS);
+    }
+    function buildNncLesson15PursuitFrame() {
+      const inventory = getNncLesson15SubsectionInventory();
+      const possessivePeculiaritiesFrame = getNncLesson15PossessivePeculiaritiesFrame();
+      const naturallyPossessedFrame = getNncLesson15NaturallyPossessedFrame();
+      const sentenceStructureFrame = getNncLesson15SentenceStructureFrame();
+      const frame = {
+        kind: "lesson-15-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 15,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(NNC_LESSON15_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-15-further-nnc-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 15.1-15.3 against possessive-state peculiarities, naturally possessed nounstems, and NNC sentence-structure boundaries.",
+          andrewsRefs: Array.from(NNC_LESSON15_PDF_REFS),
+          expectedFeedbackRefs: Array.from(NNC_LESSON15_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-15-further-nnc-audit",
+          result: "hit",
+          correction: "Lesson 15 now carries subsection PDF refs, Spanish directives, possessive-peculiarity metadata, natural-possession evidence boundaries, NNC sentence-structure diagnostics, and blockers for unlicensed state-case or sentence generation.",
+          andrewsRefs: Array.from(NNC_LESSON15_PDF_REFS),
+          feedbackRefs: Array.from(NNC_LESSON15_VALIDATION_REFS)
+        }],
+        subsectionInventory: inventory,
+        possessivePeculiaritiesFrame,
+        naturallyPossessedFrame,
+        sentenceStructureFrame,
+        currentEngineBoundary: {
+          ordinaryPossessiveFixturesExist: true,
+          organicYuOptInExists: true,
+          completeNaturalPossessionLexicon: false,
+          sentenceGenerationLicensed: false,
+          noTenseSlot: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: getNncLesson15RemainingGaps(),
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachNncLessonGrammarContract(frame, {
+        metadataKind: "lesson-15-pursuit-frame",
+        routeStage: "audit-lesson-15",
+        sourceInput: "Andrews Lesson 15.1-15.3",
+        structuralSource: "Andrews Lesson 15",
+        andrewsRefs: ["Andrews Lesson 15.1-15.3"],
+        supported: false,
+        diagnostics: ["lesson-15-further-nnc-partial"],
+        morphBoundaryFrame: {
+          possessivePluralAssimilation: possessivePeculiaritiesFrame.possessivePluralAssimilation,
+          nuclearPossessorRule: possessivePeculiaritiesFrame.nuclearPossessorRule
+        },
+        stemFrame: {
+          possessivePeculiaritiesFrame,
+          naturallyPossessedFrame
+        },
+        nuclearClauseFrame: {
+          clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+          sentenceStructureFrame,
+          hasTensePosition: false
+        },
+        participantFrame: {
+          possessor: {
+            nuclearBasicPossessor: true,
+            supplementaryPossessorsDeferred: true
+          }
+        },
+        inflectionFrame: {
+          hasTensePosition: false,
+          predicateState: "possessive-state-diagnostic"
+        },
+        targetContract: {
+          metadataKind: "lesson-15-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false
+        }
+      });
+    }
+    function getNncLesson16OverviewFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_OVERVIEW_FRAME);
+    }
+    function getNncLesson16EntitiveFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_ENTITIVE_FRAME);
+    }
+    function getNncLesson16PersonalFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_PERSONAL_FRAME);
+    }
+    function getNncLesson16InterrogativeFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_INTERROGATIVE_FRAME);
+    }
+    function getNncLesson16DemonstrativeFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_DEMONSTRATIVE_FRAME);
+    }
+    function getNncLesson16IndefiniteFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_INDEFINITE_FRAME);
+    }
+    function getNncLesson16QuantitiveOverviewFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_QUANTITIVE_OVERVIEW_FRAME);
+    }
+    function getNncLesson16QuichFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_QUICH_FRAME);
+    }
+    function getNncLesson16QuiChiFrame() {
+      return cloneNncLessonRecord(NNC_LESSON16_QUI_CHI_FRAME);
+    }
+    function getNncLesson16SubsectionInventory() {
+      return NNC_LESSON16_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        validationRefs: Array.from(NNC_LESSON16_VALIDATION_REFS),
+        generationPolicy: "diagnostico; no genera CNN pronominales sin ejemplos Nawat/Pipil confirmados y contrato de ruta separado"
+      }));
+    }
+    function getNncLesson16RemainingGaps() {
+      return Array.from(NNC_LESSON16_REMAINING_GAPS);
+    }
+    function buildNncLesson16PursuitFrame() {
+      const inventory = getNncLesson16SubsectionInventory();
+      const overviewFrame = getNncLesson16OverviewFrame();
+      const entitiveFrame = getNncLesson16EntitiveFrame();
+      const personalFrame = getNncLesson16PersonalFrame();
+      const interrogativeFrame = getNncLesson16InterrogativeFrame();
+      const demonstrativeFrame = getNncLesson16DemonstrativeFrame();
+      const indefiniteFrame = getNncLesson16IndefiniteFrame();
+      const quantitiveOverviewFrame = getNncLesson16QuantitiveOverviewFrame();
+      const quichFrame = getNncLesson16QuichFrame();
+      const quiChiFrame = getNncLesson16QuiChiFrame();
+      const frame = {
+        kind: "lesson-16-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 16,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(NNC_LESSON16_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-16-pronominal-nnc-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 16.1-16.9 against pronominal NNC kinds, entitive and quantitive subtypes, absolutive-only status, fused-spelling warnings, and generation blockers.",
+          andrewsRefs: Array.from(NNC_LESSON16_PDF_REFS),
+          expectedFeedbackRefs: Array.from(NNC_LESSON16_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-16-pronominal-nnc-audit",
+          result: "hit",
+          correction: "Lesson 16 now carries subsection PDF refs, Spanish directives, pronominal-NNC subtype metadata, absolutive-only boundaries, fused-spelling diagnostics, quantitive matrix frames, and blockers for unlicensed pronominal generation.",
+          andrewsRefs: Array.from(NNC_LESSON16_PDF_REFS),
+          feedbackRefs: Array.from(NNC_LESSON16_VALIDATION_REFS)
+        }],
+        subsectionInventory: inventory,
+        overviewFrame,
+        entitiveFrame,
+        personalFrame,
+        interrogativeFrame,
+        demonstrativeFrame,
+        indefiniteFrame,
+        quantitiveOverviewFrame,
+        quichFrame,
+        quiChiFrame,
+        currentEngineBoundary: {
+          pronominalNncRouteGenerated: false,
+          ordinaryNncFormulaSlotsReused: false,
+          confirmedNawatPronominalFixtures: false,
+          absolutiveOnly: true,
+          noTenseSlot: true
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps: getNncLesson16RemainingGaps(),
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachNncLessonGrammarContract(frame, {
+        metadataKind: "lesson-16-pursuit-frame",
+        routeStage: "audit-lesson-16",
+        sourceInput: "Andrews Lesson 16.1-16.9",
+        structuralSource: "Andrews Lesson 16",
+        andrewsRefs: ["Andrews Lesson 16.1-16.9"],
+        supported: false,
+        diagnostics: ["lesson-16-pronominal-nnc-partial"],
+        morphBoundaryFrame: {
+          pluralizedStemRule: overviewFrame.pluralizedStemRule,
+          fusedSpellingWarnings: {
+            tlehIn: interrogativeFrame.tlehInFusion,
+            acIn: interrogativeFrame.acInFusion,
+            demonstrative: demonstrativeFrame.adjunctorSolidSpellingWarning
+          }
+        },
+        stemFrame: {
+          nncKind: overviewFrame.nncKind,
+          entitiveFrame,
+          quantitiveFrame: {
+            overview: quantitiveOverviewFrame,
+            quich: quichFrame,
+            quiChi: quiChiFrame
+          }
+        },
+        nuclearClauseFrame: {
+          clauseKind: ORDINARY_NNC_CLAUSE_KIND,
+          nncKind: "pronominal",
+          stateRestriction: overviewFrame.stateRestriction,
+          hasTensePosition: false
+        },
+        participantFrame: {
+          subject: {
+            affixalSubjectRemainsBasic: true,
+            relativePronounsPresent: false
+          }
+        },
+        inflectionFrame: {
+          hasTensePosition: false,
+          predicateState: "absolutive-only"
+        },
+        targetContract: {
+          metadataKind: "lesson-16-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false
+        }
+      });
+    }
     function parseOrdinaryNncPersonSubKey(personSubKey = "") {
       const match = String(personSubKey || "").match(/^([123])(?:s|sg|p|pl)$/i);
       if (!match) {
@@ -406,7 +2107,7 @@ export function createNncGlobals(targetObject = globalThis) {
       const entry = entries.find(candidate => requestedId && (candidate.id === requestedId || candidate.personSubKey === requestedId) || String(candidate.subjectPrefix || "") === subjectPrefix && String(candidate.subjectSuffix || "") === subjectSuffix) || entries.find(candidate => String(candidate.subjectPrefix || "") === "" && String(candidate.subjectSuffix || "") === "");
       const prefix = entry ? String(entry.subjectPrefix || "") : subjectPrefix;
       const suffix = entry ? String(entry.subjectSuffix || "") : subjectSuffix;
-      const agreementInfo = typeof targetObject.getSubjectPersonInfo === "function" ? targetObject.getSubjectPersonInfo(prefix, suffix) : null;
+      const agreementInfo = typeof targetObject.getPers1Pers2Info === "function" ? targetObject.getPers1Pers2Info(prefix, suffix) : null;
       const parsed = parseOrdinaryNncPersonSubKey(entry?.personSubKey || "");
       return {
         subjectPrefix: prefix,
@@ -470,7 +2171,7 @@ export function createNncGlobals(targetObject = globalThis) {
       return isOrdinaryNncVowelFinalStem(stem) ? "vowel-final" : "consonant-final";
     }
     function getOrdinaryNncClassStemCompatibility(nounClass = "", stem = "") {
-      const normalizedClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass) || "zero";
+      const normalizedClass = normalizeOrdinaryNncNum1Num2Class(nounClass) || "zero";
       const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
       if (!normalizedStem || normalizedClass === "zero") {
         return {
@@ -532,50 +2233,137 @@ export function createNncGlobals(targetObject = globalThis) {
       possessivePrefix = "",
       core = ""
     } = {}) {
+      const result = buildOrdinaryNncSurfaceChainResult({
+        subjectPrefix,
+        possessivePrefix,
+        core
+      });
+      return String(result?.surface || "");
+    }
+    function collectOrdinaryNncSurfaceSoundSpellingFrames(...sources) {
+      const frames = [];
+      const pushFrame = (frame = null) => {
+        if (!frame || typeof frame !== "object" || !frame.ruleId) {
+          return;
+        }
+        const key = [frame.ruleId || "", frame.grammarSlot || "", frame.syllablePosition || "", frame.sourceSurface || "", frame.target || "", Array.isArray(frame.targetCandidates) ? frame.targetCandidates.join("/") : "", frame.segmentRole || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":");
+        if (!key || frames.some(entry => [entry.ruleId || "", entry.grammarSlot || "", entry.syllablePosition || "", entry.sourceSurface || "", entry.target || "", Array.isArray(entry.targetCandidates) ? entry.targetCandidates.join("/") : "", entry.segmentRole || "", entry.sourceSegmentValue || "", entry.targetSegmentValue || ""].join(":") === key)) {
+          return;
+        }
+        frames.push({
+          ...frame
+        });
+      };
+      sources.forEach(source => {
+        if (!source) {
+          return;
+        }
+        if (Array.isArray(source)) {
+          source.forEach(pushFrame);
+          return;
+        }
+        if (typeof source !== "object") {
+          return;
+        }
+        if (Array.isArray(source.soundSpellingFrames)) {
+          source.soundSpellingFrames.forEach(pushFrame);
+        }
+        if (source.soundSpellingFrame && typeof source.soundSpellingFrame === "object") {
+          pushFrame(source.soundSpellingFrame);
+        }
+        const grammarFrame = (source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : null) || (source.frames && typeof source.frames === "object" ? source.frames : null);
+        if (Array.isArray(grammarFrame?.orthographyFrame?.soundSpellingFrames)) {
+          grammarFrame.orthographyFrame.soundSpellingFrames.forEach(pushFrame);
+        }
+        if (Array.isArray(source.orthographyFrame?.soundSpellingFrames)) {
+          source.orthographyFrame.soundSpellingFrames.forEach(pushFrame);
+        }
+      });
+      return frames;
+    }
+    function buildOrdinaryNncSurfaceChainResult({
+      subjectPrefix = "",
+      possessivePrefix = "",
+      core = ""
+    } = {}) {
       const normalizedCore = String(core || "");
       if (!normalizedCore) {
-        return "";
+        return {
+          surface: "",
+          surfaceForms: [],
+          soundSpellingFrames: []
+        };
+      }
+      if (typeof targetObject.buildOutputWordResult === "function") {
+        const result = targetObject.buildOutputWordResult({
+          pers1: String(subjectPrefix || ""),
+          poseedor: String(possessivePrefix || ""),
+          obj1: "",
+          tronco: normalizedCore
+        });
+        const surface = String(result?.surface || result?.surfaceForms?.[0] || "");
+        return {
+          ...result,
+          surface,
+          surfaceForms: surface ? [surface] : [],
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+        };
       }
       if (typeof targetObject.buildOutputPrefixedChain === "function") {
-        return targetObject.buildOutputPrefixedChain({
-          subjectPrefix: String(subjectPrefix || ""),
-          possessivePrefix: String(possessivePrefix || ""),
-          objectPrefix: "",
-          verb: normalizedCore
+        const surface = targetObject.buildOutputPrefixedChain({
+          pers1: String(subjectPrefix || ""),
+          poseedor: String(possessivePrefix || ""),
+          obj1: "",
+          tronco: normalizedCore
         });
+        return {
+          surface,
+          surfaceForms: surface ? [surface] : [],
+          soundSpellingFrames: []
+        };
       }
-      return `${subjectPrefix || ""}${possessivePrefix || ""}${normalizedCore}`;
+      const surface = `${subjectPrefix || ""}${possessivePrefix || ""}${normalizedCore}`;
+      return {
+        surface,
+        surfaceForms: surface ? [surface] : [],
+        soundSpellingFrames: []
+      };
     }
     function isOrdinaryNncPluralPossessor(possessor = null) {
       const prefix = String(possessor?.prefix || possessor || "");
       return possessor?.number === "plural" || ["tu", "anmu", "in"].includes(prefix);
     }
     function buildOrdinaryNncOpenStemPossessiveSurface(stem = "", possessivePrefix = "", animacy = "") {
+      return String(buildOrdinaryNncOpenStemPossessiveSurfaceCell(stem, possessivePrefix, animacy).surfaceForms?.[0] || "");
+    }
+    function buildOrdinaryNncOpenStemPossessiveSurfaceCell(stem = "", possessivePrefix = "", animacy = "") {
       const prefix = String(possessivePrefix || "");
       const resolvedPossessor = resolveOrdinaryNncPossessor(prefix);
       const isAnimate = normalizeOrdinaryNncAnimacy(animacy) === "animate";
       const usesPluralPossessorShape = isAnimate && isOrdinaryNncPluralPossessor(resolvedPossessor);
       const core = isAnimate && prefix === "in" ? buildOrdinaryNncReduplicatedSurface(stem) : stem;
-      return buildOrdinaryNncSurfaceChainText({
+      const result = buildOrdinaryNncSurfaceChainResult({
         possessivePrefix: prefix,
         core: `${core}${usesPluralPossessorShape ? "wan" : ""}`
       });
+      return {
+        surfaceForms: result.surface ? [result.surface] : [],
+        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+      };
     }
     function buildOrdinaryNncOpenStemFixture(stem = "", {
       nounClass = "",
       animacy = ""
     } = {}) {
-      const normalizedClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass);
-      const normalizedStem = stripOrdinaryNncSubjectConnectorFromInput(stem, normalizedClass);
+      const normalizedClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
+      const normalizedStem = stripOrdinaryNncNum1Num2FromInput(stem, normalizedClass);
       if (!normalizedStem) {
         return null;
       }
-      const absolutiveSurface = `${normalizedStem}${getOrdinaryNncSubjectConnectorSurface(normalizedClass)}`;
+      const absolutiveSurface = `${normalizedStem}${getOrdinaryNncNum1Num2Surface(normalizedClass)}`;
       const singularPossessives = {};
       getOrdinaryNncPossessorInventory().forEach(prefix => {
-        singularPossessives[prefix] = {
-          surfaceForms: [buildOrdinaryNncOpenStemPossessiveSurface(normalizedStem, prefix, animacy)]
-        };
+        singularPossessives[prefix] = buildOrdinaryNncOpenStemPossessiveSurfaceCell(normalizedStem, prefix, animacy);
       });
       const states = {
         [ORDINARY_NNC_STATE.absolutive]: {
@@ -622,6 +2410,21 @@ export function createNncGlobals(targetObject = globalThis) {
       }
       return [];
     }
+    function getOrdinaryNncSoundSpellingFramesFromCell(cell = null, {
+      pluralType = ""
+    } = {}) {
+      if (!cell || typeof cell !== "object" || Array.isArray(cell)) {
+        return [];
+      }
+      if (pluralType && cell.formsByPluralType) {
+        const byPluralType = cell.formsByPluralType?.[normalizeOrdinaryNncPluralType(pluralType)];
+        const pluralTypeFrames = getOrdinaryNncSoundSpellingFramesFromCell(byPluralType);
+        if (pluralTypeFrames.length) {
+          return pluralTypeFrames;
+        }
+      }
+      return collectOrdinaryNncSurfaceSoundSpellingFrames(cell);
+    }
     function getOrdinaryNncFixtureStateForms(fixture = null, state = "", {
       number = "singular",
       possessor = null,
@@ -656,6 +2459,40 @@ export function createNncGlobals(targetObject = globalThis) {
         pluralType
       });
     }
+    function getOrdinaryNncFixtureStateSoundSpellingFrames(fixture = null, state = "", {
+      number = "singular",
+      possessor = null,
+      pluralType = ""
+    } = {}) {
+      const stateData = fixture?.states?.[state] || null;
+      if (!stateData) {
+        return [];
+      }
+      if (state === ORDINARY_NNC_STATE.possessive) {
+        const possessorPrefix = possessor?.prefix || "";
+        const byNumber = stateData.numberFormsByPossessor?.[number]?.[possessorPrefix];
+        const framesByNumber = getOrdinaryNncSoundSpellingFramesFromCell(byNumber, {
+          pluralType
+        });
+        if (framesByNumber.length) {
+          return framesByNumber;
+        }
+        const byPossessor = stateData.surfaceByPossessor?.[possessorPrefix];
+        return getOrdinaryNncSoundSpellingFramesFromCell(byPossessor, {
+          pluralType
+        });
+      }
+      const byNumber = stateData.numberForms?.[number];
+      const framesByNumber = getOrdinaryNncSoundSpellingFramesFromCell(byNumber, {
+        pluralType
+      });
+      if (framesByNumber.length) {
+        return framesByNumber;
+      }
+      return getOrdinaryNncSoundSpellingFramesFromCell(stateData, {
+        pluralType
+      });
+    }
     function isOrdinaryNncThirdSingularSubject(subject = null) {
       return !subject || String(subject.subjectPrefix || "") === "" && String(subject.subjectSuffix || "") === "";
     }
@@ -672,13 +2509,23 @@ export function createNncGlobals(targetObject = globalThis) {
       return `${first.onset || ""}${first.nucleus || ""}j${normalized}`;
     }
     function applyOrdinaryNncSubjectPrefix(surface = "", subject = null, state = ORDINARY_NNC_STATE.absolutive, animacy = "") {
+      return applyOrdinaryNncSubjectPrefixResult(surface, subject, state, animacy).surface;
+    }
+    function applyOrdinaryNncSubjectPrefixResult(surface = "", subject = null, state = ORDINARY_NNC_STATE.absolutive, animacy = "") {
       if (animacy !== "animate") {
-        return surface;
+        return {
+          surface,
+          soundSpellingFrames: []
+        };
       }
-      return buildOrdinaryNncSurfaceChainText({
+      const result = buildOrdinaryNncSurfaceChainResult({
         subjectPrefix: subject?.subjectPrefix || "",
         core: surface
       });
+      return {
+        surface: result.surface,
+        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+      };
     }
     function stripOrdinaryNncPossessiveSurfacePrefix(surface = "", possessor = null) {
       const normalizedSurface = String(surface || "").trim();
@@ -691,12 +2538,25 @@ export function createNncGlobals(targetObject = globalThis) {
       return matched ? normalizedSurface.slice(matched.length) : normalizedSurface;
     }
     function buildOrdinaryNncPossessiveDistributiveSurface(surface = "", possessor = null) {
+      return buildOrdinaryNncPossessiveDistributiveSurfaceResult(surface, possessor).surface;
+    }
+    function buildOrdinaryNncPossessiveDistributiveSurfaceResult(surface = "", possessor = null) {
       const core = stripOrdinaryNncPossessiveSurfacePrefix(surface, possessor);
       const distributiveCore = buildOrdinaryNncReduplicatedSurface(core);
-      return buildOrdinaryNncSurfaceChainText({
+      const result = buildOrdinaryNncSurfaceChainResult({
         possessivePrefix: possessor?.prefix || "",
         core: distributiveCore
-      }) || buildOrdinaryNncReduplicatedSurface(surface);
+      });
+      if (result.surface) {
+        return {
+          surface: result.surface,
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+        };
+      }
+      return {
+        surface: buildOrdinaryNncReduplicatedSurface(surface),
+        soundSpellingFrames: []
+      };
     }
     function buildOrdinaryNncAnimatePossessivePluralForms(singularForms = [], {
       possessor = null,
@@ -723,12 +2583,14 @@ export function createNncGlobals(targetObject = globalThis) {
     } = {}) {
       const effectivePluralType = getEffectiveOrdinaryNncPluralType(pluralType, animacy);
       if (state === ORDINARY_NNC_STATE.possessive && animacy === "animate") {
+        const pluralResults = buildOrdinaryNncAnimatePossessivePluralForms(singularForms, {
+          possessor,
+          pluralType: effectivePluralType
+        }).map(form => applyOrdinaryNncSubjectPrefixResult(form, subject, state, animacy));
         return {
           pluralType: effectivePluralType,
-          forms: buildOrdinaryNncAnimatePossessivePluralForms(singularForms, {
-            possessor,
-            pluralType: effectivePluralType
-          }).map(form => applyOrdinaryNncSubjectPrefix(form, subject, state, animacy))
+          forms: pluralResults.map(entry => entry.surface).filter(Boolean),
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults)
         };
       }
       if (effectivePluralType === ORDINARY_NNC_PLURAL_TYPE.count) {
@@ -738,9 +2600,11 @@ export function createNncGlobals(targetObject = globalThis) {
             pluralType: effectivePluralType
           };
         }
+        const pluralResults = singularForms.map(form => `${form}met`).map(form => applyOrdinaryNncSubjectPrefixResult(form, subject, state, animacy));
         return {
           pluralType: effectivePluralType,
-          forms: singularForms.map(form => `${form}met`).map(form => applyOrdinaryNncSubjectPrefix(form, subject, state, animacy)).filter(Boolean)
+          forms: pluralResults.map(entry => entry.surface).filter(Boolean),
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults)
         };
       }
       if (state !== ORDINARY_NNC_STATE.absolutive && state !== ORDINARY_NNC_STATE.possessive) {
@@ -749,24 +2613,38 @@ export function createNncGlobals(targetObject = globalThis) {
           pluralType: effectivePluralType
         };
       }
+      const distributiveResults = singularForms.map(form => state === ORDINARY_NNC_STATE.possessive ? buildOrdinaryNncPossessiveDistributiveSurfaceResult(form, possessor) : {
+        surface: buildOrdinaryNncReduplicatedSurface(form),
+        soundSpellingFrames: []
+      }).map(entry => ({
+        ...entry,
+        surface: animacy === "animate" ? `${entry.surface}met` : entry.surface
+      })).map(entry => {
+        const subjectResult = applyOrdinaryNncSubjectPrefixResult(entry.surface, subject, state, animacy);
+        return {
+          surface: subjectResult.surface,
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry, subjectResult)
+        };
+      });
       return {
         pluralType: effectivePluralType,
-        forms: singularForms.map(form => state === ORDINARY_NNC_STATE.possessive ? buildOrdinaryNncPossessiveDistributiveSurface(form, possessor) : buildOrdinaryNncReduplicatedSurface(form)).map(form => animacy === "animate" ? `${form}met` : form).map(form => applyOrdinaryNncSubjectPrefix(form, subject, state, animacy)).filter(Boolean)
+        forms: distributiveResults.map(entry => entry.surface).filter(Boolean),
+        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...distributiveResults)
       };
     }
-    function normalizeOrdinaryNncSubjectConnectorClass(nounClass = "") {
+    function normalizeOrdinaryNncNum1Num2Class(nounClass = "") {
       const normalized = normalizeOrdinaryNncText(nounClass);
       if (normalized === "0" || normalized === "ø" || normalized === "zero") {
         return "zero";
       }
       return ["t", "ti", "in"].includes(normalized) ? normalized : "";
     }
-    function formatOrdinaryNncSubjectConnectorClass(nounClass = "") {
-      const normalized = normalizeOrdinaryNncSubjectConnectorClass(nounClass);
+    function formatOrdinaryNncNum1Num2Class(nounClass = "") {
+      const normalized = normalizeOrdinaryNncNum1Num2Class(nounClass);
       return normalized === "zero" ? "Ø" : normalized;
     }
-    function getOrdinaryNncSubjectConnectorSurface(nounClass = "") {
-      const normalized = normalizeOrdinaryNncSubjectConnectorClass(nounClass);
+    function getOrdinaryNncNum1Num2Surface(nounClass = "") {
+      const normalized = normalizeOrdinaryNncNum1Num2Class(nounClass);
       if (normalized === "zero") {
         return "";
       }
@@ -782,20 +2660,20 @@ export function createNncGlobals(targetObject = globalThis) {
       if (!stem) {
         return null;
       }
-      const nounClass = normalizeOrdinaryNncSubjectConnectorClass(match[2] || "zero") || "zero";
+      const nounClass = normalizeOrdinaryNncNum1Num2Class(match[2] || "zero") || "zero";
       return {
         stem,
         nounClass,
-        connectorSurface: getOrdinaryNncSubjectConnectorSurface(nounClass),
+        connectorSurface: getOrdinaryNncNum1Num2Surface(nounClass),
         predicateFormula: buildOrdinaryNncPredicateFormula({
           stem,
           nounClass
         })
       };
     }
-    function stripOrdinaryNncSubjectConnectorFromInput(stem = "", nounClass = "") {
+    function stripOrdinaryNncNum1Num2FromInput(stem = "", nounClass = "") {
       const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
-      const connector = getOrdinaryNncSubjectConnectorSurface(nounClass);
+      const connector = getOrdinaryNncNum1Num2Surface(nounClass);
       if (!normalizedStem || !connector || normalizedStem.length <= connector.length) {
         return normalizedStem;
       }
@@ -809,23 +2687,23 @@ export function createNncGlobals(targetObject = globalThis) {
       if (!normalizedStem) {
         return "";
       }
-      const connector = getOrdinaryNncSubjectConnectorSurface(nounClass);
+      const connector = getOrdinaryNncNum1Num2Surface(nounClass);
       return `(${normalizedStem})${connector}`;
     }
-    function buildOrdinaryNncSubjectNumberConnector({
+    function buildOrdinaryNncNum1Num2({
       nounClass = "",
       state = ORDINARY_NNC_STATE.absolutive,
       number = "singular",
       pluralType = ""
     } = {}) {
-      const connectorClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass);
-      const surface = getOrdinaryNncSubjectConnectorSurface(connectorClass);
+      const connectorClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
+      const surface = getOrdinaryNncNum1Num2Surface(connectorClass);
       return {
         role: "subject-number-connector",
         slot: "subject.num1-num2",
         belongsTo: "subject",
         nounStemClass: connectorClass,
-        classLabel: formatOrdinaryNncSubjectConnectorClass(connectorClass),
+        classLabel: formatOrdinaryNncNum1Num2Class(connectorClass),
         surface,
         displaySurface: surface || "Ø",
         predicateState: state,
@@ -848,14 +2726,14 @@ export function createNncGlobals(targetObject = globalThis) {
       subject = null,
       nounClass = ""
     } = {}) {
-      const connector = buildOrdinaryNncSubjectNumberConnector({
+      const connector = buildOrdinaryNncNum1Num2({
         nounClass,
         state,
         number,
         pluralType
       });
       return {
-        subjectPerson: {
+        pers1Pers2: {
           role: "subject-person",
           slot: "pers1-pers2",
           prefix: String(subject?.subjectPrefix || ""),
@@ -864,13 +2742,13 @@ export function createNncGlobals(targetObject = globalThis) {
           displaySuffix: String(subject?.subjectSuffix || "") || "Ø",
           label: String(subject?.personSubKey || "")
         },
-        predicate: {
+        predicateStem: {
           role: "predicate",
           slot: "STEM",
           stem,
           state
         },
-        subjectNumberConnector: {
+        num1Num2: {
           role: "subject-number-connector",
           slot: "num1-num2",
           nounClass: connector.nounStemClass,
@@ -922,9 +2800,9 @@ export function createNncGlobals(targetObject = globalThis) {
       if (!formulaSlots || typeof formulaSlots !== "object") {
         return "";
       }
-      const subject = formulaSlots.subjectPerson || {};
-      const predicate = formulaSlots.predicate || {};
-      const numberConnector = formulaSlots.subjectNumberConnector || {};
+      const subject = formulaSlots.pers1Pers2 || {};
+      const predicate = formulaSlots.predicateStem || {};
+      const numberConnector = formulaSlots.num1Num2 || {};
       const stem = resolveOrdinaryNncFormulaSlotText(predicate, ["stem", "surface"]);
       if (!stem) {
         return "";
@@ -983,7 +2861,7 @@ export function createNncGlobals(targetObject = globalThis) {
       const effectivePluralType = normalizedNumber === "plural" ? getEffectiveOrdinaryNncPluralType(pluralType || ORDINARY_NNC_PLURAL_TYPE.auto, normalizedAnimacy) : "";
       const isPossessive = normalizedState === ORDINARY_NNC_STATE.possessive;
       const isKnownState = normalizedState === ORDINARY_NNC_STATE.absolutive || normalizedState === ORDINARY_NNC_STATE.possessive;
-      const connectorSlot = formulaSlots?.subjectNumberConnector?.slot || "num1-num2";
+      const connectorSlot = formulaSlots?.num1Num2?.slot || "num1-num2";
       return {
         predicateState: {
           value: normalizedState,
@@ -1025,7 +2903,7 @@ export function createNncGlobals(targetObject = globalThis) {
       markingRequested = false,
       markingAvailable = false
     } = {}) {
-      const numberConnector = buildOrdinaryNncSubjectNumberConnector({
+      const numberConnector = buildOrdinaryNncNum1Num2({
         nounClass,
         state,
         number,
@@ -1118,7 +2996,7 @@ export function createNncGlobals(targetObject = globalThis) {
       nounClass = "",
       animacy = ""
     } = {}) {
-      const numberConnector = buildOrdinaryNncSubjectNumberConnector({
+      const numberConnector = buildOrdinaryNncNum1Num2({
         nounClass,
         state,
         number,
@@ -1240,7 +3118,7 @@ export function createNncGlobals(targetObject = globalThis) {
       possessionType = ""
     } = {}) {
       const analogueInput = parseOrdinaryNncPredicateFormulaInput(stem);
-      const requestedNounClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass || analogueInput?.nounClass || "");
+      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || analogueInput?.nounClass || "");
       const normalizedStem = analogueInput?.stem || normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
       let resolvedSubject = resolveOrdinaryNncSubject(subject);
       const resolvedPossessor = resolveOrdinaryNncPossessor(possessor, possessivePrefix);
@@ -1331,10 +3209,11 @@ export function createNncGlobals(targetObject = globalThis) {
             }
           };
         }
-        const singularSurface = buildOrdinaryNncSurfaceChainText({
+        const singularSurfaceResult = buildOrdinaryNncSurfaceChainResult({
           possessivePrefix: resolvedPossessor.prefix,
           core: organicStem
         });
+        const singularSurface = singularSurfaceResult.surface;
         const derivedPlural = normalizedNumber === "plural" ? buildOrdinaryNncDerivedPluralForms([singularSurface], {
           state: ORDINARY_NNC_STATE.possessive,
           subject: resolvedSubject,
@@ -1390,6 +3269,7 @@ export function createNncGlobals(targetObject = globalThis) {
           clauseFrame,
           nncBasic,
           organicPossessionFrame: organicFrame,
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(singularSurfaceResult, derivedPlural?.soundSpellingFrames),
           diagnostics: [],
           source: {
             fixtureId: "",
@@ -1483,6 +3363,11 @@ export function createNncGlobals(targetObject = globalThis) {
         possessor: resolvedPossessor,
         pluralType: normalizedPluralType
       });
+      const sourceSoundSpellingFrames = getOrdinaryNncFixtureStateSoundSpellingFrames(fixture, normalizedState, {
+        number: normalizedNumber,
+        possessor: resolvedPossessor,
+        pluralType: normalizedPluralType
+      });
       const singularForms = normalizedNumber === "plural" ? getOrdinaryNncFixtureStateForms(fixture, normalizedState, {
         number: "singular",
         possessor: resolvedPossessor
@@ -1494,7 +3379,9 @@ export function createNncGlobals(targetObject = globalThis) {
         animacy: fixtureAnimacy,
         pluralType: normalizedPluralType
       }) : null;
-      const resolvedSurfaceForms = surfaceForms.length ? surfaceForms.map(form => applyOrdinaryNncSubjectPrefix(form, resolvedSubject, normalizedState, fixtureAnimacy)) : derivedPlural?.forms || [];
+      const subjectAppliedSurfaceResults = surfaceForms.length ? surfaceForms.map(form => applyOrdinaryNncSubjectPrefixResult(form, resolvedSubject, normalizedState, fixtureAnimacy)) : [];
+      const resolvedSurfaceForms = surfaceForms.length ? subjectAppliedSurfaceResults.map(entry => entry.surface).filter(Boolean) : derivedPlural?.forms || [];
+      const resolvedSoundSpellingFrames = collectOrdinaryNncSurfaceSoundSpellingFrames(sourceSoundSpellingFrames, ...subjectAppliedSurfaceResults, derivedPlural?.soundSpellingFrames);
       if (!resolvedSurfaceForms.length) {
         const stateData = fixture.states?.[normalizedState] || null;
         const missingPossessiveState = normalizedState === ORDINARY_NNC_STATE.possessive && !stateData;
@@ -1556,6 +3443,7 @@ export function createNncGlobals(targetObject = globalThis) {
         predicateFormula: clauseFrame.predicateFormula,
         clauseFrame,
         nncBasic,
+        soundSpellingFrames: resolvedSoundSpellingFrames,
         diagnostics: [],
         source: isOpenStemFixture ? {
           fixtureId: "",
@@ -1702,7 +3590,7 @@ export function createNncGlobals(targetObject = globalThis) {
       animacy = ""
     } = {}) {
       const analogueInput = parseOrdinaryNncPredicateFormulaInput(stem);
-      const requestedNounClass = normalizeOrdinaryNncSubjectConnectorClass(nounClass || analogueInput?.nounClass || "");
+      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || analogueInput?.nounClass || "");
       const normalizedStem = analogueInput?.stem || normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
       const fixture = findOrdinaryNncFixture(normalizedStem) || buildOrdinaryNncOpenStemFixture(normalizedStem, {
         nounClass: requestedNounClass,
@@ -1988,9 +3876,9 @@ export function createNncGlobals(targetObject = globalThis) {
             });
             const placedStemSpec = targetObject.resolvePlacedNominalStemSpec(nominalSurface, applied.verb, stemSpec);
             const core = targetObject.buildOutputPrefixedChain({
-              subjectPrefix: applied.subjectPrefix,
-              objectPrefix: nominalSurface.objectPrefix,
-              verb: nominalSurface.verb,
+              pers1: applied.subjectPrefix,
+              obj1: nominalSurface.objectPrefix,
+              tronco: nominalSurface.verb,
               hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
               optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
               surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null
@@ -2234,10 +4122,10 @@ export function createNncGlobals(targetObject = globalThis) {
         if (!pasadoRemotoStemEntries.length) {
           return;
         }
-        const composedObjectPrefix = targetObject.composeProjectiveObjectPrefix({
-          objectPrefix: activeActionMorphologyObjectPrefix,
+        const composedObjectPrefix = targetObject.composeObj1Chain({
+          obj1: activeActionMorphologyObjectPrefix,
           markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
-          subjectPrefix: ""
+          pers1: ""
         });
         pasadoRemotoStemEntries.forEach(pasadoRemotoEntry => {
           const predicateStemSpec = targetObject.buildCalificativoInstrumentivoPredicateStemSpec(pasadoRemotoEntry.stemSpec || null, pasadoRemotoEntry.verb || "");
@@ -2266,8 +4154,8 @@ export function createNncGlobals(targetObject = globalThis) {
             });
             const placedStemSpec = targetObject.resolvePlacedNominalStemSpec(nominalSurface, form, baseStemSpec);
             const objectChainForm = targetObject.buildOutputPrefixedChain({
-              objectPrefix: nominalSurface.objectPrefix,
-              verb: nominalSurface.verb,
+              obj1: nominalSurface.objectPrefix,
+              tronco: nominalSurface.verb,
               hasOptionalSupportiveI: verbMeta?.hasOptionalSupportiveI === true,
               optionalSupportiveLetter: verbMeta?.optionalSupportiveLetter || "",
               surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null
@@ -2397,12 +4285,12 @@ export function createNncGlobals(targetObject = globalThis) {
         let sourceObjectPrefix = resolvedObjectPrefix;
         if (isNonactive) {
           const passive = targetObject.applyPassiveImpersonal({
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: resolvedObjectPrefix,
+            pers1: "",
+            pers2: "",
+            obj1: resolvedObjectPrefix,
             analysisVerb: targetObject.stripDirectionalPrefixFromStem(nonactiveStemEntries[0].stem, directionalPrefix)
           });
-          sourceObjectPrefix = passive.objectPrefix;
+          sourceObjectPrefix = passive.obj1;
         }
         const locativeObjectPrefix = sourceObjectPrefix === resolvedObjectPrefix ? stemContext.morphologyObjectPrefix : sourceObjectPrefix;
         nonactiveStemEntries.forEach(({
@@ -2502,6 +4390,271 @@ export function createNncGlobals(targetObject = globalThis) {
         enumerable: true,
         get() { return ORDINARY_NNC_DIAGNOSTIC_IDS; },
     });
+    Object.defineProperty(api, "NNC_LESSON12_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_PDF_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_FORMULA_CONTRAST_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_FORMULA_CONTRAST_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_ABSOLUTIVE_FORMULA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_ABSOLUTIVE_FORMULA_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_SUBJECT_POSITION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_SUBJECT_POSITION_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_SUBJECT_PRONOUN_INVENTORY_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_SUBJECT_PRONOUN_INVENTORY_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_PREDICATE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_PREDICATE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_ANIMACY_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_ANIMACY_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_STATE_NOUNSTEM_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_STATE_NOUNSTEM_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_SUBSECTION_INVENTORY; },
+    });
+    Object.defineProperty(api, "NNC_LESSON12_REMAINING_GAPS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON12_REMAINING_GAPS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_PDF_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_POSSESSIVE_FORMULA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_POSSESSIVE_FORMULA_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_SUBJECT_POSITION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_SUBJECT_POSITION_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_SUBJECT_PRONOUN_INVENTORY_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_SUBJECT_PRONOUN_INVENTORY_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_MONADIC_STATE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_MONADIC_STATE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_DYADIC_STATE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_DYADIC_STATE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_SPECIFIC_POSSESSOR_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_SPECIFIC_POSSESSOR_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_SUBSECTION_INVENTORY; },
+    });
+    Object.defineProperty(api, "NNC_LESSON13_REMAINING_GAPS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON13_REMAINING_GAPS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_PDF_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_USE_STEM_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_USE_STEM_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_NOUNSTEM_CLASS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_NOUNSTEM_CLASS_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_NOUNSTEM_NUMBER_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_NOUNSTEM_NUMBER_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_ABSOLUTIVE_SINGULAR_COMMON_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_ABSOLUTIVE_SINGULAR_COMMON_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_ABSOLUTIVE_PLURAL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_ABSOLUTIVE_PLURAL_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_POSSESSIVE_PLURAL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_POSSESSIVE_PLURAL_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_POSSESSIVE_SINGULAR_COMMON_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_POSSESSIVE_SINGULAR_COMMON_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_CONSTITUENT_ANALYSIS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_CONSTITUENT_ANALYSIS_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_SUBSECTION_INVENTORY; },
+    });
+    Object.defineProperty(api, "NNC_LESSON14_REMAINING_GAPS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON14_REMAINING_GAPS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_PDF_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_POSSESSIVE_PECULIARITIES_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_POSSESSIVE_PECULIARITIES_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_NATURALLY_POSSESSED_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_NATURALLY_POSSESSED_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_SENTENCE_STRUCTURE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_SENTENCE_STRUCTURE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_SUBSECTION_INVENTORY; },
+    });
+    Object.defineProperty(api, "NNC_LESSON15_REMAINING_GAPS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON15_REMAINING_GAPS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_PDF_REFS; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_OVERVIEW_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_OVERVIEW_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_ENTITIVE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_ENTITIVE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_PERSONAL_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_PERSONAL_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_INTERROGATIVE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_INTERROGATIVE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_DEMONSTRATIVE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_DEMONSTRATIVE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_INDEFINITE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_INDEFINITE_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_QUANTITIVE_OVERVIEW_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_QUANTITIVE_OVERVIEW_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_QUICH_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_QUICH_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_QUI_CHI_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_QUI_CHI_FRAME; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_SUBSECTION_INVENTORY; },
+    });
+    Object.defineProperty(api, "NNC_LESSON16_REMAINING_GAPS", {
+        configurable: true,
+        enumerable: true,
+        get() { return NNC_LESSON16_REMAINING_GAPS; },
+    });
     api.buildVerbDerivedNominalDiagnostic = buildVerbDerivedNominalDiagnostic;
     api.getVerbDerivedNominalAndrewsRefs = getVerbDerivedNominalAndrewsRefs;
     api.normalizeVerbDerivedNominalSurfaceValue = normalizeVerbDerivedNominalSurfaceValue;
@@ -2528,6 +4681,56 @@ export function createNncGlobals(targetObject = globalThis) {
     api.getOrdinaryNncPossessiveEntries = getOrdinaryNncPossessiveEntries;
     api.getOrdinaryNncSubjectEntries = getOrdinaryNncSubjectEntries;
     api.buildOrdinaryNncDiagnostic = buildOrdinaryNncDiagnostic;
+    api.attachNncLessonGrammarContract = attachNncLessonGrammarContract;
+    api.cloneNncLessonRecord = cloneNncLessonRecord;
+    api.getNncLesson12FormulaContrastFrame = getNncLesson12FormulaContrastFrame;
+    api.getNncLesson12AbsolutiveFormulaFrame = getNncLesson12AbsolutiveFormulaFrame;
+    api.getNncLesson12SubjectPositionFrame = getNncLesson12SubjectPositionFrame;
+    api.getNncLesson12SubjectPronounInventoryFrame = getNncLesson12SubjectPronounInventoryFrame;
+    api.getNncLesson12PredicateFrame = getNncLesson12PredicateFrame;
+    api.getNncLesson12AnimacyFrame = getNncLesson12AnimacyFrame;
+    api.getNncLesson12StateNounstemFrame = getNncLesson12StateNounstemFrame;
+    api.getNncLesson12SubsectionInventory = getNncLesson12SubsectionInventory;
+    api.getNncLesson12RemainingGaps = getNncLesson12RemainingGaps;
+    api.buildNncLesson12PursuitFrame = buildNncLesson12PursuitFrame;
+    api.getNncLesson13PossessiveFormulaFrame = getNncLesson13PossessiveFormulaFrame;
+    api.getNncLesson13SubjectPositionFrame = getNncLesson13SubjectPositionFrame;
+    api.getNncLesson13SubjectPronounInventoryFrame = getNncLesson13SubjectPronounInventoryFrame;
+    api.getNncLesson13MonadicStateFrame = getNncLesson13MonadicStateFrame;
+    api.getNncLesson13DyadicStateFrame = getNncLesson13DyadicStateFrame;
+    api.getNncLesson13SpecificPossessorFrame = getNncLesson13SpecificPossessorFrame;
+    api.getNncLesson13SubsectionInventory = getNncLesson13SubsectionInventory;
+    api.getNncLesson13RemainingGaps = getNncLesson13RemainingGaps;
+    api.buildNncLesson13PursuitFrame = buildNncLesson13PursuitFrame;
+    api.getNncLesson14UseStemFrame = getNncLesson14UseStemFrame;
+    api.getNncLesson14NounstemClassFrame = getNncLesson14NounstemClassFrame;
+    api.getNncLesson14NounstemNumberFrame = getNncLesson14NounstemNumberFrame;
+    api.getNncLesson14AbsolutiveSingularCommonFrame = getNncLesson14AbsolutiveSingularCommonFrame;
+    api.getNncLesson14AbsolutivePluralFrame = getNncLesson14AbsolutivePluralFrame;
+    api.getNncLesson14PossessivePluralFrame = getNncLesson14PossessivePluralFrame;
+    api.getNncLesson14PossessiveSingularCommonFrame = getNncLesson14PossessiveSingularCommonFrame;
+    api.getNncLesson14ConstituentAnalysisFrame = getNncLesson14ConstituentAnalysisFrame;
+    api.getNncLesson14SubsectionInventory = getNncLesson14SubsectionInventory;
+    api.getNncLesson14RemainingGaps = getNncLesson14RemainingGaps;
+    api.buildNncLesson14PursuitFrame = buildNncLesson14PursuitFrame;
+    api.getNncLesson15PossessivePeculiaritiesFrame = getNncLesson15PossessivePeculiaritiesFrame;
+    api.getNncLesson15NaturallyPossessedFrame = getNncLesson15NaturallyPossessedFrame;
+    api.getNncLesson15SentenceStructureFrame = getNncLesson15SentenceStructureFrame;
+    api.getNncLesson15SubsectionInventory = getNncLesson15SubsectionInventory;
+    api.getNncLesson15RemainingGaps = getNncLesson15RemainingGaps;
+    api.buildNncLesson15PursuitFrame = buildNncLesson15PursuitFrame;
+    api.getNncLesson16OverviewFrame = getNncLesson16OverviewFrame;
+    api.getNncLesson16EntitiveFrame = getNncLesson16EntitiveFrame;
+    api.getNncLesson16PersonalFrame = getNncLesson16PersonalFrame;
+    api.getNncLesson16InterrogativeFrame = getNncLesson16InterrogativeFrame;
+    api.getNncLesson16DemonstrativeFrame = getNncLesson16DemonstrativeFrame;
+    api.getNncLesson16IndefiniteFrame = getNncLesson16IndefiniteFrame;
+    api.getNncLesson16QuantitiveOverviewFrame = getNncLesson16QuantitiveOverviewFrame;
+    api.getNncLesson16QuichFrame = getNncLesson16QuichFrame;
+    api.getNncLesson16QuiChiFrame = getNncLesson16QuiChiFrame;
+    api.getNncLesson16SubsectionInventory = getNncLesson16SubsectionInventory;
+    api.getNncLesson16RemainingGaps = getNncLesson16RemainingGaps;
+    api.buildNncLesson16PursuitFrame = buildNncLesson16PursuitFrame;
     api.parseOrdinaryNncPersonSubKey = parseOrdinaryNncPersonSubKey;
     api.resolveOrdinaryNncSubject = resolveOrdinaryNncSubject;
     api.hasExplicitOrdinaryNncSubject = hasExplicitOrdinaryNncSubject;
@@ -2541,25 +4744,32 @@ export function createNncGlobals(targetObject = globalThis) {
     api.buildOrdinaryNncOrganicPossessionStem = buildOrdinaryNncOrganicPossessionStem;
     api.buildOrdinaryNncOrganicPossessionFrame = buildOrdinaryNncOrganicPossessionFrame;
     api.buildOrdinaryNncSurfaceChainText = buildOrdinaryNncSurfaceChainText;
+    api.collectOrdinaryNncSurfaceSoundSpellingFrames = collectOrdinaryNncSurfaceSoundSpellingFrames;
+    api.buildOrdinaryNncSurfaceChainResult = buildOrdinaryNncSurfaceChainResult;
     api.isOrdinaryNncPluralPossessor = isOrdinaryNncPluralPossessor;
     api.buildOrdinaryNncOpenStemPossessiveSurface = buildOrdinaryNncOpenStemPossessiveSurface;
+    api.buildOrdinaryNncOpenStemPossessiveSurfaceCell = buildOrdinaryNncOpenStemPossessiveSurfaceCell;
     api.buildOrdinaryNncOpenStemFixture = buildOrdinaryNncOpenStemFixture;
     api.getOrdinaryNncSurfaceFormsFromCell = getOrdinaryNncSurfaceFormsFromCell;
+    api.getOrdinaryNncSoundSpellingFramesFromCell = getOrdinaryNncSoundSpellingFramesFromCell;
     api.getOrdinaryNncFixtureStateForms = getOrdinaryNncFixtureStateForms;
+    api.getOrdinaryNncFixtureStateSoundSpellingFrames = getOrdinaryNncFixtureStateSoundSpellingFrames;
     api.isOrdinaryNncThirdSingularSubject = isOrdinaryNncThirdSingularSubject;
     api.buildOrdinaryNncReduplicatedSurface = buildOrdinaryNncReduplicatedSurface;
     api.applyOrdinaryNncSubjectPrefix = applyOrdinaryNncSubjectPrefix;
+    api.applyOrdinaryNncSubjectPrefixResult = applyOrdinaryNncSubjectPrefixResult;
     api.stripOrdinaryNncPossessiveSurfacePrefix = stripOrdinaryNncPossessiveSurfacePrefix;
     api.buildOrdinaryNncPossessiveDistributiveSurface = buildOrdinaryNncPossessiveDistributiveSurface;
+    api.buildOrdinaryNncPossessiveDistributiveSurfaceResult = buildOrdinaryNncPossessiveDistributiveSurfaceResult;
     api.buildOrdinaryNncAnimatePossessivePluralForms = buildOrdinaryNncAnimatePossessivePluralForms;
     api.buildOrdinaryNncDerivedPluralForms = buildOrdinaryNncDerivedPluralForms;
-    api.normalizeOrdinaryNncSubjectConnectorClass = normalizeOrdinaryNncSubjectConnectorClass;
-    api.formatOrdinaryNncSubjectConnectorClass = formatOrdinaryNncSubjectConnectorClass;
-    api.getOrdinaryNncSubjectConnectorSurface = getOrdinaryNncSubjectConnectorSurface;
+    api.normalizeOrdinaryNncNum1Num2Class = normalizeOrdinaryNncNum1Num2Class;
+    api.formatOrdinaryNncNum1Num2Class = formatOrdinaryNncNum1Num2Class;
+    api.getOrdinaryNncNum1Num2Surface = getOrdinaryNncNum1Num2Surface;
     api.parseOrdinaryNncPredicateFormulaInput = parseOrdinaryNncPredicateFormulaInput;
-    api.stripOrdinaryNncSubjectConnectorFromInput = stripOrdinaryNncSubjectConnectorFromInput;
+    api.stripOrdinaryNncNum1Num2FromInput = stripOrdinaryNncNum1Num2FromInput;
     api.buildOrdinaryNncPredicateFormula = buildOrdinaryNncPredicateFormula;
-    api.buildOrdinaryNncSubjectNumberConnector = buildOrdinaryNncSubjectNumberConnector;
+    api.buildOrdinaryNncNum1Num2 = buildOrdinaryNncNum1Num2;
     api.getOrdinaryNncSubjectAffixLabel = getOrdinaryNncSubjectAffixLabel;
     api.buildOrdinaryNncFormulaSlots = buildOrdinaryNncFormulaSlots;
     api.getOrdinaryNncFormulaSlotResultFrame = getOrdinaryNncFormulaSlotResultFrame;
@@ -2596,7 +4806,7 @@ export function createNncGlobals(targetObject = globalThis) {
 }
 
 export function installNncGlobals(targetObject = globalThis) {
-    const api = createNncGlobals(targetObject);
+    const api = createNncApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

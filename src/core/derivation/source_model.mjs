@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/derivation/source_model.js.
 
-export function createDerivationSourceModelGlobals(targetObject = globalThis) {
+export function createDerivationSourceModelApi(targetObject = globalThis) {
     function buildNonactiveSourceChain(verbMeta, verb, analysisVerb) {
       const model = buildDerivationSourceModel(verbMeta, verb, analysisVerb);
       const outerPieces = Array.isArray(model?.outerPieces) ? model.outerPieces : [];
@@ -210,9 +210,9 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       const sourceInput = getDerivationContinuationContractSourceInput(record);
       const sourceSurface = sourceInput;
       const targetInput = getDerivationContinuationContractTargetInput(record);
-      const legacyDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
+      const inputDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
       const routeStage = supported ? "preview-continuation" : "blocked";
-      const diagnostics = normalizeDerivationContinuationDiagnosticEntries(legacyDiagnostics, {
+      const diagnostics = normalizeDerivationContinuationDiagnosticEntries(inputDiagnostics, {
         routeStage
       });
       const andrewsRefs = getDerivationContinuationContractAndrewsRefs(record);
@@ -292,7 +292,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         configurable: true,
         enumerable: true,
         writable: true,
-        value: legacyDiagnostics
+        value: inputDiagnostics
       });
       return output;
     }
@@ -1829,7 +1829,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
       const subjectObjectMap = {};
       const objectSubjectMap = typeof targetObject.PASSIVE_IMPERSONAL_SUBJECT_MAP !== "undefined" ? targetObject.PASSIVE_IMPERSONAL_SUBJECT_MAP : {};
       Object.entries(objectSubjectMap || {}).forEach(([objectPrefix, subject]) => {
-        const key = `${subject?.subjectPrefix || ""}|${subject?.subjectSuffix || ""}`;
+        const key = `${subject?.pers1 || ""}|${subject?.pers2 || ""}`;
         if (objectPrefix && key && !subjectObjectMap[key]) {
           subjectObjectMap[key] = objectPrefix;
         }
@@ -1838,7 +1838,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         return subjectObjectMap;
       }
       const possessiveMap = getPatientivoPrelocativePossessiveObjectMap();
-      if (typeof targetObject.getPossessivePrefixForSubject !== "function") {
+      if (typeof targetObject.getPoseedorPrefixForPers1Pers2 !== "function") {
         return subjectObjectMap;
       }
       [{
@@ -1860,7 +1860,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
         subjectPrefix: "",
         subjectSuffix: "t"
       }].forEach(subject => {
-        const possessivePrefix = targetObject.getPossessivePrefixForSubject(subject.subjectPrefix, subject.subjectSuffix);
+        const possessivePrefix = targetObject.getPoseedorPrefixForPers1Pers2(subject.subjectPrefix, subject.subjectSuffix);
         const objectPrefix = possessivePrefix ? String(possessiveMap[possessivePrefix] || "").trim() : "";
         const key = `${subject.subjectPrefix}|${subject.subjectSuffix}`;
         if (objectPrefix && !subjectObjectMap[key]) {
@@ -2908,7 +2908,7 @@ export function createDerivationSourceModelGlobals(targetObject = globalThis) {
 }
 
 export function installDerivationSourceModelGlobals(targetObject = globalThis) {
-    const api = createDerivationSourceModelGlobals(targetObject);
+    const api = createDerivationSourceModelApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

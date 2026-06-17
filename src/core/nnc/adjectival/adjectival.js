@@ -127,6 +127,792 @@ const ADJECTIVAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
 ]);
 
+const LESSON40_ADJECTIVAL_NNC_VALIDATION_REFS = Object.freeze([
+    "src/tests/nnc_adjectival.test.js",
+    "src/tests/registry.test.js",
+    "docs/GRAMMAR_SPEC.md",
+]);
+
+const LESSON40_ADJECTIVAL_NNC_PDF_REFS = Object.freeze([
+    "Andrews Lesson 40.1",
+    "Andrews Lesson 40.2",
+    "Andrews Lesson 40.2.1",
+    "Andrews Lesson 40.2.2",
+    "Andrews Lesson 40.2.3",
+    "Andrews Lesson 40.3",
+    "Andrews Lesson 40.3.1",
+    "Andrews Lesson 40.3.2",
+    "Andrews Lesson 40.4",
+    "Andrews Lesson 40.4.1",
+    "Andrews Lesson 40.4.2",
+    "Andrews Lesson 40.5",
+    "Andrews Lesson 40.6",
+    "Andrews Lesson 40.7",
+    "Andrews Lesson 40.8",
+    "Andrews Lesson 40.8.1",
+    "Andrews Lesson 40.8.2",
+    "Andrews Lesson 40.8.3",
+    "Andrews Lesson 40.8.4",
+    "Andrews Lesson 40.8.5",
+    "Andrews Lesson 40.8.6",
+    "Andrews Lesson 40.9",
+    "Andrews Lesson 40.9.1",
+    "Andrews Lesson 40.9.2",
+    "Andrews Lesson 40.10",
+    "Andrews Lesson 40.10.1",
+    "Andrews Lesson 40.10.2",
+    "Andrews Lesson 40.10.3",
+    "Andrews Lesson 40.11",
+    "Andrews Lesson 40.12",
+]);
+
+const LESSON40_ADJECTIVAL_NUCLEAR_CLAUSE_FRAME = Object.freeze({
+    kind: "lesson-40-adjectival-nuclear-clause-frame",
+    sourceSection: "Andrews 40.1",
+    adjectiveLabelsSyntacticNotFormalClass: true,
+    adjectivalNncIsNncInAdjectivalFunction: true,
+    modifiesAnotherNnc: true,
+    relativeClauseAnalogy: true,
+    normallyAbsolutiveState: true,
+    modificationAstDeferredToLessons42_43: true,
+});
+
+const LESSON40_EXCEPTIONAL_ADJECTIVAL_NNC_FRAME = Object.freeze({
+    kind: "lesson-40-exceptional-adjectival-nnc-frame",
+    sourceSection: "Andrews 40.2",
+    hasPeculiarSubtypes: true,
+    hueiFrame: Object.freeze({
+        sourceSection: "Andrews 40.2.1",
+        classicalSource: "(hue-i)-0-",
+        nawatDisplaySeed: "wey",
+        pronominalLikeParadigm: true,
+        pluralNumberPositionOptions: Object.freeze(["t-in", "0-0"]),
+        stemFinalNPlural: true,
+        distributiveVarietalShape: true,
+        sameRootAsOldManStem: true,
+    }),
+    nepapanFrame: Object.freeze({
+        sourceSection: "Andrews 40.2.2",
+        affinityStemmedRelationalNnc: true,
+        reciprocalPossessiveNe: true,
+        relationalPanSource: true,
+    }),
+    possessorIncludedFrame: Object.freeze({
+        sourceSection: "Andrews 40.2.3",
+        possessorIncludedStems: true,
+        downgradedPossessivePredicateInsideStem: true,
+        notPossessiveStateDespitePossessor: true,
+        subjectPersonThirdPersonDyad: true,
+        pluralUsesTinOrZeroNotHuan: true,
+        celFrame: Object.freeze({
+            source: "ce-l",
+            exclusivePronounConstruction: true,
+            relatedToNumeralCe: true,
+            honorificTzin: true,
+            diminutiveTon: true,
+            usuallyWithZan: true,
+        }),
+        elFrame: Object.freeze({
+            source: "(el)-0-",
+            diligentEagerActive: true,
+            negativeLazy: true,
+            pluralTinOrZero: true,
+        }),
+    }),
+});
+
+const LESSON40_NNC_VNC_AS_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-nnc-vnc-as-adjective-frame",
+    sourceSection: "Andrews 40.3",
+    almostAnyAbsolutiveNncCanFunctionAdjectivally: true,
+    anyVncCanFunctionAdjectivally: true,
+    onlyPredicateTranslatedAsEnglishAdjective: true,
+    modificationStructuresDeferred: true,
+    nncPredicateFrame: Object.freeze({
+        sourceSection: "Andrews 40.3.1",
+        predicatesOfNncsCanTranslateAsAdjectives: true,
+    }),
+    vncPredicateFrame: Object.freeze({
+        sourceSection: "Andrews 40.3.2",
+        predicatesOfVncsCanTranslateAsAdjectives: true,
+    }),
+});
+
+const LESSON40_DERIVED_NOUNSTEM_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-derived-nounstem-adjective-frame",
+    sourceSection: "Andrews 40.4",
+    patientiveAndPotentialPatientOftenTranslatedAdjectively: true,
+    patientiveFrame: Object.freeze({
+        sourceSection: "Andrews 40.4.1",
+        patientiveNamesEntityByProcessImpact: true,
+        strictRenderingSubstantive: true,
+        types: Object.freeze(["passive-stem", "impersonal-stem", "perfective-stem", "root-or-stock"]),
+    }),
+    potentialPatientFrame: Object.freeze({
+        sourceSection: "Andrews 40.4.2",
+        suffixes: Object.freeze(["z", "liz"]),
+        adjectiveTranslationAllowed: true,
+        negativeParticleInsideOutsideAmbiguity: true,
+    }),
+});
+
+const LESSON40_NOMINALIZED_VNC_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-nominalized-vnc-adjective-frame",
+    sourceSection: "Andrews 40.5",
+    predicatesOfNominalizedVncsOftenAdjectival: true,
+    agentiveFrequent: true,
+    conditionCustomaryDoesOrHasDone: true,
+    nominalizedAnalysisJustifiedByAffectiveEmbedding: true,
+});
+
+const LESSON40_CUSTOMARY_AGENTIVE_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-customary-agentive-adjective-frame",
+    sourceSection: "Andrews 40.6",
+    customaryPresentAgentivePredicateAdjectival: true,
+    activeVoice: true,
+    negativeParticleAmbiguity: true,
+    connectiveTCompoundCanReanalyze: true,
+    syncopePossible: true,
+});
+
+const LESSON40_CUSTOMARY_PATIENTIVE_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-customary-patientive-adjective-frame",
+    sourceSection: "Andrews 40.7",
+    customaryPresentPatientivePredicateAdjectival: true,
+    passiveVoice: true,
+    potentialPatientCanShareTranslation: true,
+    translationCanDiffer: true,
+});
+
+const LESSON40_PRETERIT_AGENTIVE_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-preterit-agentive-adjective-frame",
+    sourceSection: "Andrews 40.8",
+    preteritAgentivePredicateAdjectival: true,
+    mostlyIntransitiveSource: true,
+    classAFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.1",
+        includesPassive: true,
+        denominalTiCommon: true,
+        likenessNotionsCommon: true,
+        worldviewTranslationMayLocateQualityDifferently: true,
+        occasionalTransitiveSources: true,
+    }),
+    classBFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.2",
+        singularCommonNumberNormallyQuiZero: true,
+        zeroZeroPreferredBySome: true,
+        transitiveSourcesCanServe: true,
+    }),
+    classCFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.3",
+        singularCommonNumberZeroZero: true,
+        usuallyTransitive: true,
+    }),
+    classDFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.4",
+        singularCommonNumberZeroZero: true,
+    }),
+    compoundFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.5",
+        compoundStemmedNncPredicateCanTranslateAsAdjective: true,
+    }),
+    unusedSourceOwnerhoodFrame: Object.freeze({
+        sourceSection: "Andrews 40.8.6",
+        sourceVncMayNoLongerBeUsed: true,
+        iyoAAlonePath: true,
+        ownerhoodPredicatesOftenAdjectival: Object.freeze(["e", "yo-a", "hua"]),
+    }),
+});
+
+const LESSON40_OBSOLETE_PRETERIT_ADJECTIVE_FRAME = Object.freeze({
+    kind: "lesson-40-obsolete-preterit-adjective-frame",
+    sourceSection: "Andrews 40.9",
+    rootPlusYaSpecialFormation: true,
+    obsoletePreteritOnRootAlone: true,
+    rootsTreatedAsClassA: true,
+    denominalTiyaUsesFormation: true,
+    fullClassBAlternativePossible: true,
+    hueiyaExceptionFrame: Object.freeze({
+        sourceSection: "Andrews 40.9.1",
+        classicalSource: "(hue-i-ya)",
+        nawatDisplaySeed: "weya",
+        usesPronounLikeBase: true,
+        classBStemForMetaphoricalHonor: true,
+        classAStemExpressesLength: true,
+        noObsoleteHueiCStem: true,
+        generalUseHueiCaUsedAdverbiallyOrEmbedded: true,
+    }),
+    tlaocoyaExceptionFrame: Object.freeze({
+        sourceSection: "Andrews 40.9.2",
+        onlyClassBStemForTlaocoxqui: true,
+    }),
+});
+
+const LESSON40_SYNONYMOUS_PAIRS_FRAME = Object.freeze({
+    kind: "lesson-40-synonymous-pairs-frame",
+    sourceSection: "Andrews 40.10",
+    sourceVerbstemsSynonymousFromSingleRoot: true,
+    outputContractGenerateCurrentSourceOnly: true,
+    noSiblingGenerationWithoutEvidence: true,
+    niHuiFrame: Object.freeze({
+        sourceSection: "Andrews 40.10.1",
+        niDestockalAndRareHuiHaveCTiyaSynonyms: true,
+        usesPreteritAgentiveAndObsoletePreteritRules: true,
+    }),
+    huaFrame: Object.freeze({
+        sourceSection: "Andrews 40.10.2",
+        huaDestockalsHaveCTiyaSynonyms: true,
+        fromLesson39_4_2DeverbalNounstems: true,
+        usesPreteritAgentiveAndObsoletePreteritRules: true,
+    }),
+    ihuiAhuiFrame: Object.freeze({
+        sourceSection: "Andrews 40.10.3",
+        ihuiAhuiDestockalsHaveTiyaSynonyms: true,
+        fromLesson39_4_3DeverbalNounstems: true,
+        usesPreteritAgentiveAndObsoletePreteritRules: true,
+    }),
+    translationDifferencePossible: true,
+});
+
+const LESSON40_SYNONYMOUS_TRIPLETS_FRAME = Object.freeze({
+    kind: "lesson-40-synonymous-triplets-frame",
+    sourceSection: "Andrews 40.11",
+    sourceSingleRoot: true,
+    zTiyaThirdMember: true,
+    translationDifferencePossible: true,
+    deverbalNounstemMayShareTranslation: true,
+    noSiblingGenerationWithoutEvidence: true,
+});
+
+const LESSON40_PREDICATE_ADJECTIVE_SENTENCE_FRAME = Object.freeze({
+    kind: "lesson-40-predicate-adjective-sentence-frame",
+    sourceSection: "Andrews 40.12",
+    adjectiveTranslatableNncCreatesPredicateAdjectiveSentence: true,
+    inMultipleNucleusAdjectivalNncIsPrincipalClause: true,
+    supplementsCanBeSubjectPossessorOrClause: true,
+    sentenceLayerNotWordGeneration: true,
+});
+
+const LESSON40_ADJECTIVAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
+    Object.freeze({ id: "lesson40-adjectival-nuclear-clause", andrewsSection: "40.1", category: "adjectival-nnc-function", directiveEs: "Adjetivo es funcion sintactica; la CNN adjetiva modifica otra CNN y normalmente exige estado absolutivo.", engineSurface: "partial opt-in adjectival NNC output plus boundary metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-exceptional-adjectival-nncs", andrewsSection: "40.2", category: "exceptional-adjectival-nnc", directiveEs: "Las CNN adjetivas excepcionales tienen paradigmas peculiares; no se generan como reglas ordinarias sin evidencia.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-huei", andrewsSection: "40.2.1", category: "huei-pronominal-like", directiveEs: "El tipo wey tiene comportamiento parecido a pronombre y alternancias de numero que no deben aplanarse.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-nepapan", andrewsSection: "40.2.2", category: "nepapan-relational-source", directiveEs: "Nepapan viene de fuente relacional y posesiva reciproca; no es solo una etiqueta de adjetivo.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-possessor-included", andrewsSection: "40.2.3", category: "possessor-included-adjectival", directiveEs: "Ce-l y el incluyen poseedor dentro del tronco pero siguen con sujeto 3a y no son estado posesivo normal.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-nnc-vnc-adjective", andrewsSection: "40.3", category: "nnc-vnc-adjective-function", directiveEs: "Casi cualquier CNN absolutiva y cualquier CNV pueden funcionar adjetivamente; la estructura de modificacion queda diferida.", engineSurface: "partial ordinary NNC/VNC adjectival routes", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-nnc-predicate-adjective", andrewsSection: "40.3.1", category: "nnc-predicate-adjective", directiveEs: "Solo el predicado de la CNN se traduce como adjetivo; la CNN completa mantiene su arquitectura.", engineSurface: "partial ordinary NNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-vnc-predicate-adjective", andrewsSection: "40.3.2", category: "vnc-predicate-adjective", directiveEs: "Solo el predicado de la CNV se traduce como adjetivo; no se convierte automaticamente en tronco nominal.", engineSurface: "partial VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-derived-nounstems", andrewsSection: "40.4", category: "derived-nounstem-adjective", directiveEs: "Patientivos y potenciales-paciente pueden traducirse adjetivamente, pero la forma estricta sigue siendo sustantiva.", engineSurface: "partial patientive/nominalized VNC adjectival routes", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-patientive-adjective", andrewsSection: "40.4.1", category: "patientive-adjective", directiveEs: "El patientivo nombra una entidad por proceso, impacto o estado resultante; la glosa adjetiva es libre.", engineSurface: "partial patientive adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-potential-patient-adjective", andrewsSection: "40.4.2", category: "potential-patient-adjective", directiveEs: "El potencial-paciente con z/liz puede glosarse como adjetivo; la negacion puede estar dentro o fuera del tronco.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-nominalized-vnc-adjective", andrewsSection: "40.5", category: "nominalized-vnc-adjective", directiveEs: "Los predicados de CNV nominalizadas pueden glosarse como adjetivos; el analisis nominalizado se conserva por incrustacion afectiva.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-customary-agentive", andrewsSection: "40.6", category: "customary-present-agentive-adjective", directiveEs: "El agentivo presente habitual activo puede funcionar adjetivamente; compuestos con t pueden reanalizarse.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-customary-patientive", andrewsSection: "40.7", category: "customary-present-patientive-adjective", directiveEs: "El patientivo presente habitual pasivo puede funcionar adjetivamente y puede coincidir o diferir del potencial-paciente.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-preterit-agentive-adjective", andrewsSection: "40.8", category: "preterit-agentive-adjective", directiveEs: "El agentivo preterito puede funcionar adjetivamente, sobre todo desde fuentes intransitivas.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-class-a", andrewsSection: "40.8.1", category: "class-a-preterit-agentive-adjective", directiveEs: "La clase A incluye pasivos y denominales ti frecuentes; las glosas de cualidad pueden ocultar estructura.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-class-b", andrewsSection: "40.8.2", category: "class-b-preterit-agentive-adjective", directiveEs: "La clase B suele usar qui-0 o 0-0 en numero singular/comun y tambien acepta fuentes transitivas.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-class-c", andrewsSection: "40.8.3", category: "class-c-preterit-agentive-adjective", directiveEs: "La clase C usa 0-0 en singular/comun y normalmente tiene fuente transitiva.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-class-d", andrewsSection: "40.8.4", category: "class-d-preterit-agentive-adjective", directiveEs: "La clase D usa 0-0 en singular/comun y no debe mezclarse con otras clases.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-compound-preterit-agentive", andrewsSection: "40.8.5", category: "compound-preterit-agentive-adjective", directiveEs: "Un predicado de CNN compuesta tambien puede traducirse adjetivamente.", engineSurface: "partial compound source metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-unused-source-ownerhood", andrewsSection: "40.8.6", category: "unused-source-ownerhood-adjective", directiveEs: "Algunas fuentes ya no se usan; formas de posesion e/yo-a/wa pueden glosarse como adjetivos.", engineSurface: "diagnostic ownerhood adjective frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-obsolete-preterit-root-ya", andrewsSection: "40.9", category: "obsolete-preterit-root-ya-adjective", directiveEs: "Los intransitivos raiz+ya pueden formar adjetivos desde un preterito obsoleto sobre la raiz sola.", engineSurface: "partial root-plus-ya adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-hueiya-exception", andrewsSection: "40.9.1", category: "hueiya-exception", directiveEs: "Weya usa la base parecida a pronombre y distingue honor metaforico de longitud; no se inventa un preterito obsoleto.", engineSurface: "diagnostic root-plus-ya exception", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-tlaocoya-exception", andrewsSection: "40.9.2", category: "tlaocoya-exception", directiveEs: "Tlaocoya solo usa el tronco de clase B documentado para esta funcion.", engineSurface: "diagnostic root-plus-ya exception", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson40-synonymous-pairs", andrewsSection: "40.10", category: "synonymous-pairs", directiveEs: "Los pares sinonimos vienen de una raiz comun; no se generan hermanos sin evidencia Nawat.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-ni-hui-pairs", andrewsSection: "40.10.1", category: "ni-hui-ctiya-pairs", directiveEs: "Destockales ni y raramente hui tienen sinonimos c-tiya segun reglas 40.8.2 y 40.9.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-hua-pairs", andrewsSection: "40.10.2", category: "hua-ctiya-pairs", directiveEs: "Destockales wa tienen sinonimos c-tiya desde nounstems 39.4.2.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-ihui-ahui-pairs", andrewsSection: "40.10.3", category: "ihui-ahui-tiya-pairs", directiveEs: "Destockales iwi/awi tienen sinonimos tiya desde nounstems 39.4.3.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-synonymous-triplets", andrewsSection: "40.11", category: "synonymous-triplets", directiveEs: "Los tripletes agregan un miembro z-tiya; diferencias de traduccion no autorizan generacion automatica.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-predicate-adjective-sentence", andrewsSection: "40.12", category: "predicate-adjective-sentence", directiveEs: "La CNN traducible como adjetivo puede ser clausula principal en construccion multinuclear; esto es sintaxis, no palabra nueva.", engineSurface: "diagnostic sentence-layer frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+]);
+
+function cloneAdjectivalNncLessonRecord(record) {
+    if (!record || typeof record !== "object") {
+        return record;
+    }
+    if (Array.isArray(record)) {
+        return record.map((entry) => cloneAdjectivalNncLessonRecord(entry));
+    }
+    return Object.fromEntries(
+        Object.entries(record).map(([key, value]) => [key, cloneAdjectivalNncLessonRecord(value)])
+    );
+}
+
+function getLesson40AdjectivalNncSubsectionInventory() {
+    return LESSON40_ADJECTIVAL_NNC_SUBSECTION_INVENTORY.map((entry) => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON40_ADJECTIVAL_NNC_VALIDATION_REFS),
+    }));
+}
+
+function attachAdjectivalNncPursuitGrammarContract(record = null, options = {}) {
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return record;
+    }
+    return attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        ...options,
+    });
+}
+
+function buildLesson40AdjectivalNncPursuitFrame() {
+    const subsectionInventory = getLesson40AdjectivalNncSubsectionInventory();
+    const adjectivalNuclearClauseFrame = cloneAdjectivalNncLessonRecord(LESSON40_ADJECTIVAL_NUCLEAR_CLAUSE_FRAME);
+    const exceptionalAdjectivalNncFrame = cloneAdjectivalNncLessonRecord(LESSON40_EXCEPTIONAL_ADJECTIVAL_NNC_FRAME);
+    const nncVncAsAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_NNC_VNC_AS_ADJECTIVE_FRAME);
+    const derivedNounstemAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_DERIVED_NOUNSTEM_ADJECTIVE_FRAME);
+    const nominalizedVncAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_NOMINALIZED_VNC_ADJECTIVE_FRAME);
+    const customaryAgentiveAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_CUSTOMARY_AGENTIVE_ADJECTIVE_FRAME);
+    const customaryPatientiveAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_CUSTOMARY_PATIENTIVE_ADJECTIVE_FRAME);
+    const preteritAgentiveAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_PRETERIT_AGENTIVE_ADJECTIVE_FRAME);
+    const obsoletePreteritAdjectiveFrame = cloneAdjectivalNncLessonRecord(LESSON40_OBSOLETE_PRETERIT_ADJECTIVE_FRAME);
+    const synonymousPairsFrame = cloneAdjectivalNncLessonRecord(LESSON40_SYNONYMOUS_PAIRS_FRAME);
+    const synonymousTripletsFrame = cloneAdjectivalNncLessonRecord(LESSON40_SYNONYMOUS_TRIPLETS_FRAME);
+    const predicateAdjectiveSentenceFrame = cloneAdjectivalNncLessonRecord(LESSON40_PREDICATE_ADJECTIVE_SENTENCE_FRAME);
+    const remainingGaps = [
+        "Current Lesson 40 adjectival NNC support is partial and does not exhaust exceptional adjectival NNCs, all NNC/VNC adjectival functions, all derived nounstem adjective paths, all nominalized VNC adjective paths, synonym sets, or predicate-adjective sentences.",
+        "Exceptional adjectival NNCs, possessor-included stems, class-specific preterit-agentive adjective behavior, root-plus-ya exceptions, and source-synonym sets remain diagnostic or evidence-needed.",
+        "Predicate-adjective sentence syntax and Lessons 42-43 modifier/head AST behavior remain outside word generation.",
+        "Finite output expansion must stay tied to Andrews section evidence and confirmed Nawat/Pipil spelling evidence.",
+    ];
+    const frame = {
+        kind: "lesson-40-adjectival-nnc-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 40,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-40",
+        pdfRefs: Array.from(LESSON40_ADJECTIVAL_NNC_PDF_REFS),
+        plannedArrows: [
+            {
+                id: "lesson-40-adjectival-nnc-audit",
+                type: "metadata-diagnostic-test",
+                aim: "Audit Andrews Lesson 40.1-40.12 against current adjectival NNC function metadata, exceptional adjectival NNCs, NNC/VNC predicate translation, derived nounstem adjectives, nominalized VNC adjective paths, preterit-agentive classes, obsolete preterit root-plus-ya, synonym sets, and predicate-adjective sentence boundaries.",
+                andrewsRefs: Array.from(LESSON40_ADJECTIVAL_NNC_PDF_REFS),
+                expectedFeedbackRefs: Array.from(LESSON40_ADJECTIVAL_NNC_VALIDATION_REFS),
+            },
+        ],
+        firedArrows: [
+            {
+                id: "lesson-40-adjectival-nnc-audit",
+                result: "hit",
+                correction: "Lesson 40 now records Andrews adjectival NNC function architecture across ordinary, exceptional, NNC/VNC, derived nounstem, nominalized VNC, preterit-agentive, obsolete-preterit, synonym-set, and predicate-adjective sentence boundaries while preserving evidence gates.",
+                andrewsRefs: Array.from(LESSON40_ADJECTIVAL_NNC_PDF_REFS),
+                feedbackRefs: Array.from(LESSON40_ADJECTIVAL_NNC_VALIDATION_REFS),
+            },
+        ],
+        subsectionInventory,
+        adjectivalNuclearClauseFrame,
+        exceptionalAdjectivalNncFrame,
+        nncVncAsAdjectiveFrame,
+        derivedNounstemAdjectiveFrame,
+        nominalizedVncAdjectiveFrame,
+        customaryAgentiveAdjectiveFrame,
+        customaryPatientiveAdjectiveFrame,
+        preteritAgentiveAdjectiveFrame,
+        obsoletePreteritAdjectiveFrame,
+        synonymousPairsFrame,
+        synonymousTripletsFrame,
+        predicateAdjectiveSentenceFrame,
+        currentEngineBoundary: {
+            adjectivalNncBoundaryMetadataImplemented: true,
+            ordinaryAbsolutiveAdjectivalNncGenerationPartial: true,
+            vncAdjectivalFunctionGenerationPartial: true,
+            patientiveAdjectivalGenerationPartial: true,
+            nominalizedVncAdjectivalGenerationPartial: true,
+            rootPlusYaObsoletePreteritGenerationPartial: true,
+            synonymSetGenerationDiagnosticOnly: true,
+            predicateAdjectiveSentenceGenerationImplemented: false,
+            modificationAstDeferredToLessons42_43: true,
+            fullLesson40GenerationImplemented: false,
+            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false,
+    };
+    return attachAdjectivalNncPursuitGrammarContract(frame, {
+        metadataKind: "lesson-40-adjectival-nnc-pursuit-frame",
+        unitKind: "adjectival-nnc-boundary",
+        routeStage: "audit-lesson-40",
+        structuralSource: "Andrews Lesson 40",
+        andrewsRefs: Array.from(LESSON40_ADJECTIVAL_NNC_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 40.1-40.12",
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: "nawat-evidence-required",
+            displaySeedsAdaptedToNawat: Object.freeze(["wey", "weya"]),
+        },
+        morphBoundaryFrame: {
+            adjectivalNuclearClauseFrame,
+            exceptionalAdjectivalNncFrame,
+            nncVncAsAdjectiveFrame,
+            derivedNounstemAdjectiveFrame,
+            nominalizedVncAdjectiveFrame,
+            customaryAgentiveAdjectiveFrame,
+            customaryPatientiveAdjectiveFrame,
+            preteritAgentiveAdjectiveFrame,
+            obsoletePreteritAdjectiveFrame,
+            synonymousPairsFrame,
+            synonymousTripletsFrame,
+            predicateAdjectiveSentenceFrame,
+        },
+        stemFrame: {
+            stemKind: "adjectival-nnc-function",
+            normalPredicateState: "absolutive",
+            patientiveTypes: derivedNounstemAdjectiveFrame.patientiveFrame.types,
+            potentialPatientSuffixes: derivedNounstemAdjectiveFrame.potentialPatientFrame.suffixes,
+            preteritAgentiveClassesTracked: Object.freeze(["A", "B", "C", "D"]),
+        },
+        nuclearClauseFrame: {
+            sourceClauseKind: "CNN or CNV",
+            targetFunctionKind: "adjectival",
+            adjectiveIsSyntacticFunction: true,
+            modificationAstDeferredToLessons42_43: true,
+            predicateAdjectiveSentenceIsSentenceLayer: true,
+        },
+        participantFrame: {
+            semanticRole: "modifier/predicate-quality candidate",
+            possessorIncludedExceptionalStemsAreNotPossessiveState: true,
+            nominalizedAnalysisPreservedWhereAffectiveEmbeddingLicensesIt: true,
+        },
+        targetContract: {
+            metadataKind: "lesson-40-adjectival-nnc-pursuit-frame",
+            generationAllowed: false,
+            closestPass: false,
+            remainingGaps,
+        },
+        diagnostics: ["adjectival-nnc-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+    });
+}
+
+const LESSON41_ADJECTIVAL_NNC_VALIDATION_REFS = Object.freeze([
+    "src/tests/nnc_adjectival.test.js",
+    "src/tests/registry.test.js",
+    "docs/GRAMMAR_SPEC.md",
+]);
+
+const LESSON41_ADJECTIVAL_NNC_PDF_REFS = Object.freeze([
+    "Andrews Lesson 41.1",
+    "Andrews Lesson 41.1.1",
+    "Andrews Lesson 41.1.2",
+    "Andrews Lesson 41.1.2.a",
+    "Andrews Lesson 41.1.2.b",
+    "Andrews Lesson 41.1.2.c",
+    "Andrews Lesson 41.1.2.d",
+    "Andrews Lesson 41.1.2.e",
+    "Andrews Lesson 41.1.3",
+    "Andrews Lesson 41.1.4",
+    "Andrews Lesson 41.1.4.a",
+    "Andrews Lesson 41.1.4.b",
+    "Andrews Lesson 41.1.5",
+    "Andrews Lesson 41.2",
+    "Andrews Lesson 41.2.1",
+    "Andrews Lesson 41.2.1.a",
+    "Andrews Lesson 41.2.1.b",
+    "Andrews Lesson 41.2.1.b.i",
+    "Andrews Lesson 41.2.1.b.ii",
+    "Andrews Lesson 41.2.2",
+    "Andrews Lesson 41.2.3",
+    "Andrews Lesson 41.3",
+    "Andrews Lesson 41.4",
+]);
+
+const LESSON41_INTENSIFIED_ADJECTIVAL_NNC_FRAME = Object.freeze({
+    kind: "lesson-41-intensified-adjectival-nnc-frame",
+    sourceSection: "Andrews 41.1",
+    multipleFormationFamilies: true,
+    reduplicationFrame: Object.freeze({
+        sourceSection: "Andrews 41.1.1",
+        sourceAdjectivalStemHasVerbalOrDeverbalSource: true,
+        longVowelReduplicationFromLesson27_2_2: true,
+        notNominalReduplicationFromLesson14_3: true,
+        glottalStopReduplicationSameAsNominalForDistributionVariety: true,
+        requiresSubjectReferToAtLeastTwoDifferentiatedEntitiesForDistribution: true,
+    }),
+    pahMatrixFrame: Object.freeze({
+        sourceSection: "Andrews 41.1.2",
+        matrixPreteritAgentiveStem: "(pah-ti-0)-c",
+        matrixMeaning: "potent",
+        embedImplication: "in the form of or with regard to",
+        embedAdjectiveStemFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.2.a",
+            embedMayBeNounstemThatCanFormTiCAdjective: true,
+            includesDestockalPatientiveNounstemsFromLesson39_4: true,
+            crossRefLesson40_11: true,
+        }),
+        embedRootPlusYaFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.2.b",
+            embedMayBeRootOfRootPlusYaPreteritAgentive: true,
+        }),
+        embedGeneralUseFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.2.c",
+            embedMayBeGeneralUseAdjectivalPreteritAgentive: true,
+            crossRefLesson35_5: true,
+        }),
+        embedReduplicatedFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.2.d",
+            embedMayBeIntensifiedByReduplication: true,
+        }),
+        matrixInternalExpansionFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.2.e",
+            internalExpansionExpressesSoundSymbolicIncreasedWeight: true,
+            pahTiCBecomesPalalahTiC: true,
+        }),
+    }),
+    otherPreteritAgentiveMatrixFrame: Object.freeze({
+        sourceSection: "Andrews 41.1.3",
+        lessFrequentCompoundMatricesExist: true,
+        calTiCMatrix: true,
+        calalahTiCExpandedMatrix: true,
+        tzonTiCMatrix: true,
+    }),
+    affectiveMatrixFrame: Object.freeze({
+        sourceSection: "Andrews 41.1.4",
+        matrices: Object.freeze(["pol", "pil", "ton", "tzin"]),
+        citesLesson32: true,
+        preteritAgentiveEmbedRequiresGeneralUseShape: true,
+        polFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.4.a",
+            increasesIntensity: true,
+            canTakeReduplicativePrefixFrom41_1_1: true,
+        }),
+        pilTonTzinFrame: Object.freeze({
+            sourceSection: "Andrews 41.1.4.b",
+            decreasesIntensity: true,
+            tonMayShowUnexpectedTli: true,
+        }),
+    }),
+    metaphorSimileFrame: Object.freeze({
+        sourceSection: "Andrews 41.1.5",
+        intensityCanBeExpressedByMetaphorOrSimile: true,
+        syntacticIntensifiersDeferredToLesson49_6: true,
+    }),
+});
+
+const LESSON41_COMPOUND_VERBSTEM_NOMINAL_EMBED_FRAME = Object.freeze({
+    kind: "lesson-41-compound-verbstem-nominal-embed-frame",
+    sourceSection: "Andrews 41.2",
+    compoundVerbstemWithNominalEmbedSource: true,
+    matrixVerbstemConvertedToMatrixNounstemByReanalysisOrDerivation: true,
+    resultantCompoundNounstemNncCanFunctionAsAdjective: true,
+    incorporatedAdverbFrame: Object.freeze({
+        sourceSection: "Andrews 41.2.1",
+        mostFrequentCompoundVerbstemSource: true,
+        lesson30_7_12Frame: Object.freeze({
+            sourceSection: "Andrews 41.2.1.a",
+            modificationKinds: Object.freeze(["means", "instrument", "place", "time", "duration", "cause", "purpose", "manner", "compared manner"]),
+        }),
+        lesson30_14SupplementationFrame: Object.freeze({
+            sourceSection: "Andrews 41.2.1.b",
+            sourceSupplementarySubjectIsPossessiveStateNnc: true,
+            differentEntitySubtypeFrame: Object.freeze({
+                sourceSection: "Andrews 41.2.1.b.i",
+                embedDifferentKindFromSubjectReferent: true,
+                englishFormulaAdjectiveNounEd: true,
+                subjectMayBeAnimateOrNonanimate: true,
+                matrixMayReduplicateForDistributionOrVariety: true,
+            }),
+            sameEntitySubtypeFrame: Object.freeze({
+                sourceSection: "Andrews 41.2.1.b.ii",
+                embedSameKindAsSubjectReferent: true,
+                englishFormulaAdjectiveNoun: true,
+                subjectMustBeNonanimate: true,
+                englishReversesGovernorAndGoverned: true,
+                embeddedNounstemCannotFunctionAsSubject: true,
+            }),
+        }),
+    }),
+    incorporatedComplementFrame: Object.freeze({
+        sourceSection: "Andrews 41.2.2",
+        fewNncsManifestFormation: true,
+    }),
+    incorporatedObjectFrame: Object.freeze({
+        sourceSection: "Andrews 41.2.3",
+        compoundVerbstemCanOccurInPreteritAgentiveNnc: true,
+        patientiveSourceDistinctionRequiresUnderlyingCompoundSource: true,
+        morphologyAloneCannotDistinguishImpersonalPatientiveFromPassivePatientive: true,
+        anyPatientiveNncCanFunctionAdjectivally: true,
+        lessObviousOrLessFrequentThanIncorporatedAdverbSubtypes: true,
+    }),
+});
+
+const LESSON41_DENOMINAL_COMPOUND_NOUNSTEM_FRAME = Object.freeze({
+    kind: "lesson-41-denominal-compound-nounstem-frame",
+    sourceSection: "Andrews 41.3",
+    compoundNounstemCanSourceDerivedVerbstemWithTi: true,
+    citesLesson54_2: true,
+    mostFrequentUseIsAdjectivalPreteritAgentiveNnc: true,
+    citesLesson40_8_1: true,
+    currentEngineRequiresSegmentedCompoundNounstemSourceFrame: true,
+});
+
+const LESSON41_ADJECTIVAL_EMBED_COMPOUND_NNC_FRAME = Object.freeze({
+    kind: "lesson-41-adjectival-embed-compound-nnc-frame",
+    sourceSection: "Andrews 41.4",
+    adjectivalNounstemCanEmbedAsModifierOfMatrixNounstem: true,
+    singleNucleusCompoundConstructionDistinctFromLessons42_43Modification: true,
+    citesLesson31_4: true,
+    preteritAgentiveEmbedRequiresGeneralUseShape: true,
+    preteritAgentiveGeneralUseEmbedIsLesson35_7CompoundNounstemConstruction: true,
+    numeralStemCanEmbedAdjectivally: true,
+    citesLesson34: true,
+    generationCurrentlyDiagnosticOnly: true,
+});
+
+const LESSON41_ADJECTIVAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
+    Object.freeze({ id: "lesson41-intensified-adjectival-nncs", andrewsSection: "41.1", category: "intensified-adjectival-nnc", directiveEs: "La intensificacion adjetiva tiene varias fuentes; no se reduce a una sola ruta de reduplicacion.", engineSurface: "partial intensified adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-reduplicative-intensification", andrewsSection: "41.1.1", category: "reduplicative-intensification", directiveEs: "Si el tronco adjetivo viene de fuente verbal o deverbal, puede intensificarse con reduplicacion de 27.2.2, no con la nominal de 14.3.", engineSurface: "partial intensified route from generated formula slots", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-pah-matrix", andrewsSection: "41.1.2", category: "pah-matrix-intensification", directiveEs: "La matriz pah-ti-c expresa potencia y el incrustado aporta forma o respecto; las subclases quedan separadas.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pah-adjective-stem-embed", andrewsSection: "41.1.2.a", category: "pah-adjective-stem-embed", directiveEs: "El incrustado puede ser un nounstem que forma adjetivo ti-c, incluidos patientivos destockales.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pah-root-plus-ya-embed", andrewsSection: "41.1.2.b", category: "pah-root-plus-ya-embed", directiveEs: "El incrustado puede ser la raiz de un agentivo preterito de fuente raiz+ya.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pah-general-use-embed", andrewsSection: "41.1.2.c", category: "pah-general-use-embed", directiveEs: "El incrustado puede ser la forma de uso general del agentivo preterito adjetival.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pah-reduplicated-embed", andrewsSection: "41.1.2.d", category: "pah-reduplicated-embed", directiveEs: "El incrustado tambien puede intensificarse por la reduplicacion de 41.1.1.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pah-internal-expansion", andrewsSection: "41.1.2.e", category: "pah-internal-expansion", directiveEs: "La matriz puede expandirse internamente por simbolismo sonoro; mas peso fonologico sugiere mas peso semantico.", engineSurface: "diagnostic sound-symbolic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-other-preterit-agentive-matrices", andrewsSection: "41.1.3", category: "other-intensifying-matrices", directiveEs: "Otras matrices agentivas preteritas como cal, calalah y tzon tambien intensifican, pero no son regla general.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-affective-matrices", andrewsSection: "41.1.4", category: "affective-intensification", directiveEs: "Las matrices afectivas pol, pil, ton y tzin modulan intensidad; los agentivos preteritos incrustados usan forma general.", engineSurface: "diagnostic affective matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pol-increase", andrewsSection: "41.1.4.a", category: "pol-increase", directiveEs: "Pol aumenta la intensidad y puede llevar prefijo reduplicativo.", engineSurface: "diagnostic affective matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-pil-ton-tzin-decrease", andrewsSection: "41.1.4.b", category: "pil-ton-tzin-decrease", directiveEs: "Pil, ton y tzin disminuyen la intensidad; ton puede mostrar tli inesperado.", engineSurface: "diagnostic affective matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-metaphor-simile", andrewsSection: "41.1.5", category: "metaphor-simile-intensification", directiveEs: "La intensidad tambien puede venir de metafora o simil; intensificadores sintacticos quedan para 49.6.", engineSurface: "diagnostic intensification frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-compound-verbstem-nominal-embed", andrewsSection: "41.2", category: "compound-verbstem-nominal-embed", directiveEs: "Un compuesto verbal con incrustado nominal puede reanalizar o derivar su matriz como nounstem y funcionar adjetivamente.", engineSurface: "partial compound-source adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-incorporated-adverb-source", andrewsSection: "41.2.1", category: "incorporated-adverb-source", directiveEs: "Los compuestos con adverbio incorporado son la fuente mas frecuente y tienen dos construcciones.", engineSurface: "partial compound-source adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-incorporated-adverb-30-7-12", andrewsSection: "41.2.1.a", category: "lesson30-7-12-adverb-source", directiveEs: "El adverbio incorporado puede expresar medio, instrumento, lugar, tiempo, duracion, causa, proposito, modo o modo comparado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-incorporated-adverb-30-14", andrewsSection: "41.2.1.b", category: "lesson30-14-supplementation-source", directiveEs: "La fuente tambien puede venir de suplementacion con sujeto suplementario en CNN posesiva.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-different-entity-subtype", andrewsSection: "41.2.1.b.i", category: "different-entity-subtype", directiveEs: "Un subtipo tiene incrustado de entidad distinta; el sujeto puede ser animado o no animado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-same-entity-subtype", andrewsSection: "41.2.1.b.ii", category: "same-entity-subtype", directiveEs: "Otro subtipo tiene incrustado de la misma entidad; el sujeto es no animado y el ingles invierte gobernador y gobernado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson41-incorporated-complement-source", andrewsSection: "41.2.2", category: "incorporated-complement-source", directiveEs: "Solo pocas CNN muestran la fuente de compuesto con complemento incorporado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-incorporated-object-source", andrewsSection: "41.2.3", category: "incorporated-object-source", directiveEs: "La fuente de objeto incorporado exige conocer el compuesto subyacente; la morfologia sola no distingue patientivo impersonal y pasivo.", engineSurface: "partial compound-source/patientive metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-denominal-compound-nounstem", andrewsSection: "41.3", category: "denominal-compound-nounstem", directiveEs: "Un nounstem compuesto puede formar un verbstem con ti y luego un agentivo preterito adjetival.", engineSurface: "partial denominal-compound adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-adjectival-embed-compound-nnc", andrewsSection: "41.4", category: "adjectival-embed-compound-nnc", directiveEs: "Un nounstem adjetival puede incrustarse como modificador de la matriz; los agentivos preteritos usan forma general y los numerales tambien pueden incrustarse.", engineSurface: "diagnostic compound NNC embed frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+]);
+
+function getLesson41AdjectivalNncSubsectionInventory() {
+    return LESSON41_ADJECTIVAL_NNC_SUBSECTION_INVENTORY.map((entry) => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON41_ADJECTIVAL_NNC_VALIDATION_REFS),
+    }));
+}
+
+function buildLesson41AdjectivalNncPursuitFrame() {
+    const subsectionInventory = getLesson41AdjectivalNncSubsectionInventory();
+    const intensifiedAdjectivalNncFrame = cloneAdjectivalNncLessonRecord(LESSON41_INTENSIFIED_ADJECTIVAL_NNC_FRAME);
+    const compoundVerbstemNominalEmbedFrame = cloneAdjectivalNncLessonRecord(LESSON41_COMPOUND_VERBSTEM_NOMINAL_EMBED_FRAME);
+    const denominalCompoundNounstemFrame = cloneAdjectivalNncLessonRecord(LESSON41_DENOMINAL_COMPOUND_NOUNSTEM_FRAME);
+    const adjectivalEmbedCompoundNncFrame = cloneAdjectivalNncLessonRecord(LESSON41_ADJECTIVAL_EMBED_COMPOUND_NNC_FRAME);
+    const remainingGaps = [
+        "Current Lesson 41 adjectival NNC support is partial and does not exhaust intensified-stem families, pah/cal/tzon/affective matrix intensification, metaphor or simile intensification, all compound-verbstem source subtypes, or adjectival nounstems embedded in compound-stemmed NNCs.",
+        "The current intensified route only works from generated formula slots and does not implement every Andrews matrix, internal expansion, sound-symbolic, affective, metaphorical, or syntactic-intensifier path.",
+        "Compound-source and denominal-compound routes preserve generated Nawat surfaces only when source frames are present; full source disambiguation and Nawat/Pipil examples remain evidence-needed.",
+        "Adjectival embeds in compound-stemmed NNCs and Lessons 42-43 modifier/head syntax remain outside current word generation.",
+    ];
+    const frame = {
+        kind: "lesson-41-adjectival-nnc-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 41,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-41",
+        pdfRefs: Array.from(LESSON41_ADJECTIVAL_NNC_PDF_REFS),
+        plannedArrows: [
+            {
+                id: "lesson-41-adjectival-nnc-audit",
+                type: "metadata-diagnostic-test",
+                aim: "Audit Andrews Lesson 41.1-41.4 against current intensified adjectival output, compound-verbstem nominal-embed adjectival routes, denominal compound nounstem routes, and adjectival nounstem embed boundaries.",
+                andrewsRefs: Array.from(LESSON41_ADJECTIVAL_NNC_PDF_REFS),
+                expectedFeedbackRefs: Array.from(LESSON41_ADJECTIVAL_NNC_VALIDATION_REFS),
+            },
+        ],
+        firedArrows: [
+            {
+                id: "lesson-41-adjectival-nnc-audit",
+                result: "hit",
+                correction: "Lesson 41 now records Andrews intensified adjectival NNC families, compound-verbstem nominal-embed source subtypes, denominal compound nounstem sources, and adjectival nounstems as compound embeds while preserving current generation and evidence gates.",
+                andrewsRefs: Array.from(LESSON41_ADJECTIVAL_NNC_PDF_REFS),
+                feedbackRefs: Array.from(LESSON41_ADJECTIVAL_NNC_VALIDATION_REFS),
+            },
+        ],
+        subsectionInventory,
+        intensifiedAdjectivalNncFrame,
+        compoundVerbstemNominalEmbedFrame,
+        denominalCompoundNounstemFrame,
+        adjectivalEmbedCompoundNncFrame,
+        currentEngineBoundary: {
+            adjectivalNncBoundaryMetadataImplemented: true,
+            intensifiedAdjectivalGenerationPartial: true,
+            compoundSourceAdjectivalGenerationPartial: true,
+            denominalCompoundAdjectivalGenerationPartial: true,
+            compoundVerbstemSourceDisambiguationPartial: true,
+            adjectivalEmbedCompoundNncGenerationImplemented: false,
+            affectiveMatrixIntensityGenerationImplemented: false,
+            syntacticIntensifierGenerationImplemented: false,
+            fullLesson41GenerationImplemented: false,
+            modifierHeadAstDeferredToLessons42_43: true,
+            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false,
+    };
+    return attachAdjectivalNncPursuitGrammarContract(frame, {
+        metadataKind: "lesson-41-adjectival-nnc-pursuit-frame",
+        unitKind: "adjectival-nnc-boundary",
+        routeStage: "audit-lesson-41",
+        structuralSource: "Andrews Lesson 41",
+        andrewsRefs: Array.from(LESSON41_ADJECTIVAL_NNC_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 41.1-41.4",
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil evidence",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: "nawat-evidence-required",
+            matrixSpellingsNeedNawatEvidence: Object.freeze(["pah", "cal", "tzon", "pol", "pil", "ton", "tzin"]),
+        },
+        morphBoundaryFrame: {
+            intensifiedAdjectivalNncFrame,
+            compoundVerbstemNominalEmbedFrame,
+            denominalCompoundNounstemFrame,
+            adjectivalEmbedCompoundNncFrame,
+        },
+        stemFrame: {
+            stemKind: "adjectival-nnc-intensification-and-compound-source",
+            currentSupportedFamilies: Object.freeze(["generated-formula-slot intensification", "compound-source adjectival", "denominal-compound adjectival"]),
+            unsupportedMatrices: Object.freeze(["pah", "palalah", "cal", "calalah", "tzon", "pol", "pil", "ton", "tzin"]),
+        },
+        nuclearClauseFrame: {
+            sourceClauseKind: "CNN/CNV source compounds",
+            targetFunctionKind: "adjectival",
+            singleNucleusCompoundEmbedsDistinctFromModificationAst: true,
+            modificationAstDeferredToLessons42_43: true,
+        },
+        participantFrame: {
+            semanticRole: "intensified modifier/predicate-quality candidate",
+            embeddedNounstemCannotBeSubjectOfCompound: true,
+            underlyingSourceCompoundRequiredForPatientiveDisambiguation: true,
+        },
+        targetContract: {
+            metadataKind: "lesson-41-adjectival-nnc-pursuit-frame",
+            generationAllowed: false,
+            closestPass: false,
+            remainingGaps,
+        },
+        diagnostics: ["adjectival-nnc-lesson-41-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+    });
+}
+
 function normalizeAdjectivalNncEnum(value = "", allowedValues = [], fallback = "unknown") {
     const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
     return allowedValues.includes(normalized) ? normalized : fallback;
@@ -600,9 +1386,9 @@ function buildAdjectivalNncFormulaEchoFromSlots(formulaSlots = null) {
     if (!formulaSlots || typeof formulaSlots !== "object") {
         return "";
     }
-    const subject = formulaSlots.subjectPerson || {};
-    const predicate = formulaSlots.predicate || {};
-    const connector = formulaSlots.subjectNumberConnector || {};
+    const subject = formulaSlots.pers1Pers2 || {};
+    const predicate = formulaSlots.predicateStem || {};
+    const connector = formulaSlots.num1Num2 || {};
     const stem = resolveAdjectivalNncFormulaSlotText(predicate, ["stem", "surface"]);
     if (!stem) {
         return "";
@@ -619,7 +1405,7 @@ function buildRootPlusYaAdjectivalNncFormulaSlots({
     sourceFormationSubtype = ADJECTIVAL_NNC_SOURCE_FORMATION_SUBTYPE.rootPlusYa,
 } = {}) {
     return {
-        subjectPerson: {
+        pers1Pers2: {
             role: "subject-person",
             slot: "pers1-pers2",
             prefix: String(subject?.subjectPrefix || ""),
@@ -628,7 +1414,7 @@ function buildRootPlusYaAdjectivalNncFormulaSlots({
             displaySuffix: String(subject?.subjectSuffix || "") || "Ø",
             label: String(subject?.personSubKey || "3sg"),
         },
-        predicate: {
+        predicateStem: {
             role: "predicate",
             slot: "STEM",
             stem: rootPlusYaBase,
@@ -636,7 +1422,7 @@ function buildRootPlusYaAdjectivalNncFormulaSlots({
             sourceFormation: ADJECTIVAL_NNC_FORMATION.rootPlusYaObsoletePreterit,
             sourceFormationSubtype,
         },
-        subjectNumberConnector: {
+        num1Num2: {
             role: "subject-number-connector",
             slot: "num1-num2",
             connector: "k",
@@ -660,7 +1446,7 @@ function buildIntensifiedAdjectivalNncFormulaSlots({
     const sourceSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
         ? sourceFormulaSlots
         : {};
-    const predicate = sourceSlots.predicate || {};
+    const predicate = sourceSlots.predicateStem || {};
     const sourceStem = resolveAdjectivalNncFormulaSlotText(predicate, ["stem", "surface"]);
     const {
         grammarFrame: _sourcePredicateGrammarFrame,
@@ -668,18 +1454,18 @@ function buildIntensifiedAdjectivalNncFormulaSlots({
         ...predicateMetadata
     } = predicate;
     return {
-        subjectPerson: {
-            ...(sourceSlots.subjectPerson || {}),
+        pers1Pers2: {
+            ...(sourceSlots.pers1Pers2 || {}),
         },
-        predicate: {
+        predicateStem: {
             ...predicateMetadata,
             stem: String(intensifiedStem || "").trim(),
             sourceStem,
             sourceFormation: ADJECTIVAL_NNC_FORMATION.intensifiedAdjectival,
             sourceFormationSubtype: "reduplicative-intensification",
         },
-        subjectNumberConnector: {
-            ...(sourceSlots.subjectNumberConnector || {}),
+        num1Num2: {
+            ...(sourceSlots.num1Num2 || {}),
         },
     };
 }
@@ -1674,7 +2460,7 @@ function buildIntensifiedAdjectivalNncFunctionFrame({
     role = "predicate-surface",
 } = {}) {
     const sourcePredicateStem = resolveAdjectivalNncFormulaSlotText(
-        sourceFormulaSlots?.predicate,
+        sourceFormulaSlots?.predicateStem,
         ["stem", "surface"]
     );
     return {
@@ -1741,14 +2527,14 @@ function buildIntensifiedAdjectivalNncOutput({
     const sourceSlots = sourceFormulaSlots || formulaSlots || null;
     const sourceEcho = sourceFormulaEcho || formulaEcho || "";
     const predicateStem = resolveAdjectivalNncFormulaSlotText(
-        sourceSlots?.predicate,
+        sourceSlots?.predicateStem,
         ["stem", "surface"]
     );
     const connector = resolveAdjectivalNncFormulaSlotText(
-        sourceSlots?.subjectNumberConnector,
+        sourceSlots?.num1Num2,
         ["connector", "surface"]
     );
-    if (!predicateStem || !sourceSlots?.subjectNumberConnector) {
+    if (!predicateStem || !sourceSlots?.num1Num2) {
         return buildIntensifiedAdjectivalNncUnsupportedOutput({
             sourceSurface: String(sourceSurface || surface || "").trim(),
             sourceFormulaSlots: sourceSlots,
@@ -1767,7 +2553,7 @@ function buildIntensifiedAdjectivalNncOutput({
         intensifiedStem,
     });
     const intensifiedFormulaEcho = buildAdjectivalNncFormulaEchoFromSlots(intensifiedFormulaSlots);
-    const subjectPrefix = String(sourceSlots?.subjectPerson?.prefix || sourceSlots?.subjectPerson?.subjectPrefix || "");
+    const subjectPrefix = String(sourceSlots?.pers1Pers2?.prefix || sourceSlots?.pers1Pers2?.subjectPrefix || "");
     const result = `${subjectPrefix}${intensifiedStem}${connector === "Ø" ? "" : connector}`;
     const frame = buildIntensifiedAdjectivalNncFunctionFrame({
         sourceSurface: String(sourceSurface || surface || "").trim(),

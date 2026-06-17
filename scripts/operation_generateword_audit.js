@@ -182,7 +182,7 @@ const records = [
         grammatical_decision_inside: false,
         string_ops_outside_gate: false,
         recommended_action: "keep_as_is",
-        notes: "Return contract resolved: surfaceForms exposes structured alternant array without breaking existing result consumers. Ownership aggregation path now prefers surfaceForms with a split fallback for stale records.",
+        notes: "Return contract resolved: surfaceForms exposes structured alternant array while preserving current result consumers. Ownership aggregation path now prefers surfaceForms with a split reader for stored records.",
     },
 ];
 
@@ -236,7 +236,7 @@ const jsonReport = {
         resolveStemCandidateMorphologyResult:
             "RESOLVED: morphology-per-stem work is now isolated in the top-level resolveStemCandidateMorphologyResult helper. The helper calls applyMorphologyRules once per stem and returns a structured bundle; generateWord renders that bundle via buildWordFromParts. The boundary is now explicit and named.",
         mixed_boundary_return_contract:
-            "RESOLVED: generateWord now returns { result, surfaceForms: string[], isReflexive, stemProvenance }. surfaceForms is the ordered deduplicated alternant array; result is preserved as compatibility string. Ownership aggregation prefers surfaceForms with a split fallback.",
+            "RESOLVED: generateWord now returns { result, surfaceForms: string[], isReflexive, stemProvenance }. surfaceForms is the ordered deduplicated alternant array; result is preserved as joined display string. Ownership aggregation prefers surfaceForms with a split reader.",
         authority_violations: "None found in the generateWord output path.",
     },
     records,
@@ -245,7 +245,7 @@ const jsonReport = {
         next_tranche: "applyMorphologyRules investigation",
         rationale: [
             "The generateWord output path is clean — no authority violations, no mixed-boundary findings.",
-            "surfaceForms: string[] is now exposed on the return; the flat result string is preserved as compatibility.",
+            "surfaceForms: string[] is now exposed on the return; the flat result string is preserved as joined display text.",
             "resolveStemCandidateMorphologyResult isolates morphology-per-stem work in a named top-level helper; generateWord only renders the returned bundle.",
             "The remaining open question is the stemCollectionPool construction upstream — but that is a derivation-layer concern, not a generateWord concern.",
         ],
@@ -338,17 +338,17 @@ ${candidatesTable}
 
 ### gw-11 — return contract (layer4_legitimate)
 
-\`generateWord\` now returns \`{ result, surfaceForms: string[], isReflexive, stemProvenance }\`. \`surfaceForms\` is the ordered deduplicated alternant array; \`result\` is preserved as the compatibility joined string. Ownership aggregation prefers \`surfaceForms\` with a split fallback. **Resolved.**
+\`generateWord\` now returns \`{ result, surfaceForms: string[], isReflexive, stemProvenance }\`. \`surfaceForms\` is the ordered deduplicated alternant array; \`result\` is preserved as the joined display string. Ownership aggregation prefers \`surfaceForms\` with a split reader. **Resolved.**
 
 ---
 
-## Live Verification
+## Audit Findings
 
 | Question | Finding |
 |---|---|
 | Does final word assembly funnel through \`buildOutputWordText\`? | **Yes** — all paths through \`forms[]\` use \`buildWord\` or \`buildWordFromParts\`, both routing through \`buildActiveOutputWordText\` → \`buildOutputWordText\`. |
 | Is duplicate suppression string-only? | **Yes** — \`forms.includes(text)\` compares realized surface strings. |
-| Is alternant aggregation string-only? | **No** — \`surfaceForms: string[]\` now exposed on return; \`result\` preserved as compatibility string. |
+| Is alternant aggregation string-only? | **No** — \`surfaceForms: string[]\` now exposed on return; \`result\` preserved as joined display string. |
 | Are there string operations outside the gate? | **No.** |
 | Does \`buildOutputWordSegments\` contain authority logic? | **No** — it is the gate; no grammatical decisions inside it. |
 

@@ -1,28 +1,28 @@
 import {
-    LEGACY_BROWSER_SCRIPT_PATHS,
-    LEGACY_HTML_SHELL_PATH,
-    LEGACY_VM_SCRIPT_PATHS,
+    BROWSER_SCRIPT_PATHS,
+    HTML_SHELL_PATH,
+    VM_SCRIPT_PATHS,
     cloneStaticRuntimePaths,
 } from "./runtime_paths.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
 
-export function installLegacyBridge(globalObject = globalThis, runtime = {}) {
+export function installRuntimeBridge(globalObject = globalThis, runtime = {}) {
     if (!globalObject || typeof globalObject !== "object") {
         return null;
     }
     const runtimeConfig = runtime.runtimeConfig || globalObject.__NAWAT_RUNTIME_CONFIG__ || createRuntimeConfigSnapshot();
     const bridge = {
         mode: runtime.mode || null,
-        shellSource: LEGACY_HTML_SHELL_PATH,
+        shellSource: HTML_SHELL_PATH,
         runtimeConfig,
         runtimePaths: runtimeConfig.paths || cloneStaticRuntimePaths(),
         manifests: {
-            browser: [...LEGACY_BROWSER_SCRIPT_PATHS],
-            vm: [...LEGACY_VM_SCRIPT_PATHS],
+            browser: [...BROWSER_SCRIPT_PATHS],
+            vm: [...VM_SCRIPT_PATHS],
         },
         esmPreloads: runtime.esmPreloads || globalObject.__NAWAT_ESM_PRELOADS__ || [],
         moduleRuntimeMode: runtime.moduleRuntimeMode || null,
-        legacyExecutionDisabled: runtime.legacyExecutionDisabled === true,
+        scriptExecutionDisabled: runtime.scriptExecutionDisabled === true,
         bootstrapBrowserApp: runtime.bootstrapBrowserApp || globalObject.bootstrapBrowserApp || null,
         initializeUiRuntime: runtime.initializeUiRuntime || globalObject.initializeUiRuntime || null,
         createModuleRuntime: runtime.createModuleRuntime || globalObject.createModuleRuntime || null,

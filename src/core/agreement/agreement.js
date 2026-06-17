@@ -7,9 +7,312 @@
 
 "use strict";
 
+function cloneAgreementLessonRecord(value) {
+    if (Array.isArray(value)) {
+        return value.map((entry) => cloneAgreementLessonRecord(entry));
+    }
+    if (!value || typeof value !== "object") {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value).map(([key, entry]) => [key, cloneAgreementLessonRecord(entry)])
+    );
+}
+
+const LESSON23_VERB_OBJECTS_VALIDATION_REFS = Object.freeze([
+    "src/tests/agreement.test.js",
+    "src/tests/registry.test.js",
+    "docs/GRAMMAR_SPEC.md",
+]);
+
+const LESSON23_VERB_OBJECTS_PDF_REFS = Object.freeze([
+    "Andrews Lesson 23.1",
+    "Andrews Lesson 23.2",
+    "Andrews Lesson 23.3",
+    "Andrews Lesson 23.4",
+    "Andrews Lesson 23.5",
+]);
+
+const LESSON23_OBJECT_KIND_FRAME = Object.freeze({
+    kind: "lesson-23-object-kind-frame",
+    sourceSection: "Andrews 23.1",
+    transitiveIsCoverTerm: true,
+    objectStemTypes: Object.freeze(["directive", "causative", "applicative"]),
+    directiveObjectBelongsToStem: true,
+    causativeApplicativeObjectsBelongToSuffixes: true,
+    objectAndSuffixAreDiscontinuousUnit: true,
+    suffixNormallyRequiresValenceObject: true,
+    objectFormDoesNotExposeFunction: true,
+});
+
+const LESSON23_MULTIPLE_VALENCE_FRAME = Object.freeze({
+    kind: "lesson-23-multiple-valence-frame",
+    sourceSection: "Andrews 23.2",
+    maxValencePositions: 3,
+    mainlinePolicy: "last-added derivational object is mainline",
+    shuntlinePolicy: "earlier object positions become shuntline levels",
+    derivationalHistoryDoesNotSetLinearObjectOrder: true,
+    histories: Object.freeze([
+        Object.freeze({
+            source: "intransitive",
+            path: Object.freeze([
+                Object.freeze({ objectCount: 0, formula: "(STEM)", mainlineObject: "" }),
+                Object.freeze({ objectCount: 1, formula: "+va(IBASE-SUF)", mainlineObject: "causative-or-applicative" }),
+                Object.freeze({ objectCount: 2, formula: "+va+va(IBASE-SUF-SUF)", shuntlineObjects: 1, mainlineObject: "last causative-or-applicative" }),
+                Object.freeze({ objectCount: 3, formula: "+va+va+va(IBASE-SUF-SUF-SUF)", shuntlineObjects: 2, mainlineObject: "last causative-or-applicative" }),
+            ]),
+        }),
+        Object.freeze({
+            source: "directive",
+            path: Object.freeze([
+                Object.freeze({ objectCount: 1, formula: "+va(STEM)", mainlineObject: "direct" }),
+                Object.freeze({ objectCount: 2, formula: "+va+va(DBASE-SUF)", shuntlineObjects: 1, mainlineObject: "causative-or-applicative" }),
+                Object.freeze({ objectCount: 3, formula: "+va+va+va(DBASE-SUF-SUF)", shuntlineObjects: 2, mainlineObject: "last causative-or-applicative" }),
+            ]),
+        }),
+    ]),
+});
+
+const LESSON23_VALENCE_RULE_FRAME = Object.freeze({
+    kind: "lesson-23-valence-rule-frame",
+    sourceSection: "Andrews 23.3",
+    everyPositionAndSubpositionObligatory: true,
+    silentMorphStillOccupiesPosition: true,
+    onlyOneMainlineReflexive: true,
+    reflexiveMainlineControlledByLastAddedSuffix: true,
+    causativesNormallyBeforeApplicatives: true,
+    objectSequenceNotSuffixHistory: true,
+    specificProjectiveObjectPronounsMutuallyIncompatible: true,
+    incompatibilityAppliesWhenMainlineIsSpecificProjective: true,
+    specificProjectiveShuntlinesRemainWhenMainlineIsNonspecificOrReflexive: true,
+});
+
+const LESSON23_FORMULA_FRAME = Object.freeze({
+    kind: "lesson-23-formula-frame",
+    sourceSection: "Andrews 23.4",
+    representativeFormula: "#pers1-pers2+va+va+va(DBASE-CAUS-APPLIC)tns+num1-num2#",
+    currentUiFormulaShorthand: "#pers1-pers2(base)tiempo+num1-num2#",
+    valencePositionSubpositions: 2,
+    mainlineIsLastCoreLine: true,
+    shuntlineSpecificProjectiveSilencing: Object.freeze([
+        Object.freeze({ source: "first-or-second-person-specific-projective", shuntlineSurface: "0-0" }),
+        Object.freeze({ source: "third-singular-specific-projective c/qu/qui-0", shuntlineSurface: "0-0" }),
+        Object.freeze({ source: "third-plural-specific-projective qu-im", shuntlineSurface: "0-im or 0-0 before mainline 3pl" }),
+    ]),
+    shuntlineNonspecificMorphs: Object.freeze([
+        Object.freeze({ andrews: "te", nawat: "te" }),
+        Object.freeze({ andrews: "tla", nawat: "ta" }),
+    ]),
+    shuntlineReflexive: "ne",
+});
+
+const LESSON23_OBJECT_SEQUENCE_FRAME = Object.freeze({
+    kind: "lesson-23-object-sequence-frame",
+    sourceSection: "Andrews 23.5",
+    priorityRules: Object.freeze([
+        "specific-projective-before-reflexive",
+        "specific-projective-before-nonspecific-projective",
+        "reflexive-before-nonspecific-projective",
+        "human-before-nonhuman",
+    ]),
+    directionalLocativePrefixBoundary: "Andrews Lesson 8.1",
+    andrewsThreeObjectCombinations: Object.freeze([
+        Object.freeze(["tla", "tla", "tla"]),
+        Object.freeze(["te", "tla", "tla"]),
+        Object.freeze(["m-o", "tla", "tla"]),
+        Object.freeze(["te", "te", "tla"]),
+        Object.freeze(["m-o", "te", "tla"]),
+        Object.freeze(["c-0", "m-o", "tla"]),
+        Object.freeze(["te", "te", "te"]),
+        Object.freeze(["m-o", "te", "te"]),
+        Object.freeze(["c-0", "m-o", "te"]),
+        Object.freeze(["c-0", "0-0", "tla"]),
+        Object.freeze(["c-0", "0-0", "te"]),
+        Object.freeze(["c-0", "0-0", "m-o"]),
+        Object.freeze(["c-0", "0-0", "0-0"]),
+    ]),
+    nawatOrthographyBridge: Object.freeze([
+        Object.freeze({ andrews: "tla", nawat: "ta" }),
+        Object.freeze({ andrews: "m-o", nawat: "mu" }),
+        Object.freeze({ andrews: "c/qu/qui", nawat: "ki/k" }),
+    ]),
+    appendixCInventoryNeededForClosestPass: true,
+});
+
+const LESSON23_VERB_OBJECTS_SUBSECTION_INVENTORY = Object.freeze([
+    Object.freeze({
+        id: "lesson23-object-kinds",
+        andrewsSection: "23.1",
+        category: "verb-object-kinds",
+        directiveEs: "Transitivo es un termino amplio: los objetos pueden ser directivos, causativos o aplicativos; la forma del pronombre no decide por si sola la funcion.",
+        engineSurface: "object prefix inventory plus causative/applicative derivation metadata",
+        implementationState: "partial",
+        redirectAction: "reframe-metadata",
+    }),
+    Object.freeze({
+        id: "lesson23-multiple-valence",
+        andrewsSection: "23.2",
+        category: "multiple-valence-positions",
+        directiveEs: "Una CNV puede tener hasta tres posiciones de valencia; la ultima derivacion da la linea principal y las anteriores pasan a lineas secundarias.",
+        engineSurface: "obj1/obj2/obj3 controls and generated-row valency metadata",
+        implementationState: "partial",
+        redirectAction: "refactor-engine",
+    }),
+    Object.freeze({
+        id: "lesson23-valence-rules",
+        andrewsSection: "23.3",
+        category: "valence-position-rules",
+        directiveEs: "Toda posicion y subposicion existe aun cuando sea silenciosa; solo hay un reflexivo de linea principal y los proyectivos especificos compiten.",
+        engineSurface: "object compatibility and allomorphy helpers",
+        implementationState: "partial",
+        redirectAction: "refactor-engine",
+    }),
+    Object.freeze({
+        id: "lesson23-multiple-valence-formula",
+        andrewsSection: "23.4",
+        category: "multiple-valence-formula",
+        directiveEs: "La formula multiple usa posiciones +va con subposiciones; las lineas secundarias pueden quedar en cero aunque sigan siendo gramaticales.",
+        engineSurface: "compact UI formula plus object-slot metadata",
+        implementationState: "partial",
+        redirectAction: "rename-visible-ui",
+    }),
+    Object.freeze({
+        id: "lesson23-object-sequence",
+        andrewsSection: "23.5",
+        category: "object-sequence-priorities",
+        directiveEs: "El orden de objetos se decide por tipo de objeto y humanidad, no por el historial de sufijos: proyectivo especifico, reflexivo, inespecifico, humano antes de no humano.",
+        engineSurface: "normalizeValenceMarkerOrder and Appendix C-inspired object combinations",
+        implementationState: "partial",
+        redirectAction: "refactor-engine",
+    }),
+]);
+
+function getLesson23VerbObjectsSubsectionInventory() {
+    return LESSON23_VERB_OBJECTS_SUBSECTION_INVENTORY.map((entry) => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON23_VERB_OBJECTS_VALIDATION_REFS),
+    }));
+}
+
+function buildLesson23VerbObjectsPursuitFrame() {
+    const subsectionInventory = getLesson23VerbObjectsSubsectionInventory();
+    const objectKindFrame = cloneAgreementLessonRecord(LESSON23_OBJECT_KIND_FRAME);
+    const multipleValenceFrame = cloneAgreementLessonRecord(LESSON23_MULTIPLE_VALENCE_FRAME);
+    const valenceRuleFrame = cloneAgreementLessonRecord(LESSON23_VALENCE_RULE_FRAME);
+    const formulaFrame = cloneAgreementLessonRecord(LESSON23_FORMULA_FRAME);
+    const objectSequenceFrame = cloneAgreementLessonRecord(LESSON23_OBJECT_SEQUENCE_FRAME);
+    const remainingGaps = [
+        "Object function is not fully encoded per generated row: directive, causative, and applicative objects can share surface pronoun forms and remain ambiguous without source context.",
+        "The discontinuous object-plus-suffix contract for causative and applicative objects is not yet enforced or explained across all object slots.",
+        "The full mainline/shuntline derivational history for one-, two-, and three-object VNCs is not exhaustively audited against current obj1/obj2/obj3 behavior.",
+        "Silent shuntline morphs and the thirteen Andrews 23.5 three-object combinations are not yet a complete generation/validation table.",
+        "Appendix C object-combination inventory and Nawat/Pipil exceptions still need direct evidence before closest-pass.",
+    ];
+    const frame = {
+        kind: "lesson-23-verb-objects-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 23,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON23_VERB_OBJECTS_PDF_REFS),
+        plannedArrows: [
+            {
+                id: "lesson-23-verb-objects-audit",
+                type: "metadata-engine-test",
+                aim: "Audit Andrews Lesson 23.1-23.5 against current object slots, object function metadata, mainline/shuntline positions, silent morphs, sequence priorities, and Nawat orthography bridge.",
+                andrewsRefs: Array.from(LESSON23_VERB_OBJECTS_PDF_REFS),
+                expectedFeedbackRefs: Array.from(LESSON23_VERB_OBJECTS_VALIDATION_REFS),
+            },
+        ],
+        firedArrows: [
+            {
+                id: "lesson-23-verb-objects-audit",
+                result: "hit",
+                correction: "Lesson 23 now records Andrews object kinds, multiple valence positions, +va formula boundaries, mainline/shuntline rules, object sequence priorities, current object-slot support, and explicit gaps before closest-pass can be claimed.",
+                andrewsRefs: Array.from(LESSON23_VERB_OBJECTS_PDF_REFS),
+                feedbackRefs: Array.from(LESSON23_VERB_OBJECTS_VALIDATION_REFS),
+            },
+        ],
+        subsectionInventory,
+        objectKindFrame,
+        multipleValenceFrame,
+        valenceRuleFrame,
+        formulaFrame,
+        objectSequenceFrame,
+        currentEngineBoundary: {
+            objectPrefixInventoryImplemented: true,
+            obj1Obj2Obj3ControlsExist: true,
+            normalizeValenceMarkerOrderImplemented: true,
+            causativeApplicativeDerivationImplementedElsewhere: true,
+            objectFunctionAmbiguityNotFullyExposed: true,
+            discontinuousObjectSuffixContractPartial: true,
+            mainlineShuntlineLevelsPartial: true,
+            silentMorphTableIncomplete: true,
+            appendixCInventoryIncomplete: true,
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false,
+    };
+    if (typeof attachGrammarMetadataContract !== "function") {
+        return frame;
+    }
+    return attachGrammarMetadataContract(frame, {
+        enumerable: false,
+        unitKind: "verbal-nuclear-clause",
+        metadataKind: "lesson-23-verb-objects-pursuit-frame",
+        routeFamily: "agreement-valence",
+        routeStage: "audit-lesson-23",
+        generationAllowed: false,
+        supported: true,
+        structuralSource: "Andrews Lesson 23",
+        andrewsRefs: Array.from(LESSON23_VERB_OBJECTS_PDF_REFS),
+        evidenceStatus: "direct-pdf-partial",
+        sourceInput: "Andrews Lesson 23.1-23.5",
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil output spelling",
+            noClassicalSurfaceImport: true,
+            objectBridge: objectSequenceFrame.nawatOrthographyBridge,
+            nonspecificObjectBridge: formulaFrame.shuntlineNonspecificMorphs,
+        },
+        morphBoundaryFrame: {
+            objectKindFrame,
+            multipleValenceFrame,
+            valenceRuleFrame,
+            formulaFrame,
+            objectSequenceFrame,
+        },
+        participantFrame: {
+            maxValencePositions: 3,
+            objectFunctionTypes: objectKindFrame.objectStemTypes,
+            mainlinePolicy: multipleValenceFrame.mainlinePolicy,
+            shuntlinePolicy: multipleValenceFrame.shuntlinePolicy,
+            sequencePriorityRules: objectSequenceFrame.priorityRules,
+            silentMorphStillOccupiesPosition: true,
+        },
+        nuclearClauseFrame: {
+            clauseKind: "verbal-nuclear-clause",
+            formulaAbbreviation: formulaFrame.representativeFormula,
+            formulaLabel: "CNV transitiva de valencia multiple",
+            lineModel: "mainline plus shuntline object positions",
+        },
+        targetContract: {
+            metadataKind: "lesson-23-verb-objects-pursuit-frame",
+            generationAllowed: false,
+            closestPass: false,
+            remainingGaps,
+        },
+        diagnosticStatus: "partial-audit",
+    });
+}
+
 // === Person & Agreement ===
-function getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
-    const key = `${subjectPrefix}|${subjectSuffix}`;
+function getImperativePers1Pers2Info(pers1, pers2) {
+    const key = `${pers1}|${pers2}`;
     switch (key) {
         case "ni|":
             return { person: 1, number: "sg", mode: "imperative" };
@@ -28,8 +331,8 @@ function getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
     }
 }
 
-function getNonImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
-    const key = `${subjectPrefix}|${subjectSuffix}`;
+function getNonImperativePers1Pers2Info(pers1, pers2) {
+    const key = `${pers1}|${pers2}`;
     switch (key) {
         case "ni|":
             return { person: 1, number: "sg", mode: "nonimperative" };
@@ -48,11 +351,11 @@ function getNonImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix) {
     }
 }
 
-function isImperativeSubjectIdentityContext(options = {}) {
+function isImperativePers1Pers2IdentityContext(options = {}) {
     return options?.mode === "imperative" || options?.tense === "imperativo";
 }
 
-function isNonImperativeSubjectIdentityContext(options = {}) {
+function isNonImperativePers1Pers2IdentityContext(options = {}) {
     return (
         options?.mode === "nonimperative"
         || options?.mode === "non-imperative"
@@ -64,33 +367,33 @@ function isNonImperativeSubjectIdentityContext(options = {}) {
     );
 }
 
-function stripSubjectIdentityMode(info = null) {
+function stripPers1Pers2IdentityMode(info = null) {
     return info ? { person: info.person, number: info.number } : null;
 }
 
-function getSubjectPersonInfo(subjectPrefix, subjectSuffix, options = {}) {
-    const imperativeInfo = getImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix);
+function getPers1Pers2Info(pers1, pers2, options = {}) {
+    const imperativeInfo = getImperativePers1Pers2Info(pers1, pers2);
     if (
         imperativeInfo
         && (
-            isImperativeSubjectIdentityContext(options)
-            || subjectPrefix === "shi"
-            || subjectSuffix === "kan"
+            isImperativePers1Pers2IdentityContext(options)
+            || pers1 === "shi"
+            || pers2 === "kan"
         )
     ) {
         return imperativeInfo;
     }
-    const nonImperativeInfo = getNonImperativeSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    const nonImperativeInfo = getNonImperativePers1Pers2Info(pers1, pers2);
     if (nonImperativeInfo) {
-        return isNonImperativeSubjectIdentityContext(options)
+        return isNonImperativePers1Pers2IdentityContext(options)
             ? nonImperativeInfo
-            : stripSubjectIdentityMode(nonImperativeInfo);
+            : stripPers1Pers2IdentityMode(nonImperativeInfo);
     }
     return null;
 }
 
-function getObjectPersonInfo(objectPrefix) {
-    switch (objectPrefix) {
+function getObj1PersonInfo(obj1) {
+    switch (obj1) {
         case "nech":
             return { person: 1, number: "sg" };
         case "tech":
@@ -108,108 +411,123 @@ function getObjectPersonInfo(objectPrefix) {
     }
 }
 
-function isSamePersonAcrossNumber(subjectPrefix, subjectSuffix, objectPrefix) {
-    const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
-    const object = getObjectPersonInfo(objectPrefix);
-    if (!subject || !object) {
+function isPers1Obj1SamePersonAcrossNumber(pers1, pers2, obj1) {
+    const pers1Pers2 = getPers1Pers2Info(pers1, pers2);
+    const obj1Info = getObj1PersonInfo(obj1);
+    if (!pers1Pers2 || !obj1Info) {
         return false;
     }
-    if (subject.person === 3 || object.person === 3) {
+    if (pers1Pers2.person === 3 || obj1Info.person === 3) {
         return false;
     }
-    return subject.person === object.person;
+    return pers1Pers2.person === obj1Info.person;
 }
 
-function isHierarchyOrderViolation(subjectPrefix, subjectSuffix, objectPrefix) {
-    const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
-    const object = getObjectPersonInfo(objectPrefix);
-    if (!subject || !object) {
+function isPers1Obj1HierarchyOrderViolation(pers1, pers2, obj1) {
+    const pers1Pers2 = getPers1Pers2Info(pers1, pers2);
+    const obj1Info = getObj1PersonInfo(obj1);
+    if (!pers1Pers2 || !obj1Info) {
         return false;
     }
-    // 3rd-person subjects can combine with 1st/2nd-person objects.
-    // Keep cross-number collision blocking in isSamePersonAcrossNumber().
+    // 3rd-person pers1-pers2 can combine with 1st/2nd-person obj1.
+    // Keep cross-number collision blocking in isPers1Obj1SamePersonAcrossNumber().
     return false;
 }
 
-function isSamePersonReflexive(subjectPrefix, subjectSuffix, objectPrefix) {
-    const subject = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
-    const object = getObjectPersonInfo(objectPrefix);
-    if (!subject || !object) {
+function isPers1Obj1Reflexivo(pers1, pers2, obj1) {
+    const pers1Pers2 = getPers1Pers2Info(pers1, pers2);
+    const obj1Info = getObj1PersonInfo(obj1);
+    if (!pers1Pers2 || !obj1Info) {
         return false;
     }
-    if (subject.person === 3) {
+    if (pers1Pers2.person === 3) {
         return false;
     }
-    return subject.person === object.person && subject.number === object.number;
+    return pers1Pers2.person === obj1Info.person && pers1Pers2.number === obj1Info.number;
 }
 
 // === Nonactive Derivation ===
 function applyPassiveImpersonal({
-    subjectPrefix,
-    subjectSuffix,
-    objectPrefix,
+    pers1 = "",
+    pers2 = "",
+    obj1 = "",
+    preservePers1Pers2,
     preserveSubject = false,
+    allowObj1,
     allowObjectPrefix = false,
 }) {
-    const isTransitiveVerb = objectPrefix !== "";
+    const inputPers1 = String(pers1 || "");
+    const inputPers2 = String(pers2 || "");
+    const inputObj1 = String(obj1 || "");
+    const shouldPreservePers1Pers2 = Boolean(preservePers1Pers2 ?? preserveSubject);
+    const shouldAllowObj1 = Boolean(allowObj1 ?? allowObjectPrefix);
+    const build = ({ nextPers1, nextPers2, nextObj1 }) => ({
+        pers1: nextPers1,
+        pers2: nextPers2,
+        obj1: nextObj1,
+    });
+    const isTransitiveVerb = inputObj1 !== "";
     if (!isTransitiveVerb) {
-        return preserveSubject
-            ? { subjectPrefix, subjectSuffix, objectPrefix }
-            : { subjectPrefix: "", subjectSuffix: "", objectPrefix };
+        return shouldPreservePers1Pers2
+            ? build({ nextPers1: inputPers1, nextPers2: inputPers2, nextObj1: inputObj1 })
+            : build({ nextPers1: "", nextPers2: "", nextObj1: inputObj1 });
     }
-    if (PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(objectPrefix)) {
-        if (preserveSubject) {
-            return {
-                subjectPrefix,
-                subjectSuffix,
-                objectPrefix: allowObjectPrefix ? objectPrefix : "",
-            };
+    if (PASSIVE_IMPERSONAL_DIRECT_OBJECTS.has(inputObj1)) {
+        if (shouldPreservePers1Pers2) {
+            return build({
+                nextPers1: inputPers1,
+                nextPers2: inputPers2,
+                nextObj1: shouldAllowObj1 ? inputObj1 : "",
+            });
         }
-        const mapped = PASSIVE_IMPERSONAL_SUBJECT_MAP[objectPrefix];
-        return {
-            subjectPrefix: mapped.subjectPrefix,
-            subjectSuffix: mapped.subjectSuffix,
-            objectPrefix: "",
-        };
+        const mapped = PASSIVE_IMPERSONAL_SUBJECT_MAP[inputObj1];
+        return build({
+            nextPers1: mapped.pers1 ?? "",
+            nextPers2: mapped.pers2 ?? "",
+            nextObj1: "",
+        });
     }
-    return preserveSubject
-        ? { subjectPrefix, subjectSuffix, objectPrefix }
-        : { subjectPrefix: "", subjectSuffix: "", objectPrefix };
+    return shouldPreservePers1Pers2
+        ? build({ nextPers1: inputPers1, nextPers2: inputPers2, nextObj1: inputObj1 })
+        : build({ nextPers1: "", nextPers2: "", nextObj1: inputObj1 });
 }
 
 function getPassiveSubjectOverride(prefix) {
     const mapped = PASSIVE_IMPERSONAL_SUBJECT_MAP[prefix];
     if (mapped) {
-        return mapped;
+        return {
+            pers1: mapped.pers1 ?? "",
+            pers2: mapped.pers2 ?? "",
+        };
     }
     if (OBJECT_MARKERS.has(prefix)) {
-        return { subjectPrefix: "", subjectSuffix: "" };
+        return { pers1: "", pers2: "" };
     }
     return null;
 }
 
 // === Prefix Selection ===
-function applyIndirectObjectMarker(prefix, marker) {
-    if (!marker) {
-        return prefix;
+function applyObj2ToObj1Chain(obj1, obj2) {
+    if (!obj2) {
+        return obj1;
     }
     let combined = "";
-    if (SPECIFIC_VALENCE_PREFIX_SET.has(marker) || marker === "k") {
-        if (!prefix) {
-            combined = marker;
-        } else if (SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k") {
-            combined = marker;
+    if (SPECIFIC_VALENCE_PREFIX_SET.has(obj2) || obj2 === "k") {
+        if (!obj1) {
+            combined = obj2;
+        } else if (SPECIFIC_VALENCE_PREFIX_SET.has(obj1) || obj1 === "k") {
+            combined = obj2;
         } else {
-            combined = `${prefix}${marker}`;
+            combined = `${obj1}${obj2}`;
         }
-    } else if (prefix === marker) {
-        if (marker === "ta" || marker === "te") {
-            combined = `${prefix}${marker}`;
+    } else if (obj1 === obj2) {
+        if (obj2 === "ta" || obj2 === "te") {
+            combined = `${obj1}${obj2}`;
         } else {
-            combined = prefix;
+            combined = obj1;
         }
     } else {
-        combined = `${prefix}${marker}`;
+        combined = `${obj1}${obj2}`;
     }
     return normalizeValenceMarkerOrder(combined);
 }
@@ -229,7 +547,7 @@ function parseProjectiveMarkerChain(value, inventory) {
     return true;
 }
 
-function shortenProjectiveKiPrefix(prefix, subjectPrefix = "") {
+function shortenObj1KiBeforePers1(prefix, pers1 = "") {
     if (!prefix) {
         return prefix;
     }
@@ -243,7 +561,7 @@ function shortenProjectiveKiPrefix(prefix, subjectPrefix = "") {
     ]))
         .filter(Boolean)
         .sort((a, b) => b.length - a.length);
-    if (prefix.startsWith("ki") && prefix.length > 2 && ["ni", "ti"].includes(subjectPrefix)) {
+    if (prefix.startsWith("ki") && prefix.length > 2 && ["ni", "ti"].includes(pers1)) {
         const tail = prefix.slice(2);
         const isNonspecificMarkerChain = parseProjectiveMarkerChain(tail, nonspecificInventory);
         const isValenceMarkerChain = parseProjectiveMarkerChain(tail, valenceMarkerInventory);
@@ -258,25 +576,25 @@ function shortenProjectiveKiPrefix(prefix, subjectPrefix = "") {
         }
         return `${prefix.slice(0, -2)}k`;
     }
-    if (prefix === "ki" && ["ni", "ti"].includes(subjectPrefix)) {
+    if (prefix === "ki" && ["ni", "ti"].includes(pers1)) {
         return "k";
     }
     return prefix;
 }
 
-function composeProjectiveObjectPrefix({
-    objectPrefix = "",
+function composeObj1Chain({
+    obj1 = "",
     markers = [],
-    subjectPrefix = "",
+    pers1 = "",
 }) {
-    let combined = objectPrefix || "";
+    let combined = obj1 || "";
     const markerChain = Array.isArray(markers) ? markers : [];
     markerChain
         .filter(Boolean)
         .forEach((marker) => {
-            combined = applyIndirectObjectMarker(combined, marker);
+            combined = applyObj2ToObj1Chain(combined, marker);
         });
-    return shortenProjectiveKiPrefix(combined, subjectPrefix);
+    return shortenObj1KiBeforePers1(combined, pers1);
 }
 
 function isSpecificProjectivePrefix(prefix) {
@@ -350,110 +668,110 @@ function normalizeValenceMarkerOrder(prefix) {
     return `${directional}${tokenEntries.map((entry) => entry.token).join("")}`;
 }
 
-function reorderProjectivePairByHierarchy(objectPrefix, indirectObjectMarker) {
-    if (!objectPrefix || !indirectObjectMarker) {
-        return { objectPrefix, indirectObjectMarker };
+function reorderObj1Obj2ByHierarchy(obj1, obj2) {
+    if (!obj1 || !obj2) {
+        return { obj1, obj2 };
     }
-    const objectRank = getProjectiveHierarchyRank(objectPrefix);
-    const indirectRank = getProjectiveHierarchyRank(indirectObjectMarker);
-    if (indirectRank < objectRank) {
+    const obj1Rank = getProjectiveHierarchyRank(obj1);
+    const obj2Rank = getProjectiveHierarchyRank(obj2);
+    if (obj2Rank < obj1Rank) {
         return {
-            objectPrefix: indirectObjectMarker,
-            indirectObjectMarker: objectPrefix,
+            obj1: obj2,
+            obj2: obj1,
         };
     }
-    return { objectPrefix, indirectObjectMarker };
+    return { obj1, obj2 };
 }
 
-function resolveValencePositionPrefixes({
-    objectPrefix,
-    indirectObjectMarker,
+function resolveObj1Obj2Positions({
+    obj1,
+    obj2,
     derivationType,
 }) {
-    if (!indirectObjectMarker) {
-        return { objectPrefix, indirectObjectMarker };
+    if (!obj2) {
+        return { obj1, obj2 };
     }
     ({
-        objectPrefix,
-        indirectObjectMarker,
-    } = reorderProjectivePairByHierarchy(objectPrefix, indirectObjectMarker));
+        obj1,
+        obj2,
+    } = reorderObj1Obj2ByHierarchy(obj1, obj2));
     if (derivationType === DERIVATION_TYPE.direct) {
-        return { objectPrefix, indirectObjectMarker };
+        return { obj1, obj2 };
     }
     const isApplicative = derivationType === DERIVATION_TYPE.applicative;
     const allowSpecificWithNonspecific = isApplicative || derivationType === DERIVATION_TYPE.causative;
-    if (allowSpecificWithNonspecific && indirectObjectMarker === "mu") {
-        return { objectPrefix, indirectObjectMarker };
+    if (allowSpecificWithNonspecific && obj2 === "mu") {
+        return { obj1, obj2 };
     }
     const isSpecific = (prefix) => SPECIFIC_VALENCE_PREFIX_SET.has(prefix) || prefix === "k";
     const isNonspecific = (prefix) => NONSPECIFIC_VALENCE_AFFIX_SET.has(prefix);
     const isReflexive = (prefix) => prefix === "mu";
-    const keepReflexiveIndirect = allowSpecificWithNonspecific && indirectObjectMarker === "mu";
+    const keepReflexiveObj2 = allowSpecificWithNonspecific && obj2 === "mu";
     if (isApplicative) {
-        if (isSpecific(indirectObjectMarker) || isReflexive(indirectObjectMarker)) {
-            if (keepReflexiveIndirect) {
-                return { objectPrefix, indirectObjectMarker };
+        if (isSpecific(obj2) || isReflexive(obj2)) {
+            if (keepReflexiveObj2) {
+                return { obj1, obj2 };
             }
-            if (allowSpecificWithNonspecific && isNonspecific(objectPrefix)) {
-                return { objectPrefix, indirectObjectMarker };
+            if (allowSpecificWithNonspecific && isNonspecific(obj1)) {
+                return { obj1, obj2 };
             }
-            indirectObjectMarker = "";
+            obj2 = "";
         }
-        return { objectPrefix, indirectObjectMarker };
+        return { obj1, obj2 };
     }
-    if (isSpecific(indirectObjectMarker)) {
-        if (isSpecific(objectPrefix) || isReflexive(objectPrefix)) {
-            objectPrefix = "";
+    if (isSpecific(obj2)) {
+        if (isSpecific(obj1) || isReflexive(obj1)) {
+            obj1 = "";
         }
-        return { objectPrefix, indirectObjectMarker };
+        return { obj1, obj2 };
     }
-    if (isReflexive(indirectObjectMarker)) {
-        if (keepReflexiveIndirect) {
-            return { objectPrefix, indirectObjectMarker };
+    if (isReflexive(obj2)) {
+        if (keepReflexiveObj2) {
+            return { obj1, obj2 };
         }
-        objectPrefix = "";
-        return { objectPrefix, indirectObjectMarker };
+        obj1 = "";
+        return { obj1, obj2 };
     }
-    if (isSpecific(objectPrefix) || isReflexive(objectPrefix)) {
-        if (allowSpecificWithNonspecific && isNonspecific(indirectObjectMarker)) {
-            return { objectPrefix, indirectObjectMarker };
+    if (isSpecific(obj1) || isReflexive(obj1)) {
+        if (allowSpecificWithNonspecific && isNonspecific(obj2)) {
+            return { obj1, obj2 };
         }
-        objectPrefix = "";
+        obj1 = "";
     }
-    return { objectPrefix, indirectObjectMarker };
+    return { obj1, obj2 };
 }
 
-function resolveDisplayValencePrefixes({
-    objectPrefix,
-    indirectObjectMarker,
+function resolveDisplayObj1Obj2({
+    obj1,
+    obj2,
     derivationType,
 }) {
-    let nextObjectPrefix = objectPrefix || "";
-    let nextIndirectObjectMarker = indirectObjectMarker || "";
+    let nextObj1 = obj1 || "";
+    let nextObj2 = obj2 || "";
     if (
         (derivationType === DERIVATION_TYPE.applicative
             || derivationType === DERIVATION_TYPE.causative)
-        && nextIndirectObjectMarker
+        && nextObj2
     ) {
         const isSpecific = (prefix) =>
             isSpecificProjectivePrefix(prefix) || prefix === "mu";
-        const indirectIsSpecific = isSpecific(nextIndirectObjectMarker);
-        const shouldSwap = !nextObjectPrefix && indirectIsSpecific;
+        const obj2IsSpecific = isSpecific(nextObj2);
+        const shouldSwap = !nextObj1 && obj2IsSpecific;
         if (shouldSwap) {
-            const rightmostObject = nextIndirectObjectMarker;
-            nextIndirectObjectMarker = nextObjectPrefix || "";
-            nextObjectPrefix = rightmostObject;
+            const rightmostObj1 = nextObj2;
+            nextObj2 = nextObj1 || "";
+            nextObj1 = rightmostObj1;
         }
     }
-    return resolveValencePositionPrefixes({
-        objectPrefix: nextObjectPrefix,
-        indirectObjectMarker: nextIndirectObjectMarker,
+    return resolveObj1Obj2Positions({
+        obj1: nextObj1,
+        obj2: nextObj2,
         derivationType,
     });
 }
 
-function getPossessivePrefixForSubject(subjectPrefix, subjectSuffix) {
-    const key = `${subjectPrefix}|${subjectSuffix}`;
+function getPoseedorPrefixForPers1Pers2(pers1, pers2) {
+    const key = `${pers1}|${pers2}`;
     switch (key) {
         case "ni|":
             return "nu";
@@ -472,35 +790,35 @@ function getPossessivePrefixForSubject(subjectPrefix, subjectSuffix) {
     }
 }
 
-function getPossessivePersonInfo(possessivePrefix) {
-    if (!possessivePrefix) {
+function getPoseedorPersonInfo(poseedor) {
+    if (!poseedor) {
         return null;
     }
-    const objectEquivalent = POSSESSIVE_TO_OBJECT_PREFIX[possessivePrefix] || "";
-    if (!objectEquivalent) {
+    const obj1Equivalent = POSSESSIVE_TO_OBJECT_PREFIX[poseedor] || "";
+    if (!obj1Equivalent) {
         return null;
     }
-    return getObjectPersonInfo(objectEquivalent);
+    return getObj1PersonInfo(obj1Equivalent);
 }
 
-function isSameSubjectPossessor(subjectPrefix, subjectSuffix, possessivePrefix) {
-    if (!possessivePrefix) {
+function isSamePers1Pers2Poseedor(pers1, pers2, poseedor) {
+    if (!poseedor) {
         return false;
     }
-    const subjectInfo = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
-    const possessorInfo = getPossessivePersonInfo(possessivePrefix);
-    if (subjectInfo && possessorInfo) {
-        if (subjectInfo.person === 3 && possessorInfo.person === 3) {
+    const pers1Pers2Info = getPers1Pers2Info(pers1, pers2);
+    const poseedorInfo = getPoseedorPersonInfo(poseedor);
+    if (pers1Pers2Info && poseedorInfo) {
+        if (pers1Pers2Info.person === 3 && poseedorInfo.person === 3) {
             return false;
         }
-        return subjectInfo.person === possessorInfo.person;
+        return pers1Pers2Info.person === poseedorInfo.person;
     }
-    const expectedPossessivePrefix = getPossessivePrefixForSubject(subjectPrefix, subjectSuffix);
-    return Boolean(expectedPossessivePrefix && expectedPossessivePrefix === possessivePrefix);
+    const expectedPoseedor = getPoseedorPrefixForPers1Pers2(pers1, pers2);
+    return Boolean(expectedPoseedor && expectedPoseedor === poseedor);
 }
 
-function isNonanimateSubject(subjectPrefix, subjectSuffix) {
-    return subjectPrefix === "" && subjectSuffix === "";
+function isNonanimatePers1Pers2(pers1, pers2) {
+    return pers1 === "" && pers2 === "";
 }
 
 var CONJUGATION_AVAILABILITY_STATE = Object.freeze({
@@ -693,6 +1011,7 @@ function isGenericConjugationNoOutputDiagnostic(entry = null) {
     const id = String(entry.id || entry.code || "").trim();
     const message = String(entry.message || "").trim();
     return id === CONJUGATION_DIAGNOSTIC_IDS.resultError
+        || id === "nuclear-clause-surface-route-blocked"
         || id === "generate-word-route-blocked"
         || id === "generate-runtime-no-output"
         || id === "morphology-application-blocked"
@@ -1042,14 +1361,14 @@ function getConjugationMaskState({
     );
     const effectiveObjectPrefix = hasExplicitComboObjectPrefix
         ? comboObjectPrefix
-        : resolveComboValidationObjectPrefix({
-            objectPrefix,
-            indirectObjectMarker,
+        : resolveComboValidationObj1({
+            obj1: objectPrefix,
+            obj2: indirectObjectMarker,
             derivationType,
-            controllerObjectMarker,
+            controllerObj1: controllerObjectMarker,
         });
     const invalidCombo = enforceInvalidCombo && invalidComboSet.has(
-        getComboKey(subjectPrefix, effectiveObjectPrefix, subjectSuffix)
+        getPers1Obj1Pers2Key(subjectPrefix, effectiveObjectPrefix, subjectSuffix)
     );
     const constraintViolations = computeConstraintViolationsCore({
         subjectPrefix,
@@ -1060,7 +1379,7 @@ function getConjugationMaskState({
     const samePerson = constraintViolations.personAgreementViolation;
     const hierarchyOrderViolation = constraintViolations.hierarchyOrderViolation;
     const subjectPossessorCollision = requireDistinctPossessor
-        && isSameSubjectPossessor(subjectPrefix, subjectSuffix, possessivePrefix);
+        && isSamePers1Pers2Poseedor(subjectPrefix, subjectSuffix, possessivePrefix);
     const hideReflexive = !!(result && result.isReflexive && getObjectCategory(objectPrefix) !== "reflexive");
     const shouldMask = !!(
         result?.error
@@ -1239,7 +1558,7 @@ function buildObjectAllomorphyMetaOptions(meta, overrides = {}) {
 
 function buildNonspecificAllomorphyOptions(meta, overrides = {}) {
     return {
-        indirectObjectMarker: meta?.indirectObjectMarker,
+        obj2: meta?.indirectObjectMarker,
         isTaFusion: meta?.isTaFusion,
         hasOptionalSupportiveI: meta?.hasOptionalSupportiveI,
         optionalSupportiveLetter: meta?.optionalSupportiveLetter || "",
@@ -1429,7 +1748,7 @@ function getNounNonactiveRuleBase(baseVerb = "", verbMeta = null) {
     if (getForwardDerivationConfig(derivationType)) {
         return normalizeRuleBase(baseVerb || "");
     }
-    return getNonactiveRuleBase(baseVerb, verbMeta);
+    return resolveNonactiveRuleBase(baseVerb, verbMeta);
 }
 
 function getNounForwardStemTargets(nounForwardDerivation, fallbackVerb = "", fallbackAnalysisVerb = "") {
@@ -1480,15 +1799,15 @@ function buildNounForwardStemContexts({
         const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
             verb: targetVerb,
             analysisVerb: targetAnalysisVerb,
-            objectPrefix,
+            obj1: objectPrefix,
             ...buildNonspecificAllomorphyOptions(verbMeta),
-            indirectObjectMarker,
-            thirdObjectMarker,
+            obj2: indirectObjectMarker,
+            obj3: thirdObjectMarker,
         });
         return {
             verb: nonspecificAllomorphy.verb || targetVerb,
             analysisVerb: nonspecificAllomorphy.analysisVerb || targetAnalysisVerb,
-            morphologyObjectPrefix: nonspecificAllomorphy.objectPrefix || objectPrefix,
+            morphologyObjectPrefix: nonspecificAllomorphy.obj1 || objectPrefix,
             runtimeObjectPrefix: stemTarget?.runtimeObjectPrefix || objectPrefix,
             stemSpec: (
                 (nonspecificAllomorphy.verb || targetVerb) === targetVerb
@@ -1855,7 +2174,7 @@ function buildVerbDerivedNominalBuilderContext({
             },
         });
     }
-    if (requireNonanimateSubject && !isNonanimateSubject(subjectPrefix, subjectSuffix)) {
+    if (requireNonanimateSubject && !isNonanimatePers1Pers2(subjectPrefix, subjectSuffix)) {
         return buildVerbDerivedNominalBuilderContextBlocked({
             kind,
             rawVerb,
@@ -1986,7 +2305,7 @@ function buildVerbDerivedNominalBuilderContext({
         forwardStemContexts,
         derivedIsYawi: nounForwardDerivation.isYawi,
         derivedIsWeya: nounForwardDerivation.isWeya,
-        derivationIsTransitive: isNonactiveTransitiveVerb(
+        derivationIsTransitive: isNonactiveTransitiveByObj1(
             resolvedObjectPrefix || resolvedIndirectObjectMarker || resolvedThirdObjectMarker,
             verbMeta
         ),
@@ -2031,10 +2350,10 @@ function collapseCalificativoMarkerEcho({
     if (!echoMarker || !NONSPECIFIC_VALENCE_AFFIX_SET.has(echoMarker)) {
         return sourceForm;
     }
-    const markerChain = composeProjectiveObjectPrefix({
-        objectPrefix: morphologyObjectPrefix || "",
+    const markerChain = composeObj1Chain({
+        obj1: morphologyObjectPrefix || "",
         markers: markerValues,
-        subjectPrefix: "",
+        pers1: "",
     });
     if (!markerChain) {
         return sourceForm;

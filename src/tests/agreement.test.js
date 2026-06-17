@@ -2,8 +2,8 @@
 
 /**
  * Tests for src/core/agreement/agreement.js
- * Covers: getSubjectPersonInfo, getObjectPersonInfo,
- *         isSamePersonAcrossNumber, isSamePersonReflexive.
+ * Covers: getPers1Pers2Info, getObj1PersonInfo,
+ *         isPers1Obj1SamePersonAcrossNumber, isPers1Obj1Reflexivo.
  */
 
 const { createSuite } = require("./runner");
@@ -11,50 +11,50 @@ const { createSuite } = require("./runner");
 function run(ctx) {
     const s = createSuite("agreement");
 
-    // getSubjectPersonInfo(prefix, suffix) → {person, number}
-    s.eq("subject ni/ = 1sg", ctx.getSubjectPersonInfo("ni", ""), { person: 1, number: "sg" });
-    s.eq("subject ti/ = 2sg", ctx.getSubjectPersonInfo("ti", ""), { person: 2, number: "sg" });
-    s.eq("subject // = 3sg", ctx.getSubjectPersonInfo("", ""), { person: 3, number: "sg" });
-    s.eq("subject ti/t = 1pl", ctx.getSubjectPersonInfo("ti", "t"), { person: 1, number: "pl" });
-    s.eq("subject shi/ = 2sg imperative", ctx.getSubjectPersonInfo("shi", ""), { person: 2, number: "sg", mode: "imperative" });
-    s.eq("subject ti/kan = 1pl imperative", ctx.getSubjectPersonInfo("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
-    s.eq("subject shi/kan = 2pl imperative", ctx.getSubjectPersonInfo("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
-    s.eq("subject /kan = 3pl imperative", ctx.getSubjectPersonInfo("", "kan"), { person: 3, number: "pl", mode: "imperative" });
-    s.eq("imperative subject ni/ = 1sg", ctx.getImperativeSubjectPersonInfo("ni", ""), { person: 1, number: "sg", mode: "imperative" });
-    s.eq("imperative subject shi/ = 2sg", ctx.getImperativeSubjectPersonInfo("shi", ""), { person: 2, number: "sg", mode: "imperative" });
-    s.eq("imperative subject // = 3sg", ctx.getImperativeSubjectPersonInfo("", ""), { person: 3, number: "sg", mode: "imperative" });
-    s.eq("imperative subject ti/kan = 1pl", ctx.getImperativeSubjectPersonInfo("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
-    s.eq("imperative subject shi/kan = 2pl", ctx.getImperativeSubjectPersonInfo("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
-    s.eq("imperative subject /kan = 3pl", ctx.getImperativeSubjectPersonInfo("", "kan"), { person: 3, number: "pl", mode: "imperative" });
-    s.eq("subject ni/ with imperative context = 1sg imperative", ctx.getSubjectPersonInfo("ni", "", { tense: "imperativo" }), { person: 1, number: "sg", mode: "imperative" });
-    s.eq("subject // with imperative context = 3sg imperative", ctx.getSubjectPersonInfo("", "", { mode: "imperative" }), { person: 3, number: "sg", mode: "imperative" });
-    s.eq("nonimperative subject ni/ = 1sg", ctx.getNonImperativeSubjectPersonInfo("ni", ""), { person: 1, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative subject ti/ = 2sg", ctx.getNonImperativeSubjectPersonInfo("ti", ""), { person: 2, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative subject // = 3sg", ctx.getNonImperativeSubjectPersonInfo("", ""), { person: 3, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative subject ti/t = 1pl", ctx.getNonImperativeSubjectPersonInfo("ti", "t"), { person: 1, number: "pl", mode: "nonimperative" });
-    s.eq("nonimperative subject an/t = 2pl", ctx.getNonImperativeSubjectPersonInfo("an", "t"), { person: 2, number: "pl", mode: "nonimperative" });
-    s.eq("nonimperative subject /t = 3pl", ctx.getNonImperativeSubjectPersonInfo("", "t"), { person: 3, number: "pl", mode: "nonimperative" });
-    s.eq("subject an/t with nonimperative tense = 2pl", ctx.getSubjectPersonInfo("an", "t", { tense: "presente" }), { person: 2, number: "pl", mode: "nonimperative" });
-    s.eq("subject ti/ with nonimperative mode = 2sg", ctx.getSubjectPersonInfo("ti", "", { mode: "non-imperative" }), { person: 2, number: "sg", mode: "nonimperative" });
+    // getPers1Pers2Info(pers1, pers2) -> {person, number}
+    s.eq("pers1-pers2 ni/Ø = 1sg", ctx.getPers1Pers2Info("ni", ""), { person: 1, number: "sg" });
+    s.eq("pers1-pers2 ti/Ø = 2sg", ctx.getPers1Pers2Info("ti", ""), { person: 2, number: "sg" });
+    s.eq("pers1-pers2 Ø/Ø = 3sg", ctx.getPers1Pers2Info("", ""), { person: 3, number: "sg" });
+    s.eq("pers1-pers2 ti/t = 1pl", ctx.getPers1Pers2Info("ti", "t"), { person: 1, number: "pl" });
+    s.eq("pers1-pers2 shi/Ø = 2sg imperative", ctx.getPers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "imperative" });
+    s.eq("pers1-pers2 ti/kan = 1pl imperative", ctx.getPers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
+    s.eq("pers1-pers2 shi/kan = 2pl imperative", ctx.getPers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
+    s.eq("pers1-pers2 Ø/kan = 3pl imperative", ctx.getPers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "imperative" });
+    s.eq("imperative pers1-pers2 ni/Ø = 1sg", ctx.getImperativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "imperative" });
+    s.eq("imperative pers1-pers2 shi/Ø = 2sg", ctx.getImperativePers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "imperative" });
+    s.eq("imperative pers1-pers2 Ø/Ø = 3sg", ctx.getImperativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "imperative" });
+    s.eq("imperative pers1-pers2 ti/kan = 1pl", ctx.getImperativePers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
+    s.eq("imperative pers1-pers2 shi/kan = 2pl", ctx.getImperativePers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
+    s.eq("imperative pers1-pers2 Ø/kan = 3pl", ctx.getImperativePers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "imperative" });
+    s.eq("pers1-pers2 ni/Ø with imperative context = 1sg imperative", ctx.getPers1Pers2Info("ni", "", { tense: "imperativo" }), { person: 1, number: "sg", mode: "imperative" });
+    s.eq("pers1-pers2 Ø/Ø with imperative context = 3sg imperative", ctx.getPers1Pers2Info("", "", { mode: "imperative" }), { person: 3, number: "sg", mode: "imperative" });
+    s.eq("nonimperative pers1-pers2 ni/Ø = 1sg", ctx.getNonImperativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "nonimperative" });
+    s.eq("nonimperative pers1-pers2 ti/Ø = 2sg", ctx.getNonImperativePers1Pers2Info("ti", ""), { person: 2, number: "sg", mode: "nonimperative" });
+    s.eq("nonimperative pers1-pers2 Ø/Ø = 3sg", ctx.getNonImperativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "nonimperative" });
+    s.eq("nonimperative pers1-pers2 ti/t = 1pl", ctx.getNonImperativePers1Pers2Info("ti", "t"), { person: 1, number: "pl", mode: "nonimperative" });
+    s.eq("nonimperative pers1-pers2 an/t = 2pl", ctx.getNonImperativePers1Pers2Info("an", "t"), { person: 2, number: "pl", mode: "nonimperative" });
+    s.eq("nonimperative pers1-pers2 Ø/t = 3pl", ctx.getNonImperativePers1Pers2Info("", "t"), { person: 3, number: "pl", mode: "nonimperative" });
+    s.eq("pers1-pers2 an/t with nonimperative tense = 2pl", ctx.getPers1Pers2Info("an", "t", { tense: "presente" }), { person: 2, number: "pl", mode: "nonimperative" });
+    s.eq("pers1-pers2 ti/Ø with nonimperative mode = 2sg", ctx.getPers1Pers2Info("ti", "", { mode: "non-imperative" }), { person: 2, number: "sg", mode: "nonimperative" });
 
-    // getObjectPersonInfo(prefix) → {person, number} | null
-    s.eq("object ki = 3sg", ctx.getObjectPersonInfo("ki"), { person: 3, number: "sg" });
-    s.eq("object nech = 1sg", ctx.getObjectPersonInfo("nech"), { person: 1, number: "sg" });
-    s.eq("object tech = 1pl", ctx.getObjectPersonInfo("tech"), { person: 1, number: "pl" });
-    s.eq("object kin = 3pl", ctx.getObjectPersonInfo("kin"), { person: 3, number: "pl" });
-    s.eq("object mits = null (indirect object, not tracked)", ctx.getObjectPersonInfo("mits"), null);
+    // getObj1PersonInfo(obj1) -> {person, number} | null
+    s.eq("obj1 ki = 3sg", ctx.getObj1PersonInfo("ki"), { person: 3, number: "sg" });
+    s.eq("obj1 nech = 1sg", ctx.getObj1PersonInfo("nech"), { person: 1, number: "sg" });
+    s.eq("obj1 tech = 1pl", ctx.getObj1PersonInfo("tech"), { person: 1, number: "pl" });
+    s.eq("obj1 kin = 3pl", ctx.getObj1PersonInfo("kin"), { person: 3, number: "pl" });
+    s.eq("obj1 mits = null (secondary object, not tracked)", ctx.getObj1PersonInfo("mits"), null);
 
-    // isSamePersonAcrossNumber — true when subject and object share person but differ in number
-    s.ok("1sg subj + 1pl obj = same person across number", ctx.isSamePersonAcrossNumber("ni", "", "tech"));
-    s.ok("imperative 2sg subj + 2pl obj = same person across number", ctx.isSamePersonAcrossNumber("shi", "", "metzin"));
-    s.no("1sg subj + 3sg obj = different person", ctx.isSamePersonAcrossNumber("ni", "", "ki"));
-    s.no("2sg subj + 1sg obj = different person", ctx.isSamePersonAcrossNumber("ti", "", "nech"));
+    // isPers1Obj1SamePersonAcrossNumber: true when pers1-pers2 and obj1 share person but differ in number.
+    s.ok("1sg pers1-pers2 + 1pl obj1 = same person across number", ctx.isPers1Obj1SamePersonAcrossNumber("ni", "", "tech"));
+    s.ok("imperative 2sg pers1-pers2 + 2pl obj1 = same person across number", ctx.isPers1Obj1SamePersonAcrossNumber("shi", "", "metzin"));
+    s.no("1sg pers1-pers2 + 3sg obj1 = different person", ctx.isPers1Obj1SamePersonAcrossNumber("ni", "", "ki"));
+    s.no("2sg pers1-pers2 + 1sg obj1 = different person", ctx.isPers1Obj1SamePersonAcrossNumber("ti", "", "nech"));
 
-    // isSamePersonReflexive — subject = object in person+number (3rd person never reflexive here)
-    s.ok("1sg subj + 1sg obj = reflexive", ctx.isSamePersonReflexive("ni", "", "nech"));
-    s.ok("imperative 2pl subj + 2pl obj = reflexive", ctx.isSamePersonReflexive("shi", "kan", "metzin"));
-    s.no("1sg subj + 3sg obj = not reflexive", ctx.isSamePersonReflexive("ni", "", "ki"));
-    s.no("3sg subj + 3sg obj = not reflexive (3rd person excluded)", ctx.isSamePersonReflexive("", "", "ki"));
+    // isPers1Obj1Reflexivo: pers1-pers2 = obj1 in person+number (3rd person never reflexive here).
+    s.ok("1sg pers1-pers2 + 1sg obj1 = reflexive", ctx.isPers1Obj1Reflexivo("ni", "", "nech"));
+    s.ok("imperative 2pl pers1-pers2 + 2pl obj1 = reflexive", ctx.isPers1Obj1Reflexivo("shi", "kan", "metzin"));
+    s.no("1sg pers1-pers2 + 3sg obj1 = not reflexive", ctx.isPers1Obj1Reflexivo("ni", "", "ki"));
+    s.no("3sg pers1-pers2 + 3sg obj1 = not reflexive (3rd person excluded)", ctx.isPers1Obj1Reflexivo("", "", "ki"));
 
     // getObjectLabel — returns non-empty string for known prefixes
     s.ok("getObjectLabel ki returns non-empty", Boolean(ctx.getObjectLabel("ki")));
@@ -76,6 +76,106 @@ function run(ctx) {
     s.eq("getObjectComboLabel kin/Nawat = yejemet", ctx.getObjectComboLabel("kin", true), "yejemet");
     // Spanish mode delegates to getObjectLabelShort
     s.eq("getObjectComboLabel ki/Spanish = getObjectLabelShort(ki)", ctx.getObjectComboLabel("ki", false), ctx.getObjectLabelShort("ki", false));
+    const lesson23Objects = ctx.buildLesson23VerbObjectsPursuitFrame();
+    s.eq(
+        "Lesson 23 object pursuit frame keeps Andrews object architecture partial",
+        {
+            stepNumber: lesson23Objects.stepNumber,
+            aimStatus: lesson23Objects.aimStatus,
+            pdfRefs: lesson23Objects.pdfRefs,
+            categories: lesson23Objects.subsectionInventory.map((entry) => entry.category),
+            transitiveIsCoverTerm: lesson23Objects.objectKindFrame.transitiveIsCoverTerm,
+            objectStemTypes: lesson23Objects.objectKindFrame.objectStemTypes,
+            discontinuousUnit: lesson23Objects.objectKindFrame.objectAndSuffixAreDiscontinuousUnit,
+            maxValencePositions: lesson23Objects.multipleValenceFrame.maxValencePositions,
+            historySources: lesson23Objects.multipleValenceFrame.histories.map((entry) => entry.source),
+            directivePathCounts: lesson23Objects.multipleValenceFrame.histories[1].path.map((entry) => entry.objectCount),
+            allPositionsObligatory: lesson23Objects.valenceRuleFrame.everyPositionAndSubpositionObligatory,
+            specificProjectiveIncompatible: lesson23Objects.valenceRuleFrame.specificProjectiveObjectPronounsMutuallyIncompatible,
+            formula: lesson23Objects.formulaFrame.representativeFormula,
+            currentUiFormula: lesson23Objects.formulaFrame.currentUiFormulaShorthand,
+            shuntlineReflexive: lesson23Objects.formulaFrame.shuntlineReflexive,
+            sequencePriorities: lesson23Objects.objectSequenceFrame.priorityRules,
+            threeObjectCombinationCount: lesson23Objects.objectSequenceFrame.andrewsThreeObjectCombinations.length,
+            objectBridge: lesson23Objects.objectSequenceFrame.nawatOrthographyBridge.map((entry) => [entry.andrews, entry.nawat]),
+            functionGap: lesson23Objects.currentEngineBoundary.objectFunctionAmbiguityNotFullyExposed,
+            silentGap: lesson23Objects.currentEngineBoundary.silentMorphTableIncomplete,
+            closestPass: lesson23Objects.closestPass,
+            remainingGapCount: lesson23Objects.remainingGaps.length,
+        },
+        {
+            stepNumber: 23,
+            aimStatus: "shooting",
+            pdfRefs: [
+                "Andrews Lesson 23.1",
+                "Andrews Lesson 23.2",
+                "Andrews Lesson 23.3",
+                "Andrews Lesson 23.4",
+                "Andrews Lesson 23.5",
+            ],
+            categories: [
+                "verb-object-kinds",
+                "multiple-valence-positions",
+                "valence-position-rules",
+                "multiple-valence-formula",
+                "object-sequence-priorities",
+            ],
+            transitiveIsCoverTerm: true,
+            objectStemTypes: ["directive", "causative", "applicative"],
+            discontinuousUnit: true,
+            maxValencePositions: 3,
+            historySources: ["intransitive", "directive"],
+            directivePathCounts: [1, 2, 3],
+            allPositionsObligatory: true,
+            specificProjectiveIncompatible: true,
+            formula: "#pers1-pers2+va+va+va(DBASE-CAUS-APPLIC)tns+num1-num2#",
+            currentUiFormula: "#pers1-pers2(base)tiempo+num1-num2#",
+            shuntlineReflexive: "ne",
+            sequencePriorities: [
+                "specific-projective-before-reflexive",
+                "specific-projective-before-nonspecific-projective",
+                "reflexive-before-nonspecific-projective",
+                "human-before-nonhuman",
+            ],
+            threeObjectCombinationCount: 13,
+            objectBridge: [["tla", "ta"], ["m-o", "mu"], ["c/qu/qui", "ki/k"]],
+            functionGap: true,
+            silentGap: true,
+            closestPass: false,
+            remainingGapCount: 5,
+        }
+    );
+    s.eq(
+        "Lesson 23 object pursuit frame exposes non-enumerable LCM audit metadata",
+        {
+            hasFrame: Boolean(lesson23Objects.grammarFrame),
+            routeFamily: lesson23Objects.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: lesson23Objects.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: lesson23Objects.grammarFrame?.routeContract?.generationAllowed,
+            ok: lesson23Objects.ok,
+            formulaLabel: lesson23Objects.grammarFrame?.nuclearClauseFrame?.formulaLabel || "",
+            maxValencePositions: lesson23Objects.grammarFrame?.participantFrame?.maxValencePositions,
+            silentMorphStillOccupiesPosition: lesson23Objects.grammarFrame?.participantFrame?.silentMorphStillOccupiesPosition,
+            objectBridge: lesson23Objects.grammarFrame?.orthographyFrame?.objectBridge || null,
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson23Objects, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "agreement-valence",
+            routeStage: "audit-lesson-23",
+            generationAllowed: false,
+            ok: true,
+            formulaLabel: "CNV transitiva de valencia multiple",
+            maxValencePositions: 3,
+            silentMorphStillOccupiesPosition: true,
+            objectBridge: [
+                { andrews: "tla", nawat: "ta" },
+                { andrews: "m-o", nawat: "mu" },
+                { andrews: "c/qu/qui", nawat: "ki/k" },
+            ],
+            enumerableGrammarFrame: false,
+        }
+    );
     s.eq(
         "masked conjugation display uses a diagnostic message instead of an empty dash",
         ctx.getConjugationNoOutputDisplay({
@@ -159,13 +259,13 @@ function run(ctx) {
                     supported: false,
                 }),
                 routeContract: ctx.buildGrammarRouteContractFrame({
-                    routeFamily: "generate-word",
+                    routeFamily: "nuclear-clause-surface",
                     routeStage: "morphology-application",
                     generationAllowed: false,
                 }),
                 resultFrame: ctx.buildGrammarResultFrame({
                     ok: false,
-                    outputKind: "generate-word",
+                    outputKind: "nuclear-clause-surface",
                 }),
                 diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
                     status: "blocked",
@@ -176,7 +276,7 @@ function run(ctx) {
                 result: {
                     error: true,
 	                    diagnostics: [{
-	                        id: "generate-word-route-blocked",
+	                        id: "nuclear-clause-surface-route-blocked",
 	                        severity: "error",
 	                        message: "La generacion no produjo una forma.",
 	                        failedLayer: "output",
@@ -195,7 +295,7 @@ function run(ctx) {
         })(),
         {
             label: "Ruta bloqueada antes de generar por la evidencia Andrews del contrato.",
-            diagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED", "generate-word-route-blocked"],
+            diagnosticIds: ["ANDREWS_ROUTE_NOT_LICENSED", "nuclear-clause-surface-route-blocked"],
             firstFailedLayer: "authority",
             firstContractLayer: "authorityFrame",
             secondMessage: "La generacion no produjo una forma.",
@@ -257,7 +357,7 @@ function run(ctx) {
     s.eq(
         "conjugation evaluation treats contract surface as renderable",
         (() => {
-            const result = ctx.buildOutputWordResult({ subjectPrefix: "ni", verb: "nemi" });
+            const result = ctx.buildOutputWordResult({ pers1: "ni", tronco: "nemi" });
             const evaluation = ctx.buildConjugationEvaluationRecord({ result });
             return {
                 resultField: result.result || "",
@@ -309,7 +409,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "conjugation renderable surface reader stops at empty LCM result frames before legacy surfaces",
+        "conjugation renderable surface reader stops at empty LCM result frames before stale surfaces",
         (() => {
             const result = {
                 result: "stale-visible-result",
@@ -335,7 +435,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "presentation falls back to contract surface when legacy formatted value is blank",
+        "presentation falls back to contract surface when stale formatted value is blank",
         (() => {
             const classes = new Set();
             const value = {
@@ -347,7 +447,7 @@ function run(ctx) {
                     contains: (name) => classes.has(name),
                 },
             };
-            const result = ctx.buildOutputWordResult({ subjectPrefix: "ni", verb: "nemi" });
+            const result = ctx.buildOutputWordResult({ pers1: "ni", tronco: "nemi" });
             const evaluation = ctx.buildConjugationEvaluationRecord({ result });
             ctx.applyConjugationEvaluationPresentation({
                 value,

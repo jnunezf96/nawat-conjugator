@@ -7,7 +7,7 @@
     "convention": "nawat_tracks_to_european_adjective_territory",
     "wired_european_adjective_circuits": 4,
     "total_european_adjective_circuits": 9,
-    "wired_legacy_tense_values": [
+    "wired_route_tense_values": [
       "adjetivo-preterito-tik",
       "adjetivo-perfecto-tik",
       "adjetivo-preterito-naj",
@@ -237,8 +237,8 @@
         },
         {
           "id": "BND-RN-002",
-          "name": "european_legacy_generation_boundary",
-          "rule": "visible Nawat routes still use legacyMode/legacyTenseValue as backend metadata",
+          "name": "european_route_generation_boundary",
+          "rule": "visible Nawat routes still use routeMode/routeTenseValue as backend metadata",
           "source": "data/static_modes.json:18-97"
         },
         {
@@ -251,7 +251,7 @@
           "id": "BND-RN-004",
           "name": "european_adjective_scope_boundary",
           "rule": "current Nawat tracks map only four of nine European-convention adjective circuits",
-          "covered_legacy_tense_values": [
+          "covered_route_tense_values": [
             "adjetivo-preterito-tik",
             "adjetivo-perfecto-tik",
             "adjetivo-preterito-naj",

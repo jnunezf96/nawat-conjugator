@@ -1,5 +1,5 @@
 // src/appendices/registry.mjs
-// Native ESM appendix registry. Kept installer-compatible for the legacy bridge.
+// Native ESM appendix registry. Kept installer-ready for the runtime bridge.
 
 export const APPENDIX_REGISTRY = [
     {
@@ -42,7 +42,7 @@ export const APPENDIX_REGISTRY = [
         title: "Spelling Conventions in Older Texts",
         status: "partially-implemented",
         engineDependencies: ["core/orthography"],
-        notes: "Diagnostic older/Classical spelling bridge metadata exists; no old-spelling normalizer or fixture-backed alias data",
+        notes: "Diagnostic Classical/Appendix F spelling bridge metadata exists; no Appendix F spelling normalizer or fixture-backed alias data",
     },
     {
         id: "G",

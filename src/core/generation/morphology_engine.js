@@ -132,6 +132,68 @@ function getMorphologyApplicationSourceSurfaceForms(result = null) {
         .filter((entry, index, list) => entry && list.indexOf(entry) === index);
 }
 
+function getMorphologyApplicationSoundSpellingFrames(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const grammarFrame = getMorphologyApplicationResultFrame(output);
+    return [
+        ...(Array.isArray(output.soundSpellingFrames) ? output.soundSpellingFrames : []),
+        ...(Array.isArray(output.orthographyFrame?.soundSpellingFrames) ? output.orthographyFrame.soundSpellingFrames : []),
+        ...(Array.isArray(grammarFrame?.orthographyFrame?.soundSpellingFrames) ? grammarFrame.orthographyFrame.soundSpellingFrames : []),
+    ].map((frame) => ({ ...frame }));
+}
+
+function buildMorphologyLesson2SoundSpellingFrame(frameInput = {}, beforeValue = "", afterValue = "", role = "") {
+    if (typeof buildLesson2SoundSpellingFrame !== "function") {
+        return null;
+    }
+    const frame = buildLesson2SoundSpellingFrame(frameInput);
+    if (!frame || !frame.ruleId) {
+        return null;
+    }
+    const normalizedRole = String(role || frame.grammarSlot || "");
+    return {
+        ...frame,
+        segmentRole: normalizedRole,
+        sourceSegmentValue: String(beforeValue || ""),
+        targetSegmentValue: String(afterValue || ""),
+    };
+}
+
+function pushMorphologyLesson2SoundSpellingFrame(frames = [], frameInput = {}, beforeValue = "", afterValue = "", role = "") {
+    if (!Array.isArray(frames)) {
+        return;
+    }
+    const frame = buildMorphologyLesson2SoundSpellingFrame(frameInput, beforeValue, afterValue, role);
+    if (!frame) {
+        return;
+    }
+    const key = [
+        frame.ruleId || "",
+        frame.grammarSlot || "",
+        frame.syllablePosition || "",
+        frame.sourceSurface || "",
+        frame.target || "",
+        Array.isArray(frame.targetCandidates) ? frame.targetCandidates.join("/") : "",
+        frame.segmentRole || "",
+        frame.sourceSegmentValue || "",
+        frame.targetSegmentValue || "",
+    ].join(":");
+    if (key && frames.some((entry) => [
+        entry.ruleId || "",
+        entry.grammarSlot || "",
+        entry.syllablePosition || "",
+        entry.sourceSurface || "",
+        entry.target || "",
+        Array.isArray(entry.targetCandidates) ? entry.targetCandidates.join("/") : "",
+        entry.segmentRole || "",
+        entry.sourceSegmentValue || "",
+        entry.targetSegmentValue || "",
+    ].join(":") === key)) {
+        return;
+    }
+    frames.push(frame);
+}
+
 function getMorphologyApplicationAndrewsRefs({
     tense = "",
     derivationType = "",
@@ -207,6 +269,7 @@ function attachMorphologyApplicationGrammarContract(result = null, {
     const surfaceForms = output.error ? [] : getMorphologyApplicationSurfaceForms(output, outputVerb);
     const surface = output.error ? "" : (surfaceForms[0] || "");
     const ok = Boolean(surface) && output.error !== true;
+    const soundSpellingFrames = getMorphologyApplicationSoundSpellingFrames(output);
     const grammarFrame = typeof buildGrammarFrame === "function"
         ? buildGrammarFrame({
             authorityFrame: typeof buildGrammarAuthorityFrame === "function"
@@ -230,6 +293,7 @@ function attachMorphologyApplicationGrammarContract(result = null, {
             orthographyFrame: {
                 surface,
                 surfaceForms,
+                soundSpellingFrames,
                 spellingAuthority: "Nawat/Pipil evidence",
                 noClassicalSurfaceImport: true,
             },
@@ -393,8 +457,8 @@ function buildTroncoActivePatientivoCoreForms({
         forms.push({ verb: normalizedCore, subjectSuffix: normalizedSuffix });
     };
     const buildEntrySurface = (entry) => buildNominalOutputText({
-        verb: entry?.verb || "",
-        subjectSuffix: entry?.subjectSuffix || "",
+        tronco: entry?.verb || "",
+        pers2: entry?.subjectSuffix || "",
     });
     const isKStemEntry = (entry) => normalizeRuleBase(entry?.verb || "").endsWith("k");
     (Array.isArray(sourceCandidates) ? sourceCandidates : []).forEach((candidate) => {
@@ -521,10 +585,10 @@ function buildPotencialActiveForms({
         : (baseObjectPrefix || "");
     const wrapperIndirectObjectMarker = stripsProjectiveObjectForPotentialPatient
         ? ""
-        : composeProjectiveObjectPrefix({
-            objectPrefix: "",
+        : composeObj1Chain({
+            obj1: "",
             markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
-            subjectPrefix: baseSubjectPrefix,
+            pers1: baseSubjectPrefix,
         });
     const sourceSubjectSuffix = (() => {
         if (sourceTense === "preterito") {
@@ -770,6 +834,7 @@ function applyMorphologyRules({
     subjectSuffix = typeof subjectSuffix === "string" ? subjectSuffix : "";
     verb = typeof verb === "string" ? verb : "";
     analysisVerb = typeof analysisVerb === "string" ? analysisVerb : "";
+    const soundSpellingFrames = [];
     const baseSubjectSuffix = subjectSuffix;
     const baseSubjectPrefix = subjectPrefix;
     const isAgentivoTense = tense === "agentivo";
@@ -973,10 +1038,10 @@ function applyMorphologyRules({
     let nounContextPrimaryFormSpec = null;
     let nounContextPrimaryTrailingSuffix = "";
     const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
-    objectPrefix = composeProjectiveObjectPrefix({
-        objectPrefix,
+    objectPrefix = composeObj1Chain({
+        obj1: objectPrefix,
         markers: markerChain,
-        subjectPrefix: baseSubjectPrefix,
+        pers1: baseSubjectPrefix,
     });
     const shouldApplyEarlyContactElision = !isPerfectiveTense(tense);
 
@@ -1134,7 +1199,15 @@ function applyMorphologyRules({
                 && activeActionObjectPrefix === "ta"
                 && stem.startsWith("i")
             ) {
-                return stem.slice(1);
+                const adjustedStem = stem.slice(1);
+                pushMorphologyLesson2SoundSpellingFrame(soundSpellingFrames, {
+                    ruleId: "supportive-i-stem-initial-elision",
+                    source: "i",
+                    target: "",
+                    slot: "stem-initial",
+                    syllablePosition: "after-object",
+                }, stem, adjustedStem, "stem-initial");
+                return adjustedStem;
             }
             return stem;
         };
@@ -1151,6 +1224,13 @@ function applyMorphologyRules({
             && primarySustantivoVerb.startsWith("ih")
         ) {
             const neDroppedSupportiveIStem = primarySustantivoVerb.slice(1);
+            pushMorphologyLesson2SoundSpellingFrame(soundSpellingFrames, {
+                ruleId: "supportive-i-stem-initial-elision",
+                source: "i",
+                target: "",
+                slot: "stem-initial",
+                syllablePosition: "after-object",
+            }, primarySustantivoVerb, neDroppedSupportiveIStem, "stem-initial");
             pushAlternateForm(neDroppedSupportiveIStem, "", {
                 formSpec: buildStemNominalFormSpec(
                     buildLiteralMorphStemSpec(neDroppedSupportiveIStem),
@@ -1450,9 +1530,9 @@ function applyMorphologyRules({
 
     const resolveOutputVerbForCurrentPrefixes = (verbValue = "", prefixOverrides = {}) => (
         resolveOptionalSupportiveOutputVerb({
-            subjectPrefix: prefixOverrides.subjectPrefix ?? subjectPrefix,
-            objectPrefix: prefixOverrides.objectPrefix ?? objectPrefix,
-            verb: verbValue,
+            pers1: prefixOverrides.pers1 ?? subjectPrefix,
+            obj1: prefixOverrides.obj1 ?? objectPrefix,
+            tronco: verbValue,
             hasOptionalSupportiveI,
             optionalSupportiveLetter,
         })
@@ -1638,6 +1718,10 @@ function applyMorphologyRules({
             forceClassBSelection: forceAdjectiveClassB,
             forceClassBOnly: isVerbNonactiveMode,
         });
+        const classSoundSpellingFrames = getMorphologyApplicationSoundSpellingFrames(classOutput);
+        const classSurfaceRuleMeta = classSoundSpellingFrames.length
+            ? { ...(pretSurfaceRuleMeta || {}), soundSpellingFrames: classSoundSpellingFrames }
+            : pretSurfaceRuleMeta;
         const resolvedClassForms = getMorphologyApplicationSourceSurfaceForms(classOutput)
             .map((f) => resolveOptionalSupportiveOutputText({
                 value: f,
@@ -1647,7 +1731,7 @@ function applyMorphologyRules({
             .filter(Boolean);
         const primaryClassVerb = resolvedClassForms[0] || "—";
         resolvedClassForms.slice(1).forEach((f) => pushAlternateForm(f, "", {
-            surfaceRuleMeta: pretSurfaceRuleMeta,
+            surfaceRuleMeta: classSurfaceRuleMeta,
         }));
         return {
             subjectPrefix: "",
@@ -1655,7 +1739,8 @@ function applyMorphologyRules({
             subjectSuffix: "",
             verb: primaryClassVerb,
             alternateForms,
-            surfaceRuleMeta: pretSurfaceRuleMeta,
+            surfaceRuleMeta: classSurfaceRuleMeta,
+            soundSpellingFrames: classSoundSpellingFrames,
             stemProvenance: classOutput.provenance || null,
         };
     }
@@ -1719,11 +1804,11 @@ function applyMorphologyRules({
     }
     const hasDerivedMuPrefix = Boolean(hasSuffixSeparator || hasCompoundMarker || hasSlashMarker || directionalInputPrefix);
     ({
-        objectPrefix,
-        verb,
+        obj1: objectPrefix,
+        tronco: verb,
     } = realizeDerivedMuStemInteraction({
-        objectPrefix,
-        verb,
+        obj1: objectPrefix,
+        tronco: verb,
         alternateForms,
         enable: hasDerivedMuPrefix,
     }));
@@ -1875,10 +1960,10 @@ function applyMorphologyRules({
         const sourceSubjectSuffix = resolveTroncoSourceSuffix(activeWrapperSourceTense, baseSubjectSuffix);
         const wrapperObjectPrefix = isTroncoNajActiveWrapper && !forceTransitiveBase ? "ta" : objectPrefix;
         const wrapperIndirectObjectMarker = isTroncoNajActiveWrapper
-            ? composeProjectiveObjectPrefix({
-                objectPrefix: "",
+            ? composeObj1Chain({
+                obj1: "",
                 markers: [indirectObjectMarker || "", thirdObjectMarker || ""],
-                subjectPrefix: baseSubjectPrefix,
+                pers1: baseSubjectPrefix,
             })
             : indirectObjectMarker;
         const inputMatrixRoot = normalizeRuleBase(exactAnalysisVerb);
@@ -2058,9 +2143,9 @@ function applyMorphologyRules({
                                 return;
                             }
                             addPrecomputedWrapperForm(buildNominalOutputText({
-                                verb: normalizedEntry.verb,
-                                subjectSuffix: "ti",
-                                trailingSuffix: troncoWrapperSuffix,
+                                tronco: normalizedEntry.verb,
+                                pers2: "ti",
+                                sufijoNominal: troncoWrapperSuffix,
                             }));
                         });
                         return;
@@ -2074,9 +2159,9 @@ function applyMorphologyRules({
                             return;
                         }
                         addPrecomputedWrapperForm(buildNominalOutputText({
-                            verb: normalizedEntry.verb,
-                            subjectSuffix: normalizedEntry.subjectSuffix,
-                            trailingSuffix: troncoWrapperSuffix,
+                            tronco: normalizedEntry.verb,
+                            pers2: normalizedEntry.subjectSuffix,
+                            sufijoNominal: troncoWrapperSuffix,
                         }));
                     });
                 });
@@ -2487,6 +2572,7 @@ function applyMorphologyRules({
         alternateForms: normalizedAlternateForms,
         surfaceRuleMeta,
         directionalChainMeta,
+        soundSpellingFrames,
         stemProvenance: stemProvenanceSeed || null,
     }, {
         routeStage: "apply",

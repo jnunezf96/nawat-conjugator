@@ -1021,15 +1021,15 @@ function composePretUniversalObjectPrefix({
         hasDoubleDash,
         indirectObjectMarker,
     });
-    if (typeof composeProjectiveObjectPrefix === "function") {
-        return composeProjectiveObjectPrefix({
-            objectPrefix,
+    if (typeof composeObj1Chain === "function") {
+        return composeObj1Chain({
+            obj1: objectPrefix,
             markers: [indirectObjectMarker || ""],
-            subjectPrefix: baseSubjectPrefix,
+            pers1: baseSubjectPrefix,
         });
     }
     let adjustedObjectPrefix = objectPrefix;
-    adjustedObjectPrefix = applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+    adjustedObjectPrefix = applyObj2ToObj1Chain(adjustedObjectPrefix, indirectObjectMarker);
     adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(
         adjustedObjectPrefix,
         baseSubjectPrefix,
@@ -1177,7 +1177,7 @@ function getPretUniversalPrefixForBase(
             || baseSubjectPrefix === "t"
         );
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
-        const objectHead = applyIndirectObjectMarker(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
+        const objectHead = applyObj2ToObj1Chain(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
         const directionalizedObjectHead = objectHead.startsWith("k")
             ? `k${outputDirectional}${objectHead.slice(1)}`
             : `${outputDirectional}${objectHead}`;

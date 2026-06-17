@@ -17,8 +17,10 @@ function run(ctx) {
             typeof ctx.classifyPlaceGentilicNncFalsePositive,
             typeof ctx.buildPlaceGentilicNncUsageFrame,
             typeof ctx.getPlaceGentilicNncAntiConflationRules,
+            typeof ctx.buildLesson48PlaceGentilicPursuitFrame,
+            typeof ctx.getLesson48PlaceGentilicSubsectionInventory,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildPlaceGentilicNncBoundaryMetadata();
@@ -158,6 +160,120 @@ function run(ctx) {
     );
     s.no("place/gentilic NNC boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("place/gentilic NNC boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "Lesson 48 pursuit frame covers every Andrews place/gentilic subsection",
+        (() => {
+            const inventory = ctx.getLesson48PlaceGentilicSubsectionInventory();
+            const frame = ctx.buildLesson48PlaceGentilicPursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                firstSubsection: inventory[0].andrewsSection,
+                lastSubsection: inventory[inventory.length - 1].andrewsSection,
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionUniqueReference: frame.remainingGaps.some((gap) => /unique-reference/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-48-place-gentilic-pursuit-frame",
+            stepNumber: 48,
+            routeStage: "audit-lesson-48",
+            pdfRefCount: 13,
+            firstPdfRef: "Andrews Lesson 48.1",
+            lastPdfRef: "Andrews Lesson 48.13",
+            subsectionCount: 27,
+            firstSubsection: "48.1",
+            lastSubsection: "48.13",
+            plannedArrowIds: ["lesson-48-place-gentilic-audit"],
+            firedArrowIds: [["lesson-48-place-gentilic-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionUniqueReference: true,
+        }
+    );
+    s.eq(
+        "Lesson 48 frame records place groups, gentilic routes, and extension boundaries",
+        (() => {
+            const frame = ctx.buildLesson48PlaceGentilicPursuitFrame();
+            return {
+                placeFunctions: frame.placeNameFrame.functions,
+                uniqueReference: frame.placeNameFrame.uniqueSociallyDesignatedReference,
+                topographicalWarning: frame.placeNameFrame.topographicalFeatureIsNotPlaceNameByDefault,
+                placeGroupKeys: frame.placeGroupsFrame.groups.map((group) => group.group),
+                nFormations: frame.placeGroupsFrame.groups[0].formationTypes,
+                panCrossing: frame.placeGroupsFrame.groups[1].crossingOrFordingMeaningPossible,
+                coCAmbiguity: frame.placeGroupsFrame.groups[2].placeNamePlusAffectiveCanBeAmbiguousAfterSilentReplacement,
+                gentilicFormationIds: frame.gentilicFrame.formations.map((formation) => formation.id),
+                gentilicCount: frame.gentilicFrame.principalFormationCount,
+                spellingAmbiguity: frame.gentilicFrame.notesFrame.defectiveTraditionalSpellingCanHideTlanVsTlah,
+                incorporationWarning: frame.extensionsFrame.incorporationFrame.associatedEntityVersusGentilicAnalysisRequiresCare,
+                collectivityVariants: frame.extensionsFrame.collectivityFrame.possessiveNum1Variants,
+                professionStates: frame.extensionsFrame.professionFrame.states,
+                generationBoundary: frame.currentEngineBoundary,
+                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            placeFunctions: ["ordinary-nnc", "adverbial-nnc", "adjectival-nnc"],
+            uniqueReference: true,
+            topographicalWarning: true,
+            placeGroupKeys: ["n-group", "pan-group", "co-c-group", "tlah-group", "tzalan-group", "ti-tlan-group", "chan-group"],
+            nFormations: [
+                "nominalized-imperfect-predicate-active-or-nonactive",
+                "ya-n-perfective-core",
+                "ma-n-place-of-area",
+                "tla-n-place-in-vicinity",
+                "ca-n-non-vnc-nounstem",
+                "preterit-agentive-general-use",
+                "action-noun-with-distant-past-ca",
+            ],
+            panCrossing: true,
+            coCAmbiguity: true,
+            gentilicFormationIds: [
+                "nonlocative-absolutive",
+                "two-clause-concatenate",
+                "preterit-agentive-place",
+                "ca-matrix-from-place-name",
+            ],
+            gentilicCount: 4,
+            spellingAmbiguity: true,
+            incorporationWarning: true,
+            collectivityVariants: ["zero", "uh"],
+            professionStates: ["absolutive", "possessive"],
+            generationBoundary: {
+                placeGentilicBoundaryMetadataImplemented: true,
+                placeGentilicUsageFrameImplemented: true,
+                placeNameUniqueReferenceDiagnosticOnly: true,
+                placeNameGroupInventoryDiagnosticOnly: true,
+                gentilicFormationInventoryDiagnosticOnly: true,
+                gentilicCollectivityDiagnosticOnly: true,
+                professionTitleExtensionDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                staticPlaceDataImplemented: false,
+                staticGentilicDataImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson48GenerationImplemented: false,
+            },
+            orthographyHtoJ: true,
+            grammarRouteStage: "audit-lesson-48",
+            diagnosticIds: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-needs-nawat-evidence"],
+        }
+    );
 
     const placeNameFrame = ctx.buildPlaceGentilicNncUsageFrame({
         candidate: "Atenco-style place-name",

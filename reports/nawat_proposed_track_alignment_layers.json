@@ -15,7 +15,7 @@
   "design_rule": {
     "begin_convention": "nawat",
     "end_convention": "nawat",
-    "hidden_compatibility_aliases": ["legacyMode", "legacyTenseValue"],
+    "hidden_route_aliases": ["routeMode", "routeTenseValue"],
     "visible_destination_forbidden": ["Adjetivo", "Adverbio", "Europea"]
   },
   "inventory_reconciliation": {
@@ -31,61 +31,61 @@
   },
   "route_status_manifest": [
     {
-      "legacy_tense_value": "adjetivo-preterito-tik",
+      "route_tense_value": "adjetivo-preterito-tik",
       "route_id": "denominal-vi-ti-preterit",
       "status": "wired",
       "routePlacement": "patientivo-tronco-conversion"
     },
     {
-      "legacy_tense_value": "adjetivo-perfecto-tik",
+      "route_tense_value": "adjetivo-perfecto-tik",
       "route_id": "denominal-vi-ti-perfect",
       "status": "wired",
       "routePlacement": "patientivo-tronco-conversion"
     },
     {
-      "legacy_tense_value": "adjetivo-preterito-naj",
+      "route_tense_value": "adjetivo-preterito-naj",
       "route_id": "denominal-vt-na-preterit",
       "status": "wired",
       "routePlacement": "patientivo-tronco-conversion"
     },
     {
-      "legacy_tense_value": "adjetivo-perfecto-naj",
+      "route_tense_value": "adjetivo-perfecto-naj",
       "route_id": "denominal-vt-na-perfect",
       "status": "wired",
       "routePlacement": "patientivo-tronco-conversion"
     },
     {
-      "legacy_tense_value": "adjetivo-preterito",
+      "route_tense_value": "adjetivo-preterito",
       "route_id": "direct-active-preterit",
       "status": "proposed",
       "routePlacement": "direct-finite"
     },
     {
-      "legacy_tense_value": "adjetivo-perfecto",
+      "route_tense_value": "adjetivo-perfecto",
       "route_id": "direct-active-perfect",
       "status": "proposed",
       "routePlacement": "direct-finite"
     },
     {
-      "legacy_tense_value": "adjetivo-patientivo-no-activo",
+      "route_tense_value": "adjetivo-patientivo-no-activo",
       "route_id": "patientivo-nonactive-ti",
       "status": "proposed",
       "routePlacement": "patientivo-surface"
     },
     {
-      "legacy_tense_value": "adjetivo-patientivo-perfectivo",
+      "route_tense_value": "adjetivo-patientivo-perfectivo",
       "route_id": "patientivo-perfective-ti",
       "status": "proposed",
       "routePlacement": "patientivo-surface"
     },
     {
-      "legacy_tense_value": "potencial-habitual",
+      "route_tense_value": "potencial-habitual",
       "route_id": "nonactive-habitual-potential",
       "status": "proposed",
       "routePlacement": "nonactive-habitual"
     },
     {
-      "legacy_tense_value": "potencial",
+      "route_tense_value": "potencial",
       "route_id": "potential-sustantivo-verbal",
       "status": "reserved",
       "routePlacement": "reserved-sustantivo-verbal"
@@ -95,7 +95,7 @@
     {
       "id": "TRK-PROP-ADJ-001",
       "route_id": "direct-active-preterit",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-preterito", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-preterito", "visible": false },
       "centerline": {
         "id": "CL-direct-preterit",
         "family": "direct-finite",
@@ -109,7 +109,7 @@
     {
       "id": "TRK-PROP-ADJ-002",
       "route_id": "direct-active-perfect",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-perfecto", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-perfecto", "visible": false },
       "centerline": {
         "id": "CL-direct-perfect",
         "family": "direct-finite",
@@ -123,7 +123,7 @@
     {
       "id": "TRK-PROP-ADJ-003",
       "route_id": "patientivo-nonactive-ti",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-no-activo", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-no-activo", "visible": false },
       "centerline": {
         "id": "CL-patientivo-nonactive-ti",
         "family": "patientivo-surface",
@@ -143,7 +143,7 @@
     {
       "id": "TRK-PROP-ADJ-004",
       "route_id": "patientivo-perfective-ti",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-perfectivo", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "adjetivo-patientivo-perfectivo", "visible": false },
       "centerline": {
         "id": "CL-patientivo-perfective-ti",
         "family": "patientivo-surface",
@@ -163,7 +163,7 @@
     {
       "id": "TRK-PROP-ADJ-005",
       "route_id": "nonactive-habitual-potential",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "potencial-habitual", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "potencial-habitual", "visible": false },
       "centerline": {
         "id": "CL-nonactive-habitual",
         "family": "nonactive-habitual",
@@ -185,7 +185,7 @@
     {
       "id": "TRK-RES-ADJ-001",
       "route_id": "potential-sustantivo-verbal",
-      "legacyAlias": { "mode": "adjetivo", "tenseValue": "potencial", "visible": false },
+      "routeAlias": { "mode": "adjetivo", "tenseValue": "potencial", "visible": false },
       "candidate_centerline": "V presente -> S sustantivo-verbal",
       "status_reason": "excluded from current four-of-nine adjective scope until inventory authority resolves whether potencial is counted"
     }

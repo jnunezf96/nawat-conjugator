@@ -2,7 +2,9 @@
 
 const { createSuite } = require("./runner");
 const {
+    collectAndrewsTrajectoryErrors,
     collectStaticNncFixtureErrors,
+    collectVisibleUiSpanishSurfaceErrors,
 } = require("../../scripts/check_grammar_data");
 
 function run() {
@@ -15,6 +17,10 @@ function run() {
 
     s.eq("static NNC validator is exported", typeof collectStaticNncFixtureErrors, "function");
     s.eq("current static NNC fixtures pass validation", validate(currentStaticNnc), []);
+    s.eq("Andrews trajectory validator is exported", typeof collectAndrewsTrajectoryErrors, "function");
+    s.eq("current Andrews trajectory contract passes validation", collectAndrewsTrajectoryErrors(), []);
+    s.eq("visible Spanish UI validator is exported", typeof collectVisibleUiSpanishSurfaceErrors, "function");
+    s.eq("current visible Spanish UI surface passes validation", collectVisibleUiSpanishSurfaceErrors(), []);
 
     s.ok(
         "static NNC validator rejects unknown states",

@@ -10,23 +10,23 @@ const { createSuite } = require("./runner");
 function run(ctx) {
     const s = createSuite("combo_validation");
 
-    s.eq("getComboKey joins prefixes and suffix", ctx.getComboKey("ni", "ki", ""), "ni|ki|");
+    s.eq("getPers1Obj1Pers2Key joins pers1 obj1 pers2", ctx.getPers1Obj1Pers2Key("ni", "ki", ""), "ni|ki|");
     s.eq(
-        "resolveComboValidationObjectPrefix prefers person marker by derivation priority",
-        ctx.resolveComboValidationObjectPrefix({
-            objectPrefix: "ta",
-            indirectObjectMarker: "nech",
+        "resolveComboValidationObj1 prefers person marker by derivation priority",
+        ctx.resolveComboValidationObj1({
+            obj1: "ta",
+            obj2: "nech",
             derivationType: "applicative",
         }),
         "nech"
     );
     s.eq(
-        "resolveComboValidationObjectPrefix honors controller override",
-        ctx.resolveComboValidationObjectPrefix({
-            objectPrefix: "ta",
-            indirectObjectMarker: "nech",
+        "resolveComboValidationObj1 honors controller override",
+        ctx.resolveComboValidationObj1({
+            obj1: "ta",
+            obj2: "nech",
             derivationType: "applicative",
-            controllerObjectMarker: "mu",
+            controllerObj1: "mu",
         }),
         "mu"
     );
@@ -38,36 +38,36 @@ function run(ctx) {
     s.eq("collapseSilentSpecificForDisplay keeps non-specific marker", ctx.collapseSilentSpecificForDisplay("te"), "te");
 
     s.eq(
-        "getValence4ComboSignature collapses specific indirect marker",
-        ctx.getValence4ComboSignature({
-            objectPrefix: "ki",
-            indirectObjectMarker: "tech",
-            thirdObjectMarker: "ta",
+        "getObj1Obj2Obj3Signature collapses specific obj2 marker",
+        ctx.getObj1Obj2Obj3Signature({
+            obj1: "ki",
+            obj2: "tech",
+            obj3: "ta",
         }),
         "ki|0|ta"
     );
     s.ok(
-        "isValidValence4Combo accepts canonical ki|mu|ta signature",
-        ctx.isValidValence4Combo({
-            objectPrefix: "ki",
-            indirectObjectMarker: "mu",
-            thirdObjectMarker: "ta",
+        "isValidObj1Obj2Obj3Combo accepts canonical ki|mu|ta signature",
+        ctx.isValidObj1Obj2Obj3Combo({
+            obj1: "ki",
+            obj2: "mu",
+            obj3: "ta",
         })
     );
     s.ok(
-        "isValidValence4Combo accepts collapsed specific indirect marker",
-        ctx.isValidValence4Combo({
-            objectPrefix: "ki",
-            indirectObjectMarker: "tech",
-            thirdObjectMarker: "ta",
+        "isValidObj1Obj2Obj3Combo accepts collapsed specific obj2 marker",
+        ctx.isValidObj1Obj2Obj3Combo({
+            obj1: "ki",
+            obj2: "tech",
+            obj3: "ta",
         })
     );
     s.no(
-        "isValidValence4Combo rejects impossible direct+indirect+third pattern",
-        ctx.isValidValence4Combo({
-            objectPrefix: "ta",
-            indirectObjectMarker: "mu",
-            thirdObjectMarker: "te",
+        "isValidObj1Obj2Obj3Combo rejects impossible obj1+obj2+obj3 pattern",
+        ctx.isValidObj1Obj2Obj3Combo({
+            obj1: "ta",
+            obj2: "mu",
+            obj3: "te",
         })
     );
 

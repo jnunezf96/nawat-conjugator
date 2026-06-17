@@ -35,7 +35,7 @@ Role: convert grammar-rule spellings into Nawat/Pipil spelling surfaces only aft
 
 - Classical rule spellings such as `z/liz`, `hui`, `hua`, `lo-hua`, `o-a`, `i-hui`, `c`, and `x` are structural inputs.
 - Nawat/Pipil surfaces come through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` and Nawat evidence.
-- Phonology, assimilation, elision, vowel length, glottal stop, and old spelling conventions are diagnostic unless the app has confirmed output data.
+- Phonology, assimilation, elision, vowel length, glottal stop, and Appendix F spelling conventions are diagnostic unless the app has confirmed output data.
 
 Engine contract:
 
@@ -309,14 +309,14 @@ Status dimensions:
 - Nawat/Pipil evidence missing.
 - Andrews-backed but not executable yet.
 - Nawat-only route.
-- Unsupported/conflicting old behavior.
+- Unsupported or conflicting behavior.
 - Ambiguous spelling/source.
 - Needs direct PDF recheck.
 
 Engine contract:
 
 - Diagnostics are first-class data, not throwaway strings.
-- Unsupported behavior should be blocked or marked deprecated instead of hidden.
+- Unsupported behavior should be blocked or marked blocked instead of hidden.
 
 UI contract:
 
@@ -366,7 +366,7 @@ This dependency order prevents the common failures:
 | 54-55 | 5, 7, 9, 11-12 | Denominal routes with source-evidence gates. |
 | 56-58 | 3, 10, 12 | Names, miscellany, textual diagnostics. |
 | Appendices A-C | 7-8, 11 | Paradigm and object-combination validation. |
-| Appendices D-F | 2-3, 7, 12 | Numerals, calendar/name data, old-spelling diagnostics. |
+| Appendices D-F | 2-3, 7, 12 | Numerals, calendar/name data, Appendix F spelling diagnostics. |
 
 ## HTML/CSS/JS Projection
 

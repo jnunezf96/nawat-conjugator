@@ -302,31 +302,32 @@ function getGrammarDiagnosticLayerContract(entry = null) {
     if (!id) {
         return { failedLayer: "", contractLayer: "" };
     }
-    if (/authority|evidence|unconfirmed|false-positive|not-evidence|needs-.*evidence|needs-nawat|source-evidence/i.test(id)) {
+    const layerId = id.replace(/^(?:nuclear-clause-surface|generate-word)-/i, "");
+    if (/authority|evidence|unconfirmed|false-positive|not-evidence|needs-.*evidence|needs-nawat|source-evidence/i.test(layerId)) {
         return { failedLayer: "authority", contractLayer: "authorityFrame" };
     }
-    if (/orthography|spelling|letter|classical|nawat-letter|nawat-spelling|phonolog|syllable/i.test(id)) {
+    if (/orthography|spelling|letter|classical|nawat-letter|nawat-spelling|phonolog|syllable/i.test(layerId)) {
         return { failedLayer: "orthography", contractLayer: "orthographyFrame" };
     }
-    if (/surface|output|result|no-output|empty|render|display|form/i.test(id)) {
+    if (/surface|output|result|no-output|empty|render|display|form/i.test(layerId)) {
         return { failedLayer: "output", contractLayer: "resultFrame" };
     }
-    if (/agreement|participant|subject|object|possessor|possessive|valence|state|person|number|animate|nonanimate/i.test(id)) {
+    if (/agreement|participant|subject|object|possessor|possessive|valence|state|person|number|animate|nonanimate/i.test(layerId)) {
         return { failedLayer: "agreement", contractLayer: "participantFrame" };
     }
-    if (/tense|mode|modal|potential|potencial|indicative|optative|admonitive|preterit|perfective|future|present|past/i.test(id)) {
+    if (/tense|mode|modal|potential|potencial|indicative|optative|admonitive|preterit|perfective|future|present|past/i.test(layerId)) {
         return { failedLayer: "inflection", contractLayer: "inflectionFrame" };
     }
-    if (/stem|root|source|input|predicate|noun-stem|verbstem|verb-stem|matrix|embed|compound|incorporated/i.test(id)) {
+    if (/stem|root|source|input|predicate|noun-stem|verbstem|verb-stem|matrix|embed|compound|incorporated/i.test(layerId)) {
         return { failedLayer: "stem", contractLayer: "stemFrame" };
     }
-    if (/nuclear|clause|nnc|vnc/i.test(id)) {
+    if (/nuclear|clause|nnc|vnc/i.test(layerId)) {
         return { failedLayer: "nuclear-clause", contractLayer: "nuclearClauseFrame" };
     }
-    if (/boundary|suffix|prefix|carrier|connector/i.test(id)) {
+    if (/boundary|suffix|prefix|carrier|connector/i.test(layerId)) {
         return { failedLayer: "morph-boundary", contractLayer: "morphBoundaryFrame" };
     }
-    if (/route-blocked|unsupported|not-allowed|requires|missing|route|generation|contract|class|kind|option|relation|order|marked|unmarked/i.test(id)) {
+    if (/route-blocked|unsupported|not-allowed|requires|missing|route|generation|contract|class|kind|option|relation|order|marked|unmarked/i.test(layerId)) {
         return { failedLayer: "route", contractLayer: "routeContract" };
     }
     return { failedLayer: "", contractLayer: "" };
@@ -545,7 +546,7 @@ function buildGrammarMetadataContractFrame(record = null, options = {}) {
     )
         ? node.target
         : "";
-    const legacySourceInput = String(
+    const fallbackSourceInput = String(
         options.sourceInput
         || node.candidate
         || node.sourceName
@@ -557,7 +558,7 @@ function buildGrammarMetadataContractFrame(record = null, options = {}) {
     ).trim();
     const sourceInput = hasInboundResultFrame
         ? normalizeGrammarSurfaceValue(inboundResultFrame.sourceInput || surface || "")
-        : legacySourceInput;
+        : fallbackSourceInput;
     const authorityFrame = buildGrammarAuthorityFrame({
         sourceEvidence: {
             kind: metadataKind,

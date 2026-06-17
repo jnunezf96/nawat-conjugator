@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/grammar/frame.js.
 
-export function createGrammarFrameApi(targetObject = globalThis) {
+export function createGrammarFrameGlobals(targetObject = globalThis) {
     var GRAMMAR_FRAME_VERSION = 1;
     var GRAMMAR_FRAME_KEYS = Object.freeze(["authorityFrame", "orthographyFrame", "unitFrame", "morphBoundaryFrame", "stemFrame", "nuclearClauseFrame", "participantFrame", "inflectionFrame", "routeContract", "astFrame", "resultFrame", "diagnosticFrame"]);
     var GRAMMAR_FRAME_LAYER_ORDER = Object.freeze(["authority-evidence", "orthography", "unit-kind", "morph-boundary", "stem-core", "nuclear-clause", "participants-state-valence", "inflection-route-source", "route-or-ast", "output-provenance", "diagnostics-curriculum"]);
@@ -220,55 +220,56 @@ export function createGrammarFrameApi(targetObject = globalThis) {
           contractLayer: ""
         };
       }
-      if (/authority|evidence|unconfirmed|false-positive|not-evidence|needs-.*evidence|needs-nawat|source-evidence/i.test(id)) {
+      const layerId = id.replace(/^(?:nuclear-clause-surface|generate-word)-/i, "");
+      if (/authority|evidence|unconfirmed|false-positive|not-evidence|needs-.*evidence|needs-nawat|source-evidence/i.test(layerId)) {
         return {
           failedLayer: "authority",
           contractLayer: "authorityFrame"
         };
       }
-      if (/orthography|spelling|letter|classical|nawat-letter|nawat-spelling|phonolog|syllable/i.test(id)) {
+      if (/orthography|spelling|letter|classical|nawat-letter|nawat-spelling|phonolog|syllable/i.test(layerId)) {
         return {
           failedLayer: "orthography",
           contractLayer: "orthographyFrame"
         };
       }
-      if (/surface|output|result|no-output|empty|render|display|form/i.test(id)) {
+      if (/surface|output|result|no-output|empty|render|display|form/i.test(layerId)) {
         return {
           failedLayer: "output",
           contractLayer: "resultFrame"
         };
       }
-      if (/agreement|participant|subject|object|possessor|possessive|valence|state|person|number|animate|nonanimate/i.test(id)) {
+      if (/agreement|participant|subject|object|possessor|possessive|valence|state|person|number|animate|nonanimate/i.test(layerId)) {
         return {
           failedLayer: "agreement",
           contractLayer: "participantFrame"
         };
       }
-      if (/tense|mode|modal|potential|potencial|indicative|optative|admonitive|preterit|perfective|future|present|past/i.test(id)) {
+      if (/tense|mode|modal|potential|potencial|indicative|optative|admonitive|preterit|perfective|future|present|past/i.test(layerId)) {
         return {
           failedLayer: "inflection",
           contractLayer: "inflectionFrame"
         };
       }
-      if (/stem|root|source|input|predicate|noun-stem|verbstem|verb-stem|matrix|embed|compound|incorporated/i.test(id)) {
+      if (/stem|root|source|input|predicate|noun-stem|verbstem|verb-stem|matrix|embed|compound|incorporated/i.test(layerId)) {
         return {
           failedLayer: "stem",
           contractLayer: "stemFrame"
         };
       }
-      if (/nuclear|clause|nnc|vnc/i.test(id)) {
+      if (/nuclear|clause|nnc|vnc/i.test(layerId)) {
         return {
           failedLayer: "nuclear-clause",
           contractLayer: "nuclearClauseFrame"
         };
       }
-      if (/boundary|suffix|prefix|carrier|connector/i.test(id)) {
+      if (/boundary|suffix|prefix|carrier|connector/i.test(layerId)) {
         return {
           failedLayer: "morph-boundary",
           contractLayer: "morphBoundaryFrame"
         };
       }
-      if (/route-blocked|unsupported|not-allowed|requires|missing|route|generation|contract|class|kind|option|relation|order|marked|unmarked/i.test(id)) {
+      if (/route-blocked|unsupported|not-allowed|requires|missing|route|generation|contract|class|kind|option|relation|order|marked|unmarked/i.test(layerId)) {
         return {
           failedLayer: "route",
           contractLayer: "routeContract"
@@ -440,8 +441,8 @@ export function createGrammarFrameApi(targetObject = globalThis) {
       const routeFamily = String(options.routeFamily || metadataKind).trim();
       const primitiveSource = typeof node.source === "string" || typeof node.source === "number" || typeof node.source === "boolean" ? node.source : "";
       const primitiveTarget = typeof node.target === "string" || typeof node.target === "number" || typeof node.target === "boolean" ? node.target : "";
-      const legacySourceInput = String(options.sourceInput || node.candidate || node.sourceName || node.nameSource || node.source?.raw || primitiveSource || primitiveTarget || "").trim();
-      const sourceInput = hasInboundResultFrame ? normalizeGrammarSurfaceValue(inboundResultFrame.sourceInput || surface || "") : legacySourceInput;
+      const fallbackSourceInput = String(options.sourceInput || node.candidate || node.sourceName || node.nameSource || node.source?.raw || primitiveSource || primitiveTarget || "").trim();
+      const sourceInput = hasInboundResultFrame ? normalizeGrammarSurfaceValue(inboundResultFrame.sourceInput || surface || "") : fallbackSourceInput;
       const authorityFrame = buildGrammarAuthorityFrame({
         sourceEvidence: {
           kind: metadataKind,
@@ -633,7 +634,7 @@ export function createGrammarFrameApi(targetObject = globalThis) {
 }
 
 export function installGrammarFrameGlobals(targetObject = globalThis) {
-    const api = createGrammarFrameApi(targetObject);
+    const api = createGrammarFrameGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

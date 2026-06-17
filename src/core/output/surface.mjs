@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/output/surface.js.
 
-export function createOutputSurfaceGlobals(targetObject = globalThis) {
+export function createOutputSurfaceApi(targetObject = globalThis) {
     // Phonological category: C = any consonant onset.
     // Uppercase = category marker (standard phonological notation).
     // Built lazily from VALID_CONSONANTS — the consonant inventory is the single source of truth.
@@ -20,34 +20,64 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     function endsWithAny(value, suffixes) {
       return suffixes.some(suffix => value.endsWith(suffix));
     }
-    function buildSurfaceChainState({
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      surfaceRuleMeta = null
-    } = {}) {
-      const sourceOuterPrefix = String(surfaceRuleMeta?.sourceOuterPrefix || "");
+    var OUTPUT_SURFACE_ROLES = Object.freeze(["pers1", "poseedor", "obj1", "tronco", "pers2", "num2", "sufijoNominal", "prefijoExternoFuente", "particulaPrepuesta"]);
+    function normalizeOutputSurfaceRole(role = "") {
+      const normalizedRole = String(role || "");
+      return OUTPUT_SURFACE_ROLES.includes(normalizedRole) ? normalizedRole : normalizedRole;
+    }
+    function normalizeOutputSurfaceSlotInput(input = {}) {
+      const node = input && typeof input === "object" ? input : {};
+      const pers1 = String(node.pers1 ?? "");
+      const poseedor = String(node.poseedor ?? "");
+      const obj1 = String(node.obj1 ?? "");
+      const tronco = String(node.tronco ?? "");
+      const pers2 = String(node.pers2 ?? node.num2 ?? "");
+      return {
+        ...node,
+        particulaPrepuesta: String(node.particulaPrepuesta ?? ""),
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        pers2,
+        sufijoNominal: String(node.sufijoNominal ?? "")
+      };
+    }
+    function buildSurfaceChainState(input = {}) {
+      const {
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        surfaceRuleMeta = null
+      } = normalizeOutputSurfaceSlotInput(input);
+      const prefijoExternoFuente = String(surfaceRuleMeta?.prefijoExternoFuente || "");
       return {
         surfaceRuleMeta: surfaceRuleMeta && typeof surfaceRuleMeta === "object" ? {
           ...surfaceRuleMeta
         } : null,
         segments: [{
-          role: "subject",
-          value: String(subjectPrefix || "")
+          role: "pers1",
+          slot: "pers1",
+          value: String(pers1 || "")
         }, {
-          role: "possessive",
-          value: String(possessivePrefix || "")
+          role: "poseedor",
+          slot: "poseedor",
+          value: String(poseedor || "")
         }, {
-          role: "sourceOuter",
-          value: sourceOuterPrefix
+          role: "prefijoExternoFuente",
+          slot: "prefijoExternoFuente",
+          value: prefijoExternoFuente
         }, {
-          role: "object",
-          value: String(objectPrefix || "")
+          role: "obj1",
+          slot: "obj1",
+          value: String(obj1 || "")
         }, {
-          role: "verb",
-          value: String(verb || "")
-        }]
+          role: "tronco",
+          slot: "tronco",
+          value: String(tronco || "")
+        }],
+        soundSpellingFrames: []
       };
     }
     function cloneSurfaceChainState(chain = null) {
@@ -56,18 +86,70 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         ...chain,
         segments: segments.map(segment => ({
           ...segment,
-          value: String(segment?.value || "")
-        }))
+          value: String(segment?.value || ""),
+          soundSpellingFrames: Array.isArray(segment?.soundSpellingFrames) ? segment.soundSpellingFrames.map(frame => ({
+            ...frame
+          })) : undefined
+        })),
+        soundSpellingFrames: Array.isArray(chain?.soundSpellingFrames) ? chain.soundSpellingFrames.map(frame => ({
+          ...frame
+        })) : []
       };
+    }
+    function getSurfaceSoundSpellingFrameKey(frame = null) {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      return [frame.ruleId || "", frame.grammarSlot || "", frame.syllablePosition || "", frame.sourceSurface || "", frame.target || "", Array.isArray(frame.targetCandidates) ? frame.targetCandidates.join("/") : "", frame.segmentRole || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":");
+    }
+    function pushUniqueSurfaceSoundSpellingFrame(list = [], frame = null) {
+      if (!Array.isArray(list) || !frame || typeof frame !== "object" || !frame.ruleId) {
+        return;
+      }
+      const key = getSurfaceSoundSpellingFrameKey(frame);
+      if (!key || list.some(entry => getSurfaceSoundSpellingFrameKey(entry) === key)) {
+        return;
+      }
+      list.push(frame);
+    }
+    function appendSurfaceChainLesson2Frame(chain = null, role = "", frameInput = {}, beforeValue = "", afterValue = "") {
+      if (!chain || typeof chain !== "object" || typeof targetObject.buildLesson2SoundSpellingFrame !== "function") {
+        return;
+      }
+      const segments = Array.isArray(chain.segments) ? chain.segments : [];
+      const normalizedRole = normalizeOutputSurfaceRole(role);
+      const segment = segments.find(entry => entry?.role === normalizedRole || entry?.slot === role);
+      const frame = targetObject.buildLesson2SoundSpellingFrame(frameInput);
+      if (!frame || !frame.ruleId) {
+        return;
+      }
+      const decoratedFrame = {
+        ...frame,
+        segmentRole: normalizedRole || String(role || ""),
+        sourceSegmentValue: String(beforeValue || ""),
+        targetSegmentValue: String(afterValue || "")
+      };
+      if (!Array.isArray(chain.soundSpellingFrames)) {
+        chain.soundSpellingFrames = [];
+      }
+      pushUniqueSurfaceSoundSpellingFrame(chain.soundSpellingFrames, decoratedFrame);
+      if (segment) {
+        if (!Array.isArray(segment.soundSpellingFrames)) {
+          segment.soundSpellingFrames = [];
+        }
+        pushUniqueSurfaceSoundSpellingFrame(segment.soundSpellingFrames, decoratedFrame);
+      }
     }
     function getSurfaceChainSegmentValue(chain = null, role = "") {
       const segments = Array.isArray(chain?.segments) ? chain.segments : [];
-      const match = segments.find(segment => segment?.role === role);
+      const normalizedRole = normalizeOutputSurfaceRole(role);
+      const match = segments.find(segment => segment?.role === normalizedRole || segment?.slot === role);
       return String(match?.value || "");
     }
     function setSurfaceChainSegmentValue(chain = null, role = "", nextValue = "") {
       const segments = Array.isArray(chain?.segments) ? chain.segments : [];
-      const match = segments.find(segment => segment?.role === role);
+      const normalizedRole = normalizeOutputSurfaceRole(role);
+      const match = segments.find(segment => segment?.role === normalizedRole || segment?.slot === role);
       if (match) {
         match.value = String(nextValue || "");
       }
@@ -83,16 +165,30 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     }
     function realizeSurfaceChainSubjectIInitialReduction(chain = null) {
       const nextChain = cloneSurfaceChainState(chain);
-      const subject = getSurfaceChainSegmentValue(nextChain, "subject");
-      const object = getSurfaceChainSegmentValue(nextChain, "object");
-      const verb = getSurfaceChainSegmentValue(nextChain, "verb");
-      if (object || !verb.startsWith("i")) {
+      const pers1 = getSurfaceChainSegmentValue(nextChain, "pers1");
+      const obj1 = getSurfaceChainSegmentValue(nextChain, "obj1");
+      const tronco = getSurfaceChainSegmentValue(nextChain, "tronco");
+      if (obj1 || !tronco.startsWith("i")) {
         return nextChain;
       }
-      if (subject === "ni") {
-        setSurfaceChainSegmentValue(nextChain, "subject", "n");
-      } else if (subject === "ti") {
-        setSurfaceChainSegmentValue(nextChain, "subject", "t");
+      if (pers1 === "ni") {
+        setSurfaceChainSegmentValue(nextChain, "pers1", "n");
+        appendSurfaceChainLesson2Frame(nextChain, "pers1", {
+          ruleId: "pers1-ni-i-n",
+          source: "ni",
+          target: "n",
+          slot: "pers1",
+          syllablePosition: "before-i-stem"
+        }, "ni", "n");
+      } else if (pers1 === "ti") {
+        setSurfaceChainSegmentValue(nextChain, "pers1", "t");
+        appendSurfaceChainLesson2Frame(nextChain, "pers1", {
+          ruleId: "pers1-ti-i-t",
+          source: "ti",
+          target: "t",
+          slot: "pers1",
+          syllablePosition: "before-i-stem"
+        }, "ti", "t");
       }
       return nextChain;
     }
@@ -102,11 +198,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       if (!ruleMeta || ruleMeta.trimFinalIAUAVowel !== true) {
         return nextChain;
       }
-      const verbValue = getSurfaceChainSegmentValue(nextChain, "verb");
-      if (!endsWithAny(verbValue, targetObject.IA_UA_SUFFIXES)) {
+      const troncoValue = getSurfaceChainSegmentValue(nextChain, "tronco");
+      if (!endsWithAny(troncoValue, targetObject.IA_UA_SUFFIXES)) {
         return nextChain;
       }
-      setSurfaceChainSegmentValue(nextChain, "verb", verbValue.slice(0, -1));
+      const nextTroncoValue = troncoValue.slice(0, -1);
+      setSurfaceChainSegmentValue(nextChain, "tronco", nextTroncoValue);
+      appendSurfaceChainLesson2Frame(nextChain, "tronco", {
+        ruleId: "stem-final-a-elision",
+        source: "a",
+        target: "",
+        slot: "stem-final",
+        syllablePosition: "stem-final-vowel"
+      }, troncoValue, nextTroncoValue);
       return nextChain;
     }
     function realizeSurfaceChainImperativeKiReduction(chain = null) {
@@ -116,7 +220,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         return nextChain;
       }
       const segments = Array.isArray(nextChain.segments) ? nextChain.segments : [];
-      const objectIndex = segments.findIndex(segment => segment?.role === "object");
+      const objectIndex = segments.findIndex(segment => normalizeOutputSurfaceRole(segment?.role) === "obj1" || segment?.slot === "obj1");
       if (objectIndex < 0) {
         return nextChain;
       }
@@ -133,6 +237,13 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         return nextChain;
       }
       segments[objectIndex].value = "k";
+      appendSurfaceChainLesson2Frame(nextChain, "obj1", {
+        ruleId: "imperative-ki-before-c-k",
+        source: "ki",
+        target: "k",
+        slot: "obj1",
+        syllablePosition: "before-consonant"
+      }, objectValue, "k");
       return nextChain;
     }
     function realizeSurfaceChainMuIskaliaReduction(chain = null) {
@@ -141,11 +252,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       if (!ruleMeta || ruleMeta.dropInitialIFromIskaliaAfterMu !== true) {
         return nextChain;
       }
-      const verbValue = getSurfaceChainSegmentValue(nextChain, "verb");
-      if (!verbValue.startsWith("iskalia")) {
+      const troncoValue = getSurfaceChainSegmentValue(nextChain, "tronco");
+      if (!troncoValue.startsWith("iskalia")) {
         return nextChain;
       }
-      setSurfaceChainSegmentValue(nextChain, "verb", verbValue.replace("iskalia", "skalia"));
+      const nextTroncoValue = troncoValue.replace("iskalia", "skalia");
+      setSurfaceChainSegmentValue(nextChain, "tronco", nextTroncoValue);
+      appendSurfaceChainLesson2Frame(nextChain, "tronco", {
+        ruleId: "mu-iskalia-i-elision",
+        source: "i",
+        target: "",
+        slot: "stem-initial",
+        syllablePosition: "after-mu"
+      }, troncoValue, nextTroncoValue);
       return nextChain;
     }
     function realizeSurfaceChainObjectIInitialElision(chain = null) {
@@ -154,12 +273,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       if (!ruleMeta || ruleMeta.dropVerbInitialIAfterObjectI !== true) {
         return nextChain;
       }
-      const objectValue = getSurfaceChainSegmentValue(nextChain, "object");
-      const verbValue = getSurfaceChainSegmentValue(nextChain, "verb");
-      if (!objectValue.endsWith("i") || !verbValue.startsWith("i")) {
+      const obj1Value = getSurfaceChainSegmentValue(nextChain, "obj1");
+      const troncoValue = getSurfaceChainSegmentValue(nextChain, "tronco");
+      if (!obj1Value.endsWith("i") || !troncoValue.startsWith("i")) {
         return nextChain;
       }
-      setSurfaceChainSegmentValue(nextChain, "verb", verbValue.slice(1));
+      setSurfaceChainSegmentValue(nextChain, "tronco", troncoValue.slice(1));
+      appendSurfaceChainLesson2Frame(nextChain, "tronco", {
+        ruleId: "object-i-stem-i-elision",
+        source: "i",
+        target: "",
+        slot: "stem-initial",
+        syllablePosition: "after-i-object"
+      }, troncoValue, troncoValue.slice(1));
       return nextChain;
     }
     function realizeSurfaceChainNhBeforeVowel(chain = null) {
@@ -186,20 +312,41 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
           continue;
         }
         segments[index].value = `${current}h`;
+        appendSurfaceChainLesson2Frame(nextChain, segments[index]?.role || segments[index]?.slot || "surface-segment", {
+          ruleId: "n-open-transition-nh",
+          source: "n",
+          target: "nh",
+          slot: segments[index]?.slot || "surface-segment",
+          syllablePosition: "before-vowel"
+        }, current, segments[index].value);
       }
       return nextChain;
     }
     function realizeSurfaceChainKContact(chain = null) {
       const nextChain = cloneSurfaceChainState(chain);
-      const object = getSurfaceChainSegmentValue(nextChain, "object");
-      const verb = getSurfaceChainSegmentValue(nextChain, "verb");
-      if (!object.endsWith("k") || !verb.startsWith("k")) {
+      const obj1 = getSurfaceChainSegmentValue(nextChain, "obj1");
+      const tronco = getSurfaceChainSegmentValue(nextChain, "tronco");
+      if (!obj1.endsWith("k") || !tronco.startsWith("k")) {
         return nextChain;
       }
-      if (verb.startsWith("kw")) {
-        setSurfaceChainSegmentValue(nextChain, "object", object.slice(0, -1));
+      if (tronco.startsWith("kw")) {
+        setSurfaceChainSegmentValue(nextChain, "obj1", obj1.slice(0, -1));
+        appendSurfaceChainLesson2Frame(nextChain, "obj1", {
+          ruleId: "k-contact-before-kw-elision",
+          source: "k+kw",
+          target: "kw",
+          slot: "obj1-stem-boundary",
+          syllablePosition: "before-kw"
+        }, `${obj1}+${tronco}`, `${obj1.slice(0, -1)}+${tronco}`);
       } else {
-        setSurfaceChainSegmentValue(nextChain, "verb", verb.slice(1));
+        setSurfaceChainSegmentValue(nextChain, "tronco", tronco.slice(1));
+        appendSurfaceChainLesson2Frame(nextChain, "tronco", {
+          ruleId: "k-contact-single-k",
+          source: "k+k",
+          target: "k",
+          slot: "obj1-stem-boundary",
+          syllablePosition: "before-k"
+        }, `${obj1}+${tronco}`, `${obj1}+${tronco.slice(1)}`);
       }
       return nextChain;
     }
@@ -215,7 +362,17 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         if (!_codaReKw) {
           _codaReKw = buildCodaRe("kw");
         }
-        segments[index].value = current.replace(_codaReKw, "k");
+        const nextValue = current.replace(_codaReKw, "k");
+        if (nextValue !== current) {
+          segments[index].value = nextValue;
+          appendSurfaceChainLesson2Frame(nextChain, segments[index]?.role || segments[index]?.slot || "surface-segment", {
+            ruleId: "kw-coda-k",
+            source: "kw",
+            target: "k",
+            slot: segments[index]?.slot || "surface-segment",
+            syllablePosition: "coda"
+          }, current, nextValue);
+        }
       }
       return nextChain;
     }
@@ -226,7 +383,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         return nextChain;
       }
       const segments = Array.isArray(nextChain.segments) ? nextChain.segments : [];
-      const isTransitive = getSurfaceChainSegmentValue(nextChain, "object") !== "";
+      const isTransitive = getSurfaceChainSegmentValue(nextChain, "obj1") !== "";
       for (let index = 0; index < segments.length; index += 1) {
         const current = String(segments[index]?.value || "");
         if (!current || !current.includes("y")) {
@@ -237,17 +394,30 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         if (!_codaReY) {
           _codaReY = buildCodaRe("y");
         }
-        segments[index].value = current.replace(_codaReY, (match, offset) => {
+        let replacementTarget = "";
+        const nextValue = current.replace(_codaReY, (match, offset) => {
           if (!isTransitive) {
             const before = current.slice(0, offset);
             const recent = targetObject.splitVerbLetters(before).slice(-5);
             const hasRecentS = recent.some(l => l === "s" || l === "sh");
             if (hasRecentS) {
-              return before.endsWith("s") ? "" : "s";
+              replacementTarget = before.endsWith("s") ? "" : "s";
+              return replacementTarget;
             }
           }
+          replacementTarget = "sh";
           return "sh";
         });
+        if (nextValue !== current) {
+          segments[index].value = nextValue;
+          appendSurfaceChainLesson2Frame(nextChain, segments[index]?.role || segments[index]?.slot || "surface-segment", {
+            ruleId: replacementTarget === "s" ? "y-coda-s" : "y-coda-sh",
+            source: "y",
+            target: replacementTarget,
+            slot: segments[index]?.slot || "surface-segment",
+            syllablePosition: "coda"
+          }, current, nextValue);
+        }
       }
       return nextChain;
     }
@@ -263,7 +433,17 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         if (!_codaReM) {
           _codaReM = buildCodaRe("m");
         }
-        segments[index].value = current.replace(_codaReM, "n");
+        const nextValue = current.replace(_codaReM, "n");
+        if (nextValue !== current) {
+          segments[index].value = nextValue;
+          appendSurfaceChainLesson2Frame(nextChain, segments[index]?.role || segments[index]?.slot || "surface-segment", {
+            ruleId: "m-coda-n",
+            source: "m",
+            target: "n",
+            slot: segments[index]?.slot || "surface-segment",
+            syllablePosition: "coda"
+          }, current, nextValue);
+        }
       }
       return nextChain;
     }
@@ -282,18 +462,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     function joinSurfaceChain(chain = null) {
       return (Array.isArray(chain?.segments) ? chain.segments : []).map(segment => String(segment?.value || "")).join("");
     }
-    function buildPrefixedChain({
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      surfaceRuleMeta = null
-    }) {
+    function buildPrefixedChain(input = {}) {
+      const {
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        surfaceRuleMeta = null
+      } = normalizeOutputSurfaceSlotInput(input);
       return joinSurfaceChain(realizeSurfaceChain(buildSurfaceChainState({
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
         surfaceRuleMeta
       })));
     }
@@ -553,35 +734,35 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     function hasSupportiveMarkerValue(value = "") {
       return Boolean(normalizeSupportiveMarkerValue(value));
     }
-    function getSupportiveMarkerTokenForLetter(letter = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function getSupportiveMarkerTokenForLetter(letter = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const normalized = String(letter || "").trim().toLowerCase();
       const resolvedLetter = normalized === "y" ? "y" : "i";
-      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex || format === targetObject.SUPPORTIVE_MARKER_FORMAT.screen) {
+      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex) {
         return resolvedLetter === "y" ? targetObject.REGEX_OPTIONAL_SUPPORTIVE_Y_MARKER : targetObject.REGEX_OPTIONAL_SUPPORTIVE_I_MARKER;
       }
       return resolvedLetter === "y" ? targetObject.OPTIONAL_SUPPORTIVE_Y_MARKER : targetObject.OPTIONAL_SUPPORTIVE_I_MARKER;
     }
-    function getSupportiveMarkerLetterFromValue(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function getSupportiveMarkerLetterFromValue(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const source = String(value || "");
-      const match = format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex || format === targetObject.SUPPORTIVE_MARKER_FORMAT.screen ? source.match(targetObject.REGEX_OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE) : source.match(targetObject.OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
+      const match = format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex ? source.match(targetObject.REGEX_OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE) : source.match(targetObject.OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
       return match ? String(match[1] || match[2] || "").toLowerCase() : "";
     }
-    function replaceSupportiveMarkersWithLetters(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function replaceSupportiveMarkersWithLetters(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const source = String(value || "");
-      const pattern = format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex || format === targetObject.SUPPORTIVE_MARKER_FORMAT.screen ? targetObject.REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE : targetObject.OPTIONAL_SUPPORTIVE_MARKER_RE;
+      const pattern = format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex ? targetObject.REGEX_OPTIONAL_SUPPORTIVE_MARKER_RE : targetObject.OPTIONAL_SUPPORTIVE_MARKER_RE;
       return source.replace(pattern, (_match, letterA, letterB) => String(letterA || letterB || "").toLowerCase());
     }
     function getOptionalSupportiveMarkerForLetter(letter = "") {
-      return getSupportiveMarkerTokenForLetter(letter, targetObject.SUPPORTIVE_MARKER_FORMAT.legacy);
+      return getSupportiveMarkerTokenForLetter(letter, targetObject.SUPPORTIVE_MARKER_FORMAT.envelope);
     }
     function getOptionalSupportiveMarkerLetter(value = "") {
-      return getSupportiveMarkerLetterFromValue(value, targetObject.SUPPORTIVE_MARKER_FORMAT.legacy);
+      return getSupportiveMarkerLetterFromValue(value, targetObject.SUPPORTIVE_MARKER_FORMAT.envelope);
     }
     function hasOptionalSupportiveMarker(value = "") {
       return Boolean(getOptionalSupportiveMarkerLetter(value));
     }
     function replaceOptionalSupportiveMarkersWithLetters(value = "") {
-      return replaceSupportiveMarkersWithLetters(value, targetObject.SUPPORTIVE_MARKER_FORMAT.legacy);
+      return replaceSupportiveMarkersWithLetters(value, targetObject.SUPPORTIVE_MARKER_FORMAT.envelope);
     }
     function stripOptionalSupportiveMarkers(value = "") {
       return String(value || "").replace(targetObject.OPTIONAL_SUPPORTIVE_MARKER_RE, "");
@@ -598,7 +779,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     function convertRegexInputSupportiveMarkersToEnvelope(value = "") {
       return String(value || "").replace(targetObject.OPTIONAL_SUPPORTIVE_MARKER_RE, (_match, letterA, letterB) => getRegexOptionalSupportiveMarkerForLetter(letterA || letterB));
     }
-    function replaceLegacyExplicitValenceMarkersWithRegexMarkers(value = "") {
+    function replaceEnvelopeExplicitValenceMarkersWithRegexMarkers(value = "") {
       return String(value || "").replace(/(^|[-/])\((ta|te|mu|t|m)\)(?=$|[-/])/gi, (_match, separator, token) => `${separator}${String(token || "").toUpperCase()}`);
     }
     function normalizeSupportiveYContextSurface(value = "") {
@@ -626,7 +807,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     function dropReduplicativeYAfterVj(followingSurface = "") {
       return normalizeSupportiveYContextSurface(followingSurface).replace(/^([aeiu]j)y(?=[aeiu])/i, "$1");
     }
-    function markReduplicativeYAfterVj(followingSurface = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function markReduplicativeYAfterVj(followingSurface = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const normalized = normalizeSupportiveYContextSurface(followingSurface);
       if (!normalized) {
         return "";
@@ -634,7 +815,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       const marker = getSupportiveMarkerTokenForLetter("y", format);
       return normalized.replace(/^([aeiu]j)y(?=[aeiu])/i, `$1${marker}`);
     }
-    function markInitialReduplicativeSupportiveYSurface(surface = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function markInitialReduplicativeSupportiveYSurface(surface = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const normalized = normalizeSupportiveYContextSurface(surface);
       if (!normalized) {
         return "";
@@ -685,62 +866,62 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         deleteReduplicativeY: false
       };
     }
-    function normalizeSupportiveMarkedLegacySurface(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function normalizeSupportiveMarkedEnvelopeSurface(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const source = String(value || "");
-      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex || format === targetObject.SUPPORTIVE_MARKER_FORMAT.screen) {
+      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex) {
         return convertEnvelopeSupportiveMarkersToRegexInput(source);
       }
       return source;
     }
-    function formatResolvedSupportiveMarkedSurface(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy, preserveMarkers = false) {
-      const legacyValue = String(value || "");
+    function formatResolvedSupportiveMarkedSurface(value = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope, preserveMarkers = false) {
+      const envelopeValue = String(value || "");
       if (!preserveMarkers) {
-        return replaceOptionalSupportiveMarkersWithLetters(legacyValue);
+        return replaceOptionalSupportiveMarkersWithLetters(envelopeValue);
       }
-      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex || format === targetObject.SUPPORTIVE_MARKER_FORMAT.screen) {
-        return convertRegexInputSupportiveMarkersToEnvelope(legacyValue);
+      if (format === targetObject.SUPPORTIVE_MARKER_FORMAT.regex) {
+        return convertRegexInputSupportiveMarkersToEnvelope(envelopeValue);
       }
-      return legacyValue;
+      return envelopeValue;
     }
     function resolveOptionalSupportiveMarkedSurface({
       precedingSurface = "",
       markedSurface = "",
-      inputFormat = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy,
+      inputFormat = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
       outputFormat = inputFormat,
       preserveMarkers = false
     } = {}) {
-      const legacyMarkedSurface = normalizeSupportiveMarkedLegacySurface(markedSurface, inputFormat);
-      if (!legacyMarkedSurface) {
+      const envelopeMarkedSurface = normalizeSupportiveMarkedEnvelopeSurface(markedSurface, inputFormat);
+      if (!envelopeMarkedSurface) {
         return {
           markerLetter: "",
-          legacyMarkedSurface: "",
+          envelopeMarkedSurface: "",
           plainSurface: "",
           outputSurface: ""
         };
       }
-      const markerMatch = legacyMarkedSurface.match(targetObject.OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
+      const markerMatch = envelopeMarkedSurface.match(targetObject.OPTIONAL_SUPPORTIVE_MARKER_DETECT_RE);
       const markerLetter = markerMatch ? String(markerMatch[1] || "").toLowerCase() : "";
-      let resolvedLegacySurface = legacyMarkedSurface;
+      let resolvedEnvelopeSurface = envelopeMarkedSurface;
       if (markerLetter === "y" && markerMatch) {
         const markerToken = markerMatch[0];
-        const markerIndex = legacyMarkedSurface.indexOf(markerToken);
-        const localPrecedingSurface = `${String(precedingSurface || "")}${legacyMarkedSurface.slice(0, markerIndex)}`;
-        const followingSurface = legacyMarkedSurface.slice(markerIndex + markerToken.length);
+        const markerIndex = envelopeMarkedSurface.indexOf(markerToken);
+        const localPrecedingSurface = `${String(precedingSurface || "")}${envelopeMarkedSurface.slice(0, markerIndex)}`;
+        const followingSurface = envelopeMarkedSurface.slice(markerIndex + markerToken.length);
         const yBehavior = resolveOptionalSupportiveYBehavior({
           precedingSurface: localPrecedingSurface,
           followingSurface
         });
         const resolvedFollowingSurface = yBehavior.deleteReduplicativeY ? dropReduplicativeYAfterVj(followingSurface) : followingSurface;
-        resolvedLegacySurface = preserveMarkers && yBehavior.deleteReduplicativeY ? legacyMarkedSurface : `${legacyMarkedSurface.slice(0, markerIndex)}` + `${yBehavior.deleteMarker ? "" : markerToken}` + `${resolvedFollowingSurface}`;
+        resolvedEnvelopeSurface = preserveMarkers && yBehavior.deleteReduplicativeY ? envelopeMarkedSurface : `${envelopeMarkedSurface.slice(0, markerIndex)}` + `${yBehavior.deleteMarker ? "" : markerToken}` + `${resolvedFollowingSurface}`;
       }
       return {
         markerLetter,
-        legacyMarkedSurface: resolvedLegacySurface,
-        plainSurface: replaceOptionalSupportiveMarkersWithLetters(resolvedLegacySurface),
-        outputSurface: formatResolvedSupportiveMarkedSurface(resolvedLegacySurface, outputFormat, preserveMarkers)
+        envelopeMarkedSurface: resolvedEnvelopeSurface,
+        plainSurface: replaceOptionalSupportiveMarkersWithLetters(resolvedEnvelopeSurface),
+        outputSurface: formatResolvedSupportiveMarkedSurface(resolvedEnvelopeSurface, outputFormat, preserveMarkers)
       };
     }
-    function markOptionalSupportiveSurface(value = "", letter = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.legacy) {
+    function markOptionalSupportiveSurface(value = "", letter = "", format = targetObject.SUPPORTIVE_MARKER_FORMAT.envelope) {
       const normalizedSurface = normalizeSupportiveYContextSurface(value);
       if (!normalizedSurface) {
         return "";
@@ -766,28 +947,29 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       }
       return normalizedSurface;
     }
-    function resolveOptionalSupportiveOutputVerb({
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = ""
-    }) {
+    function resolveOptionalSupportiveOutputVerb(input = {}) {
+      const {
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        hasOptionalSupportiveI = false,
+        optionalSupportiveLetter = ""
+      } = normalizeOutputSurfaceSlotInput(input);
       if (!hasOptionalSupportiveI || optionalSupportiveLetter !== "y") {
-        return String(verb || "");
+        return String(tronco || "");
       }
-      const baseVerb = String(verb || "");
-      const markedVerb = markOptionalSupportiveSurface(baseVerb, optionalSupportiveLetter, targetObject.SUPPORTIVE_MARKER_FORMAT.legacy);
+      const baseVerb = String(tronco || "");
+      const markedVerb = markOptionalSupportiveSurface(baseVerb, optionalSupportiveLetter, targetObject.SUPPORTIVE_MARKER_FORMAT.envelope);
       if (!hasOptionalSupportiveMarker(markedVerb)) {
         return baseVerb;
       }
-      const precedingSurface = `${subjectPrefix || ""}${possessivePrefix || ""}${objectPrefix || ""}`;
+      const precedingSurface = `${pers1 || ""}${poseedor || ""}${obj1 || ""}`;
       return resolveOptionalSupportiveMarkedSurface({
         precedingSurface,
         markedSurface: markedVerb,
-        inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.legacy,
-        outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.legacy,
+        inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
+        outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
         preserveMarkers: false
       }).plainSurface || baseVerb;
     }
@@ -802,82 +984,89 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
           return "";
         }
         return resolveOptionalSupportiveOutputVerb({
-          verb: form,
+          tronco: form,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
         }) || form;
       }).filter(Boolean).join(" / ");
     }
-    function buildOutputSurfaceChain({
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
+    function buildOutputSurfaceChain(input = {}) {
+      const {
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        hasOptionalSupportiveI = false,
+        optionalSupportiveLetter = "",
+        directionalChainMeta = null,
+        surfaceRuleMeta = null
+      } = normalizeOutputSurfaceSlotInput(input);
       const realizedDirectionalChain = targetObject.resolveDirectionalOutputChain({
-        subjectPrefix,
-        objectPrefix,
-        verb,
+        pers1,
+        obj1,
+        tronco,
         directionalChainMeta
       });
+      const directionalPers1 = String(realizedDirectionalChain.pers1 || "");
+      const directionalObj1 = String(realizedDirectionalChain.obj1 || "");
+      const directionalTronco = String(realizedDirectionalChain.tronco || "");
       const surfaceVerb = resolveOptionalSupportiveOutputVerb({
-        subjectPrefix: realizedDirectionalChain.subjectPrefix,
-        possessivePrefix,
-        objectPrefix: realizedDirectionalChain.objectPrefix,
-        verb: realizedDirectionalChain.verb,
+        pers1: directionalPers1,
+        poseedor,
+        obj1: directionalObj1,
+        tronco: directionalTronco,
         hasOptionalSupportiveI,
         optionalSupportiveLetter
       });
-      return buildSurfaceChainState({
-        subjectPrefix: realizedDirectionalChain.subjectPrefix,
-        possessivePrefix,
-        objectPrefix: realizedDirectionalChain.objectPrefix,
-        verb: surfaceVerb,
+      const chain = buildSurfaceChainState({
+        pers1: directionalPers1,
+        poseedor,
+        obj1: directionalObj1,
+        tronco: surfaceVerb,
         surfaceRuleMeta
       });
+      if (Array.isArray(realizedDirectionalChain.soundSpellingFrames)) {
+        realizedDirectionalChain.soundSpellingFrames.forEach(frame => {
+          if (!frame || typeof frame !== "object") {
+            return;
+          }
+          if (!Array.isArray(chain.soundSpellingFrames)) {
+            chain.soundSpellingFrames = [];
+          }
+          pushUniqueSurfaceSoundSpellingFrame(chain.soundSpellingFrames, frame);
+          const segmentRole = normalizeOutputSurfaceRole(frame.segmentRole || frame.grammarSlot || "");
+          const segment = Array.isArray(chain.segments) ? chain.segments.find(entry => entry?.role === segmentRole || entry?.slot === frame.grammarSlot) : null;
+          if (segment) {
+            if (!Array.isArray(segment.soundSpellingFrames)) {
+              segment.soundSpellingFrames = [];
+            }
+            pushUniqueSurfaceSoundSpellingFrame(segment.soundSpellingFrames, frame);
+          }
+        });
+      }
+      return chain;
     }
-    function buildOutputPrefixedChain({
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
-      return joinSurfaceChain(realizeSurfaceChain(buildOutputSurfaceChain({
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      })));
+    function buildOutputPrefixedChain(input = {}) {
+      return joinSurfaceChain(realizeSurfaceChain(buildOutputSurfaceChain(input)));
     }
-    function buildOutputWordSegments({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
+    function buildOutputWordSegments(input = {}) {
+      const {
+        particulaPrepuesta,
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
+        pers2,
+        hasOptionalSupportiveI = false,
+        optionalSupportiveLetter = "",
+        directionalChainMeta = null,
+        surfaceRuleMeta = null
+      } = normalizeOutputSurfaceSlotInput(input);
       const realizedCoreChain = realizeSurfaceChain(buildOutputSurfaceChain({
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
+        pers1,
+        poseedor,
+        obj1,
+        tronco,
         hasOptionalSupportiveI,
         optionalSupportiveLetter,
         directionalChainMeta,
@@ -888,17 +1077,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         value: String(segment?.value || "")
       })) : [];
       const segments = [];
-      if (preposedParticle) {
+      if (particulaPrepuesta) {
         segments.push({
-          role: "particle",
-          value: String(preposedParticle || "")
+          role: "particulaPrepuesta",
+          slot: "particulaPrepuesta",
+          value: String(particulaPrepuesta || "")
         });
       }
       segments.push(...coreSegments);
-      if (subjectSuffix) {
+      if (pers2) {
         segments.push({
-          role: "subjectSuffix",
-          value: String(subjectSuffix || "")
+          role: "pers2",
+          slot: "pers2",
+          value: String(pers2 || "")
         });
       }
       return segments;
@@ -908,15 +1099,66 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     }
     var OUTPUT_SURFACE_ANDREWS_REFS = Object.freeze(["Andrews Lesson 2 2.1 and 2.6", "Andrews Lesson 4 4.4-4.5"]);
     function normalizeOutputSurfaceSegments(segments = []) {
-      return (Array.isArray(segments) ? segments : []).map(segment => ({
-        role: String(segment?.role || ""),
-        value: String(segment?.value || "")
-      })).filter(segment => segment.role || segment.value);
+      return (Array.isArray(segments) ? segments : []).map(segment => {
+        const soundSpellingFrames = Array.isArray(segment?.soundSpellingFrames) ? segment.soundSpellingFrames.map(frame => ({
+          ...frame
+        })) : [];
+        return {
+          role: String(segment?.role || ""),
+          slot: String(segment?.slot || ""),
+          value: String(segment?.value || ""),
+          ...(soundSpellingFrames.length ? {
+            soundSpellingFrames
+          } : {})
+        };
+      }).filter(segment => segment.role || segment.slot || segment.value);
     }
     function getOutputSurfaceSegmentValue(segments = [], role = "") {
-      const normalizedRole = String(role || "");
-      const match = (Array.isArray(segments) ? segments : []).find(segment => String(segment?.role || "") === normalizedRole);
+      const rawRole = String(role || "");
+      const normalizedRole = normalizeOutputSurfaceRole(rawRole);
+      const match = (Array.isArray(segments) ? segments : []).find(segment => String(segment?.role || "") === normalizedRole || String(segment?.slot || "") === rawRole);
       return String(match?.value || "");
+    }
+    function buildOutputSurfaceSoundSpellingFrames(segments = []) {
+      if (typeof targetObject.buildLesson2SoundSpellingFrame !== "function") {
+        return [];
+      }
+      const frames = [];
+      const pushExistingFrame = (frame = null) => {
+        pushUniqueSurfaceSoundSpellingFrame(frames, frame);
+      };
+      const pushFrame = (frameInput = {}) => {
+        const frame = targetObject.buildLesson2SoundSpellingFrame(frameInput);
+        if (!frame || !frame.ruleId) {
+          return;
+        }
+        pushExistingFrame(frame);
+      };
+      normalizeOutputSurfaceSegments(segments).forEach(segment => {
+        if (Array.isArray(segment.soundSpellingFrames)) {
+          segment.soundSpellingFrames.forEach(pushExistingFrame);
+        }
+        const role = normalizeOutputSurfaceRole(segment.role || segment.slot || "");
+        const slot = String(segment.slot || role || "");
+        const value = String(segment.value || "");
+        if ((role === "pers2" || slot === "pers2" || slot === "num2") && value === "t") {
+          pushFrame({
+            source: "-h",
+            target: "-t",
+            slot: "num2",
+            syllablePosition: "slot-final"
+          });
+        }
+        if ((role === "sufijoNominal" || slot === "sufijoNominal" || slot === "sufijo-nominal") && value === "t") {
+          pushFrame({
+            source: "-tl",
+            target: "-t",
+            slot: "sufijo-nominal",
+            syllablePosition: "slot-final"
+          });
+        }
+      });
+      return frames;
     }
     function normalizeOutputSurfaceContractSurfaceValue(value = "") {
       const text = String(value || "").trim();
@@ -974,13 +1216,14 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
       const diagnostics = Array.isArray(options.diagnostics) ? options.diagnostics : [];
       const metadataKind = String(options.metadataKind || "output-surface").trim();
       const routeStage = String(options.routeStage || (supported ? "realize-output-surface" : "blocked")).trim();
-      const subjectPrefix = getOutputSurfaceSegmentValue(segments, "subject");
-      const possessivePrefix = getOutputSurfaceSegmentValue(segments, "possessive");
-      const sourceOuterPrefix = getOutputSurfaceSegmentValue(segments, "sourceOuter");
-      const objectPrefix = getOutputSurfaceSegmentValue(segments, "object");
-      const verb = getOutputSurfaceSegmentValue(segments, "verb");
-      const subjectSuffix = getOutputSurfaceSegmentValue(segments, "subjectSuffix");
-      const nominalSuffix = getOutputSurfaceSegmentValue(segments, "nominalSuffix");
+      const pers1 = getOutputSurfaceSegmentValue(segments, "pers1");
+      const poseedor = getOutputSurfaceSegmentValue(segments, "poseedor");
+      const prefijoExternoFuente = getOutputSurfaceSegmentValue(segments, "prefijoExternoFuente");
+      const obj1 = getOutputSurfaceSegmentValue(segments, "obj1");
+      const tronco = getOutputSurfaceSegmentValue(segments, "tronco");
+      const pers2 = getOutputSurfaceSegmentValue(segments, "pers2");
+      const sufijoNominal = getOutputSurfaceSegmentValue(segments, "sufijoNominal");
+      const soundSpellingFrames = buildOutputSurfaceSoundSpellingFrames(segments);
       return targetObject.attachGrammarMetadataContract({
         ...record,
         surfaceForms
@@ -998,28 +1241,31 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         diagnosticStatus: supported ? "surface-realized" : "blocked",
         surface,
         surfaceForms,
-        sourceInput: verb,
+        sourceInput: tronco,
         diagnostics,
         sourceContract: {
           unitKind: "surface-segment-chain",
           segments,
-          subjectPrefix,
-          possessivePrefix,
-          sourceOuterPrefix,
-          objectPrefix,
-          verb,
-          subjectSuffix,
-          nominalSuffix
+          pers1,
+          poseedor,
+          obj1,
+          tronco,
+          pers2,
+          prefijoExternoFuente,
+          prefijoExternoFuente: prefijoExternoFuente,
+          sufijoNominal
         },
         targetContract: {
           unitKind: "realized-output-surface",
           surface,
-          outputKind: metadataKind
+          outputKind: metadataKind,
+          soundSpellingFrames
         },
         orthographyFrame: {
           surface,
           surfaceForms,
           segments,
+          soundSpellingFrames,
           spellingAuthority: "Nawat/Pipil evidence",
           noClassicalSurfaceImport: true
         },
@@ -1029,50 +1275,41 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         },
         nuclearClauseFrame: {
           surface,
-          predicateStem: verb,
-          subjectPrefix,
-          objectPrefix,
-          subjectSuffix,
-          nominalSuffix,
+          predicateStem: tronco,
+          tronco,
+          pers1,
+          poseedor,
+          obj1,
+          pers2,
+          prefijoExternoFuente: prefijoExternoFuente,
+          sufijoNominal,
           clauseBoundary: "#...#",
-          slotOrder: ["subject", "possessive", "sourceOuter", "object", "verb", "subjectSuffix", "nominalSuffix"]
+          slotOrder: ["pers1", "poseedor", "prefijoExternoFuente", "obj1", "tronco", "pers2", "sufijoNominal"],
+          andrewsSlotOrder: ["pers1", "poseedor", "prefijoExternoFuente", "obj1", "tronco", "pers2", "sufijoNominal"]
         },
         participantFrame: {
-          subjectPrefix,
-          possessivePrefix,
-          objectPrefix,
-          subjectSuffix
+          pers1Pers2: {
+            prefix: pers1,
+            suffix: pers2
+          },
+          obj1: {
+            prefix: obj1
+          },
+          poseedor: {
+            prefix: poseedor
+          },
+          pers1,
+          pers2,
+          prefijoExternoFuente: prefijoExternoFuente
         },
         inflectionFrame: {
-          subjectSuffix,
-          nominalSuffix
+          pers2,
+          sufijoNominal
         }
       });
     }
-    function buildOutputWordResult({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    } = {}) {
-      const segments = buildOutputWordSegments({
-        preposedParticle,
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        subjectSuffix,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      });
+    function buildOutputWordResult(input = {}) {
+      const segments = buildOutputWordSegments(input);
       const surface = joinOutputWordSegments(segments);
       return attachOutputSurfaceGrammarContract({
         surface,
@@ -1085,117 +1322,28 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         segments
       });
     }
-    function buildOutputWordText({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
-      return buildOutputWordResult({
-        preposedParticle,
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        subjectSuffix,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      }).surface;
+    function buildOutputWordText(input = {}) {
+      return buildOutputWordResult(input).surface;
     }
-    function buildNominalOutputSegments({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      trailingSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
-      const segments = buildOutputWordSegments({
-        preposedParticle,
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        subjectSuffix,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      });
-      if (trailingSuffix) {
+    function buildNominalOutputSegments(input = {}) {
+      const {
+        sufijoNominal
+      } = normalizeOutputSurfaceSlotInput(input);
+      const segments = buildOutputWordSegments(input);
+      if (sufijoNominal) {
         segments.push({
-          role: "nominalSuffix",
-          value: String(trailingSuffix || "")
+          role: "sufijoNominal",
+          slot: "sufijoNominal",
+          value: String(sufijoNominal || "")
         });
       }
       return segments;
     }
-    function buildNominalOutputText({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      trailingSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    }) {
-      return buildNominalOutputResult({
-        preposedParticle,
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        subjectSuffix,
-        trailingSuffix,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      }).surface;
+    function buildNominalOutputText(input = {}) {
+      return buildNominalOutputResult(input).surface;
     }
-    function buildNominalOutputResult({
-      preposedParticle = "",
-      subjectPrefix = "",
-      possessivePrefix = "",
-      objectPrefix = "",
-      verb = "",
-      subjectSuffix = "",
-      trailingSuffix = "",
-      hasOptionalSupportiveI = false,
-      optionalSupportiveLetter = "",
-      directionalChainMeta = null,
-      surfaceRuleMeta = null
-    } = {}) {
-      const segments = buildNominalOutputSegments({
-        preposedParticle,
-        subjectPrefix,
-        possessivePrefix,
-        objectPrefix,
-        verb,
-        subjectSuffix,
-        trailingSuffix,
-        hasOptionalSupportiveI,
-        optionalSupportiveLetter,
-        directionalChainMeta,
-        surfaceRuleMeta
-      });
+    function buildNominalOutputResult(input = {}) {
+      const segments = buildNominalOutputSegments(input);
       const surface = joinOutputWordSegments(segments);
       return attachOutputSurfaceGrammarContract({
         surface,
@@ -1208,21 +1356,22 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         segments
       });
     }
-    function realizeDerivedMuStemInteraction({
-      objectPrefix = "",
-      verb = "",
-      alternateForms = [],
-      enable = false
-    } = {}) {
+    function realizeDerivedMuStemInteraction(input = {}) {
+      const {
+        obj1,
+        tronco,
+        alternateForms = [],
+        enable = false
+      } = normalizeOutputSurfaceSlotInput(input);
       if (!enable) {
         return {
-          objectPrefix: String(objectPrefix || ""),
-          verb: String(verb || ""),
+          obj1: String(obj1 || ""),
+          tronco: String(tronco || ""),
           alternateForms: Array.isArray(alternateForms) ? alternateForms : []
         };
       }
-      let nextObjectPrefix = String(objectPrefix || "");
-      let nextVerb = String(verb || "");
+      let nextObjectPrefix = String(obj1 || "");
+      let nextVerb = String(tronco || "");
       const nextAlternateForms = Array.isArray(alternateForms) ? alternateForms : [];
       if (nextVerb.startsWith("mu") && nextObjectPrefix.endsWith("mu")) {
         nextObjectPrefix = nextObjectPrefix.slice(0, -2);
@@ -1258,8 +1407,8 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
         });
       }
       return {
-        objectPrefix: nextObjectPrefix,
-        verb: nextVerb,
+        obj1: nextObjectPrefix,
+        tronco: nextVerb,
         alternateForms: nextAlternateForms
       };
     }
@@ -1292,8 +1441,19 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     });
     api.buildCodaRe = buildCodaRe;
     api.endsWithAny = endsWithAny;
+    Object.defineProperty(api, "OUTPUT_SURFACE_ROLES", {
+        configurable: true,
+        enumerable: true,
+        get() { return OUTPUT_SURFACE_ROLES; },
+        set(value) { OUTPUT_SURFACE_ROLES = value; },
+    });
+    api.normalizeOutputSurfaceRole = normalizeOutputSurfaceRole;
+    api.normalizeOutputSurfaceSlotInput = normalizeOutputSurfaceSlotInput;
     api.buildSurfaceChainState = buildSurfaceChainState;
     api.cloneSurfaceChainState = cloneSurfaceChainState;
+    api.getSurfaceSoundSpellingFrameKey = getSurfaceSoundSpellingFrameKey;
+    api.pushUniqueSurfaceSoundSpellingFrame = pushUniqueSurfaceSoundSpellingFrame;
+    api.appendSurfaceChainLesson2Frame = appendSurfaceChainLesson2Frame;
     api.getSurfaceChainSegmentValue = getSurfaceChainSegmentValue;
     api.setSurfaceChainSegmentValue = setSurfaceChainSegmentValue;
     api.getSurfaceChainNextNonEmptyIndex = getSurfaceChainNextNonEmptyIndex;
@@ -1333,7 +1493,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     api.getRegexOptionalSupportiveMarkerLetter = getRegexOptionalSupportiveMarkerLetter;
     api.convertEnvelopeSupportiveMarkersToRegexInput = convertEnvelopeSupportiveMarkersToRegexInput;
     api.convertRegexInputSupportiveMarkersToEnvelope = convertRegexInputSupportiveMarkersToEnvelope;
-    api.replaceLegacyExplicitValenceMarkersWithRegexMarkers = replaceLegacyExplicitValenceMarkersWithRegexMarkers;
+    api.replaceEnvelopeExplicitValenceMarkersWithRegexMarkers = replaceEnvelopeExplicitValenceMarkersWithRegexMarkers;
     api.normalizeSupportiveYContextSurface = normalizeSupportiveYContextSurface;
     api.getSupportiveYFollowingSurfaceLetters = getSupportiveYFollowingSurfaceLetters;
     api.getSupportiveYFollowingVowel = getSupportiveYFollowingVowel;
@@ -1342,7 +1502,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     api.markReduplicativeYAfterVj = markReduplicativeYAfterVj;
     api.markInitialReduplicativeSupportiveYSurface = markInitialReduplicativeSupportiveYSurface;
     api.resolveOptionalSupportiveYBehavior = resolveOptionalSupportiveYBehavior;
-    api.normalizeSupportiveMarkedLegacySurface = normalizeSupportiveMarkedLegacySurface;
+    api.normalizeSupportiveMarkedEnvelopeSurface = normalizeSupportiveMarkedEnvelopeSurface;
     api.formatResolvedSupportiveMarkedSurface = formatResolvedSupportiveMarkedSurface;
     api.resolveOptionalSupportiveMarkedSurface = resolveOptionalSupportiveMarkedSurface;
     api.markOptionalSupportiveSurface = markOptionalSupportiveSurface;
@@ -1360,6 +1520,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
     });
     api.normalizeOutputSurfaceSegments = normalizeOutputSurfaceSegments;
     api.getOutputSurfaceSegmentValue = getOutputSurfaceSegmentValue;
+    api.buildOutputSurfaceSoundSpellingFrames = buildOutputSurfaceSoundSpellingFrames;
     api.normalizeOutputSurfaceContractSurfaceValue = normalizeOutputSurfaceContractSurfaceValue;
     api.splitOutputSurfaceContractSurfaceText = splitOutputSurfaceContractSurfaceText;
     api.getOutputSurfaceResultFrame = getOutputSurfaceResultFrame;
@@ -1376,7 +1537,7 @@ export function createOutputSurfaceGlobals(targetObject = globalThis) {
 }
 
 export function installOutputSurfaceGlobals(targetObject = globalThis) {
-    const api = createOutputSurfaceGlobals(targetObject);
+    const api = createOutputSurfaceApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

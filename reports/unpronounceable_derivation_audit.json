@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-03-14T06:13:13.066Z",
+  "generatedAt": "2026-06-15T20:39:02.413Z",
   "reportPath": "/Users/jaimenunez/Desktop/Nawat_Conjugator/reports/unpronounceable_derivation_audit.json",
   "scope": {
     "sourceFiles": [
       "data/basic-data.csv",
       "data/data.csv"
     ],
-    "lexiconRows": 2612,
+    "lexiconRows": 2666,
     "auditedFamilies": [
       "nonactive",
       "causative",

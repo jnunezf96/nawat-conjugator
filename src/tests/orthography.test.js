@@ -36,7 +36,10 @@ function run(ctx) {
         typeof ctx.convertClassicalLettersToNawat,
         typeof ctx.getClassicalLettersAsNawat,
         typeof ctx.splitOrthographyGraphemes,
-    ], ["function", "function", "function", "function", "function"]);
+        typeof ctx.buildLesson2SoundSpellingFrame,
+        typeof ctx.getLesson2CoverageInventory,
+        typeof ctx.buildLesson2CoverageFrame,
+    ], ["function", "function", "function", "function", "function", "function", "function", "function"]);
 
     s.eq(
         "modern Nawat profile uses repo phonology inventory",
@@ -160,6 +163,347 @@ function run(ctx) {
                 ],
                 ruleIds: ["x-sh", "o-u", "same-ch", "tl-t"],
             },
+        }
+    );
+
+    s.eq(
+        "particle-context h maps to j without changing ambiguous or num2 -h",
+        (() => {
+            const particle = ctx.convertClassicalLettersToNawat("mah", {
+                grammarSlot: "particle",
+            });
+            return {
+                particleOutput: particle.output,
+                particleRuleIds: particle.correspondences.map((entry) => entry.ruleId),
+                genericFinalH: ctx.getClassicalLettersAsNawat("-h"),
+                num2FinalH: ctx.getClassicalLettersAsNawat("-h", {
+                    slot: "num2",
+                    syllablePosition: "slot-final",
+                }),
+            };
+        })(),
+        {
+            particleOutput: "maj",
+            particleRuleIds: ["h-particle-j"],
+            genericFinalH: "-h",
+            num2FinalH: "-t",
+        }
+    );
+
+    s.eq(
+        "Lesson 2 sound-spelling frame distinguishes num2 -h from stem h",
+        {
+            num2: (() => {
+                const frame = ctx.buildLesson2SoundSpellingFrame({
+                    source: "-h",
+                    slot: "num2",
+                    syllablePosition: "slot-final",
+                });
+                return {
+                    kind: frame.kind,
+                    ruleId: frame.ruleId,
+                    sourceSurface: frame.sourceSurface,
+                    target: frame.target,
+                    grammarSlot: frame.grammarSlot,
+                    syllablePosition: frame.syllablePosition,
+                    ruleScope: frame.ruleScope,
+                    generationAllowed: frame.generationAllowed,
+                };
+            })(),
+            stem: (() => {
+                const frame = ctx.buildLesson2SoundSpellingFrame({
+                    source: "h",
+                    slot: "stem",
+                    syllablePosition: "final",
+                });
+                return {
+                    ruleId: frame.ruleId,
+                    target: frame.target,
+                    grammarSlot: frame.grammarSlot,
+                    ruleScope: frame.ruleScope,
+                };
+            })(),
+        },
+        {
+            num2: {
+                kind: "lesson2-sound-spelling-frame",
+                ruleId: "h-num2-t",
+                sourceSurface: "-h",
+                target: "-t",
+                grammarSlot: "num2",
+                syllablePosition: "slot-final",
+                ruleScope: "graphic-representation",
+                generationAllowed: false,
+            },
+            stem: {
+                ruleId: "h-stem-j",
+                target: "j",
+                grammarSlot: "stem",
+                ruleScope: "graphic-representation",
+            },
+        }
+    );
+
+    s.eq(
+        "Lesson 2 sound-spelling frame keeps syllable-final uh/uc evidence-sensitive",
+        {
+            uh: (() => {
+                const frame = ctx.buildLesson2SoundSpellingFrame({
+                    source: "-uh",
+                    slot: "stem",
+                    syllablePosition: "final",
+                });
+                return {
+                    ruleId: frame.ruleId,
+                    target: frame.target,
+                    targetCandidates: frame.targetCandidates,
+                    evidenceStatus: frame.evidenceStatus,
+                    diagnostics: frame.diagnostics.map((diagnostic) => diagnostic.id),
+                };
+            })(),
+            uc: (() => {
+                const frame = ctx.buildLesson2SoundSpellingFrame({
+                    source: "-uc",
+                    slot: "stem",
+                    syllablePosition: "final",
+                });
+                return {
+                    ruleId: frame.ruleId,
+                    targetCandidates: frame.targetCandidates,
+                    evidenceStatus: frame.evidenceStatus,
+                    generationAllowed: frame.generationAllowed,
+                };
+            })(),
+        },
+        {
+            uh: {
+                ruleId: "uh-final-candidates",
+                target: "",
+                targetCandidates: ["w", "uj", "j"],
+                evidenceStatus: "nawat-evidence-required",
+                diagnostics: ["lesson2-sound-spelling-choice-needs-evidence"],
+            },
+            uc: {
+                ruleId: "uc-final-candidates",
+                targetCandidates: ["k", "ku"],
+                evidenceStatus: "nawat-evidence-required",
+                generationAllowed: false,
+            },
+        }
+    );
+
+    s.eq(
+        "orthography conversion carries Lesson 2 sound-spelling frame in grammar metadata",
+        (() => {
+            const converted = ctx.convertClassicalLettersToNawat("-h", {
+                slot: "num2",
+                syllablePosition: "slot-final",
+            });
+            const frame = converted.grammarFrame?.orthographyFrame?.soundSpellingFrame;
+            return {
+                output: converted.output,
+                ruleId: frame?.ruleId || "",
+                target: frame?.target || "",
+                grammarSlot: frame?.grammarSlot || "",
+                sourceLevel: frame?.sourceLevel || "",
+                targetLevel: frame?.targetLevel || "",
+                generationAllowed: frame?.generationAllowed,
+            };
+        })(),
+        {
+            output: "-t",
+            ruleId: "h-num2-t",
+            target: "-t",
+            grammarSlot: "num2",
+            sourceLevel: "Andrews grammar-rule spelling",
+            targetLevel: "Modern Nawat/Pipil spelling realization",
+            generationAllowed: false,
+        }
+    );
+
+    s.eq(
+        "Lesson 2 frame can represent Nawat-internal surface realization without Classical source import",
+        (() => {
+            const frame = ctx.buildLesson2SoundSpellingFrame({
+                ruleId: "m-coda-n",
+                source: "m",
+                target: "n",
+                slot: "tronco",
+                syllablePosition: "coda",
+            });
+            return {
+                ruleId: frame.ruleId,
+                sourceProfileId: frame.sourceProfileId,
+                targetProfileId: frame.targetProfileId,
+                sourceLevel: frame.sourceLevel,
+                targetLevel: frame.targetLevel,
+                ruleScope: frame.ruleScope,
+                andrewsSection: frame.andrewsSection,
+                andrewsProcess: frame.andrewsProcess,
+                spanishProcess: frame.spanishProcess,
+                processFamily: frame.processFamily,
+                generationAllowed: frame.generationAllowed,
+                evidenceStatus: frame.evidenceStatus,
+            };
+        })(),
+        {
+            ruleId: "m-coda-n",
+            sourceProfileId: "nawat-modern",
+            targetProfileId: "nawat-modern",
+            sourceLevel: "underlying Nawat surface segment",
+            targetLevel: "realized Nawat output surface",
+            ruleScope: "assimilation-or-consonant-phone-shift",
+            andrewsSection: "2.11.5 / 2.13.2",
+            andrewsProcess: "Regressive Assimilation / Consonant-Phone Shift Other Than Assimilation",
+            spanishProcess: "asimilación regresiva / cambio consonántico",
+            processFamily: "assimilation-or-consonant-phone-shift",
+            generationAllowed: false,
+            evidenceStatus: "slot-sensitive-spelling",
+        }
+    );
+
+    s.eq(
+        "Lesson 2 coverage inventory maps Andrews pronunciation categories without granting generation",
+        (() => {
+            const frame = ctx.buildLesson2CoverageFrame();
+            const inventory = frame.inventory || [];
+            return {
+                kind: frame.kind,
+                routeFamily: frame.grammarFrame?.routeContract?.routeFamily || "",
+                routeStage: frame.grammarFrame?.routeContract?.routeStage || "",
+                generationAllowed: frame.grammarFrame?.routeContract?.generationAllowed,
+                count: inventory.length,
+                pdfRefs: frame.pdfRefs,
+                categories: inventory.map((entry) => entry.category),
+                andrewsProcesses: inventory.map((entry) => entry.andrewsProcess),
+                generationAllowedEntries: inventory.map((entry) => entry.generationAllowed),
+                redirectActions: inventory.map((entry) => entry.redirectAction),
+                validationRefs: inventory.map((entry) => entry.validationRefs),
+                coverageCounts: frame.coverageCounts,
+                pursuit: {
+                    stepNumber: frame.pursuit?.stepNumber,
+                    aimStatus: frame.pursuit?.aimStatus,
+                    plannedArrows: frame.pursuit?.plannedArrows?.map((arrow) => [arrow.id, arrow.andrewsRefs.length, arrow.expectedFeedbackRefs[0]]),
+                    firedArrows: frame.pursuit?.firedArrows?.map((arrow) => [arrow.id, arrow.result, arrow.andrewsRefs.length, arrow.feedbackRefs[0]]),
+                    hitCount: frame.pursuit?.hitCount,
+                    missCount: frame.pursuit?.missCount,
+                    remainingGapCount: frame.pursuit?.remainingGaps?.length,
+                    closestPass: frame.pursuit?.closestPass,
+                },
+                blockedCategories: inventory
+                    .filter((entry) => entry.generationScope === "not-generated" || entry.generationScope === "blocked-for-generation")
+                    .map((entry) => entry.category),
+            };
+        })(),
+        {
+            kind: "lesson2-coverage-frame",
+            routeFamily: "orthography",
+            routeStage: "classify-lesson-2-coverage",
+            generationAllowed: false,
+            count: 14,
+            pdfRefs: [
+                "Andrews Lesson 2.1",
+                "Andrews Lesson 2.2",
+                "Andrews Lesson 2.3",
+                "Andrews Lesson 2.4",
+                "Andrews Lesson 2.5",
+                "Andrews Lesson 2.6",
+                "Andrews Lesson 2.7",
+                "Andrews Lesson 2.8",
+                "Andrews Lesson 2.9-2.11",
+                "Andrews Lesson 2.12",
+                "Andrews Lesson 2.13",
+                "Andrews Lesson 2.14",
+                "Andrews Lesson 2.15",
+                "Andrews Lesson 2.16",
+            ],
+            categories: [
+                "phonemes-and-graphic-representations",
+                "vowels-and-length",
+                "consonants-and-digraphs",
+                "traditional-spelling-conventions",
+                "internal-open-transition",
+                "syllable-structure",
+                "stress",
+                "long-consonants",
+                "assimilation",
+                "consonant-loss",
+                "consonant-phone-shift",
+                "vowel-elision",
+                "long-vowel-to-short-vowel-plus-glottal-stop",
+                "prosodic-contours",
+            ],
+            andrewsProcesses: [
+                "The Phonemes and Their Graphic Representations",
+                "Vowels",
+                "Consonants",
+                "Traditional Spelling",
+                "Spelling at Points of Internal Open Transition",
+                "Syllable Structure",
+                "Stress",
+                "Long Consonants",
+                "Assimilation",
+                "Consonant Loss",
+                "Consonant-Phone Shift Other Than Assimilation",
+                "Vowel Elision",
+                "Long Vowel to Short Vowel Plus Glottal Stop",
+                "Prosodic Contours",
+            ],
+            generationAllowedEntries: [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+            ],
+            redirectActions: [
+                "keep",
+                "block-generation",
+                "needs-nawat-evidence",
+                "diagnostic-only",
+                "diagnostic-only",
+                "diagnostic-only",
+                "block-generation",
+                "block-generation",
+                "diagnostic-only",
+                "diagnostic-only",
+                "diagnostic-only",
+                "diagnostic-only",
+                "block-generation",
+                "block-generation",
+            ],
+            validationRefs: Array.from({ length: 14 }, () => ["src/tests/orthography.test.js"]),
+            coverageCounts: {
+                "implemented-foundation": 1,
+                "boundary-diagnostic": 5,
+                "partial-implemented": 8,
+            },
+            pursuit: {
+                stepNumber: 2,
+                aimStatus: "shooting",
+                plannedArrows: [["lesson-2-subsection-coverage-audit", 14, "src/tests/orthography.test.js"]],
+                firedArrows: [["lesson-2-subsection-coverage-audit", "hit", 14, "src/tests/orthography.test.js"]],
+                hitCount: 1,
+                missCount: 0,
+                remainingGapCount: 13,
+                closestPass: false,
+            },
+            blockedCategories: [
+                "vowels-and-length",
+                "stress",
+                "long-consonants",
+                "long-vowel-to-short-vowel-plus-glottal-stop",
+                "prosodic-contours",
+            ],
         }
     );
 

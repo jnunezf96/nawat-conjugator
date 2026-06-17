@@ -1,6 +1,6 @@
 # Operation Stem Pool Audit
 
-**Date:** 2026-04-02
+**Date:** 2026-06-15
 **Scope:** `stemCollectionPool` producer chain in `script.js`
 **Out of scope:** `generateWord` output assembly, `resolveStemCandidateMorphologyResult` internals, `applyMorphologyRules` internals
 
@@ -186,7 +186,7 @@ RESOLVED: The dispatch logic is now uniformly spec-first for both nonactive and 
 
 ---
 
-## Live Verification
+## Audit Findings
 
 | Question | Finding |
 |---|---|

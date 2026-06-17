@@ -138,11 +138,11 @@ Active route rendering inserts the patientivo branch station before the stem sta
 | Boundary | As-built state |
 | --- | --- |
 | Nawat categories | Visible rail uses `V` and `S`; particle exists in mode data but has no live breadcrumb route yet |
-| European convention | Still present as legacy metadata and generation backing |
+| European convention | Still present as compatibility metadata and generation backing |
 | European adjective scope | Current Nawat tracks cover 4 of the 9 European-convention adjective circuits only |
 | Conversion ownership | Row outputs feed candidate data; the breadcrumb rail owns the conversion switch |
 | Patientivo branch ownership | The branch station is shared; no conversion-local branch copy remains |
-| Semantic name | HTML id remains `conversion-rail-block` with `aria-label="Conversión actual"` as a legacy asset name |
+| Semantic name | HTML id remains `conversion-rail-block` with `aria-label="Conversión actual"` as a compatibility asset name |
 
 ## As-Built Diagram
 
@@ -184,26 +184,7 @@ The second-pass agents found the previous report stale. Corrections made:
 - GIS/CAD layers and an asset register were produced as official companion files.
 - Scope is recorded as four of nine European-convention adjective circuits, not the whole adjective territory.
 
-## Verification Log
-
-Commands run after correction:
-
-```sh
-node --check src/ui/rendering/rendering.js
-node --check src/ui/rendering/rendering.mjs
-node --check script.js
-node --check src/bootstrap/script_runtime.mjs
-```
-
-Live Safari pass at `http://127.0.0.1:8001`:
-
-| Scenario | Observed |
-| --- | --- |
-| Tronco patientivo | `V (pusuni) -> S patientivo / muchiwalis takutunti -> conversion`; branch checked `tronco-verbal`; row pickers `0` |
-| Nonactive patientivo | `V (pusuni) -> S patientivo / taselilis/tamuchiwalis`; branch checked `nonactive`; conversion pickers `0` |
-| Active `-na` perfect route | `V (pusuni) -> S patientivo / muchiwalis takutunti -> S pusuk -> conversion -> V (pusuk)-(na) -> V pusuknajtuk` |
-
-Companion official records:
+## Companion Records
 
 - `reports/nawat_breadcrumb_railroad_layers.json`
 - `reports/nawat_breadcrumb_asset_inventory.csv`

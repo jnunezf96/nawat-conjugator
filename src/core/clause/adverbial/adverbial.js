@@ -1,6 +1,6 @@
 // core/clause/adverbial/adverbial.js
 // Lesson 44 adverbial nuclear-clause boundary metadata. This keeps the current
-// legacy adverbio word output separate from confirmed adverbial NNC/VNC or
+// configured adverbio word output separate from confirmed adverbial NNC/VNC or
 // clause-level modeling until Nawat/Pipil evidence supports it.
 
 "use strict";
@@ -20,7 +20,7 @@ const ADVERBIAL_NUCLEAR_DEGREE = Object.freeze({
     firstDegree: "first-degree",
     secondDegree: "second-degree",
     lexicalized: "lexicalized",
-    legacy: "legacy-adverbio",
+    configured: "configured-adverbio",
     unknown: "unknown",
 });
 
@@ -42,7 +42,7 @@ const ADVERBIAL_NUCLEAR_SOURCE_CLAUSE_KIND = Object.freeze({
 });
 
 const ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE = Object.freeze({
-    legacyAdverbioSurface: "legacy-adverbio-surface",
+    configuredAdverbioSurface: "configured-adverbio-surface",
     adverbTranslation: "adverb-translation",
     particleLabel: "particle-label",
     ordinaryNncOutput: "ordinary-nnc-output",
@@ -55,7 +55,7 @@ const ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE = Object.freeze({
 const ADVERBIAL_NUCLEAR_ANTI_CONFLATION_RULES = Object.freeze([
     "adverbial nuclear-clause boundary metadata is not generation",
     "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms",
-    "legacy adverbio word output is not a full Lesson 44 engine",
+    "configured adverbio word output is not a full Lesson 44 engine",
     "adverb translations are not Nawat/Pipil adverbial-clause evidence",
     "particle-looking labels are not particle or adverbial NNC fixture evidence",
     "ordinary NNC/VNC outputs are not clause-level adverbialization evidence",
@@ -126,7 +126,7 @@ function normalizeAdverbialNuclearFalsePositiveSource(value = "") {
     );
 }
 
-function getKnownLegacyAdverbioTensesForAdverbialBoundary() {
+function getKnownConfiguredAdverbioTensesForAdverbialBoundary() {
     return ["pasado-remoto-adverbio-activo"];
 }
 
@@ -147,6 +147,348 @@ function attachAdverbialNuclearGrammarContract(record = null, options = {}) {
         unitKind: "adverbial-nuclear-clause",
         routeFamily: "adverbial-nuclear",
         ...options,
+    });
+}
+
+const LESSON44_ADVERBIAL_NUCLEAR_VALIDATION_REFS = Object.freeze([
+    "src/tests/adverbial.test.js",
+    "src/tests/registry.test.js",
+    "docs/GRAMMAR_SPEC.md",
+]);
+
+const LESSON44_ADVERBIAL_NUCLEAR_PDF_REFS = Object.freeze([
+    "Andrews Lesson 44.1",
+    "Andrews Lesson 44.2",
+    "Andrews Lesson 44.3",
+    "Andrews Lesson 44.4",
+    "Andrews Lesson 44.5",
+    "Andrews Lesson 44.6",
+    "Andrews Lesson 44.7",
+    "Andrews Lesson 44.8",
+    "Andrews Lesson 44.9",
+]);
+
+const LESSON44_OVERVIEW_FRAME = Object.freeze({
+    kind: "lesson-44-adverbial-nuclear-overview-frame",
+    sourceSection: "Andrews 44.1",
+    adverbialParticlesBelongToLesson3: true,
+    adverbialModifiersAreNuclearClausesOrAdjoinedUnits: true,
+    adjoinedConcatenateUnitsDeferredToLessons49_50: true,
+    transformationAssignsAdverbializedSubjectPronoun: true,
+    adverbialPotentialConstrainedByPredicateMeaning: true,
+    semanticDomains: Object.freeze(["location", "direction", "time", "duration", "manner", "degree"]),
+    englishHasNoDirectEquivalentToAdverbializedSubjectPronoun: true,
+});
+
+const LESSON44_DEGREES_FRAME = Object.freeze({
+    kind: "lesson-44-adverbialization-degrees-frame",
+    sourceSection: "Andrews 44.2",
+    firstDegreeSemanticOnly: true,
+    firstDegreeSubjectPronounShapeUnchanged: true,
+    secondDegreeReplacesSoundedNum1WithSilent: true,
+    vncAllowsOnlyFirstDegree: true,
+    possessiveStateNncAllowsOnlyFirstDegree: true,
+    absolutiveStateNncIsIdiosyncratic: true,
+    firstDegreeMayBeAmbiguousOrLexicalized: true,
+});
+
+const LESSON44_ADVERBIALIZED_VNC_FRAME = Object.freeze({
+    kind: "lesson-44-adverbialized-vnc-frame",
+    sourceSection: "Andrews 44.3",
+    onlySmallNumberOfVncsPermitAdverbialization: true,
+    mostAreLexicalizedInAdverbialMeaning: true,
+    preteritAgentiveIuhquiAndIzquiAreNotAdverbialHere: true,
+    nohmahSynonymousWithParticleOcButRemainsAnalyzedAsVnc: true,
+    examples: Object.freeze([
+        "cencah",
+        "hualcah",
+        "cemihcac",
+        "ihui",
+        "iuh",
+        "ihuihuih",
+        "ici",
+        "iz",
+        "nohmah",
+        "yehua",
+        "iyoh",
+        "motquiticah",
+        "mahciticah",
+    ]),
+});
+
+const LESSON44_ADVERBIALIZED_NNC_FRAME = Object.freeze({
+    kind: "lesson-44-adverbialized-nnc-frame",
+    sourceSection: "Andrews 44.4",
+    vastMajorityAreNncs: true,
+    firstDegreeFrame: Object.freeze({
+        sourceSection: "Andrews 44.4.1",
+        thirdPersonSingularSubjectPronounAmbiguous: true,
+        sameShapeCanBeEquativeOrAdverbial: true,
+        possessiveStateNncsCanShareTheAmbiguity: true,
+    }),
+    secondDegreeFrame: Object.freeze({
+        sourceSection: "Andrews 44.4.2",
+        absolutiveStateOnly: true,
+        distinctiveSubjectPronounShapeRemovesAmbiguity: true,
+        silentNum1VisibleInFormula: true,
+    }),
+    distributiveVarietalAndAffinityStemsPossibleWhenMeaningPermits: true,
+});
+
+const LESSON44_PARTICLE_LOOKING_NNC_FRAME = Object.freeze({
+    kind: "lesson-44-particle-looking-nnc-frame",
+    sourceSection: "Andrews 44.5",
+    singleSyllabledSecondDegreeCanLookLikeParticle: true,
+    particleLookingIsNotParticleFixtureEvidence: true,
+    examples: Object.freeze(["nel", "huel", "nen", "mo", "cuel", "mach", "quen"]),
+    huelFrame: Object.freeze({
+        sourceSection: "Andrews 44.5.2",
+        negativeAhhuelPossible: true,
+        canMeanAbilityPossibilityOrDegree: true,
+        flawedSubjectNegativeHueliSeparated: true,
+    }),
+    moFrame: Object.freeze({
+        sourceSection: "Andrews 44.5.4",
+        notInherentlyInterrogative: true,
+        canParticipateInQuestionsAwayFromInitialPosition: true,
+        ahmoAndCamoAreNegativizedNncs: true,
+        negativeBeforeVncDeniesActionButNegativeBeforeAdjunctNegatesAdjunct: true,
+        subordinateMoMayTakeNegativeMeaning: true,
+    }),
+    machFrame: Object.freeze({
+        sourceSection: "Andrews 44.5.6",
+        idiomaticUses: true,
+        machEhMeansEspecially: true,
+        afterInterrogativeCanMeanEver: true,
+        homophonousKinshipNounstemNotAdverbializable: true,
+    }),
+    quenFrame: Object.freeze({
+        sourceSection: "Andrews 44.5.7",
+        fusedAdjunctorInAnalysis: true,
+        anotherInMayFollow: true,
+        nonInitialPositionLosesInterrogativeForce: true,
+        mayLexicalizeWithFollowingVncOrNnc: true,
+    }),
+});
+
+const LESSON44_OTHER_ABSOLUTIVE_NNC_FRAME = Object.freeze({
+    kind: "lesson-44-other-absolutive-nnc-frame",
+    sourceSection: "Andrews 44.6",
+    secondDegreeEffectOftenObvious: true,
+    semanticSubcategories: Object.freeze(["time", "place", "manner"]),
+    timeExamples: Object.freeze(["teotlac", "moztla", "huiptla", "yalhua", "ticatla", "tlahcah", "niman", "imman", "quemman", "ihcuac", "yectel", "huehcauh", "ixquichcauh", "achtzan", "achto"]),
+    placeExamples: Object.freeze(["necoc", "noncuah", "chico", "pani", "tlani", "ixtlapal", "centlapal", "quexquich", "ixquich"]),
+    mannerDegreeExamples: Object.freeze(["cemi", "cen", "cecen", "cehcen", "achi", "tlacuauh", "tlapic", "ilhuiz", "tlalhuiz", "ilihuiz", "tlamach", "quemah"]),
+    stressGroupWithYehOrEhPossible: true,
+    yequenehAndYecehConstituentsUnknown: true,
+});
+
+const LESSON44_PRETERIT_AGENTIVE_ADVERBIAL_NNC_FRAME = Object.freeze({
+    kind: "lesson-44-preterit-agentive-adverbial-nnc-frame",
+    sourceSection: "Andrews 44.7",
+    generalUsePreteritAgentiveStemIsRichAdverbialSource: true,
+    meaningPattern: "in the manner of one who has done or become the source predicate",
+    englishOftenUsesAdjectivePlusLy: true,
+    sourceUsuallyIntransitive: true,
+    obsoleteSourceVerbstemsPossible: true,
+    rootPlusYaObsoletePreteritSourcesCanCorrespond: true,
+    someRootPlusYaSourcesUseFullStem: true,
+    irregularFormsPossible: true,
+    transitiveSourceOccasionallyPossible: true,
+    reflexiveObjectPronounRare: true,
+    shuntlineReflexiveNormallyUsedInGeneralUseStem: true,
+    lexicalizedFormsMayUseMainlineReflexive: true,
+    comparedMannerIncorporationAlreadyBelongsToLesson35_12: true,
+});
+
+const LESSON44_POSSESSIVE_STATE_ADVERBIAL_NNC_FRAME = Object.freeze({
+    kind: "lesson-44-possessive-state-adverbial-nnc-frame",
+    sourceSection: "Andrews 44.8",
+    possessiveStateCanBeAdverbializedFirstDegree: true,
+    majorityDeferredToLessons45_47: true,
+    rarePatientiveOrActiveActionExamplesRemainDiagnostic: true,
+    iyohcaBuiltFromActiveActionNounstem: true,
+    nohmahAndNohmatcaAnalysesAreConjectural: true,
+    honorificTzincoCaveatSuggestsLexicalizationOrRelationalProblem: true,
+});
+
+const LESSON44_INCORPORATED_ADVERBIAL_MODIFIER_FRAME = Object.freeze({
+    kind: "lesson-44-incorporated-adverbial-modifier-frame",
+    sourceSection: "Andrews 44.9",
+    absolutiveNncPredicateCanIncorporateIntoCompoundVncEmbed: true,
+    subjectPronounDiscardedSoDegreesDisappear: true,
+    externalAdverbialNncModifiesWholeVnc: true,
+    incorporatedAdverbialModifiesOnlyMatrixVerbstem: true,
+    translationMayNotShowDifference: true,
+    compoundVerbstemMayBecomeIdiomatic: true,
+    paniOrdinarilyLosesFinalIWhenIncorporated: true,
+    someAdverbialsOccurOnlyAsCompoundStems: true,
+    someAdverbialsOccurInCompoundsOrPossessiveStateNncs: true,
+});
+
+const LESSON44_ADVERBIAL_NUCLEAR_SUBSECTION_INVENTORY = Object.freeze([
+    Object.freeze({ id: "lesson44-adverbial-nuclear-overview", andrewsSection: "44.1", category: "adverbial-nuclear-clause-overview", directiveEs: "Los modificadores adverbiales no-particula son CNV/CNN o unidades concatenadas adjuntas; las unidades adjuntas se difieren a 49-50.", engineSurface: "diagnostic boundary plus configured adverbio frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-adverbialized-subject-pronoun", andrewsSection: "44.1 transformation", category: "adverbialized-subject-pronoun", directiveEs: "La adverbializacion asigna un pronombre sujeto adverbializado al predicado; el significado del tronco limita el dominio posible.", engineSurface: "adverbialized subject pronoun frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-adverbialization-degrees", andrewsSection: "44.2", category: "adverbialization-degree", directiveEs: "El primer grado es semantico; el segundo reemplaza el relleno sonoro de num1 por silencio.", engineSurface: "degree constraint frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-first-degree-source-limits", andrewsSection: "44.2 VNC/possessive", category: "first-degree-source-limits", directiveEs: "Las CNV y CNN posesivas permiten solo primer grado; las CNN absolutivas son idiosincraticas.", engineSurface: "degree gate in adverbial frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-adverbialized-vncs", andrewsSection: "44.3", category: "adverbialized-vnc", directiveEs: "Solo pocas CNV permiten adverbializacion y la mayoria esta lexicalizada.", engineSurface: "diagnostic VNC inventory frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-iuh-izqui-warning", andrewsSection: "44.3 iuh/iz note", category: "substantival-adjectival-warning", directiveEs: "Formas como iuhqui e izqui pueden ser sustantivas o adjetivales, no adverbiales en este punto.", engineSurface: "diagnostic false-positive boundary", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-adverbialized-nnc-first-degree", andrewsSection: "44.4.1", category: "nnc-first-degree-adverbialization", directiveEs: "La CNN de primer grado puede ser ambigua entre predicado ecuativo y predicado adverbial.", engineSurface: "diagnostic NNC degree frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-adverbialized-nnc-second-degree", andrewsSection: "44.4.2", category: "nnc-second-degree-adverbialization", directiveEs: "La CNN absolutiva de segundo grado usa forma distintiva del sujeto y elimina la ambiguedad.", engineSurface: "diagnostic NNC degree frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-distributive-affinity-adverbials", andrewsSection: "44.4 note", category: "distributive-affinity-adverbials", directiveEs: "Las CNN adverbializadas pueden formarse sobre troncos distributivos/varietales y de afinidad si el significado lo permite.", engineSurface: "diagnostic stem-family frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-particle-looking-nncs", andrewsSection: "44.5", category: "particle-looking-nnc", directiveEs: "Una CNN monosilabica de segundo grado puede parecer particula; eso no la convierte en evidencia de particula.", engineSurface: "diagnostic particle-looking NNC frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-mo-negative-boundary", andrewsSection: "44.5.4", category: "mo-negative-boundary", directiveEs: "Mo no es interrogativo inherente; ahmo/camo son CNN negativizadas y la negacion antes de adjunto no niega necesariamente la accion.", engineSurface: "diagnostic particle-looking NNC frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-quen-fused-in", andrewsSection: "44.5.7", category: "quen-fused-in", directiveEs: "Quen se analiza como formacion especial con in fusionado; otro in puede seguir y la posicion no inicial quita fuerza interrogativa.", engineSurface: "diagnostic particle-looking NNC frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-other-absolutive-nncs", andrewsSection: "44.6", category: "other-absolutive-state-adverbials", directiveEs: "Otras CNN absolutivas adverbializadas se organizan por tiempo, lugar y manera/grado.", engineSurface: "diagnostic absolutive NNC inventory frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-eh-stress-collocations", andrewsSection: "44.6 eh collocations", category: "eh-stress-collocations", directiveEs: "Algunas CNN adverbiales forman grupo acentual con yeh/eh; yequeneh y yeceh tienen constituyentes desconocidos.", engineSurface: "diagnostic collocation frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson44-preterit-agentive-adverbial-nncs", andrewsSection: "44.7", category: "preterit-agentive-adverbial-nnc", directiveEs: "El tronco de uso general del agentivo preterito produce adverbios de manera: como quien ha hecho o llegado a ser algo.", engineSurface: "diagnostic preterit-agentive adverbial frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-preterit-agentive-source-variants", andrewsSection: "44.7 variants", category: "preterit-agentive-source-variants", directiveEs: "Pueden intervenir fuentes obsoletas, root-plus-ya, tronco pleno, irregularidad, fuentes transitivas y reflexivos de linea auxiliar o principal.", engineSurface: "diagnostic preterit-agentive adverbial frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-possessive-state-adverbial-nncs", andrewsSection: "44.8", category: "possessive-state-adverbialized-nnc", directiveEs: "Las CNN posesivas adverbializadas son de primer grado; la mayoria corresponde a 45-47 y los casos raros quedan diagnosticos.", engineSurface: "diagnostic possessive-state adverbial frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson44-incorporated-adverbial-modifiers", andrewsSection: "44.9", category: "incorporated-adverbial-modifier", directiveEs: "Al incorporarse el predicado de una CNN absolutiva a una CNV compuesta, se descarta el sujeto y desaparece la diferencia de grados.", engineSurface: "diagnostic incorporated-adverbial frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+]);
+
+function cloneAdverbialNuclearLessonRecord(record) {
+    if (!record || typeof record !== "object") {
+        return record;
+    }
+    if (Array.isArray(record)) {
+        return record.map((entry) => cloneAdverbialNuclearLessonRecord(entry));
+    }
+    return Object.fromEntries(
+        Object.entries(record).map(([key, value]) => [key, cloneAdverbialNuclearLessonRecord(value)])
+    );
+}
+
+function getLesson44AdverbialNuclearSubsectionInventory() {
+    return LESSON44_ADVERBIAL_NUCLEAR_SUBSECTION_INVENTORY.map((entry) => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_VALIDATION_REFS),
+    }));
+}
+
+function buildLesson44AdverbialNuclearPursuitFrame() {
+    const subsectionInventory = getLesson44AdverbialNuclearSubsectionInventory();
+    const overviewFrame = cloneAdverbialNuclearLessonRecord(LESSON44_OVERVIEW_FRAME);
+    const degreesFrame = cloneAdverbialNuclearLessonRecord(LESSON44_DEGREES_FRAME);
+    const adverbializedVncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_ADVERBIALIZED_VNC_FRAME);
+    const adverbializedNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_ADVERBIALIZED_NNC_FRAME);
+    const particleLookingNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_PARTICLE_LOOKING_NNC_FRAME);
+    const otherAbsolutiveNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_OTHER_ABSOLUTIVE_NNC_FRAME);
+    const preteritAgentiveAdverbialNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_PRETERIT_AGENTIVE_ADVERBIAL_NNC_FRAME);
+    const possessiveStateAdverbialNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_POSSESSIVE_STATE_ADVERBIAL_NNC_FRAME);
+    const incorporatedAdverbialModifierFrame = cloneAdverbialNuclearLessonRecord(LESSON44_INCORPORATED_ADVERBIAL_MODIFIER_FRAME);
+    const remainingGaps = [
+        "Current Lesson 44 support records Andrews' adverbial nuclear-clause architecture as diagnostics and preserves the existing configured adverbio route; it does not implement a full adverbial VNC/NNC generator.",
+        "Second-degree absolutive NNC adverbialization, particle-looking NNCs, other absolutive-state adverbials, preterit-agentive adverbial NNCs, possessive-state adverbials, and incorporated adverbial modifiers remain inventory/diagnostic frames.",
+        "Classical example spellings from Andrews are not imported as Nawat/Pipil fixtures; confirmed Nawat/Pipil examples are required before static data, parser/search detection, UI actions, or generation routing can expand.",
+    ];
+    const frame = {
+        kind: "lesson-44-adverbial-nuclear-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 44,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-44",
+        pdfRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_PDF_REFS),
+        plannedArrows: [
+            {
+                id: "lesson-44-adverbial-nuclear-audit",
+                type: "metadata-diagnostic-test",
+                aim: "Audit Andrews Lesson 44.1-44.9 against current adverbial nuclear-clause boundary metadata, configured adverbio output frames, adverbialization degrees, adverbialized VNC/NNC inventories, particle-looking NNCs, preterit-agentive adverbial NNCs, possessive-state adverbials, and incorporated adverbial modifiers.",
+                andrewsRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_PDF_REFS),
+                expectedFeedbackRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_VALIDATION_REFS),
+            },
+        ],
+        firedArrows: [
+            {
+                id: "lesson-44-adverbial-nuclear-audit",
+                result: "hit",
+                correction: "Lesson 44 now records Andrews adverbial nuclear-clause architecture across adverbialized subject pronouns, degree constraints, adverbialized VNCs and NNCs, particle-looking NNCs, absolutive and possessive-state adverbials, preterit-agentive adverbials, and incorporated adverbial modifiers while keeping generation expansion blocked.",
+                andrewsRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_PDF_REFS),
+                feedbackRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_VALIDATION_REFS),
+            },
+        ],
+        subsectionInventory,
+        overviewFrame,
+        degreesFrame,
+        adverbializedVncFrame,
+        adverbializedNncFrame,
+        particleLookingNncFrame,
+        otherAbsolutiveNncFrame,
+        preteritAgentiveAdverbialNncFrame,
+        possessiveStateAdverbialNncFrame,
+        incorporatedAdverbialModifierFrame,
+        currentEngineBoundary: {
+            adverbialNuclearBoundaryMetadataImplemented: true,
+            configuredAdverbioSurfaceImplemented: true,
+            adverbialNuclearClauseFrameImplemented: true,
+            firstDegreeVncFrameImplemented: true,
+            secondDegreeNncDiagnosticOnly: true,
+            adverbializedVncInventoryDiagnosticOnly: true,
+            adverbializedNncInventoryDiagnosticOnly: true,
+            particleLookingNncDiagnosticOnly: true,
+            preteritAgentiveAdverbialNncDiagnosticOnly: true,
+            possessiveStateAdverbialNncDiagnosticOnly: true,
+            incorporatedAdverbialModifierDiagnosticOnly: true,
+            parserDetectionImplemented: false,
+            staticAdverbialDataImplemented: false,
+            newWordGenerationAllowed: false,
+            fullLesson44GenerationImplemented: false,
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false,
+    };
+    return attachAdverbialNuclearGrammarContract(frame, {
+        metadataKind: "lesson-44-adverbial-nuclear-pursuit-frame",
+        unitKind: "adverbial-nuclear-clause-boundary",
+        routeStage: "audit-lesson-44",
+        structuralSource: "Andrews Lesson 44",
+        andrewsRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 44.1-44.9",
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil adverbial evidence",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: "nawat-evidence-required",
+        },
+        morphBoundaryFrame: {
+            overviewFrame,
+            degreesFrame,
+            adverbializedVncFrame,
+            adverbializedNncFrame,
+            particleLookingNncFrame,
+            otherAbsolutiveNncFrame,
+            preteritAgentiveAdverbialNncFrame,
+            possessiveStateAdverbialNncFrame,
+            incorporatedAdverbialModifierFrame,
+        },
+        nuclearClauseFrame: {
+            sourceClauseKinds: ["VNC", "NNC absolutive", "NNC possessive"],
+            adverbializedSubjectPronounRequired: true,
+            vncAllowsOnlyFirstDegree: true,
+            possessiveNncAllowsOnlyFirstDegree: true,
+            absolutiveNncDegreeIsIdiosyncratic: true,
+            adjoinedUnitsDeferredToLessons49_50: true,
+        },
+        participantFrame: {
+            semanticRole: "adverbialized subject pronoun",
+            firstDegreeSubjectPronounShapeUnchanged: true,
+            secondDegreeNum1Silent: true,
+            subjectPronounDiscardedInIncorporation: true,
+        },
+        targetContract: {
+            metadataKind: "lesson-44-adverbial-nuclear-pursuit-frame",
+            generationAllowed: false,
+            closestPass: false,
+            remainingGaps,
+        },
+        diagnostics: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-needs-nawat-evidence"],
     });
 }
 
@@ -295,10 +637,10 @@ function buildAdverbialNuclearBoundaryMetadata() {
         targetAuthority: "Nawat/Pipil repo data and user-provided forms",
         generationAllowed: false,
         confirmedExamples: [],
-        knownLegacyAdverbioTenses: getKnownLegacyAdverbioTensesForAdverbialBoundary(),
+        knownConfiguredAdverbioTenses: getKnownConfiguredAdverbioTensesForAdverbialBoundary(),
         structuralQuestions: getAdverbialNuclearStructuralQuestions(),
         boundaries: {
-            hasLegacyAdverbioSurface: true,
+            hasConfiguredAdverbioSurface: true,
             hasAdverbialNuclearClauseFrame: true,
             hasFullAdverbialNuclearClauseEngine: false,
             hasAdverbialNncGeneration: false,
@@ -307,7 +649,7 @@ function buildAdverbialNuclearBoundaryMetadata() {
             changesAdverbioGeneration: false,
             changesNncGeneration: false,
             changesVncGeneration: false,
-            treatsLegacyAdverbioSurfaceAsFullLesson44Evidence: false,
+            treatsConfiguredAdverbioSurfaceAsFullLesson44Evidence: false,
         },
         antiConflationRules: getAdverbialNuclearAntiConflationRules(),
     };
@@ -364,7 +706,7 @@ function buildAdverbialNuclearClauseFrame({
     objectPrefix = "",
     baseObjectPrefix = "",
     evidenceSource = "",
-    legacyTense = "",
+    configuredTense = "",
 } = {}) {
     const normalizedSourceKind = normalizeAdverbialNuclearSourceClauseKind(sourceClauseKind);
     const normalizedKind = normalizeAdverbialNuclearKind(adverbialKind);
@@ -435,21 +777,21 @@ function buildAdverbialNuclearClauseFrame({
             valency: String(sourceValency || ""),
             objectPrefix: String(objectPrefix || ""),
             baseObjectPrefix: String(baseObjectPrefix || objectPrefix || ""),
-            tense: String(tense || legacyTense || ""),
+            tense: String(tense || configuredTense || ""),
         },
         adverbialization: {
             degree: normalizedDegree,
             semanticDomain: normalizedDomain,
             subjectPronoun,
             lexicalized: normalizedDegree === ADVERBIAL_NUCLEAR_DEGREE.lexicalized,
-            legacyRoute: Boolean(legacyTense),
+            configuredRoute: Boolean(configuredTense),
         },
         output: {
             surfaceForms: forms,
             preservesGeneratedSurface: true,
         },
         generationContract: {
-            routeGeneratesSurface: Boolean(legacyTense),
+            routeGeneratesSurface: Boolean(configuredTense),
             frameGeneratesSurface: false,
             changesSurfaceForms: false,
             newWordGenerationAllowed: false,
@@ -481,7 +823,7 @@ function classifyAdverbialNuclearCandidate({
     const normalizedKind = normalizeAdverbialNuclearKind(adverbialKind);
     const normalizedFalsePositive = normalizeAdverbialNuclearFalsePositiveSource(falsePositiveSource);
     const normalizedTense = String(tense || "").trim();
-    const hasKnownLegacyAdverbioTense = getKnownLegacyAdverbioTensesForAdverbialBoundary().includes(normalizedTense);
+    const hasKnownConfiguredAdverbioTense = getKnownConfiguredAdverbioTensesForAdverbialBoundary().includes(normalizedTense);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
     const classification = {
         kind: "adverbial-nuclear-candidate-classification",
@@ -489,7 +831,7 @@ function classifyAdverbialNuclearCandidate({
         source: String(source || ""),
         candidate: String(candidate || ""),
         tense: normalizedTense,
-        hasKnownLegacyAdverbioTense,
+        hasKnownConfiguredAdverbioTense,
         adverbialKind: normalizedKind,
         adverbialDegree: String(adverbialDegree || ""),
         evidenceSource: String(evidenceSource || ""),
@@ -498,7 +840,7 @@ function classifyAdverbialNuclearCandidate({
         generationAllowed: false,
         diagnostics: [
             hasEvidence ? "adverbial-nuclear-needs-validation" : "adverbial-nuclear-needs-nawat-evidence",
-            hasKnownLegacyAdverbioTense ? "legacy-adverbio-surface-recognized" : "legacy-adverbio-surface-unconfirmed",
+            hasKnownConfiguredAdverbioTense ? "configured-adverbio-surface-recognized" : "configured-adverbio-surface-unconfirmed",
             normalizedFalsePositive !== ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE.unknown
                 ? "adverbial-nuclear-false-positive-source"
                 : "adverbial-nuclear-unconfirmed",

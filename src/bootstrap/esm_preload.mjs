@@ -72,8 +72,8 @@ const PRELOAD_INSTALLERS_BY_PATH = new Map([
     ["src/appendices/registry.mjs", installAppendixRegistryGlobals],
 ]);
 
-export function getEsmPreloadLegacySkipSet() {
-    return new Set(ESM_PRELOAD_PATHS.map((entry) => entry.legacyScriptPath));
+export function getEsmPreloadSkipSet() {
+    return new Set(ESM_PRELOAD_PATHS.map((entry) => entry.scriptPath));
 }
 
 export async function preloadRuntimeModules({

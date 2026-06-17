@@ -1,17 +1,18 @@
 // core/generation/runtime_support.js
-// Helper band around generateWord(): forward-stage application, no-stem masking,
+// Helper band around nuclear-clause surface generation: forward-stage application, no-stem masking,
 // suppletive yawi prefixing, nonactive overrides, and pooled stem morphology.
 
 "use strict";
 
 const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+const GENERATE_RUNTIME_ROUTE_FAMILY = "nuclear-clause-surface";
 
 function buildGenerateRuntimeBlockedDiagnostic({
     id = "generate-runtime-no-output",
     message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE,
     failedLayer = "stem",
     contractLayer = "stemFrame",
-    routeFamily = "generate-word",
+    routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
     routeStage = "",
 } = {}) {
     const normalizedId = String(id || "generate-runtime-no-output").trim();
@@ -22,7 +23,7 @@ function buildGenerateRuntimeBlockedDiagnostic({
         message: String(message || GENERATE_RUNTIME_NO_OUTPUT_MESSAGE).trim(),
         failedLayer: String(failedLayer || "stem").trim(),
         contractLayer: String(contractLayer || "stemFrame").trim(),
-        routeFamily: String(routeFamily || "generate-word").trim(),
+        routeFamily: String(routeFamily || GENERATE_RUNTIME_ROUTE_FAMILY).trim(),
         routeStage: String(routeStage || "").trim(),
     };
 }
@@ -42,7 +43,7 @@ function getGenerateRuntimeDiagnosticLayerContract(routeStage = "") {
 }
 
 function normalizeGenerateRuntimeDiagnostics(diagnostics = [], fallbackDiagnostic = null, {
-    routeFamily = "generate-word",
+    routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
     routeStage = "",
 } = {}) {
     const layerContract = getGenerateRuntimeDiagnosticLayerContract(routeStage);
@@ -73,7 +74,7 @@ function normalizeGenerateRuntimeDiagnostics(diagnostics = [], fallbackDiagnosti
                 message: String(normalizedEntry.message || "").trim(),
                 failedLayer: normalizedEntry.failedLayer || layerContract.failedLayer,
                 contractLayer: normalizedEntry.contractLayer || layerContract.contractLayer,
-                routeFamily: normalizedEntry.routeFamily || String(routeFamily || "generate-word").trim(),
+                routeFamily: normalizedEntry.routeFamily || String(routeFamily || GENERATE_RUNTIME_ROUTE_FAMILY).trim(),
                 routeStage: normalizedEntry.routeStage || String(routeStage || "").trim(),
             };
         })
@@ -156,10 +157,10 @@ function resolveGenerateRuntimeContractSurface(result = null) {
 }
 
 function attachGenerateRuntimeBlockedContract(result = null, {
-    routeFamily = "generate-word",
+    routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
     routeStage = "no-output",
     renderVerb = "",
-    objectPrefix = "",
+    obj1 = "",
     tense = "",
     derivationType = "",
     diagnosticId = "generate-runtime-no-output",
@@ -221,8 +222,8 @@ function attachGenerateRuntimeBlockedContract(result = null, {
         },
         nuclearClauseFrame: null,
         participantFrame: {
-            object: {
-                prefix: String(objectPrefix || ""),
+            obj1: {
+                prefix: String(obj1 || ""),
             },
         },
         inflectionFrame: {
@@ -235,7 +236,7 @@ function attachGenerateRuntimeBlockedContract(result = null, {
                 routeStage,
                 sourceContract: {
                     renderVerb: String(renderVerb || ""),
-                    objectPrefix: String(objectPrefix || ""),
+                    obj1: String(obj1 || ""),
                     tense: String(tense || ""),
                     derivationType: String(derivationType || ""),
                 },
@@ -313,7 +314,7 @@ function buildNoStemMaskResult({
     shouldMask = false,
     silent = false,
     renderVerb = "",
-    objectPrefix = "",
+    obj1 = "",
     tense = "",
     isReflexive = false,
     derivationType = "",
@@ -326,7 +327,7 @@ function buildNoStemMaskResult({
     if (!silent) {
         renderAllOutputs({
             verb: renderVerb,
-            objectPrefix,
+            objectPrefix: obj1,
             tense,
         });
     }
@@ -336,7 +337,7 @@ function buildNoStemMaskResult({
             routeFamily,
             routeStage,
             renderVerb,
-            objectPrefix,
+            obj1,
             tense,
             derivationType,
             diagnosticId: "generate-forward-derivation-no-stem",
@@ -350,7 +351,7 @@ function applyForwardStageForGenerate({
     derivationOptions = null,
     silent = false,
     renderVerb = "",
-    baseObjectPrefix = "",
+    obj1Base = "",
     tense = "",
     isReflexive = false,
 }) {
@@ -363,7 +364,7 @@ function applyForwardStageForGenerate({
         shouldMask: stage.blocked,
         silent,
         renderVerb,
-        objectPrefix: baseObjectPrefix,
+        obj1: obj1Base,
         tense,
         isReflexive,
         derivationType,
@@ -382,7 +383,7 @@ function applyGenerateForwardDerivations({
     buildDerivationOptions = () => ({}),
     silent = false,
     renderVerb = "",
-    baseObjectPrefix = "",
+    obj1Base = "",
     tense = "",
     isReflexive = false,
     initialState = null,
@@ -418,7 +419,7 @@ function applyGenerateForwardDerivations({
             enabled,
             silent,
             renderVerb,
-            baseObjectPrefix,
+            obj1Base,
             tense,
             isReflexive,
         });
@@ -491,33 +492,33 @@ function applySuppletiveYawiPrefixToStemSet(suppletiveStemSet, applyPrefix) {
 
 function applyNonactiveGenerateOverrides({
     nonactiveDerivation,
-    objectPrefix,
-    morphologyObjectPrefix,
-    baseObjectPrefix,
-    indirectObjectMarker,
-    thirdObjectMarker,
+    obj1,
+    morphologyObj1,
+    obj1Base,
+    obj2,
+    obj3,
     isReflexive,
 }) {
     if (nonactiveDerivation?.nonactiveObjectPrefixOverride == null) {
         return {
-            objectPrefix,
-            morphologyObjectPrefix,
-            baseObjectPrefix,
-            indirectObjectMarker,
-            thirdObjectMarker,
+            obj1,
+            morphologyObj1,
+            obj1Base,
+            obj2,
+            obj3,
             isReflexive,
         };
     }
-    const overriddenObjectPrefix = nonactiveDerivation.nonactiveObjectPrefixOverride;
+    const overriddenObj1 = nonactiveDerivation.nonactiveObjectPrefixOverride;
     return {
-        objectPrefix: overriddenObjectPrefix,
-        morphologyObjectPrefix: overriddenObjectPrefix,
-        baseObjectPrefix: overriddenObjectPrefix,
-        indirectObjectMarker: nonactiveDerivation.nonactiveIndirectMarkerOverride != null
+        obj1: overriddenObj1,
+        morphologyObj1: overriddenObj1,
+        obj1Base: overriddenObj1,
+        obj2: nonactiveDerivation.nonactiveIndirectMarkerOverride != null
             ? nonactiveDerivation.nonactiveIndirectMarkerOverride
-            : indirectObjectMarker,
-        thirdObjectMarker: "",
-        isReflexive: overriddenObjectPrefix === "mu",
+            : obj2,
+        obj3: "",
+        isReflexive: overriddenObj1 === "mu",
     };
 }
 
@@ -529,11 +530,11 @@ function resolveStemCandidateMorphologyResult({
     shouldApplyDerivedAllomorphy,
     isPassiveImpersonalMode,
     parsedVerb,
-    indirectObjectMarker,
-    thirdObjectMarker,
+    obj2,
+    obj3,
     isNominalOutputProfile,
     tense,
-    possessivePrefix,
+    poseedor,
     patientivoOwnership,
     isYawi,
 }) {
@@ -551,36 +552,39 @@ function resolveStemCandidateMorphologyResult({
     }
     let stemVerb = stem;
     let stemAnalysisResolved = stemAnalysis;
-    let stemObjectPrefix = baseMorphologyInput.objectPrefix;
+    const basePers1 = baseMorphologyInput.pers1 ?? baseMorphologyInput.subjectPrefix ?? "";
+    const basePers2 = baseMorphologyInput.pers2 ?? baseMorphologyInput.subjectSuffix ?? "";
+    let stemObj1 = baseMorphologyInput.obj1 ?? baseMorphologyInput.objectPrefix ?? "";
     if (shouldApplyDerivedAllomorphy) {
-        const derivedAllomorphy = applyObjectAllomorphy({
+        const derivedAllomorphy = applyObj1Allomorphy({
             verb: stemVerb,
             analysisVerb: stemAnalysisResolved,
-            subjectPrefix: baseMorphologyInput.subjectPrefix,
-            subjectSuffix: baseMorphologyInput.subjectSuffix,
-            objectPrefix: stemObjectPrefix,
-            indirectObjectMarker,
-            thirdObjectMarker,
+            pers1: basePers1,
+            pers2: basePers2,
+            obj1: stemObj1,
+            obj2,
+            obj3,
             isPassiveImpersonalMode,
             ...buildObjectAllomorphyMetaOptions(parsedVerb),
         });
         stemVerb = derivedAllomorphy.verb;
         stemAnalysisResolved = derivedAllomorphy.analysisVerb;
-        stemObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
+        stemObj1 = derivedAllomorphy.morphologyObj1;
     }
     const applied = applyMorphologyRules({
         ...baseMorphologyInput,
         verb: stemVerb,
         analysisVerb: stemAnalysisResolved,
         analysisExactVerb: stemAnalysisResolved,
-        objectPrefix: stemObjectPrefix,
+        obj1: stemObj1,
+        objectPrefix: stemObj1,
     });
     if (!applied || applied.error || !applied.verb) {
         return null;
     }
-    const localSubjectPrefix = applied.subjectPrefix;
-    const localObjectPrefix = applied.objectPrefix;
-    let localSubjectSuffix = applied.subjectSuffix;
+    const localPers1 = applied.pers1 ?? applied.subjectPrefix;
+    const localObj1 = applied.obj1 ?? applied.objectPrefix;
+    let localPers2 = applied.pers2 ?? applied.subjectSuffix;
     let localVerb = applied.verb;
     const customaryPresentPatientiveSelectedProjectiveObjectPrefix = (
         baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix === "ta"
@@ -596,47 +600,47 @@ function resolveStemCandidateMorphologyResult({
             : `${customaryPresentPatientiveSelectedProjectiveObjectPrefix}${normalizedStem}`;
     };
     if (baseMorphologyInput.customaryPresentPatientiveNnc === true) {
-        const moveCustomaryPresentNi = localSubjectSuffix === "ni"
-            || localSubjectSuffix === "nit";
+        const moveCustomaryPresentNi = localPers2 === "ni"
+            || localPers2 === "nit";
         if (moveCustomaryPresentNi) {
             localVerb = `${localVerb || ""}ni`;
-            localSubjectSuffix = baseMorphologyInput.customaryPresentPatientivePlural === true
+            localPers2 = baseMorphologyInput.customaryPresentPatientivePlural === true
                 ? "met"
                 : "";
         }
         localVerb = keepSelectedCustomaryPresentPatientiveProjectiveStem(localVerb);
     }
     let localFormSpec = applied.formSpec
-        || (isNominalOutputProfile ? buildLiteralNominalFormSpec(localVerb, localSubjectSuffix) : null);
+        || (isNominalOutputProfile ? buildLiteralNominalFormSpec(localVerb, localPers2) : null);
     if (
         isNominalOutputProfile
         && baseMorphologyInput.customaryPresentPatientiveNnc === true
     ) {
-        localFormSpec = buildLiteralNominalFormSpec(localVerb, localSubjectSuffix);
+        localFormSpec = buildLiteralNominalFormSpec(localVerb, localPers2);
     }
-    if (tense === "patientivo" && Boolean(possessivePrefix)) {
-        localSubjectSuffix = adjustPatientivoPossessiveSuffix(
-            localSubjectSuffix,
+    if (tense === "patientivo" && Boolean(poseedor)) {
+        localPers2 = adjustPatientivoPossessiveSuffix(
+            localPers2,
             true,
             patientivoOwnership,
             { stem: applied.verb }
         );
-        if (localSubjectSuffix === null) {
+        if (localPers2 === null) {
             return null;
         }
         if (isNominalOutputProfile) {
-            localFormSpec = withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
+            localFormSpec = withNominalFormSpecSuffix(localFormSpec, localPers2, {
                 verb: applied.verb,
-                subjectSuffix: localSubjectSuffix,
+                subjectSuffix: localPers2,
             });
         }
     }
-    const isYawiImperative = isYawi && tense === "imperativo" && localSubjectSuffix === "";
+    const isYawiImperative = isYawi && tense === "imperativo" && localPers2 === "";
     const localAlternates = (applied.alternateForms || []).map((form) => {
         const normalizedForm = isNominalOutputProfile
-            ? normalizeNominalFormEntry(form, { subjectSuffix: localSubjectSuffix })
+            ? normalizeNominalFormEntry(form, { subjectSuffix: localPers2 })
             : form;
-        const rawAltSuffix = (form.subjectSuffix ?? localSubjectSuffix);
+        const rawAltSuffix = (form.subjectSuffix ?? localPers2);
         const moveAltCustomaryPresentNi = baseMorphologyInput.customaryPresentPatientiveNnc === true
             && (rawAltSuffix === "ni" || rawAltSuffix === "nit");
         const altVerb = moveAltCustomaryPresentNi
@@ -648,7 +652,7 @@ function resolveStemCandidateMorphologyResult({
         const customaryPluralAltSuffix = moveAltCustomaryPresentNi
             ? (baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "")
             : rawAltSuffix;
-        const altSuffix = (tense === "patientivo" && Boolean(possessivePrefix))
+        const altSuffix = (tense === "patientivo" && Boolean(poseedor))
             ? adjustPatientivoPossessiveSuffix(
                 customaryPluralAltSuffix,
                 true,
@@ -671,9 +675,9 @@ function resolveStemCandidateMorphologyResult({
         };
     }).filter(Boolean);
     return {
-        subjectPrefix: localSubjectPrefix,
-        objectPrefix: localObjectPrefix,
-        subjectSuffix: localSubjectSuffix,
+        pers1: localPers1,
+        obj1: localObj1,
+        pers2: localPers2,
         verb: localVerb,
         formSpec: localFormSpec,
         trailingSuffix: applied.trailingSuffix || "",

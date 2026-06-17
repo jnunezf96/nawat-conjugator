@@ -267,9 +267,9 @@ function attachDerivationContinuationGrammarContract(record = null) {
     const sourceInput = getDerivationContinuationContractSourceInput(record);
     const sourceSurface = sourceInput;
     const targetInput = getDerivationContinuationContractTargetInput(record);
-    const legacyDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
+    const inputDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
     const routeStage = supported ? "preview-continuation" : "blocked";
-    const diagnostics = normalizeDerivationContinuationDiagnosticEntries(legacyDiagnostics, {
+    const diagnostics = normalizeDerivationContinuationDiagnosticEntries(inputDiagnostics, {
         routeStage,
     });
     const andrewsRefs = getDerivationContinuationContractAndrewsRefs(record);
@@ -355,7 +355,7 @@ function attachDerivationContinuationGrammarContract(record = null) {
         configurable: true,
         enumerable: true,
         writable: true,
-        value: legacyDiagnostics,
+        value: inputDiagnostics,
     });
     return output;
 }
@@ -2199,7 +2199,7 @@ function getPatientivoPrelocativeSubjectObjectMap(explicitMap = null) {
         ? PASSIVE_IMPERSONAL_SUBJECT_MAP
         : {};
     Object.entries(objectSubjectMap || {}).forEach(([objectPrefix, subject]) => {
-        const key = `${subject?.subjectPrefix || ""}|${subject?.subjectSuffix || ""}`;
+        const key = `${subject?.pers1 || ""}|${subject?.pers2 || ""}`;
         if (objectPrefix && key && !subjectObjectMap[key]) {
             subjectObjectMap[key] = objectPrefix;
         }
@@ -2208,7 +2208,7 @@ function getPatientivoPrelocativeSubjectObjectMap(explicitMap = null) {
         return subjectObjectMap;
     }
     const possessiveMap = getPatientivoPrelocativePossessiveObjectMap();
-    if (typeof getPossessivePrefixForSubject !== "function") {
+    if (typeof getPoseedorPrefixForPers1Pers2 !== "function") {
         return subjectObjectMap;
     }
     [
@@ -2219,7 +2219,7 @@ function getPatientivoPrelocativeSubjectObjectMap(explicitMap = null) {
         { subjectPrefix: "an", subjectSuffix: "t" },
         { subjectPrefix: "", subjectSuffix: "t" },
     ].forEach((subject) => {
-        const possessivePrefix = getPossessivePrefixForSubject(subject.subjectPrefix, subject.subjectSuffix);
+        const possessivePrefix = getPoseedorPrefixForPers1Pers2(subject.subjectPrefix, subject.subjectSuffix);
         const objectPrefix = possessivePrefix ? String(possessiveMap[possessivePrefix] || "").trim() : "";
         const key = `${subject.subjectPrefix}|${subject.subjectSuffix}`;
         if (objectPrefix && !subjectObjectMap[key]) {

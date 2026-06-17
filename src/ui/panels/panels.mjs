@@ -101,22 +101,22 @@ export function createUiPanelsApi(targetObject = globalThis) {
         return `noun|v${numericValency}|${normalizedObject}|${normalizedIndirect}|${normalizedThird}|${normalizedPossessor}|${normalizedOwnership}`;
       }
       if (numericValency >= 4) {
-        return `verb|v4|${targetObject.getValence4ComboSignature({
-          objectPrefix,
-          indirectObjectMarker,
-          thirdObjectMarker
+        return `verb|v4|${targetObject.getObj1Obj2Obj3Signature({
+          obj1: objectPrefix,
+          obj2: indirectObjectMarker,
+          obj3: thirdObjectMarker
         })}`;
       }
       if (numericValency === 3) {
-        const normalized = targetObject.resolveDisplayValencePrefixes({
-          objectPrefix,
-          indirectObjectMarker,
+        const normalized = targetObject.resolveDisplayObj1Obj2({
+          obj1: objectPrefix,
+          obj2: indirectObjectMarker,
           derivationType
         });
-        const mainline = normalizePrefixForComboPalette(normalized.objectPrefix || "", {
+        const mainline = normalizePrefixForComboPalette(normalized.obj1 || "", {
           collapseProjective: true
         });
-        const shuntline = normalizePrefixForComboPalette(normalized.indirectObjectMarker || "", {
+        const shuntline = normalizePrefixForComboPalette(normalized.obj2 || "", {
           collapseProjective: false
         });
         return `verb|v3|${mainline}|${shuntline}`;
@@ -919,7 +919,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
       verb = "",
       analysisVerb = ""
     } = {}) {
-      const isTransitive = targetObject.isNonactiveTransitiveVerb(targetObject.getCurrentObjectPrefix(), verbMeta);
+      const isTransitive = targetObject.isNonactiveTransitiveByObj1(targetObject.getCurrentObjectPrefix(), verbMeta);
       const options = targetObject.resolveLiveNonactiveOptions({
         verbMeta,
         verb,
@@ -938,7 +938,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
       const sourceKey = String(verbMeta?.exactBaseVerb || verbMeta?.canonicalRuleBase || verbMeta?.analysisVerb || analysisVerb || verbMeta?.displayVerb || verb || "").trim().toLowerCase();
       const objectPrefix = typeof targetObject.getCurrentObjectPrefix === "function" ? String(targetObject.getCurrentObjectPrefix() || "") : "";
       const derivationType = typeof targetObject.getActiveDerivationType === "function" ? String(targetObject.getActiveDerivationType() || "") : "";
-      const transitivity = targetObject.isNonactiveTransitiveVerb(objectPrefix, verbMeta) ? "transitive" : "intransitive";
+      const transitivity = targetObject.isNonactiveTransitiveByObj1(objectPrefix, verbMeta) ? "transitive" : "intransitive";
       return `${sourceKey}|${derivationType}|${objectPrefix}|${transitivity}|${verbMeta?.isYawi === true ? "yawi" : ""}`;
     }
     function normalizeSelectedNonactiveSuffix(optionMap = new Map(), selectionSignature = "") {
@@ -1223,7 +1223,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
           const availabilityRecord = shouldUseAvailabilityMemo && availabilityMemo.has(availabilityKey) ? availabilityMemo.get(availabilityKey) : (() => {
             const result = targetObject.getCachedSilentGenerateWord({
               silent: true,
-              skipTransitivityValidation: true,
+              skipValidation: true,
               override: {
                 ...modeOverride,
                 subjectPrefix: selection.subjectPrefix,
@@ -1293,8 +1293,8 @@ export function createUiPanelsApi(targetObject = globalThis) {
           tense: tenseValue
         };
         if (subjectOverride) {
-          overridePayload.subjectPrefix = subjectOverride.subjectPrefix;
-          overridePayload.subjectSuffix = subjectOverride.subjectSuffix;
+          overridePayload.subjectPrefix = subjectOverride.pers1;
+          overridePayload.subjectSuffix = subjectOverride.pers2;
           overridePayload.preservePassiveSubject = true;
         }
         const result = targetObject.getCachedSilentGenerateWord({
@@ -1604,14 +1604,14 @@ export function createUiPanelsApi(targetObject = globalThis) {
           }) || {};
           if (useReduplicatedSingularSurface && getPanelConjugationRenderableSurface(result)) {
             const prefixChain = targetObject.buildPrefixedChain({
-              subjectPrefix: selection.subjectPrefix,
-              possessivePrefix: possessorPrefix,
-              objectPrefix: targetObject.composeProjectiveObjectPrefix({
-                objectPrefix: resolvedObjectPrefix,
+              pers1: selection.subjectPrefix,
+              poseedor: possessorPrefix,
+              obj1: targetObject.composeObj1Chain({
+                obj1: resolvedObjectPrefix,
                 markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
-                subjectPrefix: selection.subjectPrefix
+                pers1: selection.subjectPrefix
               }),
-              verb: ""
+              tronco: ""
             });
             result = targetObject.buildReduplicatedConjugationResult(result, {
               prefixChain,
@@ -1631,10 +1631,10 @@ export function createUiPanelsApi(targetObject = globalThis) {
           requireDistinctPossessor: isAgentivo || isPatientivo,
           enforceInvalidCombo: !useReduplicatedSingularSurface
         });
-        const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3 && !targetObject.isValidValence4Combo({
-          objectPrefix: resolvedObjectPrefix,
-          indirectObjectMarker: resolvedIndirectObjectMarker,
-          thirdObjectMarker: resolvedThirdObjectMarker
+        const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3 && !targetObject.isValidObj1Obj2Obj3Combo({
+          obj1: resolvedObjectPrefix,
+          obj2: resolvedIndirectObjectMarker,
+          obj3: resolvedThirdObjectMarker
         });
         const evaluation = targetObject.buildConjugationEvaluationRecord({
           result,
@@ -1819,7 +1819,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
         tenseValue: context.resolvedTense
       }).filter(({
         selection
-      }) => !context.showNonanimateOnly || targetObject.isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix));
+      }) => !context.showNonanimateOnly || targetObject.isNonanimatePers1Pers2(selection.subjectPrefix, selection.subjectSuffix));
       const possessorSelections = Array.isArray(context.visiblePossessorValues) && context.visiblePossessorValues.length ? context.visiblePossessorValues : [""];
       const objectSlotModels = buildNominalAvailabilityObjectSlotModels(context.nounObjectSlotStates);
       const patientivoSources = context.resolvedTense === "patientivo" ? ["nonactive", "perfectivo", "imperfectivo", "tronco-verbal"] : [null];
@@ -1892,6 +1892,19 @@ export function createUiPanelsApi(targetObject = globalThis) {
       const endsWithConsonant = verb !== "" && !targetObject.VOWEL_END_RE.test(verb) && !isWitzInput;
       const hasVerb = verb !== "" && targetObject.VOWEL_RE.test(verb);
       const tenseMode = targetObject.getActiveTenseMode();
+      if (tenseMode === targetObject.TENSE_MODE.particula) {
+        container.innerHTML = "";
+        targetObject.TenseTabsDomSignature = "particula";
+        if (outputUniversalContainer) {
+          outputUniversalContainer.innerHTML = "";
+          outputUniversalContainer.hidden = true;
+        }
+        if (outputControlsContainer) {
+          outputControlsContainer.hidden = true;
+        }
+        syncVerbSourceScopeControl();
+        return;
+      }
       const sourceScope = targetObject.getVerbSourceScope();
       const nonactiveSuffixOptionMap = tenseMode === targetObject.TENSE_MODE.verbo ? resolveNonactiveSuffixOptionMap({
         verbMeta,
@@ -1937,7 +1950,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
       if (shouldShowUniversalTabs) {
         const needsAvailabilityCompute = shouldComputeUniversalAvailability || !Array.isArray(availability) || availability.length !== targetObject.PRETERITO_UNIVERSAL_ORDER.length;
         if (needsAvailabilityCompute) {
-          const isTransitive = targetObject.isValencyFilled(targetObject.getCurrentObjectPrefix(), verbMeta);
+          const isTransitive = targetObject.isObj1ValencyFilled(targetObject.getCurrentObjectPrefix(), verbMeta);
           const derivationType = verbMeta.derivationType || targetObject.getActiveDerivationType();
           let availabilityTargets = [{
             verb,

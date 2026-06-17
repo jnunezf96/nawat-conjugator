@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Operation Stem Pool Audit",
-    "date": "2026-04-02",
+    "date": "2026-06-15",
     "scope": "stemCollectionPool producer chain in script.js",
     "out_of_scope": [
       "generateWord output assembly (already clean)",

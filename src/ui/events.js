@@ -151,7 +151,7 @@ document.addEventListener("keydown", (event) => {
         LastComposerSpaceTs = 0;
         cancelDeferredToggleAvailabilityPass();
         cancelScheduledVerbInputRefresh();
-        generateWord();
+        generateNuclearClauseSurface();
         event.preventDefault();
     } else {
         LastComposerEscapeTs = 0;
@@ -242,6 +242,9 @@ async function initializeUiRuntime() {
         initCausativeReport();
         initInlineComposerFormulaPatch();
         initVerbComposer();
+        if (typeof initEntradaUrlSegments === "function") {
+            initEntradaUrlSegments();
+        }
         initVerbScreenCalculator();
         initCalcInputModeButtons();
         enforceNoAutofillOnTextboxes(document);
@@ -338,25 +341,35 @@ async function initializeUiRuntime() {
         loadVerbLexiconData().then(() => {
             updateVerbDisambiguation();
         });
-        generateWord();
+        generateNuclearClauseSurface();
     })();
     return uiRuntimeInitializationPromise;
 }
 
 let IsRefreshingInlineComposerFormulaControls = false;
 
-function initInlineComposerFormulaPatch() {
+function disableInlineComposerFormulaPatch() {
     const composer = document.getElementById("verb-composer");
-    if (!composer || composer.dataset.inlineFormulaPatch === "true") {
+    if (!composer) {
         return;
     }
-    composer.dataset.inlineFormulaPatch = "true";
-    composer.classList.add("verb-composer--inline-formula");
-    installInlineComposerFormulaStyles();
-    applyInlineComposerFormulaDom();
-    bindInlineComposerTransitivitySelect();
-    wrapInlineComposerStateProjection();
-    refreshInlineComposerControlsFromState();
+    composer.dataset.inlineFormulaPatch = "disabled";
+    composer.classList.remove("verb-composer--inline-formula");
+    const inlineStyle = document.getElementById("inline-composer-formula-style");
+    if (inlineStyle) {
+        inlineStyle.remove();
+    }
+    const transitivitySelect = document.getElementById("composer-transitivity");
+    if (transitivitySelect) {
+        transitivitySelect.classList.add("is-hidden-control");
+        transitivitySelect.hidden = true;
+        transitivitySelect.setAttribute("aria-hidden", "true");
+        transitivitySelect.setAttribute("tabindex", "-1");
+    }
+}
+
+function initInlineComposerFormulaPatch() {
+    disableInlineComposerFormulaPatch();
 }
 
 function installInlineComposerFormulaStyles() {

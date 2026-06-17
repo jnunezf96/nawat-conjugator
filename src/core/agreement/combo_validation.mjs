@@ -27,26 +27,26 @@ const VALENCE4_SPECIFIC_REPRESENTATIVE_PREFIXES = new Set([
 ]);
 
 export function createComboValidationApi(targetObject = globalThis) {
-    function getComboKey(subjectPrefix, objectPrefix, subjectSuffix) {
-        return `${subjectPrefix}|${objectPrefix}|${subjectSuffix}`;
+    function getPers1Obj1Pers2Key(pers1 = "", obj1 = "", pers2 = "") {
+        return `${pers1}|${obj1}|${pers2}`;
     }
 
-    function resolveComboValidationObjectPrefix({
-        objectPrefix = "",
-        indirectObjectMarker = "",
+    function resolveComboValidationObj1({
+        obj1 = "",
+        obj2 = "",
         derivationType = "",
-        controllerObjectMarker = null,
+        controllerObj1 = null,
     }) {
-        if (controllerObjectMarker !== null) {
-            return controllerObjectMarker || "";
+        if (controllerObj1 !== null) {
+            return controllerObj1 || "";
         }
-        const normalized = targetObject.resolveDisplayValencePrefixes({
-            objectPrefix,
-            indirectObjectMarker,
+        const normalized = targetObject.resolveDisplayObj1Obj2({
+            obj1,
+            obj2,
             derivationType,
         });
-        const object = normalized.objectPrefix || "";
-        const indirect = normalized.indirectObjectMarker || "";
+        const resolvedObj1 = normalized.obj1 || "";
+        const resolvedObj2 = normalized.obj2 || "";
         const pickByPriority = (ordered) => {
             const personMatch = ordered.find((prefix) => PERSON_MARKERS.has(prefix));
             if (personMatch) {
@@ -55,8 +55,10 @@ export function createComboValidationApi(targetObject = globalThis) {
             return ordered.find((prefix) => Boolean(prefix)) || "";
         };
         const slotValues = {
-            object,
-            object2: indirect,
+            object: resolvedObj1,
+            object2: resolvedObj2,
+            obj1: resolvedObj1,
+            obj2: resolvedObj2,
         };
         const orderedByDerivation = targetObject.getDerivationControllerSlotPriority(derivationType)
             .map((slotId) => slotValues[slotId] || "");
@@ -111,30 +113,30 @@ export function createComboValidationApi(targetObject = globalThis) {
         return prefix;
     }
 
-    function getValence4ComboSignature({
-        objectPrefix = "",
-        indirectObjectMarker = "",
-        thirdObjectMarker = "",
+    function getObj1Obj2Obj3Signature({
+        obj1 = "",
+        obj2 = "",
+        obj3 = "",
     }) {
         return [
-            collapseProjectiveForSignature(objectPrefix),
-            collapseSilentSpecificForSignature(indirectObjectMarker),
-            collapseSilentSpecificForSignature(thirdObjectMarker),
+            collapseProjectiveForSignature(obj1),
+            collapseSilentSpecificForSignature(obj2),
+            collapseSilentSpecificForSignature(obj3),
         ].join("|");
     }
 
-    function isValidValence4Combo(options = {}) {
-        return VALENCE4_VALID_COMBO_SIGNATURES.has(getValence4ComboSignature(options));
+    function isValidObj1Obj2Obj3Combo(options = {}) {
+        return VALENCE4_VALID_COMBO_SIGNATURES.has(getObj1Obj2Obj3Signature(options));
     }
 
     return {
-        getComboKey,
-        resolveComboValidationObjectPrefix,
+        getPers1Obj1Pers2Key,
+        resolveComboValidationObj1,
         collapseProjectiveForSignature,
         collapseSilentSpecificForSignature,
         collapseSilentSpecificForDisplay,
-        getValence4ComboSignature,
-        isValidValence4Combo,
+        getObj1Obj2Obj3Signature,
+        isValidObj1Obj2Obj3Combo,
     };
 }
 

@@ -126,7 +126,7 @@ const records = [
     },
 
     // -----------------------------------------------------------------------
-    // applyMorphologyRules — pret-universal early return  [COMPATIBILITY BRANCH]
+    // applyMorphologyRules — pret-universal early return  [STRUCTURED SURFACE BRANCH]
     // -----------------------------------------------------------------------
     {
         id: "amr-07",
@@ -138,41 +138,41 @@ const records = [
         current_output: "{ subjectPrefix: '', objectPrefix: '', subjectSuffix: '', verb: primaryForm, alternateForms: remainingForms[], stemProvenance }",
         mutates_grammatical_authority: false,
         feeds_generateword: "generateWord receives primaryForm as 'verb' and iterates alternateForms; all pass through buildOutputWordText with zeroed affixes. Correct only because affixes are zeroed.",
-        recommended_action: "keep_as_compatibility_branch",
+        recommended_action: "keep_as_structured_surface_branch",
         notes: "String flattening resolved: forms[] from buildPretUniversalResultWithProvenance are now split into primary verb + alternateForms instead of joined into a single verb string. Remaining mixed-boundary concern: zeroed affixes are a workaround for the lack of a surfaceForms contract on generateWord. Full resolution requires a verb-side structured output contract.",
     },
 
     // -----------------------------------------------------------------------
-    // applyMorphologyRules — pret-class active early return  [COMPATIBILITY BRANCH]
+    // applyMorphologyRules — pret-class active early return  [STRUCTURED SURFACE BRANCH]
     // -----------------------------------------------------------------------
     {
         id: "amr-08a",
         function: "applyMorphologyRules — PRETERITO_CLASS active early return",
         location: "script.js:36107–36134",
         category: "mixed_boundary",
-        reason: "Same pattern as amr-07. buildClassBasedResultWithProvenance.forms[] is de-flattened into primary verb + alternateForms. Zeroed affixes remain for the same compatibility reason.",
+        reason: "Same pattern as amr-07. buildClassBasedResultWithProvenance.forms[] is de-flattened into primary verb + alternateForms. Zeroed affixes remain for the same contract-boundary reason.",
         current_inputs: "pretDerivationSharedOptions, classFilter, hasOptionalSupportiveI",
         current_output: "{ subjectPrefix: '', objectPrefix: '', subjectSuffix: '', verb: primaryForm, alternateForms: remainingForms[], stemProvenance }",
         mutates_grammatical_authority: false,
         feeds_generateword: "same as amr-07",
-        recommended_action: "keep_as_compatibility_branch",
-        notes: "String flattening resolved. Zeroed-affix compatibility concern remains, same as amr-07.",
+        recommended_action: "keep_as_structured_surface_branch",
+        notes: "String flattening resolved. Zeroed-affix contract-boundary concern remains, same as amr-07.",
     },
 
     // -----------------------------------------------------------------------
-    // applyMorphologyRules — pret-class nonactive early return  [COMPATIBILITY BRANCH]
+    // applyMorphologyRules — pret-class nonactive early return  [STRUCTURED SURFACE BRANCH]
     // -----------------------------------------------------------------------
     {
         id: "amr-08b",
         function: "applyMorphologyRules — PRETERITO_CLASS nonactive sub-branch",
         location: "script.js:36077–36103",
         category: "mixed_boundary",
-        reason: "Returns { verb: firstForm, alternateForms, subjectPrefix: '', objectPrefix: '', subjectSuffix: '' }. buildNonactivePerfectiveResult now exposes forms[]; forms are surface-ready so resolveOptionalSupportiveOutputText is not re-applied. Zeroed affixes remain for the same compatibility reason as amr-07 and amr-08a.",
+        reason: "Returns { verb: firstForm, alternateForms, subjectPrefix: '', objectPrefix: '', subjectSuffix: '' }. buildNonactivePerfectiveResult now exposes forms[]; forms are surface-ready so resolveOptionalSupportiveOutputText is not re-applied. Zeroed affixes remain for the same contract-boundary reason as amr-07 and amr-08a.",
         current_inputs: "verb, subjectPrefix, objectPrefix, subjectSuffix, tense, directional*, hasOptionalSupportiveI",
         current_output: "{ subjectPrefix: '', objectPrefix: '', subjectSuffix: '', verb: primaryForm, alternateForms: remainingForms[], stemProvenance: null }",
         mutates_grammatical_authority: false,
         feeds_generateword: "same as amr-07 — primary form in verb, zeroed affixes; alternateForms available for multi-form nonactive outputs",
-        recommended_action: "keep_as_compatibility_branch",
+        recommended_action: "keep_as_structured_surface_branch",
         notes: "Normalized to the same pattern as amr-07 and amr-08a. buildNonactivePerfectiveResult currently returns a single form so alternateForms will be empty in practice. The branch is ready for multi-form nonactive outputs without further changes.",
     },
 
@@ -250,7 +250,7 @@ const jsonReport = {
         structural_defect_found: false,
         structural_defect_id: [],
         defect_description:
-            "No structural defects remain. All pret/class early-return branches (amr-07, amr-08a, amr-08b) now consume forms[] and push structured primary verb + alternateForms. splitWrapperForms is gone. Zeroed affixes remain as a compatibility shim in all three branches, pending a richer generateWord verb-side contract.",
+            "No structural defects remain. All pret/class early-return branches (amr-07, amr-08a, amr-08b) now consume forms[] and push structured primary verb + alternateForms. splitWrapperForms is gone. Zeroed affixes remain as a transitional surface branch in all three branches, pending a richer generateWord verb-side contract.",
     },
     findings: {
         allomorphy_helpers:
@@ -262,7 +262,7 @@ const jsonReport = {
         normal_return_contract:
             "The normal applyMorphologyRules return { subjectPrefix, objectPrefix, subjectSuffix, verb, formSpec, alternateForms, surfaceRuleMeta, directionalChainMeta, stemProvenance } is the correct structured shape. verb is a morphological stem, not assembled text.",
         pret_early_return_contract:
-            "RESOLVED: All three pret/class early-return branches (amr-07, amr-08a, amr-08b) now consume forms[] and split into primary verb + alternateForms. buildNonactivePerfectiveResult exposes forms[]. Zeroed affixes remain as a compatibility shim for all three branches, pending a richer generateWord verb-side contract.",
+            "RESOLVED: All three pret/class early-return branches (amr-07, amr-08a, amr-08b) now consume forms[] and split into primary verb + alternateForms. buildNonactivePerfectiveResult exposes forms[]. Zeroed affixes remain as a transitional surface branch for all three branches, pending a richer generateWord verb-side contract.",
         splitWrapperForms:
             "RESOLVED: splitWrapperForms deleted. Potencial-active profile and noun-side pasado-remoto fallback now consume .forms directly from provenance wrapper returns.",
     },
@@ -275,7 +275,7 @@ const jsonReport = {
             "pret_universal_engine.js (buildPretUniversalResultWithProvenance)",
         ],
         specific_change:
-            "Make both functions return { forms: string[], result: string, provenance } instead of { result: string, provenance }. The existing result field (flat joined string) is preserved for backward compatibility; the new forms array is used by applyMorphologyRules to eliminate splitWrapperForms and the affix-zeroing early-return pattern.",
+            "Make both functions return { forms: string[], result: string, provenance } instead of { result: string, provenance }. The existing result field (flat joined string) is preserved for current result readers; the new forms array is used by applyMorphologyRules to eliminate splitWrapperForms and the affix-zeroing early-return pattern.",
         rationale: [
             "amr-07, amr-08, amr-09 share the same root cause: pret engine returns a flat string that must be re-parsed.",
             "Adding a 'forms' array to the pret result objects has no grammar impact and no output change.",
@@ -344,7 +344,7 @@ ${summaryTable}
 
 **Residual structural defect: amr-08b (nonactive pret-class)**
 
-\`splitWrapperForms\` is gone. All three pret/class early-return branches (amr-07, amr-08a, amr-08b) consume \`forms[]\` and split into primary verb + \`alternateForms\`. \`buildNonactivePerfectiveResult\` now exposes \`forms[]\`. Zeroed affixes remain as a compatibility shim pending a richer \`generateWord\` verb-side contract. There are **zero authority violations** and **zero structural defects**.
+\`splitWrapperForms\` is gone. All three pret/class early-return branches (amr-07, amr-08a, amr-08b) consume \`forms[]\` and split into primary verb + \`alternateForms\`. \`buildNonactivePerfectiveResult\` now exposes \`forms[]\`. Zeroed affixes remain as a transitional surface branch pending a richer \`generateWord\` verb-side contract. There are **zero authority violations** and **zero structural defects**.
 
 ---
 
@@ -383,15 +383,15 @@ All three pret/class early-return branches (amr-07, amr-08a, amr-08b) now map \`
 
 ### return contract shape
 
-The **normal** return is the correct structured shape. All three **pret/class early-return branches** (amr-07, amr-08a, amr-08b) now return \`alternateForms\` alongside the primary verb. Deviation narrowed to zeroed affixes only — a compatibility shim, not a structural defect.
+The **normal** return is the correct structured shape. All three **pret/class early-return branches** (amr-07, amr-08a, amr-08b) now return \`alternateForms\` alongside the primary verb. Deviation narrowed to zeroed affixes only — a transitional surface branch, not a structural defect.
 
 ---
 
-## Live Verification
+## Audit Findings
 
 | Question | Finding |
 |---|---|
-| Does applyMorphologyRules use strings outside the layer-4 gate? | **Compatibility shim only** — all three pret/class branches return primary verb + \`alternateForms\`; zeroed affixes remain as a shim, pending a richer \`generateWord\` verb-side contract. |
+| Does applyMorphologyRules use strings outside the layer-4 gate? | **Structured surface branch only** — all three pret/class branches return primary verb + \`alternateForms\`; zeroed affixes remain as a transitional branch, pending a richer \`generateWord\` verb-side contract. |
 | Does splitWrapperForms depend on ' / ' as a structural separator? | **Resolved** — \`splitWrapperForms\` deleted; consumers use \`.forms\` directly. |
 | Are alternateForms structured or flat strings? | **Structured** — all pushAlternateForm calls use \`{ verb, subjectSuffix, formSpec }\` objects. |
 | Is the normal return contract structured? | **Yes** — \`{ subjectPrefix, objectPrefix, subjectSuffix, verb (stem), formSpec, alternateForms, surfaceRuleMeta, directionalChainMeta, stemProvenance }\`. |
@@ -403,9 +403,9 @@ The **normal** return is the correct structured shape. All three **pret/class ea
 
 **No structural defects remain in this path.**
 
-All pret/class early-return branches consume \`forms[]\` and produce structured \`alternateForms\`. The remaining mixed-boundary classification (amr-07, amr-08a, amr-08b) reflects the zeroed-affix compatibility shim — a design concern for a later pass, not a structural defect.
+All pret/class early-return branches consume \`forms[]\` and produce structured \`alternateForms\`. The remaining mixed-boundary classification (amr-07, amr-08a, amr-08b) reflects the zeroed-affix transitional surface branch — a design concern for a later pass, not a structural defect.
 
-\`generateWord\` now exposes \`surfaceForms: string[]\` on its return. The stem pool is uniformly spec-first (forward and nonactive). The morphology-per-stem boundary is isolated in \`resolveStemCandidateMorphologyResult\`. The zeroed-affix shim (amr-07, amr-08a, amr-08b) is the only remaining compatibility concern, deferred until a richer pret/class stem input contract is warranted.
+\`generateWord\` now exposes \`surfaceForms: string[]\` on its return. The stem pool is uniformly spec-first (forward and nonactive). The morphology-per-stem boundary is isolated in \`resolveStemCandidateMorphologyResult\`. The zeroed-affix branch (amr-07, amr-08a, amr-08b) is the only remaining contract-boundary concern, deferred until a richer pret/class stem input contract is warranted.
 `;
 
 // ---------------------------------------------------------------------------
@@ -433,5 +433,5 @@ console.log(`  authority_violation: ${byCategory.authority_violation.length}`);
 console.log(`\nRefactor candidates: ${refactorCandidates.length}`);
 console.log(`Authority violations: 0`);
 console.log(`\nNo structural defects. All pret/class early-return branches consume forms[].`);
-console.log(`  Zeroed-affix compatibility shim remains in amr-07, amr-08a, amr-08b.`);
+console.log(`  Zeroed-affix transitional surface branch remains in amr-07, amr-08a, amr-08b.`);
 console.log(`\nRecommended next design question: verb-side surfaceForms contract in generateWord.\n`);

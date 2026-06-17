@@ -117,7 +117,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "derivation continuation contract reads framed source surface before legacy source aliases",
+        "derivation continuation contract reads framed source surface before stale source aliases",
         (() => {
             const grammarFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
@@ -154,7 +154,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "derivation continuation contract suppresses legacy source aliases for empty result frame",
+        "derivation continuation contract suppresses stale source aliases for empty result frame",
         (() => {
             const grammarFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
@@ -236,18 +236,21 @@ function run(ctx) {
         }
     );
     const generatedPrelocativeContractSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: absolutivePrelocativeContract.prelocativeVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: absolutivePrelocativeContract.objectTransfer.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: absolutivePrelocativeContract.objectTransfer.objectPrefix,
+            tronco: absolutivePrelocativeContract.prelocativeVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -288,18 +291,21 @@ function run(ctx) {
     });
     const parsedCompoundEmbedInput = ctx.parseVerbInput(compoundEmbedContract.compoundVerbInput);
     const generatedCompoundEmbedSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: compoundEmbedContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: compoundEmbedContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -511,18 +517,21 @@ function run(ctx) {
     });
     const parsedActiveActionCompoundInput = ctx.parseVerbInput(activeActionCompoundContract.compoundVerbInput);
     const generatedActiveActionCompoundSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: activeActionCompoundContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: activeActionCompoundContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -684,18 +693,21 @@ function run(ctx) {
     });
     const parsedCustomaryAgentiveCompoundInput = ctx.parseVerbInput(customaryAgentiveCompoundContract.compoundVerbInput);
     const generatedCustomaryAgentiveCompoundSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: customaryAgentiveCompoundContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: customaryAgentiveCompoundContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: customaryAgentiveCompoundContract.objectPrefix,
+            tronco: customaryAgentiveCompoundContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -797,18 +809,21 @@ function run(ctx) {
     });
     const parsedPreteritAgentiveCompoundInput = ctx.parseVerbInput(preteritAgentiveCompoundContract.compoundVerbInput);
     const generatedPreteritAgentiveCompoundSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveCompoundContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: preteritAgentiveCompoundContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -927,18 +942,21 @@ function run(ctx) {
         matrixRoot: "wa",
     });
     const generatedPreteritAgentiveOwnerhoodSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveOwnerhoodContract.ownerhoodVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: preteritAgentiveOwnerhoodContract.ownerhoodVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "pasado-remoto",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "pasado-remoto",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -975,18 +993,21 @@ function run(ctx) {
         matrixRoot: "yua",
     });
     const generatedPreteritAgentiveAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveAbundantOwnerhoodContract.ownerhoodVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: preteritAgentiveAbundantOwnerhoodContract.ownerhoodVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "pasado-remoto",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "pasado-remoto",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1095,18 +1116,21 @@ function run(ctx) {
         matrixRoot: "mati",
     });
     const generatedPreteritAgentiveComplementSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveComplementContract.complementVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: preteritAgentiveComplementContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: preteritAgentiveComplementContract.objectPrefix,
+            tronco: preteritAgentiveComplementContract.complementVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1141,18 +1165,21 @@ function run(ctx) {
         matrixRoot: "talia",
     });
     const generatedPreteritAgentiveComplementTaliaSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveComplementTaliaContract.complementVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: preteritAgentiveComplementTaliaContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: preteritAgentiveComplementTaliaContract.objectPrefix,
+            tronco: preteritAgentiveComplementTaliaContract.complementVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1222,18 +1249,21 @@ function run(ctx) {
         matrixRoot: "nemi",
     });
     const generatedPreteritAgentiveAdverbialSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: preteritAgentiveAdverbialContract.adverbialVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: preteritAgentiveAdverbialContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: preteritAgentiveAdverbialContract.objectPrefix,
+            tronco: preteritAgentiveAdverbialContract.adverbialVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1326,18 +1356,21 @@ function run(ctx) {
         sourceKind: "fixture",
     });
     const generatedOrdinaryTClassOwnerhoodSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: ordinaryTClassOwnerhoodContract.ownerhoodVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: ordinaryTClassOwnerhoodContract.ownerhoodVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "pasado-remoto",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "pasado-remoto",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1375,18 +1408,21 @@ function run(ctx) {
         sourceKind: "fixture",
     });
     const generatedOrdinaryZeroClassOwnerhoodSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: ordinaryZeroClassOwnerhoodContract.ownerhoodVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: ordinaryZeroClassOwnerhoodContract.ownerhoodVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "pasado-remoto",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "pasado-remoto",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1423,18 +1459,21 @@ function run(ctx) {
         ownerhoodKind: "abundant-ownerhood",
     });
     const generatedOrdinaryAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: ordinaryAbundantOwnerhoodContract.ownerhoodVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: ordinaryAbundantOwnerhoodContract.ownerhoodVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "pasado-remoto",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "pasado-remoto",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1540,18 +1579,21 @@ function run(ctx) {
         matrixRoot: "chikawa",
     });
     const generatedCharacteristicSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: characteristicContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: characteristicContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: characteristicContract.objectPrefix,
+            tronco: characteristicContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1589,18 +1631,21 @@ function run(ctx) {
         matrixRoot: "chikawa",
     });
     const generatedPossessedCharacteristicSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: possessedCharacteristicContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: possessedCharacteristicContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: possessedCharacteristicContract.objectPrefix,
+            tronco: possessedCharacteristicContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1690,18 +1735,21 @@ function run(ctx) {
         matrixRoot: "chikawa",
     });
     const generatedYulCharacteristicSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: yulCharacteristicContract.compoundVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: yulCharacteristicContract.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: yulCharacteristicContract.objectPrefix,
+            tronco: yulCharacteristicContract.compoundVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -1835,7 +1883,7 @@ function run(ctx) {
             },
         ]
     );
-    const legacyNiMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
+    const unsupportedNiMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
         patientivoSurface: "tamatiyat",
         sourceSurface: "tamatiya",
         selection: {
@@ -1849,12 +1897,12 @@ function run(ctx) {
         matrixRoot: "ni",
     });
     s.eq(
-        "Andrews 39.7-39.8 patientive continuation rejects the old non-Andrews ni matrix",
+        "Andrews 39.7-39.8 patientive continuation rejects the previous non-Andrews ni matrix",
         {
-            supported: legacyNiMatrixContract.supported,
-            matrixSupported: legacyNiMatrixContract.matrix.supported,
-            prelocativeVerbInput: legacyNiMatrixContract.prelocativeVerbInput,
-            diagnostics: legacyNiMatrixContract.diagnostics,
+            supported: unsupportedNiMatrixContract.supported,
+            matrixSupported: unsupportedNiMatrixContract.matrix.supported,
+            prelocativeVerbInput: unsupportedNiMatrixContract.prelocativeVerbInput,
+            diagnostics: unsupportedNiMatrixContract.diagnostics,
         },
         {
             supported: false,
@@ -1883,18 +1931,21 @@ function run(ctx) {
                 matrixRoot,
             });
             const generated = ctx.executeGenerateWordRequest({
-                prefixInputs: {
-                    verb: contract.prelocativeVerbInput,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: contract.objectTransfer.objectPrefix,
-                    possessivePrefix: "",
-                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: contract.objectTransfer.objectPrefix,
+                    tronco: contract.prelocativeVerbInput,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+
+                    tiempo: "presente",
+
+                    },
                 options: {
                     silent: true,
                     skipValidation: true,
                     override: {
-                        tense: "presente",
                         tenseMode: ctx.TENSE_MODE.verbo,
                         combinedMode: ctx.COMBINED_MODE.active,
                         derivationMode: ctx.DERIVATION_MODE.active,
@@ -1950,18 +2001,21 @@ function run(ctx) {
         matrixRoot: "tajtani",
     });
     const generatedPerfectivePatientivoComplement = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: perfectivePatientivoComplementContract.prelocativeVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: perfectivePatientivoComplementContract.objectTransfer.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: perfectivePatientivoComplementContract.objectTransfer.objectPrefix,
+            tronco: perfectivePatientivoComplementContract.prelocativeVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -2000,18 +2054,21 @@ function run(ctx) {
         matrixRoot: "tajtani",
     });
     const generatedNonactivePatientivoComplement = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: nonactivePatientivoComplementContract.prelocativeVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: nonactivePatientivoComplementContract.objectTransfer.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: nonactivePatientivoComplementContract.objectTransfer.objectPrefix,
+            tronco: nonactivePatientivoComplementContract.prelocativeVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -2075,18 +2132,21 @@ function run(ctx) {
                 matrixRoot,
             });
             const generated = ctx.executeGenerateWordRequest({
-                prefixInputs: {
-                    verb: contract.prelocativeVerbInput,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: contract.objectTransfer.objectPrefix,
-                    possessivePrefix: "",
-                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: contract.objectTransfer.objectPrefix,
+                    tronco: contract.prelocativeVerbInput,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+
+                    tiempo: "presente",
+
+                    },
                 options: {
                     silent: true,
                     skipValidation: true,
                     override: {
-                        tense: "presente",
                         tenseMode: ctx.TENSE_MODE.verbo,
                         combinedMode: ctx.COMBINED_MODE.active,
                         derivationMode: ctx.DERIVATION_MODE.active,
@@ -2184,18 +2244,21 @@ function run(ctx) {
         matrixRoot: "temua",
     });
     const generatedSeekMatrixSurface = ctx.executeGenerateWordRequest({
-        prefixInputs: {
-            verb: seekMatrixContract.prelocativeVerbInput,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: seekMatrixContract.objectTransfer.objectPrefix,
-            possessivePrefix: "",
-        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: seekMatrixContract.objectTransfer.objectPrefix,
+            tronco: seekMatrixContract.prelocativeVerbInput,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
         options: {
             silent: true,
             skipValidation: true,
             override: {
-                tense: "presente",
                 tenseMode: ctx.TENSE_MODE.verbo,
                 combinedMode: ctx.COMBINED_MODE.active,
                 derivationMode: ctx.DERIVATION_MODE.active,
@@ -2387,6 +2450,480 @@ function run(ctx) {
     s.no(
         "transitive wa-final stems do not expose intransitive-only uwa",
         transitivePetawaNonactiveOptions.some((entry) => entry.suffix === "uwa")
+    );
+
+    const lesson20Nonactive = ctx.buildLesson20NonactivePursuitFrame();
+    s.eq(
+        "Lesson 20 nonactive pursuit frame covers Andrews suffix families as Nawat realization",
+        {
+            stepNumber: lesson20Nonactive.stepNumber,
+            aimStatus: lesson20Nonactive.aimStatus,
+            pdfRefs: lesson20Nonactive.pdfRefs,
+            subsectionSections: lesson20Nonactive.subsectionInventory.map((entry) => entry.andrewsSection),
+            suffixBridge: lesson20Nonactive.suffixBridge.map((entry) => [entry.andrews, entry.nawat]),
+            source: lesson20Nonactive.overviewFrame.derivationSource,
+            closestPass: lesson20Nonactive.closestPass,
+            generationAllowed: lesson20Nonactive.generationAllowed,
+            remainingGapCount: lesson20Nonactive.remainingGaps.length,
+        },
+        {
+            stepNumber: 20,
+            aimStatus: "closest-pass",
+            pdfRefs: [
+                "Andrews Lesson 20.1",
+                "Andrews Lesson 20.2",
+                "Andrews Lesson 20.3",
+                "Andrews Lesson 20.4",
+                "Andrews Lesson 20.5",
+                "Andrews Lesson 20.6",
+                "Andrews Lesson 20.7",
+                "Andrews Lesson 20.8",
+            ],
+            subsectionSections: ["20.1", "20.2", "20.3", "20.4", "20.5", "20.6", "20.7", "20.8"],
+            suffixBridge: [["o", "u"], ["lo", "lu"], ["hua", "wa"], ["o-hua", "uwa"], ["lo-hua", "luwa"], ["hua-lo", "walu"]],
+            source: "imperfective active stem",
+            closestPass: true,
+            generationAllowed: true,
+            remainingGapCount: 0,
+        }
+    );
+    s.eq(
+        "Lesson 20 nonactive pursuit frame records Andrews route boundaries",
+        {
+            luSource: lesson20Nonactive.luFrame.mainSource,
+            uBaseIsReplacive: lesson20Nonactive.uFrame.baseIsReplaciveImperfective,
+            uwaMainSource: lesson20Nonactive.uwaFrame.mainSource,
+            waMainlyIntransitive: lesson20Nonactive.waWaluFrame.wa.mainlyIntransitive,
+            waluFreeVariant: lesson20Nonactive.waWaluFrame.walu.freeVariantOfWa,
+            classMembership: lesson20Nonactive.classMembershipFrame.classMembership,
+            noClassicalSurfaceImport: lesson20Nonactive.currentEngineBoundary.noClassicalSurfaceImport,
+        },
+        {
+            luSource: "transitive verbstems ending in a",
+            uBaseIsReplacive: true,
+            uwaMainSource: "active intransitive source",
+            waMainlyIntransitive: true,
+            waluFreeVariant: true,
+            classMembership: "Class A-2",
+            noClassicalSurfaceImport: true,
+        }
+    );
+    s.eq(
+        "Lesson 20 nonactive pursuit frame exposes non-enumerable LCM audit frames",
+        {
+            hasFrame: Boolean(lesson20Nonactive.grammarFrame),
+            routeFamily: lesson20Nonactive.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: lesson20Nonactive.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: lesson20Nonactive.grammarFrame?.routeContract?.generationAllowed,
+            ok: lesson20Nonactive.ok,
+            classMembership: lesson20Nonactive.grammarFrame?.nuclearClauseFrame?.classMembership || "",
+            suffixBridge: lesson20Nonactive.grammarFrame?.orthographyFrame?.suffixBridge?.map((entry) => entry.nawat) || [],
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson20Nonactive, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "vnc-allomorphy",
+            routeStage: "audit-lesson-20",
+            generationAllowed: false,
+            ok: true,
+            classMembership: "Class A-2",
+            suffixBridge: ["u", "lu", "wa", "uwa", "luwa", "walu"],
+            enumerableGrammarFrame: false,
+        }
+    );
+    const lesson24Causative = ctx.buildLesson24FirstTypeCausativePursuitFrame();
+    s.eq(
+        "Lesson 24 first-type causative pursuit frame keeps Andrews coverage partial",
+        {
+            stepNumber: lesson24Causative.stepNumber,
+            aimStatus: lesson24Causative.aimStatus,
+            pdfRefs: lesson24Causative.pdfRefs,
+            categories: lesson24Causative.subsectionInventory.map((entry) => entry.category),
+            finalVowelPredictable: lesson24Causative.finalVowelValenceFrame.valencePredictableFromFinalVowel,
+            valenceNeutralViolatesPrinciple: lesson24Causative.valenceNeutralFrame.violatesValencePrinciple,
+            causativeMorpheme: lesson24Causative.typeOneCausativeFrame.causativeMorpheme,
+            iFinalProcedures: lesson24Causative.typeOneCausativeFrame.iFinalProcedures.map((entry) => entry.id),
+            aFinalProcedures: lesson24Causative.typeOneCausativeFrame.aFinalProcedures.map((entry) => entry.id),
+            destockalProcess: lesson24Causative.destockalArchitectureFrame.process,
+            destockalTypes: lesson24Causative.destockalArchitectureFrame.destockalTypes,
+            niHuiClassPolicy: lesson24Causative.destockalNiHuiFrame.derivedClassPolicy,
+            huaAlwaysReplacement: lesson24Causative.destockalHuaFrame.causativeAlwaysReplacement,
+            ihuiOperation: lesson24Causative.destockalIhuiAhuiFrame.causativeOperation,
+            sourceSubjectTransform: lesson24Causative.causativeVncGenerationFrame.sourceSubjectBecomesCausativeObject,
+            causativeAControls: lesson24Causative.causativeAControlFrame.causativeAControls,
+            engineHasForwardFrame: lesson24Causative.currentEngineBoundary.forwardDerivationFrameImplemented,
+            closestPass: lesson24Causative.closestPass,
+            remainingGapCount: lesson24Causative.remainingGaps.length,
+        },
+        {
+            stepNumber: 24,
+            aimStatus: "shooting",
+            pdfRefs: [
+                "Andrews Lesson 24.1",
+                "Andrews Lesson 24.2",
+                "Andrews Lesson 24.3",
+                "Andrews Lesson 24.4",
+                "Andrews Lesson 24.5",
+                "Andrews Lesson 24.6",
+                "Andrews Lesson 24.7",
+                "Andrews Lesson 24.8",
+                "Andrews Lesson 24.9",
+            ],
+            categories: [
+                "final-vowel-valence-boundary",
+                "valence-neutral-verbstems",
+                "type-one-causative-a",
+                "destockal-stock-architecture",
+                "destockal-ni-hui",
+                "destockal-hua",
+                "destockal-ihui-ahui",
+                "causative-vnc-generation",
+                "causative-a-control",
+            ],
+            finalVowelPredictable: false,
+            valenceNeutralViolatesPrinciple: true,
+            causativeMorpheme: { andrews: "a", nawat: "a" },
+            iFinalProcedures: ["i-final-replacement", "i-final-addition"],
+            aFinalProcedures: ["a-final-non-ya-replacement", "ya-final-replacement"],
+            destockalProcess: [
+                "root-plus-stock-formative-creates-stock",
+                "stock-plus-stem-formative-creates-intransitive-verbstem",
+                "type-one-causative-creates-transitive-mate",
+            ],
+            destockalTypes: ["ni-or-hui", "hua", "i-hui-or-a-hui"],
+            niHuiClassPolicy: {
+                "n-a": "Class B",
+                "hu-a": "Class B",
+                "ni-a": "Class C",
+                "hui-a": "Class C",
+            },
+            huaAlwaysReplacement: true,
+            ihuiOperation: "replace i-hui or a-hui with o-a",
+            sourceSubjectTransform: true,
+            causativeAControls: ["source subject", "source core"],
+            engineHasForwardFrame: true,
+            closestPass: false,
+            remainingGapCount: 5,
+        }
+    );
+    s.eq(
+        "Lesson 24 first-type causative pursuit frame exposes non-enumerable LCM audit frames",
+        {
+            hasFrame: Boolean(lesson24Causative.grammarFrame),
+            routeFamily: lesson24Causative.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: lesson24Causative.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: lesson24Causative.grammarFrame?.routeContract?.generationAllowed,
+            ok: lesson24Causative.ok,
+            sourceClauseKind: lesson24Causative.grammarFrame?.nuclearClauseFrame?.sourceClauseKind || "",
+            targetClauseKind: lesson24Causative.grammarFrame?.nuclearClauseFrame?.targetClauseKind || "",
+            sourceSubjectBecomesObject: lesson24Causative.grammarFrame?.participantFrame?.sourceSubjectBecomesCausativeObject,
+            destockalBridge: lesson24Causative.grammarFrame?.orthographyFrame?.destockalBridge || null,
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson24Causative, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "vnc-allomorphy",
+            routeStage: "audit-lesson-24",
+            generationAllowed: false,
+            ok: true,
+            sourceClauseKind: "intransitive VNC",
+            targetClauseKind: "single-object causative VNC",
+            sourceSubjectBecomesObject: true,
+            destockalBridge: {
+                "hui": "wi",
+                "hua": "wa",
+                "o-a": "u-a",
+            },
+            enumerableGrammarFrame: false,
+        }
+    );
+    const lesson25Causative = ctx.buildLesson25SecondTypeCausativePursuitFrame();
+    s.eq(
+        "Lesson 25 second-type causative pursuit frame keeps Andrews coverage partial",
+        {
+            stepNumber: lesson25Causative.stepNumber,
+            aimStatus: lesson25Causative.aimStatus,
+            pdfRefs: lesson25Causative.pdfRefs,
+            subsectionCount: lesson25Causative.subsectionInventory.length,
+            categories: lesson25Causative.subsectionInventory.map((entry) => entry.category),
+            suffixalUnits: lesson25Causative.overviewFrame.suffixalUnits,
+            coreCausativeCluster: lesson25Causative.overviewFrame.coreCausativeCluster,
+            tiaComposition: lesson25Causative.overviewFrame.tiaComposition,
+            derivesObjectCounts: lesson25Causative.overviewFrame.derivesObjectCounts,
+            nonactiveSourceFamilies: lesson25Causative.overviewFrame.nonactiveSourceFamilies,
+            huaOperation: lesson25Causative.sourceFormationFrame.huaSource.operation,
+            oOHuaOperation: lesson25Causative.sourceFormationFrame.oOHuaSource.operation,
+            loOperation: lesson25Causative.sourceFormationFrame.loSource.operation,
+            loClassRoute: lesson25Causative.sourceFormationFrame.loSource.classCDUseThisProcedure,
+            liaAmbiguous: lesson25Causative.sourceFormationFrame.liaSource.phonologicallyIdenticalToApplicativeLia,
+            huiaAmbiguous: lesson25Causative.sourceFormationFrame.huiaSource.phonologicallyIdenticalToApplicativeHuia,
+            classMembership: lesson25Causative.classAndParallelFrame.classMembership,
+            typeOneAndTypeTwoSameSourceAllowed: lesson25Causative.classAndParallelFrame.typeOneAndTypeTwoSameSourceAllowed,
+            transformOperations: lesson25Causative.causativeTransformationFrame.operations,
+            causativeObjectIsObjectInFormSubjectInFunction: lesson25Causative.causativeTransformationFrame.causativeObjectIsObjectInFormSubjectInFunction,
+            singleObjectSource: lesson25Causative.objectTransformFrame.singleObject.source,
+            doubleObjectSources: lesson25Causative.objectTransformFrame.doubleObject.sources,
+            tripleMainline: lesson25Causative.objectTransformFrame.tripleObject.mainline,
+            objectFormsAmbiguous: lesson25Causative.boundaryFrame.ambiguity.objectFormsDoNotDiscriminateFunction,
+            sentenceMoods: lesson25Causative.boundaryFrame.sentenceMoods,
+            passiveImpersonalAllowed: lesson25Causative.boundaryFrame.passiveImpersonalTransformsAllowed,
+            silentObjectCanBeSupplemented: lesson25Causative.boundaryFrame.silentObjectPronounCanBeSupplemented,
+            doubleTripleObjectRoutingIncomplete: lesson25Causative.currentEngineBoundary.doubleTripleObjectRoutingIncomplete,
+            closestPass: lesson25Causative.closestPass,
+            remainingGapCount: lesson25Causative.remainingGaps.length,
+        },
+        {
+            stepNumber: 25,
+            aimStatus: "shooting",
+            pdfRefs: [
+                "Andrews Lesson 25.1",
+                "Andrews Lesson 25.2",
+                "Andrews Lesson 25.3",
+                "Andrews Lesson 25.4",
+                "Andrews Lesson 25.5",
+                "Andrews Lesson 25.6",
+                "Andrews Lesson 25.7",
+                "Andrews Lesson 25.8",
+                "Andrews Lesson 25.9",
+                "Andrews Lesson 25.10",
+                "Andrews Lesson 25.11",
+                "Andrews Lesson 25.12",
+                "Andrews Lesson 25.13",
+                "Andrews Lesson 25.14",
+                "Andrews Lesson 25.15",
+                "Andrews Lesson 25.16",
+            ],
+            subsectionCount: 16,
+            categories: [
+                "type-two-causative-overview",
+                "hua-nonactive-source",
+                "o-ohua-nonactive-source",
+                "lo-nonactive-source",
+                "lia-causative",
+                "huia-causative",
+                "type-two-class-c",
+                "type-one-type-two-parallel",
+                "causative-transformation",
+                "single-object-causative-vnc",
+                "double-object-causative-vnc",
+                "triple-object-causative-vnc",
+                "causative-transform-ambiguity",
+                "causative-sentence-moods",
+                "causative-passive-impersonal",
+                "silent-object-supplementation",
+            ],
+            suffixalUnits: ["tia", "lia", "huia"],
+            coreCausativeCluster: "tia",
+            tiaComposition: ["semantically empty ti", "causative a from Lesson 24"],
+            derivesObjectCounts: ["single-object", "double-object", "triple-object"],
+            nonactiveSourceFamilies: ["hua", "o", "o-hua", "lo"],
+            huaOperation: "tia replaces hua",
+            oOHuaOperation: "tia replaces o or o-hua",
+            loOperation: "tia replaces the o of lo, leaving l before tia",
+            loClassRoute: true,
+            liaAmbiguous: true,
+            huiaAmbiguous: true,
+            classMembership: "Class C",
+            typeOneAndTypeTwoSameSourceAllowed: true,
+            transformOperations: [
+                "compact-source-vnc-into-causative-predicate",
+                "replace-source-stem-with-causative-stem",
+                "change-source-subject-pronoun-into-causative-object",
+                "import-new-causative-subject-from-outside-source",
+            ],
+            causativeObjectIsObjectInFormSubjectInFunction: true,
+            singleObjectSource: "active or impersonal intransitive VNC",
+            doubleObjectSources: ["active single-object transitive VNC", "passive intransitive VNC", "single-object impersonal VNC"],
+            tripleMainline: "causative object",
+            objectFormsAmbiguous: true,
+            sentenceMoods: ["wish", "command/exhortation", "admonition"],
+            passiveImpersonalAllowed: true,
+            silentObjectCanBeSupplemented: true,
+            doubleTripleObjectRoutingIncomplete: true,
+            closestPass: false,
+            remainingGapCount: 4,
+        }
+    );
+    s.eq(
+        "Lesson 25 second-type causative pursuit frame exposes non-enumerable LCM audit frames",
+        {
+            hasFrame: Boolean(lesson25Causative.grammarFrame),
+            routeFamily: lesson25Causative.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: lesson25Causative.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: lesson25Causative.grammarFrame?.routeContract?.generationAllowed,
+            ok: lesson25Causative.ok,
+            stemKind: lesson25Causative.grammarFrame?.stemFrame?.stemKind || "",
+            classMembership: lesson25Causative.grammarFrame?.stemFrame?.classMembership || "",
+            sourceSubjectBecomesObject: lesson25Causative.grammarFrame?.participantFrame?.sourceSubjectBecomesCausativeObject,
+            maxObjectDepth: lesson25Causative.grammarFrame?.nuclearClauseFrame?.maxObjectDepth,
+            suffixalUnits: lesson25Causative.grammarFrame?.orthographyFrame?.suffixalUnits || [],
+            wiaBridge: lesson25Causative.grammarFrame?.orthographyFrame?.classicalToNawatHints?.huia || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson25Causative, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "vnc-allomorphy",
+            routeStage: "audit-lesson-25",
+            generationAllowed: false,
+            ok: true,
+            stemKind: "second-type-causative-verbstem",
+            classMembership: "Class C",
+            sourceSubjectBecomesObject: true,
+            maxObjectDepth: 3,
+            suffixalUnits: ["tia", "lia", "huia"],
+            wiaBridge: "wia",
+            enumerableGrammarFrame: false,
+        }
+    );
+    const lesson26Applicative = ctx.buildLesson26ApplicativePursuitFrame();
+    s.eq(
+        "Lesson 26 applicative pursuit frame keeps Andrews coverage partial",
+        {
+            stepNumber: lesson26Applicative.stepNumber,
+            aimStatus: lesson26Applicative.aimStatus,
+            pdfRefCount: lesson26Applicative.pdfRefs.length,
+            firstPdfRef: lesson26Applicative.pdfRefs[0],
+            lastPdfRef: lesson26Applicative.pdfRefs[lesson26Applicative.pdfRefs.length - 1],
+            subsectionCount: lesson26Applicative.subsectionInventory.length,
+            categories: lesson26Applicative.subsectionInventory.map((entry) => entry.category),
+            mainlineConstituents: lesson26Applicative.natureFrame.mainlineConstituents,
+            irregularBoundaries: lesson26Applicative.natureFrame.irregularBoundaries,
+            typeOneSuffix: lesson26Applicative.formationFrame.typeOne.suffixalUnit,
+            typeOneOperation: lesson26Applicative.formationFrame.typeOne.operation,
+            typeTwoSuffixes: lesson26Applicative.formationFrame.typeTwo.suffixalUnits,
+            sourceReflexiveBecomesNe: lesson26Applicative.formationFrame.typeTwo.sourceReflexiveBecomesShuntlineNe,
+            classMembership: lesson26Applicative.formationFrame.classMembership,
+            finalIChanges: {
+                siToXi: lesson26Applicative.sourceShapeFrame.finalI.siToXi,
+                postvocalicTiToChi: lesson26Applicative.sourceShapeFrame.finalI.postvocalicTiToChiPossible,
+            },
+            finalConsonantAChanges: {
+                saToXilia: lesson26Applicative.sourceShapeFrame.finalAAfterConsonant.saToXilia,
+                tlaOrTzaToChilia: lesson26Applicative.sourceShapeFrame.finalAAfterConsonant.tlaOrTzaToChilia,
+                occasionalTlaToTilia: lesson26Applicative.sourceShapeFrame.finalAAfterConsonant.occasionalTlaToTilia,
+            },
+            huiaGeneralUnit: lesson26Applicative.huiaTiaFrame.oaSources.generalSuffixalUnit,
+            rareTiaNotCausative: lesson26Applicative.huiaTiaFrame.rareTiaApplicative.notCausative,
+            transformOperations: lesson26Applicative.transformationFrame.operations,
+            mainlineObject: lesson26Applicative.transformationFrame.mainlineObject,
+            singleTarget: lesson26Applicative.objectDepthFrame.singleObject.target,
+            doubleTarget: lesson26Applicative.objectDepthFrame.doubleObject.target,
+            tripleOvertCounts: lesson26Applicative.objectDepthFrame.tripleObject.overtObjectCountsAllowed,
+            ambiguityRequiresAppendixC: lesson26Applicative.boundaryFrame.ambiguity.appendixCRequired,
+            sentenceMoods: lesson26Applicative.boundaryFrame.sentenceMoods,
+            passiveImpersonalAllowed: lesson26Applicative.boundaryFrame.passiveImpersonalTransformsAllowed,
+            objectPlusSuffixUnit: lesson26Applicative.boundaryFrame.applicativeUnitControl.discontinuousObjectPlusSuffixUnit,
+            generationImplemented: lesson26Applicative.currentEngineBoundary.applicativeGenerationImplemented,
+            closestPass: lesson26Applicative.closestPass,
+            remainingGapCount: lesson26Applicative.remainingGaps.length,
+        },
+        {
+            stepNumber: 26,
+            aimStatus: "shooting",
+            pdfRefCount: 23,
+            firstPdfRef: "Andrews Lesson 26.1",
+            lastPdfRef: "Andrews Lesson 26.23",
+            subsectionCount: 23,
+            categories: [
+                "applicative-object-role",
+                "type-one-applicative-ia",
+                "type-two-applicative-lia-huia",
+                "final-i-source",
+                "final-a-source-frame",
+                "final-ia-source",
+                "final-consonant-a-source",
+                "applicative-source-exceptions",
+                "oa-huia-source",
+                "long-o-huia-source",
+                "rare-tia-applicative",
+                "type-one-type-two-parallel",
+                "applicative-class-c",
+                "applicative-transformation",
+                "single-object-applicative-vnc",
+                "double-object-applicative-vnc",
+                "triple-object-applicative-vnc",
+                "applicative-transform-ambiguity",
+                "applicative-sentence-moods",
+                "applicative-passive-impersonal",
+                "human-nonhuman-object-translation",
+                "deceptive-applicative-vnc",
+                "object-plus-suffix-unit",
+            ],
+            mainlineConstituents: ["applicative suffix", "obligatorily concomitant applicative object pronoun"],
+            irregularBoundaries: [
+                "inherently applicative double-object maca without applicative suffix",
+                "itta from defective itzi with unusual sound shift and applicative a",
+                "valence-neutral pairs with applicative-like transitive member",
+            ],
+            typeOneSuffix: "ia",
+            typeOneOperation: "add ia to a replacive imperfective stem lacking the final source vowel",
+            typeTwoSuffixes: ["lia", "huia"],
+            sourceReflexiveBecomesNe: true,
+            classMembership: "Class C",
+            finalIChanges: {
+                siToXi: true,
+                postvocalicTiToChi: true,
+            },
+            finalConsonantAChanges: {
+                saToXilia: true,
+                tlaOrTzaToChilia: true,
+                occasionalTlaToTilia: true,
+            },
+            huiaGeneralUnit: "huia",
+            rareTiaNotCausative: true,
+            transformOperations: [
+                "replace-source-stem-with-applicative-stem",
+                "import-applicative-object-pronoun-from-outside-source-vnc",
+                "make-last-added-applicative-object-the-mainline-object",
+                "demote-source-objects-to-shuntline-levels",
+            ],
+            mainlineObject: "applicative object",
+            singleTarget: "single-object applicative VNC",
+            doubleTarget: "double-object applicative VNC",
+            tripleOvertCounts: [3, 2, 1],
+            ambiguityRequiresAppendixC: true,
+            sentenceMoods: ["wish", "command/exhortation", "admonition"],
+            passiveImpersonalAllowed: true,
+            objectPlusSuffixUnit: true,
+            generationImplemented: true,
+            closestPass: false,
+            remainingGapCount: 4,
+        }
+    );
+    s.eq(
+        "Lesson 26 applicative pursuit frame exposes non-enumerable LCM audit frames",
+        {
+            hasFrame: Boolean(lesson26Applicative.grammarFrame),
+            routeFamily: lesson26Applicative.grammarFrame?.routeContract?.routeFamily || "",
+            routeStage: lesson26Applicative.grammarFrame?.routeContract?.routeStage || "",
+            generationAllowed: lesson26Applicative.grammarFrame?.routeContract?.generationAllowed,
+            ok: lesson26Applicative.ok,
+            unitKind: lesson26Applicative.grammarFrame?.unitFrame?.unitKind || "",
+            stemKind: lesson26Applicative.grammarFrame?.stemFrame?.stemKind || "",
+            classMembership: lesson26Applicative.grammarFrame?.stemFrame?.classMembership || "",
+            applicativeObjectIsMainline: lesson26Applicative.grammarFrame?.participantFrame?.applicativeObjectIsMainline,
+            sourceObjectsBecomeShuntline: lesson26Applicative.grammarFrame?.participantFrame?.sourceObjectsBecomeShuntline,
+            maxObjectDepth: lesson26Applicative.grammarFrame?.nuclearClauseFrame?.maxObjectDepth,
+            suffixalUnits: lesson26Applicative.grammarFrame?.orthographyFrame?.suffixalUnits || [],
+            wiaBridge: lesson26Applicative.grammarFrame?.orthographyFrame?.classicalToNawatHints?.huia || "",
+            enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson26Applicative, "grammarFrame"),
+        },
+        {
+            hasFrame: true,
+            routeFamily: "vnc-allomorphy",
+            routeStage: "audit-lesson-26",
+            generationAllowed: false,
+            ok: true,
+            unitKind: "applicative-verbstem",
+            stemKind: "applicative-verbstem",
+            classMembership: "Class C",
+            applicativeObjectIsMainline: true,
+            sourceObjectsBecomeShuntline: true,
+            maxObjectDepth: 3,
+            suffixalUnits: ["ia", "lia", "huia", "tia"],
+            wiaBridge: "wia",
+            enumerableGrammarFrame: false,
+        }
     );
 
     const patientivoFromUwa = ctx.getPatientivoStemFromNonactive("kelunuwa", "uwa", {

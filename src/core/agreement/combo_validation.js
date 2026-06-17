@@ -4,28 +4,28 @@
 // Shared valence-combo validation and display helpers.
 // Global-scope module: all functions defined directly on the global object.
 // Deps (resolved at call time via global scope from script.js / other modules):
-//   resolveDisplayValencePrefixes, getDerivationControllerSlotPriority
+//   resolveDisplayObj1Obj2, getDerivationControllerSlotPriority
 
-function getComboKey(subjectPrefix, objectPrefix, subjectSuffix) {
-    return `${subjectPrefix}|${objectPrefix}|${subjectSuffix}`;
+function getPers1Obj1Pers2Key(pers1 = "", obj1 = "", pers2 = "") {
+    return `${pers1}|${obj1}|${pers2}`;
 }
 
-function resolveComboValidationObjectPrefix({
-    objectPrefix = "",
-    indirectObjectMarker = "",
+function resolveComboValidationObj1({
+    obj1 = "",
+    obj2 = "",
     derivationType = "",
-    controllerObjectMarker = null,
+    controllerObj1 = null,
 }) {
-    if (controllerObjectMarker !== null) {
-        return controllerObjectMarker || "";
+    if (controllerObj1 !== null) {
+        return controllerObj1 || "";
     }
-    const normalized = resolveDisplayValencePrefixes({
-        objectPrefix,
-        indirectObjectMarker,
+    const normalized = resolveDisplayObj1Obj2({
+        obj1,
+        obj2,
         derivationType,
     });
-    const object = normalized.objectPrefix || "";
-    const indirect = normalized.indirectObjectMarker || "";
+    const resolvedObj1 = normalized.obj1 || "";
+    const resolvedObj2 = normalized.obj2 || "";
     const personMarkers = new Set(["nech", "metz", "ki", "tech", "metzin", "kin", "k"]);
     const pickByPriority = (ordered) => {
         const personMatch = ordered.find((prefix) => personMarkers.has(prefix));
@@ -35,8 +35,10 @@ function resolveComboValidationObjectPrefix({
         return ordered.find((prefix) => Boolean(prefix)) || "";
     };
     const slotValues = {
-        object,
-        object2: indirect,
+        object: resolvedObj1,
+        object2: resolvedObj2,
+        obj1: resolvedObj1,
+        obj2: resolvedObj2,
     };
     const orderedByDerivation = getDerivationControllerSlotPriority(derivationType)
         .map((slotId) => slotValues[slotId] || "");
@@ -117,18 +119,18 @@ function collapseSilentSpecificForDisplay(prefix = "") {
     return prefix;
 }
 
-function getValence4ComboSignature({
-    objectPrefix = "",
-    indirectObjectMarker = "",
-    thirdObjectMarker = "",
+function getObj1Obj2Obj3Signature({
+    obj1 = "",
+    obj2 = "",
+    obj3 = "",
 }) {
     return [
-        collapseProjectiveForSignature(objectPrefix),
-        collapseSilentSpecificForSignature(indirectObjectMarker),
-        collapseSilentSpecificForSignature(thirdObjectMarker),
+        collapseProjectiveForSignature(obj1),
+        collapseSilentSpecificForSignature(obj2),
+        collapseSilentSpecificForSignature(obj3),
     ].join("|");
 }
 
-function isValidValence4Combo(options = {}) {
-    return VALENCE4_VALID_COMBO_SIGNATURES.has(getValence4ComboSignature(options));
+function isValidObj1Obj2Obj3Combo(options = {}) {
+    return VALENCE4_VALID_COMBO_SIGNATURES.has(getObj1Obj2Obj3Signature(options));
 }

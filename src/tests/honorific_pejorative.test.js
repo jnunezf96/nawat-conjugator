@@ -16,8 +16,10 @@ function run(ctx) {
             typeof ctx.classifyHonorificPejorativeCandidate,
             typeof ctx.classifyHonorificPejorativeFalsePositive,
             typeof ctx.getHonorificPejorativeAntiConflationRules,
+            typeof ctx.buildLesson33HonorificPejorativePursuitFrame,
+            typeof ctx.getLesson33HonorificPejorativeSubsectionInventory,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildHonorificPejorativeBoundaryMetadata();
@@ -141,6 +143,108 @@ function run(ctx) {
             polarity: "honorific",
             andrewsRef: "Andrews Lesson 33",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    const lesson33Frame = ctx.buildLesson33HonorificPejorativePursuitFrame();
+    s.eq(
+        "lesson 33 pursuit frame covers every subsection",
+        {
+            stepNumber: lesson33Frame.stepNumber,
+            pdfRefs: lesson33Frame.pdfRefs.length,
+            subsectionSections: lesson33Frame.subsectionInventory.map((entry) => entry.andrewsSection),
+            plannedArrowIds: lesson33Frame.plannedArrows.map((arrow) => arrow.id),
+            firedArrowIds: lesson33Frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+            hitCount: lesson33Frame.hitCount,
+            missCount: lesson33Frame.missCount,
+            closestPass: lesson33Frame.closestPass,
+            generationAllowed: lesson33Frame.generationAllowed,
+        },
+        {
+            stepNumber: 33,
+            pdfRefs: 10,
+            subsectionSections: [
+                "33.1",
+                "33.2",
+                "33.3",
+                "33.4",
+                "33.5",
+                "33.6",
+                "33.7",
+                "33.8",
+                "33.9",
+                "33.10",
+            ],
+            plannedArrowIds: ["lesson-33-honorific-pejorative-vnc-audit"],
+            firedArrowIds: [["lesson-33-honorific-pejorative-vnc-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            closestPass: false,
+            generationAllowed: false,
+        }
+    );
+    s.eq(
+        "lesson 33 pursuit frame records Andrews honorific and pejorative architecture",
+        {
+            honorificMeaning: lesson33Frame.overviewFrame.honorificMeaning,
+            selfHonorificWarning: lesson33Frame.overviewFrame.selfHonorificWarning,
+            intransitiveCausativeFamilies: lesson33Frame.intransitiveCausativeFrame.causativeFamilies,
+            yaUhUsesHuica: lesson33Frame.intransitiveCausativeFrame.irregularIntransitiveBoundary.yaUhAndHualLaUhUseMoHuica,
+            intransitiveApplicativeOwnSake: lesson33Frame.intransitiveApplicativeFrame.semanticPresentation,
+            projectiveAmbiguity: lesson33Frame.projectiveApplicativeFrame.ambiguityBecauseNoSignalIdentifiesHonoredEntity,
+            causativeApplicativeSourceRule: lesson33Frame.causativeApplicativeSourceFrame.followsProjectiveObjectGeneralRule,
+            projectiveCausativeAmbiguity: lesson33Frame.projectiveCausativeFrame.ambiguityBecauseAgentStillCausesSelfToAct,
+            reflexiveStrategy: lesson33Frame.reflexiveSourceFrame.strategy,
+            reflexiveMatrix: lesson33Frame.reflexiveSourceFrame.matrixStem,
+            reflexiveClasses: lesson33Frame.reflexiveSourceFrame.validForVerbstemClasses,
+            reverentialStrategy: lesson33Frame.reverentialFrame.strategy,
+            pejorativeMatrix: lesson33Frame.pejorativeFrame.matrixStem,
+            pejorativeSources: lesson33Frame.pejorativeFrame.sourceKinds,
+            selfPejorativePermitted: lesson33Frame.pejorativeFrame.selfPejorativePermitted,
+            compoundSharedObjectMatrix: lesson33Frame.compoundVerbstemFrame.sharedObjectCompoundTransformsMatrixStem,
+        },
+        {
+            honorificMeaning: "respect or high esteem toward another entity",
+            selfHonorificWarning: "one should not use an honorific to speak of oneself",
+            intransitiveCausativeFamilies: ["type-one-causative", "type-two-causative", "lia-causative"],
+            yaUhUsesHuica: true,
+            intransitiveApplicativeOwnSake: "honored subject acts for own sake or interest",
+            projectiveAmbiguity: true,
+            causativeApplicativeSourceRule: true,
+            projectiveCausativeAmbiguity: true,
+            reflexiveStrategy: "preterit-embed integrated compound",
+            reflexiveMatrix: "tla-(tzin-o-a)",
+            reflexiveClasses: ["A", "B", "C", "D"],
+            reverentialStrategy: "double honorific construction",
+            pejorativeMatrix: "tla-(pol-o-a)",
+            pejorativeSources: ["intransitive VNC", "projective-object VNC", "reflexive-object VNC"],
+            selfPejorativePermitted: true,
+            compoundSharedObjectMatrix: true,
+        }
+    );
+    s.eq(
+        "lesson 33 pursuit frame has LCM redirect contract",
+        {
+            routeFamily: lesson33Frame.frames.routeContract.routeFamily,
+            routeStage: lesson33Frame.frames.routeContract.routeStage,
+            generationAllowed: lesson33Frame.frames.routeContract.generationAllowed,
+            unitKind: lesson33Frame.frames.unitFrame.unitKind,
+            targetGenerationAllowed: lesson33Frame.frames.routeContract.targetContract.generationAllowed,
+            orthographyStatus: lesson33Frame.frames.orthographyFrame.orthographyStatus,
+            stemKind: lesson33Frame.frames.stemFrame.stemKind,
+            pejorativeMeaning: lesson33Frame.frames.participantFrame.pejorativeMeaning,
+            honoredEntityMayBeSubjectOrObject: lesson33Frame.frames.participantFrame.honoredEntityMayBeSubjectOrObject,
+        },
+        {
+            routeFamily: "honorific-pejorative",
+            routeStage: "audit-lesson-33",
+            generationAllowed: false,
+            unitKind: "honorific-pejorative-vnc-boundary",
+            targetGenerationAllowed: false,
+            orthographyStatus: "nawat-evidence-required",
+            stemKind: "honorific-pejorative-vnc",
+            pejorativeMeaning: "contempt or scorn",
+            honoredEntityMayBeSubjectOrObject: true,
         }
     );
 

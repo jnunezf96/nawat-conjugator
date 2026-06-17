@@ -15,7 +15,7 @@ function run(ctx) {
     const summarizeRouteSourceState = (sourceState) => sourceState && ({
         version: sourceState.version,
         routeId: sourceState.routeId,
-        legacyTenseValue: sourceState.legacyTenseValue,
+        routeTenseValue: sourceState.routeTenseValue,
         routePlacement: sourceState.routePlacement,
         sourceMode: sourceState.sourceMode,
         sourceTenseValue: sourceState.sourceTenseValue,
@@ -181,7 +181,33 @@ function run(ctx) {
     // isToggleLockEnabled — ToggleLockState starts disabled
     s.no("toggle lock off by default", ctx.isToggleLockEnabled());
     s.eq("nawat mode scaffold includes particle", ctx.NAWAT_TENSE_MODE.particula, "particula");
+    s.eq("particle mode is a selectable output mode", ctx.TENSE_MODE.particula, "particula");
+    s.eq("particle mode has no tense paradigm tabs", ctx.getTenseOrderForMode(ctx.TENSE_MODE.particula), []);
     s.eq("european mode scaffold remains available", ctx.TENSE_MODE_SYSTEM.european, "european");
+    s.eq(
+        "Andrews syntactical/formal class mode-system aliases are available",
+        {
+            function: ctx.TENSE_MODE_SYSTEM.function,
+            unit: ctx.TENSE_MODE_SYSTEM.unit,
+        },
+        {
+            function: "function",
+            unit: "unit",
+        }
+    );
+    s.eq(
+        "Andrews syntactical/formal class state helpers are exported",
+        [
+            typeof ctx.getActiveFunctionMode,
+            typeof ctx.getActiveFunctionRole,
+            typeof ctx.setActiveFunctionMode,
+            typeof ctx.setActiveFunctionRole,
+            typeof ctx.getActiveUnitKind,
+            typeof ctx.setActiveUnitMode,
+            typeof ctx.setActiveUnitKind,
+        ],
+        ["function", "function", "function", "function", "function", "function", "function"]
+    );
     s.eq(
         "ordinary NNC UI state helpers are exported",
         [
@@ -210,7 +236,7 @@ function run(ctx) {
         : () => undefined;
     const buildOrdinaryNncGenerateWordRequest = typeof ctx.buildOrdinaryNncGenerateWordRequest === "function"
         ? (options) => ctx.buildOrdinaryNncGenerateWordRequest(options)
-        : () => ({ options: { override: {} }, prefixInputs: {} });
+        : () => ({ options: { override: {} }, posicionesFormula: {} });
     s.eq(
         "ordinary NNC analogue input parser separates stem and connector",
         ["(siwa)t", "(xilun)ti", "(tekpan)in", "(kal)"].map((value) => ctx.parseOrdinaryNncGenerationAnalogueInput(value)),
@@ -308,15 +334,9 @@ function run(ctx) {
         "ordinary NNC UI request builder emits explicit override",
         buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
         {
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            verb: "kal",
-            tense: "ordinary-nnc",
             tenseMode: ctx.TENSE_MODE.sustantivo,
             derivationMode: ctx.DERIVATION_MODE.active,
             voiceMode: ctx.VOICE_MODE.active,
-            possessivePrefix: "nu",
             ordinaryNnc: {
                 enabled: true,
                 stem: "kal",
@@ -343,15 +363,9 @@ function run(ctx) {
         "ordinary NNC UI state clears possessor outside possessive state without changing subject agreement",
         buildOrdinaryNncGenerateWordRequest({ stem: "kal" }).options.override,
         {
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: "",
-            verb: "kal",
-            tense: "ordinary-nnc",
             tenseMode: ctx.TENSE_MODE.sustantivo,
             derivationMode: ctx.DERIVATION_MODE.active,
             voiceMode: ctx.VOICE_MODE.active,
-            possessivePrefix: "",
             ordinaryNnc: {
                 enabled: true,
                 stem: "kal",
@@ -372,15 +386,9 @@ function run(ctx) {
         "ordinary NNC UI request builder emits explicit NNC subject",
         buildOrdinaryNncGenerateWordRequest({ stem: "mistun" }).options.override,
         {
-            subjectPrefix: "an",
-            subjectSuffix: "t",
-            objectPrefix: "",
-            verb: "mistun",
-            tense: "ordinary-nnc",
             tenseMode: ctx.TENSE_MODE.sustantivo,
             derivationMode: ctx.DERIVATION_MODE.active,
             voiceMode: ctx.VOICE_MODE.active,
-            possessivePrefix: "",
             ordinaryNnc: {
                 enabled: true,
                 stem: "mistun",
@@ -412,31 +420,187 @@ function run(ctx) {
     s.eq(
         "ordinary NNC UI request builder accepts analogue entrada values",
         (() => {
-            const override = buildOrdinaryNncGenerateWordRequest({
+            const request = buildOrdinaryNncGenerateWordRequest({
                 stem: "(siwa)t",
                 state: "absolutive",
                 number: "singular",
                 animacy: "inanimate",
-            }).options.override;
+            });
             return {
-                verb: override.verb,
-                tense: override.tense,
-                nounClass: override.ordinaryNnc.nounClass,
-                stem: override.ordinaryNnc.stem,
+                tronco: request.posicionesFormula.tronco,
+                tiempo: request.posicionesFormula.tiempo,
+                nounClass: request.options.override.ordinaryNnc.nounClass,
+                stem: request.options.override.ordinaryNnc.stem,
             };
         })(),
         {
-            verb: "siwa",
-            tense: "ordinary-nnc",
+            tronco: "siwa",
+            tiempo: "ordinary-nnc",
             nounClass: "t",
             stem: "siwa",
+        }
+    );
+    s.eq(
+        "entrada URL segment helpers are exported",
+        [
+            typeof ctx.getEntradaUrlSegmentFieldKeys,
+            typeof ctx.normalizeEntradaUrlStateSnapshot,
+            typeof ctx.buildEntradaUrlSegmentString,
+            typeof ctx.parseEntradaUrlSegmentString,
+            typeof ctx.buildEntradaUrlHash,
+        ],
+        ["function", "function", "function", "function", "function"]
+    );
+    const entradaUrlFieldKeys = ctx.getEntradaUrlSegmentFieldKeys();
+    s.eq(
+        "entrada URL schema covers all current #1 Entrada control families",
+        [
+            "input",
+            "board",
+            "transitivity",
+            "slotAEmbed",
+            "slotAStem",
+            "slotAObjectEmbed",
+            "slotBEmbed",
+            "slotBStem",
+            "slotBObjectEmbed",
+            "slotCEmbed",
+            "slotCStem",
+            "slotCObjectEmbed",
+            "valenceIntransitive",
+            "valence",
+            "valenceSecondary",
+            "directionalPrefix",
+            "supportiveMarker",
+            "slotASerialType",
+            "slotATemplateSuffix",
+            "slotATemplateSurface",
+            "slotATemplateTiCausativeClass",
+            "ordinaryNncEnabled",
+            "ordinaryNncState",
+            "ordinaryNncNumber",
+            "ordinaryNncPluralType",
+            "ordinaryNncPers1",
+            "ordinaryNncPers2",
+            "ordinaryNncSubjectKey",
+            "ordinaryNncPossessor",
+            "ordinaryNncNounClass",
+            "ordinaryNncAnimacy",
+        ].every((fieldKey) => entradaUrlFieldKeys.includes(fieldKey)),
+        true
+    );
+    const composerEntradaHash = ctx.buildEntradaUrlHash({
+        input: "[wal]/ish/(ta)-mati",
+        board: "noun-to-verb",
+        transitivity: "transitive",
+        valence: "ta",
+        directionalPrefix: "wal",
+        supportiveMarker: "i",
+        slots: {
+            a: {
+                embed: "kal",
+                stem: "ti",
+                objectEmbed: "ish",
+                serialType: "ti-have",
+                templateSuffix: "ti",
+                templateSurface: "kal",
+                templateTiCausativeClass: "have",
+            },
+            b: {
+                embed: "ish",
+                stem: "mati",
+                objectEmbed: "",
+                serialType: "auto",
+            },
+        },
+    });
+    const parsedComposerEntrada = ctx.parseEntradaUrlSegmentString(composerEntradaHash);
+    s.eq(
+        "entrada URL segments round-trip V and S->V composer controls",
+        {
+            hashPrefix: composerEntradaHash.startsWith("#entrada/v1/"),
+            board: parsedComposerEntrada.board,
+            input: parsedComposerEntrada.input,
+            transitivity: parsedComposerEntrada.transitivity,
+            directionalPrefix: parsedComposerEntrada.directionalPrefix,
+            supportiveMarker: parsedComposerEntrada.supportiveMarker,
+            valence: parsedComposerEntrada.valence,
+            slotA: parsedComposerEntrada.slots.a,
+            slotB: parsedComposerEntrada.slots.b,
+        },
+        {
+            hashPrefix: true,
+            board: "noun-to-verb",
+            input: "[wal]/ish/(ta)-mati",
+            transitivity: "transitive",
+            directionalPrefix: "wal",
+            supportiveMarker: "i",
+            valence: "ta",
+            slotA: {
+                embed: "kal",
+                stem: "ti",
+                objectEmbed: "ish",
+                serialType: "ti-have",
+                templateSuffix: "ti",
+                templateSurface: "kal",
+                templateTiCausativeClass: "have",
+            },
+            slotB: {
+                embed: "ish",
+                stem: "mati",
+                objectEmbed: "",
+                serialType: "auto",
+                templateSuffix: "",
+                templateSurface: "",
+                templateTiCausativeClass: "",
+            },
+        }
+    );
+    const ordinaryEntrada = ctx.parseEntradaUrlSegmentString(ctx.buildEntradaUrlSegmentString({
+        input: "(siwa)t",
+        board: "ordinary-nnc",
+        ordinaryNnc: {
+            enabled: true,
+            state: "possessive",
+            number: "plural",
+            pluralType: "distributive",
+            pers1: "ti",
+            pers2: "t",
+            subjectKey: "1pl",
+            possessor: "nu",
+            nounClass: "t",
+            animacy: "animate",
+        },
+    }));
+    s.eq(
+        "entrada URL segments round-trip explicit S/NNC controls",
+        {
+            board: ordinaryEntrada.board,
+            input: ordinaryEntrada.input,
+            ordinaryNnc: ordinaryEntrada.ordinaryNnc,
+        },
+        {
+            board: "ordinary-nnc",
+            input: "(siwa)t",
+            ordinaryNnc: {
+                enabled: true,
+                state: "possessive",
+                number: "plural",
+                pluralType: "distributive",
+                pers1: "ti",
+                pers2: "t",
+                subjectKey: "1pl",
+                possessor: "nu",
+                nounClass: "t",
+                animacy: "animate",
+            },
         }
     );
     setOrdinaryNncGenerationState({ subjectKey: "3sg", subjectPrefix: "", subjectSuffix: "", animacy: "inanimate" });
     setOrdinaryNncGenerationModeEnabled(false);
     s.no("ordinary NNC UI mode can be disabled", isOrdinaryNncGenerationModeEnabled());
     const tiPreteritRoute = ctx.getNawatRouteProfile("adjetivo-preterito-tik");
-    s.eq("future nawat route maps legacy -tik preterit id", tiPreteritRoute.id, "denominal-vi-ti-preterit");
+    s.eq("future nawat route maps stale -tik preterit id", tiPreteritRoute.id, "denominal-vi-ti-preterit");
     s.eq("future nawat route keeps source slot", tiPreteritRoute.sourceSlot, "noun/inc.root");
     s.eq("future nawat route keeps denominal VI verbalizer", tiPreteritRoute.verbalizer, "-ti");
     s.eq("future nawat route keeps configured denominal family", tiPreteritRoute.denominalFamily, "vi-ti");
@@ -536,7 +700,7 @@ function run(ctx) {
         {
             version: 1,
             routeId: "denominal-vi-ti-preterit",
-            legacyTenseValue: "adjetivo-preterito-tik",
+            routeTenseValue: "adjetivo-preterito-tik",
             routePlacement: "patientivo-tronco-conversion",
             sourceMode: ctx.TENSE_MODE.verbo,
             sourceTenseValue: "presente",
@@ -646,7 +810,7 @@ function run(ctx) {
         }),
     };
     s.eq(
-        "nawat route state reads LCM result-frame surfaces before legacy result text",
+        "nawat route state reads LCM result-frame surfaces before stale result text",
         {
             forms: ctx.getStateResultSurfaceForms(framedStateSurface),
             primary: ctx.getPrimaryNawatRouteSurfaceForm(framedStateSurface),
@@ -662,7 +826,7 @@ function run(ctx) {
         "nawat route subject-number connector reader suppresses stale surfaces for empty LCM result frames",
         (() => {
             const framedConnector = {
-                surface: "legacy-connector",
+                surface: "stale-connector",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -671,7 +835,7 @@ function run(ctx) {
                 }),
             };
             const emptyConnector = {
-                surface: "legacy-connector",
+                surface: "stale-connector",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -681,20 +845,20 @@ function run(ctx) {
                 }),
             };
             return {
-                framed: ctx.getStateSubjectNumberConnectorSurface(framedConnector),
-                empty: ctx.getStateSubjectNumberConnectorSurface(emptyConnector),
-                legacy: ctx.getStateSubjectNumberConnectorSurface({ surface: "legacy-connector" }),
+                framed: ctx.getStateNum1Num2Surface(framedConnector),
+                empty: ctx.getStateNum1Num2Surface(emptyConnector),
+                stale: ctx.getStateNum1Num2Surface({ surface: "stale-connector" }),
             };
         })(),
         {
             framed: "frame-connector",
             empty: "",
-            legacy: "legacy-connector",
+            stale: "stale-connector",
         }
     );
     const framedRouteTarget = ctx.attachNawatStaticRouteGrammarFrame({
         result: "—",
-        surface: "legacy-route-control",
+        surface: "stale-route-control",
         frames: ctx.buildGrammarFrame({
             resultFrame: ctx.buildGrammarResultFrame({
                 ok: true,
@@ -710,7 +874,7 @@ function run(ctx) {
             structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
         },
         routeStage: "test-frame-reader",
-        targetSurface: "legacy-target-surface",
+        targetSurface: "stale-target-surface",
     });
     s.eq(
         "nawat static route target reads LCM result-frame surfaces before local target surface",
@@ -729,7 +893,7 @@ function run(ctx) {
     );
     const emptyFramedRouteTarget = ctx.attachNawatStaticRouteGrammarFrame({
         result: "stale-route-result",
-        surface: "legacy-route-control",
+        surface: "stale-route-control",
         frames: ctx.buildGrammarFrame({
             resultFrame: ctx.buildGrammarResultFrame({
                 ok: false,
@@ -745,7 +909,7 @@ function run(ctx) {
             structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
         },
         routeStage: "test-empty-frame-reader",
-        targetSurface: "legacy-target-surface",
+        targetSurface: "stale-target-surface",
     });
     s.eq(
         "nawat static route target keeps an empty LCM result frame authoritative",
@@ -765,7 +929,7 @@ function run(ctx) {
     s.eq(
         "nawat route station surface text reads LCM result-frame surfaces",
         ctx.getNawatRouteStationSurfaceText({
-            surface: "legacy-station-surface",
+            surface: "stale-station-surface",
             frames: ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
                     ok: true,
@@ -776,11 +940,11 @@ function run(ctx) {
         "frame-station-a / frame-station-b"
     );
     s.eq(
-        "nawat route station surface text suppresses legacy surface for an empty LCM result frame",
+        "nawat route station surface text suppresses stale surface for an empty LCM result frame",
         ctx.getNawatRouteStationSurfaceText({
-            surface: "legacy-station-surface",
-            renderVerb: "legacy-render",
-            inputValue: "legacy-input",
+            surface: "stale-station-surface",
+            renderVerb: "stale-render",
+            inputValue: "stale-input",
             frames: ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
                     ok: false,
@@ -798,7 +962,7 @@ function run(ctx) {
             stationModels: [{
                 key: "source-tense",
                 role: "source",
-                surface: "legacy-source-tense",
+                surface: "stale-source-tense",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -817,9 +981,9 @@ function run(ctx) {
             stationModels: [{
                 key: "source-tense",
                 role: "source",
-                surface: "legacy-source-tense",
-                renderVerb: "legacy-render",
-                inputValue: "legacy-input",
+                surface: "stale-source-tense",
+                renderVerb: "stale-render",
+                inputValue: "stale-input",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -832,13 +996,13 @@ function run(ctx) {
         ""
     );
     s.eq(
-        "nawat route source-state metadata reads LCM station result-frame surfaces before legacy station fields",
+        "nawat route source-state metadata reads LCM station result-frame surfaces before stale station fields",
         (() => {
             const sourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
                 sourceVerb: "(pusuni)",
                 routeTarget: {
                     ...tiPreteritTarget,
-                    sourceStem: "legacy-target-stem",
+                    sourceStem: "stale-target-stem",
                 },
                 stationModels: [
                     {
@@ -849,8 +1013,8 @@ function run(ctx) {
                     {
                         key: "stem",
                         role: "stem",
-                        inputValue: "legacy-station-input",
-                        surface: "legacy-station-surface",
+                        inputValue: "stale-station-input",
+                        surface: "stale-station-surface",
                         frames: ctx.buildGrammarFrame({
                             resultFrame: ctx.buildGrammarResultFrame({
                                 ok: true,
@@ -875,10 +1039,10 @@ function run(ctx) {
         (() => {
             const sourceState = ctx.resolveNawatRouteSourceStateMetadata("denominal-vi-ti-preterit", {
                 sourceVerb: "(pusuni)",
-                sourceStem: "legacy-explicit-stem",
+                sourceStem: "stale-explicit-stem",
                 routeTarget: {
                     ...tiPreteritTarget,
-                    sourceStem: "legacy-target-stem",
+                    sourceStem: "stale-target-stem",
                 },
                 stationModels: [
                     {
@@ -889,8 +1053,8 @@ function run(ctx) {
                     {
                         key: "stem",
                         role: "stem",
-                        inputValue: "legacy-station-input",
-                        surface: "legacy-station-surface",
+                        inputValue: "stale-station-input",
+                        surface: "stale-station-surface",
                         frames: ctx.buildGrammarFrame({
                             resultFrame: ctx.buildGrammarResultFrame({
                                 ok: false,
@@ -931,7 +1095,7 @@ function run(ctx) {
         "(pusuni) → pusuchti → (pusuchtiti) → pusuchtitik"
     );
     const naPerfectRoute = ctx.getNawatRouteProfile("denominal-vt-na-perfect");
-    s.eq("canonical future nawat route resolves legacy tense", naPerfectRoute.legacyTenseValue, "adjetivo-perfecto-naj");
+    s.eq("canonical future nawat route resolves route tense", naPerfectRoute.routeTenseValue, "adjetivo-perfecto-naj");
     s.eq("canonical future nawat route keeps denominal VT verbalizer", naPerfectRoute.verbalizer, "-na");
     const naPreteritRoute = ctx.getNawatRouteProfile("denominal-vt-na-preterit");
     const naPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vt-na-preterit", {
@@ -981,7 +1145,7 @@ function run(ctx) {
         {
             version: 1,
             routeId: "denominal-vt-na-preterit",
-            legacyTenseValue: "adjetivo-preterito-naj",
+            routeTenseValue: "adjetivo-preterito-naj",
             routePlacement: "patientivo-tronco-conversion",
             sourceMode: ctx.TENSE_MODE.verbo,
             sourceTenseValue: "presente",
@@ -1011,7 +1175,7 @@ function run(ctx) {
         summarizeDenominalFamilyProfile(naPreteritSourceState.denominalFamilyProfile),
         {
             version: 1,
-            curriculumRef: { source: "Nawat route data", range: "static_modes", role: "legacy-denominal-route" },
+            curriculumRef: { source: "Nawat route data", range: "static_modes", role: "configured-denominal-route" },
             outputKind: "denominal-route",
             routeFamily: "vt-na",
             structuralAnalogue: "nawat-transitive-route-no-andrews-suffix",
@@ -1050,7 +1214,7 @@ function run(ctx) {
         "pusuknaj"
     );
     const iwiPreteritRoute = ctx.getNawatRouteProfile("denominal-vi-iwi-preterit");
-    s.eq("future nawat -iwi route has no european legacy tense", iwiPreteritRoute.legacyTenseValue, "");
+    s.eq("future nawat -iwi route has no configured route tense", iwiPreteritRoute.routeTenseValue, "");
     s.eq("future nawat -iwi route keeps denominal VI verbalizer", iwiPreteritRoute.verbalizer, "-iwi");
     const iwiPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vi-iwi-preterit", {
         sourceVerb: "(pusuni)",
@@ -1080,7 +1244,7 @@ function run(ctx) {
         {
             version: 1,
             routeId: "denominal-vi-iwi-preterit",
-            legacyTenseValue: "",
+            routeTenseValue: "",
             routePlacement: "patientivo-tronco-conversion",
             sourceMode: ctx.TENSE_MODE.verbo,
             sourceTenseValue: "presente",
@@ -1686,6 +1850,179 @@ function run(ctx) {
                 noFixtureEvidence: true,
                 structuralInventoryOnly: false,
                 fullLessonGenerationModeled: false,
+            },
+        }
+    );
+    const lesson54PursuitFrame = ctx.buildLesson54DenominalVerbstemPursuitFrame();
+    s.eq(
+        "Lesson 54 Plan/Pursue frame covers Andrews 54.1-54.6 without claiming full generation",
+        {
+            outputKind: lesson54PursuitFrame.outputKind,
+            stepNumber: lesson54PursuitFrame.stepNumber,
+            pdfRefs: lesson54PursuitFrame.pdfRefs,
+            plannedArrowIds: lesson54PursuitFrame.plannedArrows.map((arrow) => arrow.id),
+            firedArrowIds: lesson54PursuitFrame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+            hitCount: lesson54PursuitFrame.hitCount,
+            missCount: lesson54PursuitFrame.missCount,
+            closestPass: lesson54PursuitFrame.closestPass,
+            remainingGapMentionsDoubleObject: /double-object ti-a/.test(lesson54PursuitFrame.remainingGap),
+            subsectionRanges: lesson54PursuitFrame.subsectionFrames.map((frame) => frame.range),
+            subsectionContractCounts: lesson54PursuitFrame.subsectionFrames.map((frame) => frame.contractIds.length),
+            contractCoverage: lesson54PursuitFrame.contractCoverage,
+            boundaries: lesson54PursuitFrame.boundaries,
+        },
+        {
+            outputKind: "lesson-54-denominal-verbstem-pursuit-frame",
+            stepNumber: 54,
+            pdfRefs: [
+                "Andrews Lesson 54.1",
+                "Andrews Lesson 54.2",
+                "Andrews Lesson 54.2.1",
+                "Andrews Lesson 54.2.2",
+                "Andrews Lesson 54.2.3",
+                "Andrews Lesson 54.2.4",
+                "Andrews Lesson 54.2.5",
+                "Andrews Lesson 54.3",
+                "Andrews Lesson 54.4",
+                "Andrews Lesson 54.5",
+                "Andrews Lesson 54.6",
+            ],
+            plannedArrowIds: ["lesson-54-denominal-verbstem-audit"],
+            firedArrowIds: [["lesson-54-denominal-verbstem-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            closestPass: false,
+            remainingGapMentionsDoubleObject: true,
+            subsectionRanges: ["54.1", "54.2", "54.3", "54.4", "54.5", "54.6"],
+            subsectionContractCounts: [0, 9, 1, 2, 1, 1],
+            contractCoverage: {
+                contractCount: 14,
+                routeCoveredContractCount: 2,
+                sourceEvidenceRequiredContractCount: 9,
+                executableRuleContractCount: 13,
+                routeCoveredContractIds: [
+                    "54.2.1-inceptive-stative-ti",
+                    "54.4-possession-ti",
+                ],
+                sourceEvidenceRequiredContractIds: [
+                    "54.2.2-hui-lia-causative",
+                    "54.2.3-ti-ya-deverbal",
+                    "54.2.3-hui-ya-deverbal",
+                    "54.2.3-ya-lia-causative",
+                    "54.2.5-inceptive-stative-hua",
+                    "54.3-included-possessor-ti",
+                    "54.2-54.4-ti-lia-causative",
+                    "54.5-ti-a-causative",
+                    "54.6-t-ia-applicative",
+                ],
+                executableRuleIds: [
+                    "andrews-54-2-1-ti",
+                    "andrews-54-2-2-hui",
+                    "andrews-54-2-2-hui-lia",
+                    "andrews-54-2-3-ya",
+                    "andrews-54-2-3-ti-ya",
+                    "andrews-54-2-3-hui-ya",
+                    "andrews-54-2-3-ya-lia",
+                    "andrews-54-2-4-a",
+                    "andrews-54-2-5-hua",
+                    "andrews-54-3-included-possessor-ti",
+                    "andrews-54-2-54-4-ti-lia",
+                    "andrews-54-5-ti-a",
+                    "andrews-54-6-t-ia",
+                ],
+            },
+            boundaries: {
+                noClassicalSurfaceImport: true,
+                noNewFixtureEvidence: true,
+                noSilentGeneration: true,
+                fullLessonGenerationModeled: false,
+                visibleUiSpanishRequired: true,
+            },
+        }
+    );
+    const lesson55PursuitFrame = ctx.buildLesson55DenominalVerbstemPursuitFrame();
+    s.eq(
+        "Lesson 55 Plan/Pursue frame covers Andrews 55.1-55.7 without claiming full generation",
+        {
+            outputKind: lesson55PursuitFrame.outputKind,
+            stepNumber: lesson55PursuitFrame.stepNumber,
+            pdfRefs: lesson55PursuitFrame.pdfRefs,
+            plannedArrowIds: lesson55PursuitFrame.plannedArrows.map((arrow) => arrow.id),
+            firedArrowIds: lesson55PursuitFrame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+            hitCount: lesson55PursuitFrame.hitCount,
+            missCount: lesson55PursuitFrame.missCount,
+            closestPass: lesson55PursuitFrame.closestPass,
+            remainingGapMentionsTemporalParsing: /temporal compound parsing/.test(lesson55PursuitFrame.remainingGap),
+            subsectionRanges: lesson55PursuitFrame.subsectionFrames.map((frame) => frame.range),
+            subsectionContractCounts: lesson55PursuitFrame.subsectionFrames.map((frame) => frame.contractIds.length),
+            contractCoverage: lesson55PursuitFrame.contractCoverage,
+            boundaries: lesson55PursuitFrame.boundaries,
+        },
+        {
+            outputKind: "lesson-55-denominal-verbstem-pursuit-frame",
+            stepNumber: 55,
+            pdfRefs: [
+                "Andrews Lesson 55.1",
+                "Andrews Lesson 55.2",
+                "Andrews Lesson 55.3",
+                "Andrews Lesson 55.4",
+                "Andrews Lesson 55.5",
+                "Andrews Lesson 55.6",
+                "Andrews Lesson 55.7",
+            ],
+            plannedArrowIds: ["lesson-55-denominal-verbstem-audit"],
+            firedArrowIds: [["lesson-55-denominal-verbstem-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            closestPass: false,
+            remainingGapMentionsTemporalParsing: true,
+            subsectionRanges: ["55.1", "55.2", "55.3", "55.4", "55.5", "55.6", "55.7"],
+            subsectionContractCounts: [1, 5, 2, 1, 1, 1, 1],
+            contractCoverage: {
+                contractCount: 12,
+                routeCoveredContractCount: 1,
+                sourceEvidenceRequiredContractCount: 9,
+                executableRuleContractCount: 17,
+                routeCoveredContractIds: [
+                    "55.6-i-hui-a-hui-to-o-a",
+                ],
+                sourceEvidenceRequiredContractIds: [
+                    "55.1-temporal-tia",
+                    "55.2-tla-ti-lia-applicative",
+                    "55.2-intransitive-tla",
+                    "55.2-intransitive-tla-ti-a-causative",
+                    "55.2-intransitive-tla-ti-lia-applicative",
+                    "55.3-o-a-il-huia-al-huia-applicative-note",
+                    "55.4-adverbial-huia",
+                    "55.5-relational-compound-o-a-huia",
+                    "55.6-i-hui-a-hui-to-o-a",
+                ],
+                executableRuleIds: [
+                    "andrews-55-1-temporal-tia",
+                    "andrews-55-2-causative-tla",
+                    "andrews-55-2-tla-ti-lia-applicative",
+                    "andrews-55-2-intransitive-tla",
+                    "andrews-55-2-intransitive-tla-ti-a",
+                    "andrews-55-2-intransitive-tla-ti-lia",
+                    "andrews-55-3-o-a",
+                    "andrews-55-3-huia",
+                    "andrews-55-3-o-a-i-l-huia",
+                    "andrews-55-3-o-a-a-l-huia",
+                    "andrews-55-4-adverbial-huia",
+                    "andrews-55-5-relational-o-a",
+                    "andrews-55-5-relational-huia",
+                    "andrews-55-6-i-hui",
+                    "andrews-55-6-a-hui",
+                    "andrews-55-6-o-a",
+                    "andrews-55-7-i-a",
+                ],
+            },
+            boundaries: {
+                noClassicalSurfaceImport: true,
+                noNewFixtureEvidence: true,
+                noSilentGeneration: true,
+                fullLessonGenerationModeled: false,
+                visibleUiSpanishRequired: true,
             },
         }
     );
@@ -2779,7 +3116,7 @@ function run(ctx) {
                 routeTargetStemClass: route?.targetStemClass || "",
                 routeLimitedUse: route?.boundaries?.limitedUse === true,
                 routeFiniteAvailable: route?.finiteGenerationContractAvailable === true,
-                requestVerb: request?.prefixInputs?.verb || "",
+                requestVerb: request?.posicionesFormula?.tronco || "",
                 requestObjectExpected: request?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 success: {
                     ok: success?.ok,
@@ -3078,45 +3415,54 @@ function run(ctx) {
                 silent: true,
                 skipValidation: true,
                 override: {
-                    verb: "(miki)",
-                    tense: "calificativo-instrumentivo",
                     tenseMode: "sustantivo",
                     derivationMode: "active",
                     voiceMode: "active",
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
-                    possessivePrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(miki)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "calificativo-instrumentivo",
                 },
             });
             const possessedCharacteristicOutput = ctx.generateWord({
                 silent: true,
                 skipValidation: true,
                 override: {
-                    verb: "(miki)",
-                    tense: "calificativo-instrumentivo",
                     tenseMode: "sustantivo",
                     derivationMode: "active",
                     voiceMode: "active",
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
-                    possessivePrefix: "nu",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(miki)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "nu",
+                    tiempo: "calificativo-instrumentivo",
                 },
             });
             const nonactiveCharacteristicOutput = ctx.generateWord({
                 silent: true,
                 skipValidation: true,
                 override: {
-                    verb: "-(mati)",
-                    tense: "calificativo-instrumentivo",
                     tenseMode: "sustantivo",
                     derivationMode: "nonactive",
                     voiceMode: "passive-impersonal",
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "ta",
-                    possessivePrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ta",
+                    tronco: "-(mati)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "calificativo-instrumentivo",
                 },
             });
             const sourceEvidence = ctx.buildNawatDenominalAndrewsHuaSourceEvidenceFromCharacteristicPropertyOutput(
@@ -3142,7 +3488,7 @@ function run(ctx) {
                 routeTargetStemClass: route?.targetStemClass || "",
                 routeNotOaFormation: route?.boundaries?.notOaFormation === true,
                 routeSourceEvidenceLinked: route?.frames?.authorityFrame?.evidenceStatus || "",
-                requestVerb: request?.prefixInputs?.verb || "",
+                requestVerb: request?.posicionesFormula?.tronco || "",
                 executionSurface: execution?.result || "",
                 possessedPreview: ctx.previewNawatDenominalAndrewsHuaRouteFromCharacteristicPropertyOutput(
                     possessedCharacteristicOutput
@@ -3264,7 +3610,7 @@ function run(ctx) {
                     targetStemClass: satisfiedRoute?.targetStemClass || "",
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
                     objectSlotExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 },
                 success: {
@@ -3462,8 +3808,8 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: finiteRequest?.posicionesFormula?.obj1 || "",
                 },
                 success: {
                     ok: success?.ok === true,
@@ -3662,8 +4008,8 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: finiteRequest?.posicionesFormula?.obj1 || "",
                 },
                 success: {
                     ok: success?.ok === true,
@@ -3862,8 +4208,8 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: finiteRequest?.posicionesFormula?.obj1 || "",
                 },
                 success: {
                     ok: success?.ok === true,
@@ -4074,7 +4420,7 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
                     requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 },
                 success: {
@@ -4261,8 +4607,8 @@ function run(ctx) {
                     finiteAvailable: route?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: route?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: route?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: finiteRequest?.posicionesFormula?.obj1 || "",
                     requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 },
                 success: {
@@ -4458,8 +4804,8 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: finiteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: finiteRequest?.posicionesFormula?.obj1 || "",
                     requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 },
                 success: {
@@ -4671,7 +5017,7 @@ function run(ctx) {
                     finiteAvailable: satisfiedRoute?.finiteGenerationContractAvailable === true,
                     objectPrefixRequired: satisfiedRoute?.finiteGenerationRequiresObjectPrefix === true,
                     sourceRequirement: satisfiedRoute?.sourceRequirement?.validationStatus || "",
-                    requestVerb: finiteRequest?.prefixInputs?.verb || "",
+                    requestVerb: finiteRequest?.posicionesFormula?.tronco || "",
                     requestObjectExpected: finiteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 },
                 success: {
@@ -5168,8 +5514,8 @@ function run(ctx) {
                     objectPrefixRequired: huiaRoute?.finiteGenerationRequiresObjectPrefix === true,
                     diagnosticCount: huiaRoute?.routeDiagnosticCount || 0,
                     blockedObjectRequest: huiaBlockedObjectRequest,
-                    requestVerb: huiaFiniteRequest?.prefixInputs?.verb || "",
-                    requestObjectPrefix: huiaFiniteRequest?.prefixInputs?.objectPrefix || "",
+                    requestVerb: huiaFiniteRequest?.posicionesFormula?.tronco || "",
+                    requestObjectPrefix: huiaFiniteRequest?.posicionesFormula?.obj1 || "",
                 },
                 oASuccess: {
                     ok: oASuccess?.ok === true,
@@ -5425,7 +5771,7 @@ function run(ctx) {
                         requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                             iSatisfiedRoute,
                             { tense: "presente", objectPrefix: "ta" }
-                        )?.prefixInputs?.verb || "",
+                        )?.posicionesFormula?.tronco || "",
                     },
                     {
                         ...summarizeRoute(aSatisfiedRoute),
@@ -5436,7 +5782,7 @@ function run(ctx) {
                         requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                             aSatisfiedRoute,
                             { tense: "presente", objectPrefix: "ta" }
-                        )?.prefixInputs?.verb || "",
+                        )?.posicionesFormula?.tronco || "",
                     },
                 ],
                 iSuccess: summarizeSuccess(iSuccess),
@@ -5654,7 +6000,7 @@ function run(ctx) {
                     requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                         satisfiedRoute,
                         { tense: "presente", objectPrefix: "ta" }
-                    )?.prefixInputs?.verb || "",
+                    )?.posicionesFormula?.tronco || "",
                 },
                 success: {
                     ok: success?.ok === true,
@@ -5891,7 +6237,7 @@ function run(ctx) {
                     requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                         route,
                         { tense: "presente", objectPrefix: "ta" }
-                    )?.prefixInputs?.verb || "",
+                    )?.posicionesFormula?.tronco || "",
                 })),
                 successes: [
                     summarizeSuccess(relationalOaSuccess),
@@ -6154,7 +6500,7 @@ function run(ctx) {
                     requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                         satisfiedOaRoute,
                         { tense: "presente", objectPrefix: "ta" }
-                    )?.prefixInputs?.verb || "",
+                    )?.posicionesFormula?.tronco || "",
                 },
                 successes: [
                     summarizeSuccess(iHuiSuccess),
@@ -7182,7 +7528,7 @@ function run(ctx) {
                     requestObjectVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                         baseRoute,
                         { tense: "presente", objectPrefix: "ta" }
-                    )?.prefixInputs?.verb || "",
+                    )?.posicionesFormula?.tronco || "",
                 },
                 unlistedRoute: summarizeRoute(unlistedRoute),
                 success: summarizeSuccess(success),
@@ -7616,7 +7962,7 @@ function run(ctx) {
             satisfiedRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 includedPossessorSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             includedFiniteAvailable: false,
@@ -7672,7 +8018,7 @@ function run(ctx) {
             temporalRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 temporalTiaSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             temporalObjectExpected: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 temporalTiaSatisfiedRoute,
                 { tense: "presente" }
@@ -7690,7 +8036,7 @@ function run(ctx) {
             locativoTemporalRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 locativoTemporalRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             temporalSourceEvidence: {
@@ -7730,8 +8076,8 @@ function run(ctx) {
     );
     const framedExplicitSource = (surface, {
         ok = true,
-        sourceStem = "legacy-stem",
-        sourceSurface = "legacy-surface",
+        sourceStem = "stale-stem",
+        sourceSurface = "stale-surface",
         extra = {},
     } = {}) => ({
         sourceStem,
@@ -7825,7 +8171,7 @@ function run(ctx) {
             adverbialRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 adverbialHuiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             relationalSourceEvidence: relationalSourcePreview?.sourceEvidence || null,
             relationalCandidateRouteCount: relationalSourcePreview?.candidateRouteCount || 0,
             relationalFiniteRouteRequestCount: relationalSourcePreview?.finiteRouteRequestCount || 0,
@@ -7833,12 +8179,12 @@ function run(ctx) {
             relationalOaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 relationalOaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             relationalHuiaRequirementStatus: relationalHuiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             relationalHuiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 relationalHuiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             adverbialSourceEvidence: {
@@ -7855,7 +8201,7 @@ function run(ctx) {
                     sourceEvidenceFromExplicitSourceClassification: true,
                     sourceEvidenceSupportsAdverbialHuiaApplicative: true,
                     sourceMustBeConfirmedAdverbialNounstem: true,
-                    doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+                    doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true,
                     classicalRuleSpellingsConvertedToNawat: true,
                 },
             },
@@ -7911,7 +8257,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 includedPossessorFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             requestObjectExpected: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 includedPossessorFromNncRoute,
                 { tense: "presente" }
@@ -7963,7 +8309,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTiFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             possessivePreview: inceptiveTiFromPossessiveNncPreview,
         },
         {
@@ -8012,7 +8358,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveHuiFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             possessivePreview: inceptiveHuiFromPossessiveNncPreview,
         },
         {
@@ -8061,7 +8407,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 rootPlusYaFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             possessivePreview: rootPlusYaFromPossessiveNncPreview,
         },
         {
@@ -8110,7 +8456,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveAFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             possessivePreview: inceptiveAFromPossessiveNncPreview,
         },
         {
@@ -8161,7 +8507,7 @@ function run(ctx) {
             requestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 possessionTiFromNncRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             possessivePreviewSourceStem: possessionTiFromPossessiveNncPreview?.sourceStem || "",
         },
         {
@@ -8214,7 +8560,7 @@ function run(ctx) {
                 nncBasic: {
                     formulaEcho: "#Ø...Ø(stale-nounstem)Ø#",
                     formulaSlots: {
-                        predicate: {
+                        predicateStem: {
                             stem: "stale-nounstem",
                             state: "absolutive",
                         },
@@ -8269,29 +8615,29 @@ function run(ctx) {
             tiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTiYaSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tiLiaFiniteAvailable: inceptiveTiLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             tiLiaRequirementStatus: inceptiveTiLiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tiLiaRequestObjectPrefix: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.objectPrefix || "",
+            )?.posicionesFormula?.obj1 || "",
             tiAFiniteAvailable: inceptiveTiASatisfiedRoute?.finiteGenerationContractAvailable === true,
             tiARequirementStatus: inceptiveTiASatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tiARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTiASatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tIaFiniteAvailable: inceptiveTIaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             tIaRequirementStatus: inceptiveTIaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tIaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 inceptiveTIaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             sourceEvidence: {
@@ -8366,19 +8712,19 @@ function run(ctx) {
             tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 possessionTiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tiAFiniteAvailable: possessionTiASatisfiedRoute?.finiteGenerationContractAvailable === true,
             tiARequirementStatus: possessionTiASatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tiARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 possessionTiASatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tIaFiniteAvailable: possessionTIaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             tIaRequirementStatus: possessionTIaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tIaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 possessionTIaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             sourceEvidence: {
@@ -8428,17 +8774,17 @@ function run(ctx) {
             huiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiAndrewsYaSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             huiLiaFiniteAvailable: huiLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             huiLiaRequirementStatus: huiLiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             huiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             huiLiaRequestObjectPrefix: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.objectPrefix || "",
+            )?.posicionesFormula?.obj1 || "",
         },
         {
             sourceEvidence: {
@@ -8501,11 +8847,11 @@ function run(ctx) {
             yaLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 yaLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             yaLiaRequestObjectPrefix: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 yaLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.objectPrefix || "",
+            )?.posicionesFormula?.obj1 || "",
         },
         {
             sourceEvidence: {
@@ -8574,11 +8920,11 @@ function run(ctx) {
             tlaApplicativeRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tlaApplicativeSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tlaApplicativeRequestObjectPrefix: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tlaApplicativeSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.objectPrefix || "",
+            )?.posicionesFormula?.obj1 || "",
             sourceRequestCanSatisfyLaterEvidence: tlaCausativeRouteRequestWithEvidence?.denominalAndrewsContractRoute?.boundaries?.canSatisfyLaterSourceEvidence === true,
             sourceExecutionCanSatisfyLaterEvidence: tlaCausativeRouteExecutionWithEvidence?.denominalAndrewsContractRouteExecution?.boundaries?.canSatisfyLaterSourceEvidence === true,
         },
@@ -8659,13 +9005,13 @@ function run(ctx) {
             tiARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 intransitiveTlaTiASatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tiLiaFiniteAvailable: intransitiveTlaTiLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             tiLiaRequirementStatus: intransitiveTlaTiLiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 intransitiveTlaTiLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             sourceEvidence: {
@@ -8741,13 +9087,13 @@ function run(ctx) {
             ilHuiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 oAIlHuiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             alHuiaFiniteAvailable: oAAlHuiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             alHuiaRequirementStatus: oAAlHuiaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             alHuiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 oAAlHuiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             sourceEvidence: {
@@ -8812,7 +9158,7 @@ function run(ctx) {
             oARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 iHuiAndrewsSatisfiedOA,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             sourceEvidence: {
@@ -8859,7 +9205,7 @@ function run(ctx) {
             tiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tiYaSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             huiYaFiniteAvailable: huiYaSatisfiedRoute?.finiteGenerationContractAvailable === true,
             huiYaRequirementStatus: huiYaSatisfiedRoute?.sourceRequirement?.validationStatus || "",
             huiYaTargetStemClass: huiYaSatisfiedRoute?.targetStemClass || "",
@@ -8869,7 +9215,7 @@ function run(ctx) {
             huiYaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiYaSatisfiedRoute,
                 { tense: "presente" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             tiYaNextSourceEvidence: tiYaNextPreview?.sourceEvidence || null,
             tiYaNextPreviewSourceStem: tiYaNextPreview?.routePreview?.sourceStem || "",
             tiYaLiaFiniteAvailable: tiYaLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
@@ -8877,7 +9223,7 @@ function run(ctx) {
             tiYaLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tiYaLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
             huiYaNextSourceEvidence: huiYaNextPreview?.sourceEvidence || null,
             huiYaNextPreviewSourceStem: huiYaNextPreview?.routePreview?.sourceStem || "",
             huiYaLiaFiniteAvailable: huiYaLiaSatisfiedRoute?.finiteGenerationContractAvailable === true,
@@ -8885,7 +9231,7 @@ function run(ctx) {
             huiYaLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiYaLiaSatisfiedRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             tiYaFiniteAvailable: true,
@@ -8965,13 +9311,13 @@ function run(ctx) {
     s.eq(
         "Lessons 54-55 Andrews contract routes can build explicit VNC generation requests without fixture evidence",
         {
-            huiVerb: huiRouteRequest?.prefixInputs?.verb || "",
-            huiTense: huiRouteRequest?.options?.override?.tense || "",
+            huiVerb: huiRouteRequest?.posicionesFormula?.tronco || "",
+            huiTense: huiRouteRequest?.posicionesFormula?.tiempo || "",
             huiMode: huiRouteRequest?.options?.override?.tenseMode || "",
             huiObjectExpected: huiRouteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
             huiContractId: huiRouteRequest?.denominalAndrewsContractRoute?.contractId || "",
-            tlaVerb: tlaRouteRequest?.prefixInputs?.verb || "",
-            tlaObjectPrefix: tlaRouteRequest?.prefixInputs?.objectPrefix || "",
+            tlaVerb: tlaRouteRequest?.posicionesFormula?.tronco || "",
+            tlaObjectPrefix: tlaRouteRequest?.posicionesFormula?.obj1 || "",
             tlaObjectExpected: tlaRouteRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
             tlaRequiresObjectPrefix: tlaRouteRequest?.denominalAndrewsContractRoute?.finiteGenerationRequiresObjectPrefix === true,
             tlaTargetStemClass: tlaRouteRequest?.denominalAndrewsContractRoute?.targetStemClass || "",
@@ -9015,7 +9361,7 @@ function run(ctx) {
             routeTemplateId: huiRouteActivation?.routeTemplateId || "",
             targetInput: huiRouteActivation?.targetInput || "",
             tense: huiRouteActivation?.tense || "",
-            requestVerb: huiRouteActivation?.request?.prefixInputs?.verb || "",
+            requestVerb: huiRouteActivation?.request?.posicionesFormula?.tronco || "",
             usesExistingVncEngine: huiRouteActivation?.boundaries?.usesExistingVncEngine === true,
             explicitUserRouteActivation: huiRouteActivation?.boundaries?.explicitUserRouteActivation === true,
             noFixtureEvidence: huiRouteActivation?.boundaries?.noFixtureEvidence === true,
@@ -9105,8 +9451,8 @@ function run(ctx) {
             },
             missingObjectRequest: activeRootYaLiaMissingObjectRequest,
             objectRequest: {
-                verb: activeRootYaLiaObjectRequest?.prefixInputs?.verb || "",
-                objectPrefix: activeRootYaLiaObjectRequest?.prefixInputs?.objectPrefix || "",
+                verb: activeRootYaLiaObjectRequest?.posicionesFormula?.tronco || "",
+                objectPrefix: activeRootYaLiaObjectRequest?.posicionesFormula?.obj1 || "",
                 objectSlotExpected: activeRootYaLiaObjectRequest?.denominalAndrewsContractRoute?.objectSlotExpected === true,
                 canSatisfyLaterEvidence: activeRootYaLiaObjectRequest?.denominalAndrewsContractRoute?.boundaries?.canSatisfyLaterSourceEvidence === true,
             },
@@ -9512,7 +9858,7 @@ function run(ctx) {
             tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 viTiSourceSatisfiedTiLia,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             selectedSourceEvidence: viTiLinkedSourceEvidence,
@@ -9553,7 +9899,7 @@ function run(ctx) {
             oARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 viIwiSourceSatisfiedOA,
                 { tense: "presente", objectPrefix: "ta" }
-            )?.prefixInputs?.verb || "",
+            )?.posicionesFormula?.tronco || "",
         },
         {
             selectedSourceEvidence: {
@@ -10217,12 +10563,12 @@ function run(ctx) {
                         selection: { routeId: "frame-route" },
                         selectedStage: {
                             stationKey: "verbalizer",
-                            sourceVerb: "legacy-stage-source",
-                            displaySurface: "legacy stage",
+                            sourceVerb: "stale-stage-source",
+                            displaySurface: "stale stage",
                         },
                         nextSource: {
-                            sourceVerb: "legacy-next-source",
-                            displaySurface: "legacy next",
+                            sourceVerb: "stale-next-source",
+                            displaySurface: "stale next",
                         },
                         generated: {
                             result: "—",
@@ -10242,8 +10588,8 @@ function run(ctx) {
                 sourceVerb: "frame-generated-source",
                 sourceObjectPrefix: "",
                 displaySurface: "frame-generated-source",
-                sourceInput: "legacy-next-source",
-                sourceInputDisplay: "legacy next",
+                sourceInput: "stale-next-source",
+                sourceInputDisplay: "stale next",
                 generatedSurface: "frame-generated-source",
                 routeId: "frame-route",
                 stageKey: "verbalizer",
@@ -10263,12 +10609,12 @@ function run(ctx) {
                         selection: { routeId: "next-frame-route", stageKey: "verbalizer" },
                         selectedStage: {
                             stationKey: "verbalizer",
-                            sourceVerb: "legacy-stage-source",
-                            displaySurface: "legacy stage",
+                            sourceVerb: "stale-stage-source",
+                            displaySurface: "stale stage",
                         },
                         nextSource: {
-                            sourceVerb: "legacy-next-source",
-                            displaySurface: "legacy next",
+                            sourceVerb: "stale-next-source",
+                            displaySurface: "stale next",
                             frames: ctx.buildGrammarFrame({
                                 resultFrame: ctx.buildGrammarResultFrame({
                                     ok: true,
@@ -10310,12 +10656,12 @@ function run(ctx) {
                         selection: { routeId: "empty-next-frame-route" },
                         selectedStage: {
                             stationKey: "verbalizer",
-                            sourceVerb: "legacy-stage-source",
-                            displaySurface: "legacy stage",
+                            sourceVerb: "stale-stage-source",
+                            displaySurface: "stale stage",
                         },
                         nextSource: {
-                            sourceVerb: "legacy-next-source",
-                            displaySurface: "legacy next",
+                            sourceVerb: "stale-next-source",
+                            displaySurface: "stale next",
                             frames: ctx.buildGrammarFrame({
                                 resultFrame: ctx.buildGrammarResultFrame({
                                     ok: false,
@@ -10346,16 +10692,16 @@ function run(ctx) {
                         selection: { routeId: "empty-frame-route" },
                         selectedStage: {
                             stationKey: "verbalizer",
-                            sourceVerb: "legacy-stage-source",
-                            displaySurface: "legacy stage",
+                            sourceVerb: "stale-stage-source",
+                            displaySurface: "stale stage",
                         },
                         nextSource: {
-                            sourceVerb: "legacy-next-source",
-                            displaySurface: "legacy next",
+                            sourceVerb: "stale-next-source",
+                            displaySurface: "stale next",
                         },
                         generated: {
-                            result: "legacy-generated-result",
-                            surface: "legacy-generated-surface",
+                            result: "stale-generated-result",
+                            surface: "stale-generated-surface",
                             frames: ctx.buildGrammarFrame({
                                 resultFrame: ctx.buildGrammarResultFrame({
                                     ok: false,
@@ -10371,19 +10717,19 @@ function run(ctx) {
         []
     );
     s.eq(
-        "linked grammar path stage helpers suppress legacy next-source fields for an empty LCM result frame",
+        "linked grammar path stage helpers suppress stale next-source fields for an empty LCM result frame",
         typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
             && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? {
                 sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
-                    surface: "legacy-stage-surface",
-                    inputValue: "legacy-input",
-                    renderVerb: "legacy-render",
+                    surface: "stale-stage-surface",
+                    inputValue: "stale-input",
+                    renderVerb: "stale-render",
                     nextSource: {
-                        sourceVerb: "legacy-source",
-                        displaySurface: "legacy-display",
+                        sourceVerb: "stale-source",
+                        displaySurface: "stale-display",
                         frames: ctx.buildGrammarFrame({
                             resultFrame: ctx.buildGrammarResultFrame({
                                 ok: false,
@@ -10393,9 +10739,9 @@ function run(ctx) {
                     },
                 }),
                 displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
-                    surface: "legacy-stage-surface",
+                    surface: "stale-stage-surface",
                     nextSource: {
-                        displaySurface: "legacy-display",
+                        displaySurface: "stale-display",
                         frames: ctx.buildGrammarFrame({
                             resultFrame: ctx.buildGrammarResultFrame({
                                 ok: false,
@@ -10412,18 +10758,18 @@ function run(ctx) {
         }
     );
     s.eq(
-        "linked grammar path stage helpers read stage LCM result-frame surfaces before legacy stage fields",
+        "linked grammar path stage helpers read stage LCM result-frame surfaces before stale stage fields",
         typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
             && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? {
                 sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
-                    surface: "legacy-stage-surface",
-                    sourceVerb: "legacy-stage-source",
-                    inputValue: "legacy-input",
-                    renderVerb: "legacy-render",
-                    displaySurface: "legacy-stage-display",
+                    surface: "stale-stage-surface",
+                    sourceVerb: "stale-stage-source",
+                    inputValue: "stale-input",
+                    renderVerb: "stale-render",
+                    displaySurface: "stale-stage-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: true,
@@ -10431,14 +10777,14 @@ function run(ctx) {
                         }),
                     }),
                     nextSource: {
-                        sourceVerb: "legacy-next-source",
-                        displaySurface: "legacy-next-display",
+                        sourceVerb: "stale-next-source",
+                        displaySurface: "stale-next-display",
                     },
                 }),
                 displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
-                    surface: "legacy-stage-surface",
-                    sourceVerb: "legacy-stage-source",
-                    displaySurface: "legacy-stage-display",
+                    surface: "stale-stage-surface",
+                    sourceVerb: "stale-stage-source",
+                    displaySurface: "stale-stage-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: true,
@@ -10446,7 +10792,7 @@ function run(ctx) {
                         }),
                     }),
                     nextSource: {
-                        displaySurface: "legacy-next-display",
+                        displaySurface: "stale-next-display",
                     },
                 }),
             }
@@ -10457,18 +10803,18 @@ function run(ctx) {
         }
     );
     s.eq(
-        "linked grammar path stage helpers suppress legacy stage fields for an empty LCM result frame",
+        "linked grammar path stage helpers suppress stale stage fields for an empty LCM result frame",
         typeof ctx.getNawatLinkedGrammarPathStageSourceVerb === "function"
             && typeof ctx.getNawatLinkedGrammarPathStageDisplaySurface === "function"
             && typeof ctx.buildGrammarFrame === "function"
             && typeof ctx.buildGrammarResultFrame === "function"
             ? {
                 sourceVerb: ctx.getNawatLinkedGrammarPathStageSourceVerb({
-                    surface: "legacy-stage-surface",
-                    sourceVerb: "legacy-stage-source",
-                    inputValue: "legacy-input",
-                    renderVerb: "legacy-render",
-                    displaySurface: "legacy-stage-display",
+                    surface: "stale-stage-surface",
+                    sourceVerb: "stale-stage-source",
+                    inputValue: "stale-input",
+                    renderVerb: "stale-render",
+                    displaySurface: "stale-stage-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: false,
@@ -10476,14 +10822,14 @@ function run(ctx) {
                         }),
                     }),
                     nextSource: {
-                        sourceVerb: "legacy-next-source",
-                        displaySurface: "legacy-next-display",
+                        sourceVerb: "stale-next-source",
+                        displaySurface: "stale-next-display",
                     },
                 }),
                 displaySurface: ctx.getNawatLinkedGrammarPathStageDisplaySurface({
-                    surface: "legacy-stage-surface",
-                    sourceVerb: "legacy-stage-source",
-                    displaySurface: "legacy-stage-display",
+                    surface: "stale-stage-surface",
+                    sourceVerb: "stale-stage-source",
+                    displaySurface: "stale-stage-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: false,
@@ -10491,7 +10837,7 @@ function run(ctx) {
                         }),
                     }),
                     nextSource: {
-                        displaySurface: "legacy-next-display",
+                        displaySurface: "stale-next-display",
                     },
                 }),
             }
@@ -10505,12 +10851,12 @@ function run(ctx) {
         && typeof ctx.buildGrammarFrame === "function"
         && typeof ctx.buildGrammarResultFrame === "function"
         ? ctx.buildNawatLinkedGrammarPathStageGenerateWordRequest({
-            surface: "legacy-stage-surface",
-            inputValue: "legacy-input",
-            renderVerb: "legacy-render",
+            surface: "stale-stage-surface",
+            inputValue: "stale-input",
+            renderVerb: "stale-render",
             nextSource: {
-                sourceVerb: "legacy-source",
-                displaySurface: "legacy-display",
+                sourceVerb: "stale-source",
+                displaySurface: "stale-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
@@ -10525,13 +10871,13 @@ function run(ctx) {
         })
         : null;
     s.eq(
-        "linked grammar path stage generation requests read LCM result-frame source surfaces before legacy stage fields",
+        "linked grammar path stage generation requests read LCM result-frame source surfaces before stale stage fields",
         framedLinkedStageRequest ? (() => {
             const frame = framedLinkedStageRequest.linkedGrammarPathStage?.grammarFrame
                 || framedLinkedStageRequest.linkedGrammarPathStage?.frames
                 || null;
             return {
-                inputVerb: framedLinkedStageRequest.prefixInputs?.verb || "",
+                inputVerb: framedLinkedStageRequest.posicionesFormula?.tronco || "",
                 stageSourceVerb: framedLinkedStageRequest.linkedGrammarPathStage?.sourceVerb || "",
                 stageDisplaySurface: framedLinkedStageRequest.linkedGrammarPathStage?.displaySurface || "",
                 frameSurface: frame?.resultFrame?.surface || "",
@@ -10550,12 +10896,12 @@ function run(ctx) {
         && typeof ctx.buildGrammarFrame === "function"
         && typeof ctx.buildGrammarResultFrame === "function"
         ? ctx.buildNawatLinkedGrammarPathStageGenerateWordRequest({
-            surface: "legacy-stage-surface",
-            inputValue: "legacy-input",
-            renderVerb: "legacy-render",
+            surface: "stale-stage-surface",
+            inputValue: "stale-input",
+            renderVerb: "stale-render",
             nextSource: {
-                sourceVerb: "legacy-source",
-                displaySurface: "legacy-display",
+                sourceVerb: "stale-source",
+                displaySurface: "stale-display",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: false,
@@ -10570,7 +10916,7 @@ function run(ctx) {
         })
         : null;
     s.eq(
-        "linked grammar path stage generation requests suppress legacy source fields for an empty LCM result frame",
+        "linked grammar path stage generation requests suppress stale source fields for an empty LCM result frame",
         emptyFramedLinkedStageRequest,
         null
     );
@@ -10580,10 +10926,10 @@ function run(ctx) {
         typeof ctx.applyNawatLinkedGrammarPathSourceInput === "function"
             ? {
                 result: ctx.applyNawatLinkedGrammarPathSourceInput({
-                    sourceVerb: "legacy-promoted-source",
-                    inputValue: "legacy-promoted-input",
-                    displaySurface: "legacy-promoted-display",
-                    generatedSurface: "legacy-generated-surface",
+                    sourceVerb: "stale-promoted-source",
+                    inputValue: "stale-promoted-input",
+                    displaySurface: "stale-promoted-display",
+                    generatedSurface: "stale-generated-surface",
                     sourceObjectPrefix: "k",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
@@ -10627,9 +10973,9 @@ function run(ctx) {
         typeof ctx.applyNawatLinkedGrammarPathSourceInput === "function"
             ? {
                 result: ctx.applyNawatLinkedGrammarPathSourceInput({
-                    sourceVerb: "legacy-promoted-source",
-                    inputValue: "legacy-promoted-input",
-                    displaySurface: "legacy-promoted-display",
+                    sourceVerb: "stale-promoted-source",
+                    inputValue: "stale-promoted-input",
+                    displaySurface: "stale-promoted-display",
                     frames: ctx.buildGrammarFrame({
                         resultFrame: ctx.buildGrammarResultFrame({
                             ok: false,
@@ -11120,7 +11466,7 @@ function run(ctx) {
         ctx.getNawatRouteProfiles().some((profile) => profile.id === "agentive-manner-adverb")
     );
     s.ok(
-        "legacy adverb tense remains outside the nawat rail",
+        "stale adverb tense remains outside the nawat rail",
         ctx.getTenseOrderForMode(ctx.TENSE_MODE.adverbio).includes("pasado-remoto-adverbio-activo")
     );
     s.ok(
@@ -11133,7 +11479,7 @@ function run(ctx) {
             && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-futuro")
     );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
-    s.eq("direct active preterit route resolves legacy tense", directPreteritRoute.legacyTenseValue, "adjetivo-preterito");
+    s.eq("direct active preterit route resolves route tense", directPreteritRoute.routeTenseValue, "adjetivo-preterito");
     s.ok(
         "all future nawat routes expose spanish-side route labels",
         ctx.getNawatRouteProfiles().every((profile) => ctx.formatNawatRouteProfileLabel(profile, false))
@@ -11569,7 +11915,7 @@ function run(ctx) {
         }),
         "(pusuni) → no activo → pusuniwani"
     );
-    s.eq("legacy helper resolves future nawat route id", ctx.getLegacyTenseForNawatRoute("denominal-vi-ti-perfect"), "adjetivo-perfecto-tik");
+    s.eq("route helper resolves future nawat route id", ctx.getRouteTenseForNawatRoute("denominal-vi-ti-perfect"), "adjetivo-perfecto-tik");
     s.eq(
         "future nawat route exposes train-station values",
         ctx.getNawatRouteStationList("denominal-vi-ti-preterit").map((station) => station.value),
@@ -11583,14 +11929,35 @@ function run(ctx) {
         combined: ctx.getCombinedMode(),
         sourceScope: ctx.getVerbSourceScope(),
     };
+    ctx.setActiveFunctionRole("adjectival");
+    ctx.setActiveUnitKind("cnn");
+    s.eq("unit kind can render CNN output while function remains adjectival", {
+        outputMode: ctx.getActiveTenseMode(),
+        functionRole: ctx.getActiveFunctionRole(),
+        unitKind: ctx.getActiveUnitKind(),
+    }, {
+        outputMode: ctx.TENSE_MODE.sustantivo,
+        functionRole: "adjectival",
+        unitKind: "cnn",
+    });
+    ctx.setActiveUnitKind("cnv");
+    s.eq("unit kind can render CNV output while function remains adjectival", {
+        outputMode: ctx.getActiveTenseMode(),
+        functionRole: ctx.getActiveFunctionRole(),
+        unitKind: ctx.getActiveUnitKind(),
+    }, {
+        outputMode: ctx.TENSE_MODE.verbo,
+        functionRole: "adjectival",
+        unitKind: "cnv",
+    });
     ctx.setActiveEuropeanTenseMode(ctx.TENSE_MODE.adjetivo);
     ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo);
-    s.eq("nawat mode click can render noun output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
-    s.eq("nawat mode click does not move european mode", ctx.getActiveEuropeanTenseMode(), ctx.TENSE_MODE.adjetivo);
-    ctx.setActiveEuropeanTenseMode(ctx.TENSE_MODE.verbo);
-    s.eq("european mode click can render verb output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.verbo);
+    s.eq("unit mode click can render noun output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
+    s.eq("unit mode click does not move function mode", ctx.getActiveFunctionMode(), ctx.TENSE_MODE.adjetivo);
+    ctx.setActiveFunctionMode(ctx.TENSE_MODE.verbo);
+    s.eq("function mode click can render verb output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.verbo);
     s.eq(
-        "european mode click does not move nawat mode",
+        "function mode click does not move unit mode",
         ctx.getActiveNawatTenseModeForCurrentSelection(),
         ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo
     );
@@ -11777,7 +12144,7 @@ function run(ctx) {
         }),
     }, { prefixChain: "ti" });
     s.eq(
-        "reduplicated result reads LCM result-frame surface before legacy result text",
+        "reduplicated result reads LCM result-frame surface before stale result text",
         {
             result: framedReduplicatedResult.result,
             surfaceForms: framedReduplicatedResult.surfaceForms,

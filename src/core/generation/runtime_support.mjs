@@ -2,12 +2,13 @@
 
 export function createGenerationRuntimeSupportGlobals(targetObject = globalThis) {
     const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+    const GENERATE_RUNTIME_ROUTE_FAMILY = "nuclear-clause-surface";
     function buildGenerateRuntimeBlockedDiagnostic({
       id = "generate-runtime-no-output",
       message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE,
       failedLayer = "stem",
       contractLayer = "stemFrame",
-      routeFamily = "generate-word",
+      routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
       routeStage = ""
     } = {}) {
       const normalizedId = String(id || "generate-runtime-no-output").trim();
@@ -18,7 +19,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         message: String(message || GENERATE_RUNTIME_NO_OUTPUT_MESSAGE).trim(),
         failedLayer: String(failedLayer || "stem").trim(),
         contractLayer: String(contractLayer || "stemFrame").trim(),
-        routeFamily: String(routeFamily || "generate-word").trim(),
+        routeFamily: String(routeFamily || GENERATE_RUNTIME_ROUTE_FAMILY).trim(),
         routeStage: String(routeStage || "").trim()
       };
     }
@@ -48,7 +49,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       };
     }
     function normalizeGenerateRuntimeDiagnostics(diagnostics = [], fallbackDiagnostic = null, {
-      routeFamily = "generate-word",
+      routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
       routeStage = ""
     } = {}) {
       const layerContract = getGenerateRuntimeDiagnosticLayerContract(routeStage);
@@ -78,7 +79,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
           message: String(normalizedEntry.message || "").trim(),
           failedLayer: normalizedEntry.failedLayer || layerContract.failedLayer,
           contractLayer: normalizedEntry.contractLayer || layerContract.contractLayer,
-          routeFamily: normalizedEntry.routeFamily || String(routeFamily || "generate-word").trim(),
+          routeFamily: normalizedEntry.routeFamily || String(routeFamily || GENERATE_RUNTIME_ROUTE_FAMILY).trim(),
           routeStage: normalizedEntry.routeStage || String(routeStage || "").trim()
         };
       }).filter(Boolean);
@@ -133,10 +134,10 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       return normalizeGenerateRuntimeContractSurface(rawSurface);
     }
     function attachGenerateRuntimeBlockedContract(result = null, {
-      routeFamily = "generate-word",
+      routeFamily = GENERATE_RUNTIME_ROUTE_FAMILY,
       routeStage = "no-output",
       renderVerb = "",
-      objectPrefix = "",
+      obj1 = "",
       tense = "",
       derivationType = "",
       diagnosticId = "generate-runtime-no-output",
@@ -195,8 +196,8 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         },
         nuclearClauseFrame: null,
         participantFrame: {
-          object: {
-            prefix: String(objectPrefix || "")
+          obj1: {
+            prefix: String(obj1 || "")
           }
         },
         inflectionFrame: {
@@ -208,7 +209,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
           routeStage,
           sourceContract: {
             renderVerb: String(renderVerb || ""),
-            objectPrefix: String(objectPrefix || ""),
+            obj1: String(obj1 || ""),
             tense: String(tense || ""),
             derivationType: String(derivationType || "")
           },
@@ -281,7 +282,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       shouldMask = false,
       silent = false,
       renderVerb = "",
-      objectPrefix = "",
+      obj1 = "",
       tense = "",
       isReflexive = false,
       derivationType = "",
@@ -294,7 +295,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       if (!silent) {
         targetObject.renderAllOutputs({
           verb: renderVerb,
-          objectPrefix,
+          objectPrefix: obj1,
           tense
         });
       }
@@ -306,7 +307,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         routeFamily,
         routeStage,
         renderVerb,
-        objectPrefix,
+        obj1,
         tense,
         derivationType,
         diagnosticId: "generate-forward-derivation-no-stem"
@@ -318,7 +319,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       derivationOptions = null,
       silent = false,
       renderVerb = "",
-      baseObjectPrefix = "",
+      obj1Base = "",
       tense = "",
       isReflexive = false
     }) {
@@ -331,7 +332,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         shouldMask: stage.blocked,
         silent,
         renderVerb,
-        objectPrefix: baseObjectPrefix,
+        obj1: obj1Base,
         tense,
         isReflexive,
         derivationType
@@ -349,7 +350,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       buildDerivationOptions = () => ({}),
       silent = false,
       renderVerb = "",
-      baseObjectPrefix = "",
+      obj1Base = "",
       tense = "",
       isReflexive = false,
       initialState = null
@@ -384,7 +385,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
           enabled,
           silent,
           renderVerb,
-          baseObjectPrefix,
+          obj1Base,
           tense,
           isReflexive
         });
@@ -452,31 +453,31 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
     }
     function applyNonactiveGenerateOverrides({
       nonactiveDerivation,
-      objectPrefix,
-      morphologyObjectPrefix,
-      baseObjectPrefix,
-      indirectObjectMarker,
-      thirdObjectMarker,
+      obj1,
+      morphologyObj1,
+      obj1Base,
+      obj2,
+      obj3,
       isReflexive
     }) {
       if (nonactiveDerivation?.nonactiveObjectPrefixOverride == null) {
         return {
-          objectPrefix,
-          morphologyObjectPrefix,
-          baseObjectPrefix,
-          indirectObjectMarker,
-          thirdObjectMarker,
+          obj1,
+          morphologyObj1,
+          obj1Base,
+          obj2,
+          obj3,
           isReflexive
         };
       }
-      const overriddenObjectPrefix = nonactiveDerivation.nonactiveObjectPrefixOverride;
+      const overriddenObj1 = nonactiveDerivation.nonactiveObjectPrefixOverride;
       return {
-        objectPrefix: overriddenObjectPrefix,
-        morphologyObjectPrefix: overriddenObjectPrefix,
-        baseObjectPrefix: overriddenObjectPrefix,
-        indirectObjectMarker: nonactiveDerivation.nonactiveIndirectMarkerOverride != null ? nonactiveDerivation.nonactiveIndirectMarkerOverride : indirectObjectMarker,
-        thirdObjectMarker: "",
-        isReflexive: overriddenObjectPrefix === "mu"
+        obj1: overriddenObj1,
+        morphologyObj1: overriddenObj1,
+        obj1Base: overriddenObj1,
+        obj2: nonactiveDerivation.nonactiveIndirectMarkerOverride != null ? nonactiveDerivation.nonactiveIndirectMarkerOverride : obj2,
+        obj3: "",
+        isReflexive: overriddenObj1 === "mu"
       };
     }
     function resolveStemCandidateMorphologyResult({
@@ -487,11 +488,11 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       shouldApplyDerivedAllomorphy,
       isPassiveImpersonalMode,
       parsedVerb,
-      indirectObjectMarker,
-      thirdObjectMarker,
+      obj2,
+      obj3,
       isNominalOutputProfile,
       tense,
-      possessivePrefix,
+      poseedor,
       patientivoOwnership,
       isYawi
     }) {
@@ -505,36 +506,39 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       }
       let stemVerb = stem;
       let stemAnalysisResolved = stemAnalysis;
-      let stemObjectPrefix = baseMorphologyInput.objectPrefix;
+      const basePers1 = baseMorphologyInput.pers1 ?? baseMorphologyInput.subjectPrefix ?? "";
+      const basePers2 = baseMorphologyInput.pers2 ?? baseMorphologyInput.subjectSuffix ?? "";
+      let stemObj1 = baseMorphologyInput.obj1 ?? baseMorphologyInput.objectPrefix ?? "";
       if (shouldApplyDerivedAllomorphy) {
-        const derivedAllomorphy = targetObject.applyObjectAllomorphy({
+        const derivedAllomorphy = targetObject.applyObj1Allomorphy({
           verb: stemVerb,
           analysisVerb: stemAnalysisResolved,
-          subjectPrefix: baseMorphologyInput.subjectPrefix,
-          subjectSuffix: baseMorphologyInput.subjectSuffix,
-          objectPrefix: stemObjectPrefix,
-          indirectObjectMarker,
-          thirdObjectMarker,
+          pers1: basePers1,
+          pers2: basePers2,
+          obj1: stemObj1,
+          obj2,
+          obj3,
           isPassiveImpersonalMode,
           ...targetObject.buildObjectAllomorphyMetaOptions(parsedVerb)
         });
         stemVerb = derivedAllomorphy.verb;
         stemAnalysisResolved = derivedAllomorphy.analysisVerb;
-        stemObjectPrefix = derivedAllomorphy.morphologyObjectPrefix;
+        stemObj1 = derivedAllomorphy.morphologyObj1;
       }
       const applied = targetObject.applyMorphologyRules({
         ...baseMorphologyInput,
         verb: stemVerb,
         analysisVerb: stemAnalysisResolved,
         analysisExactVerb: stemAnalysisResolved,
-        objectPrefix: stemObjectPrefix
+        obj1: stemObj1,
+        objectPrefix: stemObj1
       });
       if (!applied || applied.error || !applied.verb) {
         return null;
       }
-      const localSubjectPrefix = applied.subjectPrefix;
-      const localObjectPrefix = applied.objectPrefix;
-      let localSubjectSuffix = applied.subjectSuffix;
+      const localPers1 = applied.pers1 ?? applied.subjectPrefix;
+      const localObj1 = applied.obj1 ?? applied.objectPrefix;
+      let localPers2 = applied.pers2 ?? applied.subjectSuffix;
       let localVerb = applied.verb;
       const customaryPresentPatientiveSelectedProjectiveObjectPrefix = baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix === "ta" || baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix === "te" ? baseMorphologyInput.customaryPresentPatientiveSelectedProjectiveObjectPrefix : "";
       const keepSelectedCustomaryPresentPatientiveProjectiveStem = (stemValue = "") => {
@@ -545,42 +549,42 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         return normalizedStem.startsWith(customaryPresentPatientiveSelectedProjectiveObjectPrefix) ? normalizedStem : `${customaryPresentPatientiveSelectedProjectiveObjectPrefix}${normalizedStem}`;
       };
       if (baseMorphologyInput.customaryPresentPatientiveNnc === true) {
-        const moveCustomaryPresentNi = localSubjectSuffix === "ni" || localSubjectSuffix === "nit";
+        const moveCustomaryPresentNi = localPers2 === "ni" || localPers2 === "nit";
         if (moveCustomaryPresentNi) {
           localVerb = `${localVerb || ""}ni`;
-          localSubjectSuffix = baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "";
+          localPers2 = baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "";
         }
         localVerb = keepSelectedCustomaryPresentPatientiveProjectiveStem(localVerb);
       }
-      let localFormSpec = applied.formSpec || (isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(localVerb, localSubjectSuffix) : null);
+      let localFormSpec = applied.formSpec || (isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(localVerb, localPers2) : null);
       if (isNominalOutputProfile && baseMorphologyInput.customaryPresentPatientiveNnc === true) {
-        localFormSpec = targetObject.buildLiteralNominalFormSpec(localVerb, localSubjectSuffix);
+        localFormSpec = targetObject.buildLiteralNominalFormSpec(localVerb, localPers2);
       }
-      if (tense === "patientivo" && Boolean(possessivePrefix)) {
-        localSubjectSuffix = targetObject.adjustPatientivoPossessiveSuffix(localSubjectSuffix, true, patientivoOwnership, {
+      if (tense === "patientivo" && Boolean(poseedor)) {
+        localPers2 = targetObject.adjustPatientivoPossessiveSuffix(localPers2, true, patientivoOwnership, {
           stem: applied.verb
         });
-        if (localSubjectSuffix === null) {
+        if (localPers2 === null) {
           return null;
         }
         if (isNominalOutputProfile) {
-          localFormSpec = targetObject.withNominalFormSpecSuffix(localFormSpec, localSubjectSuffix, {
+          localFormSpec = targetObject.withNominalFormSpecSuffix(localFormSpec, localPers2, {
             verb: applied.verb,
-            subjectSuffix: localSubjectSuffix
+            subjectSuffix: localPers2
           });
         }
       }
-      const isYawiImperative = isYawi && tense === "imperativo" && localSubjectSuffix === "";
+      const isYawiImperative = isYawi && tense === "imperativo" && localPers2 === "";
       const localAlternates = (applied.alternateForms || []).map(form => {
         const normalizedForm = isNominalOutputProfile ? targetObject.normalizeNominalFormEntry(form, {
-          subjectSuffix: localSubjectSuffix
+          subjectSuffix: localPers2
         }) : form;
-        const rawAltSuffix = form.subjectSuffix ?? localSubjectSuffix;
+        const rawAltSuffix = form.subjectSuffix ?? localPers2;
         const moveAltCustomaryPresentNi = baseMorphologyInput.customaryPresentPatientiveNnc === true && (rawAltSuffix === "ni" || rawAltSuffix === "nit");
         const altVerb = moveAltCustomaryPresentNi ? `${normalizedForm.verb || ""}ni` : normalizedForm.verb;
         const resolvedAltVerb = baseMorphologyInput.customaryPresentPatientiveNnc === true ? keepSelectedCustomaryPresentPatientiveProjectiveStem(altVerb) : altVerb;
         const customaryPluralAltSuffix = moveAltCustomaryPresentNi ? baseMorphologyInput.customaryPresentPatientivePlural === true ? "met" : "" : rawAltSuffix;
-        const altSuffix = tense === "patientivo" && Boolean(possessivePrefix) ? targetObject.adjustPatientivoPossessiveSuffix(customaryPluralAltSuffix, true, patientivoOwnership, {
+        const altSuffix = tense === "patientivo" && Boolean(poseedor) ? targetObject.adjustPatientivoPossessiveSuffix(customaryPluralAltSuffix, true, patientivoOwnership, {
           stem: normalizedForm.verb
         }) : customaryPluralAltSuffix;
         if (altSuffix === null) {
@@ -596,9 +600,9 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         };
       }).filter(Boolean);
       return {
-        subjectPrefix: localSubjectPrefix,
-        objectPrefix: localObjectPrefix,
-        subjectSuffix: localSubjectSuffix,
+        pers1: localPers1,
+        obj1: localObj1,
+        pers2: localPers2,
         verb: localVerb,
         formSpec: localFormSpec,
         trailingSuffix: applied.trailingSuffix || "",
@@ -614,6 +618,11 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         configurable: true,
         enumerable: true,
         get() { return GENERATE_RUNTIME_NO_OUTPUT_MESSAGE; },
+    });
+    Object.defineProperty(api, "GENERATE_RUNTIME_ROUTE_FAMILY", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATE_RUNTIME_ROUTE_FAMILY; },
     });
     api.buildGenerateRuntimeBlockedDiagnostic = buildGenerateRuntimeBlockedDiagnostic;
     api.getGenerateRuntimeDiagnosticLayerContract = getGenerateRuntimeDiagnosticLayerContract;

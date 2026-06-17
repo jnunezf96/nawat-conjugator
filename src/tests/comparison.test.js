@@ -16,8 +16,10 @@ function run(ctx) {
             typeof ctx.classifyComparisonCandidate,
             typeof ctx.classifyComparisonFalsePositive,
             typeof ctx.getComparisonAntiConflationRules,
+            typeof ctx.getLesson53ComparisonSubsectionInventory,
+            typeof ctx.buildLesson53ComparisonPursuitFrame,
         ],
-        ["function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildComparisonBoundaryMetadata();
@@ -149,6 +151,139 @@ function run(ctx) {
     );
     s.no("comparison boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("comparison boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "Lesson 53 pursuit frame covers every Andrews similarity and comparison subsection",
+        (() => {
+            const inventory = ctx.getLesson53ComparisonSubsectionInventory();
+            const frame = ctx.buildLesson53ComparisonPursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionIuhqui: frame.remainingGaps.some((gap) => /iuhqui/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-53-comparison-pursuit-frame",
+            stepNumber: 53,
+            routeStage: "audit-lesson-53",
+            pdfRefCount: 7,
+            firstPdfRef: "Andrews Lesson 53.1",
+            lastPdfRef: "Andrews Lesson 53.7",
+            subsectionCount: 20,
+            subsectionRefs: [
+                "53.1",
+                "53.1 item 1",
+                "53.1 item 2",
+                "53.1 item 3",
+                "53.1 item 4",
+                "53.1 item 5",
+                "53.1 item 6",
+                "53.1 item 7",
+                "53.2",
+                "53.3",
+                "53.4",
+                "53.5",
+                "53.5 item 1",
+                "53.5 item 2",
+                "53.5 item 2a",
+                "53.5 item 2b",
+                "53.5 item 2c",
+                "53.5 item 2d",
+                "53.6",
+                "53.7",
+            ],
+            plannedArrowIds: ["lesson-53-comparison-audit"],
+            firedArrowIds: [["lesson-53-comparison-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionIuhqui: true,
+        }
+    );
+
+    s.eq(
+        "Lesson 53 frame records similarity, equality, size, comparative, question, and superlative boundaries",
+        (() => {
+            const frame = ctx.buildLesson53ComparisonPursuitFrame();
+            return {
+                similarityRouteCount: frame.similarityFrame.expressionRoutes.length,
+                iuhquiRoute: frame.similarityFrame.expressionRoutes[6],
+                comparisonKinds: frame.architectureFrame.comparisonKinds,
+                equalityRoutes: frame.equalityFrame.routes.map((route) => route.route),
+                sizeRoutes: frame.sizeFrame.routes.map((route) => route.route),
+                comparativeTwoConjuncts: frame.comparativeDegreeFrame.oftenUsesConjunctionWithOnlyTwoConjuncts,
+                negativeIntroducers: frame.comparativeDegreeFrame.routes[1].negativeIntroducers,
+                questionValue: frame.comparisonQuestionFrame.questionValue,
+                superlativeDeletesNegative: frame.superlativeFrame.generalSuperiorityByDeletingContrastingNegativeStatement,
+                superlativeVncs: frame.superlativeFrame.vncOptionsWithIcAdjoinedClause,
+                generationBoundary: frame.currentEngineBoundary,
+                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            similarityRouteCount: 7,
+            iuhquiRoute: {
+                sourceSection: "Andrews 53.1 item 7",
+                route: "ihui-or-iuhqui-construction",
+                iuhquiCanServeAsPrincipalClause: true,
+                impersonalSubjectCommon: true,
+                adjoinedClauseMayUseIn: true,
+                supplementaryNncOftenSentenceTopic: true,
+                concatenateCanAdjoinToLargerStructure: true,
+                icCanEstablishRelation: true,
+            },
+            comparisonKinds: ["sameness", "difference"],
+            equalityRoutes: ["iuhqui-construction", "ihuan-construction"],
+            sizeRoutes: ["ixquich-quantitive-pronominal-nnc", "quezqui-no-izqui-correlative", "more-more-correlative"],
+            comparativeTwoConjuncts: true,
+            negativeIntroducers: [
+                "inahmo",
+                "in ahmo iuh",
+                "in ahmo iuhqui",
+                "in ahmo mach iuh",
+                "in ahmo mach iuhqui",
+            ],
+            questionValue: "how-much-more",
+            superlativeDeletesNegative: true,
+            superlativeVncs: ["tlapanahuia", "tlacempanahuia"],
+            generationBoundary: {
+                comparisonBoundaryMetadataImplemented: true,
+                comparisonAstImplemented: false,
+                similarityFrameDiagnosticOnly: true,
+                equalityFrameDiagnosticOnly: true,
+                sizeFrameDiagnosticOnly: true,
+                comparativeDegreeFrameDiagnosticOnly: true,
+                comparisonQuestionFrameDiagnosticOnly: true,
+                superlativeFrameDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                staticComparisonDataImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson53GenerationImplemented: false,
+            },
+            orthographyHtoJ: true,
+            grammarRouteStage: "audit-lesson-53",
+            diagnosticIds: [
+                "comparison-lesson-53-diagnostic-partial",
+                "comparison-needs-nawat-clause-evidence",
+            ],
+        }
+    );
 
     return s;
 }

@@ -17,8 +17,10 @@ function run(ctx) {
             typeof ctx.classifyConjunctionClauseFalsePositive,
             typeof ctx.buildConjunctionClauseAst,
             typeof ctx.getConjunctionClauseAntiConflationRules,
+            typeof ctx.getLesson52ConjunctionClauseSubsectionInventory,
+            typeof ctx.buildLesson52ConjunctionClausePursuitFrame,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildConjunctionClauseBoundaryMetadata();
@@ -123,6 +125,134 @@ function run(ctx) {
     );
     s.no("conjunction boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("conjunction boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "Lesson 52 pursuit frame covers every Andrews conjunction subsection",
+        (() => {
+            const inventory = ctx.getLesson52ConjunctionClauseSubsectionInventory();
+            const frame = ctx.buildLesson52ConjunctionClausePursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionRelationInference: frame.remainingGaps.some((gap) => /relation inference/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-52-conjunction-clause-pursuit-frame",
+            stepNumber: 52,
+            routeStage: "audit-lesson-52",
+            pdfRefCount: 7,
+            firstPdfRef: "Andrews Lesson 52.1",
+            lastPdfRef: "Andrews Lesson 52.7",
+            subsectionCount: 23,
+            subsectionRefs: [
+                "52.1",
+                "52.2",
+                "52.2.1",
+                "52.2.2",
+                "52.2.3",
+                "52.3",
+                "52.3.1",
+                "52.3.2",
+                "52.3.3",
+                "52.4",
+                "52.4.1",
+                "52.4.2",
+                "52.4.3",
+                "52.5",
+                "52.5.1",
+                "52.5.2",
+                "52.6",
+                "52.6.1",
+                "52.6.2",
+                "52.7",
+                "52.7 item 1",
+                "52.7 item 2",
+                "52.7 item 3",
+            ],
+            plannedArrowIds: ["lesson-52-conjunction-clause-audit"],
+            firedArrowIds: [["lesson-52-conjunction-clause-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionRelationInference: true,
+        }
+    );
+
+    s.eq(
+        "Lesson 52 frame records balanced conjunction, modifier, correlation, lexical innovation, and parallel boundaries",
+        (() => {
+            const frame = ctx.buildLesson52ConjunctionClausePursuitFrame();
+            return {
+                architectureNoHead: frame.architectureFrame.noHead,
+                usualUnits: frame.architectureFrame.usualConjunctUnits,
+                unmarkedStructure: frame.unmarkedFrame.structure,
+                unmarkedAdversativeTwo: frame.unmarkedFrame.adversative.exactlyTwoConjuncts,
+                markedConjunctor: frame.markedFrame.classicalConjunctor,
+                markedVisibleEvidenceGate: frame.markedFrame.nawatVisibleSpellingRequiresEvidence,
+                ihuanNotConjunctor: frame.adverbialModifierFrame.additive.ihuanIsNotConjunctor,
+                correlativeEitherOr: frame.correlativeFrame.noConjunctorForEitherOr,
+                lexicalSharedReferent: frame.lexicalInnovationFrame.sameReferentAcrossConjoinedSubjectPronounsRequired,
+                lexicalCompoundTransform: frame.lexicalInnovationFrame.canTransformIntoConjunctiveCompoundNounstem,
+                parallelRephrasive: frame.parallelStructureFrame.rephrasive.staticRepetitionWithSlightlyDifferentForm,
+                parallelProgressive: frame.parallelStructureFrame.progressive.listlikeCollectionOfStatements,
+                parallelCombined: frame.parallelStructureFrame.combined.rephrasiveAndProgressiveCanCombine,
+                generationBoundary: frame.currentEngineBoundary,
+                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            architectureNoHead: true,
+            usualUnits: ["nuclear-clause", "nuclear-clause-group"],
+            unmarkedStructure: "juxtaposed nuclear clauses or nuclear-clause groups",
+            unmarkedAdversativeTwo: true,
+            markedConjunctor: "auh",
+            markedVisibleEvidenceGate: true,
+            ihuanNotConjunctor: true,
+            correlativeEitherOr: true,
+            lexicalSharedReferent: true,
+            lexicalCompoundTransform: true,
+            parallelRephrasive: true,
+            parallelProgressive: true,
+            parallelCombined: true,
+            generationBoundary: {
+                conjunctionBoundaryMetadataImplemented: true,
+                conjunctionAstImplemented: true,
+                balancedNoHeadAstImplemented: true,
+                markedAuhAstSupportedForSuppliedSurfaces: true,
+                adverbialModifierNotConjunctorDiagnosticImplemented: true,
+                correlativeParticleAstSupportedForSuppliedSurfaces: true,
+                lexicalInnovationSharedReferentGateImplemented: true,
+                parallelismDistinctionImplemented: true,
+                parserDetectionImplemented: false,
+                staticConjunctionDataImplemented: false,
+                automaticRelationInferenceImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson52GenerationImplemented: false,
+            },
+            orthographyHtoJ: true,
+            grammarRouteStage: "audit-lesson-52",
+            diagnosticIds: [
+                "conjunction-clause-lesson-52-diagnostic-partial",
+                "conjunction-clause-needs-nawat-clause-evidence",
+            ],
+        }
+    );
 
     const unmarkedAdditiveAst = ctx.buildConjunctionClauseAst({
         conjuncts: ["nitakwa", "niktalia"],
@@ -271,17 +401,17 @@ function run(ctx) {
         }
     );
     s.eq(
-        "conjunction AST reads surfaceForms before legacy result",
+        "conjunction AST reads surfaceForms before stale result",
         (() => {
             const ast = ctx.buildConjunctionClauseAst({
                 conjuncts: [
                     {
-                        result: "legacy-left",
+                        result: "stale-left",
                         surface: "top-left-surface",
                         surfaceForms: ["top-left-a / top-left-b"],
                     },
                     {
-                        result: "legacy-right",
+                        result: "stale-right",
                         surface: "top-right-surface",
                         surfaceForms: ["top-right-a / top-right-b"],
                     },

@@ -66,11 +66,15 @@ function run(ctx) {
         silent: true,
         skipValidation: true,
         override: {
-            verb: "nemi",
-            tense: "preterito-universal-1",
-            subjectPrefix: "ni",
-            subjectSuffix: "",
-            objectPrefix: "",
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "",
+            tronco: "nemi",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "preterito-universal-1",
         },
     });
     s.eq(
@@ -134,7 +138,45 @@ function run(ctx) {
         }
     );
     s.eq(
-        "preterit class-based contract reader prefers LCM result-frame surface forms before legacy no-output text",
+        "preterit class-based m-final stem carries Lesson 2 m-to-n frame",
+        (() => {
+            const result = ctx.buildClassBasedResultWithProvenance({
+                verb: "mima",
+                analysisVerb: "mima",
+                exactBaseVerb: "mima",
+                tense: "preterito",
+                subjectPrefix: "",
+                subjectSuffix: "",
+                objectPrefix: "ki",
+            });
+            const frames = result.grammarFrame?.orthographyFrame?.soundSpellingFrames || [];
+            const frame = frames.find((entry) => entry.ruleId === "m-coda-n") || {};
+            return {
+                result: result.result,
+                forms: result.forms,
+                frameCount: frames.length,
+                ruleId: frame.ruleId || "",
+                section: frame.andrewsSection || "",
+                process: frame.spanishProcess || "",
+                source: frame.sourceSurface || "",
+                target: frame.target || "",
+                slot: frame.grammarSlot || "",
+            };
+        })(),
+        {
+            result: "kimin(ki)",
+            forms: ["kimin(ki)"],
+            frameCount: 1,
+            ruleId: "m-coda-n",
+            section: "2.11.5 / 2.13.2",
+            process: "asimilación regresiva / cambio consonántico",
+            source: "m",
+            target: "n",
+            slot: "tronco",
+        }
+    );
+    s.eq(
+        "preterit class-based contract reader prefers LCM result-frame surface forms before stale no-output text",
         (() => {
             const result = ctx.attachPreteritClassBasedGrammarContract({
                 result: "stale-preterit-result",
@@ -170,12 +212,12 @@ function run(ctx) {
         }
     );
     s.eq(
-        "preterit class-based contract reader keeps legacy forms for metadata-only frames",
+        "preterit class-based contract reader keeps stale forms for metadata-only frames",
         (() => {
             const result = ctx.attachPreteritClassBasedGrammarContract({
-                result: "legacy-preterit-result",
+                result: "stale-preterit-result",
                 surface: "top-preterit-surface",
-                forms: ["legacy-preterit-a / legacy-preterit-b"],
+                forms: ["stale-preterit-a / stale-preterit-b"],
                 frames: ctx.buildGrammarFrame({
                     routeContract: ctx.buildGrammarRouteContractFrame({
                         routeFamily: "preterit-class-based-result",
@@ -198,9 +240,9 @@ function run(ctx) {
         })(),
         {
             ok: true,
-            surface: "legacy-preterit-a",
-            frameSurface: "legacy-preterit-a",
-            frameForms: ["legacy-preterit-a", "legacy-preterit-b", "top-preterit-surface", "legacy-preterit-result"],
+            surface: "stale-preterit-a",
+            frameSurface: "stale-preterit-a",
+            frameForms: ["stale-preterit-a", "stale-preterit-b", "top-preterit-surface", "stale-preterit-result"],
         }
     );
     s.eq(
@@ -275,7 +317,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "preterit variant assembly contract reader prefers LCM result-frame surface forms before legacy no-output text",
+        "preterit variant assembly contract reader prefers LCM result-frame surface forms before stale no-output text",
         (() => {
             const result = ctx.attachPretUniversalVariantAssemblyGrammarContract({
                 result: "stale-variant-result",
@@ -311,12 +353,12 @@ function run(ctx) {
         }
     );
     s.eq(
-        "preterit variant assembly reader keeps legacy forms for metadata-only frames",
+        "preterit variant assembly reader keeps stale forms for metadata-only frames",
         (() => {
             const result = ctx.attachPretUniversalVariantAssemblyGrammarContract({
-                result: "legacy-variant-result",
+                result: "stale-variant-result",
                 surface: "top-variant-surface",
-                forms: ["legacy-variant-a / legacy-variant-b"],
+                forms: ["stale-variant-a / stale-variant-b"],
                 frames: ctx.buildGrammarFrame({
                     routeContract: ctx.buildGrammarRouteContractFrame({
                         routeFamily: "preterit-variant-assembly",
@@ -339,9 +381,9 @@ function run(ctx) {
         })(),
         {
             ok: true,
-            surface: "legacy-variant-a",
-            frameSurface: "legacy-variant-a",
-            frameForms: ["legacy-variant-a", "legacy-variant-b", "top-variant-surface", "legacy-variant-result"],
+            surface: "stale-variant-a",
+            frameSurface: "stale-variant-a",
+            frameForms: ["stale-variant-a", "stale-variant-b", "top-variant-surface", "stale-variant-result"],
         }
     );
     s.eq(
@@ -375,11 +417,15 @@ function run(ctx) {
         silent: true,
         skipValidation: true,
         override: {
-            verb: "asi",
-            tense: "preterito",
-            subjectPrefix: "an",
-            subjectSuffix: "t",
-            objectPrefix: "",
+        },
+        posicionesFormula: {
+            pers1: "an",
+            obj1: "",
+            tronco: "asi",
+            pers2: "t",
+            num2: "t",
+            poseedor: "",
+            tiempo: "preterito",
         },
     });
     s.eq(
@@ -392,11 +438,15 @@ function run(ctx) {
         silent: true,
         skipValidation: true,
         override: {
-            verb: "asi",
-            tense: "perfecto",
-            subjectPrefix: "an",
-            subjectSuffix: "t",
-            objectPrefix: "",
+        },
+        posicionesFormula: {
+            pers1: "an",
+            obj1: "",
+            tronco: "asi",
+            pers2: "t",
+            num2: "t",
+            poseedor: "",
+            tiempo: "perfecto",
         },
     });
     s.eq(
@@ -409,11 +459,15 @@ function run(ctx) {
         silent: true,
         skipValidation: true,
         override: {
-            verb: "asi",
-            tense: "pasado-remoto",
-            subjectPrefix: "an",
-            subjectSuffix: "t",
-            objectPrefix: "",
+        },
+        posicionesFormula: {
+            pers1: "an",
+            obj1: "",
+            tronco: "asi",
+            pers2: "t",
+            num2: "t",
+            poseedor: "",
+            tiempo: "pasado-remoto",
         },
     });
     s.eq(

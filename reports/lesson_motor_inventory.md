@@ -77,7 +77,7 @@ Practical split:
 | 35-39 | Verb-derived nominal surfaces plus nominalization/patientive boundary metadata; current s/lis active-action motor | Sustantivo tab, diagnostic module/tests | Confirmed ownerhood data, complete z/liz fixture coverage, and complete patientive-family generation. |
 | 40-41 | Adjectival nominal outputs plus adjectival NNC function boundary metadata | Adjetivo tab, diagnostic module/tests | Dedicated adjectival NNC engine and complete adjective-function model. |
 | 42-43 | Adjectival modification boundary metadata | Diagnostic module/tests | Confirmed modifier/head clause examples and modification AST. |
-| 44 | Adverbial nuclear-clause boundary metadata plus diagnostic adverbio source frame | Diagnostic module/tests, legacy adverbio output labels | Full adverbial NNC/VNC data, schema, and generation. |
+| 44 | Adverbial nuclear-clause boundary metadata plus diagnostic adverbio source frame | Diagnostic module/tests, configured adverbio output labels | Full adverbial NNC/VNC data, schema, and generation. |
 | 45-47 | Relational NNC boundary metadata plus locativo-temporal evidence-boundary frame | Diagnostic module/tests, locativo-temporal output labels | Confirmed relational NNC data, schema, and generation. |
 | 48 | Place/gentilic NNC boundary metadata plus locativo-temporal evidence-boundary frame | Diagnostic module/tests, locativo-temporal output labels | Confirmed place-name/gentilic NNC data, schema, and generation. |
 | 49-50 | Adverbial-adjunction boundary metadata plus generated-word evidence-boundary frame | Diagnostic module/tests, adverbio/locativo output labels | Confirmed adjoined-unit data and clause-adjunction AST. |
@@ -103,7 +103,7 @@ These may have adjacent modules or boundary metadata, but no full generation/dat
 | 34,D | Numeral NNC generation; boundary metadata exists. |
 | 35-39 | Ownerhood, complete z/liz fixture coverage beyond current s/lis active-action generation, and complete patientive-family generation; boundary metadata exists. |
 | 42-43 | Clause/modification AST generation; boundary metadata exists. |
-| 44 | Full adverbial NNC/VNC generation; boundary metadata and one legacy adverbio surface exist. |
+| 44 | Full adverbial NNC/VNC generation; boundary metadata and one configured adverbio surface exist. |
 | 45-47 | Relational NNC fixture data/generation; boundary metadata exists. |
 | 48 | Place/gentilic NNC fixture data/generation; boundary metadata exists. |
 | E | Calendar-name fixture data/generation; boundary metadata exists. |
@@ -117,7 +117,7 @@ These may have adjacent modules or boundary metadata, but no full generation/dat
 Important absent module families:
 
 - No full clause/sentence syntax engine beyond current diagnostic shell and sentence-layer metadata.
-- No full adverbial NNC/VNC engine beyond current diagnostic boundary metadata and legacy adverbio surface.
+- No full adverbial NNC/VNC engine beyond current diagnostic boundary metadata and configured adverbio surface.
 - No modification AST generation beyond current diagnostic boundary metadata.
 - No full comparison AST generation beyond current diagnostic boundary metadata.
 - No relational-NNC, place/gentilic NNC, calendar-name, personal-name NNC, adverbial-adjunction, complement, conjunction, comparison, or textual-analysis fixture/data-generation engine, and no ownerhood, complete z/liz fixture coverage beyond the current s/lis active-action motor, affective-NNC, complete patientive-family, or numeral-NNC fixture data/generation engine.
@@ -134,7 +134,7 @@ Important absent module families:
 | C Object Pronoun Combinations | implemented | Agreement/combo validation and VNC output. |
 | D Numeral NNCs | partial | Numeral-NNC boundary metadata exists; no data or generation motor. |
 | E Calendar names | partial | Calendar-name boundary metadata exists; no data or generation motor. |
-| F Older spelling | partial | Diagnostic older/Classical spelling bridge metadata exists; no old-spelling normalizer or fixture-backed alias data. |
+| F Appendix F spelling | partial | Diagnostic Classical/Appendix F spelling bridge metadata exists; no Appendix F spelling normalizer or fixture-backed alias data. |
 | G Suggested ... | placeholder | Title/content incomplete in registry. |
 
 ## Test Coverage Notes
@@ -148,10 +148,3 @@ Weak or indirect coverage:
 - `nnc.test.js` and `orthography.test.js` now carry direct ordinary-NNC and orthography-bridge coverage. `output.test.js` remains lighter surface-output coverage.
 - Lessons 12-14 now have direct ordinary-NNC metadata/API coverage plus generated nominal/patientivo/possessive coverage.
 - Lessons 9-10 are represented by VNC/static mode support, but focused optative/admonitive assertions were not found.
-
-Last observed verification from this workstream:
-
-- `npm test`: 1085/1085 assertions passed across 41 suites, including registry and boundary-metadata suites.
-- `npm run test:module`: 1085/1085 assertions passed across 41 suites in module runtime.
-- `npm run test:regression`: 12/12 intransitive-final-`i` causative regression cases passed.
-- `node scripts/check_grammar_data.js`: 21 JSON files, `basic-data.csv` 2540 rows, `data.csv` 320 rows, 188 allowlisted exceptions.

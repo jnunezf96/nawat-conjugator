@@ -117,7 +117,7 @@ function run(ctx = {}) {
         }
     );
     s.eq(
-        "grammar result contract accepts frame surface forms without legacy result text",
+        "grammar result contract accepts frame surface forms without stale result text",
         (() => {
             const frame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
@@ -157,7 +157,7 @@ function run(ctx = {}) {
                 result: {
                     surface: "top-surface",
                     surfaceForms: ["stale-top-primary"],
-                    result: "stale-legacy-result",
+                    result: "stale-stale-result",
                 },
                 grammarFrame: frame,
             });
@@ -178,7 +178,7 @@ function run(ctx = {}) {
         }
     );
     s.eq(
-        "grammar result contract treats the legacy no-output marker as blank surface",
+        "grammar result contract treats the stale no-output marker as blank surface",
         (() => {
             const frame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
@@ -186,7 +186,7 @@ function run(ctx = {}) {
                     surface: "—",
                     surfaceForms: ["—"],
                     outputKind: "vnc",
-                    generationRoute: "generate-word",
+                    generationRoute: "nuclear-clause-surface",
                 }),
                 diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
                     status: "blocked",
@@ -227,7 +227,7 @@ function run(ctx = {}) {
                     surface: "",
                     surfaceForms: [],
                     outputKind: "vnc",
-                    generationRoute: "generate-word",
+                    generationRoute: "nuclear-clause-surface",
                 }),
             });
             const contract = ctx.buildGrammarResultContract({
@@ -354,7 +354,7 @@ function run(ctx = {}) {
             "adjectival-modification-requires-head-surface",
             "relational-nnc-option-one-requires-possessive-state",
             "patientivo-compound-embed-missing-incorporated-root",
-            "generate-word-intrans-potencial-combo-blocked",
+            "nuclear-clause-surface-intrans-potencial-combo-blocked",
             "unsupported-linked-promote-route",
             "comparison-needs-nawat-clause-evidence",
             {
@@ -384,7 +384,7 @@ function run(ctx = {}) {
                 contractLayer: "stemFrame",
             },
             {
-                id: "generate-word-intrans-potencial-combo-blocked",
+                id: "nuclear-clause-surface-intrans-potencial-combo-blocked",
                 failedLayer: "inflection",
                 contractLayer: "inflectionFrame",
             },
@@ -411,7 +411,7 @@ function run(ctx = {}) {
             const metadata = ctx.attachGrammarMetadataContract({
                 kind: "metadata-frame-reader",
                 result: "stale-meta-result",
-                surface: "legacy-surface",
+                surface: "stale-surface",
                 surfaceForms: ["stale-meta-a / stale-meta-b"],
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
@@ -452,7 +452,7 @@ function run(ctx = {}) {
                 routeSourceSurface: metadata.frames.routeContract.sourceContract.sourceSurface,
                 orthographySurface: metadata.frames.orthographyFrame.surface,
                 orthographySurfaceForms: metadata.frames.orthographyFrame.surfaceForms,
-                legacyResultStillEnumerable: Object.keys(metadata).includes("result"),
+                resultStillEnumerable: Object.keys(metadata).includes("result"),
                 enumerableSurface: Object.prototype.propertyIsEnumerable.call(metadata, "surface"),
             };
         })(),
@@ -466,7 +466,7 @@ function run(ctx = {}) {
             routeSourceSurface: "frame-source-input",
             orthographySurface: "frame-meta-a",
             orthographySurfaceForms: ["frame-meta-a", "frame-meta-b", "frame-meta-surface"],
-            legacyResultStillEnumerable: true,
+            resultStillEnumerable: true,
             enumerableSurface: false,
         }
     );
@@ -539,7 +539,7 @@ function run(ctx = {}) {
         (() => {
             const metadata = ctx.attachGrammarMetadataContract({
                 kind: "metadata-output-frame-reader",
-                result: "legacy-form",
+                result: "stale-form",
                 output: {
                     primarySurface: "stale-primary-output",
                     surface: "output-surface",

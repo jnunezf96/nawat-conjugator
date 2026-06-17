@@ -3,11 +3,14 @@
     "verbo": { "value": "verbo", "labelNa": "muchiwalis" },
     "sustantivo": { "value": "sustantivo", "labelNa": "Tukaytil" },
     "adjetivo": { "value": "adjetivo", "labelNa": "adjetivo" },
-    "adverbio": { "value": "adverbio", "labelNa": "adverbio" }
+    "adverbio": { "value": "adverbio", "labelNa": "adverbio" },
+    "particula": { "value": "particula", "labelNa": "partícula" }
   },
   "tenseModeSystem": {
-    "european": { "value": "european", "labelEs": "convención europea", "labelNa": "convención europea" },
-    "nawat": { "value": "nawat", "labelEs": "nawat", "labelNa": "nawat" }
+    "european": { "value": "european", "labelEs": "Clase sintáctica", "labelNa": "Clase sintáctica" },
+    "nawat": { "value": "nawat", "labelEs": "Clase formal", "labelNa": "Clase formal" },
+    "function": { "value": "function", "labelEs": "Clase sintáctica", "labelNa": "Clase sintáctica" },
+    "unit": { "value": "unit", "labelEs": "Clase formal", "labelNa": "Clase formal" }
   },
   "nawatTenseMode": {
     "verbo": { "value": "verbo", "labelNa": "muchiwalis" },
@@ -17,8 +20,8 @@
   "nawatRouteProfiles": {
     "adjetivo-preterito-tik": {
       "id": "denominal-vi-ti-preterit",
-      "legacyTenseValue": "adjetivo-preterito-tik",
-      "legacyMode": "adjetivo",
+      "routeTenseValue": "adjetivo-preterito-tik",
+      "routeMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.root",
@@ -42,8 +45,8 @@
     },
     "adjetivo-perfecto-tik": {
       "id": "denominal-vi-ti-perfect",
-      "legacyTenseValue": "adjetivo-perfecto-tik",
-      "legacyMode": "adjetivo",
+      "routeTenseValue": "adjetivo-perfecto-tik",
+      "routeMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.root",
@@ -67,7 +70,7 @@
     },
     "denominal-vi-iwi-preterit": {
       "id": "denominal-vi-iwi-preterit",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.root",
@@ -91,7 +94,7 @@
     },
     "denominal-vi-iwi-perfect": {
       "id": "denominal-vi-iwi-perfect",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.root",
@@ -115,7 +118,7 @@
     },
     "denominal-vi-awi-preterit": {
       "id": "denominal-vi-awi-preterit",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.root",
@@ -139,7 +142,7 @@
     },
     "denominal-vi-awi-perfect": {
       "id": "denominal-vi-awi-perfect",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.root",
@@ -163,8 +166,8 @@
     },
     "adjetivo-preterito-naj": {
       "id": "denominal-vt-na-preterit",
-      "legacyTenseValue": "adjetivo-preterito-naj",
-      "legacyMode": "adjetivo",
+      "routeTenseValue": "adjetivo-preterito-naj",
+      "routeMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.obj.",
@@ -188,8 +191,8 @@
     },
     "adjetivo-perfecto-naj": {
       "id": "denominal-vt-na-perfect",
-      "legacyTenseValue": "adjetivo-perfecto-naj",
-      "legacyMode": "adjetivo",
+      "routeTenseValue": "adjetivo-perfecto-naj",
+      "routeMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.obj.",
@@ -213,10 +216,10 @@
     },
     "adjetivo-preterito": {
       "id": "direct-active-preterit",
-      "legacyTenseValue": "adjetivo-preterito",
-      "legacyMode": "adjetivo",
-      "legacyDerivationMode": "active",
-      "legacyVoiceMode": "active",
+      "routeTenseValue": "adjetivo-preterito",
+      "routeMode": "adjetivo",
+      "routeDerivationMode": "active",
+      "routeVoiceMode": "active",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "targetMode": "verbo",
@@ -238,10 +241,10 @@
     },
     "adjetivo-perfecto": {
       "id": "direct-active-perfect",
-      "legacyTenseValue": "adjetivo-perfecto",
-      "legacyMode": "adjetivo",
-      "legacyDerivationMode": "active",
-      "legacyVoiceMode": "active",
+      "routeTenseValue": "adjetivo-perfecto",
+      "routeMode": "adjetivo",
+      "routeDerivationMode": "active",
+      "routeVoiceMode": "active",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "targetMode": "verbo",
@@ -263,7 +266,7 @@
     },
     "patientivo-nonactive-t": {
       "id": "patientivo-nonactive-t",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "sustantivo",
       "nawatTenseValue": "patientivo",
       "targetMode": "sustantivo",
@@ -291,7 +294,7 @@
     },
     "patientivo-perfective-ti-noun": {
       "id": "patientivo-perfective-ti-noun",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "sustantivo",
       "nawatTenseValue": "patientivo",
       "targetMode": "sustantivo",
@@ -319,7 +322,7 @@
     },
     "patientivo-imperfective-t": {
       "id": "patientivo-imperfective-t",
-      "legacyTenseValue": "",
+      "routeTenseValue": "",
       "nawatMode": "sustantivo",
       "nawatTenseValue": "patientivo",
       "targetMode": "sustantivo",
@@ -347,10 +350,10 @@
     },
     "adjetivo-patientivo-no-activo": {
       "id": "patientivo-nonactive-ti",
-      "legacyTenseValue": "adjetivo-patientivo-no-activo",
-      "legacyMode": "adjetivo",
-      "legacyDerivationMode": "nonactive",
-      "legacyVoiceMode": "passive",
+      "routeTenseValue": "adjetivo-patientivo-no-activo",
+      "routeMode": "adjetivo",
+      "routeDerivationMode": "nonactive",
+      "routeVoiceMode": "passive",
       "nawatMode": "sustantivo",
       "nawatTenseValue": "patientivo",
       "targetMode": "sustantivo",
@@ -376,10 +379,10 @@
     },
     "adjetivo-patientivo-perfectivo": {
       "id": "patientivo-perfective-ti",
-      "legacyTenseValue": "adjetivo-patientivo-perfectivo",
-      "legacyMode": "adjetivo",
-      "legacyDerivationMode": "active",
-      "legacyVoiceMode": "active",
+      "routeTenseValue": "adjetivo-patientivo-perfectivo",
+      "routeMode": "adjetivo",
+      "routeDerivationMode": "active",
+      "routeVoiceMode": "active",
       "nawatMode": "sustantivo",
       "nawatTenseValue": "patientivo",
       "targetMode": "sustantivo",
@@ -405,10 +408,10 @@
     },
     "potencial-habitual": {
       "id": "nonactive-habitual-potential",
-      "legacyTenseValue": "potencial-habitual",
-      "legacyMode": "adjetivo",
-      "legacyDerivationMode": "nonactive",
-      "legacyVoiceMode": "passive",
+      "routeTenseValue": "potencial-habitual",
+      "routeMode": "adjetivo",
+      "routeDerivationMode": "nonactive",
+      "routeVoiceMode": "passive",
       "nawatMode": "verbo",
       "nawatTenseValue": "presente-habitual",
       "targetMode": "verbo",

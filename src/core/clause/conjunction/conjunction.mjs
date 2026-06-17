@@ -124,7 +124,9 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         unmarked: CONJUNCTION_CLAUSE_MARKING.unmarked,
         marked: CONJUNCTION_CLAUSE_MARKING.auh,
         auh: CONJUNCTION_CLAUSE_MARKING.auh,
+        auj: CONJUNCTION_CLAUSE_MARKING.auh,
         ihuan: CONJUNCTION_CLAUSE_MARKING.adverbialModifier,
+        ijuan: CONJUNCTION_CLAUSE_MARKING.adverbialModifier,
         "no": CONJUNCTION_CLAUSE_MARKING.adverbialModifier,
         oc: CONJUNCTION_CLAUSE_MARKING.adverbialModifier,
         "no-zo": CONJUNCTION_CLAUSE_MARKING.adverbialModifier,
@@ -160,6 +162,477 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
       return CONJUNCTION_CLAUSE_STRUCTURAL_QUESTIONS.map(question => ({
         ...question
       }));
+    }
+    function attachConjunctionClauseGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "conjunction-clause-boundary",
+        routeFamily: "conjunction-clause",
+        ...options
+      });
+    }
+    const LESSON52_CONJUNCTION_VALIDATION_REFS = Object.freeze(["src/tests/conjunction.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON52_CONJUNCTION_PDF_REFS = Object.freeze(["Andrews Lesson 52.1", "Andrews Lesson 52.2", "Andrews Lesson 52.3", "Andrews Lesson 52.4", "Andrews Lesson 52.5", "Andrews Lesson 52.6", "Andrews Lesson 52.7"]);
+    const LESSON52_CONJUNCTION_ARCHITECTURE_FRAME = Object.freeze({
+      kind: "lesson-52-conjunction-architecture-frame",
+      sourceSection: "Andrews 52.1",
+      specialConcatenateStructure: true,
+      balancedRelation: true,
+      noHead: true,
+      conjunctsSameSyntacticRank: true,
+      usualConjunctUnits: Object.freeze(["nuclear-clause", "nuclear-clause-group"]),
+      exceptionalParticleUnit: "za zan",
+      levels: Object.freeze([CONJUNCTION_CLAUSE_LEVEL.principal, CONJUNCTION_CLAUSE_LEVEL.adjoined]),
+      relationTypes: Object.freeze([CONJUNCTION_CLAUSE_COORDINATION_TYPE.additive, CONJUNCTION_CLAUSE_COORDINATION_TYPE.alternative, CONJUNCTION_CLAUSE_COORDINATION_TYPE.adversative]),
+      markednessTypes: Object.freeze([CONJUNCTION_CLAUSE_RELATION.marked, CONJUNCTION_CLAUSE_RELATION.unmarked]),
+      unmarkedPreferred: true
+    });
+    const LESSON52_UNMARKED_CONJUNCTION_FRAME = Object.freeze({
+      kind: "lesson-52-unmarked-conjunction-frame",
+      sourceSection: "Andrews 52.2",
+      structure: "juxtaposed nuclear clauses or nuclear-clause groups",
+      explicitConjunctorRequired: false,
+      relationInferredFromContent: true,
+      additive: Object.freeze({
+        sourceSection: "Andrews 52.2.1",
+        positiveAndNegativeSeries: true,
+        sharedSupplementUsuallyAfterLastConjunct: true,
+        canOperateAtPrincipalAndAdjoinedLevels: true,
+        tightSeriesModifierMayAppearBeforeFirstConjunctOnly: true
+      }),
+      alternative: Object.freeze({
+        sourceSection: "Andrews 52.2.2",
+        juxtaposedAlternatives: true,
+        adverbialParticlesMaySupportTranslation: true
+      }),
+      adversative: Object.freeze({
+        sourceSection: "Andrews 52.2.3",
+        exactlyTwoConjuncts: true,
+        counterbalancedPositiveNegativeContent: true
+      })
+    });
+    const LESSON52_MARKED_CONJUNCTION_FRAME = Object.freeze({
+      kind: "lesson-52-marked-conjunction-frame",
+      sourceSection: "Andrews 52.3",
+      classicalConjunctor: "auh",
+      nawatVisibleSpellingRequiresEvidence: true,
+      principalClauseOrSentenceLevelUsual: true,
+      adjunctLevelPossibleButUnusual: true,
+      sentenceInitialAuhCanClaimRightwardConjunctStatus: true,
+      additive: Object.freeze({
+        sourceSection: "Andrews 52.3.1",
+        usesAuh: true
+      }),
+      alternative: Object.freeze({
+        sourceSection: "Andrews 52.3.2",
+        usesAuh: true
+      }),
+      adversative: Object.freeze({
+        sourceSection: "Andrews 52.3.3",
+        usesAuh: true
+      })
+    });
+    const LESSON52_ADVERBIAL_MODIFIER_CONJUNCTION_FRAME = Object.freeze({
+      kind: "lesson-52-adverbial-modifier-conjunction-frame",
+      sourceSection: "Andrews 52.4",
+      notConjunctors: true,
+      mayAccompanyMarkedOrUnmarkedConjunction: true,
+      additive: Object.freeze({
+        sourceSection: "Andrews 52.4.1",
+        rightwardModifiers: Object.freeze(["no", "oc", "oc no"]),
+        ihuanIsPossessiveStateRelationalNnc: true,
+        ihuanIsNotConjunctor: true,
+        ihuanNawatVisibleSpellingRequiresEvidence: true,
+        negativeModifiers: Object.freeze(["ahno", "ahmo no", "no zo", "no zo eh", "ma no zo", "ma no zo eh"]),
+        auhCanCooccurWithAdverbialModifier: true
+      }),
+      alternative: Object.freeze({
+        sourceSection: "Andrews 52.4.2",
+        rightwardParticlesAndCollocations: Object.freeze(["ahzo", "ahzo eh", "no zo", "no zo eh", "ma no zo", "ma no zo eh", "ahno zo", "ahno zo eh"]),
+        oftenPrecededByIn: true,
+        markedAuhMayCooccur: true
+      }),
+      adversative: Object.freeze({
+        sourceSection: "Andrews 52.4.3",
+        rightwardModifiers: Object.freeze(["zan", "tel", "yeceh", "yeh", "neh"]),
+        yehOrNehMayBeIntroducedByIn: true,
+        markedAuhMayCooccur: true
+      })
+    });
+    const LESSON52_CORRELATIVE_CONJUNCTION_FRAME = Object.freeze({
+      kind: "lesson-52-correlative-conjunction-frame",
+      sourceSection: "Andrews 52.5",
+      noConjunctorForEitherOr: true,
+      standardCorrelation: Object.freeze({
+        sourceSection: "Andrews 52.5.1",
+        pairedParticles: Object.freeze(["ahzo ... ahzo", "ahzo eh ... ahzo eh", "ahzo ... ahzo no"]),
+        negativePairing: "ahmo no ... ahmo no"
+      }),
+      looserCorrelation: Object.freeze({
+        sourceSection: "Andrews 52.5.2",
+        pairedAdverbialOrPronominalNncs: true,
+        contrastiveConjunctRelation: true
+      })
+    });
+    const LESSON52_LEXICAL_INNOVATION_FRAME = Object.freeze({
+      kind: "lesson-52-lexical-innovation-by-conjunction-frame",
+      sourceSection: "Andrews 52.6",
+      unmarkedConjunctionCanFuseNncsForLexicalItems: true,
+      combinesNuclearClausesNotStems: true,
+      metaphoricalDisplacementRequired: true,
+      sameReferentAcrossConjoinedSubjectPronounsRequired: true,
+      canTransformIntoConjunctiveCompoundNounstem: true,
+      possessiveStateCanFormOnCompoundOrOnConjoinedStems: true,
+      canSurviveFurtherDerivations: true,
+      inUsuallyPrecedesEachNncWhenSupplementOrModifier: true,
+      inMayPrecedeOnlyLeftwardConjunct: true,
+      lordAndMasterType: Object.freeze({
+        sourceSection: "Andrews 52.6.1",
+        synonymousOrNearlySynonymousConjuncts: true,
+        combinedMeaningUsuallyOneConjunctOrImplication: true
+      }),
+      breadAndButterType: Object.freeze({
+        sourceSection: "Andrews 52.6.2",
+        situationalAssociation: true,
+        biclausalismOrTriclausalism: true,
+        possessiveOnlyTendencies: true,
+        affectiveFormationMustAppearOnAllStems: true,
+        simpleConjunctionContrastRequired: true
+      })
+    });
+    const LESSON52_PARALLEL_STRUCTURE_FRAME = Object.freeze({
+      kind: "lesson-52-parallel-structure-frame",
+      sourceSection: "Andrews 52.7",
+      conjunctionCreatesParallelStructure: true,
+      rephrasive: Object.freeze({
+        sourceSection: "Andrews 52.7 item 1",
+        staticRepetitionWithSlightlyDifferentForm: true,
+        grammarMayStayOrChange: true,
+        recastTypes: Object.freeze(["nonspecific-object/specific-object", "active/passive", "tense-shift", "incorporated-object/supplementary-object", "intransitive/reflexive-transitive"]),
+        relatedAppositiveConstructions: Object.freeze(["clarifying-appositive", "summarizing-appositive"])
+      }),
+      progressive: Object.freeze({
+        sourceSection: "Andrews 52.7 item 2",
+        similarGrammarWithChangedContent: true,
+        listlikeCollectionOfStatements: true
+      }),
+      combined: Object.freeze({
+        sourceSection: "Andrews 52.7 item 3",
+        rephrasiveAndProgressiveCanCombine: true
+      })
+    });
+    const LESSON52_CONJUNCTION_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson52-conjunction-overview",
+      andrewsSection: "52.1",
+      category: "conjunction-architecture",
+      directiveEs: "La conjuncion es concatenacion balanceada: no tiene nucleo y sus conjuntivos cooperan en el mismo rango.",
+      engineSurface: "diagnostic conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-unmarked-overview",
+      andrewsSection: "52.2",
+      category: "unmarked-conjunction",
+      directiveEs: "La conjuncion no marcada se lee por yuxtaposicion; el contenido decide si es aditiva, alternativa o adversativa.",
+      engineSurface: "diagnostic unmarked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-unmarked-additive",
+      andrewsSection: "52.2.1",
+      category: "unmarked-additive",
+      directiveEs: "La serie aditiva puede compartir suplemento y operar en nivel principal o adyacente.",
+      engineSurface: "diagnostic unmarked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-unmarked-alternative",
+      andrewsSection: "52.2.2",
+      category: "unmarked-alternative",
+      directiveEs: "La alternativa no marcada depende de la yuxtaposicion y de particulas adverbiales de apoyo.",
+      engineSurface: "diagnostic unmarked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-unmarked-adversative",
+      andrewsSection: "52.2.3",
+      category: "unmarked-adversative",
+      directiveEs: "La adversativa no marcada contrapone dos conjuntivos; no se modela como serie abierta.",
+      engineSurface: "diagnostic unmarked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-marked-overview",
+      andrewsSection: "52.3",
+      category: "marked-conjunction",
+      directiveEs: "La conjuncion marcada introduce auh en la fuente Andrews; la ortografia Nawat visible requiere evidencia.",
+      engineSurface: "diagnostic marked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-marked-additive",
+      andrewsSection: "52.3.1",
+      category: "marked-additive",
+      directiveEs: "Auh puede marcar una relacion aditiva entre oraciones o clausulas principales.",
+      engineSurface: "diagnostic marked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-marked-alternative",
+      andrewsSection: "52.3.2",
+      category: "marked-alternative",
+      directiveEs: "Auh tambien puede aparecer con alternativas, sin convertir particulas adverbiales en conjuntores.",
+      engineSurface: "diagnostic marked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-marked-adversative",
+      andrewsSection: "52.3.3",
+      category: "marked-adversative",
+      directiveEs: "Auh puede marcar una adversativa, usualmente en nivel principal o de oracion.",
+      engineSurface: "diagnostic marked-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-adverbial-modifier-overview",
+      andrewsSection: "52.4",
+      category: "adverbial-modifiers-near-conjunction",
+      directiveEs: "Varias particulas o CNN adverbializadas parecen conjuncion en traduccion, pero Andrews las trata como modificadores.",
+      engineSurface: "diagnostic adverbial-modifier frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-adverbial-additive",
+      andrewsSection: "52.4.1",
+      category: "additive-adverbial-modifiers",
+      directiveEs: "No, oc, oc no e ihuan apoyan lectura aditiva; ihuan no es conjunctor.",
+      engineSurface: "diagnostic adverbial-modifier frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-adverbial-alternative",
+      andrewsSection: "52.4.2",
+      category: "alternative-adverbial-modifiers",
+      directiveEs: "Ahzo y otras colocaciones apoyan lectura alternativa donde el ingles espera or.",
+      engineSurface: "diagnostic adverbial-modifier frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-adverbial-adversative",
+      andrewsSection: "52.4.3",
+      category: "adversative-adverbial-modifiers",
+      directiveEs: "Zan, tel, yeceh, yeh y neh apoyan adversativa, pero siguen siendo modificadores.",
+      engineSurface: "diagnostic adverbial-modifier frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-correlative-overview",
+      andrewsSection: "52.5",
+      category: "correlative-conjunction",
+      directiveEs: "La correlacion no usa conjunctor para either-or; usa pares de particulas o CNN adverbiales/pronominales.",
+      engineSurface: "diagnostic correlative-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-correlative-standard",
+      andrewsSection: "52.5.1",
+      category: "standard-correlation",
+      directiveEs: "La correlacion estandar repite particulas como ahzo...ahzo o ahmo no...ahmo no.",
+      engineSurface: "diagnostic correlative-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-correlative-loose",
+      andrewsSection: "52.5.2",
+      category: "loose-correlation",
+      directiveEs: "La correlacion suelta empareja CNN adverbiales o pronominales para contrastar conjuntivos.",
+      engineSurface: "diagnostic correlative-conjunction frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-lexical-innovation-overview",
+      andrewsSection: "52.6",
+      category: "lexical-innovation-by-conjunction",
+      directiveEs: "La innovacion lexica fusiona CNN por conjuncion no marcada; no es compuesto de troncos.",
+      engineSurface: "diagnostic lexical-innovation frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-lexical-lord-master",
+      andrewsSection: "52.6.1",
+      category: "lord-and-master-type",
+      directiveEs: "El tipo lord-and-master une conjuntivos sinonimos o casi sinonimos.",
+      engineSurface: "diagnostic lexical-innovation frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-lexical-bread-butter",
+      andrewsSection: "52.6.2",
+      category: "bread-and-butter-type",
+      directiveEs: "El tipo bread-and-butter une referentes asociados, exige desplazamiento metaforico y referente compartido.",
+      engineSurface: "diagnostic lexical-innovation frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-parallel-overview",
+      andrewsSection: "52.7",
+      category: "parallel-structure",
+      directiveEs: "La estructura paralela es creada por conjuncion y se modela como refrasiva, progresiva o combinada.",
+      engineSurface: "diagnostic parallel-structure frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-parallel-rephrasive",
+      andrewsSection: "52.7 item 1",
+      category: "rephrasive-parallelism",
+      directiveEs: "El paralelismo refrasivo repite el contenido con forma algo distinta; puede cambiar la gramatica.",
+      engineSurface: "diagnostic parallel-structure frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-parallel-progressive",
+      andrewsSection: "52.7 item 2",
+      category: "progressive-parallelism",
+      directiveEs: "El paralelismo progresivo mantiene forma gramatical similar mientras cambia el contenido.",
+      engineSurface: "diagnostic parallel-structure frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson52-parallel-combined",
+      andrewsSection: "52.7 item 3",
+      category: "combined-parallelism",
+      directiveEs: "Las estructuras mas complejas combinan paralelismo refrasivo y progresivo.",
+      engineSurface: "diagnostic parallel-structure frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    })]);
+    function cloneConjunctionClauseLessonRecord(record) {
+      if (!record || typeof record !== "object") {
+        return record;
+      }
+      if (Array.isArray(record)) {
+        return record.map(entry => cloneConjunctionClauseLessonRecord(entry));
+      }
+      return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, cloneConjunctionClauseLessonRecord(value)]));
+    }
+    function getLesson52ConjunctionClauseSubsectionInventory() {
+      return LESSON52_CONJUNCTION_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "not-surface-bearing",
+        validationRefs: Array.from(LESSON52_CONJUNCTION_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson52ConjunctionClausePursuitFrame() {
+      const subsectionInventory = getLesson52ConjunctionClauseSubsectionInventory();
+      const architectureFrame = cloneConjunctionClauseLessonRecord(LESSON52_CONJUNCTION_ARCHITECTURE_FRAME);
+      const unmarkedFrame = cloneConjunctionClauseLessonRecord(LESSON52_UNMARKED_CONJUNCTION_FRAME);
+      const markedFrame = cloneConjunctionClauseLessonRecord(LESSON52_MARKED_CONJUNCTION_FRAME);
+      const adverbialModifierFrame = cloneConjunctionClauseLessonRecord(LESSON52_ADVERBIAL_MODIFIER_CONJUNCTION_FRAME);
+      const correlativeFrame = cloneConjunctionClauseLessonRecord(LESSON52_CORRELATIVE_CONJUNCTION_FRAME);
+      const lexicalInnovationFrame = cloneConjunctionClauseLessonRecord(LESSON52_LEXICAL_INNOVATION_FRAME);
+      const parallelStructureFrame = cloneConjunctionClauseLessonRecord(LESSON52_PARALLEL_STRUCTURE_FRAME);
+      const remainingGaps = ["Current Lesson 52 support records Andrews' conjunction architecture as diagnostics and supplied-surface AST frames; it does not implement static conjunction data, parser/search detection, or automatic relation inference.", "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Unmarked relation inference, auh/orthography decisions, adverbial-modifier-vs-conjunctor detection, correlative pairing, biclausalism/triclausalism classification, parallel-structure parsing, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed."];
+      const frame = {
+        kind: "lesson-52-conjunction-clause-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 52,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-52",
+        pdfRefs: Array.from(LESSON52_CONJUNCTION_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-52-conjunction-clause-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 52.1-52.7 against current conjunction boundary metadata, supplied-surface AST behavior, balanced no-head conjunction, unmarked and marked conjunction, adverbial modifiers near conjunction, correlative conjunction, lexical innovation, and parallel structure.",
+          andrewsRefs: Array.from(LESSON52_CONJUNCTION_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON52_CONJUNCTION_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-52-conjunction-clause-audit",
+          result: "hit",
+          correction: "Lesson 52 now records Andrews conjunction architecture across balanced no-head conjunction, unmarked additive/alternative/adversative relations, marked auh structure, adverbial modifiers that are not conjunctors, correlative pairing, lexical innovation by conjoined CNNs, and rephrasive/progressive/combined parallel structure while keeping generation blocked.",
+          andrewsRefs: Array.from(LESSON52_CONJUNCTION_PDF_REFS),
+          feedbackRefs: Array.from(LESSON52_CONJUNCTION_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        architectureFrame,
+        unmarkedFrame,
+        markedFrame,
+        adverbialModifierFrame,
+        correlativeFrame,
+        lexicalInnovationFrame,
+        parallelStructureFrame,
+        currentEngineBoundary: {
+          conjunctionBoundaryMetadataImplemented: true,
+          conjunctionAstImplemented: true,
+          balancedNoHeadAstImplemented: true,
+          markedAuhAstSupportedForSuppliedSurfaces: true,
+          adverbialModifierNotConjunctorDiagnosticImplemented: true,
+          correlativeParticleAstSupportedForSuppliedSurfaces: true,
+          lexicalInnovationSharedReferentGateImplemented: true,
+          parallelismDistinctionImplemented: true,
+          parserDetectionImplemented: false,
+          staticConjunctionDataImplemented: false,
+          automaticRelationInferenceImplemented: false,
+          newWordGenerationAllowed: false,
+          fullLesson52GenerationImplemented: false
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachConjunctionClauseGrammarContract(frame, {
+        metadataKind: "lesson-52-conjunction-clause-pursuit-frame",
+        unitKind: "conjunction-clause-boundary",
+        routeStage: "audit-lesson-52",
+        structuralSource: "Andrews Lesson 52",
+        andrewsRefs: Array.from(LESSON52_CONJUNCTION_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 52.1-52.7",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil conjunction-clause evidence",
+          noClassicalSurfaceImport: true,
+          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          orthographyStatus: "not-surface-bearing"
+        },
+        morphBoundaryFrame: {
+          architectureFrame,
+          unmarkedFrame,
+          markedFrame,
+          adverbialModifierFrame,
+          correlativeFrame,
+          lexicalInnovationFrame,
+          parallelStructureFrame
+        },
+        nuclearClauseFrame: {
+          sourceClauseKind: "balanced conjunction structure",
+          noHead: true,
+          conjunctsSameSyntacticRank: true,
+          usualConjunctUnits: ["nuclear-clause", "nuclear-clause-group"],
+          principalAndAdjoinedLevelsTracked: true,
+          lexicalInnovationUsesConjoinedNuclearClausesNotStems: true
+        },
+        participantFrame: {
+          semanticRole: "additive, alternative, adversative, correlative, lexical-innovation, or parallel-structure conjunct relation",
+          translationConjunctionIsNotMorphology: true,
+          adverbialModifiersAreNotConjunctors: true,
+          sharedReferentRequiredForLexicalInnovation: true
+        },
+        targetContract: {
+          metadataKind: "lesson-52-conjunction-clause-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnostics: ["conjunction-clause-lesson-52-diagnostic-partial", "conjunction-clause-needs-nawat-clause-evidence"]
+      });
     }
     function buildConjunctionClauseBoundaryMetadata() {
       return {
@@ -516,6 +989,60 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
     api.normalizeConjunctionClauseFalsePositiveSource = normalizeConjunctionClauseFalsePositiveSource;
     api.getConjunctionClauseAntiConflationRules = getConjunctionClauseAntiConflationRules;
     api.getConjunctionClauseStructuralQuestions = getConjunctionClauseStructuralQuestions;
+    api.attachConjunctionClauseGrammarContract = attachConjunctionClauseGrammarContract;
+    Object.defineProperty(api, "LESSON52_CONJUNCTION_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_CONJUNCTION_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON52_CONJUNCTION_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_CONJUNCTION_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON52_CONJUNCTION_ARCHITECTURE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_CONJUNCTION_ARCHITECTURE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_UNMARKED_CONJUNCTION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_UNMARKED_CONJUNCTION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_MARKED_CONJUNCTION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_MARKED_CONJUNCTION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_ADVERBIAL_MODIFIER_CONJUNCTION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_ADVERBIAL_MODIFIER_CONJUNCTION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_CORRELATIVE_CONJUNCTION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_CORRELATIVE_CONJUNCTION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_LEXICAL_INNOVATION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_LEXICAL_INNOVATION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_PARALLEL_STRUCTURE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_PARALLEL_STRUCTURE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON52_CONJUNCTION_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON52_CONJUNCTION_SUBSECTION_INVENTORY; },
+    });
+    api.cloneConjunctionClauseLessonRecord = cloneConjunctionClauseLessonRecord;
+    api.getLesson52ConjunctionClauseSubsectionInventory = getLesson52ConjunctionClauseSubsectionInventory;
+    api.buildLesson52ConjunctionClausePursuitFrame = buildLesson52ConjunctionClausePursuitFrame;
     api.buildConjunctionClauseBoundaryMetadata = buildConjunctionClauseBoundaryMetadata;
     api.getConjunctionClauseSurface = getConjunctionClauseSurface;
     api.splitConjunctionClauseSurfaceText = splitConjunctionClauseSurfaceText;

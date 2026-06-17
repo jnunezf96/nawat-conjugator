@@ -66,11 +66,6 @@ const STATIC_LOADERS = [
   ["applyStaticSuppletivePaths", "static_suppletive_paths.json"],
 ];
 
-const EXTRA_RUNTIME_FILES = [
-  path.join(ROOT, "pret_universal_context.js"),
-  path.join(ROOT, "pret_universal_engine.js"),
-];
-
 function normalizeStatus(value = "") {
   return String(value || "").trim().toLowerCase();
 }
@@ -96,16 +91,6 @@ function loadStaticData(context) {
   });
 }
 
-function loadExtraRuntimeFiles(context) {
-  EXTRA_RUNTIME_FILES.forEach((filePath) => {
-    vm.runInContext(
-      fs.readFileSync(filePath, "utf8"),
-      context,
-      { filename: filePath },
-    );
-  });
-}
-
 function loadBrowserRuntimeChecks(context) {
   vm.runInContext(
     fs.readFileSync(BROWSER_RUNTIME_CHECKS_PATH, "utf8"),
@@ -122,7 +107,6 @@ function createLoadedContext() {
     },
   });
   loadStaticData(context);
-  loadExtraRuntimeFiles(context);
   loadBrowserRuntimeChecks(context);
   return context;
 }
@@ -926,8 +910,8 @@ const RECORD_DEFS = [
     current_authority: "script.js: buildPasadoRemotoStemEntries / buildCalificativoInstrumentivoPredicateStemSpec",
     anchorSignals: [{ file: "script.js", patterns: ["calificativo-instrumentivo"] }],
     currentSignals: [{ file: "script.js", patterns: ["buildPasadoRemotoStemEntries", "buildCalificativoInstrumentivoPredicateStemSpec"] }],
-    notes: "This row is intentionally changed: current output uses the true pasado-remoto stem object instead of older string provenance shortcuts.",
-    statusReasonIntentionallyChanged: "Calificativo-instrumentivo is still reachable, but its current output deliberately follows the realized pasado-remoto stem object rather than the older string-based source.",
+    notes: "This row is intentionally changed: current output uses the true pasado-remoto stem object instead of string-provenance shortcuts.",
+    statusReasonIntentionallyChanged: "Calificativo-instrumentivo is still reachable, but its current output deliberately follows the realized pasado-remoto stem object rather than the string-based source.",
     evaluate(context) {
       const parsed = context.parseVerbInput("(miki)");
       const result = context.getCalificativoInstrumentivoResult({
@@ -1199,7 +1183,7 @@ const RECORD_DEFS = [
     anchorSignals: [{ file: "script.js", patterns: ["allowUwaFromU"] }],
     currentSignals: [{ file: "script.js", patterns: ["allowUwaFromU"] }],
     notes: "Uses -(iksa) as the historical u->uwa witness. Current realized output no longer exposes ikshuwa.",
-    statusReasonRemoved: "The historical u->uwa sibling branch existed in old code, but no equivalent current authority remains.",
+    statusReasonRemoved: "The historical u->uwa sibling branch existed in a previous implementation, but no equivalent current authority remains.",
     evaluate(context) {
       return makeRemovedProbe(
         "-(iksa) no longer exposes the historical u->uwa sibling",
@@ -1228,7 +1212,7 @@ const RECORD_DEFS = [
     anchorSignals: [{ file: "script.js", patterns: ["allowClusterWa"] }],
     currentSignals: [{ file: "script.js", patterns: ["allowClusterWa"] }],
     notes: "Uses -(iksa) as the historical shiwa witness. Current realized output no longer exposes ikshiwa.",
-    statusReasonRemoved: "The historical cluster/shiwa/chiwa wa branches existed in old code, but no equivalent current authority remains.",
+    statusReasonRemoved: "The historical cluster/shiwa/chiwa wa branches existed in a previous implementation, but no equivalent current authority remains.",
     evaluate(context) {
       return makeRemovedProbe(
         "-(iksa) no longer exposes the historical shiwa branch",
@@ -1257,7 +1241,7 @@ const RECORD_DEFS = [
     anchorSignals: [{ file: "script.js", patterns: ["allowTzVariant"] }],
     currentSignals: [{ file: "script.js", patterns: ["allowTzVariant"] }],
     notes: "Uses -(ketza) as the historical tz-sibling witness. Current realized output no longer exposes ketzu.",
-    statusReasonRemoved: "The historical tz sibling variant existed in old code, but no equivalent current authority remains.",
+    statusReasonRemoved: "The historical tz sibling variant existed in a previous implementation, but no equivalent current authority remains.",
     evaluate(context) {
       return makeRemovedProbe(
         "-(ketza) no longer exposes the historical tz sibling",

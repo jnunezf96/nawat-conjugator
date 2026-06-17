@@ -41,7 +41,7 @@ function getSubjectPersonLabelByAgreement(subjectPrefix = "", subjectSuffix = ""
     if (matched) {
         return getSubjectPersonLabel(matched.group, matched.selection, isNawat);
     }
-    const info = getSubjectPersonInfo(subjectPrefix, subjectSuffix);
+    const info = getPers1Pers2Info(subjectPrefix, subjectSuffix);
     if (!info) {
         return "";
     }
@@ -133,8 +133,8 @@ function getNonactiveRowLabelModel(prefix, options = {}) {
         const patientLabel = getVerbBlockLabel("patient", isNawat, "Paciente");
         if (subjectOverride) {
             const personLabel = getSubjectPersonLabelByAgreement(
-                subjectOverride.subjectPrefix || "",
-                subjectOverride.subjectSuffix || "",
+                subjectOverride.pers1 || "",
+                subjectOverride.pers2 || "",
                 isNawat
             );
             const inverseParticipantLabel = getNonactivePersonSub(prefix, isNawat);
@@ -198,7 +198,7 @@ function changeLanguage() {
         "tutorial-trigger",
         "copyright-label",
         "panel-stack-tab-inputs",
-        "panel-stack-tab-tense",
+        "panel-stack-tab-formula",
         "panel-stack-tab-output",
         "calc-mode-verb",
         "calc-mode-noun",

@@ -11,9 +11,8 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         title: "Fundamentos",
         focus: "terminologia, sonido, particulas y clausula nuclear",
         structures: ["conceptos", "ortografia", "particulas", "clausula"],
-        next: ["glosario visible", "normalizador ortografico", "inventario de particulas", "esqueleto de clausula"],
+        next: ["glosario activo", "normalizador ortografico", "inventario de particulas", "esqueleto de clausula"],
         missing: [
-            { lessons: "1", label: "glosario de notacion y jerarquia", category: "conceptos", target: "core/concepts + ui/glossary", state: "partial" },
             { lessons: "2", label: "fonologia y ortografia clasica", category: "sonido/grafia", target: "core/orthography + core/phonology", state: "partial" },
             { lessons: "3", label: "particulas y colocaciones", category: "particulas", target: "core/particles + data/static_particles", state: "partial" },
             { lessons: "4", label: "formulas VNC/NNC por capas", category: "clausula", target: "core/clause + data/static_formulae", state: "partial" },
@@ -56,10 +55,16 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         range: [20, 27],
         label: "20-27",
         title: "Troncos derivados",
-        focus: "20-26 ya tienen motores; el frecuentativo queda pendiente",
+        focus: "20 tiene motor auditado; voz, objetos, causativos, aplicativos y frecuentativo siguen en auditoria",
         structures: ["derivacion", "valencia", "voz"],
-        next: ["frecuentativo"],
+        next: ["pasivo", "impersonal", "objetos", "causativo 1", "causativo 2", "aplicativo", "frecuentativo"],
         missing: [
+            { lessons: "21", label: "pasivo: separar de impersonal y objetos", category: "voz", target: "core/generation/valency + core/vnc", state: "partial" },
+            { lessons: "22", label: "impersonal: sujeto, objetos y ta derivacional", category: "voz", target: "core/generation/valency + core/vnc", state: "partial" },
+            { lessons: "23", label: "objetos: funcion, orden y silencio", category: "valencia", target: "core/agreement + core/vnc", state: "partial" },
+            { lessons: "24", label: "causativo 1: a y destockal", category: "derivacion", target: "core/derivation + core/vnc", state: "partial" },
+            { lessons: "25", label: "causativo 2: tia, lia y wia", category: "derivacion", target: "core/derivation + core/vnc", state: "partial" },
+            { lessons: "26", label: "aplicativo: ia, lia, wia y objetos", category: "derivacion", target: "core/derivation + core/vnc", state: "partial" },
             { lessons: "27", label: "frecuentativo y reduplicacion", category: "frecuentativo", target: "core/derivation/frequentative", state: "partial" },
         ],
     },
@@ -72,7 +77,7 @@ const CURRICULUM_BOOK_GROUPS = Object.freeze([
         structures: ["parser", "compuestos", "NNC/VNC"],
         next: ["purposivo", "NNC compuesto", "numeral y honorifico"],
         missing: [
-            { lessons: "28,30", label: "constructor compuesto general", category: "compuesto", target: "core/parsing + core/compound", state: "partial" },
+            { lessons: "28,30", label: "compuesto verbal/nominal", category: "compuesto", target: "core/parsing + core/compound", state: "partial" },
             { lessons: "29", label: "VNC purposivo direccional", category: "purposivo", target: "core/vnc/purposive", state: "partial" },
             { lessons: "31-32", label: "NNC compuesto y afectivo", category: "compuesto/afectivo", target: "core/nnc/compound + data/static_affective_nnc", state: "partial" },
             { lessons: "33", label: "honorifico/peyorativo", category: "honorifico", target: "core/vnc/honorific_pejorative", state: "partial" },
@@ -222,6 +227,75 @@ function createCurriculumElement(tagName, className, text) {
 function createCurriculumPill(text, className = "") {
     const pill = createCurriculumElement("span", `book-map__pill${className ? ` ${className}` : ""}`, text);
     return pill;
+}
+
+function createConceptGlossaryPill(entry = {}) {
+    const pill = createCurriculumElement("span", "concept-glossary__term", "");
+    pill.dataset.conceptId = entry.conceptId || entry.id || "";
+    const abbr = createCurriculumElement("span", "concept-glossary__term-abbr", entry.abbreviation || "");
+    const text = createCurriculumElement("span", "concept-glossary__term-text", entry.spanish || entry.display || "");
+    pill.append(abbr, text);
+    if (entry.english) {
+        pill.title = `${entry.english} = ${entry.spanish || ""}`;
+    }
+    return pill;
+}
+
+function createConceptGlossaryRow(entry = {}) {
+    const row = createCurriculumElement("div", "concept-glossary__item", "");
+    row.setAttribute("role", "listitem");
+    row.dataset.conceptId = entry.id || "";
+    row.dataset.kind = entry.kind || "";
+    row.dataset.notationRole = entry.notationRole || "";
+    row.dataset.generationAllowed = String(entry.generationAllowed === true);
+
+    const top = createCurriculumElement("div", "concept-glossary__item-top", "");
+    const label = createCurriculumElement("span", "concept-glossary__item-label", entry.label || entry.canonicalLabel || "");
+    const role = createCurriculumElement("span", "concept-glossary__item-role", entry.notationRole || entry.kind || "");
+    top.append(label, role);
+
+    const definition = createCurriculumElement("p", "concept-glossary__item-definition", entry.definition || "");
+    const applies = Array.isArray(entry.appliesTo) && entry.appliesTo.length
+        ? createCurriculumElement("span", "concept-glossary__item-applies", entry.appliesTo.join(" · "))
+        : null;
+    row.append(top, definition);
+    if (applies) {
+        row.appendChild(applies);
+    }
+    return row;
+}
+
+function initConceptGlossaryPanel() {
+    const root = document.getElementById("concept-glossary");
+    if (!root || root.dataset.conceptGlossaryBound === "1") {
+        return;
+    }
+    if (typeof buildConceptGlossaryDisplayModel !== "function") {
+        root.hidden = true;
+        return;
+    }
+    const model = buildConceptGlossaryDisplayModel({ lesson: 1 });
+    const termsEl = document.getElementById("concept-glossary-terms");
+    const listEl = document.getElementById("concept-glossary-list");
+    const noteEl = document.getElementById("concept-glossary-note");
+    if (!model || !listEl || !termsEl) {
+        root.hidden = true;
+        return;
+    }
+    root.dataset.conceptGlossaryBound = "1";
+    root.dataset.generationAllowed = String(model.generationAllowed === true);
+    root.dataset.lessonStatus = model.boundaries?.isUiGlossaryComplete ? "visible-diagnostic" : "partial";
+    if (noteEl && model.antiConflationRules?.length) {
+        noteEl.textContent = "La notación nombra estructura; no genera formas, no es evidencia de superficie, y no convierte grafía clásica en náwat.";
+    }
+    termsEl.textContent = "";
+    (model.terminology || []).forEach((entry) => {
+        termsEl.appendChild(createConceptGlossaryPill(entry));
+    });
+    listEl.textContent = "";
+    (model.concepts || []).forEach((entry) => {
+        listEl.appendChild(createConceptGlossaryRow(entry));
+    });
 }
 
 function createCurriculumMissingStatePill(state, text) {
@@ -438,6 +512,7 @@ function createCurriculumMissingRow(item) {
 
 function initCurriculumMap() {
     const root = document.getElementById("book-map");
+    initConceptGlossaryPanel();
     if (!root || root.dataset.curriculumBound === "1") {
         return;
     }

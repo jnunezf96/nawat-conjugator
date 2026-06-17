@@ -17,8 +17,10 @@ function run(ctx) {
             typeof ctx.classifyComplementClauseFalsePositive,
             typeof ctx.buildComplementClauseAst,
             typeof ctx.getComplementClauseAntiConflationRules,
+            typeof ctx.getLesson51ComplementClauseSubsectionInventory,
+            typeof ctx.buildLesson51ComplementClausePursuitFrame,
         ],
-        ["function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildComplementClauseBoundaryMetadata();
@@ -125,6 +127,124 @@ function run(ctx) {
     );
     s.no("complement boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("complement boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "Lesson 51 pursuit frame covers every Andrews complementation subsection",
+        (() => {
+            const inventory = ctx.getLesson51ComplementClauseSubsectionInventory();
+            const frame = ctx.buildLesson51ComplementClausePursuitFrame();
+            return {
+                kind: frame.kind,
+                stepNumber: frame.stepNumber,
+                routeStage: frame.routeStage,
+                pdfRefCount: frame.pdfRefs.length,
+                firstPdfRef: frame.pdfRefs[0],
+                lastPdfRef: frame.pdfRefs[frame.pdfRefs.length - 1],
+                subsectionCount: inventory.length,
+                subsectionRefs: inventory.map((entry) => entry.andrewsSection),
+                plannedArrowIds: frame.plannedArrows.map((arrow) => arrow.id),
+                firedArrowIds: frame.firedArrows.map((arrow) => [arrow.id, arrow.result]),
+                hitCount: frame.hitCount,
+                missCount: frame.missCount,
+                generationAllowed: frame.generationAllowed,
+                closestPass: frame.closestPass,
+                remainingGapsMentionRelational: frame.remainingGaps.some((gap) => /relational lexicalized/.test(gap)),
+            };
+        })(),
+        {
+            kind: "lesson-51-complement-clause-pursuit-frame",
+            stepNumber: 51,
+            routeStage: "audit-lesson-51",
+            pdfRefCount: 4,
+            firstPdfRef: "Andrews Lesson 51.1",
+            lastPdfRef: "Andrews Lesson 51.4",
+            subsectionCount: 19,
+            subsectionRefs: [
+                "51.1",
+                "51.2",
+                "51.2.1",
+                "51.2.2",
+                "51.2.3",
+                "51.2.4",
+                "51.3",
+                "51.3.1",
+                "51.3.2",
+                "51.3.3",
+                "51.3.4",
+                "51.4",
+                "51.4.1",
+                "51.4.2",
+                "51.4.3",
+                "51.4.4",
+                "51.4.5",
+                "51.4.6",
+                "51.4.7",
+            ],
+            plannedArrowIds: ["lesson-51-complement-clause-audit"],
+            firedArrowIds: [["lesson-51-complement-clause-audit", "hit"]],
+            hitCount: 1,
+            missCount: 0,
+            generationAllowed: false,
+            closestPass: false,
+            remainingGapsMentionRelational: true,
+        }
+    );
+
+    s.eq(
+        "Lesson 51 frame records object, subject, adverbial, passive, and relational complement boundaries",
+        (() => {
+            const frame = ctx.buildLesson51ComplementClausePursuitFrame();
+            return {
+                doubleNucleusRoles: frame.doubleNucleusFrame.complementKinds,
+                objectLink: frame.objectComplementFrame.link,
+                objectCategories: Object.keys(frame.objectComplementFrame.semanticCategories),
+                designationPossessor: frame.objectComplementFrame.semanticCategories.designation.possessiveNameConstructionChangesObjectComplementToPossessorComplement,
+                subjectLink: frame.subjectComplementFrame.link,
+                subjectStateCentersOnSubject: frame.subjectComplementFrame.semanticCategories.state.resemblesAdverbialMannerButCentersOnSubjectPronoun,
+                subjectFrequentStems: frame.subjectComplementFrame.semanticCategories.state.frequentNounstems,
+                passiveTransform: frame.subjectComplementFrame.semanticCategories.passiveObjectComplementTransform.passiveTransformOfObjectComplementPossible,
+                adverbialCategories: Object.keys(frame.adverbialComplementFrame.semanticCategories),
+                pehuaContrast: frame.adverbialComplementFrame.semanticCategories.beginning.resemblesPurposeOrConjunctionButBelongsFullyToNeither,
+                relationalVocabulary: frame.adverbialComplementFrame.semanticCategories.relationalLexicalized.combinationMustBeLearnedAsVocabulary,
+                activeActionIncorporation: frame.adverbialComplementFrame.semanticCategories.relationalLexicalized.activeActionDerivationCanIncorporateAdverbializedNnc,
+                generationBoundary: frame.currentEngineBoundary,
+                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
+                diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
+            };
+        })(),
+        {
+            doubleNucleusRoles: ["object-complement", "subject-complement", "adverbial-complement"],
+            objectLink: "object-pronoun-to-complement-subject",
+            objectCategories: ["change", "materialComposition", "designation", "state"],
+            designationPossessor: true,
+            subjectLink: "subject-pronoun-to-complement-subject",
+            subjectStateCentersOnSubject: true,
+            subjectFrequentStems: ["ce-l", "el", "iyo-h-0"],
+            passiveTransform: true,
+            adverbialCategories: ["coverage", "beginning", "satisfaction", "daring", "cessation", "tarrying", "relationalLexicalized"],
+            pehuaContrast: true,
+            relationalVocabulary: true,
+            activeActionIncorporation: true,
+            generationBoundary: {
+                complementBoundaryMetadataImplemented: true,
+                complementAstImplemented: true,
+                relationContractImplemented: true,
+                objectComplementFrameDiagnosticOnly: true,
+                subjectComplementFrameDiagnosticOnly: true,
+                adverbialComplementFrameDiagnosticOnly: true,
+                passiveTransformDiagnosticOnly: true,
+                relationalLexicalizedFrameDiagnosticOnly: true,
+                parserDetectionImplemented: false,
+                staticComplementDataImplemented: false,
+                newWordGenerationAllowed: false,
+                fullLesson51GenerationImplemented: false,
+            },
+            orthographyHtoJ: true,
+            grammarRouteStage: "audit-lesson-51",
+            diagnosticIds: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"],
+        }
+    );
 
     const objectComplementAst = ctx.buildComplementClauseAst({
         principalSurface: "kichiwa",
@@ -287,16 +407,16 @@ function run(ctx) {
         }
     );
     s.eq(
-        "complement AST reads surfaceForms before legacy result",
+        "complement AST reads surfaceForms before stale result",
         (() => {
             const ast = ctx.buildComplementClauseAst({
                 principalClause: {
-                    result: "legacy-principal",
+                    result: "stale-principal",
                     surface: "top-principal-surface",
                     surfaceForms: ["top-principal-a / top-principal-b"],
                 },
                 complement: {
-                    result: "legacy-complement",
+                    result: "stale-complement",
                     surface: "top-complement-surface",
                     surfaceForms: ["top-complement-a / top-complement-b"],
                 },

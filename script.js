@@ -61,13 +61,11 @@ var REGEX_SPECIAL_SERIAL_CANONICAL_DISPLAY_MAP = Object.freeze({
     "_wiauto": "$WI",
 });
 // Supportive marker formats:
-// - legacy: default bracket-marker handling used across the current language
+// - envelope: default bracket-marker handling used across the current language
 // - regex: explicit regex handling
-// - screen: retained alias for shared surface helpers
 var SUPPORTIVE_MARKER_FORMAT = Object.freeze({
-    legacy: "legacy",
+    envelope: "envelope",
     regex: "regex",
-    screen: "screen",
 });
 
 // Supportive Marker & Output Utilities extracted to src/core/output/surface.js
@@ -611,11 +609,11 @@ function applyStaticModes(data) {
             if (!value || typeof value !== "object") {
                 return;
             }
-            const hasLegacyTenseValue = Object.prototype.hasOwnProperty.call(value, "legacyTenseValue");
+            const hasRouteTenseValue = Object.prototype.hasOwnProperty.call(value, "routeTenseValue");
             normalized[key] = {
                 ...value,
-                legacyTenseValue: hasLegacyTenseValue
-                    ? (value.legacyTenseValue || "")
+                routeTenseValue: hasRouteTenseValue
+                    ? (value.routeTenseValue || "")
                     : key,
                 stations: Array.isArray(value.stations)
                     ? value.stations

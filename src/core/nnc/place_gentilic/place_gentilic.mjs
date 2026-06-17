@@ -196,6 +196,470 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         ...options
       });
     }
+    const LESSON48_PLACE_GENTILIC_VALIDATION_REFS = Object.freeze(["src/tests/nnc_place_gentilic.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON48_PLACE_GENTILIC_PDF_REFS = Object.freeze(["Andrews Lesson 48.1", "Andrews Lesson 48.2", "Andrews Lesson 48.3", "Andrews Lesson 48.4", "Andrews Lesson 48.5", "Andrews Lesson 48.6", "Andrews Lesson 48.7", "Andrews Lesson 48.8", "Andrews Lesson 48.9", "Andrews Lesson 48.10", "Andrews Lesson 48.11", "Andrews Lesson 48.12", "Andrews Lesson 48.13"]);
+    const LESSON48_PLACE_NAME_FRAME = Object.freeze({
+      kind: "lesson-48-place-name-frame",
+      sourceSection: "Andrews 48.1",
+      placeNamesAreAdverbialNncs: true,
+      adverbializedSubjectPronounRequired: true,
+      uniqueSociallyDesignatedReference: true,
+      contextualLocativeContrastRequired: true,
+      functions: Object.freeze(["ordinary-nnc", "adverbial-nnc", "adjectival-nnc"]),
+      placeReferents: Object.freeze(["settlement", "region", "province", "nation-or-state", "district-or-quarter", "building", "temple", "socially-significant-site"]),
+      topographicalFeatureIsNotPlaceNameByDefault: true,
+      topographicalFeatureMayEmbedInPlaceName: true,
+      translationPrepositionsAreContextual: true,
+      manyTranslationsConjecturalOrOpaque: true
+    });
+    const LESSON48_PLACE_GROUPS_FRAME = Object.freeze({
+      kind: "lesson-48-place-groups-frame",
+      sourceSection: "Andrews 48.2-48.8",
+      groups: Object.freeze([Object.freeze({
+        group: "n-group",
+        sourceSection: "Andrews 48.2",
+        matrixes: Object.freeze(["(-n)-tli", "(-ya-n)-tli", "(-ma-n)-0", "(-tla-n)-0", "(ca-n)-0"]),
+        formationTypes: Object.freeze(["nominalized-imperfect-predicate-active-or-nonactive", "ya-n-perfective-core", "ma-n-place-of-area", "tla-n-place-in-vicinity", "ca-n-non-vnc-nounstem", "preterit-agentive-general-use", "action-noun-with-distant-past-ca"]),
+        tlaNIsDistinctFromRelationalTlan: true,
+        mictlanCanHaveNonadverbializedSubjectInChristianUsage: true
+      }), Object.freeze({
+        group: "pan-group",
+        sourceSection: "Andrews 48.3",
+        basedOnRelationalSection: "47.3.3",
+        integratedStructure: true,
+        connectiveTStructure: true,
+        watercourseNamesCommon: true,
+        crossingOrFordingMeaningPossible: true,
+        bodyPartIxpanPossible: true
+      }), Object.freeze({
+        group: "co-c-group",
+        sourceSection: "Andrews 48.4",
+        basedOnRelationalSections: Object.freeze(["46.7", "46.8", "47.2.2"]),
+        coAndCVariants: true,
+        affectiveEmbedPossible: true,
+        placeNamePlusAffectiveCanBeAmbiguousAfterSilentReplacement: true,
+        historicalInformationMayDecideAffectiveAnalysis: true,
+        soCalledCompoundMatrixSubtypeIncluded: true
+      }), Object.freeze({
+        group: "tlah-group",
+        sourceSection: "Andrews 48.5",
+        basedOnRelationalSections: Object.freeze(["46.6", "47.3.3.a"]),
+        normalNounstemEmbed: true,
+        panRelationalEmbedPossible: true
+      }), Object.freeze({
+        group: "tzalan-group",
+        sourceSection: "Andrews 48.6",
+        basedOnRelationalSection: "47.1.1"
+      }), Object.freeze({
+        group: "ti-tlan-group",
+        sourceSection: "Andrews 48.7",
+        basedOnRelationalSection: "47.3.2.c"
+      }), Object.freeze({
+        group: "chan-group",
+        sourceSection: "Andrews 48.8",
+        possessorSupplementationStructure: true,
+        tamoanchanMeaningUncertain: true
+      })])
+    });
+    const LESSON48_GENTILIC_FRAME = Object.freeze({
+      kind: "lesson-48-gentilic-frame",
+      sourceSection: "Andrews 48.9",
+      gentilicSense: "human being intimately associated with a named place",
+      principalFormationCount: 4,
+      formations: Object.freeze([Object.freeze({
+        id: "nonlocative-absolutive",
+        sourceSection: "Andrews 48.9.1",
+        state: "absolutive",
+        limitedToTribalMemberNames: true
+      }), Object.freeze({
+        id: "two-clause-concatenate",
+        sourceSection: "Andrews 48.9.2",
+        structure: "place-name adjectival modifier plus absolutive head NNC",
+        headNounstems: Object.freeze(["tlaca", "cal-ca", "cal-0-qui", "chan-eh-0"]),
+        exceptionsPossible: true
+      }), Object.freeze({
+        id: "preterit-agentive-place",
+        sourceSection: "Andrews 48.9.3",
+        placeNameDerivedFromGentilic: true,
+        ownerhoodAndNonOwnerhoodSubtypes: true
+      }), Object.freeze({
+        id: "ca-matrix-from-place-name",
+        sourceSection: "Andrews 48.9.4",
+        matrixStem: "(-ca)-tl",
+        groupOneFullPlaceNameStem: true,
+        panAddsEBeforeCa: true,
+        canChangesNToMeca: true,
+        groupTwoSilentReplacement: true,
+        coCMatrixSilentReplacement: true,
+        ownerhoodNMatrixSilentReplacementAndCaLoss: true,
+        manTlanChangeToTeca: true
+      })]),
+      notesFrame: Object.freeze({
+        alternativeFormationsPossible: true,
+        defectiveTraditionalSpellingCanHideTlanVsTlah: true,
+        gentilicNounstemCanResolveSomePlaceNameAmbiguity: true
+      })
+    });
+    const LESSON48_EXTENSIONS_FRAME = Object.freeze({
+      kind: "lesson-48-extensions-frame",
+      sourceSection: "Andrews 48.10-48.13",
+      incorporationFrame: Object.freeze({
+        sourceSection: "Andrews 48.10",
+        gentilicNounstemCanIncorporateIntoCompoundStem: true,
+        gentilicNounstemCanEmbedInPlaceNameNounstem: true,
+        associatedEntityVersusGentilicAnalysisRequiresCare: true,
+        affectiveGentilicPlaceNamesPossible: true
+      }),
+      adjectivalUseFrame: Object.freeze({
+        sourceSection: "Andrews 48.11",
+        gentilicNncMayBeUsedAdjectivally: true
+      }),
+      collectivityFrame: Object.freeze({
+        sourceSection: "Andrews 48.12",
+        matrixStem: "(-yo)-tl",
+        meansCollectiveBodyOrCharacteristicOfPeople: true,
+        identicalFormCanBePertinencyWhenBaseIsNotPlaceName: true,
+        possessiveNum1Variants: Object.freeze(["zero", "uh"]),
+        adjectivalUseAllowed: true
+      }),
+      professionFrame: Object.freeze({
+        sourceSection: "Andrews 48.13",
+        famedPlaceGentilicCanExtendToProfession: true,
+        states: Object.freeze(["absolutive", "possessive"]),
+        pertinencyYoPossible: true,
+        highRankAdministrativeOrMilitaryTitlesPossible: true
+      })
+    });
+    const LESSON48_PLACE_GENTILIC_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson48-place-name-overview",
+      andrewsSection: "48.1",
+      category: "place-name-nnc",
+      directiveEs: "Los nombres de lugar son CNN adverbializadas con referencia social unica, no simples etiquetas locativas.",
+      engineSurface: "diagnostic place-name frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-place-name-functions",
+      andrewsSection: "48.1 ordinary-adverbial-adjectival",
+      category: "place-name-functions",
+      directiveEs: "Un nombre de lugar puede funcionar como CNN ordinaria, adverbial o adjetival sin cambiar a preposicion.",
+      engineSurface: "diagnostic place-name frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson48-topographical-warning",
+      andrewsSection: "48.1 note",
+      category: "topographical-feature-warning",
+      directiveEs: "Un nombre topografico no es automaticamente nombre de lugar; puede servir como embed de un nombre de lugar.",
+      engineSurface: "diagnostic place-name frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson48-n-group",
+      andrewsSection: "48.2",
+      category: "n-place-name-group",
+      directiveEs: "El grupo n hereda formaciones de 46.3-46.5 y agrega matrices ma-n y tla-n propias de nombres de lugar.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-imperfect",
+      andrewsSection: "48.2.1",
+      category: "n-imperfect-place-name",
+      directiveEs: "N puede embeder predicado imperfecto nominalizado de fuente activa o no activa.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-yan",
+      andrewsSection: "48.2.2",
+      category: "yan-place-name",
+      directiveEs: "La matriz ya-n de 46.5 puede formar nombres de lugar.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-man",
+      andrewsSection: "48.2.3",
+      category: "man-place-area",
+      directiveEs: "Ma-n significa lugar del area de y se usa solo en nombres de lugar.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-tlan",
+      andrewsSection: "48.2.4",
+      category: "tlan-place-vicinity",
+      directiveEs: "Tla-n de nombres de lugar significa lugar en la vecindad de y se distingue de tlan relacional.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-can",
+      andrewsSection: "48.2.5",
+      category: "can-place-name",
+      directiveEs: "Ca-n puede formar nombres de lugar con embed nominal que no viene de VNC nominalizada.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-preterit-agentive",
+      andrewsSection: "48.2.6",
+      category: "preterit-agentive-place-name",
+      directiveEs: "N puede embeder forma de uso general de un agentivo preterito, incluso de posesion.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-n-action-noun",
+      andrewsSection: "48.2.7",
+      category: "action-noun-place-name",
+      directiveEs: "N puede embeder nombre de accion; ca ante n es morfo de pasado remoto.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-pan-group",
+      andrewsSection: "48.3",
+      category: "pan-place-name-group",
+      directiveEs: "Pan forma nombres de lugar integrados o con conectivo t; con cursos de agua puede sugerir cruce o vado.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-co-c-group",
+      andrewsSection: "48.4",
+      category: "co-c-place-name-group",
+      directiveEs: "Co/c forma nombres de lugar; los afectivos y la variante silenciosa pueden crear ambiguedad que requiere historia o evidencia.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-tlah-group",
+      andrewsSection: "48.5",
+      category: "tlah-place-name-group",
+      directiveEs: "Tlah forma nombres de lugar con embed normal o con pan relacional.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-tzalan-group",
+      andrewsSection: "48.6",
+      category: "tzalan-place-name-group",
+      directiveEs: "Tzalan forma nombres de lugar de en medio o entre.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-ti-tlan-group",
+      andrewsSection: "48.7",
+      category: "ti-tlan-place-name-group",
+      directiveEs: "Ti-tlan forma nombres de lugar basados en la estructura relacional con conectivo t.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-chan-group",
+      andrewsSection: "48.8",
+      category: "chan-place-name-group",
+      directiveEs: "Chan forma nombres de lugar mediante suplementacion de poseedor; Tamoanchan queda incierto.",
+      engineSurface: "diagnostic place-group frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-overview",
+      andrewsSection: "48.9",
+      category: "gentilic-nnc",
+      directiveEs: "Los gentilicios nombran humanos asociados intimamente con un lugar nombrado y tienen cuatro vias principales.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-nonlocative",
+      andrewsSection: "48.9.1",
+      category: "nonlocative-absolutive-gentilic",
+      directiveEs: "La formacion absolutiva no locativa se limita a nombres tribales.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-two-clause",
+      andrewsSection: "48.9.2",
+      category: "two-clause-gentilic",
+      directiveEs: "Una unidad gentilicia puede ser biclausal: nombre de lugar como modificador adjetival mas cabeza absolutiva.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-preterit-agentive",
+      andrewsSection: "48.9.3",
+      category: "preterit-agentive-gentilic-place",
+      directiveEs: "Algunos nombres de lugar derivan de un gentilicio agentivo preterito de posesion o no posesion.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-ca-matrix",
+      andrewsSection: "48.9.4",
+      category: "ca-matrix-gentilic",
+      directiveEs: "Los demas nombres de lugar pueden embederse en ca-tl con forma completa, e-ca, m-e-ca, variante silenciosa o te-ca.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-spelling-ambiguity",
+      andrewsSection: "48.9 notes",
+      category: "gentilic-spelling-ambiguity",
+      directiveEs: "La ortografia tradicional defectiva puede ocultar tla-n versus tlah; el gentilicio puede resolver parte de la ambiguedad.",
+      engineSurface: "diagnostic gentilic frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson48-gentilic-incorporation",
+      andrewsSection: "48.10",
+      category: "gentilic-incorporation",
+      directiveEs: "Un tronco gentilicio puede incorporarse en compuestos o embederse en nombres de lugar; debe distinguirse de entidad asociada.",
+      engineSurface: "diagnostic extensions frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-adjectival",
+      andrewsSection: "48.11",
+      category: "gentilic-adjectival-use",
+      directiveEs: "Las CNN gentilicias pueden usarse adjetivalmente.",
+      engineSurface: "diagnostic extensions frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-gentilic-collectivity",
+      andrewsSection: "48.12",
+      category: "gentilic-collectivity-yo",
+      directiveEs: "Yo-tl crea colectividad gentilicia o caracteristica del pueblo; las formas posesivas permiten num1 cero o uh.",
+      engineSurface: "diagnostic extensions frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson48-profession-titles",
+      andrewsSection: "48.13",
+      category: "profession-title-extension",
+      directiveEs: "Algunos gentilicios se lexicalizan como profesion o titulo; admiten absolutivo o posesivo y pueden formar pertinencia con yo-tl.",
+      engineSurface: "diagnostic extensions frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    })]);
+    function clonePlaceGentilicNncLessonRecord(record) {
+      if (!record || typeof record !== "object") {
+        return record;
+      }
+      if (Array.isArray(record)) {
+        return record.map(entry => clonePlaceGentilicNncLessonRecord(entry));
+      }
+      return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, clonePlaceGentilicNncLessonRecord(value)]));
+    }
+    function getLesson48PlaceGentilicSubsectionInventory() {
+      return LESSON48_PLACE_GENTILIC_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON48_PLACE_GENTILIC_VALIDATION_REFS)
+      }));
+    }
+    function buildLesson48PlaceGentilicPursuitFrame() {
+      const subsectionInventory = getLesson48PlaceGentilicSubsectionInventory();
+      const placeNameFrame = clonePlaceGentilicNncLessonRecord(LESSON48_PLACE_NAME_FRAME);
+      const placeGroupsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_PLACE_GROUPS_FRAME);
+      const gentilicFrame = clonePlaceGentilicNncLessonRecord(LESSON48_GENTILIC_FRAME);
+      const extensionsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_EXTENSIONS_FRAME);
+      const remainingGaps = ["Current Lesson 48 support records Andrews' place-name and gentilic architecture as diagnostics and usage frames; it does not implement place-name fixture data, gentilic fixture data, or surface generation.", "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, unique-reference place-name resolution, place-name group parsing, gentilic derivation routing, traditional spelling ambiguity, incorporation, collectivity, profession/title extension, UI actions, and sentence-level context inference remain partial or evidence-needed."];
+      const frame = {
+        kind: "lesson-48-place-gentilic-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 48,
+        aimStatus: "shooting",
+        routeStage: "audit-lesson-48",
+        pdfRefs: Array.from(LESSON48_PLACE_GENTILIC_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-48-place-gentilic-audit",
+          type: "metadata-diagnostic-test",
+          aim: "Audit Andrews Lesson 48.1-48.13 against current place-name/gentilic NNC boundary metadata, place-name uniqueness, seven place-name groups, four gentilic formation routes, incorporation, adjectival use, collectivity, profession/title extensions, and translation/evidence blockers.",
+          andrewsRefs: Array.from(LESSON48_PLACE_GENTILIC_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON48_PLACE_GENTILIC_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-48-place-gentilic-audit",
+          result: "hit",
+          correction: "Lesson 48 now records Andrews place-name and gentilic architecture across unique social reference, seven place-name groups, four gentilic formation routes, spelling ambiguity, incorporation, adjectival use, collectivity, and profession/title extensions while keeping generation blocked.",
+          andrewsRefs: Array.from(LESSON48_PLACE_GENTILIC_PDF_REFS),
+          feedbackRefs: Array.from(LESSON48_PLACE_GENTILIC_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        placeNameFrame,
+        placeGroupsFrame,
+        gentilicFrame,
+        extensionsFrame,
+        currentEngineBoundary: {
+          placeGentilicBoundaryMetadataImplemented: true,
+          placeGentilicUsageFrameImplemented: true,
+          placeNameUniqueReferenceDiagnosticOnly: true,
+          placeNameGroupInventoryDiagnosticOnly: true,
+          gentilicFormationInventoryDiagnosticOnly: true,
+          gentilicCollectivityDiagnosticOnly: true,
+          professionTitleExtensionDiagnosticOnly: true,
+          parserDetectionImplemented: false,
+          staticPlaceDataImplemented: false,
+          staticGentilicDataImplemented: false,
+          newWordGenerationAllowed: false,
+          fullLesson48GenerationImplemented: false
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachPlaceGentilicNncGrammarContract(frame, {
+        metadataKind: "lesson-48-place-gentilic-pursuit-frame",
+        unitKind: "place-gentilic-nnc-boundary",
+        routeStage: "audit-lesson-48",
+        structuralSource: "Andrews Lesson 48",
+        andrewsRefs: Array.from(LESSON48_PLACE_GENTILIC_PDF_REFS),
+        generationAllowed: false,
+        supported: true,
+        sourceInput: "Andrews Lesson 48.1-48.13",
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil place/gentilic evidence",
+          noClassicalSurfaceImport: true,
+          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          orthographyStatus: "nawat-evidence-required"
+        },
+        morphBoundaryFrame: {
+          placeNameFrame,
+          placeGroupsFrame,
+          gentilicFrame,
+          extensionsFrame
+        },
+        nuclearClauseFrame: {
+          sourceClauseKind: "place-name or gentilic NNC",
+          placeNameRequiresAdverbializedSubjectPronoun: true,
+          uniqueSocialReferenceRequiredForPlaceNames: true,
+          gentilicFormationsAreDerivedNncStructures: true,
+          translationPrepositionMustBeInferredFromContext: true
+        },
+        participantFrame: {
+          semanticRole: "unique place referent, human associated with place, collective body, profession, or title",
+          translationPrepositionIsNotMorphology: true,
+          associatedEntityGentilicCalendarDistinctionsEvidenceGated: true
+        },
+        targetContract: {
+          metadataKind: "lesson-48-place-gentilic-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnostics: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-needs-nawat-evidence"]
+      });
+    }
     function buildPlaceGentilicNncBoundaryMetadata() {
       const boundary = {
         kind: "place-gentilic-nnc-boundary",
@@ -478,6 +942,44 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
     api.getPlaceGentilicNncAntiConflationRules = getPlaceGentilicNncAntiConflationRules;
     api.getPlaceGentilicNncStructuralQuestions = getPlaceGentilicNncStructuralQuestions;
     api.attachPlaceGentilicNncGrammarContract = attachPlaceGentilicNncGrammarContract;
+    Object.defineProperty(api, "LESSON48_PLACE_GENTILIC_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_PLACE_GENTILIC_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON48_PLACE_GENTILIC_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_PLACE_GENTILIC_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON48_PLACE_NAME_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_PLACE_NAME_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON48_PLACE_GROUPS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_PLACE_GROUPS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON48_GENTILIC_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_GENTILIC_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON48_EXTENSIONS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_EXTENSIONS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON48_PLACE_GENTILIC_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON48_PLACE_GENTILIC_SUBSECTION_INVENTORY; },
+    });
+    api.clonePlaceGentilicNncLessonRecord = clonePlaceGentilicNncLessonRecord;
+    api.getLesson48PlaceGentilicSubsectionInventory = getLesson48PlaceGentilicSubsectionInventory;
+    api.buildLesson48PlaceGentilicPursuitFrame = buildLesson48PlaceGentilicPursuitFrame;
     api.buildPlaceGentilicNncBoundaryMetadata = buildPlaceGentilicNncBoundaryMetadata;
     api.classifyPlaceGentilicNncCandidate = classifyPlaceGentilicNncCandidate;
     api.classifyPlaceGentilicNncFalsePositive = classifyPlaceGentilicNncFalsePositive;

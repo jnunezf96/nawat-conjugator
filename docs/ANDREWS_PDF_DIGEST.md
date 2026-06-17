@@ -274,7 +274,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 44: Adverbial Nuclear Clauses (printed pp. 430-444)
 
 - Defines adverbial nuclear clauses, degrees of adverbialization, adverbialized VNCs/NNCs, particle-looking NNCs, preterit-agentive adverbials, possessive-state adverbials, and incorporated adverbial modifiers.
-- Engine implication: legacy adverbio word output is partial; full adverbial clause support should be non-generative metadata unless examples are confirmed.
+- Engine implication: configured adverbio word output is partial; full adverbial clause support should be non-generative metadata unless examples are confirmed.
 
 ### Lesson 45: Relational NNCs, Part One (printed pp. 445-453)
 
@@ -377,8 +377,8 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 
 ### Appendix F: Spelling Conventions in Older Texts (printed pp. 655-658)
 
-- Summarizes older spelling conventions and their relation to phonological interpretation.
-- Engine implication: old-spelling handling belongs in an orthography/diagnostic bridge until alias data and tests justify normalization.
+- Summarizes Appendix F spelling conventions and their relation to phonological interpretation.
+- Engine implication: Appendix F spelling handling belongs in an orthography/diagnostic bridge until alias data and tests justify normalization.
 
 ### Appendix G: Suggested Reading (printed pp. 659-662)
 

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/state.js.
 
-export function createUiStateGlobals(targetObject = globalThis) {
+export function createUiStateApi(targetObject = globalThis) {
     function getSubjectPersonSelections() {
       const selections = [];
       targetObject.SUBJECT_PERSON_NUMBER_ORDER.forEach(number => {
@@ -101,7 +101,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
     function getStateResultDisplaySurface(result = null) {
       return getStateResultSurfaceForms(result).join(" / ");
     }
-    function getStateSubjectNumberConnectorSurface(connector = null) {
+    function getStateNum1Num2Surface(connector = null) {
       const framedSurface = getStateResultSurfaceForms(connector)[0] || "";
       if (framedSurface) {
         return framedSurface;
@@ -376,14 +376,14 @@ export function createUiStateGlobals(targetObject = globalThis) {
       entries.sort((a, b) => {
         const aMeta = a[1] || {};
         const bMeta = b[1] || {};
-        const aKey = `${aMeta.subjectPrefix || ""}|${aMeta.subjectSuffix || ""}`;
-        const bKey = `${bMeta.subjectPrefix || ""}|${bMeta.subjectSuffix || ""}`;
+        const aKey = `${aMeta.pers1 || ""}|${aMeta.pers2 || ""}`;
+        const bKey = `${bMeta.pers1 || ""}|${bMeta.pers2 || ""}`;
         const aRank = comboOrder.has(aKey) ? comboOrder.get(aKey) : Number.MAX_SAFE_INTEGER;
         const bRank = comboOrder.has(bKey) ? comboOrder.get(bKey) : Number.MAX_SAFE_INTEGER;
         return aRank - bRank;
       }).forEach(([prefix, mapped]) => {
-        const subjectPrefix = mapped?.subjectPrefix || "";
-        const subjectSuffix = mapped?.subjectSuffix || "";
+        const subjectPrefix = mapped?.pers1 || "";
+        const subjectSuffix = mapped?.pers2 || "";
         const subjectId = getSubjectCombinationId(subjectPrefix, subjectSuffix);
         if (!subjectId) {
           return;
@@ -502,7 +502,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!subject) {
         return prefix || getToggleLabel("intransitive", isNawat, "intrans");
       }
-      return subject.subjectPrefix || "Ø";
+      return subject.pers1 || "Ø";
     }
     function getNonspecificToggleLabel(prefix) {
       return prefix || "Ø";
@@ -722,17 +722,17 @@ export function createUiStateGlobals(targetObject = globalThis) {
     }
     const DISCONNECTED_NAWAT_ROUTE_IDS = new Set(["agentive-manner-adverb", "pasado-remoto-adverbio-activo"]);
     function isDisconnectedNawatRouteProfile(profile = null, routeKey = "") {
-      const keys = [routeKey, profile?.id, profile?.canonicalId, profile?.legacyTenseValue].map(value => String(value || "").trim()).filter(Boolean);
+      const keys = [routeKey, profile?.id, profile?.canonicalId, profile?.routeTenseValue].map(value => String(value || "").trim()).filter(Boolean);
       return keys.some(key => DISCONNECTED_NAWAT_ROUTE_IDS.has(key));
     }
-    function cloneNawatRouteProfile(profile = null, legacyTenseValue = "") {
+    function cloneNawatRouteProfile(profile = null, routeTenseValue = "") {
       if (!profile || typeof profile !== "object") {
         return null;
       }
-      const hasLegacyTenseValue = Object.prototype.hasOwnProperty.call(profile, "legacyTenseValue");
+      const hasRouteTenseValue = Object.prototype.hasOwnProperty.call(profile, "routeTenseValue");
       return {
         ...profile,
-        legacyTenseValue: hasLegacyTenseValue ? profile.legacyTenseValue || "" : legacyTenseValue || "",
+        routeTenseValue: hasRouteTenseValue ? profile.routeTenseValue || "" : routeTenseValue || "",
         stations: Array.isArray(profile.stations) ? profile.stations.filter(station => station && typeof station === "object").map(station => ({
           ...station
         })) : []
@@ -750,12 +750,12 @@ export function createUiStateGlobals(targetObject = globalThis) {
         }
         return cloneNawatRouteProfile(profiles[key], key);
       }
-      const matched = Object.entries(profiles).find(([, profile]) => profile && typeof profile === "object" && (profile.id === key || profile.canonicalId === key || profile.legacyTenseValue === key));
+      const matched = Object.entries(profiles).find(([, profile]) => profile && typeof profile === "object" && (profile.id === key || profile.canonicalId === key || profile.routeTenseValue === key));
       return matched && !isDisconnectedNawatRouteProfile(matched[1], matched[0]) ? cloneNawatRouteProfile(matched[1], matched[0]) : null;
     }
-    function getLegacyTenseForNawatRoute(routeKey = "") {
+    function getRouteTenseForNawatRoute(routeKey = "") {
       const profile = getNawatRouteProfile(routeKey);
-      return profile?.legacyTenseValue || "";
+      return profile?.routeTenseValue || "";
     }
     function getNawatRouteStationList(routeKey = "") {
       const profile = getNawatRouteProfile(routeKey);
@@ -818,7 +818,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return wrapNawatRouteInputValue(targetVerb);
     }
     function getNawatRouteProfiles() {
-      return Object.entries(getNawatRouteProfileMap()).map(([legacyTenseValue, profile]) => cloneNawatRouteProfile(profile, legacyTenseValue)).filter(profile => profile && profile.status !== "reserved" && !isDisconnectedNawatRouteProfile(profile, profile.legacyTenseValue || ""));
+      return Object.entries(getNawatRouteProfileMap()).map(([routeTenseValue, profile]) => cloneNawatRouteProfile(profile, routeTenseValue)).filter(profile => profile && profile.status !== "reserved" && !isDisconnectedNawatRouteProfile(profile, profile.routeTenseValue || ""));
     }
     function getNawatRouteStateStore() {
       if (typeof targetObject.NawatRouteState === "undefined" || !targetObject.NawatRouteState || typeof targetObject.NawatRouteState !== "object") {
@@ -858,7 +858,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return getNawatRoutePlacement(profile) === "direct-finite";
     }
     function isNawatDynamicPatientivoSurfaceRoute(profile = null) {
-      return isPatientivoSurfaceRoute(profile) && !String(profile?.legacyTenseValue || "").trim() && String(profile?.sourceCategory || "").trim() === "verb-patientivo-surface";
+      return isPatientivoSurfaceRoute(profile) && !String(profile?.routeTenseValue || "").trim() && String(profile?.sourceCategory || "").trim() === "verb-patientivo-surface";
     }
     const NAWAT_PATIENTIVO_IMPERFECTIVE_SOURCE_TENSES = new Set(["presente", "presente-habitual", "presente-desiderativo", "imperfecto", "pasado-remoto", "futuro", "condicional", "imperativo"]);
     const NAWAT_PATIENTIVO_PERFECTIVE_SOURCE_TENSES = new Set(["preterito", "preterito-clase", "perfecto", "pluscuamperfecto", "condicional-perfecto"]);
@@ -1313,29 +1313,28 @@ export function createUiStateGlobals(targetObject = globalThis) {
       const sourceCombinedMode = routeSpec?.sourceCombinedMode || routeTarget?.sourceCombinedMode || profile.sourceCombinedMode || (isNawatPatientivoNonactiveSource(patientivoSource) ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active);
       const sourceDerivationMode = profile.sourceDerivationMode || (sourceCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.DERIVATION_MODE.nonactive : targetObject.DERIVATION_MODE.active);
       const sourceVoiceMode = profile.sourceVoiceMode || (sourceCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active);
-      const result = targetObject.executeGenerateWordRequest({
+      const result = targetObject.executeNuclearClauseSurfaceRequest({
         options: {
           silent: true,
           skipValidation: false,
           override: {
-            tense: sourceTenseValue,
             tenseMode: targetObject.TENSE_MODE.verbo,
             derivationMode: targetObject.DERIVATION_MODE[sourceDerivationMode] || sourceDerivationMode || targetObject.DERIVATION_MODE.active,
-            voiceMode: targetObject.VOICE_MODE[sourceVoiceMode] || sourceVoiceMode || targetObject.VOICE_MODE.active,
-            subjectPrefix: "",
-            subjectSuffix: ""
+            voiceMode: targetObject.VOICE_MODE[sourceVoiceMode] || sourceVoiceMode || targetObject.VOICE_MODE.active
           }
         },
-        prefixInputs: {
-          subjectPrefix: "",
-          objectPrefix: sourceObjectPrefix || "",
-          verb: sourceVerb,
-          subjectSuffix: "",
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: "",
+          obj1: sourceObjectPrefix || "",
+          tronco: sourceVerb,
+          pers2: "",
+          num2: "",
+          poseedor: "",
+          tiempo: sourceTenseValue
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         }
       });
       let surface = getPrimaryNawatRouteSurfaceForm(result);
@@ -1458,32 +1457,30 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!routeVerb) {
         return null;
       }
-      return targetObject.executeGenerateWordRequest({
+      return targetObject.executeNuclearClauseSurfaceRequest({
         options: {
           silent: true,
           skipValidation: true,
           override: {
-            tense: "patientivo",
             tenseMode: targetObject.TENSE_MODE.sustantivo,
             derivationMode: targetObject.DERIVATION_MODE.active,
             voiceMode: targetObject.VOICE_MODE.active,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix: routeTarget?.sourceObjectPrefix || sourceObjectPrefix || "",
             patientivoSource: profile?.patientivoSource || "nonactive",
             patientivoNominalSuffix
           }
         },
-        prefixInputs: {
-          subjectPrefix: "",
-          objectPrefix: routeTarget?.sourceObjectPrefix || sourceObjectPrefix || "",
-          verb: routeVerb,
-          subjectSuffix: "",
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: "",
+          obj1: routeTarget?.sourceObjectPrefix || sourceObjectPrefix || "",
+          tronco: routeVerb,
+          pers2: "",
+          num2: "",
+          poseedor: "",
+          tiempo: "patientivo"
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         }
       });
     }
@@ -1507,7 +1504,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
           routeTarget,
           patientivoNominalSuffix: suffix
         });
-        const connector = getStateSubjectNumberConnectorSurface(result?.subjectNumberConnector);
+        const connector = getStateNum1Num2Surface(result?.num1Num2);
         if (connector) {
           return connector;
         }
@@ -1697,12 +1694,12 @@ export function createUiStateGlobals(targetObject = globalThis) {
       }
       const hasExplicitRouteStem = Boolean(String(routeTarget?.sourceStem || "").trim());
       if (!hasExplicitRouteStem) {
-        const legacyResult = executeNawatRouteLegacyGeneration(profile, {
+        const routeResult = executeNawatRouteConfiguredGeneration(profile, {
           sourceVerb,
           sourceObjectPrefix
         });
-        const legacySurface = getPrimaryNawatRouteSurfaceForm(legacyResult);
-        if (legacySurface) {
+        const routeSurface = getPrimaryNawatRouteSurfaceForm(routeResult);
+        if (routeSurface) {
           return buildNawatRouteSurfaceResultContract({
             profile,
             routeTarget,
@@ -1710,10 +1707,10 @@ export function createUiStateGlobals(targetObject = globalThis) {
             sourceObjectPrefix,
             outputKind: "nawat-route-finite-surface-result",
             routeStage: "finite-surface",
-            surface: legacySurface,
+            surface: routeSurface,
             generationAllowed: true,
             supported: true,
-            sourceResult: legacyResult
+            sourceResult: routeResult
           });
         }
       }
@@ -1729,17 +1726,14 @@ export function createUiStateGlobals(targetObject = globalThis) {
       const targetDerivationMode = routeTarget?.targetDerivationMode || profile.targetDerivationMode || profile.derivationMode || (targetCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.DERIVATION_MODE.nonactive : targetObject.DERIVATION_MODE.active);
       const targetVoiceMode = routeTarget?.targetVoiceMode || profile.targetVoiceMode || profile.voiceMode || (targetCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active);
       if (targetMode && targetTenseValue && generationVerb && typeof targetObject.executeGenerateWordRequest === "function") {
-        const result = targetObject.executeGenerateWordRequest({
+        const result = targetObject.executeNuclearClauseSurfaceRequest({
           options: {
             silent: true,
             skipValidation: false,
             override: {
-              tense: targetTenseValue,
               tenseMode: targetMode,
               derivationMode: targetObject.DERIVATION_MODE[targetDerivationMode] || targetDerivationMode || targetObject.DERIVATION_MODE.active,
               voiceMode: targetObject.VOICE_MODE[targetVoiceMode] || targetVoiceMode || targetObject.VOICE_MODE.active,
-              subjectPrefix: "",
-              subjectSuffix: "",
               patientivoSource: isPatientivoSurfaceRoute(profile) ? profile.patientivoSource || "nonactive" : undefined,
               patientivoNominalSuffix: isPatientivoSurfaceRoute(profile) ? resolveNawatRoutePatientivoNominalSuffix(profile, {
                 sourceTenseValue: routeTarget?.sourceTenseValue || "",
@@ -1747,16 +1741,18 @@ export function createUiStateGlobals(targetObject = globalThis) {
               }) : undefined
             }
           },
-          prefixInputs: {
-            subjectPrefix: "",
-            objectPrefix: routeTarget?.targetObjectPrefix || "",
-            verb: generationVerb,
-            subjectSuffix: "",
-            possessivePrefix: ""
+          posicionesFormula: {
+            pers1: "",
+            obj1: routeTarget?.targetObjectPrefix || "",
+            tronco: generationVerb,
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: targetTenseValue
           },
-          liveInput: {
-            hasVerbInput: false,
-            verbInputValue: ""
+          entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: ""
           }
         });
         const surface = getPrimaryNawatRouteSurfaceForm(result);
@@ -1819,7 +1815,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       routeTarget = null,
       stationModels = null
     } = {}) {
-      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
+      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
       if (!profile) {
         return [];
       }
@@ -1866,7 +1862,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         const stationSurfaceText = getNawatRouteStationSurfaceText(station);
         const hasStationResultFrame = hasStateResultFrame(station);
         const directStationSurface = String(station?.surface || "").trim();
-        const legacyStationSurface = directStationSurface && directStationSurface !== "—" ? directStationSurface : "";
+        const fallbackStationSurface = directStationSurface && directStationSurface !== "—" ? directStationSurface : "";
         const surfaceText = stationKey === "finite-tense" ? getNawatRouteFiniteSurfaceForm(profile, {
           sourceVerb: resolvedTarget?.sourceVerb || sourceVerb,
           sourceObjectPrefix: resolvedTarget?.sourceObjectPrefix || sourceObjectPrefix,
@@ -1878,7 +1874,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
             routeTarget: resolvedTarget
           });
           return generatedConnector ? `-${generatedConnector}` : isNawatDynamicPatientivoSurfaceRoute(profile) ? "" : stationSurfaceText;
-        })() : stationKey === "source-tense" ? hasStationResultFrame ? stationSurfaceText : legacyStationSurface || getNawatRouteSourceSurfaceForm(profile, {
+        })() : stationKey === "source-tense" ? hasStationResultFrame ? stationSurfaceText : fallbackStationSurface || getNawatRouteSourceSurfaceForm(profile, {
           sourceVerb: resolvedTarget?.sourceVerb || sourceVerb,
           sourceObjectPrefix: resolvedTarget?.sourceObjectPrefix || sourceObjectPrefix,
           routeTarget: resolvedTarget
@@ -1947,7 +1943,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return null;
     }
     function buildNawatLinkedGrammarPathStages(routeKeyOrProfile = "", options = {}) {
-      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
+      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
       if (!profile) {
         return [];
       }
@@ -1957,7 +1953,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       });
       const routeContext = {
         routeId: profile.id || "",
-        legacyTenseValue: profile.legacyTenseValue || "",
+        routeTenseValue: profile.routeTenseValue || "",
         sourceVerb: resolvedTarget?.sourceVerb || options.sourceVerb || profile.sourceVerb || "",
         sourceObjectPrefix: resolvedTarget?.sourceObjectPrefix || options.sourceObjectPrefix || profile.sourceObjectPrefix || "",
         sourceStem: resolvedTarget?.sourceStem || options.sourceStem || profile.sourceStem || "",
@@ -2034,25 +2030,23 @@ export function createUiStateGlobals(targetObject = globalThis) {
           silent,
           skipValidation,
           override: {
-            tense,
             tenseMode,
             derivationMode,
-            voiceMode,
-            subjectPrefix: "",
-            subjectSuffix: "",
-            objectPrefix
+            voiceMode
           }
         },
-        prefixInputs: {
-          subjectPrefix: "",
-          objectPrefix,
-          verb: sourceVerb,
-          subjectSuffix: "",
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: "",
+          obj1: objectPrefix,
+          tronco: sourceVerb,
+          pers2: "",
+          num2: "",
+          poseedor: "",
+          tiempo: tense
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         },
         linkedGrammarPathStage: {
           routeId: nextSource.routeId || "",
@@ -2192,7 +2186,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!request || typeof targetObject.executeGenerateWordRequest !== "function") {
         return null;
       }
-      const result = targetObject.executeGenerateWordRequest(request);
+      const result = targetObject.executeNuclearClauseSurfaceRequest(request);
       if (!result || typeof result !== "object") {
         return result;
       }
@@ -2271,11 +2265,11 @@ export function createUiStateGlobals(targetObject = globalThis) {
     }
     function getNawatLinkedGrammarPathSelectionRoute(routePreview = null, selection = {}) {
       const routes = Array.isArray(routePreview?.routes) ? routePreview.routes : [];
-      const requestedRouteId = String(selection?.routeId || selection?.id || selection?.legacyTenseValue || selection?.routeKey || "").trim();
+      const requestedRouteId = String(selection?.routeId || selection?.id || selection?.routeTenseValue || selection?.routeKey || "").trim();
       if (!requestedRouteId) {
         return null;
       }
-      return routes.find(route => route.routeId === requestedRouteId || route.id === requestedRouteId || route.legacyTenseValue === requestedRouteId) || null;
+      return routes.find(route => route.routeId === requestedRouteId || route.id === requestedRouteId || route.routeTenseValue === requestedRouteId) || null;
     }
     function getNawatLinkedGrammarPathSelectionStage(route = null, selection = {}) {
       const stages = Array.isArray(route?.stages) ? route.stages : [];
@@ -2639,7 +2633,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!selection || typeof selection !== "object") {
         return null;
       }
-      const routeId = String(selection.routeId || selection.id || selection.legacyTenseValue || selection.routeKey || "").trim();
+      const routeId = String(selection.routeId || selection.id || selection.routeTenseValue || selection.routeKey || "").trim();
       const stageKey = String(selection.stageKey || selection.stationKey || selection.key || "finite-surface").trim();
       if (!routeId || !stageKey) {
         return null;
@@ -2998,43 +2992,42 @@ export function createUiStateGlobals(targetObject = globalThis) {
       }
       return getStateResultSurfaceForms(result)[0] || "";
     }
-    function executeNawatRouteLegacyGeneration(profile = null, {
+    function executeNawatRouteConfiguredGeneration(profile = null, {
       sourceVerb = "",
       sourceObjectPrefix = ""
     } = {}) {
-      const legacyTenseValue = profile?.legacyTenseValue || "";
+      const routeTenseValue = profile?.routeTenseValue || "";
       const routeVerb = String(sourceVerb || "").trim();
-      if (!profile || !legacyTenseValue || !routeVerb || typeof targetObject.executeGenerateWordRequest !== "function") {
+      if (!profile || !routeTenseValue || !routeVerb || typeof targetObject.executeGenerateWordRequest !== "function") {
         return null;
       }
-      const legacyModeKey = profile.legacyMode || "adjetivo";
-      const legacyMode = targetObject.TENSE_MODE[legacyModeKey] || legacyModeKey || targetObject.TENSE_MODE.adjetivo;
-      const legacyCombinedMode = profile.legacyCombinedMode || profile.targetCombinedMode || profile.combinedMode || "";
-      const legacyDerivationMode = profile.legacyDerivationMode || profile.derivationMode || (legacyCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.DERIVATION_MODE.nonactive : targetObject.DERIVATION_MODE.active);
-      const legacyVoiceMode = profile.legacyVoiceMode || profile.voiceMode || (legacyCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active);
-      return targetObject.executeGenerateWordRequest({
+      const routeModeKey = profile.routeMode || "adjetivo";
+      const routeMode = targetObject.TENSE_MODE[routeModeKey] || routeModeKey || targetObject.TENSE_MODE.adjetivo;
+      const routeCombinedMode = profile.routeCombinedMode || profile.targetCombinedMode || profile.combinedMode || "";
+      const routeDerivationMode = profile.routeDerivationMode || profile.derivationMode || (routeCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.DERIVATION_MODE.nonactive : targetObject.DERIVATION_MODE.active);
+      const routeVoiceMode = profile.routeVoiceMode || profile.voiceMode || (routeCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active);
+      return targetObject.executeNuclearClauseSurfaceRequest({
         options: {
           silent: true,
           skipValidation: false,
           override: {
-            tense: legacyTenseValue,
-            tenseMode: legacyMode,
-            derivationMode: targetObject.DERIVATION_MODE[legacyDerivationMode] || legacyDerivationMode || targetObject.DERIVATION_MODE.active,
-            voiceMode: targetObject.VOICE_MODE[legacyVoiceMode] || legacyVoiceMode || targetObject.VOICE_MODE.active,
-            subjectPrefix: "",
-            subjectSuffix: ""
+            tenseMode: routeMode,
+            derivationMode: targetObject.DERIVATION_MODE[routeDerivationMode] || routeDerivationMode || targetObject.DERIVATION_MODE.active,
+            voiceMode: targetObject.VOICE_MODE[routeVoiceMode] || routeVoiceMode || targetObject.VOICE_MODE.active
           }
         },
-        prefixInputs: {
-          subjectPrefix: "",
-          objectPrefix: sourceObjectPrefix || "",
-          verb: routeVerb,
-          subjectSuffix: "",
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: "",
+          obj1: sourceObjectPrefix || "",
+          tronco: routeVerb,
+          pers2: "",
+          num2: "",
+          poseedor: "",
+          tiempo: routeTenseValue
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         }
       });
     }
@@ -3046,31 +3039,30 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!isPatientivoTroncoConversionRoute(profile) || !routeVerb || typeof targetObject.executeGenerateWordRequest !== "function") {
         return "";
       }
-      const result = targetObject.executeGenerateWordRequest({
+      const result = targetObject.executeNuclearClauseSurfaceRequest({
         options: {
           silent: true,
           skipValidation: false,
           override: {
-            tense: "patientivo",
             tenseMode: targetObject.TENSE_MODE.sustantivo,
             derivationMode: targetObject.DERIVATION_MODE.active,
             voiceMode: targetObject.VOICE_MODE.active,
-            subjectPrefix: "",
-            subjectSuffix: "",
             patientivoSource: "tronco-verbal",
             patientivoNominalSuffix: ""
           }
         },
-        prefixInputs: {
-          subjectPrefix: "",
-          objectPrefix: sourceObjectPrefix || "",
-          verb: routeVerb,
-          subjectSuffix: "",
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: "",
+          obj1: sourceObjectPrefix || "",
+          tronco: routeVerb,
+          pers2: "",
+          num2: "",
+          poseedor: "",
+          tiempo: "patientivo"
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         }
       });
       return getPrimaryNawatRouteSurfaceForm(result);
@@ -3096,17 +3088,17 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (patientivoTroncoStem) {
         return `${patientivoTroncoStem}${verbalizer}`;
       }
-      const legacyResult = executeNawatRouteLegacyGeneration(profile, {
+      const routeResult = executeNawatRouteConfiguredGeneration(profile, {
         sourceVerb: routeVerb,
         sourceObjectPrefix
       });
-      const legacySurface = getPrimaryNawatRouteSurfaceForm(legacyResult);
+      const routeSurface = getPrimaryNawatRouteSurfaceForm(routeResult);
       const surfaceSuffix = String(profile.surfaceSuffix || "").replace(/^-+/, "");
-      if (legacySurface && surfaceSuffix && legacySurface.endsWith(surfaceSuffix)) {
-        return `${legacySurface.slice(0, -surfaceSuffix.length)}${verbalizer}`;
+      if (routeSurface && surfaceSuffix && routeSurface.endsWith(surfaceSuffix)) {
+        return `${routeSurface.slice(0, -surfaceSuffix.length)}${verbalizer}`;
       }
-      if (legacySurface && legacySurface.endsWith(`${verbalizer}k`)) {
-        return legacySurface.slice(0, -1);
+      if (routeSurface && routeSurface.endsWith(`${verbalizer}k`)) {
+        return routeSurface.slice(0, -1);
       }
       const parsed = typeof targetObject.parseVerbInput === "function" && routeVerb ? targetObject.parseVerbInput(routeVerb) : null;
       const fallbackBase = parsed?.verb || routeVerb.replace(/[()]/g, "");
@@ -3119,7 +3111,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       sourceTenseValue = "",
       sourceCombinedMode = ""
     } = {}) {
-      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
+      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
       if (!profile) {
         return null;
       }
@@ -3774,7 +3766,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         causativeApplicativeFamilyModeled: true,
         requiresAdverbialSource: true,
         sourceMustBeConfirmedAdverbialNounstem: true,
-        doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+        doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true,
         finiteGenerationRequiresObjectPrefix: true,
         noProductiveDirectGeneration: true
       })
@@ -3881,7 +3873,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return {
         source: "Nawat route data",
         range: "static_modes",
-        role: "legacy-denominal-route"
+        role: "configured-denominal-route"
       };
     }
     function getNawatDenominalRouteSupportStatus(profile = null, {
@@ -4029,6 +4021,227 @@ export function createUiStateGlobals(targetObject = globalThis) {
           noFixtureEvidence: true,
           structuralInventoryOnly: unmodeled.length > 0 || targetUnmodeled.length > 0,
           fullLessonGenerationModeled: false
+        }
+      };
+    }
+    const LESSON54_DENOMINAL_VERBSTEM_PDF_REFS = Object.freeze(["Andrews Lesson 54.1", "Andrews Lesson 54.2", "Andrews Lesson 54.2.1", "Andrews Lesson 54.2.2", "Andrews Lesson 54.2.3", "Andrews Lesson 54.2.4", "Andrews Lesson 54.2.5", "Andrews Lesson 54.3", "Andrews Lesson 54.4", "Andrews Lesson 54.5", "Andrews Lesson 54.6"]);
+    const LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS = Object.freeze(["src/tests/state.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
+      const lesson54Contracts = Array.isArray(contracts) ? contracts : getNawatDenominalAndrewsContractInventory().filter(contract => contract.lesson === 54);
+      const contractIdsByRange = (ranges = []) => lesson54Contracts.filter(contract => ranges.includes(contract.range)).map(contract => contract.id);
+      return [{
+        range: "54.1",
+        role: "denominal-verbstem-architecture",
+        directive: "Verbstems may be derived from nounstems by suffix-like stem-forming operations, while the compounding alternative remains a diagnostic boundary.",
+        contractIds: [],
+        redirectAction: "reframe-metadata",
+        generationStatus: "architecture-only"
+      }, {
+        range: "54.2",
+        role: "inceptive-stative-suffix-family",
+        directive: "Model ti, hui, ya, a, hua as intransitive inceptive/stative verbstem-forming operations; ti-ya and hui-ya are source-dependent and not the causative/applicative tia/huia of earlier lessons.",
+        contractIds: contractIdsByRange(["54.2.1", "54.2.2", "54.2.3", "54.2.4", "54.2.5"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "route-or-source-evidence-supported-partial"
+      }, {
+        range: "54.3",
+        role: "included-possessor-ti",
+        directive: "Attach ti to the predicate of a possessive-state NNC with the possessor kept inside the verbstem, not transformed into an object slot.",
+        contractIds: contractIdsByRange(["54.3"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }, {
+        range: "54.4",
+        role: "possession-ti",
+        directive: "Keep ti of possession separate from inceptive/stative ti: it means having or possessing the nounstem source and does not form deverbal ya.",
+        contractIds: contractIdsByRange(["54.4", "54.2.1/54.4"]),
+        redirectAction: "reframe-metadata",
+        generationStatus: "suffix-shape-supported-semantics-partial"
+      }, {
+        range: "54.5",
+        role: "ti-a-causative",
+        directive: "Separate first-type causative ti-a from homophonous type-two tia, and keep the possessive-state double-object path unmodeled unless source evidence licenses it.",
+        contractIds: contractIdsByRange(["54.5"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }, {
+        range: "54.6",
+        role: "t-ia-applicative",
+        directive: "Route the limited applicative as t-ia from a replacive ti stem lacking final i, distinct from ti-a/tia.",
+        contractIds: contractIdsByRange(["54.6"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }];
+    }
+    function buildLesson54DenominalVerbstemPursuitFrame() {
+      const lesson54Contracts = getNawatDenominalAndrewsContractInventory().filter(contract => contract.lesson === 54);
+      const executableRuleIds = lesson54Contracts.flatMap(contract => Array.isArray(contract.executableRuleIds) ? contract.executableRuleIds : []);
+      const routeCoveredContractIds = lesson54Contracts.filter(contract => Array.isArray(contract.currentRouteFamilies) && contract.currentRouteFamilies.length > 0).map(contract => contract.id);
+      const sourceEvidenceRequiredContractIds = lesson54Contracts.filter(contract => /source-evidence-required/.test(String(contract.supportStatus || ""))).map(contract => contract.id);
+      return {
+        version: 1,
+        outputKind: "lesson-54-denominal-verbstem-pursuit-frame",
+        curriculumRef: {
+          source: "Andrews",
+          range: "54.1-54.6",
+          role: "plan-pursue-step"
+        },
+        stepNumber: 54,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
+        directive: "Use Andrews Lesson 54 to direct denominal verbstem part-one architecture: inceptive/stative suffixes, included-possessor ti, possession ti, ti-lia, ti-a, and t-ia boundaries before any Nawat/Pipil finite output is treated as confirmed.",
+        redirectAction: "needs-nawat-evidence",
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
+        validationRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS),
+        plannedArrows: [{
+          id: "lesson-54-denominal-verbstem-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 54.1-54.6 against the current denominal contract inventory, source-evidence gates, orthography bridge, and finite-generation blockers.",
+          andrewsRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-54-denominal-verbstem-audit",
+          result: "hit",
+          correction: "Lesson 54 now has a Plan/Pursue frame over the existing denominal contract inventory, executable-rule contracts, source-evidence gates, and partial route support.",
+          andrewsRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
+          feedbackRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS)
+        }],
+        hitCount: 1,
+        missCount: 0,
+        closestPass: false,
+        remainingGap: "Full Lesson 54 lexical-source classification, source-state parsing, possession-ti semantics, possessive-state double-object ti-a, limited a/hua inventories, static Nawat/Pipil examples, and visible UI actions remain partial or evidence-needed.",
+        subsectionFrames: getLesson54DenominalVerbstemSubsectionFrames(lesson54Contracts),
+        contractCoverage: {
+          contractCount: lesson54Contracts.length,
+          routeCoveredContractCount: routeCoveredContractIds.length,
+          sourceEvidenceRequiredContractCount: sourceEvidenceRequiredContractIds.length,
+          executableRuleContractCount: executableRuleIds.length,
+          routeCoveredContractIds,
+          sourceEvidenceRequiredContractIds,
+          executableRuleIds
+        },
+        boundaries: {
+          noClassicalSurfaceImport: true,
+          noNewFixtureEvidence: true,
+          noSilentGeneration: true,
+          fullLessonGenerationModeled: false,
+          visibleUiSpanishRequired: true
+        }
+      };
+    }
+    const LESSON55_DENOMINAL_VERBSTEM_PDF_REFS = Object.freeze(["Andrews Lesson 55.1", "Andrews Lesson 55.2", "Andrews Lesson 55.3", "Andrews Lesson 55.4", "Andrews Lesson 55.5", "Andrews Lesson 55.6", "Andrews Lesson 55.7"]);
+    const LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS = Object.freeze(["src/tests/state.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
+      const lesson55Contracts = Array.isArray(contracts) ? contracts : getNawatDenominalAndrewsContractInventory().filter(contract => contract.lesson === 55);
+      const contractIdsByRange = (ranges = []) => lesson55Contracts.filter(contract => ranges.includes(contract.range)).map(contract => contract.id);
+      return [{
+        range: "55.1",
+        role: "temporal-tia",
+        directive: "Treat temporal tia as intransitive and source-limited: it requires a compound nounstem with a time-segment matrix and numeral embed, not causative or applicative tia.",
+        contractIds: contractIdsByRange(["55.1"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }, {
+        range: "55.2",
+        role: "causative-and-intransitive-tla",
+        directive: "Separate causative tla Class A from the much less productive intransitive be/become tla, and replace tla with ti before lia or causative a only when the matching generated tla source exists.",
+        contractIds: contractIdsByRange(["55.2", "55.2 note"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "route-or-source-evidence-supported-partial"
+      }, {
+        range: "55.3",
+        role: "intransitive-o-a-and-huia-counterpart",
+        directive: "Keep intransitive o-a and its single-object huia counterpart as Class C denominal operations, with note-2 i-l-huia/a-l-huia paths licensed only from a generated intransitive o-a source.",
+        contractIds: contractIdsByRange(["55.3", "55.3 note 2"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "route-or-source-evidence-supported-partial"
+      }, {
+        range: "55.4",
+        role: "adverbial-huia",
+        directive: "Route adverbial huia only from confirmed Lesson 44 adverbial nounstem evidence; configured adverbio outputs or diagnostic labels do not create source evidence.",
+        contractIds: contractIdsByRange(["55.4"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }, {
+        range: "55.5",
+        role: "relational-compound-o-a-huia",
+        directive: "Route relational-compound o-a and huia only from confirmed relational compound nounstems or possessive relational predicates; boundary metadata alone is not lexical source evidence.",
+        contractIds: contractIdsByRange(["55.5"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "source-evidence-route-supported"
+      }, {
+        range: "55.6",
+        role: "i-hui-a-hui-to-o-a",
+        directive: "Treat i-hui/a-hui as Class B intransitive denominal sources and o-a as the Class C causative counterpart, while keeping the o-a path source-evidence-gated.",
+        contractIds: contractIdsByRange(["55.6"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "current-route-and-source-evidence-supported-partial"
+      }, {
+        range: "55.7",
+        role: "transitive-i-a",
+        directive: "Treat transitive i-a as a nounstem-plus-i plus causative-a route with no intransitive counterpart; source-final patterns and w-final/i-source notes remain diagnostics, not fixture evidence.",
+        contractIds: contractIdsByRange(["55.7"]),
+        redirectAction: "needs-nawat-evidence",
+        generationStatus: "route-surface-supported-diagnostic-final-patterns"
+      }];
+    }
+    function buildLesson55DenominalVerbstemPursuitFrame() {
+      const lesson55Contracts = getNawatDenominalAndrewsContractInventory().filter(contract => contract.lesson === 55);
+      const executableRuleIds = lesson55Contracts.flatMap(contract => Array.isArray(contract.executableRuleIds) ? contract.executableRuleIds : []);
+      const routeCoveredContractIds = lesson55Contracts.filter(contract => Array.isArray(contract.currentRouteFamilies) && contract.currentRouteFamilies.length > 0).map(contract => contract.id);
+      const sourceEvidenceRequiredContractIds = lesson55Contracts.filter(contract => /source-evidence-required/.test(String(contract.supportStatus || ""))).map(contract => contract.id);
+      return {
+        version: 1,
+        outputKind: "lesson-55-denominal-verbstem-pursuit-frame",
+        curriculumRef: {
+          source: "Andrews",
+          range: "55.1-55.7",
+          role: "plan-pursue-step"
+        },
+        stepNumber: 55,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
+        directive: "Use Andrews Lesson 55 to direct denominal verbstem part-two architecture: temporal tia, causative and intransitive tla, intransitive o-a with huia counterparts, adverbial huia, relational-compound o-a/huia, i-hui/a-hui to o-a, and transitive i-a before any Nawat/Pipil finite output is treated as confirmed.",
+        redirectAction: "needs-nawat-evidence",
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
+        validationRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS),
+        plannedArrows: [{
+          id: "lesson-55-denominal-verbstem-audit",
+          type: "metadata-engine-test",
+          aim: "Audit Andrews Lesson 55.1-55.7 against the current denominal contract inventory, source-evidence gates, orthography bridge, current i-hui/a-hui route support, and finite-generation blockers.",
+          andrewsRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-55-denominal-verbstem-audit",
+          result: "hit",
+          correction: "Lesson 55 now has a Plan/Pursue frame over the existing denominal contract inventory, executable-rule contracts, source-evidence gates, orthography bridge, and partial i-hui/a-hui route support.",
+          andrewsRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
+          feedbackRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS)
+        }],
+        hitCount: 1,
+        missCount: 0,
+        closestPass: false,
+        remainingGap: "Full Lesson 55 lexical-source classification, temporal compound parsing, causative versus intransitive tla inventories, o-a/huia lexical meanings, adverbial and relational source detection, static Nawat/Pipil examples, visible UI actions, and confirmed Nawat/Pipil surfaces remain partial or evidence-needed.",
+        subsectionFrames: getLesson55DenominalVerbstemSubsectionFrames(lesson55Contracts),
+        contractCoverage: {
+          contractCount: lesson55Contracts.length,
+          routeCoveredContractCount: routeCoveredContractIds.length,
+          sourceEvidenceRequiredContractCount: sourceEvidenceRequiredContractIds.length,
+          executableRuleContractCount: executableRuleIds.length,
+          routeCoveredContractIds,
+          sourceEvidenceRequiredContractIds,
+          executableRuleIds
+        },
+        boundaries: {
+          noClassicalSurfaceImport: true,
+          noNewFixtureEvidence: true,
+          noSilentGeneration: true,
+          fullLessonGenerationModeled: false,
+          visibleUiSpanishRequired: true
         }
       };
     }
@@ -7814,7 +8027,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         boundaries: {
           requiresAdverbialSource: true,
           sourceMustBeConfirmedAdverbialNounstem: true,
-          doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+          doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true,
           finiteGenerationRequiresObjectPrefix: true,
           noProductiveDirectGeneration: true
         },
@@ -9258,7 +9471,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
           sourceEvidenceFromExplicitSourceClassification: true,
           sourceEvidenceSupportsAdverbialHuiaApplicative: true,
           sourceMustBeConfirmedAdverbialNounstem: true,
-          doesNotTreatLegacyAdverbioAsAutomaticEvidence: true,
+          doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true,
           classicalRuleSpellingsConvertedToNawat: true
         }
       };
@@ -9294,7 +9507,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
           doesNotGenerateFiniteVnc: true,
           sourceEvidenceFromExplicitSourceClassification: true,
           sourceMustBeConfirmedAdverbialNounstem: true,
-          doesNotTreatLegacyAdverbioAsAutomaticEvidence: true
+          doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true
         }
       };
     }
@@ -9793,29 +10006,27 @@ export function createUiStateGlobals(targetObject = globalThis) {
           silent,
           skipValidation,
           override: {
-            tense: requestedTense,
             tenseMode: targetObject.TENSE_MODE.verbo,
             derivationMode: targetObject.DERIVATION_MODE.active,
-            voiceMode: targetObject.VOICE_MODE.active,
-            subjectPrefix: resolvedSubjectPrefix,
-            subjectSuffix: resolvedSubjectSuffix,
-            objectPrefix: resolvedObjectPrefix
+            voiceMode: targetObject.VOICE_MODE.active
           }
         },
-        prefixInputs: {
-          subjectPrefix: resolvedSubjectPrefix,
-          objectPrefix: resolvedObjectPrefix,
-          verb: targetInput,
-          subjectSuffix: resolvedSubjectSuffix,
-          possessivePrefix: ""
+        posicionesFormula: {
+          pers1: resolvedSubjectPrefix,
+          obj1: resolvedObjectPrefix,
+          tronco: targetInput,
+          pers2: resolvedSubjectSuffix,
+          num2: resolvedSubjectSuffix,
+          poseedor: "",
+          tiempo: requestedTense
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         },
         denominalAndrewsContractRoute: {
           version: 1,
-          outputKind: "denominal-andrews-contract-route-generate-word-request",
+          outputKind: "denominal-andrews-contract-route-nuclear-clause-surface-request",
           contractId: route.contractId || "",
           routeTemplateId: route.routeTemplateId || "",
           executableRuleId: route.executableRuleId || "",
@@ -9923,7 +10134,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!request || typeof targetObject.executeGenerateWordRequest !== "function") {
         return null;
       }
-      const result = targetObject.executeGenerateWordRequest(request);
+      const result = targetObject.executeNuclearClauseSurfaceRequest(request);
       if (!result || typeof result !== "object") {
         return result;
       }
@@ -10335,7 +10546,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         structuralAnalogue: getNawatDenominalRouteStructuralAnalogue(profile),
         routeId: profile.id || "",
         routePlacement: getNawatRoutePlacement(profile),
-        routeProfileSource: profile.denominalFamily ? "static-modes" : "legacy-inference",
+        routeProfileSource: profile.denominalFamily ? "static-modes" : "route-inference",
         sourceState: sourceState || "patientivo-tronco",
         sourceSlot: profile.sourceSlot || "",
         sourceCategory: profile.sourceCategory || "",
@@ -10369,9 +10580,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
             verbalizerType: profile.verbalizerType || "",
             valency: profile.valency || "",
             routePlacement: getNawatRoutePlacement(profile),
-            routeProfileSource: profile.denominalFamily ? "static-modes" : "legacy-inference",
+            routeProfileSource: profile.denominalFamily ? "static-modes" : "route-inference",
             routeIds: [],
-            legacyTenseValues: [],
+            routeTenseValues: [],
             targetTenses: [],
             surfaceSuffixes: [],
             sourceSlots: [],
@@ -10384,7 +10595,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
           });
         }
         const entry = familyMap.get(familyKey);
-        [["routeIds", profile.id || ""], ["legacyTenseValues", profile.legacyTenseValue || ""], ["targetTenses", getNawatRouteTargetTenseValue(profile)], ["surfaceSuffixes", profile.surfaceSuffix || ""], ["sourceSlots", profile.sourceSlot || ""], ["sourceCategories", profile.sourceCategory || ""]].forEach(([field, value]) => {
+        [["routeIds", profile.id || ""], ["routeTenseValues", profile.routeTenseValue || ""], ["targetTenses", getNawatRouteTargetTenseValue(profile)], ["surfaceSuffixes", profile.surfaceSuffix || ""], ["sourceSlots", profile.sourceSlot || ""], ["sourceCategories", profile.sourceCategory || ""]].forEach(([field, value]) => {
           if (value && !entry[field].includes(value)) {
             entry[field].push(value);
           }
@@ -10430,7 +10641,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
           routeId: profile.id || "",
           routeFamily: getNawatDenominalRouteFamilyKey(profile),
           structuralAnalogue: getNawatDenominalRouteStructuralAnalogue(profile),
-          routeProfileSource: profile.denominalFamily ? "static-modes" : "legacy-inference",
+          routeProfileSource: profile.denominalFamily ? "static-modes" : "route-inference",
           verbalizer: profile.verbalizer || "",
           verbalizerType: profile.verbalizerType || "",
           valency: profile.valency || "",
@@ -10516,7 +10727,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       routeTarget = null,
       stationModels = null
     } = {}) {
-      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
+      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
       if (!profile || !isPatientivoTroncoConversionRoute(profile)) {
         return null;
       }
@@ -10551,7 +10762,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return {
         version: 1,
         routeId: profile.id || "",
-        legacyTenseValue: profile.legacyTenseValue || "",
+        routeTenseValue: profile.routeTenseValue || "",
         routePlacement: getNawatRoutePlacement(profile),
         sourceMode: resolvedTarget.sourceMode || getNawatRouteOriginMode(profile),
         sourceTenseValue: resolvedTarget.sourceTenseValue || getNawatRouteDefaultSourceTenseValue(profile),
@@ -10614,7 +10825,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       sourceObjectPrefix = "",
       routeTarget = null
     } = {}) {
-      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.legacyTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
+      const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object" ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "") : getNawatRouteProfile(routeKeyOrProfile);
       if (!profile) {
         return [];
       }
@@ -10989,7 +11200,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         return null;
       }
       const activeProfile = {
-        ...cloneNawatRouteProfile(profile, profile.legacyTenseValue || ""),
+        ...cloneNawatRouteProfile(profile, profile.routeTenseValue || ""),
         activeRouteTravelSource: state.activeRouteTravelSource,
         sourceVerb: state.sourceVerb,
         sourceObjectPrefix: state.sourceObjectPrefix,
@@ -11120,10 +11331,10 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (!profile || typeof profile !== "object") {
         return "";
       }
-      const legacyMode = profile.legacyMode || "";
-      const legacyTenseValue = profile.legacyTenseValue || "";
-      const modeLabel = getEuropeanConventionModeLabel(legacyMode);
-      const tenseLabel = legacyTenseValue ? getLocalizedLabel(targetObject.TENSE_LABELS[legacyTenseValue], isNawat, legacyTenseValue) : "";
+      const routeMode = profile.routeMode || "";
+      const routeTenseValue = profile.routeTenseValue || "";
+      const modeLabel = getEuropeanConventionModeLabel(routeMode);
+      const tenseLabel = routeTenseValue ? getLocalizedLabel(targetObject.TENSE_LABELS[routeTenseValue], isNawat, routeTenseValue) : "";
       if (!modeLabel && !tenseLabel) {
         return "";
       }
@@ -11297,9 +11508,6 @@ export function createUiStateGlobals(targetObject = globalThis) {
     function activateNawatRouteOrigin(routeKey = "", options = {}) {
       return activateNawatRouteStation(routeKey, "source-mode", options);
     }
-    function updateNawatRoutePanel() {
-      // Compatibility no-op: Nawat routes now render in the main breadcrumb rail.
-    }
     function resolveActiveAdjectiveClassPolicy({
       tenseValue = "",
       sourceTense = "",
@@ -11423,6 +11631,72 @@ export function createUiStateGlobals(targetObject = globalThis) {
       }
       return targetObject.TENSE_MODE_SYSTEM[normalized] || normalized;
     }
+    function isUnitModeSystem(system = "") {
+      const normalized = getModeSystemValue(system);
+      return normalized === (targetObject.TENSE_MODE_SYSTEM.unit || "unit") || normalized === "unit" || normalized === (targetObject.TENSE_MODE_SYSTEM.nawat || "nawat") || normalized === "nawat";
+    }
+    function isFunctionModeSystem(system = "") {
+      const normalized = getModeSystemValue(system);
+      return normalized === (targetObject.TENSE_MODE_SYSTEM.function || "function") || normalized === "function" || normalized === (targetObject.TENSE_MODE_SYSTEM.european || "european") || normalized === "european";
+    }
+    function getFunctionRoleForTenseMode(mode = "") {
+      const normalized = String(mode || "").trim();
+      if (normalized === targetObject.TENSE_MODE.verbo || normalized === "verbo") {
+        return "verbal";
+      }
+      if (normalized === targetObject.TENSE_MODE.sustantivo || normalized === "sustantivo") {
+        return "nominal";
+      }
+      if (normalized === targetObject.TENSE_MODE.adjetivo || normalized === "adjetivo") {
+        return "adjectival";
+      }
+      if (normalized === targetObject.TENSE_MODE.adverbio || normalized === "adverbio") {
+        return "adverbial";
+      }
+      return "";
+    }
+    function getTenseModeForFunctionRole(role = "") {
+      const normalized = String(role || "").trim();
+      if (normalized === "verbal" || normalized === "verb" || normalized === "verbo") {
+        return targetObject.TENSE_MODE.verbo;
+      }
+      if (normalized === "nominal" || normalized === "noun" || normalized === "sustantivo") {
+        return targetObject.TENSE_MODE.sustantivo;
+      }
+      if (normalized === "adjectival" || normalized === "adjective" || normalized === "adjetivo") {
+        return targetObject.TENSE_MODE.adjetivo;
+      }
+      if (normalized === "adverbial" || normalized === "adverb" || normalized === "adverbio") {
+        return targetObject.TENSE_MODE.adverbio;
+      }
+      return "";
+    }
+    function getUnitKindForTenseMode(mode = "") {
+      const normalized = String(mode || "").trim();
+      if (normalized === targetObject.TENSE_MODE.verbo || normalized === "verbo") {
+        return "cnv";
+      }
+      if (normalized === targetObject.TENSE_MODE.sustantivo || normalized === "sustantivo") {
+        return "cnn";
+      }
+      if (normalized === targetObject.TENSE_MODE.particula || normalized === "particula") {
+        return "particula";
+      }
+      return "";
+    }
+    function getTenseModeForUnitKind(kind = "") {
+      const normalized = String(kind || "").trim();
+      if (normalized === "cnv" || normalized === "vnc" || normalized === "verbo") {
+        return targetObject.TENSE_MODE.verbo;
+      }
+      if (normalized === "cnn" || normalized === "nnc" || normalized === "sustantivo") {
+        return targetObject.TENSE_MODE.sustantivo;
+      }
+      if (normalized === "particula" || normalized === "particle") {
+        return targetObject.TENSE_MODE.particula || "particula";
+      }
+      return "";
+    }
     function getNawatTenseModeValue(mode = "") {
       const normalized = String(mode || "").trim();
       if (!normalized) {
@@ -11450,6 +11724,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (nawatMode === (targetObject.NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo)) {
         return targetObject.TENSE_MODE.verbo;
       }
+      if (nawatMode === (targetObject.NAWAT_TENSE_MODE.particula || targetObject.TENSE_MODE.particula || "particula")) {
+        return targetObject.TENSE_MODE.particula || "particula";
+      }
       return "";
     }
     function setStoredEuropeanTenseMode(mode = "") {
@@ -11472,10 +11749,19 @@ export function createUiStateGlobals(targetObject = globalThis) {
       return nawatMode;
     }
     function getActiveEuropeanTenseMode() {
+      return getActiveFunctionMode();
+    }
+    function getActiveFunctionMode() {
       return typeof targetObject.EuropeanTenseModeState !== "undefined" && targetObject.EuropeanTenseModeState?.mode ? targetObject.EuropeanTenseModeState.mode : getActiveTenseMode();
     }
     function getActiveNawatTenseMode() {
       return typeof targetObject.NawatTenseModeState !== "undefined" && targetObject.NawatTenseModeState?.mode ? targetObject.NawatTenseModeState.mode : targetObject.NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo || "";
+    }
+    function getActiveFunctionRole() {
+      return getFunctionRoleForTenseMode(getActiveFunctionMode());
+    }
+    function getActiveUnitKind() {
+      return getUnitKindForTenseMode(getActiveNawatTenseModeForCurrentSelection());
     }
     function setActiveTenseMode(mode, {
       modeSystem = targetObject.TENSE_MODE_SYSTEM.european || "european",
@@ -11495,7 +11781,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       targetObject.TenseModeState.mode = mode;
       if (syncConventionState) {
         const system = getModeSystemValue(modeSystem);
-        if (system === (targetObject.TENSE_MODE_SYSTEM.nawat || "nawat")) {
+        if (isUnitModeSystem(system)) {
           setStoredNawatTenseMode(mode);
         } else {
           setStoredEuropeanTenseMode(mode);
@@ -11515,7 +11801,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         }));
       }
     }
-    function setActiveEuropeanTenseMode(mode, {
+    function setActiveFunctionMode(mode, {
       syncOutput = true
     } = {}) {
       const storedMode = setStoredEuropeanTenseMode(mode);
@@ -11524,11 +11810,22 @@ export function createUiStateGlobals(targetObject = globalThis) {
       }
       if (syncOutput) {
         setActiveTenseMode(storedMode, {
-          modeSystem: targetObject.TENSE_MODE_SYSTEM.european || "european"
+          modeSystem: targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function"
         });
       }
     }
-    function setActiveNawatTenseMode(mode, {
+    function setActiveEuropeanTenseMode(mode, options = {}) {
+      return setActiveFunctionMode(mode, options);
+    }
+    function setActiveFunctionRole(role, options = {}) {
+      const mode = getTenseModeForFunctionRole(role);
+      if (!mode) {
+        return "";
+      }
+      setActiveFunctionMode(mode, options);
+      return mode;
+    }
+    function setActiveUnitMode(mode, {
       syncOutput = true
     } = {}) {
       const storedMode = setStoredNawatTenseMode(mode);
@@ -11538,9 +11835,20 @@ export function createUiStateGlobals(targetObject = globalThis) {
       const outputMode = getNawatOutputTenseMode(storedMode);
       if (syncOutput && outputMode) {
         setActiveTenseMode(outputMode, {
-          modeSystem: targetObject.TENSE_MODE_SYSTEM.nawat || "nawat"
+          modeSystem: targetObject.TENSE_MODE_SYSTEM.unit || targetObject.TENSE_MODE_SYSTEM.nawat || "unit"
         });
       }
+    }
+    function setActiveNawatTenseMode(mode, options = {}) {
+      return setActiveUnitMode(mode, options);
+    }
+    function setActiveUnitKind(kind, options = {}) {
+      const mode = getTenseModeForUnitKind(kind);
+      if (!mode) {
+        return "";
+      }
+      setActiveUnitMode(mode, options);
+      return mode;
     }
     function normalizeOrdinaryNncGenerationStateValue(value = "") {
       return String(value || "").trim() === "possessive" ? "possessive" : "absolutive";
@@ -11738,18 +12046,13 @@ export function createUiStateGlobals(targetObject = globalThis) {
         subjectSuffix: subjectSuffix ?? ""
       });
       const normalizedStem = analogueInput?.stem || String(stem || "").trim();
+      const formulaTense = explicit ? "ordinary-nnc" : getCurrentResolvedConjugationSelectionState({
+        tenseMode: getActiveTenseMode()
+      }).tenseValue || "";
       const override = {
-        subjectPrefix: resolvedSubject.subjectPrefix,
-        subjectSuffix: resolvedSubject.subjectSuffix,
-        objectPrefix: "",
-        verb: normalizedStem,
-        tense: explicit ? "ordinary-nnc" : getCurrentResolvedConjugationSelectionState({
-          tenseMode: getActiveTenseMode()
-        }).tenseValue || "",
         tenseMode: explicit ? targetObject.TENSE_MODE.sustantivo : getActiveTenseMode(),
         derivationMode: targetObject.DERIVATION_MODE.active,
-        voiceMode: targetObject.VOICE_MODE.active,
-        possessivePrefix: explicit ? resolvedPossessor : ""
+        voiceMode: targetObject.VOICE_MODE.active
       };
       if (explicit) {
         override.ordinaryNnc = {
@@ -11772,16 +12075,18 @@ export function createUiStateGlobals(targetObject = globalThis) {
           skipValidation,
           override
         },
-        prefixInputs: {
-          subjectPrefix: override.subjectPrefix,
-          objectPrefix: "",
-          verb: normalizedStem,
-          subjectSuffix: override.subjectSuffix,
-          possessivePrefix: override.possessivePrefix
+        posicionesFormula: {
+          pers1: resolvedSubject.subjectPrefix,
+          obj1: "",
+          tronco: normalizedStem,
+          pers2: resolvedSubject.subjectSuffix,
+          num2: resolvedSubject.subjectSuffix,
+          poseedor: explicit ? resolvedPossessor : "",
+          tiempo: formulaTense
         },
-        liveInput: {
-          hasVerbInput: false,
-          verbInputValue: ""
+        entradaTronco: {
+          tieneControlTronco: false,
+          valorTronco: ""
         }
       };
     }
@@ -11931,6 +12236,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
       }
     }
     function getTenseOrderForMode(mode) {
+      if (mode === targetObject.TENSE_MODE.particula) {
+        return [];
+      }
       if (mode === targetObject.TENSE_MODE.sustantivo) {
         return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
       }
@@ -12157,12 +12465,12 @@ export function createUiStateGlobals(targetObject = globalThis) {
       };
       scheduleFrame(settle);
     }
-    var PANEL_STACK_ORDER = ["inputs", "tense", "output"];
+    var PANEL_STACK_ORDER = ["inputs", "formula", "output"];
     var PANEL_STACK_REVEAL_CLASS = "is-pane-entering";
     var PANEL_STACK_REVEAL_DURATION_MS = 180;
     function normalizePanelStackMode(mode) {
-      if (mode === "tense") {
-        return "tense";
+      if (mode === "formula" || mode === "tense") {
+        return "formula";
       }
       if (mode === "output") {
         return "output";
@@ -12326,19 +12634,26 @@ export function createUiStateGlobals(targetObject = globalThis) {
       targetObject.document.body.classList.toggle("is-sustantivo-mode", isNominalMode);
       targetObject.document.body.classList.toggle("is-verb-mode", isVerbMode);
       targetObject.document.body.classList.toggle("is-nonverb-mode", !isVerbMode);
+      targetObject.document.body.classList.toggle("is-adjectival-function", getActiveFunctionRole() === "adjectival");
+      targetObject.document.body.classList.toggle("is-cnv-unit", getActiveUnitKind() === "cnv");
+      targetObject.document.body.classList.toggle("is-cnn-unit", getActiveUnitKind() === "cnn");
       const operators = targetObject.document.querySelector(".calc-operators");
       if (operators) {
         operators.dataset.tenseMode = mode || "";
+        operators.dataset.functionRole = getActiveFunctionRole();
+        operators.dataset.functionMode = getActiveFunctionMode();
+        operators.dataset.unitKind = getActiveUnitKind();
+        operators.dataset.unitMode = getActiveNawatTenseModeForCurrentSelection();
         operators.dataset.ordinaryNncMode = isOrdinaryNncGenerationModeEnabled() ? "on" : "off";
       }
-      const activeEuropeanMode = getActiveEuropeanTenseMode();
+      const activeFunctionMode = getActiveFunctionMode();
       const activeNawatMode = getActiveNawatTenseModeForCurrentSelection();
       const ordinaryNncActive = isOrdinaryNncGenerationModeEnabled();
       buttons.forEach(button => {
         const buttonMode = button.getAttribute("data-tense-mode");
-        const buttonSystem = button.getAttribute("data-mode-system") || targetObject.TENSE_MODE_SYSTEM.european || "european";
-        const isNawatButton = buttonSystem === (targetObject.TENSE_MODE_SYSTEM.nawat || "nawat");
-        const isActive = isNawatButton ? buttonMode === activeNawatMode && !(ordinaryNncActive && buttonMode === targetObject.TENSE_MODE.sustantivo) : buttonMode === activeEuropeanMode;
+        const buttonSystem = button.getAttribute("data-mode-system") || targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function";
+        const isUnitButton = isUnitModeSystem(buttonSystem);
+        const isActive = isUnitButton ? buttonMode === activeNawatMode && !(ordinaryNncActive && buttonMode === targetObject.TENSE_MODE.sustantivo) : buttonMode === activeFunctionMode;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
@@ -12355,7 +12670,6 @@ export function createUiStateGlobals(targetObject = globalThis) {
           button.removeAttribute("aria-selected");
         }
       });
-      updateNawatRoutePanel();
       updateVoiceOperatorVisibility();
       updateDerivationTypeControl();
       updateCombinedModeTabs();
@@ -12371,13 +12685,13 @@ export function createUiStateGlobals(targetObject = globalThis) {
           if (!mode) {
             return;
           }
-          const buttonSystem = button.getAttribute("data-mode-system") || targetObject.TENSE_MODE_SYSTEM.european || "european";
+          const buttonSystem = button.getAttribute("data-mode-system") || targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function";
           clearActiveNawatRouteProfile();
           setOrdinaryNncGenerationModeEnabled(false);
-          if (buttonSystem === (targetObject.TENSE_MODE_SYSTEM.nawat || "nawat")) {
-            setActiveNawatTenseMode(mode);
+          if (isUnitModeSystem(buttonSystem)) {
+            setActiveUnitMode(mode);
           } else {
-            setActiveEuropeanTenseMode(mode);
+            setActiveFunctionMode(mode);
           }
           preserveViewportAnchorPosition(button, () => {
             targetObject.renderTenseTabs();
@@ -12897,6 +13211,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
       if (isOrdinaryNncGenerationModeEnabled()) {
         return "sustantivo ordinario";
       }
+      if (getActiveTenseMode() === targetObject.TENSE_MODE.particula) {
+        return "Andrews Lesson 3";
+      }
       const isNawat = getIsNawat();
       const selectionState = getCurrentResolvedConjugationSelectionState();
       if (selectionState.group === targetObject.CONJUGATION_GROUPS.universal) {
@@ -12928,6 +13245,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
       });
       const tenseValue = options.tenseValue || String(selectionState.group === targetObject.CONJUGATION_GROUPS.universal ? selectionState.universalTenseValue : selectionState.tenseValue);
       const verbMeta = typeof targetObject.getVerbInputMeta === "function" ? targetObject.getVerbInputMeta() : {};
+      if (mode === targetObject.TENSE_MODE.particula) {
+        return null;
+      }
       if (typeof isOrdinaryNncGenerationModeEnabled === "function" && isOrdinaryNncGenerationModeEnabled()) {
         const ordinaryState = typeof getOrdinaryNncGenerationState === "function" ? getOrdinaryNncGenerationState() : {};
         return targetObject.buildNuclearClauseShellMetadata({
@@ -12982,7 +13302,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
       const isSimpleView = targetObject.getActiveUiDensityMode() === targetObject.UI_DENSITY_MODE.simple;
       const mode = getActiveTenseMode();
       const modeButton = targetObject.document.querySelector(`[data-tense-mode="${mode}"]`);
-      const modeLabel = modeButton?.textContent?.trim() || (mode === targetObject.TENSE_MODE.sustantivo ? "Sustantivo" : mode === targetObject.TENSE_MODE.adjetivo ? "Adjetivo" : mode === targetObject.TENSE_MODE.adverbio ? "Adverbio" : "Verbo");
+      const modeLabel = modeButton?.textContent?.trim() || (mode === targetObject.TENSE_MODE.sustantivo ? "Sustantivo" : mode === targetObject.TENSE_MODE.adjetivo ? "Adjetivo" : mode === targetObject.TENSE_MODE.adverbio ? "Adverbio" : mode === targetObject.TENSE_MODE.particula ? "Partícula" : "Verbo");
       const voice = getCombinedMode();
       const voiceButton = targetObject.document.querySelector(`[data-combined-mode="${voice}"]`);
       const voiceLabel = voiceButton?.textContent?.trim() || (voice === targetObject.COMBINED_MODE.nonactive ? "No activo" : "Activo");
@@ -12996,6 +13316,9 @@ export function createUiStateGlobals(targetObject = globalThis) {
       });
       const clauseLabel = clauseShell?.displayLabel || "";
       const parts = (() => {
+        if (mode === targetObject.TENSE_MODE.particula) {
+          return ["Partículas · Andrews Lección 3", "inventario diagnóstico", "sin generación"];
+        }
         if (mode !== targetObject.TENSE_MODE.verbo) {
           return [clauseLabel, tenseLabel, sourceScopeLabel].filter(Boolean);
         }
@@ -13004,7 +13327,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         }
         return [clauseLabel, tenseLabel, derivationLabel, transitivityLabel, sourceScopeLabel || (includeVoiceInSummary ? voiceLabel : "")].filter(Boolean);
       })();
-      const fallback = mode === targetObject.TENSE_MODE.verbo ? isSimpleView ? "Selecciona tiempo" : "Selecciona tiempo y derivación" : "Selecciona tiempo";
+      const fallback = mode === targetObject.TENSE_MODE.verbo ? isSimpleView ? "Selecciona tiempo" : "Selecciona tiempo y derivación" : mode === targetObject.TENSE_MODE.particula ? "Ingresa una partícula" : "Selecciona tiempo";
       summaryEl.removeAttribute("title");
       summaryEl.textContent = parts.length ? parts.join(" · ") : fallback;
     }
@@ -13056,14 +13379,20 @@ export function createUiStateGlobals(targetObject = globalThis) {
       const verbInput = targetObject.document.getElementById("verb");
       const isTemplateOnlyVerb = targetObject.isComposerTemplateOnlyBaseValue(targetObject.getSearchInputBase(verbInput?.value || ""));
       const hasVerb = Boolean(verbMeta?.displayVerb) && !isTemplateOnlyVerb;
+      const isParticleMode = getActiveTenseMode() === targetObject.TENSE_MODE.particula;
       const hasError = Boolean(targetObject.document.querySelector("#all-tense-conjugations .conjugation-error")) || Boolean(targetObject.document.getElementById("verb")?.classList.contains("error"));
       const hasRows = Boolean(targetObject.document.querySelector("#all-tense-conjugations .conjugation-row"));
       statusEl.classList.toggle("is-error", hasError);
       delete statusEl.dataset.orthographyBridge;
       delete statusEl.dataset.orthographyBridgeIds;
       if (!hasVerb) {
-        statusEl.textContent = getPlaceholderLabel("conjugations", getIsNawat(), "Ingresa un verbo para ver las conjugaciones.");
+        statusEl.textContent = getPlaceholderLabel("conjugations", getIsNawat(), isParticleMode ? "Ingresa una partícula o colocación para ver su marco Andrews." : "Ingresa un verbo para ver las conjugaciones.");
         statusEl.classList.remove("is-error");
+        return;
+      }
+      if (isParticleMode) {
+        statusEl.textContent = hasRows ? "Partícula · diagnóstico Andrews; no genera VNC/CNN." : "Partícula · sin inventario confirmado.";
+        statusEl.classList.toggle("is-error", !hasRows);
         return;
       }
       const orthographyStatus = getOrthographyBridgeStatusInfo(verbInput?.value || verbMeta?.parseInputVerb || "");
@@ -13214,7 +13543,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
         if (previous !== value) {
           resetToggleStateForTense(value);
           const activeNawatRoute = getActiveNawatRouteProfile();
-          const activeRouteTenseValues = [activeNawatRoute?.targetTenseValue || "", activeNawatRoute?.nawatTenseValue || "", activeNawatRoute?.legacyTenseValue || "", activeNawatRoute?.sourceTenseValue || "", activeNawatRoute?.activeStationTenseValue || ""].filter(Boolean);
+          const activeRouteTenseValues = [activeNawatRoute?.targetTenseValue || "", activeNawatRoute?.nawatTenseValue || "", activeNawatRoute?.routeTenseValue || "", activeNawatRoute?.sourceTenseValue || "", activeNawatRoute?.activeStationTenseValue || ""].filter(Boolean);
           if (activeNawatRoute && !activeRouteTenseValues.includes(value)) {
             clearActiveNawatRouteProfile();
           }
@@ -13531,7 +13860,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
     api.getStateFrameResultSurfaceForms = getStateFrameResultSurfaceForms;
     api.getStateResultSurfaceForms = getStateResultSurfaceForms;
     api.getStateResultDisplaySurface = getStateResultDisplaySurface;
-    api.getStateSubjectNumberConnectorSurface = getStateSubjectNumberConnectorSurface;
+    api.getStateNum1Num2Surface = getStateNum1Num2Surface;
     api.getNawatLinkedGrammarPathStageSourceVerb = getNawatLinkedGrammarPathStageSourceVerb;
     api.getNawatLinkedGrammarPathStageDisplaySurface = getNawatLinkedGrammarPathStageDisplaySurface;
     api.buildReduplicatedConjugationResult = buildReduplicatedConjugationResult;
@@ -13605,7 +13934,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
     api.isDisconnectedNawatRouteProfile = isDisconnectedNawatRouteProfile;
     api.cloneNawatRouteProfile = cloneNawatRouteProfile;
     api.getNawatRouteProfile = getNawatRouteProfile;
-    api.getLegacyTenseForNawatRoute = getLegacyTenseForNawatRoute;
+    api.getRouteTenseForNawatRoute = getRouteTenseForNawatRoute;
     api.getNawatRouteStationList = getNawatRouteStationList;
     api.normalizeNawatRouteStationKey = normalizeNawatRouteStationKey;
     api.unwrapNawatRouteInputValue = unwrapNawatRouteInputValue;
@@ -13710,7 +14039,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
     api.promoteActiveNawatLinkedGrammarPathExecutionFinalSource = promoteActiveNawatLinkedGrammarPathExecutionFinalSource;
     api.clearActiveNawatLinkedGrammarPathSelections = clearActiveNawatLinkedGrammarPathSelections;
     api.getPrimaryNawatRouteSurfaceForm = getPrimaryNawatRouteSurfaceForm;
-    api.executeNawatRouteLegacyGeneration = executeNawatRouteLegacyGeneration;
+    api.executeNawatRouteConfiguredGeneration = executeNawatRouteConfiguredGeneration;
     api.resolveNawatRoutePatientivoTroncoStem = resolveNawatRoutePatientivoTroncoStem;
     api.resolveNawatRouteVerbalizedVerb = resolveNawatRouteVerbalizedVerb;
     api.resolveNawatRouteTarget = resolveNawatRouteTarget;
@@ -13731,6 +14060,30 @@ export function createUiStateGlobals(targetObject = globalThis) {
     api.getNawatDenominalRouteFamiliesWithoutAndrewsContract = getNawatDenominalRouteFamiliesWithoutAndrewsContract;
     api.getNawatDenominalAndrewsContractInventory = getNawatDenominalAndrewsContractInventory;
     api.getNawatDenominalAndrewsContractCoverageSummary = getNawatDenominalAndrewsContractCoverageSummary;
+    Object.defineProperty(api, "LESSON54_DENOMINAL_VERBSTEM_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON54_DENOMINAL_VERBSTEM_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS; },
+    });
+    api.getLesson54DenominalVerbstemSubsectionFrames = getLesson54DenominalVerbstemSubsectionFrames;
+    api.buildLesson54DenominalVerbstemPursuitFrame = buildLesson54DenominalVerbstemPursuitFrame;
+    Object.defineProperty(api, "LESSON55_DENOMINAL_VERBSTEM_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON55_DENOMINAL_VERBSTEM_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS; },
+    });
+    api.getLesson55DenominalVerbstemSubsectionFrames = getLesson55DenominalVerbstemSubsectionFrames;
+    api.buildLesson55DenominalVerbstemPursuitFrame = buildLesson55DenominalVerbstemPursuitFrame;
     Object.defineProperty(api, "NAWAT_DENOMINAL_ANDREWS_ROUTE_TEMPLATES_BY_CONTRACT_ID", {
         configurable: true,
         enumerable: true,
@@ -13920,22 +14273,34 @@ export function createUiStateGlobals(targetObject = globalThis) {
     api.activateNawatRouteStation = activateNawatRouteStation;
     api.activateNawatRouteProfile = activateNawatRouteProfile;
     api.activateNawatRouteOrigin = activateNawatRouteOrigin;
-    api.updateNawatRoutePanel = updateNawatRoutePanel;
     api.resolveActiveAdjectiveClassPolicy = resolveActiveAdjectiveClassPolicy;
     api.selectPreferredActiveAdjectiveForms = selectPreferredActiveAdjectiveForms;
     api.getActiveConjugationGroup = getActiveConjugationGroup;
     api.setActiveConjugationGroup = setActiveConjugationGroup;
     api.getActiveTenseMode = getActiveTenseMode;
     api.getModeSystemValue = getModeSystemValue;
+    api.isUnitModeSystem = isUnitModeSystem;
+    api.isFunctionModeSystem = isFunctionModeSystem;
+    api.getFunctionRoleForTenseMode = getFunctionRoleForTenseMode;
+    api.getTenseModeForFunctionRole = getTenseModeForFunctionRole;
+    api.getUnitKindForTenseMode = getUnitKindForTenseMode;
+    api.getTenseModeForUnitKind = getTenseModeForUnitKind;
     api.getNawatTenseModeValue = getNawatTenseModeValue;
     api.getNawatOutputTenseMode = getNawatOutputTenseMode;
     api.setStoredEuropeanTenseMode = setStoredEuropeanTenseMode;
     api.setStoredNawatTenseMode = setStoredNawatTenseMode;
     api.getActiveEuropeanTenseMode = getActiveEuropeanTenseMode;
+    api.getActiveFunctionMode = getActiveFunctionMode;
     api.getActiveNawatTenseMode = getActiveNawatTenseMode;
+    api.getActiveFunctionRole = getActiveFunctionRole;
+    api.getActiveUnitKind = getActiveUnitKind;
     api.setActiveTenseMode = setActiveTenseMode;
+    api.setActiveFunctionMode = setActiveFunctionMode;
     api.setActiveEuropeanTenseMode = setActiveEuropeanTenseMode;
+    api.setActiveFunctionRole = setActiveFunctionRole;
+    api.setActiveUnitMode = setActiveUnitMode;
     api.setActiveNawatTenseMode = setActiveNawatTenseMode;
+    api.setActiveUnitKind = setActiveUnitKind;
     api.normalizeOrdinaryNncGenerationStateValue = normalizeOrdinaryNncGenerationStateValue;
     api.normalizeOrdinaryNncGenerationNumber = normalizeOrdinaryNncGenerationNumber;
     api.normalizeOrdinaryNncGenerationPluralType = normalizeOrdinaryNncGenerationPluralType;
@@ -14094,7 +14459,7 @@ export function createUiStateGlobals(targetObject = globalThis) {
 }
 
 export function installUiStateGlobals(targetObject = globalThis) {
-    const api = createUiStateGlobals(targetObject);
+    const api = createUiStateApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

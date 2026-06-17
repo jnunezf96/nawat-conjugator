@@ -1,6 +1,6 @@
 {
   "operation": "Operation Back Sys",
-  "generatedAt": "2026-04-02T19:33:38.788Z",
+  "generatedAt": "2026-06-15T20:44:14.472Z",
   "root": "/Users/jaimenunez/Desktop/Nawat_Conjugator",
   "anchors": [
     "1dcf4f6",
@@ -11,10 +11,9 @@
     "f002f6e"
   ],
   "totalsByCategory": {
-    "connected": 26,
-    "disconnected": 2,
-    "intentionally_changed": 2,
-    "removed": 3
+    "removed": 27,
+    "connected": 4,
+    "disconnected": 2
   },
   "totalsBySubsystem": {
     "morphology": 16,
@@ -37,13 +36,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / nonactive family inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
-      "current_status": "connected",
-      "status_reason": "The lu family still exists in code and remains reachable through live nonactive generation.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "-(kwi) nonactive present",
-        "actual": "kwilu / kwiwalu",
+        "actual": "—",
         "expected": "kwilu / kwiwalu"
       },
       "notes": "Uses -(kwi) as the transitive visible lu-family probe.",
@@ -61,13 +60,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: allowPlainUVariant / raw u-family branch inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
-      "current_status": "connected",
-      "status_reason": "The u family still exists in code and remains reachable through live nonactive generation.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "-(iksa) nonactive present",
-        "actual": "iksalu / ikshu",
+        "actual": "—",
         "expected": "iksalu / ikshu"
       },
       "notes": "Uses -(iksa) as the recovered sh-branch u-family probe.",
@@ -85,13 +84,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / wa-family inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions / normalizeVisibleNonactiveDerivationOptions",
-      "current_status": "connected",
-      "status_reason": "The wa family remains reachable and selectable in the current nonactive path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(temi) selected wa",
-        "actual": "temiwa",
+        "actual": "—",
         "expected": "temiwa"
       },
       "notes": "Uses (temi) as the intransitive wa-family probe.",
@@ -109,13 +108,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / luwa-family inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions",
-      "current_status": "connected",
-      "status_reason": "The luwa family still exists and remains reachable through current nonactive generation.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(witzi) nonactive present",
-        "actual": "wiluwatz",
+        "actual": "—",
         "expected": "wiluwatz"
       },
       "notes": "Uses (witzi) as a live luwa-family witness.",
@@ -133,13 +132,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / uwa-family inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions / normalizeVisibleNonactiveDerivationOptions",
-      "current_status": "connected",
-      "status_reason": "The uwa family still exists and remains reachable in the current nonactive path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(temi) selected uwa",
-        "actual": "temuwa",
+        "actual": "—",
         "expected": "temuwa"
       },
       "notes": "Uses (temi) as the intransitive uwa-family probe.",
@@ -157,13 +156,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / walu-family inventory",
-      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection",
-      "current_status": "connected",
-      "status_reason": "The walu family still exists and remains reachable in the current nonactive path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(mali) selected walu",
-        "actual": "maliwalu",
+        "actual": "—",
         "expected": "maliwalu"
       },
       "notes": "Uses (mali) as the visible walu-family probe.",
@@ -180,10 +179,10 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
-      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection / applyNonactiveDerivation",
-      "current_status": "connected",
-      "status_reason": "The supportive-i nonactive rule still exists and remains reachable through live generation for ([i]jmati).",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "([i]jmati) current-regex supportive nonactive",
         "actual": {
@@ -195,7 +194,7 @@
             "uwa",
             "walu"
           ],
-          "liveResult": "ijmatilu / ijmatiwa / ijmachiwa / ijmachuwa / ijmatiwalu"
+          "liveResult": "—"
         },
         "expected": {
           "ruleBase": "jmati",
@@ -223,9 +222,9 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
-      "current_authority": "script.js: getNonactiveDerivationOptions / resolveNonactiveStemSelection / applyNonactiveDerivation",
-      "current_status": "disconnected",
-      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "latent",
       "current_probe": {
         "description": "-([i]jmati) current-regex supportive nonactive",
@@ -236,7 +235,7 @@
             "u",
             "lu"
           ],
-          "liveResult": "ijmachu / ijmatiu / ijmatilu"
+          "liveResult": "—"
         },
         "expected": {
           "ruleBase": "jmati",
@@ -262,13 +261,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: hasOptionalSupportiveI / nonactive family classification",
-      "current_authority": "script.js: getVisibleNonactiveDerivationOptions / applyNonactiveDerivation",
-      "current_status": "connected",
-      "status_reason": "The supportive-i nonactive path is still reachable for ([i]kwi), proving the underlying rule is present.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "([i]kwi) nonactive present",
-        "actual": "ikwiwa / ikwilu / ikwiwalu",
+        "actual": "—",
         "expected": "ikwiwa / ikwilu / ikwiwalu"
       },
       "notes": "([i]kwi) is the connected contrast case for supportive-i nonactive classification.",
@@ -281,13 +280,13 @@
       "surface_kind": "composer-supportive",
       "anchor_hits": [],
       "historical_authority": "script.js: resolveOptionalSupportiveMarkedSurface / applyComposerSupportiveMarkerToRootPath",
-      "current_authority": "script.js: buildComposerModeBundle / applyComposerSupportiveMarkerToRootPath",
+      "current_authority": "",
       "current_status": "connected",
       "status_reason": "Supportive y remains reachable from composer mode and still surfaces through the live output path.",
-      "reachability": "live",
+      "reachability": "latent",
       "current_probe": {
         "description": "ta-([y]ankwilia) active output",
-        "actual": "nitayankwilia",
+        "actual": "—",
         "expected": "nitayankwilia"
       },
       "notes": "Current-only sanity row. Uses the existing composer supportive-y audit surface.",
@@ -305,9 +304,9 @@
         "f002f6e"
       ],
       "historical_authority": "data/static_allomorphy_rules.json: supportive.keepSlashPrefixes",
-      "current_authority": "script.js: shouldDelaySlashSupportiveIAllomorphyForPret",
-      "current_status": "connected",
-      "status_reason": "The slash-bound supportive-i delay rule still exists and remains reachable through the current helper path.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "live",
       "current_probe": {
         "description": "slash-bound supportive i helper",
@@ -329,12 +328,12 @@
       ],
       "historical_authority": "pret_universal_engine.js: class-A deleted-base y-shift path",
       "current_authority": "pret_universal_engine.js: buildPretVariant / deleted-base y-shift",
-      "current_status": "connected",
-      "status_reason": "The y>sh allomorphy remains reachable in the current preterite route.",
-      "reachability": "live",
+      "current_status": "disconnected",
+      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "reachability": "latent",
       "current_probe": {
         "description": "-(piya) active preterito",
-        "actual": "nikpishki / nikpiyak",
+        "actual": "—",
         "expected": "nikpishki / nikpiyak"
       },
       "notes": "Uses -(piya) preterite as the live y>sh probe.",
@@ -351,13 +350,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: getPatientivoStemFromNonactive / m>n path",
-      "current_authority": "script.js: getPatientivoStemFromNonactive / expandPatientivoNominalMarkerOptions",
-      "current_status": "connected",
-      "status_reason": "The m>n allomorphy remains reachable in the current patientivo nonactive path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(temi) patientivo from nonactive selected uwa",
-        "actual": "tenti / ten / tenin",
+        "actual": "—",
         "expected": "tenti / ten / tenin"
       },
       "notes": "Uses (temi) patientivo from nonactive uwa family as the live m>n probe.",
@@ -374,13 +373,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: nonactive cluster replacement branch",
-      "current_authority": "script.js: getNonactiveDerivationOptions / buildSiblingNonactiveVariantSpec",
-      "current_status": "connected",
-      "status_reason": "The cluster/onset replacement route still exists and remains reachable in live nonactive generation.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "-(ketza) nonactive present",
-        "actual": "ketzalu / kechu",
+        "actual": "—",
         "expected": "ketzalu / kechu"
       },
       "notes": "Uses -(ketza) as the current ch-branch onset replacement probe.",
@@ -396,13 +395,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: patientivo nonactive derivation path",
-      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoDerivations",
-      "current_status": "connected",
-      "status_reason": "Patientivo from nonactive remains reachable and still preserves the realized source chain.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(ish-kwi) patientivo nonactive",
-        "actual": "ataishkwil / ataishkwilti / ataishkwilin / ataishkwiwal / ataishkwiwalti / ataishkwiwalin",
+        "actual": "—",
         "expected": "ataishkwil / ataishkwilti / ataishkwilin / ataishkwiwal / ataishkwiwalti / ataishkwiwalin"
       },
       "notes": "Uses (a)+ta-(ish-kwi) to prove structural source preservation in patientivo nonactive.",
@@ -418,13 +417,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: patientivo perfectivo derivation path",
-      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoPerfectivoDerivations",
-      "current_status": "connected",
-      "status_reason": "Patientivo from perfective remains reachable and still uses the current realized source model.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(kwi) patientivo perfectivo",
-        "actual": "atakwijti",
+        "actual": "—",
         "expected": "atakwijti"
       },
       "notes": "Uses (a)+ta-(kwi) as the class-sensitive perfective patientivo probe.",
@@ -440,13 +439,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: patientivo imperfectivo derivation path",
-      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoImperfectivoDerivations",
-      "current_status": "connected",
-      "status_reason": "Patientivo from imperfective remains reachable through the current realized source path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(ish-kwi) patientivo imperfectivo",
-        "actual": "ataishkwit",
+        "actual": "—",
         "expected": "ataishkwit"
       },
       "notes": "Uses (a)+ta-(ish-kwi) as the structural imperfective patientivo probe.",
@@ -462,13 +461,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: patientivo tronco-verbal derivation path",
-      "current_authority": "script.js: buildPatientivoSourceModel / buildPatientivoTroncoDerivations",
-      "current_status": "connected",
-      "status_reason": "Patientivo from tronco-verbal remains reachable and still emits structured productive families.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(waki) patientivo tronco-verbal",
-        "actual": "wak / wakti / wakin / wach / wachti / wachin / waj / wajti / wajin / was / wasti / wasin",
+        "actual": "—",
         "expected": "wak / wakti / wakin / wach / wachti / wachin / waj / wajti / wajin / was / wasti / wasin"
       },
       "notes": "Uses (waki) as the productive tronco-verbal patientivo probe.",
@@ -486,13 +485,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: sustantivo-verbal derivation path",
-      "current_authority": "script.js: buildSustantivoVerbalStemCandidates / buildVerbDerivedNominalSourceModel",
-      "current_status": "connected",
-      "status_reason": "Sustantivo-verbal remains reachable through the shared realized noun pipeline.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(kwi) sustantivo-verbal",
-        "actual": "atakwilis / atakwis",
+        "actual": "—",
         "expected": "atakwilis / atakwis"
       },
       "notes": "Uses (a)+ta-(kwi) as the structured sustantivo-verbal probe.",
@@ -510,9 +509,9 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: instrumentivo derivation path",
-      "current_authority": "script.js: buildVerbDerivedNominalBuilderContext / getInstrumentivoResult",
-      "current_status": "disconnected",
-      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(kwi) instrumentivo",
@@ -534,9 +533,9 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: calificativo-instrumentivo derivation path",
-      "current_authority": "script.js: buildPasadoRemotoStemEntries / buildCalificativoInstrumentivoPredicateStemSpec",
-      "current_status": "intentionally_changed",
-      "status_reason": "Calificativo-instrumentivo is still reachable, but its current output deliberately follows the realized pasado-remoto stem object rather than the older string-based source.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "policy_changed",
       "current_probe": {
         "description": "(miki) calificativo-instrumentivo",
@@ -544,7 +543,7 @@
         "expected": "mikkayut",
         "historical": "mikikayut"
       },
-      "notes": "This row is intentionally changed: current output uses the true pasado-remoto stem object instead of older string provenance shortcuts.",
+      "notes": "This row is intentionally changed: current output uses the true pasado-remoto stem object instead of string-provenance shortcuts.",
       "current_only_sanity": false
     },
     {
@@ -559,13 +558,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: locativo-temporal derivation path",
-      "current_authority": "script.js: buildVerbDerivedNominalBuilderContext / getLocativoTemporalResult",
-      "current_status": "connected",
-      "status_reason": "Locativo-temporal remains reachable through the shared realized noun pipeline.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(a)+ta-(kwi) locativo-temporal",
-        "actual": "atakwiyan",
+        "actual": "takwiyan",
         "expected": "atakwiyan"
       },
       "notes": "Uses (a)+ta-(kwi) as the structured locativo-temporal probe.",
@@ -583,9 +582,9 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: normalizeVisibleNonactiveDerivationOptions",
-      "current_authority": "script.js: normalizeVisibleNonactiveDerivationOptions / getVisibleNonactiveDerivationOptions",
-      "current_status": "connected",
-      "status_reason": "Visible nonactive family exposure remains reachable and selectable in the current UI path.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "live",
       "current_probe": {
         "description": "-(iksa) visible nonactive suffixes",
@@ -613,13 +612,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: getSelectedNonactiveSuffix / patientivo selected-suffix filtering",
-      "current_authority": "script.js: getSelectedNonactiveSuffix / setSelectedNonactiveSuffix / buildPatientivoDerivations",
-      "current_status": "connected",
-      "status_reason": "Selected nonactive suffix filtering remains reachable in the current patientivo path.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "(temi) patientivo selected wa",
-        "actual": "temit / temi",
+        "actual": "—",
         "expected": "temit / temi"
       },
       "notes": "Uses (temi) patientivo from nonactive to prove suffix filtering remains live.",
@@ -661,16 +660,13 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: NONACTIVE_SUFFIX_ORDER / render nonactive tabs",
-      "current_authority": "script.js: NONACTIVE_SUFFIX_ORDER / nonactive-tabs renderer",
-      "current_status": "connected",
-      "status_reason": "Nonactive tab availability remains live according to the current tense-tab audit.",
-      "reachability": "live",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
+      "reachability": "latent",
       "current_probe": {
         "description": "nonactive tab option map",
-        "actual": [
-          "wa",
-          "uwa"
-        ],
+        "actual": [],
         "expected": [
           "wa",
           "uwa"
@@ -691,9 +687,9 @@
         "f002f6e"
       ],
       "historical_authority": "script.js: formatConjugationDisplay",
-      "current_authority": "script.js: formatConjugationDisplay",
-      "current_status": "intentionally_changed",
-      "status_reason": "Noun suffix grouping is still reachable, but it now deliberately groups -in with the same patientivo family line instead of leaving it on its own line.",
+      "current_authority": "",
+      "current_status": "removed",
+      "status_reason": "Historical authority exists, but no equivalent current implementation remains.",
       "reachability": "policy_changed",
       "current_probe": {
         "description": "patientivo grouping authority",
@@ -714,12 +710,12 @@
       ],
       "historical_authority": "script.js: buildViewExportCSV / resolveOutputPanelProvenance",
       "current_authority": "browser_runtime_checks.js: runExportProvenanceRealizationChecks",
-      "current_status": "connected",
-      "status_reason": "Export/provenance source labeling remains live according to the current realization audit.",
-      "reachability": "live",
+      "current_status": "disconnected",
+      "status_reason": "Current authority exists, but the live app no longer reaches the historical behavior.",
+      "reachability": "latent",
       "current_probe": {
         "description": "export/provenance authority",
-        "actual": true,
+        "actual": false,
         "expected": true
       },
       "notes": "Current-only sanity row. Delegates to the existing export/provenance realization audit.",
@@ -732,7 +728,7 @@
       "surface_kind": "composer-bundle",
       "anchor_hits": [],
       "historical_authority": "script.js: buildComposerModeBundle / supportive root path",
-      "current_authority": "script.js: buildComposerModeBundle / applyComposerSupportiveMarkerToRootPath",
+      "current_authority": "",
       "current_status": "connected",
       "status_reason": "Composer supportive-enabled inputs remain reachable in the current bundle builder.",
       "reachability": "live",
@@ -751,13 +747,13 @@
       "surface_kind": "composer-bundle",
       "anchor_hits": [],
       "historical_authority": "script.js: buildComposerModeBundle / nonactive generation path",
-      "current_authority": "script.js: buildComposerModeBundle / getCachedSilentGenerateWord",
+      "current_authority": "",
       "current_status": "connected",
       "status_reason": "Composer combinations can still reach the current nonactive family inventory.",
-      "reachability": "live",
+      "reachability": "latent",
       "current_probe": {
         "description": "composer kwi -> nonactive present",
-        "actual": "kwiwa / kwilu / kwiwalu",
+        "actual": "—",
         "expected": "kwiwa / kwilu / kwiwalu"
       },
       "notes": "Current-only sanity row. Uses a plain intransitive composer bundle as the live nonactive exposure probe.",
@@ -774,11 +770,11 @@
       "historical_authority": "script.js@b0b950f: allowUwaFromU",
       "current_authority": "",
       "current_status": "removed",
-      "status_reason": "The historical u->uwa sibling branch existed in old code, but no equivalent current authority remains.",
+      "status_reason": "The historical u->uwa sibling branch existed in a previous implementation, but no equivalent current authority remains.",
       "reachability": "absent",
       "current_probe": {
         "description": "-(iksa) no longer exposes the historical u->uwa sibling",
-        "liveResult": "iksalu / ikshu",
+        "liveResult": "—",
         "missingHistoricalForm": "ikshuwa"
       },
       "notes": "Uses -(iksa) as the historical u->uwa witness. Current realized output no longer exposes ikshuwa.",
@@ -795,11 +791,11 @@
       "historical_authority": "script.js@b0b950f: allowClusterWa / chiwa / shiwa / iwa branches",
       "current_authority": "",
       "current_status": "removed",
-      "status_reason": "The historical cluster/shiwa/chiwa wa branches existed in old code, but no equivalent current authority remains.",
+      "status_reason": "The historical cluster/shiwa/chiwa wa branches existed in a previous implementation, but no equivalent current authority remains.",
       "reachability": "absent",
       "current_probe": {
         "description": "-(iksa) no longer exposes the historical shiwa branch",
-        "liveResult": "iksalu / ikshu",
+        "liveResult": "—",
         "missingHistoricalForm": "ikshiwa"
       },
       "notes": "Uses -(iksa) as the historical shiwa witness. Current realized output no longer exposes ikshiwa.",
@@ -816,11 +812,11 @@
       "historical_authority": "script.js@b0b950f: allowTzVariant",
       "current_authority": "",
       "current_status": "removed",
-      "status_reason": "The historical tz sibling variant existed in old code, but no equivalent current authority remains.",
+      "status_reason": "The historical tz sibling variant existed in a previous implementation, but no equivalent current authority remains.",
       "reachability": "absent",
       "current_probe": {
         "description": "-(ketza) no longer exposes the historical tz sibling",
-        "liveResult": "ketzalu / kechu",
+        "liveResult": "—",
         "missingHistoricalForm": "ketzu"
       },
       "notes": "Uses -(ketza) as the historical tz-sibling witness. Current realized output no longer exposes ketzu.",

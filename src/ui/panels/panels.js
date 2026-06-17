@@ -123,22 +123,22 @@ function buildBlockComboPaletteSignature({
         return `noun|v${numericValency}|${normalizedObject}|${normalizedIndirect}|${normalizedThird}|${normalizedPossessor}|${normalizedOwnership}`;
     }
     if (numericValency >= 4) {
-        return `verb|v4|${getValence4ComboSignature({
-            objectPrefix,
-            indirectObjectMarker,
-            thirdObjectMarker,
+        return `verb|v4|${getObj1Obj2Obj3Signature({
+            obj1: objectPrefix,
+            obj2: indirectObjectMarker,
+            obj3: thirdObjectMarker,
         })}`;
     }
     if (numericValency === 3) {
-        const normalized = resolveDisplayValencePrefixes({
-            objectPrefix,
-            indirectObjectMarker,
+        const normalized = resolveDisplayObj1Obj2({
+            obj1: objectPrefix,
+            obj2: indirectObjectMarker,
             derivationType,
         });
-        const mainline = normalizePrefixForComboPalette(normalized.objectPrefix || "", {
+        const mainline = normalizePrefixForComboPalette(normalized.obj1 || "", {
             collapseProjective: true,
         });
-        const shuntline = normalizePrefixForComboPalette(normalized.indirectObjectMarker || "", {
+        const shuntline = normalizePrefixForComboPalette(normalized.obj2 || "", {
             collapseProjective: false,
         });
         return `verb|v3|${mainline}|${shuntline}`;
@@ -1006,7 +1006,7 @@ function resolveNonactiveSuffixOptionMap({
     verb = "",
     analysisVerb = "",
 } = {}) {
-    const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
+    const isTransitive = isNonactiveTransitiveByObj1(getCurrentObjectPrefix(), verbMeta);
     const options = resolveLiveNonactiveOptions({
         verbMeta,
         verb,
@@ -1038,7 +1038,7 @@ function buildNonactiveSelectionContextSignature({
     const derivationType = typeof getActiveDerivationType === "function"
         ? String(getActiveDerivationType() || "")
         : "";
-    const transitivity = isNonactiveTransitiveVerb(objectPrefix, verbMeta) ? "transitive" : "intransitive";
+    const transitivity = isNonactiveTransitiveByObj1(objectPrefix, verbMeta) ? "transitive" : "intransitive";
     return `${sourceKey}|${derivationType}|${objectPrefix}|${transitivity}|${verbMeta?.isYawi === true ? "yawi" : ""}`;
 }
 
@@ -1371,7 +1371,7 @@ function resolveActiveVerbTenseAvailabilityRecord({
                 : (() => {
                     const result = getCachedSilentGenerateWord({
                         silent: true,
-                        skipTransitivityValidation: true,
+                        skipValidation: true,
                         override: {
                             ...modeOverride,
                             subjectPrefix: selection.subjectPrefix,
@@ -1449,8 +1449,8 @@ function resolveNonactiveVerbTenseAvailabilityRecord({
             tense: tenseValue,
         };
         if (subjectOverride) {
-            overridePayload.subjectPrefix = subjectOverride.subjectPrefix;
-            overridePayload.subjectSuffix = subjectOverride.subjectSuffix;
+            overridePayload.subjectPrefix = subjectOverride.pers1;
+            overridePayload.subjectSuffix = subjectOverride.pers2;
             overridePayload.preservePassiveSubject = true;
         }
         const result = getCachedSilentGenerateWord({
@@ -1794,14 +1794,14 @@ function resolveNominalCombinationAvailabilityRecord({
             }) || {};
             if (useReduplicatedSingularSurface && getPanelConjugationRenderableSurface(result)) {
                 const prefixChain = buildPrefixedChain({
-                    subjectPrefix: selection.subjectPrefix,
-                    possessivePrefix: possessorPrefix,
-                    objectPrefix: composeProjectiveObjectPrefix({
-                        objectPrefix: resolvedObjectPrefix,
+                    pers1: selection.subjectPrefix,
+                    poseedor: possessorPrefix,
+                    obj1: composeObj1Chain({
+                        obj1: resolvedObjectPrefix,
                         markers: [resolvedIndirectObjectMarker || "", resolvedThirdObjectMarker || ""],
-                        subjectPrefix: selection.subjectPrefix,
+                        pers1: selection.subjectPrefix,
                     }),
-                    verb: "",
+                    tronco: "",
                 });
                 result = buildReduplicatedConjugationResult(result, {
                     prefixChain,
@@ -1822,11 +1822,11 @@ function resolveNominalCombinationAvailabilityRecord({
             enforceInvalidCombo: !useReduplicatedSingularSurface,
         });
         const valence4Violation = (context.nounObjectSlotStates?.length || 0) >= 3
-            && !isValidValence4Combo({
-                objectPrefix: resolvedObjectPrefix,
-                indirectObjectMarker: resolvedIndirectObjectMarker,
-                thirdObjectMarker: resolvedThirdObjectMarker,
-            });
+            && !isValidObj1Obj2Obj3Combo({
+                    obj1: resolvedObjectPrefix,
+                    obj2: resolvedIndirectObjectMarker,
+                    obj3: resolvedThirdObjectMarker,
+                });
         const evaluation = buildConjugationEvaluationRecord({
             result,
             maskState,
@@ -2017,7 +2017,7 @@ function resolveNominalTenseAvailabilityRecord({
             tenseValue: context.resolvedTense,
         }).filter(({ selection }) => (
             !context.showNonanimateOnly
-            || isNonanimateSubject(selection.subjectPrefix, selection.subjectSuffix)
+            || isNonanimatePers1Pers2(selection.subjectPrefix, selection.subjectSuffix)
         ));
     const possessorSelections = Array.isArray(context.visiblePossessorValues)
         && context.visiblePossessorValues.length
@@ -2105,6 +2105,19 @@ function renderTenseTabs() {
     const endsWithConsonant = verb !== "" && !VOWEL_END_RE.test(verb) && !isWitzInput;
     const hasVerb = verb !== "" && VOWEL_RE.test(verb);
     const tenseMode = getActiveTenseMode();
+    if (tenseMode === TENSE_MODE.particula) {
+        container.innerHTML = "";
+        TenseTabsDomSignature = "particula";
+        if (outputUniversalContainer) {
+            outputUniversalContainer.innerHTML = "";
+            outputUniversalContainer.hidden = true;
+        }
+        if (outputControlsContainer) {
+            outputControlsContainer.hidden = true;
+        }
+        syncVerbSourceScopeControl();
+        return;
+    }
     const sourceScope = getVerbSourceScope();
     const nonactiveSuffixOptionMap = tenseMode === TENSE_MODE.verbo
         ? resolveNonactiveSuffixOptionMap({ verbMeta, verb, analysisVerb })
@@ -2181,7 +2194,7 @@ function renderTenseTabs() {
             || !Array.isArray(availability)
             || availability.length !== PRETERITO_UNIVERSAL_ORDER.length;
         if (needsAvailabilityCompute) {
-            const isTransitive = isValencyFilled(getCurrentObjectPrefix(), verbMeta);
+            const isTransitive = isObj1ValencyFilled(getCurrentObjectPrefix(), verbMeta);
             const derivationType = verbMeta.derivationType || getActiveDerivationType();
             let availabilityTargets = [{
                 verb,

@@ -149,7 +149,7 @@ function resolveDerivedNonactiveSelectionEntry({
         : normalizeRuleBase(sourceAnalysisVerb || sourceVerb);
     const matchRuleBase = normalizeRuleBase(matchBaseVerb || "");
     const matchIsTransitive = parsedMatch
-        ? isNonactiveTransitiveVerb(objectPrefix, parsedMatch)
+        ? isNonactiveTransitiveByObj1(objectPrefix, parsedMatch)
         : nonactiveIsTransitive;
     const matchSelection = resolveNonactiveStemSelection(matchBaseVerb, matchBaseVerb, {
         isTransitive: matchIsTransitive,
@@ -287,7 +287,7 @@ function applyNonactiveDerivation({
         };
     }
     suppletiveStemSet = null;
-    const nonactiveIsTransitive = isNonactiveTransitiveVerb(objectPrefix, parsedVerb);
+    const nonactiveIsTransitive = isNonactiveTransitiveByObj1(objectPrefix, parsedVerb);
     const effectiveSourceMeta = preferredNonactiveSourceMeta || parsedVerb;
     const nonactiveSource = preferredNonactiveBaseVerb
         ? {

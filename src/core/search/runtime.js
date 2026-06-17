@@ -582,7 +582,7 @@ function getSearchNonactiveSuffixPlan(verbMeta) {
     }
     const verb = verbMeta.verb;
     const analysisVerb = verbMeta.analysisVerb || verb;
-    const isTransitive = isNonactiveTransitiveVerb(getCurrentObjectPrefix(), verbMeta);
+    const isTransitive = isNonactiveTransitiveByObj1(getCurrentObjectPrefix(), verbMeta);
     const options = resolveLiveNonactiveOptions({
         verbMeta,
         verb,

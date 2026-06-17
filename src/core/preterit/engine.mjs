@@ -936,15 +936,15 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         hasDoubleDash,
         indirectObjectMarker
       });
-      if (typeof targetObject.composeProjectiveObjectPrefix === "function") {
-        return targetObject.composeProjectiveObjectPrefix({
-          objectPrefix,
+      if (typeof targetObject.composeObj1Chain === "function") {
+        return targetObject.composeObj1Chain({
+          obj1: objectPrefix,
           markers: [indirectObjectMarker || ""],
-          subjectPrefix: baseSubjectPrefix
+          pers1: baseSubjectPrefix
         });
       }
       let adjustedObjectPrefix = objectPrefix;
-      adjustedObjectPrefix = targetObject.applyIndirectObjectMarker(adjustedObjectPrefix, indirectObjectMarker);
+      adjustedObjectPrefix = targetObject.applyObj2ToObj1Chain(adjustedObjectPrefix, indirectObjectMarker);
       adjustedObjectPrefix = maybeShortenZeroBitransitiveKi(adjustedObjectPrefix, baseSubjectPrefix, allowZeroBitransitiveDrop);
       return adjustedObjectPrefix;
     }
@@ -1054,7 +1054,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (isThirdPersonObject && outputDirectional === "al") {
         const dropK = baseSubjectPrefix === "ni" || baseSubjectPrefix === "ti" || baseSubjectPrefix === "n" || baseSubjectPrefix === "t";
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
-        const objectHead = targetObject.applyIndirectObjectMarker(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
+        const objectHead = targetObject.applyObj2ToObj1Chain(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
         const directionalizedObjectHead = objectHead.startsWith("k") ? `k${outputDirectional}${objectHead.slice(1)}` : `${outputDirectional}${objectHead}`;
         return adjustPretNhBeforeVowel(`${subjectHead}${directionalizedObjectHead}`, dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore);
       }
@@ -1183,6 +1183,61 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         routeStage: String(routeStage || "").trim()
       };
     }
+    function getPretUniversalSoundSpellingFrameKey(frame = null) {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      return [frame.ruleId || "", frame.grammarSlot || "", frame.syllablePosition || "", frame.sourceSurface || "", frame.target || "", Array.isArray(frame.targetCandidates) ? frame.targetCandidates.join("/") : "", frame.segmentRole || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":");
+    }
+    function pushUniquePretUniversalSoundSpellingFrame(target = [], frame = null) {
+      if (!Array.isArray(target) || !frame || typeof frame !== "object" || !frame.ruleId) {
+        return;
+      }
+      const key = getPretUniversalSoundSpellingFrameKey(frame);
+      if (!key || target.some(entry => getPretUniversalSoundSpellingFrameKey(entry) === key)) {
+        return;
+      }
+      target.push({
+        ...frame
+      });
+    }
+    function collectPretUniversalSoundSpellingFrames(target = [], frames = []) {
+      if (!Array.isArray(target)) {
+        return target;
+      }
+      (Array.isArray(frames) ? frames : []).forEach(frame => {
+        pushUniquePretUniversalSoundSpellingFrame(target, frame);
+      });
+      return target;
+    }
+    function getPretUniversalOutputSoundSpellingFrames(output = null) {
+      const source = output && typeof output === "object" ? output : {};
+      const grammarFrame = (source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : null) || (source.frames && typeof source.frames === "object" ? source.frames : null);
+      return [...(Array.isArray(source.soundSpellingFrames) ? source.soundSpellingFrames : []), ...(Array.isArray(source.orthographyFrame?.soundSpellingFrames) ? source.orthographyFrame.soundSpellingFrames : []), ...(Array.isArray(grammarFrame?.orthographyFrame?.soundSpellingFrames) ? grammarFrame.orthographyFrame.soundSpellingFrames : [])];
+    }
+    function buildPretUniversalMCodaSoundSpellingFrame({
+      sourceSegmentValue = "",
+      targetSegmentValue = "",
+      grammarSlot = "STEM",
+      syllablePosition = "preterit-perfective-coda"
+    } = {}) {
+      if (typeof targetObject.buildLesson2SoundSpellingFrame !== "function") {
+        return null;
+      }
+      const frame = targetObject.buildLesson2SoundSpellingFrame({
+        ruleId: "m-coda-n",
+        source: "m",
+        target: "n",
+        slot: grammarSlot,
+        syllablePosition
+      });
+      return frame ? {
+        ...frame,
+        segmentRole: grammarSlot,
+        sourceSegmentValue: String(sourceSegmentValue || ""),
+        targetSegmentValue: String(targetSegmentValue || "")
+      } : null;
+    }
     function attachPretUniversalVariantAssemblyGrammarContract(output = null, {
       variants = [],
       subjectPrefix = "",
@@ -1202,6 +1257,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const result = output && typeof output === "object" ? output : {};
       const forms = getPretVariantAssemblySurfaceForms(result);
       const surface = getPretVariantAssemblySurface(result);
+      const soundSpellingFrames = getPretUniversalOutputSoundSpellingFrames(result);
       const ok = Boolean(surface && forms.length);
       const diagnostics = ok ? [] : [buildPretUniversalVariantAssemblyDiagnostic({
         failedLayer: "route",
@@ -1234,6 +1290,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         orthographyFrame: {
           surface,
           surfaceForms: forms,
+          soundSpellingFrames,
           spellingAuthority: "Nawat/Pipil evidence",
           noClassicalSurfaceImport: true
         },
@@ -1365,6 +1422,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         });
       }
       const canUseSegments = typeof targetObject.buildOutputWordSegments === "function" && typeof targetObject.joinOutputWordSegments === "function";
+      const soundSpellingFrames = [];
       // Realize a verb core + suffix into a surface text string.
       // When segments are available, buildOutputWordSegments handles the supportive
       // marker and the universal m→n rule (stem-final "m"→"n" before any suffix).
@@ -1373,29 +1431,43 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const realizeForm = (verbCore, suffix, surfaceRuleMeta = null) => {
         if (canUseSegments) {
           const segments = targetObject.buildOutputWordSegments({
-            subjectPrefix: "",
-            objectPrefix: "",
-            verb: verbCore,
-            subjectSuffix: suffix || "",
+            pers1: "",
+            obj1: "",
+            tronco: verbCore,
+            pers2: suffix || "",
             hasOptionalSupportiveI,
             optionalSupportiveLetter,
             surfaceRuleMeta
           });
+          if (typeof targetObject.buildOutputSurfaceSoundSpellingFrames === "function") {
+            collectPretUniversalSoundSpellingFrames(soundSpellingFrames, targetObject.buildOutputSurfaceSoundSpellingFrames(segments));
+          }
           const text = targetObject.joinOutputWordSegments(segments);
           if (!suffix && text.endsWith("m")) {
-            return `${text.slice(0, -1)}n`;
+            const shiftedText = `${text.slice(0, -1)}n`;
+            pushUniquePretUniversalSoundSpellingFrame(soundSpellingFrames, buildPretUniversalMCodaSoundSpellingFrame({
+              sourceSegmentValue: text,
+              targetSegmentValue: shiftedText
+            }));
+            return shiftedText;
           }
           return text;
         }
         // String fallback when output-segment helpers are not loaded.
         const coreRaw = typeof targetObject.resolveOptionalSupportiveOutputVerb === "function" ? targetObject.resolveOptionalSupportiveOutputVerb({
-          subjectPrefix: "",
-          objectPrefix: "",
-          verb: verbCore,
+          pers1: "",
+          obj1: "",
+          tronco: verbCore,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
         }) : verbCore;
         const core = coreRaw.endsWith("m") ? `${coreRaw.slice(0, -1)}n` : coreRaw;
+        if (core !== coreRaw) {
+          pushUniquePretUniversalSoundSpellingFrame(soundSpellingFrames, buildPretUniversalMCodaSoundSpellingFrame({
+            sourceSegmentValue: coreRaw,
+            targetSegmentValue: core
+          }));
+        }
         return `${core}${suffix || ""}`;
       };
       const isPlural = subjectSuffix === "t";
@@ -1418,7 +1490,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         });
         return attachPretUniversalVariantAssemblyGrammarContract({
           result: results.join(" / "),
-          forms: results
+          forms: results,
+          soundSpellingFrames
         }, {
           variants,
           subjectPrefix,
@@ -1501,7 +1574,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       });
       return attachPretUniversalVariantAssemblyGrammarContract({
         result: results.join(" / "),
-        forms: results
+        forms: results,
+        soundSpellingFrames
       }, {
         variants,
         subjectPrefix,
@@ -1540,10 +1614,10 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       } = {}) => {
         if (typeof targetObject.buildOutputWordSegments === "function") {
           const segments = targetObject.buildOutputWordSegments({
-            subjectPrefix: "",
-            objectPrefix: "",
-            verb: resultVerb,
-            subjectSuffix: resultSubjectSuffix,
+            pers1: "",
+            obj1: "",
+            tronco: resultVerb,
+            pers2: resultSubjectSuffix,
             hasOptionalSupportiveI,
             optionalSupportiveLetter
           });
@@ -1554,9 +1628,9 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           };
         }
         const resolvedCore = typeof targetObject.resolveOptionalSupportiveOutputVerb === "function" ? targetObject.resolveOptionalSupportiveOutputVerb({
-          subjectPrefix: "",
-          objectPrefix: "",
-          verb: resultVerb,
+          pers1: "",
+          obj1: "",
+          tronco: resultVerb,
           hasOptionalSupportiveI,
           optionalSupportiveLetter
         }) : resultVerb;
@@ -1886,7 +1960,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       indirectObjectMarker = "",
       hasDoubleDash = false,
       forceClassBSelection = false,
-      forceClassBOnly = false
+      forceClassBOnly = false,
+      returnDetailed = false
     }) {
       const resolvedClassFilter = forceClassBOnly ? "B" : classFilter;
       const resolvedForceClassBSelection = forceClassBOnly || forceClassBSelection;
@@ -1929,7 +2004,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         variantsByClass = getPretUniversalVariantsByClass(context);
       }
       if (!variantsByClass.size) {
-        return null;
+        return returnDetailed ? {
+          result: null,
+          forms: [],
+          soundSpellingFrames: []
+        } : null;
       }
       const classOrder = resolvedClassFilter ? [resolvedClassFilter] : typeof targetObject.getPretUniversalClassOrder === "function" ? targetObject.getPretUniversalClassOrder() : ["A", "B", "C", "D"];
       const hasClassA = variantsByClass.has("A");
@@ -1964,8 +2043,13 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const excludedClasses = classExclusionsByTense && classExclusionsByTense[tense] ? classExclusionsByTense[tense] : null;
       const results = [];
       const seen = new Set();
+      const soundSpellingFrames = [];
       if (shouldMaskClassBSelection) {
-        return "—";
+        return returnDetailed ? {
+          result: "—",
+          forms: [],
+          soundSpellingFrames
+        } : "—";
       }
       classOrder.forEach(classKey => {
         if (shouldSkipClassA && classKey === "A") {
@@ -1986,7 +2070,9 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         }
         let classResult = null;
         if (isPreterit) {
-          classResult = buildPretUniversalResultFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pretPluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+          const detailedClassResult = buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pretPluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+          classResult = detailedClassResult.result;
+          collectPretUniversalSoundSpellingFrames(soundSpellingFrames, getPretUniversalOutputSoundSpellingFrames(detailedClassResult));
         } else {
           const suffix = subjectSuffix || "";
           const bases = [];
@@ -2006,14 +2092,20 @@ export function createPreteritEngineApi(targetObject = globalThis) {
               base: baseCore
             } = getPretUniversalPrefixForBase(base, subjectPrefix, objectPrefix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, indirectObjectMarker, hasDoubleDash, isYawi);
             const resolvedCore = typeof targetObject.resolveOptionalSupportiveOutputVerb === "function" ? targetObject.resolveOptionalSupportiveOutputVerb({
-              subjectPrefix: "",
-              objectPrefix: "",
-              verb: `${prefix}${baseCore}`,
+              pers1: "",
+              obj1: "",
+              tronco: `${prefix}${baseCore}`,
               hasOptionalSupportiveI,
               optionalSupportiveLetter
             }) : `${prefix}${baseCore}`;
             // Universal m→n rule: stem-final "m" always converts to "n"
             const rawCore = resolvedCore.endsWith("m") ? `${resolvedCore.slice(0, -1)}n` : resolvedCore;
+            if (rawCore !== resolvedCore) {
+              pushUniquePretUniversalSoundSpellingFrame(soundSpellingFrames, buildPretUniversalMCodaSoundSpellingFrame({
+                sourceSegmentValue: resolvedCore,
+                targetSegmentValue: rawCore
+              }));
+            }
             const form = `${rawCore}${suffix}`;
             if (!seenForm.has(form)) {
               seenForm.add(form);
@@ -2032,7 +2124,12 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           }
         });
       });
-      return results.join(" / ");
+      const resultText = results.join(" / ");
+      return returnDetailed ? {
+        result: resultText,
+        forms: results,
+        soundSpellingFrames
+      } : resultText;
     }
     function buildPretUniversalProvenance({
       verb,
@@ -2364,6 +2461,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.getPretVariantAssemblySurfaceForms = getPretVariantAssemblySurfaceForms;
     api.getPretVariantAssemblySurface = getPretVariantAssemblySurface;
     api.buildPretUniversalVariantAssemblyDiagnostic = buildPretUniversalVariantAssemblyDiagnostic;
+    api.getPretUniversalSoundSpellingFrameKey = getPretUniversalSoundSpellingFrameKey;
+    api.pushUniquePretUniversalSoundSpellingFrame = pushUniquePretUniversalSoundSpellingFrame;
+    api.collectPretUniversalSoundSpellingFrames = collectPretUniversalSoundSpellingFrames;
+    api.getPretUniversalOutputSoundSpellingFrames = getPretUniversalOutputSoundSpellingFrames;
+    api.buildPretUniversalMCodaSoundSpellingFrame = buildPretUniversalMCodaSoundSpellingFrame;
     api.attachPretUniversalVariantAssemblyGrammarContract = attachPretUniversalVariantAssemblyGrammarContract;
     api.buildPretUniversalResultDetailedFromVariants = buildPretUniversalResultDetailedFromVariants;
     api.buildPretUniversalResultFromVariants = buildPretUniversalResultFromVariants;

@@ -149,6 +149,13 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
       }
       return "";
     }
+    function getPreteritClassBasedSoundSpellingFrames(result = null) {
+      const output = result && typeof result === "object" ? result : {};
+      const grammarFrame = getPreteritClassBasedResultFrame(output);
+      return [...(Array.isArray(output.soundSpellingFrames) ? output.soundSpellingFrames : []), ...(Array.isArray(output.orthographyFrame?.soundSpellingFrames) ? output.orthographyFrame.soundSpellingFrames : []), ...(Array.isArray(grammarFrame?.orthographyFrame?.soundSpellingFrames) ? grammarFrame.orthographyFrame.soundSpellingFrames : [])].map(frame => ({
+        ...frame
+      }));
+    }
     function buildPreteritClassBasedDiagnostic({
       id = "preterit-class-based-result-blocked",
       message = "La generacion no produjo una forma.",
@@ -204,6 +211,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
       const result = output && typeof output === "object" ? output : {};
       const forms = getPreteritClassBasedSurfaceForms(result);
       const surface = getPreteritClassBasedSurface(result);
+      const soundSpellingFrames = getPreteritClassBasedSoundSpellingFrames(result);
       const ok = Boolean(surface && forms.length);
       const resolvedClassKey = String(classKey || result.provenance?.classKey || classFilter || "").trim();
       const fallbackDiagnostic = buildPreteritClassBasedDiagnostic({
@@ -242,6 +250,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
         orthographyFrame: {
           surface,
           surfaceForms: forms,
+          soundSpellingFrames,
           spellingAuthority: "Nawat/Pipil evidence",
           noClassicalSurfaceImport: true
         },
@@ -556,7 +565,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
       }) : "";
       const effectiveRootPlusYaBasePronounceable = rootPlusYaBasePronounceable || resolvedFinalYaProxyBase;
       const effectiveRootPlusYaBase = rootPlusYaBase || effectiveRootPlusYaBasePronounceable;
-      const result = targetObject.buildClassBasedResult({
+      const classBasedResult = targetObject.buildClassBasedResult({
         verb,
         subjectPrefix,
         objectPrefix,
@@ -589,8 +598,11 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
         indirectObjectMarker,
         hasDoubleDash,
         forceClassBSelection,
-        forceClassBOnly
+        forceClassBOnly,
+        returnDetailed: true
       });
+      const result = classBasedResult && typeof classBasedResult === "object" ? classBasedResult.result : classBasedResult;
+      const resultSoundSpellingFrames = classBasedResult && typeof classBasedResult === "object" ? Array.isArray(classBasedResult.soundSpellingFrames) ? classBasedResult.soundSpellingFrames : [] : [];
       const contractOptions = {
         verb,
         analysisVerb,
@@ -613,7 +625,8 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
         return attachPreteritClassBasedGrammarContract({
           result,
           forms: [],
-          provenance: null
+          provenance: null,
+          soundSpellingFrames: resultSoundSpellingFrames
         }, {
           ...contractOptions,
           routeStage: "class-result-gate",
@@ -627,7 +640,8 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
         return attachPreteritClassBasedGrammarContract({
           result,
           forms: splitPreteritResultForms(result),
-          provenance: null
+          provenance: null,
+          soundSpellingFrames: resultSoundSpellingFrames
         }, {
           ...contractOptions,
           routeStage: "assemble-output"
@@ -681,7 +695,8 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
         return attachPreteritClassBasedGrammarContract({
           result,
           forms: splitPreteritResultForms(result),
-          provenance: null
+          provenance: null,
+          soundSpellingFrames: resultSoundSpellingFrames
         }, {
           ...contractOptions,
           classKey,
@@ -702,7 +717,8 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
       return attachPreteritClassBasedGrammarContract({
         result,
         forms: splitPreteritResultForms(result),
-        provenance
+        provenance,
+        soundSpellingFrames: resultSoundSpellingFrames
       }, {
         ...contractOptions,
         classKey,
@@ -720,6 +736,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
     api.getPreteritClassBasedResultFramePayload = getPreteritClassBasedResultFramePayload;
     api.getPreteritClassBasedSurfaceForms = getPreteritClassBasedSurfaceForms;
     api.getPreteritClassBasedSurface = getPreteritClassBasedSurface;
+    api.getPreteritClassBasedSoundSpellingFrames = getPreteritClassBasedSoundSpellingFrames;
     api.buildPreteritClassBasedDiagnostic = buildPreteritClassBasedDiagnostic;
     api.normalizePreteritClassBasedDiagnostics = normalizePreteritClassBasedDiagnostics;
     api.attachPreteritClassBasedGrammarContract = attachPreteritClassBasedGrammarContract;

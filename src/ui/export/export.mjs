@@ -93,6 +93,7 @@ export function createUiExportApi(targetObject = globalThis) {
       const getText = key => String(Object.prototype.hasOwnProperty.call(src, key) ? src[key] : fallback[key] || "").trim();
       const getBooleanText = key => normalizeUnifiedVerbOutputBooleanText(Object.prototype.hasOwnProperty.call(src, key) ? src[key] : fallback[key]);
       return {
+        inputValue: getText("inputValue"),
         grammarAuthorityRef: getText("grammarAuthorityRef"),
         grammarAuthorityRefs: getText("grammarAuthorityRefs"),
         grammarEvidenceStatus: getText("grammarEvidenceStatus"),
@@ -169,6 +170,7 @@ export function createUiExportApi(targetObject = globalThis) {
         person: row.person,
         personSub: row.personSub,
         value: row.form,
+        inputValue: row.inputValue,
         objectSlotCount: row.objectSlotCount,
         objectToggle: row.object,
         objectToggle2: row.object2,
@@ -276,6 +278,7 @@ export function createUiExportApi(targetObject = globalThis) {
             return;
           }
           const exportRow = {
+            inputValue: Object.prototype.hasOwnProperty.call(row.dataset, "exportInput") ? row.dataset.exportInput : "",
             subjectToggle: toggleMap.subject,
             sourceMode,
             block: blockLabel,
@@ -302,6 +305,65 @@ export function createUiExportApi(targetObject = globalThis) {
       }
       return collectVisibleConjugationRowsFromDom();
     }
+    function getParticleExportRowsFromDom() {
+      const container = targetObject.document.getElementById("all-tense-conjugations");
+      if (!container || typeof container.querySelectorAll !== "function") {
+        return [];
+      }
+      const particleRows = Array.from(container.querySelectorAll(".conjugation-row--particle"));
+      if (!particleRows.length) {
+        return [];
+      }
+      return particleRows.map(row => {
+        const block = row.closest(".tense-block");
+        const blockLabel = block?.querySelector(".tense-block__label")?.textContent.trim() || "";
+        const getRowText = (...selectors) => {
+          for (const selector of selectors) {
+            const value = row.querySelector(selector)?.textContent.trim() || "";
+            if (value) {
+              return value;
+            }
+          }
+          return "";
+        };
+        const label = getRowText(".particle-row__form", ".person-label");
+        const value = getRowText(".particle-row__class", ".conjugation-value");
+        const diagnosticId = row.dataset.grammarDiagnosticId || "";
+        const entryKind = row.dataset.particleEntryKind || (blockLabel.includes("Muestra Andrews") || blockLabel.includes("Ejemplos Andrews") ? "andrews-seed" : "mode-diagnostic");
+        const rowId = row.dataset.particleRow || "";
+        const isEmptyCandidate = diagnosticId === "particle-candidate-empty";
+        if (entryKind !== "andrews-seed" && (rowId !== "candidate" || isEmptyCandidate)) {
+          return null;
+        }
+        const entradaNawat = row.dataset.particleNawatForm || row.dataset.exportInput || (entryKind === "andrews-seed" ? label : value) || "";
+        return {
+          tipo: entryKind === "andrews-seed" ? "ejemplo Andrews" : "candidata",
+          entradaNawat,
+          fuenteAndrews: row.dataset.particleSourceForm || "",
+          seccionAndrews: row.dataset.particleSection || "",
+          claseFuncional: row.dataset.particleFunctionClass || value || "",
+          posicion: row.dataset.particlePlacement || "",
+          capa: row.dataset.particleHostLayer || "",
+          glosa: row.dataset.particleGloss || "",
+          estadoEvidencia: row.dataset.grammarEvidenceStatus || "",
+          confirmadoNawat: row.dataset.particleConfirmedNawat || "false",
+          generacionLcm: row.dataset.grammarGenerationAllowed || "false",
+          rutaLcm: row.dataset.grammarRouteFamily || "",
+          etapaLcm: row.dataset.grammarRouteStage || "",
+          diagnosticoLcm: diagnosticId,
+          resultadoLcm: row.dataset.grammarResultOk || "false"
+        };
+      }).filter(Boolean);
+    }
+    function buildParticleViewExportCSV() {
+      const rows = getParticleExportRowsFromDom();
+      if (!rows.length) {
+        return "";
+      }
+      const header = ["tipo", "entrada Nawat", "fuente Andrews", "sección Andrews", "clase funcional", "posición", "capa", "glosa", "estado evidencia", "confirmado Nawat", "generación LCM", "ruta LCM", "etapa LCM", "diagnóstico LCM", "resultado LCM"].map(label => escapeCSVValue(label)).join(",");
+      const lines = rows.map(row => [row.tipo, row.entradaNawat, row.fuenteAndrews, row.seccionAndrews, row.claseFuncional, row.posicion, row.capa, row.glosa, row.estadoEvidencia, row.confirmadoNawat, row.generacionLcm, row.rutaLcm, row.etapaLcm, row.diagnosticoLcm, row.resultadoLcm].map(value => escapeCSVValue(value)).join(","));
+      return [header, ...lines].join("\n");
+    }
     function getViewExportSourceModeLabel(sourceMode = "", isNawat = false) {
       if (sourceMode === targetObject.COMBINED_MODE.nonactive) {
         return targetObject.getLocalizedLabel(targetObject.UI_LABELS["tense-tabs-mode-nonactive"], isNawat, "no activo");
@@ -314,6 +376,10 @@ export function createUiExportApi(targetObject = globalThis) {
       return targetObject.VERB_OBJECT_SLOT_SCHEMA.slice(0, normalizedObjectSlotCount).map(slot => useValence3PlusRoleLabels ? targetObject.getValence3PlusSlotRoleLabel(slot.id, isNawat) || slot.exportHeader : slot.exportHeader);
     }
     function buildViewExportCSV() {
+      const particleCsv = buildParticleViewExportCSV();
+      if (particleCsv) {
+        return particleCsv;
+      }
       const rows = collectVisibleConjugationRows();
       if (!rows.length) {
         return "";
@@ -327,7 +393,7 @@ export function createUiExportApi(targetObject = globalThis) {
       const exportSlots = targetObject.VERB_OBJECT_SLOT_SCHEMA.slice(0, exportObjectSlotCount);
       const objectHeaders = getViewExportObjectHeaders(exportObjectSlotCount, isNawat);
       const header = ["entrada", "derivación", "sujeto", ...objectHeaders, "fuente", "bloque", "persona", "forma", "ruta LCM", "etapa LCM", "generacion LCM", "Andrews", "estado evidencia", "evidencia Nawat", "tipo evidencia fuente", "estado evidencia fuente", "estado diagnostico LCM", "diagnostico LCM", "capa fallida", "contrato fallido", "resultado LCM"].map(label => escapeCSVValue(label)).join(",");
-      const lines = rows.map(row => [inputValue, derivationValue, row.subjectToggle, ...exportSlots.map(slot => row[slot.exportKey]), getViewExportSourceModeLabel(row.sourceMode, isNawat), row.block, row.person, row.value, row.grammarRouteFamily, row.grammarRouteStage, row.grammarGenerationAllowed, row.grammarAuthorityRefs || row.grammarAuthorityRef, row.grammarEvidenceStatus, row.grammarNawatEvidenceRefs || row.grammarNawatEvidenceRef, row.grammarSourceEvidenceKind, row.grammarSourceEvidenceStatus, row.grammarDiagnosticStatus, row.grammarDiagnosticId, row.grammarDiagnosticLayer, row.grammarDiagnosticContractLayer, row.grammarResultOk].map(value => escapeCSVValue(value)).join(","));
+      const lines = rows.map(row => [row.inputValue || inputValue, derivationValue, row.subjectToggle, ...exportSlots.map(slot => row[slot.exportKey]), getViewExportSourceModeLabel(row.sourceMode, isNawat), row.block, row.person, row.value, row.grammarRouteFamily, row.grammarRouteStage, row.grammarGenerationAllowed, row.grammarAuthorityRefs || row.grammarAuthorityRef, row.grammarEvidenceStatus, row.grammarNawatEvidenceRefs || row.grammarNawatEvidenceRef, row.grammarSourceEvidenceKind, row.grammarSourceEvidenceStatus, row.grammarDiagnosticStatus, row.grammarDiagnosticId, row.grammarDiagnosticLayer, row.grammarDiagnosticContractLayer, row.grammarResultOk].map(value => escapeCSVValue(value)).join(","));
       return [header, ...lines].join("\n");
     }
     function downloadViewExportCSV() {
@@ -523,6 +589,8 @@ export function createUiExportApi(targetObject = globalThis) {
     api.collectStructuredUnifiedVerbOutputRows = collectStructuredUnifiedVerbOutputRows;
     api.collectVisibleConjugationRowsFromDom = collectVisibleConjugationRowsFromDom;
     api.collectVisibleConjugationRows = collectVisibleConjugationRows;
+    api.getParticleExportRowsFromDom = getParticleExportRowsFromDom;
+    api.buildParticleViewExportCSV = buildParticleViewExportCSV;
     api.getViewExportSourceModeLabel = getViewExportSourceModeLabel;
     api.getViewExportObjectHeaders = getViewExportObjectHeaders;
     api.buildViewExportCSV = buildViewExportCSV;

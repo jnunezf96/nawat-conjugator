@@ -1,6 +1,890 @@
 // Native wrapper generated from src/core/parsing/parsing.js.
 
-export function createParsingApi(targetObject = globalThis) {
+export function createParsingGlobals(targetObject = globalThis) {
+    const LESSON28_COMPOUND_BOUNDARY_VERSION = 1;
+    const LESSON28_VERBAL_EMBED_VALIDATION_REFS = Object.freeze(["src/tests/parsing.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON28_VERBAL_EMBED_PDF_REFS = Object.freeze(["Andrews Lesson 28.1", "Andrews Lesson 28.2", "Andrews Lesson 28.3", "Andrews Lesson 28.4", "Andrews Lesson 28.5", "Andrews Lesson 28.6", "Andrews Lesson 28.7", "Andrews Lesson 28.8", "Andrews Lesson 28.9", "Andrews Lesson 28.10", "Andrews Lesson 28.11", "Andrews Lesson 28.12"]);
+    const LESSON28_COMPOUND_FORMULA_FRAME = Object.freeze({
+      kind: "lesson-28-compounding-formula-frame",
+      sourceSection: "Andrews 28.1",
+      transformation: "combine nuclear clauses into a new nuclear clause",
+      syntacticToMorphologicalDowngrade: true,
+      formulas: Object.freeze(["VNC + VNC = compound VNC", "NNC + VNC = compound VNC", "NNC + NNC = compound NNC"]),
+      recursiveBinaryArrangement: true,
+      compoundStemIsConvenienceAbstraction: true,
+      sourcePredicatesRemainAnalyticallyPrimary: true
+    });
+    const LESSON28_MATRIX_EMBED_FRAME = Object.freeze({
+      kind: "lesson-28-matrix-embed-frame",
+      sourceSection: "Andrews 28.2",
+      relationTypes: Object.freeze(["conjunctive compound", "adjunctive compound"]),
+      matrixPosition: "after embed",
+      embedBeforeMatrixInviolable: true,
+      matrixDeterminesCompoundClauseKind: true,
+      subjectPronounBelongsToMatrixSource: true,
+      embedSubjectDeletedExceptSpecialConstructions: true,
+      embedValenceDeterminesCompoundVerbstemValenceWhenVncIncorporatesIntoVnc: true,
+      allowedEmbedFunctions: Object.freeze(["incorporated object", "incorporated possessor", "incorporated modifier", "incorporated complement"]),
+      embedNeverFunctionsAsSubject: true
+    });
+    const LESSON28_COHESIVENESS_FRAME = Object.freeze({
+      kind: "lesson-28-cohesiveness-frame",
+      sourceSection: "Andrews 28.3",
+      types: Object.freeze([Object.freeze({
+        id: "linked",
+        matrixBehavior: "matrix remains aloof from embed",
+        subtypes: Object.freeze(["connective-t", "connectiveless"])
+      }), Object.freeze({
+        id: "integrated",
+        matrixBehavior: "matrix takes over or enslaves the embed",
+        subtypes: Object.freeze(["integrated"])
+      })]),
+      vncPlusVncMayBeLinkedOrIntegrated: true,
+      nncPlusNncMayBeLinkedOrIntegrated: true,
+      nncPlusVncRestrictedToIntegrated: true
+    });
+    const LESSON28_VERBAL_EMBED_VALENCE_FRAME = Object.freeze({
+      kind: "lesson-28-verbal-embed-valence-frame",
+      sourceSection: "Andrews 28.4",
+      combinations: Object.freeze(["ISTEM + ISTEM", "TSTEM + ISTEM", "ISTEM + TSTEM", "TSTEM + TSTEM"]),
+      embedValenceChoiceFree: true,
+      matrixChoiceExtremelyLimited: true,
+      embedDeterminesCompoundValence: true,
+      matrixDeterminesLinkedOrIntegratedType: true,
+      lesson28CoversFourPatterns: true,
+      lesson29CoversFifthPattern: true
+    });
+    const LESSON28_CONNECTIVE_T_FRAME = Object.freeze({
+      kind: "lesson-28-connective-t-frame",
+      sourceSection: "Andrews 28.5",
+      cohesivenessType: "linked",
+      connectiveMorpheme: "t",
+      morphs: Object.freeze([Object.freeze({
+        morph: "t",
+        environment: "before vowel"
+      }), Object.freeze({
+        morph: "ti",
+        environment: "before consonant or supportive vowel"
+      })]),
+      functionsAsSeparatorAndConnector: true,
+      patterns: Object.freeze(["intransitive-matrix", "intransitivized-reflexive-matrix", "shared-object"]),
+      embedPredicateTense: "preterit predicate: perfective stem plus zero preterit before connective t",
+      embedActionBeginsBeforeMatrixAction: true,
+      matrixIndicatesContinuanceOrStance: true,
+      auxiliaryVerbLabelRejected: true
+    });
+    const LESSON28_INTRANSITIVE_MATRIX_FRAME = Object.freeze({
+      kind: "lesson-28-intransitive-matrix-frame",
+      sourceSection: "Andrews 28.6",
+      matrixCount: 15,
+      embedMayBeActiveOrNonactive: true,
+      matrixIsNotAuxiliary: true,
+      matrixInventory: Object.freeze([Object.freeze({
+        id: "ca-h",
+        andrewsStem: "ca-h",
+        roleGlossEs: "estar en el acto de hacer algo",
+        note: "variant ye after connective t"
+      }), Object.freeze({
+        id: "nemi",
+        andrewsStem: "nemi",
+        roleGlossEs: "seguir o pasar el tiempo haciendo algo"
+      }), Object.freeze({
+        id: "ya-uh",
+        andrewsStem: "ya-uh",
+        roleGlossEs: "irse haciendo algo",
+        note: "singular present stem uh; ti-ya may syncopate to t-a"
+      }), Object.freeze({
+        id: "hual-la-uh",
+        andrewsStem: "hual-la-uh",
+        roleGlossEs: "venir haciendo algo",
+        note: "directional prefix remains part of the matrix"
+      }), Object.freeze({
+        id: "hui-tz",
+        andrewsStem: "hui-tz",
+        roleGlossEs: "venir haciendo algo",
+        note: "huica and itqui use old itz formation without connective"
+      }), Object.freeze({
+        id: "ahci",
+        andrewsStem: "ahci",
+        roleGlossEs: "llegar haciendo algo",
+        note: "often permits hysteron-proteron reversal"
+      }), Object.freeze({
+        id: "mani",
+        andrewsStem: "mani",
+        roleGlossEs: "estar o extenderse en cierto estado; grupo de pie haciendo algo"
+      }), Object.freeze({
+        id: "ihca",
+        andrewsStem: "ihca",
+        roleGlossEs: "estar de pie haciendo algo o en cierto estado"
+      }), Object.freeze({
+        id: "o",
+        andrewsStem: "o",
+        roleGlossEs: "yacer extendido haciendo algo o en cierto estado",
+        note: "ordinary locative on is not used as matrix here"
+      }), Object.freeze({
+        id: "e-hua",
+        andrewsStem: "e-hua",
+        roleGlossEs: "empezar o moverse hacia una accion; hacerlo rapidamente",
+        note: "Class A or Class B perfective stem possible"
+      }), Object.freeze({
+        id: "quiza",
+        andrewsStem: "quiza",
+        roleGlossEs: "hacer algo rapidamente o abruptamente"
+      }), Object.freeze({
+        id: "huetzi",
+        andrewsStem: "huetzi",
+        roleGlossEs: "hacer algo rapidamente o abruptamente; tambien caer"
+      }), Object.freeze({
+        id: "tlehco",
+        andrewsStem: "tlehco",
+        roleGlossEs: "ascender"
+      }), Object.freeze({
+        id: "cal-aqui",
+        andrewsStem: "cal-aqui",
+        roleGlossEs: "entrar",
+        note: "itself a Lesson 30 compound"
+      }), Object.freeze({
+        id: "pil-ca",
+        andrewsStem: "pil-ca",
+        roleGlossEs: "colgar o estar suspendido"
+      })])
+    });
+    const LESSON28_SPECIAL_FORMATIONS_FRAME = Object.freeze({
+      kind: "lesson-28-special-formations-frame",
+      sourceSection: "Andrews 28.7",
+      formations: Object.freeze([Object.freeze({
+        id: "ca-h-as-embed",
+        directive: "ca-h as embed unexpectedly uses perfective ye"
+      }), Object.freeze({
+        id: "ya-uh-as-embed",
+        directive: "ya-uh as embed uses preterit predicate on yah"
+      }), Object.freeze({
+        id: "cac-embed-only",
+        directive: "cac occurs only as embed and only with nonanimate subject reference"
+      }), Object.freeze({
+        id: "itta-blocked-as-embed",
+        directive: "te/tla-(itt-a) cannot embed; perfective itz is used instead"
+      }), Object.freeze({
+        id: "hysteron-proteron",
+        directive: "event order may be reversed; ahci frequently permits it"
+      }), Object.freeze({
+        id: "connective-t-passive",
+        directive: "embed or both embed and matrix may be nonactive"
+      }), Object.freeze({
+        id: "connective-t-impersonal",
+        directive: "embed, matrix, or both may be impersonal; tla impersonal must appear on embed"
+      })])
+    });
+    const LESSON28_ACCOMPANYING_POSSESSION_FRAME = Object.freeze({
+      kind: "lesson-28-accompanying-possession-frame",
+      sourceSection: "Andrews 28.8",
+      construction: "possessive-state NNC adjoined as supplementary subject to connective-t VNC whose embed is ye",
+      meaning: "have something along with one or on one at a given time",
+      topicCanFunctionAsSupplementarySubject: true,
+      topicCanFunctionAsSupplementaryPossessor: true,
+      generationAllowed: false
+    });
+    const LESSON28_INTRANSITIVIZED_REFLEXIVE_MATRIX_FRAME = Object.freeze({
+      kind: "lesson-28-intransitivized-reflexive-matrix-frame",
+      sourceSection: "Andrews 28.9",
+      matrixCoreDischargesTransitivityOntoReflexiveObject: true,
+      reflexiveObjectPlusStemStructurallyIntransitiveInCompound: true,
+      moInvariantAcrossSubjectPerson: true,
+      embedMayBeTransitiveOrIntransitive: true,
+      commonMatrices: Object.freeze(["m-o-cahua", "m-o-teca", "m-o-tlal-i-a", "m-o-man-a", "m-o-quetza"]),
+      moManaAnimateSubjectRestriction: "not individual animate beings; animate reference must be plural"
+    });
+    const LESSON28_SHARED_OBJECT_FRAME = Object.freeze({
+      kind: "lesson-28-shared-object-frame",
+      sourceSection: "Andrews 28.10",
+      connectiveTDoesNotFullySeparateEmbedAndMatrix: true,
+      matrixAndEmbedBothFromTransitiveVncsWithCoreferentialObjects: true,
+      objectPronounManifestationOccursOnEmbed: true,
+      objectPronounMayBeReflexiveOrProjective: true,
+      commonMatrices: Object.freeze(["m-o/te/tla-(tlal-i-a)", "m-o/te/tla-(quetza)", "m-o/te/tla-(teca)", "m-o/te/tla-(cahua)", "m-o/te/tla-(quix-tia)", "m-o/te/tla-(may-a-hui)"])
+    });
+    const LESSON28_FUTURE_EMBED_FRAME = Object.freeze({
+      kind: "lesson-28-future-embed-frame",
+      sourceSection: "Andrews 28.11",
+      cohesivenessType: "integrated",
+      sourceConstruction: "concatenate sentence with adjoined future-tense VNC as supplementary object",
+      futurePredicateReplacesMatrixObjectPronoun: true,
+      embedMayBeTransitiveOrIntransitive: true,
+      embedValenceBecomesCompoundValence: true,
+      futureTenseMorphMarksEmbedActionSubsequentToMatrixAction: true,
+      matrices: Object.freeze([Object.freeze({
+        id: "tla-nequi",
+        andrewsStem: "tla-(nequi)",
+        directive: "want or desire; passive and impersonal manifest in embed"
+      }), Object.freeze({
+        id: "tla-qui",
+        andrewsStem: "*tla-(qui)",
+        directive: "will or intend; matrix-only, imperfect tense only; conditional label is translational mirage"
+      })])
+    });
+    const LESSON28_RECURSION_FRAME = Object.freeze({
+      kind: "lesson-28-recursion-frame",
+      sourceSection: "Andrews 28.12",
+      compoundStemCanBecomeEmbedOfAnotherCompound: true,
+      compoundStemCanBecomeMatrixOfAnotherCompound: true,
+      binaryArrangementRequired: true
+    });
+    const LESSON28_VERBAL_EMBED_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson28-compounding",
+      andrewsSection: "28.1",
+      category: "compounding-transform",
+      directiveEs: "La composicion combina CNV/CNN en una nueva clausula nuclear y baja relaciones sintacticas a morfologia.",
+      engineSurface: "compoundAst parser metadata",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson28-matrix-embed",
+      andrewsSection: "28.2",
+      category: "matrix-embed-order",
+      directiveEs: "La matriz siempre va despues del incrustado; la matriz decide si el compuesto es verbal o nominal.",
+      engineSurface: "matrix/embed parser roles",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson28-cohesiveness",
+      andrewsSection: "28.3",
+      category: "linked-integrated",
+      directiveEs: "El compuesto puede ser ligado o integrado; NNC+VNC queda restringido al tipo integrado.",
+      engineSurface: "compound boundary metadata",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    }), Object.freeze({
+      id: "lesson28-verbal-embed-valence",
+      andrewsSection: "28.4",
+      category: "verbal-embed-valence",
+      directiveEs: "El incrustado verbal decide la valencia del compuesto; la matriz decide el tipo ligado o integrado.",
+      engineSurface: "parser valency metadata",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson28-connective-t",
+      andrewsSection: "28.5",
+      category: "connective-t",
+      directiveEs: "El conectivo t/ti separa y conecta; el incrustado es preterito perfecto antes de t.",
+      engineSurface: "diagnostic connective-t frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson28-intransitive-matrix",
+      andrewsSection: "28.6",
+      category: "intransitive-matrix",
+      directiveEs: "Las matrices intransitivas son una lista limitada y no deben llamarse auxiliares.",
+      engineSurface: "diagnostic matrix inventory",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson28-special-formations",
+      andrewsSection: "28.7",
+      category: "special-formations",
+      directiveEs: "Las formaciones especiales gobiernan ye, yah, cac, itz, orden invertido, pasivo e impersonal.",
+      engineSurface: "diagnostic special-formation frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson28-accompanying-possession",
+      andrewsSection: "28.8",
+      category: "accompanying-possession",
+      directiveEs: "La posesion acompanante usa una CNN posesiva como sujeto suplementario de una CNV con ye incrustado.",
+      engineSurface: "supplementation boundary metadata",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson28-reflexive-matrix",
+      andrewsSection: "28.9",
+      category: "intransitivized-reflexive-matrix",
+      directiveEs: "La matriz reflexiva descarga su transitividad en m-o, que no cambia por persona del sujeto.",
+      engineSurface: "diagnostic reflexive-matrix frame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson28-shared-object",
+      andrewsSection: "28.10",
+      category: "shared-object",
+      directiveEs: "Matriz e incrustado comparten el mismo objeto; el pronombre objeto aparece una vez en el incrustado.",
+      engineSurface: "diagnostic shared-object frame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson28-future-embed",
+      andrewsSection: "28.11",
+      category: "future-embed",
+      directiveEs: "El incrustado futuro reemplaza el objeto de la matriz y su valencia se vuelve la valencia del compuesto.",
+      engineSurface: "diagnostic future-embed frame",
+      implementationState: "partial",
+      redirectAction: "block-generation"
+    }), Object.freeze({
+      id: "lesson28-recursion",
+      andrewsSection: "28.12",
+      category: "compound-recursion",
+      directiveEs: "Un compuesto puede volver a servir como incrustado o matriz en otro compuesto.",
+      engineSurface: "recursive compound metadata",
+      implementationState: "partial",
+      redirectAction: "reframe-metadata"
+    })]);
+    function cloneLesson28CompoundRecord(record) {
+      if (!record || typeof record !== "object") {
+        return record;
+      }
+      if (Array.isArray(record)) {
+        return record.map(entry => cloneLesson28CompoundRecord(entry));
+      }
+      return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, cloneLesson28CompoundRecord(value)]));
+    }
+    function getLesson28VerbalEmbedSubsectionInventory() {
+      return LESSON28_VERBAL_EMBED_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON28_VERBAL_EMBED_VALIDATION_REFS)
+      }));
+    }
+    function attachLesson28CompoundGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "compound-verbstem-boundary",
+        routeFamily: "compound-verbstem",
+        structuralSource: "Andrews Lesson 28",
+        andrewsRefs: Array.from(LESSON28_VERBAL_EMBED_PDF_REFS),
+        generationAllowed: false,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "nawat-evidence-required"
+        },
+        ...options
+      });
+    }
+    function buildLesson28VerbalEmbedPursuitFrame() {
+      const subsectionInventory = getLesson28VerbalEmbedSubsectionInventory();
+      const formulaFrame = cloneLesson28CompoundRecord(LESSON28_COMPOUND_FORMULA_FRAME);
+      const matrixEmbedFrame = cloneLesson28CompoundRecord(LESSON28_MATRIX_EMBED_FRAME);
+      const cohesivenessFrame = cloneLesson28CompoundRecord(LESSON28_COHESIVENESS_FRAME);
+      const verbalEmbedValenceFrame = cloneLesson28CompoundRecord(LESSON28_VERBAL_EMBED_VALENCE_FRAME);
+      const connectiveTFrame = cloneLesson28CompoundRecord(LESSON28_CONNECTIVE_T_FRAME);
+      const intransitiveMatrixFrame = cloneLesson28CompoundRecord(LESSON28_INTRANSITIVE_MATRIX_FRAME);
+      const specialFormationsFrame = cloneLesson28CompoundRecord(LESSON28_SPECIAL_FORMATIONS_FRAME);
+      const accompanyingPossessionFrame = cloneLesson28CompoundRecord(LESSON28_ACCOMPANYING_POSSESSION_FRAME);
+      const reflexiveMatrixFrame = cloneLesson28CompoundRecord(LESSON28_INTRANSITIVIZED_REFLEXIVE_MATRIX_FRAME);
+      const sharedObjectFrame = cloneLesson28CompoundRecord(LESSON28_SHARED_OBJECT_FRAME);
+      const futureEmbedFrame = cloneLesson28CompoundRecord(LESSON28_FUTURE_EMBED_FRAME);
+      const recursionFrame = cloneLesson28CompoundRecord(LESSON28_RECURSION_FRAME);
+      const remainingGaps = ["Current compoundAst is additive parser metadata, not full Andrews compound generation.", "Connective-t preterit-embed morphology, limited matrix inventories, and special formations are diagnostic only.", "Intransitivized-reflexive-matrix, shared-object, future-embed, passive/impersonal, and accompanying-possession behavior still need explicit engine routes.", "Nawat/Pipil spelling realization and lexical exceptions remain evidence-needed before finite output can expand."];
+      const frame = {
+        kind: "lesson-28-verbal-embed-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 28,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON28_VERBAL_EMBED_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-28-verbal-embed-compound-audit",
+          type: "metadata-parser-test",
+          aim: "Audit Andrews Lesson 28.1-28.12 against current compoundAst parser metadata, matrix/embed order, linked/integrated boundaries, connective-t patterns, intransitive/reflexive/shared-object matrices, future-embed behavior, and recursion.",
+          andrewsRefs: Array.from(LESSON28_VERBAL_EMBED_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON28_VERBAL_EMBED_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-28-verbal-embed-compound-audit",
+          result: "hit",
+          correction: "Lesson 28 now records Andrews compound formulas, matrix/embed architecture, cohesiveness, connective-t requirements, intransitive/reflexive/shared-object/future-embed frames, special formations, accompanying possession, and recursion while leaving expanded generation blocked.",
+          andrewsRefs: Array.from(LESSON28_VERBAL_EMBED_PDF_REFS),
+          feedbackRefs: Array.from(LESSON28_VERBAL_EMBED_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        formulaFrame,
+        matrixEmbedFrame,
+        cohesivenessFrame,
+        verbalEmbedValenceFrame,
+        connectiveTFrame,
+        intransitiveMatrixFrame,
+        specialFormationsFrame,
+        accompanyingPossessionFrame,
+        reflexiveMatrixFrame,
+        sharedObjectFrame,
+        futureEmbedFrame,
+        recursionFrame,
+        currentEngineBoundary: {
+          compoundAstImplemented: true,
+          compoundFrameImplemented: true,
+          existingAcceptedCompoundGenerationPreserved: true,
+          connectiveTGenerationImplemented: false,
+          intransitiveMatrixInventoryImplemented: false,
+          reflexiveMatrixGenerationImplemented: false,
+          sharedObjectGenerationImplemented: false,
+          futureEmbedGenerationImplemented: false,
+          recursionGenerationImplemented: false,
+          finiteOutputExpansionAllowed: false
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachLesson28CompoundGrammarContract(frame, {
+        metadataKind: "lesson-28-verbal-embed-pursuit-frame",
+        routeStage: "audit-lesson-28",
+        supported: true,
+        sourceInput: "Andrews Lesson 28.1-28.12",
+        morphBoundaryFrame: {
+          connectiveTFrame,
+          cohesivenessFrame,
+          specialFormationsFrame
+        },
+        stemFrame: {
+          stemKind: "compound-verbstem",
+          matrixPosition: "after embed",
+          embedBeforeMatrixInviolable: true,
+          embedNeverFunctionsAsSubject: true,
+          embedValenceDeterminesCompoundValence: true,
+          intransitiveMatrixCount: intransitiveMatrixFrame.matrixCount
+        },
+        nuclearClauseFrame: {
+          sourceClauseKinds: ["VNC", "NNC"],
+          resultClauseKinds: ["compound VNC", "compound NNC"],
+          binaryRecursiveCompounding: true
+        },
+        targetContract: {
+          metadataKind: "lesson-28-verbal-embed-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnostics: ["compound-verbstem-diagnostic-only", "compound-verbstem-needs-nawat-evidence"]
+      });
+    }
+    const LESSON30_NOMINAL_EMBED_VALIDATION_REFS = Object.freeze(["src/tests/parsing.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
+    const LESSON30_NOMINAL_EMBED_PDF_REFS = Object.freeze(["Andrews Lesson 30.1", "Andrews Lesson 30.2", "Andrews Lesson 30.3", "Andrews Lesson 30.4", "Andrews Lesson 30.5", "Andrews Lesson 30.6", "Andrews Lesson 30.7", "Andrews Lesson 30.8", "Andrews Lesson 30.9", "Andrews Lesson 30.10", "Andrews Lesson 30.11", "Andrews Lesson 30.12", "Andrews Lesson 30.13", "Andrews Lesson 30.14", "Andrews Lesson 30.15", "Andrews Lesson 30.16", "Andrews Lesson 30.17", "Andrews Lesson 30.18"]);
+    const LESSON30_NOMINAL_EMBED_OVERVIEW_FRAME = Object.freeze({
+      kind: "lesson-30-nominal-embed-overview-frame",
+      sourceSection: "Andrews 30.1",
+      sourceFormula: "NNC + VNC = compound VNC",
+      compoundStructure: "integrated",
+      nominalEmbedFiller: "general-use nounstem",
+      sourceStates: Object.freeze(["absolutive-state NNC", "possessive-state NNC"]),
+      generalUseStemExceptions: Object.freeze(["ti-class subclass 2-B ephemeral final a may remain in embed subposition", "some lexical exceptions override even the subclass 2-B exception"]),
+      incorporatedNncTypes: Object.freeze(["incorporated-object", "incorporated-adverb", "incorporated-complement"])
+    });
+    const LESSON30_INCORPORATED_OBJECT_FRAME = Object.freeze({
+      kind: "lesson-30-incorporated-object-frame",
+      sourceSections: Object.freeze(["Andrews 30.2", "Andrews 30.3", "Andrews 30.4"]),
+      matrixRequirement: "transitive VNC matrix",
+      embeddedNncRole: "general patient area restricting matrix action",
+      incorporatedObjectIsNotNuclearObject: true,
+      valenceReduction: Object.freeze([Object.freeze({
+        sourceMatrix: "single-object VNC",
+        compoundValence: "intransitive VNC",
+        objectPronounPermitted: false
+      }), Object.freeze({
+        sourceMatrix: "double-object VNC",
+        compoundValence: "single-object VNC",
+        objectPronounPermitted: true
+      }), Object.freeze({
+        sourceMatrix: "triple-object VNC",
+        compoundValence: "double-object VNC",
+        objectPronounPermitted: true
+      })]),
+      derivedCausativeOrApplicativeMayComeFromExistingIncorporatedObjectStem: true,
+      irregularAtlIIncludesAbsolutiveNum1Filler: true,
+      exceptionalTlaFusionFrame: Object.freeze({
+        sourceSection: "Andrews 30.4",
+        apparentObjectIncorporatedIntoTlaFusionStem: true,
+        becauseTlaAlreadyRepresentsFusedObjectTheNominalEmbedMustBeAdverbial: true,
+        semantics: "in the form of, having the nature of, resembling",
+        analysisUnclear: true
+      })
+    });
+    const LESSON30_INCORPORATED_ADVERB_FRAME = Object.freeze({
+      kind: "lesson-30-incorporated-adverb-frame",
+      sourceSections: Object.freeze(["Andrews 30.5", "Andrews 30.6"]),
+      sourceTransforms: Object.freeze(["adverbial NNC in a concatenate source becomes incorporated adverb", "supplementary subject or object becomes incorporated adverb"]),
+      matrixMayBeIntransitiveOrTransitive: true,
+      compoundValenceRemainsMatrixValence: true,
+      transformationRoutesCanLookIdenticalOnSurface: true,
+      sourceAdverbialComplexityDeferredToLessons44To50: true,
+      idiomaticTranslationPossible: true
+    });
+    const LESSON30_ADVERB_ROLE_FRAME = Object.freeze({
+      kind: "lesson-30-adverb-role-frame",
+      sourceSections: Object.freeze(["Andrews 30.7", "Andrews 30.8", "Andrews 30.9", "Andrews 30.10", "Andrews 30.11", "Andrews 30.12", "Andrews 30.13"]),
+      roles: Object.freeze([Object.freeze({
+        section: "30.7",
+        role: "means-or-instrument",
+        bodyPartPossessorDeletedByCoreference: true
+      }), Object.freeze({
+        section: "30.8",
+        role: "place",
+        bodyPartPossessorDeletedByCoreference: true
+      }), Object.freeze({
+        section: "30.9",
+        role: "time-or-duration"
+      }), Object.freeze({
+        section: "30.10",
+        role: "cause-or-purpose"
+      }), Object.freeze({
+        section: "30.11",
+        role: "manner",
+        subjectOrObjectFocus: true
+      }), Object.freeze({
+        section: "30.12",
+        role: "compared-manner",
+        orientation: "subject for intransitive; subject or object for transitive"
+      }), Object.freeze({
+        section: "30.13",
+        role: "unique-embed-nounstems",
+        simpleNncUseMissingOrUncertain: true
+      })]),
+      bodyPartEmbedIsNotSubject: true,
+      uniqueEmbedExamples: Object.freeze(["il", "tel", "pol", "poz", "ih"]),
+      ihAdverbialCanAppearInDestockalFrequentativeLikeStems: true
+    });
+    const LESSON30_SUPPLEMENT_TRANSFORM_FRAME = Object.freeze({
+      kind: "lesson-30-supplement-transform-frame",
+      sourceSection: "Andrews 30.14",
+      transformTypes: Object.freeze([Object.freeze({
+        id: "supplementary-subject-to-incorporated-adverb",
+        sourcePrincipal: "intransitive VNC",
+        adjunctRequirement: "possessive-state supplementary subject",
+        possessorCaseReplacement: "possessive -> nominative",
+        targetPronoun: "compound VNC subject pronoun"
+      }), Object.freeze({
+        id: "supplementary-object-to-incorporated-adverb",
+        sourcePrincipal: "transitive VNC",
+        adjunctRequirement: "possessive-state supplementary object",
+        possessorCaseReplacement: "possessive -> objective",
+        targetPronoun: "compound VNC object pronoun"
+      }), Object.freeze({
+        id: "passive-barrier-adverbialization",
+        sourcePrincipal: "active transitive VNC with supplementary subject",
+        rule: "supplementary subject must become an adverb to survive passivization"
+      })]),
+      bodyPartClothingFamilyRelationsCommon: true,
+      applicativePrincipalWithBodyPartOrClothingSupplementCannotServeAsSource: true,
+      surfaceIdenticalFormsCanHaveDifferentSources: true,
+      lessIntimatePossessionsCanImitateTransformAndPermitApplicativeStem: true
+    });
+    const LESSON30_COMPLEMENT_FRAME = Object.freeze({
+      kind: "lesson-30-incorporated-complement-frame",
+      sourceSection: "Andrews 30.15",
+      complementDefinition: "necessary addition completing something said about a personal pronoun or stem",
+      compoundValenceRemainsMatrixValence: true,
+      sourceNncSubjectCorefersWithMatrixSubjectOrObjectAndIsDeleted: true,
+      complementTypes: Object.freeze([Object.freeze({
+        id: "subject-complement",
+        relation: "embed subject corefers with matrix subject"
+      }), Object.freeze({
+        id: "object-complement-considering",
+        relation: "embed subject corefers with matrix object",
+        semanticField: "considering"
+      }), Object.freeze({
+        id: "object-complement-changing",
+        relation: "embed subject corefers with matrix object",
+        semanticField: "changing into"
+      })]),
+      comparesToLesson51DoubleNucleusComplementation: true
+    });
+    const LESSON30_REDUP_NONACTIVE_CAVEAT_FRAME = Object.freeze({
+      kind: "lesson-30-redup-nonactive-caveat-frame",
+      sourceSections: Object.freeze(["Andrews 30.16", "Andrews 30.17", "Andrews 30.18"]),
+      reduplication: Object.freeze({
+        embedCanHaveReduplicativePrefix: true,
+        matrixCanHaveReduplicativePrefix: true,
+        bothEmbedAndMatrixCanBeReduplicated: true
+      }),
+      nonactive: Object.freeze({
+        nonactiveStemCanFormFromAnyIncorporatedNncCompoundVerbstem: true,
+        passiveIfSourceIsTransitiveWithSpecificObject: true,
+        impersonalIfSourceIsIntransitiveOrOnlyNonspecificObjects: true,
+        incorporatedObjectFromSingleObjectMatrixIsIntransitiveSoOnlyImpersonal: true
+      }),
+      caveats: Object.freeze({
+        embedDoesNotRepresentAgent: true,
+        embedDoesNotFunctionAsSubject: true,
+        passiveAgentCannotBeMentioned: true,
+        translationCanMisleadAnalysis: true
+      })
+    });
+    const LESSON30_NOMINAL_EMBED_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
+      id: "lesson30-nnc-vnc-compound",
+      andrewsSection: "30.1",
+      category: "nnc-plus-vnc-integrated",
+      directiveEs: "Un compuesto NNC+VNC siempre es integrado y usa el tronco nominal de uso general como incrustado.",
+      engineSurface: "compoundAst lexical embed metadata",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson30-incorporated-object-stem",
+      andrewsSection: "30.2",
+      category: "incorporated-object-stem",
+      directiveEs: "El objeto incorporado solo procede de matriz transitiva y reduce la valencia del compuesto.",
+      engineSurface: "diagnostic incorporated-object frame",
+      implementationState: "partial",
+      redirectAction: "block-generation"
+    }), Object.freeze({
+      id: "lesson30-incorporated-object-vnc",
+      andrewsSection: "30.3",
+      category: "incorporated-object-vnc",
+      directiveEs: "Las rutas de uno, dos y tres objetos bajan una posicion de valencia; causativos y aplicativos pueden derivarse de troncos ya incorporados.",
+      engineSurface: "diagnostic valence-reduction frame",
+      implementationState: "partial",
+      redirectAction: "block-generation"
+    }), Object.freeze({
+      id: "lesson30-exceptional-tla-fusion",
+      andrewsSection: "30.4",
+      category: "exceptional-tla-fusion",
+      directiveEs: "Cuando tla ya es objeto fusionado, el nominal incorporado debe analizarse como adverbial, no como otro objeto.",
+      engineSurface: "diagnostic exceptional frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson30-incorporated-adverb-vnc",
+      andrewsSection: "30.5",
+      category: "incorporated-adverb-vnc",
+      directiveEs: "El adverbio incorporado puede venir de adjuncto adverbial o de suplemento, y conserva la valencia de la matriz.",
+      engineSurface: "diagnostic incorporated-adverb frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson30-incorporated-adverb-stem",
+      andrewsSection: "30.6",
+      category: "incorporated-adverb-stem",
+      directiveEs: "Las fuentes adverbiales son complejas y se conectan con Lecciones 44-50; no basta un signo de parser.",
+      engineSurface: "diagnostic adverb-source frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson30-means-instrument",
+      andrewsSection: "30.7",
+      category: "means-instrument-adverb",
+      directiveEs: "El incrustado puede marcar medio o instrumento; posesores de partes del cuerpo se eliminan por correferencia.",
+      engineSurface: "diagnostic adverb-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-place",
+      andrewsSection: "30.8",
+      category: "place-adverb",
+      directiveEs: "El incrustado puede marcar lugar; no debe confundirse con objeto aplicativo.",
+      engineSurface: "diagnostic adverb-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-time-duration",
+      andrewsSection: "30.9",
+      category: "time-duration-adverb",
+      directiveEs: "El incrustado puede marcar tiempo o duracion, incluso con fuente nominal compuesta.",
+      engineSurface: "diagnostic adverb-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-cause-purpose",
+      andrewsSection: "30.10",
+      category: "cause-purpose-adverb",
+      directiveEs: "El incrustado puede marcar causa o proposito de la accion.",
+      engineSurface: "diagnostic adverb-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-manner",
+      andrewsSection: "30.11",
+      category: "manner-adverb",
+      directiveEs: "El incrustado puede marcar manera, forma o estilo con foco de sujeto u objeto.",
+      engineSurface: "diagnostic adverb-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-compared-manner",
+      andrewsSection: "30.12",
+      category: "compared-manner-adverb",
+      directiveEs: "La comparacion se orienta al sujeto con matriz intransitiva y al sujeto u objeto con matriz transitiva.",
+      engineSurface: "diagnostic comparison-role frame",
+      implementationState: "partial",
+      redirectAction: "needs-nawat-evidence"
+    }), Object.freeze({
+      id: "lesson30-unique-embed-nounstems",
+      andrewsSection: "30.13",
+      category: "unique-embed-nounstems",
+      directiveEs: "Algunos incrustados nominales solo sobreviven en compuestos y tienen significado incierto.",
+      engineSurface: "diagnostic unique-embed frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson30-supplement-transform",
+      andrewsSection: "30.14",
+      category: "supplement-to-adverb-transform",
+      directiveEs: "Un suplemento posesivo puede transformarse en adverbio; su poseedor cambia a sujeto u objeto del compuesto.",
+      engineSurface: "diagnostic supplement-transform frame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson30-incorporated-complement",
+      andrewsSection: "30.15",
+      category: "incorporated-complement",
+      directiveEs: "El complemento incorporado conserva la valencia de matriz y borra el sujeto coreferente de la CNN fuente.",
+      engineSurface: "diagnostic complement frame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson30-reduplication",
+      andrewsSection: "30.16",
+      category: "embed-reduplication",
+      directiveEs: "El incrustado nominal, la matriz, o ambos pueden reduplicarse.",
+      engineSurface: "diagnostic reduplication frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    }), Object.freeze({
+      id: "lesson30-passive-impersonal",
+      andrewsSection: "30.17",
+      category: "nonactive-compound-vnc",
+      directiveEs: "Cualquier compuesto NNC+VNC puede formar no activo; la voz pasiva o impersonal depende de la valencia fuente.",
+      engineSurface: "diagnostic nonactive frame",
+      implementationState: "partial",
+      redirectAction: "refactor-engine"
+    }), Object.freeze({
+      id: "lesson30-embed-caveats",
+      andrewsSection: "30.18",
+      category: "embed-not-agent-or-subject",
+      directiveEs: "El incrustado no es agente ni sujeto; la traduccion puede ocultar la estructura nahua.",
+      engineSurface: "diagnostic anti-translation frame",
+      implementationState: "partial",
+      redirectAction: "diagnostic-only"
+    })]);
+    function cloneLesson30NominalEmbedRecord(record) {
+      if (!record || typeof record !== "object") {
+        return record;
+      }
+      if (Array.isArray(record)) {
+        return record.map(entry => cloneLesson30NominalEmbedRecord(entry));
+      }
+      return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, cloneLesson30NominalEmbedRecord(value)]));
+    }
+    function getLesson30NominalEmbedSubsectionInventory() {
+      return LESSON30_NOMINAL_EMBED_SUBSECTION_INVENTORY.map(entry => ({
+        ...entry,
+        pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
+        evidenceStatus: "direct-pdf-partial",
+        orthographyStatus: "nawat-evidence-required",
+        validationRefs: Array.from(LESSON30_NOMINAL_EMBED_VALIDATION_REFS)
+      }));
+    }
+    function attachLesson30NominalEmbedGrammarContract(record = null, options = {}) {
+      if (typeof targetObject.attachGrammarMetadataContract !== "function") {
+        return record;
+      }
+      return targetObject.attachGrammarMetadataContract(record, {
+        enumerable: false,
+        unitKind: "compound-verbstem-boundary",
+        routeFamily: "compound-verbstem",
+        structuralSource: "Andrews Lesson 30",
+        andrewsRefs: Array.from(LESSON30_NOMINAL_EMBED_PDF_REFS),
+        generationAllowed: false,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil evidence",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "nawat-evidence-required"
+        },
+        ...options
+      });
+    }
+    function buildLesson30NominalEmbedPursuitFrame() {
+      const subsectionInventory = getLesson30NominalEmbedSubsectionInventory();
+      const overviewFrame = cloneLesson30NominalEmbedRecord(LESSON30_NOMINAL_EMBED_OVERVIEW_FRAME);
+      const incorporatedObjectFrame = cloneLesson30NominalEmbedRecord(LESSON30_INCORPORATED_OBJECT_FRAME);
+      const incorporatedAdverbFrame = cloneLesson30NominalEmbedRecord(LESSON30_INCORPORATED_ADVERB_FRAME);
+      const adverbRoleFrame = cloneLesson30NominalEmbedRecord(LESSON30_ADVERB_ROLE_FRAME);
+      const supplementTransformFrame = cloneLesson30NominalEmbedRecord(LESSON30_SUPPLEMENT_TRANSFORM_FRAME);
+      const complementFrame = cloneLesson30NominalEmbedRecord(LESSON30_COMPLEMENT_FRAME);
+      const redupNonactiveCaveatFrame = cloneLesson30NominalEmbedRecord(LESSON30_REDUP_NONACTIVE_CAVEAT_FRAME);
+      const remainingGaps = ["Current compoundAst lexical-embed metadata is not an Andrews Lesson 30 generator.", "Incorporated-object valence lowering, exceptional tla-fusion analysis, and incorporated-adverb source transforms are diagnostic only.", "Supplement-to-adverb, complement incorporation, reduplication, passive/impersonal routing, and embed caveats need explicit engine gates before finite output expands.", "General-use nounstem selection, subclass exceptions, unique embeds, idioms, and Nawat/Pipil lexical evidence remain evidence-needed."];
+      const frame = {
+        kind: "lesson-30-nominal-embed-pursuit-frame",
+        mainTarget: "fully Andrews-directed Nawat Conjugador",
+        stepNumber: 30,
+        aimStatus: "shooting",
+        pdfRefs: Array.from(LESSON30_NOMINAL_EMBED_PDF_REFS),
+        plannedArrows: [{
+          id: "lesson-30-nominal-embed-compound-audit",
+          type: "metadata-parser-test",
+          aim: "Audit Andrews Lesson 30.1-30.18 against current lexical compound parser metadata, NNC fixture classifications, incorporated-object/adverb/complement categories, supplement transforms, reduplication, nonactive routing, and anti-translation caveats.",
+          andrewsRefs: Array.from(LESSON30_NOMINAL_EMBED_PDF_REFS),
+          expectedFeedbackRefs: Array.from(LESSON30_NOMINAL_EMBED_VALIDATION_REFS)
+        }],
+        firedArrows: [{
+          id: "lesson-30-nominal-embed-compound-audit",
+          result: "hit",
+          correction: "Lesson 30 now records Andrews NNC+VNC integrated compound architecture, incorporated-object valence lowering, incorporated-adverb roles and supplement transforms, incorporated-complement behavior, reduplication, nonactive voice routing, and caveats that the embed is neither agent nor subject while keeping expanded generation blocked.",
+          andrewsRefs: Array.from(LESSON30_NOMINAL_EMBED_PDF_REFS),
+          feedbackRefs: Array.from(LESSON30_NOMINAL_EMBED_VALIDATION_REFS)
+        }],
+        subsectionInventory,
+        overviewFrame,
+        incorporatedObjectFrame,
+        incorporatedAdverbFrame,
+        adverbRoleFrame,
+        supplementTransformFrame,
+        complementFrame,
+        redupNonactiveCaveatFrame,
+        currentEngineBoundary: {
+          compoundAstLexicalEmbedMetadataImplemented: true,
+          ordinaryNncFixtureClassificationsImplemented: true,
+          unchangedAcceptedCompoundGenerationPreserved: true,
+          incorporatedObjectGenerationImplemented: false,
+          incorporatedAdverbGenerationImplemented: false,
+          supplementTransformGenerationImplemented: false,
+          incorporatedComplementGenerationImplemented: false,
+          nonactiveCompoundRoutingImplemented: false,
+          finiteOutputExpansionAllowed: false
+        },
+        hitCount: 1,
+        missCount: 0,
+        remainingGaps,
+        closestPass: false,
+        generationAllowed: false
+      };
+      return attachLesson30NominalEmbedGrammarContract(frame, {
+        metadataKind: "lesson-30-nominal-embed-pursuit-frame",
+        routeStage: "audit-lesson-30",
+        supported: true,
+        sourceInput: "Andrews Lesson 30.1-30.18",
+        morphBoundaryFrame: {
+          overviewFrame,
+          incorporatedObjectFrame,
+          incorporatedAdverbFrame,
+          adverbRoleFrame,
+          supplementTransformFrame,
+          complementFrame,
+          redupNonactiveCaveatFrame
+        },
+        stemFrame: {
+          stemKind: "compound-verbstem-with-nominal-embed",
+          sourceFormula: overviewFrame.sourceFormula,
+          compoundStructure: overviewFrame.compoundStructure,
+          nominalEmbedFiller: overviewFrame.nominalEmbedFiller,
+          incorporatedNncTypes: overviewFrame.incorporatedNncTypes
+        },
+        nuclearClauseFrame: {
+          unitKind: "VNC",
+          compoundKind: "NNC+VNC compound VNC",
+          matrixDeterminesClauseKind: true,
+          embedDoesNotFunctionAsSubject: true
+        },
+        targetContract: {
+          metadataKind: "lesson-30-nominal-embed-pursuit-frame",
+          generationAllowed: false,
+          closestPass: false,
+          remainingGaps
+        },
+        diagnostics: ["nominal-embed-compound-diagnostic-only", "nominal-embed-compound-needs-nawat-evidence"]
+      });
+    }
     function normalizeMovingTargetCoreText(value = "") {
       const placeholderProtected = targetObject.convertRegexInputSupportiveMarkersToEnvelope(String(value || ""));
       return normalizeRegexSpecialSerialShorthandCore(restoreBracketSupportiveMarkers(placeholderProtected.replace(/\//g, "-").toLowerCase()));
@@ -305,7 +1189,7 @@ export function createParsingApi(targetObject = globalThis) {
       }
       return null;
     }
-    function getLegacyTransitiveEmbeddedSlashSlotCount(rawValue = "") {
+    function getEmbeddedSlashTransitiveObjSlotCount(rawValue = "") {
       const raw = String(rawValue || "").trim().toLowerCase();
       if (!raw.startsWith("-") || raw.startsWith("--")) {
         return null;
@@ -487,8 +1371,8 @@ export function createParsingApi(targetObject = globalThis) {
       const supportiveResolution = targetObject.resolveOptionalSupportiveMarkedSurface({
         precedingSurface: `${directionalPrefix}${valenceTokens.join("")}${valenceEmbeds.join("")}`,
         markedSurface: markedCore,
-        inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.legacy,
-        outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.legacy,
+        inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
+        outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
         preserveMarkers: false
       });
       const supportiveMarker = supportiveResolution.markerLetter || "";
@@ -672,7 +1556,7 @@ export function createParsingApi(targetObject = globalThis) {
       if (!embeds.length) {
         return null;
       }
-      return {
+      const compoundAst = {
         version: 1,
         kind: "compound",
         matrix: {
@@ -713,8 +1597,35 @@ export function createParsingApi(targetObject = globalThis) {
         corePieces: normalizedCorePieces,
         lexicalPrefixes: (Array.isArray(outerLexicalPrefixes) ? outerLexicalPrefixes : []).map(value => targetObject.normalizeRuleBase(value)).filter(Boolean)
       };
+      return attachLesson28CompoundGrammarContract(compoundAst, {
+        metadataKind: "compound-ast",
+        routeStage: "parse-compound-ast",
+        supported: true,
+        sourceInput: compoundAst.source.rawInput,
+        sourceContract: {
+          unitKind: "compound-verbstem-boundary",
+          metadataKind: "compound-ast",
+          sourceInput: compoundAst.source.rawInput,
+          sourceSurface: compoundAst.source.displayVerb,
+          parserKind: "current-regex"
+        },
+        targetContract: {
+          metadataKind: "compound-ast",
+          generationAllowed: false,
+          matrixStem: compoundAst.matrix.stem,
+          embedRoles: compoundAst.embeds.map(entry => entry.role),
+          lesson28Coverage: "parser-metadata-only"
+        },
+        stemFrame: {
+          stemKind: "compound-verbstem",
+          matrixStem: compoundAst.matrix.stem,
+          embeddedPieces: compoundAst.embeds,
+          matrixPosition: "after embed",
+          embedBeforeMatrixInviolable: true
+        },
+        diagnostics: ["compound-ast-parser-metadata-only"]
+      });
     }
-
     function resolveOrdinaryNncParseFixture(value = "") {
       if (typeof targetObject.resolveOrdinaryNncFixture !== "function") {
         return null;
@@ -1521,10 +2432,10 @@ export function createParsingApi(targetObject = globalThis) {
       if (stage === "prefix") {
         directionalPlan = targetObject.buildWalDirectionalPlan({
           directionalOutputPrefix,
-          baseSubjectPrefix,
-          baseObjectPrefix,
-          indirectObjectMarker,
-          thirdObjectMarker,
+          pers1Base: baseSubjectPrefix,
+          obj1Base: baseObjectPrefix,
+          obj2: indirectObjectMarker,
+          obj3: thirdObjectMarker,
           directionalRuleMode,
           hasSubjectValent,
           isTaFusion,
@@ -2206,7 +3117,7 @@ export function createParsingApi(targetObject = globalThis) {
       });
       return Array.from(invalid);
     }
-    function getInvalidLegacyVerbStructure(rawValue, options = {}) {
+    function getInvalidVerbEnvelopeStructure(rawValue, options = {}) {
       const raw = (targetObject.getRawInputTiCausativeMetadata(rawValue).normalizedInput || String(rawValue || "")).toLowerCase();
       const cleaned = raw.replace(targetObject.COMPOUND_ALLOWED_RE, "").replace(/\s+/g, "");
       const allowPartial = options.allowPartial === true;
@@ -2322,7 +3233,7 @@ export function createParsingApi(targetObject = globalThis) {
           return "Regex usa solo la gramática nueva: (...) o -(...) con piezas exteriores unidas por +.";
         case "core-empty":
           return "El core no puede ir vacío.";
-        case "legacy-parentheses":
+        case "unsupported-parentheses":
           return "Regex nuevo usa valencias exteriores y [i] o [y]; no uses la notación anterior.";
         case "supportive-marker":
           return "Regex usa [i] o [y] como apoyo opcional.";
@@ -2820,7 +3731,7 @@ export function createParsingApi(targetObject = globalThis) {
         return shouldUppercaseMarker ? trimmed.toUpperCase() : normalized;
       }).join("");
     }
-    function parseComposerPlaceholderLegacyBase(rawValue = "") {
+    function parseComposerPlaceholderBase(rawValue = "") {
       const raw = String(rawValue || "").trim();
       if (!raw) {
         return null;
@@ -2888,7 +3799,7 @@ export function createParsingApi(targetObject = globalThis) {
       }
       return "";
     }
-    function convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers(value = "") {
+    function convertRegexCoreUppercaseMarkersToEnvelopeExplicitMarkers(value = "") {
       return String(value || "").replace(/(^|[-/])((?:TA|TE|MU|T|M))(?=$|[-/])/g, (_match, separator, token) => `${separator}(${String(token || "").toLowerCase()})`);
     }
     function getRegexCoreMainObjectCount(coreText = "") {
@@ -2935,7 +3846,7 @@ export function createParsingApi(targetObject = globalThis) {
           displayCore: "",
           coreObjectCount: 0,
           isValid: false,
-          invalidReason: "legacy-parentheses"
+          invalidReason: "unsupported-parentheses"
         };
       }
       if (/[{}]/.test(withoutRegexMarkers)) {
@@ -3065,6 +3976,144 @@ export function createParsingApi(targetObject = globalThis) {
     }
 
     const api = {};
+    Object.defineProperty(api, "LESSON28_COMPOUND_BOUNDARY_VERSION", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_COMPOUND_BOUNDARY_VERSION; },
+    });
+    Object.defineProperty(api, "LESSON28_VERBAL_EMBED_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_VERBAL_EMBED_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON28_VERBAL_EMBED_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_VERBAL_EMBED_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON28_COMPOUND_FORMULA_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_COMPOUND_FORMULA_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_MATRIX_EMBED_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_MATRIX_EMBED_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_COHESIVENESS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_COHESIVENESS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_VERBAL_EMBED_VALENCE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_VERBAL_EMBED_VALENCE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_CONNECTIVE_T_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_CONNECTIVE_T_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_INTRANSITIVE_MATRIX_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_INTRANSITIVE_MATRIX_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_SPECIAL_FORMATIONS_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_SPECIAL_FORMATIONS_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_ACCOMPANYING_POSSESSION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_ACCOMPANYING_POSSESSION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_INTRANSITIVIZED_REFLEXIVE_MATRIX_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_INTRANSITIVIZED_REFLEXIVE_MATRIX_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_SHARED_OBJECT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_SHARED_OBJECT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_FUTURE_EMBED_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_FUTURE_EMBED_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_RECURSION_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_RECURSION_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON28_VERBAL_EMBED_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON28_VERBAL_EMBED_SUBSECTION_INVENTORY; },
+    });
+    api.cloneLesson28CompoundRecord = cloneLesson28CompoundRecord;
+    api.getLesson28VerbalEmbedSubsectionInventory = getLesson28VerbalEmbedSubsectionInventory;
+    api.attachLesson28CompoundGrammarContract = attachLesson28CompoundGrammarContract;
+    api.buildLesson28VerbalEmbedPursuitFrame = buildLesson28VerbalEmbedPursuitFrame;
+    Object.defineProperty(api, "LESSON30_NOMINAL_EMBED_VALIDATION_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_NOMINAL_EMBED_VALIDATION_REFS; },
+    });
+    Object.defineProperty(api, "LESSON30_NOMINAL_EMBED_PDF_REFS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_NOMINAL_EMBED_PDF_REFS; },
+    });
+    Object.defineProperty(api, "LESSON30_NOMINAL_EMBED_OVERVIEW_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_NOMINAL_EMBED_OVERVIEW_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_INCORPORATED_OBJECT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_INCORPORATED_OBJECT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_INCORPORATED_ADVERB_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_INCORPORATED_ADVERB_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_ADVERB_ROLE_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_ADVERB_ROLE_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_SUPPLEMENT_TRANSFORM_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_SUPPLEMENT_TRANSFORM_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_COMPLEMENT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_COMPLEMENT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_REDUP_NONACTIVE_CAVEAT_FRAME", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_REDUP_NONACTIVE_CAVEAT_FRAME; },
+    });
+    Object.defineProperty(api, "LESSON30_NOMINAL_EMBED_SUBSECTION_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON30_NOMINAL_EMBED_SUBSECTION_INVENTORY; },
+    });
+    api.cloneLesson30NominalEmbedRecord = cloneLesson30NominalEmbedRecord;
+    api.getLesson30NominalEmbedSubsectionInventory = getLesson30NominalEmbedSubsectionInventory;
+    api.attachLesson30NominalEmbedGrammarContract = attachLesson30NominalEmbedGrammarContract;
+    api.buildLesson30NominalEmbedPursuitFrame = buildLesson30NominalEmbedPursuitFrame;
     api.normalizeMovingTargetCoreText = normalizeMovingTargetCoreText;
     api.getMovingTargetOuterPieceDescriptors = getMovingTargetOuterPieceDescriptors;
     api.formatMovingTargetOuterPiece = formatMovingTargetOuterPiece;
@@ -3078,17 +4127,22 @@ export function createParsingApi(targetObject = globalThis) {
     api.findFinalTopLevelWrappedCore = findFinalTopLevelWrappedCore;
     api.splitTopLevelByPlus = splitTopLevelByPlus;
     api.parseMovingTargetOuterPiece = parseMovingTargetOuterPiece;
-    api.getLegacyTransitiveEmbeddedSlashSlotCount = getLegacyTransitiveEmbeddedSlashSlotCount;
+    api.getEmbeddedSlashTransitiveObjSlotCount = getEmbeddedSlashTransitiveObjSlotCount;
     api.getMovingTargetAdjacentEmbedParts = getMovingTargetAdjacentEmbedParts;
     api.parseMovingTargetRegexInput = parseMovingTargetRegexInput;
     api.buildCanonicalVerbSpecFromMovingTargetParsed = buildCanonicalVerbSpecFromMovingTargetParsed;
     api.buildCanonicalVerbSpecFromComposerSemantic = buildCanonicalVerbSpecFromComposerSemantic;
+    api.buildCompoundAstMetadata = buildCompoundAstMetadata;
+    api.resolveOrdinaryNncParseFixture = resolveOrdinaryNncParseFixture;
+    api.buildOrdinaryNncParseClassification = buildOrdinaryNncParseClassification;
+    api.buildOrdinaryNncFixtureClassifications = buildOrdinaryNncFixtureClassifications;
     api.buildVerbMetaFromCanonicalSpec = buildVerbMetaFromCanonicalSpec;
     api.buildParsedVerbFromMovingTargetInput = buildParsedVerbFromMovingTargetInput;
     api.isVerbValueAllowed = isVerbValueAllowed;
     api.getInputGateRightmostStem = getInputGateRightmostStem;
     api.startsWithConsonantCluster = startsWithConsonantCluster;
     api.evaluateVerbStemInputGate = evaluateVerbStemInputGate;
+    api.getAuthoritativeDerivationalSourceForRawInputGate = getAuthoritativeDerivationalSourceForRawInputGate;
     Object.defineProperty(api, "DEFAULT_NONSPECIFIC_VALENCE_AFFIXES", {
         configurable: true,
         enumerable: true,
@@ -3160,7 +4214,7 @@ export function createParsingApi(targetObject = globalThis) {
     api.isRecognizedCurrentRegexValue = isRecognizedCurrentRegexValue;
     api.getInvalidVerbCharacters = getInvalidVerbCharacters;
     api.getInvalidVerbLetters = getInvalidVerbLetters;
-    api.getInvalidLegacyVerbStructure = getInvalidLegacyVerbStructure;
+    api.getInvalidVerbEnvelopeStructure = getInvalidVerbEnvelopeStructure;
     api.getInvalidVerbStructure = getInvalidVerbStructure;
     api.getInvalidVerbStructureMessage = getInvalidVerbStructureMessage;
     api.serializeCanonicalRegexEnvelope = serializeCanonicalRegexEnvelope;
@@ -3337,18 +4391,17 @@ export function createParsingApi(targetObject = globalThis) {
     api.createEmptyComposerRegexState = createEmptyComposerRegexState;
     api.buildComposerStateFromMovingTargetParsed = buildComposerStateFromMovingTargetParsed;
     api.normalizeRegexCoreTokenCase = normalizeRegexCoreTokenCase;
-    api.parseComposerPlaceholderLegacyBase = parseComposerPlaceholderLegacyBase;
+    api.parseComposerPlaceholderBase = parseComposerPlaceholderBase;
     api.normalizeRegexSpecialSerialShorthandCore = normalizeRegexSpecialSerialShorthandCore;
     api.serializeRegexSpecialSerialShorthandValue = serializeRegexSpecialSerialShorthandValue;
     api.serializeComposerPlaceholderValenceScreen = serializeComposerPlaceholderValenceScreen;
-    api.convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers = convertRegexCoreUppercaseMarkersToLegacyExplicitMarkers;
+    api.convertRegexCoreUppercaseMarkersToEnvelopeExplicitMarkers = convertRegexCoreUppercaseMarkersToEnvelopeExplicitMarkers;
     api.getRegexCoreMainObjectCount = getRegexCoreMainObjectCount;
     api.buildRegexDisplayVerb = buildRegexDisplayVerb;
     api.parseRegexCore = parseRegexCore;
     api.serializeRegexEnvelope = serializeRegexEnvelope;
     api.serializeRegexCore = serializeRegexCore;
     api.isAllowedPartialRegexEnvelopeValue = isAllowedPartialRegexEnvelopeValue;
-    api.getAuthoritativeDerivationalSourceForRawInputGate = getAuthoritativeDerivationalSourceForRawInputGate;
     api.getStemLeadingSupportiveLetter = getStemLeadingSupportiveLetter;
     api.resolveComposerSupportiveMarkerCandidate = resolveComposerSupportiveMarkerCandidate;
     api.resolveOptionalSupportiveLetter = resolveOptionalSupportiveLetter;
@@ -3359,7 +4412,7 @@ export function createParsingApi(targetObject = globalThis) {
 }
 
 export function installParsingGlobals(targetObject = globalThis) {
-    const api = createParsingApi(targetObject);
+    const api = createParsingGlobals(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

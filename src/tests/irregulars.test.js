@@ -10,6 +10,101 @@ const { createSuite } = require("./runner");
 function run(ctx) {
     const s = createSuite("irregulars");
 
+    s.eq(
+        "Lesson 11 irregular audit API is exposed",
+        typeof ctx.buildIrregularsLesson11PursuitFrame,
+        "function"
+    );
+    const lesson11 = ctx.buildIrregularsLesson11PursuitFrame();
+    s.eq("Lesson 11 pursuit frame is diagnostic and subsection-complete", {
+        stepNumber: lesson11.stepNumber,
+        aimStatus: lesson11.aimStatus,
+        pdfRefs: lesson11.pdfRefs,
+        subsectionCount: lesson11.subsectionInventory.length,
+        generationAllowed: lesson11.generationAllowed,
+        closestPass: lesson11.closestPass,
+        hitCount: lesson11.hitCount,
+        missCount: lesson11.missCount,
+    }, {
+        stepNumber: 11,
+        aimStatus: "shooting",
+        pdfRefs: [
+            "Andrews Lesson 11.1",
+            "Andrews Lesson 11.2",
+            "Andrews Lesson 11.3",
+            "Andrews Lesson 11.4",
+            "Andrews Lesson 11.5",
+            "Andrews Lesson 11.6",
+        ],
+        subsectionCount: 6,
+        generationAllowed: false,
+        closestPass: false,
+        hitCount: 1,
+        missCount: 0,
+    });
+    s.eq(
+        "Lesson 11 nature frame keeps Andrews irregularity loci separate",
+        lesson11.natureFrame.primaryIrregularityLoci,
+        ["perfective-stem-formation", "tense-form-meaning-alignment"]
+    );
+    s.eq("Lesson 11 perfective-stem frame blocks unlicensed surfaces", {
+        criterion: lesson11.perfectiveStemFrame.irregularityCriterion,
+        soundChange: lesson11.perfectiveStemFrame.regularSoundChangeIsNotIrregular,
+        types: lesson11.perfectiveStemFrame.types.map((entry) => entry.id),
+        irregularPreferredIn: lesson11.perfectiveStemFrame.types[1].distribution.irregularPreferredIn,
+        regularRequiredIn: lesson11.perfectiveStemFrame.types[1].distribution.regularRequiredIn,
+        generationAllowed: lesson11.perfectiveStemFrame.types.every((entry) => entry.generationAllowed === false),
+    }, {
+        criterion: "speech-not-spelling",
+        soundChange: true,
+        types: ["compound-class-shift", "ti-final-alternate-perfective"],
+        irregularPreferredIn: ["singular-preterit", "singular-admonitive"],
+        regularRequiredIn: ["plural-preterit", "plural-admonitive", "distant-past"],
+        generationAllowed: true,
+    });
+    s.eq("Lesson 11 form-meaning dislocation frame follows Andrews", {
+        preteritAsPresentBlocksO: lesson11.formMeaningAlignmentFrame.dislocations.preteritAsPresent.blocksAntecessiveO,
+        preteritAsPresentBlocksPresentMorph: lesson11.formMeaningAlignmentFrame.dislocations.preteritAsPresent.blocksPresentIndicativeTenseMorph,
+        distantPastMeaning: lesson11.formMeaningAlignmentFrame.dislocations.distantPastAsPast.meaning,
+        inventory: lesson11.formMeaningAlignmentFrame.irregularInventory.map((entry) => entry.id),
+    }, {
+        preteritAsPresentBlocksO: true,
+        preteritAsPresentBlocksPresentMorph: true,
+        distantPastMeaning: "general-past-indicative",
+        inventory: ["ih-ca", "on-o", "pil-ca", "a", "itzi", "am-i-a", "0-i-a", "mani", "nemi"],
+    });
+    s.eq("Lesson 11 suppletion frame separates Andrews paradigms from current Nawat subset", {
+        andrewsParadigms: lesson11.suppletionFrame.andrewsSuppletiveParadigms.map((entry) => entry.id),
+        currentSubset: lesson11.suppletionFrame.currentNawatSuppletiveSubset.map((entry) => entry.id),
+    }, {
+        andrewsParadigms: ["ye-ca", "ya-hui", "hual-la-hui"],
+        currentSubset: ["kati", "yawi", "witzi", "weya"],
+    });
+    s.eq("Lesson 11 idiom frame is inventory-only", {
+        sourceSection: lesson11.idiomFrame.sourceSection,
+        exampleCount: lesson11.idiomFrame.andrewsExamples.length,
+        generationAllowed: lesson11.idiomFrame.generationAllowed,
+    }, {
+        sourceSection: "Andrews §11.6",
+        exampleCount: 8,
+        generationAllowed: false,
+    });
+    s.eq("Lesson 11 LCM frame blocks generation", {
+        routeFamily: lesson11.grammarFrame?.routeContract?.routeFamily,
+        routeStage: lesson11.grammarFrame?.routeContract?.routeStage,
+        generationAllowed: lesson11.grammarFrame?.routeContract?.generationAllowed,
+        diagnosticId: lesson11.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id,
+        stemKind: lesson11.grammarFrame?.stemFrame?.kind,
+        inflectionKind: lesson11.grammarFrame?.inflectionFrame?.kind,
+    }, {
+        routeFamily: "irregular-vnc",
+        routeStage: "audit-lesson-11",
+        generationAllowed: false,
+        diagnosticId: "lesson-11-irregular-vnc-taxonomy-partial",
+        stemKind: "lesson-11-irregular-perfective-stem-frame",
+        inflectionKind: "lesson-11-form-meaning-alignment-frame",
+    });
+
     // Yawi suppletive stem getters
     s.eq("getSuppletiveYawiCanonical", ctx.getSuppletiveYawiCanonical(), "yawi");
     s.eq("getSuppletiveYawiImperfective", ctx.getSuppletiveYawiImperfective(), "ya");
@@ -28,11 +123,15 @@ function run(ctx) {
             silent: true,
             skipValidation: true,
             override: {
-                verb: "yawi",
-                tense,
-                subjectPrefix: "",
-                subjectSuffix,
-                objectPrefix: "",
+            },
+            posicionesFormula: {
+                pers1: "",
+                obj1: "",
+                tronco: "yawi",
+                pers2: subjectSuffix,
+                num2: subjectSuffix,
+                poseedor: "",
+                tiempo: tense,
             },
         });
         s.eq(`Yawi generated ${tense} ${subjectSuffix || "sg"} follows CSV`, output.surfaceForms, expected);
@@ -63,11 +162,15 @@ function run(ctx) {
                 silent: true,
                 skipValidation: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix,
-                    objectPrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: subjectSuffix,
+                    num2: subjectSuffix,
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Weya generated ${verb} ${tense} ${subjectSuffix || "sg"}`, output.surfaceForms, expected);
@@ -100,11 +203,15 @@ function run(ctx) {
                 silent: true,
                 skipValidation: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Weya generated ${verb} ${tense} preserves coda y`, output.surfaceForms, expected);
@@ -135,11 +242,15 @@ function run(ctx) {
         const output = ctx.generateWord({
             silent: true,
             override: {
-                verb: "kati",
-                tense,
-                subjectPrefix: "",
-                subjectSuffix,
-                objectPrefix: "",
+            },
+            posicionesFormula: {
+                pers1: "",
+                obj1: "",
+                tronco: "kati",
+                pers2: subjectSuffix,
+                num2: subjectSuffix,
+                poseedor: "",
+                tiempo: tense,
             },
         });
         s.eq(`Kati generated ${tense} ${subjectSuffix || "sg"}`, output.surfaceForms, expected);
@@ -173,11 +284,15 @@ function run(ctx) {
             const output = ctx.generateWord({
                 silent: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix,
-                    objectPrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: subjectSuffix,
+                    num2: subjectSuffix,
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Witzi active ${verb} ${tense} ${subjectSuffix || "sg"}`, output.surfaceForms, expected);
@@ -190,11 +305,15 @@ function run(ctx) {
             const output = ctx.generateWord({
                 silent: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Witzi active defective block: ${verb} ${tense}`, output.error, "Solo pretérito y pasado remoto.");
@@ -212,12 +331,16 @@ function run(ctx) {
             const output = ctx.generateWord({
                 silent: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix,
-                    objectPrefix: "",
                     derivationMode: ctx.DERIVATION_MODE.nonactive,
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: subjectSuffix,
+                    num2: subjectSuffix,
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Witzi nonactive ${verb} ${tense} ${subjectSuffix || "sg"}`, output.surfaceForms, expected);
@@ -236,12 +359,16 @@ function run(ctx) {
             silent: true,
             skipValidation: true,
             override: {
-                verb,
-                tense: "presente",
-                subjectPrefix: "",
-                subjectSuffix: "",
-                objectPrefix: "",
                 derivationMode: ctx.DERIVATION_MODE.nonactive,
+            },
+            posicionesFormula: {
+                pers1: "",
+                obj1: "",
+                tronco: verb,
+                pers2: "",
+                num2: "",
+                poseedor: "",
+                tiempo: "presente",
             },
         });
         s.eq(`Witzi nonactive forced imperfective core: ${verb}`, output.surfaceForms, ["wiluwatzi"]);
@@ -253,12 +380,16 @@ function run(ctx) {
             const output = ctx.generateWord({
                 silent: true,
                 override: {
-                    verb,
-                    tense,
-                    subjectPrefix: "",
-                    subjectSuffix: "",
-                    objectPrefix: "",
                     derivationMode: ctx.DERIVATION_MODE.nonactive,
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: verb,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: tense,
                 },
             });
             s.eq(`Witzi nonactive defective block: ${verb} ${tense}`, output.error, "Solo pretérito y pasado remoto.");

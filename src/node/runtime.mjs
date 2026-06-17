@@ -2,9 +2,9 @@ import path from "path";
 import vm from "vm";
 import { fileURLToPath } from "url";
 
-import { installLegacyBridge } from "../bootstrap/legacy_bridge.mjs";
+import { installRuntimeBridge } from "../bootstrap/runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "../bootstrap/runtime_config.mjs";
-import { LEGACY_VM_SCRIPT_PATHS } from "../bootstrap/runtime_paths.mjs";
+import { VM_SCRIPT_PATHS } from "../bootstrap/runtime_paths.mjs";
 import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs";
 
 const noop = () => {};
@@ -175,14 +175,14 @@ export async function createModuleRuntime({
         createModuleRuntime,
         runtimeConfig,
         scriptPath,
-        scriptPaths: [...LEGACY_VM_SCRIPT_PATHS],
+        scriptPaths: [...VM_SCRIPT_PATHS],
         esmPreloads: runtimeInstance.loadedModules,
         moduleRuntimeMode: "direct-import",
-        legacyExecutionDisabled: true,
+        scriptExecutionDisabled: true,
         loadScriptRequested: loadScript,
         loadPreteritModulesRequested: loadPreteritModules,
     };
-    installLegacyBridge(context, runtimeDescriptor);
-    installLegacyBridge(windowObject, runtimeDescriptor);
+    installRuntimeBridge(context, runtimeDescriptor);
+    installRuntimeBridge(windowObject, runtimeDescriptor);
     return { context, document: documentObject, windowObject, scriptPath };
 }

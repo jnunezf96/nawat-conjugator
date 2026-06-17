@@ -104,12 +104,12 @@
     "in": "kin"
   },
   "passiveImpersonalSubjectMap": {
-    "nech": { "subjectPrefix": "ni", "subjectSuffix": "" },
-    "metz": { "subjectPrefix": "ti", "subjectSuffix": "" },
-    "ki": { "subjectPrefix": "", "subjectSuffix": "" },
-    "tech": { "subjectPrefix": "ti", "subjectSuffix": "t" },
-    "metzin": { "subjectPrefix": "an", "subjectSuffix": "t" },
-    "kin": { "subjectPrefix": "", "subjectSuffix": "t" }
+    "nech": { "pers1": "ni", "pers2": "" },
+    "metz": { "pers1": "ti", "pers2": "" },
+    "ki": { "pers1": "", "pers2": "" },
+    "tech": { "pers1": "ti", "pers2": "t" },
+    "metzin": { "pers1": "an", "pers2": "t" },
+    "kin": { "pers1": "", "pers2": "t" }
   },
   "sustantivoVerbalTransitivePrefixes": ["ta", "te", "mu"],
   "invalidCombinationKeys": [

@@ -1,6 +1,6 @@
 // Preterit/perfective API wrappers: context resolution, options builders,
 // and provenance-aware class result assembly.
-// Depends on surface provenance helpers, pret context/engine, and legacy globals.
+// Depends on surface provenance helpers, pret context/engine, and runtime globals.
 
 "use strict";
 
@@ -187,6 +187,16 @@ function getPreteritClassBasedSurface(result = null) {
     return "";
 }
 
+function getPreteritClassBasedSoundSpellingFrames(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const grammarFrame = getPreteritClassBasedResultFrame(output);
+    return [
+        ...(Array.isArray(output.soundSpellingFrames) ? output.soundSpellingFrames : []),
+        ...(Array.isArray(output.orthographyFrame?.soundSpellingFrames) ? output.orthographyFrame.soundSpellingFrames : []),
+        ...(Array.isArray(grammarFrame?.orthographyFrame?.soundSpellingFrames) ? grammarFrame.orthographyFrame.soundSpellingFrames : []),
+    ].map((frame) => ({ ...frame }));
+}
+
 function buildPreteritClassBasedDiagnostic({
     id = "preterit-class-based-result-blocked",
     message = "La generacion no produjo una forma.",
@@ -247,6 +257,7 @@ function attachPreteritClassBasedGrammarContract(output = null, {
     const result = output && typeof output === "object" ? output : {};
     const forms = getPreteritClassBasedSurfaceForms(result);
     const surface = getPreteritClassBasedSurface(result);
+    const soundSpellingFrames = getPreteritClassBasedSoundSpellingFrames(result);
     const ok = Boolean(surface && forms.length);
     const resolvedClassKey = String(classKey || result.provenance?.classKey || classFilter || "").trim();
     const fallbackDiagnostic = buildPreteritClassBasedDiagnostic({
@@ -288,6 +299,7 @@ function attachPreteritClassBasedGrammarContract(output = null, {
             orthographyFrame: {
                 surface,
                 surfaceForms: forms,
+                soundSpellingFrames,
                 spellingAuthority: "Nawat/Pipil evidence",
                 noClassicalSurfaceImport: true,
             },
@@ -623,7 +635,7 @@ function buildClassBasedResultWithProvenance({
         : "";
     const effectiveRootPlusYaBasePronounceable = rootPlusYaBasePronounceable || resolvedFinalYaProxyBase;
     const effectiveRootPlusYaBase = rootPlusYaBase || effectiveRootPlusYaBasePronounceable;
-    const result = buildClassBasedResult({
+    const classBasedResult = buildClassBasedResult({
         verb,
         subjectPrefix,
         objectPrefix,
@@ -657,7 +669,14 @@ function buildClassBasedResultWithProvenance({
         hasDoubleDash,
         forceClassBSelection,
         forceClassBOnly,
+        returnDetailed: true,
     });
+    const result = classBasedResult && typeof classBasedResult === "object"
+        ? classBasedResult.result
+        : classBasedResult;
+    const resultSoundSpellingFrames = classBasedResult && typeof classBasedResult === "object"
+        ? (Array.isArray(classBasedResult.soundSpellingFrames) ? classBasedResult.soundSpellingFrames : [])
+        : [];
     const contractOptions = {
         verb,
         analysisVerb,
@@ -678,7 +697,7 @@ function buildClassBasedResultWithProvenance({
     };
     if (!result || result === "—") {
         return attachPreteritClassBasedGrammarContract(
-            { result, forms: [], provenance: null },
+            { result, forms: [], provenance: null, soundSpellingFrames: resultSoundSpellingFrames },
             {
                 ...contractOptions,
                 routeStage: "class-result-gate",
@@ -691,7 +710,7 @@ function buildClassBasedResultWithProvenance({
     const classKey = forceClassBOnly ? "B" : (classFilter || null);
     if (!classKey) {
         return attachPreteritClassBasedGrammarContract(
-            { result, forms: splitPreteritResultForms(result), provenance: null },
+            { result, forms: splitPreteritResultForms(result), provenance: null, soundSpellingFrames: resultSoundSpellingFrames },
             {
                 ...contractOptions,
                 routeStage: "assemble-output",
@@ -748,7 +767,7 @@ function buildClassBasedResultWithProvenance({
     }
     if (!variants) {
         return attachPreteritClassBasedGrammarContract(
-            { result, forms: splitPreteritResultForms(result), provenance: null },
+            { result, forms: splitPreteritResultForms(result), provenance: null, soundSpellingFrames: resultSoundSpellingFrames },
             {
                 ...contractOptions,
                 classKey,
@@ -768,7 +787,7 @@ function buildClassBasedResultWithProvenance({
         suppletiveStemSet,
     });
     return attachPreteritClassBasedGrammarContract(
-        { result, forms: splitPreteritResultForms(result), provenance },
+        { result, forms: splitPreteritResultForms(result), provenance, soundSpellingFrames: resultSoundSpellingFrames },
         {
             ...contractOptions,
             classKey,

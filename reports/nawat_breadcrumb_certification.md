@@ -18,18 +18,17 @@ The previous as-built report was rejected as stale because it recorded patientiv
 - The conversion approach is guarded so non-tronco patientivo branches keep the ordinary patientivo breadcrumb.
 - Active conversion trails now include `S patientivo / tronco verbal` before the stem station in the official map.
 - GIS/CAD-style layers and an asset inventory were produced.
-- Live Safari verification confirmed the nonactive branch has no conversion switch and the `-na` perfect route displays the full active breadcrumb.
 - The accepted map is explicitly limited to 4 of 9 European-convention adjective circuits.
 
 ## Conditions
 
 This certification is for the current rail as built. Future-Nawat work still has open boundaries:
 
-- European `legacyMode` and `legacyTenseValue` metadata still back route generation.
+- European `routeMode` and `routeTenseValue` metadata now back route generation.
 - Five European-convention adjective circuits remain unmapped by the current Nawat tracks.
 - Particle mode exists in Nawat mode data but has no breadcrumb route yet.
 - Ordinary fallback station clicks still navigate UI panels rather than using active route station travel for every movement.
-- The rail shell still has the legacy HTML id `conversion-rail-block` and aria label `Conversión actual`.
+- The rail shell still has the compatibility HTML id `conversion-rail-block` and aria label `Conversión actual`.
 
 ## Accepted Records
 
