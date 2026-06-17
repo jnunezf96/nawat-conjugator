@@ -792,7 +792,7 @@ function buildKeyboardLegendSections() {
         },
         {
             title: "Nota",
-            entries: entries.filter((entry) => entry.label === "Tip"),
+            entries: entries.filter((entry) => entry.label === "Consejo"),
             note: true,
         },
     ].filter((section) => Array.isArray(section.entries) && section.entries.length);

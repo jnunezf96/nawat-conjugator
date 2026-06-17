@@ -923,25 +923,24 @@ function syncComposerTransitivitySlotButtons() {
 }
 
 function getComposerTransitivityTabsLabel() {
-    return getUiCopyLabel("composer-transitivity-label", "Valencia CNV");
+    return getUiCopyLabel("composer-transitivity-label", "Valencia verbal");
 }
 
 function syncComposerSlotTabsLabel(slotTabs) {
     if (!slotTabs) {
         return;
     }
+    if (!slotTabs.querySelector("[data-composer-transitivity]")) {
+        return;
+    }
     const labelText = getComposerTransitivityTabsLabel();
     slotTabs.setAttribute("aria-label", labelText);
-    let labelEl = Array.from(slotTabs.children).find((child) => (
+    const labelEl = Array.from(slotTabs.children).find((child) => (
         child.classList && child.classList.contains("verb-composer__slot-tabs-label")
     )) || null;
-    if (!labelEl) {
-        labelEl = document.createElement("span");
-        labelEl.className = "verb-composer__slot-tabs-label";
-        labelEl.setAttribute("aria-hidden", "true");
-        slotTabs.insertBefore(labelEl, slotTabs.firstElementChild || null);
+    if (labelEl) {
+        labelEl.remove();
     }
-    labelEl.textContent = labelText;
 }
 
 function syncComposerSlotTabsLabels(root = document) {
@@ -952,7 +951,7 @@ function syncComposerSlotTabsLabels(root = document) {
 }
 
 function getComposerEntryBoardTabsLabel() {
-    const baseLabel = getUiCopyLabel("composer-entry-board-label", "Tipo de CN");
+    const baseLabel = getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");
     if (typeof document === "undefined" || getComposerEntryBoard() !== COMPOSER_ENTRY_BOARD.nounToVerb) {
         return baseLabel;
     }
@@ -966,7 +965,7 @@ function getComposerEntryBoardTabsLabel() {
         : (judgement?.status === "nawat-only" ? "Nawat" : "");
     return [
         baseLabel,
-        suffixLabel ? `N>V ${suffixLabel}` : "N>V",
+        suffixLabel ? `Verbalizar ${suffixLabel}` : "Verbalizar",
         judgementLabel,
     ].filter(Boolean).join(" · ");
 }
@@ -1023,12 +1022,12 @@ function getComposerOperationBoard() {
 
 function getComposerOperationOrderLabel(board = "") {
     if (board === "ordinary-nnc") {
-        return "CNN/N: tablero -> pers1-pers2 -> predicado STEM -> conector num1-num2 -> referencia";
+        return "Cláusula nominal: tablero -> pers1-pers2 -> predicado base -> conector num1-num2 -> referencia";
     }
     if (board === COMPOSER_ENTRY_BOARD.nounToVerb) {
-        return "N>V: tablero -> fuente N -> verbalización -> valencia CNV -> obj1/obj2 -> dir";
+        return "Verbalización nominal: tablero -> fuente nominal -> verbalización -> valencia verbal -> objeto 1/objeto 2 -> direccional";
     }
-    return "CNV: tablero -> valencia CNV -> dir -> incorporado -> obj1/obj2 -> predicado STEM";
+    return "Cláusula verbal: tablero -> valencia verbal -> direccional -> incorporado -> objeto 1/objeto 2 -> predicado base";
 }
 
 function getComposerMatrixFieldLabel({
@@ -1036,12 +1035,12 @@ function getComposerMatrixFieldLabel({
     activeBoard = "",
 } = {}) {
     if (ordinaryNncActive) {
-        return "Predicado (STEM)";
+        return "Predicado (base)";
     }
     if (activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
-        return "Fuente N (STEM)";
+        return "Fuente nominal (base)";
     }
-    return "Predicado (STEM)";
+    return "Predicado (base)";
 }
 
 function getComposerMatrixInputTagLabel({
@@ -1049,12 +1048,12 @@ function getComposerMatrixInputTagLabel({
     activeBoard = "",
 } = {}) {
     if (ordinaryNncActive) {
-        return "STEM";
+        return "base";
     }
     if (activeBoard === COMPOSER_ENTRY_BOARD.nounToVerb) {
-        return "N";
+        return "nominal";
     }
-    return "STEM";
+    return "base";
 }
 
 function setComposerOperationSlotMetadata(element, slot = "", order = "") {
@@ -4886,8 +4885,8 @@ function syncComposerMatrixAffixPickers() {
         trigger.setAttribute(
             "aria-label",
             currentState.detailLabel && currentState.shortLabel
-                ? `Abrir opciones derivativas Slot ${slotLabel}. Actual ${currentState.detailLabel}.`
-                : `Abrir opciones derivativas Slot ${slotLabel}.`
+                ? `Abrir opciones derivativas, casilla ${slotLabel}. Actual ${currentState.detailLabel}.`
+                : `Abrir opciones derivativas, casilla ${slotLabel}.`
         );
         if (currentState.andrewsJudgment) {
             trigger.dataset.andrewsJudgment = currentState.andrewsJudgment.status || "";
@@ -5844,7 +5843,7 @@ function updateVerbComposerHint() {
     if (!isVerbInputModeComposer()) {
         hint.textContent = getUiCopyLabel(
             "composer-hint-regex-dev",
-            "Regex: escribe el patrón directamente en la pantalla."
+            "Patrón: escribe el patrón directamente en la pantalla."
         );
         return;
     }
@@ -5859,7 +5858,7 @@ function updateVerbComposerHint() {
     }
     const directionalPrefix = String(VerbComposerState.directionalPrefix || "").trim();
     if (directionalPrefix) {
-        hint.textContent = `Sílabas detectadas (STEM): ${syllableCount || 0}. dir en posición guía: [${directionalPrefix}]/ al inicio del bloque.`;
+        hint.textContent = `Sílabas detectadas (base): ${syllableCount || 0}. Direccional en posición guía: [${directionalPrefix}]/ al inicio del bloque.`;
         return;
     }
     hint.textContent = `Sílabas detectadas (raíz matriz): ${syllableCount || 0}.`;
@@ -10130,9 +10129,9 @@ function getSupportiveToggleGuidance({
     const ruleSummary = getSupportiveYRuleSummary();
     if (mode === VERB_INPUT_MODE.regex) {
         if (unavailable) {
-            return `Regex: disponible si el tronco inicia con i/y o ya contiene [i] o [y]. ${ruleSummary}`;
+            return `Patrón: disponible si el tronco inicia con i/y o ya contiene [i] o [y]. ${ruleSummary}`;
         }
-        return `${active ? "Regex: quitar" : "Regex: agregar"} [i] o [y] opcional. ${ruleSummary}`;
+        return `${active ? "Patrón: quitar" : "Patrón: agregar"} [i] o [y] opcional. ${ruleSummary}`;
     }
     if (unavailable) {
         return `Disponible solo si la raíz izquierda inicia con i o y. ${ruleSummary}`;
@@ -10159,7 +10158,7 @@ function syncVerbScreenCalculatorState() {
         ansButton.setAttribute("aria-disabled", String(!hasAns));
         ansButton.title = hasAns
             ? "Restaurar última raíz o forma generada"
-            : "Genera primero para habilitar ANS";
+            : "Genera primero para habilitar el resultado anterior";
     }
     const isComposer = isVerbInputModeComposer();
     if (modeButton) {
@@ -10188,12 +10187,12 @@ function syncVerbScreenCalculatorState() {
         );
         transitivityButton.title = transitivityUnavailable
             ? "Disponible solo en Selecciones"
-            : `Valencia CNV actual: ${readable}.`;
+            : `Valencia verbal actual: ${readable}.`;
         transitivityButton.setAttribute(
             "aria-label",
             transitivityUnavailable
-                ? "Valencia CNV disponible solo en Selecciones"
-                : `Valencia CNV actual ${readable}. Cambiar valencia CNV`
+                ? "Valencia verbal disponible solo en Selecciones"
+                : `Valencia verbal actual ${readable}. Cambiar valencia verbal`
         );
     }
     if (supportiveIButton) {
@@ -10240,8 +10239,8 @@ function syncVerbScreenCalculatorState() {
         equalsButton.disabled = !hasCopyText;
         equalsButton.setAttribute("aria-disabled", String(!hasCopyText));
         equalsButton.title = hasCopyText
-            ? "COP · copiar resultado"
-            : "COP · genera para copiar";
+            ? "Copiar resultado"
+            : "Genera primero para copiar";
     }
 }
 
@@ -11509,11 +11508,11 @@ var KEYBOARD_LEGEND_BASE_ENTRIES = Object.freeze([
     { label: "Space", description: "foco en #verb" },
     { label: "Esc", description: "cerrar/cancelar" },
     { label: "Esc x2", description: "limpiar cajas del compositor" },
-    { label: "Delete / Backspace", description: "DEL · borrar una unidad" },
-    { label: "Shift + Delete / Backspace", description: "CE · limpiar una caja de texto" },
-    { label: "⌥/Alt + Delete / Backspace", description: "AC · resetear cajas y selecciones" },
+    { label: "Delete / Backspace", description: "borrar una unidad" },
+    { label: "Shift + Delete / Backspace", description: "limpiar una caja de texto" },
+    { label: "⌥/Alt + Delete / Backspace", description: "reiniciar cajas y selecciones" },
     { label: "Enter", description: "activar control enfocado" },
-    { label: "Tip", description: "escribe para ver sugerencias o haz clic en un verbo de la lista" },
+    { label: "Consejo", description: "escribe para ver sugerencias o haz clic en un verbo de la lista" },
 ]);
 var ESCAPE_OVERLAY_HANDLERS = [];
 var ESCAPE_OVERLAY_HANDLER_SEQUENCE = 0;
@@ -11600,11 +11599,11 @@ var COMPOSER_SERIAL_TYPE_OPTIONS = Object.freeze([
     { value: "iwi", label: "iwi", slotCount: 3, family: "iwi" },
 ]);
 var COMPOSER_INTRANSITIVE_MATRIX_AFFIX_GROUPS = Object.freeze([
-    { key: "noun-to-verb", label: "N>V", triggerPrefix: "Verbalización" },
+    { key: "noun-to-verb", label: "Verbalizar", triggerPrefix: "Verbalización" },
     { key: "series", label: "Serie", triggerPrefix: "Serie" },
 ]);
 var COMPOSER_TRANSITIVE_MATRIX_AFFIX_GROUPS = Object.freeze([
-    { key: "noun-to-verb", label: "N>V", triggerPrefix: "Verbalización" },
+    { key: "noun-to-verb", label: "Verbalizar", triggerPrefix: "Verbalización" },
     { key: "series", label: "SERIE", triggerPrefix: "Derivación" },
 ]);
 var COMPOSER_INTRANSITIVE_MATRIX_AFFIX_OPTIONS = Object.freeze([

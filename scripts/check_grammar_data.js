@@ -1173,21 +1173,107 @@ function checkAndrewsTrajectoryDoc() {
     }
 }
 
-function collectVisibleUiSpanishSurfaceErrors() {
+function collectVisibleUiSpanishSurfaceErrors(options = {}) {
     const errorsFound = [];
     const htmlPath = path.join(ROOT, "index.html");
     const labelsPath = path.join(DATA_DIR, "static_labels.json");
+    const modesPath = path.join(DATA_DIR, "static_modes.json");
+    const optionsPath = path.join(DATA_DIR, "static_options.json");
+    const renderingPath = path.join(ROOT, "src", "ui", "rendering", "rendering.js");
+    const composerPath = path.join(ROOT, "src", "ui", "composer", "composer.js");
+    const exportPath = path.join(ROOT, "src", "ui", "export", "export.js");
+    const eventsPath = path.join(ROOT, "src", "ui", "events.js");
+    const statePath = path.join(ROOT, "src", "ui", "state.js");
+    const hasOption = (key) => Object.prototype.hasOwnProperty.call(options, key);
     let html = "";
     let staticLabels = null;
-    try {
-        html = fs.readFileSync(htmlPath, "utf8");
-    } catch (error) {
-        return [`${rel(htmlPath)} could not be read: ${error.message}`];
+    let staticModes = null;
+    let staticOptions = null;
+    let renderingSource = "";
+    let composerSource = "";
+    let exportSource = "";
+    let eventsSource = "";
+    let stateSource = "";
+    const loadJsonFromOptionOrFile = (optionKey, filePath, displayName) => {
+        if (hasOption(optionKey)) {
+            if (typeof options[optionKey] === "string") {
+                try {
+                    return { value: JSON.parse(options[optionKey]), error: "" };
+                } catch (error) {
+                    return { value: null, error: `${displayName} override could not be parsed as JSON.` };
+                }
+            }
+            return { value: options[optionKey], error: "" };
+        }
+        try {
+            return { value: JSON.parse(fs.readFileSync(filePath, "utf8")), error: "" };
+        } catch (error) {
+            return { value: null, error: `${rel(filePath)} could not be parsed as JSON: ${error.message}` };
+        }
+    };
+    if (hasOption("html")) {
+        html = String(options.html || "");
+    } else {
+        try {
+            html = fs.readFileSync(htmlPath, "utf8");
+        } catch (error) {
+            return [`${rel(htmlPath)} could not be read: ${error.message}`];
+        }
     }
-    try {
-        staticLabels = JSON.parse(fs.readFileSync(labelsPath, "utf8"));
-    } catch (error) {
-        return [`${rel(labelsPath)} could not be parsed as JSON: ${error.message}`];
+    const loadedLabels = loadJsonFromOptionOrFile("staticLabels", labelsPath, "staticLabels");
+    const loadedModes = loadJsonFromOptionOrFile("staticModes", modesPath, "staticModes");
+    const loadedOptions = loadJsonFromOptionOrFile("staticOptions", optionsPath, "staticOptions");
+    const jsonLoadError = [loadedLabels.error, loadedModes.error, loadedOptions.error].filter(Boolean)[0] || "";
+    if (jsonLoadError) {
+        return [jsonLoadError];
+    }
+    staticLabels = loadedLabels.value;
+    staticModes = loadedModes.value;
+    staticOptions = loadedOptions.value;
+    if (hasOption("renderingSource")) {
+        renderingSource = String(options.renderingSource || "");
+    } else {
+        try {
+            renderingSource = fs.readFileSync(renderingPath, "utf8");
+        } catch (error) {
+            return [`${rel(renderingPath)} could not be read: ${error.message}`];
+        }
+    }
+    if (hasOption("composerSource")) {
+        composerSource = String(options.composerSource || "");
+    } else {
+        try {
+            composerSource = fs.readFileSync(composerPath, "utf8");
+        } catch (error) {
+            return [`${rel(composerPath)} could not be read: ${error.message}`];
+        }
+    }
+    if (hasOption("exportSource")) {
+        exportSource = String(options.exportSource || "");
+    } else {
+        try {
+            exportSource = fs.readFileSync(exportPath, "utf8");
+        } catch (error) {
+            return [`${rel(exportPath)} could not be read: ${error.message}`];
+        }
+    }
+    if (hasOption("eventsSource")) {
+        eventsSource = String(options.eventsSource || "");
+    } else {
+        try {
+            eventsSource = fs.readFileSync(eventsPath, "utf8");
+        } catch (error) {
+            return [`${rel(eventsPath)} could not be read: ${error.message}`];
+        }
+    }
+    if (hasOption("stateSource")) {
+        stateSource = String(options.stateSource || "");
+    } else {
+        try {
+            stateSource = fs.readFileSync(statePath, "utf8");
+        } catch (error) {
+            return [`${rel(statePath)} could not be read: ${error.message}`];
+        }
     }
     const visibleHtmlText = html
         .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -1195,34 +1281,135 @@ function collectVisibleUiSpanishSurfaceErrors() {
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-    const labelEsValues = [];
-    const collectLabelEs = (value) => {
+    const visibleHtmlAttributes = [];
+    html.replace(/\s(?:aria-label|title|placeholder|alt)="([^"]*)"/gi, (_match, value) => {
+        visibleHtmlAttributes.push(value);
+        return "";
+    });
+    const collectVisibleSpanishLabels = (value, values = []) => {
         if (!value || typeof value !== "object") {
-            return;
+            return values;
         }
         Object.entries(value).forEach(([key, entry]) => {
-            if (key === "labelEs" && typeof entry === "string") {
-                labelEsValues.push(entry);
+            if ((key === "labelEs" || key === "es") && typeof entry === "string") {
+                values.push(entry);
                 return;
             }
-            collectLabelEs(entry);
+            collectVisibleSpanishLabels(entry, values);
         });
+        return values;
     };
-    collectLabelEs(staticLabels);
-    const labelEsText = labelEsValues.join(" ");
     const visibleUiChecks = [
         ["index.html visible text", visibleHtmlText],
-        ["data/static_labels.json labelEs", labelEsText],
+        ["index.html visible attributes", visibleHtmlAttributes.join(" ")],
+        ["data/static_labels.json Spanish labels", collectVisibleSpanishLabels(staticLabels).join(" ")],
+        ["data/static_modes.json Spanish labels", collectVisibleSpanishLabels(staticModes).join(" ")],
+        ["data/static_options.json Spanish labels", collectVisibleSpanishLabels(staticOptions).join(" ")],
     ];
     visibleUiChecks.forEach(([where, text]) => {
         if (/Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(text)) {
             errorsFound.push(`${where} must not use the obsolete Unidad y función / Unit and Function label.`);
+        }
+        if (/\bRegex\s+Dev\b|\bDev\b/.test(text)) {
+            errorsFound.push(`${where} must not expose developer shorthand; use Spanish visible labels.`);
+        }
+        if (/\bRule\b|\bCopyright\b/.test(text)) {
+            errorsFound.push(`${where} must not expose English utility labels; use Spanish visible labels.`);
+        }
+        if (/\bSTEM\b|\bSlot\b|\bSlots\b|\bTip\b|Tamaño UI|\bUI\b|\bACT\b|\bNO\s+ACT\b|\bdir\b|\binc\b|\bN>V\b|CSV vista|\bCSV\b|\bVI\b|\bVT\b|\bVB\b|Incorp\.|Obj\.|Valencia CNV|Tablero CNV|CNN\/N|fuente N\b|Tipo de CN|no genera VNC\/CNN|Adj VNC|Adj NNC|NNC abs|NNC raiz|tronco NNC|Cláusula nuclear CNN|Relacional NNC|Objetivos Andrews NNC\/VNC|Solicitudes VNC Andrews|Clases VNC Andrews|Avisos Andrews VNC|Notas Andrews VNC|Entradas VNC Andrews|Fuente Andrews: NNC|Evidencia: salida NNC|valencia VNC|objeto 1 CNV|derivacion VNC|compuesto VNC/.test(text)) {
+            errorsFound.push(`${where} must not expose English or non-formula shorthand; use Spanish visible labels.`);
+        }
+        if (/\bLCM\b/.test(text)) {
+            errorsFound.push(`${where} must not expose LCM shorthand; use contrato in visible UI.`);
+        }
+        if (/\bregex\b/i.test(text)) {
+            errorsFound.push(`${where} must not expose Regex; use patrón or expresión regular in visible UI.`);
         }
         if (/\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(text)) {
             errorsFound.push(`${where} must use Spanish visible grammar labels instead of English grammar labels.`);
         }
         if (/\btns\b/i.test(text)) {
             errorsFound.push(`${where} must not expose tns; use tiempo in visible UI and compact formula text.`);
+        }
+    });
+    [
+        ["entry board verbal single-letter tab", /data-composer-entry-board="general"[\s\S]*?>\s*V\s*<\/button>/],
+        ["entry board nominal single-letter tab", /data-ordinary-nnc-mode="true"[\s\S]*?>\s*N\s*<\/button>/],
+        ["formal-class CNV visible button", />\s*CNV\s*<\/button>/],
+        ["formal-class CNN visible button", />\s*CNN\s*<\/button>/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(html)) {
+            errorsFound.push(`index.html ${label} must use full Spanish visible labels outside formula text.`);
+        }
+    });
+    [
+        "function formatVisibleLcmStatusLabel",
+        "function formatVisibleLcmRoutePartLabel",
+        "function formatVisibleLcmLayerLabel",
+        "function formatVisibleLcmDiagnosticLabel",
+    ].forEach((marker) => {
+        if (!renderingSource.includes(marker)) {
+            errorsFound.push(`src/ui/rendering/rendering.js must keep ${marker}() for dynamic Spanish contract labels.`);
+        }
+    });
+    [
+        ["dynamic visible LCM status label", /labels\.push\(`Estado LCM:/],
+        ["dynamic visible LCM route label", /labels\.push\(`Ruta LCM:/],
+        ["dynamic visible LCM generation label", /labels\.push\(["'`]Generaci[oó]n LCM:/],
+        ["dynamic LCM evidence label", /labels\.push\(`Evidencia: \$\{evidenceStatus\}`\)/],
+        ["dynamic LCM realization label", /labels\.push\(`Realizacion Nawat:|labels\.push\("Realizacion Nawat:/],
+        ["dynamic visible LCM failure label", /labels\.push\(`Falla LCM:/],
+        ["dynamic visible LCM diagnostic label", /labels\.push\(`Diagn[oó]stico LCM:/],
+        ["dynamic Lesson 2 position detail", /position \? `posicion:/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(renderingSource)) {
+            errorsFound.push(`src/ui/rendering/rendering.js ${label} must use Spanish visible text and translated LCM metadata.`);
+        }
+    });
+    [
+        ["export visible LCM header", /["'`][^"'`]*\bLCM\b[^"'`]*["'`]/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(exportSource)) {
+            errorsFound.push(`src/ui/export/export.js ${label} must use Spanish contract labels.`);
+        }
+    });
+    [
+        ["dynamic pattern guidance", /["'`]Regex:\s/],
+        ["dynamic regex guide label", /["'`]Guía regex/],
+        ["dynamic active regex label", /["'`]Regex activo/],
+        ["dynamic regex reading title", /["'`]Cómo leer el regex/],
+        ["dynamic visible regex prose", /["'`]El regex visible/],
+        ["dynamic non-formula STEM label", /["'`](?:Predicado|Fuente N) \(STEM\)|["'`]STEM["'`]|Sílabas detectadas \(STEM\)/],
+        ["dynamic English note label", /label:\s*["'`]Tip["'`]/],
+        ["dynamic non-formula route shorthand", /["'`]N>V|N>V\s+\$\{|->\s*dir\b|\bdir en posición|\bobj1\/obj2\b|Valencia CNV|CNN\/N|CNV:\s+tablero|fuente N\b|Tipo de CN|habilitar ANS|COP ·|DEL ·|CE ·|AC ·|["'`]N["'`]/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(composerSource)) {
+            errorsFound.push(`src/ui/composer/composer.js ${label} must use Spanish visible labels.`);
+        }
+    });
+    [
+        ["dynamic English slot title", /["'`]Slots y referencia["'`]/],
+        ["dynamic UI shorthand", /["'`]control de ruta UI["'`]/],
+        ["dynamic non-formula denominal valence shorthand", /["'`](?:VI|VT|VB)(?:\s|-)/],
+        ["dynamic non-formula clause shorthand", /["'`](?:Adj VNC|Adj NNC|NNC abs|NNC raiz|tronco NNC|Cláusula nuclear CNN|Relacional NNC|Objetivos Andrews NNC\/VNC|Solicitudes VNC Andrews|Clases VNC Andrews|Avisos Andrews VNC|Notas Andrews VNC|Entradas VNC Andrews|Fuente Andrews: NNC|Evidencia: salida NNC|valencia VNC|objeto 1 CNV|derivacion VNC|compuesto VNC|#3 salida VNC|#3 salida NNC|VNC en funcion adjetival|NNC .*funcion adjetival|no crea tronco NNC)/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(renderingSource)) {
+            errorsFound.push(`src/ui/rendering/rendering.js ${label} must use Spanish visible labels.`);
+        }
+    });
+    [
+        ["dynamic particle route shorthand", /["'`]Partícula · diagnóstico Andrews; no genera VNC\/CNN\./],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(stateSource)) {
+            errorsFound.push(`src/ui/state.js ${label} must use Spanish visible labels.`);
+        }
+    });
+    [
+        ["inline composer STEM marker", /content:\s*["'`]\(STEM\)["'`]/],
+        ["inline composer non-formula valence shorthand", /Elemento incorporado\s+(?:VI|VT|VB)|["'`]Incorp\.["'`]|["'`]Obj\.["'`]/],
+    ].forEach(([label, pattern]) => {
+        if (pattern.test(eventsSource)) {
+            errorsFound.push(`src/ui/events.js ${label} must use Spanish visible labels.`);
         }
     });
     return errorsFound;

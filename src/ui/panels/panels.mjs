@@ -722,7 +722,7 @@ export function createUiPanelsApi(targetObject = globalThis) {
         entries: entries.filter(entry => ["Delete / Backspace", "Shift + Delete / Backspace", "⌥/Alt + Delete / Backspace"].includes(entry.label))
       }, {
         title: "Nota",
-        entries: entries.filter(entry => entry.label === "Tip"),
+        entries: entries.filter(entry => entry.label === "Consejo"),
         note: true
       }].filter(section => Array.isArray(section.entries) && section.entries.length);
     }

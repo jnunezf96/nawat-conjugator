@@ -182,6 +182,27 @@ function createLesson4InspectorLine(label = "", value = "") {
     return line;
 }
 
+function getVisibleNuclearClauseTypeLabel(type = "", fallback = "cláusula nuclear") {
+    const normalized = String(type || "").trim().toLowerCase();
+    if (normalized === "cnv" || normalized === "vnc" || normalized === "verbal") {
+        return "cláusula verbal";
+    }
+    if (normalized === "cnn" || normalized === "nnc" || normalized === "nominal") {
+        return "cláusula nominal";
+    }
+    if (normalized === "cn" || normalized === "nuclear") {
+        return "cláusula nuclear";
+    }
+    return String(fallback || "cláusula nuclear").replace(/\s*\((?:CNV|CNN|VNC|NNC|CN)\)\s*/g, "").trim();
+}
+
+function getVisibleNuclearClauseShellLabel(shell = null) {
+    return getVisibleNuclearClauseTypeLabel(
+        shell?.formulaAbbreviation || shell?.formulaType || "",
+        shell?.displayLabel || "cláusula nuclear"
+    );
+}
+
 function formatVisibleAndrewsSlotToken(value = "") {
     const normalized = String(value || "").trim();
     const labels = {
@@ -285,7 +306,7 @@ function appendLesson4CompactDiagram(parent = null, shell = null) {
 
     const rootNode = document.createElement("div");
     rootNode.className = "lesson4-inspector__diagram-root";
-    rootNode.textContent = shell?.formulaAbbreviation || shell?.formulaType || "CN";
+    rootNode.textContent = getVisibleNuclearClauseShellLabel(shell);
     rootNode.title = root.labelEs || "";
 
     const branches = document.createElement("div");
@@ -380,11 +401,11 @@ function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
     heading.className = "lesson4-inspector__heading";
     const title = document.createElement("div");
     title.className = "lesson4-inspector__title";
-    title.textContent = `Andrews Lección 4 · ${shell.formulaAbbreviation || shell.formulaType || "CN"}`;
+    title.textContent = `Andrews Lección 4 · ${getVisibleNuclearClauseShellLabel(shell)}`;
     const chips = document.createElement("div");
     chips.className = "lesson4-inspector__chips";
     chips.append(
-        createLesson4InspectorChip("CN: cláusula nuclear"),
+        createLesson4InspectorChip("Cláusula nuclear"),
         createLesson4InspectorChip("sin generación"),
         createLesson4InspectorChip(`§4.1 ${lesson4.useFrame?.activeRoleLabelEs || "uso sin fijar"}`)
     );
@@ -404,7 +425,7 @@ function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
     }
     appendLesson4CompactDiagram(structurePanel, shell);
 
-    const detailPanel = createLesson4InspectorPanel("Slots y referencia", "§4.1, §4.5, §4.6");
+    const detailPanel = createLesson4InspectorPanel("Casillas y referencia", "§4.1, §4.5, §4.6");
 
     const facts = document.createElement("div");
     facts.className = "lesson4-inspector__facts";
@@ -473,7 +494,7 @@ function updateTensePanelDescription() {
     if (tenseMode === TENSE_MODE.particula) {
         entries.push({
             label: "Andrews Lección 3",
-            description: "Inventario diagnóstico: partículas, negativas, colocaciones e interjecciones; sin generación VNC/CNN.",
+            description: "Inventario diagnóstico: partículas, negativas, colocaciones e interjecciones; sin generación verbal o nominal.",
         });
         panel.innerHTML = "";
         entries.forEach((entry) => {
@@ -948,7 +969,7 @@ function buildVerbDerivedNominalizationProfileSubLabels(profile = null, { isNawa
         ""
     );
     if (adjectivalFunctionLabel) {
-        labels.push(`funcion adjetival: ${adjectivalFunctionLabel}`);
+        labels.push(`función adjetival: ${adjectivalFunctionLabel}`);
     }
     if (adjectivalFunctionLabel && boundaries.doesNotImplementLessons42_43) {
         labels.push("modificacion: no modelada");
@@ -963,20 +984,25 @@ function appendVerbDerivedNominalizationProfileSubLabels(baseLabel = "", profile
     ].filter(Boolean).join(" · ");
 }
 
+function getVisibleDenominalRouteFamilyLabel(routeFamily = "", fallback = "") {
+    const familyLabels = {
+        "vi-ti": "intransitiva -ti",
+        "vi-iwi": "intransitiva -iwi",
+        "vi-awi": "intransitiva -awi",
+        "vt-na": "transitiva -na",
+    };
+    const normalized = String(routeFamily || "").trim();
+    return familyLabels[normalized] || fallback || normalized;
+}
+
 function buildDenominalFamilyProfileSubLabels(profile = null) {
     if (!profile || profile.outputKind !== "denominal-route") {
         return [];
     }
-    const familyLabels = {
-        "vi-ti": "VI -ti",
-        "vi-iwi": "VI -iwi",
-        "vi-awi": "VI -awi",
-        "vt-na": "VT -na",
-    };
     const labels = [];
     const routeFamily = String(profile.routeFamily || "").trim();
     if (routeFamily) {
-        labels.push(`Familia denominal: ${familyLabels[routeFamily] || routeFamily}`);
+        labels.push(`Familia denominal: ${getVisibleDenominalRouteFamilyLabel(routeFamily, routeFamily)}`);
     }
     const verbalizer = String(profile.verbalizer || "").trim();
     if (verbalizer) {
@@ -1000,7 +1026,10 @@ function buildDenominalFamilyProfileSubLabels(profile = null) {
         labels.push(`Contratos Andrews pendientes: ${pendingCount}`);
     }
     if (Array.isArray(contractCoverage?.nawatOnlyRouteFamilies) && contractCoverage.nawatOnlyRouteFamilies.length) {
-        labels.push(`Rutas Nawat sin contrato Andrews: ${contractCoverage.nawatOnlyRouteFamilies.join(", ")}`);
+        const nawatOnlyRouteLabels = contractCoverage.nawatOnlyRouteFamilies
+            .map((family) => getVisibleDenominalRouteFamilyLabel(family, family))
+            .filter(Boolean);
+        labels.push(`Rutas Nawat sin contrato Andrews: ${nawatOnlyRouteLabels.join(", ")}`);
     }
     const contractRoutePreview = profile.andrewsContractRoutePreview && typeof profile.andrewsContractRoutePreview === "object"
         ? profile.andrewsContractRoutePreview
@@ -1008,19 +1037,19 @@ function buildDenominalFamilyProfileSubLabels(profile = null) {
     labels.push(...buildNawatDenominalSourceEvidenceSubLabels(profile.sourceEvidence || contractRoutePreview?.sourceEvidence));
     const routeTargetCount = Number(contractRoutePreview?.routeCount || 0);
     if (routeTargetCount > 0) {
-        labels.push(`Objetivos Andrews NNC/VNC: ${routeTargetCount}`);
+        labels.push(`Objetivos Andrews nominales/verbales: ${routeTargetCount}`);
     }
     const finiteRouteRequestCount = Number(contractRoutePreview?.finiteRouteRequestCount || 0);
     if (finiteRouteRequestCount > 0) {
-        labels.push(`Solicitudes VNC Andrews: ${finiteRouteRequestCount} con tiempo explícito`);
+        labels.push(`Solicitudes verbales Andrews: ${finiteRouteRequestCount} con tiempo explícito`);
     }
     const objectPrefixRequiredCount = Number(contractRoutePreview?.finiteRouteObjectPrefixRequiredCount || 0);
     if (objectPrefixRequiredCount > 0) {
-        labels.push(`Solicitudes VNC Andrews con objeto: ${objectPrefixRequiredCount}`);
+        labels.push(`Solicitudes verbales Andrews con objeto: ${objectPrefixRequiredCount}`);
     }
     const stemClassContractCount = Number(contractRoutePreview?.finiteRouteStemClassContractCount || 0);
     if (stemClassContractCount > 0) {
-        labels.push(`Clases VNC Andrews: ${stemClassContractCount}`);
+        labels.push(`Clases verbales Andrews: ${stemClassContractCount}`);
     }
     const sourceEvidenceRequiredCount = Number(contractRoutePreview?.finiteRouteSourceEvidenceRequiredCount || 0);
     if (sourceEvidenceRequiredCount > 0) {
@@ -1028,11 +1057,11 @@ function buildDenominalFamilyProfileSubLabels(profile = null) {
     }
     const routeWarningCount = Number(contractRoutePreview?.routeWarningCount || 0);
     if (routeWarningCount > 0) {
-        labels.push(`Avisos Andrews VNC: ${routeWarningCount}`);
+        labels.push(`Avisos verbales Andrews: ${routeWarningCount}`);
     }
     const routeNoteCount = Number(contractRoutePreview?.routeNoteCount || 0);
     if (routeNoteCount > 0) {
-        labels.push(`Notas Andrews VNC: ${routeNoteCount}`);
+        labels.push(`Notas verbales Andrews: ${routeNoteCount}`);
     }
     const routeTargetSamples = Array.isArray(contractRoutePreview?.routes)
         ? contractRoutePreview.routes
@@ -1041,7 +1070,7 @@ function buildDenominalFamilyProfileSubLabels(profile = null) {
             .slice(0, 3)
         : [];
     if (routeTargetSamples.length) {
-        labels.push(`Entradas VNC Andrews: ${routeTargetSamples.join(", ")}`);
+        labels.push(`Entradas verbales Andrews: ${routeTargetSamples.join(", ")}`);
     }
     if (profile.isCompleteLesson54_55 === false) {
         labels.push("Cobertura denominal: parcial");
@@ -1087,20 +1116,20 @@ function buildNawatDenominalSourceEvidenceSubLabels(sourceEvidence = null) {
         || sourceCategory === "deverbal-yu-nounstem"
         || sourceCategory === "deverbal-yu-nounstem-source"
     ) {
-        labels.push("Fuente Andrews: NNC deverbal -yu generado");
+        labels.push("Fuente Andrews: cláusula nominal deverbal -yu generada");
     } else if (evidence.possessiveState === true || sourceCategory === "possessive-state-nnc-predicate") {
-        labels.push("Fuente Andrews: NNC posesivo generado");
+        labels.push("Fuente Andrews: cláusula nominal posesiva generada");
     } else if (
         evidence.inceptiveTiSource === true
         || evidence.inceptiveASource === true
         || sourceCategory === "absolutive-state-nnc-predicate"
         || sourceCategory === "absolutive-nounstem"
     ) {
-        labels.push("Fuente Andrews: NNC absolutivo generado");
+        labels.push("Fuente Andrews: cláusula nominal absolutiva generada");
     } else if (evidence.rootPlusYaSource === true || sourceCategory === "nounstem-as-root") {
-        labels.push("Fuente Andrews: NNC en rango raiz");
+        labels.push("Fuente Andrews: cláusula nominal en rango raíz");
     } else if (evidence.possessionTiSource === true || sourceCategory === "ordinary-nnc-predicate-nounstem") {
-        labels.push("Fuente Andrews: tronco NNC generado");
+        labels.push("Fuente Andrews: tronco nominal generado");
     } else if (evidence.temporalCompoundSource === true) {
         labels.push("Fuente Andrews: compuesto temporal confirmado");
     } else if (evidence.adverbialSource === true || sourceCategory === "adverbial-nounstem") {
@@ -1137,7 +1166,7 @@ function buildNawatDenominalSourceEvidenceSubLabels(sourceEvidence = null) {
         labels.push("Evidencia: ruta Andrews");
     }
     if (evidence.boundaries?.sourceEvidenceFromGeneratedOrdinaryNnc === true) {
-        labels.push("Evidencia: salida NNC");
+        labels.push("Evidencia: salida nominal");
     }
     if (evidence.boundaries?.sourceEvidenceFromExplicitSourceClassification === true) {
         labels.push("Evidencia: fuente clasificada");
@@ -1233,9 +1262,10 @@ function getNawatLinkedGrammarCompactRouteLabel(routeOrId = "") {
     if (!routeId) {
         return "";
     }
-    return routeId
+    const compactRoute = routeId
         .replace(/^denominal-/, "")
-        .replace(/-preterit$/, "");
+        .replace(/-(?:preterit|perfect)$/, "");
+    return getVisibleDenominalRouteFamilyLabel(compactRoute, compactRoute);
 }
 
 function getNawatLinkedGrammarCompactStageLabel(stageKey = "") {
@@ -1627,10 +1657,10 @@ function renderDenominalAndrewsContractRouteContinuationForValue({
             `contrato: ${route.contractId || ""}`,
             route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
             `ruta: ${route.routeTemplateId || ""}`,
-            `objeto VNC: ${prefix}`,
-            `VNC: ${targetInput}`,
+            `objeto verbal: ${prefix}`,
+            `entrada verbal: ${targetInput}`,
             `tiempo: ${resolvedTargetTense}`,
-            "objeto VNC seleccionado explicitamente",
+            "objeto verbal seleccionado explícitamente",
             "no crea ficha lexical",
         ].filter(Boolean).join("; ");
         objectButton.addEventListener("click", () => {
@@ -1803,7 +1833,7 @@ function renderDenominalAndrewsContractRouteContinuationForValue({
             hasRouteWarning ? "aviso" : "",
             !hasRouteWarning && hasRouteNote ? "nota" : "",
             sourceFinalPatternLabel,
-            sourceFinalDeterminesTargetStemClass ? "class by final segment" : "",
+            sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "",
             traditionalSpellingConfusableWith ? "grafía ambigua" : "",
             sourceEvidencePending ? "fuente pendiente" : "",
             sourceEvidenceSatisfied ? "fuente Andrews" : "",
@@ -1817,11 +1847,11 @@ function renderDenominalAndrewsContractRouteContinuationForValue({
             `ruta: ${route.routeTemplateId || ""}`,
             `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`,
             route.targetStemClass ? `clase: ${route.targetStemClass}` : "",
-            `VNC: ${targetInput}`,
+            `entrada verbal: ${targetInput}`,
             `tiempo: ${resolvedTargetTense}`,
             sourceEvidencePending ? "requiere fuente Andrews verificada" : "",
             sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "",
-            objectPrefixRequired ? "requiere objeto VNC" : "",
+            objectPrefixRequired ? "requiere objeto verbal" : "",
             sourceFinalPatternLabel,
             targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "",
             traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "",
@@ -2236,11 +2266,7 @@ function buildNuclearClauseShellSubLabels(shell = null) {
     if (!shell || shell.kind !== "nuclear-clause-shell") {
         return [];
     }
-    const label = shell.displayLabel || (
-        shell.formulaType && shell.formulaType !== "unknown"
-            ? `cláusula nuclear ${shell.formulaType}`
-            : "cláusula nuclear"
-    );
+    const label = getVisibleNuclearClauseShellLabel(shell);
     const lesson4 = shell.lesson4 && typeof shell.lesson4 === "object"
         ? shell.lesson4
         : null;
@@ -2255,7 +2281,7 @@ function buildNuclearClauseShellSubLabels(shell = null) {
         ? lesson4.organizationalLayers
         : (Array.isArray(shell.organizationalLayers) ? shell.organizationalLayers : []);
     const layerLabel = layers.length
-        ? `jerarquía ${shell.formulaAbbreviation || shell.formulaType || "CN"}: ${layers.map((layer) => layer.labelEs || layer.label || layer.key || "").filter(Boolean).join(" > ")}`
+        ? `jerarquía ${getVisibleNuclearClauseShellLabel(shell)}: ${layers.map((layer) => layer.labelEs || layer.label || layer.key || "").filter(Boolean).join(" > ")}`
         : "";
     const formulaEcho = String(shell.formulaEcho || "").trim();
     const formulaEchoLabel = formulaEcho && shell.formulaType === "VNC"
@@ -2333,7 +2359,7 @@ const ANDREWS_RENDERING_TERMS = Object.freeze({
     predicateState: "estado del predicado",
     num1Num2: "número1-número2",
     nominalization: "nominalización",
-    sourceVnc: "fuente CNV",
+    sourceVnc: "fuente verbal",
     patientiveStage: "etapa #3 salida",
     patientiveSource: "fuente patientiva",
     patientiveProcedures: "procedimientos patientivos",
@@ -2645,7 +2671,7 @@ function buildGeneratedOutputLesson2ChipDetail(frame = null) {
     const detailParts = [
         section ? `Andrews L2 ${section}` : "Andrews L2",
         process,
-        position ? `posicion: ${position}` : "",
+        position ? `posición: ${position}` : "",
         slot ? `casilla: ${slot}` : "",
     ].filter(Boolean);
     return detailParts.join(" · ");
@@ -2825,6 +2851,8 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "cláusula nuclear NNC:",
         "cláusula nuclear CNV:",
         "cláusula nuclear CNN:",
+        "cláusula verbal:",
+        "cláusula nominal:",
         "Formula VNC:",
         "Formula NNC:",
         "Formula CNV:",
@@ -2866,13 +2894,18 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Fórmula CNN:",
         "Valencia VNC:",
         "Objeto VNC:",
-        "Estado LCM:",
-        "Ruta LCM:",
-        "Generacion LCM:",
+        "valencia verbal:",
+        "objeto verbal:",
+        "Estado de contrato:",
+        "Ruta de contrato:",
+        "Generación de contrato:",
         "Evidencia:",
         "Andrews:",
+        "Realización Nawat:",
         "Realizacion Nawat:",
+        "Ámbito:",
         "Ambito:",
+        "Nominalización:",
         "Nominalizacion:",
         "Rol nominal:",
         "Fuente VNC:",
@@ -2881,8 +2914,11 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Fuente patientiva:",
         "Familias Andrews:",
         "Etapa salida:",
+        "Taxonomía patientiva:",
         "Taxonomia patientiva:",
+        "Función adjetival:",
         "Funcion adjetival:",
+        "Modificación:",
         "Modificacion:",
         "Conector sujeto:",
         "Conector num1-num2:",
@@ -2890,6 +2926,7 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Estado del predicado:",
         "Animacidad:",
         "Referencia:",
+        "Marcación posesiva:",
         "Marcacion posesiva:",
         "Proceso L2",
         "clase ",
@@ -2898,8 +2935,8 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         .filter((part) => !saturatedPrefixes.some((prefix) => part.startsWith(prefix)))
         .slice(0, 2);
     const diagnosticPart = parts.find((part) => (
-        part.startsWith("Diagnostico LCM:")
-        || part.startsWith("Falla LCM:")
+        part.startsWith("Diagnóstico de contrato:")
+        || part.startsWith("Falla de contrato:")
         || part.startsWith("Sin salida")
         || part.startsWith("Ruta bloqueada")
     ));
@@ -3154,6 +3191,292 @@ function getGrammarFrameDiagnosticLabelForRendering(diagnostic = null) {
     return String(diagnostic.message || diagnostic.id || diagnostic.code || "").trim();
 }
 
+const VISIBLE_LCM_EXACT_LABELS = Object.freeze({
+    "andrews-authoritative-nawat-data-backed": "Andrews autoritativo con datos nawat",
+    "andrews-authoritative-nawat-matrix-evidence": "Andrews autoritativo con evidencia matriz nawat",
+    "andrews-authoritative-nawat-orthography": "Andrews autoritativo con ortografía nawat",
+    "andrews-orthography-adapted": "ortografía Andrews adaptada",
+    "composition-ast": "composición de árbol",
+    "context-required": "requiere contexto",
+    "diagnostic-only": "solo diagnóstico",
+    "direct-pdf": "PDF directo",
+    "direct-pdf-diagnostic": "diagnóstico de PDF directo",
+    "direct-pdf-partial": "PDF directo parcial",
+    "metadata-supported": "metadatos respaldados",
+    "nawat-data-backed": "datos nawat respaldados",
+    "not-particle-syntax": "no es sintaxis de partícula",
+    "route-control": "control de ruta",
+    "source-evidence-satisfied": "evidencia fuente satisfecha",
+    "visible-diagnostic": "diagnóstico visible",
+});
+
+const VISIBLE_LCM_ROUTE_LABELS = Object.freeze({
+    "adjectival-modification": "modificación adjetival",
+    "adjectival-nnc": "cláusula nominal adjetival",
+    "adverbial-adjunction": "adjunción adverbial",
+    "adverbial-nuclear": "nuclear adverbial",
+    "agreement-valence": "concordancia de valencia",
+    "adjective-active-valency-gate": "control de valencia activa adjetival",
+    "audit-lesson-23": "auditar lección 23",
+    "audit-lesson-27": "auditar lección 27",
+    "audit-lesson-42": "auditar lección 42",
+    "audit-lesson-43": "auditar lección 43",
+    "audit-lesson-44": "auditar lección 44",
+    "audit-lesson-49": "auditar lección 49",
+    "audit-lesson-50": "auditar lección 50",
+    "audit-lesson-51": "auditar lección 51",
+    "audit-lesson-52": "auditar lección 52",
+    "audit-lesson-53": "auditar lección 53",
+    "build-context": "construir contexto",
+    "calendar-name": "nombre calendárico",
+    "classify-boundary": "clasificar límite",
+    "classify-candidate": "clasificar candidato",
+    "classify-concept-entry": "clasificar entrada de concepto",
+    "classify-false-positive": "clasificar falso positivo",
+    "classify-glossary": "clasificar glosario",
+    "classify-registry": "clasificar registro",
+    "classify-route": "clasificar ruta",
+    "classify-shell": "clasificar esqueleto",
+    "classify-token": "clasificar token",
+    "comparison": "comparación",
+    "complement-clause": "cláusula complemento",
+    "concept-registry": "registro de conceptos",
+    "conjunction-clause": "cláusula conjuntiva",
+    "derivation-continuation": "continuación derivacional",
+    "describe-existing-output": "describir salida existente",
+    "denominal-vi-ti-preterit": "denominal intransitiva -ti pretérito",
+    "execute": "ejecutar",
+    "finite-tense-preview": "vista previa de tiempo finito",
+    "forward-derivation": "derivación directa",
+    "forward-derivation-gate": "control de derivación directa",
+    "forward-stem-context-gate": "control de contexto de tronco directo",
+    "frequentative": "frecuentativo",
+    "inventory-preview": "vista previa de inventario",
+    "morphology-application": "aplicación morfológica",
+    "no-stem-mask": "máscara sin tronco",
+    "nuclear-clause-shell": "esqueleto de cláusula nuclear",
+    "object-slot-gate": "control de casilla de objeto",
+    "ordinary-nnc": "cláusula nominal ordinaria",
+    "parse-input": "analizar entrada",
+    "parse-stem": "analizar tronco",
+    "patientivo-possessive-suffix": "sufijo posesivo patientivo",
+    "particle-placement": "colocación de partícula",
+    "preview-control": "control de vista previa",
+    "raw-input-final-vowel-gate": "control de vocal final en entrada cruda",
+    "raw-input-stem-syllable-gate": "control de sílaba de tronco en entrada cruda",
+    "render-glossary": "mostrar glosario",
+    "render-mode": "modo visual",
+    "subject-gate": "control de sujeto",
+    "target-mode-preview": "vista previa de modo destino",
+    "textual-analysis": "análisis textual",
+    "ui-route-control": "control de ruta de interfaz",
+    "validate": "validar",
+    "vi-awi": "intransitiva -awi",
+    "vi-iwi": "intransitiva -iwi",
+    "vi-ti": "intransitiva -ti",
+    "vnc": "cláusula verbal",
+    "vt-na": "transitiva -na",
+});
+
+const VISIBLE_LCM_LAYER_LABELS = Object.freeze({
+    agreement: "concordancia",
+    authority: "autoridad",
+    authorityFrame: "marco de autoridad",
+    diagnosticFrame: "marco diagnóstico",
+    orthography: "ortografía",
+    orthographyFrame: "marco ortográfico",
+    output: "salida",
+    participantFrame: "marco de participantes",
+    result: "resultado",
+    resultFrame: "marco de resultado",
+    route: "ruta",
+    routeContract: "contrato de ruta",
+    stem: "tronco",
+    stemFrame: "marco de tronco",
+    unitFrame: "marco de unidad",
+});
+
+const VISIBLE_LCM_DIAGNOSTIC_LABELS = Object.freeze({
+    "comparison-needs-nawat-clause-evidence": "comparación necesita evidencia de cláusula nawat",
+    "particle-candidate-empty": "candidata de partícula vacía",
+    "particle-candidate-unconfirmed": "candidata de partícula no confirmada",
+    "particle-seed-inventory-entry": "entrada de inventario de partícula",
+});
+
+const VISIBLE_LCM_TOKEN_LABELS = Object.freeze({
+    active: "activo",
+    adjectival: "adjetival",
+    adjective: "adjetivo",
+    adverbial: "adverbial",
+    agreement: "concordancia",
+    allowed: "autorizada",
+    analysis: "análisis",
+    andrews: "Andrews",
+    ast: "árbol",
+    audit: "auditar",
+    authority: "autoridad",
+    backed: "respaldado",
+    boundary: "límite",
+    builder: "constructor",
+    calendar: "calendario",
+    candidate: "candidato",
+    class: "clase",
+    classification: "clasificación",
+    classify: "clasificar",
+    clause: "cláusula",
+    comparison: "comparación",
+    complement: "complemento",
+    compound: "compuesto",
+    concept: "concepto",
+    conjunction: "conjunción",
+    context: "contexto",
+    contract: "contrato",
+    control: "control",
+    conversion: "conversión",
+    data: "datos",
+    denominal: "denominal",
+    derivation: "derivación",
+    derived: "derivado",
+    describe: "describir",
+    diagnostic: "diagnóstico",
+    display: "visual",
+    empty: "vacía",
+    entry: "entrada",
+    evidence: "evidencia",
+    execute: "ejecutar",
+    existing: "existente",
+    false: "falso",
+    family: "familia",
+    finite: "finito",
+    final: "final",
+    form: "forma",
+    forward: "directa",
+    frame: "marco",
+    frequentative: "frecuentativo",
+    generation: "generación",
+    gate: "control",
+    glossary: "glosario",
+    grammar: "gramática",
+    honorific: "honorífico",
+    input: "entrada",
+    kind: "tipo",
+    layer: "capa",
+    lesson: "lección",
+    matrix: "matriz",
+    metadata: "metadatos",
+    model: "modelo",
+    mode: "modo",
+    modification: "modificación",
+    morphology: "morfología",
+    nawat: "nawat",
+    needs: "necesita",
+    nominal: "nominal",
+    nominalization: "nominalización",
+    nuclear: "nuclear",
+    object: "objeto",
+    only: "solo",
+    ordinary: "ordinaria",
+    orthography: "ortografía",
+    output: "salida",
+    partial: "parcial",
+    participant: "participante",
+    particle: "partícula",
+    patientive: "patientivo",
+    pending: "pendiente",
+    pejorative: "peyorativo",
+    positive: "positivo",
+    possessive: "posesivo",
+    preterit: "pretérito",
+    preview: "vista previa",
+    provenance: "procedencia",
+    purposive: "final",
+    realization: "realización",
+    registry: "registro",
+    relational: "relacional",
+    required: "requerida",
+    render: "mostrar",
+    result: "resultado",
+    route: "ruta",
+    raw: "cruda",
+    satisfied: "satisfecha",
+    shell: "esqueleto",
+    source: "fuente",
+    spelling: "ortografía",
+    stage: "etapa",
+    state: "estado",
+    stem: "tronco",
+    subject: "sujeto",
+    suffix: "sufijo",
+    supported: "respaldado",
+    surface: "superficie",
+    syllable: "sílaba",
+    syntax: "sintaxis",
+    target: "destino",
+    tense: "tiempo",
+    textual: "textual",
+    token: "token",
+    unit: "unidad",
+    unsupported: "no respaldado",
+    validation: "validación",
+    valence: "valencia",
+    valency: "valencia",
+    verb: "verbo",
+    visible: "visible",
+    vowel: "vocal",
+    word: "palabra",
+});
+
+function getVisibleLcmExactLabel(value = "", exactLabels = {}) {
+    const raw = String(value || "").trim();
+    if (!raw) {
+        return "";
+    }
+    return exactLabels[raw] || exactLabels[raw.toLowerCase()] || "";
+}
+
+function formatVisibleLcmTokenSequence(value = "", exactLabels = {}) {
+    const raw = String(value || "").trim();
+    if (!raw) {
+        return "";
+    }
+    const exact = getVisibleLcmExactLabel(raw, exactLabels)
+        || getVisibleLcmExactLabel(raw, VISIBLE_LCM_EXACT_LABELS);
+    if (exact) {
+        return exact;
+    }
+    return raw
+        .replace(/([a-záéíóúñ])([A-Z])/g, "$1-$2")
+        .split(/[-_\s]+/g)
+        .map((token) => {
+            if (!token) {
+                return "";
+            }
+            if (/^[A-Z]{2,}$/.test(token)) {
+                return token;
+            }
+            const lower = token.toLowerCase();
+            return VISIBLE_LCM_TOKEN_LABELS[lower] || token;
+        })
+        .filter(Boolean)
+        .join(" ");
+}
+
+function formatVisibleLcmStatusLabel(value = "") {
+    return formatVisibleLcmTokenSequence(value, VISIBLE_LCM_EXACT_LABELS);
+}
+
+function formatVisibleLcmRoutePartLabel(value = "") {
+    return formatVisibleLcmTokenSequence(value, VISIBLE_LCM_ROUTE_LABELS);
+}
+
+function formatVisibleLcmLayerLabel(value = "") {
+    return formatVisibleLcmTokenSequence(value, VISIBLE_LCM_LAYER_LABELS);
+}
+
+function formatVisibleLcmDiagnosticLabel(value = "") {
+    return formatVisibleLcmTokenSequence(value, VISIBLE_LCM_DIAGNOSTIC_LABELS);
+}
+
 function buildGrammarFrameSubLabels(frameLike = null, {
     includeResult = true,
     includeRoute = true,
@@ -3174,16 +3497,16 @@ function buildGrammarFrameSubLabels(frameLike = null, {
     const diagnosticFrame = frame.diagnosticFrame || {};
 
     if (includeResult && typeof resultFrame.ok === "boolean") {
-        labels.push(`Estado LCM: ${resultFrame.ok ? "generado" : "bloqueado"}`);
+        labels.push(`Estado de contrato: ${resultFrame.ok ? "generado" : "bloqueado"}`);
     }
     if (includeRoute) {
         const routeFamily = String(routeContract.routeFamily || resultFrame.generationRoute || "").trim();
         const routeStage = String(routeContract.routeStage || "").trim();
         if (routeFamily || routeStage) {
-            labels.push(`Ruta LCM: ${[routeFamily, routeStage].filter(Boolean).join(" / ")}`);
+            labels.push(`Ruta de contrato: ${[routeFamily, routeStage].map(formatVisibleLcmRoutePartLabel).filter(Boolean).join(" / ")}`);
         }
         if (routeContract.generationAllowed === false) {
-            labels.push("Generacion LCM: no autorizada");
+            labels.push("Generación de contrato: no autorizada");
         }
     }
     if (includeAuthority) {
@@ -3195,7 +3518,7 @@ function buildGrammarFrameSubLabels(frameLike = null, {
         }
         const evidenceStatus = String(authorityFrame.evidenceStatus || "").trim();
         if (evidenceStatus) {
-            labels.push(`Evidencia: ${evidenceStatus}`);
+            labels.push(`Evidencia: ${formatVisibleLcmStatusLabel(evidenceStatus)}`);
         }
     }
     if (includeOrthography) {
@@ -3219,9 +3542,9 @@ function buildGrammarFrameSubLabels(frameLike = null, {
         const nawatRuleSpelling = !hasResultFrame ? String(orthographyFrame.nawatRuleSpelling || "").trim() : "";
         const spellingLabel = surface || (nawatRuleSpelling === "—" ? "" : nawatRuleSpelling);
         if (spellingLabel) {
-            labels.push(`Realizacion Nawat: ${spellingLabel}`);
+            labels.push(`Realización Nawat: ${spellingLabel}`);
         } else if (!hasResultFrame && orthographyFrame.noClassicalSurfaceImport === true) {
-            labels.push("Realizacion Nawat: pendiente");
+            labels.push("Realización Nawat: pendiente");
         }
         const soundSpellingFrames = [
             ...(Array.isArray(orthographyFrame.soundSpellingFrames) ? orthographyFrame.soundSpellingFrames : []),
@@ -3271,13 +3594,13 @@ function buildGrammarFrameSubLabels(frameLike = null, {
             contractLayer = contractLayer || "resultFrame";
         }
         if (failedLayer || contractLayer) {
-            labels.push(`Falla LCM: ${[failedLayer, contractLayer].filter(Boolean).join(" / ")}`);
+            labels.push(`Falla de contrato: ${[failedLayer, contractLayer].map(formatVisibleLcmLayerLabel).filter(Boolean).join(" / ")}`);
         }
         const diagnosticLabels = (Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : [])
             .map((entry) => getGrammarFrameDiagnosticLabelForRendering(entry))
             .filter(Boolean);
         diagnosticLabels.slice(0, Math.max(0, maxDiagnostics)).forEach((label) => {
-            labels.push(`Diagnostico LCM: ${label}`);
+            labels.push(`Diagnóstico de contrato: ${formatVisibleLcmDiagnosticLabel(label)}`);
         });
     }
     return labels.filter(Boolean);
@@ -3297,11 +3620,11 @@ function buildVncValencyFrameSubLabels(frame = null) {
     const labels = [];
     const valencyLabel = String(frame.valencyLabel || frame.valency || "").trim();
     if (valencyLabel) {
-        labels.push(`valencia VNC: ${valencyLabel}`);
+        labels.push(`valencia verbal: ${valencyLabel}`);
     }
     const objectDisplay = String(frame.obj1?.displayPrefix || frame.object?.displayPrefix || "").trim();
     if (objectDisplay) {
-        labels.push(`objeto 1 CNV: ${objectDisplay}`);
+        labels.push(`objeto 1 verbal: ${objectDisplay}`);
     }
     return labels;
 }
@@ -3349,7 +3672,7 @@ function buildForwardDerivationFrameSubLabels(frame = null) {
     const labels = [];
     const derivationLabel = String(frame.derivation?.label || frame.derivation?.type || "").trim();
     if (derivationLabel) {
-        labels.push(`derivacion VNC: ${derivationLabel}`);
+        labels.push(`derivación verbal: ${derivationLabel}`);
     }
     const sourceValency = frame.valency?.sourceValency;
     const derivedValency = frame.valency?.derivedValency;
@@ -3377,7 +3700,7 @@ function buildCompoundFrameSubLabels(frame = null) {
     const labels = [];
     const matrixStem = String(frame.matrix?.stem || "").trim();
     if (matrixStem) {
-        labels.push(`compuesto VNC: ${matrixStem}`);
+        labels.push(`compuesto verbal: ${matrixStem}`);
     }
     const embedValues = (Array.isArray(frame.embeds) ? frame.embeds : [])
         .map((entry) => {
@@ -3445,7 +3768,7 @@ function buildRelationalNncBoundaryFrameSubLabels(frame = null) {
     const labels = [];
     const statusLabel = String(frame.statusLabel || "").trim();
     if (statusLabel) {
-        labels.push(`Relacional NNC: ${statusLabel}`);
+        labels.push(`Relacional nominal: ${statusLabel}`);
     }
     const candidateLabel = String(frame.candidate?.kindLabel || frame.candidate?.nominalKind || "").trim();
     if (candidateLabel) {
@@ -4501,7 +4824,7 @@ function renderOrdinaryNncConjugations({
                 { id: "plural", label: "Distr", title: "referencia distributiva no animada" },
             ],
             activeId: state.number,
-            ariaLabel: "referencia NNC",
+            ariaLabel: "referencia nominal",
             visibleLabel: "Referencia",
             onSelect: (id) => {
                 setOrdinaryNncGenerationState({
@@ -4546,7 +4869,7 @@ function renderOrdinaryNncConjugations({
     title.className = "tense-block__title";
     const label = document.createElement("span");
     label.className = "tense-block__label";
-    label.textContent = "Cláusula nuclear CNN";
+    label.textContent = "Cláusula nominal";
     title.appendChild(label);
     block.appendChild(title);
 
@@ -4662,7 +4985,7 @@ function renderOrdinaryNncConjugations({
         } else {
             value.textContent = typeof getConjugationNoOutputDisplay === "function"
                 ? getConjugationNoOutputDisplay({ result, diagnostics: result.diagnostics || [] })
-                : "Sin salida para esta configuracion.";
+                : "Sin salida para esta configuración.";
             value.classList.add("conjugation-error", "conjugation-value--no-output");
         }
     } else {
@@ -4673,8 +4996,8 @@ function renderOrdinaryNncConjugations({
                 diagnosticIds: (result.diagnostics || []).map((entry) => entry.id).filter(Boolean),
                 shouldMaskRow: true,
                 isErrorRow: true,
-            }, "Sin salida NNC para esta configuracion.")
-            : (result.diagnostics?.[0]?.message || "Sin salida NNC para esta configuracion.");
+            }, "Sin salida nominal para esta configuración.")
+            : (result.diagnostics?.[0]?.message || "Sin salida nominal para esta configuración.");
         value.classList.add("conjugation-error");
         value.classList.add("conjugation-value--no-output");
         row.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.impossible;
@@ -4763,11 +5086,11 @@ function renderOrdinaryNncConjugations({
         continueButton.appendChild(continueLabel);
         const continueSubLabel = document.createElement("span");
         continueSubLabel.className = "calc-guidance__chip-sublabel";
-        continueSubLabel.textContent = "Adj NNC";
+        continueSubLabel.textContent = "Adjetival nominal";
         continueButton.appendChild(continueSubLabel);
         continueButton.title = [
-            `#3 salida NNC: ${targetSurface}`,
-            "Andrews 40.1/40.3: NNC absolutiva en funcion adjetival",
+            `#3 salida nominal: ${targetSurface}`,
+            "Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival",
             rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "",
             "no crea modificacion Lessons 42-43",
         ].filter(Boolean).join("; ");
@@ -4870,8 +5193,8 @@ function renderOrdinaryNncConjugations({
             continueLabel.textContent = `→ ${previewSurface || contract.ownerhoodVerbInput}`;
             continueButton.appendChild(continueLabel);
             continueButton.title = [
-                `#3 salida NNC: ${contract.sourceSurface || surfaceDisplay}`,
-                `raiz nominal: ${contract.nounStem}`,
+                `#3 salida nominal: ${contract.sourceSurface || surfaceDisplay}`,
+                `raíz nominal: ${contract.nounStem}`,
                 `clase: ${contract.nounClass}`,
                 `matriz de posesión: ${contract.matrixRoot}`,
                 contract.ownerhoodKind ? `tipo: ${contract.ownerhoodKind}` : "",
@@ -4946,17 +5269,17 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.3"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "NNC posesivo",
+                "nominal posesivo",
                 "poseedor interno",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
-                `#3 salida NNC: ${surfaceDisplay}`,
+                `#3 salida nominal: ${surfaceDisplay}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "el poseedor queda dentro del tronco",
                 "no se convierte en objeto",
                 "no crea ficha lexical",
@@ -5030,18 +5353,18 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.2.1"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "NNC abs",
+                "nominal absolutivo",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             const sourceEvidence = inceptivePreview?.sourceEvidence || {};
             continueButton.title = [
-                `#3 salida NNC: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
+                `#3 salida nominal: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
                 `predicado: ${sourceEvidence.sourcePredicateStem || route.sourceStem || ""}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "ti se adjunta al predicado absolutivo",
                 "no crea ficha lexical",
             ].filter(Boolean).join("; ");
@@ -5114,18 +5437,18 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.2.2"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "NNC abs",
+                "nominal absolutivo",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             const sourceEvidence = inceptivePreview?.sourceEvidence || {};
             continueButton.title = [
-                `#3 salida NNC: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
+                `#3 salida nominal: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
                 `predicado: ${sourceEvidence.sourcePredicateStem || route.sourceStem || ""}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "hui/wi se adjunta al predicado absolutivo",
                 "no crea ficha lexical",
             ].filter(Boolean).join("; ");
@@ -5198,19 +5521,19 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.2.3"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "NNC raiz",
+                "raíz nominal",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             const sourceEvidence = rootPlusYaPreview?.sourceEvidence || {};
             continueButton.title = [
-                `#3 salida NNC: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
+                `#3 salida nominal: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
                 `predicado: ${sourceEvidence.sourcePredicateStem || route.sourceStem || ""}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
-                "ya se adjunta al tronco nominal en rango raiz",
+                `entrada verbal: ${targetInput}`,
+                "ya se adjunta al tronco nominal en rango raíz",
                 "no crea ficha lexical",
             ].filter(Boolean).join("; ");
             continueButton.addEventListener("click", () => {
@@ -5285,19 +5608,19 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.2.4"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "NNC abs",
+                "nominal absolutivo",
                 "uso limitado",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             const sourceEvidence = inceptiveAPreview?.sourceEvidence || {};
             continueButton.title = [
-                `#3 salida NNC: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
+                `#3 salida nominal: ${sourceEvidence.sourceSurface || surfaceDisplay}`,
                 `predicado: ${sourceEvidence.sourcePredicateStem || route.sourceStem || ""}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "a inceptiva/estativa se adjunta al tronco nominal",
                 "uso limitado",
                 "no es a causativa",
@@ -5371,16 +5694,16 @@ function renderOrdinaryNncConjugations({
             continueSubLabel.textContent = [
                 `Andrews ${route.range || "54.4"}`,
                 route.targetStemClass ? `Clase ${route.targetStemClass}` : "",
-                "tronco NNC",
+                "tronco nominal",
                 targetTense,
             ].filter(Boolean).join(" · ");
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
-                `#3 salida NNC: ${surfaceDisplay}`,
+                `#3 salida nominal: ${surfaceDisplay}`,
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "ti de posesión enfoca el tronco nominal",
                 "no forma deverbal ya",
                 "no crea ficha lexical",
@@ -6732,13 +7055,13 @@ function buildVerbTenseBlock({
             continueButton.appendChild(continueLabel);
             const continueSubLabel = document.createElement("span");
             continueSubLabel.className = "calc-guidance__chip-sublabel";
-            continueSubLabel.textContent = "Adj VNC";
+            continueSubLabel.textContent = "Adjetival verbal";
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
-                `#3 salida VNC: ${targetSurface}`,
-                "Andrews 40.3: VNC en funcion adjetival",
+                `#3 salida verbal: ${targetSurface}`,
+                "Andrews 40.3: cláusula verbal en función adjetival",
                 sourceObjectPrefix ? `objeto: ${sourceObjectPrefix}` : "",
-                "no crea tronco NNC",
+                "no crea tronco nominal",
             ].filter(Boolean).join("; ");
             continueButton.addEventListener("click", () => {
                 applyAdjectivalNncFunctionToVerbEntry({
@@ -7287,7 +7610,7 @@ function buildVerbTenseBlock({
             const renderedValue = shouldMaskRow
                 ? (typeof getConjugationNoOutputDisplay === "function"
                     ? getConjugationNoOutputDisplay(evaluation)
-                    : "Sin salida para esta configuracion.")
+                    : "Sin salida para esta configuración.")
                 : formatConjugationDisplay(getConjugationDisplaySurface(evaluation.result));
             const dedupeKey = isBitransitiveGrid
                 ? canonicalKey
@@ -9816,10 +10139,10 @@ function renderNounConjugations({
                 `contrato: ${route.contractId || ""}`,
                 route.executableRuleId ? `regla: ${route.executableRuleId}` : "",
                 `ruta: ${route.routeTemplateId || ""}`,
-                `objeto VNC: ${prefix}`,
-                `VNC: ${targetInput}`,
+                `objeto verbal: ${prefix}`,
+                `entrada verbal: ${targetInput}`,
                 `tiempo: ${targetTense}`,
-                "objeto VNC seleccionado explicitamente",
+                "objeto verbal seleccionado explícitamente",
                 "no crea ficha lexical",
             ].filter(Boolean).join("; ");
             objectButton.addEventListener("click", () => {
@@ -9988,7 +10311,7 @@ function renderNounConjugations({
                 hasRouteWarning ? "aviso" : "",
                 !hasRouteWarning && hasRouteNote ? "nota" : "",
                 sourceFinalPatternLabel,
-            sourceFinalDeterminesTargetStemClass ? "class by final segment" : "",
+            sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "",
                 traditionalSpellingConfusableWith ? "grafía ambigua" : "",
                 sourceEvidencePending ? "fuente pendiente" : "",
                 sourceEvidenceSatisfied ? "fuente Andrews" : "",
@@ -10002,11 +10325,11 @@ function renderNounConjugations({
                 `ruta: ${route.routeTemplateId || ""}`,
                 `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`,
                 route.targetStemClass ? `clase: ${route.targetStemClass}` : "",
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 `tiempo: ${targetTense}`,
                 sourceEvidencePending ? "requiere fuente Andrews verificada" : "",
                 sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "",
-                objectPrefixRequired ? "requiere objeto VNC" : "",
+                objectPrefixRequired ? "requiere objeto verbal" : "",
                 sourceFinalPatternLabel,
                 targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "",
                 traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "",
@@ -11260,7 +11583,7 @@ function renderNounConjugations({
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `#3 salida compuesta: ${sourceSurface}`,
-                "Andrews 41.2: NNC adjetival desde verbo compuesto con embed nominal",
+                "Andrews 41.2: cláusula nominal adjetival desde verbo compuesto con incrustado nominal",
                 sourceCompoundFrame?.matrix?.stem ? `matriz: ${sourceCompoundFrame.matrix.stem}` : "",
                 sourceFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${sourceFormulaEcho}` : "",
                 "conserva la superficie generada",
@@ -11360,7 +11683,7 @@ function renderNounConjugations({
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `#3 salida denominal: ${sourceSurface}`,
-                "Andrews 41.3: NNC adjetival desde verbo denominal ti de sustantivo compuesto",
+                "Andrews 41.3: cláusula nominal adjetival desde verbo denominal ti de sustantivo compuesto",
                 denominalCompoundFrame?.matrix?.stem ? `matriz nominal: ${denominalCompoundFrame.matrix.stem}` : "",
                 sourceFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${sourceFormulaEcho}` : "",
                 "conserva la superficie generada",
@@ -11539,11 +11862,11 @@ function renderNounConjugations({
             continueButton.appendChild(continueLabel);
             const continueSubLabel = document.createElement("span");
             continueSubLabel.className = "calc-guidance__chip-sublabel";
-            continueSubLabel.textContent = "Adj NNC";
+            continueSubLabel.textContent = "Adjetival nominal";
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `#3 salida patientiva: ${targetSurface}`,
-                "Andrews 40.4: NNC patientiva en funcion adjetival",
+                "Andrews 40.4: cláusula nominal patientiva en función adjetival",
                 contract.formulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${contract.formulaEcho}` : "",
                 contract.adjectivalNncFunctionFrame?.patientivoSource
                     ? `fuente patientiva: ${contract.adjectivalNncFunctionFrame.patientivoSource}`
@@ -11626,14 +11949,14 @@ function renderNounConjugations({
             continueButton.appendChild(continueLabel);
             const continueSubLabel = document.createElement("span");
             continueSubLabel.className = "calc-guidance__chip-sublabel";
-            continueSubLabel.textContent = "Adj NNC";
+            continueSubLabel.textContent = "Adjetival nominal";
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `#3 salida nominalizada: ${targetSurface}`,
-                `${contract.adjectivalNncFunctionFrame?.lessonRef}: NNC nominalizada en funcion adjetival`,
+                `${contract.adjectivalNncFunctionFrame?.lessonRef}: cláusula nominal nominalizada en función adjetival`,
                 contract.formulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${contract.formulaEcho}` : "",
                 contract.adjectivalNncFunctionFrame?.nominalizationKind
-                    ? `nominalizacion: ${contract.adjectivalNncFunctionFrame.nominalizationKind}`
+                    ? `nominalización: ${contract.adjectivalNncFunctionFrame.nominalizationKind}`
                     : "",
             ].filter(Boolean).join("; ");
             continueButton.addEventListener("click", () => {
@@ -11928,7 +12251,7 @@ function renderNounConjugations({
                 `fuente yu: ${route.sourceStem || ""}`,
                 `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`,
                 route.targetStemClass ? `clase: ${route.targetStemClass}` : "",
-                `VNC: ${targetInput}`,
+                `entrada verbal: ${targetInput}`,
                 "hua/wa no es la formacion o-a de 55.3",
                 "no crea ficha lexical",
             ].filter(Boolean).join("; ");
@@ -13753,7 +14076,7 @@ function renderAdjectivalNncFunctionConjugations({
     label.className = "conjugation-label";
     const personLabel = document.createElement("div");
     personLabel.className = "person-label";
-    personLabel.textContent = "NNC";
+    personLabel.textContent = "Cláusula nominal";
     const personSub = document.createElement("div");
     personSub.className = "person-sub";
     personSub.textContent = appendGrammarFrameSubLabels([

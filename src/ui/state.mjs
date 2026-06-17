@@ -4667,7 +4667,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
           id: "andrews-54.2.1-ti-source-stem-required",
-          message: "Andrews 54.2.1 requires an NNC absolutive-state predicate stem before ti can form an intransitive VNC stem.",
+          message: "Andrews 54.2.1 requiere un predicado de cláusula nominal absolutiva antes de que ti forme un tronco verbal intransitivo.",
           failedLayer: "stem",
           contractLayer: "stemFrame",
           sourceStem,
@@ -4693,7 +4693,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
           id: "andrews-54.2.2-hui-source-stem-required",
-          message: "Andrews 54.2.2 requires an NNC absolutive-state predicate stem before hui can form an intransitive VNC stem.",
+          message: "Andrews 54.2.2 requiere un predicado de cláusula nominal absolutiva antes de que hui forme un tronco verbal intransitivo.",
           failedLayer: "stem",
           contractLayer: "stemFrame",
           sourceStem,
@@ -13391,7 +13391,7 @@ export function createUiStateApi(targetObject = globalThis) {
         return;
       }
       if (isParticleMode) {
-        statusEl.textContent = hasRows ? "Partícula · diagnóstico Andrews; no genera VNC/CNN." : "Partícula · sin inventario confirmado.";
+        statusEl.textContent = hasRows ? "Partícula · diagnóstico Andrews; no genera cláusulas verbales o nominales." : "Partícula · sin inventario confirmado.";
         statusEl.classList.toggle("is-error", !hasRows);
         return;
       }

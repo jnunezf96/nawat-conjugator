@@ -61,12 +61,12 @@ function run(ctx = {}) {
         "ordinary NNC S control lives in the composer entry board tabs",
         tabsHtml.includes('id="verb-entry-board-ordinary-nnc"')
             && tabsHtml.includes('data-ordinary-nnc-mode="true"')
-            && />\s*N\s*<\/button>/.test(tabsHtml)
+            && />\s*Nominal\s*<\/button>/.test(tabsHtml)
     );
     s.ok(
         "ordinary NNC S control is labeled as a nominal clause",
-        tabsHtml.includes('aria-label="Tablero CNN/N: cláusula nominal"')
-            && tabsHtml.includes('title="CNN/N: cláusula nominal"')
+        tabsHtml.includes('aria-label="Tablero de cláusula nominal"')
+            && tabsHtml.includes('title="Cláusula nominal"')
     );
     s.no(
         "ordinary NNC is not rendered as a Nawat mode operator chip",
@@ -74,7 +74,7 @@ function run(ctx = {}) {
             || nawatModeHtml.includes('data-ordinary-nnc-mode="true"')
     );
     s.ok(
-        "entry board tabs reserve columns for V, N, and N>V",
+        "entry board tabs reserve columns for verbal, nominal, and verbalization",
         css.includes("grid-template-columns: repeat(3, minmax(44px, 1fr));")
             && css.includes("grid-template-columns: auto minmax(24px, auto) minmax(24px, auto) minmax(38px, auto);")
             && /#container-inputs #composer-slot-stage > \.verb-entry-board-tabs\s*\{[^}]*grid-column: 1;[^}]*justify-self: start;/s.test(css)
@@ -84,9 +84,9 @@ function run(ctx = {}) {
         composer.includes("function syncComposerOperationSlotOrderMetadata")
             && composer.includes('stagePanel.dataset.operationBoard = board')
             && composer.includes('stagePanel.dataset.operationOrder = getComposerOperationOrderLabel(board)')
-            && composer.includes('"CNV: tablero -> valencia CNV -> dir -> incorporado -> obj1/obj2 -> predicado STEM"')
-            && composer.includes('"CNN/N: tablero -> pers1-pers2 -> predicado STEM -> conector num1-num2 -> referencia"')
-            && composer.includes('"N>V: tablero -> fuente N -> verbalización -> valencia CNV -> obj1/obj2 -> dir"')
+            && composer.includes('"Cláusula verbal: tablero -> valencia verbal -> direccional -> incorporado -> objeto 1/objeto 2 -> predicado base"')
+            && composer.includes('"Cláusula nominal: tablero -> pers1-pers2 -> predicado base -> conector num1-num2 -> referencia"')
+            && composer.includes('"Verbalización nominal: tablero -> fuente nominal -> verbalización -> valencia verbal -> objeto 1/objeto 2 -> direccional"')
             && composer.includes('setComposerOperationSlotMetadata(directionalHost, "directional-prefix", 10)')
             && composer.includes('setComposerOperationSlotMetadata(embedField, "incorporated-prefix", 20)')
             && composer.includes('setComposerOperationSlotMetadata(objectPair, "object-valency", 30)')
@@ -181,18 +181,22 @@ function run(ctx = {}) {
             return {
                 htmlHasUnitFunction: /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(visibleHtmlText),
                 htmlHasEnglishSlotLabel: /\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(visibleHtmlText),
+                htmlHasEnglishSlotShorthand: /\bSTEM\b|\bSlot\b|\bSlots\b|\bTip\b|Tamaño UI|\bUI\b|\bACT\b|\bNO\s+ACT\b|\bdir\b|\binc\b|\bN>V\b|CSV vista|\bCSV\b|Valencia CNV|Tablero CNV|CNN\/N|fuente N\b/.test(visibleHtmlText),
                 htmlHasTnsShorthand: /\btns\b/i.test(visibleHtmlText),
                 labelsHaveUnitFunction: /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function/i.test(labelEsText),
                 labelsHaveEnglishSlotLabel: /\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b/.test(labelEsText),
+                labelsHaveEnglishSlotShorthand: /\bSTEM\b|\bSlot\b|\bSlots\b|\bTip\b|Tamaño UI|\bUI\b|\bACT\b|\bNO\s+ACT\b|\bdir\b|\binc\b|\bN>V\b|CSV vista|\bCSV\b|Valencia CNV|Tablero CNV|CNN\/N|fuente N\b/.test(labelEsText),
                 labelsHaveTnsShorthand: /\btns\b/i.test(labelEsText),
             };
         })(),
         {
             htmlHasUnitFunction: false,
             htmlHasEnglishSlotLabel: false,
+            htmlHasEnglishSlotShorthand: false,
             htmlHasTnsShorthand: false,
             labelsHaveUnitFunction: false,
             labelsHaveEnglishSlotLabel: false,
+            labelsHaveEnglishSlotShorthand: false,
             labelsHaveTnsShorthand: false,
         }
     );
@@ -239,18 +243,22 @@ function run(ctx = {}) {
         "verb composer labels use Andrews slot vocabulary instead of old root labels",
         composer.includes("function getComposerMatrixFieldLabel")
             && composer.includes("function getComposerMatrixInputTagLabel")
-            && composer.includes('return "Predicado (STEM)"')
-            && composer.includes('return "Fuente N (STEM)"')
-            && composer.includes('return "STEM"')
-            && composer.includes('return "N"')
-            && html.includes('aria-label="Tablero CNV"')
-            && html.includes('aria-label="Tablero N>V: verbalización"')
-            && html.includes(">Predicado (STEM)<")
+            && composer.includes('return "Predicado (base)"')
+            && composer.includes('return "Fuente nominal (base)"')
+            && composer.includes('return "base"')
+            && composer.includes('return "nominal"')
+            && html.includes('aria-label="Tablero de cláusula verbal"')
+            && html.includes('aria-label="Tablero de verbalización nominal"')
+            && html.includes(">Predicado (base)<")
             && html.includes(">Incorporado<")
-            && html.includes(">obj1/REFL<")
-            && html.includes(">obj1/obj2/REFL<")
-            && html.includes(">dir<")
-            && html.includes(">inc<")
+            && html.includes(">Objeto 1/reflexivo<")
+            && html.includes(">Objeto 1/objeto 2/reflexivo<")
+            && composer.includes('{ label: "Consejo"')
+            && panels.includes('entry.label === "Consejo"')
+            && events.includes('content: "(base)"')
+            && !events.includes('content: "(STEM)"')
+            && html.includes(">Direccional<")
+            && html.includes(">incorporado<")
             && !html.includes(">Raíz matriz<")
             && !html.includes(">Elemento incorporado<")
             && !html.includes(">Marcador no específico<")
@@ -274,7 +282,7 @@ function run(ctx = {}) {
             && curriculum.includes("concept-glossary__item")
     );
     s.ok(
-        "#2 mode controls separate Andrews syntactical class from formal class so adjectival use can apply to CNV or CNN",
+        "#2 mode controls separate Andrews syntactical class from formal class so adjectival use can apply to verbal or nominal nuclear clauses",
         html.includes('aria-label="Clase sintáctica y clase formal"')
             && html.includes(">Clase sintáctica / clase formal<")
             && !html.includes("Unidad y función")
@@ -307,8 +315,8 @@ function run(ctx = {}) {
             && html.includes('data-unit-kind="particula"')
             && html.includes('data-ui-label-key="tense-tabs-unit-cnv"')
             && html.includes('data-ui-label-key="tense-tabs-unit-cnn"')
-            && />\s*CNV\s*<\/button>/.test(html)
-            && />\s*CNN\s*<\/button>/.test(html)
+            && />\s*Cláusula verbal\s*<\/button>/.test(html)
+            && />\s*Cláusula nominal\s*<\/button>/.test(html)
             && !html.includes("Convención europea")
             && !html.includes('data-mode-system="european"')
             && !html.includes('data-mode-system="nawat"')
@@ -706,7 +714,7 @@ function run(ctx = {}) {
         "ordinary NNC output uses a nominal-clause block with shared controls",
         rendering.includes("tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls")
             && rendering.includes("tense-block tense-block--ordinary-nnc")
-            && rendering.includes('label.textContent = "Cláusula nuclear CNN"')
+            && rendering.includes('label.textContent = "Cláusula nominal"')
             && !rendering.includes('label.textContent = "Sustantivo ordinario"')
             && !rendering.includes('visibleLabel: "Clase"')
             && !rendering.includes('ariaLabel: "Clase del conector de numero del sujeto"')
@@ -888,7 +896,7 @@ function run(ctx = {}) {
             && rendering.includes("familias Andrews:")
             && rendering.includes("etapa salida:")
             && rendering.includes("taxonomia patientiva: parcial")
-            && rendering.includes("funcion adjetival:")
+            && rendering.includes("función adjetival:")
             && rendering.includes("modificacion: no modelada")
     );
     s.ok(
@@ -1006,12 +1014,12 @@ function run(ctx = {}) {
             && rendering.includes("buildPatientivoAdjectivalNncFunctionOutput")
             && rendering.includes("dataset.patientivoAdjectivalFunctionContinuation = \"true\"")
             && rendering.includes("calc-guidance__chip--mode-adjetivo")
-            && rendering.includes("continueSubLabel.textContent = \"Adj NNC\"")
+            && rendering.includes("continueSubLabel.textContent = \"Adjetival nominal\"")
             && rendering.includes("const targetSurface = getPrimaryConjugationSurface(contract);")
             && rendering.includes("continueButton.dataset.targetSurface = targetSurface;")
             && rendering.includes("continueLabel.textContent = `→ ${targetSurface}`")
             && rendering.includes("`#3 salida patientiva: ${targetSurface}`,")
-            && rendering.includes("Andrews 40.4: NNC patientiva en funcion adjetival")
+            && rendering.includes("Andrews 40.4: cláusula nominal patientiva en función adjetival")
             && rendering.includes("applyGrammarFrameRouteDataset(continueButton, contract)")
             && rendering.includes("applyAdjectivalNncFunctionToVerbEntry({")
             && rendering.includes("surface: targetSurface")
@@ -1027,10 +1035,10 @@ function run(ctx = {}) {
             && rendering.includes("buildVncAdjectivalNncFunctionOutput")
             && rendering.includes('continueButton.dataset.vncAdjectivalFunctionContinuation = "true"')
             && rendering.includes('calc-guidance__chip--vnc-adjectival-function')
-            && rendering.includes('continueSubLabel.textContent = "Adj VNC"')
-            && rendering.includes("`#3 salida VNC: ${targetSurface}`,")
-            && rendering.includes("Andrews 40.3: VNC en funcion adjetival")
-            && rendering.includes("no crea tronco NNC")
+            && rendering.includes('continueSubLabel.textContent = "Adjetival verbal"')
+            && rendering.includes("`#3 salida verbal: ${targetSurface}`,")
+            && rendering.includes("Andrews 40.3: cláusula verbal en función adjetival")
+            && rendering.includes("no crea tronco nominal")
             && rendering.includes("sourceTenseValue: tenseValue")
             && rendering.includes("sourceCombinedMode,")
             && rendering.includes("sourceVoiceMode,")
@@ -1046,9 +1054,9 @@ function run(ctx = {}) {
             && rendering.includes("generateAdjectivalNncFunctionOutput({")
             && rendering.includes('continueButton.dataset.ordinaryNncAdjectivalFunctionContinuation = "true"')
             && rendering.includes('calc-guidance__chip--ordinary-nnc-adjectival-function')
-            && rendering.includes('continueSubLabel.textContent = "Adj NNC"')
-            && rendering.includes("`#3 salida NNC: ${targetSurface}`,")
-            && rendering.includes("Andrews 40.1/40.3: NNC absolutiva en funcion adjetival")
+            && rendering.includes('continueSubLabel.textContent = "Adjetival nominal"')
+            && rendering.includes("`#3 salida nominal: ${targetSurface}`,")
+            && rendering.includes("Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival")
             && rendering.includes("no crea modificacion Lessons 42-43")
             && rendering.includes('formation: "ordinary-absolutive"')
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
@@ -1069,7 +1077,7 @@ function run(ctx = {}) {
             && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
             && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
             && rendering.includes('continueSubLabel.textContent = [')
-            && rendering.includes('"NNC abs"')
+            && rendering.includes('"nominal absolutivo"')
             && rendering.includes("ti se adjunta al predicado absolutivo")
             && state.includes("setOrdinaryNncGenerationModeEnabled(false)")
             && state.includes("setComposerEntryBoard(plainComposerBoard, { force: ordinaryNncWasActive })")
@@ -1089,7 +1097,7 @@ function run(ctx = {}) {
             && rendering.includes('continueButton.dataset.sourceEvidenceSatisfied = "true"')
             && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
             && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
-            && rendering.includes('"NNC abs"')
+            && rendering.includes('"nominal absolutivo"')
             && rendering.includes("hui/wi se adjunta al predicado absolutivo")
             && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
             && rendering.includes("renderOrdinaryNncInceptiveHuiContinuations();")
@@ -1107,8 +1115,8 @@ function run(ctx = {}) {
             && rendering.includes('continueButton.dataset.sourceEvidenceSatisfied = "true"')
             && rendering.includes('continueButton.dataset.sourceEvidenceFromOrdinaryNnc = "true"')
             && rendering.includes('continueButton.dataset.contractId = route.contractId || ""')
-            && rendering.includes('"NNC raiz"')
-            && rendering.includes("ya se adjunta al tronco nominal en rango raiz")
+            && rendering.includes('"raíz nominal"')
+            && rendering.includes("ya se adjunta al tronco nominal en rango raíz")
             && rendering.includes("activateNawatDenominalAndrewsContractRouteTarget(route, {")
             && rendering.includes("renderOrdinaryNncRootPlusYaContinuations();")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-root-source")
@@ -1162,7 +1170,7 @@ function run(ctx = {}) {
             && rendering.includes('"is-included-possessor-source"')
             && rendering.includes('continueButton.dataset.possessorIncludedInsideVerbstem = "true"')
             && rendering.includes('continueButton.dataset.possessiveCaseNotObject = "true"')
-            && rendering.includes('"NNC posesivo"')
+            && rendering.includes('"nominal posesivo"')
             && rendering.includes('"poseedor interno"')
             && rendering.includes("el poseedor queda dentro del tronco")
             && rendering.includes("no se convierte en objeto")
@@ -1196,7 +1204,7 @@ function run(ctx = {}) {
             && rendering.includes("continueButton.dataset.sourceCompoundMatrix = sourceCompoundFrame?.matrix?.stem || \"\"")
             && rendering.includes('calc-guidance__chip--compound-source-adjectival-function')
             && rendering.includes('continueSubLabel.textContent = "Adj comp"')
-            && rendering.includes("Andrews 41.2: NNC adjetival desde verbo compuesto con embed nominal")
+            && rendering.includes("Andrews 41.2: cláusula nominal adjetival desde verbo compuesto con incrustado nominal")
             && rendering.includes('formation: "compound-source-adjectival"')
             && rendering.includes("sourceCompoundFrame,")
             && vncFacade.includes('if (formation === "compound-source-adjectival")')
@@ -1213,7 +1221,7 @@ function run(ctx = {}) {
             && rendering.includes("continueButton.dataset.sourceCompoundMatrix = denominalCompoundFrame?.matrix?.stem || \"\"")
             && rendering.includes('calc-guidance__chip--denominal-compound-adjectival-function')
             && rendering.includes('continueSubLabel.textContent = "Adj denom"')
-            && rendering.includes("Andrews 41.3: NNC adjetival desde verbo denominal ti de sustantivo compuesto")
+            && rendering.includes("Andrews 41.3: cláusula nominal adjetival desde verbo denominal ti de sustantivo compuesto")
             && rendering.includes('formation: "denominal-compound-adjectival"')
             && rendering.includes("sourceDenominalCompoundFrame: denominalCompoundFrame")
             && rendering.includes("renderDenominalCompoundAdjectivalFunctionContinuation({")
@@ -1231,7 +1239,7 @@ function run(ctx = {}) {
             && rendering.includes("dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || \"\"")
             && rendering.includes("continueLabel.textContent = `→ ${targetSurface}`")
             && rendering.includes("`#3 salida nominalizada: ${targetSurface}`,")
-            && rendering.includes("NNC nominalizada en funcion adjetival")
+            && rendering.includes("cláusula nominal nominalizada en función adjetival")
             && rendering.includes("surface: targetSurface")
             && rendering.includes('formation: "nominalized-vnc-adjectival"')
             && rendering.includes("applyGrammarFrameRouteDataset(continueButton, contract)")
@@ -1713,7 +1721,7 @@ function run(ctx = {}) {
             && rendering.includes("is-object-prefix-required")
             && rendering.includes("calc-guidance__chip--object-prefix-choice")
             && rendering.includes("objeto pendiente")
-            && rendering.includes("objeto VNC seleccionado explicitamente")
+            && rendering.includes("objeto verbal seleccionado explícitamente")
             && rendering.includes('objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : ""')
             && rendering.includes('objectButton.dataset.tiSourceRequired = "true"')
             && rendering.includes('objectButton.dataset.huiSourceRequired = "true"')
@@ -1743,7 +1751,7 @@ function run(ctx = {}) {
             && rendering.includes("traditionalSpellingAmbiguous")
             && rendering.includes("is-traditional-spelling-ambiguous")
             && rendering.includes("buildNawatDenominalSourceEvidenceSubLabels")
-            && rendering.includes("Fuente Andrews: NNC absolutivo generado")
+            && rendering.includes("Fuente Andrews: cláusula nominal absolutiva generada")
             && rendering.includes("Fuente Andrews: compuesto temporal confirmado")
             && rendering.includes("andrewsRouteWarning")
             && rendering.includes("andrewsRouteNote")
@@ -1858,7 +1866,7 @@ function run(ctx = {}) {
         rendering.includes("buildRelationalNncBoundaryFrameSubLabels")
             && rendering.includes("appendRelationalNncBoundaryFrameSubLabels")
             && rendering.includes("evaluation.result?.relationalNncBoundaryFrame")
-            && rendering.includes("Relacional NNC:")
+            && rendering.includes("Relacional nominal:")
             && rendering.includes("Evidencia relacional: no confirmada")
     );
     s.ok(
@@ -1881,8 +1889,8 @@ function run(ctx = {}) {
         "ambito: salida estructural",
         "nominalización: adjetivo",
         "rol nominal: propiedad",
-        "fuente CNV: ipan muchiwki",
-        "funcion adjetival: predicado",
+        "fuente verbal: ipan muchiwki",
+        "función adjetival: predicado",
         "modificacion: no modelada",
     ];
     s.eq(
@@ -1989,7 +1997,7 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Familia denominal: VT -na",
+                "Familia denominal: transitiva -na",
                 "Verbalizador denominal: -na",
                 "Contrato Andrews: no confirmado",
                 "Cobertura denominal: parcial",
@@ -2013,10 +2021,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Familia denominal: VI -iwi",
+                "Familia denominal: intransitiva -iwi",
                 "Verbalizador denominal: -iwi",
                 "Contratos Andrews pendientes: 23",
-                "Rutas Nawat sin contrato Andrews: vt-na",
+                "Rutas Nawat sin contrato Andrews: transitiva -na",
                 "Cobertura denominal: parcial",
             ]
             : ["rendering-runtime-not-loaded"]
@@ -2048,16 +2056,16 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Familia denominal: VI -ti",
+                "Familia denominal: intransitiva -ti",
                 "Verbalizador denominal: -ti",
-                "Objetivos Andrews NNC/VNC: 31",
-                "Solicitudes VNC Andrews: 13 con tiempo explícito",
-                "Solicitudes VNC Andrews con objeto: 3",
-                "Clases VNC Andrews: 11",
+                "Objetivos Andrews nominales/verbales: 31",
+                "Solicitudes verbales Andrews: 13 con tiempo explícito",
+                "Solicitudes verbales Andrews con objeto: 3",
+                "Clases verbales Andrews: 11",
                 "Fuentes Andrews pendientes: 18",
-                "Avisos Andrews VNC: 1",
-                "Notas Andrews VNC: 20",
-                "Entradas VNC Andrews: (pusukwi), (pusuk)-(ta), (pusuk)-(ia)",
+                "Avisos verbales Andrews: 1",
+                "Notas verbales Andrews: 20",
+                "Entradas verbales Andrews: (pusukwi), (pusuk)-(ta), (pusuk)-(ia)",
                 "Cobertura denominal: parcial",
             ]
             : ["rendering-runtime-not-loaded"]
@@ -2087,13 +2095,13 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Familia denominal: VI -iwi",
+                "Familia denominal: intransitiva -iwi",
                 "Verbalizador denominal: -iwi",
                 "Fuente Andrews: i-hui/a-hui generada",
                 "Base Andrews: pusuk",
                 "Evidencia: etapa generada",
-                "Objetivos Andrews NNC/VNC: 31",
-                "Solicitudes VNC Andrews: 14 con tiempo explícito",
+                "Objetivos Andrews nominales/verbales: 31",
+                "Solicitudes verbales Andrews: 14 con tiempo explícito",
                 "Fuentes Andrews pendientes: 17",
                 "Cobertura denominal: parcial",
             ]
@@ -2219,10 +2227,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Fuente Andrews: NNC posesivo generado",
+                "Fuente Andrews: cláusula nominal posesiva generada",
                 "Base Andrews: nukal",
                 "poseedor fuente: nu",
-                "Evidencia: salida NNC",
+                "Evidencia: salida nominal",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -2299,10 +2307,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Fuente Andrews: tronco NNC generado",
+                "Fuente Andrews: tronco nominal generado",
                 "Base Andrews: shuchi",
                 "Fuente Nawat: shuchit",
-                "Evidencia: salida NNC",
+                "Evidencia: salida nominal",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -2321,10 +2329,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Fuente Andrews: NNC absolutivo generado",
+                "Fuente Andrews: cláusula nominal absolutiva generada",
                 "Base Andrews: shuchi",
                 "Fuente Nawat: shuchit",
-                "Evidencia: salida NNC",
+                "Evidencia: salida nominal",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -2343,10 +2351,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Fuente Andrews: NNC en rango raiz",
+                "Fuente Andrews: cláusula nominal en rango raíz",
                 "Base Andrews: shuchi",
                 "Fuente Nawat: shuchit",
-                "Evidencia: salida NNC",
+                "Evidencia: salida nominal",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -2599,8 +2607,8 @@ function run(ctx = {}) {
             ? [
                 "Fuente actual: (pusukti)",
                 "Opciones siguientes: 2",
-                "Siguiente salida: vi-ti · fuente → (pusukti)",
-                "Siguiente salida: vt-na · destino → (pusuktina)",
+                "Siguiente salida: intransitiva -ti · fuente → (pusukti)",
+                "Siguiente salida: transitiva -na · destino → (pusuktina)",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -2724,7 +2732,7 @@ function run(ctx = {}) {
                 labels: [
                     "Fuente actual: (pusukti)",
                     "Opciones siguientes: 2",
-                    "Siguiente salida: vi-ti · fuente → frame-appendable-source",
+                    "Siguiente salida: intransitiva -ti · fuente → frame-appendable-source",
                 ],
                 choices: [
                     {
@@ -2792,10 +2800,10 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Trayecto: vi-ti · verbalizador → vi-iwi · verbalizador",
+                "Trayecto: intransitiva -ti · verbalizador → intransitiva -iwi · verbalizador",
                 "Fuente actual: (pusuktiiwi)",
                 "Opciones siguientes: 32",
-                "Siguiente salida: vt-na · destino → (pusuktiiwin)",
+                "Siguiente salida: transitiva -na · destino → (pusuktiiwin)",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -3097,8 +3105,8 @@ function run(ctx = {}) {
                         sourceObjectPrefix: "",
                     },
                     hasLinkedAppendableAction: true,
-                    linkedAppendableChoiceLabel: "Siguiente salida: vt-na · destino → (pusuktina)",
-                    sublabel: "Siguiente fuente: (pusukti) · Continuaciones: 8 · Siguiente salida: vt-na · destino → (pusuktina)",
+                    linkedAppendableChoiceLabel: "Siguiente salida: transitiva -na · destino → (pusuktina)",
+                    sublabel: "Siguiente fuente: (pusukti) · Continuaciones: 8 · Siguiente salida: transitiva -na · destino → (pusuktina)",
                 },
             ]
             : ["rendering-runtime-not-loaded"]
@@ -3252,7 +3260,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["cláusula nuclear verbal (CNV): #pers1-obj1-obj2-obj3-reflexivo(base)-pers2-tiempo#", "Fórmula CNV: #ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#"]
+            ? ["cláusula verbal: #pers1-obj1-obj2-obj3-reflexivo(base)-pers2-tiempo#", "Fórmula CNV: #ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3306,7 +3314,7 @@ function run(ctx = {}) {
                     chip.value,
                     chip.title.includes("Andrews L2 2.11.5 / 2.13.2"),
                     chip.title.includes("asimilación regresiva"),
-                    chip.title.includes("posicion:"),
+                    chip.title.includes("posición:"),
                     chip.title.includes("casilla:"),
                     !chip.title.includes("Regressive Assimilation"),
                     !chip.title.includes("not a global letter replacement"),
@@ -3351,7 +3359,7 @@ function run(ctx = {}) {
                     chip.value,
                     chip.title.includes("Andrews L2 2.14"),
                     chip.title.includes("elisión vocálica"),
-                    chip.title.includes("posicion:"),
+                    chip.title.includes("posición:"),
                     chip.title.includes("casilla:"),
                     !chip.title.includes("Vowel Elision"),
                 ]))
@@ -3400,7 +3408,7 @@ function run(ctx = {}) {
                             chip.value,
                             chip.title.includes("Andrews L2 2.11.5 / 2.13.2"),
                             chip.title.includes("asimilación regresiva"),
-                            chip.title.includes("posicion:"),
+                            chip.title.includes("posición:"),
                             !chip.title.includes("Regressive Assimilation"),
                         ]),
                 };
@@ -3438,7 +3446,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["valencia VNC: transitiva", "objeto 1 CNV: ki"]
+            ? ["valencia verbal: transitiva", "objeto 1 verbal: ki"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3473,7 +3481,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["derivacion VNC: causativa", "valencia derivada: 1->2", "tronco derivado: nemtia"]
+            ? ["derivación verbal: causativa", "valencia derivada: 1->2", "tronco derivado: nemtia"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3488,7 +3496,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["compuesto VNC: kwi", "incrustado: outer-lexical shuchi"]
+            ? ["compuesto verbal: kwi", "incrustado: outer-lexical shuchi"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3533,7 +3541,7 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Relacional NNC: no confirmado",
+                "Relacional nominal: no confirmado",
                 "Candidato: locativo-temporal generado",
                 "Evidencia relacional: no confirmada",
             ]
@@ -3608,15 +3616,69 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Estado LCM: bloqueado",
-                "Ruta LCM: comparison / classify-boundary",
-                "Generacion LCM: no autorizada",
+                "Estado de contrato: bloqueado",
+                "Ruta de contrato: comparación / clasificar límite",
+                "Generación de contrato: no autorizada",
                 "Andrews: Andrews Lesson 53",
-                "Evidencia: diagnostic-only",
-                "Falla LCM: authority / authorityFrame",
-                "Diagnostico LCM: comparison-needs-nawat-clause-evidence",
+                "Evidencia: solo diagnóstico",
+                "Falla de contrato: autoridad / marco de autoridad",
+                "Diagnóstico de contrato: comparación necesita evidencia de cláusula nawat",
             ]
             : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "dynamic visible renderer labels keep raw English LCM metadata out of Spanish UI surfaces",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            && typeof ctx.buildGrammarFrameSubLabels === "function"
+            && typeof ctx.buildNuclearClauseShellSubLabels === "function"
+            && typeof ctx.buildGeneratedOutputSlotChips === "function"
+            && typeof ctx.buildGrammarFrame === "function"
+            && typeof ctx.buildGrammarAuthorityFrame === "function"
+            && typeof ctx.buildGrammarRouteContractFrame === "function"
+            && typeof ctx.buildGrammarResultFrame === "function"
+            && typeof ctx.buildGrammarDiagnosticFrame === "function"
+            ? (() => {
+                const frameLabels = ctx.buildGrammarFrameSubLabels(ctx.buildGrammarFrame({
+                    authorityFrame: ctx.buildGrammarAuthorityFrame({
+                        evidenceStatus: "diagnostic-only",
+                        andrewsRefs: ["Andrews Lesson 53"],
+                        supported: false,
+                    }),
+                    routeContract: ctx.buildGrammarRouteContractFrame({
+                        routeFamily: "comparison",
+                        routeStage: "classify-boundary",
+                        generationAllowed: false,
+                    }),
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: false,
+                        outputKind: "comparison-candidate-classification",
+                    }),
+                    diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
+                        diagnostics: [{
+                            id: "comparison-needs-nawat-clause-evidence",
+                            severity: "diagnostic",
+                        }],
+                    }),
+                }));
+                const shellLabels = ctx.buildNuclearClauseShellSubLabels({
+                    kind: "nuclear-clause-shell",
+                    formulaType: "VNC",
+                    displayLabel: "cláusula nuclear verbal (CNV)",
+                    formula: "#pers1-pers2(STEM)tns+num1-num2#",
+                });
+                const chipLabels = ctx.buildGeneratedOutputSlotChips({
+                    nuclearClauseShell: {
+                        kind: "nuclear-clause-shell",
+                        formulaType: "VNC",
+                        formulaEcho: "#Ø-ki-(ilpia)-t-presente#",
+                    },
+                }).flatMap((chip) => [chip.label, chip.value, chip.title].filter(Boolean));
+                const bannedVisiblePattern = /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function|\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b|\btns\b|diagnostic-only|classify-boundary|authorityFrame|resultFrame|routeContract|needs-nawat-clause-evidence/i;
+                return [...frameLabels, ...shellLabels, ...chipLabels]
+                    .filter((label) => bannedVisiblePattern.test(String(label || "")));
+            })()
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module" ? [] : ["rendering-runtime-not-loaded"]
     );
     s.eq(
         "shared renderer labels Nawat realization from LCM result-frame surface forms",
@@ -3640,7 +3702,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Realizacion Nawat: frame-render-a"]
+            ? ["Realización Nawat: frame-render-a"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3687,7 +3749,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Realizacion Nawat: orthography-only-surface"]
+            ? ["Realización Nawat: orthography-only-surface"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3805,7 +3867,7 @@ function run(ctx = {}) {
         exportUi.includes("function normalizeUnifiedVerbOutputGrammarMetadata")
             && exportUi.includes("function getUnifiedVerbOutputGrammarDatasetMetadata")
             && exportUi.includes("function projectUnifiedVerbOutputVisibleRow")
-            && exportUi.includes('"ruta LCM"')
+            && exportUi.includes('"ruta de contrato"')
             && exportUi.includes("row.grammarRouteFamily")
             && exportUi.includes("row.grammarDiagnosticLayer")
             && rendering.includes("applyGrammarFrameRouteDataset(row, evaluation.result)")
@@ -3955,7 +4017,9 @@ function run(ctx = {}) {
                     });
                     const csv = ctx.buildViewExportCSV();
                     return {
-                        hasRouteHeader: csv.includes("ruta LCM"),
+                        hasRouteHeader: csv.includes("ruta de contrato"),
+                        hasGenerationHeader: csv.includes("generación de contrato"),
+                        hasDiagnosticStatusHeader: csv.includes("estado diagnóstico de contrato"),
                         hasDiagnosticHeader: csv.includes("capa fallida"),
                         hasRowInputValue: csv.split(/\r?\n/)[1]?.startsWith("ka,") === true,
                         hasRouteValue: csv.includes("vnc,execute,false"),
@@ -3970,6 +4034,8 @@ function run(ctx = {}) {
             })()
             : {
                 hasRouteHeader: false,
+                hasGenerationHeader: false,
+                hasDiagnosticStatusHeader: false,
                 hasDiagnosticHeader: false,
                 hasRowInputValue: false,
                 hasRouteValue: false,
@@ -3978,6 +4044,8 @@ function run(ctx = {}) {
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? {
                 hasRouteHeader: true,
+                hasGenerationHeader: true,
+                hasDiagnosticStatusHeader: true,
                 hasDiagnosticHeader: true,
                 hasRowInputValue: true,
                 hasRouteValue: true,
@@ -3985,6 +4053,8 @@ function run(ctx = {}) {
             }
             : {
                 hasRouteHeader: false,
+                hasGenerationHeader: false,
+                hasDiagnosticStatusHeader: false,
                 hasDiagnosticHeader: false,
                 hasRowInputValue: false,
                 hasRouteValue: false,
@@ -4087,7 +4157,7 @@ function run(ctx = {}) {
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? {
                 lineCount: 2,
-                header: "tipo,entrada Nawat,fuente Andrews,sección Andrews,clase funcional,posición,capa,glosa,estado evidencia,confirmado Nawat,generación LCM,ruta LCM,etapa LCM,diagnóstico LCM,resultado LCM",
+                header: "tipo,entrada Nawat,fuente Andrews,sección Andrews,clase funcional,posición,capa,glosa,estado evidencia,confirmado Nawat,generación de contrato,ruta de contrato,etapa de contrato,diagnóstico de contrato,resultado de contrato",
                 firstRow: "ejemplo Andrews,ka,ca,3.2.1,introductor de cláusula,inicio de cláusula,sentence,en verdad; de hecho,andrews-orthography-adapted,false,false,particle-placement,inventory-preview,particle-seed-inventory-entry,false",
                 hasConjugationHeader: false,
             }

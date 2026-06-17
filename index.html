@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="description"
-      content="Conjugador de cláusulas nucleares nawat guiado por Andrews: entrada, fórmula y salida para CNV, CNN y partículas."
+      content="Conjugador de cláusulas nucleares nawat guiado por Andrews: entrada, fórmula y salida para cláusula verbal, cláusula nominal y partículas."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40" />
@@ -87,7 +87,7 @@
         </div>
         <div class="hero-controls">
           <div class="ui-scale-control">
-            <label class="ui-scale-label" for="ui-scale">Tamaño UI</label>
+            <label class="ui-scale-label" for="ui-scale">Tamaño de interfaz</label>
             <div class="ui-scale-row">
               <input
                 type="range"
@@ -96,7 +96,7 @@
                 max="6"
                 step="1"
                 value="0"
-                aria-label="Tamaño UI"
+                aria-label="Tamaño de interfaz"
               />
               <span class="ui-scale-value" id="ui-scale-value">0</span>
             </div>
@@ -279,10 +279,10 @@
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="general"
                         aria-pressed="true"
-                        aria-label="Tablero CNV"
-                        title="CNV"
+                        aria-label="Tablero de cláusula verbal"
+                        title="Cláusula verbal"
                       >
-                        V
+                        Verbal
                       </button>
                       <button
                         type="button"
@@ -290,20 +290,20 @@
                         data-ordinary-nnc-mode="true"
                         id="verb-entry-board-ordinary-nnc"
                         aria-pressed="false"
-                        aria-label="Tablero CNN/N: cláusula nominal"
-                        title="CNN/N: cláusula nominal"
+                        aria-label="Tablero de cláusula nominal"
+                        title="Cláusula nominal"
                       >
-                        N
+                        Nominal
                       </button>
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="noun-to-verb"
                         aria-pressed="false"
-                        aria-label="Tablero N>V: verbalización"
-                        title="N>V: verbalización"
+                        aria-label="Tablero de verbalización nominal"
+                        title="Verbalización nominal"
                       >
-                        N&gt;V
+                        Verbalizar
                       </button>
                     </div>
                   </div>
@@ -372,8 +372,8 @@
                       id="tutorial-trigger"
                       hidden
                       aria-hidden="true"
-                      aria-label="Abrir guía regex"
-                      title="Abrir guía regex"
+                      aria-label="Abrir guía de patrón"
+                      title="Abrir guía de patrón"
                     >
                       <span class="button-icon" aria-hidden="true">
                         <svg viewBox="0 0 16 16" focusable="false">
@@ -382,7 +382,7 @@
                           <path d="M8 11.28h.01"></path>
                         </svg>
                       </span>
-                      <span class="button-label" data-ui-label-target>Guía regex</span>
+                      <span class="button-label" data-ui-label-target>Guía de patrón</span>
                     </button>
                   </div>
                 </div>
@@ -462,13 +462,13 @@
                                     <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-embed"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot A"
+                                          aria-label="Incorporado, casilla A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -481,8 +481,8 @@
                                     data-composer-matrix-field="a"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
+                                      <span class="verb-composer__sub-label">Predicado (base)</span>
+                                      <div class="verb-composer__slot-tabs verb-composer__slot-tabs--transitivity" role="tablist" aria-label="Valencia verbal">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -493,7 +493,7 @@
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
-                                          VI
+                                          Intransitivo
                                         </button>
                                         <button
                                           type="button"
@@ -505,7 +505,7 @@
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
-                                          VT
+                                          Transitivo
                                         </button>
                                         <button
                                           type="button"
@@ -517,19 +517,19 @@
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
-                                          VB
+                                          Bitransitivo
                                         </button>
                                       </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">base</span>
                                         <input
                                           type="text"
                                           id="composer-stem-a"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Predicado STEM Slot A"
+                                          aria-label="Predicado base, casilla A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -546,7 +546,7 @@
                                           aria-haspopup="menu"
                                           aria-expanded="false"
                                           aria-controls="composer-stem-a-affix-popover"
-                                          aria-label="Abrir opciones derivativas Slot A"
+                                          aria-label="Abrir opciones derivativas, casilla A"
                                         >
                                           <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
@@ -561,7 +561,7 @@
                                           class="verb-composer__matrix-affix-popover"
                                           id="composer-stem-a-affix-popover"
                                           role="menu"
-                                          aria-label="Opciones derivativas Slot A"
+                                          aria-label="Opciones derivativas, casilla A"
                                           popover="manual"
                                           aria-hidden="true"
                                         >
@@ -575,7 +575,7 @@
                                     <select
                                       id="composer-stem-a-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones predicado STEM Slot A"
+                                      aria-label="Opciones del predicado base, casilla A"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -583,7 +583,7 @@
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="a"
                                       role="group"
-                                      aria-label="Tipo serial Slot A"
+                                      aria-label="Tipo serial, casilla A"
                                     ></div>
                                   </div>
                                 </div>
@@ -591,19 +591,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="dir Slot A"
+                                    aria-label="Direccional, casilla A"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-valence-a-embed-left"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot A"
+                                          aria-label="Incorporado, casilla A"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -611,17 +611,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">obj1/REFL</span>
+                                      <span class="verb-composer__sub-label">Objeto 1/reflexivo</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-a-chips"
                                         role="group"
-                                        aria-label="obj1/REFL Slot A"
+                                        aria-label="Objeto 1/reflexivo, casilla A"
                                       ></div>
                                       <select
                                         id="composer-valence-a"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="obj1/REFL Slot A"
+                                        aria-label="Objeto 1/reflexivo, casilla A"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -645,13 +645,13 @@
                                     <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-valence-embed-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot B"
+                                          aria-label="Incorporado, casilla B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -664,8 +664,8 @@
                                     data-composer-matrix-field="b"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
+                                      <span class="verb-composer__sub-label">Predicado (base)</span>
+                                      <div class="verb-composer__slot-tabs verb-composer__slot-tabs--transitivity" role="tablist" aria-label="Valencia verbal">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -676,7 +676,7 @@
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
-                                          VI
+                                          Intransitivo
                                         </button>
                                         <button
                                           type="button"
@@ -688,7 +688,7 @@
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
-                                          VT
+                                          Transitivo
                                         </button>
                                         <button
                                           type="button"
@@ -700,19 +700,19 @@
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
-                                          VB
+                                          Bitransitivo
                                         </button>
                                       </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">base</span>
                                         <input
                                           type="text"
                                           id="composer-stem-b"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Predicado STEM Slot B"
+                                          aria-label="Predicado base, casilla B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -729,7 +729,7 @@
                                           aria-haspopup="menu"
                                           aria-expanded="false"
                                           aria-controls="composer-stem-b-affix-popover"
-                                          aria-label="Abrir opciones derivativas Slot B"
+                                          aria-label="Abrir opciones derivativas, casilla B"
                                         >
                                           <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
@@ -744,7 +744,7 @@
                                           class="verb-composer__matrix-affix-popover"
                                           id="composer-stem-b-affix-popover"
                                           role="menu"
-                                          aria-label="Opciones derivativas Slot B"
+                                          aria-label="Opciones derivativas, casilla B"
                                           popover="manual"
                                           aria-hidden="true"
                                         >
@@ -758,7 +758,7 @@
                                     <select
                                       id="composer-stem-b-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones predicado STEM Slot B"
+                                      aria-label="Opciones del predicado base, casilla B"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -766,7 +766,7 @@
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="b"
                                       role="group"
-                                      aria-label="Tipo serial Slot B"
+                                      aria-label="Tipo serial, casilla B"
                                     ></div>
                                   </div>
                                 </div>
@@ -774,19 +774,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="dir Slot B"
+                                    aria-label="Direccional, casilla B"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-valence-left-1"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot B"
+                                          aria-label="Incorporado, casilla B"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -794,17 +794,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">obj1/REFL</span>
+                                      <span class="verb-composer__sub-label">Objeto 1/reflexivo</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-chips"
                                         role="group"
-                                        aria-label="obj1/REFL Slot B"
+                                        aria-label="Objeto 1/reflexivo, casilla B"
                                       ></div>
                                       <select
                                         id="composer-valence"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="obj1/REFL Slot B"
+                                        aria-label="Objeto 1/reflexivo, casilla B"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="ta">ta</option>
@@ -830,13 +830,13 @@
                                     <span class="verb-composer__sub-label">Incorporado</span>
                                     <div class="verb-composer__embed-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--prefix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-valence-embed-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot C"
+                                          aria-label="Incorporado, casilla C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -849,8 +849,8 @@
                                     data-composer-matrix-field="c"
                                   >
                                     <div class="verb-composer__matrix-head">
-                                      <span class="verb-composer__sub-label">Predicado (STEM)</span>
-                                      <div class="verb-composer__slot-tabs" role="tablist" aria-label="Valencia CNV">
+                                      <span class="verb-composer__sub-label">Predicado (base)</span>
+                                      <div class="verb-composer__slot-tabs verb-composer__slot-tabs--transitivity" role="tablist" aria-label="Valencia verbal">
                                         <button
                                           type="button"
                                           class="verb-composer__slot-transitivity verb-composer__slot-tab"
@@ -861,7 +861,7 @@
                                           aria-label="Intransitivo"
                                           title="Intransitivo"
                                         >
-                                          VI
+                                          Intransitivo
                                         </button>
                                         <button
                                           type="button"
@@ -873,7 +873,7 @@
                                           aria-label="Transitivo"
                                           title="Transitivo"
                                         >
-                                          VT
+                                          Transitivo
                                         </button>
                                         <button
                                           type="button"
@@ -885,19 +885,19 @@
                                           aria-label="Bitransitivo"
                                           title="Bitransitivo"
                                         >
-                                          VB
+                                          Bitransitivo
                                         </button>
                                       </div>
                                     </div>
                                     <div class="verb-composer__matrix-input-row">
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--verb">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">STEM</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">base</span>
                                         <input
                                           type="text"
                                           id="composer-stem-c"
                                           class="verb-composer__input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Predicado STEM Slot C"
+                                          aria-label="Predicado base, casilla C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -914,7 +914,7 @@
                                           aria-haspopup="menu"
                                           aria-expanded="false"
                                           aria-controls="composer-stem-c-affix-popover"
-                                          aria-label="Abrir opciones derivativas Slot C"
+                                          aria-label="Abrir opciones derivativas, casilla C"
                                         >
                                           <span class="verb-composer__matrix-affix-trigger-prefix">Derivación</span>
                                           <span
@@ -929,7 +929,7 @@
                                           class="verb-composer__matrix-affix-popover"
                                           id="composer-stem-c-affix-popover"
                                           role="menu"
-                                          aria-label="Opciones derivativas Slot C"
+                                          aria-label="Opciones derivativas, casilla C"
                                           popover="manual"
                                           aria-hidden="true"
                                         >
@@ -943,7 +943,7 @@
                                     <select
                                       id="composer-stem-c-affix"
                                       class="verb-composer__select verb-composer__matrix-affix-select is-hidden-control"
-                                      aria-label="Opciones predicado STEM Slot C"
+                                      aria-label="Opciones del predicado base, casilla C"
                                       aria-hidden="true"
                                       tabindex="-1"
                                     ></select>
@@ -951,7 +951,7 @@
                                       class="verb-composer__chips verb-composer__serial-type-chips"
                                       data-composer-serial-type-chips="c"
                                       role="group"
-                                      aria-label="Tipo serial Slot C"
+                                      aria-label="Tipo serial, casilla C"
                                     ></div>
                                   </div>
                                 </div>
@@ -959,19 +959,19 @@
                                   <div
                                     class="verb-composer__directional-host"
                                     data-composer-directional-host
-                                    aria-label="dir Slot C"
+                                    aria-label="Direccional, casilla C"
                                   ></div>
                                   <div class="verb-composer__object-pair">
                                     <div class="verb-composer__stem-field verb-composer__bottom-field">
                                       <span class="verb-composer__sub-label">Incorporado</span>
                                       <div class="verb-composer__tagged-input-shell verb-composer__tagged-input-shell--affix">
-                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">inc</span>
+                                        <span class="verb-composer__tagged-input-tag" aria-hidden="true">incorporado</span>
                                         <input
                                           type="text"
                                           id="composer-valence-left-2"
                                           class="verb-composer__input verb-composer__valence-embed-input verb-composer__tagged-input-control"
                                           placeholder=""
-                                          aria-label="Incorporado Slot C"
+                                          aria-label="Incorporado, casilla C"
                                           autocomplete="off"
                                           autocapitalize="none"
                                           spellcheck="false"
@@ -979,17 +979,17 @@
                                       </div>
                                     </div>
                                     <div class="verb-composer__valence-main verb-composer__bottom-field">
-                                      <span class="verb-composer__sub-label">obj1/obj2/REFL</span>
+                                      <span class="verb-composer__sub-label">Objeto 1/objeto 2/reflexivo</span>
                                       <div
                                         class="verb-composer__chips"
                                         id="composer-valence-2-chips"
                                         role="group"
-                                        aria-label="obj1/obj2/REFL Slot C"
+                                        aria-label="Objeto 1/objeto 2/reflexivo, casilla C"
                                       ></div>
                                       <select
                                         id="composer-valence-2"
                                         class="verb-composer__select is-hidden-control"
-                                        aria-label="obj1/obj2/REFL Slot C"
+                                        aria-label="Objeto 1/objeto 2/reflexivo, casilla C"
                                       >
                                         <option value="">Sin prefijo</option>
                                         <option value="te-2">-te</option>
@@ -1009,7 +1009,7 @@
                           <select
                             id="composer-transitivity"
                             class="verb-composer__select is-hidden-control"
-                            aria-label="Valencia CNV"
+                            aria-label="Valencia verbal"
                           >
                             <option value="">Selecciona transitividad</option>
                             <option value="intransitive">Intransitivo</option>
@@ -1022,17 +1022,17 @@
                             role="group"
                             aria-label="Grupo direccional"
                           >
-                            <span class="verb-composer__sub-label">dir</span>
+                            <span class="verb-composer__sub-label">Direccional</span>
                             <div
                               class="verb-composer__chips"
                               id="composer-directional-chips"
                               role="group"
-                              aria-label="dir"
+                              aria-label="Direccional"
                             ></div>
                             <select
                               id="composer-directional"
                               class="verb-composer__select is-hidden-control"
-                              aria-label="dir"
+                              aria-label="Direccional"
                             >
                               <option value="">Sin direccional</option>
                             </select>
@@ -1054,8 +1054,8 @@
                               class="verb-chip verb-composer__supportive-i-button button-with-icon"
                               id="verb-key-supportive-i"
                               aria-pressed="false"
-                              aria-label="Aplicar i/y de apoyo opcional. Regex: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
-                              title="i/y de apoyo opcional. Regex: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
+                              aria-label="Aplicar i/y de apoyo opcional. Patrón: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
+                              title="i/y de apoyo opcional. Patrón: [i] o [y]. Regla y: #+(y)V>yV; C+(y)V>CV; V+(y)e>Ve; i+(y)V>iV; X+(y)Vj(y)V>XVjV."
                             >
                               <span class="button-icon button-icon--supportive" aria-hidden="true">
                                 i
@@ -1065,7 +1065,7 @@
                           </div>
                       <div class="verb-composer__placeholder" id="verb-composer-placeholder" aria-hidden="true">
                         <div class="calc-regex-card">
-                          <div class="calc-regex-title">Regex activo</div>
+                          <div class="calc-regex-title">Patrón activo</div>
                           <div class="calc-regex-body">
                             Escribe el patrón directo en la pantalla para buscar o derivar sin menús.
                           </div>
@@ -1074,7 +1074,7 @@
                   </div>
                   <div class="verb-block__feedback">
                     <div class="verb-rule is-empty" id="verb-rule" aria-live="polite">
-                      <span class="verb-rule__label">Rule</span>
+                      <span class="verb-rule__label">Regla</span>
                       <span class="verb-rule__text" id="verb-rule-text"></span>
                     </div>
                     <div
@@ -1161,7 +1161,7 @@
                       data-verb-source-scope="both"
                       data-ui-label-key="verb-source-scope-both"
                       aria-pressed="true"
-                    >TODOS</button>
+                    >Todos</button>
                     <button
                       type="button"
                       class="verb-source-scope-button"
@@ -1169,7 +1169,7 @@
                       data-verb-source-scope="active"
                       data-ui-label-key="verb-source-scope-active"
                       aria-pressed="false"
-                    >ACT</button>
+                    >Activo</button>
                     <button
                       type="button"
                       class="verb-source-scope-button"
@@ -1177,7 +1177,7 @@
                       data-verb-source-scope="nonactive"
                       data-ui-label-key="verb-source-scope-nonactive"
                       aria-pressed="false"
-                    >NO ACT</button>
+                    >No activo</button>
                   </div>
                 </div>
                 <button type="button" class="view-export-button panel-action-button" id="view-export-csv">
@@ -1193,7 +1193,7 @@
                       />
                     </svg>
                   </span>
-                  <span class="panel-action-button__label">CSV vista</span>
+                  <span class="panel-action-button__label">Vista de datos</span>
                 </button>
                 <button
                   type="button"
@@ -1416,10 +1416,10 @@
                             role="tab"
                             aria-selected="true"
                             data-ui-label-key="tense-tabs-unit-cnv"
-                            aria-label="Clase formal CNV"
-                            title="Clase formal CNV"
+                            aria-label="Clase formal: cláusula verbal"
+                            title="Clase formal: cláusula verbal"
                           >
-                            CNV
+                            Cláusula verbal
                           </button>
                           <button
                             type="button"
@@ -1431,10 +1431,10 @@
                             role="tab"
                             aria-selected="false"
                             data-ui-label-key="tense-tabs-unit-cnn"
-                            aria-label="Clase formal CNN"
-                            title="Clase formal CNN"
+                            aria-label="Clase formal: cláusula nominal"
+                            title="Clase formal: cláusula nominal"
                           >
-                            CNN
+                            Cláusula nominal
                           </button>
                           <button
                             type="button"
@@ -1537,7 +1537,7 @@
       </div>
       </section>
       <footer>
-        <p><span id="copyright-label">Copyright © 2026 Jaime Núñez</span></p>
+        <p><span id="copyright-label">Derechos de autor © 2026 Jaime Núñez</span></p>
         <p>Gracias a Sigfredo Olmedo</p>
       </footer>
     </main>
@@ -1545,10 +1545,10 @@
       <div class="tutorial-backdrop" data-tutorial-close></div>
       <div class="tutorial-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
         <div class="tutorial-header">
-          <span class="tutorial-eyebrow">Guía regex</span>
-          <h2 id="tutorial-title">Cómo leer el regex</h2>
+          <span class="tutorial-eyebrow">Guía de patrón</span>
+          <h2 id="tutorial-title">Cómo leer el patrón</h2>
           <p class="tutorial-lede">
-            El regex visible es el lenguaje principal. Lee la forma de izquierda a derecha: piezas externas, luego núcleo intransitivo <code>(...)</code> o transitivo <code>-(...)</code>.
+            El patrón visible es el lenguaje principal. Lee la forma de izquierda a derecha: piezas externas, luego núcleo intransitivo <code>(...)</code> o transitivo <code>-(...)</code>.
           </p>
           <button type="button" class="tutorial-close" data-tutorial-close aria-label="Cerrar guía">
             ×
@@ -1686,7 +1686,7 @@
           </div>
           <div class="tutorial-footer">
             <div class="tutorial-tip">
-              Tip: pulsa cualquier ejemplo para cargarlo directamente, o replica la misma estructura con los botones del compositor.
+              Consejo: pulsa cualquier ejemplo para cargarlo directamente, o replica la misma estructura con los botones del compositor.
             </div>
             <button type="button" class="tutorial-close-pill" data-tutorial-close>Entendido</button>
           </div>

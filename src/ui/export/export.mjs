@@ -360,7 +360,7 @@ export function createUiExportApi(targetObject = globalThis) {
       if (!rows.length) {
         return "";
       }
-      const header = ["tipo", "entrada Nawat", "fuente Andrews", "sección Andrews", "clase funcional", "posición", "capa", "glosa", "estado evidencia", "confirmado Nawat", "generación LCM", "ruta LCM", "etapa LCM", "diagnóstico LCM", "resultado LCM"].map(label => escapeCSVValue(label)).join(",");
+      const header = ["tipo", "entrada Nawat", "fuente Andrews", "sección Andrews", "clase funcional", "posición", "capa", "glosa", "estado evidencia", "confirmado Nawat", "generación de contrato", "ruta de contrato", "etapa de contrato", "diagnóstico de contrato", "resultado de contrato"].map(label => escapeCSVValue(label)).join(",");
       const lines = rows.map(row => [row.tipo, row.entradaNawat, row.fuenteAndrews, row.seccionAndrews, row.claseFuncional, row.posicion, row.capa, row.glosa, row.estadoEvidencia, row.confirmadoNawat, row.generacionLcm, row.rutaLcm, row.etapaLcm, row.diagnosticoLcm, row.resultadoLcm].map(value => escapeCSVValue(value)).join(","));
       return [header, ...lines].join("\n");
     }
@@ -392,7 +392,7 @@ export function createUiExportApi(targetObject = globalThis) {
       const exportObjectSlotCount = rows.reduce((max, row) => Math.max(max, Number.isFinite(row.objectSlotCount) ? row.objectSlotCount : 0), 0);
       const exportSlots = targetObject.VERB_OBJECT_SLOT_SCHEMA.slice(0, exportObjectSlotCount);
       const objectHeaders = getViewExportObjectHeaders(exportObjectSlotCount, isNawat);
-      const header = ["entrada", "derivación", "sujeto", ...objectHeaders, "fuente", "bloque", "persona", "forma", "ruta LCM", "etapa LCM", "generacion LCM", "Andrews", "estado evidencia", "evidencia Nawat", "tipo evidencia fuente", "estado evidencia fuente", "estado diagnostico LCM", "diagnostico LCM", "capa fallida", "contrato fallido", "resultado LCM"].map(label => escapeCSVValue(label)).join(",");
+      const header = ["entrada", "derivación", "sujeto", ...objectHeaders, "fuente", "bloque", "persona", "forma", "ruta de contrato", "etapa de contrato", "generación de contrato", "Andrews", "estado evidencia", "evidencia Nawat", "tipo evidencia fuente", "estado evidencia fuente", "estado diagnóstico de contrato", "diagnóstico de contrato", "capa fallida", "contrato fallido", "resultado de contrato"].map(label => escapeCSVValue(label)).join(",");
       const lines = rows.map(row => [row.inputValue || inputValue, derivationValue, row.subjectToggle, ...exportSlots.map(slot => row[slot.exportKey]), getViewExportSourceModeLabel(row.sourceMode, isNawat), row.block, row.person, row.value, row.grammarRouteFamily, row.grammarRouteStage, row.grammarGenerationAllowed, row.grammarAuthorityRefs || row.grammarAuthorityRef, row.grammarEvidenceStatus, row.grammarNawatEvidenceRefs || row.grammarNawatEvidenceRef, row.grammarSourceEvidenceKind, row.grammarSourceEvidenceStatus, row.grammarDiagnosticStatus, row.grammarDiagnosticId, row.grammarDiagnosticLayer, row.grammarDiagnosticContractLayer, row.grammarResultOk].map(value => escapeCSVValue(value)).join(","));
       return [header, ...lines].join("\n");
     }

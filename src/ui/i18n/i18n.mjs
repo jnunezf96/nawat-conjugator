@@ -167,14 +167,14 @@ export function createUiI18nApi(targetObject = globalThis) {
       var translations = {
         "tutorial-title": "Shitajkwilu iwan majmachiyut",
         "tutorial-trigger": "Machiyut",
-        "copyright-label": "Copyright © 2026 Jaime Núñez",
+        "copyright-label": "Derechos de autor © 2026 Jaime Núñez",
         "derivation-type-label": "Tapiwilis",
         "ui-density-label": "Vista",
         "ui-density-simple": "Básico",
         "ui-density-advanced": "Avanzado",
-        "verb-source-scope-active": "ACT",
-        "verb-source-scope-nonactive": "NO ACT",
-        "verb-source-scope-both": "TODOS"
+        "verb-source-scope-active": "Activo",
+        "verb-source-scope-nonactive": "No activo",
+        "verb-source-scope-both": "Todos"
       };
       if (selectedLanguage === "nawat") {
         labelElementIds.forEach(function (elementId) {

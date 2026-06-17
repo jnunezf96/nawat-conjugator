@@ -399,7 +399,7 @@ export function createUiEventsApi(targetObject = globalThis) {
             }
             .verb-composer--inline-formula .verb-composer__top-row::before,
             .verb-composer--inline-formula .verb-composer__stem-boundary::before {
-                content: "(STEM)";
+                content: "(base)";
                 position: absolute;
                 top: -0.72rem;
                 left: 0.75rem;
@@ -555,14 +555,14 @@ export function createUiEventsApi(targetObject = globalThis) {
       const transitivity = String(viewModel.transitivity || "");
       const isBitransitive = transitivity === targetObject.COMPOSER_TRANSITIVITY.bitransitive;
       const isTransitive = transitivity === targetObject.COMPOSER_TRANSITIVITY.transitive;
-      const embedLabel = isBitransitive ? "Elemento incorporado VB" : isTransitive ? "Elemento incorporado VT" : "Elemento incorporado VI";
+      const embedLabel = isBitransitive ? "Incorporado de matriz bitransitiva" : isTransitive ? "Incorporado de matriz transitiva" : "Incorporado de matriz intransitiva";
       const objectLabel = isBitransitive ? "Objeto incorporado doble" : isTransitive ? "Objeto incorporado" : "Objeto incorporado";
       const valenceLabel = isBitransitive ? "Objeto / valencia doble" : isTransitive ? "Objeto indefinido" : "Objeto indefinido";
       setInlineComposerVisibleLabel(controls.embedInput, embedLabel);
       setInlineComposerVisibleLabel(controls.objectInput, objectLabel);
       setInlineComposerVisibleLabel(controls.stemInput, "Raíz matriz");
-      setInlineComposerTaggedLabel(controls.embedInput, "Incorp.");
-      setInlineComposerTaggedLabel(controls.objectInput, "Obj.");
+      setInlineComposerTaggedLabel(controls.embedInput, "Incorporado");
+      setInlineComposerTaggedLabel(controls.objectInput, "Objeto");
       setInlineComposerTaggedLabel(controls.stemInput, "Verbo");
       if (controls.embedInput) {
         controls.embedInput.placeholder = "Elemento incorporado";
