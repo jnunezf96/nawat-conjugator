@@ -961,7 +961,7 @@ function buildVerbDerivedNominalizationProfileSubLabels(profile = null, { isNawa
         labels.push(`etapa salida: ${patientiveFamilyProfile.sourceStageModel.slot}`);
     }
     if (patientiveFamilyProfile && patientiveFamilyProfile.isCompletePatientiveTaxonomy === false) {
-        labels.push("taxonomia patientiva: parcial");
+        labels.push("taxonomía patientiva: parcial");
     }
     const adjectivalFunctionLabel = getVerbDerivedNominalizationProfileLabel(
         adjectivalFunctionLabels,
@@ -972,7 +972,7 @@ function buildVerbDerivedNominalizationProfileSubLabels(profile = null, { isNawa
         labels.push(`función adjetival: ${adjectivalFunctionLabel}`);
     }
     if (adjectivalFunctionLabel && boundaries.doesNotImplementLessons42_43) {
-        labels.push("modificacion: no modelada");
+        labels.push("modificación: no modelada");
     }
     return labels;
 }
@@ -2875,6 +2875,7 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "objeto reflexivo:",
         "predicado:",
         "estado del predicado:",
+        "nominalización:",
         "nominalizacion:",
         "fuente VNC:",
         "fuente patientiva:",
@@ -2901,8 +2902,10 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Generación de contrato:",
         "Evidencia:",
         "Andrews:",
+        "realización Nawat:",
         "Realización Nawat:",
         "Realizacion Nawat:",
+        "ámbito:",
         "Ámbito:",
         "Ambito:",
         "Nominalización:",
@@ -2914,10 +2917,13 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Fuente patientiva:",
         "Familias Andrews:",
         "Etapa salida:",
+        "taxonomía patientiva:",
         "Taxonomía patientiva:",
         "Taxonomia patientiva:",
+        "función adjetival:",
         "Función adjetival:",
         "Funcion adjetival:",
+        "modificación:",
         "Modificación:",
         "Modificacion:",
         "Conector sujeto:",
@@ -2926,6 +2932,7 @@ function buildGeneratedOutputCompactSubLabel(text = "", result = null) {
         "Estado del predicado:",
         "Animacidad:",
         "Referencia:",
+        "marcación posesiva:",
         "Marcación posesiva:",
         "Marcacion posesiva:",
         "Proceso L2",
@@ -3820,14 +3827,14 @@ function buildAdverbialAdjunctionBoundaryFrameSubLabels(frame = null) {
     const labels = [];
     const statusLabel = String(frame.statusLabel || "").trim();
     if (statusLabel) {
-        labels.push(`Adjuncion: ${statusLabel}`);
+        labels.push(`Adjunción: ${statusLabel}`);
     }
     const candidateLabel = String(frame.candidate?.label || "").trim();
     if (candidateLabel) {
         labels.push(`Unidad adjunta: ${candidateLabel}`);
     }
     if (frame.boundaries?.singleGeneratedWordIsEvidence === false) {
-        labels.push("Evidencia adjuncion: no confirmada");
+        labels.push("Evidencia adjunción: no confirmada");
     }
     return labels;
 }
@@ -3850,7 +3857,7 @@ function buildVncVerbstemClassProfileSubLabels(profile = null) {
     const labels = [`Clase de tronco: ${classKey}`];
     const ruleLabel = String(profile.ruleSummary?.ruleLabel || "").trim();
     if (ruleLabel && ruleLabel !== "default class rules") {
-        labels.push(`Diagnostico de tronco: ${ruleLabel}`);
+        labels.push(`Diagnóstico de tronco: ${ruleLabel}`);
     }
     return labels;
 }
@@ -3862,27 +3869,62 @@ function appendVncVerbstemClassProfileSubLabels(baseLabel = "", profile = null) 
     ].filter(Boolean).join(" · ");
 }
 
+const VISIBLE_SENTENCE_LAYER_SLOT_VALUES = Object.freeze({
+    polarity: Object.freeze({
+        affirmative: "afirmativa",
+        negative: "negativa",
+        unknown: "desconocida",
+    }),
+    question: Object.freeze({
+        none: "ninguna",
+        "yes-no": "sí/no",
+        content: "de contenido",
+        unknown: "desconocida",
+    }),
+    emphasis: Object.freeze({
+        none: "ninguno",
+        focus: "foco",
+        emphatic: "enfática",
+        unknown: "desconocido",
+    }),
+    mood: Object.freeze({
+        declarative: "declarativo",
+        wish: "deseo",
+        command: "mandato",
+        exhortation: "exhortación",
+        admonition: "admonitivo",
+        unknown: "desconocido",
+    }),
+});
+
+function formatVisibleSentenceLayerSlotValue(slot = "", value = "") {
+    const slotKey = String(slot || "").trim();
+    const normalized = String(value || "").trim().toLowerCase();
+    return VISIBLE_SENTENCE_LAYER_SLOT_VALUES[slotKey]?.[normalized]
+        || String(value || "").trim();
+}
+
 function buildSentenceLayerSubLabels(sentenceLayer = null) {
     if (!sentenceLayer || sentenceLayer.kind !== "sentence-layer-metadata") {
         return [];
     }
     const slots = sentenceLayer.slots || {};
-    const labels = ["Capa oracional: diagnostica"];
+    const labels = ["Capa oracional: diagnóstica"];
     const polarity = String(slots.polarity?.value || "").trim();
     const question = String(slots.question?.value || "").trim();
     const emphasis = String(slots.emphasis?.value || "").trim();
     const mood = String(slots.mood?.value || "").trim();
     if (polarity && polarity !== "affirmative") {
-        labels.push(`Negacion: ${polarity}`);
+        labels.push(`Negación: ${formatVisibleSentenceLayerSlotValue("polarity", polarity)}`);
     }
     if (question && question !== "none") {
-        labels.push(`Pregunta: ${question}`);
+        labels.push(`Pregunta: ${formatVisibleSentenceLayerSlotValue("question", question)}`);
     }
     if (emphasis && emphasis !== "none") {
-        labels.push(`Enfasis: ${emphasis}`);
+        labels.push(`Énfasis: ${formatVisibleSentenceLayerSlotValue("emphasis", emphasis)}`);
     }
     if (mood && mood !== "declarative") {
-        labels.push(`Modo oracional: ${mood}`);
+        labels.push(`Modo oracional: ${formatVisibleSentenceLayerSlotValue("mood", mood)}`);
     }
     return labels;
 }
@@ -5092,7 +5134,7 @@ function renderOrdinaryNncConjugations({
             `#3 salida nominal: ${targetSurface}`,
             "Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival",
             rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "",
-            "no crea modificacion Lessons 42-43",
+            "no crea modificación lecciones 42-43",
         ].filter(Boolean).join("; ");
         continueButton.addEventListener("click", () => {
             applyAdjectivalNncFunctionToVerbEntry({
@@ -11781,10 +11823,10 @@ function renderNounConjugations({
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `#3 salida adjetival: ${sourceSurface}`,
-                "Andrews 41.1: intensificacion adjetival por reduplicacion",
+                "Andrews 41.1: intensificación adjetival por reduplicación",
                 sourceFormulaEcho ? `Fórmula fuente: ${formatVisibleAndrewsFormula(sourceFormulaEcho)}` : "",
                 contract.formulaEcho ? `Fórmula intensificada: ${formatVisibleAndrewsFormula(contract.formulaEcho)}` : "",
-                "no usa el frequentativo Lesson 27",
+                "no usa el frecuentativo lección 27",
             ].filter(Boolean).join("; ");
             continueButton.addEventListener("click", () => {
                 applyAdjectivalNncFunctionToVerbEntry({
@@ -14062,7 +14104,7 @@ function renderAdjectivalNncFunctionConjugations({
     tenseTitle.className = "tense-block__title";
     const titleLabel = document.createElement("span");
     titleLabel.className = "tense-block__label";
-    titleLabel.textContent = "Funcion adjetival";
+    titleLabel.textContent = "Función adjetival";
     tenseTitle.appendChild(titleLabel);
     tenseBlock.appendChild(tenseTitle);
     const list = document.createElement("div");

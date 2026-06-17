@@ -880,14 +880,14 @@ export function createUiRenderingApi(targetObject = globalThis) {
         labels.push(`etapa salida: ${patientiveFamilyProfile.sourceStageModel.slot}`);
       }
       if (patientiveFamilyProfile && patientiveFamilyProfile.isCompletePatientiveTaxonomy === false) {
-        labels.push("taxonomia patientiva: parcial");
+        labels.push("taxonomía patientiva: parcial");
       }
       const adjectivalFunctionLabel = getVerbDerivedNominalizationProfileLabel(adjectivalFunctionLabels, role.adjectivalFunction, "");
       if (adjectivalFunctionLabel) {
         labels.push(`función adjetival: ${adjectivalFunctionLabel}`);
       }
       if (adjectivalFunctionLabel && boundaries.doesNotImplementLessons42_43) {
-        labels.push("modificacion: no modelada");
+        labels.push("modificación: no modelada");
       }
       return labels;
     }
@@ -2431,7 +2431,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const formulaType = String(result?.nuclearClauseShell?.formulaType || "").trim();
         return formulaType ? `cláusula nuclear ${formulaType}` : "";
       }
-      const saturatedPrefixes = ["clausula nuclear VNC:", "clausula nuclear NNC:", "cláusula nuclear VNC:", "cláusula nuclear NNC:", "cláusula nuclear CNV:", "cláusula nuclear CNN:", "cláusula verbal:", "cláusula nominal:", "Formula VNC:", "Formula NNC:", "Formula CNV:", "Formula CNN:", "Fórmula VNC:", "Fórmula NNC:", "Fórmula CNV:", "Fórmula CNN:", "pers1-pers2:", "obj1:", "obj2:", "obj3:", "reflexivo:", "STEM:", "tiempo:", "sujeto:", "objeto:", "objeto 2:", "objeto 3:", "objeto reflexivo:", "predicado:", "estado del predicado:", "nominalizacion:", "fuente VNC:", "fuente patientiva:", "procedimientos patientivos:", "conector sujeto:", "Clausula VNC:", "Clausula NNC:", "Clausula CNV:", "Clausula CNN:", "Formula VNC:", "Formula NNC:", "Formula CNV:", "Formula CNN:", "Fórmula VNC:", "Fórmula NNC:", "Fórmula CNV:", "Fórmula CNN:", "Valencia VNC:", "Objeto VNC:", "valencia verbal:", "objeto verbal:", "Estado de contrato:", "Ruta de contrato:", "Generación de contrato:", "Evidencia:", "Andrews:", "Realización Nawat:", "Realizacion Nawat:", "Ámbito:", "Ambito:", "Nominalización:", "Nominalizacion:", "Rol nominal:", "Fuente VNC:", "Fuente CNV:", "Familia patientiva:", "Fuente patientiva:", "Familias Andrews:", "Etapa salida:", "Taxonomía patientiva:", "Taxonomia patientiva:", "Función adjetival:", "Funcion adjetival:", "Modificación:", "Modificacion:", "Conector sujeto:", "Conector num1-num2:", "Conector:", "Estado del predicado:", "Animacidad:", "Referencia:", "Marcación posesiva:", "Marcacion posesiva:", "Proceso L2", "clase "];
+      const saturatedPrefixes = ["clausula nuclear VNC:", "clausula nuclear NNC:", "cláusula nuclear VNC:", "cláusula nuclear NNC:", "cláusula nuclear CNV:", "cláusula nuclear CNN:", "cláusula verbal:", "cláusula nominal:", "Formula VNC:", "Formula NNC:", "Formula CNV:", "Formula CNN:", "Fórmula VNC:", "Fórmula NNC:", "Fórmula CNV:", "Fórmula CNN:", "pers1-pers2:", "obj1:", "obj2:", "obj3:", "reflexivo:", "STEM:", "tiempo:", "sujeto:", "objeto:", "objeto 2:", "objeto 3:", "objeto reflexivo:", "predicado:", "estado del predicado:", "nominalización:", "nominalizacion:", "fuente VNC:", "fuente patientiva:", "procedimientos patientivos:", "conector sujeto:", "Clausula VNC:", "Clausula NNC:", "Clausula CNV:", "Clausula CNN:", "Formula VNC:", "Formula NNC:", "Formula CNV:", "Formula CNN:", "Fórmula VNC:", "Fórmula NNC:", "Fórmula CNV:", "Fórmula CNN:", "Valencia VNC:", "Objeto VNC:", "valencia verbal:", "objeto verbal:", "Estado de contrato:", "Ruta de contrato:", "Generación de contrato:", "Evidencia:", "Andrews:", "realización Nawat:", "Realización Nawat:", "Realizacion Nawat:", "ámbito:", "Ámbito:", "Ambito:", "Nominalización:", "Nominalizacion:", "Rol nominal:", "Fuente VNC:", "Fuente CNV:", "Familia patientiva:", "Fuente patientiva:", "Familias Andrews:", "Etapa salida:", "taxonomía patientiva:", "Taxonomía patientiva:", "Taxonomia patientiva:", "función adjetival:", "Función adjetival:", "Funcion adjetival:", "modificación:", "Modificación:", "Modificacion:", "Conector sujeto:", "Conector num1-num2:", "Conector:", "Estado del predicado:", "Animacidad:", "Referencia:", "marcación posesiva:", "Marcación posesiva:", "Marcacion posesiva:", "Proceso L2", "clase "];
       const compactParts = parts.filter(part => !saturatedPrefixes.some(prefix => part.startsWith(prefix))).slice(0, 2);
       const diagnosticPart = parts.find(part => part.startsWith("Diagnóstico de contrato:") || part.startsWith("Falla de contrato:") || part.startsWith("Sin salida") || part.startsWith("Ruta bloqueada"));
       if (diagnosticPart && !compactParts.includes(diagnosticPart)) {
@@ -3190,14 +3190,14 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const labels = [];
       const statusLabel = String(frame.statusLabel || "").trim();
       if (statusLabel) {
-        labels.push(`Adjuncion: ${statusLabel}`);
+        labels.push(`Adjunción: ${statusLabel}`);
       }
       const candidateLabel = String(frame.candidate?.label || "").trim();
       if (candidateLabel) {
         labels.push(`Unidad adjunta: ${candidateLabel}`);
       }
       if (frame.boundaries?.singleGeneratedWordIsEvidence === false) {
-        labels.push("Evidencia adjuncion: no confirmada");
+        labels.push("Evidencia adjunción: no confirmada");
       }
       return labels;
     }
@@ -3215,34 +3215,66 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const labels = [`Clase de tronco: ${classKey}`];
       const ruleLabel = String(profile.ruleSummary?.ruleLabel || "").trim();
       if (ruleLabel && ruleLabel !== "default class rules") {
-        labels.push(`Diagnostico de tronco: ${ruleLabel}`);
+        labels.push(`Diagnóstico de tronco: ${ruleLabel}`);
       }
       return labels;
     }
     function appendVncVerbstemClassProfileSubLabels(baseLabel = "", profile = null) {
       return [baseLabel, ...buildVncVerbstemClassProfileSubLabels(profile)].filter(Boolean).join(" · ");
     }
+    const VISIBLE_SENTENCE_LAYER_SLOT_VALUES = Object.freeze({
+      polarity: Object.freeze({
+        affirmative: "afirmativa",
+        negative: "negativa",
+        unknown: "desconocida"
+      }),
+      question: Object.freeze({
+        none: "ninguna",
+        "yes-no": "sí/no",
+        content: "de contenido",
+        unknown: "desconocida"
+      }),
+      emphasis: Object.freeze({
+        none: "ninguno",
+        focus: "foco",
+        emphatic: "enfática",
+        unknown: "desconocido"
+      }),
+      mood: Object.freeze({
+        declarative: "declarativo",
+        wish: "deseo",
+        command: "mandato",
+        exhortation: "exhortación",
+        admonition: "admonitivo",
+        unknown: "desconocido"
+      })
+    });
+    function formatVisibleSentenceLayerSlotValue(slot = "", value = "") {
+      const slotKey = String(slot || "").trim();
+      const normalized = String(value || "").trim().toLowerCase();
+      return VISIBLE_SENTENCE_LAYER_SLOT_VALUES[slotKey]?.[normalized] || String(value || "").trim();
+    }
     function buildSentenceLayerSubLabels(sentenceLayer = null) {
       if (!sentenceLayer || sentenceLayer.kind !== "sentence-layer-metadata") {
         return [];
       }
       const slots = sentenceLayer.slots || {};
-      const labels = ["Capa oracional: diagnostica"];
+      const labels = ["Capa oracional: diagnóstica"];
       const polarity = String(slots.polarity?.value || "").trim();
       const question = String(slots.question?.value || "").trim();
       const emphasis = String(slots.emphasis?.value || "").trim();
       const mood = String(slots.mood?.value || "").trim();
       if (polarity && polarity !== "affirmative") {
-        labels.push(`Negacion: ${polarity}`);
+        labels.push(`Negación: ${formatVisibleSentenceLayerSlotValue("polarity", polarity)}`);
       }
       if (question && question !== "none") {
-        labels.push(`Pregunta: ${question}`);
+        labels.push(`Pregunta: ${formatVisibleSentenceLayerSlotValue("question", question)}`);
       }
       if (emphasis && emphasis !== "none") {
-        labels.push(`Enfasis: ${emphasis}`);
+        labels.push(`Énfasis: ${formatVisibleSentenceLayerSlotValue("emphasis", emphasis)}`);
       }
       if (mood && mood !== "declarative") {
-        labels.push(`Modo oracional: ${mood}`);
+        labels.push(`Modo oracional: ${formatVisibleSentenceLayerSlotValue("mood", mood)}`);
       }
       return labels;
     }
@@ -4240,7 +4272,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         continueSubLabel.className = "calc-guidance__chip-sublabel";
         continueSubLabel.textContent = "Adjetival nominal";
         continueButton.appendChild(continueSubLabel);
-        continueButton.title = [`#3 salida nominal: ${targetSurface}`, "Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival", rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "", "no crea modificacion Lessons 42-43"].filter(Boolean).join("; ");
+        continueButton.title = [`#3 salida nominal: ${targetSurface}`, "Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival", rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "", "no crea modificación lecciones 42-43"].filter(Boolean).join("; ");
         continueButton.addEventListener("click", () => {
           targetObject.applyAdjectivalNncFunctionToVerbEntry({
             surface: targetSurface,
@@ -9800,7 +9832,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
           continueSubLabel.className = "calc-guidance__chip-sublabel";
           continueSubLabel.textContent = "Intensifica";
           continueButton.appendChild(continueSubLabel);
-          continueButton.title = [`#3 salida adjetival: ${sourceSurface}`, "Andrews 41.1: intensificacion adjetival por reduplicacion", sourceFormulaEcho ? `Fórmula fuente: ${formatVisibleAndrewsFormula(sourceFormulaEcho)}` : "", contract.formulaEcho ? `Fórmula intensificada: ${formatVisibleAndrewsFormula(contract.formulaEcho)}` : "", "no usa el frequentativo Lesson 27"].filter(Boolean).join("; ");
+          continueButton.title = [`#3 salida adjetival: ${sourceSurface}`, "Andrews 41.1: intensificación adjetival por reduplicación", sourceFormulaEcho ? `Fórmula fuente: ${formatVisibleAndrewsFormula(sourceFormulaEcho)}` : "", contract.formulaEcho ? `Fórmula intensificada: ${formatVisibleAndrewsFormula(contract.formulaEcho)}` : "", "no usa el frecuentativo lección 27"].filter(Boolean).join("; ");
           continueButton.addEventListener("click", () => {
             targetObject.applyAdjectivalNncFunctionToVerbEntry({
               surface: targetSurface,
@@ -11758,7 +11790,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       tenseTitle.className = "tense-block__title";
       const titleLabel = targetObject.document.createElement("span");
       titleLabel.className = "tense-block__label";
-      titleLabel.textContent = "Funcion adjetival";
+      titleLabel.textContent = "Función adjetival";
       tenseTitle.appendChild(titleLabel);
       tenseBlock.appendChild(tenseTitle);
       const list = targetObject.document.createElement("div");
@@ -12130,6 +12162,12 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.appendAdverbialAdjunctionBoundaryFrameSubLabels = appendAdverbialAdjunctionBoundaryFrameSubLabels;
     api.buildVncVerbstemClassProfileSubLabels = buildVncVerbstemClassProfileSubLabels;
     api.appendVncVerbstemClassProfileSubLabels = appendVncVerbstemClassProfileSubLabels;
+    Object.defineProperty(api, "VISIBLE_SENTENCE_LAYER_SLOT_VALUES", {
+        configurable: true,
+        enumerable: true,
+        get() { return VISIBLE_SENTENCE_LAYER_SLOT_VALUES; },
+    });
+    api.formatVisibleSentenceLayerSlotValue = formatVisibleSentenceLayerSlotValue;
     api.buildSentenceLayerSubLabels = buildSentenceLayerSubLabels;
     api.appendSentenceLayerSubLabels = appendSentenceLayerSubLabels;
     api.getDefaultNawatPatientivoSourceTenseValue = getDefaultNawatPatientivoSourceTenseValue;

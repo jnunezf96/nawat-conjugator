@@ -1664,7 +1664,7 @@ function getNawatRouteSourceSurfaceResult(profile = null, {
             diagnostics: [{
                 id: "nawat-route-source-surface-unavailable",
                 severity: "warning",
-                message: "The Nawat route source surface could not be generated for this route context.",
+                message: "No se pudo generar la superficie de fuente Nawat para este contexto de ruta.",
             }],
         });
     }
@@ -1749,7 +1749,7 @@ function getNawatRouteSourceSurfaceResult(profile = null, {
         diagnostics: surface ? [] : [{
             id: "nawat-route-source-surface-empty",
             severity: "warning",
-            message: "The Nawat route source generation produced no surface.",
+            message: "La generación de fuente de la ruta Nawat no produjo superficie.",
         }],
     });
 }
@@ -2210,7 +2210,7 @@ function getNawatRouteFiniteSurfaceResult(profile = null, {
             diagnostics: [{
                 id: "nawat-route-finite-surface-empty-patientivo",
                 severity: "warning",
-                message: "The Nawat patientivo route produced no finite surface.",
+                message: "La ruta patientiva Nawat no produjo superficie finita.",
             }],
         });
     }
@@ -2231,8 +2231,8 @@ function getNawatRouteFiniteSurfaceResult(profile = null, {
                 : "nawat-route-finite-surface-empty",
             severity: fallbackSurface ? "info" : "warning",
             message: fallbackSurface
-                ? "The Nawat route exposed a target input fallback rather than a generated finite surface."
-                : "The Nawat route produced no finite surface.",
+                ? "La ruta Nawat expuso una entrada destino de respaldo en vez de una superficie finita generada."
+                : "La ruta Nawat no produjo superficie finita.",
         }],
     });
 }
@@ -4680,7 +4680,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.1",
             role: "denominal-verbstem-architecture",
-            directive: "Verbstems may be derived from nounstems by suffix-like stem-forming operations, while the compounding alternative remains a diagnostic boundary.",
+            directive: "Los troncos verbales pueden derivarse de troncos nominales por operaciones formadoras de tronco de tipo sufijo; la alternativa de composición queda como límite diagnóstico.",
             contractIds: [],
             redirectAction: "reframe-metadata",
             generationStatus: "architecture-only",
@@ -4688,7 +4688,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.2",
             role: "inceptive-stative-suffix-family",
-            directive: "Model ti, hui, ya, a, hua as intransitive inceptive/stative verbstem-forming operations; ti-ya and hui-ya are source-dependent and not the causative/applicative tia/huia of earlier lessons.",
+            directive: "Modela ti, hui, ya, a y hua como operaciones intransitivas incoativas/estativas que forman troncos verbales; ti-ya y hui-ya dependen de la fuente y no son los tia/huia causativos o aplicativos de lecciones anteriores.",
             contractIds: contractIdsByRange(["54.2.1", "54.2.2", "54.2.3", "54.2.4", "54.2.5"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "route-or-source-evidence-supported-partial",
@@ -4696,7 +4696,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.3",
             role: "included-possessor-ti",
-            directive: "Attach ti to the predicate of a possessive-state NNC with the possessor kept inside the verbstem, not transformed into an object slot.",
+            directive: "Une ti al predicado de una cláusula nominal de estado posesivo, con el poseedor dentro del tronco verbal y no transformado en ranura de objeto.",
             contractIds: contractIdsByRange(["54.3"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4704,7 +4704,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.4",
             role: "possession-ti",
-            directive: "Keep ti of possession separate from inceptive/stative ti: it means having or possessing the nounstem source and does not form deverbal ya.",
+            directive: "Mantén separado el ti posesivo del ti incoativo/estativo: expresa tener o poseer el tronco nominal fuente y no forma ya deverbal.",
             contractIds: contractIdsByRange(["54.4", "54.2.1/54.4"]),
             redirectAction: "reframe-metadata",
             generationStatus: "suffix-shape-supported-semantics-partial",
@@ -4712,7 +4712,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.5",
             role: "ti-a-causative",
-            directive: "Separate first-type causative ti-a from homophonous type-two tia, and keep the possessive-state double-object path unmodeled unless source evidence licenses it.",
+            directive: "Separa el causativo de primer tipo ti-a del tia homófono de tipo dos, y deja sin modelar la ruta posesiva de dos objetos salvo que la evidencia de fuente la autorice.",
             contractIds: contractIdsByRange(["54.5"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4720,7 +4720,7 @@ function getLesson54DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "54.6",
             role: "t-ia-applicative",
-            directive: "Route the limited applicative as t-ia from a replacive ti stem lacking final i, distinct from ti-a/tia.",
+            directive: "Enruta el aplicativo limitado como t-ia desde un tronco ti de reemplazo sin i final, distinto de ti-a/tia.",
             contractIds: contractIdsByRange(["54.6"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4746,7 +4746,7 @@ function buildLesson54DenominalVerbstemPursuitFrame() {
         stepNumber: 54,
         aimStatus: "shooting",
         pdfRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
-        directive: "Use Andrews Lesson 54 to direct denominal verbstem part-one architecture: inceptive/stative suffixes, included-possessor ti, possession ti, ti-lia, ti-a, and t-ia boundaries before any Nawat/Pipil finite output is treated as confirmed.",
+        directive: "Usa la Lección 54 de Andrews para dirigir la primera parte de la arquitectura de troncos verbales denominales: sufijos incoativos/estativos, ti con poseedor incluido, ti posesivo, ti-lia, ti-a y límites de t-ia antes de tratar cualquier salida finita Nawat/Pipil como confirmada.",
         redirectAction: "needs-nawat-evidence",
         evidenceStatus: "direct-pdf-partial",
         orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
@@ -4755,7 +4755,7 @@ function buildLesson54DenominalVerbstemPursuitFrame() {
             {
                 id: "lesson-54-denominal-verbstem-audit",
                 type: "metadata-engine-test",
-                aim: "Audit Andrews Lesson 54.1-54.6 against the current denominal contract inventory, source-evidence gates, orthography bridge, and finite-generation blockers.",
+                aim: "Auditar Andrews Lección 54.1-54.6 contra el inventario actual de contratos denominales, compuertas de evidencia de fuente, puente ortográfico y bloqueos de generación finita.",
                 andrewsRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
                 expectedFeedbackRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS),
             },
@@ -4764,7 +4764,7 @@ function buildLesson54DenominalVerbstemPursuitFrame() {
             {
                 id: "lesson-54-denominal-verbstem-audit",
                 result: "hit",
-                correction: "Lesson 54 now has a Plan/Pursue frame over the existing denominal contract inventory, executable-rule contracts, source-evidence gates, and partial route support.",
+                correction: "La Lección 54 ahora tiene un marco Plan/Pursue sobre el inventario existente de contratos denominales, contratos de regla ejecutable, compuertas de evidencia de fuente y soporte parcial de rutas.",
                 andrewsRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_PDF_REFS),
                 feedbackRefs: Array.from(LESSON54_DENOMINAL_VERBSTEM_VALIDATION_REFS),
             },
@@ -4772,7 +4772,7 @@ function buildLesson54DenominalVerbstemPursuitFrame() {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 54 lexical-source classification, source-state parsing, possession-ti semantics, possessive-state double-object ti-a, limited a/hua inventories, static Nawat/Pipil examples, and visible UI actions remain partial or evidence-needed.",
+        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 54, análisis de estado de fuente, semántica de ti posesivo, ti-a de dos objetos en estado posesivo, inventarios limitados de a/hua, ejemplos estáticos Nawat/Pipil y acciones visibles de interfaz.",
         subsectionFrames: getLesson54DenominalVerbstemSubsectionFrames(lesson54Contracts),
         contractCoverage: {
             contractCount: lesson54Contracts.length,
@@ -4820,7 +4820,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.1",
             role: "temporal-tia",
-            directive: "Treat temporal tia as intransitive and source-limited: it requires a compound nounstem with a time-segment matrix and numeral embed, not causative or applicative tia.",
+            directive: "Trata tia temporal como intransitivo y limitado por fuente: requiere un tronco nominal compuesto con matriz de segmento temporal e incrustación numeral, no tia causativo ni aplicativo.",
             contractIds: contractIdsByRange(["55.1"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4828,7 +4828,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.2",
             role: "causative-and-intransitive-tla",
-            directive: "Separate causative tla Class A from the much less productive intransitive be/become tla, and replace tla with ti before lia or causative a only when the matching generated tla source exists.",
+            directive: "Separa tla causativo de clase A del tla intransitivo 'ser/volverse', mucho menos productivo, y reemplaza tla con ti antes de lia o a causativo solo cuando exista la fuente tla generada correspondiente.",
             contractIds: contractIdsByRange(["55.2", "55.2 note"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "route-or-source-evidence-supported-partial",
@@ -4836,7 +4836,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.3",
             role: "intransitive-o-a-and-huia-counterpart",
-            directive: "Keep intransitive o-a and its single-object huia counterpart as Class C denominal operations, with note-2 i-l-huia/a-l-huia paths licensed only from a generated intransitive o-a source.",
+            directive: "Mantén o-a intransitivo y su contraparte huia de un objeto como operaciones denominales de clase C; las rutas i-l-huia/a-l-huia de la nota 2 quedan autorizadas solo desde una fuente o-a intransitiva generada.",
             contractIds: contractIdsByRange(["55.3", "55.3 note 2"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "route-or-source-evidence-supported-partial",
@@ -4844,7 +4844,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.4",
             role: "adverbial-huia",
-            directive: "Route adverbial huia only from confirmed Lesson 44 adverbial nounstem evidence; configured adverbio outputs or diagnostic labels do not create source evidence.",
+            directive: "Enruta huia adverbial solo desde evidencia confirmada de tronco nominal adverbial de la Lección 44; las salidas configuradas de adverbio o las etiquetas diagnósticas no crean evidencia de fuente.",
             contractIds: contractIdsByRange(["55.4"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4852,7 +4852,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.5",
             role: "relational-compound-o-a-huia",
-            directive: "Route relational-compound o-a and huia only from confirmed relational compound nounstems or possessive relational predicates; boundary metadata alone is not lexical source evidence.",
+            directive: "Enruta o-a y huia de compuesto relacional solo desde troncos nominales compuestos relacionales confirmados o predicados relacionales posesivos; los metadatos de límite por sí solos no son evidencia léxica de fuente.",
             contractIds: contractIdsByRange(["55.5"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "source-evidence-route-supported",
@@ -4860,7 +4860,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.6",
             role: "i-hui-a-hui-to-o-a",
-            directive: "Treat i-hui/a-hui as Class B intransitive denominal sources and o-a as the Class C causative counterpart, while keeping the o-a path source-evidence-gated.",
+            directive: "Trata i-hui/a-hui como fuentes denominales intransitivas de clase B y o-a como la contraparte causativa de clase C, manteniendo la ruta o-a bloqueada por evidencia de fuente.",
             contractIds: contractIdsByRange(["55.6"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "current-route-and-source-evidence-supported-partial",
@@ -4868,7 +4868,7 @@ function getLesson55DenominalVerbstemSubsectionFrames(contracts = null) {
         {
             range: "55.7",
             role: "transitive-i-a",
-            directive: "Treat transitive i-a as a nounstem-plus-i plus causative-a route with no intransitive counterpart; source-final patterns and w-final/i-source notes remain diagnostics, not fixture evidence.",
+            directive: "Trata i-a transitivo como ruta de tronco nominal más i más a causativo, sin contraparte intransitiva; los patrones de final de fuente y las notas de final w/fuente i quedan como diagnósticos, no como evidencia fija.",
             contractIds: contractIdsByRange(["55.7"]),
             redirectAction: "needs-nawat-evidence",
             generationStatus: "route-surface-supported-diagnostic-final-patterns",
@@ -4894,7 +4894,7 @@ function buildLesson55DenominalVerbstemPursuitFrame() {
         stepNumber: 55,
         aimStatus: "shooting",
         pdfRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
-        directive: "Use Andrews Lesson 55 to direct denominal verbstem part-two architecture: temporal tia, causative and intransitive tla, intransitive o-a with huia counterparts, adverbial huia, relational-compound o-a/huia, i-hui/a-hui to o-a, and transitive i-a before any Nawat/Pipil finite output is treated as confirmed.",
+        directive: "Usa la Lección 55 de Andrews para dirigir la segunda parte de la arquitectura de troncos verbales denominales: tia temporal, tla causativo e intransitivo, o-a intransitivo con contrapartes huia, huia adverbial, o-a/huia de compuesto relacional, i-hui/a-hui hacia o-a e i-a transitivo antes de tratar cualquier salida finita Nawat/Pipil como confirmada.",
         redirectAction: "needs-nawat-evidence",
         evidenceStatus: "direct-pdf-partial",
         orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
@@ -4903,7 +4903,7 @@ function buildLesson55DenominalVerbstemPursuitFrame() {
             {
                 id: "lesson-55-denominal-verbstem-audit",
                 type: "metadata-engine-test",
-                aim: "Audit Andrews Lesson 55.1-55.7 against the current denominal contract inventory, source-evidence gates, orthography bridge, current i-hui/a-hui route support, and finite-generation blockers.",
+                aim: "Auditar Andrews Lección 55.1-55.7 contra el inventario actual de contratos denominales, compuertas de evidencia de fuente, puente ortográfico, soporte actual de rutas i-hui/a-hui y bloqueos de generación finita.",
                 andrewsRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
                 expectedFeedbackRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS),
             },
@@ -4912,7 +4912,7 @@ function buildLesson55DenominalVerbstemPursuitFrame() {
             {
                 id: "lesson-55-denominal-verbstem-audit",
                 result: "hit",
-                correction: "Lesson 55 now has a Plan/Pursue frame over the existing denominal contract inventory, executable-rule contracts, source-evidence gates, orthography bridge, and partial i-hui/a-hui route support.",
+                correction: "La Lección 55 ahora tiene un marco Plan/Pursue sobre el inventario existente de contratos denominales, contratos de regla ejecutable, compuertas de evidencia de fuente, puente ortográfico y soporte parcial de rutas i-hui/a-hui.",
                 andrewsRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_PDF_REFS),
                 feedbackRefs: Array.from(LESSON55_DENOMINAL_VERBSTEM_VALIDATION_REFS),
             },
@@ -4920,7 +4920,7 @@ function buildLesson55DenominalVerbstemPursuitFrame() {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 55 lexical-source classification, temporal compound parsing, causative versus intransitive tla inventories, o-a/huia lexical meanings, adverbial and relational source detection, static Nawat/Pipil examples, visible UI actions, and confirmed Nawat/Pipil surfaces remain partial or evidence-needed.",
+        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 55, análisis de compuestos temporales, inventarios de tla causativo frente a tla intransitivo, sentidos léxicos de o-a/huia, detección de fuentes adverbiales y relacionales, ejemplos estáticos Nawat/Pipil, acciones visibles de interfaz y superficies Nawat/Pipil confirmadas.",
         subsectionFrames: getLesson55DenominalVerbstemSubsectionFrames(lesson55Contracts),
         contractCoverage: {
             contractCount: lesson55Contracts.length,
@@ -5239,7 +5239,7 @@ function buildNawatDenominalAndrewsRuleDiagnostic({
         id: diagnosticId,
         code: diagnosticId.toUpperCase().replace(/[^A-Z0-9]+/g, "_"),
         severity: "error",
-        message: String(message || "Andrews denominal rule cannot generate for this input.").trim(),
+        message: String(message || "La regla denominal de Andrews no puede generar para esta entrada.").trim(),
         failedLayer: String(failedLayer || "route").trim(),
         contractLayer: String(contractLayer || "routeContract").trim(),
         routeFamily: "denominal-andrews-contract",
@@ -5266,7 +5266,7 @@ function diagnoseNawatDenominalAndrews5421TiRule(ctx = {}) {
     if (sourceState && sourceState !== "absolutive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.1-ti-absolutive-state-required",
-            message: "Andrews 54.2.1 attaches ti to an absolutive-state NNC predicate; non-absolutive sources must use a more specific denominal route.",
+            message: "Andrews 54.2.1 une ti a un predicado nominal de estado absolutivo; las fuentes no absolutivas deben usar una ruta denominal más específica.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5293,7 +5293,7 @@ function diagnoseNawatDenominalAndrews5422HuiRule(ctx = {}) {
     if (sourceState && sourceState !== "absolutive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.2-hui-absolutive-state-required",
-            message: "Andrews 54.2.2 attaches hui directly to an absolutive-state NNC predicate; non-absolutive sources must use a more specific denominal route.",
+            message: "Andrews 54.2.2 une hui directamente a un predicado nominal de estado absolutivo; las fuentes no absolutivas deben usar una ruta denominal más específica.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5319,7 +5319,7 @@ function diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
     if (!hasHuiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
-            message: "Andrews 54.2.2 hui-lia requires generated hui/wi verbstem source evidence before lia can form the causative VNC stem.",
+            message: "Andrews 54.2.2 hui-lia requiere evidencia de fuente verbal hui/wi generada antes de que lia forme el tronco verbal causativo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5329,7 +5329,7 @@ function diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.2-hui-lia-derived-hui-source-required",
-            message: "Andrews 54.2.2 hui-lia uses a generated hui/wi verbstem as source, not a possessive-state NNC predicate.",
+            message: "Andrews 54.2.2 hui-lia usa un tronco verbal hui/wi generado como fuente, no un predicado nominal de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5339,7 +5339,7 @@ function diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
     if (hasHuiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.2-hui-lia-source-verbstem-required",
-            message: "Andrews 54.2.2 hui-lia requires the generated hui/wi verbstem surface before adding lia.",
+            message: "Andrews 54.2.2 hui-lia requiere la superficie del tronco verbal hui/wi generado antes de agregar lia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5348,7 +5348,7 @@ function diagnoseNawatDenominalAndrews5422HuiLiaRule(ctx = {}) {
     } else if (sourceVerbStem && !sourceVerbStem.endsWith("wi")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.2-hui-lia-source-final-wi-required",
-            message: "Andrews 54.2.2 hui-lia requires a Nawat wi-final generated source verbstem before the lia suffix can attach.",
+            message: "Andrews 54.2.2 hui-lia requiere una fuente verbal Nawat generada con final wi antes de que el sufijo lia se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5375,7 +5375,7 @@ function diagnoseNawatDenominalAndrews5423YaRule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-source-root-required",
-            message: "Andrews 54.2.3 requires a Nawat nounroot or nounstem downgraded to root rank before ya can form an intransitive VNC stem.",
+            message: "Andrews 54.2.3 requiere una raíz nominal Nawat o un tronco nominal rebajado a rango de raíz antes de que ya forme un tronco verbal intransitivo.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5385,7 +5385,7 @@ function diagnoseNawatDenominalAndrews5423YaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-absolutive-root-state-required",
-            message: "Andrews 54.2.3 root-plus-ya is not a possessive-state route; possessive sources must use a more specific denominal contract.",
+            message: "Andrews 54.2.3 raíz más ya no es una ruta de estado posesivo; las fuentes posesivas deben usar un contrato denominal más específico.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5394,7 +5394,7 @@ function diagnoseNawatDenominalAndrews5423YaRule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-root-source-required",
-            message: "Andrews 54.2.3 attaches ya to a nounroot or nounstem downgraded to root rank; generated ti/hui verbstem sources must use the ti-ya or hui-ya contracts.",
+            message: "Andrews 54.2.3 une ya a una raíz nominal o a un tronco nominal rebajado a rango de raíz; las fuentes verbales ti/hui generadas deben usar los contratos ti-ya o hui-ya.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5403,7 +5403,7 @@ function diagnoseNawatDenominalAndrews5423YaRule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-absolutive-root-state-required",
-            message: "Andrews 54.2.3 root-plus-ya requires an absolutive/root-rank noun source before it can form an intransitive VNC stem.",
+            message: "Andrews 54.2.3 raíz más ya requiere una fuente nominal absolutiva o de rango raíz antes de formar un tronco verbal intransitivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5429,7 +5429,7 @@ function diagnoseNawatDenominalAndrews5423TiYaRule(ctx = {}) {
     if (!hasTiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
-            message: "Andrews 54.2.3 ti-ya requires generated ti verbstem source evidence before ya can form the deverbal inceptive/stative VNC stem.",
+            message: "Andrews 54.2.3 ti-ya requiere evidencia de fuente verbal ti generada antes de que ya forme el tronco verbal deverbal incoativo/estativo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5439,7 +5439,7 @@ function diagnoseNawatDenominalAndrews5423TiYaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ti-ya-derived-ti-source-required",
-            message: "Andrews 54.2.3 ti-ya uses a generated ti verbstem as source, not a possessive-state NNC predicate.",
+            message: "Andrews 54.2.3 ti-ya usa un tronco verbal ti generado como fuente, no un predicado nominal de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5449,7 +5449,7 @@ function diagnoseNawatDenominalAndrews5423TiYaRule(ctx = {}) {
     if (hasTiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ti-ya-source-verbstem-required",
-            message: "Andrews 54.2.3 ti-ya requires the generated ti verbstem surface before adding ya.",
+            message: "Andrews 54.2.3 ti-ya requiere la superficie del tronco verbal ti generado antes de agregar ya.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5458,7 +5458,7 @@ function diagnoseNawatDenominalAndrews5423TiYaRule(ctx = {}) {
     } else if (sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ti-ya-source-final-ti-required",
-            message: "Andrews 54.2.3 ti-ya requires a ti-final generated source verbstem before the ya suffix can attach.",
+            message: "Andrews 54.2.3 ti-ya requiere una fuente verbal generada con final ti antes de que el sufijo ya se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5484,7 +5484,7 @@ function diagnoseNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
     if (!hasHuiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
-            message: "Andrews 54.2.3 hui-ya requires generated hui/wi verbstem source evidence before ya can form the deverbal inceptive/stative VNC stem.",
+            message: "Andrews 54.2.3 hui-ya requiere evidencia de fuente verbal hui/wi generada antes de que ya forme el tronco verbal deverbal incoativo/estativo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5494,7 +5494,7 @@ function diagnoseNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-hui-ya-derived-hui-source-required",
-            message: "Andrews 54.2.3 hui-ya uses a generated hui/wi verbstem as source, not a possessive-state NNC predicate.",
+            message: "Andrews 54.2.3 hui-ya usa un tronco verbal hui/wi generado como fuente, no un predicado nominal de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5504,7 +5504,7 @@ function diagnoseNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
     if (hasHuiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-hui-ya-source-verbstem-required",
-            message: "Andrews 54.2.3 hui-ya requires the generated hui/wi verbstem surface before adding ya.",
+            message: "Andrews 54.2.3 hui-ya requiere la superficie del tronco verbal hui/wi generado antes de agregar ya.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5513,7 +5513,7 @@ function diagnoseNawatDenominalAndrews5423HuiYaRule(ctx = {}) {
     } else if (sourceVerbStem && !sourceVerbStem.endsWith("wi")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-hui-ya-source-final-wi-required",
-            message: "Andrews 54.2.3 hui-ya requires a Nawat wi-final generated source verbstem before the ya suffix can attach.",
+            message: "Andrews 54.2.3 hui-ya requiere una fuente verbal Nawat generada con final wi antes de que el sufijo ya se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5539,7 +5539,7 @@ function diagnoseNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
     if (!hasYaSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
-            message: "Andrews 54.2.3 ya-lia requires generated ya verbstem source evidence before deleting ya and adding lia.",
+            message: "Andrews 54.2.3 ya-lia requiere evidencia de fuente verbal ya generada antes de borrar ya y agregar lia.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5549,7 +5549,7 @@ function diagnoseNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-lia-derived-ya-source-required",
-            message: "Andrews 54.2.3 ya-lia uses a generated ya verbstem as source, not a possessive-state NNC predicate.",
+            message: "Andrews 54.2.3 ya-lia usa un tronco verbal ya generado como fuente, no un predicado nominal de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5559,7 +5559,7 @@ function diagnoseNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
     if (hasYaSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-lia-source-verbstem-required",
-            message: "Andrews 54.2.3 ya-lia requires the generated ya verbstem surface before replacing ya with lia.",
+            message: "Andrews 54.2.3 ya-lia requiere la superficie del tronco verbal ya generado antes de reemplazar ya con lia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5568,7 +5568,7 @@ function diagnoseNawatDenominalAndrews5423YaLiaRule(ctx = {}) {
     } else if (sourceVerbStem && !sourceVerbStem.endsWith("ya")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.3-ya-lia-source-final-ya-required",
-            message: "Andrews 54.2.3 ya-lia requires a ya-final generated source verbstem before deleting ya and adding lia.",
+            message: "Andrews 54.2.3 ya-lia requiere una fuente verbal generada con final ya antes de borrar ya y agregar lia.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5593,7 +5593,7 @@ function diagnoseNawatDenominalAndrews5424ARule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.4-a-source-nounstem-required",
-            message: "Andrews 54.2.4 requires a Nawat nounstem source before limited inceptive/stative a can form a Class C intransitive VNC stem.",
+            message: "Andrews 54.2.4 requiere un tronco nominal Nawat antes de que a incoativo/estativo limitado forme un tronco verbal intransitivo de clase C.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5603,7 +5603,7 @@ function diagnoseNawatDenominalAndrews5424ARule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.4-a-absolutive-nounstem-required",
-            message: "Andrews 54.2.4 limited inceptive/stative a uses an absolutive nounstem source, not a possessive-state predicate.",
+            message: "Andrews 54.2.4 a incoativo/estativo limitado usa un tronco nominal absolutivo como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5612,7 +5612,7 @@ function diagnoseNawatDenominalAndrews5424ARule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.4-a-nounstem-source-required",
-            message: "Andrews 54.2.4 limited inceptive/stative a requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 54.2.4 a incoativo/estativo limitado requiere un tronco nominal como fuente; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5621,7 +5621,7 @@ function diagnoseNawatDenominalAndrews5424ARule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.4-a-absolutive-nounstem-required",
-            message: "Andrews 54.2.4 limited inceptive/stative a requires an absolutive nounstem source before it can form an intransitive Class C VNC stem.",
+            message: "Andrews 54.2.4 a incoativo/estativo limitado requiere un tronco nominal absolutivo antes de formar un tronco verbal intransitivo de clase C.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5650,7 +5650,7 @@ function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
     if (!hasDeverbalYoSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
-            message: "Andrews 54.2.5 hua requires confirmed deverbal (-yo)-tl nounstem source evidence, realized as a Nawat/Pipil yu-matrix source, before hua can form the intransitive VNC stem.",
+            message: "Andrews 54.2.5 hua requiere evidencia confirmada de fuente nominal deverbal (-yo)-tl, realizada como matriz yu en Nawat/Pipil, antes de formar el tronco verbal intransitivo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5660,7 +5660,7 @@ function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.5-hua-absolutive-yu-source-required",
-            message: "Andrews 54.2.5 hua uses an absolutive deverbal (-yo)-tl nounstem source, not a possessive-state predicate.",
+            message: "Andrews 54.2.5 hua usa un tronco nominal deverbal absolutivo (-yo)-tl como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5670,7 +5670,7 @@ function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
     if (hasDeverbalYoSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.5-hua-source-nounstem-required",
-            message: "Andrews 54.2.5 hua requires the Nawat/Pipil deverbal yu-matrix nounstem before adding wa.",
+            message: "Andrews 54.2.5 hua requiere el tronco nominal deverbal de matriz yu en Nawat/Pipil antes de agregar wa.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5679,7 +5679,7 @@ function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
     } else if (hasDeverbalYoSourceEvidence && sourceStem && !sourceStem.endsWith("yu")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.5-hua-source-final-yu-required",
-            message: "Andrews 54.2.5 hua requires a Nawat/Pipil yu-final source corresponding to Classical (-yo)-tl before the wa suffix can attach.",
+            message: "Andrews 54.2.5 hua requiere una fuente Nawat/Pipil con final yu correspondiente al clásico (-yo)-tl antes de que el sufijo wa se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem,
@@ -5688,7 +5688,7 @@ function diagnoseNawatDenominalAndrews5425HuaRule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2.5-hua-absolutive-yu-source-required",
-            message: "Andrews 54.2.5 hua requires an absolutive deverbal (-yo)-tl nounstem source before it can form an intransitive Class A VNC stem.",
+            message: "Andrews 54.2.5 hua requiere un tronco nominal deverbal absolutivo (-yo)-tl antes de formar un tronco verbal intransitivo de clase A.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5716,7 +5716,7 @@ function diagnoseNawatDenominalAndrews543IncludedPossessorTiRule(ctx = {}) {
     if (!hasPossessiveSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
-            message: "Andrews 54.3 included-possessor ti requires confirmed possessive-state NNC predicate evidence before ti can form the intransitive VNC stem.",
+            message: "Andrews 54.3 ti con poseedor incluido requiere evidencia confirmada de predicado nominal de estado posesivo antes de formar el tronco verbal intransitivo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5730,7 +5730,7 @@ function diagnoseNawatDenominalAndrews543IncludedPossessorTiRule(ctx = {}) {
     ) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.3-included-possessor-ti-possessive-state-required",
-            message: "Andrews 54.3 attaches ti to the predicate of a possessive-state NNC; absolutive sources must use the ordinary ti or possession-ti contracts.",
+            message: "Andrews 54.3 une ti al predicado de una cláusula nominal de estado posesivo; las fuentes absolutivas deben usar los contratos ti ordinario o ti posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5740,7 +5740,7 @@ function diagnoseNawatDenominalAndrews543IncludedPossessorTiRule(ctx = {}) {
     if (hasPossessiveSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.3-included-possessor-ti-source-predicate-required",
-            message: "Andrews 54.3 requires the Nawat/Pipil possessive-state predicate surface, with the possessor retained inside the stem, before adding ti.",
+            message: "Andrews 54.3 requiere la superficie del predicado de estado posesivo en Nawat/Pipil, con el poseedor retenido dentro del tronco, antes de agregar ti.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5771,7 +5771,7 @@ function diagnoseNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
     if (!hasTiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
-            message: "Andrews 54.2.1/54.4 ti-lia requires generated intransitive ti verbstem source evidence before lia can form the single-object causative VNC stem.",
+            message: "Andrews 54.2.1/54.4 ti-lia requiere evidencia de fuente verbal intransitiva ti generada antes de que lia forme el tronco verbal causativo de un objeto.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5781,7 +5781,7 @@ function diagnoseNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2-54.4-ti-lia-derived-ti-source-required",
-            message: "Andrews 54.2.1/54.4 ti-lia uses a generated ti verbstem as source, not the original possessive-state NNC predicate.",
+            message: "Andrews 54.2.1/54.4 ti-lia usa un tronco verbal ti generado como fuente, no el predicado nominal original de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5791,7 +5791,7 @@ function diagnoseNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
     if (hasTiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2-54.4-ti-lia-source-verbstem-required",
-            message: "Andrews 54.2.1/54.4 ti-lia requires the generated ti verbstem surface before adding lia.",
+            message: "Andrews 54.2.1/54.4 ti-lia requiere la superficie del tronco verbal ti generado antes de agregar lia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5800,7 +5800,7 @@ function diagnoseNawatDenominalAndrews542544TiLiaRule(ctx = {}) {
     } else if (sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.2-54.4-ti-lia-source-final-ti-required",
-            message: "Andrews 54.2.1/54.4 ti-lia requires a ti-final generated source verbstem before the lia suffix can attach.",
+            message: "Andrews 54.2.1/54.4 ti-lia requiere una fuente verbal generada con final ti antes de que el sufijo lia se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5831,7 +5831,7 @@ function diagnoseNawatDenominalAndrews545TiARule(ctx = {}) {
     if (!hasTiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.5-ti-a-ti-source-evidence-required",
-            message: "Andrews 54.5 ti-a requires generated intransitive ti verbstem source evidence before a can form the first-type causative VNC stem.",
+            message: "Andrews 54.5 ti-a requiere evidencia de fuente verbal intransitiva ti generada antes de que a forme el tronco verbal causativo de primer tipo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5841,7 +5841,7 @@ function diagnoseNawatDenominalAndrews545TiARule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.5-ti-a-possessive-double-object-source-unmodeled",
-            message: "Andrews 54.5 possessive-state sources form double-object ti-a stems; this executable contract only routes the single-object generated-ti source path.",
+            message: "Andrews 54.5 las fuentes de estado posesivo forman troncos ti-a de dos objetos; este contrato ejecutable solo enruta la fuente ti generada de un objeto.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5851,7 +5851,7 @@ function diagnoseNawatDenominalAndrews545TiARule(ctx = {}) {
     if (hasTiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.5-ti-a-source-verbstem-required",
-            message: "Andrews 54.5 ti-a requires the generated ti verbstem surface before adding the causative a suffix.",
+            message: "Andrews 54.5 ti-a requiere la superficie del tronco verbal ti generado antes de agregar el sufijo causativo a.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5860,7 +5860,7 @@ function diagnoseNawatDenominalAndrews545TiARule(ctx = {}) {
     } else if (hasTiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.5-ti-a-source-final-ti-required",
-            message: "Andrews 54.5 ti-a requires a ti-final generated source verbstem before the causative a suffix can attach.",
+            message: "Andrews 54.5 ti-a requiere una fuente verbal generada con final ti antes de que el sufijo causativo a se pueda unir.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5891,7 +5891,7 @@ function diagnoseNawatDenominalAndrews546TIaRule(ctx = {}) {
     if (!hasTiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.6-t-ia-ti-source-evidence-required",
-            message: "Andrews 54.6 t-ia requires generated intransitive ti verbstem source evidence before ia can form the first-type applicative VNC stem.",
+            message: "Andrews 54.6 t-ia requiere evidencia de fuente verbal intransitiva ti generada antes de que ia forme el tronco verbal aplicativo de primer tipo.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5901,7 +5901,7 @@ function diagnoseNawatDenominalAndrews546TIaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.6-t-ia-generated-ti-source-required",
-            message: "Andrews 54.6 t-ia uses a generated ti verbstem as source, not the original possessive-state NNC predicate.",
+            message: "Andrews 54.6 t-ia usa un tronco verbal ti generado como fuente, no el predicado nominal original de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5911,7 +5911,7 @@ function diagnoseNawatDenominalAndrews546TIaRule(ctx = {}) {
     if (hasTiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.6-t-ia-source-verbstem-required",
-            message: "Andrews 54.6 t-ia requires the generated ti verbstem surface before deleting final i and adding ia.",
+            message: "Andrews 54.6 t-ia requiere la superficie del tronco verbal ti generado antes de borrar la i final y agregar ia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5920,7 +5920,7 @@ function diagnoseNawatDenominalAndrews546TIaRule(ctx = {}) {
     } else if (hasTiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ti")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-54.6-t-ia-source-final-ti-required",
-            message: "Andrews 54.6 t-ia requires a ti-final generated source verbstem because ia attaches to a replacive stem lacking final i.",
+            message: "Andrews 54.6 t-ia requiere una fuente verbal generada con final ti porque ia se une a un tronco de reemplazo sin i final.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -5942,7 +5942,7 @@ function diagnoseNawatDenominalAndrews551TemporalTiaRule(ctx = {}) {
     if (!evidence.temporalCompoundSource) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.1-temporal-tia-source-evidence-required",
-            message: "Andrews 55.1 temporal tia requires confirmed compound-temporal nounstem evidence with a time-segment matrix and numeral embed.",
+            message: "Andrews 55.1 tia temporal requiere evidencia confirmada de tronco nominal compuesto-temporal con matriz de segmento temporal e incrustación numeral.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -5952,7 +5952,7 @@ function diagnoseNawatDenominalAndrews551TemporalTiaRule(ctx = {}) {
     if (evidence.temporalCompoundSource && normalizedSourceState && normalizedSourceState !== "absolutive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.1-temporal-tia-absolutive-source-required",
-            message: "Andrews 55.1 temporal tia routes from a compound temporal nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.1 tia temporal se enruta desde un tronco nominal compuesto temporal, no desde un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -5962,7 +5962,7 @@ function diagnoseNawatDenominalAndrews551TemporalTiaRule(ctx = {}) {
     if (evidence.temporalCompoundSource && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.1-temporal-tia-source-stem-required",
-            message: "Andrews 55.1 temporal tia requires the confirmed compound temporal source stem before adding tia.",
+            message: "Andrews 55.1 tia temporal requiere el tronco fuente compuesto temporal confirmado antes de agregar tia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5987,7 +5987,7 @@ function diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-causative-tla-source-stem-required",
-            message: "Andrews 55.2 causative tla requires a Nawat/Pipil nounstem source before it can form a causative Class A VNC stem.",
+            message: "Andrews 55.2 tla causativo requiere un tronco nominal Nawat/Pipil antes de formar un tronco verbal causativo de clase A.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -5997,7 +5997,7 @@ function diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-causative-tla-absolutive-nounstem-required",
-            message: "Andrews 55.2 causative tla attaches to a nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.2 tla causativo se une a un tronco nominal fuente, no a un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6006,7 +6006,7 @@ function diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-causative-tla-nounstem-source-required",
-            message: "Andrews 55.2 causative tla requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 55.2 tla causativo requiere un tronco nominal como fuente; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6015,7 +6015,7 @@ function diagnoseNawatDenominalAndrews552CausativeTlaRule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-causative-tla-absolutive-nounstem-required",
-            message: "Andrews 55.2 causative tla requires an absolutive nounstem source before it can form a causative Class A VNC stem.",
+            message: "Andrews 55.2 tla causativo requiere un tronco nominal absolutivo antes de formar un tronco verbal causativo de clase A.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6047,7 +6047,7 @@ function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
     if (!hasTlaCausativeSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
-            message: "Andrews 55.2 tla-ti-lia requires generated causative tla verbstem source evidence before tla can change to ti and add lia.",
+            message: "Andrews 55.2 tla-ti-lia requiere evidencia de fuente verbal causativa tla generada antes de que tla cambie a ti y agregue lia.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6057,7 +6057,7 @@ function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-tla-ti-lia-generated-tla-source-required",
-            message: "Andrews 55.2 tla-ti-lia uses a generated causative tla verbstem as source, not the original possessive-state NNC predicate.",
+            message: "Andrews 55.2 tla-ti-lia usa un tronco verbal causativo tla generado como fuente, no el predicado nominal original de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6066,7 +6066,7 @@ function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
     } else if (hasTlaCausativeSourceEvidence && sourceState && sourceState !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-tla-ti-lia-generated-tla-source-required",
-            message: "Andrews 55.2 tla-ti-lia requires a derived causative tla verbstem source, not the original nounstem source.",
+            message: "Andrews 55.2 tla-ti-lia requiere una fuente verbal causativa tla derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6076,7 +6076,7 @@ function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
     if (hasTlaCausativeSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-tla-ti-lia-source-verbstem-required",
-            message: "Andrews 55.2 tla-ti-lia requires the generated causative tla verbstem surface before replacing tla with ti and adding lia.",
+            message: "Andrews 55.2 tla-ti-lia requiere la superficie del tronco verbal causativo tla generado antes de reemplazar tla con ti y agregar lia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6085,7 +6085,7 @@ function diagnoseNawatDenominalAndrews552TlaTiLiaApplicativeRule(ctx = {}) {
     } else if (hasTlaCausativeSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-tla-ti-lia-source-final-ta-required",
-            message: "Andrews 55.2 tla-ti-lia requires a Nawat/Pipil ta-final source corresponding to Classical tla before replacement by ti-lia.",
+            message: "Andrews 55.2 tla-ti-lia requiere una fuente Nawat/Pipil con final ta correspondiente al clásico tla antes del reemplazo por ti-lia.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6120,7 +6120,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
     if (!hasIntransitiveTlaLexicalSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-lexical-source-evidence-required",
-            message: "Andrews 55.2 note says the intransitive tla formation is even less productive than causative tla; it requires explicit lexical/source confirmation before generation.",
+            message: "La nota de Andrews 55.2 dice que la formación intransitiva tla es aún menos productiva que tla causativo; requiere confirmación léxica o de fuente explícita antes de generar.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -6130,7 +6130,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-absolutive-nounstem-required",
-            message: "Andrews 55.2 note intransitive tla uses a nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.2 nota: tla intransitivo usa un tronco nominal como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6139,7 +6139,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
     } else if (hasIntransitiveTlaLexicalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-nounstem-source-required",
-            message: "Andrews 55.2 note intransitive tla requires a confirmed nounstem source; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 55.2 nota: tla intransitivo requiere un tronco nominal confirmado; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6148,7 +6148,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
     } else if (hasIntransitiveTlaLexicalSourceEvidence && sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-absolutive-nounstem-required",
-            message: "Andrews 55.2 note intransitive tla requires an absolutive nounstem source before it can form an intransitive VNC stem.",
+            message: "Andrews 55.2 nota: tla intransitivo requiere un tronco nominal absolutivo antes de formar un tronco verbal intransitivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6158,7 +6158,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaRule(ctx = {}) {
     if (hasIntransitiveTlaLexicalSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-source-stem-required",
-            message: "Andrews 55.2 note intransitive tla requires the confirmed nounstem source surface before adding tla.",
+            message: "Andrews 55.2 nota: tla intransitivo requiere la superficie del tronco nominal confirmado antes de agregar tla.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6195,7 +6195,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     if (!hasTlaIntransitiveSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-source-evidence-required",
-            message: "Andrews 55.2 note ti-a causative requires generated intransitive tla verbstem source evidence before tla can change to ti and add a.",
+            message: "Andrews 55.2 nota: ti-a causativo requiere evidencia de fuente verbal intransitiva tla generada antes de que tla cambie a ti y agregue a.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6205,7 +6205,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-generated-tla-source-required",
-            message: "Andrews 55.2 note ti-a causative uses a generated intransitive tla verbstem as source, not the original possessive-state NNC predicate.",
+            message: "Andrews 55.2 nota: ti-a causativo usa un tronco verbal intransitivo tla generado como fuente, no el predicado nominal original de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6214,7 +6214,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceState && sourceState !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-generated-tla-source-required",
-            message: "Andrews 55.2 note ti-a causative requires a derived intransitive tla verbstem source, not the original nounstem source.",
+            message: "Andrews 55.2 nota: ti-a causativo requiere una fuente verbal intransitiva tla derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6223,7 +6223,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-intransitive-tla-source-required",
-            message: "Andrews 55.2 note ti-a causative requires a generated intransitive tla verbstem source, not another denominal route source.",
+            message: "Andrews 55.2 nota: ti-a causativo requiere una fuente verbal intransitiva tla generada, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6233,7 +6233,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     if (hasTlaIntransitiveSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-source-verbstem-required",
-            message: "Andrews 55.2 note ti-a causative requires the generated intransitive tla verbstem surface before replacing tla with ti and adding a.",
+            message: "Andrews 55.2 nota: ti-a causativo requiere la superficie del tronco verbal intransitivo tla generado antes de reemplazar tla con ti y agregar a.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6242,7 +6242,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiARule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-a-source-final-ta-required",
-            message: "Andrews 55.2 note ti-a causative requires a Nawat/Pipil ta-final source corresponding to Classical intransitive tla before replacement by ti-a.",
+            message: "Andrews 55.2 nota: ti-a causativo requiere una fuente Nawat/Pipil con final ta correspondiente al clásico tla intransitivo antes del reemplazo por ti-a.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6279,7 +6279,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     if (!hasTlaIntransitiveSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required",
-            message: "Andrews 55.2 note ti-lia applicative requires generated intransitive tla verbstem source evidence before tla can change to ti and add lia.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo requiere evidencia de fuente verbal intransitiva tla generada antes de que tla cambie a ti y agregue lia.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6289,7 +6289,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-generated-tla-source-required",
-            message: "Andrews 55.2 note ti-lia applicative uses a generated intransitive tla verbstem as source, not the original possessive-state NNC predicate.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo usa un tronco verbal intransitivo tla generado como fuente, no el predicado nominal original de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6298,7 +6298,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceState && sourceState !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-generated-tla-source-required",
-            message: "Andrews 55.2 note ti-lia applicative requires a derived intransitive tla verbstem source, not the original nounstem source.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo requiere una fuente verbal intransitiva tla derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6307,7 +6307,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-intransitive-tla-source-required",
-            message: "Andrews 55.2 note ti-lia applicative requires a generated intransitive tla verbstem source, not another denominal route source.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo requiere una fuente verbal intransitiva tla generada, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6317,7 +6317,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     if (hasTlaIntransitiveSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-source-verbstem-required",
-            message: "Andrews 55.2 note ti-lia applicative requires the generated intransitive tla verbstem surface before replacing tla with ti and adding lia.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo requiere la superficie del tronco verbal intransitivo tla generado antes de reemplazar tla con ti y agregar lia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6326,7 +6326,7 @@ function diagnoseNawatDenominalAndrews552IntransitiveTlaTiLiaRule(ctx = {}) {
     } else if (hasTlaIntransitiveSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ta")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.2-intransitive-tla-ti-lia-source-final-ta-required",
-            message: "Andrews 55.2 note ti-lia applicative requires a Nawat/Pipil ta-final source corresponding to Classical intransitive tla before replacement by ti-lia.",
+            message: "Andrews 55.2 nota: ti-lia aplicativo requiere una fuente Nawat/Pipil con final ta correspondiente al clásico tla intransitivo antes del reemplazo por ti-lia.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6351,7 +6351,7 @@ function diagnoseNawatDenominalAndrews553OaRule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-source-stem-required",
-            message: "Andrews 55.3 intransitive o-a requires a Nawat/Pipil nounstem source before it can form a Class C intransitive VNC stem.",
+            message: "Andrews 55.3 o-a intransitivo requiere un tronco nominal Nawat/Pipil antes de formar un tronco verbal intransitivo de clase C.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6361,7 +6361,7 @@ function diagnoseNawatDenominalAndrews553OaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-absolutive-nounstem-required",
-            message: "Andrews 55.3 intransitive o-a uses a nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.3 o-a intransitivo usa un tronco nominal como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6370,7 +6370,7 @@ function diagnoseNawatDenominalAndrews553OaRule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-nounstem-source-required",
-            message: "Andrews 55.3 intransitive o-a requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 55.3 o-a intransitivo requiere un tronco nominal como fuente; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6379,7 +6379,7 @@ function diagnoseNawatDenominalAndrews553OaRule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-absolutive-nounstem-required",
-            message: "Andrews 55.3 intransitive o-a requires an absolutive nounstem source before it can form a Class C intransitive VNC stem.",
+            message: "Andrews 55.3 o-a intransitivo requiere un tronco nominal absolutivo antes de formar un tronco verbal intransitivo de clase C.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6404,7 +6404,7 @@ function diagnoseNawatDenominalAndrews553HuiaRule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-huia-source-stem-required",
-            message: "Andrews 55.3 huia requires a Nawat/Pipil nounstem source before it can form a Class C single-object applicative VNC stem.",
+            message: "Andrews 55.3 huia requiere un tronco nominal Nawat/Pipil antes de formar un tronco verbal aplicativo de un objeto y clase C.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6414,7 +6414,7 @@ function diagnoseNawatDenominalAndrews553HuiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-huia-absolutive-nounstem-required",
-            message: "Andrews 55.3 huia uses a nounstem source for the single-object applicative route; possessive-state two-object huia is a separate limited note.",
+            message: "Andrews 55.3 huia usa un tronco nominal como fuente para la ruta aplicativa de un objeto; huia de dos objetos con estado posesivo es una nota limitada aparte.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6423,7 +6423,7 @@ function diagnoseNawatDenominalAndrews553HuiaRule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-huia-nounstem-source-required",
-            message: "Andrews 55.3 huia requires a nounstem source; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 55.3 huia requiere un tronco nominal como fuente; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6432,7 +6432,7 @@ function diagnoseNawatDenominalAndrews553HuiaRule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-huia-absolutive-nounstem-required",
-            message: "Andrews 55.3 huia requires an absolutive nounstem source before it can form a Class C single-object applicative VNC stem.",
+            message: "Andrews 55.3 huia requiere un tronco nominal absolutivo antes de formar un tronco verbal aplicativo de un objeto y clase C.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6468,7 +6468,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     if (!hasIntransitiveOaSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-source-evidence-required",
-            message: "Andrews 55.3 note 2 i-l-huia requires generated intransitive o-a verbstem source evidence before inventing the hypothetical i-hui applicative path.",
+            message: "Andrews 55.3 nota 2: i-l-huia requiere evidencia de fuente verbal intransitiva o-a generada antes de proponer la ruta aplicativa hipotética i-hui.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6478,7 +6478,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-generated-o-a-source-required",
-            message: "Andrews 55.3 note 2 i-l-huia uses a generated intransitive o-a verbstem as source, not a possessive-state predicate.",
+            message: "Andrews 55.3 nota 2: i-l-huia usa un tronco verbal intransitivo o-a generado como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6487,7 +6487,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceState && sourceState !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-generated-o-a-source-required",
-            message: "Andrews 55.3 note 2 i-l-huia requires a derived intransitive o-a verbstem source, not the original nounstem source.",
+            message: "Andrews 55.3 nota 2: i-l-huia requiere una fuente verbal intransitiva o-a derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6496,7 +6496,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-intransitive-o-a-source-required",
-            message: "Andrews 55.3 note 2 i-l-huia requires a generated intransitive o-a verbstem source, not another denominal route source.",
+            message: "Andrews 55.3 nota 2: i-l-huia requiere una fuente verbal intransitiva o-a generada, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6506,7 +6506,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     if (hasIntransitiveOaSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-source-verbstem-required",
-            message: "Andrews 55.3 note 2 i-l-huia requires the generated intransitive o-a verbstem surface before routing to the hypothetical applicative stem.",
+            message: "Andrews 55.3 nota 2: i-l-huia requiere la superficie del tronco verbal intransitivo o-a generado antes de enrutar al tronco aplicativo hipotético.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6515,7 +6515,7 @@ function diagnoseNawatDenominalAndrews553OaIlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ua")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-i-l-huia-source-final-ua-required",
-            message: "Andrews 55.3 note 2 i-l-huia requires a Nawat/Pipil ua-final source corresponding to Classical intransitive o-a.",
+            message: "Andrews 55.3 nota 2: i-l-huia requiere una fuente Nawat/Pipil con final ua correspondiente al clásico o-a intransitivo.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6551,7 +6551,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     if (!hasIntransitiveOaSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-source-evidence-required",
-            message: "Andrews 55.3 note 2 a-l-huia requires generated intransitive o-a verbstem source evidence before inventing the hypothetical a-hui applicative path.",
+            message: "Andrews 55.3 nota 2: a-l-huia requiere evidencia de fuente verbal intransitiva o-a generada antes de proponer la ruta aplicativa hipotética a-hui.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6561,7 +6561,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-generated-o-a-source-required",
-            message: "Andrews 55.3 note 2 a-l-huia uses a generated intransitive o-a verbstem as source, not a possessive-state predicate.",
+            message: "Andrews 55.3 nota 2: a-l-huia usa un tronco verbal intransitivo o-a generado como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6570,7 +6570,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceState && sourceState !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-generated-o-a-source-required",
-            message: "Andrews 55.3 note 2 a-l-huia requires a derived intransitive o-a verbstem source, not the original nounstem source.",
+            message: "Andrews 55.3 nota 2: a-l-huia requiere una fuente verbal intransitiva o-a derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6579,7 +6579,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-intransitive-o-a-source-required",
-            message: "Andrews 55.3 note 2 a-l-huia requires a generated intransitive o-a verbstem source, not another denominal route source.",
+            message: "Andrews 55.3 nota 2: a-l-huia requiere una fuente verbal intransitiva o-a generada, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6589,7 +6589,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     if (hasIntransitiveOaSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-source-verbstem-required",
-            message: "Andrews 55.3 note 2 a-l-huia requires the generated intransitive o-a verbstem surface before routing to the hypothetical applicative stem.",
+            message: "Andrews 55.3 nota 2: a-l-huia requiere la superficie del tronco verbal intransitivo o-a generado antes de enrutar al tronco aplicativo hipotético.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6598,7 +6598,7 @@ function diagnoseNawatDenominalAndrews553OaAlHuiaRule(ctx = {}) {
     } else if (hasIntransitiveOaSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("ua")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.3-o-a-a-l-huia-source-final-ua-required",
-            message: "Andrews 55.3 note 2 a-l-huia requires a Nawat/Pipil ua-final source corresponding to Classical intransitive o-a.",
+            message: "Andrews 55.3 nota 2: a-l-huia requiere una fuente Nawat/Pipil con final ua correspondiente al clásico o-a intransitivo.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6627,7 +6627,7 @@ function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
     if (!hasAdverbialSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.4-huia-adverbial-source-evidence-required",
-            message: "Andrews 55.4 huia requires confirmed adverbial nounstem source evidence before it can form a single-object applicative VNC stem.",
+            message: "Andrews 55.4 huia requiere evidencia confirmada de tronco nominal adverbial antes de formar un tronco verbal aplicativo de un objeto.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -6637,7 +6637,7 @@ function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.4-huia-adverbial-source-required",
-            message: "Andrews 55.4 huia uses an adverbialized nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.4 huia usa un tronco nominal adverbializado como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6646,7 +6646,7 @@ function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
     } else if (hasAdverbialSourceEvidence && sourceState && sourceState !== "adverbialized") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.4-huia-adverbial-state-required",
-            message: "Andrews 55.4 huia requires an adverbialized nounstem source from the Lesson 44 adverbial NNC domain.",
+            message: "Andrews 55.4 huia requiere un tronco nominal adverbializado del dominio de cláusula nominal adverbial de la Lección 44.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6655,7 +6655,7 @@ function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
     } else if (hasAdverbialSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.4-huia-adverbial-source-required",
-            message: "Andrews 55.4 huia requires a confirmed adverbial nounstem source, not another denominal route source.",
+            message: "Andrews 55.4 huia requiere un tronco nominal adverbial confirmado como fuente, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6665,7 +6665,7 @@ function diagnoseNawatDenominalAndrews554AdverbialHuiaRule(ctx = {}) {
     if (hasAdverbialSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.4-huia-source-stem-required",
-            message: "Andrews 55.4 huia requires the Nawat/Pipil adverbial nounstem surface before adding wia.",
+            message: "Andrews 55.4 huia requiere la superficie del tronco nominal adverbial Nawat/Pipil antes de agregar wia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6696,7 +6696,7 @@ function diagnoseNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
     if (!hasRelationalSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-o-a-relational-source-evidence-required",
-            message: "Andrews 55.5 o-a requires confirmed relational compound nounstem or possessive-state relational predicate source evidence before it can form a VNC stem.",
+            message: "Andrews 55.5 o-a requiere evidencia confirmada de tronco nominal compuesto relacional o de predicado relacional de estado posesivo antes de formar un tronco verbal.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -6706,7 +6706,7 @@ function diagnoseNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
     if (hasRelationalSourceEvidence && sourceState && sourceState !== "relational" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-o-a-relational-state-required",
-            message: "Andrews 55.5 o-a requires a relational compound nounstem source or a possessive-state predicate built on a relational stem.",
+            message: "Andrews 55.5 o-a requiere un tronco nominal compuesto relacional como fuente o un predicado de estado posesivo construido sobre un tronco relacional.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6715,7 +6715,7 @@ function diagnoseNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
     } else if (hasRelationalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-o-a-relational-source-required",
-            message: "Andrews 55.5 o-a requires a confirmed relational compound nounstem or possessive-state relational predicate, not another denominal route source.",
+            message: "Andrews 55.5 o-a requiere un tronco nominal compuesto relacional confirmado o un predicado relacional de estado posesivo, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6725,7 +6725,7 @@ function diagnoseNawatDenominalAndrews555RelationalOaRule(ctx = {}) {
     if (hasRelationalSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-o-a-source-stem-required",
-            message: "Andrews 55.5 o-a requires the Nawat/Pipil relational source surface before adding ua.",
+            message: "Andrews 55.5 o-a requiere la superficie relacional Nawat/Pipil de la fuente antes de agregar ua.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6756,7 +6756,7 @@ function diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
     if (!hasRelationalSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-huia-relational-source-evidence-required",
-            message: "Andrews 55.5 huia requires confirmed relational compound nounstem or possessive-state relational predicate source evidence before it can form a single-object applicative VNC stem.",
+            message: "Andrews 55.5 huia requiere evidencia confirmada de tronco nominal compuesto relacional o de predicado relacional de estado posesivo antes de formar un tronco verbal aplicativo de un objeto.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem,
@@ -6766,7 +6766,7 @@ function diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
     if (hasRelationalSourceEvidence && sourceState && sourceState !== "relational" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-huia-relational-state-required",
-            message: "Andrews 55.5 huia requires a relational compound nounstem source or a possessive-state predicate built on a relational stem.",
+            message: "Andrews 55.5 huia requiere un tronco nominal compuesto relacional como fuente o un predicado de estado posesivo construido sobre un tronco relacional.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6775,7 +6775,7 @@ function diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
     } else if (hasRelationalSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-huia-relational-source-required",
-            message: "Andrews 55.5 huia requires a confirmed relational compound nounstem or possessive-state relational predicate, not another denominal route source.",
+            message: "Andrews 55.5 huia requiere un tronco nominal compuesto relacional confirmado o un predicado relacional de estado posesivo, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6785,7 +6785,7 @@ function diagnoseNawatDenominalAndrews555RelationalHuiaRule(ctx = {}) {
     if (hasRelationalSourceEvidence && !sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.5-huia-source-stem-required",
-            message: "Andrews 55.5 huia requires the Nawat/Pipil relational source surface before adding wia.",
+            message: "Andrews 55.5 huia requiere la superficie relacional Nawat/Pipil de la fuente antes de agregar wia.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6813,7 +6813,7 @@ function diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx = {}, {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: `andrews-55.6-${routeTemplateId}-source-stem-required`,
-            message: `Andrews 55.6 ${classicalSuffix} requires a Nawat/Pipil nounstem source before it can form a Class B intransitive VNC stem.`,
+            message: `Andrews 55.6 ${classicalSuffix} requiere un tronco nominal Nawat/Pipil antes de formar un tronco verbal intransitivo de clase B.`,
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6823,7 +6823,7 @@ function diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx = {}, {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: `andrews-55.6-${routeTemplateId}-absolutive-nounstem-required`,
-            message: `Andrews 55.6 ${classicalSuffix} uses an absolutive nounstem source, not a possessive-state predicate.`,
+            message: `Andrews 55.6 ${classicalSuffix} usa un tronco nominal absolutivo como fuente, no un predicado de estado posesivo.`,
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6832,7 +6832,7 @@ function diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx = {}, {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: `andrews-55.6-${routeTemplateId}-nounstem-source-required`,
-            message: `Andrews 55.6 ${classicalSuffix} attaches to a nounstem base; generated VNC sources must use the o-a counterpart contract.`,
+            message: `Andrews 55.6 ${classicalSuffix} se une a una base de tronco nominal; las fuentes verbales generadas deben usar el contrato equivalente o-a.`,
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6841,7 +6841,7 @@ function diagnoseNawatDenominalAndrews556IHuiAHuiSourceRule(ctx = {}, {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: `andrews-55.6-${routeTemplateId}-absolutive-nounstem-required`,
-            message: `Andrews 55.6 ${classicalSuffix} requires an absolutive nounstem source before it can form a Class B intransitive VNC stem.`,
+            message: `Andrews 55.6 ${classicalSuffix} requiere un tronco nominal absolutivo antes de formar un tronco verbal intransitivo de clase B.`,
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6897,7 +6897,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     if (!hasIHuiOrAHuiSourceEvidence) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-i-hui-a-hui-source-evidence-required",
-            message: "Andrews 55.6 causative o-a requires generated i-hui/a-hui intransitive source evidence before it can form the transitive counterpart.",
+            message: "Andrews 55.6 o-a causativo requiere evidencia de fuente intransitiva i-hui/a-hui generada antes de formar la contraparte transitiva.",
             failedLayer: "authority",
             contractLayer: "authorityFrame",
             sourceStem: sourceBaseStem,
@@ -6907,7 +6907,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     if (hasIHuiOrAHuiSourceEvidence && (sourceStateForDerivedCheck === "possessive" || sourceCategory.includes("possessive-state"))) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-generated-i-hui-a-hui-source-required",
-            message: "Andrews 55.6 causative o-a uses a generated i-hui/a-hui verbstem as source, not a possessive-state NNC predicate.",
+            message: "Andrews 55.6 o-a causativo usa un tronco verbal i-hui/a-hui generado como fuente, no un predicado nominal de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6916,7 +6916,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     } else if (hasIHuiOrAHuiSourceEvidence && sourceStateForDerivedCheck && sourceStateForDerivedCheck !== "derived") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-generated-i-hui-a-hui-source-required",
-            message: "Andrews 55.6 causative o-a requires a derived i-hui/a-hui intransitive verbstem source, not the original nounstem source.",
+            message: "Andrews 55.6 o-a causativo requiere una fuente verbal intransitiva i-hui/a-hui derivada, no el tronco nominal original.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem: sourceBaseStem,
@@ -6925,7 +6925,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     } else if (hasIHuiOrAHuiSourceEvidence && sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-i-hui-a-hui-source-required",
-            message: "Andrews 55.6 causative o-a requires a generated i-hui/a-hui source, not another denominal route source.",
+            message: "Andrews 55.6 o-a causativo requiere una fuente i-hui/a-hui generada, no otra fuente de ruta denominal.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6935,7 +6935,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     if (hasIHuiOrAHuiSourceEvidence && !sourceVerbStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-source-verbstem-required",
-            message: "Andrews 55.6 causative o-a requires the generated i-hui/a-hui source verbstem surface before adding ua.",
+            message: "Andrews 55.6 o-a causativo requiere la superficie del tronco verbal fuente i-hui/a-hui generado antes de agregar ua.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem: sourceBaseStem,
@@ -6944,7 +6944,7 @@ function diagnoseNawatDenominalAndrews556OaRule(ctx = {}) {
     } else if (hasIHuiOrAHuiSourceEvidence && sourceVerbStem && !sourceVerbStem.endsWith("iwi") && !sourceVerbStem.endsWith("awi")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.6-o-a-source-final-iwi-awi-required",
-            message: "Andrews 55.6 causative o-a requires a Nawat/Pipil iwi- or awi-final source corresponding to Classical i-hui/a-hui.",
+            message: "Andrews 55.6 o-a causativo requiere una fuente Nawat/Pipil con final iwi o awi correspondiente al clásico i-hui/a-hui.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem: sourceVerbStem,
@@ -6978,7 +6978,7 @@ function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
     if (!sourceStem) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.7-i-a-source-stem-required",
-            message: "Andrews 55.7 transitive i-a requires a Nawat/Pipil nounstem source before adding the nounstem-plus-i and causative-a sequence.",
+            message: "Andrews 55.7 i-a transitivo requiere un tronco nominal Nawat/Pipil antes de agregar la secuencia tronco nominal más i y a causativo.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -6988,7 +6988,7 @@ function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
     if (sourceState === "possessive" || sourceCategory.includes("possessive-state")) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.7-i-a-absolutive-nounstem-required",
-            message: "Andrews 55.7 transitive i-a uses an absolutive nounstem source, not a possessive-state predicate.",
+            message: "Andrews 55.7 i-a transitivo usa un tronco nominal absolutivo como fuente, no un predicado de estado posesivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -6997,7 +6997,7 @@ function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
     } else if (sourceCategory && !compatibleSourceCategories.has(sourceCategory)) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.7-i-a-nounstem-source-required",
-            message: "Andrews 55.7 transitive i-a adds to a nounstem-plus-i base; generated VNC sources must use their own continuation contracts.",
+            message: "Andrews 55.7 i-a transitivo se agrega a una base de tronco nominal más i; las fuentes verbales generadas deben usar sus propios contratos de continuación.",
             failedLayer: "stem",
             contractLayer: "stemFrame",
             sourceStem,
@@ -7006,7 +7006,7 @@ function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
     } else if (sourceState && sourceState !== "absolutive" && sourceState !== "possessive") {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.7-i-a-absolutive-nounstem-required",
-            message: "Andrews 55.7 transitive i-a requires an absolutive nounstem source before forming the transitive VNC stem.",
+            message: "Andrews 55.7 i-a transitivo requiere un tronco nominal absolutivo antes de formar el tronco verbal transitivo.",
             failedLayer: "agreement",
             contractLayer: "participantFrame",
             sourceStem,
@@ -7020,7 +7020,7 @@ function diagnoseNawatDenominalAndrews557IARule(ctx = {}) {
     ) {
         diagnostics.push(buildNawatDenominalAndrewsRuleDiagnostic({
             id: "andrews-55.7-i-a-source-final-confirmation-required",
-            message: "Andrews 55.7 gives majority nounstem finals [c]/l plus k/n examples; this source final needs explicit source evidence before transitive i-a can generate.",
+            message: "Andrews 55.7 da finales nominales mayoritarios [c]/l y ejemplos con k/n; este final de fuente necesita evidencia explícita antes de que i-a transitivo genere.",
             failedLayer: "morph-boundary",
             contractLayer: "morphBoundaryFrame",
             sourceStem,
@@ -9751,79 +9751,79 @@ function buildNawatDenominalAndrewsRouteSourceRequirement(template = null, {
     addRequirement(
         template?.requiresPossessiveSource === true,
         "possessive-state-nnc-predicate",
-        "predicate of a possessive-state NNC",
+        "predicado nominal de estado posesivo",
         evidence.possessiveState
     );
     addRequirement(
         template?.requiresTiSource === true,
         "intransitive-ti-verbstem-source",
-        "intransitive ti verbstem source",
+        "fuente verbal intransitiva ti",
         evidence.tiSource
     );
     addRequirement(
         template?.requiresHuiSource === true,
         "intransitive-hui-verbstem-source",
-        "intransitive hui verbstem source",
+        "fuente verbal intransitiva hui",
         evidence.huiSource
     );
     addRequirement(
         template?.requiresYaSource === true,
         "intransitive-ya-verbstem-source",
-        "intransitive ya verbstem source",
+        "fuente verbal intransitiva ya",
         evidence.yaSource
     );
     addRequirement(
         template?.requiresDeverbalYoSource === true,
         "deverbal-yu-nounstem",
-        "deverbal (-yo)-tl nounstem source realized with Nawat/Pipil yu",
+        "fuente nominal deverbal (-yo)-tl realizada con yu Nawat/Pipil",
         evidence.deverbalYoSource
     );
     addRequirement(
         template?.requiresTemporalCompoundSource === true,
         "temporal-compound-nounstem",
-        "compound nounstem with a time-segment matrix and numeral embed",
+        "tronco nominal compuesto con matriz temporal e incrustación numeral",
         evidence.temporalCompoundSource
     );
     addRequirement(
         template?.requiresAdverbialSource === true,
         "adverbial-nounstem",
-        "adverbial nounstem",
+        "tronco nominal adverbial",
         evidence.adverbialSource
     );
     addRequirement(
         template?.requiresRelationalCompoundSource === true,
         "relational-compound-or-possessive-relational-predicate",
-        "compound nounstem with relational matrix or possessive-state relational predicate",
+        "tronco nominal compuesto con matriz relacional o predicado relacional de estado posesivo",
         evidence.relationalCompoundSource
     );
     addRequirement(
         template?.requiresTlaCausativeSource === true,
         "tla-causative-source",
-        "causative tla stem source",
+        "fuente verbal causativa tla",
         evidence.tlaCausativeSource
     );
     addRequirement(
         template?.requiresIntransitiveTlaLexicalSource === true,
         "intransitive-tla-lexical-source",
-        "confirmed source for the very limited intransitive tla note",
+        "fuente confirmada para la nota muy limitada de tla intransitivo",
         evidence.intransitiveTlaLexicalSource
     );
     addRequirement(
         template?.requiresTlaIntransitiveSource === true,
         "intransitive-tla-verbstem-source",
-        "intransitive tla verbstem source",
+        "fuente verbal intransitiva tla",
         evidence.tlaIntransitiveSource
     );
     addRequirement(
         template?.requiresIntransitiveOaSource === true,
         "intransitive-o-a-verbstem-source",
-        "intransitive o-a verbstem source",
+        "fuente verbal intransitiva o-a",
         evidence.intransitiveOaSource
     );
     addRequirement(
         template?.requiresIHuiOrAHuiSource === true,
         "i-hui-a-hui-source",
-        "i-hui or a-hui intransitive source stem",
+        "fuente intransitiva i-hui o a-hui",
         evidence.iHuiOrAHuiSource
     );
     const unsatisfied = requirements.filter((requirement) => requirement.satisfied !== true);
@@ -10958,7 +10958,7 @@ function buildNawatDenominalAndrewsRouteDiagnostics({
         diagnostics.push({
             id: "andrews-denominal-route-source-evidence-required",
             severity: "info",
-            message: `Andrews limits this route to ${sourceRequirement.unsatisfied.map((requirement) => requirement.label).join(" + ")}; finite routing waits for that source evidence.`,
+            message: `Andrews limita esta ruta a ${sourceRequirement.unsatisfied.map((requirement) => requirement.label).join(" + ")}; la ruta finita espera esa evidencia de fuente.`,
             sourceStem,
             requirementIds: sourceRequirement.unsatisfied.map((requirement) => requirement.id),
             boundaries: {
@@ -10976,7 +10976,7 @@ function buildNawatDenominalAndrewsRouteDiagnostics({
         diagnostics.push({
             id: "andrews-55.7-i-a-w-final-source-may-be-huia",
             severity: "warning",
-            message: "Andrews notes that a w-final nounstem that looks like transitive i-a may instead be huia with w+w contraction.",
+            message: "Andrews señala que un tronco nominal con final w que parece i-a transitivo puede ser huia con contracción w+w.",
             sourceStem,
             sourceStemFinalLetter,
             alternateContractId: "55.3-intransitive-o-a-applicative-huia",
@@ -11033,7 +11033,7 @@ function buildNawatDenominalAndrewsRouteDiagnostics({
         diagnostics.push({
             id: "andrews-55.7-i-a-source-i-may-belong-to-nounstem",
             severity: "info",
-            message: "Andrews notes that the i in a seeming i-a transitive stem can be part of the source nounstem.",
+            message: "Andrews señala que la i en un aparente tronco transitivo i-a puede ser parte del tronco nominal fuente.",
             sourceStem,
             boundaries: {
                 noFixtureEvidence: true,
@@ -11975,7 +11975,7 @@ function generateNawatDenominalAndrewsContractRoutePreview({
             : [{
                 id: "denominal-contract-route-preview-missing-source-stem",
                 severity: "warning",
-                message: "A Nawat/Pipil source stem is required before Andrews denominal route contracts can generate VNC stems.",
+                message: "Se requiere un tronco fuente Nawat/Pipil antes de que los contratos de ruta denominal de Andrews puedan generar troncos verbales.",
             }],
         boundaries: {
             noNewSurfaceForms: true,

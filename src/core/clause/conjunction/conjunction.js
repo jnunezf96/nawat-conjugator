@@ -491,8 +491,8 @@ function buildLesson52ConjunctionClausePursuitFrame() {
     const parallelStructureFrame = cloneConjunctionClauseLessonRecord(LESSON52_PARALLEL_STRUCTURE_FRAME);
     const remainingGaps = [
         "Current Lesson 52 support records Andrews' conjunction architecture as diagnostics and supplied-surface AST frames; it does not implement static conjunction data, parser/search detection, or automatic relation inference.",
-        "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Unmarked relation inference, auh/orthography decisions, adverbial-modifier-vs-conjunctor detection, correlative pairing, biclausalism/triclausalism classification, parallel-structure parsing, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Unmarked relation inference, auh/orthography decisions, adverbial-modifier-vs-conjunctor detection, correlative pairing, biclausalism/triclausalism classification, parallel-structure parsing, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-52-conjunction-clause-pursuit-frame",
@@ -560,7 +560,7 @@ function buildLesson52ConjunctionClausePursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil conjunction-clause evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
         },
         morphBoundaryFrame: {

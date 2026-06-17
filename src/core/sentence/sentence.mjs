@@ -130,7 +130,7 @@ export function createSentenceApi(targetObject = globalThis) {
       id: "lesson8-expanded-vnc",
       andrewsSection: "8.1",
       category: "expanded-vnc-prefix-boundaries",
-      directiveEs: "Distinguir la verdadera expansión dentro de la CNV (on/hual) de o# y ah#/ca#, que quedan fuera del límite izquierdo de la CNV.",
+      directiveEs: "Distinguir la verdadera expansión dentro de la CNV (un/wal) de o# y ah#/ca#, que quedan fuera del límite izquierdo de la CNV.",
       engineSurface: "diagnostic boundary metadata over core VNC output",
       redirectAction: "diagnostic-only",
       evidenceStatus: "direct-pdf-partial",

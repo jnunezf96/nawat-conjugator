@@ -181,34 +181,34 @@ const LESSON2_SOUND_SPELLING_RULES = Object.freeze([
         confidence: "slot-confirmed",
     }),
     Object.freeze({
-        id: "h-stem-j",
+        id: "h-syllable-final-glottal-j",
         source: "h",
-        sourceDisplay: "h",
+        sourceDisplay: "-h",
         target: "j",
-        slots: ["stem", "tronco", "predicate", "predicate-stem"],
-        syllablePositions: ["initial", "medial", "final", "coda", "unknown"],
+        slots: ["stem", "tronco", "predicate", "predicate-stem", "particle", "particula", "partícula", "unknown"],
+        syllablePositions: ["final", "coda", "syllable-final", "word-final", "before-consonant"],
         ruleScope: "graphic-representation",
         andrewsSection: "2.1-2.4",
         andrewsProcess: "Graphic Representations",
         spanishProcess: "representación gráfica",
         processFamily: "graphic-representation",
-        reason: "Bare stem h belongs to spelling realization and maps to Nawat j unless a grammar slot overrides it.",
+        reason: "Classical syllable-final glottal -h outside the num2 connector is realized in Nawat/Pipil as -j.",
         confidence: "slot-confirmed",
     }),
     Object.freeze({
-        id: "h-particle-j",
+        id: "h-nonfinal-evidence-required",
         source: "h",
         sourceDisplay: "h",
-        target: "j",
-        slots: ["particle", "particula", "partícula"],
-        syllablePositions: ["initial", "medial", "final", "coda", "unknown"],
+        targetCandidates: ["j"],
+        slots: ["stem", "tronco", "predicate", "predicate-stem", "particle", "particula", "partícula", "unknown"],
+        syllablePositions: ["initial", "medial", "unknown"],
         ruleScope: "graphic-representation",
-        andrewsSection: "2.1-2.4; 3",
-        andrewsProcess: "Graphic Representations for Lesson 3 particles",
-        spanishProcess: "representación gráfica de partículas",
+        andrewsSection: "2.1-2.4",
+        andrewsProcess: "Graphic Representations",
+        spanishProcess: "representación gráfica",
         processFamily: "graphic-representation",
-        reason: "Consonantal h in Andrews Lesson 3 particle spelling maps to Nawat j; num2 -h remains a separate connector-slot rule.",
-        confidence: "slot-confirmed",
+        reason: "Classical h outside num2 is only automatic j when it is syllable-final glottal -h; other positions need Nawat/Pipil evidence.",
+        confidence: "evidence-required",
     }),
     Object.freeze({
         id: "tl-nominal-t",
@@ -825,6 +825,27 @@ function normalizeLesson2SoundSpellingPosition(position = "") {
     return normalized || "unknown";
 }
 
+function isClassicalOrthographyLetter(value = "") {
+    return /^[a-zāēīō]$/i.test(String(value || ""));
+}
+
+function isClassicalOrthographyVowel(value = "") {
+    return /^[aeiouāēīō]$/i.test(String(value || ""));
+}
+
+function inferClassicalHPosition(text = "", index = 0) {
+    const source = String(text || "");
+    const previous = source[index - 1] || "";
+    const next = source[index + 1] || "";
+    if (!next || !isClassicalOrthographyLetter(next)) {
+        return "final";
+    }
+    if (isClassicalOrthographyVowel(previous)) {
+        return isClassicalOrthographyVowel(next) ? "syllable-final" : "coda";
+    }
+    return index <= 0 ? "initial" : "medial";
+}
+
 function normalizeLesson2SoundSpellingSource(source = "") {
     const normalized = normalizeOrthographyInput(source);
     return normalized.replace(/^-+/, "").replace(/-+$/, "");
@@ -844,9 +865,10 @@ function findLesson2SoundSpellingRule(input = {}) {
             return false;
         }
         const slotMatches = rule.slots.includes(slot) || rule.slots.includes("unknown");
+        const unknownPositionMayMatch = syllablePosition === "unknown" && rule.source !== "h";
         const positionMatches = rule.syllablePositions.includes(syllablePosition)
             || rule.syllablePositions.includes("unknown")
-            || syllablePosition === "unknown";
+            || unknownPositionMayMatch;
         return slotMatches && positionMatches;
     }) || null;
 }
@@ -1283,10 +1305,12 @@ function convertClassicalLettersToNawat(value, options = {}) {
         } else if (rest.startsWith("uh")) {
             pushConverted("uh", "w", "uh-w");
         } else if (char === "h") {
+            const syllablePosition = options.syllablePosition
+                ?? inferClassicalHPosition(normalized, index);
             const soundSpellingRule = findLesson2SoundSpellingRule({
                 source: "h",
                 slot: options.slot ?? options.grammarSlot ?? "",
-                syllablePosition: options.syllablePosition ?? "",
+                syllablePosition,
             });
             if (soundSpellingRule?.target) {
                 pushConverted("h", soundSpellingRule.target.replace(/^-/, ""), soundSpellingRule.id, soundSpellingRule.reason);

@@ -246,7 +246,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 56 personal-name source parsing, confirmed Nawat/Pipil personal-name examples, static names/calendar data, sentence-use ASTs, vocative diagnostics, god-name downgrade routing, place-name embed routing, parser/search detection, visible UI actions, and h-to-j visible spelling adaptation remain partial or evidence-needed.",
+        remainingGap: "Full Lesson 56 personal-name source parsing, confirmed Nawat/Pipil personal-name examples, static names/calendar data, sentence-use ASTs, vocative diagnostics, god-name downgrade routing, place-name embed routing, parser/search detection, acciones visibles de interfaz, and slot-scoped visible spelling verification remain partial or evidence-needed.",
         subsectionInventory,
         coverage: {
           subsectionCount: subsectionInventory.length,

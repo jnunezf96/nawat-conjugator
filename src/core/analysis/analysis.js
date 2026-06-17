@@ -214,7 +214,7 @@ function buildLesson57AnalysisPursuitFrame() {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 57 textual examples, sentence-context parser behavior, tense-attraction detection, valence-irregularity lexicon, absolute-topic ASTs, supplement/head referent tracking, adverbial-NNC supplement detection, silent-pers1 diagnostics, nounstem-forming-l lexical data, visible UI actions, and h-to-j visible spelling adaptation remain partial or evidence-needed.",
+        remainingGap: "Full Lesson 57 textual examples, sentence-context parser behavior, tense-attraction detection, valence-irregularity lexicon, absolute-topic ASTs, supplement/head referent tracking, adverbial-NNC supplement detection, silent-pers1 diagnostics, nounstem-forming-l lexical data, acciones visibles de interfaz, and slot-scoped visible spelling verification remain partial or evidence-needed.",
         subsectionInventory,
         coverage: {
             subsectionCount: subsectionInventory.length,
@@ -376,7 +376,7 @@ function buildLesson58AnalysisPursuitFrame() {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 58 textual examples, instrumental nounstem lexical data, problematic-construction parsing, exclamation classification, mah-construction ASTs, incorporated-noun subject diagnostics, textual-problem correction workflow, parser/search behavior, visible UI actions, and h-to-j visible spelling adaptation remain partial or evidence-needed.",
+        remainingGap: "Full Lesson 58 textual examples, instrumental nounstem lexical data, problematic-construction parsing, exclamation classification, mah-construction ASTs, incorporated-noun subject diagnostics, textual-problem correction workflow, parser/search behavior, acciones visibles de interfaz, and slot-scoped visible spelling verification remain partial or evidence-needed.",
         subsectionInventory,
         coverage: {
             subsectionCount: subsectionInventory.length,

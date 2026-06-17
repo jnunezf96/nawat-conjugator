@@ -210,7 +210,7 @@ function run(ctx) {
                 appositionModifierFollows: frame.collocationAppositionPrincipalFrame.apposition.modifierFollowsHeadInApposition,
                 adverbialCanBePrincipal: frame.collocationAppositionPrincipalFrame.adverbialPrincipalClause.adverbializedNuclearClauseCanBePrincipal,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -246,7 +246,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson49GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-49",
             diagnosticIds: ["adverbial-adjunction-lesson-49-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
         }
@@ -341,7 +341,7 @@ function run(ctx) {
                 reasonCa: frame.consequenceProvisoReasonFrame.reason.caIsPrincipalClauseIntroducer,
                 reasonNotConjunction: frame.consequenceProvisoReasonFrame.reason.caIsNotConjunction,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -380,7 +380,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson50GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-50",
             diagnosticIds: ["adverbial-adjunction-lesson-50-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
         }

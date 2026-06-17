@@ -895,9 +895,9 @@ function run(ctx = {}) {
             && rendering.includes("ANDREWS_RENDERING_TERMS.patientiveSource")
             && rendering.includes("familias Andrews:")
             && rendering.includes("etapa salida:")
-            && rendering.includes("taxonomia patientiva: parcial")
+            && rendering.includes("taxonomía patientiva: parcial")
             && rendering.includes("función adjetival:")
-            && rendering.includes("modificacion: no modelada")
+            && rendering.includes("modificación: no modelada")
     );
     s.ok(
         "#3 salida renders dynamic slot chips from engine metadata",
@@ -1057,7 +1057,7 @@ function run(ctx = {}) {
             && rendering.includes('continueSubLabel.textContent = "Adjetival nominal"')
             && rendering.includes("`#3 salida nominal: ${targetSurface}`,")
             && rendering.includes("Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival")
-            && rendering.includes("no crea modificacion Lessons 42-43")
+            && rendering.includes("no crea modificación lecciones 42-43")
             && rendering.includes('formation: "ordinary-absolutive"')
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
             && rendering.includes("renderOrdinaryNncAdjectivalFunctionContinuation();")
@@ -1186,7 +1186,7 @@ function run(ctx = {}) {
             && rendering.includes("continueButton.dataset.sourceFormulaEcho = sourceFormulaEcho")
             && rendering.includes('calc-guidance__chip--intensified-adjectival-function')
             && rendering.includes('continueSubLabel.textContent = "Intensifica"')
-            && rendering.includes("Andrews 41.1: intensificacion adjetival por reduplicacion")
+            && rendering.includes("Andrews 41.1: intensificación adjetival por reduplicación")
             && rendering.includes('formation: "intensified-adjectival"')
             && rendering.includes("sourceFormulaSlots,")
             && rendering.includes("renderIntensifiedAdjectivalFunctionContinuation({")
@@ -1882,8 +1882,8 @@ function run(ctx = {}) {
         rendering.includes("buildAdverbialAdjunctionBoundaryFrameSubLabels")
             && rendering.includes("appendAdverbialAdjunctionBoundaryFrameSubLabels")
             && rendering.includes("evaluation.result?.adverbialAdjunctionBoundaryFrame")
-            && rendering.includes("Adjuncion:")
-            && rendering.includes("Evidencia adjuncion: no confirmada")
+            && rendering.includes("Adjunción:")
+            && rendering.includes("Evidencia adjunción: no confirmada")
     );
     const expectedVerbDerivedNominalizationLabels = [
         "ambito: salida estructural",
@@ -1891,7 +1891,7 @@ function run(ctx = {}) {
         "rol nominal: propiedad",
         "fuente verbal: ipan muchiwki",
         "función adjetival: predicado",
-        "modificacion: no modelada",
+        "modificación: no modelada",
     ];
     s.eq(
         "shared sustantivo renderer builds nominalization metadata labels in rendering runtime",
@@ -1924,7 +1924,7 @@ function run(ctx = {}) {
         "fuente patientiva: tronco perfectivo activo",
         "familias Andrews: perfectivo activo",
         "etapa salida: #3 salida",
-        "taxonomia patientiva: parcial",
+        "taxonomía patientiva: parcial",
     ];
     s.eq(
         "shared renderer shows patientive-family taxonomy labels as display-only metadata",
@@ -1978,7 +1978,7 @@ function run(ctx = {}) {
                 "ambito: salida estructural",
                 "nominalización: paciente potencial",
                 "rol nominal: paciente potencial",
-                "fuente CNV: ipan muchiwas",
+                "fuente verbal: ipan muchiwas",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -3433,7 +3433,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["Clase de tronco: C", "Diagnostico de tronco: open syllable non-u ia/ua adds class C"]
+            ? ["Clase de tronco: C", "Diagnóstico de tronco: open syllable non-u ia/ua adds class C"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3521,7 +3521,7 @@ function run(ctx = {}) {
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
                 "adverbial nuclear: manera",
-                "fuente CNV: mati",
+                "fuente verbal: mati",
                 "valencia fuente: transitiva",
                 "grado: primer grado",
                 "dominio: manera",
@@ -3577,9 +3577,9 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Adjuncion: no confirmada",
+                "Adjunción: no confirmada",
                 "Unidad adjunta: locativo-temporal generado",
-                "Evidencia adjuncion: no confirmada",
+                "Evidencia adjunción: no confirmada",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -4413,11 +4413,11 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                "Capa oracional: diagnostica",
-                "Negacion: negative",
-                "Pregunta: yes-no",
-                "Enfasis: focus",
-                "Modo oracional: command",
+                "Capa oracional: diagnóstica",
+                "Negación: negativa",
+                "Pregunta: sí/no",
+                "Énfasis: foco",
+                "Modo oracional: mandato",
             ]
             : ["rendering-runtime-not-loaded"]
     );

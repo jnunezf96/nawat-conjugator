@@ -375,7 +375,7 @@ function buildLesson29PurposivePursuitFrame() {
         "No confirmed Nawat/Pipil purposive VNC fixture inventory licenses finite purposive output.",
         "Outbound and inbound purposive paradigms are recorded but not generated.",
         "Silent future-morph behavior, vowel-length/glottal distinctions, optional o#, irregular plural n, and optative/admonitive contrasts remain diagnostic.",
-        "Passive/impersonal purposive embeds, compound-stemmed embeds, external hual/on directional alternatives, fulfilled-purpose readings, and metaphorical movement remain evidence-needed.",
+        "Passive/impersonal purposive embeds, compound-stemmed embeds, external wal/un directional alternatives, fulfilled-purpose readings, and metaphorical movement remain evidence-needed.",
     ];
     const frame = {
         kind: "lesson-29-purposive-pursuit-frame",
@@ -387,7 +387,7 @@ function buildLesson29PurposivePursuitFrame() {
             {
                 id: "lesson-29-purposive-vnc-audit",
                 type: "metadata-diagnostic-test",
-                aim: "Audit Andrews Lesson 29.1-29.7 against current purposive/directional boundary metadata, stem-internal directional morphs, outbound/inbound paradigms, passive/impersonal embeds, compound-stemmed embeds, and external hual/on directional alternatives.",
+                aim: "Audit Andrews Lesson 29.1-29.7 against current purposive/directional boundary metadata, stem-internal directional morphs, outbound/inbound paradigms, passive/impersonal embeds, compound-stemmed embeds, and external wal/un directional alternatives.",
                 andrewsRefs: Array.from(LESSON29_PURPOSIVE_PDF_REFS),
                 expectedFeedbackRefs: Array.from(LESSON29_PURPOSIVE_VALIDATION_REFS),
             },

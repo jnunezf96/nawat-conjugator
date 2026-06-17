@@ -383,7 +383,7 @@ function buildLesson44AdverbialNuclearPursuitFrame() {
     const remainingGaps = [
         "Current Lesson 44 support records Andrews' adverbial nuclear-clause architecture as diagnostics and preserves the existing configured adverbio route; it does not implement a full adverbial VNC/NNC generator.",
         "Second-degree absolutive NNC adverbialization, particle-looking NNCs, other absolutive-state adverbials, preterit-agentive adverbial NNCs, possessive-state adverbials, and incorporated adverbial modifiers remain inventory/diagnostic frames.",
-        "Classical example spellings from Andrews are not imported as Nawat/Pipil fixtures; confirmed Nawat/Pipil examples are required before static data, parser/search detection, UI actions, or generation routing can expand.",
+        "Classical example spellings from Andrews are not imported as Nawat/Pipil fixtures; confirmed Nawat/Pipil examples are required before static data, parser/search detection, acciones de interfaz, or generation routing can expand.",
     ];
     const frame = {
         kind: "lesson-44-adverbial-nuclear-pursuit-frame",

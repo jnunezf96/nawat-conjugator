@@ -208,7 +208,7 @@ function run(ctx) {
                 relationalVocabulary: frame.adverbialComplementFrame.semanticCategories.relationalLexicalized.combinationMustBeLearnedAsVocabulary,
                 activeActionIncorporation: frame.adverbialComplementFrame.semanticCategories.relationalLexicalized.activeActionDerivationCanIncorporateAdverbializedNnc,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -240,7 +240,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson51GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-51",
             diagnosticIds: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"],
         }

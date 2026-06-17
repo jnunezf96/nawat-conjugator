@@ -343,7 +343,7 @@ function buildLesson42AdjectivalModificationPursuitFrame() {
         "Current Lesson 42 modification support is partial and does not exhaust multiple-nucleus modification syntax, all modifier/head order patterns, all supplementation ambiguities, compound-head matrix targeting, all modifier clause types, recursion, or incorporated modification structures.",
         "The current modificationAst composes supplied generated surfaces and records selected order/scope diagnostics; it does not parse or generate Nawat clause examples.",
         "Transitive VNC modifier ambiguity, pronominal/quantitive/numeral head behavior, measure NNC head behavior, and incorporated modifier-head compounds remain diagnostic.",
-        "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, UI actions, or generation routing can expand.",
+        "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand.",
     ];
     const frame = {
         kind: "lesson-42-adjectival-modification-pursuit-frame",
@@ -645,7 +645,7 @@ function buildLesson43AdjectivalModificationPursuitFrame() {
         "Current Lesson 43 support records Andrews' nonpreposed, cooperating, discontinuous, interrogative-head, oc ce, one-of, male-bonding, and named-partner structures as diagnostics; it does not parse full sentence distance or transform topology.",
         "The current modificationAst can mark discontinuous order, but it does not detect topicalized heads, absent adjunctors, interrogative-head ambiguity, oc ce heads, or idiomatic shared-referent violations from raw Nawat clauses.",
         "The ac/tleh and in-unit warning is recorded as structural metadata only; it does not import traditional Classical solid spellings as Nawat/Pipil fixtures.",
-        "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, UI actions, or generation routing can expand.",
+        "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand.",
     ];
     const frame = {
         kind: "lesson-43-adjectival-modification-pursuit-frame",

@@ -480,7 +480,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
       const groupingsFrame = cloneRelationalNncLessonRecord(LESSON45_GROUPINGS_FRAME);
       const optionOneStemsFrame = cloneRelationalNncLessonRecord(LESSON45_OPTION_ONE_STEMS_FRAME);
       const icFrame = cloneRelationalNncLessonRecord(LESSON45_IC_FRAME);
-      const remainingGaps = ["Current Lesson 45 support records Andrews' relational NNC architecture as diagnostics and usage frames; it does not implement relational NNC generation or static relational fixture data.", "Translation prepositions, place labels, locative-temporal nominal rows, and ordinary NNC outputs remain false-positive evidence until confirmed Nawat/Pipil relational examples are available.", "Option-four compound embeds, option-one-only stem inventories, ic special uses, affective relational stems, parser/search detection, UI actions, and concrete surface routing remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 45 support records Andrews' relational NNC architecture as diagnostics and usage frames; it does not implement relational NNC generation or static relational fixture data.", "Translation prepositions, place labels, locative-temporal nominal rows, and ordinary NNC outputs remain false-positive evidence until confirmed Nawat/Pipil relational examples are available.", "Option-four compound embeds, option-one-only stem inventories, ic special uses, affective relational stems, parser/search detection, acciones de interfaz, and concrete surface routing remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-45-relational-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -989,7 +989,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
       const imperfectEmbedFrame = cloneRelationalNncLessonRecord(LESSON46_IMPERFECT_EMBED_FRAME);
       const matrixStemsFrame = cloneRelationalNncLessonRecord(LESSON46_MATRIX_STEMS_FRAME);
       const exampleSentenceFrame = cloneRelationalNncLessonRecord(LESSON46_EXAMPLE_SENTENCE_FRAME);
-      const remainingGaps = ["Current Lesson 46 support records Andrews' option-two-only relational NNC architecture as diagnostics; it does not implement matrix-only relational fixture data or relational NNC generation.", "All Classical examples and stem spellings remain structural references only; Nawat/Pipil orthography, h-to-j adaptation, and lexical surfaces require confirmed Nawat/Pipil evidence before output.", "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, UI actions, and sentence-level context inference remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 46 support records Andrews' option-two-only relational NNC architecture as diagnostics; it does not implement matrix-only relational fixture data or relational NNC generation.", "All Classical examples and stem spellings remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before output.", "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-46-relational-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -1052,7 +1052,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
         orthographyFrame: {
           spellingAuthority: "Nawat/Pipil relational evidence",
           noClassicalSurfaceImport: true,
-          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
           orthographyStatus: "nawat-evidence-required"
         },
         morphBoundaryFrame: {
@@ -1350,7 +1350,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
       const optionsOneTwoThreeFrame = cloneRelationalNncLessonRecord(LESSON47_OPTIONS_ONE_TWO_THREE_FRAME);
       const associatedEntityFrame = cloneRelationalNncLessonRecord(LESSON47_ASSOCIATED_ENTITY_FRAME);
       const pertinencyFrame = cloneRelationalNncLessonRecord(LESSON47_PERTINENCY_FRAME);
-      const remainingGaps = ["Current Lesson 47 support records Andrews' option-one/two/three relational NNC architecture as diagnostics; it does not implement relational fixture data, associated-entity generation, or pertinency generation.", "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, supplementary possessor resolution, pa/copa embedding, connective-t relational compounds, body-part compound distinctions, associated-entity versus gentilic contrast, pertinency routing, UI actions, and sentence-level context inference remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 47 support records Andrews' option-one/two/three relational NNC architecture as diagnostics; it does not implement relational fixture data, associated-entity generation, or pertinency generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, supplementary possessor resolution, pa/copa embedding, connective-t relational compounds, body-part compound distinctions, associated-entity versus gentilic contrast, pertinency routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-47-relational-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -1411,7 +1411,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
         orthographyFrame: {
           spellingAuthority: "Nawat/Pipil relational evidence",
           noClassicalSurfaceImport: true,
-          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
           orthographyStatus: "nawat-evidence-required"
         },
         morphBoundaryFrame: {

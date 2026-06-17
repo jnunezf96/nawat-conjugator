@@ -303,7 +303,7 @@ function run(ctx) {
                 missCount: frame.missCount,
                 generationAllowed: frame.generationAllowed,
                 closestPass: frame.closestPass,
-                remainingGapsMentionOrthography: frame.remainingGaps.some((gap) => /h-to-j/.test(gap)),
+                remainingGapsMentionOrthography: frame.remainingGaps.some((gap) => /ortogr[aá]f|orthography|spelling/i.test(gap)),
             };
         })(),
         {
@@ -368,7 +368,7 @@ function run(ctx) {
                 paFrequencyQuantitiveOnly: frame.matrixStemsFrame.stems[5].embedsOnlyQuantitiveOrNumeralNounstems,
                 sentenceInference: frame.exampleSentenceFrame.translationPrepositionMustBeInferredFromContext,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -432,7 +432,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson46GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-46",
             diagnosticIds: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
         }
@@ -517,7 +517,7 @@ function run(ctx) {
                 associatedGentilicContrast: frame.associatedEntityFrame.contrastWithGentilicFormationRequired,
                 pertinencyFormations: frame.pertinencyFrame.formations.map((formation) => formation.id),
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -554,7 +554,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson47GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-47",
             diagnosticIds: ["relational-nnc-lesson-47-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
         }

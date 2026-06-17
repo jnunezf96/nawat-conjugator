@@ -458,7 +458,7 @@ function buildLesson45RelationalNncPursuitFrame() {
     const remainingGaps = [
         "Current Lesson 45 support records Andrews' relational NNC architecture as diagnostics and usage frames; it does not implement relational NNC generation or static relational fixture data.",
         "Translation prepositions, place labels, locative-temporal nominal rows, and ordinary NNC outputs remain false-positive evidence until confirmed Nawat/Pipil relational examples are available.",
-        "Option-four compound embeds, option-one-only stem inventories, ic special uses, affective relational stems, parser/search detection, UI actions, and concrete surface routing remain partial or evidence-needed.",
+        "Option-four compound embeds, option-one-only stem inventories, ic special uses, affective relational stems, parser/search detection, acciones de interfaz, and concrete surface routing remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-45-relational-nnc-pursuit-frame",
@@ -894,8 +894,8 @@ function buildLesson46RelationalNncPursuitFrame() {
     const exampleSentenceFrame = cloneRelationalNncLessonRecord(LESSON46_EXAMPLE_SENTENCE_FRAME);
     const remainingGaps = [
         "Current Lesson 46 support records Andrews' option-two-only relational NNC architecture as diagnostics; it does not implement matrix-only relational fixture data or relational NNC generation.",
-        "All Classical examples and stem spellings remain structural references only; Nawat/Pipil orthography, h-to-j adaptation, and lexical surfaces require confirmed Nawat/Pipil evidence before output.",
-        "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, UI actions, and sentence-level context inference remain partial or evidence-needed.",
+        "All Classical examples and stem spellings remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before output.",
+        "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-46-relational-nnc-pursuit-frame",
@@ -963,7 +963,7 @@ function buildLesson46RelationalNncPursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil relational evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "nawat-evidence-required",
         },
         morphBoundaryFrame: {
@@ -1192,8 +1192,8 @@ function buildLesson47RelationalNncPursuitFrame() {
     const pertinencyFrame = cloneRelationalNncLessonRecord(LESSON47_PERTINENCY_FRAME);
     const remainingGaps = [
         "Current Lesson 47 support records Andrews' option-one/two/three relational NNC architecture as diagnostics; it does not implement relational fixture data, associated-entity generation, or pertinency generation.",
-        "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Parser/search detection, supplementary possessor resolution, pa/copa embedding, connective-t relational compounds, body-part compound distinctions, associated-entity versus gentilic contrast, pertinency routing, UI actions, and sentence-level context inference remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Parser/search detection, supplementary possessor resolution, pa/copa embedding, connective-t relational compounds, body-part compound distinctions, associated-entity versus gentilic contrast, pertinency routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-47-relational-nnc-pursuit-frame",
@@ -1259,7 +1259,7 @@ function buildLesson47RelationalNncPursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil relational evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "nawat-evidence-required",
         },
         morphBoundaryFrame: {

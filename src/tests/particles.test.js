@@ -170,7 +170,7 @@ function run(ctx) {
     s.no("particle boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("particle boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
     s.eq(
-        "Andrews Lesson 3 seed inventory adapts Classical spellings to Nawat orthography",
+        "Andrews Lesson 3 seed inventory adapts only licensed Classical spellings to Nawat orthography",
         {
             tla: ctx.getAndrewsLesson3ParticleAsNawat("tla"),
             mah: ctx.getAndrewsLesson3ParticleAsNawat("mah"),

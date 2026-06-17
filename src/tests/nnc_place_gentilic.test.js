@@ -223,7 +223,7 @@ function run(ctx) {
                 collectivityVariants: frame.extensionsFrame.collectivityFrame.possessiveNum1Variants,
                 professionStates: frame.extensionsFrame.professionFrame.states,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -269,7 +269,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson48GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-48",
             diagnosticIds: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-needs-nawat-evidence"],
         }

@@ -81,14 +81,14 @@ function run() {
         "Andrews trajectory groups cover the curriculum blocks",
         trajectoryGroups.map((group) => [group.label, group.range, group.validationRefs.includes("src/tests/registry.test.js")]),
         [
-            ["Lessons 1-4", [1, 4], true],
-            ["Lessons 5-11", [5, 11], true],
-            ["Lessons 12-19", [12, 19], true],
-            ["Lessons 20-27", [20, 27], true],
-            ["Lessons 28-34", [28, 34], true],
-            ["Lessons 35-43", [35, 43], true],
-            ["Lessons 44-50", [44, 50], true],
-            ["Lessons 51-58", [51, 58], true],
+            ["Lecciones 1-4", [1, 4], true],
+            ["Lecciones 5-11", [5, 11], true],
+            ["Lecciones 12-19", [12, 19], true],
+            ["Lecciones 20-27", [20, 27], true],
+            ["Lecciones 28-34", [28, 34], true],
+            ["Lecciones 35-43", [35, 43], true],
+            ["Lecciones 44-50", [44, 50], true],
+            ["Lecciones 51-58", [51, 58], true],
         ]
     );
     s.eq("Plan/Pursue aim statuses are the fixed step vocabulary", planPursuitAimStatuses, [
@@ -297,8 +297,8 @@ function run() {
         s.eq(`lesson ${lessonId} is partial Andrews coverage`, lessons[lessonId].status, "partially-implemented");
     });
     s.eq("lesson 1 concept glossary layer is implemented as diagnostic UI", lessons[1].status, "implemented");
-    s.ok("lesson 1 notes visible concept glossary without generation", /visible Lesson 1 glossary UI/.test(lessons[1].notes) && /no generation/.test(lessons[1].notes));
-    s.ok("lesson 2 notes Classical orthography gap", /Classical orthography/.test(lessons[2].notes));
+    s.ok("lesson 1 notes visible concept glossary without generation", /glosario visible de Lección 1/.test(lessons[1].notes) && /no se licencia generación/.test(lessons[1].notes));
+    s.ok("lesson 2 notes Classical orthography gap", /ortografía de Andrews\/clásica/.test(lessons[2].notes));
     s.eq(
         "lesson 2 trajectory records the active Plan/Pursue shot",
         {
@@ -310,7 +310,7 @@ function run() {
         {
             plannedArrowIds: ["lesson-2-subsection-coverage-audit"],
             firedArrowIds: [["lesson-2-subsection-coverage-audit", "hit"]],
-            remainingGap: "Vowel length, stress/prosody, long consonants, glottal alternation, and evidence-sensitive spelling choices remain blocked, diagnostic-only, or Nawat-evidence-needed.",
+            remainingGap: "Siguen bloqueadas, solo diagnósticas o pendientes de evidencia Nawat: longitud vocálica, acento/prosodia, consonantes largas, alternancia glotal y elecciones ortográficas sensibles a evidencia.",
             closestPass: false,
         }
     );
@@ -325,11 +325,11 @@ function run() {
         {
             plannedArrowIds: ["lesson-3-pdf-example-transfer-audit"],
             firedArrowIds: [["lesson-3-pdf-example-transfer-audit", "hit"]],
-            remainingGap: "Confirmed local Nawat/Pipil particle inventory, placement evidence, and generation remain unavailable; Particula mode stays diagnostic-only.",
+            remainingGap: "Siguen pendientes de evidencia: inventario local confirmado de partículas Nawat/Pipil, evidencia de colocación y generación; modo Partícula permanece solo diagnóstico.",
             closestPass: false,
         }
     );
-    s.ok("lesson 3 notes particle inventory gap", /particle placement metadata/.test(lessons[3].notes));
+    s.ok("lesson 3 notes particle inventory gap", /metadatos de colocación de partículas/.test(lessons[3].notes));
     s.eq(
         "lesson 4 trajectory records the active Plan/Pursue shot",
         {
@@ -341,11 +341,11 @@ function run() {
         {
             plannedArrowIds: ["lesson-4-subsection-coverage-audit"],
             firedArrowIds: [["lesson-4-subsection-coverage-audit", "hit"]],
-            remainingGap: "Sentence syntax, formula data registry, 3a-person reference context, and detailed CNV/CNN filler paradigms remain partial or deferred to later lessons.",
+            remainingGap: "Siguen parciales o pendientes de evidencia: sintaxis oracional, registro de datos de fórmula, contexto de referencia de tercera persona y paradigmas detallados de rellenador de cláusula verbal/nominal.",
             closestPass: false,
         }
     );
-    s.ok("lesson 4 notes nuclear-clause shell gap", /Nuclear-clause shell/.test(lessons[4].notes));
+    s.ok("lesson 4 notes nuclear-clause shell gap", /envoltura de cláusula nuclear/.test(lessons[4].notes));
     s.eq(
         "lesson 5 trajectory records the intransitive CNV closest-pass shot",
         {
@@ -426,7 +426,7 @@ function run() {
             firedArrowIds: lessons[8].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[8].trajectory.aimStatus,
             closestPass: lessons[8].trajectory.closestPass,
-            remainingGapMentionsSentenceGeneration: /Sentence generation/.test(lessons[8].trajectory.remainingGap),
+            remainingGapMentionsSentenceGeneration: /generación oracional/.test(lessons[8].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 8.1-8.6"],
@@ -476,7 +476,7 @@ function run() {
             firedArrowIds: lessons[10].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[10].trajectory.aimStatus,
             closestPass: lessons[10].trajectory.closestPass,
-            remainingGapMentionsAdmonitive: /admonitive/.test(lessons[10].trajectory.remainingGap),
+            remainingGapMentionsAdmonitive: /admonitivo/.test(lessons[10].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 10.1-10.5"],
@@ -526,7 +526,7 @@ function run() {
             firedArrowIds: lessons[12].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[12].trajectory.aimStatus,
             closestPass: lessons[12].trajectory.closestPass,
-            remainingGapMentionsFormulaSlots: /formula slots/.test(lessons[12].trajectory.remainingGap),
+            remainingGapMentionsFormulaSlots: /posiciones de fórmula/.test(lessons[12].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 12.1-12.7"],
@@ -551,7 +551,7 @@ function run() {
             firedArrowIds: lessons[13].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[13].trajectory.aimStatus,
             closestPass: lessons[13].trajectory.closestPass,
-            remainingGapMentionsPossessive: /possessive-state/.test(lessons[13].trajectory.remainingGap),
+            remainingGapMentionsPossessive: /estado posesivo/.test(lessons[13].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 13.1-13.6"],
@@ -576,7 +576,7 @@ function run() {
             firedArrowIds: lessons[14].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[14].trajectory.aimStatus,
             closestPass: lessons[14].trajectory.closestPass,
-            remainingGapMentionsClass: /class compatibility/.test(lessons[14].trajectory.remainingGap),
+            remainingGapMentionsClass: /compatibilidad activa de clase/.test(lessons[14].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 14.1-14.8"],
@@ -601,7 +601,7 @@ function run() {
             firedArrowIds: lessons[15].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[15].trajectory.aimStatus,
             closestPass: lessons[15].trajectory.closestPass,
-            remainingGapMentionsNaturalPossession: /natural-possession/.test(lessons[15].trajectory.remainingGap),
+            remainingGapMentionsNaturalPossession: /posesión natural/.test(lessons[15].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 15.1-15.3"],
@@ -626,7 +626,7 @@ function run() {
             firedArrowIds: lessons[16].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[16].trajectory.aimStatus,
             closestPass: lessons[16].trajectory.closestPass,
-            remainingGapMentionsPronominal: /pronominal NNC/.test(lessons[16].trajectory.remainingGap),
+            remainingGapMentionsPronominal: /cláusula nominal pronominal/.test(lessons[16].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 16.1-16.9"],
@@ -651,7 +651,7 @@ function run() {
             firedArrowIds: lessons[17].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[17].trajectory.aimStatus,
             closestPass: lessons[17].trajectory.closestPass,
-            remainingGapMentionsSupplementationAst: /Supplementation AST/.test(lessons[17].trajectory.remainingGap),
+            remainingGapMentionsSupplementationAst: /AST de suplementación/.test(lessons[17].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 17.1-17.6"],
@@ -676,7 +676,7 @@ function run() {
             firedArrowIds: lessons[18].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[18].trajectory.aimStatus,
             closestPass: lessons[18].trajectory.closestPass,
-            remainingGapMentionsVocative: /vocative/.test(lessons[18].trajectory.remainingGap),
+            remainingGapMentionsVocative: /vocativa/.test(lessons[18].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 18.1-18.12"],
@@ -701,7 +701,7 @@ function run() {
             firedArrowIds: lessons[19].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[19].trajectory.aimStatus,
             closestPass: lessons[19].trajectory.closestPass,
-            remainingGapMentionsIncludedReferent: /included-referent/.test(lessons[19].trajectory.remainingGap),
+            remainingGapMentionsIncludedReferent: /referente incluido/.test(lessons[19].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 19.1-19.6"],
@@ -752,8 +752,8 @@ function run() {
             firedArrowIds: lessons[21].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[21].trajectory.aimStatus,
             closestPass: lessons[21].trajectory.closestPass,
-            remainingGapMentionsPassiveImpersonal: /passive\/impersonal/.test(lessons[21].trajectory.remainingGap),
-            remainingGapMentionsNonspecific: /nonspecific/.test(lessons[21].trajectory.remainingGap),
+            remainingGapMentionsPassiveImpersonal: /pasiva\/impersonal/.test(lessons[21].trajectory.remainingGap),
+            remainingGapMentionsNonspecific: /no específico/.test(lessons[21].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -781,7 +781,7 @@ function run() {
             firedArrowIds: lessons[22].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[22].trajectory.aimStatus,
             closestPass: lessons[22].trajectory.closestPass,
-            remainingGapMentionsPassiveImpersonal: /passive\/impersonal/.test(lessons[22].trajectory.remainingGap),
+            remainingGapMentionsPassiveImpersonal: /pasiva\/impersonal/.test(lessons[22].trajectory.remainingGap),
             remainingGapMentionsTa: /te\/ta/.test(lessons[22].trajectory.remainingGap),
         },
         {
@@ -810,8 +810,8 @@ function run() {
             firedArrowIds: lessons[23].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[23].trajectory.aimStatus,
             closestPass: lessons[23].trajectory.closestPass,
-            remainingGapMentionsMainline: /mainline\/shuntline/.test(lessons[23].trajectory.remainingGap),
-            remainingGapMentionsAppendixC: /Appendix C/.test(lessons[23].trajectory.remainingGap),
+            remainingGapMentionsMainline: /línea principal\/línea desviada/.test(lessons[23].trajectory.remainingGap),
+            remainingGapMentionsAppendixC: /Apéndice C/.test(lessons[23].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -839,8 +839,8 @@ function run() {
             firedArrowIds: lessons[24].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[24].trajectory.aimStatus,
             closestPass: lessons[24].trajectory.closestPass,
-            remainingGapMentionsDestockal: /destockal/.test(lessons[24].trajectory.remainingGap),
-            remainingGapMentionsSourceCnv: /source-CNV/.test(lessons[24].trajectory.remainingGap),
+            remainingGapMentionsDestockal: /desacerval/.test(lessons[24].trajectory.remainingGap),
+            remainingGapMentionsSourceCnv: /cláusula verbal a objeto/.test(lessons[24].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -868,9 +868,9 @@ function run() {
             firedArrowIds: lessons[25].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[25].trajectory.aimStatus,
             closestPass: lessons[25].trajectory.closestPass,
-            remainingGapMentionsObjectDepth: /single\/double\/triple/.test(lessons[25].trajectory.remainingGap),
-            remainingGapMentionsSilentObject: /silent-object/.test(lessons[25].trajectory.remainingGap),
-            remainingGapMentionsPassiveImpersonal: /passive\/impersonal/.test(lessons[25].trajectory.remainingGap),
+            remainingGapMentionsObjectDepth: /uno\/dos\/tres/.test(lessons[25].trajectory.remainingGap),
+            remainingGapMentionsSilentObject: /objeto silencioso/.test(lessons[25].trajectory.remainingGap),
+            remainingGapMentionsPassiveImpersonal: /pasivos\/impersonales/.test(lessons[25].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -899,9 +899,9 @@ function run() {
             firedArrowIds: lessons[26].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[26].trajectory.aimStatus,
             closestPass: lessons[26].trajectory.closestPass,
-            remainingGapMentionsObjectDepth: /single\/double\/triple/.test(lessons[26].trajectory.remainingGap),
-            remainingGapMentionsAppendixC: /Appendix C/.test(lessons[26].trajectory.remainingGap),
-            remainingGapMentionsObjectUnit: /object-plus-suffix/.test(lessons[26].trajectory.remainingGap),
+            remainingGapMentionsObjectDepth: /uno\/dos\/tres/.test(lessons[26].trajectory.remainingGap),
+            remainingGapMentionsAppendixC: /Apéndice C/.test(lessons[26].trajectory.remainingGap),
+            remainingGapMentionsObjectUnit: /objeto-más-sufijo/.test(lessons[26].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -930,9 +930,9 @@ function run() {
             firedArrowIds: lessons[27].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[27].trajectory.aimStatus,
             closestPass: lessons[27].trajectory.closestPass,
-            remainingGapMentionsObjectPronoun: /object-pronoun/.test(lessons[27].trajectory.remainingGap),
-            remainingGapMentionsDestockal: /destockal/.test(lessons[27].trajectory.remainingGap),
-            remainingGapMentionsGenericRedup: /generic reduplication/.test(lessons[27].trajectory.remainingGap),
+            remainingGapMentionsObjectPronoun: /pronombre objeto/.test(lessons[27].trajectory.remainingGap),
+            remainingGapMentionsDestockal: /desacerval/.test(lessons[27].trajectory.remainingGap),
+            remainingGapMentionsGenericRedup: /reduplicación genérica/.test(lessons[27].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -961,9 +961,9 @@ function run() {
             firedArrowIds: lessons[28].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[28].trajectory.aimStatus,
             closestPass: lessons[28].trajectory.closestPass,
-            remainingGapMentionsConnectiveT: /connective-t/.test(lessons[28].trajectory.remainingGap),
-            remainingGapMentionsSharedObject: /shared-object/.test(lessons[28].trajectory.remainingGap),
-            remainingGapMentionsFutureEmbed: /future-embed/.test(lessons[28].trajectory.remainingGap),
+            remainingGapMentionsConnectiveT: /conectivo -t/.test(lessons[28].trajectory.remainingGap),
+            remainingGapMentionsSharedObject: /objeto compartido/.test(lessons[28].trajectory.remainingGap),
+            remainingGapMentionsFutureEmbed: /incrustación futura/.test(lessons[28].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -992,9 +992,9 @@ function run() {
             firedArrowIds: lessons[29].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[29].trajectory.aimStatus,
             closestPass: lessons[29].trajectory.closestPass,
-            remainingGapMentionsSilentFuture: /silent future/.test(lessons[29].trajectory.remainingGap),
-            remainingGapMentionsIrregularPlural: /irregular plural n/.test(lessons[29].trajectory.remainingGap),
-            remainingGapMentionsExternalDirectionals: /hual\/on/.test(lessons[29].trajectory.remainingGap),
+            remainingGapMentionsSilentFuture: /futuro silencioso/.test(lessons[29].trajectory.remainingGap),
+            remainingGapMentionsIrregularPlural: /plural irregular n/.test(lessons[29].trajectory.remainingGap),
+            remainingGapMentionsExternalDirectionals: /wal\/on/.test(lessons[29].trajectory.remainingGap),
         },
         {
             status: "partially-implemented",
@@ -1023,9 +1023,9 @@ function run() {
             firedArrowIds: lessons[30].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[30].trajectory.aimStatus,
             closestPass: lessons[30].trajectory.closestPass,
-            remainingGapMentionsValenceLowering: /valence lowering/.test(lessons[30].trajectory.remainingGap),
-            remainingGapMentionsTlaFusion: /tla-fusion/.test(lessons[30].trajectory.remainingGap),
-            remainingGapMentionsComplements: /incorporated complements/.test(lessons[30].trajectory.remainingGap),
+            remainingGapMentionsValenceLowering: /reducción de valencia/.test(lessons[30].trajectory.remainingGap),
+            remainingGapMentionsTlaFusion: /fusión ta/.test(lessons[30].trajectory.remainingGap),
+            remainingGapMentionsComplements: /complementos incorporados/.test(lessons[30].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 30\.1-30\.18/.test(lessons[30].notes),
         },
         {
@@ -1056,9 +1056,9 @@ function run() {
             firedArrowIds: lessons[31].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[31].trajectory.aimStatus,
             closestPass: lessons[31].trajectory.closestPass,
-            remainingGapMentionsPossessorOrientation: /possessor orientation/.test(lessons[31].trajectory.remainingGap),
-            remainingGapMentionsConjunctive: /conjunctive compounds/.test(lessons[31].trajectory.remainingGap),
-            remainingGapMentionsDistributive: /distributive\/varietal/.test(lessons[31].trajectory.remainingGap),
+            remainingGapMentionsPossessorOrientation: /orientación de poseedor/.test(lessons[31].trajectory.remainingGap),
+            remainingGapMentionsConjunctive: /compuestos conjuntivos/.test(lessons[31].trajectory.remainingGap),
+            remainingGapMentionsDistributive: /distributivos\/varietales/.test(lessons[31].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 31\.1-31\.13/.test(lessons[31].notes),
         },
         {
@@ -1089,9 +1089,9 @@ function run() {
             firedArrowIds: lessons[32].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[32].trajectory.aimStatus,
             closestPass: lessons[32].trajectory.closestPass,
-            remainingGapMentionsAffectiveMatrix: /affective matrix class routing/.test(lessons[32].trajectory.remainingGap),
-            remainingGapMentionsFlawedSubject: /flawed-subject/.test(lessons[32].trajectory.remainingGap),
-            remainingGapMentionsPilAmbiguity: /pil child\/noble ambiguity/.test(lessons[32].trajectory.remainingGap),
+            remainingGapMentionsAffectiveMatrix: /matriz afectiva/.test(lessons[32].trajectory.remainingGap),
+            remainingGapMentionsFlawedSubject: /sujeto defectuoso/.test(lessons[32].trajectory.remainingGap),
+            remainingGapMentionsPilAmbiguity: /ambigüedad pil niño\/noble/.test(lessons[32].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 32\.1-32\.8/.test(lessons[32].notes),
         },
         {
@@ -1122,9 +1122,9 @@ function run() {
             firedArrowIds: lessons[33].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[33].trajectory.aimStatus,
             closestPass: lessons[33].trajectory.closestPass,
-            remainingGapMentionsReverential: /reverential generation/.test(lessons[33].trajectory.remainingGap),
-            remainingGapMentionsTzinoa: /tzin-o-a/.test(lessons[33].trajectory.remainingGap),
-            remainingGapMentionsPoloa: /pol-o-a/.test(lessons[33].trajectory.remainingGap),
+            remainingGapMentionsReverential: /generación reverencial/.test(lessons[33].trajectory.remainingGap),
+            remainingGapMentionsTzinoa: /tzin-u-a/.test(lessons[33].trajectory.remainingGap),
+            remainingGapMentionsPulua: /pul-u-a/.test(lessons[33].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 33\.1-33\.10/.test(lessons[33].notes),
         },
         {
@@ -1139,7 +1139,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsReverential: true,
             remainingGapMentionsTzinoa: true,
-            remainingGapMentionsPoloa: true,
+            remainingGapMentionsPulua: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1155,9 +1155,9 @@ function run() {
             firedArrowIds: lessons[34].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[34].trajectory.aimStatus,
             closestPass: lessons[34].trajectory.closestPass,
-            remainingGapMentionsGrossCount: /gross-count/.test(lessons[34].trajectory.remainingGap),
-            remainingGapMentionsClassifiers: /classifier sets/.test(lessons[34].trajectory.remainingGap),
-            remainingGapMentionsMeasures: /measure NNCs/.test(lessons[34].trajectory.remainingGap),
+            remainingGapMentionsGrossCount: /conteo grueso/.test(lessons[34].trajectory.remainingGap),
+            remainingGapMentionsClassifiers: /conjuntos clasificadores/.test(lessons[34].trajectory.remainingGap),
+            remainingGapMentionsMeasures: /cláusulas nominales de medida/.test(lessons[34].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 34\.1-34\.16/.test(lessons[34].notes),
         },
         {
@@ -1188,9 +1188,9 @@ function run() {
             firedArrowIds: lessons[35].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[35].trajectory.aimStatus,
             closestPass: lessons[35].trajectory.closestPass,
-            remainingGapMentionsNumberPosition: /number-position/.test(lessons[35].trajectory.remainingGap),
-            remainingGapMentionsOwnerhood: /ownerhood/.test(lessons[35].trajectory.remainingGap),
-            remainingGapMentionsAdverbial: /adverbial matrices/.test(lessons[35].trajectory.remainingGap),
+            remainingGapMentionsNumberPosition: /alternancias de posición de número/.test(lessons[35].trajectory.remainingGap),
+            remainingGapMentionsOwnerhood: /subclases de posesión/.test(lessons[35].trajectory.remainingGap),
+            remainingGapMentionsAdverbial: /matrices adverbiales/.test(lessons[35].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 35\.1-35\.12/.test(lessons[35].notes),
         },
         {
@@ -1221,9 +1221,9 @@ function run() {
             firedArrowIds: lessons[36].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[36].trajectory.aimStatus,
             closestPass: lessons[36].trajectory.closestPass,
-            remainingGapMentionsCustomary: /customary-present agentive/.test(lessons[36].trajectory.remainingGap),
-            remainingGapMentionsInstrumentive: /instrumentive/.test(lessons[36].trajectory.remainingGap),
-            remainingGapMentionsActionNnc: /active-action/.test(lessons[36].trajectory.remainingGap),
+            remainingGapMentionsCustomary: /agentivos completos de presente habitual/.test(lessons[36].trajectory.remainingGap),
+            remainingGapMentionsInstrumentive: /instrumentivo/.test(lessons[36].trajectory.remainingGap),
+            remainingGapMentionsActionNnc: /acción pasiva y activa/.test(lessons[36].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 36\.1-36\.12/.test(lessons[36].notes),
         },
         {
@@ -1254,9 +1254,9 @@ function run() {
             firedArrowIds: lessons[37].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[37].trajectory.aimStatus,
             closestPass: lessons[37].trajectory.closestPass,
-            remainingGapMentionsActiveAction: /active-action z\/liz/.test(lessons[37].trajectory.remainingGap),
-            remainingGapMentionsPotentialPatient: /potential-patient/.test(lessons[37].trajectory.remainingGap),
-            remainingGapMentionsPassivePatientive: /passive-patientive/.test(lessons[37].trajectory.remainingGap),
+            remainingGapMentionsActiveAction: /acción activa z\/liz/.test(lessons[37].trajectory.remainingGap),
+            remainingGapMentionsPotentialPatient: /paciente potencial/.test(lessons[37].trajectory.remainingGap),
+            remainingGapMentionsPassivePatientive: /fuente patientiva pasiva/.test(lessons[37].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 37\.1-37\.9/.test(lessons[37].notes),
         },
         {
@@ -1287,9 +1287,9 @@ function run() {
             firedArrowIds: lessons[38].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[38].trajectory.aimStatus,
             closestPass: lessons[38].trajectory.closestPass,
-            remainingGapMentionsRootPlusYa: /root-plus-ya/.test(lessons[38].trajectory.remainingGap),
-            remainingGapMentionsHumanContrast: /human\/nonhuman contrast/.test(lessons[38].trajectory.remainingGap),
-            remainingGapMentionsCompoundPatientive: /compound patientive/.test(lessons[38].trajectory.remainingGap),
+            remainingGapMentionsRootPlusYa: /raíz-más-ya/.test(lessons[38].trajectory.remainingGap),
+            remainingGapMentionsHumanContrast: /contraste humano\/no humano/.test(lessons[38].trajectory.remainingGap),
+            remainingGapMentionsCompoundPatientive: /patientivo compuesto/.test(lessons[38].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 38\.1-38\.2/.test(lessons[38].notes),
         },
         {
@@ -1320,9 +1320,9 @@ function run() {
             firedArrowIds: lessons[39].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[39].trajectory.aimStatus,
             closestPass: lessons[39].trajectory.closestPass,
-            remainingGapMentionsOrganicPossession: /organic-possession/.test(lessons[39].trajectory.remainingGap),
-            remainingGapMentionsRootStock: /root\/stock/.test(lessons[39].trajectory.remainingGap),
-            remainingGapMentionsValence: /valence-violation/.test(lessons[39].trajectory.remainingGap),
+            remainingGapMentionsOrganicPossession: /posesión orgánica/.test(lessons[39].trajectory.remainingGap),
+            remainingGapMentionsRootStock: /raíz\/acervo/.test(lessons[39].trajectory.remainingGap),
+            remainingGapMentionsValence: /violación de valencia/.test(lessons[39].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 39\.1-39\.9/.test(lessons[39].notes),
         },
         {
@@ -1353,9 +1353,9 @@ function run() {
             firedArrowIds: lessons[40].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[40].trajectory.aimStatus,
             closestPass: lessons[40].trajectory.closestPass,
-            remainingGapMentionsExceptional: /Exceptional adjectival NNCs/.test(lessons[40].trajectory.remainingGap),
-            remainingGapMentionsSynonyms: /source-synonym sets/.test(lessons[40].trajectory.remainingGap),
-            remainingGapMentionsPredicateAdjectiveSentence: /predicate-adjective sentence/.test(lessons[40].trajectory.remainingGap),
+            remainingGapMentionsExceptional: /cláusulas nominales adjetivales excepcionales/.test(lessons[40].trajectory.remainingGap),
+            remainingGapMentionsSynonyms: /conjuntos sinónimos de fuente/.test(lessons[40].trajectory.remainingGap),
+            remainingGapMentionsPredicateAdjectiveSentence: /oración predicado-adjetivo/.test(lessons[40].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 40\.1-40\.12/.test(lessons[40].notes),
         },
         {
@@ -1386,9 +1386,9 @@ function run() {
             firedArrowIds: lessons[41].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[41].trajectory.aimStatus,
             closestPass: lessons[41].trajectory.closestPass,
-            remainingGapMentionsAffective: /affective matrix/.test(lessons[41].trajectory.remainingGap),
-            remainingGapMentionsCompoundSource: /compound-verbstem source/.test(lessons[41].trajectory.remainingGap),
-            remainingGapMentionsEmbeddedAdjectival: /adjectival nounstems embedded/.test(lessons[41].trajectory.remainingGap),
+            remainingGapMentionsAffective: /matrices pah\/cal\/tzon\/afectivas/.test(lessons[41].trajectory.remainingGap),
+            remainingGapMentionsCompoundSource: /fuente de tronco verbal compuesto/.test(lessons[41].trajectory.remainingGap),
+            remainingGapMentionsEmbeddedAdjectival: /troncos nominales adjetivales incrustados/.test(lessons[41].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 41\.1-41\.4/.test(lessons[41].notes),
         },
         {
@@ -1419,9 +1419,9 @@ function run() {
             firedArrowIds: lessons[42].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[42].trajectory.aimStatus,
             closestPass: lessons[42].trajectory.closestPass,
-            remainingGapMentionsSupplementation: /supplementation ambiguity/.test(lessons[42].trajectory.remainingGap),
-            remainingGapMentionsTransitiveVnc: /transitive VNC modifier ambiguity/.test(lessons[42].trajectory.remainingGap),
-            remainingGapMentionsIncorporated: /incorporated modification structures/.test(lessons[42].trajectory.remainingGap),
+            remainingGapMentionsSupplementation: /ambigüedad de suplementación/.test(lessons[42].trajectory.remainingGap),
+            remainingGapMentionsTransitiveVnc: /ambigüedad de modificador verbal transitivo/.test(lessons[42].trajectory.remainingGap),
+            remainingGapMentionsIncorporated: /estructuras de modificación incorporada/.test(lessons[42].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 42\.1-42\.10/.test(lessons[42].notes),
         },
         {
@@ -1452,9 +1452,9 @@ function run() {
             firedArrowIds: lessons[43].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[43].trajectory.aimStatus,
             closestPass: lessons[43].trajectory.closestPass,
-            remainingGapMentionsInterrogative: /ac\/tleh interrogative-head ambiguity/.test(lessons[43].trajectory.remainingGap),
-            remainingGapMentionsOcCe: /oc ce heads/.test(lessons[43].trajectory.remainingGap),
-            remainingGapMentionsNamedPartner: /named-partner modifiers/.test(lessons[43].trajectory.remainingGap),
+            remainingGapMentionsInterrogative: /ambigüedad de núcleo interrogativo ac\/tleh/.test(lessons[43].trajectory.remainingGap),
+            remainingGapMentionsOcCe: /núcleos oc ce/.test(lessons[43].trajectory.remainingGap),
+            remainingGapMentionsNamedPartner: /modificadores de pareja nombrada/.test(lessons[43].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 43\.1-43\.9/.test(lessons[43].notes),
         },
         {
@@ -1485,9 +1485,9 @@ function run() {
             firedArrowIds: lessons[44].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[44].trajectory.aimStatus,
             closestPass: lessons[44].trajectory.closestPass,
-            remainingGapMentionsSecondDegree: /second-degree absolutive NNC/.test(lessons[44].trajectory.remainingGap),
-            remainingGapMentionsParticleLooking: /particle-looking NNC/.test(lessons[44].trajectory.remainingGap),
-            remainingGapMentionsIncorporated: /incorporated adverbial modifiers/.test(lessons[44].trajectory.remainingGap),
+            remainingGapMentionsSecondDegree: /adverbiales nominales absolutivos de segundo grado/.test(lessons[44].trajectory.remainingGap),
+            remainingGapMentionsParticleLooking: /cláusulas nominales que parecen partículas/.test(lessons[44].trajectory.remainingGap),
+            remainingGapMentionsIncorporated: /modificadores adverbiales incorporados/.test(lessons[44].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 44\.1-44\.9/.test(lessons[44].notes),
         },
         {
@@ -1518,9 +1518,9 @@ function run() {
             firedArrowIds: lessons[45].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[45].trajectory.aimStatus,
             closestPass: lessons[45].trajectory.closestPass,
-            remainingGapMentionsRelationalData: /static relational fixture data/.test(lessons[45].trajectory.remainingGap),
-            remainingGapMentionsSupplementary: /supplementary-possessor parsing/.test(lessons[45].trajectory.remainingGap),
-            remainingGapMentionsIc: /ic special uses/.test(lessons[45].trajectory.remainingGap),
+            remainingGapMentionsRelationalData: /datos estáticos relacionales/.test(lessons[45].trajectory.remainingGap),
+            remainingGapMentionsSupplementary: /análisis de poseedor suplementario/.test(lessons[45].trajectory.remainingGap),
+            remainingGapMentionsIc: /usos especiales de ic/.test(lessons[45].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 45\.1-45\.4/.test(lessons[45].notes),
         },
         {
@@ -1551,9 +1551,9 @@ function run() {
             firedArrowIds: lessons[46].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[46].trajectory.aimStatus,
             closestPass: lessons[46].trajectory.closestPass,
-            remainingGapMentionsMatrixData: /matrix-only relational fixture data/.test(lessons[46].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[46].trajectory.remainingGap),
-            remainingGapMentionsPa: /pa homonym disambiguation/.test(lessons[46].trajectory.remainingGap),
+            remainingGapMentionsMatrixData: /datos estáticos relacionales solo de matriz/.test(lessons[46].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[46].trajectory.remainingGap),
+            remainingGapMentionsPa: /desambiguación de homónimo pa/.test(lessons[46].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 46\.1-46\.15/.test(lessons[46].notes),
         },
         {
@@ -1567,7 +1567,7 @@ function run() {
             aimStatus: "shooting",
             closestPass: false,
             remainingGapMentionsMatrixData: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             remainingGapMentionsPa: true,
             notesMentionAndrewsSubsections: true,
         }
@@ -1584,9 +1584,9 @@ function run() {
             firedArrowIds: lessons[47].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[47].trajectory.aimStatus,
             closestPass: lessons[47].trajectory.closestPass,
-            remainingGapMentionsCopa: /pa\/copa embedding/.test(lessons[47].trajectory.remainingGap),
-            remainingGapMentionsGentilic: /associated-entity versus gentilic contrast/.test(lessons[47].trajectory.remainingGap),
-            remainingGapMentionsPertinency: /pertinency routing/.test(lessons[47].trajectory.remainingGap),
+            remainingGapMentionsCopa: /incrustación pa\/copa/.test(lessons[47].trajectory.remainingGap),
+            remainingGapMentionsGentilic: /contraste entidad asociada frente a gentilicio/.test(lessons[47].trajectory.remainingGap),
+            remainingGapMentionsPertinency: /enrutamiento de pertinencia/.test(lessons[47].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 47\.1-47\.5/.test(lessons[47].notes),
         },
         {
@@ -1617,9 +1617,9 @@ function run() {
             firedArrowIds: lessons[48].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[48].trajectory.aimStatus,
             closestPass: lessons[48].trajectory.closestPass,
-            remainingGapMentionsUnique: /unique-reference resolution/.test(lessons[48].trajectory.remainingGap),
-            remainingGapMentionsGentilic: /gentilic derivation routing/.test(lessons[48].trajectory.remainingGap),
-            remainingGapMentionsProfession: /profession\/title extension/.test(lessons[48].trajectory.remainingGap),
+            remainingGapMentionsUnique: /resolución de referencia única/.test(lessons[48].trajectory.remainingGap),
+            remainingGapMentionsGentilic: /enrutamiento de derivación gentilicia/.test(lessons[48].trajectory.remainingGap),
+            remainingGapMentionsProfession: /extensión de profesión\/título/.test(lessons[48].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 48\.1-48\.13/.test(lessons[48].notes),
         },
         {
@@ -1650,9 +1650,9 @@ function run() {
             firedArrowIds: lessons[49].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[49].trajectory.aimStatus,
             closestPass: lessons[49].trajectory.closestPass,
-            remainingGapMentionsRecursiveParser: /recursive parser/.test(lessons[49].trajectory.remainingGap),
-            remainingGapMentionsInterrogative: /interrogative principal-clause parsing/.test(lessons[49].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[49].trajectory.remainingGap),
+            remainingGapMentionsRecursiveParser: /detección recursiva de analizador/.test(lessons[49].trajectory.remainingGap),
+            remainingGapMentionsInterrogative: /análisis de cláusula principal interrogativa/.test(lessons[49].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[49].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 49\.1-49\.10/.test(lessons[49].notes),
         },
         {
@@ -1667,7 +1667,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsRecursiveParser: true,
             remainingGapMentionsInterrogative: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1683,9 +1683,9 @@ function run() {
             firedArrowIds: lessons[50].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[50].trajectory.aimStatus,
             closestPass: lessons[50].trajectory.closestPass,
-            remainingGapMentionsSupplementation: /included-referent supplementation/.test(lessons[50].trajectory.remainingGap),
-            remainingGapMentionsCondition: /hypothetical condition parsing/.test(lessons[50].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[50].trajectory.remainingGap),
+            remainingGapMentionsSupplementation: /suplementación de referente incluido/.test(lessons[50].trajectory.remainingGap),
+            remainingGapMentionsCondition: /condición abierta e hipotética/.test(lessons[50].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[50].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 50\.1-50\.11/.test(lessons[50].notes),
         },
         {
@@ -1700,7 +1700,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsSupplementation: true,
             remainingGapMentionsCondition: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1716,9 +1716,9 @@ function run() {
             firedArrowIds: lessons[51].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[51].trajectory.aimStatus,
             closestPass: lessons[51].trajectory.closestPass,
-            remainingGapMentionsObjectInventory: /object-complement verbstem inventories/.test(lessons[51].trajectory.remainingGap),
-            remainingGapMentionsRelational: /relational lexicalized vocabulary/.test(lessons[51].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[51].trajectory.remainingGap),
+            remainingGapMentionsObjectInventory: /inventarios de troncos verbales de complemento de objeto/.test(lessons[51].trajectory.remainingGap),
+            remainingGapMentionsRelational: /vocabulario relacional lexicalizado/.test(lessons[51].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[51].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 51\.1-51\.4/.test(lessons[51].notes),
         },
         {
@@ -1733,7 +1733,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsObjectInventory: true,
             remainingGapMentionsRelational: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1749,9 +1749,9 @@ function run() {
             firedArrowIds: lessons[52].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[52].trajectory.aimStatus,
             closestPass: lessons[52].trajectory.closestPass,
-            remainingGapMentionsRelationInference: /unmarked relation inference/.test(lessons[52].trajectory.remainingGap),
-            remainingGapMentionsCorrelation: /correlative pairing/.test(lessons[52].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[52].trajectory.remainingGap),
+            remainingGapMentionsRelationInference: /inferencia de relación no marcada/.test(lessons[52].trajectory.remainingGap),
+            remainingGapMentionsCorrelation: /emparejamiento correlativo/.test(lessons[52].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[52].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 52\.1-52\.7/.test(lessons[52].notes),
         },
         {
@@ -1766,7 +1766,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsRelationInference: true,
             remainingGapMentionsCorrelation: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1783,8 +1783,8 @@ function run() {
             aimStatus: lessons[53].trajectory.aimStatus,
             closestPass: lessons[53].trajectory.closestPass,
             remainingGapMentionsIuhqui: /iuhqui/.test(lessons[53].trajectory.remainingGap),
-            remainingGapMentionsSuperlative: /superlative routing/.test(lessons[53].trajectory.remainingGap),
-            remainingGapMentionsHtoJ: /h-to-j visible spelling adaptation/.test(lessons[53].trajectory.remainingGap),
+            remainingGapMentionsSuperlative: /enrutamiento de superlativo/.test(lessons[53].trajectory.remainingGap),
+            remainingGapMentionsOrthography: /ortogr[aá]f|orthography|spelling/i.test(lessons[53].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 53\.1-53\.7/.test(lessons[53].notes),
         },
         {
@@ -1799,7 +1799,7 @@ function run() {
             closestPass: false,
             remainingGapMentionsIuhqui: true,
             remainingGapMentionsSuperlative: true,
-            remainingGapMentionsHtoJ: true,
+            remainingGapMentionsOrthography: true,
             notesMentionAndrewsSubsections: true,
         }
     );
@@ -1815,9 +1815,9 @@ function run() {
             firedArrowIds: lessons[54].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[54].trajectory.aimStatus,
             closestPass: lessons[54].trajectory.closestPass,
-            remainingGapMentionsPossessionTi: /possession-ti semantics/.test(lessons[54].trajectory.remainingGap),
-            remainingGapMentionsDoubleObject: /double-object ti-a/.test(lessons[54].trajectory.remainingGap),
-            remainingGapMentionsVisibleUi: /visible UI actions/.test(lessons[54].trajectory.remainingGap),
+            remainingGapMentionsPossessionTi: /semántica de ti posesivo/.test(lessons[54].trajectory.remainingGap),
+            remainingGapMentionsDoubleObject: /ti-a de dos objetos/.test(lessons[54].trajectory.remainingGap),
+            remainingGapMentionsVisibleUi: /acciones visibles de interfaz/.test(lessons[54].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 54\.1-54\.6/.test(lessons[54].notes),
         },
         {
@@ -1848,9 +1848,9 @@ function run() {
             firedArrowIds: lessons[55].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[55].trajectory.aimStatus,
             closestPass: lessons[55].trajectory.closestPass,
-            remainingGapMentionsTemporalParsing: /temporal compound parsing/.test(lessons[55].trajectory.remainingGap),
-            remainingGapMentionsTlaInventory: /tla inventories/.test(lessons[55].trajectory.remainingGap),
-            remainingGapMentionsVisibleUi: /visible UI actions/.test(lessons[55].trajectory.remainingGap),
+            remainingGapMentionsTemporalParsing: /análisis de compuestos temporales/.test(lessons[55].trajectory.remainingGap),
+            remainingGapMentionsTlaInventory: /inventarios de tla/.test(lessons[55].trajectory.remainingGap),
+            remainingGapMentionsVisibleUi: /acciones visibles de interfaz/.test(lessons[55].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 55\.1-55\.7/.test(lessons[55].notes),
         },
         {
@@ -1881,9 +1881,9 @@ function run() {
             firedArrowIds: lessons[56].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[56].trajectory.aimStatus,
             closestPass: lessons[56].trajectory.closestPass,
-            remainingGapMentionsStaticNames: /static names\/calendar data/.test(lessons[56].trajectory.remainingGap),
-            remainingGapMentionsVocative: /vocative diagnostics/.test(lessons[56].trajectory.remainingGap),
-            remainingGapMentionsVisibleUi: /visible UI actions/.test(lessons[56].trajectory.remainingGap),
+            remainingGapMentionsStaticNames: /datos estáticos de nombres\/calendario/.test(lessons[56].trajectory.remainingGap),
+            remainingGapMentionsVocative: /diagnósticos vocativos/.test(lessons[56].trajectory.remainingGap),
+            remainingGapMentionsVisibleUi: /acciones visibles de interfaz/.test(lessons[56].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 56\.1-56\.5/.test(lessons[56].notes),
         },
         {
@@ -1914,9 +1914,9 @@ function run() {
             firedArrowIds: lessons[57].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[57].trajectory.aimStatus,
             closestPass: lessons[57].trajectory.closestPass,
-            remainingGapMentionsTenseAttraction: /tense-attraction detection/.test(lessons[57].trajectory.remainingGap),
-            remainingGapMentionsReferentTracking: /referent tracking/.test(lessons[57].trajectory.remainingGap),
-            remainingGapMentionsVisibleUi: /visible UI actions/.test(lessons[57].trajectory.remainingGap),
+            remainingGapMentionsTenseAttraction: /detección de atracción temporal/.test(lessons[57].trajectory.remainingGap),
+            remainingGapMentionsReferentTracking: /rastreo de referente/.test(lessons[57].trajectory.remainingGap),
+            remainingGapMentionsVisibleUi: /acciones visibles de interfaz/.test(lessons[57].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 57\.1-57\.7/.test(lessons[57].notes),
         },
         {
@@ -1947,9 +1947,9 @@ function run() {
             firedArrowIds: lessons[58].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[58].trajectory.aimStatus,
             closestPass: lessons[58].trajectory.closestPass,
-            remainingGapMentionsMahAst: /mah-construction ASTs/.test(lessons[58].trajectory.remainingGap),
-            remainingGapMentionsIncorporatedNoun: /incorporated-noun subject diagnostics/.test(lessons[58].trajectory.remainingGap),
-            remainingGapMentionsVisibleUi: /visible UI actions/.test(lessons[58].trajectory.remainingGap),
+            remainingGapMentionsMahAst: /AST de construcciones mah/.test(lessons[58].trajectory.remainingGap),
+            remainingGapMentionsIncorporatedNoun: /diagnósticos de sujeto con nombre incorporado/.test(lessons[58].trajectory.remainingGap),
+            remainingGapMentionsVisibleUi: /acciones visibles de interfaz/.test(lessons[58].trajectory.remainingGap),
             notesMentionAndrewsSubsections: /Andrews 58\.1-58\.8/.test(lessons[58].notes),
         },
         {
@@ -1968,10 +1968,10 @@ function run() {
             notesMentionAndrewsSubsections: true,
         }
     );
-    s.ok("lesson 8 notes sentence generation gap", /sentence-layer metadata/.test(lessons[8].notes));
-    s.ok("lesson 9 notes sentence-level optative gap", /sentence-level optative/.test(lessons[9].notes));
-    s.ok("lesson 10 notes sentence-level admonition gap", /sentence-level admonition/.test(lessons[10].notes));
-    s.ok("lesson 11 notes broader Andrews irregular gap", /Andrews irregular/.test(lessons[11].notes));
+    s.ok("lesson 8 notes sentence generation gap", /capa oracional diagnóstica/.test(lessons[8].notes) && /generación oracional/.test(lessons[8].notes));
+    s.ok("lesson 9 notes sentence-level optative gap", /formas finitas optativas/.test(lessons[9].notes) && /nivel oracional/.test(lessons[9].notes));
+    s.ok("lesson 10 notes sentence-level admonition gap", /formas finitas admonitivas/.test(lessons[10].notes) && /nivel oracional/.test(lessons[10].notes));
+    s.ok("lesson 11 notes broader Andrews irregular gap", /perfectivos irregulares de Andrews/.test(lessons[11].notes));
 
     s.eq(
         "lessons 1-4 keep foundations separate from implemented motors",
@@ -2124,11 +2124,11 @@ function run() {
             [27, "partially-implemented"],
         ]
     );
-    s.ok("lesson 23 notes object-function and silent-morph gap", /object-function/.test(lessons[23].notes) && /silent morph/.test(lessons[23].notes));
-    s.ok("lesson 24 notes final-vowel, destockal, and source-CNV gaps", /final-vowel/.test(lessons[24].notes) && /destockal/.test(lessons[24].notes) && /source-CNV/.test(lessons[24].notes));
-    s.ok("lesson 25 notes source-CNV and silent-object gaps", /source-CNV/.test(lessons[25].notes) && /silent-object/.test(lessons[25].notes));
-    s.ok("lesson 26 notes source-CNV and object-plus-suffix gaps", /source-CNV/.test(lessons[26].notes) && /object-plus-suffix/.test(lessons[26].notes));
-    s.ok("lesson 27 notes frequentative generation gap", /frequentative boundary metadata/.test(lessons[27].notes) && /object-pronoun/.test(lessons[27].notes));
+    s.ok("lesson 23 notes object-function and silent-morph gap", /función de objeto/.test(lessons[23].notes) && /morfemas silenciosos/.test(lessons[23].notes));
+    s.ok("lesson 24 notes final-vowel, destockal, and source-CNV gaps", /vocal final/.test(lessons[24].notes) && /desacervales/.test(lessons[24].notes) && /cláusula verbal a objeto/.test(lessons[24].notes));
+    s.ok("lesson 25 notes source-CNV and silent-object gaps", /cláusula verbal fuente/.test(lessons[25].notes) && /objeto silencioso/.test(lessons[25].notes));
+    s.ok("lesson 26 notes source-CNV and object-plus-suffix gaps", /cláusula verbal fuente/.test(lessons[26].notes) && /objeto-más-sufijo/.test(lessons[26].notes));
+    s.ok("lesson 27 notes frequentative generation gap", /límite frecuentativo/.test(lessons[27].notes) && /pronombre objeto/.test(lessons[27].notes));
     s.eq(
         "lessons 20-27 keep voice, object, causative, and frequentative audits separate from current derivation motors",
         [20, 21, 22, 23, 24, 25, 26, 27].map((lessonId) => lessons[lessonId].engineDependencies),

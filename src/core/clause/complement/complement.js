@@ -403,8 +403,8 @@ function buildLesson51ComplementClausePursuitFrame() {
     const adverbialComplementFrame = cloneComplementClauseLessonRecord(LESSON51_ADVERBIAL_COMPLEMENT_FRAME);
     const remainingGaps = [
         "Current Lesson 51 support records Andrews' complementation architecture as diagnostics and supplied-surface AST frames; it does not implement static complement data, complement parser/search detection, or surface generation.",
-        "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-51-complement-clause-pursuit-frame",
@@ -468,7 +468,7 @@ function buildLesson51ComplementClausePursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil complement-clause evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
         },
         morphBoundaryFrame: {

@@ -355,8 +355,8 @@ function buildLesson53ComparisonPursuitFrame() {
     const superlativeFrame = cloneComparisonLessonRecord(LESSON53_SUPERLATIVE_FRAME);
     const remainingGaps = [
         "Current Lesson 53 support records Andrews' similarity and comparison architecture as diagnostics only; it does not implement comparison ASTs, static comparison data, parser/search detection, or generation.",
-        "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Similarity-route classification, iuhqui/ihuan/tloc/tlapanahuia parsing, equality and size-comparison detection, comparative conjunction integration, superlative routing, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Similarity-route classification, iuhqui/ihuan/tloc/tlapanahuia parsing, equality and size-comparison detection, comparative conjunction integration, superlative routing, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-53-comparison-pursuit-frame",
@@ -423,7 +423,7 @@ function buildLesson53ComparisonPursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil comparison-clause evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
         },
         morphBoundaryFrame: {

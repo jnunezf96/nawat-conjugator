@@ -216,7 +216,7 @@ function run(ctx) {
             reflexiveMatrix: "tla-(tzin-o-a)",
             reflexiveClasses: ["A", "B", "C", "D"],
             reverentialStrategy: "double honorific construction",
-            pejorativeMatrix: "tla-(pol-o-a)",
+            pejorativeMatrix: "ta-(pul-u-a)",
             pejorativeSources: ["intransitive VNC", "projective-object VNC", "reflexive-object VNC"],
             selfPejorativePermitted: true,
             compoundSharedObjectMatrix: true,

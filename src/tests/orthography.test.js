@@ -167,14 +167,19 @@ function run(ctx) {
     );
 
     s.eq(
-        "particle-context h maps to j without changing ambiguous or num2 -h",
+        "syllable-final glottal -h maps to j while num2 -h keeps its connector rule",
         (() => {
             const particle = ctx.convertClassicalLettersToNawat("mah", {
+                grammarSlot: "particle",
+            });
+            const initial = ctx.convertClassicalLettersToNawat("haci", {
                 grammarSlot: "particle",
             });
             return {
                 particleOutput: particle.output,
                 particleRuleIds: particle.correspondences.map((entry) => entry.ruleId),
+                initialOutput: initial.output,
+                initialRuleIds: initial.correspondences.map((entry) => entry.ruleId),
                 genericFinalH: ctx.getClassicalLettersAsNawat("-h"),
                 num2FinalH: ctx.getClassicalLettersAsNawat("-h", {
                     slot: "num2",
@@ -184,14 +189,16 @@ function run(ctx) {
         })(),
         {
             particleOutput: "maj",
-            particleRuleIds: ["h-particle-j"],
-            genericFinalH: "-h",
+            particleRuleIds: ["h-syllable-final-glottal-j"],
+            initialOutput: "hasi",
+            initialRuleIds: ["c-front-s"],
+            genericFinalH: "-j",
             num2FinalH: "-t",
         }
     );
 
     s.eq(
-        "Lesson 2 sound-spelling frame distinguishes num2 -h from stem h",
+        "Lesson 2 sound-spelling frame separates num2 -h from syllable-final glottal -h",
         {
             num2: (() => {
                 const frame = ctx.buildLesson2SoundSpellingFrame({
@@ -236,7 +243,7 @@ function run(ctx) {
                 generationAllowed: false,
             },
             stem: {
-                ruleId: "h-stem-j",
+                ruleId: "h-syllable-final-glottal-j",
                 target: "j",
                 grammarSlot: "stem",
                 ruleScope: "graphic-representation",

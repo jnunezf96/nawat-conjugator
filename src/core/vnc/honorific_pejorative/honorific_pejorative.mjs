@@ -122,10 +122,10 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       sourceSection: "Andrews 33.9",
       pejorativeMeaning: "contempt or scorn",
       strategy: "preterit-embed integrated compound",
-      matrixStem: "tla-(pol-o-a)",
+      matrixStem: "ta-(pul-u-a)",
       matrixMeaning: "cause something to become disparaged",
       matrixOnlyUsedInThisConstruction: true,
-      sourceOfMatrix: "affective-matrix nounstem pol",
+      sourceOfMatrix: "affective-matrix nounstem pul",
       sourceKinds: Object.freeze(["intransitive VNC", "projective-object VNC", "reflexive-object VNC"]),
       selfPejorativePermitted: true,
       validForVerbstemClasses: Object.freeze(["A", "B", "C", "D"]),
@@ -209,7 +209,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       id: "lesson33-pejorative",
       andrewsSection: "33.9",
       category: "pejorative-vnc",
-      directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pol-o-a para desprecio o escarnio.",
+      directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pul-u-a para desprecio o escarnio.",
       engineSurface: "diagnostic pejorative frame",
       implementationState: "partial",
       redirectAction: "block-generation"
@@ -252,7 +252,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       const reverentialFrame = cloneHonorificPejorativeLessonRecord(LESSON33_REVERENTIAL_FRAME);
       const pejorativeFrame = cloneHonorificPejorativeLessonRecord(LESSON33_PEJORATIVE_FRAME);
       const compoundVerbstemFrame = cloneHonorificPejorativeLessonRecord(LESSON33_COMPOUND_VERBSTEM_FRAME);
-      const remainingGaps = ["Current honorific/pejorative metadata is not an honorific or pejorative VNC generator.", "Causative/applicative reflexive honorific routing, agent/patient ambiguity, and source-specific strategy choice remain diagnostic.", "Preterit-embed honorific, reverential, and pejorative compound routing with tzin-o-a or pol-o-a matrices is not implemented.", "Compound-verbstem transformation targets and confirmed Nawat/Pipil honorific or pejorative examples remain evidence-needed."];
+      const remainingGaps = ["Current honorific/pejorative metadata is not an honorific or pejorative VNC generator.", "Causative/applicative reflexive honorific routing, agent/patient ambiguity, and source-specific strategy choice remain diagnostic.", "Preterit-embed honorific, reverential, and pejorative compound routing with tzin-o-a or pul-u-a matrices is not implemented.", "Compound-verbstem transformation targets and confirmed Nawat/Pipil honorific or pejorative examples remain evidence-needed."];
       const frame = {
         kind: "lesson-33-honorific-pejorative-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -262,14 +262,14 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         plannedArrows: [{
           id: "lesson-33-honorific-pejorative-vnc-audit",
           type: "metadata-diagnostic-test",
-          aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transforms.",
+          aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transforms.",
           andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
           expectedFeedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS)
         }],
         firedArrows: [{
           id: "lesson-33-honorific-pejorative-vnc-audit",
           result: "hit",
-          correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transformation boundaries while keeping generation blocked.",
+          correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transformation boundaries while keeping generation blocked.",
           andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
           feedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS)
         }],
@@ -291,7 +291,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
           pejorativeGenerationImplemented: false,
           reverentialGenerationImplemented: false,
           preteritEmbedTzinoaRoutingImplemented: false,
-          preteritEmbedPoloaRoutingImplemented: false,
+          preteritEmbedPuluaRoutingImplemented: false,
           compoundVerbstemTransformGenerationImplemented: false,
           finiteOutputExpansionAllowed: false
         },

@@ -1332,6 +1332,19 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
             errorsFound.push(`${where} must not expose tns; use tiempo in visible UI and compact formula text.`);
         }
     });
+    const visibleStateMessages = [];
+    stateSource.replace(/\bmessage:\s*(["'`])((?:\\.|(?!\1)[\s\S])*?)\1/g, (_match, _quote, value) => {
+        visibleStateMessages.push(value);
+        return "";
+    });
+    visibleStateMessages.forEach((message, index) => {
+        if (/\b(?:NNC|VNC|verbstem|nounstem|nounroot|possessive-state|absolutive-state)\b/.test(message)) {
+            errorsFound.push(`src/ui/state.js visible message ${index + 1} must use Spanish grammar labels instead of non-formula shorthand.`);
+        }
+        if (/\b(?:requires|generated|attaches|uses|must use|cannot generate|could not be generated)\b/i.test(message)) {
+            errorsFound.push(`src/ui/state.js visible message ${index + 1} must use Spanish diagnostic text.`);
+        }
+    });
     [
         ["entry board verbal single-letter tab", /data-composer-entry-board="general"[\s\S]*?>\s*V\s*<\/button>/],
         ["entry board nominal single-letter tab", /data-ordinary-nnc-mode="true"[\s\S]*?>\s*N\s*<\/button>/],
@@ -1361,11 +1374,18 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         ["dynamic visible LCM failure label", /labels\.push\(`Falla LCM:/],
         ["dynamic visible LCM diagnostic label", /labels\.push\(`Diagn[oó]stico LCM:/],
         ["dynamic Lesson 2 position detail", /position \? `posicion:/],
+        ["dynamic sentence polarity raw value", /Negaci[oó]n: \$\{polarity\}/],
+        ["dynamic sentence question raw value", /Pregunta: \$\{question\}/],
+        ["dynamic sentence emphasis raw value", /[ÉE]nfasis: \$\{emphasis\}/],
+        ["dynamic sentence mood raw value", /Modo oracional: \$\{mood\}/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(renderingSource)) {
             errorsFound.push(`src/ui/rendering/rendering.js ${label} must use Spanish visible text and translated LCM metadata.`);
         }
     });
+    if (!renderingSource.includes("function formatVisibleSentenceLayerSlotValue")) {
+        errorsFound.push("src/ui/rendering/rendering.js must translate sentence-layer metadata values before visible UI rendering.");
+    }
     [
         ["export visible LCM header", /["'`][^"'`]*\bLCM\b[^"'`]*["'`]/],
     ].forEach(([label, pattern]) => {
@@ -1473,14 +1493,14 @@ function checkAndrewsTrajectoryRegistry() {
         addError("src/lessons/registry.js must define the eight Andrews trajectory lesson groups.");
     }
     [
-        ["Lessons 1-4", [1, 4]],
-        ["Lessons 5-11", [5, 11]],
-        ["Lessons 12-19", [12, 19]],
-        ["Lessons 20-27", [20, 27]],
-        ["Lessons 28-34", [28, 34]],
-        ["Lessons 35-43", [35, 43]],
-        ["Lessons 44-50", [44, 50]],
-        ["Lessons 51-58", [51, 58]],
+        ["Lecciones 1-4", [1, 4]],
+        ["Lecciones 5-11", [5, 11]],
+        ["Lecciones 12-19", [12, 19]],
+        ["Lecciones 20-27", [20, 27]],
+        ["Lecciones 28-34", [28, 34]],
+        ["Lecciones 35-43", [35, 43]],
+        ["Lecciones 44-50", [44, 50]],
+        ["Lecciones 51-58", [51, 58]],
     ].forEach(([label, range], index) => {
         const group = trajectoryGroups[index] || {};
         if (group.label !== label || JSON.stringify(group.range) !== JSON.stringify(range)) {
@@ -1576,6 +1596,22 @@ function checkAndrewsTrajectoryRegistry() {
         }
         if (typeof trajectory.remainingGap !== "string" || trajectory.remainingGap.trim() === "") {
             addError(`${where}.remainingGap must be a non-empty string.`);
+        }
+        if (lesson.id >= 1 && lesson.id <= 58) {
+            const visibleTrajectoryText = [
+                lesson.title,
+                lesson.notes,
+                trajectory.directive,
+                trajectory.remainingGap,
+                ...plannedArrows.map((arrow) => arrow && arrow.aim),
+                ...firedArrows.map((arrow) => arrow && arrow.correction),
+            ].filter(Boolean).join(" ");
+            if (/\b(?:Intransitive|Transitive|Optative|Admonitive|Wish|Command|Exhortation|Admonition|Irregular|Suppletive|Defective|Tense|Mood|Basic|Sentences|Absolutive|Possessive|Pronominal|Supplementation|Formula|Subject|Pronouns|Possessor|Noun|State|Further Remarks|Part One|Part Two|Part Three|Nonactive|Passive|Passive-Voice|Impersonal|Causative|Applicative|Frequentative|Objects|Object|Compound|Purposive|Affective|Honorific|Pejorative|Cardinal|Numeral|Nominalization|Deverbal|Adjectival|Adverbial Nuclear|Adverbial Modification|Relational|Place-Name|Gentilic|Complementation|Conjunction|Comparison|Denominal|Nounstems|Verbstems|Personal-Name|Miscellany|Use|Audit|Lesson|Static|Full|Class|visible UI actions|UI actions|h[-]to[-]j|h\s*>\s*j|source-evidence|finite-generation|future-embed|preterit-embed|shared-object|projective-object|flawed-subject|gross-count|connective-t|tla-fusion|hual\/on|jual\/on|tzin-o-a|pol[-]o[-]a|pol[-]u[-]a|supplied-surface|multiple-nucleus|customary-present|active-action|passive-action|potential-patient|passive-patientive|root\/stock|root-plus-ya|human\/nonhuman|predicate-adjective|parser|verbcore|verbstem|nounstem|nonactive-stem|perfective-stem|tense-form|sentence-layer|suppletive subset|passive-subject|source-CNV|source-family|single\/double\/triple|object-plus-suffix|destockal|mainline\/shuntline|silent-object|natural-possession|sentence-structure|state-case|fused-spelling|topic\/comment|included-referent|vocative|formula slots|class compatibility|pronominal NNC|Supplementation AST|VNC-supplement|direct\/indirect|rumored-report|deleted saying|possessive-state|double-object|temporal compound parsing|NNC|VNC|CNV|CNN)\b/.test(visibleTrajectoryText)) {
+                addError(`${where} must keep Lesson ${lesson.id} trajectory prose in Spanish for visible/UI-adjacent trajectory surfaces.`);
+            }
+            if (!/Lecci[oó]n/.test(visibleTrajectoryText) || !/(acciones visibles de interfaz|acciones de interfaz|Siguen parciales|pendientes de evidencia)/.test(visibleTrajectoryText) && !(trajectory.closestPass && trajectory.remainingGap === "none")) {
+                addError(`${where} must expose Spanish Andrews trajectory wording for Lesson ${lesson.id}.`);
+            }
         }
         if (typeof trajectory.closestPass !== "boolean") {
             addError(`${where}.closestPass must be boolean.`);

@@ -231,7 +231,7 @@ function run(ctx) {
                 superlativeDeletesNegative: frame.superlativeFrame.generalSuperiorityByDeletingContrastingNegativeStatement,
                 superlativeVncs: frame.superlativeFrame.vncOptionsWithIcAdjoinedClause,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -276,7 +276,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson53GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-53",
             diagnosticIds: [
                 "comparison-lesson-53-diagnostic-partial",

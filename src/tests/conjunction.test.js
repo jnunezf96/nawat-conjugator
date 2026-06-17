@@ -211,7 +211,7 @@ function run(ctx) {
                 parallelProgressive: frame.parallelStructureFrame.progressive.listlikeCollectionOfStatements,
                 parallelCombined: frame.parallelStructureFrame.combined.rephrasiveAndProgressiveCanCombine,
                 generationBoundary: frame.currentEngineBoundary,
-                orthographyHtoJ: frame.frames?.orthographyFrame?.hToJAdaptationRequiredBeforeVisibleNawatSurface,
+                orthographySlotScoped: frame.frames?.orthographyFrame?.slotScopedOrthographyRequiredBeforeVisibleNawatSurface,
                 grammarRouteStage: frame.frames?.routeContract?.routeStage || frame.routeStage,
                 diagnosticIds: (frame.frames?.diagnosticFrame?.diagnostics || []).map((entry) => entry.id),
             };
@@ -245,7 +245,7 @@ function run(ctx) {
                 newWordGenerationAllowed: false,
                 fullLesson52GenerationImplemented: false,
             },
-            orthographyHtoJ: true,
+            orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-52",
             diagnosticIds: [
                 "conjunction-clause-lesson-52-diagnostic-partial",

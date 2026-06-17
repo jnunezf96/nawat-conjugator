@@ -168,10 +168,10 @@ const LESSON33_PEJORATIVE_FRAME = Object.freeze({
     sourceSection: "Andrews 33.9",
     pejorativeMeaning: "contempt or scorn",
     strategy: "preterit-embed integrated compound",
-    matrixStem: "tla-(pol-o-a)",
+    matrixStem: "ta-(pul-u-a)",
     matrixMeaning: "cause something to become disparaged",
     matrixOnlyUsedInThisConstruction: true,
-    sourceOfMatrix: "affective-matrix nounstem pol",
+    sourceOfMatrix: "affective-matrix nounstem pul",
     sourceKinds: Object.freeze(["intransitive VNC", "projective-object VNC", "reflexive-object VNC"]),
     selfPejorativePermitted: true,
     validForVerbstemClasses: Object.freeze(["A", "B", "C", "D"]),
@@ -198,7 +198,7 @@ const LESSON33_HONORIFIC_PEJORATIVE_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson33-projective-causative", andrewsSection: "33.6", category: "honorific-projective-causative", directiveEs: "Algunas fuentes proyectivas usan causativo reflexivo y conservan ambiguedad agente/paciente.", engineSurface: "diagnostic projective causative frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson33-reflexive-sources", andrewsSection: "33.7", category: "honorific-reflexive-source", directiveEs: "Fuentes reflexivas mainline usan compuesto integrado con incrustado preterito y matriz tzin-o-a.", engineSurface: "diagnostic reflexive source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson33-reverential", andrewsSection: "33.8", category: "reverential-vnc", directiveEs: "El reverencial dobla la construccion honorifica incorporando el preterito del honorifico en tzin-o-a.", engineSurface: "diagnostic reverential frame", implementationState: "partial", redirectAction: "block-generation" }),
-    Object.freeze({ id: "lesson33-pejorative", andrewsSection: "33.9", category: "pejorative-vnc", directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pol-o-a para desprecio o escarnio.", engineSurface: "diagnostic pejorative frame", implementationState: "partial", redirectAction: "block-generation" }),
+    Object.freeze({ id: "lesson33-pejorative", andrewsSection: "33.9", category: "pejorative-vnc", directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pul-u-a para desprecio o escarnio.", engineSurface: "diagnostic pejorative frame", implementationState: "partial", redirectAction: "block-generation" }),
     Object.freeze({ id: "lesson33-compound-verbstems", andrewsSection: "33.10", category: "compound-verbstem-honorific-pejorative", directiveEs: "Los compuestos verbales pueden transformarse; incrustado, matriz o unidad fija dependen del tipo de compuesto.", engineSurface: "diagnostic compound verbstem frame", implementationState: "partial", redirectAction: "refactor-engine" }),
 ]);
 
@@ -239,7 +239,7 @@ function buildLesson33HonorificPejorativePursuitFrame() {
     const remainingGaps = [
         "Current honorific/pejorative metadata is not an honorific or pejorative VNC generator.",
         "Causative/applicative reflexive honorific routing, agent/patient ambiguity, and source-specific strategy choice remain diagnostic.",
-        "Preterit-embed honorific, reverential, and pejorative compound routing with tzin-o-a or pol-o-a matrices is not implemented.",
+        "Preterit-embed honorific, reverential, and pejorative compound routing with tzin-o-a or pul-u-a matrices is not implemented.",
         "Compound-verbstem transformation targets and confirmed Nawat/Pipil honorific or pejorative examples remain evidence-needed.",
     ];
     const frame = {
@@ -252,7 +252,7 @@ function buildLesson33HonorificPejorativePursuitFrame() {
             {
                 id: "lesson-33-honorific-pejorative-vnc-audit",
                 type: "metadata-diagnostic-test",
-                aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transforms.",
+                aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transforms.",
                 andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
                 expectedFeedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS),
             },
@@ -261,7 +261,7 @@ function buildLesson33HonorificPejorativePursuitFrame() {
             {
                 id: "lesson-33-honorific-pejorative-vnc-audit",
                 result: "hit",
-                correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transformation boundaries while keeping generation blocked.",
+                correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transformation boundaries while keeping generation blocked.",
                 andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
                 feedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS),
             },
@@ -284,7 +284,7 @@ function buildLesson33HonorificPejorativePursuitFrame() {
             pejorativeGenerationImplemented: false,
             reverentialGenerationImplemented: false,
             preteritEmbedTzinoaRoutingImplemented: false,
-            preteritEmbedPoloaRoutingImplemented: false,
+            preteritEmbedPuluaRoutingImplemented: false,
             compoundVerbstemTransformGenerationImplemented: false,
             finiteOutputExpansionAllowed: false,
         },

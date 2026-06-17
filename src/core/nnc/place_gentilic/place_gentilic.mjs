@@ -571,7 +571,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       const placeGroupsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_PLACE_GROUPS_FRAME);
       const gentilicFrame = clonePlaceGentilicNncLessonRecord(LESSON48_GENTILIC_FRAME);
       const extensionsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_EXTENSIONS_FRAME);
-      const remainingGaps = ["Current Lesson 48 support records Andrews' place-name and gentilic architecture as diagnostics and usage frames; it does not implement place-name fixture data, gentilic fixture data, or surface generation.", "Classical examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, unique-reference place-name resolution, place-name group parsing, gentilic derivation routing, traditional spelling ambiguity, incorporation, collectivity, profession/title extension, UI actions, and sentence-level context inference remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 48 support records Andrews' place-name and gentilic architecture as diagnostics and usage frames; it does not implement place-name fixture data, gentilic fixture data, or surface generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, unique-reference place-name resolution, place-name group parsing, gentilic derivation routing, traditional spelling ambiguity, incorporation, collectivity, profession/title extension, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-48-place-gentilic-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -630,7 +630,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         orthographyFrame: {
           spellingAuthority: "Nawat/Pipil place/gentilic evidence",
           noClassicalSurfaceImport: true,
-          hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+          slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
           orthographyStatus: "nawat-evidence-required"
         },
         morphBoundaryFrame: {

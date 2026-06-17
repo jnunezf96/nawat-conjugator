@@ -313,7 +313,7 @@ const LESSON49_INTERROGATIVE_INTENSIFIER_FRAME = Object.freeze({
     ]),
     intensifierPrecedesHeadWhenIntensifying: true,
     intensifierCanModifyAdjectivalNnc: true,
-    hToJRequiredBeforeAnyVisibleNawatSurface: true,
+    slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
 });
 
 const LESSON49_COLLOCATION_APPOSITION_PRINCIPAL_FRAME = Object.freeze({
@@ -390,8 +390,8 @@ function buildLesson49AdverbialAdjunctionPursuitFrame() {
     const collocationAppositionPrincipalFrame = cloneAdverbialAdjunctionLessonRecord(LESSON49_COLLOCATION_APPOSITION_PRINCIPAL_FRAME);
     const remainingGaps = [
         "Current Lesson 49 support records Andrews' adverbial-modification part-one architecture as diagnostics and supplied-surface AST frames; it does not implement static adverbial-adjunction data, recursive parsing, or surface generation.",
-        "Classical collocation examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Parser/search detection, multiple-nucleus resolution, compared-manner ambiguity, interrogative principal-clause analysis, intensifier routing, lexicalized collocation inventory, apposition fixtures, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Parser/search detection, multiple-nucleus resolution, compared-manner ambiguity, interrogative principal-clause analysis, intensifier routing, lexicalized collocation inventory, apposition fixtures, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-49-adverbial-adjunction-pursuit-frame",
@@ -458,7 +458,7 @@ function buildLesson49AdverbialAdjunctionPursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil adjoined-clause evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
         },
         morphBoundaryFrame: {
@@ -705,8 +705,8 @@ function buildLesson50AdverbialAdjunctionPursuitFrame() {
     const consequenceProvisoReasonFrame = cloneAdverbialAdjunctionLessonRecord(LESSON50_CONSEQUENCE_PROVISO_REASON_FRAME);
     const remainingGaps = [
         "Current Lesson 50 support records Andrews' nonadverbialized adjoined-clause architecture as diagnostics and relation contracts; it does not implement static adjoined-clause data, parser/search detection, or surface generation.",
-        "Classical collocation examples and h-bearing spellings remain structural references only; Nawat/Pipil h-to-j adaptation and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Time/place/manner fixture analysis, consideration versus included-referent supplementation, purpose/conjunction ambiguity, open and hypothetical condition parsing, concession collocation inventory, consequence/proviso/reason detection, UI actions, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Time/place/manner fixture analysis, consideration versus included-referent supplementation, purpose/conjunction ambiguity, open and hypothetical condition parsing, concession collocation inventory, consequence/proviso/reason detection, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-50-adverbial-adjunction-pursuit-frame",
@@ -775,7 +775,7 @@ function buildLesson50AdverbialAdjunctionPursuitFrame() {
         orthographyFrame: {
             spellingAuthority: "Nawat/Pipil adjoined-clause evidence",
             noClassicalSurfaceImport: true,
-            hToJAdaptationRequiredBeforeVisibleNawatSurface: true,
+            slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
         },
         morphBoundaryFrame: {
